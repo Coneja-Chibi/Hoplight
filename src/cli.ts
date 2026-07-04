@@ -8,6 +8,7 @@
 import { basename, extname } from "node:path";
 import { CANONICAL_SCHEMA_VERSION, registry, loadFormats } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
+import { convertCard } from "./convert";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
 
 const VERSION = "0.0.1";
@@ -204,11 +205,15 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    const entity = src.toCanonical(input);
-    const out = target.adapter!.fromCanonical(entity);
+    const { out, lorebooks } = convertCard(src, target.adapter!, input);
     await writeOutput(outPath, out);
     console.log(`\n  ${src.id} -> ${target.adapter!.id}`);
-    console.log(`  ${inPath}  ->  ${outPath}\n`);
+    console.log(`  ${inPath}  ->  ${outPath}`);
+    if (lorebooks.length > 0) {
+      const total = lorebooks.reduce((n, l) => n + l.body.entries.length, 0);
+      console.log(`  + embedded lorebook carried across (${total} entr${total === 1 ? "y" : "ies"})`);
+    }
+    console.log("");
     return 0;
   }
 

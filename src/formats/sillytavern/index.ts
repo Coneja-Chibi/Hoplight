@@ -3,8 +3,9 @@
  * Version detection adapted from RoleCall's parse-v2.ts; field mapping is the shared
  * Tavern mapping (../_shared/tavern-fields). Lossless: the whole original card rides in escrow.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { FormatAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
+import { lorebooksToCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
@@ -67,7 +68,9 @@ const adapter: FormatAdapter = {
   // 0.9, not 1.0: SillyTavern is the generic Tavern reader. More-specific adapters (RoleCall) claim
   // 1.0 on the same card so they win detection and get to map their own extension block.
   detect(input: AdapterInput): number {
-    if (input.bytes) return getVersion(input.bytes) ? 0.9 : 0;
+    // A PNG-embedded card wins on bytes; otherwise fall through to JSON (text, or non-PNG bytes) -
+    // a real .json read carries both, so do NOT stop at the bytes branch (see readCardJson).
+    if (input.bytes && getVersion(input.bytes)) return 0.9;
     return detectCard(readCardJson(input)) ? 0.9 : 0;
   },
 
@@ -86,7 +89,7 @@ const adapter: FormatAdapter = {
     };
   },
 
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
     const esc = entity.escrow?.sillytavern;
     const variant = toVariant(esc?.unmapped?.["variant"]);
     const rawCard = esc?.raw as Record<string, unknown> | undefined;
@@ -98,6 +101,18 @@ const adapter: FormatAdapter = {
           ? { ...(rawCard as TavernData) }
           : {};
     applyBodyToData(base, entity.body);
+
+    // Re-embed referenced lorebooks into the card's one character_book slot, sourcing each book's
+    // twin from ITS OWN escrow (not this card's stale copy). Writing data.character_book is the CCv2
+    // and CCv3 canonical home; clear the extensions fallback so no stale duplicate survives.
+    if (context?.lorebooks && context.lorebooks.length > 0) {
+      const book = lorebooksToCharacterBook(context.lorebooks);
+      if (book) {
+        (base as Record<string, unknown>).character_book = book;
+        const bx = (base as Record<string, unknown>).extensions;
+        if (bx && typeof bx === "object") delete (bx as Record<string, unknown>).character_book;
+      }
+    }
 
     let out: unknown;
     if (rawCard && (variant === "v2" || variant === "v3")) out = { ...rawCard, data: base };

@@ -17,11 +17,10 @@ import type {
   LorebookBody,
   LorebookEntry,
   Trigger,
-  SelectiveLogic,
   InjectionPosition,
-  MessageRole,
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { parseSelectiveLogic, selectiveLogicToNumber, parseRole, roleToNumber } from "../_shared/lore-enums";
 
 interface StBook {
   entries?: Record<string, Record<string, unknown>>;
@@ -49,13 +48,7 @@ function readBook(input: AdapterInput): StBook | null {
   return looksSt ? book : null;
 }
 
-// -- int-enum + regex-keyword decoders (ST wire -> canonical) --------------------------------------
-
-const parseSelectiveLogic = (v: unknown): SelectiveLogic =>
-  v === 1 ? "not_all" : v === 2 ? "not_any" : v === 3 ? "and_all" : "and_any";
-
-const selectiveLogicToNumber = (l: SelectiveLogic): number =>
-  l === "not_all" ? 1 : l === "not_any" ? 2 : l === "and_all" ? 3 : 0;
+// -- position + regex-keyword decoders (worldbook-file dialect; selectiveLogic/role are in _shared) --
 
 /** ST numeric positions: 0 before-char, 1 after-char, 2 before-example, 3 after-example, 4 @depth. */
 function parsePosition(v: unknown): InjectionPosition {
@@ -92,9 +85,6 @@ function positionToNumber(p: InjectionPosition): number {
       return 1;
   }
 }
-
-const parseRole = (v: unknown): MessageRole => (v === 1 ? "user" : v === 2 ? "assistant" : "system");
-const roleToNumber = (r: MessageRole): number => (r === "user" ? 1 : r === "assistant" ? 2 : 0);
 
 /** A keyword may carry an inline regex as `/pattern/flags`; decode it to a structured Trigger. */
 function keywordToTrigger(raw: string): Trigger {

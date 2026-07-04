@@ -1,4 +1,5 @@
 import type { CanonicalCharacter } from "../entities/character/schema";
+import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { FormatId } from "./canonical";
 
 /** Raw input handed to an adapter. Binary formats use bytes; text/json use text. */
@@ -13,6 +14,16 @@ export interface AdapterOutput {
   bytes?: Uint8Array;
   text?: string;
   suggestedExtension: string;
+}
+
+/**
+ * Cross-entity context handed to fromCanonical at bundle-export time. Resolved by the layer that
+ * owns the registry (it holds every entity), never by the core. A character adapter for a format
+ * that embeds knowledge (CCv2/v3 character_book) re-embeds `lorebooks`; adapters that do not simply
+ * ignore it. Optional, so a `(entity) => out` adapter stays assignable.
+ */
+export interface EmitContext {
+  lorebooks?: CanonicalLorebook[];
 }
 
 /**
@@ -33,5 +44,5 @@ export interface FormatAdapter {
   /** Read a file into the canonical model, stashing originals + unmapped fields in escrow. */
   toCanonical(input: AdapterInput): CanonicalCharacter;
   /** Write a canonical character out to this format, re-emitting its own escrow for round-trip. */
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput;
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput;
 }
