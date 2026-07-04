@@ -42,7 +42,16 @@ The standard CCv2/V3 `data` fields map through `_shared/tavern-fields.ts`. Highl
 | `attribution.creator` | `data.creator` |
 | `attribution.creatorNotes` | `data.creator_notes` |
 | `discovery.tags` | `data.tags` |
+| `prompts.depthInjections` (origin `depth_prompt`) | `data.extensions.depth_prompt` `{prompt,depth,role}` |
+| `settings.talkativeness` | `data.extensions.talkativeness` (string or number -> number) |
+| `worldName` | `data.extensions.world` (linked worldbook name) |
 | `knowledgeRefs` (embedded book) | `data.character_book` (see [character-book](../concepts/character-book.md)) |
+
+These last three are **authored** fields ST keeps in `extensions` only because CCv2/v3 is rigid. They are
+first-classed as editable canonical slots, not escrow. `depth_prompt` with an empty `prompt` is ST's
+default-when-unset and maps to **no** injection (the depth/role config stays on the escrow twin). `role`
+is carried only when the card authored one; its absence means ST's default (`system`), applied at read
+time, so an unauthored role is never fabricated back on export.
 
 ### Escrow and round-trip
 

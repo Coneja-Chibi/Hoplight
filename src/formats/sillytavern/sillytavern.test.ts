@@ -1,5 +1,7 @@
 import { test, expect } from "bun:test";
 import { deflateSync } from "node:zlib";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import encodePng from "png-chunks-encode";
 import { characterAdapter as adapter, embedCharacterJson } from "./index";
 
@@ -62,6 +64,32 @@ test("round-trips a V2 card losslessly, foreign extensions survive", () => {
   const out = adapter.fromCanonical(c);
   const back = JSON.parse(out.text ?? "");
   expect(back).toEqual(v2card);
+});
+
+// --- De-escrow: authored `extensions` fields are first-class editable slots, not opaque escrow. ---
+
+test("de-escrow read: authored extensions land in first-class canonical slots", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
+  expect(c.body.settings?.talkativeness).toBe(0.5); // "0.5" string -> number
+  expect(c.body.prompts.depthInjections).toEqual([
+    { text: "stay in character", depth: 4, origin: "depth_prompt" },
+  ]);
+});
+
+// The load-bearing proof (per advisor): a passing round-trip is NOT enough - a stale twin value
+// round-trips green while silently dropping an edit. Editing the canonical field MUST reach the wire.
+test("de-escrow edit: mutating talkativeness/depth_prompt/world reaches the wire", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
+  c.body.settings = { talkativeness: 0.9 };
+  const inj = c.body.prompts.depthInjections?.[0];
+  if (!inj) throw new Error("test setup: expected a depth_prompt injection");
+  inj.text = "NEVER break character";
+  inj.depth = 6;
+  c.body.worldName = "Narnia";
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  expect(back.data.extensions.talkativeness).toBe(0.9);
+  expect(back.data.extensions.depth_prompt).toEqual({ prompt: "NEVER break character", depth: 6 });
+  expect(back.data.extensions.world).toBe("Narnia");
 });
 
 test("detect scores a real card high and junk zero", () => {
@@ -142,4 +170,28 @@ test("detects and round-trips a bare V1 flat card, staying flat on the way out",
   expect(c.body.greetings.firstMessage).toBe("What.");
   // a V1 card must not gain a spec/data wrapper on round-trip
   expect(JSON.parse(adapter.fromCanonical(c).text ?? "")).toEqual(v1card);
+});
+
+// Real corpus: the official SillyTavern default card (samples/sillytavern/Seraphina.png). Proves the
+// de-escrow against a genuine export, not a hand-built fixture. See samples/sillytavern/SOURCES.md.
+const seraphinaPng = new Uint8Array(
+  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
+);
+
+test("real Seraphina.png: authored extensions de-escrow to first-class slots", () => {
+  const c = adapter.toCanonical({ bytes: seraphinaPng });
+  expect(c.body.settings?.talkativeness).toBe(0.5);
+  expect(c.body.worldName).toBe("Eldoria");
+  // Seraphina's depth_prompt.prompt is "" (a default ST writes even when unset) -> no injection authored;
+  // the depth/role config stays on the escrow twin. This case proves world/talkativeness, NOT depth_prompt.
+  expect(c.body.prompts.depthInjections).toBeUndefined();
+});
+
+test("real Seraphina.png: unedited round-trip leaves the extensions bag byte-identical", () => {
+  const c = adapter.toCanonical({ bytes: seraphinaPng });
+  const raw = c.escrow?.sillytavern?.raw as { data?: { extensions?: unknown }; extensions?: unknown };
+  const origExt = raw.data?.extensions ?? raw.extensions;
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  // pulling depth_prompt/world/talkativeness out to canonical must NOT perturb the twin when unedited
+  expect(back.data.extensions).toEqual(origExt);
 });

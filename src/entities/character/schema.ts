@@ -149,6 +149,16 @@ export interface Presentation {
   spoilers?: { mode?: string; order?: string[] };
 }
 
+/**
+ * Creator-authored behavior dials (SillyTavern's "Advanced Definitions"): inline settings a creator
+ * tunes on the character itself. Distinct from `behaviorRefs`, which LINKS to regex/script entities;
+ * these are values, not references. An editable section in the forge.
+ */
+export interface CharacterSettings {
+  /** group-chat turn-frequency weight, 0..1 (SillyTavern `extensions.talkativeness`) */
+  talkativeness?: number;
+}
+
 export interface CharacterBody {
   identity: Identity;
   persona: Persona;
@@ -160,6 +170,13 @@ export interface CharacterBody {
   discovery: Discovery;
   /** creator's visual identity for the card, when the source format carries one */
   presentation?: Presentation;
+  /** authored inline behavior dials (talkativeness, ...) */
+  settings?: CharacterSettings;
+  /**
+   * authored external worldbook link by NAME (SillyTavern `extensions.world`): the creator's intent to
+   * auto-load the worldbook called X. Distinct from knowledgeRefs, which links embedded books by canonical id.
+   */
+  worldName?: string;
   /** linked canonical lorebook id(s), ordered; embedded on export where a format requires it */
   knowledgeRefs?: string[];
   /** linked canonical regex/script id(s) */

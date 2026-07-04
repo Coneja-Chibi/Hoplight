@@ -4,7 +4,7 @@
  * both carry this exact `data` shape, so the mapping lives here once.
  * The `_shared` folder starts with "_", so the format loader skips it (it is not a format).
  */
-import type { CharacterBody, Greeting } from "../../entities/character/schema";
+import type { CharacterBody, DepthInjection, Greeting } from "../../entities/character/schema";
 
 export interface TavernData extends Record<string, unknown> {
   name?: string;
@@ -56,8 +56,41 @@ const toStrings = (v: unknown): string[] | undefined =>
 const toGreetings = (v: unknown): Greeting[] | undefined => toStrings(v)?.map((text) => ({ text }));
 const fromGreetings = (g: Greeting[] | undefined): string[] | undefined => g?.map((x) => x.text);
 
+/** Tolerant number read: ST stores `talkativeness` as a string ("0.5") on some cards, a number on others. */
+const numParse = (v: unknown): number | undefined => {
+  if (typeof v === "number") return Number.isFinite(v) ? v : undefined;
+  if (typeof v === "string" && v.trim() !== "") {
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  return undefined;
+};
+
+const isRole = (v: unknown): v is "system" | "user" | "assistant" =>
+  v === "system" || v === "user" || v === "assistant";
+
+/**
+ * `extensions.depth_prompt` -> a depth-injection with `origin:"depth_prompt"` so it re-emits home on
+ * export. An empty prompt string means "no note authored" (ST writes a default {prompt:"",depth,role}
+ * even when unset), so we return none and let the depth/role config ride the escrow twin untouched.
+ */
+const readDepthPrompt = (ext: Record<string, unknown>): DepthInjection[] | undefined => {
+  const dp = ext.depth_prompt;
+  if (!dp || typeof dp !== "object") return undefined;
+  const o = dp as Record<string, unknown>;
+  const text = typeof o.prompt === "string" ? o.prompt : "";
+  if (text.trim() === "") return undefined;
+  const depth = typeof o.depth === "number" ? o.depth : 4;
+  // Carry role only when the card authored one; absence means ST's default ("system"), applied at
+  // consumption, not stored - so an unauthored role does not get fabricated back on export.
+  return [{ text, depth, ...(isRole(o.role) ? { role: o.role } : {}), origin: "depth_prompt" }];
+};
+
 /** V2/V3 `data` -> canonical CharacterBody. */
 export function dataToBody(d: TavernData): CharacterBody {
+  const ext = (d.extensions ?? {}) as Record<string, unknown>;
+  const talkativeness = numParse(ext.talkativeness);
+  const world = typeof ext.world === "string" && ext.world !== "" ? ext.world : undefined;
   return {
     identity: {
       name: typeof d.name === "string" ? d.name : "",
@@ -69,6 +102,7 @@ export function dataToBody(d: TavernData): CharacterBody {
     prompts: {
       systemPrompt: d.system_prompt,
       postHistoryInstructions: d.post_history_instructions,
+      depthInjections: readDepthPrompt(ext),
     },
     greetings: {
       firstMessage: d.first_mes,
@@ -86,6 +120,8 @@ export function dataToBody(d: TavernData): CharacterBody {
       updatedAt: typeof d.modification_date === "number" ? d.modification_date : undefined,
     },
     discovery: { tags: Array.isArray(d.tags) ? d.tags : undefined },
+    settings: talkativeness !== undefined ? { talkativeness } : undefined,
+    worldName: world,
   };
 }
 
@@ -117,5 +153,28 @@ export function applyBodyToData(base: TavernData, b: CharacterBody): TavernData 
   set("creator", b.attribution.creator);
   set("character_version", b.identity.characterVersion);
   set("alternate_greetings", fromGreetings(b.greetings.alternateGreetings));
+
+  // Authored `extensions` fields pulled out to real canonical slots re-emit into extensions. Overlay onto
+  // the twin only when the canonical value DIFFERS from what the twin already carries: an unedited field
+  // stays byte-identical, an edited one wins. Skipping the write would silently drop the user's edit while
+  // the round-trip test still passed - the exact trap this guards against.
+  const twinExt = base.extensions as Record<string, unknown> | undefined;
+  const writeExt = (k: string, v: unknown): void => {
+    base.extensions = { ...(base.extensions ?? {}), [k]: v };
+  };
+
+  const talk = b.settings?.talkativeness;
+  if (talk !== undefined && numParse(twinExt?.talkativeness) !== talk) writeExt("talkativeness", talk);
+
+  if (b.worldName !== undefined && twinExt?.world !== b.worldName) writeExt("world", b.worldName);
+
+  const inj = b.prompts.depthInjections?.find((x) => x.origin === "depth_prompt");
+  if (inj) {
+    const cur = twinExt?.depth_prompt as Record<string, unknown> | undefined;
+    if (!cur || cur.prompt !== inj.text || cur.depth !== inj.depth || cur.role !== inj.role) {
+      const next = { prompt: inj.text, depth: inj.depth, ...(inj.role ? { role: inj.role } : {}) };
+      writeExt("depth_prompt", { ...(cur ?? {}), ...next });
+    }
+  }
   return base;
 }
