@@ -50,7 +50,7 @@ interface MemoryEntry {
   [k: string]: unknown;
 }
 
-interface MemoryBook {
+export interface MemoryBook {
   kind?: unknown;
   name?: unknown;
   description?: unknown;
@@ -221,7 +221,7 @@ function entryToWire(e: LorebookEntry, twin: MemoryEntry | undefined, index: num
   return base;
 }
 
-function bookToWire(body: LorebookBody, raw: MemoryBook | undefined): MemoryBook {
+export function canonicalToMemoryBook(body: LorebookBody, raw: MemoryBook | undefined): MemoryBook {
   const twinEntries = Array.isArray(raw?.entries) ? (raw!.entries as MemoryEntry[]) : [];
   const twinById = new Map<string, MemoryEntry>();
   twinEntries.forEach((en, i) => twinById.set(en.id != null ? String(en.id) : String(i), en));
@@ -244,12 +244,30 @@ function bookToWire(body: LorebookBody, raw: MemoryBook | undefined): MemoryBook
   return out;
 }
 
+/**
+ * Wrap a parsed MemoryBook into a CanonicalLorebook. The SINGLE source of the schema/id/escrow
+ * wrapper, shared by `toCanonical` (standalone file) and the Agnai character adapter's `extractLorebook`
+ * (embedded `characterBook`), so both canonicalize a given MemoryBook identically - container-invariance
+ * by construction. The book rides its OWN escrow key so a re-embed twin-overlays it byte-for-byte.
+ */
+export function memoryBookToCanonical(book: MemoryBook): CanonicalLorebook {
+  const body = bookToCanonical(book);
+  return {
+    schemaVersion: CANONICAL_SCHEMA_VERSION,
+    kind: "lorebook",
+    id: canonicalId(body.name),
+    body,
+    escrow: { "agnai-lorebook": { raw: book } },
+  };
+}
+
 // -- adapter ---------------------------------------------------------------------------------------
 
-/** Parse untrusted json into an Agnai MemoryBook, or null if it is not one. */
-function readBook(input: AdapterInput): MemoryBook | null {
-  const obj = readJsonObject(input) as MemoryBook | null;
-  if (!obj || !Array.isArray(obj.entries)) return null;
+/** Coerce an already-parsed value into an Agnai MemoryBook, or null (tolerant reader, fail closed). */
+export function coerceMemoryBook(v: unknown): MemoryBook | null {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return null;
+  const obj = v as MemoryBook;
+  if (!Array.isArray(obj.entries)) return null;
   if (obj.kind === "memory") return obj; // the unambiguous Agnai marker
   // kind-less fallback: a top-level entry array whose items carry the native `entry` + `keywords` shape.
   const first = obj.entries[0] as Record<string, unknown> | undefined;
@@ -257,6 +275,11 @@ function readBook(input: AdapterInput): MemoryBook | null {
     return obj;
   }
   return null;
+}
+
+/** Parse untrusted json into an Agnai MemoryBook, or null if it is not one. */
+function readBook(input: AdapterInput): MemoryBook | null {
+  return coerceMemoryBook(readJsonObject(input));
 }
 
 const agnaiLorebook: LorebookAdapter = {
@@ -275,19 +298,12 @@ const agnaiLorebook: LorebookAdapter = {
   toCanonical(input: AdapterInput): CanonicalLorebook {
     const book = readBook(input);
     if (!book) throw new Error("agnai-lorebook: not an Agnai memory book");
-    const body = bookToCanonical(book);
-    return {
-      schemaVersion: CANONICAL_SCHEMA_VERSION,
-      kind: "lorebook",
-      id: canonicalId(body.name),
-      body,
-      escrow: { "agnai-lorebook": { raw: book } },
-    };
+    return memoryBookToCanonical(book);
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
     const raw = entity.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
-    const out = bookToWire(entity.body, raw);
+    const out = canonicalToMemoryBook(entity.body, raw);
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 };

@@ -187,17 +187,36 @@ byte-identical (verified live: Agnai -> Agnai is deep-equal, `selectiveLogic` re
 book fields preserve the twin's presence/absence, and `_id`/`userId` are never injected. With no twin
 (cross-format import) a clean `{ kind: "memory", ... }` book is written from the canonical body alone.
 
-Not modeled: the embedded `character.characterBook` (Agnai bundles its native memory book inside character
-exports, validated by `validBook` = the MemoryBook shape, **not** CCv3 `character_book`). Extracting and
-re-embedding that through the shared bundle layer is a separate, tracked follow-up; the standalone codec
-here does not by itself make Agnai **character** conversions carry their lore.
+### Embedded book (`characterBook`)
+
+Agnai's native character download (`charToJson` for the `native` target = the full character minus its
+top-level `_id`) carries the character's lore inline as `characterBook`, a **MemoryBook** (validated by
+Agnai's `validBook`, **not** a CCv3 `character_book`). vaud's character adapter extracts and re-embeds it
+so Agnai character conversions carry their lore both ways:
+
+- **Extract**: the character adapter implements the optional `extractLorebook` hook (`src/core/adapter.ts`),
+  reading `card.characterBook` and mapping it through the **same** `memoryBookToCanonical` the standalone
+  `agnai-lorebook` codec uses. So a given MemoryBook canonicalizes identically whether it arrives as a
+  standalone file or embedded here (container-invariance by construction, tested). The bundle layer
+  (`src/convert.ts`) calls this override instead of the shared CCv3 extractor.
+- **Re-embed**: `fromCanonical` writes any linked lorebook back into `card.characterBook` via
+  `canonicalToMemoryBook`. A single book twin-overlays its own `agnai-lorebook` escrow, so a same-format
+  round-trip re-emits byte-identical (verified live: Agnai -> Agnai with a book is deep-equal). A foreign
+  lorebook (cross-format, no Agnai twin) full-encodes into a clean MemoryBook. No book present means no
+  `characterBook` is written - never an empty one.
+
+Agnai's `native` import passes `characterBook` through verbatim (`jsonToCharacter`: `if (format ===
+'agnai') return json`), so vaud emits a minimal `{ kind: "memory", ... }` book with no `_id`/`userId`
+sentinels. Agnai's **Tavern/CCv2** export path instead lowers the book to CCv3 `data.character_book`
+(`nativeToCharacterBook`), which vaud's shared CCv3 extractor already handles when such a card is read.
 
 ## Source of truth
 
 | Concern | File |
 | --- | --- |
-| Character adapter | `src/formats/agnai/index.ts` |
-| Memory book (lorebook) adapter | `src/formats/agnai/lorebook.ts` |
+| Character adapter (incl. `extractLorebook`) | `src/formats/agnai/index.ts` |
+| Memory book (lorebook) adapter + shared mappers | `src/formats/agnai/lorebook.ts` |
+| Bundle extract/re-embed wiring | `src/convert.ts`, `src/core/adapter.ts` (`extractLorebook`) |
 | Canonical character schema | `src/entities/character/schema.ts` |
 | Canonical lorebook schema | `src/entities/lorebook/schema.ts` |
 | Interop reference | Agnai `common/types/library.ts`, `common/adapters.ts`, `common/types/memory.ts`, `common/memory.ts` (facts only) |

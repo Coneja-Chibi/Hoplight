@@ -43,6 +43,13 @@ export interface CharacterAdapter extends AdapterBase {
   toCanonical(input: AdapterInput): CanonicalCharacter;
   /** Write a canonical character out to this format, re-emitting its own escrow for round-trip. */
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput;
+  /**
+   * Optional: pull an embedded lorebook whose dialect is NOT a CCv2/v3 `character_book` (which the
+   * shared extractor handles), e.g. Agnai's native `characterBook` MemoryBook. The bundle layer calls
+   * this instead of the default CCv3 extraction when present. A tolerant reader: return null when the
+   * card carries no embedded book. Keeps each format's dialect in its own folder (layers point inward).
+   */
+  extractLorebook?(entity: CanonicalCharacter): CanonicalLorebook | null;
 }
 
 /** An adapter that reads and writes standalone lorebooks (world info). */

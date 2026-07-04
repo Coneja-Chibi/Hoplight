@@ -5,10 +5,16 @@
  * common/adapters.ts; AGPL-3.0) as interop facts only - no Agnai code is copied. Lossless: the whole
  * original card rides in escrow.
  */
-import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody, Persona } from "../../entities/character/schema";
+import type { CanonicalLorebook, LorebookBody } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import lorebookCodec from "./lorebook";
+import lorebookCodec, {
+  coerceMemoryBook,
+  memoryBookToCanonical,
+  canonicalToMemoryBook,
+  type MemoryBook,
+} from "./lorebook";
 
 /** Agnai persona formats (common/adapters.ts PERSONA_FORMATS). */
 type PersonaFormat = "boostyle" | "wpp" | "sbf" | "attributes" | "text";
@@ -35,6 +41,8 @@ interface AgnaiCard extends Record<string, unknown> {
   creator?: string;
   characterVersion?: string;
   tags?: string[];
+  /** Agnai's native embedded lorebook (a MemoryBook); present in native downloads that have lore. */
+  characterBook?: unknown;
 }
 
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
@@ -122,6 +130,24 @@ function baseCard(): AgnaiCard {
   };
 }
 
+/**
+ * Re-embed linked lorebooks into the card's native `characterBook` (a MemoryBook). Only writes when a
+ * book is present, never injects an empty one. A single book twin-overlays its own `agnai-lorebook`
+ * escrow (byte-identical same-format re-embed); N books merge their entries (convert makes 0/1 today,
+ * but this never silently drops the rest) and full-encode.
+ */
+function applyLorebook(card: AgnaiCard, lorebooks?: CanonicalLorebook[]): void {
+  if (!lorebooks || lorebooks.length === 0) return;
+  const [first, ...rest] = lorebooks;
+  const body: LorebookBody =
+    rest.length === 0
+      ? first!.body
+      : { ...first!.body, entries: lorebooks.flatMap((l) => l.body.entries) };
+  // Twin only applies when a single book maps 1:1 to its own raw MemoryBook.
+  const twin = rest.length === 0 ? (first!.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined) : undefined;
+  card.characterBook = canonicalToMemoryBook(body, twin);
+}
+
 const adapter: CharacterAdapter = {
   id: "agnai",
   label: "Agnai (Agnaistic) character (.json)",
@@ -162,10 +188,18 @@ const adapter: CharacterAdapter = {
     };
   },
 
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+  /** Pull Agnai's native embedded `characterBook` (a MemoryBook) as a linked canonical lorebook. */
+  extractLorebook(entity: CanonicalCharacter): CanonicalLorebook | null {
+    const raw = entity.escrow?.agnai?.raw as AgnaiCard | undefined;
+    const book = coerceMemoryBook(raw?.characterBook);
+    return book ? memoryBookToCanonical(book) : null;
+  },
+
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
     const raw = entity.escrow?.agnai?.raw as AgnaiCard | undefined;
     const card = raw ? structuredClone(raw) : baseCard();
     applyBodyToCard(card, entity.body);
+    applyLorebook(card, context?.lorebooks);
     return { text: JSON.stringify(card, null, 2), suggestedExtension: "json" };
   },
 };

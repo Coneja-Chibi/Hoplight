@@ -30,7 +30,11 @@ export interface ConvertResult {
 export function convertFile(src: FormatAdapter, target: FormatAdapter, input: AdapterInput): ConvertResult {
   if (src.kind === "character" && target.kind === "character") {
     const entity = src.toCanonical(input);
-    const lorebook = extractCharacterBook(primaryEscrowRaw(entity.escrow));
+    // A format whose embedded book is not a CCv2/v3 character_book (Agnai's native MemoryBook) extracts
+    // via its own adapter override; every CCv3-lineage card uses the shared extractor.
+    const lorebook = src.extractLorebook
+      ? src.extractLorebook(entity)
+      : extractCharacterBook(primaryEscrowRaw(entity.escrow));
     const lorebooks = lorebook ? [lorebook] : [];
     if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
     const out = target.fromCanonical(entity, lorebooks.length > 0 ? { lorebooks } : undefined);
