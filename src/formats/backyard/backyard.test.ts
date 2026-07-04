@@ -86,6 +86,37 @@ test("unknown/foreign Backyard keys survive the round-trip via escrow", () => {
   expect(JSON.parse(adapter.fromCanonical(ent).text!)).toEqual(card);
 });
 
+// -- De-escrow WB-1: the aiName SHORTHAND is a distinct authored field ({{char}} override), not a copy
+// of the display name. The old serializer stamped both keys with identity.name, destroying a distinct
+// aiName that escrow had preserved - active data loss the fixture hid by using equal names. --
+
+test("WB-1 read: a distinct aiName lands in identity.nickname, aiDisplayName stays the name", () => {
+  const ent = adapter.toCanonical(asText({ aiName: "V", aiDisplayName: "Vera", aiPersona: "x" }));
+  expect(ent.body.identity.name).toBe("Vera");
+  expect(ent.body.identity.nickname).toBe("V");
+});
+
+test("WB-1 loss: an unedited round-trip must NOT clobber a distinct aiName", () => {
+  const card = { aiName: "V", aiDisplayName: "Vera", aiPersona: "x" };
+  const out = JSON.parse(adapter.fromCanonical(adapter.toCanonical(asText(card))).text!);
+  expect(out.aiName).toBe("V"); // was "Vera" before the fix - the clobber
+  expect(out.aiDisplayName).toBe("Vera");
+});
+
+test("WB-1 edit: mutating the nickname reaches the aiName wire, display name untouched", () => {
+  const ent = adapter.toCanonical(asText({ aiName: "V", aiDisplayName: "Vera", aiPersona: "x" }));
+  ent.body.identity.nickname = "Vixen";
+  const out = JSON.parse(adapter.fromCanonical(ent).text!);
+  expect(out.aiName).toBe("Vixen");
+  expect(out.aiDisplayName).toBe("Vera");
+});
+
+test("no version fabrication: a twin card without `version` does not gain one on round-trip", () => {
+  const card = { aiName: "N", aiPersona: "x" };
+  const out = JSON.parse(adapter.fromCanonical(adapter.toCanonical(asText(card))).text!);
+  expect("version" in out).toBe(false);
+});
+
 test("canonical model bridges Backyard -> SillyTavern with Tavern placeholders intact", () => {
   const ent = adapter.toCanonical(asText(makeBackyardCard()));
   const card = JSON.parse(sillytavern.fromCanonical(ent).text!);

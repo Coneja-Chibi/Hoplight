@@ -47,9 +47,14 @@ const EXAMPLE_KEYS = ["customDialogue", "examples", "mes_example"] as const;
 const SYSTEM_KEYS = ["systemPrompt", "system_prompt"] as const;
 
 function cardToBody(o: Rec): CharacterBody {
+  const name = firstStr(o, NAME_KEYS) ?? "";
+  // aiName is the {{char}} SHORTHAND, a distinct authored field from the display name (the exact concept
+  // Identity.nickname exists for). Carry it only when it actually differs, so equal-name cards stay clean.
+  const aiName = firstStr(o, ["aiName"]);
   return {
     identity: {
-      name: firstStr(o, NAME_KEYS) ?? "",
+      name,
+      nickname: aiName !== undefined && aiName !== name ? aiName : undefined,
       description: conv(firstStr(o, DESC_KEYS)),
       // Backyard `version`; do not synthesize a default on parse (leave unset if absent).
       characterVersion: firstStr(o, ["version"]),
@@ -120,9 +125,11 @@ const adapter: CharacterAdapter = {
     const card: Rec = isRecord(raw) ? (structuredClone(raw) as Rec) : {};
     const b = entity.body;
 
-    // name maps to both keys (matches the reference serializer).
-    card.aiName = b.identity.name;
+    // display name and the {{char}} shorthand are DISTINCT authored fields: aiDisplayName carries the
+    // name, aiName carries the nickname (falling back to the name when none). Stamping both with the
+    // name, as the reference serializer does, destroys a distinct authored aiName - a fixed data-loss bug.
     card.aiDisplayName = b.identity.name;
+    card.aiName = b.identity.nickname ?? b.identity.name;
 
     const set = (key: string, v: string | undefined): void => {
       if (v !== undefined) card[key] = v;
@@ -135,7 +142,10 @@ const adapter: CharacterAdapter = {
     set("systemPrompt", fieldOut(card, "systemPrompt", b.prompts.systemPrompt));
     set("creator", b.attribution.creator);
     if (b.discovery.tags) card.tags = b.discovery.tags;
-    card.version = b.identity.characterVersion ?? "1.0";
+    // Never fabricate `version` onto a twin that never had one (parse deliberately leaves it unset);
+    // only a from-scratch cross-format card gets the "1.0" floor so it emits valid.
+    if (b.identity.characterVersion !== undefined) card.version = b.identity.characterVersion;
+    else if (!isRecord(raw)) card.version = "1.0";
 
     return { text: JSON.stringify(card, null, 2), suggestedExtension: "json" };
   },

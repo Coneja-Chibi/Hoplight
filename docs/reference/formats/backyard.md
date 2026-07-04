@@ -36,6 +36,7 @@ and tags are not.
 | Canonical | Backyard wire (first non-empty wins) | Converted |
 | --- | --- | --- |
 | `identity.name` | `aiDisplayName`, `aiName`, `displayName`, `name` (default `""`) | no |
+| `identity.nickname` | `aiName` when it differs from the resolved name (the {{char}} shorthand) | no |
 | `identity.description` | `aiPersona`, `description`, `persona` | yes |
 | `identity.characterVersion` | `version` (left unset if absent; no synthesized default on parse) | no |
 | `persona.personality` | `personality` | yes |
@@ -46,13 +47,15 @@ and tags are not.
 | `attribution.creator` | `creator` | no |
 | `discovery.tags` | `tags` (array; non-string entries dropped) | no |
 
-Everything else in `CharacterBody` (nickname, taglines, prompts other than system, alternate greetings,
-media, presentation, lorebook/behavior refs) is left unset by this adapter and, if the source card
-carried anything under other keys, survives only through escrow.
+Everything else in `CharacterBody` (taglines, prompts other than system, alternate greetings, media,
+presentation, lorebook/behavior refs) is left unset by this adapter and, if the source card carried
+anything under other keys, survives only through escrow.
 
-Note that despite the schema comment describing Backyard `aiName` as a `nickname` source, this adapter
-does **not** populate `identity.nickname`. It folds `aiDisplayName`/`aiName` into a single
-`identity.name` (display name preferred), so the two names are not distinguished in canonical form.
+The two Backyard names are DISTINCT authored fields and are modeled that way: `aiDisplayName` is the
+display name (`identity.name`), `aiName` is the `{{char}}` shorthand (`identity.nickname`, carried only
+when it differs). On export `aiDisplayName = name` and `aiName = nickname ?? name`. (An earlier version
+of this adapter folded both into `identity.name` and stamped the name onto both keys on export,
+destroying a distinct authored `aiName` - fixed, with a regression test.)
 
 ## Escrow and round-trip
 
@@ -84,12 +87,11 @@ intact; only fields you actually changed re-encode and risk placeholder loss.
 These are export normalizations, not value-preserving passthroughs. A round-trip is value-safe for the
 mapped text fields but is **not** guaranteed byte-identical, because export always:
 
-- Writes **both** `aiName` and `aiDisplayName` from the single canonical `identity.name`. A card that
-  carried only one of the two gains the other on export; a card whose `aiName` differed from its
-  `aiDisplayName` loses the `aiName` value (canonical kept the display name, and export stamps that onto
-  both keys).
-- Writes `version` unconditionally, defaulting to `"1.0"` when `identity.characterVersion` is unset. A
-  card with no `version` gains one on export.
+- Writes both name keys (`aiDisplayName` from the name, `aiName` from the nickname falling back to the
+  name), so a card that carried only one of the two gains the other on export. Distinct values are
+  preserved, never collapsed.
+- Writes `version` only when `identity.characterVersion` is set; a from-scratch cross-format card (no
+  escrow twin) gets a `"1.0"` floor so it emits valid, but a twin card without `version` never gains one.
 - Re-serializes with two-space JSON formatting, so original whitespace is not preserved.
 
 `creator` and `tags` are copied straight through without placeholder conversion in either direction.
