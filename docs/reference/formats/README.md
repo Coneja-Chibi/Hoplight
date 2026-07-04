@@ -34,6 +34,16 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 
 | Format | Kind | Status |
 | --- | --- | --- |
-| Lumiverse lorebook | lorebook | planned (Tier B) |
 | Agnai lorebook (memory book) | lorebook | planned (Tier B) |
 | NovelAI, Wyvern lorebooks | lorebook | planned (Tier C) |
+
+Lumiverse World Books were a Tier B candidate but are **deferred, not planned**. A Lumiverse World Book
+is an internal per-user database entity, not a portable file; Lumiverse's own direct import accepts only
+Risu-native (`{type:"risu"}`) and CCv3/TavernAI (`{entries}`) files, both of which vaud already reads and
+writes, and its documented standalone exports are CCv3 character_book and SillyTavern worldbook, also both
+handled. So Lumiverse lorebook interop already flows through existing codecs. A bespoke Lumiverse-native
+file codec would require an export envelope that cannot be verified from any available source, and even in
+the best case the Lumiverse-only fields (`vectorized`, `automation_id`, `vector_index_status`,
+`group_override`) do not survive Lumiverse's own export to those portable formats. Reconsider only if a
+real Lumiverse-native export sample surfaces. Full-fidelity Lumiverse restore is the `.lvbak` account
+backup, a separate multi-entity concern, not a single lorebook codec.
