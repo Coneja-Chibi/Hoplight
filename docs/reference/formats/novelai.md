@@ -52,6 +52,11 @@ shared `keywordToTrigger` decoder is reused with `forceRegex: false` (a plain st
 | `enabled` | `enabled` | defaults on |
 | `scanDepth` | `searchRange` | **unit is characters, not messages** (see caveat) |
 | `sortOrder` | `contextConfig.budgetPriority` | placement / insertion order (see below) |
+| `contextConfig` | `contextConfig` minus `budgetPriority` | authored assembly dials, first-class (see below) |
+| `keyRelative` | `keyRelative` | authored activation toggle |
+| `nonStoryActivatable` | `nonStoryActivatable` | authored activation toggle |
+| `categoryId` | `category` | subcontext/folder ref; `""` -> `null` |
+| `categories` (body) | `categories[]` | flat authored surface: id, name, enabled; `sortOrder` = list index |
 
 `budgetPriority` is NovelAI's **single ordering axis** (higher inserts first). Despite the name, it is
 **placement**, not eviction, so it maps to canonical `sortOrder`, exactly like SillyTavern `order` and
@@ -75,15 +80,24 @@ NovelAI round-trip is unaffected.
 
 ## Escrow and round-trip
 
-The whole raw file rides `escrow["novelai-lorebook"].raw`. Everything with no canonical slot survives
-there untouched:
+The authored NAI surface is **first-class** (schema-is-editor): the full per-entry `contextConfig`
+assembly block maps to canonical `EntryContextConfig` (its `prefix`/`suffix` are authored TEXT, e.g.
+`"[ Mal: "` / `" ]\n"`), `keyRelative`/`nonStoryActivatable` map to canonical toggles, the entry
+`category` ref maps to `categoryId`, and `categories[]` maps its flat authored surface (id, name,
+enabled) to `LorebookBody.categories`. `insertionPosition` is a signed section offset, a DIFFERENT axis
+than canonical `position`/`depth`, so it lives inside `contextConfig` and the coarse `position` stays the
+`"character"` portable floor.
 
-- `lorebookVersion`, `settings`, `categories` (subcontexts).
-- The full per-entry `contextConfig` (`prefix`, `suffix`, `tokenBudget`, `reservedTokens`,
-  `trimDirection`, `insertionType`, `maximumTrimType`, `insertionPosition`) beyond the extracted
-  `budgetPriority`.
-- `keyRelative`, `nonStoryActivatable`, `category` (the subcontext reference).
-- v6 additive fields: `id`, `lastUpdatedAt`, `loreBiasGroups[]` (phrase-bias config), `advancedConditions[]`.
+The whole raw file still rides `escrow["novelai-lorebook"].raw` as the lossless twin. What legitimately
+stays escrow-only (doctrine buckets):
+
+- `lorebookVersion` (format bookkeeping), v6 `id`/`lastUpdatedAt` (platform bookkeeping), category `open`
+  (UI state), `settings`.
+- The rich subcontext machinery on each category twin (`createSubcontext`, `subcontextSettings`,
+  `categoryDefaults`, `categoryBiasGroups`, the `order` ARRAY - an entry-id list, not a rank).
+- `loreBiasGroups[]` - authored phrase bias, PENDING its own reconciled canonical shape (the real wire is
+  richer than a naive `{phrase,weight}`; modeled in a dedicated pass, tracked in design/DE-ESCROW-SWEEP.md).
+- `advancedConditions[]` - present but `[]` in every real sample; ungrounded, not modeled blind.
 
 `fromCanonical` overlays the canonical body onto that twin, matched by entry id (v6 uuid) or array index
 (v3/v4), and rewrites **only** the fields whose canonical value changed. An unedited entry re-emits

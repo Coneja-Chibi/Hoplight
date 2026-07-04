@@ -85,6 +85,31 @@ export interface EntrySideEffects {
   clearOnDeactivate: boolean;
 }
 
+/**
+ * NovelAI per-entry context-assembly config: authored prompt-shaping dials a creator sets in the NAI
+ * lorebook UI (prefix/suffix are authored TEXT, e.g. "[ Mal: " / " ]\n"). All optional; formats without
+ * an assembly layer omit the whole block. NAI's `budgetPriority` is deliberately NOT here - it is the
+ * placement axis and lives in `sortOrder` (one home per axis, see the sortOrder/priority split below).
+ */
+export interface EntryContextConfig {
+  /** text prepended to the entry when inserted */
+  prefix?: string;
+  /** text appended to the entry when inserted */
+  suffix?: string;
+  /** per-entry token budget cap */
+  tokenBudget?: number;
+  /** tokens reserved so the entry is not trimmed away */
+  reservedTokens?: number;
+  /** trim strategy: "doNotTrim" | "trimBottom" | "trimTop" (open: NAI may add values) */
+  trimDirection?: string;
+  /** join strategy: "newline" | "space" | "token" */
+  insertionType?: string;
+  /** trim granularity: "sentence" | "newline" | "token" */
+  maximumTrimType?: string;
+  /** signed offset within the target context section (NOT canonical depth - a different axis) */
+  insertionPosition?: number;
+}
+
 export interface LorebookEntry {
   /** stable entry id, preserved across round-trips (categories reference it) */
   id: string;
@@ -171,6 +196,12 @@ export interface LorebookEntry {
   groupOverride?: boolean;
   useGroupScoring?: boolean;
   automationId?: string | null;
+  /** NovelAI: keys match relative to the entry's own insertion point, not the story tail */
+  keyRelative?: boolean;
+  /** NovelAI: entry can activate outside story text (e.g. from a UI action) */
+  nonStoryActivatable?: boolean;
+  /** NovelAI authored per-entry assembly config (prefix/suffix/trim/budget dials) */
+  contextConfig?: EntryContextConfig;
   /**
    * Creator's manual display order in the editor list - a DISTINCT authored axis from `sortOrder`
    * (placement in the assembled prompt). Real ST cards prove they diverge (Seraphina: sortOrder all 100,

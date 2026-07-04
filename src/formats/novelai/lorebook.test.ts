@@ -88,6 +88,80 @@ test("cross-format INTO NAI (no twin): ST worldbook placement lands in budgetPri
   expect(e.searchRange).toBe(1000); // ST has no per-entry scan window -> NAI default
 });
 
+// -- De-escrow: authored NAI surface is first-class (contextConfig, toggles, category refs) ---------
+
+test("de-escrow read: contextConfig / keyRelative / nonStoryActivatable / category land in canonical slots", () => {
+  const canon = novelaiLorebook.toCanonical({ text: fixtureText });
+  const e0 = canon.body.entries[0]!;
+  expect(e0.contextConfig).toEqual({
+    prefix: "[ Mal: ",
+    suffix: " ]\n",
+    tokenBudget: 2048,
+    reservedTokens: 50,
+    trimDirection: "doNotTrim",
+    insertionType: "newline",
+    maximumTrimType: "sentence",
+    insertionPosition: -1,
+  });
+  expect(e0.keyRelative).toBe(false);
+  expect(e0.nonStoryActivatable).toBe(false);
+  expect(e0.categoryId).toBe("cat-Mal");
+  expect(canon.body.categories).toEqual([
+    { id: "cat-Mal", name: "Character: Mal", sortOrder: 0, enabled: true },
+  ]);
+});
+
+test("de-escrow edit: mutating contextConfig/toggles/category reaches the wire (twin present)", () => {
+  const canon = novelaiLorebook.toCanonical({ text: fixtureText });
+  const e0 = canon.body.entries[0]!;
+  e0.contextConfig = { ...e0.contextConfig, prefix: "[ NEW: ", tokenBudget: 1024, trimDirection: "trimBottom" };
+  e0.keyRelative = true;
+  e0.categoryId = null; // un-file the entry from its category
+  const out = JSON.parse(novelaiLorebook.fromCanonical(canon).text ?? "");
+  expect(out.entries[0].contextConfig.prefix).toBe("[ NEW: ");
+  expect(out.entries[0].contextConfig.tokenBudget).toBe(1024);
+  expect(out.entries[0].contextConfig.trimDirection).toBe("trimBottom");
+  expect(out.entries[0].contextConfig.budgetPriority).toBe(400); // sortOrder axis untouched by the block merge
+  expect(out.entries[0].contextConfig.suffix).toBe(" ]\n"); // unedited dial survives from the twin
+  expect(out.entries[0].keyRelative).toBe(true);
+  expect(out.entries[0].category).toBe("");
+  expect(out.entries[1]).toEqual(JSON.parse(fixtureText).entries[1]); // sibling untouched
+});
+
+test("de-escrow edit: renaming a category reaches the wire, subcontext residue survives", () => {
+  const canon = novelaiLorebook.toCanonical({ text: fixtureText });
+  canon.body.categories![0]!.name = "Malcolm";
+  const out = JSON.parse(novelaiLorebook.fromCanonical(canon).text ?? "");
+  expect(out.categories[0].name).toBe("Malcolm");
+  const twinCat = JSON.parse(fixtureText).categories[0];
+  const { name: _oldName, ...restTwin } = twinCat;
+  const { name: _newName, ...restOut } = out.categories[0];
+  expect(restOut).toEqual(restTwin); // createSubcontext/settings/etc. rode the twin clone untouched
+});
+
+// Real corpus: a first-party v6 lorebook (see samples/novelai/SOURCES.md) - proves the de-escrow against
+// a genuine export with a real category and the richer v6 entry surface.
+const v6Text = await Bun.file(
+  new URL("../../../samples/novelai/nai-v6-crystal-dragon.lorebook.json", import.meta.url),
+).text();
+
+test("real v6 sample: reads categories + entry refs + contextConfig, edits reach the wire", () => {
+  const canon = novelaiLorebook.toCanonical({ text: v6Text });
+  expect(canon.body.categories).toHaveLength(1);
+  expect(canon.body.categories![0]!.name).toBe("Characters");
+  const filed = canon.body.entries.filter((e) => e.categoryId === canon.body.categories![0]!.id);
+  expect(filed.length).toBe(2); // third entry is uncategorized ("")
+  expect(canon.body.entries[0]!.contextConfig?.trimDirection).toBe("trimBottom");
+
+  // edit-test on the real file: retitle the category + flip a dial
+  canon.body.categories![0]!.name = "Cast";
+  canon.body.entries[0]!.contextConfig = { ...canon.body.entries[0]!.contextConfig, reservedTokens: 9 };
+  const out = JSON.parse(novelaiLorebook.fromCanonical(canon).text ?? "");
+  expect(out.categories[0].name).toBe("Cast");
+  expect(out.entries[0].contextConfig.reservedTokens).toBe(9);
+  expect(out.entries[0].loreBiasGroups).toEqual(JSON.parse(v6Text).entries[0].loreBiasGroups); // bias twin intact
+});
+
 /** Guard: canonical -> NAI keeps the placement/eviction split straight (regression for #15 doctrine). */
 test("novelai-lorebook keeps sortOrder as budgetPriority, never leaking priority", () => {
   const canon = novelaiLorebook.toCanonical({ text: fixtureText });
