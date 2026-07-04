@@ -107,4 +107,27 @@ test("cross-format: an ST worldbook writes an Agnai memory book (no-twin full en
   // here as Agnai priority, keeping the round trip honest until defect #15 is reconciled.
   expect(out.entries[0].priority).toBe(100);
   expect("selectiveLogic" in out.entries[0]).toBe(false); // Agnai never authors it -> not emitted
+  expect("secondaryKeys" in out.entries[0]).toBe(false); // no secondary keys -> neither field emitted
+  expect("selective" in out.entries[0]).toBe(false);
+});
+
+test("cross-format: secondary keys emit paired with `selective`, as Agnai's own importers do", () => {
+  const worldbook = {
+    entries: {
+      "0": {
+        uid: 0,
+        comment: "Docks",
+        content: "Floating docks.",
+        key: ["skyport"],
+        keysecondary: ["harbor", "pier"],
+        position: 1,
+      },
+    },
+    name: "Aetheria",
+  };
+  const canon = stWorldbook.toCanonical(asText(worldbook));
+  const out = JSON.parse(agnaiLorebook.fromCanonical(canon).text ?? "");
+  expect(out.entries[0].keywords).toEqual(["skyport"]);
+  expect(out.entries[0].secondaryKeys).toEqual(["harbor", "pier"]); // preserved, not silently dropped
+  expect(out.entries[0].selective).toBe(true); // paired, matching how Agnai emits secondary keys
 });

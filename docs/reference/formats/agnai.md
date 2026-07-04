@@ -168,9 +168,15 @@ routes to `sortOrder` and thus lands in ST `displayIndex` rather than ST `order`
 integer convention is not verifiable from any Agnai source. Rather than guess an ST-style encoding, vaud
 does **not** interpret it: the canonical `selectiveLogic` stays `and_any`, the raw value rides
 escrow-of-raw untouched, and a same-format round-trip re-emits it byte-for-byte. Cross-format exports into
-Agnai omit it entirely (Agnai ignores it anyway). The `selective` flag is likewise left to the raw twin;
-on a no-twin cross-format encode it is not synthesized, since secondary-key presence already carries the
-intent.
+Agnai omit it entirely (Agnai ignores it anyway).
+
+Verified against Agnai's runtime matcher (`buildMemoryPrompt` -> `findMatchWithLowestAge`,
+`common/memory.ts`): match-time scanning iterates **only** `entry.keywords`. `secondaryKeys`, `selective`,
+`constant`, `position`, `probability`, and `useProbability` are storage/interop fields Agnai never
+consults when injecting memory. vaud still preserves and re-emits them for interop fidelity: because
+Agnai's own ST importers set `secondaryKeys` and `selective` together, a fresh/cross-format encode emits
+that pair (or neither), so the output is a well-formed Agnai book rather than one Agnai would never write.
+An unedited twin is left byte-for-byte untouched.
 
 ### Escrow and round-trip
 

@@ -186,7 +186,18 @@ function entryToWire(e: LorebookEntry, twin: MemoryEntry | undefined, index: num
     else delete base.comment;
   }
   if (changed("triggers")) base.keywords = e.triggers.map(triggerToKeyword);
-  if (changed("secondaryTriggers")) base.secondaryKeys = e.secondaryTriggers.map(triggerToKeyword);
+  // Agnai pairs `secondaryKeys` with `selective` (its own ST importers always set both together), so a
+  // fresh encode emits them as a pair - or neither. Agnai's runtime matcher scans only `keywords`, so
+  // this is interop well-formedness, not a match-time behavior. An unedited twin is left untouched.
+  if (changed("secondaryTriggers")) {
+    if (e.secondaryTriggers.length > 0) {
+      base.secondaryKeys = e.secondaryTriggers.map(triggerToKeyword);
+      base.selective = true;
+    } else {
+      delete base.secondaryKeys;
+      delete base.selective;
+    }
+  }
   if (changed("enabled")) base.enabled = e.enabled;
   if (changed("constant")) base.constant = e.constant;
   if (changed("sortOrder")) base.weight = e.sortOrder;
