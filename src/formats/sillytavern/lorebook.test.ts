@@ -27,8 +27,8 @@ function makeStWorldbook() {
         position: 2,
         depth: 4,
         role: 0,
-        displayIndex: 0,
-        order: 100,
+        displayIndex: 7, // cosmetic display order: distinct from `order`, rides escrow (no canonical slot)
+        order: 50, // insertion/placement order -> canonical sortOrder
         sticky: 3,
         cooldown: 2,
         delay: 1,
@@ -125,8 +125,8 @@ test("toCanonical decodes ST int enums, inline regex, and match* scan sources", 
   expect(e0.selectiveLogic).toBe("and_all"); // ST 3
   expect(e0.position).toBe("before_example"); // ST 2
   expect(e0.role).toBe("system"); // ST 0
-  expect(e0.priority).toBe(100); // ST `order`
-  expect(e0.sortOrder).toBe(0); // ST `displayIndex`
+  expect(e0.sortOrder).toBe(50); // ST `order` (placement)
+  expect(e0.priority).toBe(100); // ST has no eviction axis -> default 100
   expect(e0.scanCharacterDescription).toBe(true);
   expect(e0.scanScenario).toBe(true);
   expect(e0.scanUserPersona).toBe(false); // matchPersonaDescription
@@ -174,4 +174,7 @@ test("canonical bridges an ST worldbook to a RoleCall v1 lorebook export", () =>
     { keyword: "dock(s)?", isRegex: true, flags: "i" },
   ]);
   expect(out.lorebook.entries[0].injection.position).toBe("before_example");
+  // reconciliation proof: ST `order` (placement) lands in RC placement, NOT RC eviction priority
+  expect(out.lorebook.entries[0].priority.sortOrder).toBe(50); // ST order -> RC sortOrder (placement)
+  expect(out.lorebook.entries[0].priority.priority).toBe(100); // eviction defaults (ST has no such axis)
 });

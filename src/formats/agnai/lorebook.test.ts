@@ -90,7 +90,7 @@ test("agnai-lorebook does not invent optional book fields absent from the source
 test("cross-format: an ST worldbook writes an Agnai memory book (no-twin full encode)", () => {
   const worldbook = {
     entries: {
-      "0": { uid: 0, comment: "Skyports", content: "Floating docks.", key: ["skyport"], position: 0, order: 100 },
+      "0": { uid: 0, comment: "Skyports", content: "Floating docks.", key: ["skyport"], position: 0, order: 55 },
     },
     name: "Aetheria",
   };
@@ -102,10 +102,8 @@ test("cross-format: an ST worldbook writes an Agnai memory book (no-twin full en
   expect(out.entries[0].entry).toBe("Floating docks.");
   expect(out.entries[0].keywords).toEqual(["skyport"]);
   expect(out.entries[0].position).toBe("before_char"); // ST position 0 -> canonical "world" -> before_char
-  expect(out.entries[0].weight).toBe(0); // ST displayIndex 0 -> sortOrder -> weight (placement)
-  // ST `order` currently lands in canonical priority (the tracked placement-order defect); it re-emits
-  // here as Agnai priority, keeping the round trip honest until defect #15 is reconciled.
-  expect(out.entries[0].priority).toBe(100);
+  expect(out.entries[0].weight).toBe(55); // ST `order` (placement) -> sortOrder -> Agnai weight (#15)
+  expect(out.entries[0].priority).toBe(100); // ST has no eviction axis -> Agnai priority defaults
   expect("selectiveLogic" in out.entries[0]).toBe(false); // Agnai never authors it -> not emitted
   expect("secondaryKeys" in out.entries[0]).toBe(false); // no secondary keys -> neither field emitted
   expect("selective" in out.entries[0]).toBe(false);

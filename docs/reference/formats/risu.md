@@ -214,16 +214,17 @@ from-scratch canonical (a lorebook that arrived from another format, no Risu twi
 `mode: "normal"`. Book-level metadata a native envelope cannot hold (name, description, scan depth, token
 budget) is dropped on export, since Risu keeps it on the character, not in the file.
 
-### Known quirk as a conversion target
+### Placement order crosses cleanly to SillyTavern
 
-Placement order does not yet cross to SillyTavern cleanly. Risu `insertorder` maps to canonical
-`sortOrder` (correct, and invariant with the embedded path), but the SillyTavern worldbook codec currently
-maps its own placement field `order` to canonical `priority` instead of `sortOrder`. So a
-`risu-lorebook -> sillytavern-lorebook` conversion writes the insertion order into ST's `displayIndex` and
-leaves ST `order` at its default. This is a **pre-existing canonical-model split** between the placement
-axis (`insertion_order` / `order` / `insertorder`) and the display/eviction axes, tracked in
-`design/LOREBOOK-FORMATS.md` and a `test.todo`, to be reconciled across all lorebook codecs in a focused
-pass. Same-format Risu round-trips and the embedded `.charx` path are unaffected.
+Placement / insertion order has a single canonical home, `sortOrder`, across every codec. Risu
+`insertorder` maps to `sortOrder` (invariant with the embedded `.charx` path), and the SillyTavern
+worldbook codec maps its own placement field `order` to the same `sortOrder`. So a
+`risu-lorebook -> sillytavern-lorebook` conversion writes the insertion order into ST's `order` (the
+runtime placement axis); with no ST twin, ST's cosmetic `displayIndex` defaults to that same value so the
+editor list mirrors insertion order. Canonical `priority` is a distinct **eviction** axis (Risu has no
+such field, so it defaults to `100`). This was previously a canonical-model split that mis-slotted
+placement into ST `displayIndex`; it is now reconciled (#15) and covered by a cross-format test here and
+in the ST and character-book suites.
 
 ## Source of truth
 

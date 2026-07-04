@@ -176,8 +176,10 @@ function entryToCanonical(entry: CharacterBookEntry, index: number): LorebookEnt
     depth: numOr(pick("depth"), 4),
     role: parseRole(pick("role")),
 
-    sortOrder: numOr(firstDefined(ext.displayIndex, ext.display_index, entry.insertion_order), index),
-    priority: entry.priority ?? numOr(pick("order"), 100),
+    // insertion_order IS placement -> sortOrder (`order` is a tolerant fallback for ST-flavored books).
+    // ST's cosmetic displayIndex, if stashed in extensions, has no canonical slot and rides the twin.
+    sortOrder: numOr(firstDefined(entry.insertion_order, pick("order")), index),
+    priority: numOr(entry.priority, 100), // CCv3 `priority` IS eviction -> canonical priority
 
     sticky: numOr(pick("sticky"), 0),
     cooldown: numOr(pick("cooldown"), 0),

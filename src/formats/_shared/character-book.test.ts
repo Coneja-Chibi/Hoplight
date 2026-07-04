@@ -217,7 +217,7 @@ test("GATING: a no-twin lorebook re-embeds into data.character_book, encoded fro
   expect(be.content).toBe("Floating docks ring every island.");
   expect(be.name).toBe("Skyports");
   expect(be.use_regex).toBe(false); // mixed entry: regex stays inline (/dock/i), literals stay literal
-  expect(be.insertion_order).toBe(0);
+  expect(be.insertion_order).toBe(100); // ST `order` (placement) -> CCv3 insertion_order (was `displayIndex`)
   expect(be.position).toBe("before_char"); // before_example -> coarse
   expect(be.extensions.position).toBe(2); // precise ST slot
   expect(be.extensions.selective_logic).toBe(3); // and_all

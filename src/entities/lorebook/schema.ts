@@ -109,9 +109,18 @@ export interface LorebookEntry {
   depth: number;
   role: MessageRole;
 
-  /** display/edit order */
+  /**
+   * Placement / insertion order: where the entry lands relative to its siblings in the assembled
+   * prompt. The universal ordering axis - ST `order`, Risu `insertorder`, CCv3 `insertion_order`,
+   * Agnai `weight`, RC `sortOrder`. (ST's cosmetic `displayIndex` is a distinct display axis with only
+   * one source format, so it rides escrow, not a canonical slot.)
+   */
   sortOrder: number;
-  /** activation priority; higher fires first */
+  /**
+   * Eviction / budget priority: which entries survive when the token budget is exceeded (higher
+   * survives). A separate axis from placement - CCv3 `priority`, Agnai `priority`, RC `priority`.
+   * Formats with no eviction field (ST, Risu) default this to 100.
+   */
   priority: number;
 
   sticky: number;

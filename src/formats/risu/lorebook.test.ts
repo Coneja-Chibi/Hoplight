@@ -134,12 +134,15 @@ test("cross-format: an ST worldbook writes a Risu native lorebook (no-twin full 
 });
 
 /**
- * KNOWN DEFECT (pre-existing canonical-model split, tracked in design/LOREBOOK-FORMATS.md).
- * Placement order (`insertorder` / CCv3 `insertion_order` / ST `order`) is one axis, but the codecs
- * disagree on its canonical home: character-book.ts + this codec map it to `sortOrder`, while the ST
- * worldbook codec maps its `order` to `priority`. So a risu-lorebook -> sillytavern-lorebook convert
- * writes the insertion order into ST `displayIndex` and leaves ST `order` defaulted. The fix (ST `order`
- * -> `sortOrder`, reconciled across every lorebook codec + tests) is a focused canonical-model pass, not
- * part of the Risu codec. Marked todo so it stays visible without breaking the green baseline.
+ * RECONCILED (#15): placement order has ONE canonical home, `sortOrder`, across every codec. A Risu
+ * `insertorder` therefore lands in ST worldbook `order` (the placement axis) on convert, NOT in the
+ * cosmetic `displayIndex` and NOT in eviction `priority`. With no ST twin, `displayIndex` defaults to
+ * the insertion order so the ST editor list matches placement.
  */
-test.todo("risu insertorder should land in ST worldbook `order`, not `displayIndex`", () => {});
+test("risu insertorder lands in ST worldbook `order` (placement), not `priority`/`displayIndex`", () => {
+  const canon = risuLorebook.toCanonical(asText(nativeEnvelope())); // insertorder: 42 -> sortOrder
+  const out = JSON.parse(stWorldbook.fromCanonical(canon).text ?? ""); // no ST twin -> full encode
+  const e = out.entries["0"]!;
+  expect(e.order).toBe(42); // placement lands in ST `order`
+  expect(e.displayIndex).toBe(42); // no twin: display defaults to insertion order
+});

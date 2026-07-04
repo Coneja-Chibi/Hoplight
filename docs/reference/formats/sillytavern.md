@@ -79,8 +79,8 @@ Entry field highlights:
 | `enabled` | `!disable` (ST canonicalizes on a `disable` flag) |
 | `triggers` | `key` (regex as `/pattern/flags`) |
 | `secondaryTriggers` | `keysecondary` |
-| `sortOrder` | `displayIndex` |
-| `priority` | `order` |
+| `sortOrder` | `order` (ST's insertion/placement order) |
+| `priority` | (no ST field: ST has no eviction axis, so `priority` defaults to `100`) |
 | `groupName` | `group` (empty string -> `null`) |
 | `scanCharacterDescription` etc. | `matchCharacterDescription` etc. |
 
@@ -92,8 +92,12 @@ drops per-trigger probability (it has no advanced trigger mode). That loss is in
 escrow-of-raw guards: an **unedited** entry re-projects from its raw twin, so a vaud ST -> ST round-trip
 is still byte-lossless. Only edited fields re-encode and take the collapse.
 
-Raw-only carriers that survive via escrow: entry `uid`, `vectorized`, `automationId`, and ST's two extra
-scan sources (`matchCharacterDepthPrompt`, `matchCreatorNotes`), none of which have a canonical slot.
+Raw-only carriers that survive via escrow: entry `uid`, `vectorized`, `automationId`, ST's two extra
+scan sources (`matchCharacterDepthPrompt`, `matchCreatorNotes`), and `displayIndex` (ST's cosmetic
+editor display order) - none of which have a canonical slot. `displayIndex` is a distinct axis from the
+placement order (`order`); since only ST carries it, it rides the raw twin rather than a canonical field.
+On a cross-format import into ST (no twin) `displayIndex` defaults to `sortOrder` so the editor list
+mirrors insertion order.
 
 ## Source of truth
 

@@ -156,11 +156,12 @@ The `weight`/`priority` split is grounded in Agnai's own round-trip code: `memor
 (`common/memory.ts`) maps CCv3 `insertion_order` -> `weight` and CCv3 `priority` -> `priority`, so
 `weight` -> `sortOrder` and `priority` -> `priority` matches Agnai's own convention exactly.
 
-Because Agnai carries **both** axes explicitly, an Agnai to SillyTavern convert is internally coherent
-(`weight` -> `sortOrder` -> ST `displayIndex`, `priority` -> `priority` -> ST `order`). The tracked
-placement-order defect (see [design/LOREBOOK-FORMATS.md](../../../design/LOREBOOK-FORMATS.md)) only
-mis-slots **single-axis** formats (Risu `insertorder`, CCv3 `insertion_order`) whose sole placement value
-routes to `sortOrder` and thus lands in ST `displayIndex` rather than ST `order`.
+Agnai carries **both** axes explicitly, so it is the format that shows the reconciled model cleanly:
+placement has one canonical home (`sortOrder`) and eviction another (`priority`). An Agnai to SillyTavern
+convert carries `weight` -> `sortOrder` -> ST `order` (the runtime placement axis); Agnai's `priority`
+(eviction) has no ST home and is dropped, since ST has no eviction field. The earlier placement-order
+split that mis-slotted placement into ST `displayIndex` is reconciled (#15, see
+[design/LOREBOOK-FORMATS.md](../../../design/LOREBOOK-FORMATS.md)); Agnai needed no change.
 
 ### Not interpreted (escrow-only)
 

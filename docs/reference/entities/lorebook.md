@@ -77,8 +77,8 @@ structurally in canonical.
 
 | Field | Type | Meaning |
 | --- | --- | --- |
-| `sortOrder` | `number` | Display / insertion order (ST `displayIndex`, CCv2 `insertion_order`). |
-| `priority` | `number` | Eviction priority when the budget is exceeded (ST `order`). |
+| `sortOrder` | `number` | Placement / insertion order: where the entry lands relative to siblings. The universal ordering axis (ST `order`, Risu `insertorder`, CCv2/v3 `insertion_order`, Agnai `weight`, RC `sortOrder`). |
+| `priority` | `number` | Eviction / budget priority: which entries survive when the token budget is exceeded (higher survives). A distinct axis from placement (CCv3 `priority`, Agnai `priority`, RC `priority`); formats with no eviction field (ST, Risu) default it to `100`. |
 
 ### Timing
 

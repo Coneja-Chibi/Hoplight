@@ -137,8 +137,10 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
     depth: typeof raw.depth === "number" ? raw.depth : 4,
     role: parseRole(raw.role),
 
-    sortOrder: typeof raw.displayIndex === "number" ? raw.displayIndex : index,
-    priority: typeof raw.order === "number" ? raw.order : 100,
+    // ST `order` IS the placement axis (insertion order) -> canonical sortOrder. ST has no eviction
+    // field, so priority defaults; ST's cosmetic `displayIndex` has no canonical slot and rides escrow.
+    sortOrder: typeof raw.order === "number" ? raw.order : index,
+    priority: 100,
 
     sticky: typeof raw.sticky === "number" ? raw.sticky : 0,
     cooldown: typeof raw.cooldown === "number" ? raw.cooldown : 0,
@@ -186,8 +188,10 @@ function entryToWire(e: LorebookEntry, raw: Record<string, unknown> | undefined)
   wire.position = positionToNumber(e.position);
   wire.depth = e.depth;
   wire.role = roleToNumber(e.role);
-  wire.displayIndex = e.sortOrder;
-  wire.order = e.priority;
+  wire.order = e.sortOrder; // placement out
+  // displayIndex is ST-only cosmetic: a same-format twin carries its own (untouched via the clone);
+  // a cross-format entry (no twin) defaults the display list to insertion order.
+  if (raw === undefined) wire.displayIndex = e.sortOrder;
   wire.sticky = e.sticky;
   wire.cooldown = e.cooldown;
   wire.delay = e.delay;
