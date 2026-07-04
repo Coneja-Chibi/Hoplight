@@ -55,6 +55,8 @@ export interface Voice {
  * (platform config, escrow).
  */
 export interface ImagePrompt {
+  /** full base prompt (Risu newGenData.prompt) */
+  prompt?: string;
   prefix?: string;
   suffix?: string;
   negative?: string;

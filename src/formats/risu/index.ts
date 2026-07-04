@@ -9,6 +9,7 @@ import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from 
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
+import { applyRisuToBody, applyBodyToRisu } from "./risu-fields";
 import { assetsToMedia } from "../_shared/assets";
 import { embedCharacterBook } from "../_shared/character-book";
 import lorebookCodec from "./lorebook";
@@ -107,6 +108,7 @@ const adapter: CharacterAdapter = {
     const card = parsed as V3Card;
 
     const body = dataToBody(card.data);
+    applyRisuToBody(card.data, body); // authored risuai scalars -> first-class slots (de-escrow)
     body.media = assetsToMedia(card.data.assets);
     body.attribution.createdAt = msToSeconds(body.attribution.createdAt);
     body.attribution.updatedAt = msToSeconds(body.attribution.updatedAt);
@@ -150,6 +152,7 @@ const adapter: CharacterAdapter = {
     const rawCreated = card.data.creation_date;
     const rawModified = card.data.modification_date;
     applyBodyToData(card.data, entity.body);
+    applyBodyToRisu(card.data, entity.body); // de-escrowed risuai scalars, twin-diffed
     if (rawCreated !== undefined) card.data.creation_date = rawCreated;
     if (rawModified !== undefined) card.data.modification_date = rawModified;
 

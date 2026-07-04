@@ -161,3 +161,56 @@ test("an edit to the canonical body is reflected in the rebuilt card.json", () =
   // Untouched Risu scripting still rides along.
   expect(rebuiltCard.data.extensions.risuai.triggerscript[0].code).toBe("log('never runs in vaud')");
 });
+
+// -- De-escrow (real sample): the authored risuai scalar surface is first-class, edit-tested against
+// the real cherry card (samples/risu/cherry.card.json, sliced from the 23.7MB cherry.charx; see
+// samples/risu/SOURCES.md). The codec previously mapped ZERO risuai fields. --
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const cherryCharx = (): Uint8Array =>
+  zipSync({
+    "card.json": strToU8(
+      readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8"),
+    ),
+  });
+
+test("de-escrow read: real cherry risuai scalars land in first-class canonical slots", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  expect(ent.body.settings?.risu?.viewScreen).toBe("none");
+  expect(ent.body.settings?.risu?.largePortrait).toBe(true);
+  // 7 sdData rows -> imagePrompt.rows (label/value pairs)
+  expect(ent.body.persona.imagePrompt?.rows?.length).toBe(7);
+  expect(ent.body.persona.imagePrompt?.rows?.[0]?.label).toBeDefined();
+  // empty-but-present on cherry stays unset (nothing authored): bias [], vits {}, additionalText ""
+  expect(ent.body.bias).toBeUndefined();
+  expect(ent.body.persona.voice).toBeUndefined();
+  expect(ent.body.prompts.additionalText).toBeUndefined();
+});
+
+test("de-escrow round-trip: unedited cherry card.json re-emits data-identical", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  const orig = JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8"));
+  expect(out).toEqual(orig);
+});
+
+test("de-escrow edit: mutating toggles/bias/license/rows reaches the risuai wire, siblings survive", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  ent.body.settings!.risu!.viewScreen = "emotion";
+  ent.body.bias = [{ phrase: "solo", weight: -5 }];
+  ent.body.attribution.license = "CC-BY-4.0";
+  ent.body.persona.imagePrompt!.rows![0] = { label: "always", value: "watercolor" };
+  const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  const r = out.data.extensions.risuai;
+  expect(r.viewScreen).toBe("emotion");
+  expect(r.largePortrait).toBe(true); // unedited toggle survives
+  expect(r.bias).toEqual([["solo", -5]]);
+  expect(r.license).toBe("CC-BY-4.0");
+  expect(r.sdData[0]).toEqual(["always", "watercolor"]);
+  expect(r.sdData.length).toBe(7);
+  // untouched authored behavior surface rides the twin verbatim (its entity slice is pending)
+  expect(r.customScripts.length).toBe(8);
+  expect(r.triggerscript.length).toBe(9);
+});
