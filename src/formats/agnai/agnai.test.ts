@@ -1,5 +1,5 @@
 import { test, expect } from "bun:test";
-import adapter from "./index";
+import { characterAdapter as adapter } from "./index";
 import { characterAdapter as sillytavern } from "../sillytavern/index";
 
 /** A full Agnai card with a structured (wpp) persona and Agnai-only fields to preserve. */

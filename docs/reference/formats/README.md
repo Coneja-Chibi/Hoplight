@@ -16,6 +16,7 @@ reference page here.
 | RisuAI native lorebook | `risu-lorebook` | lorebook | json | `.json` | `1.0` (`{type:"risu",data}` envelope) | [risu.md](risu.md#native-lorebook-risu-lorebook) |
 | Backyard / Faraday | `backyard` | character | json | `.json` | `0.9` / `0.55` | [backyard.md](backyard.md) |
 | Agnai | `agnai` | character | json | `.json` | `1.0` | [agnai.md](agnai.md) |
+| Agnai memory book | `agnai-lorebook` | lorebook | json | `.json` | `1.0` (`kind:"memory"`) / `0.9` | [agnai.md](agnai.md#native-memory-book-agnai-lorebook) |
 | Vaudeville native | `vaud-json` | character | json | `.json` | `1.0` (own wrapper) | [vaud-json.md](vaud-json.md) |
 
 Detection scores are the confidence each adapter's `detect()` returns for its own format. Higher wins;
@@ -34,7 +35,6 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 
 | Format | Kind | Status |
 | --- | --- | --- |
-| Agnai lorebook (memory book) | lorebook | planned (Tier B) |
 | NovelAI, Wyvern lorebooks | lorebook | planned (Tier C) |
 
 Lumiverse World Books were a Tier B candidate but are **deferred, not planned**. A Lumiverse World Book

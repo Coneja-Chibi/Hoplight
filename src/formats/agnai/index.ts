@@ -8,6 +8,7 @@
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody, Persona } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import lorebookCodec from "./lorebook";
 
 /** Agnai persona formats (common/adapters.ts PERSONA_FORMATS). */
 type PersonaFormat = "boostyle" | "wpp" | "sbf" | "attributes" | "text";
@@ -169,4 +170,5 @@ const adapter: CharacterAdapter = {
   },
 };
 
-export default adapter;
+export { adapter as characterAdapter };
+export default [adapter, lorebookCodec];
