@@ -6,7 +6,7 @@
  */
 
 import { basename, extname } from "node:path";
-import { CANONICAL_SCHEMA_VERSION, registry, loadFormats } from "./core";
+import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryEscrowRaw } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
@@ -35,33 +35,37 @@ async function writeOutput(path: string, out: { bytes?: Uint8Array; text?: strin
   await Bun.write(path, out.bytes ?? out.text ?? "");
 }
 
+/** Either a resolved target adapter or a reason it could not be resolved - never both, never neither. */
+type Resolved = { ok: true; adapter: FormatAdapter } | { ok: false; error: string };
+
 /**
  * Pick the output adapter: an explicit --to wins; otherwise resolve by the output extension,
  * which adapters own via outputExtensions. An extension written by more than one adapter (e.g.
  * .json for both sillytavern and vaud-json) is honestly reported as ambiguous instead of guessed.
  */
-function resolveTarget(forced: string | undefined, outPath: string): { adapter?: FormatAdapter; error?: string } {
+function resolveTarget(forced: string | undefined, outPath: string): Resolved {
   if (forced) {
     const adapter = registry.get(forced);
-    return adapter ? { adapter } : { error: `Unknown format "${forced}".` };
+    return adapter ? { ok: true, adapter } : { ok: false, error: `Unknown format "${forced}".` };
   }
   const ext = extname(outPath).toLowerCase().replace(/^\./, "");
   const candidates = registry.targetsForExtension(ext);
-  if (candidates.length === 1) return { adapter: candidates[0] };
-  if (candidates.length === 0) return { error: `Cannot tell what format to write for ".${ext}".` };
-  return { error: `".${ext}" is written by more than one format (${candidates.map((a) => a.id).join(", ")}).` };
+  if (candidates.length === 1) return { ok: true, adapter: candidates[0]! };
+  if (candidates.length === 0) return { ok: false, error: `Cannot tell what format to write for ".${ext}".` };
+  const ids = candidates.map((a) => a.id).join(", ");
+  return { ok: false, error: `".${ext}" is written by more than one format (${ids}).` };
 }
 
 /**
  * Best-effort recover the source card object for labeling: the detected adapter's escrowed raw
- * (works for png/charx without re-implementing extraction), else a direct JSON parse.
+ * (works for png/charx without re-implementing extraction), else a direct JSON parse. Always a raw
+ * card object or undefined - never the canonical entity, whose shape the labeler cannot read.
  */
 function sourceCardOf(src: FormatAdapter | undefined, input: AdapterInput): unknown {
   if (src) {
     try {
-      const ent = src.toCanonical(input);
-      const first = ent.escrow ? Object.values(ent.escrow)[0] : undefined;
-      return first?.raw !== undefined ? first.raw : ent;
+      const raw = primaryEscrowRaw(src.toCanonical(input).escrow);
+      if (raw !== undefined) return raw;
     } catch {
       /* fall through to a raw parse */
     }
@@ -103,7 +107,7 @@ const HELP = `${BANNER}
 
   Status
     Engine core: canonical schema v${CANONICAL_SCHEMA_VERSION}, escrow, adapter contract.
-    Live adapters: sillytavern, risu, vaud-json (character cards). Run "vaud formats" to see them.
+    Run "vaud formats" to see the adapters vaud currently knows about.
 `;
 
 async function main(argv: string[]): Promise<number> {
@@ -207,14 +211,14 @@ async function main(argv: string[]): Promise<number> {
     }
 
     const target = resolveTarget(forcedTarget, outPath);
-    if (target.error) {
+    if (!target.ok) {
       console.log(`\n  ${target.error}`);
       console.log(`  Pass one explicitly: vaud convert ${inPath} ${outPath} --to <format>`);
       console.log(`  Known formats: ${registry.all().map((a) => a.id).join(", ")}\n`);
       return 1;
     }
 
-    const { out, lorebooks } = convertFile(src, target.adapter!, input);
+    const { out, lorebooks } = convertFile(src, target.adapter, input);
     await writeOutput(outPath, out);
     console.log(`\n  ${src.id} -> ${target.adapter!.id}`);
     console.log(`  ${inPath}  ->  ${outPath}`);

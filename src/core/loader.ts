@@ -26,9 +26,8 @@ export async function loadFormats(dir?: string): Promise<FormatAdapter[]> {
     if (folder.startsWith("_")) continue; // templates / shared / disabled
     const mod = (await import(pathToFileURL(join(base, rel)).href)) as {
       default?: FormatAdapter | FormatAdapter[];
-      adapter?: FormatAdapter;
     };
-    const exported = mod.default ?? mod.adapter;
+    const exported = mod.default;
     for (const adapter of Array.isArray(exported) ? exported : exported ? [exported] : []) {
       register(adapter);
       loaded.push(adapter);

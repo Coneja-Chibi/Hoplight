@@ -21,6 +21,8 @@ import type {
   Trigger,
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonObject } from "../_shared/card-io";
+import { parseCharacterFilter } from "../_shared/lore-enums";
 
 const RC_LOREBOOK_SCHEMA_PREFIX = "1.0.0";
 
@@ -33,16 +35,8 @@ interface RcExportRaw {
 
 /** Parse untrusted json into the RC export shape, or null if it is not one. */
 function readExport(input: AdapterInput): RcExportRaw | null {
-  const text = input.text ?? (input.bytes ? new TextDecoder().decode(input.bytes) : null);
-  if (text == null) return null;
-  let json: unknown;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    return null;
-  }
-  if (!json || typeof json !== "object") return null;
-  const obj = json as RcExportRaw;
+  const obj = readJsonObject(input) as RcExportRaw | null;
+  if (!obj) return null;
   const book = obj.lorebook;
   if (!book || typeof book !== "object" || !Array.isArray((book as { entries?: unknown }).entries)) {
     return null;
@@ -52,7 +46,7 @@ function readExport(input: AdapterInput): RcExportRaw | null {
 
 /** RC v1 is unambiguous: a "1.0.0"-family schemaVersion plus a lorebook envelope with entries. */
 const isRcVersion = (v: unknown): boolean =>
-  typeof v === "string" && (v === RC_LOREBOOK_SCHEMA_PREFIX || v.includes(RC_LOREBOOK_SCHEMA_PREFIX));
+  typeof v === "string" && v.includes(RC_LOREBOOK_SCHEMA_PREFIX);
 
 /** Read a canonical trigger out of the wire, dropping per-session runtime junk (lastActivatedAt). */
 function triggerToCanonical(t: Record<string, unknown>): Trigger {
@@ -79,7 +73,6 @@ function entryToCanonical(e: Record<string, unknown>): LorebookEntry {
   const grouping = (e.grouping ?? {}) as Record<string, unknown>;
   const advanced = (e.advanced ?? {}) as Record<string, unknown>;
   const scan = (e.scanSources ?? {}) as Record<string, unknown>;
-  const filter = e.characterFilter as Record<string, unknown> | null | undefined;
 
   return {
     id: typeof e.id === "string" ? e.id : "",
@@ -120,13 +113,7 @@ function entryToCanonical(e: Record<string, unknown>): LorebookEntry {
     preventRecursion: advanced.preventRecursion === true,
     delayUntilRecursion: typeof advanced.delayUntilRecursion === "number" ? advanced.delayUntilRecursion : 0,
 
-    characterFilter: filter
-      ? {
-          isExclude: filter.isExclude === true,
-          names: Array.isArray(filter.names) ? (filter.names as string[]) : [],
-          tags: Array.isArray(filter.tags) ? (filter.tags as string[]) : [],
-        }
-      : null,
+    characterFilter: parseCharacterFilter(e.characterFilter),
 
     scanCharacterDescription: scan.characterDescription === true,
     scanCharacterPersonality: scan.characterPersonality === true,

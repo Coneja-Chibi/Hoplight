@@ -20,7 +20,14 @@ import type {
   InjectionPosition,
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import { parseSelectiveLogic, selectiveLogicToNumber, parseRole, roleToNumber } from "../_shared/lore-enums";
+import { readJsonObject } from "../_shared/card-io";
+import {
+  parseSelectiveLogic,
+  selectiveLogicToNumber,
+  parseRole,
+  roleToNumber,
+  parseCharacterFilter,
+} from "../_shared/lore-enums";
 
 interface StBook {
   entries?: Record<string, Record<string, unknown>>;
@@ -29,16 +36,8 @@ interface StBook {
 
 /** Parse untrusted json into an ST worldbook, or null if it is not one. */
 function readBook(input: AdapterInput): StBook | null {
-  const text = input.text ?? (input.bytes ? new TextDecoder().decode(input.bytes) : null);
-  if (text == null) return null;
-  let json: unknown;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    return null;
-  }
-  if (!json || typeof json !== "object") return null;
-  const book = json as StBook;
+  const book = readJsonObject(input) as StBook | null;
+  if (!book) return null;
   const entries = book.entries;
   // ST worldbook: `entries` is a keyed OBJECT (not an array - that would be RC/Agnai) of ST entries.
   if (!entries || typeof entries !== "object" || Array.isArray(entries)) return null;
@@ -103,14 +102,7 @@ const keywordsToTriggers = (arr: unknown): Trigger[] =>
     : [];
 
 /** Escape unescaped slashes so a regex pattern survives the `/pattern/flags` wrapper. */
-function escapeSlashes(pattern: string): string {
-  let out = "";
-  for (let i = 0; i < pattern.length; i++) {
-    if (pattern[i] === "/" && (i === 0 || pattern[i - 1] !== "\\")) out += "\\/";
-    else out += pattern[i];
-  }
-  return out;
-}
+const escapeSlashes = (pattern: string): string => pattern.replace(/(?<!\\)\//g, "\\/");
 
 const triggerToKeyword = (t: Trigger): string =>
   t.isRegex ? `/${escapeSlashes(t.keyword)}/${t.flags ?? ""}` : t.keyword;
@@ -122,7 +114,6 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
   const useProb = raw.useProbability !== false;
   const probability =
     useProb && typeof raw.probability === "number" ? Math.min(100, Math.max(0, raw.probability)) : 100;
-  const filter = raw.characterFilter as Record<string, unknown> | null | undefined;
 
   return {
     id: raw.uid != null ? String(raw.uid) : String(index),
@@ -164,13 +155,7 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
     preventRecursion: raw.preventRecursion === true,
     delayUntilRecursion: typeof raw.delayUntilRecursion === "number" ? raw.delayUntilRecursion : 0,
 
-    characterFilter: filter
-      ? {
-          isExclude: filter.isExclude === true,
-          names: Array.isArray(filter.names) ? (filter.names as string[]) : [],
-          tags: Array.isArray(filter.tags) ? (filter.tags as string[]) : [],
-        }
-      : null,
+    characterFilter: parseCharacterFilter(raw.characterFilter),
 
     scanCharacterDescription: raw.matchCharacterDescription === true,
     scanCharacterPersonality: raw.matchCharacterPersonality === true,

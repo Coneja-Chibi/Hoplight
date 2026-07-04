@@ -33,6 +33,14 @@ export interface EscrowEntry {
 export type Escrow = Record<FormatId, EscrowEntry>;
 
 /**
+ * The raw source payload an entity was imported from: the first escrow entry's `raw`. One owner for
+ * "which escrow entry is the source", so a reader (labeler) and the bundle layer can't drift on it.
+ * Returns undefined for a from-scratch entity that never carried escrow.
+ */
+export const primaryEscrowRaw = (escrow: Partial<Escrow> | undefined): unknown =>
+  escrow ? Object.values(escrow)[0]?.raw : undefined;
+
+/**
  * Sparse per-app overrides. Empty by default.
  * You author the entity ONCE; set only the fields you want to DIFFER for a given app.
  * A "per-app version" = canonical body + that app's overrides, projected by its adapter.

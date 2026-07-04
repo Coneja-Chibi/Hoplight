@@ -10,6 +10,7 @@
  * in the inward-pointing core.
  */
 import type { AdapterInput, AdapterOutput, FormatAdapter } from "./core";
+import { primaryEscrowRaw } from "./core";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
 import { extractCharacterBook } from "./formats/_shared/character-book";
 
@@ -18,13 +19,6 @@ export interface ConvertResult {
   /** lorebooks extracted from the source card and linked to the character (0 or 1 for now) */
   lorebooks: CanonicalLorebook[];
 }
-
-/** The raw source object an adapter escrowed (the whole card), for embedded-book extraction. */
-const escrowedRaw = (escrow: unknown): unknown => {
-  if (!escrow || typeof escrow !== "object") return undefined;
-  const first = Object.values(escrow as Record<string, unknown>)[0];
-  return first && typeof first === "object" ? (first as { raw?: unknown }).raw : undefined;
-};
 
 /**
  * Convert one file to another format of the SAME entity kind. Character conversions also carry any
@@ -36,7 +30,7 @@ const escrowedRaw = (escrow: unknown): unknown => {
 export function convertFile(src: FormatAdapter, target: FormatAdapter, input: AdapterInput): ConvertResult {
   if (src.kind === "character" && target.kind === "character") {
     const entity = src.toCanonical(input);
-    const lorebook = extractCharacterBook(escrowedRaw(entity.escrow));
+    const lorebook = extractCharacterBook(primaryEscrowRaw(entity.escrow));
     const lorebooks = lorebook ? [lorebook] : [];
     if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
     const out = target.fromCanonical(entity, lorebooks.length > 0 ? { lorebooks } : undefined);
