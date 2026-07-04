@@ -1,0 +1,26 @@
+{
+  "name": "vaudeville-studios",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
+  "license": "AGPL-3.0-or-later",
+  "bin": {
+    "vaud": "./src/cli.ts"
+  },
+  "scripts": {
+    "vaud": "bun run src/cli.ts"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14"
+  },
+  "dependencies": {
+    "fflate": "^0.8.3",
+    "png-chunk-text": "^1.0.0",
+    "png-chunks-encode": "^1.0.0",
+    "png-chunks-extract": "^1.0.0"
+  }
+}

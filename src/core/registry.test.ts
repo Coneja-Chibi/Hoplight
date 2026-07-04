@@ -1,0 +1,43 @@
+import { test, expect } from "bun:test";
+import * as registry from "./registry";
+import { loadFormats } from "./loader";
+import { CANONICAL_SCHEMA_VERSION } from "./canonical";
+import type { CanonicalCharacter } from "../entities/character/schema";
+
+const sample: CanonicalCharacter = {
+  schemaVersion: CANONICAL_SCHEMA_VERSION,
+  kind: "character",
+  id: "test-alice",
+  body: {
+    identity: { name: "Alice", tagline: "in wonderland" },
+    persona: { personality: "curious" },
+    prompts: {},
+    greetings: { firstMessage: "Hello there." },
+    examples: {},
+    media: {},
+    attribution: { creator: "chi" },
+    discovery: { tags: ["fantasy"] },
+  },
+};
+
+test("folders-as-schema: adapters auto-load from src/formats", async () => {
+  await loadFormats();
+  // the _template folder must be skipped; vaud-json must be found
+  expect(registry.get("template")).toBeUndefined();
+  expect(registry.get("vaud-json")).toBeDefined();
+});
+
+test("a dropped-in adapter round-trips a character losslessly", async () => {
+  await loadFormats();
+  const vj = registry.get("vaud-json")!;
+  const out = vj.fromCanonical(sample);
+  const back = vj.toCanonical({ text: out.text ?? "" });
+  expect(back).toEqual(sample);
+});
+
+test("detect picks the native format for vaud json", async () => {
+  await loadFormats();
+  const out = registry.get("vaud-json")!.fromCanonical(sample);
+  const winner = registry.detect({ text: out.text ?? "" });
+  expect(winner?.id).toBe("vaud-json");
+});

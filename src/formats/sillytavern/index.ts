@@ -1,0 +1,112 @@
+/**
+ * SillyTavern character-card adapter (V1/V2/V3, PNG or JSON).
+ * Version detection adapted from RoleCall's parse-v2.ts; field mapping is the shared
+ * Tavern mapping (../_shared/tavern-fields). Lossless: the whole original card rides in escrow.
+ */
+import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CanonicalCharacter } from "../../entities/character/schema";
+import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { getVersion } from "../_shared/png";
+import { readCardJson } from "../_shared/card-io";
+import { assetsToMedia } from "../_shared/assets";
+import {
+  type TavernData,
+  dataToBody,
+  applyBodyToData,
+  wrapV2,
+  wrapV3,
+  CARD_SPEC_V2,
+  CARD_SPEC_V3,
+} from "../_shared/tavern-fields";
+
+export { embedCharacterJson } from "../_shared/png";
+
+type Variant = "v2" | "v3" | "v1" | "flat";
+
+const VARIANTS: readonly Variant[] = ["v2", "v3", "v1", "flat"];
+
+/** Read the round-trip variant back out of untyped escrow, coercing anything unknown to "v2". */
+function toVariant(v: unknown): Variant {
+  return typeof v === "string" && (VARIANTS as readonly string[]).includes(v) ? (v as Variant) : "v2";
+}
+
+interface Detected {
+  card: Record<string, unknown>;
+  data: TavernData;
+  variant: Variant;
+}
+
+/** Recognize the card shape and pull out the V2/V3 `data` object. */
+function detectCard(json: unknown): Detected | null {
+  if (!json || typeof json !== "object") return null;
+  const card = json as Record<string, unknown>;
+  if (card.spec === CARD_SPEC_V3 && card.data && typeof card.data === "object") {
+    return { card, data: card.data as TavernData, variant: "v3" };
+  }
+  if (card.spec === CARD_SPEC_V2 && card.data && typeof card.data === "object") {
+    return { card, data: card.data as TavernData, variant: "v2" };
+  }
+  if (card.spec === undefined && card.data === undefined && typeof card.name === "string") {
+    const looksV2 =
+      "alternate_greetings" in card ||
+      "system_prompt" in card ||
+      "post_history_instructions" in card ||
+      "creator_notes" in card ||
+      "extensions" in card ||
+      "character_version" in card;
+    return { card, data: card as TavernData, variant: looksV2 ? "flat" : "v1" };
+  }
+  return null;
+}
+
+const adapter: FormatAdapter = {
+  id: "sillytavern",
+  label: "SillyTavern character card (v2/v3, png/json)",
+  outputExtensions: ["json"],
+
+  // 0.9, not 1.0: SillyTavern is the generic Tavern reader. More-specific adapters (RoleCall) claim
+  // 1.0 on the same card so they win detection and get to map their own extension block.
+  detect(input: AdapterInput): number {
+    if (input.bytes) return getVersion(input.bytes) ? 0.9 : 0;
+    return detectCard(readCardJson(input)) ? 0.9 : 0;
+  },
+
+  toCanonical(input: AdapterInput): CanonicalCharacter {
+    const json = readCardJson(input);
+    const det = json ? detectCard(json) : null;
+    if (!det) throw new Error("sillytavern: not a recognizable character card");
+    const body = dataToBody(det.data);
+    body.media = assetsToMedia(det.data.assets); // CCv3 assets[]; a no-op ({}) for V1/V2
+    return {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "character",
+      id: canonicalId(det.data.name),
+      body,
+      escrow: { sillytavern: { raw: json, unmapped: { variant: det.variant } } },
+    };
+  },
+
+  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+    const esc = entity.escrow?.sillytavern;
+    const variant = toVariant(esc?.unmapped?.["variant"]);
+    const rawCard = esc?.raw as Record<string, unknown> | undefined;
+
+    const base: TavernData =
+      rawCard && (variant === "v2" || variant === "v3")
+        ? { ...(rawCard.data as TavernData) }
+        : rawCard
+          ? { ...(rawCard as TavernData) }
+          : {};
+    applyBodyToData(base, entity.body);
+
+    let out: unknown;
+    if (rawCard && (variant === "v2" || variant === "v3")) out = { ...rawCard, data: base };
+    else if (variant === "v3") out = wrapV3(base);
+    else if (variant === "flat" || variant === "v1") out = base;
+    else out = wrapV2(base);
+
+    return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
+  },
+};
+
+export default adapter;
