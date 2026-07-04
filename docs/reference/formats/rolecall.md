@@ -28,9 +28,15 @@ On top of the shared CCv2/V3 `data` mapping (`_shared/tavern-fields.ts`), the RC
 | `discovery.rating` | graded content rating (all_hours / late_night / after_dark) |
 | `greetings.alternateGreetings[].title` | `alternate_greeting_titles` |
 | `presentation.*` | RC casting-card: accent color, gradient, palette, curated background, field order, spoilers |
-| `prompts.depthInjections` | RC-native depth injections (origin `rolecall_details`) |
+| `prompts.depthInjections` | details injections (origin `rolecall_details`) CONCAT with the shared `extensions.depth_prompt` entry (origin `depth_prompt`); each re-emits to its own home |
 | `attribution.sourceUrl` | `source_url` |
-| `media.assets` | sprite / expression pack |
+| `media.assets` | sprite / expression pack (real RC emits `type:"expression"` -> canonical role `emotion`) |
+
+Two quirks worth knowing: RC's V3 `source` is a nonstandard OBJECT array (`[{name}]`, not the spec's
+string[]); the provenance is first-class on `attribution.creator` and the object form rides the twin
+untouched (the shared mapper never writes an empty decoded `source` over a twin). And both depth-injection
+sources coexist: an earlier codec version REPLACED the array with the details injections, clobbering the
+`depth_prompt` entry - fixed with regression tests on the real sample.
 
 ### Escrow
 

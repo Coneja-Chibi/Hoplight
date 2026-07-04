@@ -89,8 +89,10 @@ test("toCanonical maps the RC-specific layer onto the shared Tavern body", () =>
     { text: "Lost again?" },
   ]);
 
+  // details injections CONCAT with the shared-path depth_prompt entry (the old replace clobbered it)
   expect(ent.body.prompts.depthInjections).toEqual([
     { text: "remember the map", depth: 3, role: "system", enabled: true, origin: "rolecall_details" },
+    { text: "stay in character", depth: 4, origin: "depth_prompt" },
   ]);
 
   const p = ent.body.presentation!;
@@ -125,4 +127,47 @@ test("canonical model bridges RoleCall -> SillyTavern (rolecall layer drops, sta
   expect(card.data.alternate_greetings).toEqual(["Oh. It's you.", "Lost again?"]);
   // no RC extension leaks into the ST card
   expect(card.data.extensions?.rolecall).toBeUndefined();
+});
+
+// -- Real-corpus wiring-bug regressions (samples/rolecall/vera-casting-card.v3.json). The in-suite
+// fixture had LIED about the asset type (used "emotion" where real RC emits "expression"), which is
+// exactly how the role misrouting hid. These tests run on the real serializer shapes. --
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const realCard = readFileSync(
+  join(import.meta.dir, "../../../samples/rolecall/vera-casting-card.v3.json"),
+  "utf8",
+);
+
+test("WB-1: real RC expression sprites land role 'emotion', not 'other'", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  const roles = ent.body.media.assets?.map((a) => [a.label, a.role]);
+  expect(roles).toContainEqual(["smile", "emotion"]);
+  expect(roles).toContainEqual(["frown", "emotion"]);
+  expect(ent.body.media.assets?.some((a) => a.role === "other")).toBe(false);
+});
+
+test("WB-2: depth_prompt and details injections COEXIST (concat, not clobber)", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  const inj = ent.body.prompts.depthInjections!;
+  // details first (2 entries), then the shared-path depth_prompt entry
+  expect(inj.map((i) => i.origin)).toEqual(["rolecall_details", "rolecall_details", "depth_prompt"]);
+  expect(inj.at(-1)!.text).toBe("stay in character as Vera");
+});
+
+test("WB-2 edit: editing the depth_prompt-origin entry reaches extensions.depth_prompt on export", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  const dp = ent.body.prompts.depthInjections!.find((i) => i.origin === "depth_prompt")!;
+  dp.text = "always the cartographer";
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  expect(out.data.extensions.depth_prompt.prompt).toBe("always the cartographer");
+  // the details injections' home is untouched
+  expect(out.data.extensions.rolecall.details.prompt_depth_injections).toHaveLength(2);
+});
+
+test("real RC card round-trips unedited without wire mutation", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  expect(JSON.parse(adapter.fromCanonical(ent).text ?? "")).toEqual(JSON.parse(realCard));
 });

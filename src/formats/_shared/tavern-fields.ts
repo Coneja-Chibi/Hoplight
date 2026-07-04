@@ -145,7 +145,10 @@ export function applyBodyToData(base: TavernData, b: CharacterBody): TavernData 
   set("post_history_instructions", b.prompts.postHistoryInstructions);
   set("creator_notes", b.attribution.creatorNotes);
   set("creator_notes_multilingual", b.attribution.creatorNotesMultilingual);
-  set("source", b.attribution.source);
+  // Empty source = nothing decoded, not "clear the field": RoleCall emits nonstandard source OBJECTS
+  // ([{name}]) that toStrings cannot decode, so writing the empty result back would destroy the twin's
+  // value. The provenance is already first-class on attribution.creator; the object form rides the twin.
+  set("source", b.attribution.source?.length ? b.attribution.source : undefined);
   set("creation_date", b.attribution.createdAt);
   set("modification_date", b.attribution.updatedAt);
   set("group_only_greetings", fromGreetings(b.greetings.groupOnlyGreetings));

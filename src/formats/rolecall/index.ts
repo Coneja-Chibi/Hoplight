@@ -134,8 +134,11 @@ function cardToBody(data: TavernData, rc: RcExtension): CharacterBody {
   const titled = titledGreetings(data, rc);
   if (titled) body.greetings.alternateGreetings = titled;
 
+  // CONCAT, never replace: dataToBody already read the depth_prompt-origin injection from the shared
+  // extensions path; RC's details injections join it (details first). A replace here clobbered the
+  // depth_prompt entry whenever both were present - each origin re-emits to its own home on export.
   const depths = depthInjections(rc);
-  if (depths) body.prompts.depthInjections = depths;
+  if (depths) body.prompts.depthInjections = [...depths, ...(body.prompts.depthInjections ?? [])];
 
   const pres = presentation(rc);
   if (pres) body.presentation = pres;

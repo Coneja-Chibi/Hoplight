@@ -27,6 +27,8 @@ export const mimeFromExt = (ext: unknown): string | undefined =>
 const ASSET_ROLE: Record<string, MediaAsset["role"]> = {
   icon: "portrait",
   emotion: "emotion",
+  // real RoleCall emits expression sprites as type:"expression" (same concept as Risu "emotion")
+  expression: "emotion",
   outfit: "outfit",
   pose: "pose",
   background: "background",
