@@ -17,6 +17,7 @@ reference page here.
 | Backyard / Faraday | `backyard` | character | json | `.json` | `0.9` / `0.55` | [backyard.md](backyard.md) |
 | Agnai | `agnai` | character | json | `.json` | `1.0` | [agnai.md](agnai.md) |
 | Agnai memory book | `agnai-lorebook` | lorebook | json | `.json` | `1.0` (`kind:"memory"`) / `0.9` | [agnai.md](agnai.md#native-memory-book-agnai-lorebook) |
+| NovelAI lorebook | `novelai-lorebook` | lorebook | `.lorebook` / json | `.lorebook` | `1.0` (`lorebookVersion` + `entries[]`) | [novelai.md](novelai.md) |
 | Vaudeville native | `vaud-json` | character | json | `.json` | `1.0` (own wrapper) | [vaud-json.md](vaud-json.md) |
 
 Detection scores are the confidence each adapter's `detect()` returns for its own format. Higher wins;
@@ -35,7 +36,17 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 
 | Format | Kind | Status |
 | --- | --- | --- |
-| NovelAI, Wyvern lorebooks | lorebook | planned (Tier C) |
+| Wyvern lorebook | lorebook | **no standalone wire format** (see below) |
+
+Wyvern needs **no dedicated lorebook codec**: it has no verifiable standalone lorebook file. Wyvern's
+character export is a **CCv2 PNG**, which vaud already reads as a character; its Lexicon is
+character-attached, so it either rides that card's `extensions.wyvern` as escrow (already carried by the
+CCv2 reader) or lives only in-app (like Janitor), with no serialized file to convert. No public real
+Wyvern export exists to confirm which, and building a codec from wiki-inferred fields with zero real bytes
+would violate the wire-gate doctrine (a codec earns existence only when a real wire format serializes it).
+Revisit **only if** a real standalone Wyvern export lands: the two open questions are whether the Lexicon
+serializes standalone and whether it lives in CCv2 `extensions`. This is a closed verdict, not scheduled
+work.
 
 Lumiverse World Books need **no dedicated codec: they are already covered** by `risu-lorebook` and the
 CCv3/ST worldbook codecs. Lumiverse is a local app, so lorebooks only move in and out of it as files, and

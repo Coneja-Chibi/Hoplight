@@ -1,0 +1,119 @@
+{
+    "lorebookVersion": 3,
+    "entries": [
+        {
+            "text": "Malcolm \"Mal\" Reynolds/ Serenity owner/ captain/ scoundrel/ strong personal code",
+            "contextConfig": {
+                "prefix": "[ Mal: ",
+                "suffix": " ]\n",
+                "tokenBudget": 2048,
+                "reservedTokens": 50,
+                "budgetPriority": 400,
+                "trimDirection": "doNotTrim",
+                "insertionType": "newline",
+                "maximumTrimType": "sentence",
+                "insertionPosition": -1
+            },
+            "displayName": "Characer: Mal: About",
+            "keys": [
+                "/Mal/",
+                "/Reynolds/",
+                "captain"
+            ],
+            "searchRange": 1000,
+            "enabled": true,
+            "forceActivation": false,
+            "keyRelative": false,
+            "nonStoryActivatable": false,
+            "category": "cat-Mal"
+        },
+        {
+            "text": "35-year-old/ ruggedly handsome/ man/ brown duster/ Mal's hair brown medium-length",
+            "contextConfig": {
+                "prefix": "[ Mal: ",
+                "suffix": " ]\n",
+                "tokenBudget": 2048,
+                "reservedTokens": 0,
+                "budgetPriority": 399,
+                "trimDirection": "doNotTrim",
+                "insertionType": "newline",
+                "maximumTrimType": "sentence",
+                "insertionPosition": -1
+            },
+            "displayName": "Character: Mal: Appearance",
+            "keys": [
+                "/Mal/",
+                "/Reynolds/",
+                "captain"
+            ],
+            "searchRange": 300,
+            "enabled": true,
+            "forceActivation": false,
+            "keyRelative": false,
+            "nonStoryActivatable": false,
+            "category": "cat-Mal"
+        }
+    ],
+    "settings": {
+        "orderByKeyLocations": false
+    },
+    "categories": [
+        {
+            "name": "Character: Mal",
+            "id": "cat-Mal",
+            "enabled": true,
+            "createSubcontext": true,
+            "subcontextSettings": {
+                "text": "",
+                "contextConfig": {
+                    "prefix": "",
+                    "suffix": "\n",
+                    "tokenBudget": 2048,
+                    "reservedTokens": 150,
+                    "budgetPriority": 400,
+                    "trimDirection": "trimBottom",
+                    "insertionType": "newline",
+                    "maximumTrimType": "sentence",
+                    "insertionPosition": 0
+                },
+                "lastUpdatedAt": 1629427793912,
+                "displayName": "Person: Mal",
+                "keys": [
+                    "/Mal/"
+                ],
+                "searchRange": 1000,
+                "enabled": true,
+                "forceActivation": false,
+                "keyRelative": false,
+                "nonStoryActivatable": false,
+                "category": ""
+            },
+            "useCategoryDefaults": true,
+            "categoryDefaults": {
+                "text": "",
+                "contextConfig": {
+                    "prefix": "[ ",
+                    "suffix": " ]\n",
+                    "tokenBudget": 2048,
+                    "reservedTokens": 0,
+                    "budgetPriority": 400,
+                    "trimDirection": "doNotTrim",
+                    "insertionType": "newline",
+                    "maximumTrimType": "sentence",
+                    "insertionPosition": -1
+                },
+                "lastUpdatedAt": 1629475003084,
+                "displayName": "New Lorebook Entry",
+                "keys": [
+                    "/Mal/"
+                ],
+                "searchRange": 1000,
+                "enabled": true,
+                "forceActivation": false,
+                "keyRelative": false,
+                "nonStoryActivatable": false,
+                "category": ""
+            }
+        }
+    ]
+}
