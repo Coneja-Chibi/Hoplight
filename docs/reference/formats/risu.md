@@ -127,28 +127,28 @@ them, and are reproduced on export without ever being interpreted.
 
 ## The embedded character_book
 
-If `card.json` carries `data.character_book`, that book is **not** mapped by this adapter. `dataToBody`
-ignores it; the raw book simply rides inside `escrow.risu.raw`. Extraction to a standalone linked
-lorebook is the shared bundle layer's job (`extractCharacterBook` in `src/convert.ts`), which runs on
-import for any CCv2/v3 card, Risu included. See [character_book](../concepts/character-book.md) and
+If `card.json` carries `data.character_book`, that book is **not** mapped by the field mapping here;
+`dataToBody` ignores it and the raw book rides inside `escrow.risu.raw`. Extraction to a standalone
+linked lorebook on **import** is the shared bundle layer's job (`extractCharacterBook` in
+`src/convert.ts`), which runs for any CCv2/v3 card, Risu included.
+
+On **export**, Risu re-embeds a referenced lorebook: `fromCanonical(entity, context)` reads
+`context.lorebooks` and writes them into `data.character_book` via the shared `embedCharacterBook` helper
+(the same one SillyTavern and RoleCall use). Since Risu's `card.json` is CCv3, this is the standard slot
+it reads on import, so a cross-format card-with-book conversion into a `.charx` keeps the book. See
+[character_book](../concepts/character-book.md) and
 [knowledgeRefs](../entities/character.md#cross-entity-links).
 
-## Known gaps as a conversion target
+## Known gap as a conversion target
 
 Risu is a faithful **source** (a `.charx` reads cleanly into canonical) and a faithful **same-format
-round-trip**. As a conversion **target** for cards that came from another format, two things are not
-wired today and are dropped:
+round-trip**. One thing is not wired as a conversion **target** for cards from another format:
 
-- **Media is dropped.** There is no inverse of `assetsToMedia`. `fromCanonical` never writes
-  `card.data.assets` from `body.media`, so a card whose media arrived from another format exports with no
-  assets. Same-format assets survive only because they ride the `escrow.risu.raw` clone plus `assetFiles`.
-- **An embedded lorebook is not re-embedded.** `fromCanonical(entity)` omits the `EmitContext` parameter
-  entirely, so it ignores the `lorebooks` the convert layer passes for re-embed. A `character_book`
-  arriving from another format is therefore not written into the `.charx`. A same-format book survives
-  only because `structuredClone(escrow.risu.raw)` carries `data.character_book` through untouched.
-
-Both are asymmetric with the character-book concept ("re-embed is the target adapter's job") and with the
-other Tavern-lineage adapters. They are documented here as current behavior, not as intended design.
+- **Media is dropped cross-format.** There is no inverse of `assetsToMedia`. `fromCanonical` never
+  writes `card.data.assets` from `body.media`, so a card whose media arrived from another format exports
+  with no assets. Same-format assets survive only because they ride the `escrow.risu.raw` clone plus the
+  escrowed `assetFiles`. Cross-format media (asset bytes and the `uri` scheme) is a Tier B concern,
+  documented here as current behavior, not intended design.
 
 ## Source of truth
 
