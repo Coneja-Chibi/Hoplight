@@ -13,6 +13,7 @@ reference page here.
 | RoleCall character | `rolecall` | character | png / json | `.json` | `1.0` (CCv3 + `extensions.rolecall`) | [rolecall.md](rolecall.md) |
 | RoleCall lorebook | `rolecall-lorebook` | lorebook | json | `.json` | `1.0` (v1 export envelope) | [rolecall.md](rolecall.md) |
 | RisuAI | `risu` | character | `.charx` (zip) | `.charx` | `1.0` (zip with `card.json`) | [risu.md](risu.md) |
+| RisuAI native lorebook | `risu-lorebook` | lorebook | json | `.json` | `1.0` (`{type:"risu",data}` envelope) | [risu.md](risu.md#native-lorebook-risu-lorebook) |
 | Backyard / Faraday | `backyard` | character | json | `.json` | `0.9` / `0.55` | [backyard.md](backyard.md) |
 | Agnai | `agnai` | character | json | `.json` | `1.0` | [agnai.md](agnai.md) |
 | Vaudeville native | `vaud-json` | character | json | `.json` | `1.0` (own wrapper) | [vaud-json.md](vaud-json.md) |
@@ -33,7 +34,6 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 
 | Format | Kind | Status |
 | --- | --- | --- |
-| Risu native lorebook | lorebook | planned (Tier B) |
 | Lumiverse lorebook | lorebook | planned (Tier B) |
 | Agnai lorebook (memory book) | lorebook | planned (Tier B) |
 | NovelAI, Wyvern lorebooks | lorebook | planned (Tier C) |

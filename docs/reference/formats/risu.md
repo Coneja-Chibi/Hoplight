@@ -150,12 +150,89 @@ round-trip**. One thing is not wired as a conversion **target** for cards from a
   escrowed `assetFiles`. Cross-format media (asset bytes and the `uri` scheme) is a Tier B concern,
   documented here as current behavior, not intended design.
 
+## Native lorebook (`risu-lorebook`)
+
+Separate from the `.charx` card above, the Risu family also provides a **standalone lorebook** codec for
+Risu's own "export lorebook" file. It is a second codec in the same folder (folders-as-schema), so
+`src/formats/risu/index.ts` default-exports `[characterAdapter, lorebookCodec]`.
+
+- `id: "risu-lorebook"`, kind `lorebook`, container `.json` (also `.lorebook`), writes `.json`.
+- Source: `src/formats/risu/lorebook.ts`. Provenance: `design/LOREBOOK-FORMATS.md` +
+  `design/RISU-CARD-DEEP.md` (facts read from RisuAI's own `characterCards.ts` and
+  `process/lorebook.svelte.ts`, interop only).
+
+### Envelope and detection
+
+Risu writes the export as `{ "type": "risu", "ver": 1, "data": loreBook[] }`. `detect()` returns `1.0`
+when `type === "risu"` and `data` is an array, `0` otherwise. The envelope is unambiguous, no other format
+claims it, and it does **not** grab the `{ entries: {...} }` shape (that is a SillyTavern worldbook, owned
+by `sillytavern-lorebook`). The envelope carries no book-level name or settings: in Risu those live on the
+character (`loreBookDepth` / `loreBookToken`), not in the exported file, so the canonical book name is
+empty and global scan/budget default to `0`.
+
+### Entry field map
+
+Risu-native field names differ from CCv3. `key` / `secondkey` are **comma-joined strings**, not arrays.
+
+| Canonical (`LorebookEntry`) | Risu native (`loreBook`) | Notes |
+| --- | --- | --- |
+| `id` | `id` | falls back to the array index |
+| `title` | `comment` | Risu's `comment` is the entry label |
+| `comment` | `comment` | Risu stores the label in both `name` and `comment` on its CCv3 form; mirrored here |
+| `content` | `content` | |
+| `constant` | `alwaysActive` | the always-on flag, **not** `mode` |
+| `triggers` | `key` (CSV) | split on commas, trimmed; `/pattern/flags` decoded, `useRegex` forces regex |
+| `secondaryTriggers` | `secondkey` (CSV) | present only when `selective` |
+| `triggerMode` | `selective` / `secondkey` | `advanced` when selective or a secondary key exists |
+| `caseSensitive` | `extentions.risu_case_sensitive` | Risu's own spelling of "extensions" |
+| `probability` | `activationPercent` | 0-100 activation chance |
+| `sortOrder` | `insertorder` | Risu treats `insertorder` as CCv3 `insertion_order` (see below) |
+| `role` | `role` | `system` / `user` / `assistant` |
+
+`mode` (`multiple` / `constant` / `normal` / `child` / `folder`), `folder` (parent ref for Risu's
+entry-folder hierarchy), `loreCache`, and `bookVersion` have no canonical home; they ride escrow and
+survive a same-format round-trip untouched. Positions, per-entry scan depth, groups, timing, recursion,
+and scan sources are absent from the native format and take canonical defaults.
+
+### Container-invariance contract
+
+The **same** Risu lore must canonicalize identically whether it arrives here as a native envelope or
+embedded in a `.charx` (which routes through `_shared/character-book.ts`). Risu's own writer equates the
+two field-for-field (`insertion_order: lore.insertorder`, `constant: lore.alwaysActive`, `name` and
+`comment` both `= lore.comment`, `keys: lore.key.split(",")`, `case_sensitive` and probability via the
+`risu_*` extensions), so every shared field maps to the exact value `character-book.ts` produces. This is
+why `insertorder` lands in `sortOrder`, not `priority`. A dedicated test builds the same lore both ways
+and asserts the canonical bodies match. The one native-richer field is `role`: Risu's own `.charx` writer
+drops it, so it is mapped here rather than discarded (a source asymmetry, not a modeling choice).
+
+### Escrow and round-trip
+
+The whole raw envelope rides `escrow["risu-lorebook"].raw`. `fromCanonical` overlays the canonical body
+onto that twin, matched by entry id, and rewrites only the fields whose canonical value changed, so an
+unedited entry re-emits byte-for-byte (comma spacing preserved, `mode`/`folder` residue intact). A
+from-scratch canonical (a lorebook that arrived from another format, no Risu twin) is written fresh with
+`mode: "normal"`. Book-level metadata a native envelope cannot hold (name, description, scan depth, token
+budget) is dropped on export, since Risu keeps it on the character, not in the file.
+
+### Known quirk as a conversion target
+
+Placement order does not yet cross to SillyTavern cleanly. Risu `insertorder` maps to canonical
+`sortOrder` (correct, and invariant with the embedded path), but the SillyTavern worldbook codec currently
+maps its own placement field `order` to canonical `priority` instead of `sortOrder`. So a
+`risu-lorebook -> sillytavern-lorebook` conversion writes the insertion order into ST's `displayIndex` and
+leaves ST `order` at its default. This is a **pre-existing canonical-model split** between the placement
+axis (`insertion_order` / `order` / `insertorder`) and the display/eviction axes, tracked in
+`design/LOREBOOK-FORMATS.md` and a `test.todo`, to be reconciled across all lorebook codecs in a focused
+pass. Same-format Risu round-trips and the embedded `.charx` path are unaffected.
+
 ## Source of truth
 
 | Concern | File |
 | --- | --- |
-| Adapter (detect, container, escrow, dates, safety flags) | `src/formats/risu/index.ts` |
+| Character adapter (detect, container, escrow, dates, safety flags) | `src/formats/risu/index.ts` |
+| Native lorebook codec | `src/formats/risu/lorebook.ts` |
 | Shared Tavern V3 field map | `src/formats/_shared/tavern-fields.ts` |
 | Shared CCv3 asset -> media map | `src/formats/_shared/assets.ts` |
+| Shared keyword `/pattern/flags` decode (character_book + native lore) | `src/formats/_shared/character-book.ts` |
 | Embedded character_book extract / re-embed | `src/formats/_shared/character-book.ts`, `src/convert.ts` |
-| Clean-room field-map provenance | `design/RISU-CARD-DEEP.md` |
+| Clean-room field-map provenance | `design/RISU-CARD-DEEP.md`, `design/LOREBOOK-FORMATS.md` |

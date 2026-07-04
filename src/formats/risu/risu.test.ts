@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
-import adapter from "./index";
+import { characterAdapter as adapter } from "./index";
 
 /** A minimal but realistic CCv3 card with a Risu-specific extensions block (scripts, opaque). */
 function makeCard() {

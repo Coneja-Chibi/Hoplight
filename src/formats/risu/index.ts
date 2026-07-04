@@ -11,6 +11,7 @@ import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
 import { assetsToMedia } from "../_shared/assets";
 import { embedCharacterBook } from "../_shared/character-book";
+import lorebookCodec from "./lorebook";
 import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
 
 type Rec = Record<string, unknown>;
@@ -167,4 +168,8 @@ const adapter: CharacterAdapter = {
   },
 };
 
-export default adapter;
+/** The RisuAI family's character codec, exported by name for direct importers (tests, bundle). */
+export { adapter as characterAdapter };
+
+/** Folders-as-schema: this format family exports every codec it provides (character + native lore). */
+export default [adapter, lorebookCodec];

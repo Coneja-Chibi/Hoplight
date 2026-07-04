@@ -110,8 +110,12 @@ function parseBookPosition(entryPosition: unknown, extensionPosition: unknown): 
 
 // -- keyword <-> trigger (character_book dialect: /pattern/flags, gimsuvy, non-greedy) --------------
 
-/** Decode a character_book keyword, honoring an entry-level `use_regex` force flag. */
-function keywordToTrigger(raw: string, forceRegex: boolean): Trigger {
+/**
+ * Decode a character_book keyword, honoring an entry-level `use_regex` force flag. Exported because
+ * the Risu native lorebook (risu/lorebook.ts) shares this exact `/pattern/flags` + use_regex dialect,
+ * so both paths canonicalize a keyword identically (see the container-invariance contract there).
+ */
+export function keywordToTrigger(raw: string, forceRegex: boolean): Trigger {
   const m = /^\/([\w\W]+?)\/([gimsuvy]*)$/.exec(raw.trim());
   if (m) {
     const t: Trigger = { keyword: (m[1] ?? "").replace(/\\\//g, "/"), isRegex: true };
@@ -138,8 +142,11 @@ function entryToCanonical(entry: CharacterBookEntry, index: number): LorebookEnt
   const pick = (...keys: string[]): unknown =>
     firstDefined(...keys.flatMap((k) => [ext[k], (entry as Record<string, unknown>)[k]]));
 
+  // Risu stashes its activation chance under `extensions.risu_activationPercent` (it is the same
+  // probability axis, per LOREBOOK-FORMATS.md), so read it too or an embedded Risu book loses it.
   const useProbability = pick("useProbability", "use_probability");
-  const rawProbability = useProbability === false ? 100 : numOr(pick("probability"), 100);
+  const rawProbability =
+    useProbability === false ? 100 : numOr(pick("probability", "risu_activationPercent"), 100);
   const probability = Math.min(100, Math.max(0, rawProbability));
 
   const forceRegex = entry.use_regex === true;
@@ -265,7 +272,9 @@ export function extractCharacterBook(rawCard: unknown): CanonicalLorebook | null
 
 // -- canonical -> character_book (re-embed / export direction) -------------------------------------
 
-const triggerToKeyword = (t: Trigger): string => (t.isRegex ? `/${t.keyword}/${t.flags ?? ""}` : t.keyword);
+/** Encode a canonical trigger back to the `/pattern/flags` keyword string (shared with risu/lorebook). */
+export const triggerToKeyword = (t: Trigger): string =>
+  t.isRegex ? `/${t.keyword}/${t.flags ?? ""}` : t.keyword;
 
 /** Precise ext.position value (inverse of parseBookPosition's int branch); RC-only slots collapse. */
 const positionToExt = (p: InjectionPosition): number | string =>

@@ -3,7 +3,7 @@ import { unzipSync, strFromU8 } from "fflate";
 import { convertFile } from "./convert";
 import { characterAdapter as stCharacter } from "./formats/sillytavern/index";
 import { characterAdapter as rcCharacter } from "./formats/rolecall/index";
-import risuCharacter from "./formats/risu/index";
+import { characterAdapter as risuCharacter } from "./formats/risu/index";
 import stWorldbook from "./formats/sillytavern/lorebook";
 import rcLorebook from "./formats/rolecall/lorebook";
 
