@@ -78,3 +78,65 @@ test("canonical model bridges Agnai -> SillyTavern (non-Tavern to Tavern)", () =
   expect(card.data.first_mes).toBe("You again.");
   expect(card.data.scenario).toBe("at a crossroads inn");
 });
+
+// -- De-escrow: authored Agnai config blocks (voice/sprite/culture/imageSettings affixes/json) are
+// first-class canonical slots. Wire shapes verified against agnai common/types (service discriminator,
+// FLAT FullSprite, BaseImageSettings affixes). No public native export carries these (user-local), so
+// the fixture is type-grounded; see samples/agnai/SOURCES.md. --
+
+function makeRichAgnaiCard() {
+  return {
+    kind: "character",
+    name: "Robot",
+    culture: "japanese",
+    visualType: "sprite",
+    sprite: { body: "body_1", front_hair: "hair_2", gender: "female", hairColor: "#f0e0d0" },
+    voice: { service: "elevenlabs", voiceId: "EL-123", rate: 1.1, stability: 0.5 },
+    voiceDisabled: false,
+    imageSettings: { prefix: "anime, ", negative: "blurry", steps: 30, cfg: 7 },
+    json: { response: "{{text}}", schema: [{ name: "text", type: "string" }] },
+    persona: { kind: "attributes", attributes: { personality: ["kind"] } },
+    greeting: "hi",
+    scenario: "cafe",
+    sampleChat: "",
+  };
+}
+
+test("de-escrow read: voice/sprite/culture/image affixes/json land in first-class slots", () => {
+  const ent = adapter.toCanonical({ text: JSON.stringify(makeRichAgnaiCard()) });
+  expect(ent.body.identity.culture).toBe("japanese");
+  expect(ent.body.persona.voice).toEqual({
+    provider: "elevenlabs",
+    voiceId: "EL-123",
+    rate: 1.1,
+    extras: { stability: 0.5 },
+  });
+  expect(ent.body.media.visualKind).toBe("sprite");
+  expect(ent.body.media.sprite).toEqual({
+    parts: { body: "body_1", front_hair: "hair_2" },
+    gender: "female",
+    hairColor: "#f0e0d0",
+  });
+  expect(ent.body.persona.imagePrompt).toEqual({ prefix: "anime, ", negative: "blurry" });
+  expect(ent.body.settings?.responseSchema).toEqual(makeRichAgnaiCard().json);
+});
+
+test("de-escrow round-trip: an unedited rich card deep-equals through canonical + back", () => {
+  const card = makeRichAgnaiCard();
+  const out = JSON.parse(adapter.fromCanonical(adapter.toCanonical({ text: JSON.stringify(card) })).text!);
+  expect(out).toEqual(card);
+});
+
+test("de-escrow edit: mutating voice/culture/affixes reaches the wire, sampler knobs survive", () => {
+  const ent = adapter.toCanonical({ text: JSON.stringify(makeRichAgnaiCard()) });
+  ent.body.persona.voice!.voiceId = "EL-999";
+  ent.body.identity.culture = "korean";
+  ent.body.persona.imagePrompt!.prefix = "watercolor, ";
+  const out = JSON.parse(adapter.fromCanonical(ent).text!);
+  expect(out.voice.voiceId).toBe("EL-999");
+  expect(out.voice.stability).toBe(0.5); // extras survive the rebuild
+  expect(out.culture).toBe("korean");
+  expect(out.imageSettings.prefix).toBe("watercolor, ");
+  expect(out.imageSettings.steps).toBe(30); // sampler knobs untouched (escrow-side of the merge)
+  expect(out.imageSettings.cfg).toBe(7);
+});

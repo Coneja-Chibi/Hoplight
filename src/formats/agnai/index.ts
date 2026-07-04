@@ -6,7 +6,14 @@
  * original card rides in escrow.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
-import type { CanonicalCharacter, CharacterBody, Persona } from "../../entities/character/schema";
+import type {
+  CanonicalCharacter,
+  CharacterBody,
+  ImagePrompt,
+  Persona,
+  Sprite,
+  Voice,
+} from "../../entities/character/schema";
 import type { CanonicalLorebook } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import lorebookCodec, {
@@ -48,6 +55,71 @@ interface AgnaiCard extends Record<string, unknown> {
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 const strList = (v: unknown): string[] | undefined =>
   Array.isArray(v) ? v.filter((s): s is string => typeof s === "string") : undefined;
+const num = (v: unknown): number | undefined =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+const isRec = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+// -- authored config blocks (voice / sprite / image affixes), shapes verified vs agnai common/types --
+
+/** Agnai `voice` (discriminated on `service`) + `voiceDisabled` -> canonical Voice. */
+function readVoice(voice: unknown, voiceDisabled: unknown): Voice | undefined {
+  if (!isRec(voice) || typeof voice.service !== "string") return undefined;
+  const { service, voiceId, rate, pitch, ...rest } = voice;
+  const out: Voice = { provider: service };
+  if (typeof voiceId === "string") out.voiceId = voiceId;
+  if (num(rate) !== undefined) out.rate = num(rate);
+  if (num(pitch) !== undefined) out.pitch = num(pitch);
+  if (voiceDisabled === true) out.disabled = true;
+  if (Object.keys(rest).length > 0) out.extras = rest;
+  return out;
+}
+
+/** Canonical Voice -> Agnai wire pair. Returns null when no voice is set (leave the twin alone). */
+function voiceToWire(v: Voice | undefined): { voice: Record<string, unknown>; disabled: boolean } | null {
+  if (!v) return null;
+  const wire: Record<string, unknown> = { service: v.provider, ...(v.extras ?? {}) };
+  if (v.voiceId !== undefined) wire.voiceId = v.voiceId;
+  if (v.rate !== undefined) wire.rate = v.rate;
+  if (v.pitch !== undefined) wire.pitch = v.pitch;
+  return { voice: wire, disabled: v.disabled === true };
+}
+
+const SPRITE_SPECIALS = ["eyeColor", "bodyColor", "hairColor", "gender"] as const;
+
+/** Agnai FullSprite is FLAT (part keys + colors + gender at one level) -> canonical Sprite {parts, ...}. */
+function readSprite(v: unknown): Sprite | undefined {
+  if (!isRec(v)) return undefined;
+  const parts: Record<string, string> = {};
+  const out: Sprite = { parts };
+  for (const [k, val] of Object.entries(v)) {
+    if ((SPRITE_SPECIALS as readonly string[]).includes(k)) {
+      if (typeof val === "string") out[k as (typeof SPRITE_SPECIALS)[number]] = val;
+    } else if (typeof val === "string") {
+      parts[k] = val;
+    }
+  }
+  return out;
+}
+
+const spriteToWire = (s: Sprite): Record<string, unknown> => ({
+  ...s.parts,
+  ...(s.gender !== undefined ? { gender: s.gender } : {}),
+  ...(s.eyeColor !== undefined ? { eyeColor: s.eyeColor } : {}),
+  ...(s.bodyColor !== undefined ? { bodyColor: s.bodyColor } : {}),
+  ...(s.hairColor !== undefined ? { hairColor: s.hairColor } : {}),
+});
+
+/** imageSettings AFFIXES only (authored text); sampler/provider knobs stay on the twin (escrow). */
+function readImagePrompt(v: unknown): ImagePrompt | undefined {
+  if (!isRec(v)) return undefined;
+  const out: ImagePrompt = {};
+  if (typeof v.prefix === "string") out.prefix = v.prefix;
+  if (typeof v.suffix === "string") out.suffix = v.suffix;
+  if (typeof v.negative === "string") out.negative = v.negative;
+  if (typeof v.template === "string") out.template = v.template;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
 
 /** Agnai persona -> canonical persona (structured for attribute kinds; plain text for "text"). */
 function toStructured(p: AgnaiPersona): Pick<Persona, "personality" | "structured"> {
@@ -71,12 +143,15 @@ function cardToBody(c: AgnaiCard): CharacterBody {
       name: str(c.name) ?? "",
       description: str(c.description),
       characterVersion: str(c.characterVersion),
+      culture: str(c.culture),
     },
     persona: {
       personality: persona.personality,
       scenario: str(c.scenario),
       appearance: str(c.appearance),
       structured: persona.structured,
+      voice: readVoice(c.voice, c.voiceDisabled),
+      imagePrompt: readImagePrompt(c.imageSettings),
     },
     prompts: {
       systemPrompt: str(c.systemPrompt),
@@ -89,9 +164,13 @@ function cardToBody(c: AgnaiCard): CharacterBody {
       alternateGreetings: strList(c.alternateGreetings)?.map((text) => ({ text })),
     },
     examples: { exampleMessages: str(c.sampleChat) },
-    media: {},
+    media: {
+      sprite: readSprite(c.sprite),
+      visualKind: str(c.visualType),
+    },
     attribution: { creator: str(c.creator) },
     discovery: { tags: strList(c.tags) },
+    settings: isRec(c.json) ? { responseSchema: c.json } : undefined,
   };
 }
 
@@ -116,6 +195,27 @@ function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
   const depth = b.prompts.depthInjections?.[0];
   if (depth) base.insert = { depth: depth.depth, prompt: depth.text };
   base.persona = toAgnaiPersona(b);
+
+  // Authored config blocks pulled out of escrow: write only when set (absence leaves the twin alone).
+  set("culture", b.identity.culture);
+  set("visualType", b.media.visualKind);
+  if (b.media.sprite) base.sprite = spriteToWire(b.media.sprite);
+  const v = voiceToWire(b.persona.voice);
+  if (v) {
+    base.voice = v.voice;
+    if (v.disabled || base.voiceDisabled !== undefined) base.voiceDisabled = v.disabled;
+  }
+  if (b.persona.imagePrompt) {
+    // merge affixes over the twin's imageSettings so the sampler/provider knobs survive untouched
+    const affixes: Record<string, unknown> = {};
+    const ip = b.persona.imagePrompt;
+    if (ip.prefix !== undefined) affixes.prefix = ip.prefix;
+    if (ip.suffix !== undefined) affixes.suffix = ip.suffix;
+    if (ip.negative !== undefined) affixes.negative = ip.negative;
+    if (ip.template !== undefined) affixes.template = ip.template;
+    base.imageSettings = { ...(isRec(base.imageSettings) ? base.imageSettings : {}), ...affixes };
+  }
+  if (b.settings?.responseSchema) base.json = b.settings.responseSchema;
   return base;
 }
 

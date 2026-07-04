@@ -18,6 +18,54 @@ export interface Identity {
   /** the main character description / persona block (CCv2/v3 `description`) */
   description?: string;
   characterVersion?: string;
+  // Authored identity attributes (RoleCall casting-card details + Agnai): free-form creator-set facts.
+  /** full/formal name distinct from the display name (RC details.full_name) */
+  fullName?: string;
+  /** honorific / role title (RC details.title) */
+  title?: string;
+  /** free TEXT in every producer ("23", "ageless", "300+ years"), never an int (RC details.age) */
+  age?: string;
+  /** RC details.pronouns */
+  pronouns?: string;
+  /** Agnai culture: drives default language/voice selection */
+  culture?: string;
+}
+
+/**
+ * Per-character voice/TTS selection - the authored SELECTION/config, never the model bytes (those are
+ * assets/escrow). Producers: Agnai `voice`+`voiceDisabled` (rich), Risu `vits` (narrow: only the vits
+ * config actually serializes to .charx; Risu's other TTS fields are app-local and never hit the wire).
+ */
+export interface Voice {
+  /** open union: "elevenlabs" | "webspeechsynthesis" | "novel" | "agnaistic" | "vits" | ... */
+  provider: string;
+  voiceId?: string;
+  rate?: number;
+  pitch?: number;
+  /** creator turned voice off without discarding the config (Agnai voiceDisabled) */
+  disabled?: boolean;
+  /** provider-specific extras (stability, similarityBoost, model seed, vits config...) - authored, open */
+  extras?: Record<string, unknown>;
+}
+
+/**
+ * Authored image-generation prompt hints: the text a creator writes to steer image gen for this
+ * character. Two real producers (Agnai imageSettings affixes; Risu sdData rows + newGenData), so the
+ * shape covers both: shared affix fields plus open labeled rows. Sampler/provider knobs are NOT here
+ * (platform config, escrow).
+ */
+export interface ImagePrompt {
+  prefix?: string;
+  suffix?: string;
+  negative?: string;
+  /** prompt template (Agnai imageSettings.template) */
+  template?: string;
+  /** freeform instruction text (Risu newGenData.instructions) */
+  instructions?: string;
+  /** emotion-pack generation instructions (Risu newGenData.emotionInstructions) */
+  emotionInstructions?: string;
+  /** labeled prompt rows (Risu sdData: [["always","solo, 1girl"], ...]) */
+  rows?: { label: string; value: string }[];
 }
 
 export interface Persona {
@@ -25,6 +73,10 @@ export interface Persona {
   scenario?: string;
   /** Agnai-only free-text physical description (image-gen); other formats fold it into description */
   appearance?: string;
+  /** per-character voice/TTS selection (Agnai voice, Risu vits) */
+  voice?: Voice;
+  /** authored image-gen prompt hints (Agnai imageSettings affixes, Risu sdData/newGenData) */
+  imagePrompt?: ImagePrompt;
   /**
    * structured persona encoding (Agnai persona.kind + attributes); preserves W++/attribute maps.
    * Discriminated so illegal states are unrepresentable: plain "text" carries no attributes;
@@ -52,6 +104,8 @@ export interface Prompts {
   depthInjections?: DepthInjection[];
   /** assistant-response prefill, prepended to the model reply (Agnai; common with Claude) */
   prefill?: string;
+  /** authored plain-append prompt text (Risu additionalText) - a simple append, not a depth injection */
+  additionalText?: string;
 }
 
 /** A greeting with an optional creator-given title (RoleCall alternate_greeting_titles, Backyard scenarios). */
@@ -83,6 +137,8 @@ export interface Attribution {
   creatorNotes?: string;
   /** localized creator notes, map<ISO 639-1, text> (CCv3 prefers this over single-language notes) */
   creatorNotesMultilingual?: Record<string, string>;
+  /** public "from the creator" note shown on the card page (RC creators_note; DISTINCT from creatorNotes) */
+  publicNote?: string;
   /** unix seconds */
   createdAt?: number;
   updatedAt?: number;
@@ -113,10 +169,24 @@ export interface MediaAsset {
   mime?: string;
 }
 
+/** Agnai builder-authored composite avatar: named part selections + palette. Open keys so new part
+ * slots do not require a schema change; the rendered images are assets, this is the authored RECIPE. */
+export interface Sprite {
+  parts: Record<string, string>;
+  gender?: string;
+  eyeColor?: string;
+  bodyColor?: string;
+  hairColor?: string;
+}
+
 export interface Media {
   portrait?: MediaAsset;
   /** extra images / expression + outfit + pose packs (Risu .charx, RoleCall sprites) */
   assets?: MediaAsset[];
+  /** Agnai composite-avatar recipe (visualType "sprite") */
+  sprite?: Sprite;
+  /** which visual mode the creator chose: "avatar" | "sprite" (open; Agnai visualType) */
+  visualKind?: string;
 }
 
 /** A named color swatch in a card's palette (RoleCall casting-card colors[]). */
@@ -140,13 +210,20 @@ export interface Background {
  */
 export interface Presentation {
   accentColor?: string;
+  /** second theming color, distinct from accent (RC details.signature_color, Risu theme color) */
+  signatureColor?: string;
   gradientColors?: string[];
   palette?: Swatch[];
   background?: Background;
   /** creator-chosen display order of definition fields (bento layout) */
   fieldOrder?: string[];
-  /** spoiler / reveal-order config over the public definition fields */
-  spoilers?: { mode?: string; order?: string[] };
+  /**
+   * spoiler / reveal-order config over the public definition fields. `fields` is the authored per-field
+   * boolean map (RC publicDefinitionDisplay.spoilers) - previously collapsed to mode/order and LOST.
+   */
+  spoilers?: { mode?: string; order?: string[]; fields?: Record<string, boolean> };
+  /** creator-supplied external reference links on the casting card (RC details.media_links) */
+  mediaLinks?: string[];
 }
 
 /**
@@ -157,6 +234,23 @@ export interface Presentation {
 export interface CharacterSettings {
   /** group-chat turn-frequency weight, 0..1 (SillyTavern `extensions.talkativeness`) */
   talkativeness?: number;
+  /**
+   * Risu authored display/behavior toggles (single-platform but creator-set, so first-class per the
+   * schema-is-editor doctrine). Grouped so the origin is obvious and other formats never emit them.
+   */
+  risu?: {
+    /** side-screen mode: "none" | "emotion" | "imggen" (open) */
+    viewScreen?: string;
+    largePortrait?: boolean;
+    inlayViewScreen?: boolean;
+    utilityBot?: boolean;
+    lorePlus?: boolean;
+  };
+  /**
+   * Agnai structured-output config (`json` ResponseSchema): authored response-shaping the creator built
+   * in Agnai's schema editor. Carried verbatim-editable; likely migrates to the Preset entity later.
+   */
+  responseSchema?: Record<string, unknown>;
 }
 
 export interface CharacterBody {
@@ -172,6 +266,12 @@ export interface CharacterBody {
   presentation?: Presentation;
   /** authored inline behavior dials (talkativeness, ...) */
   settings?: CharacterSettings;
+  /**
+   * Character-level phrase/logit bias (Risu `bias` [phrase, weight] pairs). NOTE: a DIFFERENT axis than
+   * NovelAI's entry/category-level loreBiasGroups (rich groups, modeled on the lorebook side when its
+   * reconciled shape lands) - two homes because they are genuinely two concepts.
+   */
+  bias?: { phrase: string; weight: number }[];
   /**
    * authored external worldbook link by NAME (SillyTavern `extensions.world`): the creator's intent to
    * auto-load the worldbook called X. Distinct from knowledgeRefs, which links embedded books by canonical id.

@@ -53,6 +53,17 @@ written back on encode.
 | `examples.exampleMessages` | `sampleChat` |
 | `attribution.creator` | `creator` |
 | `discovery.tags` | `tags` |
+| `identity.culture` | `culture` |
+| `persona.voice` | `voice` (discriminated on `service`) + `voiceDisabled` (see below) |
+| `persona.imagePrompt` | `imageSettings.{prefix,suffix,negative,template}` - the authored AFFIXES only |
+| `media.sprite` / `media.visualKind` | `sprite` (flat FullSprite -> `{parts, gender, colors}`) / `visualType` |
+| `settings.responseSchema` | `json` (ResponseSchema, carried verbatim-editable) |
+
+The de-escrowed authored blocks (voice, sprite, culture, image affixes, json) map both ways: `service` ->
+`Voice.provider`, provider-specific extras (stability, similarityBoost, ...) ride `Voice.extras` so the
+rebuild is lossless; `imageSettings` sampler/provider knobs (steps, cfg, seed, provider objects) are NOT
+authored prompt content and stay on the escrow twin - the affix write merges over the twin's block so
+those knobs survive an edit untouched.
 
 Notes on the non-obvious mappings:
 
@@ -163,13 +174,14 @@ convert carries `weight` -> `sortOrder` -> ST `order` (the runtime placement axi
 split that mis-slotted placement into ST `displayIndex` is reconciled (#15, see
 [design/LOREBOOK-FORMATS.md](../../../design/LOREBOOK-FORMATS.md)); Agnai needed no change.
 
-### Not interpreted (escrow-only)
+### selectiveLogic (ST-import residue, interpreted)
 
-`selectiveLogic` is a `number` on the `MemoryEntry` type, but Agnai's own mappers never author it and its
-integer convention is not verifiable from any Agnai source. Rather than guess an ST-style encoding, vaud
-does **not** interpret it: the canonical `selectiveLogic` stays `and_any`, the raw value rides
-escrow-of-raw untouched, and a same-format round-trip re-emits it byte-for-byte. Cross-format exports into
-Agnai omit it entirely (Agnai ignores it anyway).
+`selectiveLogic` is a `number` on the `MemoryEntry` type. Agnai's own editor never authors it; it appears
+as SillyTavern-import residue and uses the ST numeric convention (0 and_any, 1 not_all, 2 not_any,
+3 and_all - the shared `lore-enums` decoder). vaud maps it to the canonical enum both ways: an edit writes
+the number back, an unedited twin re-emits byte-for-byte, and a fresh cross-format encode omits it (Agnai
+never authors it). An earlier codec version hardcoded canonical `and_any`, silently rewriting an imported
+book's secondary-key logic on cross-format export - fixed with regression tests.
 
 Verified against Agnai's runtime matcher (`buildMemoryPrompt` -> `findMatchWithLowestAge`,
 `common/memory.ts`): match-time scanning iterates **only** `entry.keywords`. `secondaryKeys`, `selective`,
