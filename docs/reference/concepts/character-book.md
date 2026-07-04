@@ -39,6 +39,16 @@ When a character is imported, a format-agnostic layer looks for an embedded book
 `findCharacterBook(rawCard)` locates the book across the V3, V2, and flat locations;
 `extractCharacterBook(rawCard)` returns the linked `CanonicalLorebook` or `null`.
 
+### Non-CCv3 dialects override the extractor
+
+The shared extractor above understands the CCv2/v3 `character_book` shape only. A format whose embedded
+book is a different dialect (Agnai embeds a native `characterBook` MemoryBook, not a CCv3 book) provides
+its own `extractLorebook(entity)` method on its `CharacterAdapter`; `convert.ts` calls that override when
+present and falls back to `extractCharacterBook` otherwise. The dialect-specific mapper stays in the
+format's own folder (layers point inward), and it reuses the format's standalone lorebook codec so a book
+canonicalizes identically whether it arrives embedded or as a file. See
+[../formats/agnai.md](../formats/agnai.md) for the Agnai case.
+
 ## Export: inline at the boundary
 
 Rule 3 of the canonical model is asymmetric: extraction is shared and format-agnostic, but **re-embedding
@@ -77,6 +87,7 @@ re-embed on export. A card with a lorebook converts to another card format with 
 | Concern | File |
 | --- | --- |
 | character_book <-> canonical mapper, extract, re-embed | `src/formats/_shared/character-book.ts` |
+| Non-CCv3 dialect extractor override (`extractLorebook`) | `src/core/adapter.ts`, e.g. `src/formats/agnai/index.ts` |
 | Shared lore decoders (selective logic, role, filter) | `src/formats/_shared/lore-enums.ts` |
 | Bundle orchestration (extract, link, re-embed) | `src/convert.ts` |
 | Interop reference | VAUDEVILLE `apps/rc` character-book mapping (facts only) |

@@ -7,7 +7,7 @@
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody, Persona } from "../../entities/character/schema";
-import type { CanonicalLorebook, LorebookBody } from "../../entities/lorebook/schema";
+import type { CanonicalLorebook } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import lorebookCodec, {
   coerceMemoryBook,
@@ -131,21 +131,17 @@ function baseCard(): AgnaiCard {
 }
 
 /**
- * Re-embed linked lorebooks into the card's native `characterBook` (a MemoryBook). Only writes when a
- * book is present, never injects an empty one. A single book twin-overlays its own `agnai-lorebook`
- * escrow (byte-identical same-format re-embed); N books merge their entries (convert makes 0/1 today,
- * but this never silently drops the rest) and full-encode.
+ * Re-embed a linked lorebook into the card's native `characterBook` (a MemoryBook). Only writes when a
+ * book is present, never injects an empty one. The book twin-overlays its own `agnai-lorebook` escrow so
+ * a same-format re-embed is byte-identical; a foreign book (no twin) full-encodes. `characterBook` is
+ * singular, and `convertFile` links 0 or 1, so the first book is the one. A future bundle layer that
+ * passes N will need deliberate merge semantics (split boundaries) - it adds them then, not here.
  */
 function applyLorebook(card: AgnaiCard, lorebooks?: CanonicalLorebook[]): void {
-  if (!lorebooks || lorebooks.length === 0) return;
-  const [first, ...rest] = lorebooks;
-  const body: LorebookBody =
-    rest.length === 0
-      ? first!.body
-      : { ...first!.body, entries: lorebooks.flatMap((l) => l.body.entries) };
-  // Twin only applies when a single book maps 1:1 to its own raw MemoryBook.
-  const twin = rest.length === 0 ? (first!.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined) : undefined;
-  card.characterBook = canonicalToMemoryBook(body, twin);
+  const book = lorebooks?.[0];
+  if (!book) return;
+  const twin = book.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
+  card.characterBook = canonicalToMemoryBook(book.body, twin);
 }
 
 const adapter: CharacterAdapter = {
