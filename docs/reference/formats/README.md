@@ -37,13 +37,23 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 | --- | --- | --- |
 | NovelAI, Wyvern lorebooks | lorebook | planned (Tier C) |
 
-Lumiverse World Books were a Tier B candidate but are **deferred, not planned**. A Lumiverse World Book
-is an internal per-user database entity, not a portable file; Lumiverse's own direct import accepts only
-Risu-native (`{type:"risu"}`) and CCv3/TavernAI (`{entries}`) files, both of which vaud already reads and
-writes, and its documented standalone exports are CCv3 character_book and SillyTavern worldbook, also both
-handled. So Lumiverse lorebook interop already flows through existing codecs. A bespoke Lumiverse-native
-file codec would require an export envelope that cannot be verified from any available source, and even in
-the best case the Lumiverse-only fields (`vectorized`, `automation_id`, `vector_index_status`,
-`group_override`) do not survive Lumiverse's own export to those portable formats. Reconsider only if a
-real Lumiverse-native export sample surfaces. Full-fidelity Lumiverse restore is the `.lvbak` account
-backup, a separate multi-entity concern, not a single lorebook codec.
+Lumiverse World Books need **no dedicated codec: they are already covered** by `risu-lorebook` and the
+CCv3/ST worldbook codecs. Lumiverse is a local app, so lorebooks only move in and out of it as files, and
+the file forms are Risu/CCv3, not anything Lumiverse-native:
+
+- **Import** (`parseDirectLorebook`, verified in the LumiRealm source) accepts exactly two shapes:
+  Risu-native `{type:"risu", data:[...]}` and CCv3/TavernAI `{entries:{...}}`. vaud's `risu-lorebook`
+  emits the former (matching their parser's `obj.type === "risu" && Array.isArray(obj.data)` gate exactly)
+  and `sillytavern-lorebook` emits the latter.
+- **Export** goes back out the same way: a Lumiverse module file carries a Risu-shaped `loreBook[]`
+  (`core/schemas/module.ts`), and `lumiEntryToRisuLore` converts native rows back to the Risu shape on
+  fetch. There is no lorebook export handler that emits a Lumiverse-native file.
+- Their rich native structure, `LumiWorldBookEntry` (~40 fields, incl. Lumiverse-only `vectorized`,
+  `vector_index_status`, `automation_id`, `group_override`), is a **database row**, not a portable file.
+  It is populated from Risu/CCv3 on import (`mapLoreBookEntry`, stashing Risu extras under
+  `extensions.risu_*`) and never serialized standalone. The only file that carries it is the `.lvbak`
+  full-account backup, a separate multi-entity concern, not a lorebook codec.
+
+So Lumiverse lorebook interop round-trips through existing codecs today. A native `LumiWorldBookEntry` file
+codec would be dead surface (no wire serializes it). Revisit only if a real `.lvbak` account backup lands
+as its own bundle-restore effort.
