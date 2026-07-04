@@ -1,6 +1,9 @@
 import { test, expect } from "bun:test";
+import { unzipSync, strFromU8 } from "fflate";
 import { convertFile } from "./convert";
 import { characterAdapter as stCharacter } from "./formats/sillytavern/index";
+import { characterAdapter as rcCharacter } from "./formats/rolecall/index";
+import risuCharacter from "./formats/risu/index";
 import stWorldbook from "./formats/sillytavern/lorebook";
 import rcLorebook from "./formats/rolecall/lorebook";
 
@@ -72,6 +75,26 @@ test("convertFile routes a standalone lorebook file (ST worldbook -> RC v1) same
   expect(rc.lorebook.name).toBe("Aetheria");
   expect(rc.lorebook.entries[0].title).toBe("Skyports");
   expect(rc.lorebook.entries[0].injection.position).toBe("before_example");
+});
+
+test("cross-format: an ST card with a book converts to a RoleCall card with the book intact", () => {
+  const { out } = convertFile(stCharacter, rcCharacter, asText(makeCardWithBook()));
+  const rc = JSON.parse(out.text ?? "");
+  const book = rc.data.character_book;
+  expect(book).toBeDefined();
+  expect(book.entries).toHaveLength(1);
+  expect(book.entries[0].keys).toEqual(["skyport"]);
+  expect(book.entries[0].content).toBe("Floating docks ring every island.");
+});
+
+test("cross-format: an ST card with a book converts to a Risu .charx with the book intact", () => {
+  const { out } = convertFile(stCharacter, risuCharacter, asText(makeCardWithBook()));
+  expect(out.bytes).toBeDefined();
+  const cardJson = JSON.parse(strFromU8(unzipSync(out.bytes!)["card.json"]!));
+  const book = cardJson.data.character_book;
+  expect(book).toBeDefined();
+  expect(book.entries).toHaveLength(1);
+  expect(book.entries[0].keys).toEqual(["skyport"]);
 });
 
 test("convertFile refuses a cross-kind conversion", () => {

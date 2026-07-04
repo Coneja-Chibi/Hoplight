@@ -386,6 +386,20 @@ export function lorebookToCharacterBook(body: LorebookBody, rawBook?: CharacterB
 }
 
 /**
+ * Re-embed referenced lorebooks into a CCv3 card's `data` object, in place. Every CCv2/v3-family card
+ * writer (SillyTavern, RoleCall, Risu) shares this: write the single book at `data.character_book` and
+ * clear the `data.extensions.character_book` fallback so no stale duplicate survives. No-op for an
+ * empty ref set. This is the export half of the bundle contract; import lives in extractCharacterBook.
+ */
+export function embedCharacterBook(data: Record<string, unknown>, lorebooks: CanonicalLorebook[]): void {
+  const book = lorebooksToCharacterBook(lorebooks);
+  if (!book) return;
+  data.character_book = book;
+  const ext = data.extensions;
+  if (ext && typeof ext === "object") delete (ext as Record<string, unknown>).character_book;
+}
+
+/**
  * Resolve knowledge refs to a single embedded character_book (the format supports exactly one).
  * 1 -> 1 overlays/encodes that book. N -> 1 concatenates entries under the first book's settings and
  * records the source boundaries in `extensions.vaud_source_books` so the split is recoverable later

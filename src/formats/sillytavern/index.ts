@@ -5,7 +5,7 @@
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
-import { lorebooksToCharacterBook } from "../_shared/character-book";
+import { embedCharacterBook } from "../_shared/character-book";
 import lorebookCodec from "./lorebook";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion } from "../_shared/png";
@@ -114,17 +114,9 @@ const adapter: CharacterAdapter = {
           : {};
     applyBodyToData(base, entity.body);
 
-    // Re-embed referenced lorebooks into the card's one character_book slot, sourcing each book's
-    // twin from ITS OWN escrow (not this card's stale copy). Writing data.character_book is the CCv2
-    // and CCv3 canonical home; clear the extensions fallback so no stale duplicate survives.
-    if (context?.lorebooks && context.lorebooks.length > 0) {
-      const book = lorebooksToCharacterBook(context.lorebooks);
-      if (book) {
-        (base as Record<string, unknown>).character_book = book;
-        const bx = (base as Record<string, unknown>).extensions;
-        if (bx && typeof bx === "object") delete (bx as Record<string, unknown>).character_book;
-      }
-    }
+    // Re-embed referenced lorebooks into the card's one character_book slot (shared by every CCv3
+    // card writer), sourcing each book's twin from ITS OWN escrow, not this card's stale copy.
+    if (context?.lorebooks?.length) embedCharacterBook(base as Record<string, unknown>, context.lorebooks);
 
     let out: unknown;
     if (rawCard && (variant === "v2" || variant === "v3")) out = { ...rawCard, data: base };

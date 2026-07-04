@@ -5,11 +5,12 @@
  * design/RISU-CARD-DEEP.md (extracted clean-room from card DATA, never Risu source). Lossless:
  * raw card + asset bytes + module ride escrow, including opaque executable content we never run.
  */
-import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
 import { assetsToMedia } from "../_shared/assets";
+import { embedCharacterBook } from "../_shared/character-book";
 import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
 
 type Rec = Record<string, unknown>;
@@ -139,7 +140,7 @@ const adapter: CharacterAdapter = {
     };
   },
 
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
     const esc = entity.escrow?.risu;
     const card = (esc?.raw ? structuredClone(esc.raw) : baseCard()) as V3Card;
 
@@ -150,6 +151,9 @@ const adapter: CharacterAdapter = {
     applyBodyToData(card.data, entity.body);
     if (rawCreated !== undefined) card.data.creation_date = rawCreated;
     if (rawModified !== undefined) card.data.modification_date = rawModified;
+
+    // Risu's card.json is CCv3, so a referenced lorebook re-embeds into its character_book slot.
+    if (context?.lorebooks?.length) embedCharacterBook(card.data as Record<string, unknown>, context.lorebooks);
 
     const files: Record<string, Uint8Array> = {
       "card.json": strToU8(JSON.stringify(card, null, 4)),

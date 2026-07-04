@@ -7,7 +7,7 @@
  * apps/rc source, recorded in design/RC-CARD-FORMAT.md. Lossless: the whole card rides in escrow, so
  * an RC -> canonical -> RC round-trip reproduces every field, including ones with no canonical home.
  */
-import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type {
   CanonicalCharacter,
   CharacterBody,
@@ -17,6 +17,7 @@ import type {
   Presentation,
 } from "../../entities/character/schema";
 import lorebookCodec from "./lorebook";
+import { embedCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
 import { assetsToMedia } from "../_shared/assets";
@@ -197,7 +198,7 @@ const adapter: CharacterAdapter = {
     };
   },
 
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
     const raw = entity.escrow?.rolecall?.raw;
     const card: Rec = isRecord(raw)
       ? (structuredClone(raw) as Rec)
@@ -211,6 +212,9 @@ const adapter: CharacterAdapter = {
     const ext = data.extensions as Rec;
     if (!isRecord(ext.rolecall)) ext.rolecall = {};
     applyBodyToRcExt(ext.rolecall as RcExtension, entity.body);
+
+    // Re-embed any referenced lorebook into the CCv3 character_book slot (RC reads it on import).
+    if (context?.lorebooks?.length) embedCharacterBook(data as Rec, context.lorebooks);
 
     return { text: JSON.stringify(card, null, 2), suggestedExtension: "json" };
   },
