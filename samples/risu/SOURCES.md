@@ -1,6 +1,10 @@
 # Risu sample sources
 
-## cherry.charx
+## cherry.charx (NOT committed - gitignored, 23.7MB) + cherry.card.json (committed fixture)
+- The full `.charx` is too large for git (23.7MB, 256-image asset pack), so it is gitignored and pulled on
+  demand from the URL below. The de-escrow tests run against `cherry.card.json` - the `card.json` sliced out
+  of the archive (`unzip -p cherry.charx card.json > cherry.card.json`, ~125KB) - which carries every
+  authored `extensions.risuai` field. Re-download the full `.charx` only if an asset-bytes test needs it.
 - URL: https://raw.githubusercontent.com/HyperBlaze456/risu-backend-python/main/char_card_upload/cherry.charx
 - Repo: https://github.com/HyperBlaze456/risu-backend-python (path `char_card_upload/cherry.charx`)
 - Retrieved: 2026-07-04
