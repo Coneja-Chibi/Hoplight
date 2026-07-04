@@ -107,6 +107,13 @@ const escapeSlashes = (pattern: string): string => pattern.replace(/(?<!\\)\//g,
 const triggerToKeyword = (t: Trigger): string =>
   t.isRegex ? `/${escapeSlashes(t.keyword)}/${t.flags ?? ""}` : t.keyword;
 
+// -- present-or-absent reads (undefined = ST worldbook did not carry this typed key) ---------------
+
+const presentBool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
+const presentNum = (v: unknown): number | undefined =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+const presentStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
+
 // -- entry <-> wire --------------------------------------------------------------------------------
 
 function entryToCanonical(raw: Record<string, unknown>, index: number): LorebookEntry {
@@ -163,8 +170,18 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
     scanCharacterPersonality: raw.matchCharacterPersonality === true,
     scanUserPersona: raw.matchPersonaDescription === true,
     scanScenario: raw.matchScenario === true,
+    scanCharacterDepthPrompt: presentBool(raw.matchCharacterDepthPrompt),
+    scanCreatorNotes: presentBool(raw.matchCreatorNotes),
 
     ignoreBudget: raw.ignoreBudget === true,
+
+    // Authored ST toggles, de-escrowed to first-class slots (present-or-absent so a cross-format book
+    // that never had them stays clean). displayIndex is a DISTINCT authored axis from `order`/sortOrder.
+    vectorized: presentBool(raw.vectorized),
+    groupOverride: presentBool(raw.groupOverride),
+    useGroupScoring: presentBool(raw.useGroupScoring),
+    automationId: presentStr(raw.automationId),
+    displayIndex: presentNum(raw.displayIndex),
 
     sideEffects: (raw.sideEffects as LorebookEntry["sideEffects"]) ?? null,
   };
@@ -189,9 +206,10 @@ function entryToWire(e: LorebookEntry, raw: Record<string, unknown> | undefined)
   wire.depth = e.depth;
   wire.role = roleToNumber(e.role);
   wire.order = e.sortOrder; // placement out
-  // displayIndex is ST-only cosmetic: a same-format twin carries its own (untouched via the clone);
-  // a cross-format entry (no twin) defaults the display list to insertion order.
-  if (raw === undefined) wire.displayIndex = e.sortOrder;
+  // displayIndex is a DISTINCT authored axis from `order` (a real card can have order=100 while
+  // displayIndex=0..3), so it is first-classed, not fabricated from sortOrder. Write it only when the
+  // creator set one; a cross-format entry with none leaves it to ST's own default (no fabrication).
+  if (e.displayIndex != null) wire.displayIndex = e.displayIndex;
   wire.sticky = e.sticky;
   wire.cooldown = e.cooldown;
   wire.delay = e.delay;
@@ -210,6 +228,12 @@ function entryToWire(e: LorebookEntry, raw: Record<string, unknown> | undefined)
   wire.matchCharacterPersonality = e.scanCharacterPersonality;
   wire.matchPersonaDescription = e.scanUserPersona;
   wire.matchScenario = e.scanScenario;
+  if (e.scanCharacterDepthPrompt !== undefined) wire.matchCharacterDepthPrompt = e.scanCharacterDepthPrompt;
+  if (e.scanCreatorNotes !== undefined) wire.matchCreatorNotes = e.scanCreatorNotes;
+  if (e.vectorized !== undefined) wire.vectorized = e.vectorized;
+  if (e.groupOverride !== undefined) wire.groupOverride = e.groupOverride;
+  if (e.useGroupScoring !== undefined) wire.useGroupScoring = e.useGroupScoring;
+  if (e.automationId !== undefined) wire.automationId = e.automationId;
   wire.ignoreBudget = e.ignoreBudget;
   if (e.sideEffects && e.sideEffects.effects.length > 0) wire.sideEffects = e.sideEffects;
   else delete wire.sideEffects;

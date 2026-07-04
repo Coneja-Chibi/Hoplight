@@ -1,4 +1,6 @@
 import { test, expect } from "bun:test";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   findCharacterBook,
   extractCharacterBook,
@@ -7,6 +9,8 @@ import {
 } from "./character-book";
 import { characterAdapter as stCharacter } from "../sillytavern/index";
 import stWorldbook from "../sillytavern/lorebook";
+import type { CanonicalCharacter } from "../../entities/character/schema";
+import type { CanonicalLorebook } from "../../entities/lorebook/schema";
 
 /**
  * A CCv3 card with an embedded character_book. The book uses CCv3 spec names at the entry top level
@@ -257,6 +261,55 @@ test("an edited lorebook entry re-embeds the change while raw-only residue survi
   const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
   expect(back.data.character_book.entries[0].content).toBe("Rebuilt after the storm.");
   expect(back.data.character_book.entries[0].extensions.vectorized).toBe(true); // untouched residue
+});
+
+// -- Real-corpus de-escrow: the official Seraphina.png embedded 4-entry book carries the ST-extended
+// per-entry fields (vectorized, group_override, use_group_scoring, automation_id, display_index) that
+// were escrow-only residue. Prove they now reach first-class canonical slots AND survive an edit to the
+// wire. Twin PRESENT (extract the book so its escrow twin exists), else a dropped edit hides behind it. --
+
+const seraphinaPng = new Uint8Array(
+  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
+);
+
+/** Extract Seraphina's character + its embedded book (with the book's escrow twin) for de-escrow tests. */
+function seraphina(): { character: CanonicalCharacter; lb: CanonicalLorebook } {
+  const character = stCharacter.toCanonical({ bytes: seraphinaPng });
+  const lb = extractCharacterBook(character.escrow?.sillytavern?.raw)!;
+  return { character, lb };
+}
+
+test("real Seraphina book: ST-extended entry fields de-escrow to first-class canonical slots", () => {
+  const { lb } = seraphina();
+  const e0 = lb.body.entries[0]!;
+  // present-and-read (Seraphina authored these at their defaults; the point is they are now VISIBLE)
+  expect(e0.vectorized).toBe(false);
+  expect(e0.groupOverride).toBe(false);
+  expect(e0.useGroupScoring).toBe(false);
+  expect(e0.automationId).toBe("");
+  // display_index is the field Seraphina proves is a DISTINCT authored axis: 0..3 while sortOrder is uniform
+  expect(lb.body.entries.map((e) => e.displayIndex)).toEqual([0, 1, 2, 3]);
+  expect(new Set(lb.body.entries.map((e) => e.sortOrder)).size).toBe(1); // all equal -> not regenerable from it
+});
+
+test("real Seraphina book: editing a de-escrowed field reaches the wire (twin present, not dropped)", () => {
+  const { character, lb } = seraphina();
+  lb.body.entries[0]!.vectorized = true; // twin holds false
+  lb.body.entries[0]!.groupOverride = true; // twin holds false
+  lb.body.entries[0]!.displayIndex = 99; // twin holds 0
+  const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
+  const ext = back.data.character_book.entries[0].extensions;
+  expect(ext.vectorized).toBe(true);
+  expect(ext.group_override).toBe(true);
+  expect(ext.display_index).toBe(99);
+});
+
+test("real Seraphina book: an unedited re-embed leaves the character_book byte-identical", () => {
+  const { character, lb } = seraphina();
+  const rawBook = (character.escrow?.sillytavern?.raw as { data: { character_book: unknown } }).data.character_book;
+  const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
+  // de-escrowing the fields must NOT perturb the twin when nothing was edited
+  expect(back.data.character_book).toEqual(rawBook);
 });
 
 test("N>1 refs merge into one character_book with recorded split boundaries", () => {

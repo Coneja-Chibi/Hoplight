@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "1.0.0",
+  "exportDate": "2026-07-04T00:00:00.000Z",
+  "lorebook": {
+    "name": "Aetheria",
+    "description": "the floating world",
+    "settings": {
+      "lorebookType": "world",
+      "globalCaseSensitive": false,
+      "globalMatchWholeWords": true,
+      "globalScanDepth": 4,
+      "globalRecursion": true,
+      "tokenBudget": 2048
+    },
+    "metadata": { "genre": "fantasy", "fandom": null, "tags": ["skyships", "oc"] },
+    "entries": [
+      {
+        "id": "e1",
+        "title": "The Skyports",
+        "content": "Floating docks ring every island.",
+        "comment": "internal authoring note: keep skyport lore consistent",
+        "enabled": true,
+        "constant": false,
+        "triggers": {
+          "mode": "advanced",
+          "primary": [{ "keyword": "skyport", "isRegex": false, "probability": 80 }],
+          "secondary": [{ "keyword": "dock", "isRegex": false, "probability": 50 }],
+          "selectiveLogic": "and_any"
+        },
+        "matching": { "caseSensitive": null, "matchWholeWords": null, "scanDepth": 5 },
+        "injection": { "position": "before_example", "depth": 4, "role": "system" },
+        "priority": { "sortOrder": 0, "priority": 100 },
+        "timing": { "sticky": 3, "cooldown": 2, "delay": 1 },
+        "grouping": { "groupName": "places", "categoryId": "cat1", "groupWeight": 100 },
+        "probability": 80,
+        "advanced": {
+          "useMemo": false,
+          "excludeRecursion": true,
+          "preventRecursion": false,
+          "delayUntilRecursion": 0,
+          "ignoreBudget": false
+        },
+        "characterFilter": { "isExclude": false, "names": ["Aria"], "tags": [] },
+        "scanSources": {
+          "characterDescription": true,
+          "characterPersonality": false,
+          "userPersona": false,
+          "scenario": true
+        },
+        "unsupportedFields": {
+          "vectorized": true,
+          "groupOverride": true,
+          "useGroupScoring": false,
+          "automationId": "auto-9",
+          "matchCharacterDepthPrompt": false,
+          "matchCreatorNotes": false,
+          "generationTriggers": [],
+          "outletName": ""
+        }
+      },
+      {
+        "id": "e2",
+        "title": "Common Tongue",
+        "content": "Everyone speaks it.",
+        "comment": null,
+        "enabled": true,
+        "constant": true,
+        "triggers": {
+          "mode": "simple",
+          "primary": [{ "keyword": "language", "isRegex": false }],
+          "secondary": [],
+          "selectiveLogic": "and_any"
+        },
+        "matching": { "caseSensitive": null, "matchWholeWords": null, "scanDepth": null },
+        "injection": { "position": "character", "depth": 4, "role": "system" },
+        "priority": { "sortOrder": 1, "priority": 100 },
+        "timing": { "sticky": 0, "cooldown": 0, "delay": 0 },
+        "grouping": { "groupName": null, "categoryId": null, "groupWeight": 100 },
+        "probability": 100,
+        "advanced": {
+          "useMemo": false,
+          "excludeRecursion": false,
+          "preventRecursion": false,
+          "delayUntilRecursion": 0,
+          "ignoreBudget": false
+        },
+        "characterFilter": null,
+        "scanSources": {
+          "characterDescription": false,
+          "characterPersonality": false,
+          "userPersona": false,
+          "scenario": false
+        }
+      }
+    ],
+    "categories": [{ "id": "cat1", "name": "Places", "sortOrder": 0, "enabled": true }],
+    "tree": {
+      "tree_data": { "root": ["cat1"] },
+      "build_mode": "auto",
+      "granularity": "coarse",
+      "version": 1,
+      "built_at": "2026-07-04T00:00:00.000Z"
+    }
+  }
+}

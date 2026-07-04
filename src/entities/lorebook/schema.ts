@@ -12,12 +12,15 @@ import type { CanonicalEntity } from "../../core/canonical";
  * character body strips its DB fields. A character references lorebooks by id via
  * CharacterBody.knowledgeRefs (ordered); a format that must embed the book resolves those on export.
  *
- * A field earns a first-class slot only if some real WIRE format emits it. RC in-memory-only fields
- * with no serializer producer (allowRecursion, boostIds, boostAmount, scanPreset, probabilityMode -
- * verified absent from packages/lorebook serializeEntryToRoleCallV1 + the ST serializer) ride escrow,
- * not the canonical body: first-classing a field nothing serializes is dead surface. Likewise ST's
- * extra scan sources (matchCharacterDepthPrompt, matchCreatorNotes) stay in escrow since the RC
- * baseline models only the four scan sources below; promote on a real second need.
+ * The wire gate still holds: a field earns a first-class slot only if some real WIRE format SERIALIZES
+ * it. RC in-memory-only fields with no serializer producer (allowRecursion, boostIds, boostAmount,
+ * scanPreset, probabilityMode - verified absent from packages/lorebook serializeEntryToRoleCallV1 + the
+ * ST serializer) ride escrow: first-classing a field nothing serializes is dead surface. But under the
+ * schema-is-editor doctrine, an AUTHORED field a real format DOES serialize gets a slot even if only one
+ * format produces it (single-platform is not a reason to escrow). So ST's extra scan sources
+ * (matchCharacterDepthPrompt, matchCreatorNotes), the vectorized/group-override/group-scoring toggles,
+ * the automation binding, and the distinct displayIndex axis are first-classed below - they are ST wire
+ * fields a creator sets, not in-memory residue.
  */
 
 /**
@@ -150,9 +153,30 @@ export interface LorebookEntry {
   scanCharacterPersonality: boolean;
   scanUserPersona: boolean;
   scanScenario: boolean;
+  /** extra ST worldinfo scan sources (undefined = not produced by this format / off) */
+  scanCharacterDepthPrompt?: boolean;
+  scanCreatorNotes?: boolean;
 
   /** bypass token budget - always inject */
   ignoreBudget: boolean;
+
+  /**
+   * Authored ST-lineage entry toggles that only some formats carry (optional: undefined = the format has
+   * no such field, distinct from an explicit false a producer set). First-classed per the schema-is-editor
+   * doctrine, not escrow. `vectorized` is the RAG toggle (the SETTING, not the vectors, which stay escrow);
+   * `groupOverride`/`useGroupScoring` extend the groupName/groupWeight mutual-exclusion axis; `automationId`
+   * binds an entry to a Quick-Reply automation by id (the id only, the automation set stays escrow).
+   */
+  vectorized?: boolean;
+  groupOverride?: boolean;
+  useGroupScoring?: boolean;
+  automationId?: string | null;
+  /**
+   * Creator's manual display order in the editor list - a DISTINCT authored axis from `sortOrder`
+   * (placement in the assembled prompt). Real ST cards prove they diverge (Seraphina: sortOrder all 100,
+   * displayIndex 0-3), so it is NOT regenerable from sortOrder. null/undefined = follow sortOrder.
+   */
+  displayIndex?: number | null;
 
   sideEffects: EntrySideEffects | null;
 

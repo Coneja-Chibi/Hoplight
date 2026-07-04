@@ -92,6 +92,11 @@ Entry field highlights:
 | `priority` | (no ST field: ST has no eviction axis, so `priority` defaults to `100`) |
 | `groupName` | `group` (empty string -> `null`) |
 | `scanCharacterDescription` etc. | `matchCharacterDescription` etc. |
+| `scanCharacterDepthPrompt`, `scanCreatorNotes` | `matchCharacterDepthPrompt`, `matchCreatorNotes` (extra scan sources) |
+| `vectorized` | `vectorized` (RAG toggle, the SETTING not the vectors) |
+| `groupOverride`, `useGroupScoring` | `group_override`, `use_group_scoring` |
+| `automationId` | `automation_id` (QR-automation binding id) |
+| `displayIndex` | `displayIndex` (distinct authored display-order axis, not `order`) |
 
 ### Lossy positions and escrow
 
@@ -101,12 +106,16 @@ drops per-trigger probability (it has no advanced trigger mode). That loss is in
 escrow-of-raw guards: an **unedited** entry re-projects from its raw twin, so a vaud ST -> ST round-trip
 is still byte-lossless. Only edited fields re-encode and take the collapse.
 
-Raw-only carriers that survive via escrow: entry `uid`, `vectorized`, `automationId`, ST's two extra
-scan sources (`matchCharacterDepthPrompt`, `matchCreatorNotes`), and `displayIndex` (ST's cosmetic
-editor display order) - none of which have a canonical slot. `displayIndex` is a distinct axis from the
-placement order (`order`); since only ST carries it, it rides the raw twin rather than a canonical field.
-On a cross-format import into ST (no twin) `displayIndex` defaults to `sortOrder` so the editor list
-mirrors insertion order.
+The ST-extended per-entry authored fields (`vectorized`, `group_override`, `use_group_scoring`,
+`automation_id`, the two extra scan sources, and `displayIndex`) are **first-classed**, not escrow: each
+maps to a canonical `LorebookEntry` slot so a creator can edit it and carry it across formats. They are
+modeled OPTIONAL (undefined = the source book had no such key), and on the embedded `character_book`
+dialect they are written back only when set and changed, so a byte-identical twin overlay is untouched.
+`displayIndex` is a **distinct** authored axis from the placement order (`order`/`sortOrder`): a real card
+proves they diverge (the official Seraphina card has `order` uniform at 100 while `displayIndex` runs
+0..3), so vaud never fabricates `displayIndex` from `sortOrder` on a cross-format write - a book that
+authored none simply omits it. Raw-only carriers that still ride escrow (no authored meaning): entry
+`uid`, embedding vectors, `loreCache`.
 
 ## Source of truth
 

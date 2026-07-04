@@ -1,0 +1,257 @@
+{
+  "lorebookVersion": 6,
+  "entries": [
+    {
+      "text": "Galena, the witch of the tower. Galena's eyes are obscured by a translucent ribbon that drapes across her face like a veil and is braided into her long, luscious hair. The religious sect of Simja used to keep Galena confined to the tower for her whole life until her marriage to the king. Once free, Galena discovered her magical powers she employs to protect the kingdom from all types of magical enemies.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 1,
+        "reservedTokens": 0,
+        "budgetPriority": 400,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1638423588371,
+      "displayName": "Galena the witch of the tower",
+      "id": "74180e75-5c1d-415c-9b35-8dd7cb7428f3",
+      "keys": [
+        "Galena",
+        "witch",
+        "ribbon",
+        "tower"
+      ],
+      "searchRange": 1000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "4be2c28c-a715-47e0-abf5-830172b67ede",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "witch",
+              "type": 2
+            },
+            {
+              "sequences": [],
+              "sequence": "ribbon",
+              "type": 2
+            },
+            {
+              "sequences": [],
+              "sequence": "veil",
+              "type": 2
+            }
+          ],
+          "ensure_sequence_finish": false,
+          "ensureSequenceFinish": false,
+          "generate_once": true,
+          "generateOnce": true,
+          "bias": 0.07,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ],
+      "advancedConditions": []
+    },
+    {
+      "text": "The religion of Simja is a mighty entity with a firm hold over their own military. Strange history led to a custom of raising witches in the mighty tower structure of a sprawling religious stronghold, Simja. The witch of the tower is forbidden to ever leave the stronghold and forbidden all outside contact until their weddings to whichever king can convince them to provide fortitude and advancements to their creed. The women raised within the stronghold of Simja are infused with magical powers. ",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 1,
+        "reservedTokens": 0,
+        "budgetPriority": 400,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1633478891368,
+      "displayName": "Simja",
+      "id": "2cca700d-9599-48d3-81e0-dd800bf2e834",
+      "keys": [
+        "Simja",
+        "religion",
+        "creed",
+        "magic",
+        "tower"
+      ],
+      "searchRange": 1000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "",
+      "loreBiasGroups": [
+        {
+          "phrases": [],
+          "ensure_sequence_finish": false,
+          "ensureSequenceFinish": false,
+          "generate_once": true,
+          "generateOnce": true,
+          "bias": 0,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ],
+      "advancedConditions": []
+    },
+    {
+      "text": "Crystal dragons were created from the corpses of defeated wyverns when ancient kingdoms fell under demonic influence during the Great War. These beasts possess incredible strength coupled with magical powers. Their scales are covered in crystal shards that give them both physical protection and mystical properties. They are magnificent in their appearance.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 1,
+        "reservedTokens": 0,
+        "budgetPriority": 400,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1638423622779,
+      "displayName": "Crystal Dragon",
+      "id": "9232c7f8-d128-4c1e-b201-29ecc825afd7",
+      "keys": [
+        "crystal",
+        "sparkle",
+        "dragon",
+        "wyvern",
+        "beast"
+      ],
+      "searchRange": 1000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "4be2c28c-a715-47e0-abf5-830172b67ede",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "dragon",
+              "type": 2
+            }
+          ],
+          "ensure_sequence_finish": false,
+          "ensureSequenceFinish": false,
+          "generate_once": true,
+          "generateOnce": true,
+          "bias": 0.07,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ],
+      "advancedConditions": []
+    }
+  ],
+  "settings": {
+    "orderByKeyLocations": false
+  },
+  "categories": [
+    {
+      "name": "Characters",
+      "id": "4be2c28c-a715-47e0-abf5-830172b67ede",
+      "enabled": true,
+      "createSubcontext": false,
+      "subcontextSettings": {
+        "text": "",
+        "contextConfig": {
+          "prefix": "",
+          "suffix": "\n",
+          "tokenBudget": 1,
+          "reservedTokens": 0,
+          "budgetPriority": 400,
+          "trimDirection": "trimBottom",
+          "insertionType": "newline",
+          "maximumTrimType": "sentence",
+          "insertionPosition": -1
+        },
+        "lastUpdatedAt": 1633483574108,
+        "displayName": "New Lorebook Entry",
+        "id": "5a862bc7-f541-4812-bec6-e8ecc8ff6425",
+        "keys": [],
+        "searchRange": 1000,
+        "enabled": true,
+        "forceActivation": false,
+        "keyRelative": false,
+        "nonStoryActivatable": false,
+        "category": "",
+        "loreBiasGroups": [
+          {
+            "phrases": [],
+            "ensure_sequence_finish": false,
+            "ensureSequenceFinish": false,
+            "generate_once": true,
+            "generateOnce": true,
+            "bias": 0,
+            "enabled": true,
+            "whenInactive": false
+          }
+        ],
+        "advancedConditions": []
+      },
+      "useCategoryDefaults": true,
+      "categoryDefaults": {
+        "text": "",
+        "contextConfig": {
+          "prefix": "",
+          "suffix": "\n",
+          "tokenBudget": 1,
+          "reservedTokens": 0,
+          "budgetPriority": 400,
+          "trimDirection": "trimBottom",
+          "insertionType": "newline",
+          "maximumTrimType": "sentence",
+          "insertionPosition": -1
+        },
+        "lastUpdatedAt": 1633478644543,
+        "displayName": "New Lorebook Entry",
+        "id": "3aefc0bd-f98d-48da-81ea-4c2cd48db082",
+        "keys": [],
+        "searchRange": 1000,
+        "enabled": true,
+        "forceActivation": false,
+        "keyRelative": false,
+        "nonStoryActivatable": false,
+        "category": "",
+        "loreBiasGroups": [
+          {
+            "phrases": [],
+            "ensure_sequence_finish": false,
+            "ensureSequenceFinish": false,
+            "generate_once": true,
+            "generateOnce": true,
+            "bias": 0,
+            "enabled": true,
+            "whenInactive": false
+          }
+        ],
+        "advancedConditions": []
+      },
+      "categoryBiasGroups": [
+        {
+          "phrases": [],
+          "ensure_sequence_finish": false,
+          "ensureSequenceFinish": false,
+          "generate_once": true,
+          "generateOnce": true,
+          "bias": 0,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ],
+      "settings": {},
+      "order": [],
+      "open": true
+    }
+  ],
+  "order": []
+}

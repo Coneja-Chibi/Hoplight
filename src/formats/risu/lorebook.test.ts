@@ -135,14 +135,15 @@ test("cross-format: an ST worldbook writes a Risu native lorebook (no-twin full 
 
 /**
  * RECONCILED (#15): placement order has ONE canonical home, `sortOrder`, across every codec. A Risu
- * `insertorder` therefore lands in ST worldbook `order` (the placement axis) on convert, NOT in the
- * cosmetic `displayIndex` and NOT in eviction `priority`. With no ST twin, `displayIndex` defaults to
- * the insertion order so the ST editor list matches placement.
+ * `insertorder` therefore lands in ST worldbook `order` (the placement axis) on convert, NOT in eviction
+ * `priority`. And per the de-escrow doctrine (CF-1): `displayIndex` is a DISTINCT authored axis, not a
+ * function of placement, so a Risu book that never authored one must NOT have it fabricated from sortOrder
+ * on cross-format export (the old fabrication corrupted real cards where order != displayIndex).
  */
-test("risu insertorder lands in ST worldbook `order` (placement), not `priority`/`displayIndex`", () => {
+test("risu insertorder lands in ST worldbook `order` (placement), and displayIndex is not fabricated", () => {
   const canon = risuLorebook.toCanonical(asText(nativeEnvelope())); // insertorder: 42 -> sortOrder
   const out = JSON.parse(stWorldbook.fromCanonical(canon).text ?? ""); // no ST twin -> full encode
   const e = out.entries["0"]!;
   expect(e.order).toBe(42); // placement lands in ST `order`
-  expect(e.displayIndex).toBe(42); // no twin: display defaults to insertion order
+  expect(e.displayIndex).toBeUndefined(); // Risu authored no displayIndex -> none fabricated
 });

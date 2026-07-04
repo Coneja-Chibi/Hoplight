@@ -21,7 +21,13 @@ import type {
   InjectionPosition,
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import { parseSelectiveLogic, selectiveLogicToNumber, parseRole, roleToNumber } from "./lore-enums";
+import {
+  parseSelectiveLogic,
+  selectiveLogicToNumber,
+  parseRole,
+  roleToNumber,
+  parseCharacterFilter,
+} from "./lore-enums";
 
 // -- interop wire shapes (CCv3 character_book) -----------------------------------------------------
 
@@ -70,6 +76,13 @@ const optionalNum = (v: unknown): number | null =>
 const boolOr = (v: unknown, fallback: boolean): boolean => (typeof v === "boolean" ? v : fallback);
 
 const optionalBool = (v: unknown): boolean | null => (typeof v === "boolean" ? v : null);
+
+/** Present-or-absent read: the value if the wire actually carried this typed key, else undefined (the
+ * format has no such field). Distinct from boolOr, which manufactures a default the wire never stated. */
+const presentBool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
+const presentNum = (v: unknown): number | undefined =>
+  typeof v === "number" && Number.isFinite(v) ? v : undefined;
+const presentStr = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 
 /** A recursion-delay may arrive as a number, or as `true` meaning "one step". */
 const parseRecursionDelay = (v: unknown): number =>
@@ -196,15 +209,27 @@ function entryToCanonical(entry: CharacterBookEntry, index: number): LorebookEnt
     preventRecursion: boolOr(pick("preventRecursion", "prevent_recursion"), false),
     delayUntilRecursion: parseRecursionDelay(pick("delayUntilRecursion", "delay_until_recursion")),
 
-    characterFilter: null,
+    characterFilter: parseCharacterFilter(pick("characterFilter", "character_filter")),
 
     scanCharacterDescription: boolOr(pick("matchCharacterDescription", "scanCharacterDescription"), false),
     scanCharacterPersonality: boolOr(pick("matchCharacterPersonality", "scanCharacterPersonality"), false),
     scanUserPersona: boolOr(pick("matchPersonaDescription", "scanUserPersona"), false),
     scanScenario: boolOr(pick("matchScenario", "scanScenario"), false),
+    scanCharacterDepthPrompt: presentBool(pick("matchCharacterDepthPrompt", "scanCharacterDepthPrompt")),
+    scanCreatorNotes: presentBool(pick("matchCreatorNotes", "scanCreatorNotes")),
 
     ignoreBudget: boolOr(pick("ignoreBudget", "ignore_budget"), false),
 
+    // Authored ST-lineage toggles, first-classed (were escrow-only residue). presentX keeps undefined when
+    // the book has no such key, so a byte-identical twin overlay never manufactures a default.
+    vectorized: presentBool(pick("vectorized")),
+    groupOverride: presentBool(pick("groupOverride", "group_override")),
+    useGroupScoring: presentBool(pick("useGroupScoring", "use_group_scoring")),
+    automationId: presentStr(pick("automationId", "automation_id")) ?? undefined,
+    displayIndex: presentNum(pick("displayIndex", "display_index")),
+
+    // sideEffects: no verified producer authors it on the embedded character_book dialect (the standalone
+    // ST worldbook codec maps it where it is a real file field). Wire-gate: leave null until a producer appears.
     sideEffects: null,
   };
 }
@@ -364,6 +389,21 @@ function entryToBook(e: LorebookEntry, twin: CharacterBookEntry | undefined, ind
   setExt("scanCharacterPersonality", "matchCharacterPersonality", e.scanCharacterPersonality);
   setExt("scanUserPersona", "matchPersonaDescription", e.scanUserPersona);
   setExt("scanScenario", "matchScenario", e.scanScenario);
+
+  // Authored ST-lineage toggles, de-escrowed. Only write when the canonical value is defined (undefined =
+  // the format has no such field) AND changed vs the twin, so a byte-identical overlay is untouched.
+  if (e.scanCharacterDepthPrompt !== undefined)
+    setExt("scanCharacterDepthPrompt", "matchCharacterDepthPrompt", e.scanCharacterDepthPrompt);
+  if (e.scanCreatorNotes !== undefined) setExt("scanCreatorNotes", "matchCreatorNotes", e.scanCreatorNotes);
+  if (e.vectorized !== undefined) setExt("vectorized", "vectorized", e.vectorized);
+  if (e.groupOverride !== undefined) setExt("groupOverride", "group_override", e.groupOverride);
+  if (e.useGroupScoring !== undefined) setExt("useGroupScoring", "use_group_scoring", e.useGroupScoring);
+  if (e.automationId !== undefined) setExt("automationId", "automation_id", e.automationId);
+  if (e.displayIndex != null) setExt("displayIndex", "display_index", e.displayIndex);
+  setExt("characterFilter", "characterFilter", e.characterFilter
+    ? { isExclude: e.characterFilter.isExclude, names: e.characterFilter.names, tags: e.characterFilter.tags }
+    : undefined);
+
   if (changed("probability")) {
     ext.probability = e.probability;
     ext.useProbability = e.probability < 100;
