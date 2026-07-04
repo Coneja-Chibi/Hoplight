@@ -73,6 +73,9 @@ function entryToCanonical(e: Record<string, unknown>): LorebookEntry {
   const grouping = (e.grouping ?? {}) as Record<string, unknown>;
   const advanced = (e.advanced ?? {}) as Record<string, unknown>;
   const scan = (e.scanSources ?? {}) as Record<string, unknown>;
+  // ST-origin authored toggles RC preserves in its unsupportedFields bag; now first-class canonical
+  const unsup = (e.unsupportedFields ?? {}) as Record<string, unknown>;
+  const presentBool = (v: unknown): boolean | undefined => (typeof v === "boolean" ? v : undefined);
 
   return {
     id: typeof e.id === "string" ? e.id : "",
@@ -121,6 +124,13 @@ function entryToCanonical(e: Record<string, unknown>): LorebookEntry {
     scanScenario: scan.scenario === true,
 
     ignoreBudget: advanced.ignoreBudget === true,
+
+    vectorized: presentBool(unsup.vectorized),
+    groupOverride: presentBool(unsup.groupOverride),
+    useGroupScoring: presentBool(unsup.useGroupScoring),
+    automationId: typeof unsup.automationId === "string" ? unsup.automationId : undefined,
+    scanCharacterDepthPrompt: presentBool(unsup.matchCharacterDepthPrompt),
+    scanCreatorNotes: presentBool(unsup.matchCreatorNotes),
 
     sideEffects: (e.sideEffects as LorebookEntry["sideEffects"]) ?? null,
     metadata: (e.metadata as Record<string, unknown> | null | undefined) ?? undefined,
@@ -226,6 +236,20 @@ function entryToWire(e: LorebookEntry, raw: Record<string, unknown> | undefined)
   else delete wire.sideEffects;
   if (e.metadata != null) wire.metadata = e.metadata;
   else delete wire.metadata;
+  // de-escrowed ST-origin toggles re-emit into the unsupportedFields bag (other bag keys ride the clone)
+  const de: [string, unknown][] = [
+    ["vectorized", e.vectorized],
+    ["groupOverride", e.groupOverride],
+    ["useGroupScoring", e.useGroupScoring],
+    ["automationId", e.automationId],
+    ["matchCharacterDepthPrompt", e.scanCharacterDepthPrompt],
+    ["matchCreatorNotes", e.scanCreatorNotes],
+  ];
+  if (de.some(([, v]) => v !== undefined)) {
+    const bag = (wire.unsupportedFields ?? {}) as Record<string, unknown>;
+    for (const [k, v] of de) if (v !== undefined) bag[k] = v;
+    wire.unsupportedFields = bag;
+  }
   return wire;
 }
 
@@ -238,20 +262,28 @@ function bookToWire(body: LorebookBody, rawBook: Record<string, unknown> | undef
     }
   }
 
+  // budgetMode/entryBudget: real RC exports OMIT them at defaults, so preserve the twin's
+  // presence/absence (a fresh cross-format encode emits them only when non-default) - always writing
+  // them mutated an unedited real export by two fabricated keys.
+  const rawSettings = (
+    base.settings && typeof base.settings === "object" && !Array.isArray(base.settings) ? base.settings : {}
+  ) as Record<string, unknown>;
+  const settings: Record<string, unknown> = {
+    lorebookType: body.lorebookType ?? "other",
+    globalCaseSensitive: body.globalCaseSensitive,
+    globalMatchWholeWords: body.globalMatchWholeWords,
+    globalScanDepth: body.globalScanDepth,
+    globalRecursion: body.globalRecursion,
+    tokenBudget: body.tokenBudget,
+  };
+  if ((rawBook ? "budgetMode" in rawSettings : body.budgetMode !== "token")) settings.budgetMode = body.budgetMode;
+  if ((rawBook ? "entryBudget" in rawSettings : body.entryBudget !== 0)) settings.entryBudget = body.entryBudget;
+
   const wire: Record<string, unknown> = {
     ...base,
     name: body.name,
     description: body.description ?? null,
-    settings: {
-      lorebookType: body.lorebookType ?? "other",
-      globalCaseSensitive: body.globalCaseSensitive,
-      globalMatchWholeWords: body.globalMatchWholeWords,
-      globalScanDepth: body.globalScanDepth,
-      globalRecursion: body.globalRecursion,
-      tokenBudget: body.tokenBudget,
-      budgetMode: body.budgetMode,
-      entryBudget: body.entryBudget,
-    },
+    settings,
     metadata: { genre: body.genre ?? null, fandom: body.fandom ?? null, tags: body.tags },
     entries: body.entries.map((e) => entryToWire(e, rawEntries.get(e.id))),
   };

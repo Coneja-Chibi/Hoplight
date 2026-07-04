@@ -100,7 +100,8 @@ test("toCanonical maps the RC-specific layer onto the shared Tavern body", () =>
   expect(p.palette).toEqual([{ label: "Ink", name: "ink", hex: "#1a1410" }]);
   expect(p.background).toEqual({ ref: "https://cdn/bg.mp4", overlayOpacity: 0.6, videoPlaybackRate: 1 });
   expect(p.fieldOrder).toEqual(["personality", "scenario"]);
-  expect(p.spoilers).toEqual({ mode: "on", order: ["description"] });
+  // the authored per-field spoiler map is first-class now (was collapsed to mode/order and lost)
+  expect(p.spoilers).toEqual({ mode: "on", order: ["description"], fields: { description: true } });
 
   // sprites serialized into data.assets[] become the media/expression pack
   expect(ent.body.media.portrait).toEqual({ role: "portrait", label: "main", ref: "https://cdn/main.png", mime: "image/png", primary: true });
@@ -170,4 +171,35 @@ test("WB-2 edit: editing the depth_prompt-origin entry reaches extensions.depth_
 test("real RC card round-trips unedited without wire mutation", () => {
   const ent = adapter.toCanonical({ text: realCard });
   expect(JSON.parse(adapter.fromCanonical(ent).text ?? "")).toEqual(JSON.parse(realCard));
+});
+
+// -- De-escrow (real sample): authored casting-card fields land in first-class slots + edits reach wire --
+
+test("de-escrow read: identity attrs / signatureColor / spoiler fields / publicNote / mediaLinks", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  expect(ent.body.identity.fullName).toBe("Veranika Sandoval");
+  expect(ent.body.identity.title).toBe("The Wandering Cartographer");
+  expect(ent.body.identity.age).toBe("34");
+  expect(ent.body.identity.pronouns).toBe("she/her");
+  expect(ent.body.presentation?.signatureColor).toBe("#7a5c3a");
+  expect(ent.body.presentation?.spoilers?.fields).toBeDefined();
+  expect(ent.body.attribution.publicNote).toBe("She's the first character I ever finished. Be kind to her.");
+  expect(ent.body.presentation?.mediaLinks).toBeDefined();
+});
+
+test("de-escrow edit: mutating the new RC slots reaches their exact wire homes", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  ent.body.identity.title = "Master Cartographer";
+  ent.body.identity.age = "35";
+  ent.body.presentation!.signatureColor = "#123456";
+  ent.body.attribution.publicNote = "Updated note.";
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  const rc = out.data.extensions.rolecall;
+  expect(rc.details.title).toBe("Master Cartographer");
+  expect(rc.details.age).toBe("35");
+  expect(rc.details.signature_color).toBe("#123456");
+  expect(rc.creators_note).toBe("Updated note.");
+  // untouched neighbors survive
+  expect(rc.details.full_name).toBe("Veranika Sandoval");
+  expect(rc.details.pronouns).toBe("she/her");
 });

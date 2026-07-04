@@ -47,6 +47,16 @@ interface RcDepthInjection {
 }
 
 interface RcDetails extends Rec {
+  // authored identity attributes (casting card)
+  full_name?: string;
+  title?: string;
+  /** free TEXT in RC ("23", "ageless"), never an int */
+  age?: string;
+  pronouns?: string;
+  /** second theming color, distinct from the top-level accent_color */
+  signature_color?: string;
+  /** creator-supplied external reference links */
+  media_links?: string[];
   gradient_colors?: string[];
   colors?: Array<{ label?: string; name?: string; hex: string }>;
   fieldOrder?: string[];
@@ -67,6 +77,8 @@ interface RcExtension extends Rec {
   content_rating?: string;
   source_url?: string;
   accent_color?: string;
+  /** public "from the creator" note on the card page; DISTINCT from data.creator_notes */
+  creators_note?: string;
   details?: RcDetails;
   alternate_greeting_titles?: Array<string | null>;
 }
@@ -109,15 +121,22 @@ function presentation(rc: RcExtension): Presentation | undefined {
   const bgRef = bg ? (bg.customUrl ?? bg.backgroundId ?? undefined) : undefined;
   const p: Presentation = {
     accentColor: rc.accent_color,
+    signatureColor: d?.signature_color,
     gradientColors: d?.gradient_colors,
     palette: d?.colors?.map((c) => ({ label: c.label, name: c.name, hex: c.hex })),
     background: bgRef
       ? { ref: bgRef, overlayOpacity: bg?.overlayOpacity, videoPlaybackRate: bg?.videoPlaybackRate }
       : undefined,
     fieldOrder: d?.fieldOrder,
+    // fields is the authored per-field spoiler boolean map - previously collapsed to mode/order and LOST
     spoilers: d?.publicDefinitionDisplay
-      ? { mode: d.publicDefinitionDisplay.spoilerMode ? "on" : "off", order: d.publicDefinitionDisplay.order }
+      ? {
+          mode: d.publicDefinitionDisplay.spoilerMode ? "on" : "off",
+          order: d.publicDefinitionDisplay.order,
+          fields: d.publicDefinitionDisplay.spoilers,
+        }
       : undefined,
+    mediaLinks: d?.media_links,
   };
   return Object.values(p).some((v) => v !== undefined) ? p : undefined;
 }
@@ -130,6 +149,14 @@ function cardToBody(data: TavernData, rc: RcExtension): CharacterBody {
   body.discovery.fandom = rc.fandom;
   body.discovery.rating = rc.content_rating ? RATING_IN[rc.content_rating] : undefined;
   body.attribution.sourceUrl = rc.source_url;
+  body.attribution.publicNote = rc.creators_note;
+
+  // authored casting-card identity attributes (details.*) -> Identity slots
+  const d = rc.details;
+  body.identity.fullName = typeof d?.full_name === "string" ? d.full_name : undefined;
+  body.identity.title = typeof d?.title === "string" ? d.title : undefined;
+  body.identity.age = typeof d?.age === "string" ? d.age : undefined;
+  body.identity.pronouns = typeof d?.pronouns === "string" ? d.pronouns : undefined;
 
   const titled = titledGreetings(data, rc);
   if (titled) body.greetings.alternateGreetings = titled;
@@ -163,9 +190,42 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   set("fandom", body.discovery.fandom);
   if (body.discovery.rating) ext.content_rating = RATING_OUT[body.discovery.rating];
   set("source_url", body.attribution.sourceUrl);
+  set("creators_note", body.attribution.publicNote);
 
   const titles = body.greetings.alternateGreetings?.map((g) => g.title ?? null);
   if (titles?.some((t) => t !== null)) ext.alternate_greeting_titles = titles;
+
+  // De-escrowed details fields write back into their exact wire homes; anything undefined leaves the
+  // twin's value alone, so an untouched card still round-trips byte-identical.
+  const id = body.identity;
+  const pres = body.presentation;
+  const wantsDetails =
+    id.fullName !== undefined ||
+    id.title !== undefined ||
+    id.age !== undefined ||
+    id.pronouns !== undefined ||
+    pres?.signatureColor !== undefined ||
+    pres?.mediaLinks !== undefined ||
+    pres?.spoilers !== undefined;
+  if (!wantsDetails) return;
+  const details = (isRecord(ext.details) ? ext.details : (ext.details = {})) as RcDetails;
+  const setD = <K extends keyof RcDetails>(k: K, v: RcDetails[K] | undefined): void => {
+    if (v !== undefined) details[k] = v;
+  };
+  setD("full_name", id.fullName);
+  setD("title", id.title);
+  setD("age", id.age);
+  setD("pronouns", id.pronouns);
+  setD("signature_color", pres?.signatureColor);
+  setD("media_links", pres?.mediaLinks);
+  if (pres?.spoilers) {
+    const pdd = (isRecord(details.publicDefinitionDisplay)
+      ? details.publicDefinitionDisplay
+      : (details.publicDefinitionDisplay = {})) as NonNullable<RcDetails["publicDefinitionDisplay"]>;
+    if (pres.spoilers.mode !== undefined) pdd.spoilerMode = pres.spoilers.mode === "on";
+    if (pres.spoilers.order !== undefined) pdd.order = pres.spoilers.order;
+    if (pres.spoilers.fields !== undefined) pdd.spoilers = pres.spoilers.fields;
+  }
 }
 
 const adapter: CharacterAdapter = {

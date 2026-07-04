@@ -186,3 +186,43 @@ test("an edited entry field re-projects into the nested wire on serialize", () =
   // untouched raw-only field still survives the edit
   expect(back.lorebook.entries[0].unsupportedFields.automationId).toBe("auto-9");
 });
+
+// -- De-escrow (real sample): the unsupportedFields bag's authored ST-origin toggles are first-class --
+
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const realBook = readFileSync(
+  join(import.meta.dir, "../../../samples/rolecall/aetheria-lorebook.v1.json"),
+  "utf8",
+);
+
+test("de-escrow read: unsupportedFields toggles land in first-class canonical slots", () => {
+  const canon = codec.toCanonical({ text: realBook });
+  const e0 = canon.body.entries[0]!;
+  expect(e0.vectorized).toBe(true);
+  expect(e0.groupOverride).toBe(true);
+  expect(e0.useGroupScoring).toBe(false);
+  expect(e0.automationId).toBe("auto-9");
+  expect(e0.scanCharacterDepthPrompt).toBe(false);
+  expect(e0.scanCreatorNotes).toBe(false);
+});
+
+test("de-escrow edit: flipping the toggles reaches the unsupportedFields bag, residue survives", () => {
+  const canon = codec.toCanonical({ text: realBook });
+  canon.body.entries[0]!.vectorized = false;
+  canon.body.entries[0]!.useGroupScoring = true;
+  const out = JSON.parse(codec.fromCanonical(canon).text ?? "");
+  const bag = out.lorebook.entries[0].unsupportedFields;
+  expect(bag.vectorized).toBe(false);
+  expect(bag.useGroupScoring).toBe(true);
+  expect(bag.groupOverride).toBe(true); // unedited neighbor
+  // raw-only bag residue (RC-side automation wiring) survives the clone
+  expect(bag.generationTriggers).toEqual([]);
+  expect(bag.outletName).toBe("");
+});
+
+test("de-escrow round-trip: the real RC lorebook re-emits unedited without wire mutation", () => {
+  const canon = codec.toCanonical({ text: realBook });
+  expect(JSON.parse(codec.fromCanonical(canon).text ?? "")).toEqual(JSON.parse(realBook));
+});
