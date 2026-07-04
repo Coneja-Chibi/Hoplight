@@ -8,7 +8,14 @@
  * hasExecutableContent. Field shapes verified against the real cherry.card.json sample
  * (samples/risu/SOURCES.md), extracted clean-room from card DATA, never Risu source.
  */
-import type { CharacterBody, ImagePrompt, Voice } from "../../entities/character/schema";
+import type {
+  CharacterBehavior,
+  CharacterBody,
+  ImagePrompt,
+  RegexScript,
+  TriggerScript,
+  Voice,
+} from "../../entities/character/schema";
 import type { TavernData } from "../_shared/tavern-fields";
 
 type Rec = Record<string, unknown>;
@@ -73,6 +80,81 @@ function readToggles(r: Rec): NonNullable<CharacterBody["settings"]>["risu"] {
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
+// -- authored behavior (scripts): first-class editable DATA, never executed (see CharacterBehavior) --
+
+/** customScripts wire rows -> RegexScript[] (undefined when none). */
+function readRegexScripts(v: unknown): RegexScript[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = v.filter(isRec).map((s): RegexScript => {
+    const r: RegexScript = {
+      find: typeof s.in === "string" ? s.in : "",
+      replace: typeof s.out === "string" ? s.out : "",
+      phase: typeof s.type === "string" ? s.type : "",
+    };
+    if (typeof s.comment === "string") r.label = s.comment;
+    if (typeof s.flag === "string") r.flags = s.flag;
+    if (typeof s.ableFlag === "boolean") r.useFlags = s.ableFlag;
+    return r;
+  });
+  return out.length > 0 ? out : undefined;
+}
+
+const regexScriptsToWire = (list: RegexScript[]): Rec[] =>
+  list.map((r) => ({
+    comment: r.label ?? "",
+    in: r.find,
+    out: r.replace,
+    type: r.phase,
+    ...(r.flags !== undefined ? { flag: r.flags } : {}),
+    ...(r.useFlags !== undefined ? { ableFlag: r.useFlags } : {}),
+  }));
+
+/** triggerscript wire rows -> TriggerScript[] (condition/effect rows carried verbatim-editable). */
+function readTriggerScripts(v: unknown): TriggerScript[] | undefined {
+  if (!Array.isArray(v)) return undefined;
+  const out = v.filter(isRec).map((s): TriggerScript => {
+    const t: TriggerScript = {
+      event: typeof s.type === "string" ? s.type : "",
+      conditions: Array.isArray(s.conditions) ? s.conditions : [],
+      effects: Array.isArray(s.effect) ? s.effect : [],
+    };
+    if (typeof s.comment === "string") t.label = s.comment;
+    return t;
+  });
+  return out.length > 0 ? out : undefined;
+}
+
+const triggerScriptsToWire = (list: TriggerScript[]): Rec[] =>
+  list.map((t) => ({
+    comment: t.label ?? "",
+    type: t.event,
+    conditions: t.conditions,
+    effect: t.effects, // wire key is singular
+  }));
+
+/** The whole authored behavior surface -> CharacterBehavior (undefined when nothing authored). */
+function readBehavior(r: Rec): CharacterBehavior | undefined {
+  const out: CharacterBehavior = {};
+  const regex = readRegexScripts(r.customScripts);
+  if (regex) out.regexScripts = regex;
+  const triggers = readTriggerScripts(r.triggerscript);
+  if (triggers) out.triggerScripts = triggers;
+  if (presentStr(r.virtualscript)) out.virtualScript = r.virtualscript as string;
+  if (presentStr(r.backgroundHTML)) out.backgroundHTML = r.backgroundHTML as string;
+  if (presentStr(r.backgroundCSS)) out.backgroundCSS = r.backgroundCSS as string;
+  if (presentStr(r.defaultVariables)) out.defaultVariables = r.defaultVariables as string;
+  const pre: NonNullable<CharacterBehavior["prebuiltAsset"]> = {};
+  if (presentStr(r.prebuiltAssetCommand)) pre.command = r.prebuiltAssetCommand as string;
+  if (Array.isArray(r.prebuiltAssetExclude)) {
+    pre.exclude = r.prebuiltAssetExclude.filter((x): x is string => typeof x === "string");
+  }
+  if (presentStr(r.prebuiltAssetStyle)) pre.style = r.prebuiltAssetStyle as string;
+  if (Object.keys(pre).length > 0) out.prebuiltAsset = pre;
+  if (presentStr(r.customModuleToggle)) out.moduleToggles = r.customModuleToggle as string;
+  if (typeof r.lowLevelAccess === "boolean") out.privileged = r.lowLevelAccess;
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 /** Read the authored risuai scalar surface into canonical slots (mutates body in place). */
 export function applyRisuToBody(data: TavernData, body: CharacterBody): void {
   const r = risuaiOf(data);
@@ -84,6 +166,7 @@ export function applyRisuToBody(data: TavernData, body: CharacterBody): void {
   if (toggles) body.settings = { ...(body.settings ?? {}), risu: toggles };
   body.persona.imagePrompt = readImagePrompt(r);
   body.persona.voice = readVoice(r);
+  body.behavior = readBehavior(r);
 }
 
 const deepEq = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
@@ -142,6 +225,32 @@ export function applyBodyToRisu(data: TavernData, body: CharacterBody): void {
   const v = body.persona.voice;
   if (v?.provider === "vits" && !deepEq(v, decoded.persona.voice)) {
     writes.vits = isRec(v.extras?.config) ? v.extras.config : {};
+  }
+  const beh = body.behavior;
+  if (beh && !deepEq(beh, decoded.behavior)) {
+    const d = decoded.behavior;
+    if (beh.regexScripts && !deepEq(beh.regexScripts, d?.regexScripts)) {
+      writes.customScripts = regexScriptsToWire(beh.regexScripts);
+    }
+    if (beh.triggerScripts && !deepEq(beh.triggerScripts, d?.triggerScripts)) {
+      writes.triggerscript = triggerScriptsToWire(beh.triggerScripts);
+    }
+    const s = (key: string, val: string | undefined, dec: string | undefined): void => {
+      if (val !== undefined && val !== dec) writes[key] = val;
+    };
+    s("virtualscript", beh.virtualScript, d?.virtualScript);
+    s("backgroundHTML", beh.backgroundHTML, d?.backgroundHTML);
+    s("backgroundCSS", beh.backgroundCSS, d?.backgroundCSS);
+    s("defaultVariables", beh.defaultVariables, d?.defaultVariables);
+    s("customModuleToggle", beh.moduleToggles, d?.moduleToggles);
+    if (beh.prebuiltAsset && !deepEq(beh.prebuiltAsset, d?.prebuiltAsset)) {
+      if (beh.prebuiltAsset.command !== undefined) writes.prebuiltAssetCommand = beh.prebuiltAsset.command;
+      if (beh.prebuiltAsset.exclude !== undefined) writes.prebuiltAssetExclude = beh.prebuiltAsset.exclude;
+      if (beh.prebuiltAsset.style !== undefined) writes.prebuiltAssetStyle = beh.prebuiltAsset.style;
+    }
+    if (beh.privileged !== undefined && beh.privileged !== d?.privileged) {
+      writes.lowLevelAccess = beh.privileged;
+    }
   }
 
   if (Object.keys(writes).length === 0) return;

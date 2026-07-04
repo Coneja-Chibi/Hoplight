@@ -55,10 +55,19 @@ SillyTavern V3 mapping. Media maps separately through `_shared/assets.ts` (`asse
 | `attribution.updatedAt` | `data.modification_date` (ms normalized to seconds, see below) |
 | `discovery.tags` | `data.tags` |
 | `media.*` | `data.assets[]` (see [Media and assets](#media-and-assets)) |
+| `attribution.license` | `extensions.risuai.license` |
+| `bias` | `extensions.risuai.bias` (`[phrase, weight]` pairs) |
+| `prompts.additionalText` | `extensions.risuai.additionalText` |
+| `settings.risu.*` | `extensions.risuai.{viewScreen, largePortrait, inlayViewScreen, utilityBot, lorePlus}` |
+| `persona.imagePrompt` | `extensions.risuai.sdData` (labeled rows) + `newGenData` (prompt/negative/instructions/emotionInstructions) |
+| `persona.voice` (provider `vits`) | `extensions.risuai.vits` (the only TTS config that serializes on this wire) |
+| `behavior.*` | `extensions.risuai.{customScripts, triggerscript, virtualscript, backgroundHTML, backgroundCSS, defaultVariables, prebuiltAsset*, customModuleToggle, lowLevelAccess}` (see the security section) |
 
 Greetings are bare strings on the wire; the canonical `Greeting` carries an optional `title` that Risu
-never sets. Fields the canonical model does not have a slot for stay in escrow, they are not in this
-table.
+never sets. The whole authored `extensions.risuai` surface above is FIRST-CLASS and editable
+(schema-is-editor); the mapping lives in `src/formats/risu/risu-fields.ts` and every write is twin-diffed
+so an unedited card re-emits its risuai block verbatim. Only non-authored residue (runtime caches,
+platform bookkeeping) stays escrow-only.
 
 ### Millisecond dates
 
@@ -112,18 +121,28 @@ asset byte, and `module.risum` survive verbatim, but because the JSON is re-seri
 regenerated, the output `.charx` bytes are not guaranteed to equal the input (indentation, compression,
 entry order, and archive metadata are all reproduced by vaud, not preserved from the original).
 
-## Executable content is opaque, never run
+## Behavior content: first-class editable DATA, never executed
 
-Risu cards can carry executable payloads. The adapter flags them on escrow and **never executes them**:
+Risu cards carry authored scripts. They are NOT opaque escrow - they are first-class editable schema
+(`CharacterBody.behavior`): `customScripts` -> `regexScripts` (declarative find/replace rows),
+`triggerscript` -> `triggerScripts` (event + condition/effect rows, verbatim-editable), plus
+`virtualScript`, `backgroundHTML`/`backgroundCSS`, `defaultVariables`, `prebuiltAsset`, `moduleToggles`.
+The forge can view and edit all of it. The security line, in order of enforcement:
 
-- `hasExecutableContent` is `true` when `extensions.risuai.triggerscript[]` is non-empty, or
-  `extensions.risuai.virtualscript` / `extensions.risuai.backgroundHTML` is a non-empty string, or a
-  `module.risum` is present.
-- `privileged` is `true` when `extensions.risuai.lowLevelAccess === true` (the card requested Risu's
-  low-level script API).
+1. **The converter/editor executes nothing.** No eval, no require, no DOM injection anywhere in the
+   engine; scripts are parsed, edited, and re-serialized as data. Container hardening applies before
+   parsing (zip-bomb cap on `.charx` entries; fail-closed tolerant readers).
+2. **Behavior never blind-copies cross-format.** It re-emits only on the Risu wire; a Risu -> ST/Agnai/
+   anything export carries no scripts (regression-tested), so a foreign runtime can never auto-run them.
+3. **`lowLevelAccess` -> `behavior.privileged`**: a surfaced warning marker and future sandbox gating
+   input, never an execution trigger.
+4. **Execution is a later milestone, only inside the capability sandbox** (design/SANDBOX-SPEC.md):
+   isolated WASM/VM engines (MIT: wasmoon / QuickJS-WASM), a narrow host bridge, and a structural
+   deny-by-absence permission manifest (an ungranted capability's method does not exist in the sandbox).
 
-These are opaque carriers: they ride escrow as raw data, are surfaced as flags so a consumer can gate on
-them, and are reproduced on export without ever being interpreted.
+The escrow flags remain for gating: `hasExecutableContent` (any script payload or `module.risum`
+present) and `privileged` on `escrow.risu.unmapped`. `module.risum` itself stays raw escrow bytes
+(a proprietary binary bundle, not editable schema until a parser is grounded).
 
 ## The embedded character_book
 

@@ -255,6 +255,58 @@ export interface CharacterSettings {
   responseSchema?: Record<string, unknown>;
 }
 
+/**
+ * A declarative find/replace script (Risu customScripts; ST/Lumiverse standalone regex files are the
+ * file-level cousins that will extract to the regex entity). Data, not code: applying one is a regex
+ * replace, never an eval.
+ */
+export interface RegexScript {
+  label?: string;
+  find: string;
+  replace: string;
+  /** pipeline phase, open union: "edittrans" | "editoutput" | "editdisplay" | ... */
+  phase: string;
+  /** custom regex flags (Risu `flag`) */
+  flags?: string;
+  /** whether the custom flags apply (Risu `ableFlag`) */
+  useFlags?: boolean;
+}
+
+/** A trigger state-machine script (Risu triggerscript): condition/effect rows, verbatim-editable. */
+export interface TriggerScript {
+  label?: string;
+  /** the triggering event (Risu `type`: "output", "input", "start", ...) */
+  event: string;
+  conditions: unknown[];
+  effects: unknown[];
+}
+
+/**
+ * AUTHORED BEHAVIOR content - the card's scripts, first-class and editable (schema-is-editor), with a
+ * hard security line: the converter/editor NEVER executes any of this. No eval, no require, no DOM
+ * injection. Execution happens ONLY inside the capability sandbox (design/SANDBOX-SPEC.md: isolated
+ * WASM/VM engines + narrow host bridge + structural deny-by-absence permission manifest), a later
+ * milestone. Behavior never blind-copies cross-format: it re-emits only on its own format's wire.
+ */
+export interface CharacterBehavior {
+  regexScripts?: RegexScript[];
+  triggerScripts?: TriggerScript[];
+  /** JS virtual-script payload, verbatim-editable text (Risu virtualscript) */
+  virtualScript?: string;
+  /** custom background markup/styles, verbatim-editable text (Risu backgroundHTML/backgroundCSS) */
+  backgroundHTML?: string;
+  backgroundCSS?: string;
+  /** script-engine seed values (Risu defaultVariables), verbatim-editable */
+  defaultVariables?: string;
+  /** prebuilt-asset generation config (Risu prebuiltAssetCommand/Exclude/Style) */
+  prebuiltAsset?: { command?: string; exclude?: string[]; style?: string };
+  /** module toggle config string (Risu customModuleToggle) */
+  moduleToggles?: string;
+  /** the card REQUESTED the privileged low-level script API (Risu lowLevelAccess). A warning marker
+   * for the UI and a sandbox gating input - never an execution trigger. */
+  privileged?: boolean;
+}
+
 export interface CharacterBody {
   identity: Identity;
   persona: Persona;
@@ -281,7 +333,9 @@ export interface CharacterBody {
   worldName?: string;
   /** linked canonical lorebook id(s), ordered; embedded on export where a format requires it */
   knowledgeRefs?: string[];
-  /** linked canonical regex/script id(s) */
+  /** authored script/behavior content carried ON the card (Risu); see CharacterBehavior's security line */
+  behavior?: CharacterBehavior;
+  /** linked canonical regex/script entity id(s) - for STANDALONE behavior files (ST/Lumiverse regex) */
   behaviorRefs?: string[];
 }
 

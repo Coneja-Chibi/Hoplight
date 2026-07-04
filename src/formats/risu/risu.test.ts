@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
 import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
 import { characterAdapter as adapter } from "./index";
+import { characterAdapter as stAdapter } from "../sillytavern/index";
 
 /** A minimal but realistic CCv3 card with a Risu-specific extensions block (scripts, opaque). */
 function makeCard() {
@@ -213,4 +214,46 @@ test("de-escrow edit: mutating toggles/bias/license/rows reaches the risuai wire
   // untouched authored behavior surface rides the twin verbatim (its entity slice is pending)
   expect(r.customScripts.length).toBe(8);
   expect(r.triggerscript.length).toBe(9);
+});
+
+// -- Behavior de-escrow: scripts are first-class editable DATA (never executed, never blind-copied). --
+
+test("behavior read: cherry scripts land in first-class editable slots", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  const b = ent.body.behavior!;
+  expect(b.regexScripts?.length).toBe(8);
+  expect(b.regexScripts?.[0]).toEqual({
+    label: "m1", find: "선생님", replace: "주인님", phase: "edittrans", useFlags: false,
+  });
+  expect(b.triggerScripts?.length).toBe(9);
+  expect(b.triggerScripts?.[0]?.event).toBe("output");
+  expect(b.triggerScripts?.[0]?.effects.length).toBeGreaterThan(0);
+  expect(b.privileged).toBe(false); // lowLevelAccess surfaced, never honored
+  // empty-but-present payloads stay unset (nothing authored)
+  expect(b.virtualScript).toBeUndefined();
+  expect(b.backgroundHTML).toBeUndefined();
+});
+
+test("behavior edit: mutating a regex script and a trigger label reaches the risuai wire", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  ent.body.behavior!.regexScripts![0]!.replace = "마스터";
+  ent.body.behavior!.triggerScripts![0]!.label = "renamed-trigger";
+  const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  const r = out.data.extensions.risuai;
+  expect(r.customScripts[0].out).toBe("마스터");
+  expect(r.customScripts[0].in).toBe("선생님"); // unedited neighbor field survives
+  expect(r.customScripts.length).toBe(8);
+  expect(r.triggerscript[0].comment).toBe("renamed-trigger");
+  expect(r.triggerscript[0].effect).toEqual(JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8")).data.extensions.risuai.triggerscript[0].effect);
+  expect(r.triggerscript.length).toBe(9);
+});
+
+test("SECURITY: behavior never blind-copies cross-format (Risu -> ST card carries no scripts)", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  const stOut = stAdapter.fromCanonical(ent).text ?? "";
+  expect(stOut).not.toContain("triggerscript");
+  expect(stOut).not.toContain("customScripts");
+  expect(stOut).not.toContain("virtualscript");
+  expect(stOut).not.toContain("backgroundHTML");
+  expect(stOut).not.toContain("lowLevelAccess");
 });
