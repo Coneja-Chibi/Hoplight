@@ -15,9 +15,10 @@
  * design/LOREBOOK-FORMATS.md).
  *
  * KEYWORDS map as PLAIN triggers (`isRegex: false`): Agnai has no regex-key feature, so a literal
- * keyword like `/happy/` must not be promoted to a regex. `selectiveLogic`, `useProbability`, and the
- * other type-only V2 fields Agnai's own mappers never author ride escrow-of-raw untouched rather than
- * being interpreted under an unverified int convention; a same-format round-trip is byte-identical.
+ * keyword like `/happy/` must not be promoted to a regex. `selectiveLogic` is ST-import residue and uses
+ * the ST numeric convention (0 and_any, 1 not_all, 2 not_any, 3 and_all - shared decoder), so it maps to
+ * the canonical enum instead of being silently rewritten to and_any on cross-format export (the old
+ * hardcode corrupted imported books' secondary-key logic). A same-format round-trip stays byte-identical.
  */
 import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
@@ -30,6 +31,7 @@ import type {
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
 import { triggerToKeyword } from "../_shared/character-book";
+import { parseSelectiveLogic, selectiveLogicToNumber } from "../_shared/lore-enums";
 
 /** One Agnai memory entry. `entry` is the content; `keywords` is a plain array; two ordering axes. */
 interface MemoryEntry {
@@ -47,6 +49,8 @@ interface MemoryEntry {
   probability?: number;
   useProbability?: boolean;
   excludeRecursion?: boolean;
+  /** ST-import residue, ST numeric convention (0..3); Agnai's own editor never authors it */
+  selectiveLogic?: number;
   [k: string]: unknown;
 }
 
@@ -100,7 +104,8 @@ function entryToCanonical(entry: MemoryEntry, index: number): LorebookEntry {
     triggerMode: "simple", // Agnai has no per-trigger probability
     triggers: toTriggers(entry.keywords),
     secondaryTriggers,
-    selectiveLogic: "and_any", // Agnai's numeric selectiveLogic has no verified convention -> escrow only
+    // ST-import residue on the ST numeric convention (shared decoder); absent -> and_any default
+    selectiveLogic: parseSelectiveLogic(entry.selectiveLogic),
 
     caseSensitive: null, // Agnai has no per-entry case flag
     matchWholeWords: null,
@@ -208,6 +213,11 @@ function entryToWire(e: LorebookEntry, twin: MemoryEntry | undefined, index: num
   if (changed("excludeRecursion")) {
     if (e.excludeRecursion) base.excludeRecursion = true;
     else delete base.excludeRecursion;
+  }
+  if (changed("selectiveLogic")) {
+    if (e.selectiveLogic !== "and_any") base.selectiveLogic = selectiveLogicToNumber(e.selectiveLogic);
+    else if (twin && "selectiveLogic" in twin) base.selectiveLogic = 0; // explicit default on the twin
+    else delete base.selectiveLogic; // Agnai never authors it; keep fresh encodes clean
   }
   if (changed("probability")) {
     if (e.probability < 100) {

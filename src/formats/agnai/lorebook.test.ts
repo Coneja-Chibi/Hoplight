@@ -129,3 +129,39 @@ test("cross-format: secondary keys emit paired with `selective`, as Agnai's own 
   expect(out.entries[0].secondaryKeys).toEqual(["harbor", "pier"]); // preserved, not silently dropped
   expect(out.entries[0].selective).toBe(true); // paired, matching how Agnai emits secondary keys
 });
+
+// -- selectiveLogic de-hardcode: Agnai's field is ST-import residue on the ST numeric convention. The
+// old codec hardcoded canonical "and_any", silently rewriting an imported book's secondary-key logic on
+// cross-format export. --
+
+test("selectiveLogic reads the ST numeric convention instead of hardcoding and_any", () => {
+  const book = {
+    kind: "memory",
+    name: "st-import",
+    entries: [
+      { id: 1, name: "A", entry: "a", keywords: ["k"], secondaryKeys: ["s"], selective: true, selectiveLogic: 3, priority: 100, weight: 0, enabled: true },
+      { id: 2, name: "B", entry: "b", keywords: ["k"], priority: 100, weight: 1, enabled: true },
+    ],
+  };
+  const canon = agnaiLorebook.toCanonical(asText(book));
+  expect(canon.body.entries[0]!.selectiveLogic).toBe("and_all"); // 3
+  expect(canon.body.entries[1]!.selectiveLogic).toBe("and_any"); // absent -> default
+});
+
+test("selectiveLogic edit reaches the wire; unedited twin residue stays byte-identical", () => {
+  const book = {
+    kind: "memory",
+    name: "st-import",
+    description: "", // the codec (like Agnai's own encodeBook) always emits description
+    entries: [
+      { id: 1, name: "A", entry: "a", keywords: ["k"], secondaryKeys: ["s"], selective: true, selectiveLogic: 3, priority: 100, weight: 0, enabled: true },
+    ],
+  };
+  const canon = agnaiLorebook.toCanonical(asText(book));
+  // unedited: byte-identical (the explicit 3 survives via the twin)
+  expect(JSON.parse(agnaiLorebook.fromCanonical(canon).text!)).toEqual(book);
+  // edited: the new logic lands on the wire as its ST number
+  canon.body.entries[0]!.selectiveLogic = "not_any";
+  const out = JSON.parse(agnaiLorebook.fromCanonical(canon).text!);
+  expect(out.entries[0].selectiveLogic).toBe(2);
+});
