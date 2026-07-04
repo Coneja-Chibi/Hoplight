@@ -5,7 +5,7 @@
  * design/RISU-CARD-DEEP.md (extracted clean-room from card DATA, never Risu source). Lossless:
  * raw card + asset bytes + module ride escrow, including opaque executable content we never run.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
@@ -77,10 +77,11 @@ const isPrivileged = (data: TavernData): boolean => {
   return risuai.lowLevelAccess === true;
 };
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "risu",
   label: "RisuAI .charx (zip: card.json + assets)",
   outputExtensions: ["charx"],
+  kind: "character",
 
   detect(input: AdapterInput): number {
     const b = input.bytes;

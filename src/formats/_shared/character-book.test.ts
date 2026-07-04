@@ -5,7 +5,7 @@ import {
   characterBookToLorebook,
   lorebooksToCharacterBook,
 } from "./character-book";
-import stCharacter from "../sillytavern/index";
+import { characterAdapter as stCharacter } from "../sillytavern/index";
 import stWorldbook from "../sillytavern/lorebook";
 
 /**

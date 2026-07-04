@@ -3,7 +3,7 @@
  * The simplest possible real adapter, and proof the drop-in pattern works end to end.
  * It is also genuinely useful: the lossless local save/interchange format.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 
 /** Decode + validate at the boundary (parse, don't validate): fail here, not deep downstream. */
@@ -18,10 +18,11 @@ function decodeCanonical(text: string): CanonicalCharacter {
   return o as CanonicalCharacter;
 }
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "vaud-json",
   label: "Vaudeville native (.json)",
   outputExtensions: ["json"],
+  kind: "character",
 
   detect(input: AdapterInput): number {
     if (!input.text) return 0;

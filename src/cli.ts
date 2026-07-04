@@ -8,7 +8,7 @@
 import { basename, extname } from "node:path";
 import { CANONICAL_SCHEMA_VERSION, registry, loadFormats } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
-import { convertCard } from "./convert";
+import { convertFile } from "./convert";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
 
 const VERSION = "0.0.1";
@@ -150,11 +150,20 @@ async function main(argv: string[]): Promise<number> {
     console.log(`\n  ${path}`);
     console.log(`    format   ${src.id}  (${src.label})`);
     console.log(`    kind     ${ent.kind}`);
-    console.log(`    name     ${ent.body.identity.name || "(unnamed)"}`);
-    const g = ent.body.greetings;
-    console.log(`    greeting ${g.firstMessage ? `${g.firstMessage.slice(0, 60)}...` : "(none)"}`);
-    console.log(`    alts     ${g.alternateGreetings?.length ?? 0}`);
-    console.log(`    tags     ${ent.body.discovery.tags?.join(", ") || "(none)"}\n`);
+    if (ent.kind === "lorebook") {
+      const b = ent.body;
+      console.log(`    name     ${b.name || "(unnamed)"}`);
+      console.log(`    type     ${b.lorebookType ?? "(none)"}`);
+      console.log(`    entries  ${b.entries.length}`);
+      console.log(`    budget   ${b.tokenBudget} (${b.budgetMode})\n`);
+    } else {
+      const b = ent.body;
+      console.log(`    name     ${b.identity.name || "(unnamed)"}`);
+      const g = b.greetings;
+      console.log(`    greeting ${g.firstMessage ? `${g.firstMessage.slice(0, 60)}...` : "(none)"}`);
+      console.log(`    alts     ${g.alternateGreetings?.length ?? 0}`);
+      console.log(`    tags     ${b.discovery.tags?.join(", ") || "(none)"}\n`);
+    }
     return 0;
   }
 
@@ -205,7 +214,7 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    const { out, lorebooks } = convertCard(src, target.adapter!, input);
+    const { out, lorebooks } = convertFile(src, target.adapter!, input);
     await writeOutput(outPath, out);
     console.log(`\n  ${src.id} -> ${target.adapter!.id}`);
     console.log(`  ${inPath}  ->  ${outPath}`);

@@ -3,9 +3,10 @@
  * Version detection adapted from RoleCall's parse-v2.ts; field mapping is the shared
  * Tavern mapping (../_shared/tavern-fields). Lossless: the whole original card rides in escrow.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { lorebooksToCharacterBook } from "../_shared/character-book";
+import lorebookCodec from "./lorebook";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
@@ -55,15 +56,26 @@ function detectCard(json: unknown): Detected | null {
       "creator_notes" in card ||
       "extensions" in card ||
       "character_version" in card;
+    // A flat/v1 card must carry a real character signal, not just a `name`. This is the cross-kind
+    // firewall: an ST worldbook is also `{ name, ... }` json, so without this it false-positives as a
+    // v1 character and collides with the lorebook adapter. A lorebook has none of these fields.
+    const looksV1 =
+      "description" in card ||
+      "personality" in card ||
+      "scenario" in card ||
+      "first_mes" in card ||
+      "mes_example" in card;
+    if (!looksV2 && !looksV1) return null;
     return { card, data: card as TavernData, variant: looksV2 ? "flat" : "v1" };
   }
   return null;
 }
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "sillytavern",
   label: "SillyTavern character card (v2/v3, png/json)",
   outputExtensions: ["json"],
+  kind: "character",
 
   // 0.9, not 1.0: SillyTavern is the generic Tavern reader. More-specific adapters (RoleCall) claim
   // 1.0 on the same card so they win detection and get to map their own extension block.
@@ -124,4 +136,8 @@ const adapter: FormatAdapter = {
   },
 };
 
-export default adapter;
+/** The SillyTavern family's character codec, exported by name for direct importers (tests, bundle). */
+export { adapter as characterAdapter };
+
+/** Folders-as-schema: this format family exports every codec it provides (character + world info). */
+export default [adapter, lorebookCodec];

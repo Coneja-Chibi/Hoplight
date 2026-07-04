@@ -7,7 +7,7 @@
  * apps/rc source, recorded in design/RC-CARD-FORMAT.md. Lossless: the whole card rides in escrow, so
  * an RC -> canonical -> RC round-trip reproduces every field, including ones with no canonical home.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
   CanonicalCharacter,
   CharacterBody,
@@ -16,6 +16,7 @@ import type {
   Greeting,
   Presentation,
 } from "../../entities/character/schema";
+import lorebookCodec from "./lorebook";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
 import { assetsToMedia } from "../_shared/assets";
@@ -163,10 +164,11 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   if (titles?.some((t) => t !== null)) ext.alternate_greeting_titles = titles;
 }
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "rolecall",
   label: "RoleCall character card (v3, png/json)",
   outputExtensions: ["json"],
+  kind: "character",
 
   // 1.0: an RC card is a CCv3 card PLUS an extensions.rolecall block, so it outranks the generic
   // SillyTavern reader (0.9) and gets to map its own layer.
@@ -214,4 +216,8 @@ const adapter: FormatAdapter = {
   },
 };
 
-export default adapter;
+/** The RoleCall family's character codec, exported by name for direct importers. */
+export { adapter as characterAdapter };
+
+/** Folders-as-schema: this format family exports every codec it provides (character + lorebook). */
+export default [adapter, lorebookCodec];

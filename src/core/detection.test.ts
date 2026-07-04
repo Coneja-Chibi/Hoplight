@@ -47,6 +47,16 @@ const CASES: Case[] = [
     input: asText({ aiName: "A", aiPersona: "x" }),
   },
   {
+    label: "ST worldbook -> sillytavern-lorebook (NOT a bare-name v1 character)",
+    expected: "sillytavern-lorebook",
+    input: asText({ entries: { "0": { key: ["x"], content: "y" } }, name: "World", scan_depth: 4 }),
+  },
+  {
+    label: "RC v1 lorebook export -> rolecall-lorebook",
+    expected: "rolecall-lorebook",
+    input: asText({ schemaVersion: "1.0.0", exportDate: "2026-01-01", lorebook: { name: "W", entries: [] } }),
+  },
+  {
     label: "our own canonical json -> vaud-json",
     expected: "vaud-json",
     input: asText({

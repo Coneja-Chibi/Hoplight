@@ -26,12 +26,24 @@ const escrowedRaw = (escrow: unknown): unknown => {
   return first && typeof first === "object" ? (first as { raw?: unknown }).raw : undefined;
 };
 
-/** Convert one card file to another format, carrying any embedded lorebook across the boundary. */
-export function convertCard(src: FormatAdapter, target: FormatAdapter, input: AdapterInput): ConvertResult {
-  const entity = src.toCanonical(input);
-  const lorebook = extractCharacterBook(escrowedRaw(entity.escrow));
-  const lorebooks = lorebook ? [lorebook] : [];
-  if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
-  const out = target.fromCanonical(entity, lorebooks.length > 0 ? { lorebooks } : undefined);
-  return { out, lorebooks };
+/**
+ * Convert one file to another format of the SAME entity kind. Character conversions also carry any
+ * embedded lorebook across the boundary (extract on import, re-embed on export); lorebook conversions
+ * are a straight round-trip. Checking BOTH kinds against a literal narrows each adapter to its member,
+ * so no cast is needed. Cross-kind (e.g. character -> standalone lorebook) is not a conversion vaud
+ * makes today - it fails closed with a clear message rather than producing garbage.
+ */
+export function convertFile(src: FormatAdapter, target: FormatAdapter, input: AdapterInput): ConvertResult {
+  if (src.kind === "character" && target.kind === "character") {
+    const entity = src.toCanonical(input);
+    const lorebook = extractCharacterBook(escrowedRaw(entity.escrow));
+    const lorebooks = lorebook ? [lorebook] : [];
+    if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
+    const out = target.fromCanonical(entity, lorebooks.length > 0 ? { lorebooks } : undefined);
+    return { out, lorebooks };
+  }
+  if (src.kind === "lorebook" && target.kind === "lorebook") {
+    return { out: target.fromCanonical(src.toCanonical(input)), lorebooks: [] };
+  }
+  throw new Error(`convert: cannot convert a ${src.kind} to a ${target.kind} (different entity kinds)`);
 }

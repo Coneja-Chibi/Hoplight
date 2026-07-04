@@ -11,7 +11,7 @@
  *
  * NOTE: standalone codec, not yet registry-wired (same wiring step as the RC lorebook codec).
  */
-import type { AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
   CanonicalLorebook,
   LorebookBody,
@@ -275,11 +275,11 @@ function bookToWire(body: LorebookBody, rawBook: StBook | undefined): StBook {
   };
 }
 
-const sillytavernLorebook = {
+const sillytavernLorebook: LorebookAdapter = {
   id: "sillytavern-lorebook",
   label: "SillyTavern world info (worldbook json)",
   outputExtensions: ["json"],
-  kind: "lorebook" as const,
+  kind: "lorebook",
 
   // 0.9, not 1.0: the generic ST worldbook reader, mirroring the ST character adapter's posture.
   detect(input: AdapterInput): number {

@@ -12,7 +12,7 @@
  * NOTE: standalone codec, not yet wired into the character-only registry. Conforming it to the
  * entity-generic FormatAdapter (task #5 wiring step) is additive: id/label/outputExtensions + a type.
  */
-import type { AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
   CanonicalLorebook,
   LorebookBody,
@@ -280,11 +280,11 @@ function bookToWire(body: LorebookBody, rawBook: Record<string, unknown> | undef
   return wire;
 }
 
-const rolecallLorebook = {
+const rolecallLorebook: LorebookAdapter = {
   id: "rolecall-lorebook",
   label: "RoleCall lorebook (v1 export json)",
   outputExtensions: ["json"],
-  kind: "lorebook" as const,
+  kind: "lorebook",
 
   detect(input: AdapterInput): number {
     const raw = readExport(input);

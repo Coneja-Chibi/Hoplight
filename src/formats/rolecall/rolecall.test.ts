@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
-import adapter from "./index";
-import sillytavern from "../sillytavern/index";
+import { characterAdapter as adapter } from "./index";
+import { characterAdapter as sillytavern } from "../sillytavern/index";
 
 /** A realistic RC CCv3 export: standard data + sprites-as-assets + the full extensions.rolecall block. */
 function makeRcCard() {

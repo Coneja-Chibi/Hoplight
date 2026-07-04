@@ -27,9 +27,16 @@ test("folders-as-schema: adapters auto-load from src/formats", async () => {
   expect(registry.get("vaud-json")).toBeDefined();
 });
 
+/** Narrow a registered adapter to its character member (the registry returns the kind union). */
+function characterAdapter(id: string) {
+  const a = registry.get(id);
+  if (a?.kind !== "character") throw new Error(`registry.test: ${id} is not a character adapter`);
+  return a;
+}
+
 test("a dropped-in adapter round-trips a character losslessly", async () => {
   await loadFormats();
-  const vj = registry.get("vaud-json")!;
+  const vj = characterAdapter("vaud-json");
   const out = vj.fromCanonical(sample);
   const back = vj.toCanonical({ text: out.text ?? "" });
   expect(back).toEqual(sample);
@@ -37,7 +44,7 @@ test("a dropped-in adapter round-trips a character losslessly", async () => {
 
 test("detect picks the native format for vaud json", async () => {
   await loadFormats();
-  const out = registry.get("vaud-json")!.fromCanonical(sample);
+  const out = characterAdapter("vaud-json").fromCanonical(sample);
   const winner = registry.detect({ text: out.text ?? "" });
   expect(winner?.id).toBe("vaud-json");
 });

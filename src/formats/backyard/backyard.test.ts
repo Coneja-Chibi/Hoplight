@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 import adapter from "./index";
-import sillytavern from "../sillytavern/index";
+import { characterAdapter as sillytavern } from "../sillytavern/index";
 
 /** A legacy Backyard/Faraday flat card with single-brace placeholders in the prompt fields. */
 function makeBackyardCard() {

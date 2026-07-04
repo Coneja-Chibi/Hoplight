@@ -5,7 +5,7 @@
  * common/adapters.ts; AGPL-3.0) as interop facts only - no Agnai code is copied. Lossless: the whole
  * original card rides in escrow.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody, Persona } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 
@@ -121,10 +121,11 @@ function baseCard(): AgnaiCard {
   };
 }
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "agnai",
   label: "Agnai (Agnaistic) character (.json)",
   outputExtensions: ["json"],
+  kind: "character",
 
   detect(input: AdapterInput): number {
     if (!input.text) return 0;

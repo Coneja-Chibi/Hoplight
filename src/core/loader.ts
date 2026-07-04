@@ -3,7 +3,8 @@
  * it touches the filesystem (Bun.Glob) and dynamically imports feature modules, so it lives
  * outside the pure registry table (./registry).
  *
- * Every folder in src/formats/ with an index.ts default-exporting a FormatAdapter is discovered
+ * Every folder in src/formats/ with an index.ts default-exporting a FormatAdapter (or an array of
+ * them - a format family that ships more than one codec, e.g. character + lorebook) is discovered
  * and registered. Folders whose name starts with "_" (like _template, _shared) are skipped.
  */
 import { Glob } from "bun";
@@ -24,11 +25,11 @@ export async function loadFormats(dir?: string): Promise<FormatAdapter[]> {
     const folder = rel.split(/[\\/]/)[0] ?? "";
     if (folder.startsWith("_")) continue; // templates / shared / disabled
     const mod = (await import(pathToFileURL(join(base, rel)).href)) as {
-      default?: FormatAdapter;
+      default?: FormatAdapter | FormatAdapter[];
       adapter?: FormatAdapter;
     };
-    const adapter = mod.default ?? mod.adapter;
-    if (adapter) {
+    const exported = mod.default ?? mod.adapter;
+    for (const adapter of Array.isArray(exported) ? exported : exported ? [exported] : []) {
       register(adapter);
       loaded.push(adapter);
     }

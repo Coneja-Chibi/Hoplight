@@ -6,12 +6,13 @@
  *
  * Folders starting with "_" are skipped by the loader, so this template stays inert.
  */
-import type { FormatAdapter } from "../../core/adapter";
+import type { CharacterAdapter } from "../../core/adapter";
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "template",
   label: "Template (copy me)",
   outputExtensions: ["txt"],
+  kind: "character", // or "lorebook" - the entity kind this format reads/writes
 
   /** 0..1: how sure are you this input is your format? */
   detect(): number {

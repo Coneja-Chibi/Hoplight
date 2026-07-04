@@ -1,7 +1,7 @@
 import { test, expect } from "bun:test";
 import { deflateSync } from "node:zlib";
 import encodePng from "png-chunks-encode";
-import adapter, { embedCharacterJson } from "./index";
+import { characterAdapter as adapter, embedCharacterJson } from "./index";
 
 // Build a valid 1x1 RGBA PNG carrier. png-chunks-encode computes correct CRCs for us.
 function makeCarrierPng(): Uint8Array {

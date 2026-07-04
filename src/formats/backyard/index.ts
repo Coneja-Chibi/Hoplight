@@ -6,7 +6,7 @@
  * to Tavern {{char}}/{{user}} for the canonical model. That conversion is NOT a bijection, so
  * round-trip safety comes from escrowing the whole raw card and re-emitting unedited fields verbatim.
  */
-import type { FormatAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 
@@ -80,10 +80,11 @@ function fieldOut(card: Rec, rawKey: string, canonical: string | undefined): str
   return toBackyard(canonical);
 }
 
-const adapter: FormatAdapter = {
+const adapter: CharacterAdapter = {
   id: "backyard",
   label: "Backyard.ai / Faraday character (legacy json)",
   outputExtensions: ["json"],
+  kind: "character",
 
   // Strong, Backyard-unique keys score high; the bare-persona heuristic is weak and must not fire on
   // an Agnai card (kind: "character"). Both stay below the Tavern/RC/Agnai adapters on a shared input.
