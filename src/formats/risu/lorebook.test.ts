@@ -18,7 +18,9 @@ function nativeEnvelope() {
         insertorder: 42,
         comment: "Node",
         content: "the body",
-        mode: "folder", // hierarchy Risu-only field: must survive escrow untouched
+        // NOTE: mode:"folder" marks a FOLDER row (a category, not content) - the old fixture wrongly
+        // used it on a content entry, an impossible wire shape that hid the folder mapping.
+        mode: "normal",
         alwaysActive: true,
         selective: true,
         role: "assistant",
@@ -59,7 +61,7 @@ test("risu-lorebook round-trips a native envelope byte-identical (escrow-of-raw 
   const src = nativeEnvelope();
   const canon = risuLorebook.toCanonical(asText(src));
   const out = JSON.parse(risuLorebook.fromCanonical(canon).text ?? "");
-  // unedited: comma spacing preserved ("alpha,beta" not "alpha, beta"), mode:'folder' preserved
+  // unedited: comma spacing preserved ("alpha,beta" not "alpha, beta"), mode residue preserved
   expect(out).toEqual(src);
 });
 
@@ -70,7 +72,7 @@ test("risu-lorebook re-encodes only edited fields, preserving Risu-only residue"
   const out = JSON.parse(risuLorebook.fromCanonical(edited).text ?? "");
   expect(out.data[0].content).toBe("rewritten");
   expect(out.data[0].key).toBe("alpha,beta"); // untouched: no space injected
-  expect(out.data[0].mode).toBe("folder"); // hierarchy survives
+  expect(out.data[0].mode).toBe("normal"); // mode residue survives the twin clone
   expect(out.data[0].alwaysActive).toBe(true);
 });
 
@@ -146,4 +148,47 @@ test("risu insertorder lands in ST worldbook `order` (placement), and displayInd
   const e = out.entries["0"]!;
   expect(e.order).toBe(42); // placement lands in ST `order`
   expect(e.displayIndex).toBeUndefined(); // Risu authored no displayIndex -> none fabricated
+});
+
+// -- De-escrow W2: Risu's entry-folder hierarchy is first-class (folders -> categories, folder ref ->
+// categoryId), no longer opaque escrow residue. --
+
+function folderedEnvelope() {
+  return {
+    type: "risu",
+    ver: 1,
+    data: [
+      { key: "", secondkey: "", insertorder: 100, comment: "Places", content: "", mode: "folder", alwaysActive: false, selective: false, id: "f1", loreCache: { key: "k", data: ["c"] } },
+      { key: "inn", secondkey: "", insertorder: 10, comment: "The Inn", content: "A busy inn.", mode: "child", alwaysActive: false, selective: false, id: "e1", folder: "f1" },
+      { key: "moon", secondkey: "", insertorder: 20, comment: "The Moon", content: "It watches.", mode: "normal", alwaysActive: false, selective: false, id: "e2" },
+    ],
+  };
+}
+
+test("folders: folder rows become categories, child folder refs become categoryId", () => {
+  const canon = risuLorebook.toCanonical(asText(folderedEnvelope()));
+  expect(canon.body.categories).toEqual([{ id: "f1", name: "Places", sortOrder: 0 }]);
+  expect(canon.body.entries.map((e) => [e.id, e.categoryId])).toEqual([
+    ["e1", "f1"],
+    ["e2", null],
+  ]);
+});
+
+test("folders: unedited round-trip re-emits byte-identical, folder residue intact", () => {
+  const src = folderedEnvelope();
+  const canon = risuLorebook.toCanonical(asText(src));
+  expect(JSON.parse(risuLorebook.fromCanonical(canon).text ?? "")).toEqual(src);
+});
+
+test("folders edit: renaming a category + re-filing an entry reaches the wire", () => {
+  const canon = risuLorebook.toCanonical(asText(folderedEnvelope()));
+  canon.body.categories![0]!.name = "Locations";
+  canon.body.entries[0]!.categoryId = null; // pull The Inn out of the folder
+  canon.body.entries[1]!.categoryId = "f1"; // file The Moon into it
+  const out = JSON.parse(risuLorebook.fromCanonical(canon).text ?? "");
+  const folderRow = out.data.find((r: { mode?: string }) => r.mode === "folder");
+  expect(folderRow.comment).toBe("Locations");
+  expect(folderRow.loreCache).toEqual({ key: "k", data: ["c"] }); // runtime-cache residue rides the clone
+  expect(out.data.find((r: { id?: string }) => r.id === "e1").folder).toBe("");
+  expect(out.data.find((r: { id?: string }) => r.id === "e2").folder).toBe("f1");
 });

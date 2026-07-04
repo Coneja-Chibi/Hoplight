@@ -15,13 +15,16 @@
  * `extensions.risu_activationPercent`), so every shared field below maps to the exact canonical value
  * character-book.ts produces. `insertorder` therefore lands in `sortOrder` (NOT priority), matching
  * the embedded path. `role` is the one native-richer field (Risu's own `.charx` writer drops it), so
- * it maps here rather than being discarded. `mode`/`folder`/`loreCache`/`bookVersion` have no canonical
- * home; escrow-of-raw carries them so a same-format round-trip is byte-identical.
+ * it maps here rather than being discarded. Risu's entry-folder hierarchy is FIRST-CLASS: a
+ * `mode:"folder"` row becomes a canonical LorebookCategory and a child's `folder` ref becomes
+ * `categoryId`, both editable and re-emitted in original row order. `loreCache`/`bookVersion` are
+ * runtime cache / bookkeeping and stay escrow-of-raw, so a same-format round-trip is byte-identical.
  */
 import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
   CanonicalLorebook,
   LorebookBody,
+  LorebookCategory,
   LorebookEntry,
   MessageRole,
   Trigger,
@@ -45,6 +48,8 @@ interface LoreBook {
   activationPercent?: number;
   useRegex?: boolean;
   id?: string;
+  /** parent folder id on a child entry ("" / absent = top level); a `mode:"folder"` row IS the folder */
+  folder?: string;
   [k: string]: unknown;
 }
 
@@ -122,7 +127,7 @@ function entryToCanonical(entry: LoreBook, index: number): LorebookEntry {
     delay: 0,
 
     groupName: null,
-    categoryId: null,
+    categoryId: typeof entry.folder === "string" && entry.folder ? entry.folder : null,
     groupWeight: 1,
 
     probability,
@@ -145,7 +150,25 @@ function entryToCanonical(entry: LoreBook, index: number): LorebookEntry {
   };
 }
 
-function bookToCanonical(entries: LoreBook[]): LorebookBody {
+const isFolderRow = (r: LoreBook): boolean => r.mode === "folder";
+
+function bookToCanonical(rows: LoreBook[]): LorebookBody {
+  // mode:"folder" rows ARE the folders: they become canonical categories, not content entries.
+  // Content entries reference them via `folder` -> categoryId. Original array indices are preserved
+  // for the id fallback so the export twin-map stays aligned.
+  const categories: LorebookCategory[] = [];
+  const entries: LorebookEntry[] = [];
+  rows.forEach((row, i) => {
+    if (isFolderRow(row)) {
+      categories.push({
+        id: row.id != null ? String(row.id) : String(i),
+        name: typeof row.comment === "string" ? row.comment : `Folder ${categories.length + 1}`,
+        sortOrder: categories.length,
+      });
+    } else {
+      entries.push(entryToCanonical(row, i));
+    }
+  });
   return {
     name: "", // the native envelope carries no book-level name (it lives on the Risu character)
     description: null,
@@ -160,7 +183,8 @@ function bookToCanonical(entries: LoreBook[]): LorebookBody {
     tokenBudget: 0,
     budgetMode: "token",
     entryBudget: 0,
-    entries: entries.map(entryToCanonical),
+    entries,
+    categories: categories.length > 0 ? categories : undefined,
   };
 }
 
@@ -199,20 +223,54 @@ function entryToWire(e: LorebookEntry, twin: LoreBook | undefined, index: number
   if (changed("caseSensitive")) {
     base.extentions = { ...(base.extentions ?? {}), risu_case_sensitive: e.caseSensitive === true };
   }
+  // folder membership: write only the linkage ref; the row's `mode` stays with the twin (it also
+  // encodes constant/normal semantics we must not perturb on an unrelated edit). A no-twin entry with
+  // no category never gains a folder key (no fabrication).
+  if (changed("categoryId") && (e.categoryId != null || twin?.folder !== undefined)) {
+    base.folder = e.categoryId ?? "";
+  }
   if (twin == null && e.id != null) base.id = e.id;
   return base;
 }
 
 function bookToWire(body: LorebookBody, raw: RisuLoreExport | undefined): RisuLoreExport {
   const twinData = Array.isArray(raw?.data) ? (raw!.data as LoreBook[]) : [];
-  const twinById = new Map<string, LoreBook>();
-  twinData.forEach((en, i) => twinById.set(en.id != null ? String(en.id) : String(i), en));
+  const entryById = new Map(body.entries.map((e) => [e.id, e]));
+  const catById = new Map((body.categories ?? []).map((c) => [c.id, c]));
+
+  // Walk the twin rows IN ORIGINAL ORDER so an unedited file (folders interleaved with entries)
+  // re-emits byte-identical: folder rows re-emit from their category (rename lands, residue rides the
+  // clone), content rows twin-overlay, rows whose canonical counterpart was deleted drop out.
+  const used = new Set<string>();
+  const out: LoreBook[] = [];
+  twinData.forEach((row, i) => {
+    const rid = row.id != null ? String(row.id) : String(i);
+    if (isFolderRow(row)) {
+      const cat = catById.get(rid);
+      if (!cat) return; // category deleted canonically
+      used.add(rid);
+      const clone = structuredClone(row) as LoreBook;
+      if (clone.comment !== cat.name) clone.comment = cat.name;
+      out.push(clone);
+    } else {
+      const e = entryById.get(rid);
+      if (!e) return; // entry deleted canonically
+      used.add(rid);
+      out.push(entryToWire(e, row, i));
+    }
+  });
+  // canonical additions with no twin: entries first, then minimal valid folder rows
+  for (const e of body.entries) if (!used.has(e.id)) out.push(entryToWire(e, undefined, 0));
+  for (const c of body.categories ?? []) {
+    if (used.has(c.id)) continue;
+    out.push({ key: "", secondkey: "", insertorder: 100, comment: c.name, content: "", mode: "folder", alwaysActive: false, selective: false, id: c.id });
+  }
 
   return {
     ...(raw ? structuredClone(raw) : {}),
     type: "risu",
     ver: typeof raw?.ver === "number" ? raw.ver : 1,
-    data: body.entries.map((e, i) => entryToWire(e, twinById.get(e.id), i)),
+    data: out,
   };
 }
 
