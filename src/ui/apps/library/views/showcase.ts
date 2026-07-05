@@ -1,7 +1,7 @@
 /**
  * Deck view: SHOWCASE - one card at a time, properly. Hero art at full presence, the card's own
  * words beside it (tagline + description via peek), prev/next flipping, a thumb rail to jump, and
- * THREAD right there. Replaced the aimless carousel after Chi's 2026-07-05 review ("deck feels
+ * STAGE right there. Replaced the aimless carousel after Chi's 2026-07-05 review ("deck feels
  * useless - give it use"): a carousel's real job is looking at ONE card, so now that is its job.
  */
 import { deckMeta } from "../../../_shared/decks";
@@ -31,13 +31,15 @@ const CSS = `
 .dv-show .plate .desc{font-size:.95rem;line-height:1.5;color:#a9a4b5;white-space:pre-line}
 .dv-show .plate .meta{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;
   text-transform:uppercase;color:#6a6576}
-.dv-show .plate .thread-btn{align-self:flex-start;font-family:var(--font-big);font-weight:900;font-size:.625rem;
+.dv-show .plate .stage-btn{align-self:flex-start;font-family:var(--font-big);font-weight:900;font-size:.625rem;
   letter-spacing:.1em;text-transform:uppercase;padding:.55rem .9rem;border:3px solid #000;cursor:pointer;
   background:var(--a);color:#0a0a0c;box-shadow:4px 4px 0 0 #000;
   transition:transform .1s ease-out,box-shadow .1s ease-out}
-.dv-show .plate .thread-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 0 #000}
-.dv-show .plate .thread-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 0 #000}
-.dv-show .plate .thread-btn.off{background:#17161d;color:#c9c4d2;border-color:var(--a)}
+.dv-show .plate .stage-btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 0 #000}
+.dv-show .plate .stage-btn:active{transform:translate(3px,3px);box-shadow:0 0 0 0 #000}
+.dv-show .plate .stage-btn.off{background:#17161d;color:#c9c4d2;border-color:var(--a)}
+.dv-show .plate .stage-btn.open{background:transparent;color:var(--a);border-color:var(--a);cursor:default;box-shadow:none}
+.dv-show .plate .stage-btn.open:hover{transform:none;box-shadow:none}
 .dv-show .rail{flex:none;display:flex;gap:.4rem;padding:.5rem .8rem .8rem;overflow-x:auto}
 .dv-show .mini{flex:none;width:2.2rem;aspect-ratio:2/3;border:2px solid #000;background:var(--a);cursor:pointer;
   background-size:cover;background-position:center top;opacity:.55;transition:opacity .1s ease-out,transform .1s ease-out}
@@ -70,7 +72,8 @@ const view: DeckView = {
     const idx = focusedIndex(ctx);
     const e = ctx.entities[idx]!;
     const accent = e.accent ?? deckMeta(e.kind).accent;
-    const onBench = ctx.threaded.has(pieceKey(e));
+    const isOpen = ctx.open.has(pieceKey(e));
+    const staged = ctx.selected.has(pieceKey(e));
 
     const root = h("div", "dv-show");
     root.style.setProperty("--a", accent);
@@ -112,9 +115,10 @@ const view: DeckView = {
       if (peek?.description) desc.textContent = peek.description;
       else desc.remove();
     });
-    const threadBtn = h("button", `thread-btn${onBench ? " off" : ""}`, onBench ? "Remove from the Workbench" : "Send to the Workbench");
-    threadBtn.addEventListener("click", () => ctx.onPiece(e));
-    plate.append(h("div", "meta", `${idx + 1} / ${ctx.entities.length}`), threadBtn);
+    const stageLabel = isOpen ? "On the Workbench" : staged ? "Staged - tap to unstage" : "Stage for the Workbench";
+    const stageBtn = h("button", `stage-btn${isOpen ? " open" : staged ? " off" : ""}`, stageLabel);
+    stageBtn.addEventListener("click", () => ctx.onPiece(e));
+    plate.append(h("div", "meta", `${idx + 1} / ${ctx.entities.length}`), stageBtn);
 
     main.append(prev, hero, plate, next);
 

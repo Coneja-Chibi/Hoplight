@@ -67,6 +67,9 @@ export interface AppContext {
     active(): StudioEntitySummary | null;
     /** open a piece on the Workbench (follow-prompt per settings; no-op if already open) */
     send(s: StudioEntitySummary): void;
+    /** open a batch of pieces at once (already-open ones are skipped); the follow-prompt fires
+     * ONCE with the count actually opened - the multi-select commit path */
+    sendMany(pieces: StudioEntitySummary[]): void;
     /** close a piece */
     remove(id: string, kind: string): void;
     /** is this piece open on the Workbench? */

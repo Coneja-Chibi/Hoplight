@@ -138,27 +138,41 @@ function askFollow(count: number): void {
   yes.focus();
 }
 
+/** Open the not-yet-open pieces and settle the follow behaviour ONCE (single send and batch send
+ * share this so the follow dialog always reports the real count). */
+function openPiecesBatch(batch: StudioEntitySummary[]): void {
+  const fresh = batch.filter((p) => !workbench.isOpen(p.id, p.kind));
+  if (fresh.length === 0) {
+    const only = batch[0];
+    setStatusNote(only && batch.length === 1 ? `${only.name} is already on the Workbench` : "already on the Workbench");
+    return;
+  }
+  for (const p of fresh) {
+    openPieces.push(p);
+    if (!activeKey) activeKey = keyOf(p.id, p.kind);
+  }
+  const last = fresh[fresh.length - 1]!; // "always" lands on the last of the batch
+  piecesChanged();
+  const follow = settings[SETTING_KEYS.workbenchFollow];
+  if (follow === "always") {
+    activeKey = keyOf(last.id, last.kind);
+    piecesChanged();
+    goToWorkbench();
+  } else if (follow === "never") {
+    setStatusNote(
+      fresh.length === 1 ? `${fresh[0]!.name} sent to the Workbench` : `${fresh.length} pieces sent to the Workbench`,
+    );
+  } else {
+    askFollow(fresh.length);
+  }
+}
+
 const workbench: AppContext["workbench"] = {
   pieces: () => [...openPieces],
   active: () => openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null,
   isOpen: (id, kind) => openPieces.some((p) => p.id === id && p.kind === kind),
-  send(s) {
-    if (!workbench.isOpen(s.id, s.kind)) {
-      openPieces.push(s);
-      if (!activeKey) activeKey = keyOf(s.id, s.kind);
-      piecesChanged();
-    }
-    const follow = settings[SETTING_KEYS.workbenchFollow];
-    if (follow === "always") {
-      activeKey = keyOf(s.id, s.kind);
-      piecesChanged();
-      goToWorkbench();
-    } else if (follow === "never") {
-      setStatusNote(`${s.name} sent to the Workbench`);
-    } else {
-      askFollow(1);
-    }
-  },
+  send: (s) => openPiecesBatch([s]),
+  sendMany: (pieces) => openPiecesBatch(pieces),
   remove(id, kind) {
     const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
     if (at < 0) return;

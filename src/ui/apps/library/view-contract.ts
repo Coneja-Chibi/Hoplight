@@ -29,9 +29,11 @@ export interface DeckViewContext {
   /** the active deck's pieces, already filtered by kind */
   entities: StudioEntitySummary[];
   deck: DeckMeta;
-  /** "kind:id" keys of pieces currently OPEN on the Workbench (render them marked) */
-  threaded: Set<string>;
-  /** tap a piece: send it to the Workbench (or remove it when already open) */
+  /** "kind:id" keys of pieces already OPEN on the Workbench (a pure annotation - the tick) */
+  open: Set<string>;
+  /** "kind:id" keys of pieces STAGED for a batch send (render them picked) */
+  selected: Set<string>;
+  /** tap a piece: toggle it in the staging selection (already-open pieces just note, no toggle) */
   onPiece(e: StudioEntitySummary): void;
   /** the piece's art url, or null when it carries none (render the initial instead) */
   portraitUrl(e: StudioEntitySummary): string | null;

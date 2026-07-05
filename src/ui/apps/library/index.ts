@@ -4,7 +4,7 @@
  * populated = the browse room: deck chips with live counts, drop-in DECK VIEWS (views/registry:
  * grid/showcase/list), the continuous art-size dial, all persisted via ctx.prefs. Opens on the
  * deck chosen at setup (JOURNEY rule). Import (drop anywhere, plain-words receipts) lives here.
- * Tapping a piece threads it onto the shell-owned bench; the Workbench is where the pack is woven.
+ * Tapping pieces STAGES them (multi-select); one Send commits the whole batch to the Workbench.
  */
 import type { AppContext, InspectResult, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
@@ -41,6 +41,18 @@ const STYLE = `
 .mono{font-family:var(--font-mono);font-size:.7rem;color:var(--muted)}
 .sheet .actions{display:flex;gap:var(--gap-s);flex-wrap:wrap}
 .wbbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap}
+/* the staging action bar: appears only when pieces are picked (the distributed tray's commit) */
+.sendbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap;background:var(--stamp-bg);
+  border:3px solid var(--edge);box-shadow:4px 4px 0 0 var(--accent);padding:.4rem .55rem .4rem .7rem}
+.sendbar .cnt{font-family:var(--font-big);font-weight:900;font-size:.75rem;letter-spacing:.04em;color:var(--stamp-fg)}
+.sendbar .send{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--accent);color:#0a0a0c;border:3px solid var(--edge);cursor:pointer;
+  padding:.4rem .8rem;box-shadow:3px 3px 0 0 var(--edge);transition:transform .1s ease-out,box-shadow .1s ease-out}
+.sendbar .send:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--edge)}
+.sendbar .clear{font-family:var(--font-mono);font-weight:700;font-size:.5625rem;letter-spacing:.1em;
+  text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
+  cursor:pointer;padding:.35rem .6rem}
+.sendbar .clear:hover{color:var(--text);border-color:var(--edge)}
 .deckchips{display:flex;gap:.4rem;flex:1;min-width:0;overflow-x:auto;padding-bottom:2px}
 .dchip{display:flex;align-items:center;gap:.45rem;flex:none;cursor:pointer;font-family:var(--font-big);
   font-weight:800;font-size:.625rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);
@@ -184,6 +196,9 @@ interface RoomState {
   activeKind: string;
   /** format id -> chip label ("RoleCall", "Default"), from the live registry (no magic maps) */
   formatLabels: Map<string, string>;
+  /** "kind:id" of pieces STAGED for a batch send; persists across deck switches (the multi-select
+   * working set), the distributed tray - per-card picks plus the action bar's live count */
+  selected: Set<string>;
 }
 
 /** "RoleCall · V3" / "Default · V2" from the summary's source fields; null = made from scratch. */
@@ -233,7 +248,11 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
   const decks = deckCounts(state.entities, knownDecks().map((d) => d.kind));
   const deck = deckMeta(state.activeKind);
   const inDeck = state.entities.filter((e) => e.kind === state.activeKind);
-  const threaded = new Set(ctx.workbench.pieces().map(pieceKey));
+  const open = new Set(ctx.workbench.pieces().map(pieceKey));
+  // drop any staged key that has since gone (opened elsewhere or deleted) so the count never lies
+  for (const key of state.selected) {
+    if (open.has(key) || !state.entities.some((e) => pieceKey(e) === key)) state.selected.delete(key);
+  }
 
   // toolbar: deck chips (real counts) + the VIEW picker and SIZE dial (derived, never named)
   const bar = h("div", "wbbar");
@@ -279,6 +298,27 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
   dial.append(slider);
   bar.append(chips, viewSeg, dial);
 
+  // the staging action bar: only real when pieces are picked; ONE Send commits the whole set
+  const sendbar = h("div", "sendbar");
+  if (state.selected.size > 0) {
+    const n = state.selected.size;
+    sendbar.append(h("span", "cnt", `${n} ${n === 1 ? "piece" : "pieces"} staged`));
+    const send = h("button", "send", `Send ${n === 1 ? "it" : `all ${n}`} to the Workbench`);
+    send.addEventListener("click", () => {
+      const byKey = new Map(state.entities.map((e) => [pieceKey(e), e]));
+      const batch = [...state.selected].map((k) => byKey.get(k)).filter((e): e is StudioEntitySummary => !!e);
+      state.selected.clear();
+      ctx.workbench.sendMany(batch); // fires the follow dialog once, with the real count
+      render(ctx, state);
+    });
+    const clear = h("button", "clear", "Clear");
+    clear.addEventListener("click", () => {
+      state.selected.clear();
+      render(ctx, state);
+    });
+    sendbar.append(send, clear);
+  }
+
   // the shelves' stage: proscenium + the chosen view
   const prosc = h("div", "prosc");
   const stage = h("div", "libstage");
@@ -296,21 +336,28 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
     const vctx: DeckViewContext = {
       entities: inDeck,
       deck,
-      threaded,
+      open,
+      selected: state.selected,
       portraitUrl,
       sourceLabel: (e) => sourceLabel(state, e),
       peek: (e) => peekPiece(ctx, e),
       refresh: () => render(ctx, state),
       menu: (el, e) => ctx.menus.attach(el, () => ({ type: "entity", label: e.name, data: e })),
       onPiece: (e) => {
-        if (threaded.has(pieceKey(e))) ctx.workbench.remove(e.id, e.kind);
-        else ctx.workbench.send(e);
+        const key = pieceKey(e);
+        if (open.has(key)) {
+          ctx.setStatus(`${e.name} is already on the Workbench`); // open = annotation, not a toggle
+          return;
+        }
+        if (state.selected.has(key)) state.selected.delete(key);
+        else state.selected.add(key);
+        render(ctx, state);
       },
     };
     stage.append(view.render(vctx));
   }
   prosc.append(stage);
-  root.append(bar, prosc);
+  root.append(bar, ...(state.selected.size > 0 ? [sendbar] : []), prosc);
   ctx.setStatus(`${deck.plural.toLowerCase()} · ${inDeck.length} of ${state.entities.length} pieces`);
 }
 
@@ -342,6 +389,7 @@ const app: VaudeApp = {
       entities: [],
       activeKind: typeof firstDeck === "string" && firstDeck ? firstDeck : "character",
       formatLabels: new Map(),
+      selected: new Set(),
     };
     const rerender = (): void => render(ctx, state);
     const unsub = ctx.workbench.onChange(rerender);

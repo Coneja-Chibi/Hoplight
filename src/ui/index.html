@@ -68,25 +68,6 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .dockslot .sl{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.14em;text-transform:uppercase}
 #dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}
 #dockfoot .apptile{min-height:2.9rem}
-#tray{border-top:3px solid var(--seam);background:var(--shell-panel-2);padding:.65rem .55rem;flex:none;display:none}
-#tray.show{display:block}
-.tray-h{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
-.tray-k{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
-.decklist{display:flex;margin-bottom:.55rem;padding-left:2px}
-.decklist .dcard{width:1.05rem;height:1.5rem;flex:none;margin-left:-5px;background:var(--face);
-  border:2px solid var(--edge);box-shadow:2px 2px 0 0 var(--edge);display:flex;flex-direction:column}
-.decklist .dcard:first-child{margin-left:0}
-.decklist .dcard i{height:5px;display:block;background:var(--a);border-bottom:2px solid var(--edge)}
-.weave{width:100%;font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.1em;
-  text-transform:uppercase;color:#fff;background:var(--rose);border:3px solid var(--edge);
-  box-shadow:4px 4px 0 0 #9f1239;padding:.55rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:.4rem;
-  transition:transform .1s ease-out,box-shadow .1s ease-out}
-.weave:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 0 #9f1239}
-.weave:active{transform:translate(3px,3px);box-shadow:0 0 0 0 #9f1239}
-.weave .n{font-family:var(--font-mono);font-weight:700;font-size:.625rem}
-.weave .wv-ico{display:none}
-
 /* ───────── TOP STRIP ───────── */
 #topbar{grid-column:2;grid-row:1;background:var(--chrome);border-bottom:3px solid var(--seam);
   display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1rem);padding:.5rem clamp(.6rem,1.5vw,1rem)}
@@ -179,11 +160,6 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
   .apptile.on::before{display:none}
   .apptile.on{box-shadow:3px 3px 0 0 var(--a)}
   .dockslot .sl{display:none}
-  .tray-h{justify-content:center}
-  .tray-k,.decklist{display:none}
-  .weave .wv-t,.weave .n{display:none}
-  .weave .wv-ico{display:block}
-  .weave{padding:.55rem .4rem}
   #importBtn .im-t{display:none}
   #importBtn{padding:.45rem .5rem}
 }
@@ -205,14 +181,6 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
     <div id="dockapps"></div>
     <div id="dockfoot">
       <div id="dockfootapps"></div>
-      <div id="tray">
-        <div class="tray-h"><span class="tray-k" id="trayLabel"></span></div>
-        <div class="decklist" id="trayDecklist"></div>
-        <button class="weave" id="weaveBtn">
-          <span class="wv-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 7c5 0 5 10 10 10s6-10 6-10"/><path d="M4 17c5 0 5-10 10-10s6 10 6 10"/></svg></span>
-          <span class="wv-t">Weave the pack</span> <span class="n" id="weaveCount"></span>
-        </button>
-      </div>
     </div>
   </nav>
 

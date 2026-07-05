@@ -1,7 +1,7 @@
 /**
  * Deck view: GRID - the workhorse. Portrait 2:3 cards in a fluid auto-fill grid sized by the
- * user's S/M/L pick. Open pieces press down with an "on the workbench" tick (the library
- * wireframe's sel treatment). The naive-user default view.
+ * user's art dial. Tapping a card STAGES it (accent ring + corner check); cards already open on
+ * the Workbench wear a quiet "on the workbench" tick (a pure annotation). The naive-user default.
  */
 import { deckMeta } from "../../../_shared/decks";
 import { h, pieceKey, type DeckView } from "../view-contract";
@@ -22,10 +22,16 @@ const CSS = `
 .dv-gcard .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee;line-height:1}
 .dv-gcard .fmt{display:inline-block;font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.06em;
   text-transform:uppercase;color:#b3aec0;border:2px solid #4a4656;font-weight:700;padding:2px 5px;margin-top:.35rem}
-.dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45);transform:translate(2px,2px)}
+.dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45);transform:translate(2px,2px);opacity:.72}
 .dv-gcard.cast:hover{transform:translate(2px,2px);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45)}
 .dv-gcard .tick{position:absolute;top:0;right:0;z-index:1;background:var(--a);color:#0a0a0c;font-family:var(--font-mono);
   font-size:.5625rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-left:3px solid #000;border-bottom:3px solid #000}
+/* STAGED: outlined in accent, a filled corner check - distinct from the pressed-open "cast" state */
+.dv-gcard.pick{outline:3px solid var(--a);outline-offset:-3px;box-shadow:9px 9px 0 0 var(--a);transform:translate(-3px,-3px)}
+.dv-gcard .check{position:absolute;top:0;right:0;z-index:2;width:1.15rem;height:1.15rem;background:var(--a);
+  border-left:3px solid #000;border-bottom:3px solid #000;display:flex;align-items:center;justify-content:center}
+.dv-gcard .check::after{content:"";width:.42rem;height:.72rem;border:solid #0a0a0c;border-width:0 3px 3px 0;
+  transform:translateY(-2px) rotate(45deg)}
 `;
 
 const view: DeckView = {
@@ -39,8 +45,10 @@ const view: DeckView = {
     const scroll = h("div", "dv-gridscroll");
     const grid = h("div", "dv-grid"); // --card-w cascades from the stage (the live size dial)
     for (const e of ctx.entities) {
-      const onBench = ctx.threaded.has(pieceKey(e));
-      const card = h("button", `dv-gcard${onBench ? " cast" : ""}`);
+      const key = pieceKey(e);
+      const isOpen = ctx.open.has(key);
+      const staged = ctx.selected.has(key);
+      const card = h("button", `dv-gcard${isOpen ? " cast" : ""}${staged ? " pick" : ""}`);
       card.style.setProperty("--a", e.accent ?? deckMeta(e.kind).accent);
       const cov = h("div", "cov");
       const art = ctx.portraitUrl(e);
@@ -51,9 +59,14 @@ const view: DeckView = {
       bd.append(h("div", "nm", e.name));
       const fmt = ctx.sourceLabel(e);
       if (fmt) bd.append(h("span", "fmt", fmt));
-      if (onBench) card.append(h("span", "tick", "on the workbench"));
+      if (isOpen) card.append(h("span", "tick", "on the workbench"));
+      if (staged) card.append(h("span", "check"));
       card.append(cov, bd);
-      card.title = onBench ? `${e.name} is open on the Workbench` : `Send ${e.name} to the Workbench`;
+      card.title = isOpen
+        ? `${e.name} is open on the Workbench`
+        : staged
+          ? `${e.name} is staged - tap to unstage`
+          : `Stage ${e.name} for the Workbench`;
       card.addEventListener("click", () => ctx.onPiece(e));
       ctx.menu(card, e);
       grid.append(card);

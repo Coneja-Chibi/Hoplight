@@ -11,7 +11,7 @@ uses. One engine, two shells - no format logic exists in the UI layer.
   skipped) and bundles each for the browser on demand. Drop a folder in, restart, the dock gains a
   tile - identical doctrine to `src/formats/`.
 - **Apps never touch the engine or the filesystem**: they receive an `AppContext` whose `api` is the
-  only door (inspect/export/studio/formats). The shell owns theme, tabs, tray, and the status bar.
+  only door (inspect/export/studio/formats). The shell owns theme, the Workbench tabs, and the status bar.
 - **Tokens are one CSS source**: `src/ui/theme/tokens.css`, transcribed from `design/DECISIONS.md`
   (both themes, the stamp, the seam). Apps consume tokens; hardcoding colors or layout pixels in an
   app is a review rejection (fluid law).
@@ -42,9 +42,9 @@ One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended 
 - a feature contributes items: `ctx.menus.register(type, provider)` (any number of providers per
   type; each provider's items form a section; empty/null = deny by absence). Returns an
   unregister for app cleanup.
-- shell-owned providers: `entity` (bench thread/pull - works in every room), `app` (dock tiles),
-  `shell` (Go home / Import files / Switch theme). Adding a menu later (Open in editor, Export,
-  Delete) = one register() call; nothing central is edited.
+- shell-owned providers: `entity` (Send / Show / Remove on the Workbench - the one-shot single path,
+  works in every room), `app` (dock tiles), `shell` (Go home / Import files / Switch theme). Adding a
+  menu later (Open in editor, Export, Delete) = one register() call; nothing central is edited.
 
 ## Dev live-reload
 `vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
@@ -87,8 +87,16 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
   a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
   stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
   fluid auto-fill 2:3 cards), `showcase` (one card at a time: hero art, the card's own
-  tagline/description via `peek`, prev/next + thumb rail, thread in place), `list` (dense rows).
-  The toolbar derives from the registry; the library names no view.
+  tagline/description via `peek`, prev/next + thumb rail, stage in place), `list` (dense rows).
+  The toolbar derives from the registry; the library names no view. Every view renders two piece
+  states from the context: `open` (a quiet "on the workbench" annotation) and `selected` (staged,
+  accent ring + corner check).
+- **Multi-select is staging** (Chi, 2026-07-06 - restored after the IDE rework dropped it): tapping a
+  piece toggles it into the room's staging set (persists across deck switches - the distributed tray);
+  a Send action bar appears with the live count and commits the whole batch through
+  `workbench.sendMany`, which fires the follow dialog ONCE with the real newly-opened count. The
+  right-click `entity` menu keeps the one-shot single Send. Open pieces are annotation-only: tapping
+  one just notes "already on the Workbench" (no state-dependent navigation - one rule for tap).
 - **Art size is a continuous dial** (range slider, `SIZE_RANGE` 4-36rem, fail-closed `clampSize`):
   dragging repaints live via the cascading `--card-w` var; release persists. View + size persist
   per-user through `AppContext.prefs` (`library.view`, `library.size`).
@@ -97,9 +105,10 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
 Pieces are SENT from the Library and open as TABS: the shell's tab strip is the tab bar, and this
 room shows the active piece's editor pane (today a truthful read-only inspector: real art, real
 tagline/description/personality; the writable editor replaces the pane's body next slice).
-- Open pieces are shell-owned (`AppContext.workbench`: pieces/active/send/remove/isOpen/focus/
-  onChange) so tabs persist across app switches; the "on the workbench" marks in every Library
-  view read the same state.
+- Open pieces are shell-owned (`AppContext.workbench`: pieces/active/send/sendMany/remove/isOpen/
+  focus/onChange) so tabs persist across app switches; the "on the workbench" marks in every Library
+  view read the same state. `send` (single) and `sendMany` (batch) share one follow path so the
+  dialog always reports the true count opened.
 - Sending honors the FOLLOW setting (`workbench.follow`): "ask" pops the dialog ("N items were
   sent to the Workbench. Follow?" Yes/No + "Never ask me this again"), "always" jumps there,
   "never" stays with a status note. Changeable in Settings.

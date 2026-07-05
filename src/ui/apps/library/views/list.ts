@@ -18,7 +18,10 @@ const CSS = `
 .dv-row .kd{font-family:var(--font-mono);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a6a1b4}
 .dv-row .bench{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--a);border:2px solid var(--a);padding:2px 6px}
-.dv-row.cast{border-color:var(--a);background:#0d0c11}
+.dv-row.cast{border-color:var(--a);background:#0d0c11;opacity:.72}
+.dv-row.pick{border-color:var(--a);background:#0d0c11;box-shadow:inset 4px 0 0 0 var(--a)}
+.dv-row .stag{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
+  text-transform:uppercase;color:#0a0a0c;background:var(--a);padding:2px 7px;font-weight:700}
 `;
 
 const view: DeckView = {
@@ -32,8 +35,10 @@ const view: DeckView = {
     const scroll = h("div", "dv-listscroll");
     const list = h("div", "dv-list");
     for (const e of ctx.entities) {
-      const onBench = ctx.threaded.has(pieceKey(e));
-      const row = h("button", `dv-row${onBench ? " cast" : ""}`); // --card-w cascades from the stage
+      const key = pieceKey(e);
+      const isOpen = ctx.open.has(key);
+      const staged = ctx.selected.has(key);
+      const row = h("button", `dv-row${isOpen ? " cast" : ""}${staged ? " pick" : ""}`); // --card-w cascades from the stage
       row.style.setProperty("--a", e.accent ?? deckMeta(e.kind).accent);
       const thumb = h("span", "thumb");
       const art = ctx.portraitUrl(e);
@@ -42,8 +47,13 @@ const view: DeckView = {
       row.append(thumb, h("span", "nm", e.name), h("span", "kd", e.kind));
       const fmt = ctx.sourceLabel(e);
       if (fmt) row.append(h("span", "kd", fmt));
-      if (onBench) row.append(h("span", "bench", "on the workbench"));
-      row.title = onBench ? `${e.name} is open on the Workbench` : `Send ${e.name} to the Workbench`;
+      if (isOpen) row.append(h("span", "bench", "on the workbench"));
+      else if (staged) row.append(h("span", "stag", "staged"));
+      row.title = isOpen
+        ? `${e.name} is open on the Workbench`
+        : staged
+          ? `${e.name} is staged - tap to unstage`
+          : `Stage ${e.name} for the Workbench`;
       row.addEventListener("click", () => ctx.onPiece(e));
       ctx.menu(row, e);
       list.append(row);
