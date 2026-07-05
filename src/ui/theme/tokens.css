@@ -1,0 +1,75 @@
+/**
+ * Vaude design tokens - THE single CSS source of truth, transcribed from design/DECISIONS.md.
+ * Apps consume tokens only; hardcoding a color or layout pixel in an app is a review rejection.
+ * Pixels appear ONLY for ornament (ink borders, stamp offsets) per the fluid law.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@900&family=Cinzel:wght@900&family=Crimson+Pro:ital,wght@0,400;0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* brand - FIXED, never recolored by accent picks */
+  --rose: #e11d48;
+
+  /* user-pickable house accent (chrome, empty states); entities wear their own accents */
+  --accent: var(--rose);
+
+  /* type roles (DECISIONS #13) */
+  --font-big: "Archivo", sans-serif;          /* 900, tight */
+  --font-fancy: "Cinzel", serif;              /* 900, LARGE only */
+  --font-body: "Crimson Pro", serif;          /* upright = everything, italic 600 = voice */
+  --font-mono: "JetBrains Mono", monospace;   /* meta */
+
+  /* fluid type scale (16px body floor) */
+  --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+  --text-meta: 0.72rem;
+  --text-title: clamp(1.5rem, 1.2rem + 1.4vw, 2.4rem);
+
+  /* ornament pixels (the ONLY allowed px) */
+  --ink-border: 3px solid var(--ink);
+  --stamp-x: 4px;
+  --stamp-y: 4px;
+
+  /* spacing rhythm */
+  --gap-s: 0.5rem;
+  --gap-m: 1rem;
+  --gap-l: 1.75rem;
+}
+
+/* LIGHT = paper letterpress */
+:root[data-theme="paper"] {
+  --ink: #0a0a0b;
+  --paper: #faf8f3;
+  --paper-2: #f1eee6;
+  --panel: #ffffff;
+  --stage: #0a0a0b;       /* the dark canvas sunk into paper */
+  --stage-2: #131218;
+  --muted: #6b6659;
+  --ghost: #c9c4b8;
+}
+
+/* DARK = the forge */
+:root[data-theme="stage"] {
+  --ink: #faf8f3;         /* ink inverts: cream draws on dark */
+  --paper: #0a0a0b;
+  --paper-2: #131218;
+  --panel: #17161d;
+  --stage: #050506;       /* the stage sinks deeper than the chrome */
+  --stage-2: #0d0c12;
+  --muted: #8b85a0;
+  --ghost: #33313b;
+}
+
+/* the stamp: rest sits, hover lifts, active presses down (the beloved interaction, one place) */
+.stamp {
+  border: var(--ink-border);
+  box-shadow: var(--stamp-x) var(--stamp-y) 0 0 var(--ink);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.stamp:hover { transform: translate(-2px, -2px); box-shadow: calc(var(--stamp-x) + 2px) calc(var(--stamp-y) + 2px) 0 0 var(--ink); }
+.stamp:active, .stamp.pressed { transform: translate(var(--stamp-x), var(--stamp-y)); box-shadow: 0 0 0 0 var(--ink); }
+
+/* the seam: a dark canvas sinks with the inverted stamp (inset, blur 0) */
+.seam { background: var(--stage); box-shadow: inset var(--stamp-x) var(--stamp-y) 0 0 rgba(0, 0, 0, 0.55); }
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp, .stamp:hover, .stamp:active { transition: none; }
+}

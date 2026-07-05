@@ -94,6 +94,7 @@ const HELP = `${BANNER}
     inspect <file>        Show what is inside a file
     label <file>          Guess a card's format and which app it is likely from
     formats               List the formats vaud knows about
+    ui [port] [studio]    Open the visual studio (local only; studio dir defaults to ./studio)
     version               Print the version
     help                  Print this help
 
@@ -134,6 +135,18 @@ async function main(argv: string[]): Promise<number> {
     }
     console.log(`\n  Drop a folder into src/formats/ to add one (copy src/formats/_template).\n`);
     return 0;
+  }
+
+  if (first === "ui") {
+    await loadFormats();
+    const { startUi } = await import("./ui/server");
+    const port = Number(args[1]) || 8321;
+    const studioDir = args[2] ?? "studio";
+    const { url } = startUi(port, studioDir);
+    console.log(`\n  Vaude. is up: ${url}`);
+    console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);
+    // Bun.serve keeps the process alive; ctrl-c to close the studio.
+    return await new Promise<number>(() => {});
   }
 
   if (first === "inspect") {

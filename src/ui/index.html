@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en" data-theme="paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vaude.</title>
+<link rel="stylesheet" href="/tokens.css">
+<style>
+/* The LOCKED shell skeleton (DECISIONS #14): dock of apps, top strip, tab strip, canvas, status
+   bar, tray at the dock's foot. Layout is fully fluid; only ornament is px. Apps style their own
+   canvases; everything here is chrome. */
+*{box-sizing:border-box}
+html,body{margin:0;height:100dvh;overflow:hidden;background:var(--paper);color:var(--ink);
+  font-family:var(--font-body);font-size:var(--text-body)}
+#shell{display:grid;grid-template-columns:clamp(4rem,14vw,13rem) minmax(0,1fr);
+  grid-template-rows:auto auto minmax(0,1fr) auto;height:100dvh}
+
+#topstrip{grid-column:1/3;display:flex;align-items:center;gap:var(--gap-m);
+  padding:.45rem .9rem;border-bottom:var(--ink-border);background:var(--paper)}
+#brand{display:inline-flex;align-items:baseline;font-family:var(--font-big);font-weight:900;
+  font-size:1.15rem;cursor:pointer;background:none;border:none;color:var(--ink);padding:0}
+#brand svg{height:1.22em;width:auto;transform:translateY(.13em);margin-right:-.14em}
+#brand .quad{display:inline-block;width:.17em;height:.17em;background:var(--rose);margin-left:.09em}
+#search{flex:1;max-width:34rem;margin:0 auto;border:var(--ink-border);background:var(--panel);
+  padding:.35rem .7rem;font-family:var(--font-body);font-size:1rem;color:var(--ink)}
+#search::placeholder{color:var(--muted)}
+.chipbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
+  text-transform:uppercase;background:var(--panel);color:var(--ink);cursor:pointer;padding:.45rem .8rem}
+.chipbtn.primary{background:var(--rose);color:#fff}
+
+#tabstrip{grid-column:2/3;display:flex;gap:.4rem;align-items:flex-end;min-height:2.2rem;
+  padding:.35rem .9rem 0;border-bottom:var(--ink-border);background:var(--paper-2);overflow-x:auto}
+.tab{display:inline-flex;align-items:center;gap:.45rem;border:var(--ink-border);border-bottom:none;
+  background:var(--panel);padding:.3rem .7rem;font-size:.9rem;cursor:pointer;white-space:nowrap}
+.tab .pip{width:.55rem;height:.55rem;border:2px solid var(--ink);background:var(--tab-accent,var(--muted))}
+.tab.active{background:var(--paper);font-weight:600}
+
+#dock{grid-row:2/4;grid-column:1/2;display:flex;flex-direction:column;gap:var(--gap-s);
+  padding:var(--gap-m) var(--gap-s);border-right:var(--ink-border);background:var(--paper-2);overflow-y:auto}
+.dockapp{display:flex;align-items:center;gap:.6rem;background:var(--panel);color:var(--ink);
+  cursor:pointer;padding:.55rem .6rem;font-family:var(--font-big);font-weight:900;font-size:.72rem;
+  letter-spacing:.05em;text-transform:uppercase;text-align:left}
+.dockapp .mark{width:1.6rem;height:1.6rem;flex:none;display:flex;align-items:center;justify-content:center}
+.dockapp .mark svg{width:100%;height:100%}
+.dockapp.pressed{border-left:.35rem solid var(--app-accent,var(--accent))}
+.dockapp.soon{opacity:.45;cursor:default}
+.dockapp.soon small{font-family:var(--font-mono);font-size:.55rem;letter-spacing:0;text-transform:none;color:var(--muted)}
+.dockslot{border:2px dashed var(--ghost);min-height:2.6rem}
+#dockspacer{flex:1}
+#tray{border-top:2px dashed var(--ghost);padding-top:var(--gap-s);display:none;flex-direction:column;gap:.4rem}
+#tray.show{display:flex}
+#tray .beads{display:flex;gap:.3rem}
+#tray .bead{width:.8rem;height:.8rem;border:2px solid var(--ink)}
+
+#canvas{grid-row:3/4;grid-column:2/3;min-width:0;min-height:0;overflow:auto;background:var(--paper)}
+
+#statusbar{grid-column:1/3;display:flex;gap:var(--gap-l);align-items:center;
+  padding:.3rem .9rem;border-top:var(--ink-border);background:var(--paper-2);
+  font-family:var(--font-mono);font-size:var(--text-meta);color:var(--muted)}
+#statusbar .right{margin-left:auto}
+@media(max-width:46rem){
+  #shell{grid-template-columns:4rem minmax(0,1fr)}
+  .dockapp{justify-content:center;padding:.55rem .2rem}
+  .dockapp .label,#tray .lab{display:none}
+  #search{max-width:none}
+}
+</style>
+</head>
+<body>
+<div id="shell">
+  <header id="topstrip">
+    <button id="brand" title="Home">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="60,92 4,12 34,3" fill="#e11d48"/><polygon points="40,92 96,12 66,3" fill="#e11d48"/></svg><span>aude</span><span class="quad"></span>
+    </button>
+    <input id="search" placeholder="Search your whole studio">
+    <button id="importBtn" class="chipbtn primary stamp">Import</button>
+    <button id="themeBtn" class="chipbtn stamp" title="Switch theme">Theme</button>
+  </header>
+  <nav id="tabstrip" aria-label="Open pieces"></nav>
+  <aside id="dock" aria-label="Apps"></aside>
+  <main id="canvas"></main>
+  <footer id="statusbar">
+    <span id="statusApp"></span>
+    <span id="statusStudio"></span>
+    <span class="right">$ vaude.</span>
+  </footer>
+</div>
+<script type="module" src="/boot.js"></script>
+</body>
+</html>
