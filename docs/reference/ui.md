@@ -63,10 +63,13 @@ otherwise.
 - **Deck views are drop-in modules**: one file in `src/ui/apps/workbench/views/` default-exporting
   a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
   stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
-  fluid auto-fill 2:3 cards), `carousel` (the floated signature deck), `list` (dense rows). The
-  toolbar derives from the registry; the workbench names no view.
-- **Art size** is user-picked (S/M/L, `DECK_SIZES`); view + size persist per-user through
-  `AppContext.prefs` into the settings open record (`workbench.view`, `workbench.size`).
+  fluid auto-fill 2:3 cards), `showcase` (one card at a time: hero art, the card's own
+  tagline/description via `peek`, prev/next + thumb rail, thread in place), `list` (dense rows).
+  The toolbar derives from the registry; the workbench names no view.
+- **Art size is a continuous dial** (range slider, `SIZE_RANGE` 4-36rem, fail-closed `clampSize`):
+  dragging repaints live via the cascading `--card-w` var; release persists. View + size persist
+  per-user through `AppContext.prefs` into the settings open record (`workbench.view`,
+  `workbench.size`).
 - THE BENCH is shell-owned state (`AppContext.bench`): tap a piece to thread it (dims/marks in
   every view), tap its bead to pull it off; the dock tray's decklist + WEAVE count render from the
   same state and persist across app switches. Deck metadata (kind accents/labels) lives once in

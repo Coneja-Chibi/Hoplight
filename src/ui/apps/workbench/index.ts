@@ -8,7 +8,7 @@
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
 import { deckCounts, packSummary } from "./bench-core";
-import { DECK_SIZES, h, pieceKey, type DeckViewContext } from "./view-contract";
+import { clampSize, h, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
 
 /** the locked bench mark (vs-shell-apps) */
@@ -39,6 +39,14 @@ const STYLE = `
 .viewseg button:first-child{border-left:none}
 .viewseg button.on{background:var(--stamp-bg);color:var(--stamp-fg)}
 .viewseg svg{display:block}
+.sizedial{display:flex;align-items:center;gap:.45rem;flex:none;border:3px solid var(--edge);
+  box-shadow:3px 3px 0 0 var(--edge);background:var(--face);padding:.3rem .6rem}
+.sizedial .sk{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.sizedial input{appearance:none;-webkit-appearance:none;width:clamp(5rem,9vw,8rem);height:3px;background:var(--text-faint);
+  outline:none;cursor:pointer}
+.sizedial input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;
+  background:var(--text);border:2px solid var(--edge)}
+.sizedial input::-moz-range-thumb{width:12px;height:12px;background:var(--text);border:2px solid var(--edge);border-radius:0}
 .prosc{position:relative;flex:1;min-height:0;background:var(--shell-panel-2);border:3px solid var(--edge);
   box-shadow:6px 6px 0 0 var(--edge);padding:.55rem;display:flex}
 .wbstage{position:relative;flex:1;min-height:0;background:#0a0a0b;border:3px solid #000;overflow:hidden;
@@ -85,12 +93,28 @@ interface RoomState {
   activeKind: string;
 }
 
+/** Fetch a piece's own words for close-up views; tolerant (null on any failure). */
+async function peekPiece(ctx: AppContext, e: StudioEntitySummary): Promise<PiecePeek | null> {
+  try {
+    const entity = (await ctx.api.getEntity(
+      `kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}`,
+    )) as { body?: { identity?: { tagline?: string }; persona?: { description?: string } } };
+    const tagline = entity.body?.identity?.tagline;
+    const description = entity.body?.persona?.description;
+    if (!tagline && !description) return null;
+    return { tagline, description };
+  } catch {
+    return null;
+  }
+}
+
 function render(ctx: AppContext, state: RoomState): void {
   const views = deckViews();
   const view = deckView(ctx.prefs.get(PREF_VIEW));
-  const size = DECK_SIZES.find((s) => s.id === ctx.prefs.get(PREF_SIZE)) ?? DECK_SIZES[1]!;
+  const sizeRem = clampSize(ctx.prefs.get(PREF_SIZE));
 
   const room = h("div", "wbroom");
+  room.style.setProperty("--card-w", `${sizeRem}rem`); // the size dial's var; views build from it
   const style = document.createElement("style");
   style.textContent = STYLE + views.map((v) => v.css).join("\n");
   room.append(style);
@@ -122,17 +146,25 @@ function render(ctx: AppContext, state: RoomState): void {
     });
     viewSeg.append(b);
   }
-  const sizeSeg = h("div", "viewseg");
-  for (const s of DECK_SIZES) {
-    const b = h("button", s.id === size.id ? "on" : undefined, s.label);
-    b.title = `${s.label} art`;
-    b.addEventListener("click", () => {
-      ctx.prefs.set(PREF_SIZE, s.id);
-      render(ctx, state);
-    });
-    sizeSeg.append(b);
-  }
-  bar.append(chips, viewSeg, sizeSeg);
+  // the size DIAL: continuous, live (drag repaints via the cascading --card-w), persisted on release
+  const dial = h("label", "sizedial");
+  dial.append(h("span", "sk", "art"));
+  const slider = document.createElement("input");
+  slider.type = "range";
+  slider.min = String(SIZE_RANGE.min);
+  slider.max = String(SIZE_RANGE.max);
+  slider.step = "0.5";
+  slider.value = String(sizeRem);
+  slider.title = "Art size";
+  slider.addEventListener("input", () => {
+    room.style.setProperty("--card-w", `${clampSize(Number(slider.value))}rem`); // live, no re-render
+  });
+  slider.addEventListener("change", () => {
+    ctx.prefs.set(PREF_SIZE, clampSize(Number(slider.value)));
+    render(ctx, state);
+  });
+  dial.append(slider);
+  bar.append(chips, viewSeg, dial);
 
   // -- the stage: proscenium + the chosen view --------------------------------------------------------
   const prosc = h("div", "prosc");
@@ -151,9 +183,10 @@ function render(ctx: AppContext, state: RoomState): void {
     const vctx: DeckViewContext = {
       entities: inDeck,
       deck,
-      size,
       threaded,
       portraitUrl,
+      peek: (e) => peekPiece(ctx, e),
+      refresh: () => render(ctx, state),
       onPiece: (e) => {
         if (threaded.has(pieceKey(e))) ctx.bench.unthread(e.id, e.kind);
         else ctx.bench.thread(e);

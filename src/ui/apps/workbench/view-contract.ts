@@ -9,31 +9,36 @@
 import type { StudioEntitySummary } from "../../app-contract";
 import type { DeckMeta } from "../../_shared/decks";
 
-/** User-pickable art sizes; views map cardW onto their own layout. */
-export interface DeckSize {
-  id: string;
-  label: string;
-  /** base card width the view scales from */
-  cardW: string;
+/** Art size is a continuous user dial (rem), not fixed steps. The workbench publishes the choice
+ * as --card-w on the stage; views build their layout from that var so dragging resizes live. */
+export const SIZE_RANGE = { min: 4, max: 36, fallback: 8.5 } as const;
+
+/** Clamp any stored/incoming value into the legal size range (fail-closed to the fallback). */
+export function clampSize(value: unknown): number {
+  const n = typeof value === "number" && Number.isFinite(value) ? value : SIZE_RANGE.fallback;
+  return Math.min(SIZE_RANGE.max, Math.max(SIZE_RANGE.min, n));
 }
 
-export const DECK_SIZES: DeckSize[] = [
-  { id: "s", label: "S", cardW: "5.5rem" },
-  { id: "m", label: "M", cardW: "8.5rem" },
-  { id: "l", label: "L", cardW: "12rem" },
-];
+/** What a piece says about itself when a view looks closer (showcase); fields absent when unset. */
+export interface PiecePeek {
+  tagline?: string;
+  description?: string;
+}
 
 export interface DeckViewContext {
   /** the active deck's pieces, already filtered by kind */
   entities: StudioEntitySummary[];
   deck: DeckMeta;
-  size: DeckSize;
   /** "kind:id" keys of pieces currently threaded on the bench (render them cast/marked) */
   threaded: Set<string>;
   /** tap a piece: the workbench threads/unthreads it */
   onPiece(e: StudioEntitySummary): void;
   /** the piece's art url, or null when it carries none (render the initial instead) */
   portraitUrl(e: StudioEntitySummary): string | null;
+  /** fetch the piece's own words (tagline/description) for close-up views; null on any failure */
+  peek(e: StudioEntitySummary): Promise<PiecePeek | null>;
+  /** ask the workbench to re-render (a view changed its own internal state, e.g. showcase focus) */
+  refresh(): void;
 }
 
 export interface DeckView {

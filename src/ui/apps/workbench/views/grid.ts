@@ -34,8 +34,7 @@ const view: DeckView = {
   css: CSS,
   render(ctx) {
     const scroll = h("div", "dv-gridscroll");
-    const grid = h("div", "dv-grid");
-    grid.style.setProperty("--card-w", ctx.size.cardW);
+    const grid = h("div", "dv-grid"); // --card-w cascades from the stage (the live size dial)
     for (const e of ctx.entities) {
       const onBench = ctx.threaded.has(pieceKey(e));
       const card = h("button", `dv-gcard${onBench ? " cast" : ""}`);

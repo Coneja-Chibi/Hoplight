@@ -33,9 +33,8 @@ const view: DeckView = {
     const list = h("div", "dv-list");
     for (const e of ctx.entities) {
       const onBench = ctx.threaded.has(pieceKey(e));
-      const row = h("button", `dv-row${onBench ? " cast" : ""}`);
+      const row = h("button", `dv-row${onBench ? " cast" : ""}`); // --card-w cascades from the stage
       row.style.setProperty("--a", e.accent ?? deckMeta(e.kind).accent);
-      row.style.setProperty("--card-w", ctx.size.cardW);
       const thumb = h("span", "thumb");
       const art = ctx.portraitUrl(e);
       if (art) thumb.style.backgroundImage = `url("${art}")`;

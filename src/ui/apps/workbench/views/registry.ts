@@ -5,10 +5,10 @@
  */
 import type { DeckView } from "../view-contract";
 import grid from "./grid";
-import carousel from "./carousel";
+import showcase from "./showcase";
 import list from "./list";
 
-const VIEWS: DeckView[] = [grid, carousel, list];
+const VIEWS: DeckView[] = [grid, showcase, list];
 
 export const deckViews = (): DeckView[] => [...VIEWS].sort((a, b) => a.order - b.order);
 
