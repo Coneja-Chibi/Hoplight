@@ -56,25 +56,28 @@ canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails clos
 `GET /api/studio/list|get` · `GET /api/studio/portrait?kind&id` (the entity's art: the escrowed
 PNG carrier, else a data-URI `body.media.portrait`; 404 when none) · `POST /api/studio/save`.
 
-## The Workbench room
-Deck chips with LIVE per-kind counts, a proscenium stage presenting the deck through a DROP-IN
-VIEW, and the bench string. Covers use `/api/studio/portrait` art when carried, initial-letter
-otherwise.
-- **Deck views are drop-in modules**: one file in `src/ui/apps/workbench/views/` default-exporting
+## The Library room (the shelves - deep browse)
+Empty studio = the locked first-run doors; populated = the browse room: deck chips with LIVE
+per-kind counts, a proscenium stage presenting the active deck through a DROP-IN VIEW, and the
+continuous art-size dial. Opens on the setup wizard's `firstDeck`. Import (drop anywhere,
+plain-words receipts) lives here. Covers use `/api/studio/portrait` art when carried.
+- **Deck views are drop-in modules**: one file in `src/ui/apps/library/views/` default-exporting
   a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
   stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
   fluid auto-fill 2:3 cards), `showcase` (one card at a time: hero art, the card's own
   tagline/description via `peek`, prev/next + thumb rail, thread in place), `list` (dense rows).
-  The toolbar derives from the registry; the workbench names no view.
+  The toolbar derives from the registry; the library names no view.
 - **Art size is a continuous dial** (range slider, `SIZE_RANGE` 4-36rem, fail-closed `clampSize`):
   dragging repaints live via the cascading `--card-w` var; release persists. View + size persist
-  per-user through `AppContext.prefs` into the settings open record (`workbench.view`,
-  `workbench.size`).
-- THE BENCH is shell-owned state (`AppContext.bench`): tap a piece to thread it (dims/marks in
-  every view), tap its bead to pull it off; the dock tray's decklist + WEAVE count render from the
-  same state and persist across app switches. Deck metadata (kind accents/labels) lives once in
-  `src/ui/_shared/decks.ts`. WEAVE answers honestly until packs exist (task: packs/groups = Chi's
-  folders concept).
+  per-user through `AppContext.prefs` (`library.view`, `library.size`).
+
+## The Workbench room (home - where the pack is woven)
+The threaded pack laid out large on the stage + the bench string; pieces are pulled from the
+Library (tap a card there). THE BENCH is shell-owned state (`AppContext.bench`): threading marks
+the piece in every Library view; tapping a stage card or bead pulls it off; the dock tray's
+decklist + WEAVE count render from the same state and persist across app switches. Deck metadata
+(kind accents/labels) lives once in `src/ui/_shared/decks.ts`. WEAVE answers honestly until packs
+exist (task: packs/groups). The full weaving room is JOURNEY 2.3, pending Chi's review.
 
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
