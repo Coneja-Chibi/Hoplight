@@ -8,6 +8,9 @@ export interface PackagedAssets {
   indexHtml: string;
   tokensCss: string;
   bootJs: string;
+  /** the beam-V icon, base64 ICO + PNG (favicon + web-manifest icon, so app windows wear our mark) */
+  faviconIcoB64: string;
+  iconPngB64: string;
   /** app id -> browser bundle */
   apps: Record<string, string>;
   /** the dock manifest list, pre-collected */

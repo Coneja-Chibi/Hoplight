@@ -153,6 +153,29 @@ export function createHandler(store: StudioStore, packaged?: PackagedAssets): (r
     if (p === "/tokens.css") {
       return packaged ? text(packaged.tokensCss, "text/css; charset=utf-8") : staticFile("./theme/tokens.css", "text/css; charset=utf-8");
     }
+    if (p === "/favicon.ico" || p === "/icon-256.png") {
+      const isIco = p === "/favicon.ico";
+      const type = isIco ? "image/x-icon" : "image/png";
+      if (packaged) {
+        const b64 = isIco ? packaged.faviconIcoB64 : packaged.iconPngB64;
+        return new Response(Buffer.from(b64, "base64"), { headers: { "content-type": type } });
+      }
+      const rel = isIco ? "../../build/vaude.ico" : "../../build/vaude-256.png";
+      return new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
+    }
+    if (p === "/app.webmanifest") {
+      return text(
+        JSON.stringify({
+          name: "Vaude.",
+          short_name: "Vaude.",
+          icons: [{ src: "/icon-256.png", sizes: "256x256", type: "image/png" }],
+          display: "standalone",
+          background_color: "#faf8f3",
+          theme_color: "#e11d48",
+        }),
+        "application/manifest+json",
+      );
+    }
     if (p === "/boot.js") {
       if (packaged) return text(packaged.bootJs, "text/javascript");
       const built = await Bun.build({

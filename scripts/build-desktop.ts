@@ -42,6 +42,8 @@ const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
   tokensCss: await Bun.file(join(uiDir, "theme", "tokens.css")).text(),
   bootJs: await bundleBrowser(join(uiDir, "boot.ts")),
+  faviconIcoB64: Buffer.from(await Bun.file(join(root, "build", "vaude.ico")).arrayBuffer()).toString("base64"),
+  iconPngB64: Buffer.from(await Bun.file(join(root, "build", "vaude-256.png")).arrayBuffer()).toString("base64"),
   apps,
   manifests,
 };
