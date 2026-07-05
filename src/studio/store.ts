@@ -11,7 +11,8 @@
 import { mkdir, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { CanonicalEntity } from "../core/canonical";
-import { hasPortrait } from "./portrait";
+import { hasPortrait, portraitBytes } from "./portrait";
+import { signatureFromPng } from "./signature-color";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -22,6 +23,8 @@ export interface EntitySummary {
   importedAt?: string;
   /** the entity carries displayable art (serve it via /api/studio/portrait) */
   hasPortrait?: boolean;
+  /** the entity's signature color, derived from its own art at import (skin-masked vibrant swatch) */
+  accent?: string;
 }
 
 const KIND_DIRS = ["character", "lorebook", "persona"] as const;
@@ -56,12 +59,15 @@ export class StudioStore {
       for (const f of files.filter((n) => n.endsWith(".json")).sort()) {
         const entity = await this.read(k, f.slice(0, -5));
         if (entity) {
+          const studioMeta = entity.escrow?.["vaud-studio"]?.unmapped;
+          const accent = studioMeta?.["accent"];
           out.push({
             id: f.slice(0, -5),
             kind: k,
             name: entityName(entity),
-            importedAt: (entity.escrow?.["vaud-studio"]?.unmapped?.["importedAt"] as string) ?? undefined,
+            importedAt: (studioMeta?.["importedAt"] as string) ?? undefined,
             hasPortrait: hasPortrait(entity),
+            accent: typeof accent === "string" && /^#[0-9a-f]{6}$/i.test(accent) ? accent : undefined,
           });
         }
       }
@@ -95,6 +101,15 @@ export class StudioStore {
       while (await Bun.file(join(dir, `${id}.json`)).exists()) id = `${base}-${n++}`;
     }
 
+    // derive the signature color ONCE at save (skin-masked vibrant swatch of the card's own art);
+    // regenerable bookkeeping, so it lives in our vaud-studio escrow, never in the authored body
+    const prior = entity.escrow?.["vaud-studio"]?.unmapped?.["accent"];
+    let accent = typeof prior === "string" ? prior : undefined;
+    if (!accent) {
+      const art = portraitBytes(entity);
+      if (art?.mime === "image/png") accent = signatureFromPng(art.bytes) ?? undefined;
+    }
+
     const stamped: AnyEntity = {
       ...entity,
       id,
@@ -102,11 +117,11 @@ export class StudioStore {
         ...(entity.escrow ?? {}),
         "vaud-studio": {
           raw: entity.escrow?.["vaud-studio"]?.raw ?? null,
-          unmapped: { importedAt: new Date().toISOString() },
+          unmapped: { importedAt: new Date().toISOString(), ...(accent ? { accent } : {}) },
         },
       },
     };
     await Bun.write(join(dir, `${id}.json`), JSON.stringify(stamped, null, 2));
-    return { id, kind: entity.kind, name: entityName(stamped), importedAt: new Date().toISOString() };
+    return { id, kind: entity.kind, name: entityName(stamped), importedAt: new Date().toISOString(), accent };
   }
 }
