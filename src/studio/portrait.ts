@@ -14,7 +14,17 @@ export interface PortraitBytes {
 
 const DATA_URI = /^data:([a-z0-9.+/-]+);base64,(.+)$/i;
 
+/** Raster images only, fail closed: entity JSON is untrusted (imported cards), so the mime is an
+ * ALLOWLIST, never trusted from the payload. SVG is excluded on purpose - it can carry scripts. */
+const SAFE_IMAGE_MIMES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"]);
+const isSafeImageMime = (mime: unknown): mime is string =>
+  typeof mime === "string" && SAFE_IMAGE_MIMES.has(mime.toLowerCase());
+
+const STRICT_B64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
 function fromB64(b64: string, mime: string): PortraitBytes | null {
+  // Buffer.from decodes sloppy base64 leniently; we fail closed instead of serving garbage bytes
+  if (!STRICT_B64.test(b64)) return null;
   try {
     const bytes = new Uint8Array(Buffer.from(b64, "base64"));
     return bytes.length > 0 ? { bytes, mime } : null;
@@ -37,7 +47,7 @@ export function portraitBytes(entity: AnyEntity): PortraitBytes | null {
 function findPortraitSource(entity: AnyEntity): { b64: string; mime: string } | null {
   for (const entry of Object.values(entity.escrow ?? {})) {
     const media = entry?.sourceMedia;
-    if (media && typeof media.b64 === "string" && media.b64 && media.mime?.startsWith("image/")) {
+    if (media && typeof media.b64 === "string" && media.b64 && isSafeImageMime(media.mime)) {
       return media;
     }
   }
@@ -45,7 +55,7 @@ function findPortraitSource(entity: AnyEntity): { b64: string; mime: string } | 
   const ref = body?.media?.portrait?.ref;
   if (typeof ref === "string") {
     const m = DATA_URI.exec(ref);
-    if (m) return { mime: m[1]!, b64: m[2]! };
+    if (m && isSafeImageMime(m[1])) return { mime: m[1]!.toLowerCase(), b64: m[2]! };
   }
   return null;
 }

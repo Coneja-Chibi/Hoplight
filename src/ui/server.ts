@@ -243,9 +243,16 @@ export function createHandler(
       const entity = await store.read(url.searchParams.get("kind") ?? "", url.searchParams.get("id") ?? "");
       const art = entity ? portraitBytes(entity) : null;
       return art
-        ? // cast: TS's BodyInit lib type predates Uint8Array<ArrayBufferLike>; Bun accepts it fine
+        ? // cast: TS's BodyInit lib type predates Uint8Array<ArrayBufferLike>; Bun accepts it fine.
+          // Headers harden the untrusted-bytes serve: no sniffing, no execution, inline image only.
           new Response(art.bytes as unknown as BodyInit, {
-            headers: { "content-type": art.mime, "cache-control": "no-cache" },
+            headers: {
+              "content-type": art.mime,
+              "cache-control": "no-cache",
+              "content-disposition": "inline; filename=portrait",
+              "x-content-type-options": "nosniff",
+              "content-security-policy": "default-src 'none'; sandbox",
+            },
           })
         : err("no portrait", 404);
     }
