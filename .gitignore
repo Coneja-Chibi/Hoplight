@@ -10,3 +10,4 @@ bun.lockb
 # Large binary samples: kept locally / downloaded on demand, referenced by URL in each SOURCES.md.
 # The small sliced card.json fixture beside them IS committed for tests.
 samples/**/*.charx
+design/_serve.cjs
