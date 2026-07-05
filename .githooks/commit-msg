@@ -1,0 +1,3 @@
+#!/bin/sh
+# Branch-test gate: a new shell branch needs a test or a Verified note. See scripts/hooks/README.md.
+exec bun run scripts/hooks/branch-note.ts "$1"

@@ -1,0 +1,8 @@
+#!/bin/sh
+# The heavy typecheck lives here (kept off per-commit so the commit reflex stays fast).
+NODE_OPTIONS=--max-old-space-size=8192 bunx tsc --noEmit
+if [ $? -ne 0 ]; then
+  echo "GUARDRAIL BLOCK (typecheck): tsc is red. Fix types before pushing." >&2
+  exit 1
+fi
+exit 0

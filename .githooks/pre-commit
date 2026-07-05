@@ -1,0 +1,3 @@
+#!/bin/sh
+# Repo gate: discipline checks + green suite on the staged change. See scripts/hooks/README.md.
+exec bun run scripts/hooks/gate.ts --staged
