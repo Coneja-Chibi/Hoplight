@@ -43,5 +43,8 @@ export function convertFile(src: FormatAdapter, target: FormatAdapter, input: Ad
   if (src.kind === "lorebook" && target.kind === "lorebook") {
     return { out: target.fromCanonical(src.toCanonical(input)), lorebooks: [] };
   }
+  if (src.kind === "persona" && target.kind === "persona") {
+    return { out: target.fromCanonical(src.toCanonical(input)), lorebooks: [] };
+  }
   throw new Error(`convert: cannot convert a ${src.kind} to a ${target.kind} (different entity kinds)`);
 }

@@ -1,5 +1,6 @@
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
+import type { CanonicalPersona } from "../entities/persona/schema";
 import type { FormatId } from "./canonical";
 
 /** Raw input handed to an adapter. Binary formats use bytes; text/json use text. */
@@ -59,6 +60,13 @@ export interface LorebookAdapter extends AdapterBase {
   fromCanonical(entity: CanonicalLorebook): AdapterOutput;
 }
 
+/** An adapter that reads and writes user personas ({{user}}-identity files). */
+export interface PersonaAdapter extends AdapterBase {
+  kind: "persona";
+  toCanonical(input: AdapterInput): CanonicalPersona;
+  fromCanonical(entity: CanonicalPersona): AdapterOutput;
+}
+
 /**
  * The contract every format plugin implements, discriminated by `kind`. Adding a format = adding one
  * of these; adding an entity KIND = adding a member here plus a sibling entities/<kind>/ folder. Core
@@ -66,4 +74,4 @@ export interface LorebookAdapter extends AdapterBase {
  * union heterogeneously; a converter narrows on `kind` (guard src.kind === target.kind) before it
  * hands an entity to fromCanonical, so no unsafe cross-kind call is representable.
  */
-export type FormatAdapter = CharacterAdapter | LorebookAdapter;
+export type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter;

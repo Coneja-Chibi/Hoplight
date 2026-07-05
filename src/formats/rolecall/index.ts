@@ -17,6 +17,7 @@ import type {
   Presentation,
 } from "../../entities/character/schema";
 import lorebookCodec from "./lorebook";
+import personaCodec from "./persona";
 import { embedCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
@@ -71,6 +72,8 @@ interface RcDetails extends Rec {
 }
 
 interface RcExtension extends Rec {
+  /** "persona" on RC's persona-export cards - a DIFFERENT entity kind, handled by rolecall-persona */
+  type?: string;
   tagline?: string;
   genre?: string;
   fandom?: string;
@@ -235,13 +238,17 @@ const adapter: CharacterAdapter = {
   kind: "character",
 
   // 1.0: an RC card is a CCv3 card PLUS an extensions.rolecall block, so it outranks the generic
-  // SillyTavern reader (0.9) and gets to map its own layer.
+  // SillyTavern reader (0.9) and gets to map its own layer. CROSS-KIND FIREWALL: RC's persona export
+  // route emits this same V2 shape with rolecall.type === "persona" - that is a PERSONA, claimed by
+  // the rolecall-persona codec; the character adapter must step aside or the two tie at 1.0.
   detect(input: AdapterInput): number {
     const json = readCardJson(input);
     if (!isRecord(json)) return 0;
     const spec = json.spec;
     if (spec !== CARD_SPEC_V3 && spec !== CARD_SPEC_V2) return 0;
-    return isRecord(json.data) && rolecallExt(json.data as TavernData) ? 1 : 0;
+    if (!isRecord(json.data)) return 0;
+    const rc = rolecallExt(json.data as TavernData);
+    return rc && rc.type !== "persona" ? 1 : 0;
   },
 
   toCanonical(input: AdapterInput): CanonicalCharacter {
@@ -252,6 +259,7 @@ const adapter: CharacterAdapter = {
     const data = json.data as TavernData;
     const rc = rolecallExt(data);
     if (!rc) throw new Error("rolecall: card has no extensions.rolecall block");
+    if (rc.type === "persona") throw new Error("rolecall: this is an RC PERSONA export (use rolecall-persona)");
     return {
       schemaVersion: CANONICAL_SCHEMA_VERSION,
       kind: "character",
@@ -287,4 +295,4 @@ const adapter: CharacterAdapter = {
 export { adapter as characterAdapter };
 
 /** Folders-as-schema: this format family exports every codec it provides (character + lorebook). */
-export default [adapter, lorebookCodec];
+export default [adapter, lorebookCodec, personaCodec];

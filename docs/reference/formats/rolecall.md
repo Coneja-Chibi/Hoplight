@@ -83,6 +83,31 @@ body does not model (the category `tree`, `exportDate`, per-entry `unsupportedFi
 state) survive a round-trip verbatim. Export overlays the canonical body onto a clone of the raw wire and
 matches entries by id; a from-scratch canonical (no escrow) serializes fresh defaults.
 
+## Persona codec (`rolecall-persona`, kind `persona`)
+
+The USER-identity entity - {{user}}'s voice, first person. Two shapes, both claimed at `1.0`:
+
+- **`rcpersona`** - the native envelope `{ spec: "rolecall_persona", spec_version, data }`. `data.description`
+  is the BRIEF (library blurb), `data.content` the injected text; when `content` is empty, `sections`
+  compile in fixed order (appearance, body, personality, quirks, history) as `"Label: text"` blocks.
+  Canonical keeps BOTH content and sections so the editor can offer structured editing either way.
+- **RC's production persona export** - a `chara_card_v2` lookalike whose `extensions.rolecall.type` is
+  the literal `"persona"`. The V2 `description` slot is a FOLD of content + `Appearance:`/`Body:`
+  paragraphs (unfolded on read, re-folded on write); `creator_notes` carries the brief; `personality`/
+  `scenario` carry the personality/history sections; the side-channel carries identity attrs, theming,
+  section_order, lorebook linkage, and `is_after_dark` (omitted-not-false).
+
+The load-bearing rule of the family: `brief` and `content` never swap (that exact swap was a live RC
+production bug, pinned by RC's persona-roundtrip suite; vaud replicates the FIXED behavior). Legacy
+library-export wrappers (`{exportedAt,type,data}` then `{persona}`) unwrap outer-first before shape
+matching. A missing name fails the parse - never synthesized.
+
+**Cross-kind firewall:** RC's persona export is byte-shaped like a character card, so the RC CHARACTER
+adapter explicitly returns 0 on `type === "persona"` (else the two tie at 1.0) and its `toCanonical`
+refuses with a pointer to this codec. Cross-format emit target is the native `rcpersona` envelope.
+Pending, per spec: the PNG keyword scan (`rcpersona` > `persona` > `ccv3` > `chara`), legacy RoleOut,
+and the explicit foreign-V2-as-persona import path.
+
 ## Source of truth
 
 | Concern | File |

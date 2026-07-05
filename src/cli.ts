@@ -160,6 +160,12 @@ async function main(argv: string[]): Promise<number> {
       console.log(`    type     ${b.lorebookType ?? "(none)"}`);
       console.log(`    entries  ${b.entries.length}`);
       console.log(`    budget   ${b.tokenBudget} (${b.budgetMode})\n`);
+    } else if (ent.kind === "persona") {
+      const b = ent.body;
+      console.log(`    name     ${b.name || "(unnamed)"}`);
+      console.log(`    brief    ${b.brief ? `${b.brief.slice(0, 60)}...` : "(none)"}`);
+      console.log(`    content  ${b.content ? `${b.content.length} chars` : "(empty)"}`);
+      console.log(`    sections ${b.sections ? Object.keys(b.sections).join(", ") : "(none)"}\n`);
     } else {
       const b = ent.body;
       console.log(`    name     ${b.identity.name || "(unnamed)"}`);
