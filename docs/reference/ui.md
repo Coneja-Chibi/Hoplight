@@ -119,7 +119,11 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   `importedAt` stamp (set on every save) and its last-opened time (a per-piece epoch-ms map
   persisted in settings `workbench.recents`, bumped by `workbench.send`/`focus`, capped at 60).
   Currently-open pieces are excluded. Ranking is pure and unit-tested (`workbench/recents-core.ts`);
-  the rail reads `workbench.recents()` off the shell store.
+  the rail reads `workbench.recents()` off the shell store. The rail collapses from its label
+  (hide/show, persisted as `workbench.recentsOpen`) so the editor pane can take the room.
+- The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
+  it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
+  hover titles so the slim dock stays discoverable.
 
 ## Settings (drop-in sections)
 Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a

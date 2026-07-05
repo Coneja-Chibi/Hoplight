@@ -10,6 +10,7 @@ import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
+const PREF_RAIL_OPEN = "workbench.recentsOpen"; // collapse survives sessions; only explicit false closes
 
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
@@ -44,7 +45,12 @@ const STYLE = `
 /* the recents rail: a low deck of recently imported/opened pieces, offered as "bring one up" */
 .wb-recents{flex:none;display:flex;flex-direction:column;gap:.4rem}
 .wb-recents .rlabel{font-family:var(--font-mono);font-size:.5625rem;font-weight:700;letter-spacing:.16em;
-  text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:.45rem}
+  text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:.45rem;
+  background:none;border:none;padding:0;width:100%;cursor:pointer;text-align:left}
+.wb-recents .rlabel:hover{color:var(--text-soft)}
+.wb-recents .rlabel .rtog{margin-left:auto;color:var(--text-faint)}
+.wb-recents .rlabel:hover .rtog{color:var(--text-dim)}
+.wb-recents.closed .wb-strip{display:none}
 .wb-recents .rlabel .pip{width:8px;height:8px;background:var(--accent);border:2px solid var(--edge)}
 .wb-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.1rem 0 .35rem;scrollbar-width:thin}
 .wb-rcard{flex:none;width:clamp(3rem,7vw,4.4rem);cursor:pointer;background:#17161d;border:3px solid #000;
@@ -104,9 +110,19 @@ function recentsRail(ctx: AppContext, entities: StudioEntitySummary[]): HTMLElem
   const recent = rankRecents(entities, ctx.workbench.recents(), openKeys, RECENTS_SHOWN);
   if (recent.length === 0) return null;
 
-  const rail = h("div", "wb-recents");
-  const label = h("div", "rlabel");
-  label.append(h("span", "pip"), document.createTextNode("recent · bring one up"));
+  const open = ctx.prefs.get(PREF_RAIL_OPEN) !== false; // default open; tolerant of junk values
+  const rail = h("div", `wb-recents${open ? "" : " closed"}`);
+  const label = h("button", "rlabel");
+  label.setAttribute("aria-expanded", String(open));
+  const hint = h("span", "rtog", open ? "hide" : "show");
+  label.append(h("span", "pip"), document.createTextNode("recent · bring one up"), hint);
+  label.addEventListener("click", () => {
+    const nowOpen = rail.classList.contains("closed"); // clicking a closed rail opens it
+    rail.classList.toggle("closed", !nowOpen);
+    hint.textContent = nowOpen ? "hide" : "show";
+    label.setAttribute("aria-expanded", String(nowOpen));
+    ctx.prefs.set(PREF_RAIL_OPEN, nowOpen);
+  });
   const strip = h("div", "wb-strip");
   for (const e of recent) {
     const card = h("button", "wb-rcard");

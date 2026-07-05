@@ -68,6 +68,25 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .dockslot .sl{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.14em;text-transform:uppercase}
 #dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}
 #dockfoot .apptile{min-height:2.9rem}
+#dockToggle{flex:none;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;
+  background:transparent;border:none;border-top:3px solid var(--seam);cursor:pointer;
+  font-family:var(--font-mono);font-size:.5625rem;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-dim);padding:.42rem}
+#dockToggle:hover{color:var(--text-soft)}
+#dockToggle .exp{display:none}
+/* user-driven marks-only collapse: identical language to the locked narrow mode below, so the
+   dock reads the same whether the window shrank it or the user did */
+#dock.slim{width:auto}
+#dock.slim #dockhome{justify-content:center;padding:.7rem .4rem}
+#dock.slim #dockhome .hk{display:none}
+#dock.slim .docklabel{display:none}
+#dock.slim .apptile{justify-content:center;padding:.45rem .35rem}
+#dock.slim .apptile .tx{display:none}
+#dock.slim .apptile.on::before{display:none}
+#dock.slim .apptile.on{box-shadow:3px 3px 0 0 var(--a)}
+#dock.slim .dockslot .sl{display:none}
+#dock.slim #dockToggle .col{display:none}
+#dock.slim #dockToggle .exp{display:inline}
 /* ───────── TOP STRIP ───────── */
 #topbar{grid-column:2;grid-row:1;background:var(--chrome);border-bottom:3px solid var(--seam);
   display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1rem);padding:.5rem clamp(.6rem,1.5vw,1rem)}
@@ -182,6 +201,7 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
     <div id="dockfoot">
       <div id="dockfootapps"></div>
     </div>
+    <button id="dockToggle"><span class="col">&laquo; collapse</span><span class="exp">&raquo;</span></button>
   </nav>
 
   <header id="topbar">

@@ -400,6 +400,7 @@ function sanitizeSvg(markup: string): SVGSVGElement | null {
 function dockTile(m: AppManifestEntry): HTMLElement {
   const b = h("button", `apptile${m.comingSoon ? " future" : ""}`);
   b.dataset.appId = m.id;
+  b.title = m.title; // hover name survives the marks-only (slim/narrow) dock
   b.style.setProperty("--a", m.accent);
   menus.attach(b, () => ({ type: "app", label: m.title, data: m }));
   const mark = h("span", "mk");
@@ -464,6 +465,24 @@ async function boot(): Promise<void> {
   await refreshStudioStatus();
 
   el<HTMLButtonElement>("dockhome").addEventListener("click", goHome);
+
+  // dock collapse: user-driven marks-only, the same language as the locked narrow mode
+  const dockEl = el<HTMLElement>("dock");
+  const dockToggle = el<HTMLButtonElement>("dockToggle");
+  const syncDockToggle = (): void => {
+    const slim = dockEl.classList.contains("slim");
+    dockToggle.title = slim ? "Expand the dock" : "Collapse the dock";
+    dockToggle.setAttribute("aria-label", dockToggle.title);
+    dockToggle.setAttribute("aria-expanded", String(!slim));
+  };
+  dockEl.classList.toggle("slim", settings[SETTING_KEYS.dockSlim] === true);
+  dockToggle.addEventListener("click", () => {
+    const slim = !dockEl.classList.contains("slim");
+    dockEl.classList.toggle("slim", slim);
+    void saveSettings({ ...settings, [SETTING_KEYS.dockSlim]: slim });
+    syncDockToggle();
+  });
+  syncDockToggle();
 
   // global IMPORT: the shelves own the flow; the top strip walks you to them
   el<HTMLButtonElement>("importBtn").addEventListener("click", () => {
