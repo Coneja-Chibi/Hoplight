@@ -20,7 +20,7 @@ function wppCard() {
     postHistoryInstructions: "no lists",
     insert: { depth: 3, prompt: "stay in character" },
     prefill: "Sure,",
-    creator: "chi",
+    creator: "ada",
     characterVersion: "1.0",
     tags: ["adventure", "oc"],
     createdAt: "2020-01-01",
@@ -50,7 +50,7 @@ test("toCanonical maps Agnai fields, including the structured persona", () => {
   expect(ent.body.greetings.firstMessage).toBe("You again.");
   expect(ent.body.greetings.alternateGreetings).toEqual([{ text: "Oh. It's you." }, { text: "Lost again?" }]);
   expect(ent.body.prompts.depthInjections).toEqual([{ text: "stay in character", depth: 3 }]);
-  expect(ent.body.attribution.creator).toBe("chi");
+  expect(ent.body.attribution.creator).toBe("ada");
 });
 
 test("round-trip is lossless: a wpp card deep-equals through canonical + back", () => {

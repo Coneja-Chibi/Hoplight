@@ -1,6 +1,6 @@
 /**
- * Library core - pure deck math for the shelves (moved from the workbench when Chi re-homed the
- * browse room, 2026-07-05: deep-browse IS the Library). No DOM; unit-tested directly.
+ * Library core - pure deck math for the shelves (deep browse lives in the Library, not the
+ * Workbench). No DOM; unit-tested directly.
  */
 import type { StudioEntitySummary } from "../../app-contract";
 

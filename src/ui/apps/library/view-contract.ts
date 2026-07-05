@@ -1,10 +1,9 @@
 /**
- * The deck-view contract - how the Workbench presents a deck is a DROP-IN MODULE (Chi's
- * modularity policy, 2026-07-05: "grid vs carousel vs list", user-sized art). A view is one file
- * in views/ default-exporting a DeckView; views/registry.ts lists them (one import line per view -
- * the single seam, because a browser bundle cannot glob the filesystem at runtime). The view
- * toolbar, the size control, and persistence all derive from this contract; the workbench names
- * no view.
+ * The deck-view contract - how a deck is presented (grid / showcase / list, user-sized art) is a
+ * DROP-IN MODULE. A view is one file in views/ default-exporting a DeckView; views/registry.ts
+ * lists them (one import line per view - the single seam, because a browser bundle cannot glob the
+ * filesystem at runtime). The view toolbar, the size control, and persistence all derive from this
+ * contract; the library names no view.
  */
 import type { StudioEntitySummary } from "../../app-contract";
 import type { DeckMeta } from "../../_shared/decks";

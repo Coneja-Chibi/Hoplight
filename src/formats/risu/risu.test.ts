@@ -23,7 +23,7 @@ function makeCard() {
       alternate_greetings: ["Oh. It's you.", "Lost again?"],
       group_only_greetings: ["The party arrives."],
       tags: ["adventure", "oc"],
-      creator: "chi",
+      creator: "ada",
       character_version: "2.1",
       source: ["risurealm:abc123"],
       creation_date: 1700000000,

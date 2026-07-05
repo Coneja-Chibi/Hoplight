@@ -109,8 +109,8 @@ function goToWorkbench(): void {
   if (bench) void mountApp(bench);
 }
 
-/** The follow dialog (Chi's spec): Yes goes to the Workbench, No stays, the checkbox makes the
- * answer permanent (changeable any time in Settings). */
+/** The follow dialog: Yes goes to the Workbench, No stays, the checkbox makes the answer permanent
+ * (changeable any time in Settings). */
 function askFollow(count: number): void {
   const overlay = h("div", "vdialog-overlay");
   const sheet = h("div", "vdialog");

@@ -11,7 +11,7 @@ function rcpersonaFullSections() {
     spec: "rolecall_persona",
     spec_version: "1.0",
     data: {
-      name: "Chi",
+      name: "Ada",
       description: "A short library blurb.",
       content: "",
       sections: {
@@ -20,7 +20,7 @@ function rcpersonaFullSections() {
         history: "Grew up around presses.",
       },
       metadata: {
-        creator: "chi",
+        creator: "ada",
         version: "1.2",
         created_at: "2026-01-19T00:00:00Z",
         tags: ["fantasy", "adventurer"],
@@ -37,7 +37,7 @@ function rcV2Export() {
     spec: "chara_card_v2",
     spec_version: "2.0",
     data: {
-      name: "Chi",
+      name: "Ada",
       description: "I am the user's voice.\n\nAppearance: Tall and wiry.\n\nBody: Scarred hands.",
       personality: "Curious, stubborn.",
       scenario: "Grew up around presses.",
@@ -91,7 +91,7 @@ test("FIREWALL: the RC character adapter steps aside for a persona-type card (no
 
 test("rcpersona: sections compile to content in fixed order when content is empty", () => {
   const ent = adapter.toCanonical(asText(rcpersonaFullSections()));
-  expect(ent.body.name).toBe("Chi");
+  expect(ent.body.name).toBe("Ada");
   expect(ent.body.brief).toBe("A short library blurb."); // description = the BRIEF, never content
   expect(ent.body.content).toBe(
     "Appearance: Tall, ink-stained fingers.\n\nPersonality: Curious, stubborn.\n\nHistory: Grew up around presses.",
@@ -99,7 +99,7 @@ test("rcpersona: sections compile to content in fixed order when content is empt
   expect(ent.body.sections?.appearance).toBe("Tall, ink-stained fingers.");
   expect(ent.body.rating).toBe("explicit"); // after_dark
   expect(ent.body.attribution).toEqual({
-    creator: "chi",
+    creator: "ada",
     version: "1.2",
     createdAt: "2026-01-19T00:00:00Z",
     source: "rolecall",
@@ -183,7 +183,7 @@ test("cross-shape: an rc-v2-export persona re-emits as native rcpersona when its
   delete ent.escrow; // simulate a cross-format/authored entity with no twin
   const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
   expect(out.spec).toBe("rolecall_persona");
-  expect(out.data.name).toBe("Chi");
+  expect(out.data.name).toBe("Ada");
   expect(out.data.description).toBe("A short library blurb.");
   expect(out.data.content).toBe("I am the user's voice.");
 });
@@ -194,7 +194,7 @@ test("legacy library-export wrapper unwraps OUTER-first (the Discord-ticket regr
   const wrapped = { exportedAt: "2026-01-01", type: "persona", version: 1, data: { persona: rcpersonaFullSections() } };
   expect(adapter.detect(asText(wrapped))).toBe(1);
   const ent = adapter.toCanonical(asText(wrapped));
-  expect(ent.body.name).toBe("Chi");
+  expect(ent.body.name).toBe("Ada");
 });
 
 test("missing name fails the parse - never synthesized", () => {

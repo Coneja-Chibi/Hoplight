@@ -1,6 +1,6 @@
 /**
- * The settings-section contract - Settings is built from DROP-IN SECTIONS (Chi, 2026-07-06:
- * "expose all configurables in reasonable tabs, hyper modular"). A section is one file in
+ * The settings-section contract - Settings is built from DROP-IN SECTIONS, one reasonable tab per
+ * section, so exposing a new configurable never touches this file. A section is one file in
  * sections/ default-exporting a SettingsSection; sections/registry.ts is the one stated seam
  * (one import line per section). Every control is CALL AND RESPONSE: read the current value from
  * ctx.prefs, write on change, and the shell applies it live (theme/accent repaint immediately).

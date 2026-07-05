@@ -1,9 +1,9 @@
 /**
- * The Library app - the shelves, Vaude's deep-browse room (re-homed from the workbench 2026-07-05:
- * browsing IS the Library). Empty studio = the LOCKED first-run doors (vs-firstrun frame 1);
- * populated = the browse room: deck chips with live counts, drop-in DECK VIEWS (views/registry:
- * grid/showcase/list), the continuous art-size dial, all persisted via ctx.prefs. Opens on the
- * deck chosen at setup (JOURNEY rule). Import (drop anywhere, plain-words receipts) lives here.
+ * The Library app - the shelves, Vaude's deep-browse room (browsing IS the Library). Empty studio =
+ * the locked first-run doors; populated = the browse room: deck chips with live counts, drop-in
+ * DECK VIEWS (views/registry: grid/showcase/list), the continuous art-size dial, all persisted via
+ * ctx.prefs. Opens on the deck chosen at setup. Import (drop anywhere, plain-words receipts) lives
+ * here.
  * Tapping pieces STAGES them (multi-select); one Send commits the whole batch to the Workbench.
  */
 import type { AppContext, InspectResult, StudioEntitySummary, VaudeApp } from "../../app-contract";

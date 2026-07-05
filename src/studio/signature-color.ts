@@ -1,7 +1,7 @@
 /**
- * Signature color - derive an entity's accent from its own card art (Chi, 2026-07-05: "block out
- * all skin colors, then look for the bright most poppin and prevalent actual color"). Pure
- * functions, no dependencies beyond fflate (already ours): a minimal PNG pixel decoder (8-bit
+ * Signature color - derive an entity's accent from its own card art: mask out skin, gray, and
+ * near-black/white, then take the most vibrant and prevalent remaining hue. Pure functions, no
+ * dependencies beyond fflate (already ours): a minimal PNG pixel decoder (8-bit
  * RGB/RGBA, non-interlaced - virtually all card art) + a vibrant-swatch scorer that masks skin,
  * gray, and near-black/white, buckets the rest by hue, and scores prevalence x saturation.
  * Everything fails closed to null: no color is always safe (views fall back to the deck accent).
@@ -100,7 +100,7 @@ function paeth(a: number, b: number, c: number): number {
  * The FULL human skin gamut, every tone: the warm-brown hue band at low-to-moderate saturation is
  * skin-adjacent at ANY brightness (pale, tan, brown, dark - and sepia lighting with it), so it is
  * never a signature. Only genuinely VIVID warm colors (tiger orange, marigold) clear the sat bar.
- * (First version only masked light skin - Chi caught brown accents that were darker skin tones.)
+ * (Masking only light skin let brown darker-skin tones through as false accents - hence the band.)
  */
 function isSkin(r: number, g: number, b: number, hue: number, sat: number, _val: number): boolean {
   const rgbRule = r > 95 && g > 40 && b > 20 && r > g && g > b && r - g > 15 && r - Math.min(g, b) > 15;
@@ -132,7 +132,7 @@ const valBand = (v: number): number => (v < 0.4 ? 0 : v < 0.7 ? 1 : 2);
 
 /**
  * The signature color of decoded art, or null when nothing survives the masks (an all-sepia card
- * has no signature; the caller falls back to the deck accent). Two-stage, per Chi's spec:
+ * has no signature; the caller falls back to the deck accent). Two-stage by design:
  * PREVALENCE x saturation picks the winning hue FAMILY; then the most VIBRANT real sub-cluster of
  * that family present in the image becomes the exemplar - the family's poppin' member, never its
  * muddy average.

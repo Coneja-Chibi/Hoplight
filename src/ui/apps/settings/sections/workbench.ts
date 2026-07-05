@@ -1,6 +1,6 @@
 /**
- * Settings section: Workbench - the follow behavior for "sent to the Workbench" (the dialog's
- * "Never ask me this again" is changeable here, per Chi's spec).
+ * Settings section: Workbench - the follow behavior for "sent to the Workbench". The follow
+ * dialog's "Never ask me this again" checkbox maps to the ask/always/never choice here.
  */
 import { SETTING_KEYS } from "../../../../studio/settings-shape";
 import { row, segControl, type SettingsSection } from "../section-contract";

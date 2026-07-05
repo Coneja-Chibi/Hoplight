@@ -13,7 +13,7 @@ function makeBackyardCard() {
     firstMessage: "You again, {user}.",
     customDialogue: "{user}: hi\n{character}: hm.",
     systemPrompt: "stay terse",
-    creator: "chi",
+    creator: "ada",
     tags: ["adventure", "oc"],
     version: "2.1",
   };

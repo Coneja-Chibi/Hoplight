@@ -20,7 +20,7 @@ function makeRcCard() {
       alternate_greetings: ["Oh. It's you.", "Lost again?"],
       group_only_greetings: [],
       tags: ["adventure", "oc"],
-      creator: "chi",
+      creator: "ada",
       character_version: "2.1",
       source: ["rolecall:abc"],
       creation_date: 1700000000,

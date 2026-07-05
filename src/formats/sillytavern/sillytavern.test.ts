@@ -33,7 +33,7 @@ const v2card = {
     mes_example: "<START>",
     creator_notes: "a test card",
     tags: ["fantasy"],
-    creator: "chi",
+    creator: "ada",
     character_version: "1.0",
     alternate_greetings: ["Hi again"],
     // foreign extensions that must survive the round-trip untouched
@@ -112,7 +112,7 @@ const v3card = {
     post_history_instructions: "",
     creator_notes: "a v3 card",
     tags: ["magic"],
-    creator: "chi",
+    creator: "ada",
     character_version: "1.0",
     alternate_greetings: [],
     group_only_greetings: ["Evening, all."],

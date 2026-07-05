@@ -1,8 +1,8 @@
 /**
  * Deck view: SHOWCASE - one card at a time, properly. Hero art at full presence, the card's own
  * words beside it (tagline + description via peek), prev/next flipping, a thumb rail to jump, and
- * STAGE right there. Replaced the aimless carousel after Chi's 2026-07-05 review ("deck feels
- * useless - give it use"): a carousel's real job is looking at ONE card, so now that is its job.
+ * STAGE right there. A carousel's real job is looking closely at ONE card, so that is its job here
+ * (not an aimless spinning shelf).
  */
 import { deckMeta } from "../../../_shared/decks";
 import { h, pieceKey, type DeckView, type DeckViewContext } from "../view-contract";

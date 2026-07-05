@@ -15,7 +15,7 @@ const sample: CanonicalCharacter = {
     greetings: { firstMessage: "Hello there." },
     examples: {},
     media: {},
-    attribution: { creator: "chi" },
+    attribution: { creator: "ada" },
     discovery: { tags: ["fantasy"] },
   },
 };

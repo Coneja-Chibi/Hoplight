@@ -1,6 +1,6 @@
 /**
- * The context-menu SHELL - one right-click system for the whole app (Chi, 2026-07-05: consistent
- * everywhere, different targets get different menus, trivially extensible). Hyper-modular by
+ * The context-menu SHELL - one right-click system for the whole app: consistent everywhere,
+ * different target types get different menus, trivially extensible. Hyper-modular by
  * registration, deny-by-absence:
  *
  * - a surface marks an element as a TARGET: attach(el, () => ({ type: "entity", ... }))
