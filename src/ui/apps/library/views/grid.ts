@@ -19,9 +19,10 @@ const CSS = `
 .dv-gcard .kd{position:absolute;top:0;left:0;background:#0a0a0c;color:var(--a);font-family:var(--font-mono);
   font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
 .dv-gcard .bd{padding:.4rem .5rem .5rem}
-.dv-gcard .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee;line-height:1}
-.dv-gcard .fmt{display:inline-block;font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.06em;
-  text-transform:uppercase;color:#b3aec0;border:2px solid #4a4656;font-weight:700;padding:2px 5px;margin-top:.35rem}
+/* name + meta tag scale with the size dial (--card-w); name stays the larger of the two at every size */
+.dv-gcard .nm{font-family:var(--font-big);font-weight:800;font-size:clamp(.72rem,calc(var(--card-w) * .094),1.6rem);color:#f4f1ee;line-height:1}
+.dv-gcard .fmt{display:inline-block;font-family:var(--font-mono);font-size:clamp(.52rem,calc(var(--card-w) * .072),1.15rem);letter-spacing:.06em;
+  text-transform:uppercase;color:#b3aec0;border:2px solid #4a4656;font-weight:700;padding:.28em .55em;margin-top:.4em}
 .dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45);transform:translate(2px,2px);opacity:.72}
 .dv-gcard.cast:hover{transform:translate(2px,2px);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45)}
 .dv-gcard .tick{position:absolute;top:0;right:0;z-index:1;background:var(--a);color:#0a0a0c;font-family:var(--font-mono);
