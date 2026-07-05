@@ -35,6 +35,17 @@ The locked vs-setup-hybrid flow, one plain question per screen, built on the sam
   `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The theme
   button persists to settings (localStorage is only a pre-paint cache).
 
+## The right-click system
+One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended by REGISTRATION:
+- a surface marks an element as a TARGET: `ctx.menus.attach(el, () => ({ type, label, data }))`
+  (deepest attached element wins; a document-level `shell` target is the always-there fallback)
+- a feature contributes items: `ctx.menus.register(type, provider)` (any number of providers per
+  type; each provider's items form a section; empty/null = deny by absence). Returns an
+  unregister for app cleanup.
+- shell-owned providers: `entity` (bench thread/pull - works in every room), `app` (dock tiles),
+  `shell` (Go home / Import files / Switch theme). Adding a menu later (Open in editor, Export,
+  Delete) = one register() call; nothing central is edited.
+
 ## Dev live-reload
 `vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
 every open page; bundles are built fresh per request, so edits appear on save. The packaged exe
