@@ -14,6 +14,7 @@ import type { AdapterInput, FormatAdapter } from "../core";
 import type { CanonicalEntity } from "../core/canonical";
 import { StudioStore } from "../studio/store";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
+import type { PackagedAssets } from "./assets";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -138,14 +139,22 @@ async function handleExport(req: Request): Promise<Response> {
 const staticFile = (rel: string, type: string): Response =>
   new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
 
-export function createHandler(store: StudioStore): (req: Request) => Promise<Response> {
+export function createHandler(store: StudioStore, packaged?: PackagedAssets): (req: Request) => Promise<Response> {
+  const text = (body: string, type: string): Response =>
+    new Response(body, { headers: { "content-type": type } });
+
   return async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
     const p = url.pathname;
 
-    if (p === "/" || p === "/index.html") return staticFile("./index.html", "text/html; charset=utf-8");
-    if (p === "/tokens.css") return staticFile("./theme/tokens.css", "text/css; charset=utf-8");
+    if (p === "/" || p === "/index.html") {
+      return packaged ? text(packaged.indexHtml, "text/html; charset=utf-8") : staticFile("./index.html", "text/html; charset=utf-8");
+    }
+    if (p === "/tokens.css") {
+      return packaged ? text(packaged.tokensCss, "text/css; charset=utf-8") : staticFile("./theme/tokens.css", "text/css; charset=utf-8");
+    }
     if (p === "/boot.js") {
+      if (packaged) return text(packaged.bootJs, "text/javascript");
       const built = await Bun.build({
         entrypoints: [fileURLToPath(new URL("./boot.ts", import.meta.url))],
         target: "browser",
@@ -155,9 +164,15 @@ export function createHandler(store: StudioStore): (req: Request) => Promise<Res
       return new Response(await built.outputs[0]!.text(), { headers: { "content-type": "text/javascript" } });
     }
 
-    if (p === "/api/apps") return json(await appManifests(await discoverApps()));
+    if (p === "/api/apps") {
+      return json(packaged ? packaged.manifests : await appManifests(await discoverApps()));
+    }
     if (p.startsWith("/apps/") && p.endsWith(".js")) {
       const id = p.slice("/apps/".length, -".js".length);
+      if (packaged) {
+        const code = packaged.apps[id];
+        return code !== undefined ? text(code, "text/javascript") : err("no such app", 404);
+      }
       const app = (await discoverApps()).find((a) => a.id === id);
       if (!app) return err("no such app", 404);
       return new Response(await bundleApp(app), { headers: { "content-type": "text/javascript" } });
@@ -185,8 +200,8 @@ export function createHandler(store: StudioStore): (req: Request) => Promise<Res
 }
 
 /** Boot the visual app. Loopback only: a local forge, never an exposed service. */
-export function startUi(port: number, studioDir: string): { url: string; stop: () => void } {
+export function startUi(port: number, studioDir: string, packaged?: PackagedAssets): { url: string; stop: () => void } {
   const store = new StudioStore(studioDir);
-  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store) });
+  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store, packaged) });
   return { url: `http://127.0.0.1:${server.port}`, stop: () => server.stop() };
 }
