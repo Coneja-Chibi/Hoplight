@@ -345,3 +345,10 @@ async function boot(): Promise<void> {
 }
 
 void boot();
+
+// dev live-reload: the server only streams this in dev; the packaged exe 404s and we go quiet
+const devReload = new EventSource("/dev/reload");
+devReload.addEventListener("message", (ev) => {
+  if (ev.data === "reload") location.reload();
+});
+devReload.onerror = () => devReload.close();

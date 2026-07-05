@@ -182,6 +182,15 @@ async function peekPiece(ctx: AppContext, e: StudioEntitySummary): Promise<Piece
 interface RoomState {
   entities: StudioEntitySummary[];
   activeKind: string;
+  /** format id -> chip label ("RoleCall", "Default"), from the live registry (no magic maps) */
+  formatLabels: Map<string, string>;
+}
+
+/** "RoleCall · V3" / "Default · V2" from the summary's source fields; null = made from scratch. */
+function sourceLabel(state: RoomState, e: StudioEntitySummary): string | null {
+  if (!e.sourceFormat) return null;
+  const base = state.formatLabels.get(e.sourceFormat) ?? e.sourceFormat;
+  return e.sourceVariant ? `${base} · ${e.sourceVariant.toUpperCase()}` : base;
 }
 
 function render(ctx: AppContext, state: RoomState): void {
@@ -289,6 +298,7 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
       deck,
       threaded,
       portraitUrl,
+      sourceLabel: (e) => sourceLabel(state, e),
       peek: (e) => peekPiece(ctx, e),
       refresh: () => render(ctx, state),
       onPiece: (e) => {
@@ -330,9 +340,14 @@ const app: VaudeApp = {
     const state: RoomState = {
       entities: [],
       activeKind: typeof firstDeck === "string" && firstDeck ? firstDeck : "character",
+      formatLabels: new Map(),
     };
     const rerender = (): void => render(ctx, state);
     const unsub = ctx.bench.onChange(rerender);
+    void ctx.api.formats().then((formats) => {
+      state.formatLabels = new Map(formats.map((f) => [f.id, f.generic ? "Default" : f.friendly]));
+      rerender();
+    });
     reload(ctx, state);
     rerender(); // immediate paint while the shelves load
     return unsub;

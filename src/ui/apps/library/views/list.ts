@@ -40,6 +40,8 @@ const view: DeckView = {
       if (art) thumb.style.backgroundImage = `url("${art}")`;
       else thumb.textContent = e.name.charAt(0).toUpperCase();
       row.append(thumb, h("span", "nm", e.name), h("span", "kd", e.kind));
+      const fmt = ctx.sourceLabel(e);
+      if (fmt) row.append(h("span", "kd", fmt));
       if (onBench) row.append(h("span", "bench", "on the bench"));
       row.title = onBench ? `Pull ${e.name} off the bench` : `Thread ${e.name} onto the bench`;
       row.addEventListener("click", () => ctx.onPiece(e));

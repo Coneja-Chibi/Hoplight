@@ -25,6 +25,20 @@ export interface EntitySummary {
   hasPortrait?: boolean;
   /** the entity's signature color, derived from its own art at import (skin-masked vibrant swatch) */
   accent?: string;
+  /** the source format id (first escrow entry that is not our own bookkeeping) */
+  sourceFormat?: string;
+  /** the source format's variant when it recorded one ("v2", "v3") */
+  sourceVariant?: string;
+}
+
+/** The entity's source format: the first escrow entry that is not vaud's own bookkeeping slot. */
+function sourceOf(entity: AnyEntity): { format?: string; variant?: string } {
+  for (const [formatId, entry] of Object.entries(entity.escrow ?? {})) {
+    if (formatId === "vaud-studio") continue;
+    const variant = entry?.unmapped?.["variant"];
+    return { format: formatId, variant: typeof variant === "string" ? variant : undefined };
+  }
+  return {};
 }
 
 const KIND_DIRS = ["character", "lorebook", "persona"] as const;
@@ -61,6 +75,7 @@ export class StudioStore {
         if (entity) {
           const studioMeta = entity.escrow?.["vaud-studio"]?.unmapped;
           const accent = studioMeta?.["accent"];
+          const source = sourceOf(entity);
           out.push({
             id: f.slice(0, -5),
             kind: k,
@@ -68,6 +83,8 @@ export class StudioStore {
             importedAt: (studioMeta?.["importedAt"] as string) ?? undefined,
             hasPortrait: hasPortrait(entity),
             accent: typeof accent === "string" && /^#[0-9a-f]{6}$/i.test(accent) ? accent : undefined,
+            sourceFormat: source.format,
+            sourceVariant: source.variant,
           });
         }
       }

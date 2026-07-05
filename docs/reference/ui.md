@@ -35,6 +35,17 @@ The locked vs-setup-hybrid flow, one plain question per screen, built on the sam
   `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The theme
   button persists to settings (localStorage is only a pre-paint cache).
 
+## Dev live-reload
+`vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
+every open page; bundles are built fresh per request, so edits appear on save. The packaged exe
+serves baked bundles and 404s the stream (the client goes quiet). Zero dependencies.
+
+## The card-type chip
+Summaries carry `sourceFormat` + `sourceVariant` (the first non-vaud escrow entry). The Library
+maps ids to chip labels from the LIVE registry: platform name when the adapter is
+platform-specific ("RoleCall · V3"), "Default" when the adapter declares `generic` (the plain
+Tavern/CC reader); no source = no chip (made from scratch).
+
 ## The studio store
 `src/studio/store.ts`: local-first storage where the canonical vaud-json format IS the database -
 `<studioDir>/<kind>/<id>.json`, one file per entity, portable and versionable by construction.

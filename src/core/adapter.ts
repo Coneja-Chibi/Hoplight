@@ -38,6 +38,9 @@ interface AdapterBase {
   /** True on Vaude's own storage format(s): still import/exportable, but never offered as an
    * external "publish to" platform (the truth lives here, with the format, not in any UI list). */
   native?: boolean;
+  /** True on the GENERIC reader of a family (the plain Tavern/CC card): cards it claims carry no
+   * platform-specific fields, so the UI's card-type chip says "Default" instead of a platform. */
+  generic?: boolean;
 }
 
 /** An adapter that reads and writes character cards. */

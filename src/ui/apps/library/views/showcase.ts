@@ -99,6 +99,8 @@ const view: DeckView = {
 
     const plate = h("div", "plate");
     plate.append(h("div", "nm", e.name));
+    const fmt = ctx.sourceLabel(e);
+    if (fmt) plate.append(h("div", "meta", fmt));
     if (e.provenance) plate.append(h("div", "meta", e.provenance));
     const tag = h("div", "tag");
     const desc = h("div", "desc");

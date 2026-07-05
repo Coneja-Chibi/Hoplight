@@ -20,6 +20,8 @@ const CSS = `
   font-size:.44rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
 .dv-gcard .bd{padding:.4rem .5rem .5rem}
 .dv-gcard .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee;line-height:1}
+.dv-gcard .fmt{display:inline-block;font-family:var(--font-mono);font-size:.5rem;letter-spacing:.06em;
+  text-transform:uppercase;color:#8a8496;border:1.5px solid #39353f;padding:2px 5px;margin-top:.35rem}
 .dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45);transform:translate(2px,2px)}
 .dv-gcard.cast:hover{transform:translate(2px,2px);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45)}
 .dv-gcard .tick{position:absolute;top:0;right:0;z-index:1;background:var(--a);color:#0a0a0c;font-family:var(--font-mono);
@@ -47,6 +49,8 @@ const view: DeckView = {
       cov.append(h("span", "kd", e.kind));
       const bd = h("div", "bd");
       bd.append(h("div", "nm", e.name));
+      const fmt = ctx.sourceLabel(e);
+      if (fmt) bd.append(h("span", "fmt", fmt));
       if (onBench) card.append(h("span", "tick", "on the bench"));
       card.append(cov, bd);
       card.title = onBench ? `Pull ${e.name} off the bench` : `Thread ${e.name} onto the bench`;

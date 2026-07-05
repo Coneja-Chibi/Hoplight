@@ -88,6 +88,9 @@ export interface StudioEntitySummary {
   importedAt?: string;
   /** the entity carries displayable art at /api/studio/portrait?kind=..&id=.. */
   hasPortrait?: boolean;
+  /** source format id ("sillytavern") + its variant ("v3") for the card-type chip */
+  sourceFormat?: string;
+  sourceVariant?: string;
 }
 
 export interface InspectResult {
@@ -116,4 +119,6 @@ export interface FormatInfo {
   friendly: string;
   /** Vaude's own storage format: never offered as an external publish target */
   native: boolean;
+  /** the generic reader of a family: its cards chip as "Default", not a platform name */
+  generic: boolean;
 }

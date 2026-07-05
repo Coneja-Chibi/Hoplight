@@ -76,6 +76,7 @@ const adapter: CharacterAdapter = {
   label: "SillyTavern character card (v2/v3, png/json)",
   outputExtensions: ["json"],
   kind: "character",
+  generic: true, // the generic Tavern/CC reader: its cards chip as "Default", not a platform
 
   // 0.9, not 1.0: SillyTavern is the generic Tavern reader. More-specific adapters (RoleCall) claim
   // 1.0 on the same card so they win detection and get to map their own extension block.

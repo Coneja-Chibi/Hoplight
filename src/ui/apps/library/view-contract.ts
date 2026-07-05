@@ -35,6 +35,9 @@ export interface DeckViewContext {
   onPiece(e: StudioEntitySummary): void;
   /** the piece's art url, or null when it carries none (render the initial instead) */
   portraitUrl(e: StudioEntitySummary): string | null;
+  /** the card-type chip: platform when detected, "Default" for generic cards, plus version
+   * ("RoleCall · V3", "Default · V2"); null when the piece has no source (made from scratch) */
+  sourceLabel(e: StudioEntitySummary): string | null;
   /** fetch the piece's own words (tagline/description) for close-up views; null on any failure */
   peek(e: StudioEntitySummary): Promise<PiecePeek | null>;
   /** ask the workbench to re-render (a view changed its own internal state, e.g. showcase focus) */

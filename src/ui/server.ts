@@ -9,6 +9,7 @@
  */
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { watch as watchFs } from "node:fs";
 import { registry } from "../core";
 import type { AdapterInput, FormatAdapter } from "../core";
 import type { CanonicalEntity } from "../core/canonical";
@@ -47,18 +48,40 @@ async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
 const discoverApps = (): Promise<DiscoveredModule[]> => discoverModules("./apps/");
 const discoverSetupSteps = (): Promise<DiscoveredModule[]> => discoverModules("./setup/steps/");
 
-/** Bundle one module for the browser; cached per boot (restart to pick up edits - dev-grade is fine). */
-const bundleCache = new Map<string, string>();
+/** Bundle one module for the browser, fresh every request (dev serves live edits; ~20ms a build).
+ * The packaged exe never calls this - its bundles are baked. */
 async function bundleModule(mod: DiscoveredModule): Promise<string> {
-  const hit = bundleCache.get(mod.entrypoint);
-  if (hit !== undefined) return hit;
   const built = await Bun.build({ entrypoints: [mod.entrypoint], target: "browser", format: "esm" });
   if (!built.success || built.outputs.length === 0) {
     throw new Error(`ui: module "${mod.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
   }
-  const code = await built.outputs[0]!.text();
-  bundleCache.set(mod.entrypoint, code);
-  return code;
+  return built.outputs[0]!.text();
+}
+
+// -- dev live-reload (dev server only; the packaged exe has no source tree to watch) ----------------
+
+const devClients = new Set<ReadableStreamDefaultController<Uint8Array>>();
+let watching = false;
+const SSE = new TextEncoder();
+
+/** Watch src/ui and nudge every connected page to reload (debounced; editors fire in bursts). */
+function startDevWatch(): void {
+  if (watching) return;
+  watching = true;
+  const uiDir = fileURLToPath(new URL("./", import.meta.url));
+  let timer: ReturnType<typeof setTimeout> | null = null;
+  watchFs(uiDir, { recursive: true }, () => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      for (const client of devClients) {
+        try {
+          client.enqueue(SSE.encode("data: reload\n\n"));
+        } catch {
+          devClients.delete(client);
+        }
+      }
+    }, 120);
+  });
 }
 
 /** Manifests come from the modules themselves (server imports them once; they are DOM-free at top level). */
@@ -93,6 +116,7 @@ const formatMeta = (a: FormatAdapter): Record<string, unknown> => ({
   outputExtensions: a.outputExtensions,
   friendly: friendlyFormat(a.id),
   native: a.native ?? false,
+  generic: a.generic ?? false,
 });
 
 async function handleInspect(req: Request): Promise<Response> {
@@ -227,6 +251,25 @@ export function createHandler(
       return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript" } });
     }
 
+    // dev live-reload stream (404 in the packaged exe; the client goes quiet on error)
+    if (p === "/dev/reload") {
+      if (packaged) return err("not found", 404);
+      let ctrl: ReadableStreamDefaultController<Uint8Array>;
+      const stream = new ReadableStream<Uint8Array>({
+        start(c) {
+          ctrl = c;
+          devClients.add(c);
+          c.enqueue(SSE.encode("data: hello\n\n"));
+        },
+        cancel() {
+          devClients.delete(ctrl);
+        },
+      });
+      return new Response(stream, {
+        headers: { "content-type": "text/event-stream", "cache-control": "no-cache" },
+      });
+    }
+
     if (p === "/api/settings") {
       if (req.method === "POST") {
         return json(await settings.save(await req.json().catch(() => null))); // parse is fail-closed
@@ -276,6 +319,7 @@ export function createHandler(
 export function startUi(port: number, studioDir: string, packaged?: PackagedAssets): { url: string; stop: () => void } {
   const store = new StudioStore(studioDir);
   const settings = new SettingsStore(studioDir);
+  if (!packaged) startDevWatch(); // dev: edits to src/ui reload every open page
   const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store, settings, packaged) });
   return { url: `http://127.0.0.1:${server.port}`, stop: () => server.stop() };
 }
