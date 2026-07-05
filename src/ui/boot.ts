@@ -10,6 +10,7 @@ import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/sett
 import { deckMeta } from "./_shared/decks";
 import { createContextMenus } from "./_shared/context-menu";
 import { runSetup } from "./setup/wizard";
+import { decideFollow } from "./follow-core";
 
 type Theme = "paper" | "stage";
 
@@ -129,10 +130,17 @@ function piecesChanged(): void {
   for (const cb of pieceSubs) cb();
 }
 
+/** The one app that edits pieces (the Workbench), by its capability flag - never a hardcoded id. */
+const benchManifest = (): AppManifestEntry | undefined =>
+  manifestsCache.find((m) => m.editsPieces && !m.comingSoon);
+
 function goToWorkbench(): void {
-  const bench = manifestsCache.find((m) => m.editsPieces && !m.comingSoon);
+  const bench = benchManifest();
   if (bench) void mountApp(bench);
 }
+
+/** Is the Workbench the app currently mounted? (A send from inside it has nowhere to follow to.) */
+const onWorkbench = (): boolean => activeId !== "" && activeId === benchManifest()?.id;
 
 /** The follow dialog: Yes goes to the Workbench, No stays, the checkbox makes the answer permanent
  * (changeable any time in Settings). */
@@ -163,8 +171,9 @@ function askFollow(count: number): void {
   yes.focus();
 }
 
-/** Open the not-yet-open pieces and settle the follow behaviour ONCE (single send and batch send
- * share this so the follow dialog always reports the real count). */
+/** Open the not-yet-open pieces and settle the view ONCE (single send and batch send share this so
+ * the count is always real). The view move is decided by decideFollow, which also knows a send from
+ * inside the Workbench has nowhere to follow to (it just surfaces the newest piece). */
 function openPiecesBatch(batch: StudioEntitySummary[]): void {
   const fresh = batch.filter((p) => !workbench.isOpen(p.id, p.kind));
   if (fresh.length === 0) {
@@ -172,25 +181,22 @@ function openPiecesBatch(batch: StudioEntitySummary[]): void {
     setStatusNote(only && batch.length === 1 ? `${only.name} is already on the Workbench` : "already on the Workbench");
     return;
   }
-  for (const p of fresh) {
-    openPieces.push(p);
-    if (!activeKey) activeKey = keyOf(p.id, p.kind);
-  }
+  for (const p of fresh) openPieces.push(p);
   bumpRecents(fresh.map((p) => keyOf(p.id, p.kind)));
-  const last = fresh[fresh.length - 1]!; // "always" lands on the last of the batch
+  const last = fresh[fresh.length - 1]!;
+  const action = decideFollow(onWorkbench(), settings[SETTING_KEYS.workbenchFollow]);
+
+  // surface/navigate land the view on the newest piece; note/ask keep the current active piece
+  if (action === "surface" || action === "navigate") activeKey = keyOf(last.id, last.kind);
+  else if (!activeKey) activeKey = keyOf(fresh[0]!.id, fresh[0]!.kind);
   piecesChanged();
-  const follow = settings[SETTING_KEYS.workbenchFollow];
-  if (follow === "always") {
-    activeKey = keyOf(last.id, last.kind);
-    piecesChanged();
-    goToWorkbench();
-  } else if (follow === "never") {
+
+  if (action === "navigate") goToWorkbench();
+  else if (action === "note") {
     setStatusNote(
       fresh.length === 1 ? `${fresh[0]!.name} sent to the Workbench` : `${fresh.length} pieces sent to the Workbench`,
     );
-  } else {
-    askFollow(fresh.length);
-  }
+  } else if (action === "ask") askFollow(fresh.length);
 }
 
 const workbench: AppContext["workbench"] = {
