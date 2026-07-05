@@ -6,6 +6,7 @@
  */
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
+import { focusToggle } from "../../_shared/focus";
 import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
 
@@ -62,6 +63,10 @@ const STYLE = `
 .wb-rcard .rcov b{font-family:var(--font-big);font-weight:900;font-size:1.05rem;color:#0a0a0c;opacity:.82;line-height:.7}
 .wb-rcard .rnm{font-family:var(--font-big);font-weight:800;font-size:.5625rem;color:#f4f1ee;padding:.22rem .3rem;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* focus mode: the pane goes edge to edge; the rail steps aside with the shell chrome */
+body.focus-editor .wbroom{padding:0;gap:0}
+body.focus-editor .prosc{padding:0;box-shadow:none;border:none}
+body.focus-editor .wb-recents{display:none}
 .wbroom *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
 .wbroom *::-webkit-scrollbar{width:8px;height:8px}
 .wbroom *::-webkit-scrollbar-thumb{background:#2b2833}
@@ -101,6 +106,8 @@ async function inspect(ctx: AppContext, e: StudioEntitySummary): Promise<Inspect
 
 interface RoomState {
   entities: StudioEntitySummary[];
+  /** the one focus toggle for the room, created at mount so its Esc listener registers once */
+  focus: ReturnType<typeof focusToggle>;
 }
 
 /** The low deck of recently imported/opened pieces - the "wanna bring this one up?" offer. Null
@@ -156,6 +163,7 @@ function render(ctx: AppContext, state: RoomState): void {
     h("span", "pip"),
     h("span", "cn", active ? active.name : "The Workbench"),
     h("span", "cc", pieces.length === 0 ? "nothing open" : `${pieces.length} open`),
+    state.focus.root, // re-appending on each render just moves the one node; no listener churn
   );
   stage.append(crumb);
 
@@ -216,7 +224,7 @@ const app: VaudeApp = {
     editsPieces: true, // the shell's tab strip focuses into this room
   },
   mount(ctx) {
-    const state: RoomState = { entities: [] };
+    const state: RoomState = { entities: [], focus: focusToggle() };
     const rerender = (): void => render(ctx, state);
     const unsub = ctx.workbench.onChange(rerender);
     void ctx.api.listEntities().then((list) => {
@@ -224,7 +232,10 @@ const app: VaudeApp = {
       rerender();
     });
     rerender(); // immediate paint (rail fills in when the shelves load)
-    return unsub;
+    return () => {
+      unsub();
+      state.focus.dispose(); // drops the Esc listener and restores the chrome, always
+    };
   },
 };
 

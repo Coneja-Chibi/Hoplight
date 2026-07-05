@@ -87,6 +87,10 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 #dock.slim .dockslot .sl{display:none}
 #dock.slim #dockToggle .col{display:none}
 #dock.slim #dockToggle .exp{display:inline}
+/* focus mode: the shared editor-fullscreen (_shared/focus.ts) stamps this on <body>; the shell
+   hides its own chrome so the active pane takes the window. Esc exits; never persisted. */
+body.focus-editor #dock,body.focus-editor #topbar,body.focus-editor #tabstrip{display:none}
+
 /* ───────── TOP STRIP ───────── */
 #topbar{grid-column:2;grid-row:1;background:var(--chrome);border-bottom:3px solid var(--seam);
   display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1rem);padding:.5rem clamp(.6rem,1.5vw,1rem)}
