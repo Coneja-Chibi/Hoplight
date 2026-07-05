@@ -32,6 +32,13 @@
   --gap-s: 0.5rem;
   --gap-m: 1rem;
   --gap-l: 1.75rem;
+
+  /* the stage well's own palette (the recessed dark canvas is dark in BOTH themes) */
+  --stage-floor: #151318;
+  --stage-deck: #18171f;
+  --stage-dim: #5f5b6b;
+  --stage-faint: #39353f;
+  --stage-paper: #e7e3da;
 }
 
 /* LIGHT = paper letterpress */

@@ -16,6 +16,25 @@ uses. One engine, two shells - no format logic exists in the UI layer.
   (both themes, the stamp, the seam). Apps consume tokens; hardcoding colors or layout pixels in an
   app is a review rejection (fluid law).
 
+## First-run setup (the wizard)
+The locked vs-setup-hybrid flow, one plain question per screen, built on the same drop-in doctrine:
+- **Steps are drop-in folders**: `src/ui/setup/steps/<name>/index.ts` default-exports a `SetupStep`
+  (`src/ui/setup/step-contract.ts`): a manifest (question, say-line, settings key, single/multi,
+  stage note), its options (may be data-driven: the publish step derives platforms from
+  `/api/formats`, excluding `native` formats), optional custom option widgets (theme thumbnails,
+  color swatches), an optional stage ZONE (theme owns the backwall preview, first-deck the floor,
+  publish the apron), optional direct stage effects (accent repaints `--accent`), and `phrase`/
+  `recap` fragments for the final summary. The wizard (`src/ui/setup/wizard.ts`) derives progress
+  dots, "N of M", defaults, skip-all, the stage, the summary sentence, and the recap chips from the
+  sorted step list; nothing central names a step. Pure logic (selection, defaults, sentence
+  assembly) lives in `src/ui/setup/wizard-core.ts`, unit-tested.
+- **Settings**: `src/studio/settings-shape.ts` (open record, fail-closed per-key parser, known keys
+  in `SETTING_KEYS`: theme / firstDeck / publishTargets / houseAccent) + `src/studio/settings.ts`
+  (`<studioDir>/settings.json`). The shell boots settings-first: no `setupComplete` -> wizard;
+  after OPEN VAUDE the shell applies theme + house accent and lands on the app whose manifest set
+  `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The theme
+  button persists to settings (localStorage is only a pre-paint cache).
+
 ## The studio store
 `src/studio/store.ts`: local-first storage where the canonical vaud-json format IS the database -
 `<studioDir>/<kind>/<id>.json`, one file per entity, portable and versionable by construction.
@@ -30,8 +49,10 @@ what the engine already knows - no new format logic.
 
 ## Endpoints
 `GET /` shell · `GET /tokens.css` · `GET /boot.js` · `GET /api/apps` manifests ·
-`GET /apps/<id>.js` bundled app · `GET /api/formats` · `POST /api/inspect` (bytes + x-filename) ->
-receipt + canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
+`GET /apps/<id>.js` bundled app · `GET /api/setup/steps` step ids · `GET /setup/steps/<id>.js`
+bundled step · `GET|POST /api/settings` (POST replaces the whole document; parse is fail-closed) ·
+`GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
+canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
 `GET /api/studio/list|get` · `POST /api/studio/save`.
 
 ## Security

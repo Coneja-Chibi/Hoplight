@@ -38,6 +38,16 @@ for await (const rel of appsGlob.scan({ cwd: join(uiDir, "apps") })) {
   if (mod.default?.manifest) manifests.push(mod.default.manifest);
 }
 
+const stepsGlob = new Bun.Glob("*/index.ts");
+const stepIds: string[] = [];
+const setupSteps: Record<string, string> = {};
+for await (const rel of stepsGlob.scan({ cwd: join(uiDir, "setup", "steps") })) {
+  const id = rel.split(/[\\/]/)[0]!;
+  if (id.startsWith("_")) continue;
+  stepIds.push(id);
+  setupSteps[id] = await bundleBrowser(join(uiDir, "setup", "steps", rel));
+}
+
 const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
   tokensCss: await Bun.file(join(uiDir, "theme", "tokens.css")).text(),
@@ -46,6 +56,7 @@ const assets = {
   iconPngB64: Buffer.from(await Bun.file(join(root, "build", "vaude-256.png")).arrayBuffer()).toString("base64"),
   apps,
   manifests,
+  setupSteps,
 };
 await Bun.write(
   join(genDir, "packaged-assets.ts"),
@@ -53,7 +64,7 @@ await Bun.write(
     `import type { PackagedAssets } from "../ui/assets";\n` +
     `export const PACKAGED_ASSETS: PackagedAssets = ${JSON.stringify(assets)};\n`,
 );
-console.log(`baked ui assets (${appIds.length} apps: ${appIds.join(", ")})`);
+console.log(`baked ui assets (${appIds.length} apps: ${appIds.join(", ")}; ${stepIds.length} setup steps: ${stepIds.join(", ")})`);
 
 // -- 2. static format registry ----------------------------------------------------------------------
 

@@ -23,6 +23,7 @@ const adapter: CharacterAdapter = {
   label: "Vaudeville native (.json)",
   outputExtensions: ["json"],
   kind: "character",
+  native: true, // Vaude's own storage format: importable/exportable, never a "publish to" platform
 
   detect(input: AdapterInput): number {
     if (!input.text) return 0;

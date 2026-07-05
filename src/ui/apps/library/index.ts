@@ -159,6 +159,7 @@ const app: VaudeApp = {
     markSvg: MARK_SVG,
     accent: "#8b5cf6",
     order: 20,
+    firstRunLanding: true, // JOURNEY 1.1: a fresh studio lands on the two doors
   },
   mount(ctx) {
     render(ctx);

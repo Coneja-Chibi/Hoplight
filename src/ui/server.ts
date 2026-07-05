@@ -13,6 +13,7 @@ import { registry } from "../core";
 import type { AdapterInput, FormatAdapter } from "../core";
 import type { CanonicalEntity } from "../core/canonical";
 import { StudioStore } from "../studio/store";
+import { SettingsStore } from "../studio/settings";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
 import type { PackagedAssets } from "./assets";
 
@@ -22,41 +23,45 @@ const json = (v: unknown, status = 200): Response =>
   new Response(JSON.stringify(v), { status, headers: { "content-type": "application/json" } });
 const err = (message: string, status = 400): Response => json({ error: message }, status);
 
-// -- app discovery (drop a folder in src/ui/apps/, the dock gains a tile) ---------------------------
+// -- drop-in module discovery (apps AND setup steps share one mechanism) ----------------------------
 
-interface DiscoveredApp {
+interface DiscoveredModule {
   id: string;
   entrypoint: string;
 }
 
-async function discoverApps(): Promise<DiscoveredApp[]> {
-  const appsDir = fileURLToPath(new URL("./apps/", import.meta.url));
+/** Folders-as-schema scan: <baseDir>/<id>/index.ts, _-prefixed skipped (templates/shared). */
+async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
+  const baseDir = fileURLToPath(new URL(baseRel, import.meta.url));
   const glob = new Bun.Glob("*/index.ts");
-  const found: DiscoveredApp[] = [];
-  for await (const rel of glob.scan({ cwd: appsDir })) {
+  const found: DiscoveredModule[] = [];
+  for await (const rel of glob.scan({ cwd: baseDir })) {
     const id = rel.split(/[\\/]/)[0]!;
-    if (id.startsWith("_")) continue; // _-prefixed folders are templates/shared, same rule as formats
-    found.push({ id, entrypoint: join(appsDir, rel) });
+    if (id.startsWith("_")) continue;
+    found.push({ id, entrypoint: join(baseDir, rel) });
   }
   return found.sort((a, b) => a.id.localeCompare(b.id));
 }
 
-/** Bundle one app for the browser; cached per boot (restart to pick up edits - dev-grade is fine). */
+const discoverApps = (): Promise<DiscoveredModule[]> => discoverModules("./apps/");
+const discoverSetupSteps = (): Promise<DiscoveredModule[]> => discoverModules("./setup/steps/");
+
+/** Bundle one module for the browser; cached per boot (restart to pick up edits - dev-grade is fine). */
 const bundleCache = new Map<string, string>();
-async function bundleApp(app: DiscoveredApp): Promise<string> {
-  const hit = bundleCache.get(app.id);
+async function bundleModule(mod: DiscoveredModule): Promise<string> {
+  const hit = bundleCache.get(mod.entrypoint);
   if (hit !== undefined) return hit;
-  const built = await Bun.build({ entrypoints: [app.entrypoint], target: "browser", format: "esm" });
+  const built = await Bun.build({ entrypoints: [mod.entrypoint], target: "browser", format: "esm" });
   if (!built.success || built.outputs.length === 0) {
-    throw new Error(`ui: app "${app.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
+    throw new Error(`ui: module "${mod.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
   }
   const code = await built.outputs[0]!.text();
-  bundleCache.set(app.id, code);
+  bundleCache.set(mod.entrypoint, code);
   return code;
 }
 
 /** Manifests come from the modules themselves (server imports them once; they are DOM-free at top level). */
-async function appManifests(apps: DiscoveredApp[]): Promise<unknown[]> {
+async function appManifests(apps: DiscoveredModule[]): Promise<unknown[]> {
   const manifests: unknown[] = [];
   for (const app of apps) {
     const mod = (await import(app.entrypoint)) as { default?: { manifest?: unknown } };
@@ -86,6 +91,7 @@ const formatMeta = (a: FormatAdapter): Record<string, unknown> => ({
   kind: a.kind,
   outputExtensions: a.outputExtensions,
   friendly: friendlyFormat(a.id),
+  native: a.native ?? false,
 });
 
 async function handleInspect(req: Request): Promise<Response> {
@@ -139,7 +145,11 @@ async function handleExport(req: Request): Promise<Response> {
 const staticFile = (rel: string, type: string): Response =>
   new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
 
-export function createHandler(store: StudioStore, packaged?: PackagedAssets): (req: Request) => Promise<Response> {
+export function createHandler(
+  store: StudioStore,
+  settings: SettingsStore,
+  packaged?: PackagedAssets,
+): (req: Request) => Promise<Response> {
   const text = (body: string, type: string): Response =>
     new Response(body, { headers: { "content-type": type } });
 
@@ -198,7 +208,29 @@ export function createHandler(store: StudioStore, packaged?: PackagedAssets): (r
       }
       const app = (await discoverApps()).find((a) => a.id === id);
       if (!app) return err("no such app", 404);
-      return new Response(await bundleApp(app), { headers: { "content-type": "text/javascript" } });
+      return new Response(await bundleModule(app), { headers: { "content-type": "text/javascript" } });
+    }
+
+    // setup steps: same drop-in mechanism as apps (DECISIONS #10 build law)
+    if (p === "/api/setup/steps") {
+      return json(packaged ? Object.keys(packaged.setupSteps).sort() : (await discoverSetupSteps()).map((s) => s.id));
+    }
+    if (p.startsWith("/setup/steps/") && p.endsWith(".js")) {
+      const id = p.slice("/setup/steps/".length, -".js".length);
+      if (packaged) {
+        const code = packaged.setupSteps[id];
+        return code !== undefined ? text(code, "text/javascript") : err("no such step", 404);
+      }
+      const step = (await discoverSetupSteps()).find((s) => s.id === id);
+      if (!step) return err("no such step", 404);
+      return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript" } });
+    }
+
+    if (p === "/api/settings") {
+      if (req.method === "POST") {
+        return json(await settings.save(await req.json().catch(() => null))); // parse is fail-closed
+      }
+      return json(await settings.read());
     }
 
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
@@ -225,6 +257,7 @@ export function createHandler(store: StudioStore, packaged?: PackagedAssets): (r
 /** Boot the visual app. Loopback only: a local forge, never an exposed service. */
 export function startUi(port: number, studioDir: string, packaged?: PackagedAssets): { url: string; stop: () => void } {
   const store = new StudioStore(studioDir);
-  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store, packaged) });
+  const settings = new SettingsStore(studioDir);
+  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store, settings, packaged) });
   return { url: `http://127.0.0.1:${server.port}`, stop: () => server.stop() };
 }

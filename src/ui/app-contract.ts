@@ -20,6 +20,9 @@ export interface AppManifestEntry {
   order: number;
   /** dimmed "installs later" tile: shown in the dock, not mountable yet */
   comingSoon?: boolean;
+  /** this app is the surface a brand-new studio lands on right after setup (JOURNEY 1.1);
+   * normal boots still open the lowest-order app */
+  firstRunLanding?: boolean;
 }
 
 /** Everything an app may touch. Apps NEVER import the engine or reach the filesystem directly:
@@ -88,4 +91,6 @@ export interface FormatInfo {
   outputExtensions: string[];
   /** human platform name for receipts/pickers ("SillyTavern", "RisuAI") */
   friendly: string;
+  /** Vaude's own storage format: never offered as an external publish target */
+  native: boolean;
 }

@@ -4,6 +4,8 @@
  * NO app content and NO format logic: apps get an AppContext and the local API, nothing else.
  */
 import type { AppContext, AppManifestEntry, InspectResult, StudioEntitySummary, VaudeApp } from "./app-contract";
+import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/settings-shape";
+import { runSetup } from "./setup/wizard";
 
 type Theme = "paper" | "stage";
 
@@ -47,16 +49,36 @@ const api: AppContext["api"] = {
   formats: async () => (await fetch("/api/formats")).json(),
 };
 
-// -- theme ------------------------------------------------------------------------------------------
+// -- settings (the studio's truth; localStorage is only a pre-fetch paint cache) --------------------
 
 const themeKey = "vaude.theme";
+let settings: StudioSettings = parseSettings(null);
+
 function setTheme(t: Theme): void {
   document.documentElement.dataset.theme = t;
-  localStorage.setItem(themeKey, t);
+  localStorage.setItem(themeKey, t); // paint cache so the next boot doesn't flash paper on dark users
 }
 setTheme((localStorage.getItem(themeKey) as Theme) ?? "paper");
+
+/** Apply what settings own: theme + the house accent (chrome only, never the brand rose mark). */
+function applySettings(s: StudioSettings): void {
+  settings = s;
+  setTheme(s.theme ?? "paper");
+  if (s.houseAccent) document.documentElement.style.setProperty("--accent", s.houseAccent);
+}
+
+async function saveSettings(next: StudioSettings): Promise<void> {
+  applySettings(next);
+  await fetch("/api/settings", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(next),
+  });
+}
+
 el<HTMLButtonElement>("themeBtn").addEventListener("click", () => {
-  setTheme(document.documentElement.dataset.theme === "paper" ? "stage" : "paper");
+  const next: Theme = document.documentElement.dataset.theme === "paper" ? "stage" : "paper";
+  void saveSettings({ ...settings, [SETTING_KEYS.theme]: next });
 });
 
 // -- tabs (the shell owns open pieces; apps request opens) ------------------------------------------
@@ -162,6 +184,19 @@ function dockTile(m: AppManifestEntry): HTMLElement {
 // -- boot -------------------------------------------------------------------------------------------
 
 async function boot(): Promise<void> {
+  // settings first: they gate the wizard and skin everything after
+  const stored = parseSettings(await (await fetch("/api/settings")).json().catch(() => null));
+  applySettings(stored);
+
+  let freshFromSetup = false;
+  if (!stored.setupComplete) {
+    // FIRST RUN (DECISIONS #10): the wizard owns the screen; the setup surface itself is paper
+    document.documentElement.dataset.theme = "paper";
+    const chosen = await runSetup({ formats: api.formats }, stored);
+    await saveSettings(chosen);
+    freshFromSetup = true;
+  }
+
   const manifests = ((await (await fetch("/api/apps")).json()) as AppManifestEntry[]).sort(
     (a, b) => a.order - b.order,
   );
@@ -182,7 +217,9 @@ async function boot(): Promise<void> {
     if (home) void mountApp(home);
   });
 
-  const first = manifests.find((m) => !m.comingSoon);
+  // JOURNEY 1.1: straight out of setup, land on the app that declared itself the first landing
+  const landing = freshFromSetup ? manifests.find((m) => m.firstRunLanding && !m.comingSoon) : undefined;
+  const first = landing ?? manifests.find((m) => !m.comingSoon);
   if (first) await mountApp(first);
 }
 

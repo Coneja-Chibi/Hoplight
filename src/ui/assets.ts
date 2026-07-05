@@ -15,4 +15,6 @@ export interface PackagedAssets {
   apps: Record<string, string>;
   /** the dock manifest list, pre-collected */
   manifests: unknown[];
+  /** setup step id -> browser bundle (same drop-in mechanism as apps) */
+  setupSteps: Record<string, string>;
 }

@@ -11,3 +11,4 @@ bun.lockb
 # The small sliced card.json fixture beside them IS committed for tests.
 samples/**/*.charx
 design/_serve.cjs
+*.bun-build
