@@ -142,6 +142,9 @@ export function signatureColor(pixels: Pixels): string | null {
   const total = width * height;
   const step = Math.max(1, Math.floor(total / 24_000)); // sample ~24k pixels regardless of size
   const families = new Map<number, Family>();
+  // light achromatics (white/platinum hair, robes) are tallied apart: they can BE the signature
+  // when they dominate and nothing chromatic has a real claim (the white-haired-boy rule)
+  const silver = { count: 0, r: 0, g: 0, b: 0 };
   let sampled = 0;
 
   for (let i = 0; i < total; i += step) {
@@ -157,8 +160,17 @@ export function signatureColor(pixels: Pixels): string | null {
     const min = Math.min(r, g, b);
     const val = max / 255;
     const sat = max === 0 ? 0 : (max - min) / max;
+    // TINTED whites count: real robes/hair sit in shadow and pick up a cool cast (sat up to .30),
+    // which otherwise leaks them into a phantom blue family and starves the silver mass
+    if (sat < 0.3 && val > 0.6) {
+      silver.count++;
+      silver.r += r;
+      silver.g += g;
+      silver.b += b;
+      continue;
+    }
     if (sat < 0.22 || val < 0.18) continue; // gray / near-black carry no signature
-    if (val > 0.95 && sat < 0.3) continue; // near-white
+    if (val > 0.95 && sat < 0.3) continue; // near-white but colored-ish: still not a signature
 
     let hue = 0;
     const d = max - min;
@@ -188,42 +200,64 @@ export function signatureColor(pixels: Pixels): string | null {
   }
   if (sampled === 0) return null;
 
-  // stage 1: prevalence x saturation picks the FAMILY
-  let bestFamily: Family | null = null;
-  let bestScore = 0;
+  // election: a family runs on prevalence x the POP IT CAN DELIVER (its most vibrant real
+  // sub-cluster), so a deliberate vivid motif (Adrian's red threads) beats a big muted ambiance,
+  // and a family is always represented by its vivid member (Basil's eye-blue, never window-blue)
   const minFamily = Math.max(8, sampled * 0.004); // single-pixel neon noise is not a signature
+  const minSub = Math.max(3, sampled * 0.0008); // eye-sized clusters are real; a stray sparkle is not
+  let bestFamily: Family | null = null;
+  let bestExemplar: Cluster | null = null;
+  let bestScore = 0;
+  let bestPop = 0;
   for (const family of families.values()) {
     if (family.count < minFamily) continue;
-    const avgSat = family.sat / family.count;
-    const avgVal = family.val / family.count;
-    const score = family.count * avgSat * avgSat * Math.pow(avgVal, 0.8);
+    let exemplar: Cluster | null = null;
+    let pop = 0;
+    for (const sub of family.subs.values()) {
+      if (sub.count < minSub) continue;
+      const avgSat = sub.sat / sub.count;
+      const avgVal = sub.val / sub.count;
+      const vibrance = avgSat * avgSat * avgVal;
+      if (vibrance > pop) {
+        pop = vibrance;
+        exemplar = sub;
+      }
+    }
+    if (!exemplar) continue;
+    const score = family.count * pop * pop;
     if (score > bestScore) {
       bestScore = score;
       bestFamily = family;
+      bestExemplar = exemplar;
+      bestPop = pop;
     }
   }
-  if (!bestFamily) return null;
 
-  // stage 2: the most VIBRANT real sub-cluster of the winning family is the exemplar
-  let exemplar: Cluster | null = null;
-  let bestVibrance = 0;
-  const minSub = Math.max(4, sampled * 0.0015); // vivid but real - a stray sparkle is not the family
-  for (const sub of bestFamily.subs.values()) {
-    if (sub.count < minSub) continue;
-    const avgSat = sub.sat / sub.count;
-    const avgVal = sub.val / sub.count;
-    const vibrance = avgSat * avgSat * avgVal;
-    if (vibrance > bestVibrance) {
-      bestVibrance = vibrance;
-      exemplar = sub;
-    }
+  // the white-robes rule: a DOMINANT light-achromatic mass signs SILVER unless a chromatic family
+  // holds a real MOTIF against it - which takes BOTH spread (Adrian's threads, not Alfred's
+  // eye-glints) AND pop (Adrian's scarlet, not Cedric's muted gold braid)
+  const motifHolds = bestFamily !== null && bestFamily.count >= sampled * 0.012 && bestPop >= 0.35;
+  const silverWins =
+    silver.count > sampled * 0.3 &&
+    !motifHolds &&
+    (!bestFamily || silver.count > 4 * bestFamily.count);
+  if (silverWins) {
+    let [h, s, v] = rgbToHsv(silver.r / silver.count, silver.g / silver.count, silver.b / silver.count);
+    s = Math.min(s, 0.08); // platinum, not a tint
+    v = Math.min(Math.max(v, 0.72), 0.88); // readable on BOTH themes: silver, never pure white
+    const [r, g, b] = hsvToRgb(h, s, v);
+    return `#${hex(r)}${hex(g)}${hex(b)}`;
   }
-  if (!exemplar) return null;
+  if (!bestExemplar) return null;
 
   // presentation lift: the accent must read on the dark stage (documented nudge, not a lie -
   // hue is untouched; only floor the brightness/saturation for legibility)
-  let [h, s, v] = rgbToHsv(exemplar.r / exemplar.count, exemplar.g / exemplar.count, exemplar.b / exemplar.count);
-  s = Math.max(s, 0.45);
+  let [h, s, v] = rgbToHsv(
+    bestExemplar.r / bestExemplar.count,
+    bestExemplar.g / bestExemplar.count,
+    bestExemplar.b / bestExemplar.count,
+  );
+  s = Math.max(s, 0.5);
   v = Math.max(v, 0.55);
   const [r, g, b] = hsvToRgb(h, s, v);
   return `#${hex(r)}${hex(g)}${hex(b)}`;

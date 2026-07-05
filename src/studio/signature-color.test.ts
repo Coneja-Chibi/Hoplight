@@ -129,6 +129,47 @@ describe("signatureColor", () => {
     expect(hue).toBeLessThan(45);
   });
 
+  test("the white-robes rule: dominant white with only tiny glints signs SILVER", () => {
+    // 45% white hair/robes, 1% amber eye-glint, rest skin - Alfred/Cedric's shape
+    const png = makePng(100, 100, (x) => {
+      if (x < 45) return [235, 234, 238]; // white
+      if (x < 46) return [200, 140, 20]; // gold glint (vivid but tiny)
+      return [224, 172, 140]; // skin
+    });
+    const hexOut = signatureFromPng(png)!;
+    const r = parseInt(hexOut.slice(1, 3), 16);
+    const g = parseInt(hexOut.slice(3, 5), 16);
+    const b = parseInt(hexOut.slice(5, 7), 16);
+    const max = Math.max(r, g, b);
+    expect((max - Math.min(r, g, b)) / max).toBeLessThan(0.1); // achromatic
+    expect(max).toBeGreaterThan(180); // and light: silver, not gray
+  });
+
+  test("a real vivid MOTIF holds against dominant white (Adrian's red threads)", () => {
+    // 40% white, 4% vivid scarlet spread, rest skin
+    const png = makePng(100, 100, (x) => {
+      if (x < 40) return [235, 234, 238];
+      if (x < 44) return [220, 30, 40]; // vivid red motif
+      return [224, 172, 140];
+    });
+    const hue = hueOf(signatureFromPng(png)!);
+    expect(hue > 330 || hue < 15).toBe(true); // red held
+  });
+
+  test("muted metallic trim does NOT block the white (Cedric's gold braid)", () => {
+    // 45% white robes, 5% muted gold trim (sizeable but not poppin), rest skin
+    const png = makePng(100, 100, (x) => {
+      if (x < 45) return [235, 234, 238];
+      if (x < 50) return [150, 120, 70]; // muted gold, sat ~.53 -> low pop
+      return [224, 172, 140];
+    });
+    const hexOut = signatureFromPng(png)!;
+    const r = parseInt(hexOut.slice(1, 3), 16);
+    const g = parseInt(hexOut.slice(3, 5), 16);
+    const b = parseInt(hexOut.slice(5, 7), 16);
+    expect((Math.max(r, g, b) - Math.min(r, g, b)) / Math.max(r, g, b)).toBeLessThan(0.1); // silver
+  });
+
   test("an all-gray card has no signature (fail closed)", () => {
     const png = makePng(50, 50, () => [80, 80, 82]);
     expect(signatureFromPng(png)).toBeNull();
