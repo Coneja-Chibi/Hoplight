@@ -129,6 +129,23 @@ repaint instantly). Shipped sections: Appearance (theme, house accent via the sh
 Studio (home app, Library first deck, publish targets from the live registry), Workbench (follow
 behavior).
 
+## Shared components (`src/ui/_shared/`)
+Extracted-once UI, layered so a single implementation serves every consumer:
+- `swatches.ts` - the house swatch row. Preset tiles are the fast path; with `allowCustom` a final
+  `custom` tile opens the Paint picker (solid mode) for any color. Consumers: setup accent step,
+  Settings Appearance, later the editor's per-entity accent.
+- `color-picker.ts` - the on-brand HSV surface (saturation/value square, hue strip, hex field; no OS
+  dialog). Functional core, imperative shell: the color math (`normalizeHex`/`hexToHsv`/`hsvToHex`,
+  fail-closed on garbage) is pure and unit-tested; `createColorPicker` is the thin DOM around it.
+  Exports `horizontalDrag(surface, onFraction, ref?, fireOnDown?)` - reused by the gradient stop rail.
+- `paint.ts` - the pure Paint model: a `solid | gradient(linear|radial)` discriminated union with
+  `paintToCss` and a fail-closed `normalizePaint` (a gradient needs >=2 valid stops). Unit-tested.
+- `paint-picker.ts` - `createPaintPicker({value, allow, onChange})` composes the HSV surface to edit a
+  solid color or each stop of a gradient. `allow` gates the modes, so the same widget serves a
+  solid-only accent and a full linear/radial gradient fill. Solid mode is live via the accent's custom
+  tile; gradient mode (stop rail, add/drag/remove stops, linear-angle slider, true-curve preview) is
+  built and model-tested, awaiting its first fill consumer (per-entity/pack background in the editor).
+
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
 included). Scripts inside entities remain data everywhere. App-manifest SVGs are sanitized before

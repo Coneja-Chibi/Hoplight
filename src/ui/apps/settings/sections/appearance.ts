@@ -36,6 +36,7 @@ const section: SettingsSection = {
       palette: HOUSE_PALETTE,
       value: typeof accent === "string" ? accent : undefined,
       onPick: (choice) => ctx.prefs.set(SETTING_KEYS.houseAccent, choice.hex),
+      allowCustom: true,
     });
     const swatchHost = h("div");
     swatchHost.style.paddingTop = ".4rem";
