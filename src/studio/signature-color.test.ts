@@ -86,6 +86,49 @@ describe("signatureColor", () => {
     expect(hue > 330 || hue < 15).toBe(true); // rose
   });
 
+  test("the family's most VIBRANT member wins, not its muddy average", () => {
+    // blue family: 35% murky window-blue + 8% vivid eye-blue; family wins on prevalence,
+    // the exemplar must be the vivid pocket
+    const png = makePng(100, 100, (x) => {
+      if (x < 35) return [70, 85, 130]; // murky blue (sat ~.46, val ~.51)
+      if (x < 43) return [30, 110, 240]; // vivid blue (sat ~.88, val ~.94)
+      return [224, 172, 140]; // skin filler
+    });
+    const hexOut = signatureFromPng(png)!;
+    const r = parseInt(hexOut.slice(1, 3), 16);
+    const g = parseInt(hexOut.slice(3, 5), 16);
+    const b = parseInt(hexOut.slice(5, 7), 16);
+    const sat = (Math.max(r, g, b) - Math.min(r, g, b)) / Math.max(r, g, b);
+    expect(hueOf(hexOut)).toBeGreaterThan(200); // still the blue family
+    expect(hueOf(hexOut)).toBeLessThan(260);
+    expect(sat).toBeGreaterThan(0.7); // and it is the VIVID member, not the murky average
+  });
+
+  test("EVERY skin tone is masked, dark included: brown skin + teal jacket signs TEAL", () => {
+    // 70% dark-brown skin (the tone the first mask leaked), 20% gray, 10% teal
+    const png = makePng(100, 100, (x) => {
+      if (x < 70) return [140, 100, 70]; // brown skin (hue ~26, sat ~.5)
+      if (x < 90) return [85, 85, 88];
+      return [20, 160, 150]; // teal
+    });
+    const hexOut = signatureFromPng(png)!;
+    expect(hueOf(hexOut)).toBeGreaterThan(150);
+    expect(hueOf(hexOut)).toBeLessThan(200);
+  });
+
+  test("an all-sepia card has NO signature - browns are skin-adjacent, never an accent", () => {
+    const png = makePng(60, 60, (x) => (x < 30 ? [140, 100, 70] : [120, 90, 60]));
+    expect(signatureFromPng(png)).toBeNull();
+  });
+
+  test("vivid warm colors clear the skin bar (tiger orange survives)", () => {
+    const png = makePng(100, 100, (x) => (x < 60 ? [224, 172, 140] : [195, 78, 13])); // skin + vivid orange
+    const hexOut = signatureFromPng(png)!;
+    const hue = hueOf(hexOut);
+    expect(hue).toBeGreaterThanOrEqual(10);
+    expect(hue).toBeLessThan(45);
+  });
+
   test("an all-gray card has no signature (fail closed)", () => {
     const png = makePng(50, 50, () => [80, 80, 82]);
     expect(signatureFromPng(png)).toBeNull();

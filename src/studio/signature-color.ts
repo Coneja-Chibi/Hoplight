@@ -96,16 +96,21 @@ function paeth(a: number, b: number, c: number): number {
 
 // -- the vibrant-swatch scorer -----------------------------------------------------------------------
 
-/** Classic RGB skin rule + a pale/anime-skin extension (warm hue, low sat, bright). */
-function isSkin(r: number, g: number, b: number, hue: number, sat: number, val: number): boolean {
+/**
+ * The FULL human skin gamut, every tone: the warm-brown hue band at low-to-moderate saturation is
+ * skin-adjacent at ANY brightness (pale, tan, brown, dark - and sepia lighting with it), so it is
+ * never a signature. Only genuinely VIVID warm colors (tiger orange, marigold) clear the sat bar.
+ * (First version only masked light skin - Chi caught brown accents that were darker skin tones.)
+ */
+function isSkin(r: number, g: number, b: number, hue: number, sat: number, _val: number): boolean {
   const rgbRule = r > 95 && g > 40 && b > 20 && r > g && g > b && r - g > 15 && r - Math.min(g, b) > 15;
-  const paleRule = hue >= 5 && hue <= 50 && sat < 0.38 && val > 0.5;
-  return rgbRule || paleRule;
+  const warmBand = hue >= 5 && hue <= 50 && sat < 0.68;
+  return rgbRule || warmBand;
 }
 
 const HUE_BUCKETS = 30; // 12 degrees each
 
-interface Bucket {
+interface Cluster {
   count: number;
   r: number;
   g: number;
@@ -114,16 +119,29 @@ interface Bucket {
   val: number;
 }
 
+interface Family {
+  count: number;
+  sat: number;
+  val: number;
+  /** sub-clusters by sat/val band: the same hue at different intensities stays distinguishable */
+  subs: Map<number, Cluster>;
+}
+
+const satBand = (s: number): number => (s < 0.4 ? 0 : s < 0.7 ? 1 : 2);
+const valBand = (v: number): number => (v < 0.4 ? 0 : v < 0.7 ? 1 : 2);
+
 /**
  * The signature color of decoded art, or null when nothing survives the masks (an all-sepia card
- * has no signature; the caller falls back to the deck accent). Scoring: prevalence x saturation^2
- * x brightness - "the bright most poppin and prevalent actual color color".
+ * has no signature; the caller falls back to the deck accent). Two-stage, per Chi's spec:
+ * PREVALENCE x saturation picks the winning hue FAMILY; then the most VIBRANT real sub-cluster of
+ * that family present in the image becomes the exemplar - the family's poppin' member, never its
+ * muddy average.
  */
 export function signatureColor(pixels: Pixels): string | null {
   const { rgba, width, height } = pixels;
   const total = width * height;
   const step = Math.max(1, Math.floor(total / 24_000)); // sample ~24k pixels regardless of size
-  const buckets = new Map<number, Bucket>();
+  const families = new Map<number, Family>();
   let sampled = 0;
 
   for (let i = 0; i < total; i += step) {
@@ -152,38 +170,59 @@ export function signatureColor(pixels: Pixels): string | null {
     }
     if (isSkin(r, g, b, hue, sat, val)) continue;
 
-    // quantize: hue bucket x coarse sat/val bands, so one hue at two intensities stays two candidates
-    const key =
-      Math.floor(hue / (360 / HUE_BUCKETS)) * 4 + (sat > 0.55 ? 2 : 0) + (val > 0.55 ? 1 : 0);
-    const bucket = buckets.get(key) ?? { count: 0, r: 0, g: 0, b: 0, sat: 0, val: 0 };
-    bucket.count++;
-    bucket.r += r;
-    bucket.g += g;
-    bucket.b += b;
-    bucket.sat += sat;
-    bucket.val += val;
-    buckets.set(key, bucket);
+    const familyKey = Math.floor(hue / (360 / HUE_BUCKETS));
+    const family = families.get(familyKey) ?? { count: 0, sat: 0, val: 0, subs: new Map() };
+    family.count++;
+    family.sat += sat;
+    family.val += val;
+    const subKey = satBand(sat) * 3 + valBand(val);
+    const sub = family.subs.get(subKey) ?? { count: 0, r: 0, g: 0, b: 0, sat: 0, val: 0 };
+    sub.count++;
+    sub.r += r;
+    sub.g += g;
+    sub.b += b;
+    sub.sat += sat;
+    sub.val += val;
+    family.subs.set(subKey, sub);
+    families.set(familyKey, family);
   }
   if (sampled === 0) return null;
 
-  let best: Bucket | null = null;
+  // stage 1: prevalence x saturation picks the FAMILY
+  let bestFamily: Family | null = null;
   let bestScore = 0;
-  const minCount = Math.max(8, sampled * 0.004); // single-pixel neon noise is not a signature
-  for (const bucket of buckets.values()) {
-    if (bucket.count < minCount) continue;
-    const avgSat = bucket.sat / bucket.count;
-    const avgVal = bucket.val / bucket.count;
-    const score = bucket.count * avgSat * avgSat * Math.pow(avgVal, 0.8);
+  const minFamily = Math.max(8, sampled * 0.004); // single-pixel neon noise is not a signature
+  for (const family of families.values()) {
+    if (family.count < minFamily) continue;
+    const avgSat = family.sat / family.count;
+    const avgVal = family.val / family.count;
+    const score = family.count * avgSat * avgSat * Math.pow(avgVal, 0.8);
     if (score > bestScore) {
       bestScore = score;
-      best = bucket;
+      bestFamily = family;
     }
   }
-  if (!best) return null;
+  if (!bestFamily) return null;
+
+  // stage 2: the most VIBRANT real sub-cluster of the winning family is the exemplar
+  let exemplar: Cluster | null = null;
+  let bestVibrance = 0;
+  const minSub = Math.max(4, sampled * 0.0015); // vivid but real - a stray sparkle is not the family
+  for (const sub of bestFamily.subs.values()) {
+    if (sub.count < minSub) continue;
+    const avgSat = sub.sat / sub.count;
+    const avgVal = sub.val / sub.count;
+    const vibrance = avgSat * avgSat * avgVal;
+    if (vibrance > bestVibrance) {
+      bestVibrance = vibrance;
+      exemplar = sub;
+    }
+  }
+  if (!exemplar) return null;
 
   // presentation lift: the accent must read on the dark stage (documented nudge, not a lie -
   // hue is untouched; only floor the brightness/saturation for legibility)
-  let [h, s, v] = rgbToHsv(best.r / best.count, best.g / best.count, best.b / best.count);
+  let [h, s, v] = rgbToHsv(exemplar.r / exemplar.count, exemplar.g / exemplar.count, exemplar.b / exemplar.count);
   s = Math.max(s, 0.45);
   v = Math.max(v, 0.55);
   const [r, g, b] = hsvToRgb(h, s, v);
