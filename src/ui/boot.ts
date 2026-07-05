@@ -1,7 +1,9 @@
 /**
- * The shell's client boot - the LOCKED chrome brought to life. Owns: the dock (built from the app
- * manifest, drop-in discovery), app mounting, the tab strip, theme, the tray, the status bar. Owns
- * NO app content and NO format logic: apps get an AppContext and the local API, nothing else.
+ * The shell's client boot - the LOCKED chrome (vs-shell-apps, DECISIONS #14) brought to life.
+ * Owns: the dock (built from the app manifest, drop-in discovery), the top strip crumb, app
+ * mounting, the tab strip, theme + settings, the tray, the status bar. Owns NO app content and NO
+ * format logic: apps get an AppContext and the local API, nothing else. Chrome furniture renders
+ * only from REAL state (no fake counts, no invented timestamps).
  */
 import type { AppContext, AppManifestEntry, InspectResult, StudioEntitySummary, VaudeApp } from "./app-contract";
 import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/settings-shape";
@@ -10,11 +12,17 @@ import { runSetup } from "./setup/wizard";
 type Theme = "paper" | "stage";
 
 const el = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
-const dock = el<HTMLElement>("dock");
+const dockApps = el<HTMLElement>("dockapps");
+const dockFootApps = el<HTMLElement>("dockfootapps");
 const canvas = el<HTMLElement>("canvas");
 const tabstrip = el<HTMLElement>("tabstrip");
-const statusApp = el<HTMLElement>("statusApp");
-const statusStudio = el<HTMLElement>("statusStudio");
+
+const h = (tag: string, cls?: string, text?: string): HTMLElement => {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+};
 
 // -- local API (the one door to the engine) ---------------------------------------------------------
 
@@ -57,6 +65,7 @@ let settings: StudioSettings = parseSettings(null);
 function setTheme(t: Theme): void {
   document.documentElement.dataset.theme = t;
   localStorage.setItem(themeKey, t); // paint cache so the next boot doesn't flash paper on dark users
+  el<HTMLElement>("statusTheme").textContent = t === "paper" ? "light" : "dark";
 }
 setTheme((localStorage.getItem(themeKey) as Theme) ?? "paper");
 
@@ -84,21 +93,50 @@ el<HTMLButtonElement>("themeBtn").addEventListener("click", () => {
 // -- tabs (the shell owns open pieces; apps request opens) ------------------------------------------
 
 const openTabs: StudioEntitySummary[] = [];
+const KIND_SHORT: Record<string, string> = { character: "char", lorebook: "lore", persona: "pers", preset: "set" };
+
 function renderTabs(): void {
-  tabstrip.replaceChildren(
-    ...openTabs.map((t) => {
-      const b = document.createElement("button");
-      b.className = "tab";
-      const pip = document.createElement("span");
-      pip.className = "pip";
-      if (t.accent) pip.style.setProperty("--tab-accent", t.accent);
-      const label = document.createElement("span");
-      label.textContent = t.name;
-      b.append(pip, label);
-      b.addEventListener("click", () => statusApp && (statusApp.textContent = `${t.name} (editor arrives next slice)`));
-      return b;
-    }),
-  );
+  tabstrip.classList.toggle("hastabs", openTabs.length > 0);
+  const tabs = openTabs.map((t) => {
+    const b = h("button", "tab");
+    if (t.accent) b.style.setProperty("--a", t.accent);
+    b.append(h("span", "pip"));
+    b.append(document.createTextNode(t.name));
+    b.append(h("span", "kind", KIND_SHORT[t.kind] ?? t.kind));
+    const close = h("span", "close", "×");
+    close.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const at = openTabs.findIndex((o) => o.id === t.id && o.kind === t.kind);
+      if (at >= 0) openTabs.splice(at, 1);
+      renderTabs();
+    });
+    b.append(close);
+    b.addEventListener("click", () => setStatusNote(`${t.name} · the editor arrives next slice`));
+    return b;
+  });
+  const add = h("button", undefined, "+");
+  add.id = "tabadd";
+  add.title = "Open another";
+  add.addEventListener("click", () => {
+    const lib = manifestsCache.find((m) => m.firstRunLanding && !m.comingSoon);
+    if (lib) void mountApp(lib);
+  });
+  tabstrip.replaceChildren(...tabs, add, h("span", "tabfill"));
+}
+
+// -- status bar (segments render only real state) ---------------------------------------------------
+
+function setStatusNote(text: string): void {
+  const seg = el<HTMLElement>("statusNote");
+  seg.replaceChildren();
+  if (!text) return;
+  seg.append(h("span", "sep", "·"), h("span", "k", text));
+}
+
+async function refreshStudioStatus(): Promise<void> {
+  const entities = (await api.listEntities()) as StudioEntitySummary[];
+  el<HTMLElement>("statusStudio").textContent =
+    entities.length === 0 ? "0 · your shelves are empty" : String(entities.length);
 }
 
 // -- app mounting -----------------------------------------------------------------------------------
@@ -106,15 +144,23 @@ function renderTabs(): void {
 let cleanup: (() => void) | null = null;
 let activeId = "";
 const modules = new Map<string, VaudeApp>();
+let manifestsCache: AppManifestEntry[] = [];
 
 async function mountApp(m: AppManifestEntry): Promise<void> {
   if (m.comingSoon || m.id === activeId) return;
   if (cleanup) cleanup();
   canvas.replaceChildren();
   activeId = m.id;
-  for (const tile of dock.querySelectorAll<HTMLElement>(".dockapp")) {
-    tile.classList.toggle("pressed", tile.dataset.appId === m.id);
+  for (const tile of document.querySelectorAll<HTMLElement>(".apptile")) {
+    const on = tile.dataset.appId === m.id;
+    tile.classList.toggle("on", on);
+    if (on) tile.setAttribute("aria-current", "page");
+    else tile.removeAttribute("aria-current");
   }
+  el<HTMLElement>("crumbName").textContent = m.title;
+  el<HTMLElement>("statusApp").textContent = m.title.replace(/^The /, "");
+  el<HTMLElement>("statusDot").style.setProperty("--adot", m.accent);
+  setStatusNote("");
   let mod = modules.get(m.id);
   if (!mod) {
     mod = ((await import(`/apps/${m.id}.js`)) as { default: VaudeApp }).default;
@@ -125,12 +171,10 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
     theme: (document.documentElement.dataset.theme as Theme) ?? "paper",
     api,
     openEntity: (s) => {
-      if (!openTabs.some((t) => t.id === s.id)) openTabs.push(s);
+      if (!openTabs.some((t) => t.id === s.id && t.kind === s.kind)) openTabs.push(s);
       renderTabs();
     },
-    setStatus: (text) => {
-      statusApp.textContent = text;
-    },
+    setStatus: setStatusNote,
   };
   cleanup = mod.mount(ctx) ?? null;
 }
@@ -141,9 +185,11 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
  * foreignObject, use/href indirection, and every on* handler are stripped; a non-svg root is refused.
  */
 function sanitizeSvg(markup: string): SVGSVGElement | null {
-  const doc = new DOMParser().parseFromString(markup, "image/svg+xml");
+  // tolerate manifests that omit xmlns (without it the parsed nodes never draw)
+  const withNs = markup.includes("xmlns=") ? markup : markup.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
+  const doc = new DOMParser().parseFromString(withNs, "image/svg+xml");
   const root = doc.documentElement;
-  if (root.nodeName.toLowerCase() !== "svg") return null;
+  if (root.nodeName.toLowerCase() !== "svg" || doc.querySelector("parsererror")) return null;
   const banned = new Set(["script", "foreignobject", "use", "animate", "set", "iframe"]);
   for (const node of [root, ...root.querySelectorAll("*")]) {
     if (banned.has(node.nodeName.toLowerCase())) {
@@ -158,27 +204,45 @@ function sanitizeSvg(markup: string): SVGSVGElement | null {
   return document.importNode(root, true) as unknown as SVGSVGElement;
 }
 
+/** One dock tile per the locked anatomy: mark box + name + mono subtitle, accent notch when on. */
 function dockTile(m: AppManifestEntry): HTMLElement {
-  const b = document.createElement("button");
-  b.className = `dockapp stamp${m.comingSoon ? " soon" : ""}`;
+  const b = h("button", `apptile${m.comingSoon ? " future" : ""}`);
   b.dataset.appId = m.id;
-  b.style.setProperty("--app-accent", m.accent);
-  const mark = document.createElement("span");
-  mark.className = "mark";
+  b.style.setProperty("--a", m.accent);
+  const mark = h("span", "mk");
   const svg = sanitizeSvg(m.markSvg);
   if (svg) mark.append(svg);
-  const label = document.createElement("span");
-  label.className = "label";
-  label.textContent = m.title;
-  b.append(mark, label);
+  const tx = h("span", "tx");
+  tx.append(h("span", "nm", m.title), h("span", "kd", m.comingSoon ? "installs later" : (m.subtitle ?? "app")));
+  b.append(mark, tx);
   if (m.comingSoon) {
-    const small = document.createElement("small");
-    small.textContent = "installs later";
-    b.append(small);
+    b.setAttribute("aria-disabled", "true");
+    b.tabIndex = -1;
   } else {
     b.addEventListener("click", () => void mountApp(m));
   }
   return b;
+}
+
+function buildDock(manifests: AppManifestEntry[]): void {
+  const body = manifests.filter((m) => !m.dockFoot);
+  const foot = manifests.filter((m) => m.dockFoot);
+  const present = body.filter((m) => !m.comingSoon);
+  const future = body.filter((m) => m.comingSoon);
+
+  const slot = h("div", "dockslot");
+  slot.setAttribute("role", "button");
+  slot.title = "Apps can be added - drop a folder in src/ui/apps";
+  slot.append(h("span", "plus", "+"), h("span", "sl", "add app"));
+
+  dockApps.replaceChildren(
+    h("div", "docklabel", "Apps"),
+    ...present.map(dockTile),
+    ...(future.length ? [h("div", "dockdiv")] : []),
+    ...future.map(dockTile),
+    slot,
+  );
+  dockFootApps.replaceChildren(...foot.map(dockTile));
 }
 
 // -- boot -------------------------------------------------------------------------------------------
@@ -200,26 +264,26 @@ async function boot(): Promise<void> {
   const manifests = ((await (await fetch("/api/apps")).json()) as AppManifestEntry[]).sort(
     (a, b) => a.order - b.order,
   );
-  dock.replaceChildren(...manifests.map(dockTile));
-  const spacer = document.createElement("div");
-  spacer.id = "dockspacer";
-  const slot = document.createElement("div");
-  slot.className = "dockslot";
-  slot.title = "Apps can be added - drop a folder in src/ui/apps";
-  dock.append(slot, spacer);
+  manifestsCache = manifests;
+  buildDock(manifests);
+  renderTabs();
+  await refreshStudioStatus();
 
-  const entities = (await api.listEntities()) as StudioEntitySummary[];
-  statusStudio.textContent =
-    entities.length === 0 ? "0 pieces - your shelves are empty" : `${entities.length} pieces on the shelves`;
-
-  el<HTMLButtonElement>("brand").addEventListener("click", () => {
-    const home = manifests.find((m) => !m.comingSoon);
+  el<HTMLButtonElement>("dockhome").addEventListener("click", () => {
+    const home = manifests.find((m) => !m.comingSoon && !m.dockFoot);
     if (home) void mountApp(home);
+  });
+
+  // global IMPORT: the shelves own the flow; the top strip walks you to them
+  el<HTMLButtonElement>("importBtn").addEventListener("click", () => {
+    const shelves = manifests.find((m) => m.firstRunLanding && !m.comingSoon);
+    if (shelves) void mountApp(shelves);
+    setStatusNote("drop files anywhere on the shelves");
   });
 
   // JOURNEY 1.1: straight out of setup, land on the app that declared itself the first landing
   const landing = freshFromSetup ? manifests.find((m) => m.firstRunLanding && !m.comingSoon) : undefined;
-  const first = landing ?? manifests.find((m) => !m.comingSoon);
+  const first = landing ?? manifests.find((m) => !m.comingSoon && !m.dockFoot);
   if (first) await mountApp(first);
 }
 

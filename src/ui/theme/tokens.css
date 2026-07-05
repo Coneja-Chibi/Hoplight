@@ -41,7 +41,7 @@
   --stage-paper: #e7e3da;
 }
 
-/* LIGHT = paper letterpress */
+/* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
 :root[data-theme="paper"] {
   --ink: #0a0a0b;
   --paper: #faf8f3;
@@ -51,9 +51,27 @@
   --stage-2: #131218;
   --muted: #6b6659;
   --ghost: #c9c4b8;
+
+  --canvas: #faf8f3;
+  --chrome: #faf8f3;
+  --shell-panel: #f4efe5;
+  --shell-panel-2: #ece4d4;
+  --face: #fffdf9;
+  --edge: #0a0a0b;
+  --seam: #0a0a0b;
+  --text: #0a0a0b;
+  --text-soft: #3a352c;
+  --text-dim: #8a8272;
+  --text-faint: #c9bfa8;
+  --stamp-bg: #0a0a0b;
+  --stamp-fg: #faf8f3;
+  --status-bg: #0a0a0b;
+  --status-fg: #e7e3da;
+  --status-dim: #8a8496;
+  --tooth: rgba(10, 10, 11, 0.026);
 }
 
-/* DARK = the forge */
+/* DARK = the forge (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
 :root[data-theme="stage"] {
   --ink: #faf8f3;         /* ink inverts: cream draws on dark */
   --paper: #0a0a0b;
@@ -63,6 +81,24 @@
   --stage-2: #0d0c12;
   --muted: #8b85a0;
   --ghost: #33313b;
+
+  --canvas: #0a0a0b;
+  --chrome: #0d0c11;
+  --shell-panel: #111015;
+  --shell-panel-2: #17161d;
+  --face: #17161d;
+  --edge: #000;
+  --seam: #2b2833;
+  --text: #e7e3da;
+  --text-soft: #c9c4d2;
+  --text-dim: #8a8496;
+  --text-faint: #39353f;
+  --stamp-bg: #e7e3da;
+  --stamp-fg: #0a0a0b;
+  --status-bg: #000;
+  --status-fg: #c9c4d2;
+  --status-dim: #6a6576;
+  --tooth: rgba(255, 255, 255, 0.02);
 }
 
 /* the stamp: rest sits, hover lifts, active presses down (the beloved interaction, one place) */

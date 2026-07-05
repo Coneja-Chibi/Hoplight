@@ -10,83 +10,222 @@
 <meta name="theme-color" content="#e11d48">
 <link rel="stylesheet" href="/tokens.css">
 <style>
-/* The LOCKED shell skeleton (DECISIONS #14): dock of apps, top strip, tab strip, canvas, status
-   bar, tray at the dock's foot. Layout is fully fluid; only ornament is px. Apps style their own
-   canvases; everything here is chrome. */
+/* The LOCKED shell (vs-shell-apps, DECISIONS #14): dock of apps | top strip / tabs + canvas |
+   status bar. CSS transcribed from the locked artifact, colors swapped to tokens. Apps own their
+   canvases; everything here is chrome. Furniture appears only when real state drives it. */
 *{box-sizing:border-box}
-html,body{margin:0;height:100dvh;overflow:hidden;background:var(--paper);color:var(--ink);
+html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:var(--text);
   font-family:var(--font-body);font-size:var(--text-body)}
-#shell{display:grid;grid-template-columns:clamp(4rem,14vw,13rem) minmax(0,1fr);
-  grid-template-rows:auto auto minmax(0,1fr) auto;height:100dvh}
+#shell{height:100dvh;display:grid;grid-template-columns:auto minmax(0,1fr);
+  grid-template-rows:auto minmax(0,1fr) auto;background:var(--canvas)}
 
-#topstrip{grid-column:1/3;display:flex;align-items:center;gap:var(--gap-m);
-  padding:.45rem .9rem;border-bottom:var(--ink-border);background:var(--paper)}
-#brand{display:inline-flex;align-items:baseline;font-family:var(--font-big);font-weight:900;
-  font-size:1.15rem;cursor:pointer;background:none;border:none;color:var(--ink);padding:0}
-#brand svg{height:1.22em;width:auto;transform:translateY(.13em);margin-right:-.14em}
-#brand .quad{display:inline-block;width:.17em;height:.17em;background:var(--rose);margin-left:.09em}
-#search{flex:1;max-width:34rem;margin:0 auto;border:var(--ink-border);background:var(--panel);
-  padding:.35rem .7rem;font-family:var(--font-body);font-size:1rem;color:var(--ink)}
-#search::placeholder{color:var(--muted)}
-.chipbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
-  text-transform:uppercase;background:var(--panel);color:var(--ink);cursor:pointer;padding:.45rem .8rem}
-.chipbtn.primary{background:var(--rose);color:#fff}
+/* ───────── THE DOCK ───────── */
+#dock{grid-column:1;grid-row:1/3;width:clamp(11.5rem,15vw,12.5rem);
+  background:var(--chrome);border-right:3px solid var(--seam);
+  display:flex;flex-direction:column;min-height:0}
+#dockhome{display:flex;align-items:center;gap:.55rem;flex:none;cursor:pointer;
+  background:transparent;border:none;border-bottom:3px solid var(--seam);
+  padding:.7rem .7rem;width:100%}
+#dockhome .beam{width:1.8rem;height:1.8rem;flex:none}
+#dockhome .beam svg{display:block;width:100%;height:100%}
+#dockhome .hk{font-family:var(--font-mono);font-size:.53rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
+#dockhome:hover .hk{color:var(--text-soft)}
+#dockapps{flex:1;min-height:0;overflow-y:auto;padding:.55rem .5rem .4rem;display:flex;flex-direction:column;gap:.25rem}
+.docklabel{font-family:var(--font-mono);font-size:.53rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--text-dim);margin:.25rem .3rem .35rem}
+.apptile{position:relative;display:flex;align-items:center;gap:.5rem;width:100%;text-align:left;font:inherit;
+  min-height:3.4rem;padding:.45rem .4rem;cursor:pointer;
+  background:transparent;border:3px solid transparent;transition:transform .1s ease-out}
+.apptile .mk{width:2rem;height:2rem;flex:none;border:3px solid var(--edge);background:var(--face);
+  color:var(--text-soft);display:flex;align-items:center;justify-content:center}
+.apptile .mk svg{display:block;width:18px;height:18px}
+.apptile .tx{display:flex;flex-direction:column;gap:1px;min-width:0}
+.apptile .nm{font-family:var(--font-big);font-weight:800;font-size:.6875rem;
+  text-transform:uppercase;color:var(--text-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.apptile .kd{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.apptile:hover{transform:translate(-1px,-1px)}
+.apptile:hover .nm{color:var(--text)}
+.apptile:hover .mk{border-color:var(--a);color:var(--text)}
+.apptile.on{background:var(--stamp-bg);border-color:var(--edge);box-shadow:4px 4px 0 0 var(--a)}
+.apptile.on .nm{color:var(--stamp-fg);font-weight:800}
+.apptile.on .kd{color:var(--a)}
+.apptile.on .mk{background:var(--a);border-color:var(--edge);color:#0a0a0c}
+.apptile.on::before{content:"";position:absolute;right:-3px;top:50%;transform:translateY(-50%);
+  width:4px;height:1.7rem;background:var(--a)}
+.dockdiv{height:3px;background:var(--seam);opacity:.6;margin:.5rem .35rem;flex:none}
+.apptile.future{cursor:default}
+.apptile.future .mk{border-color:var(--text-faint);color:var(--text-faint);border-style:dashed;background:transparent}
+.apptile.future .nm{color:var(--text-dim)}
+.apptile.future:hover{transform:none}
+.apptile.future:hover .mk{border-color:var(--text-faint);color:var(--text-faint)}
+.apptile.future:hover .nm{color:var(--text-dim)}
+.dockslot{display:flex;align-items:center;justify-content:center;gap:.4rem;
+  min-height:3rem;margin:.15rem .5rem .35rem;border:2px dashed var(--text-faint);
+  color:var(--text-faint);cursor:pointer;transition:border-color .1s ease-out,color .1s ease-out;flex:none}
+.dockslot:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.dockslot .plus{font-family:var(--font-big);font-weight:900;font-size:1.05rem;line-height:0}
+.dockslot .sl{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.14em;text-transform:uppercase}
+#dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}
+#dockfoot .apptile{min-height:2.9rem}
+#tray{border-top:3px solid var(--seam);background:var(--shell-panel-2);padding:.65rem .55rem;flex:none;display:none}
+#tray.show{display:block}
+.tray-h{display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem}
+.tray-k{font-family:var(--font-mono);font-size:.53rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);white-space:nowrap}
+.decklist{display:flex;margin-bottom:.55rem;padding-left:2px}
+.decklist .dcard{width:1.05rem;height:1.5rem;flex:none;margin-left:-5px;background:var(--face);
+  border:2px solid var(--edge);box-shadow:2px 2px 0 0 var(--edge);display:flex;flex-direction:column}
+.decklist .dcard:first-child{margin-left:0}
+.decklist .dcard i{height:5px;display:block;background:var(--a);border-bottom:2px solid var(--edge)}
+.weave{width:100%;font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.1em;
+  text-transform:uppercase;color:#fff;background:var(--rose);border:3px solid var(--edge);
+  box-shadow:4px 4px 0 0 #9f1239;padding:.55rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.4rem;
+  transition:transform .1s ease-out,box-shadow .1s ease-out}
+.weave:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 0 #9f1239}
+.weave:active{transform:translate(3px,3px);box-shadow:0 0 0 0 #9f1239}
+.weave .n{font-family:var(--font-mono);font-weight:700;font-size:.625rem}
+.weave .wv-ico{display:none}
 
-#tabstrip{grid-column:2/3;display:flex;gap:.4rem;align-items:flex-end;min-height:2.2rem;
-  padding:.35rem .9rem 0;border-bottom:var(--ink-border);background:var(--paper-2);overflow-x:auto}
-.tab{display:inline-flex;align-items:center;gap:.45rem;border:var(--ink-border);border-bottom:none;
-  background:var(--panel);padding:.3rem .7rem;font-size:.9rem;cursor:pointer;white-space:nowrap}
-.tab .pip{width:.55rem;height:.55rem;border:2px solid var(--ink);background:var(--tab-accent,var(--muted))}
-.tab.active{background:var(--paper);font-weight:600}
+/* ───────── TOP STRIP ───────── */
+#topbar{grid-column:2;grid-row:1;background:var(--chrome);border-bottom:3px solid var(--seam);
+  display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1rem);padding:.5rem clamp(.6rem,1.5vw,1rem)}
+#crumb{display:flex;align-items:baseline;gap:.5rem;flex:none;min-width:0}
+#crumb .ck{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim)}
+#crumb .cn{font-family:var(--font-big);font-weight:900;font-size:clamp(.95rem,.85rem+.4vw,1.15rem);letter-spacing:-.01em;
+  color:var(--text);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#search{flex:1;max-width:24rem;margin:0 auto;display:flex;align-items:center;gap:.55rem;min-width:0;
+  background:var(--shell-panel);border:3px solid var(--seam);padding:.42rem .75rem}
+#search svg{flex:none;display:block;color:var(--text-dim)}
+#search input{flex:1;min-width:0;background:none;border:none;outline:none;font:inherit;font-size:.95rem;color:var(--text)}
+#search input::placeholder{color:var(--text-dim)}
+#topact{display:flex;align-items:center;gap:.5rem;flex:none}
+.topbtn{display:flex;align-items:center;gap:.4rem;font-family:var(--font-big);font-weight:800;
+  font-size:.625rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text);
+  background:var(--chrome);border:3px solid var(--edge);box-shadow:3px 3px 0 0 var(--edge);
+  padding:.45rem .7rem;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
+.topbtn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
+.topbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 0 var(--edge)}
+.topbtn svg{display:block}
+#themeBtn{width:2.35rem;height:2.35rem;padding:0;justify-content:center}
 
-#dock{grid-row:2/4;grid-column:1/2;display:flex;flex-direction:column;gap:var(--gap-s);
-  padding:var(--gap-m) var(--gap-s);border-right:var(--ink-border);background:var(--paper-2);overflow-y:auto}
-.dockapp{display:flex;align-items:center;gap:.6rem;background:var(--panel);color:var(--ink);
-  cursor:pointer;padding:.55rem .6rem;font-family:var(--font-big);font-weight:900;font-size:.72rem;
-  letter-spacing:.05em;text-transform:uppercase;text-align:left}
-.dockapp .mark{width:1.6rem;height:1.6rem;flex:none;display:flex;align-items:center;justify-content:center}
-.dockapp .mark svg{width:100%;height:100%}
-.dockapp.pressed{border-left:.35rem solid var(--app-accent,var(--accent))}
-.dockapp.soon{opacity:.45;cursor:default}
-.dockapp.soon small{font-family:var(--font-mono);font-size:.55rem;letter-spacing:0;text-transform:none;color:var(--muted)}
-.dockslot{border:2px dashed var(--ghost);min-height:2.6rem}
-#dockspacer{flex:1}
-#tray{border-top:2px dashed var(--ghost);padding-top:var(--gap-s);display:none;flex-direction:column;gap:.4rem}
-#tray.show{display:flex}
-#tray .beads{display:flex;gap:.3rem}
-#tray .bead{width:.8rem;height:.8rem;border:2px solid var(--ink)}
+/* ───────── MAIN (tabs + canvas) ───────── */
+#main{grid-column:2;grid-row:2;min-width:0;min-height:0;display:flex;flex-direction:column;background:var(--canvas)}
+#tabstrip{display:flex;align-items:stretch;background:var(--chrome);border-bottom:3px solid var(--seam);
+  min-height:0;overflow-x:auto;flex:none}
+.tab{display:flex;align-items:center;gap:.5rem;flex:none;cursor:pointer;
+  font-family:var(--font-big);font-weight:700;font-size:.75rem;color:var(--text-dim);
+  background:var(--shell-panel);border:none;border-right:3px solid var(--seam);padding:.55rem .85rem;
+  transition:color .1s ease-out}
+.tab .pip{width:12px;height:16px;flex:none;border:2px solid var(--edge);background:var(--a,var(--text-dim));
+  clip-path:polygon(0 0,70% 0,100% 24%,100% 100%,0 100%)}
+.tab .kind{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--text)}
+.tab .close{font-family:var(--font-mono);font-size:.8125rem;color:var(--text-dim);line-height:1}
+.tab .close:hover{color:var(--text)}
+#tabadd{display:none;align-items:center;justify-content:center;flex:none;cursor:pointer;color:var(--text-dim);
+  background:var(--shell-panel);border:none;border-right:3px solid var(--seam);padding:0 .8rem;font-size:1.1rem;
+  font-family:var(--font-big);font-weight:700;transition:color .1s ease-out}
+#tabadd:hover{color:var(--text)}
+#tabstrip.hastabs #tabadd{display:flex}
+.tabfill{flex:1;background:var(--shell-panel);min-width:1.5rem}
+#canvas{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;
+  background-image:radial-gradient(var(--tooth) 22%,transparent 24%);background-size:7px 7px}
+#canvas>*{flex:1}
 
-#canvas{grid-row:3/4;grid-column:2/3;min-width:0;min-height:0;overflow:auto;background:var(--paper)}
+/* ───────── STATUS BAR ───────── */
+#status{grid-column:1/3;grid-row:3;background:var(--status-bg);color:var(--status-fg);
+  border-top:3px solid var(--edge);
+  display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.15rem);padding:.32rem clamp(.7rem,1.6vw,1rem);
+  font-family:var(--font-mono);font-size:.65625rem;letter-spacing:.03em;overflow:hidden;white-space:nowrap}
+#status .seg{display:flex;align-items:center;gap:.4rem;flex:none}
+#status .seg.trim{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
+#status .k{color:var(--status-dim)}
+#status .b{color:var(--status-fg)}
+#status .appdot{width:8px;height:8px;flex:none;background:var(--adot,var(--status-dim))}
+#status .spacer{flex:1;min-width:.5rem}
+#status .vaude{color:var(--status-fg);flex:none}
+#status .vaude i{font-style:normal;color:var(--status-dim)}
+#status .sep{color:var(--status-dim);flex:none}
 
-#statusbar{grid-column:1/3;display:flex;gap:var(--gap-l);align-items:center;
-  padding:.3rem .9rem;border-top:var(--ink-border);background:var(--paper-2);
-  font-family:var(--font-mono);font-size:var(--text-meta);color:var(--muted)}
-#statusbar .right{margin-left:auto}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* narrow: the dock COLLAPSES to marks-only, never disappears (locked behavior) */
 @media(max-width:46rem){
-  #shell{grid-template-columns:4rem minmax(0,1fr)}
-  .dockapp{justify-content:center;padding:.55rem .2rem}
-  .dockapp .label,#tray .lab{display:none}
-  #search{max-width:none}
+  #dock{width:auto}
+  #dockhome{justify-content:center;padding:.7rem .4rem}
+  #dockhome .hk{display:none}
+  .docklabel{display:none}
+  .apptile{justify-content:center;padding:.45rem .35rem}
+  .apptile .tx{display:none}
+  .apptile.on::before{display:none}
+  .apptile.on{box-shadow:3px 3px 0 0 var(--a)}
+  .dockslot .sl{display:none}
+  .tray-h{justify-content:center}
+  .tray-k,.decklist{display:none}
+  .weave .wv-t,.weave .n{display:none}
+  .weave .wv-ico{display:block}
+  .weave{padding:.55rem .4rem}
+  #importBtn .im-t{display:none}
+  #importBtn{padding:.45rem .5rem}
+}
+@media(max-width:40rem){
+  #topbar{flex-wrap:wrap}
+  #crumb{order:1}
+  #topact{order:2;margin-left:auto}
+  #search{order:3;max-width:none;flex:1 1 100%;margin:0}
 }
 </style>
 </head>
 <body>
 <div id="shell">
-  <header id="topstrip">
-    <button id="brand" title="Home">
-      <svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="60,92 4,12 34,3" fill="#e11d48"/><polygon points="40,92 96,12 66,3" fill="#e11d48"/></svg><span>aude</span><span class="quad"></span>
+  <nav id="dock" aria-label="Apps">
+    <button id="dockhome" title="Home" aria-label="Home">
+      <span class="beam"><svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="60,92 4,12 34,3" fill="#e11d48"/><polygon points="40,92 96,12 66,3" fill="#e11d48"/></svg></span>
+      <span class="hk">Vaude.</span>
     </button>
-    <input id="search" placeholder="Search your whole studio">
-    <button id="importBtn" class="chipbtn primary stamp">Import</button>
-    <button id="themeBtn" class="chipbtn stamp" title="Switch theme">Theme</button>
+    <div id="dockapps"></div>
+    <div id="dockfoot">
+      <div id="dockfootapps"></div>
+      <div id="tray">
+        <div class="tray-h"><span class="tray-k" id="trayLabel"></span></div>
+        <div class="decklist" id="trayDecklist"></div>
+        <button class="weave" id="weaveBtn">
+          <span class="wv-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 7c5 0 5 10 10 10s6-10 6-10"/><path d="M4 17c5 0 5-10 10-10s6 10 6 10"/></svg></span>
+          <span class="wv-t">Weave the pack</span> <span class="n" id="weaveCount"></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <header id="topbar">
+    <div id="crumb"><span class="ck">App</span><span class="cn" id="crumbName"></span></div>
+    <label id="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input placeholder="Search your whole studio" aria-label="Search your whole studio">
+    </label>
+    <div id="topact">
+      <button class="topbtn" id="importBtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 20h16"/></svg><span class="im-t">Import</span></button>
+      <button class="topbtn" id="themeBtn" title="Switch theme" aria-label="Switch theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>
+      </button>
+    </div>
   </header>
-  <nav id="tabstrip" aria-label="Open pieces"></nav>
-  <aside id="dock" aria-label="Apps"></aside>
-  <main id="canvas"></main>
-  <footer id="statusbar">
-    <span id="statusApp"></span>
-    <span id="statusStudio"></span>
-    <span class="right">$ vaude.</span>
+
+  <div id="main">
+    <nav id="tabstrip" aria-label="Open pieces"></nav>
+    <main id="canvas"></main>
+  </div>
+
+  <footer id="status">
+    <span class="seg"><span class="appdot" id="statusDot"></span><span class="k">app</span><span class="b" id="statusApp"></span></span>
+    <span class="sep">·</span>
+    <span class="seg"><span class="k">theme</span><span class="b" id="statusTheme"></span></span>
+    <span class="sep">·</span>
+    <span class="seg trim"><span class="k">pieces</span><span class="b" id="statusStudio"></span></span>
+    <span class="seg trim" id="statusNote"></span>
+    <span class="spacer"></span>
+    <span class="vaude">$ vaude<i>.</i></span>
   </footer>
 </div>
 <script type="module" src="/boot.js"></script>

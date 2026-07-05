@@ -16,8 +16,12 @@ export interface AppManifestEntry {
   markSvg: string;
   /** the app's own accent (hex); NEVER brand rose - that stays on the beam-V and CTAs */
   accent: string;
-  /** dock ordering (lower = higher); Settings pins bottom via a large value */
+  /** dock ordering (lower = higher) */
   order: number;
+  /** the tile's mono second line ("app · home", "app · convert"); futures say "installs later" */
+  subtitle?: string;
+  /** pinned into the dock's foot (Settings), above the bench tray */
+  dockFoot?: boolean;
   /** dimmed "installs later" tile: shown in the dock, not mountable yet */
   comingSoon?: boolean;
   /** this app is the surface a brand-new studio lands on right after setup (JOURNEY 1.1);

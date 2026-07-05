@@ -5,8 +5,9 @@
  */
 import type { VaudeApp } from "../../app-contract";
 
+/** the locked player-silhouette mark (vs-shell-apps) */
 const MARK_SVG =
-  '<svg viewBox="0 0 100 100"><g fill="currentColor"><circle cx="35" cy="34" r="12"/><circle cx="65" cy="34" r="12"/><path d="M20 78 Q35 58 50 78 Q65 58 80 78 Z"/></g></svg>';
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3.4-6 7-6s7 2 7 6"/></svg>';
 
 const app: VaudeApp = {
   manifest: {

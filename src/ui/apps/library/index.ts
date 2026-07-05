@@ -6,8 +6,9 @@
  */
 import type { AppContext, InspectResult, StudioEntitySummary, VaudeApp } from "../../app-contract";
 
+/** the locked shelf-of-books mark (vs-shell-apps) */
 const MARK_SVG =
-  '<svg viewBox="0 0 100 100"><g fill="currentColor"><rect x="14" y="22" width="14" height="56"/><rect x="34" y="16" width="14" height="62"/><rect x="54" y="26" width="14" height="52"/><rect x="74" y="20" width="10" height="58" transform="rotate(8 79 49)"/></g></svg>';
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h16"/><rect x="5" y="8" width="3" height="12"/><rect x="9.5" y="5" width="3" height="15"/><path d="M15 20V9l3-1 1.6 10.8-3.4.6z"/></svg>';
 
 const h = <K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -21,6 +22,9 @@ const h = <K extends keyof HTMLElementTagNameMap>(
 };
 
 const STYLE = `
+.chipbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
+  text-transform:uppercase;background:var(--panel);color:var(--ink);cursor:pointer;padding:.45rem .8rem}
+.chipbtn.primary{background:var(--rose);color:#fff}
 .lib{display:flex;flex-direction:column;gap:var(--gap-m);padding:var(--gap-m);min-height:100%}
 .lib .stagezone{flex:1;display:flex;flex-wrap:wrap;gap:var(--gap-l);align-items:center;justify-content:center;padding:var(--gap-l)}
 .doorcard{aspect-ratio:2/3;width:clamp(11rem,22vw,16rem);display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -157,8 +161,9 @@ const app: VaudeApp = {
     id: "library",
     title: "The Library",
     markSvg: MARK_SVG,
-    accent: "#8b5cf6",
+    accent: "#3b82f6",
     order: 20,
+    subtitle: "app",
     firstRunLanding: true, // JOURNEY 1.1: a fresh studio lands on the two doors
   },
   mount(ctx) {
