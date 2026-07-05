@@ -111,3 +111,43 @@ export function shellBranchHits(diff: string): ShellBranchHit[] {
 /** Does a commit message carry an explicit verification note that clears the branch-test block? */
 export const hasVerifiedNote = (message: string): boolean =>
   /^\s*(verified|tested)\s*:\s*\S+/im.test(message);
+
+/** Raw HTML-injection sinks banned in UI source (ADR-008): the auto-escape rule has no quiet
+ * exceptions. Static SVG constants parse via DOMParser + importNode instead (the `icon` pattern). */
+const HTML_SINKS: ReadonlyArray<readonly [label: string, re: RegExp]> = [
+  ["innerHTML", /\.\s*(inner|outer)HTML\s*=/],
+  ["insertAdjacentHTML", /\.insertAdjacentHTML\s*\(/],
+  ["document.write", /\bdocument\s*\.\s*write(ln)?\s*\(/],
+  ["dangerouslySetInnerHTML", /dangerouslySetInnerHTML/],
+  ["srcdoc", /\.srcdoc\s*=|setAttribute\s*\(\s*["']srcdoc["']/],
+];
+
+/** Files allowed to carry a sink. Empty ON PURPOSE - grow it only with an ADR-referenced reason. */
+export const HTML_SINK_ALLOWLIST: ReadonlySet<string> = new Set<string>([]);
+
+/** Banned HTML-injection sinks found in a UI source file (comment-stripped). Empty = clean. */
+export function htmlSinkTokens(path: string, source: string): string[] {
+  const p = path.replace(/\\/g, "/");
+  if (!p.startsWith("src/ui/") || (!p.endsWith(".ts") && !p.endsWith(".tsx"))) return [];
+  if (p.endsWith(".test.ts") || HTML_SINK_ALLOWLIST.has(p)) return [];
+  const clean = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  return HTML_SINKS.filter(([, re]) => re.test(clean)).map(([label]) => label);
+}
+
+/** Dependency names ADDED to package.json in a unified diff (version-shaped values only, so
+ * scripts/config keys never match). */
+export function addedDependencies(diff: string): string[] {
+  const out: string[] = [];
+  for (const [file, lines] of addedLinesByFile(diff)) {
+    if (!/(^|\/)package\.json$/.test(file)) continue;
+    for (const line of lines) {
+      const m = /^\s*"(@?[\w./-]+)"\s*:\s*"(?:[~^]?\d|workspace|latest|next|file:|git|npm:)[^"]*"\s*,?\s*$/.exec(line);
+      if (m) out.push(m[1]!);
+    }
+  }
+  return out;
+}
+
+/** Does the commit message declare the new dependency? (One line per package, with a reason.) */
+export const declaresDependency = (message: string, pkg: string): boolean =>
+  new RegExp(`^\\s*new-dependency\\s*:\\s*${pkg.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\b\\s*\\S`, "im").test(message);

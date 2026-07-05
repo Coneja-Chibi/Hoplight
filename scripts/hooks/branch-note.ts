@@ -8,7 +8,7 @@
  * Run by git as: bun run scripts/hooks/branch-note.ts <path-to-commit-msg-file>
  */
 import { readFileSync } from "node:fs";
-import { hasVerifiedNote, isTestFile, shellBranchHits } from "./lib";
+import { addedDependencies, declaresDependency, hasVerifiedNote, isTestFile, shellBranchHits } from "./lib";
 
 const run = (cmd: string[]): string => {
   const r = Bun.spawnSync(cmd, { stdout: "pipe", stderr: "pipe" });
@@ -29,6 +29,18 @@ function main(): number {
   } catch (err) {
     console.error(`branch-note: could not read commit state, skipping (${String(err)})`);
     return 1; // infra failure -> non-blocking
+  }
+
+  // dependency ledger (ADR-008): every added package must be declared, with a reason, in the message
+  const undeclared = addedDependencies(diff).filter((p) => !declaresDependency(message, p));
+  if (undeclared.length) {
+    console.error(
+      "\nGUARDRAIL BLOCK (dependency)\n\n" +
+        `  package.json adds: ${undeclared.join(", ")}\n\n` +
+        "  Dependencies are attack surface. Declare each one in the commit message:\n" +
+        "    New-Dependency: <name> (<why it earns its place>)\n",
+    );
+    return 2;
   }
 
   const hits = shellBranchHits(diff);

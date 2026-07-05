@@ -9,7 +9,7 @@
  * Run: bun run scripts/hooks/gate.ts --staged
  */
 import { readFileSync, statSync } from "node:fs";
-import { impureCoreTokens, isCoreFile, isTestFile, missingCoreSiblings } from "./lib";
+import { htmlSinkTokens, impureCoreTokens, isCoreFile, isTestFile, missingCoreSiblings } from "./lib";
 
 const mode: "staged" | "worktree" = process.argv.includes("--staged") ? "staged" : "worktree";
 
@@ -68,6 +68,18 @@ function main(): number {
   // 2. core sibling: a changed *-core.ts must own a *-core.test.ts
   for (const missing of missingCoreSiblings(changed, fileExists)) {
     violations.push(`missing test ${missing}. A *-core owns a sibling *-core.test.ts (name it, you test it).`);
+  }
+
+  // 2b. html sinks: UI source never injects raw HTML (ADR-008; the auto-escape rule has no quiet exceptions)
+  for (const p of changed) {
+    try {
+      const sinks = htmlSinkTokens(p, readFileSync(p, "utf8"));
+      if (sinks.length) {
+        violations.push(`${p} uses a banned HTML-injection sink (${sinks.join(", ")}). Build nodes (textContent/DOMParser icon pattern) or JSX; see ADR-008.`);
+      }
+    } catch {
+      /* deleted/unreadable: not this gate's problem */
+    }
   }
 
   // 3. green gate: the suite must be green (fast; tsc lives on pre-push)

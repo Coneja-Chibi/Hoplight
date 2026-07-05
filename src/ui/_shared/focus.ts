@@ -44,9 +44,15 @@ export function focusToggle(): { root: HTMLElement; dispose(): void } {
   const btn = document.createElement("button");
   btn.className = "focus-btn";
 
+  // static first-party icon constants parsed into live nodes (no innerHTML, house rule)
+  const icon = (markup: string): Node =>
+    document.importNode(new DOMParser().parseFromString(markup, "image/svg+xml").documentElement, true);
+  const expandIcon = icon(EXPAND_SVG);
+  const shrinkIcon = icon(SHRINK_SVG);
+
   const sync = (): void => {
     const on = isFocused();
-    btn.innerHTML = on ? SHRINK_SVG : EXPAND_SVG; // own static markup, not third-party payload
+    btn.replaceChildren(on ? shrinkIcon : expandIcon);
     btn.title = on ? "Exit focus (Esc)" : "Focus: hide the chrome, fill the window";
     btn.setAttribute("aria-label", btn.title);
     btn.setAttribute("aria-pressed", String(on));

@@ -1,13 +1,50 @@
 import { expect, test } from "bun:test";
 import {
+  addedDependencies,
   addedLinesByFile,
+  declaresDependency,
   hasVerifiedNote,
+  htmlSinkTokens,
   impureCoreTokens,
   isCoreFile,
   isShellFile,
   missingCoreSiblings,
   shellBranchHits,
 } from "./lib";
+
+test("htmlSinkTokens flags every banned sink in UI source", () => {
+  expect(htmlSinkTokens("src/ui/apps/x/index.ts", "el.innerHTML = markup;")).toEqual(["innerHTML"]);
+  expect(htmlSinkTokens("src/ui/x.tsx", "<div dangerouslySetInnerHTML={{__html: s}} />")).toEqual(["dangerouslySetInnerHTML"]);
+  expect(htmlSinkTokens("src/ui/x.ts", "node.insertAdjacentHTML('beforeend', s)")).toEqual(["insertAdjacentHTML"]);
+  expect(htmlSinkTokens("src/ui/x.ts", "frame.srcdoc = payload")).toEqual(["srcdoc"]);
+});
+
+test("htmlSinkTokens passes clean source, comments, and non-UI paths", () => {
+  expect(htmlSinkTokens("src/ui/x.ts", "el.replaceChildren(icon(SVG));")).toEqual([]);
+  expect(htmlSinkTokens("src/ui/x.ts", "// never use el.innerHTML = here")).toEqual([]);
+  expect(htmlSinkTokens("src/core/adapter.ts", "el.innerHTML = markup;")).toEqual([]); // not UI scope
+  expect(htmlSinkTokens("src/ui/x.test.ts", "el.innerHTML = markup;")).toEqual([]);
+});
+
+test("addedDependencies reads only version-shaped package.json additions", () => {
+  const diff = [
+    "+++ b/package.json",
+    '+    "react": "^19.2.5",',
+    '+    "zustand": "workspace:*",',
+    '+    "build": "bun run scripts/build.ts",', // a script line, not a dep
+    "+++ b/src/ui/boot.ts",
+    '+    "fake-pkg": "^1.0.0",', // not package.json
+  ].join("\n");
+  expect(addedDependencies(diff)).toEqual(["react", "zustand"]);
+});
+
+test("declaresDependency wants a per-package line with substance after the name", () => {
+  const msg = "Add react\n\nNew-Dependency: react (UI layer per ADR-008)\nNew-Dependency: react-dom (pair)";
+  expect(declaresDependency(msg, "react")).toBe(true);
+  expect(declaresDependency(msg, "react-dom")).toBe(true);
+  expect(declaresDependency(msg, "zustand")).toBe(false);
+  expect(declaresDependency("New-Dependency: react", "react")).toBe(false); // bare stamp, no reason
+});
 
 test("isCoreFile matches only *-core.ts", () => {
   expect(isCoreFile("src/ui/follow-core.ts")).toBe(true);
