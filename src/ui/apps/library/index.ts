@@ -47,7 +47,7 @@ const STYLE = `
   background:var(--face);border:3px solid var(--edge);box-shadow:3px 3px 0 0 var(--edge);padding:.35rem .55rem;
   transition:transform .1s ease-out,box-shadow .1s ease-out}
 .dchip .pip{width:10px;height:10px;flex:none;border:2px solid var(--edge);background:var(--a)}
-.dchip .dc{font-family:var(--font-mono);font-weight:400;font-size:.5625rem;color:var(--text-dim)}
+.dchip .dc{font-family:var(--font-mono);font-weight:600;font-size:.5625rem;color:var(--text-dim)}
 .dchip:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--edge)}
 .dchip.on{background:var(--stamp-bg);color:var(--stamp-fg);box-shadow:3px 3px 0 0 var(--a)}
 .dchip.on .dc{color:var(--stamp-fg);opacity:.7}
@@ -60,7 +60,7 @@ const STYLE = `
 .viewseg svg{display:block}
 .sizedial{display:flex;align-items:center;gap:.45rem;flex:none;border:3px solid var(--edge);
   box-shadow:3px 3px 0 0 var(--edge);background:var(--face);padding:.3rem .6rem}
-.sizedial .sk{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+.sizedial .sk{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
 .sizedial input{appearance:none;-webkit-appearance:none;width:clamp(5rem,9vw,8rem);height:3px;background:var(--text-faint);
   outline:none;cursor:pointer}
 .sizedial input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;
@@ -73,10 +73,10 @@ const STYLE = `
 .stage-crumb{display:flex;align-items:center;gap:.5rem;border-bottom:3px solid #000;background:#0d0c11;padding:.5rem .75rem;flex:none}
 .stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--a)}
 .stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:#e7e3da}
-.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#6a6576;margin-left:auto}
+.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#8f8a9e;margin-left:auto}
 .ghost-shelf{margin:auto;width:clamp(9rem,30vw,14rem);aspect-ratio:2/3;border:2px dashed #39353f;
   display:flex;align-items:center;justify-content:center;text-align:center;padding:.8rem;
-  font-family:var(--font-mono);font-size:.53rem;letter-spacing:.06em;line-height:1.5;
+  font-family:var(--font-mono);font-size:.625rem;letter-spacing:.06em;line-height:1.5;
   text-transform:uppercase;color:#6a6576}
 /* scrollbars wear the house ink, never the OS chrome */
 .lib *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
@@ -301,6 +301,7 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
       sourceLabel: (e) => sourceLabel(state, e),
       peek: (e) => peekPiece(ctx, e),
       refresh: () => render(ctx, state),
+      menu: (el, e) => ctx.menus.attach(el, () => ({ type: "entity", label: e.name, data: e })),
       onPiece: (e) => {
         if (threaded.has(pieceKey(e))) ctx.bench.unthread(e.id, e.kind);
         else ctx.bench.thread(e);

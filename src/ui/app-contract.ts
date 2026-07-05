@@ -49,6 +49,9 @@ export interface AppContext {
   openEntity(summary: StudioEntitySummary): void;
   /** update the mono status bar's app segment */
   setStatus(text: string): void;
+  /** THE right-click system (src/ui/_shared/context-menu.ts): attach targets on your elements,
+   * register providers for target types; one consistent menu everywhere, extended by registration */
+  menus: import("./_shared/context-menu").ContextMenus;
   /** per-user app preferences, persisted into the studio's settings.json open record
    * (namespace your key by app id: "workbench.view"); read returns undefined when unset */
   prefs: {

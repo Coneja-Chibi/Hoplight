@@ -42,6 +42,8 @@ export interface DeckViewContext {
   peek(e: StudioEntitySummary): Promise<PiecePeek | null>;
   /** ask the workbench to re-render (a view changed its own internal state, e.g. showcase focus) */
   refresh(): void;
+  /** mark an element as the piece's right-click target (the shell renders the menu) */
+  menu(el: HTMLElement, e: StudioEntitySummary): void;
 }
 
 export interface DeckView {

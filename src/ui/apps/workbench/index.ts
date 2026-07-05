@@ -22,7 +22,7 @@ const STYLE = `
 .stage-crumb{display:flex;align-items:center;gap:.5rem;border-bottom:3px solid #000;background:#0d0c11;padding:.5rem .75rem;flex:none}
 .stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--accent)}
 .stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:#e7e3da}
-.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#6a6576;margin-left:auto}
+.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#8f8a9e;margin-left:auto}
 .packfloor{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:clamp(.8rem,2vw,1.4rem);
   flex-wrap:wrap;overflow-y:auto;padding:clamp(.9rem,2vw,1.4rem)}
 .pcard{width:clamp(7rem,14vw,10rem);background:#17161d;border:3px solid #000;cursor:pointer;text-align:left;font:inherit;padding:0;
@@ -32,7 +32,7 @@ const STYLE = `
   display:flex;align-items:flex-end;padding:.4rem;background-size:cover;background-position:center top}
 .pcard .cov b{font-family:var(--font-big);font-weight:900;font-size:2rem;line-height:.72;color:#0a0a0c;opacity:.82}
 .pcard .cov .kd{position:absolute;top:0;left:0;background:#0a0a0c;color:var(--a);font-family:var(--font-mono);
-  font-size:.44rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
+  font-size:.5625rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
 .pcard .bd{padding:.4rem .5rem .5rem}
 .pcard .n{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee;line-height:1}
 .ghost-bench{margin:auto;max-width:26rem;border:2px dashed #39353f;padding:1.4rem 1.6rem;text-align:center;
@@ -50,8 +50,8 @@ const STYLE = `
   display:flex;align-items:center;justify-content:center;font-family:var(--font-big);font-weight:900;font-size:1rem;color:#0a0a0c;
   background-size:cover;background-position:center top}
 .bead:hover .chip{opacity:.75}
-.bead .lab{font-family:var(--font-mono);font-size:.53rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text)}
-.bead .dk{font-family:var(--font-mono);font-size:.47rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim)}
+.bead .lab{font-family:var(--font-mono);font-size:.625rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text)}
+.bead .dk{font-family:var(--font-mono);font-size:.5625rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim)}
 .knot{display:flex;align-items:center;margin-top:1.15rem}
 .knot .thread{width:.9rem;height:3px;background:var(--edge)}
 .knot .tie{width:9px;height:9px;background:var(--edge);transform:rotate(45deg)}
@@ -116,6 +116,7 @@ function render(ctx: AppContext): void {
       card.append(cov, bd);
       card.title = `Pull ${p.name} off the bench`;
       card.addEventListener("click", () => ctx.bench.unthread(p.id, p.kind));
+      ctx.menus.attach(card, () => ({ type: "entity", label: p.name, data: p }));
       floor.append(card);
     }
     stage.append(floor);

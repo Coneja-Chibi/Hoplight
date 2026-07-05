@@ -61,8 +61,8 @@
   --seam: #0a0a0b;
   --text: #0a0a0b;
   --text-soft: #3a352c;
-  --text-dim: #8a8272;
-  --text-faint: #c9bfa8;
+  --text-dim: #6e6857;    /* readability floor: darker on cream so labels stay legible */
+  --text-faint: #b3a88e;
   --stamp-bg: #0a0a0b;
   --stamp-fg: #faf8f3;
   --status-bg: #0a0a0b;
@@ -91,8 +91,8 @@
   --seam: #2b2833;
   --text: #e7e3da;
   --text-soft: #c9c4d2;
-  --text-dim: #8a8496;
-  --text-faint: #39353f;
+  --text-dim: #a6a1b4;    /* readability floor: brighter on the forge so labels stay legible */
+  --text-faint: #4a4556;
   --stamp-bg: #e7e3da;
   --stamp-fg: #0a0a0b;
   --status-bg: #000;

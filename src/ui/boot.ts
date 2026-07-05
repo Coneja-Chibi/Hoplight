@@ -8,6 +8,7 @@
 import type { AppContext, AppManifestEntry, InspectResult, StudioEntitySummary, VaudeApp } from "./app-contract";
 import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/settings-shape";
 import { deckMeta } from "./_shared/decks";
+import { createContextMenus } from "./_shared/context-menu";
 import { runSetup } from "./setup/wizard";
 
 type Theme = "paper" | "stage";
@@ -138,6 +139,54 @@ const bench: AppContext["bench"] = {
   },
 };
 
+// -- the right-click system (one menu shell; features contribute by registration) -------------------
+
+const menus = createContextMenus();
+
+// entity actions the SHELL owns (the bench): they work identically in every room
+menus.register("entity", (t) => {
+  const e = t.data as StudioEntitySummary;
+  const threaded = benchPieces.some((p) => p.id === e.id && p.kind === e.kind);
+  return [
+    threaded
+      ? { label: "Pull off the bench", onPick: () => bench.unthread(e.id, e.kind) }
+      : { label: "Thread onto the bench", onPick: () => bench.thread(e) },
+  ];
+});
+
+// app tiles answer with their one real action
+menus.register("app", (t) => {
+  const m = t.data as AppManifestEntry;
+  if (m.comingSoon) return [{ label: "Installs later", disabled: true, onPick: () => undefined }];
+  return [{ label: `Open ${m.title}`, onPick: () => void mountApp(m) }];
+});
+
+// the always-there fallback: EVERY page answers a right-click with real shell actions
+menus.register("shell", () => [
+  {
+    label: "Go home",
+    onPick: () => {
+      const home = manifestsCache.find((m) => !m.comingSoon && !m.dockFoot);
+      if (home) void mountApp(home);
+    },
+  },
+  {
+    label: "Import files",
+    onPick: () => {
+      const shelves = manifestsCache.find((m) => m.firstRunLanding && !m.comingSoon);
+      if (shelves) void mountApp(shelves);
+      setStatusNote("drop files anywhere on the shelves");
+    },
+  },
+  {
+    label: "Switch theme",
+    onPick: () => {
+      const next: Theme = document.documentElement.dataset.theme === "paper" ? "stage" : "paper";
+      void saveSettings({ ...settings, [SETTING_KEYS.theme]: next });
+    },
+  },
+]);
+
 // -- tabs (the shell owns open pieces; apps request opens) ------------------------------------------
 
 const openTabs: StudioEntitySummary[] = [];
@@ -222,6 +271,7 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
       renderTabs();
     },
     setStatus: setStatusNote,
+    menus,
     prefs: {
       get: (key) => settings[key],
       set: (key, value) => void saveSettings({ ...settings, [key]: value }),
@@ -261,6 +311,7 @@ function dockTile(m: AppManifestEntry): HTMLElement {
   const b = h("button", `apptile${m.comingSoon ? " future" : ""}`);
   b.dataset.appId = m.id;
   b.style.setProperty("--a", m.accent);
+  menus.attach(b, () => ({ type: "app", label: m.title, data: m }));
   const mark = h("span", "mk");
   const svg = sanitizeSvg(m.markSvg);
   if (svg) mark.append(svg);
@@ -300,6 +351,7 @@ function buildDock(manifests: AppManifestEntry[]): void {
 // -- boot -------------------------------------------------------------------------------------------
 
 async function boot(): Promise<void> {
+  menus.attach(document.body, () => ({ type: "shell", label: "Vaude." }));
   // settings first: they gate the wizard and skin everything after
   const stored = parseSettings(await (await fetch("/api/settings")).json().catch(() => null));
   applySettings(stored);

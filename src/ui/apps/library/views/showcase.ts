@@ -22,7 +22,7 @@ const CSS = `
   display:flex;align-items:flex-end;padding:.5rem;background-size:cover;background-position:center top}
 .dv-show .hero .cov b{font-family:var(--font-big);font-weight:900;font-size:3rem;line-height:.72;color:#0a0a0c;opacity:.82}
 .dv-show .hero .kd{position:absolute;top:0;left:0;background:#0a0a0c;color:var(--a);font-family:var(--font-mono);
-  font-size:.44rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
+  font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
 .dv-show .plate{flex:1;min-width:0;min-height:0;max-height:100%;overflow-y:auto;background:#111015;border:3px solid #000;
   box-shadow:5px 6px 0 0 rgba(0,0,0,.55);padding:clamp(.8rem,1.8vw,1.3rem);display:flex;flex-direction:column;gap:.6rem}
 .dv-show .plate .nm{font-family:var(--font-big);font-weight:900;font-size:clamp(1.2rem,2.4vw,1.9rem);
@@ -96,6 +96,7 @@ const view: DeckView = {
     else cov.append(h("b", undefined, e.name.charAt(0).toUpperCase()));
     cov.append(h("span", "kd", e.kind));
     hero.append(cov);
+    ctx.menu(hero, e);
 
     const plate = h("div", "plate");
     plate.append(h("div", "nm", e.name));

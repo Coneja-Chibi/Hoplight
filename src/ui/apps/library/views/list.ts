@@ -15,8 +15,8 @@ const CSS = `
   background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;
   font-family:var(--font-big);font-weight:900;color:#0a0a0c}
 .dv-row .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee}
-.dv-row .kd{font-family:var(--font-mono);font-size:.5rem;letter-spacing:.08em;text-transform:uppercase;color:#8a8496}
-.dv-row .bench{margin-left:auto;font-family:var(--font-mono);font-size:.5rem;letter-spacing:.08em;
+.dv-row .kd{font-family:var(--font-mono);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a6a1b4}
+.dv-row .bench{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--a);border:2px solid var(--a);padding:2px 6px}
 .dv-row.cast{border-color:var(--a);background:#0d0c11}
 `;
@@ -45,6 +45,7 @@ const view: DeckView = {
       if (onBench) row.append(h("span", "bench", "on the bench"));
       row.title = onBench ? `Pull ${e.name} off the bench` : `Thread ${e.name} onto the bench`;
       row.addEventListener("click", () => ctx.onPiece(e));
+      ctx.menu(row, e);
       list.append(row);
     }
     scroll.append(list);
