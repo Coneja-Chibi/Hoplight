@@ -57,14 +57,21 @@ canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails clos
 PNG carrier, else a data-URI `body.media.portrait`; 404 when none) · `POST /api/studio/save`.
 
 ## The Workbench room
-The locked room (vs-shell-apps frame 1): deck chips with LIVE per-kind counts, the proscenium
-stage with the FLOATED DECK (real entities; covers use `/api/studio/portrait` art when carried,
-initial-letter otherwise; perspective plan in `bench-core.ts`, pure + tested), and the bench
-string. THE BENCH is shell-owned state (`AppContext.bench`): tap a card to thread it (it dims in
-the deck), tap its bead to pull it off; the dock tray's decklist + WEAVE count render from the
-same state and persist across app switches. Deck metadata (kind accents/labels) lives once in
-`src/ui/_shared/decks.ts`. WEAVE and the Graph view answer honestly until packs / the graph are
-designed.
+Deck chips with LIVE per-kind counts, a proscenium stage presenting the deck through a DROP-IN
+VIEW, and the bench string. Covers use `/api/studio/portrait` art when carried, initial-letter
+otherwise.
+- **Deck views are drop-in modules**: one file in `src/ui/apps/workbench/views/` default-exporting
+  a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
+  stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
+  fluid auto-fill 2:3 cards), `carousel` (the floated signature deck), `list` (dense rows). The
+  toolbar derives from the registry; the workbench names no view.
+- **Art size** is user-picked (S/M/L, `DECK_SIZES`); view + size persist per-user through
+  `AppContext.prefs` into the settings open record (`workbench.view`, `workbench.size`).
+- THE BENCH is shell-owned state (`AppContext.bench`): tap a piece to thread it (dims/marks in
+  every view), tap its bead to pull it off; the dock tray's decklist + WEAVE count render from the
+  same state and persist across app switches. Deck metadata (kind accents/labels) lives once in
+  `src/ui/_shared/decks.ts`. WEAVE answers honestly until packs exist (task: packs/groups = Chi's
+  folders concept).
 
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
