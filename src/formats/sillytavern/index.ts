@@ -8,7 +8,7 @@ import type { CanonicalCharacter } from "../../entities/character/schema";
 import { embedCharacterBook } from "../_shared/character-book";
 import lorebookCodec from "./lorebook";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
-import { getVersion } from "../_shared/png";
+import { getVersion, pngSourceMedia } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
 import { assetsToMedia } from "../_shared/assets";
 import {
@@ -97,7 +97,10 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(det.data.name),
       body,
-      escrow: { sillytavern: { raw: json, unmapped: { variant: det.variant } } },
+      escrow: {
+        // a PNG card's pixels are authored art: keep the carrier as the raw-bytes twin
+        sillytavern: { raw: json, unmapped: { variant: det.variant }, sourceMedia: pngSourceMedia(input.bytes) },
+      },
     };
   },
 

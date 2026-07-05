@@ -67,6 +67,11 @@ escrow["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... } }
   into another app's file. This is a safety guarantee, not a gap: vaud never blind-copies one app's
   fields or executable payloads into another. The future refinement is opt-in per-field extension
   mappers, never a blind copy.
+- **Binary carriers are kept.** An `EscrowEntry` may carry `sourceMedia: { b64, mime }` - the file
+  the payload arrived INSIDE. A PNG card's pixels are authored art, so the Tavern-lineage PNG
+  adapters (sillytavern, rolecall) store the carrier; the studio serves it as the entity's portrait
+  (`/api/studio/portrait`) and a future same-format re-emit can restore the original file. Text
+  sources have no carrier and omit it.
 
 ## The adapter contract
 

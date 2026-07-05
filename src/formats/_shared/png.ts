@@ -32,6 +32,15 @@ function safeExtract(png: Uint8Array): ReturnType<typeof extract> {
   }
 }
 
+/**
+ * The escrow sourceMedia twin for a PNG-carried card: the pixels are authored art, so every
+ * Tavern-lineage PNG adapter keeps the carrier. Returns undefined for non-PNG input (tolerant).
+ */
+export function pngSourceMedia(bytes: Uint8Array | undefined): { b64: string; mime: string } | undefined {
+  if (!bytes || !isPng(bytes)) return undefined;
+  return { b64: Buffer.from(bytes).toString("base64"), mime: "image/png" };
+}
+
 /** Return the decoded character JSON string from a PNG, or null if none present. */
 export function extractCharacterJson(png: Uint8Array): string | null {
   for (const chunk of safeExtract(png)) {

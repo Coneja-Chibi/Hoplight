@@ -7,6 +7,7 @@
  */
 import type { AppContext, AppManifestEntry, InspectResult, StudioEntitySummary, VaudeApp } from "./app-contract";
 import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/settings-shape";
+import { deckMeta } from "./_shared/decks";
 import { runSetup } from "./setup/wizard";
 
 type Theme = "paper" | "stage";
@@ -90,10 +91,56 @@ el<HTMLButtonElement>("themeBtn").addEventListener("click", () => {
   void saveSettings({ ...settings, [SETTING_KEYS.theme]: next });
 });
 
+// -- the bench (shell-owned thread state; the tray's decklist renders from it) ----------------------
+
+const benchPieces: StudioEntitySummary[] = [];
+const benchSubs = new Set<() => void>();
+
+function renderTray(): void {
+  const tray = el<HTMLElement>("tray");
+  tray.classList.toggle("show", benchPieces.length > 0);
+  if (benchPieces.length === 0) return;
+  el<HTMLElement>("trayLabel").textContent = `Decklist · ${benchPieces.length}`;
+  const list = el<HTMLElement>("trayDecklist");
+  list.replaceChildren(
+    ...benchPieces.map((p) => {
+      const card = h("span", "dcard");
+      card.style.setProperty("--a", p.accent ?? deckMeta(p.kind).accent);
+      card.title = p.name;
+      card.append(h("i"));
+      return card;
+    }),
+  );
+  el<HTMLElement>("weaveCount").textContent = `(${benchPieces.length})`;
+}
+
+function benchChanged(): void {
+  renderTray();
+  for (const cb of benchSubs) cb();
+}
+
+const bench: AppContext["bench"] = {
+  pieces: () => [...benchPieces],
+  thread(s) {
+    if (benchPieces.some((p) => p.id === s.id && p.kind === s.kind)) return;
+    benchPieces.push(s);
+    benchChanged();
+  },
+  unthread(id, kind) {
+    const at = benchPieces.findIndex((p) => p.id === id && p.kind === kind);
+    if (at < 0) return;
+    benchPieces.splice(at, 1);
+    benchChanged();
+  },
+  onChange(cb) {
+    benchSubs.add(cb);
+    return () => benchSubs.delete(cb);
+  },
+};
+
 // -- tabs (the shell owns open pieces; apps request opens) ------------------------------------------
 
 const openTabs: StudioEntitySummary[] = [];
-const KIND_SHORT: Record<string, string> = { character: "char", lorebook: "lore", persona: "pers", preset: "set" };
 
 function renderTabs(): void {
   tabstrip.classList.toggle("hastabs", openTabs.length > 0);
@@ -102,7 +149,7 @@ function renderTabs(): void {
     if (t.accent) b.style.setProperty("--a", t.accent);
     b.append(h("span", "pip"));
     b.append(document.createTextNode(t.name));
-    b.append(h("span", "kind", KIND_SHORT[t.kind] ?? t.kind));
+    b.append(h("span", "kind", deckMeta(t.kind).short));
     const close = h("span", "close", "×");
     close.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -175,6 +222,7 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
       renderTabs();
     },
     setStatus: setStatusNote,
+    bench,
   };
   cleanup = mod.mount(ctx) ?? null;
 }
@@ -273,6 +321,11 @@ async function boot(): Promise<void> {
     const home = manifests.find((m) => !m.comingSoon && !m.dockFoot);
     if (home) void mountApp(home);
   });
+
+  // WEAVE responds with the truth until packs exist in the engine
+  el<HTMLButtonElement>("weaveBtn").addEventListener("click", () =>
+    setStatusNote("weaving arrives with packs - your decklist is safe"),
+  );
 
   // global IMPORT: the shelves own the flow; the top strip walks you to them
   el<HTMLButtonElement>("importBtn").addEventListener("click", () => {

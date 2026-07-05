@@ -49,6 +49,17 @@ export interface AppContext {
   openEntity(summary: StudioEntitySummary): void;
   /** update the mono status bar's app segment */
   setStatus(text: string): void;
+  /** THE BENCH - the pack being threaded, shell-owned so it persists across app switches
+   * (the dock tray's decklist renders from it; the Library's "on the bench" ticks read it) */
+  bench: {
+    pieces(): StudioEntitySummary[];
+    /** thread a piece on (no-op if already threaded) */
+    thread(s: StudioEntitySummary): void;
+    /** pull a piece off */
+    unthread(id: string, kind: string): void;
+    /** subscribe to changes; returns an unsubscribe (call it in the app's cleanup) */
+    onChange(cb: () => void): () => void;
+  };
 }
 
 /** The module an app folder default-exports. */
@@ -69,6 +80,8 @@ export interface StudioEntitySummary {
   /** entity accent when authored */
   accent?: string;
   importedAt?: string;
+  /** the entity carries displayable art at /api/studio/portrait?kind=..&id=.. */
+  hasPortrait?: boolean;
 }
 
 export interface InspectResult {

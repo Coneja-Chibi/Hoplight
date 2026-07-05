@@ -27,6 +27,10 @@ export interface EscrowEntry {
   raw: unknown;
   /** Fields the canonical model did not (yet) express. */
   unmapped?: Record<string, unknown>;
+  /** The binary CARRIER the payload arrived inside. A PNG card's pixels ARE authored art, so the
+   * carrier is kept as a raw-bytes twin - the portrait survives after the source file is gone,
+   * and a future same-format re-emit can restore the original file. Absent for text sources. */
+  sourceMedia?: { b64: string; mime: string };
 }
 
 /** Per-source escrow. Filled automatically on import, never hand-edited. */

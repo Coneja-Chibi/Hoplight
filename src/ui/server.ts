@@ -14,6 +14,7 @@ import type { AdapterInput, FormatAdapter } from "../core";
 import type { CanonicalEntity } from "../core/canonical";
 import { StudioStore } from "../studio/store";
 import { SettingsStore } from "../studio/settings";
+import { portraitBytes } from "../studio/portrait";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
 import type { PackagedAssets } from "./assets";
 
@@ -238,6 +239,16 @@ export function createHandler(
     if (p === "/api/export" && req.method === "POST") return handleExport(req);
 
     if (p === "/api/studio/list") return json(await store.list(url.searchParams.get("kind") ?? undefined));
+    if (p === "/api/studio/portrait") {
+      const entity = await store.read(url.searchParams.get("kind") ?? "", url.searchParams.get("id") ?? "");
+      const art = entity ? portraitBytes(entity) : null;
+      return art
+        ? // cast: TS's BodyInit lib type predates Uint8Array<ArrayBufferLike>; Bun accepts it fine
+          new Response(art.bytes as unknown as BodyInit, {
+            headers: { "content-type": art.mime, "cache-control": "no-cache" },
+          })
+        : err("no portrait", 404);
+    }
     if (p === "/api/studio/get") {
       const kind = url.searchParams.get("kind") ?? "";
       const id = url.searchParams.get("id") ?? "";

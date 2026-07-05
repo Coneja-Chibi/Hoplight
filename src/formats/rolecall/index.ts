@@ -21,6 +21,7 @@ import personaCodec from "./persona";
 import { embedCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
+import { pngSourceMedia } from "../_shared/png";
 import { assetsToMedia } from "../_shared/assets";
 import { type TavernData, dataToBody, applyBodyToData, CARD_SPEC_V2, CARD_SPEC_V3 } from "../_shared/tavern-fields";
 
@@ -265,7 +266,8 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(data.name),
       body: cardToBody(data, rc),
-      escrow: { rolecall: { raw: json } },
+      // a PNG card's pixels are authored art: keep the carrier as the raw-bytes twin
+      escrow: { rolecall: { raw: json, sourceMedia: pngSourceMedia(input.bytes) } },
     };
   },
 

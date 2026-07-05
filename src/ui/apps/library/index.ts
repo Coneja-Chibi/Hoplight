@@ -35,7 +35,8 @@ const STYLE = `
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,10rem),1fr));gap:var(--gap-m)}
 .ecard{display:flex;flex-direction:column;background:var(--panel);cursor:pointer;text-align:left;padding:0}
 .ecard .face{aspect-ratio:2/3;background:var(--stage-2);border-bottom:var(--ink-border);display:flex;align-items:flex-end;padding:.5rem;
-  font-family:var(--font-big);font-weight:900;font-size:2rem;color:var(--muted)}
+  font-family:var(--font-big);font-weight:900;font-size:2rem;color:var(--muted);
+  background-size:cover;background-position:center top}
 .ecard .bd{padding:.45rem .6rem;font-size:.95rem}
 .ecard .meta{font-family:var(--font-mono);font-size:.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:var(--gap-l);z-index:50}
@@ -148,7 +149,10 @@ function render(ctx: AppContext): void {
 
 function entityCard(ctx: AppContext, s: StudioEntitySummary): HTMLElement {
   const card = h("button", "ecard stamp");
-  const face = h("div", "face", s.name.slice(0, 1).toUpperCase());
+  const face = h("div", "face", s.hasPortrait ? undefined : s.name.slice(0, 1).toUpperCase());
+  if (s.hasPortrait) {
+    face.style.backgroundImage = `url("/api/studio/portrait?kind=${encodeURIComponent(s.kind)}&id=${encodeURIComponent(s.id)}")`;
+  }
   const bd = h("div", "bd");
   bd.append(h("div", undefined, s.name), h("div", "meta", s.kind));
   card.append(face, bd);

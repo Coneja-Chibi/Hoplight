@@ -53,7 +53,18 @@ what the engine already knows - no new format logic.
 bundled step · `GET|POST /api/settings` (POST replaces the whole document; parse is fail-closed) ·
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
 canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
-`GET /api/studio/list|get` · `POST /api/studio/save`.
+`GET /api/studio/list|get` · `GET /api/studio/portrait?kind&id` (the entity's art: the escrowed
+PNG carrier, else a data-URI `body.media.portrait`; 404 when none) · `POST /api/studio/save`.
+
+## The Workbench room
+The locked room (vs-shell-apps frame 1): deck chips with LIVE per-kind counts, the proscenium
+stage with the FLOATED DECK (real entities; covers use `/api/studio/portrait` art when carried,
+initial-letter otherwise; perspective plan in `bench-core.ts`, pure + tested), and the bench
+string. THE BENCH is shell-owned state (`AppContext.bench`): tap a card to thread it (it dims in
+the deck), tap its bead to pull it off; the dock tray's decklist + WEAVE count render from the
+same state and persist across app switches. Deck metadata (kind accents/labels) lives once in
+`src/ui/_shared/decks.ts`. WEAVE and the Graph view answer honestly until packs / the graph are
+designed.
 
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps

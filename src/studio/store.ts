@@ -11,6 +11,7 @@
 import { mkdir, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { CanonicalEntity } from "../core/canonical";
+import { hasPortrait } from "./portrait";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -19,6 +20,8 @@ export interface EntitySummary {
   kind: string;
   name: string;
   importedAt?: string;
+  /** the entity carries displayable art (serve it via /api/studio/portrait) */
+  hasPortrait?: boolean;
 }
 
 const KIND_DIRS = ["character", "lorebook", "persona"] as const;
@@ -58,6 +61,7 @@ export class StudioStore {
             kind: k,
             name: entityName(entity),
             importedAt: (entity.escrow?.["vaud-studio"]?.unmapped?.["importedAt"] as string) ?? undefined,
+            hasPortrait: hasPortrait(entity),
           });
         }
       }
