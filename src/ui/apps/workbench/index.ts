@@ -9,6 +9,7 @@ import { deckMeta } from "../../_shared/decks";
 import { focusToggle } from "../../_shared/focus";
 import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
+import { buildCharacterEditor, type EditorHandle } from "./editor";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
 const PREF_RAIL_OPEN = "workbench.recentsOpen"; // collapse survives sessions; only explicit false closes
@@ -108,7 +109,13 @@ interface RoomState {
   entities: StudioEntitySummary[];
   /** the one focus toggle for the room, created at mount so its Esc listener registers once */
   focus: ReturnType<typeof focusToggle>;
+  /** one editor instance per open character, cached so a tab switch never drops an unsaved draft */
+  editors: Map<string, EditorHandle>;
+  /** pieces whose full entity is mid-fetch (guards double loads across rerenders) */
+  loadingEditors: Set<string>;
 }
+
+const pieceId = (kind: string, id: string): string => `${kind}:${id}`;
 
 /** The low deck of recently imported/opened pieces - the "wanna bring this one up?" offer. Null
  * when nothing qualifies (empty studio, or everything recent is already an open tab). */
@@ -151,6 +158,15 @@ function recentsRail(ctx: AppContext, entities: StudioEntitySummary[]): HTMLElem
 function render(ctx: AppContext, state: RoomState): void {
   const pieces = ctx.workbench.pieces();
   const active = ctx.workbench.active();
+  // a closed tab releases its editor (and any unsaved draft with it - closing IS the discard)
+  const openKeys = new Set(pieces.map((p) => pieceId(p.kind, p.id)));
+  for (const [key, inst] of state.editors) {
+    if (!openKeys.has(key)) {
+      inst.dispose();
+      state.editors.delete(key);
+      state.loadingEditors.delete(key);
+    }
+  }
   const room = h("div", "wbroom");
   const style = document.createElement("style");
   style.textContent = STYLE;
@@ -191,17 +207,41 @@ function render(ctx: AppContext, state: RoomState): void {
       metaBits.push(active.sourceVariant ? `${active.sourceFormat} · ${active.sourceVariant}` : active.sourceFormat);
     }
     sheet.append(h("div", "meta", metaBits.join("  ·  ")));
-    const fieldsHost = h("div", "sheet");
-    fieldsHost.style.gap = ".7rem";
-    sheet.append(fieldsHost);
-    void inspect(ctx, active).then((fields) => {
-      for (const f of fields) {
-        const box = h("div", "field");
-        box.append(h("div", "fk", f.k), h("div", "fv", f.v));
-        fieldsHost.append(box);
+    if (active.kind === "character") {
+      // the writable editor; the instance survives rerenders so drafts persist across tab switches
+      const key = pieceId(active.kind, active.id);
+      const inst = state.editors.get(key);
+      if (inst) {
+        sheet.append(inst.root);
+      } else {
+        sheet.append(h("div", "soon", "loading the piece…"));
+        if (!state.loadingEditors.has(key)) {
+          state.loadingEditors.add(key);
+          void ctx.api
+            .getEntity(`kind=${encodeURIComponent(active.kind)}&id=${encodeURIComponent(active.id)}`)
+            .then((entity) => {
+              state.editors.set(key, buildCharacterEditor({ entity, api: ctx.api, setStatus: ctx.setStatus }));
+              render(ctx, state);
+            })
+            .catch(() => {
+              state.loadingEditors.delete(key);
+              ctx.setStatus(`could not load ${active.name}`);
+            });
+        }
       }
-    });
-    sheet.append(h("div", "soon", "read-only for now · full editing lands here next"));
+    } else {
+      const fieldsHost = h("div", "sheet");
+      fieldsHost.style.gap = ".7rem";
+      sheet.append(fieldsHost);
+      void inspect(ctx, active).then((fields) => {
+        for (const f of fields) {
+          const box = h("div", "field");
+          box.append(h("div", "fk", f.k), h("div", "fv", f.v));
+          fieldsHost.append(box);
+        }
+      });
+      sheet.append(h("div", "soon", "read-only for now · full editing lands here next"));
+    }
     pane.append(art, sheet);
     stage.append(pane);
   }
@@ -224,7 +264,7 @@ const app: VaudeApp = {
     editsPieces: true, // the shell's tab strip focuses into this room
   },
   mount(ctx) {
-    const state: RoomState = { entities: [], focus: focusToggle() };
+    const state: RoomState = { entities: [], focus: focusToggle(), editors: new Map(), loadingEditors: new Set() };
     const rerender = (): void => render(ctx, state);
     const unsub = ctx.workbench.onChange(rerender);
     void ctx.api.listEntities().then((list) => {
@@ -235,6 +275,7 @@ const app: VaudeApp = {
     return () => {
       unsub();
       state.focus.dispose(); // drops the Esc listener and restores the chrome, always
+      for (const inst of state.editors.values()) inst.dispose(); // drops save hotkeys + unload guards
     };
   },
 };

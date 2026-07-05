@@ -121,6 +121,16 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   Currently-open pieces are excluded. Ranking is pure and unit-tested (`workbench/recents-core.ts`);
   the rail reads `workbench.recents()` off the shell store. The rail collapses from its label
   (hide/show, persisted as `workbench.recentsOpen`) so the editor pane can take the room.
+- CHARACTERS EDIT (slice 1). Bones transcribed from RoleCall's CharacterEditorBento, skin is house:
+  a fixed Identity card (name/tagline/full name/title/age/pronouns) plus reorderable prose cards
+  (description, personality, scenario, first message, example messages) whose order persists to
+  `presentation.fieldOrder` using RC's ids verbatim (cross-app order interop; unrendered ids keep
+  their saved positions). Explicit save only: Save button + Ctrl+S, dirty flag, beforeunload guard;
+  saving round-trips the WHOLE body so untouched fields (escrow, behavior, media) survive
+  byte-identical - pinned by editor-core tests. Fields the editor does not write yet stay visible
+  in a read-only tail. Editor instances cache per open piece, so tab switches keep unsaved drafts;
+  closing the tab discards them. Pure logic in `workbench/editor-core.ts` (tested), DOM in
+  `workbench/editor.ts`. Other kinds keep the read-only inspector until their editors land.
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.
