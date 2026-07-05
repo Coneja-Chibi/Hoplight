@@ -49,6 +49,12 @@ export interface AppContext {
   openEntity(summary: StudioEntitySummary): void;
   /** update the mono status bar's app segment */
   setStatus(text: string): void;
+  /** per-user app preferences, persisted into the studio's settings.json open record
+   * (namespace your key by app id: "workbench.view"); read returns undefined when unset */
+  prefs: {
+    get(key: string): unknown;
+    set(key: string, value: unknown): void;
+  };
   /** THE BENCH - the pack being threaded, shell-owned so it persists across app switches
    * (the dock tray's decklist renders from it; the Library's "on the bench" ticks read it) */
   bench: {

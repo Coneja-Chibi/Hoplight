@@ -1,20 +1,24 @@
 /**
- * The Workbench app - home. The locked room (vs-shell-apps frame 1) transcribed: deck chips +
- * string/graph toggle, the proscenium stage with the FLOATED DECK, and the bench string below.
- * Every number is real state (deck counts, floated pieces, the threaded pack); presence rules:
- * tap a card to thread it (it dims in the deck, per the artifact's .cast), tap its bead to pull it
- * off. GRAPH view answers honestly until it is designed. All IO through ctx.api; logic in
- * bench-core (pure, tested).
+ * The Workbench app - home. Deck chips + drop-in DECK VIEWS (views/registry: grid/carousel/list,
+ * user-sized art, both persisted via ctx.prefs) over the proscenium stage, with the bench string
+ * below. Every number is real state; tap a piece to thread it, tap its bead to pull it off.
+ * The workbench names no view: the toolbar derives from the registry (Chi's modularity policy).
+ * All IO through ctx.api; pure logic in bench-core; view rendering in views/.
  */
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
-import { deckCounts, floatPlan, packSummary } from "./bench-core";
+import { deckCounts, packSummary } from "./bench-core";
+import { DECK_SIZES, h, pieceKey, type DeckViewContext } from "./view-contract";
+import { deckView, deckViews } from "./views/registry";
 
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13"/><path d="M3 17h18"/><rect x="9" y="10" width="6" height="7" fill="currentColor" stroke="none"/></svg>';
 
-/* Transcribed from the locked artifact (.wbroom family); colors swapped to tokens. */
+const PREF_VIEW = "workbench.view";
+const PREF_SIZE = "workbench.size";
+
+/* Chrome css transcribed from the locked artifact; view css comes from each view module. */
 const STYLE = `
 .wbroom{flex:1;min-height:0;display:flex;flex-direction:column;padding:clamp(.7rem,1.8vw,1.1rem);gap:.7rem}
 .wbbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap}
@@ -43,25 +47,9 @@ const STYLE = `
 .stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--a)}
 .stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:#e7e3da}
 .stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#6a6576;margin-left:auto}
-.deckfloat{flex:1;min-height:0;display:flex;align-items:center;gap:clamp(.6rem,1.6vw,1.15rem);
-  padding:clamp(.9rem,2vw,1.4rem) clamp(.7rem,1.8vw,1.2rem);overflow-x:auto;perspective:1400px}
-.fcard{flex:none;width:clamp(5.5rem,11vw,7.5rem);background:#17161d;border:3px solid #000;cursor:pointer;
-  text-align:left;font:inherit;padding:0;
-  transform:rotateY(calc(var(--tilt,0) * 1deg)) translateY(calc(var(--rise,0) * 1px));
-  box-shadow:0 20px 30px -12px rgba(0,0,0,.78);transition:transform .18s ease-out,box-shadow .18s ease-out}
-.fcard:hover{transform:translateY(-8px) rotateY(0deg);box-shadow:0 30px 44px -14px rgba(0,0,0,.85)}
-.fcard.cast{opacity:.26}
-.fcard .cov{aspect-ratio:2/3;background:var(--a);border-bottom:3px solid #000;position:relative;
-  display:flex;align-items:flex-end;padding:.4rem;background-size:cover;background-position:center top}
-.fcard .cov b{font-family:var(--font-big);font-weight:900;font-size:clamp(1.6rem,5vw,2.4rem);line-height:.7;color:#0a0a0c;opacity:.82;letter-spacing:-.03em}
-.fcard .cov .kd{position:absolute;top:0;left:0;background:#0a0a0c;color:var(--a);font-family:var(--font-mono);
-  font-size:.44rem;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
-.fcard .bd{padding:.4rem .5rem .5rem}
-.fcard .n{font-family:var(--font-big);font-weight:800;font-size:.75rem;color:#f4f1ee;line-height:1}
-.fcard .s{font-style:italic;font-size:.75rem;color:#c9c4d2;margin-top:1px;line-height:1.15}
-.ghost-float{flex:none;width:clamp(5.5rem,11vw,7.5rem);aspect-ratio:2/3;border:2px dashed #39353f;
-  display:flex;align-items:center;justify-content:center;text-align:center;padding:.6rem;
-  font-family:var(--font-mono);font-size:.53rem;letter-spacing:.06em;line-height:1.4;
+.ghost-float{margin:auto;width:clamp(9rem,30vw,14rem);aspect-ratio:2/3;border:2px dashed #39353f;
+  display:flex;align-items:center;justify-content:center;text-align:center;padding:.8rem;
+  font-family:var(--font-mono);font-size:.53rem;letter-spacing:.06em;line-height:1.5;
   text-transform:uppercase;color:#6a6576}
 .benchzone{flex:none;border:3px solid var(--edge);background:var(--shell-panel);
   box-shadow:6px 6px 0 0 var(--edge);padding:.7rem clamp(.6rem,1.6vw,1rem)}
@@ -73,8 +61,9 @@ const STYLE = `
 .bead{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;font:inherit;
   cursor:pointer;padding:0}
 .bead .chip{width:2.5rem;height:2.5rem;border:3px solid var(--edge);background:var(--a);box-shadow:3px 3px 0 0 var(--edge);
-  display:flex;align-items:center;justify-content:center;font-family:var(--font-big);font-weight:900;font-size:1rem;color:#0a0a0c}
-.bead:hover .chip{background:var(--text-faint)}
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-big);font-weight:900;font-size:1rem;color:#0a0a0c;
+  background-size:cover;background-position:center top}
+.bead:hover .chip{opacity:.75}
 .bead .lab{font-family:var(--font-mono);font-size:.53rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text)}
 .bead .dk{font-family:var(--font-mono);font-size:.47rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim)}
 .knot{display:flex;align-items:center;margin-top:1.15rem}
@@ -84,21 +73,12 @@ const STYLE = `
   color:var(--text-dim);border:2px dashed var(--text-faint);padding:.7rem .9rem;text-align:center}
 `;
 
-const h = (tag: string, cls?: string, text?: string): HTMLElement => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (text !== undefined) n.textContent = text;
-  return n;
-};
-
-const STRING_ICON =
-  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" xmlns="http://www.w3.org/2000/svg"><circle cx="5" cy="12" r="2.4"/><circle cx="12" cy="12" r="2.4"/><circle cx="19" cy="12" r="2.4"/><path d="M7.4 12h2.2M14.4 12h2.2"/></svg>';
-const GRAPH_ICON =
-  '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="6" r="2.6"/><circle cx="6" cy="18" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M11 8 7 16M13 8l4 8M8.4 18h7.2"/></svg>';
-
 /** Parse a static first-party icon constant into a live SVG node (no innerHTML, house rule). */
 const icon = (markup: string): Node =>
   document.importNode(new DOMParser().parseFromString(markup, "image/svg+xml").documentElement, true);
+
+const portraitUrl = (e: StudioEntitySummary): string | null =>
+  e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
 
 interface RoomState {
   entities: StudioEntitySummary[];
@@ -106,17 +86,21 @@ interface RoomState {
 }
 
 function render(ctx: AppContext, state: RoomState): void {
+  const views = deckViews();
+  const view = deckView(ctx.prefs.get(PREF_VIEW));
+  const size = DECK_SIZES.find((s) => s.id === ctx.prefs.get(PREF_SIZE)) ?? DECK_SIZES[1]!;
+
   const room = h("div", "wbroom");
   const style = document.createElement("style");
-  style.textContent = STYLE;
+  style.textContent = STYLE + views.map((v) => v.css).join("\n");
   room.append(style);
 
   const decks = deckCounts(state.entities, knownDecks().map((d) => d.kind));
   const deck = deckMeta(state.activeKind);
   const inDeck = state.entities.filter((e) => e.kind === state.activeKind);
-  const threaded = new Set(ctx.bench.pieces().map((p) => `${p.kind}:${p.id}`));
+  const threaded = new Set(ctx.bench.pieces().map(pieceKey));
 
-  // -- toolbar: deck chips (real counts) + view toggle ---------------------------------------------
+  // -- toolbar: deck chips (real counts) + the VIEW and SIZE controls (derived, never named) -------
   const bar = h("div", "wbbar");
   const chips = h("div", "deckchips");
   for (const { kind, count } of decks) {
@@ -127,16 +111,30 @@ function render(ctx: AppContext, state: RoomState): void {
     chip.addEventListener("click", () => render(ctx, { ...state, activeKind: kind }));
     chips.append(chip);
   }
-  const seg = h("div", "viewseg");
-  const stringBtn = h("button", "on");
-  stringBtn.append(icon(STRING_ICON), document.createTextNode("String"));
-  const graphBtn = h("button");
-  graphBtn.append(icon(GRAPH_ICON), document.createTextNode("Graph"));
-  graphBtn.addEventListener("click", () => ctx.setStatus("the graph view is still being designed"));
-  seg.append(stringBtn, graphBtn);
-  bar.append(chips, seg);
+  const viewSeg = h("div", "viewseg");
+  for (const v of views) {
+    const b = h("button", v.id === view.id ? "on" : undefined);
+    b.append(icon(v.iconSvg), document.createTextNode(v.label));
+    b.title = `${v.label} view`;
+    b.addEventListener("click", () => {
+      ctx.prefs.set(PREF_VIEW, v.id);
+      render(ctx, state);
+    });
+    viewSeg.append(b);
+  }
+  const sizeSeg = h("div", "viewseg");
+  for (const s of DECK_SIZES) {
+    const b = h("button", s.id === size.id ? "on" : undefined, s.label);
+    b.title = `${s.label} art`;
+    b.addEventListener("click", () => {
+      ctx.prefs.set(PREF_SIZE, s.id);
+      render(ctx, state);
+    });
+    sizeSeg.append(b);
+  }
+  bar.append(chips, viewSeg, sizeSeg);
 
-  // -- the stage: proscenium + floated deck (real pieces) ------------------------------------------
+  // -- the stage: proscenium + the chosen view --------------------------------------------------------
   const prosc = h("div", "prosc");
   const stage = h("div", "wbstage");
   stage.style.setProperty("--a", deck.accent);
@@ -144,43 +142,28 @@ function render(ctx: AppContext, state: RoomState): void {
   crumb.append(
     h("span", "pip"),
     h("span", "cn", deck.plural),
-    h("span", "cc", inDeck.length ? `deck floated · ${inDeck.length}` : "deck empty"),
+    h("span", "cc", inDeck.length ? `${view.label.toLowerCase()} · ${inDeck.length}` : "deck empty"),
   );
-  const float = h("div", "deckfloat");
+  stage.append(crumb);
   if (inDeck.length === 0) {
-    float.append(h("div", "ghost-float", `your first ${state.activeKind} lands here · import or start fresh in the library`));
+    stage.append(h("div", "ghost-float", `your first ${state.activeKind} lands here · import or start fresh in the library`));
   } else {
-    const plan = floatPlan(inDeck.length);
-    inDeck.forEach((e, i) => {
-      const card = h("button", `fcard${threaded.has(`${e.kind}:${e.id}`) ? " cast" : ""}`);
-      card.style.setProperty("--a", e.accent ?? deck.accent);
-      card.style.setProperty("--tilt", String(plan[i]!.tilt));
-      card.style.setProperty("--rise", String(plan[i]!.rise));
-      const cov = h("div", "cov");
-      if (e.hasPortrait) {
-        // real card art (the imported PNG's own pixels); the initial only stands in when art is absent
-        cov.style.backgroundImage = `url("/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}")`;
-      } else {
-        cov.append(h("b", undefined, e.name.charAt(0).toUpperCase()));
-      }
-      cov.append(h("span", "kd", e.kind));
-      const bd = h("div", "bd");
-      bd.append(h("div", "n", e.name));
-      if (e.provenance) bd.append(h("div", "s", e.provenance));
-      card.append(cov, bd);
-      card.title = threaded.has(`${e.kind}:${e.id}`) ? `${e.name} is on the bench` : `Thread ${e.name} onto the bench`;
-      card.addEventListener("click", () => {
-        const key = `${e.kind}:${e.id}`;
-        if (threaded.has(key)) ctx.bench.unthread(e.id, e.kind);
+    const vctx: DeckViewContext = {
+      entities: inDeck,
+      deck,
+      size,
+      threaded,
+      portraitUrl,
+      onPiece: (e) => {
+        if (threaded.has(pieceKey(e))) ctx.bench.unthread(e.id, e.kind);
         else ctx.bench.thread(e);
-      });
-      float.append(card);
-    });
+      },
+    };
+    stage.append(view.render(vctx));
   }
-  stage.append(crumb, float);
   prosc.append(stage);
 
-  // -- the bench string (real threaded pack) --------------------------------------------------------
+  // -- the bench string (real threaded pack) ----------------------------------------------------------
   const zone = h("div", "benchzone");
   const head = h("div", "bench-h");
   const pieces = ctx.bench.pieces();
@@ -199,7 +182,10 @@ function render(ctx: AppContext, state: RoomState): void {
       const bead = h("button", "bead");
       bead.style.setProperty("--a", p.accent ?? deckMeta(p.kind).accent);
       bead.title = `Pull ${p.name} off the bench`;
-      const chip = h("div", "chip", p.name.charAt(0).toUpperCase());
+      const chip = h("div", "chip");
+      const art = portraitUrl(p);
+      if (art) chip.style.backgroundImage = `url("${art}")`;
+      else chip.textContent = p.name.charAt(0).toUpperCase();
       bead.append(chip, h("div", "lab", p.name), h("div", "dk", deckMeta(p.kind).plural));
       bead.addEventListener("click", () => ctx.bench.unthread(p.id, p.kind));
       row.append(bead);

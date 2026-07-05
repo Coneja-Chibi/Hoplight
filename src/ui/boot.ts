@@ -222,6 +222,10 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
       renderTabs();
     },
     setStatus: setStatusNote,
+    prefs: {
+      get: (key) => settings[key],
+      set: (key, value) => void saveSettings({ ...settings, [key]: value }),
+    },
     bench,
   };
   cleanup = mod.mount(ctx) ?? null;
