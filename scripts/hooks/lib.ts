@@ -134,15 +134,29 @@ export function htmlSinkTokens(path: string, source: string): string[] {
   return HTML_SINKS.filter(([, re]) => re.test(clean)).map(([label]) => label);
 }
 
+const DEP_LINE_RE = /^\s*"(@?[\w./-]+)"\s*:\s*"(?:[~^]?\d|workspace|latest|next|file:|git|npm:)[^"]*"\s*,?\s*$/;
+
 /** Dependency names ADDED to package.json in a unified diff (version-shaped values only, so
- * scripts/config keys never match). */
+ * scripts/config keys never match). A name that ALSO appears on a removed line is an edit or
+ * comma-churn re-emit, not a new dependency, and does not count. */
 export function addedDependencies(diff: string): string[] {
+  const removed = new Set<string>();
+  let inPkg = false;
+  for (const raw of diff.split("\n")) {
+    if (raw.startsWith("+++ ")) {
+      inPkg = /(^|\/)package\.json$/.test(raw.slice(4).replace(/^b\//, "").trim());
+      continue;
+    }
+    if (!inPkg || !raw.startsWith("-") || raw.startsWith("---")) continue;
+    const m = DEP_LINE_RE.exec(raw.slice(1));
+    if (m) removed.add(m[1]!);
+  }
   const out: string[] = [];
   for (const [file, lines] of addedLinesByFile(diff)) {
     if (!/(^|\/)package\.json$/.test(file)) continue;
     for (const line of lines) {
-      const m = /^\s*"(@?[\w./-]+)"\s*:\s*"(?:[~^]?\d|workspace|latest|next|file:|git|npm:)[^"]*"\s*,?\s*$/.exec(line);
-      if (m) out.push(m[1]!);
+      const m = DEP_LINE_RE.exec(line);
+      if (m && !removed.has(m[1]!)) out.push(m[1]!);
     }
   }
   return out;

@@ -26,6 +26,17 @@ test("htmlSinkTokens passes clean source, comments, and non-UI paths", () => {
   expect(htmlSinkTokens("src/ui/x.test.ts", "el.innerHTML = markup;")).toEqual([]);
 });
 
+test("addedDependencies ignores comma-churn re-emits of unchanged deps", () => {
+  const diff = [
+    "--- a/package.json",
+    "+++ b/package.json",
+    '-    "webview-bun": "^2.4.0"',
+    '+    "webview-bun": "^2.4.0",',
+    '+    "zustand": "^5.0.14"',
+  ].join("\n");
+  expect(addedDependencies(diff)).toEqual(["zustand"]);
+});
+
 test("addedDependencies reads only version-shaped package.json additions", () => {
   const diff = [
     "+++ b/package.json",
