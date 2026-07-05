@@ -74,6 +74,9 @@ export interface AppContext {
     remove(id: string, kind: string): void;
     /** is this piece open on the Workbench? */
     isOpen(id: string, kind: string): boolean;
+    /** per-piece last-opened timestamps ("kind:id" -> epoch ms); merged with importedAt to rank
+     * the Workbench recents rail. A copy - callers never mutate the store. */
+    recents(): Record<string, number>;
     /** activate a piece's tab and go to the Workbench */
     focus(id: string, kind: string): void;
     /** subscribe to changes; returns an unsubscribe (call it in the app's cleanup) */

@@ -15,6 +15,8 @@ export const SETTING_KEYS = {
   homeApp: "homeApp",
   /** what happens after sending pieces to the Workbench: "ask" | "always" | "never" (follow) */
   workbenchFollow: "workbench.follow",
+  /** per-piece last-opened epoch-ms map ("kind:id" -> ms); feeds the Workbench recents rail */
+  workbenchRecents: "workbench.recents",
 } as const;
 
 export interface StudioSettings {

@@ -99,6 +99,31 @@ let activeKey = ""; // "kind:id" of the piece whose editor the Workbench shows
 const pieceSubs = new Set<() => void>();
 const keyOf = (id: string, kind: string): string => `${kind}:${id}`;
 
+const RECENTS_CAP = 60; // bounded map: keep the newest opens, drop the rest
+
+/** Read the persisted last-opened map, fail-closed: only "key" -> finite-number pairs survive. */
+function loadRecents(): Record<string, number> {
+  const raw = settings[SETTING_KEYS.workbenchRecents];
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+  const out: Record<string, number> = {};
+  for (const [k, v] of Object.entries(raw as Record<string, unknown>)) {
+    if (typeof v === "number" && Number.isFinite(v)) out[k] = v;
+  }
+  return out;
+}
+
+/** Stamp the given pieces as opened-now and persist (pruned to the newest RECENTS_CAP). */
+function bumpRecents(keys: string[]): void {
+  if (keys.length === 0) return;
+  const now = Date.now();
+  const merged = loadRecents();
+  for (const k of keys) merged[k] = now;
+  const kept = Object.entries(merged)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, RECENTS_CAP);
+  void saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: Object.fromEntries(kept) });
+}
+
 function piecesChanged(): void {
   renderTabs();
   for (const cb of pieceSubs) cb();
@@ -151,6 +176,7 @@ function openPiecesBatch(batch: StudioEntitySummary[]): void {
     openPieces.push(p);
     if (!activeKey) activeKey = keyOf(p.id, p.kind);
   }
+  bumpRecents(fresh.map((p) => keyOf(p.id, p.kind)));
   const last = fresh[fresh.length - 1]!; // "always" lands on the last of the batch
   piecesChanged();
   const follow = settings[SETTING_KEYS.workbenchFollow];
@@ -171,6 +197,7 @@ const workbench: AppContext["workbench"] = {
   pieces: () => [...openPieces],
   active: () => openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null,
   isOpen: (id, kind) => openPieces.some((p) => p.id === id && p.kind === kind),
+  recents: () => loadRecents(),
   send: (s) => openPiecesBatch([s]),
   sendMany: (pieces) => openPiecesBatch(pieces),
   remove(id, kind) {
@@ -183,6 +210,7 @@ const workbench: AppContext["workbench"] = {
   focus(id, kind) {
     if (!workbench.isOpen(id, kind)) return;
     activeKey = keyOf(id, kind);
+    bumpRecents([keyOf(id, kind)]);
     piecesChanged();
     goToWorkbench();
   },

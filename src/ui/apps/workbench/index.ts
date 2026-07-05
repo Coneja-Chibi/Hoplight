@@ -6,6 +6,9 @@
  */
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
+import { rankRecents } from "./recents-core";
+
+const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
 
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
@@ -37,6 +40,21 @@ const STYLE = `
   border:2px dashed #4a4556;padding:.55rem .8rem}
 .ghost-room{margin:auto;max-width:26rem;border:2px dashed #4a4556;padding:1.4rem 1.6rem;text-align:center;
   font-family:var(--font-mono);font-size:.6875rem;font-weight:700;letter-spacing:.06em;line-height:1.8;text-transform:uppercase;color:#8f8a9e}
+/* the recents rail: a low deck of recently imported/opened pieces, offered as "bring one up" */
+.wb-recents{flex:none;display:flex;flex-direction:column;gap:.4rem}
+.wb-recents .rlabel{font-family:var(--font-mono);font-size:.5625rem;font-weight:700;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-dim);display:flex;align-items:center;gap:.45rem}
+.wb-recents .rlabel .pip{width:8px;height:8px;background:var(--accent);border:2px solid var(--edge)}
+.wb-strip{display:flex;gap:.5rem;overflow-x:auto;padding:.1rem 0 .35rem;scrollbar-width:thin}
+.wb-rcard{flex:none;width:clamp(3rem,7vw,4.4rem);cursor:pointer;background:#17161d;border:3px solid #000;
+  box-shadow:3px 3px 0 0 var(--a);padding:0;font:inherit;text-align:left;
+  transition:transform .12s ease-out,box-shadow .12s ease-out}
+.wb-rcard:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 0 var(--a)}
+.wb-rcard .rcov{aspect-ratio:2/3;background:var(--a);border-bottom:3px solid #000;background-size:cover;
+  background-position:center top;display:flex;align-items:flex-end;padding:.2rem}
+.wb-rcard .rcov b{font-family:var(--font-big);font-weight:900;font-size:1.05rem;color:#0a0a0c;opacity:.82;line-height:.7}
+.wb-rcard .rnm{font-family:var(--font-big);font-weight:800;font-size:.5625rem;color:#f4f1ee;padding:.22rem .3rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wbroom *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
 .wbroom *::-webkit-scrollbar{width:8px;height:8px}
 .wbroom *::-webkit-scrollbar-thumb{background:#2b2833}
@@ -78,7 +96,39 @@ async function inspect(ctx: AppContext, e: StudioEntitySummary): Promise<{ k: st
   }
 }
 
-function render(ctx: AppContext): void {
+interface RoomState {
+  entities: StudioEntitySummary[];
+}
+
+/** The low deck of recently imported/opened pieces - the "wanna bring this one up?" offer. Null
+ * when nothing qualifies (empty studio, or everything recent is already an open tab). */
+function recentsRail(ctx: AppContext, entities: StudioEntitySummary[]): HTMLElement | null {
+  const openKeys = new Set(ctx.workbench.pieces().map((p) => `${p.kind}:${p.id}`));
+  const recent = rankRecents(entities, ctx.workbench.recents(), openKeys, RECENTS_SHOWN);
+  if (recent.length === 0) return null;
+
+  const rail = h("div", "wb-recents");
+  const label = h("div", "rlabel");
+  label.append(h("span", "pip"), document.createTextNode("recent · bring one up"));
+  const strip = h("div", "wb-strip");
+  for (const e of recent) {
+    const card = h("button", "wb-rcard");
+    card.style.setProperty("--a", e.accent ?? deckMeta(e.kind).accent);
+    const cov = h("div", "rcov");
+    const url = portraitUrl(e);
+    if (url) cov.style.backgroundImage = `url("${url}")`;
+    else cov.append(h("b", undefined, e.name.charAt(0).toUpperCase()));
+    card.append(cov, h("div", "rnm", e.name));
+    card.title = `Bring ${e.name} up`;
+    card.addEventListener("click", () => ctx.workbench.send(e));
+    ctx.menus.attach(card, () => ({ type: "entity", label: e.name, data: e }));
+    strip.append(card);
+  }
+  rail.append(label, strip);
+  return rail;
+}
+
+function render(ctx: AppContext, state: RoomState): void {
   const pieces = ctx.workbench.pieces();
   const active = ctx.workbench.active();
   const room = h("div", "wbroom");
@@ -136,6 +186,8 @@ function render(ctx: AppContext): void {
   }
   prosc.append(stage);
   room.append(prosc);
+  const rail = recentsRail(ctx, state.entities);
+  if (rail) room.append(rail);
   ctx.root.replaceChildren(room);
   ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
 }
@@ -151,9 +203,14 @@ const app: VaudeApp = {
     editsPieces: true, // the shell's tab strip focuses into this room
   },
   mount(ctx) {
-    const rerender = (): void => render(ctx);
+    const state: RoomState = { entities: [] };
+    const rerender = (): void => render(ctx, state);
     const unsub = ctx.workbench.onChange(rerender);
-    rerender();
+    void ctx.api.listEntities().then((list) => {
+      state.entities = list;
+      rerender();
+    });
+    rerender(); // immediate paint (rail fills in when the shelves load)
     return unsub;
   },
 };

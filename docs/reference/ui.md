@@ -114,6 +114,12 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   "never" stays with a status note. Changeable in Settings.
 - The manifest flag `editsPieces` marks the room tabs focus into. The home app on boot is the
   user's `homeApp` setting.
+- **The recents rail** (a low deck along the bottom - "wanna bring this one up?") offers recently
+  imported/opened pieces as one-click sends. Recency is the honest later-of two signals: a piece's
+  `importedAt` stamp (set on every save) and its last-opened time (a per-piece epoch-ms map
+  persisted in settings `workbench.recents`, bumped by `workbench.send`/`focus`, capped at 60).
+  Currently-open pieces are excluded. Ranking is pure and unit-tested (`workbench/recents-core.ts`);
+  the rail reads `workbench.recents()` off the shell store.
 
 ## Settings (drop-in sections)
 Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
