@@ -3,7 +3,9 @@
  * Apps consume tokens only; hardcoding a color or layout pixel in an app is a review rejection.
  * Pixels appear ONLY for ornament (ink borders, stamp offsets) per the fluid law.
  */
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@900&family=Cinzel:wght@900&family=Crimson+Pro:ital,wght@0,400;0,600;1,600&family=JetBrains+Mono:wght@400;500&display=swap");
+/* REAL weight cuts for every weight the chrome uses - a missing cut makes the browser synthesize
+   faux bold, which smears small mono labels into mush (found by Chi, 2026-07-05) */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Cinzel:wght@900&family=Crimson+Pro:ital,wght@0,400;0,600;1,600&family=JetBrains+Mono:wght@400;500;700;800&display=swap");
 
 :root {
   /* brand - FIXED, never recolored by accent picks */
