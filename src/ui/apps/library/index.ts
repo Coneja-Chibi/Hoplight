@@ -308,8 +308,10 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
       const byKey = new Map(state.entities.map((e) => [pieceKey(e), e]));
       const batch = [...state.selected].map((k) => byKey.get(k)).filter((e): e is StudioEntitySummary => !!e);
       state.selected.clear();
-      ctx.workbench.sendMany(batch); // fires the follow dialog once, with the real count
-      render(ctx, state);
+      // sendMany opens the pieces (firing workbench.onChange -> this room repaints with the staged
+      // marks gone) and, in "always" mode, navigates to the Workbench; a manual render() here would
+      // clobber that navigation, so we deliberately don't call one.
+      ctx.workbench.sendMany(batch);
     });
     const clear = h("button", "clear", "Clear");
     clear.addEventListener("click", () => {
