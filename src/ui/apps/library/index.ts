@@ -78,6 +78,25 @@ const STYLE = `
   display:flex;align-items:center;justify-content:center;text-align:center;padding:.8rem;
   font-family:var(--font-mono);font-size:.53rem;letter-spacing:.06em;line-height:1.5;
   text-transform:uppercase;color:#6a6576}
+/* scrollbars wear the house ink, never the OS chrome */
+.lib *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
+.lib *::-webkit-scrollbar{width:8px;height:8px}
+.lib *::-webkit-scrollbar-thumb{background:#2b2833}
+.lib *::-webkit-scrollbar-track{background:transparent}
+.deckchips{scrollbar-width:none}
+.deckchips::-webkit-scrollbar{display:none}
+/* phones: chips get the full first row, the dial stretches, the frame slims (fluid law) */
+@media(max-width:40rem){
+  .lib{padding:.5rem;gap:.5rem}
+  .wbbar{gap:.4rem}
+  .deckchips{flex:1 1 100%;order:1}
+  .viewseg{order:2}
+  .sizedial{order:3;flex:1;min-width:0}
+  .sizedial input{flex:1;width:auto}
+  .prosc{padding:.3rem;box-shadow:4px 4px 0 0 var(--edge)}
+  .lib .stagezone{gap:var(--gap-m);padding:var(--gap-m)}
+  .doorcard{width:clamp(9rem,42vw,12rem)}
+}
 `;
 
 // -- import flow (unchanged: plain-words receipts, never blocks good files on a bad one) ------------

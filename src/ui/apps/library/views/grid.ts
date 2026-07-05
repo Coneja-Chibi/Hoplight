@@ -7,8 +7,9 @@ import { deckMeta } from "../../../_shared/decks";
 import { h, pieceKey, type DeckView } from "../view-contract";
 
 const CSS = `
-.dv-gridscroll{flex:1;min-height:0;overflow-y:auto;padding:clamp(.7rem,1.8vw,1.1rem)}
-.dv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,var(--card-w)),1fr));gap:clamp(.6rem,1.4vw,1rem)}
+.dv-gridscroll{flex:1;min-height:0;overflow-y:auto;padding:clamp(.5rem,1.8vw,1.1rem)}
+/* the 42vw guard keeps at least two columns on a phone even when the desktop size dial is huge */
+.dv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(var(--card-w),42vw,100%),1fr));gap:clamp(.5rem,1.4vw,1rem)}
 .dv-gcard{display:flex;flex-direction:column;text-align:left;font:inherit;padding:0;cursor:pointer;position:relative;
   background:#17161d;border:3px solid #000;box-shadow:5px 5px 0 0 var(--a);transition:transform .12s ease-out,box-shadow .12s ease-out}
 .dv-gcard:hover{transform:translate(-3px,-3px);box-shadow:9px 9px 0 0 var(--a)}

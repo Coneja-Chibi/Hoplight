@@ -43,6 +43,12 @@ const CSS = `
   background-size:cover;background-position:center top;opacity:.55;transition:opacity .1s ease-out,transform .1s ease-out}
 .dv-show .mini:hover{opacity:1;transform:translateY(-2px)}
 .dv-show .mini.now{opacity:1;border-color:var(--a);outline:2px solid var(--a)}
+/* phones: hero row on top (nav flanking), the words plate drops below full-width (fluid law) */
+@media(max-width:40rem){
+  .dv-show .main{flex-wrap:wrap;overflow-y:auto;align-content:flex-start;gap:.6rem;padding:.6rem}
+  .dv-show .hero{width:clamp(8rem,52vw,14rem)}
+  .dv-show .plate{flex:1 1 100%;order:4;max-height:15rem}
+}
 `;
 
 /** view-internal focus per deck kind; survives re-renders, resets on reload (ephemeral by design) */

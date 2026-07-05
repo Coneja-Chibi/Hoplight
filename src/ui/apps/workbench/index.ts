@@ -55,6 +55,15 @@ const STYLE = `
 .knot{display:flex;align-items:center;margin-top:1.15rem}
 .knot .thread{width:.9rem;height:3px;background:var(--edge)}
 .knot .tie{width:9px;height:9px;background:var(--edge);transform:rotate(45deg)}
+.wbroom *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
+.wbroom *::-webkit-scrollbar{width:8px;height:8px}
+.wbroom *::-webkit-scrollbar-thumb{background:#2b2833}
+.wbroom *::-webkit-scrollbar-track{background:transparent}
+@media(max-width:40rem){
+  .wbroom{padding:.5rem;gap:.5rem}
+  .prosc{padding:.3rem;box-shadow:4px 4px 0 0 var(--edge)}
+  .pcard{width:clamp(6.5rem,40vw,9rem)}
+}
 `;
 
 const h = (tag: string, cls?: string, text?: string): HTMLElement => {
