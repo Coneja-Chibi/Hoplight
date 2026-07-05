@@ -1,13 +1,11 @@
 /**
- * The Workbench app - home: where the PACK is woven. The browse room moved to the Library
- * (2026-07-05, Chi: "make what is currently the workbench into the library"); the bench keeps the
- * stage here. Today's truthful room: the threaded pack laid out large on the stage + the bench
- * string; pieces are pulled from the Library's shelves (tap a card there). The full weaving room
- * (JOURNEY 2.3) is still to be reviewed by Chi; nothing fake ships meanwhile.
+ * The Workbench app - home: the IDE. Pieces sent from the Library open here; the shell's tab
+ * strip IS the tab bar, and this room shows the ACTIVE piece's editor pane. Today's pane is a
+ * truthful inspector (the piece's real art + real fields, read-only); the writable editor is the
+ * next slice and replaces the pane's body, not the room. Empty = honest guidance.
  */
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
-import { packSummary } from "./bench-core";
 
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
@@ -20,41 +18,25 @@ const STYLE = `
 .wbstage{position:relative;flex:1;min-height:0;background:#0a0a0b;border:3px solid #000;overflow:hidden;
   box-shadow:inset 8px 8px 0 0 rgba(0,0,0,.7);display:flex;flex-direction:column}
 .stage-crumb{display:flex;align-items:center;gap:.5rem;border-bottom:3px solid #000;background:#0d0c11;padding:.5rem .75rem;flex:none}
-.stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--accent)}
+.stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--a,var(--accent))}
 .stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:#e7e3da}
-.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#8f8a9e;margin-left:auto}
-.packfloor{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:clamp(.8rem,2vw,1.4rem);
-  flex-wrap:wrap;overflow-y:auto;padding:clamp(.9rem,2vw,1.4rem)}
-.pcard{width:clamp(7rem,14vw,10rem);background:#17161d;border:3px solid #000;cursor:pointer;text-align:left;font:inherit;padding:0;
-  box-shadow:0 20px 30px -12px rgba(0,0,0,.78);transition:transform .15s ease-out}
-.pcard:hover{transform:translateY(-6px)}
-.pcard .cov{aspect-ratio:2/3;background:var(--a);border-bottom:3px solid #000;position:relative;
-  display:flex;align-items:flex-end;padding:.4rem;background-size:cover;background-position:center top}
-.pcard .cov b{font-family:var(--font-big);font-weight:900;font-size:2rem;line-height:.72;color:#0a0a0c;opacity:.82}
-.pcard .cov .kd{position:absolute;top:0;left:0;background:#0a0a0c;color:var(--a);font-family:var(--font-mono);
-  font-size:.5625rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 5px;border-right:3px solid #000;border-bottom:3px solid #000}
-.pcard .bd{padding:.4rem .5rem .5rem}
-.pcard .n{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee;line-height:1}
-.ghost-bench{margin:auto;max-width:26rem;border:2px dashed #39353f;padding:1.4rem 1.6rem;text-align:center;
-  font-family:var(--font-mono);font-size:.56rem;letter-spacing:.06em;line-height:1.7;text-transform:uppercase;color:#6a6576}
-.benchzone{flex:none;border:3px solid var(--edge);background:var(--shell-panel);
-  box-shadow:6px 6px 0 0 var(--edge);padding:.7rem clamp(.6rem,1.6vw,1rem)}
-.bench-h{display:flex;align-items:baseline;gap:.6rem;margin-bottom:.5rem}
-.bench-h .bk{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-dim)}
-.bench-h .bt{font-family:var(--font-big);font-weight:800;font-size:.6875rem;letter-spacing:.03em;text-transform:uppercase;color:var(--text)}
-.bench-h .bn{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;color:var(--text-dim)}
-.stringrow{display:flex;align-items:flex-start;flex-wrap:wrap;gap:0}
-.bead{display:flex;flex-direction:column;align-items:center;gap:5px;background:none;border:none;font:inherit;
-  cursor:pointer;padding:0}
-.bead .chip{width:2.5rem;height:2.5rem;border:3px solid var(--edge);background:var(--a);box-shadow:3px 3px 0 0 var(--edge);
-  display:flex;align-items:center;justify-content:center;font-family:var(--font-big);font-weight:900;font-size:1rem;color:#0a0a0c;
-  background-size:cover;background-position:center top}
-.bead:hover .chip{opacity:.75}
-.bead .lab{font-family:var(--font-mono);font-size:.625rem;text-transform:uppercase;letter-spacing:.03em;color:var(--text)}
-.bead .dk{font-family:var(--font-mono);font-size:.5625rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim)}
-.knot{display:flex;align-items:center;margin-top:1.15rem}
-.knot .thread{width:.9rem;height:3px;background:var(--edge)}
-.knot .tie{width:9px;height:9px;background:var(--edge);transform:rotate(45deg)}
+.stage-crumb .cc{font-family:var(--font-mono);font-size:.625rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8f8a9e;margin-left:auto}
+.pane{flex:1;min-height:0;display:flex;gap:clamp(.8rem,2vw,1.4rem);padding:clamp(.8rem,2vw,1.4rem);overflow-y:auto}
+.pane .art{flex:none;width:clamp(9rem,22vw,16rem);align-self:flex-start;background:var(--a);border:3px solid #000;
+  aspect-ratio:2/3;background-size:cover;background-position:center top;
+  box-shadow:0 24px 38px -14px rgba(0,0,0,.8);display:flex;align-items:flex-end;padding:.5rem}
+.pane .art b{font-family:var(--font-big);font-weight:900;font-size:3rem;line-height:.72;color:#0a0a0c;opacity:.82}
+.pane .sheet{flex:1;min-width:0;display:flex;flex-direction:column;gap:.7rem}
+.pane .nm{font-family:var(--font-big);font-weight:900;font-size:clamp(1.3rem,2.6vw,2rem);letter-spacing:-.01em;color:#f4f1ee;line-height:1}
+.pane .meta{font-family:var(--font-mono);font-size:.6875rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a6a1b4}
+.pane .field{background:#111015;border:3px solid #000;padding:.6rem .8rem}
+.pane .field .fk{font-family:var(--font-mono);font-size:.625rem;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:#8f8a9e;margin-bottom:.3rem}
+.pane .field .fv{font-size:.95rem;line-height:1.55;color:#c9c4d2;white-space:pre-line}
+.pane .soon{font-family:var(--font-mono);font-size:.6875rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8f8a9e;
+  border:2px dashed #4a4556;padding:.55rem .8rem}
+.ghost-room{margin:auto;max-width:26rem;border:2px dashed #4a4556;padding:1.4rem 1.6rem;text-align:center;
+  font-family:var(--font-mono);font-size:.6875rem;font-weight:700;letter-spacing:.06em;line-height:1.8;text-transform:uppercase;color:#8f8a9e}
 .wbroom *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
 .wbroom *::-webkit-scrollbar{width:8px;height:8px}
 .wbroom *::-webkit-scrollbar-thumb{background:#2b2833}
@@ -62,7 +44,9 @@ const STYLE = `
 @media(max-width:40rem){
   .wbroom{padding:.5rem;gap:.5rem}
   .prosc{padding:.3rem;box-shadow:4px 4px 0 0 var(--edge)}
-  .pcard{width:clamp(6.5rem,40vw,9rem)}
+  .pane{flex-wrap:wrap}
+  .pane .art{width:clamp(8rem,52vw,12rem)}
+  .pane .sheet{flex:1 1 100%}
 }
 `;
 
@@ -76,82 +60,84 @@ const h = (tag: string, cls?: string, text?: string): HTMLElement => {
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
 
+/** Read the active piece's real words for the inspector pane (tolerant: absent fields just skip). */
+async function inspect(ctx: AppContext, e: StudioEntitySummary): Promise<{ k: string; v: string }[]> {
+  try {
+    const entity = (await ctx.api.getEntity(
+      `kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}`,
+    )) as {
+      body?: { identity?: { tagline?: string }; persona?: { description?: string; personality?: string } };
+    };
+    const out: { k: string; v: string }[] = [];
+    if (entity.body?.identity?.tagline) out.push({ k: "tagline", v: entity.body.identity.tagline });
+    if (entity.body?.persona?.description) out.push({ k: "description", v: entity.body.persona.description });
+    if (entity.body?.persona?.personality) out.push({ k: "personality", v: entity.body.persona.personality });
+    return out;
+  } catch {
+    return [];
+  }
+}
+
 function render(ctx: AppContext): void {
-  const pieces = ctx.bench.pieces();
+  const pieces = ctx.workbench.pieces();
+  const active = ctx.workbench.active();
   const room = h("div", "wbroom");
   const style = document.createElement("style");
   style.textContent = STYLE;
   room.append(style);
 
-  // the stage: the pack-in-progress, laid out large
   const prosc = h("div", "prosc");
   const stage = h("div", "wbstage");
   const crumb = h("div", "stage-crumb");
   crumb.append(
     h("span", "pip"),
-    h("span", "cn", "Untitled pack"),
-    h("span", "cc", pieces.length ? packSummary(pieces) : "bench empty"),
+    h("span", "cn", active ? active.name : "The Workbench"),
+    h("span", "cc", pieces.length === 0 ? "nothing open" : `${pieces.length} open`),
   );
   stage.append(crumb);
-  if (pieces.length === 0) {
+
+  if (!active) {
     stage.append(
       h(
         "div",
-        "ghost-bench",
-        "the bench is empty · open the Library and tap a card to thread it here · your pack takes shape on this stage",
+        "ghost-room",
+        "nothing is open on the workbench · open the Library and send pieces here · each one opens as a tab above",
       ),
     );
   } else {
-    const floor = h("div", "packfloor");
-    for (const p of pieces) {
-      const card = h("button", "pcard");
-      card.style.setProperty("--a", p.accent ?? deckMeta(p.kind).accent);
-      const cov = h("div", "cov");
-      const art = portraitUrl(p);
-      if (art) cov.style.backgroundImage = `url("${art}")`;
-      else cov.append(h("b", undefined, p.name.charAt(0).toUpperCase()));
-      cov.append(h("span", "kd", p.kind));
-      const bd = h("div", "bd");
-      bd.append(h("div", "n", p.name));
-      card.append(cov, bd);
-      card.title = `Pull ${p.name} off the bench`;
-      card.addEventListener("click", () => ctx.bench.unthread(p.id, p.kind));
-      ctx.menus.attach(card, () => ({ type: "entity", label: p.name, data: p }));
-      floor.append(card);
+    if (active.accent) stage.style.setProperty("--a", active.accent);
+    const pane = h("div", "pane");
+    const art = h("div", "art");
+    const url = portraitUrl(active);
+    if (url) art.style.backgroundImage = `url("${url}")`;
+    else art.append(h("b", undefined, active.name.charAt(0).toUpperCase()));
+    ctx.menus.attach(art, () => ({ type: "entity", label: active.name, data: active }));
+
+    const sheet = h("div", "sheet");
+    sheet.append(h("div", "nm", active.name));
+    const metaBits = [deckMeta(active.kind).plural];
+    if (active.sourceFormat) {
+      metaBits.push(active.sourceVariant ? `${active.sourceFormat} · ${active.sourceVariant}` : active.sourceFormat);
     }
-    stage.append(floor);
+    sheet.append(h("div", "meta", metaBits.join("  ·  ")));
+    const fieldsHost = h("div", "sheet");
+    fieldsHost.style.gap = ".7rem";
+    sheet.append(fieldsHost);
+    void inspect(ctx, active).then((fields) => {
+      for (const f of fields) {
+        const box = h("div", "field");
+        box.append(h("div", "fk", f.k), h("div", "fv", f.v));
+        fieldsHost.append(box);
+      }
+    });
+    sheet.append(h("div", "soon", "read-only for now · full editing lands here next"));
+    pane.append(art, sheet);
+    stage.append(pane);
   }
   prosc.append(stage);
-
-  // the bench string (same state, compact)
-  const zone = h("div", "benchzone");
-  const head = h("div", "bench-h");
-  head.append(h("span", "bk", "threaded"), h("span", "bt", "Untitled pack"), h("span", "bn", packSummary(pieces)));
-  zone.append(head);
-  if (pieces.length > 0) {
-    const row = h("div", "stringrow");
-    pieces.forEach((p, i) => {
-      if (i > 0) {
-        const knot = h("div", "knot");
-        knot.append(h("span", "thread"), h("span", "tie"), h("span", "thread"));
-        row.append(knot);
-      }
-      const bead = h("button", "bead");
-      bead.style.setProperty("--a", p.accent ?? deckMeta(p.kind).accent);
-      bead.title = `Pull ${p.name} off the bench`;
-      const chip = h("div", "chip");
-      const art = portraitUrl(p);
-      if (art) chip.style.backgroundImage = `url("${art}")`;
-      else chip.textContent = p.name.charAt(0).toUpperCase();
-      bead.append(chip, h("div", "lab", p.name), h("div", "dk", deckMeta(p.kind).plural));
-      bead.addEventListener("click", () => ctx.bench.unthread(p.id, p.kind));
-      row.append(bead);
-    });
-    zone.append(row);
-  }
-  room.append(prosc, zone);
+  room.append(prosc);
   ctx.root.replaceChildren(room);
-  ctx.setStatus(pieces.length ? packSummary(pieces) : "the bench waits");
+  ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
 }
 
 const app: VaudeApp = {
@@ -162,10 +148,11 @@ const app: VaudeApp = {
     accent: "#e6a52a",
     order: 10,
     subtitle: "app · home",
+    editsPieces: true, // the shell's tab strip focuses into this room
   },
   mount(ctx) {
     const rerender = (): void => render(ctx);
-    const unsub = ctx.bench.onChange(rerender);
+    const unsub = ctx.workbench.onChange(rerender);
     rerender();
     return unsub;
   },

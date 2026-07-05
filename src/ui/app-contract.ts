@@ -24,9 +24,10 @@ export interface AppManifestEntry {
   dockFoot?: boolean;
   /** dimmed "installs later" tile: shown in the dock, not mountable yet */
   comingSoon?: boolean;
-  /** this app is the surface a brand-new studio lands on right after setup (JOURNEY 1.1);
-   * normal boots still open the lowest-order app */
+  /** this app is the surface a brand-new studio lands on right after setup (JOURNEY 1.1) */
   firstRunLanding?: boolean;
+  /** this app is where open pieces are edited: the shell's tab strip focuses into it */
+  editsPieces?: boolean;
 }
 
 /** Everything an app may touch. Apps NEVER import the engine or reach the filesystem directly:
@@ -45,10 +46,10 @@ export interface AppContext {
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
   };
-  /** open an entity as a TAB (the shell owns the tab strip) */
-  openEntity(summary: StudioEntitySummary): void;
   /** update the mono status bar's app segment */
   setStatus(text: string): void;
+  /** every installed app's manifest (Settings needs the roster for the home-app picker) */
+  apps(): AppManifestEntry[];
   /** THE right-click system (src/ui/_shared/context-menu.ts): attach targets on your elements,
    * register providers for target types; one consistent menu everywhere, extended by registration */
   menus: import("./_shared/context-menu").ContextMenus;
@@ -58,14 +59,20 @@ export interface AppContext {
     get(key: string): unknown;
     set(key: string, value: unknown): void;
   };
-  /** THE BENCH - the pack being threaded, shell-owned so it persists across app switches
-   * (the dock tray's decklist renders from it; the Library's "on the bench" ticks read it) */
-  bench: {
+  /** THE WORKBENCH's open pieces - shell-owned (they ARE the tab strip) so they persist across
+   * app switches. Sending honors the user's follow setting (ask / always / never). */
+  workbench: {
     pieces(): StudioEntitySummary[];
-    /** thread a piece on (no-op if already threaded) */
-    thread(s: StudioEntitySummary): void;
-    /** pull a piece off */
-    unthread(id: string, kind: string): void;
+    /** the piece whose editor the Workbench shows */
+    active(): StudioEntitySummary | null;
+    /** open a piece on the Workbench (follow-prompt per settings; no-op if already open) */
+    send(s: StudioEntitySummary): void;
+    /** close a piece */
+    remove(id: string, kind: string): void;
+    /** is this piece open on the Workbench? */
+    isOpen(id: string, kind: string): boolean;
+    /** activate a piece's tab and go to the Workbench */
+    focus(id: string, kind: string): void;
     /** subscribe to changes; returns an unsubscribe (call it in the app's cleanup) */
     onChange(cb: () => void): () => void;
   };

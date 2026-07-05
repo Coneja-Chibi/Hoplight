@@ -233,7 +233,7 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
   const decks = deckCounts(state.entities, knownDecks().map((d) => d.kind));
   const deck = deckMeta(state.activeKind);
   const inDeck = state.entities.filter((e) => e.kind === state.activeKind);
-  const threaded = new Set(ctx.bench.pieces().map(pieceKey));
+  const threaded = new Set(ctx.workbench.pieces().map(pieceKey));
 
   // toolbar: deck chips (real counts) + the VIEW picker and SIZE dial (derived, never named)
   const bar = h("div", "wbbar");
@@ -244,7 +244,7 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
     chip.style.setProperty("--a", meta.accent);
     chip.append(h("span", "pip"), document.createTextNode(meta.plural), h("span", "dc", String(count)));
     chip.addEventListener("click", () => {
-      state.activeKind = kind; // mutate the shared room state so bench-driven rerenders stay in sync
+      state.activeKind = kind; // mutate the shared room state so workbench-driven rerenders stay in sync
       render(ctx, state);
     });
     chips.append(chip);
@@ -303,8 +303,8 @@ function renderBrowse(ctx: AppContext, state: RoomState, root: HTMLElement): voi
       refresh: () => render(ctx, state),
       menu: (el, e) => ctx.menus.attach(el, () => ({ type: "entity", label: e.name, data: e })),
       onPiece: (e) => {
-        if (threaded.has(pieceKey(e))) ctx.bench.unthread(e.id, e.kind);
-        else ctx.bench.thread(e);
+        if (threaded.has(pieceKey(e))) ctx.workbench.remove(e.id, e.kind);
+        else ctx.workbench.send(e);
       },
     };
     stage.append(view.render(vctx));
@@ -344,7 +344,7 @@ const app: VaudeApp = {
       formatLabels: new Map(),
     };
     const rerender = (): void => render(ctx, state);
-    const unsub = ctx.bench.onChange(rerender);
+    const unsub = ctx.workbench.onChange(rerender);
     void ctx.api.formats().then((formats) => {
       state.formatLabels = new Map(formats.map((f) => [f.id, f.generic ? "Default" : f.friendly]));
       rerender();

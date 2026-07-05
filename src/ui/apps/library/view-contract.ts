@@ -29,9 +29,9 @@ export interface DeckViewContext {
   /** the active deck's pieces, already filtered by kind */
   entities: StudioEntitySummary[];
   deck: DeckMeta;
-  /** "kind:id" keys of pieces currently threaded on the bench (render them cast/marked) */
+  /** "kind:id" keys of pieces currently OPEN on the Workbench (render them marked) */
   threaded: Set<string>;
-  /** tap a piece: the workbench threads/unthreads it */
+  /** tap a piece: send it to the Workbench (or remove it when already open) */
   onPiece(e: StudioEntitySummary): void;
   /** the piece's art url, or null when it carries none (render the initial instead) */
   portraitUrl(e: StudioEntitySummary): string | null;

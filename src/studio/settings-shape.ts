@@ -5,12 +5,16 @@
  * Parsing is fail-closed per key: a bad value drops to absent, never poisons the rest.
  */
 
-/** Known keys, exported so steps/shell share one spelling (no magic strings). */
+/** Known keys, exported so steps/shell/settings share one spelling (no magic strings). */
 export const SETTING_KEYS = {
   theme: "theme",
   firstDeck: "firstDeck",
   publishTargets: "publishTargets",
   houseAccent: "houseAccent",
+  /** which app opens on boot; the user picks in Settings */
+  homeApp: "homeApp",
+  /** what happens after sending pieces to the Workbench: "ask" | "always" | "never" (follow) */
+  workbenchFollow: "workbench.follow",
 } as const;
 
 export interface StudioSettings {

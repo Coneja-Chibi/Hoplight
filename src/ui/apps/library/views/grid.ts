@@ -1,6 +1,6 @@
 /**
  * Deck view: GRID - the workhorse. Portrait 2:3 cards in a fluid auto-fill grid sized by the
- * user's S/M/L pick. Threaded pieces press down with an "on the bench" tick (the library
+ * user's S/M/L pick. Open pieces press down with an "on the workbench" tick (the library
  * wireframe's sel treatment). The naive-user default view.
  */
 import { deckMeta } from "../../../_shared/decks";
@@ -51,9 +51,9 @@ const view: DeckView = {
       bd.append(h("div", "nm", e.name));
       const fmt = ctx.sourceLabel(e);
       if (fmt) bd.append(h("span", "fmt", fmt));
-      if (onBench) card.append(h("span", "tick", "on the bench"));
+      if (onBench) card.append(h("span", "tick", "on the workbench"));
       card.append(cov, bd);
-      card.title = onBench ? `Pull ${e.name} off the bench` : `Thread ${e.name} onto the bench`;
+      card.title = onBench ? `${e.name} is open on the Workbench` : `Send ${e.name} to the Workbench`;
       card.addEventListener("click", () => ctx.onPiece(e));
       ctx.menu(card, e);
       grid.append(card);

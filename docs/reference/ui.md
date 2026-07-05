@@ -93,13 +93,26 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
   dragging repaints live via the cascading `--card-w` var; release persists. View + size persist
   per-user through `AppContext.prefs` (`library.view`, `library.size`).
 
-## The Workbench room (home - where the pack is woven)
-The threaded pack laid out large on the stage + the bench string; pieces are pulled from the
-Library (tap a card there). THE BENCH is shell-owned state (`AppContext.bench`): threading marks
-the piece in every Library view; tapping a stage card or bead pulls it off; the dock tray's
-decklist + WEAVE count render from the same state and persist across app switches. Deck metadata
-(kind accents/labels) lives once in `src/ui/_shared/decks.ts`. WEAVE answers honestly until packs
-exist (task: packs/groups). The full weaving room is JOURNEY 2.3, pending Chi's review.
+## The Workbench room (home by default - the IDE)
+Pieces are SENT from the Library and open as TABS: the shell's tab strip is the tab bar, and this
+room shows the active piece's editor pane (today a truthful read-only inspector: real art, real
+tagline/description/personality; the writable editor replaces the pane's body next slice).
+- Open pieces are shell-owned (`AppContext.workbench`: pieces/active/send/remove/isOpen/focus/
+  onChange) so tabs persist across app switches; the "on the workbench" marks in every Library
+  view read the same state.
+- Sending honors the FOLLOW setting (`workbench.follow`): "ask" pops the dialog ("N items were
+  sent to the Workbench. Follow?" Yes/No + "Never ask me this again"), "always" jumps there,
+  "never" stays with a status note. Changeable in Settings.
+- The manifest flag `editsPieces` marks the room tabs focus into. The home app on boot is the
+  user's `homeApp` setting.
+
+## Settings (drop-in sections)
+Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
+`SettingsSection` (id, label, order, render); `sections/registry.ts` is the one stated seam. Tabs
+derive from the registry; every control is call-and-response against live settings (theme/accent
+repaint instantly). Shipped sections: Appearance (theme, house accent via the shared swatches),
+Studio (home app, Library first deck, publish targets from the live registry), Workbench (follow
+behavior).
 
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps

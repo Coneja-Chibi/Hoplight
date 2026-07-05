@@ -112,7 +112,7 @@ const view: DeckView = {
       if (peek?.description) desc.textContent = peek.description;
       else desc.remove();
     });
-    const threadBtn = h("button", `thread-btn${onBench ? " off" : ""}`, onBench ? "Pull off the bench" : "Thread onto the bench");
+    const threadBtn = h("button", `thread-btn${onBench ? " off" : ""}`, onBench ? "Remove from the Workbench" : "Send to the Workbench");
     threadBtn.addEventListener("click", () => ctx.onPiece(e));
     plate.append(h("div", "meta", `${idx + 1} / ${ctx.entities.length}`), threadBtn);
 

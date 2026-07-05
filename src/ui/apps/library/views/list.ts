@@ -1,5 +1,5 @@
 /**
- * Deck view: LIST - dense rows for big collections: small art thumb, name, kind tag, bench state.
+ * Deck view: LIST - dense rows for big collections: small art thumb, name, kind tag, workbench state.
  * The size pick scales the thumb.
  */
 import { deckMeta } from "../../../_shared/decks";
@@ -42,8 +42,8 @@ const view: DeckView = {
       row.append(thumb, h("span", "nm", e.name), h("span", "kd", e.kind));
       const fmt = ctx.sourceLabel(e);
       if (fmt) row.append(h("span", "kd", fmt));
-      if (onBench) row.append(h("span", "bench", "on the bench"));
-      row.title = onBench ? `Pull ${e.name} off the bench` : `Thread ${e.name} onto the bench`;
+      if (onBench) row.append(h("span", "bench", "on the workbench"));
+      row.title = onBench ? `${e.name} is open on the Workbench` : `Send ${e.name} to the Workbench`;
       row.addEventListener("click", () => ctx.onPiece(e));
       ctx.menu(row, e);
       list.append(row);

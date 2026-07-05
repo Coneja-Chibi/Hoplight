@@ -1,9 +1,9 @@
 /**
  * The shell's client boot - the LOCKED chrome (vs-shell-apps, DECISIONS #14) brought to life.
  * Owns: the dock (built from the app manifest, drop-in discovery), the top strip crumb, app
- * mounting, the tab strip, theme + settings, the tray, the status bar. Owns NO app content and NO
- * format logic: apps get an AppContext and the local API, nothing else. Chrome furniture renders
- * only from REAL state (no fake counts, no invented timestamps).
+ * mounting, THE WORKBENCH's open pieces (they are the tab strip), theme + settings, the status
+ * bar, and the right-click system. Owns NO app content and NO format logic: apps get an
+ * AppContext and the local API, nothing else. Chrome furniture renders only from REAL state.
  */
 import type { AppContext, AppManifestEntry, InspectResult, StudioEntitySummary, VaudeApp } from "./app-contract";
 import { parseSettings, SETTING_KEYS, type StudioSettings } from "../studio/settings-shape";
@@ -92,50 +92,89 @@ el<HTMLButtonElement>("themeBtn").addEventListener("click", () => {
   void saveSettings({ ...settings, [SETTING_KEYS.theme]: next });
 });
 
-// -- the bench (shell-owned thread state; the tray's decklist renders from it) ----------------------
+// -- the Workbench's open pieces (shell-owned; they ARE the tab strip) ------------------------------
 
-const benchPieces: StudioEntitySummary[] = [];
-const benchSubs = new Set<() => void>();
+const openPieces: StudioEntitySummary[] = [];
+let activeKey = ""; // "kind:id" of the piece whose editor the Workbench shows
+const pieceSubs = new Set<() => void>();
+const keyOf = (id: string, kind: string): string => `${kind}:${id}`;
 
-function renderTray(): void {
-  const tray = el<HTMLElement>("tray");
-  tray.classList.toggle("show", benchPieces.length > 0);
-  if (benchPieces.length === 0) return;
-  el<HTMLElement>("trayLabel").textContent = `Decklist · ${benchPieces.length}`;
-  const list = el<HTMLElement>("trayDecklist");
-  list.replaceChildren(
-    ...benchPieces.map((p) => {
-      const card = h("span", "dcard");
-      card.style.setProperty("--a", p.accent ?? deckMeta(p.kind).accent);
-      card.title = p.name;
-      card.append(h("i"));
-      return card;
-    }),
-  );
-  el<HTMLElement>("weaveCount").textContent = `(${benchPieces.length})`;
+function piecesChanged(): void {
+  renderTabs();
+  for (const cb of pieceSubs) cb();
 }
 
-function benchChanged(): void {
-  renderTray();
-  for (const cb of benchSubs) cb();
+function goToWorkbench(): void {
+  const bench = manifestsCache.find((m) => m.editsPieces && !m.comingSoon);
+  if (bench) void mountApp(bench);
 }
 
-const bench: AppContext["bench"] = {
-  pieces: () => [...benchPieces],
-  thread(s) {
-    if (benchPieces.some((p) => p.id === s.id && p.kind === s.kind)) return;
-    benchPieces.push(s);
-    benchChanged();
+/** The follow dialog (Chi's spec): Yes goes to the Workbench, No stays, the checkbox makes the
+ * answer permanent (changeable any time in Settings). */
+function askFollow(count: number): void {
+  const overlay = h("div", "vdialog-overlay");
+  const sheet = h("div", "vdialog");
+  sheet.append(h("p", "msg", `${count} ${count === 1 ? "item was" : "items were"} sent to the Workbench. Follow?`));
+  const rememberRow = h("label", "remember");
+  const check = document.createElement("input");
+  check.type = "checkbox";
+  rememberRow.append(check, document.createTextNode("Never ask me this again"));
+  const actions = h("div", "actions");
+  const answer = (follow: boolean): void => {
+    overlay.remove();
+    if (check.checked) {
+      void saveSettings({ ...settings, [SETTING_KEYS.workbenchFollow]: follow ? "always" : "never" });
+    }
+    if (follow) goToWorkbench();
+  };
+  const yes = h("button", "yes", "Yes");
+  yes.addEventListener("click", () => answer(true));
+  const no = h("button", "no", "No");
+  no.addEventListener("click", () => answer(false));
+  actions.append(yes, no);
+  sheet.append(rememberRow, actions);
+  overlay.append(sheet);
+  document.body.append(overlay);
+  yes.focus();
+}
+
+const workbench: AppContext["workbench"] = {
+  pieces: () => [...openPieces],
+  active: () => openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null,
+  isOpen: (id, kind) => openPieces.some((p) => p.id === id && p.kind === kind),
+  send(s) {
+    if (!workbench.isOpen(s.id, s.kind)) {
+      openPieces.push(s);
+      if (!activeKey) activeKey = keyOf(s.id, s.kind);
+      piecesChanged();
+    }
+    const follow = settings[SETTING_KEYS.workbenchFollow];
+    if (follow === "always") {
+      activeKey = keyOf(s.id, s.kind);
+      piecesChanged();
+      goToWorkbench();
+    } else if (follow === "never") {
+      setStatusNote(`${s.name} sent to the Workbench`);
+    } else {
+      askFollow(1);
+    }
   },
-  unthread(id, kind) {
-    const at = benchPieces.findIndex((p) => p.id === id && p.kind === kind);
+  remove(id, kind) {
+    const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
     if (at < 0) return;
-    benchPieces.splice(at, 1);
-    benchChanged();
+    openPieces.splice(at, 1);
+    if (activeKey === keyOf(id, kind)) activeKey = openPieces[0] ? keyOf(openPieces[0].id, openPieces[0].kind) : "";
+    piecesChanged();
+  },
+  focus(id, kind) {
+    if (!workbench.isOpen(id, kind)) return;
+    activeKey = keyOf(id, kind);
+    piecesChanged();
+    goToWorkbench();
   },
   onChange(cb) {
-    benchSubs.add(cb);
-    return () => benchSubs.delete(cb);
+    pieceSubs.add(cb);
+    return () => pieceSubs.delete(cb);
   },
 };
 
@@ -143,15 +182,16 @@ const bench: AppContext["bench"] = {
 
 const menus = createContextMenus();
 
-// entity actions the SHELL owns (the bench): they work identically in every room
+// entity actions the SHELL owns (the Workbench pieces): identical in every room
 menus.register("entity", (t) => {
   const e = t.data as StudioEntitySummary;
-  const threaded = benchPieces.some((p) => p.id === e.id && p.kind === e.kind);
-  return [
-    threaded
-      ? { label: "Pull off the bench", onPick: () => bench.unthread(e.id, e.kind) }
-      : { label: "Thread onto the bench", onPick: () => bench.thread(e) },
-  ];
+  if (workbench.isOpen(e.id, e.kind)) {
+    return [
+      { label: "Show on the Workbench", onPick: () => workbench.focus(e.id, e.kind) },
+      { label: "Remove from the Workbench", onPick: () => workbench.remove(e.id, e.kind) },
+    ];
+  }
+  return [{ label: "Send to the Workbench", onPick: () => workbench.send(e) }];
 });
 
 // app tiles answer with their one real action
@@ -163,13 +203,7 @@ menus.register("app", (t) => {
 
 // the always-there fallback: EVERY page answers a right-click with real shell actions
 menus.register("shell", () => [
-  {
-    label: "Go home",
-    onPick: () => {
-      const home = manifestsCache.find((m) => !m.comingSoon && !m.dockFoot);
-      if (home) void mountApp(home);
-    },
-  },
+  { label: "Go home", onPick: goHome },
   {
     label: "Import files",
     onPick: () => {
@@ -187,14 +221,12 @@ menus.register("shell", () => [
   },
 ]);
 
-// -- tabs (the shell owns open pieces; apps request opens) ------------------------------------------
-
-const openTabs: StudioEntitySummary[] = [];
+// -- tabs (the Workbench's open pieces; clicking one goes to its editor) ----------------------------
 
 function renderTabs(): void {
-  tabstrip.classList.toggle("hastabs", openTabs.length > 0);
-  const tabs = openTabs.map((t) => {
-    const b = h("button", "tab");
+  tabstrip.classList.toggle("hastabs", openPieces.length > 0);
+  const tabs = openPieces.map((t) => {
+    const b = h("button", `tab${keyOf(t.id, t.kind) === activeKey ? " active" : ""}`);
     if (t.accent) b.style.setProperty("--a", t.accent);
     b.append(h("span", "pip"));
     b.append(document.createTextNode(t.name));
@@ -202,12 +234,11 @@ function renderTabs(): void {
     const close = h("span", "close", "×");
     close.addEventListener("click", (e) => {
       e.stopPropagation();
-      const at = openTabs.findIndex((o) => o.id === t.id && o.kind === t.kind);
-      if (at >= 0) openTabs.splice(at, 1);
-      renderTabs();
+      workbench.remove(t.id, t.kind);
     });
     b.append(close);
-    b.addEventListener("click", () => setStatusNote(`${t.name} · the editor arrives next slice`));
+    b.addEventListener("click", () => workbench.focus(t.id, t.kind));
+    menus.attach(b, () => ({ type: "entity", label: t.name, data: t }));
     return b;
   });
   const add = h("button", undefined, "+");
@@ -242,6 +273,20 @@ let activeId = "";
 const modules = new Map<string, VaudeApp>();
 let manifestsCache: AppManifestEntry[] = [];
 
+/** The user's chosen home app (Settings), falling back to the first dockable app. */
+function homeApp(): AppManifestEntry | undefined {
+  const chosen = settings[SETTING_KEYS.homeApp];
+  return (
+    manifestsCache.find((m) => m.id === chosen && !m.comingSoon && !m.dockFoot) ??
+    manifestsCache.find((m) => !m.comingSoon && !m.dockFoot)
+  );
+}
+
+function goHome(): void {
+  const home = homeApp();
+  if (home) void mountApp(home);
+}
+
 async function mountApp(m: AppManifestEntry): Promise<void> {
   if (m.comingSoon || m.id === activeId) return;
   if (cleanup) cleanup();
@@ -266,17 +311,14 @@ async function mountApp(m: AppManifestEntry): Promise<void> {
     root: canvas,
     theme: (document.documentElement.dataset.theme as Theme) ?? "paper",
     api,
-    openEntity: (s) => {
-      if (!openTabs.some((t) => t.id === s.id && t.kind === s.kind)) openTabs.push(s);
-      renderTabs();
-    },
     setStatus: setStatusNote,
+    apps: () => [...manifestsCache],
     menus,
     prefs: {
       get: (key) => settings[key],
       set: (key, value) => void saveSettings({ ...settings, [key]: value }),
     },
-    bench,
+    workbench,
   };
   cleanup = mod.mount(ctx) ?? null;
 }
@@ -373,15 +415,7 @@ async function boot(): Promise<void> {
   renderTabs();
   await refreshStudioStatus();
 
-  el<HTMLButtonElement>("dockhome").addEventListener("click", () => {
-    const home = manifests.find((m) => !m.comingSoon && !m.dockFoot);
-    if (home) void mountApp(home);
-  });
-
-  // WEAVE responds with the truth until packs exist in the engine
-  el<HTMLButtonElement>("weaveBtn").addEventListener("click", () =>
-    setStatusNote("weaving arrives with packs - your decklist is safe"),
-  );
+  el<HTMLButtonElement>("dockhome").addEventListener("click", goHome);
 
   // global IMPORT: the shelves own the flow; the top strip walks you to them
   el<HTMLButtonElement>("importBtn").addEventListener("click", () => {
@@ -390,9 +424,10 @@ async function boot(): Promise<void> {
     setStatusNote("drop files anywhere on the shelves");
   });
 
-  // JOURNEY 1.1: straight out of setup, land on the app that declared itself the first landing
+  // JOURNEY 1.1: straight out of setup, land on the first-landing app; normal boots open the
+  // user's chosen home (Settings)
   const landing = freshFromSetup ? manifests.find((m) => m.firstRunLanding && !m.comingSoon) : undefined;
-  const first = landing ?? manifests.find((m) => !m.comingSoon && !m.dockFoot);
+  const first = landing ?? homeApp();
   if (first) await mountApp(first);
 }
 

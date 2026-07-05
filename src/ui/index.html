@@ -149,6 +149,24 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 #status .vaude i{font-style:normal;color:var(--status-dim)}
 #status .sep{color:var(--status-dim);flex:none}
 
+/* ───────── the follow dialog (shell-owned) ───────── */
+.vdialog-overlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;padding:1rem}
+.vdialog{background:var(--face);color:var(--text);border:3px solid var(--edge);
+  box-shadow:6px 6px 0 0 var(--edge);padding:1.1rem 1.3rem;max-width:24rem;width:100%}
+.vdialog .msg{margin:0 0 .8rem;font-family:var(--font-big);font-weight:700;font-size:1rem}
+.vdialog .remember{display:flex;align-items:center;gap:.5rem;font-family:var(--font-mono);
+  font-size:.6875rem;letter-spacing:.04em;color:var(--text-dim);cursor:pointer;margin-bottom:.9rem}
+.vdialog .actions{display:flex;gap:.6rem}
+.vdialog .actions button{font-family:var(--font-big);font-weight:800;font-size:.75rem;
+  letter-spacing:.08em;text-transform:uppercase;padding:.5rem 1.2rem;border:3px solid var(--edge);
+  cursor:pointer;box-shadow:3px 3px 0 0 var(--edge);
+  transition:transform .1s ease-out,box-shadow .1s ease-out}
+.vdialog .actions button:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
+.vdialog .actions button:active{transform:translate(3px,3px);box-shadow:0 0 0 0 var(--edge)}
+.vdialog .actions .yes{background:var(--rose);color:#fff}
+.vdialog .actions .no{background:var(--face);color:var(--text)}
+
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 /* narrow: the dock COLLAPSES to marks-only, never disappears (locked behavior) */
 @media(max-width:46rem){
