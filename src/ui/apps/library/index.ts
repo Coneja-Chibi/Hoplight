@@ -85,14 +85,15 @@ const STYLE = `
 .lib *::-webkit-scrollbar-track{background:transparent}
 .deckchips{scrollbar-width:none}
 .deckchips::-webkit-scrollbar{display:none}
-/* phones: chips get the full first row, the dial stretches, the frame slims (fluid law) */
+/* phones: chips WRAP (everything visible, nothing hidden behind an invisible scroll), the view
+   seg gets its row, the dial gets a full row so the thumb never clips (fluid law) */
 @media(max-width:40rem){
   .lib{padding:.5rem;gap:.5rem}
   .wbbar{gap:.4rem}
-  .deckchips{flex:1 1 100%;order:1}
+  .deckchips{flex:1 1 100%;order:1;flex-wrap:wrap;overflow:visible;padding-bottom:0}
   .viewseg{order:2}
-  .sizedial{order:3;flex:1;min-width:0}
-  .sizedial input{flex:1;width:auto}
+  .sizedial{order:3;flex:1 1 100%;min-width:0}
+  .sizedial input{flex:1;width:auto;min-width:0}
   .prosc{padding:.3rem;box-shadow:4px 4px 0 0 var(--edge)}
   .lib .stagezone{gap:var(--gap-m);padding:var(--gap-m)}
   .doorcard{width:clamp(9rem,42vw,12rem)}
