@@ -7,6 +7,7 @@
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
 import { rankRecents } from "./recents-core";
+import { fieldsFor, type InspectField } from "./inspect-core";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
 
@@ -78,19 +79,15 @@ const h = (tag: string, cls?: string, text?: string): HTMLElement => {
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
 
-/** Read the active piece's real words for the inspector pane (tolerant: absent fields just skip). */
-async function inspect(ctx: AppContext, e: StudioEntitySummary): Promise<{ k: string; v: string }[]> {
+/** Read the active piece's real fields for the inspector pane. Tolerant: a fetch failure or an
+ * unmodeled kind yields [] and the pane shows its honest "soon" note. All field selection/ordering
+ * lives in inspect-core (pure + tested); this only fetches and hands off the body. */
+async function inspect(ctx: AppContext, e: StudioEntitySummary): Promise<InspectField[]> {
   try {
     const entity = (await ctx.api.getEntity(
       `kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}`,
-    )) as {
-      body?: { identity?: { tagline?: string }; persona?: { description?: string; personality?: string } };
-    };
-    const out: { k: string; v: string }[] = [];
-    if (entity.body?.identity?.tagline) out.push({ k: "tagline", v: entity.body.identity.tagline });
-    if (entity.body?.persona?.description) out.push({ k: "description", v: entity.body.persona.description });
-    if (entity.body?.persona?.personality) out.push({ k: "personality", v: entity.body.persona.personality });
-    return out;
+    )) as { body?: unknown };
+    return fieldsFor(e.kind, entity.body);
   } catch {
     return [];
   }
