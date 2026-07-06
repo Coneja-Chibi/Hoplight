@@ -30,6 +30,7 @@ import {
   readPath,
   reconcileOrder,
   writePath,
+  type LensVerdict,
 } from "./editor-core";
 import { FIELD_MODULES, type FieldModule } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
@@ -705,7 +706,14 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // The guided quiz: one question per bright card (your setup's language), the character taking shape
   // on the stage beside it. Pure view over the draft; Skip/Next only move the cursor. The portrait is
   // the stage, not a question, so it drops out of the walked list.
-  const flowModules = FIELD_MODULES.filter((m) => m.kind !== "portrait");
+  const walkable = FIELD_MODULES.filter((m) => m.kind !== "portrait");
+  // the platform lens drives the walk: with targets selected, HIDE drops questions no selected
+  // platform carries (fewer questions), DIM keeps them (marked below). Empty selection = ask all.
+  const moduleVerdict = (m: FieldModule): LensVerdict => lensVerdict([m.path], targets, coverage);
+  const hidByLens = targets.length > 0 && offTarget === "hide";
+  const lensWalk = hidByLens ? walkable.filter((m) => !moduleVerdict(m).off) : walkable;
+  // never strand the walk empty (a near-empty platform under HIDE) - fall back to the full list.
+  const flowModules = lensWalk.length > 0 ? lensWalk : walkable;
   const flowAt = Math.min(flowIndex, flowModules.length - 1);
   const active = flowModules[flowAt]!;
   const goFlow = (i: number): void => setFlowIndex(Math.max(0, Math.min(i, flowModules.length - 1)));
@@ -797,6 +805,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             {active.required && <span className={styles.qreq}> *</span>}
           </h2>
           {active.helper !== undefined && <p className={styles.qsay}>{active.helper}</p>}
+          {moduleVerdict(active).missing.length > 0 && (
+            <p className={styles.qmiss}>{`not carried on: ${moduleVerdict(active).missing.map(platformLabel).join(", ")}`}</p>
+          )}
           <div className={styles.qanswer}>{answerFor(active)}</div>
           <div className={styles.qcontrols}>
             <button type="button" className={styles.qskip} disabled={flowAt === 0 && active.kind !== "rating"} onClick={() => goFlow(flowAt - 1)}>
@@ -860,14 +871,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   // Grid presenter: the SAME field-module registry, one bento card per canonical section. Both grid and
   // stepper read FIELD_MODULES - add a field once, it shows in both. controlFor is the shared renderer.
+  // Media (the portrait) leads: multicol fills the left column first, so first = pinned top-left.
   const GRID_SECTIONS: ReadonlyArray<readonly [prefix: string, label: string]> = [
+    ["media", "Media"],
     ["identity", "Identity"],
     ["persona", "Persona"],
     ["prompts", "Prompts"],
     ["greetings", "Greetings"],
     ["examples", "Examples"],
     ["discovery", "Discovery"],
-    ["media", "Media"],
     ["presentation", "Presentation"],
     ["attribution", "Attribution"],
   ];
