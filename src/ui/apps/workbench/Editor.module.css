@@ -371,8 +371,11 @@
   color: #ff8d9a;
 }
 /* ===== grid presenter: one bento card per canonical section, from the same field registry ===== */
+/* column-WIDTH (not a fixed count) so the bento grid reflows: at 100% ~2 wide columns, and as the
+   editor zoom shrinks, the rem-based column width shrinks with it, so MORE columns fit and the
+   bentos fill the freed width instead of leaving an empty void. */
 .gridsec {
-  columns: 2;
+  columns: 26rem;
   column-gap: 1rem;
   padding: clamp(0.9rem, 2vw, 1.5rem);
   min-width: 0;
@@ -380,9 +383,6 @@
 .gridsec > * {
   break-inside: avoid;
   margin-bottom: 1rem;
-}
-@media (max-width: 60rem) {
-  .gridsec { columns: 1; }
 }
 .gfield {
   display: flex;

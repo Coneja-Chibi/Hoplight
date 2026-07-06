@@ -926,13 +926,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
-  // the editor-wide scale is a pure TRANSFORM (not zoom, no width compensation) so EVERYTHING shrinks
-  // or grows uniformly - fields, images, text, spacing, chrome - anchored top-left. zoom leaves
-  // percentage-width boxes full size; compensating width would refill and defeat the shrink. Below
-  // 100% the editor gets smaller and frees space; above 100% it grows and the pane scrolls.
+  // the editor-wide scale uses zoom (not transform) so the editor REFLOWS as it shrinks - the bento
+  // grid is column-WIDTH based, so smaller = more, narrower bento columns that fill the freed space
+  // (like browser zoom), never a shrink-into-the-corner with an empty void. --a rides along.
   const rootStyle: CSSProperties = {
     ...(entityAccent !== undefined ? { ["--a"]: entityAccent } : {}),
-    ...(editorScale !== 1 ? { transform: `scale(${editorScale})`, transformOrigin: "top left" } : {}),
+    ...(editorScale !== 1 ? { zoom: editorScale } : {}),
   };
   return (
     <div className={styles.root} style={rootStyle}>
