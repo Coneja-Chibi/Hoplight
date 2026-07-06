@@ -33,10 +33,8 @@ import {
   writePath,
   type EditorCard,
 } from "./editor-core";
-import { fieldsFor } from "./inspect-core";
 import { FIELD_MODULES, type FieldModule } from "./fields";
 import styles from "./Editor.module.css";
-import roomStyles from "./styles.module.css";
 
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
@@ -63,11 +61,6 @@ const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
 ];
 
 /** inspector labels the editor writes; the read-only tail shows everything else */
-const COVERED_LABELS = new Set([
-  "tagline", "description", "personality", "scenario", "first message", "example messages",
-  "full name", "title", "age", "pronouns", "tags", "rating",
-]);
-
 const rec = (x: unknown): Record<string, unknown> =>
   x !== null && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, unknown>) : {};
 const str = (x: unknown): string => (typeof x === "string" ? x : "");
@@ -162,8 +155,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [order, setOrder] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
-  const [mode, setMode] = useState<"grid" | "interview">("grid");
-  const [flowIndex, setFlowIndex] = useState(0); // which field module the Interview presenter is on
+  // The guided flow is the only presenter for now (configurability is parked - the presets/toggles
+  // customizer comes later). `mode` stays so the grid render can be re-exposed then, but nothing
+  // flips it today, so the flow always shows.
+  const [mode] = useState<"grid" | "interview">("interview");
+  const [flowIndex, setFlowIndex] = useState(0); // how many questions the guided flow has revealed
+  const activeCardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    activeCardRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [flowIndex]);
   const [coverage, setCoverage] = useState<CoverageInfo[]>([]);
   const [targets, setTargets] = useState<string[]>(() => strArr(ctx.prefs.get(PREF_TARGETS)));
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
@@ -773,42 +773,57 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     }
   };
 
-  // Interview presenter: one field module per screen, walked in registry order. A pure view over the
-  // same draft - Next/Back only moves the cursor, every edit is setField on the whole body.
-  const flowAt = Math.min(flowIndex, FIELD_MODULES.length - 1);
-  const activeModule = FIELD_MODULES[flowAt]!;
-  const goFlow = (i: number): void => setFlowIndex(Math.max(0, Math.min(i, FIELD_MODULES.length - 1)));
-  const interviewView = (
-    <div className={styles.interview}>
-      <div className={styles.iask}>
-        <div className={styles.qcount}>{`Question ${flowAt + 1} of ${FIELD_MODULES.length} · ${activeModule.step}`}</div>
-        <h3 className={styles.qbig}>
-          {activeModule.question}
-          {activeModule.required && <span className={styles.qreq}> *</span>}
-        </h3>
-        {activeModule.helper !== undefined && <p className={styles.qvoice}>{activeModule.helper}</p>}
-        <div className={styles.qcontrol}>{controlFor(activeModule)}</div>
-        <div className={styles.qnav}>
-          <button type="button" className={styles.qghost} disabled={flowAt === 0} onClick={() => goFlow(flowAt - 1)}>
-            &larr; Back
-          </button>
-          <button type="button" className={styles.qghost} onClick={() => goFlow(flowAt + 1)}>
-            Skip
-          </button>
-          <button type="button" className={styles.qnext} disabled={flowAt === FIELD_MODULES.length - 1} onClick={() => goFlow(flowAt + 1)}>
-            Next &rarr;
-          </button>
-        </div>
-        <div className={styles.qdots}>
-          {FIELD_MODULES.map((mod, i) => (
-            <span key={mod.id} className={`${styles.qdot}${i < flowAt ? ` ${styles.qdotDone}` : ""}${i === flowAt ? ` ${styles.qdotOn}` : ""}`} />
-          ))}
-        </div>
+  // The guided flow: the portrait is the sticky left image; every OTHER field is a question that
+  // reveals in order and, once answered, stays as a card in the growing masonry. The active (newest)
+  // card carries the prompt + Back/Skip/Next. Pure view over the draft - advancing only reveals more.
+  const flowModules = FIELD_MODULES.filter((m) => m.kind !== "portrait");
+  const flowAt = Math.min(flowIndex, flowModules.length - 1);
+  const goFlow = (i: number): void => setFlowIndex(Math.max(0, Math.min(i, flowModules.length - 1)));
+  const flowView = (
+    <div className={styles.bento}>
+      <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
+      <div className={styles.masonry}>
+        {flowModules.slice(0, flowAt + 1).map((m, i) => {
+          const active = i === flowAt;
+          return (
+            <div
+              key={m.id}
+              ref={active ? activeCardRef : undefined}
+              className={`${styles.qcard}${active ? ` ${styles.qcardActive}` : ""}`}
+            >
+              <div className={styles.qcardHead}>
+                <span className={styles.qcount}>{`${i + 1} of ${flowModules.length} · ${m.step}`}</span>
+                <h3 className={styles.qbig}>
+                  {m.question}
+                  {m.required && <span className={styles.qreq}> *</span>}
+                </h3>
+                {active && m.helper !== undefined && <p className={styles.qvoice}>{m.helper}</p>}
+              </div>
+              <div className={styles.qcontrol}>{controlFor(m)}</div>
+              {active && (
+                <div className={styles.qnav}>
+                  <button type="button" className={styles.qghost} disabled={flowAt === 0} onClick={() => goFlow(flowAt - 1)}>
+                    &larr; Back
+                  </button>
+                  <button type="button" className={styles.qghost} onClick={() => goFlow(flowAt + 1)}>
+                    Skip
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.qnext}
+                    disabled={flowAt === flowModules.length - 1}
+                    onClick={() => goFlow(flowAt + 1)}
+                  >
+                    Next &rarr;
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-
-  const tail = fieldsFor("character", draft).filter((f) => !COVERED_LABELS.has(f.k) && !f.k.startsWith("alt greeting"));
 
   return (
     <div className={styles.root}>
@@ -825,14 +840,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onOffTarget={pickOffTarget}
         />
         <span className={styles.done}>
-          <span className={styles.seg}>
-            <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
-              Grid
-            </button>
-            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
-              Interview
-            </button>
-          </span>
           <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
             Save
           </button>
@@ -841,30 +848,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </div>
 
       {mode === "grid" ? (
+        // grid render parked for the future flow customizer (Power Grid preset); not reachable today
         <div className={styles.bento}>
           <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
-          {/* every non-portrait card flows into ONE balanced masonry so both columns end near the
-              same height - no dead right half once you scroll past the short utility cards */}
           <div className={styles.masonry}>
             {centerOrdered}
             {rightCards}
           </div>
         </div>
       ) : (
-        interviewView
-      )}
-
-      {tail.length > 0 && (
-        <div className={`${styles.col} ${styles.tailWrap}`}>
-          {tail.map((f) => (
-            <div className={roomStyles.field} key={f.k}>
-              <div className={roomStyles.fk}>{f.k}</div>
-              <div className={roomStyles.fv}>
-                <RenderBox value={f.v} format={f.format} />
-              </div>
-            </div>
-          ))}
-        </div>
+        flowView
       )}
     </div>
   );
