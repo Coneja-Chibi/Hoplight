@@ -12,6 +12,7 @@ import type { CSSProperties, JSX, ReactNode } from "react";
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
+import { RenderBox } from "../../components/render-box";
 import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
 import { CharacterEditor } from "./Editor";
@@ -133,7 +134,9 @@ function InspectorPane({ ctx, piece }: { ctx: AppContext; piece: StudioEntitySum
         {fields.map((f) => (
           <div className={styles.field} key={f.k}>
             <div className={styles.fk}>{f.k}</div>
-            <div className={styles.fv}>{f.v}</div>
+            <div className={styles.fv}>
+              <RenderBox value={f.v} format={f.format} />
+            </div>
           </div>
         ))}
       </div>

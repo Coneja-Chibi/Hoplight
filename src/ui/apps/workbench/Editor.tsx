@@ -19,6 +19,7 @@ import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
 import { ColorPicker } from "../../components/color-picker";
+import { RenderBox } from "../../components/render-box";
 import { normalizeHex } from "../../_shared/color-math";
 import {
   completionOf,
@@ -443,7 +444,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const proseBody = (id: string, path: string): JSX.Element => {
     const value = text(path);
     return (
-      <>
+      <RenderBox value={value} format="markdown">
         <textarea
           className={`${styles.ta}${PROSE_MONO.has(id) ? ` ${styles.mono}` : ""}`}
           spellCheck={false}
@@ -451,7 +452,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onChange={(e) => setField(path, e.target.value)}
         />
         <span className={styles.cnt}>{`${value.length} chars`}</span>
-      </>
+      </RenderBox>
     );
   };
 
@@ -476,12 +477,14 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               remove
             </button>
           </div>
-          <textarea
-            className={`${styles.ta} ${styles.mono}`}
-            spellCheck={false}
-            value={g.text}
-            onChange={(e) => setGreetings(greetings.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
-          />
+          <RenderBox value={g.text} format="markdown">
+            <textarea
+              className={`${styles.ta} ${styles.mono}`}
+              spellCheck={false}
+              value={g.text}
+              onChange={(e) => setGreetings(greetings.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+            />
+          </RenderBox>
         </div>
       ))}
       <button type="button" className={styles.add} onClick={() => setGreetings([...greetings, { text: "" }])}>
@@ -779,7 +782,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           {tail.map((f) => (
             <div className={roomStyles.field} key={f.k}>
               <div className={roomStyles.fk}>{f.k}</div>
-              <div className={roomStyles.fv}>{f.v}</div>
+              <div className={roomStyles.fv}>
+                <RenderBox value={f.v} format={f.format} />
+              </div>
             </div>
           ))}
         </div>

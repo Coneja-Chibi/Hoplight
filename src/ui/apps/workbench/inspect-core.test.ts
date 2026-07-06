@@ -62,6 +62,18 @@ test("surfaces prompt slots, identity facts, and attribution notes", () => {
   }
 });
 
+test("tags each field with a render format: prose markdown, notes html, facts plain", () => {
+  const body = {
+    identity: { description: "**hi**", characterVersion: "1.2" },
+    attribution: { creatorNotes: "<p>note</p>", creator: "ada" },
+  };
+  const fmt = Object.fromEntries(characterFields(body).map((f) => [f.k, f.format]));
+  expect(fmt["description"]).toBe("markdown");
+  expect(fmt["creator notes"]).toBe("html");
+  expect(fmt["character version"]).toBe("plain");
+  expect(fmt["creator"]).toBe("plain");
+});
+
 test("fieldsFor dispatches character and defers unknown kinds", () => {
   const body = { identity: { tagline: "x" } };
   expect(fieldsFor("character", body).length).toBe(1);

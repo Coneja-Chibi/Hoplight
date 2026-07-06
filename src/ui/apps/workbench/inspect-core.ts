@@ -9,11 +9,15 @@
  * character return [] until their own extractor is wired (the pane still shows its honest "soon" note).
  */
 
+import type { RenderFormat } from "../../_shared/render-policy";
+
 export interface InspectField {
   /** short lowercase label (mono, uppercased by the view) */
   k: string;
   /** the field's text, trimmed and non-empty */
   v: string;
+  /** how the value should render: authored prose is markdown, HTML notes are html, facts are plain */
+  format: RenderFormat;
 }
 
 const rec = (x: unknown): Record<string, unknown> =>
@@ -45,35 +49,35 @@ export function characterFields(body: unknown): InspectField[] {
   const discovery = rec(b.discovery);
 
   const out: InspectField[] = [];
-  const add = (k: string, v: string | null): void => {
-    if (v) out.push({ k, v });
+  const add = (k: string, v: string | null, format: RenderFormat = "plain"): void => {
+    if (v) out.push({ k, v, format });
   };
 
-  // the words, in reading order
-  add("tagline", str(identity.tagline));
-  add("description", str(identity.description));
-  add("personality", str(persona.personality));
-  add("scenario", str(persona.scenario));
-  add("appearance", str(persona.appearance));
-  add("first message", str(greetings.firstMessage));
+  // the words, in reading order (authored prose renders as markdown)
+  add("tagline", str(identity.tagline), "markdown");
+  add("description", str(identity.description), "markdown");
+  add("personality", str(persona.personality), "markdown");
+  add("scenario", str(persona.scenario), "markdown");
+  add("appearance", str(persona.appearance), "markdown");
+  add("first message", str(greetings.firstMessage), "markdown");
 
   const alts = Array.isArray(greetings.alternateGreetings) ? greetings.alternateGreetings : [];
   alts.forEach((g, i) => {
     const gr = rec(g);
     const text = str(gr.text);
     const title = str(gr.title);
-    add(title ? `alt greeting · ${title}` : `alt greeting ${i + 1}`, text);
+    add(title ? `alt greeting · ${title}` : `alt greeting ${i + 1}`, text, "markdown");
   });
 
-  add("example messages", str(examples.exampleMessages));
+  add("example messages", str(examples.exampleMessages), "markdown");
 
-  // the prompt slots
-  add("system prompt", str(prompts.systemPrompt));
-  add("post-history instructions", str(prompts.postHistoryInstructions));
-  add("prefill", str(prompts.prefill));
-  add("additional text", str(prompts.additionalText));
+  // the prompt slots (authored prose)
+  add("system prompt", str(prompts.systemPrompt), "markdown");
+  add("post-history instructions", str(prompts.postHistoryInstructions), "markdown");
+  add("prefill", str(prompts.prefill), "markdown");
+  add("additional text", str(prompts.additionalText), "markdown");
 
-  // authored identity facts
+  // authored identity facts (short strings, no markup)
   add("full name", str(identity.fullName));
   add("title", str(identity.title));
   add("age", str(identity.age));
@@ -82,9 +86,9 @@ export function characterFields(body: unknown): InspectField[] {
   add("culture", str(identity.culture));
   add("character version", str(identity.characterVersion));
 
-  // attribution + notes
-  add("creator notes", str(attribution.creatorNotes));
-  add("public note", str(attribution.publicNote));
+  // attribution + notes (creator notes / public note arrive as authored HTML in most tools)
+  add("creator notes", str(attribution.creatorNotes), "html");
+  add("public note", str(attribution.publicNote), "html");
   add("creator", str(attribution.creator));
   add("original creator", str(attribution.originalCreator));
   add("source", joined(attribution.source));

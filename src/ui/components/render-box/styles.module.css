@@ -1,0 +1,117 @@
+/* RenderBox - the toggle bar plus the two faces (rendered / source). The toggle composes the global
+   .stamp button primitive and only adds sizing here. The rendered face carries prose typography so
+   markdown headings/lists/links read as authored; the source face is monospace raw text. */
+.box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.bar {
+  display: flex;
+  justify-content: flex-end;
+}
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.4rem;
+}
+.toggle svg {
+  display: block;
+}
+
+/* rendered output: sanitized HTML, given readable prose defaults */
+.out {
+  min-width: 0;
+  color: #d7d3ca;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.out :global(p) {
+  margin: 0 0 0.6rem;
+}
+.out :global(p:last-child) {
+  margin-bottom: 0;
+}
+.out :global(h1),
+.out :global(h2),
+.out :global(h3) {
+  font-family: var(--font-big);
+  font-weight: 800;
+  margin: 0.4rem 0 0.5rem;
+  color: #e7e3da;
+}
+.out :global(h1) { font-size: 1rem; }
+.out :global(h2) { font-size: 0.9rem; }
+.out :global(h3) { font-size: 0.8125rem; }
+.out :global(strong) { color: #f2eee5; }
+.out :global(em) { color: #cbc6d6; }
+.out :global(ul),
+.out :global(ol) {
+  margin: 0 0 0.6rem;
+  padding-left: 1.2rem;
+}
+.out :global(li) {
+  margin: 0.15rem 0;
+}
+.out :global(a) {
+  color: var(--a, var(--accent, #ff6f61));
+  text-decoration: underline;
+}
+.out :global(blockquote) {
+  margin: 0 0 0.6rem;
+  padding-left: 0.7rem;
+  border-left: 3px solid #2b2833;
+  color: #a7a2b3;
+}
+.out :global(code) {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: #17161d;
+  border: 1px solid #2b2833;
+  padding: 0.05rem 0.25rem;
+}
+.out :global(pre) {
+  background: #131218;
+  border: 2px solid #2b2833;
+  padding: 0.6rem;
+  overflow-x: auto;
+}
+.out :global(pre) :global(code) {
+  border: none;
+  background: none;
+  padding: 0;
+}
+.out :global(img) {
+  max-width: 100%;
+  height: auto;
+}
+.out :global(hr) {
+  border: none;
+  border-top: 2px solid #2b2833;
+  margin: 0.6rem 0;
+}
+
+/* source face: raw stored text, monospace, wrapped */
+.src {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #a7a2b3;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* plain fields: inline safe text, no toggle */
+.plain {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
