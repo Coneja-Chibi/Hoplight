@@ -13,7 +13,7 @@
  * every untouched field - the no-data-loss law, pinned in editor-core tests.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { JSX, ReactNode } from "react";
+import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-contract";
 import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
@@ -34,6 +34,7 @@ import {
   type EditorCard,
 } from "./editor-core";
 import { FIELD_MODULES, type FieldModule } from "./fields";
+import { signatureFromPng } from "../../../studio/signature-color";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -155,15 +156,59 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [order, setOrder] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
-  // The guided flow is the only presenter for now (configurability is parked - the presets/toggles
-  // customizer comes later). `mode` stays so the grid render can be re-exposed then, but nothing
-  // flips it today, so the flow always shows.
-  const [mode] = useState<"grid" | "interview">("interview");
+  // Quiz is the default presenter; Grid (the bento) is the power view. The toggle in the header
+  // switches between them - both pure views over the same draft.
+  const [mode, setMode] = useState<"grid" | "interview">("interview");
   const [flowIndex, setFlowIndex] = useState(0); // how many questions the guided flow has revealed
   const activeCardRef = useRef<HTMLDivElement>(null);
+
+  // drag-resizable split between the question card and the stage (the user sets the balance)
+  const [splitPct, setSplitPct] = useState(42);
+  const quizRef = useRef<HTMLDivElement>(null);
+  const onSplitDown = (e: ReactPointerEvent): void => {
+    e.preventDefault();
+    const move = (ev: PointerEvent): void => {
+      const el = quizRef.current;
+      if (el === null) return;
+      const r = el.getBoundingClientRect();
+      const pct = ((ev.clientX - r.left) / r.width) * 100;
+      setSplitPct(Math.max(24, Math.min(72, pct)));
+    };
+    const up = (): void => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
   useEffect(() => {
     activeCardRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [flowIndex]);
+
+  // the character's own accent, derived from its portrait art (signatureColor), lights the stage.
+  // Client-side decode: the portrait bytes are fetched once and reduced to one hue; failure = no color.
+  const [artAccent, setArtAccent] = useState<string | null>(null);
+  useEffect(() => {
+    if (!piece.hasPortrait) {
+      setArtAccent(null);
+      return;
+    }
+    let cancelled = false;
+    const url = `/api/studio/portrait?kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`;
+    void (async () => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) return;
+        const color = signatureFromPng(new Uint8Array(await res.arrayBuffer()));
+        if (!cancelled && color !== null) setArtAccent(color);
+      } catch {
+        // no accent; the stage falls back to the house accent
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [piece.id, piece.kind, piece.hasPortrait]);
   const [coverage, setCoverage] = useState<CoverageInfo[]>([]);
   const [targets, setTargets] = useState<string[]>(() => strArr(ctx.prefs.get(PREF_TARGETS)));
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
@@ -773,60 +818,160 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     }
   };
 
-  // The guided flow: the portrait is the sticky left image; every OTHER field is a question that
-  // reveals in order and, once answered, stays as a card in the growing masonry. The active (newest)
-  // card carries the prompt + Back/Skip/Next. Pure view over the draft - advancing only reveals more.
+  // The guided quiz: one question per bright card (your setup's language), the character taking shape
+  // on the stage beside it. Pure view over the draft; Skip/Next only move the cursor. The portrait is
+  // the stage, not a question, so it drops out of the walked list.
   const flowModules = FIELD_MODULES.filter((m) => m.kind !== "portrait");
   const flowAt = Math.min(flowIndex, flowModules.length - 1);
+  const active = flowModules[flowAt]!;
   const goFlow = (i: number): void => setFlowIndex(Math.max(0, Math.min(i, flowModules.length - 1)));
+  const filled = (m: FieldModule): boolean => {
+    const v = readPath(draft, m.path);
+    return v !== undefined && v !== "" && !(Array.isArray(v) && v.length === 0);
+  };
+  const answeredCount = flowModules.filter(filled).length;
+
+  // the answer per kind: text/prose get a ruled write field; rating gets pickable cards (the rose
+  // PICKED snap); the composite editors keep their bespoke bodies inside the card.
+  const RATING_OPTIONS: ReadonlyArray<{ value: string; title: string; sub: string }> = [
+    { value: "", title: "Unrated", sub: "Not set. We guess from the tags." },
+    { value: "all-ages", title: "All ages", sub: "Safe for everyone. No mature themes." },
+    { value: "mature", title: "Mature", sub: "Adult themes, violence, some spice." },
+    { value: "explicit", title: "Explicit", sub: "Anything goes. After dark." },
+  ];
+  const answerFor = (m: FieldModule): JSX.Element => {
+    if (m.kind === "rating") {
+      const cur = text(m.path);
+      return (
+        <div className={styles.opts}>
+          {RATING_OPTIONS.map((o, i) => {
+            const on = cur === o.value;
+            return (
+              <button
+                key={o.value || "unrated"}
+                type="button"
+                className={`${styles.opt}${on ? ` ${styles.optOn}` : ""}`}
+                onClick={() => setField(m.path, o.value)}
+              >
+                {on && <span className={styles.optMark}>Picked</span>}
+                <span className={styles.rank}>{String.fromCharCode(65 + i)}</span>
+                <span className={styles.optBody}>
+                  <span className={styles.optTitle}>{o.title}</span>
+                  <span className={styles.optSub}>{o.sub}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+    if (m.kind === "text") {
+      return <input className={styles.write} placeholder={m.placeholder} value={text(m.path)} onChange={(e) => setField(m.path, e.target.value)} />;
+    }
+    // prose renders through RenderBox (rendered by default, one click to edit the source)
+    if (m.kind === "prose") return <div className={styles.composite}>{proseBody(m.id, m.path)}</div>;
+    return <div className={styles.composite}>{controlFor(m)}</div>;
+  };
+
+  // the stage dossier: key facts, lit when answered, ghosted (or "answering now") until then
+  const dossier: ReadonlyArray<{ k: string; path: string; v: string }> = [
+    { k: "Name", path: "identity.name", v: text("identity.name") },
+    { k: "Tagline", path: "identity.tagline", v: text("identity.tagline") },
+    { k: "Tags", path: "discovery.tags", v: strArr(readPath(draft, "discovery.tags")).slice(0, 5).join(" · ") },
+    { k: "Persona", path: "persona.personality", v: text("persona.personality") || text("identity.description") },
+    { k: "Rating", path: "discovery.rating", v: text("discovery.rating") },
+  ];
+  const stageName = text("identity.name") || piece.name;
+  const snippet = (s: string): string => (s.length > 84 ? `${s.slice(0, 84).trimEnd()}…` : s);
+  const entityAccent =
+    str(readPath(draft, "presentation.signatureColor")) ||
+    strArr(readPath(draft, "presentation.gradientColors"))[0] ||
+    artAccent ||
+    undefined;
+
   const flowView = (
-    <div className={styles.bento}>
-      <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
-      <div className={styles.masonry}>
-        {flowModules.slice(0, flowAt + 1).map((m, i) => {
-          const active = i === flowAt;
-          return (
-            <div
-              key={m.id}
-              ref={active ? activeCardRef : undefined}
-              className={`${styles.qcard}${active ? ` ${styles.qcardActive}` : ""}`}
+    <div className={styles.quiz} ref={quizRef} style={{ ["--ql"]: `${splitPct}%` } as CSSProperties}>
+      <div className={styles.qcol}>
+        <div className={styles.qcard} ref={activeCardRef}>
+          <span className={styles.qframe} />
+          <div className={styles.qtop}>
+            <span className={styles.qstep}>{active.step}</span>
+            <span className={styles.qprog}>
+              <span className={styles.qdots}>
+                {flowModules.map((mod, i) => (
+                  <i key={mod.id} className={i < flowAt ? styles.qdotDone : i === flowAt ? styles.qdotNow : undefined} />
+                ))}
+              </span>
+              {`${flowAt + 1} of ${flowModules.length}`}
+            </span>
+          </div>
+          <h2 className={styles.qbig}>
+            {active.question}
+            {active.required && <span className={styles.qreq}> *</span>}
+          </h2>
+          {active.helper !== undefined && <p className={styles.qsay}>{active.helper}</p>}
+          <div className={styles.qanswer}>{answerFor(active)}</div>
+          <div className={styles.qcontrols}>
+            <button type="button" className={styles.qskip} disabled={flowAt === 0 && active.kind !== "rating"} onClick={() => goFlow(flowAt - 1)}>
+              &larr; Back
+            </button>
+            <button
+              type="button"
+              className={`stamp ${styles.qnext}`}
+              disabled={flowAt === flowModules.length - 1}
+              onClick={() => goFlow(flowAt + 1)}
             >
-              <div className={styles.qcardHead}>
-                <span className={styles.qcount}>{`${i + 1} of ${flowModules.length} · ${m.step}`}</span>
-                <h3 className={styles.qbig}>
-                  {m.question}
-                  {m.required && <span className={styles.qreq}> *</span>}
-                </h3>
-                {active && m.helper !== undefined && <p className={styles.qvoice}>{m.helper}</p>}
+              Next &rarr;
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        className={styles.splitter}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize panels"
+        onPointerDown={onSplitDown}
+      />
+
+      <div className={styles.stagecol}>
+        <p className={styles.stagecap}>
+          Your character <em>&middot; taking shape</em>
+        </p>
+        <div className={styles.stage}>
+          <span className={`${styles.cr} ${styles.crtl}`} />
+          <span className={`${styles.cr} ${styles.crtr}`} />
+          <span className={`${styles.cr} ${styles.crbl}`} />
+          <span className={`${styles.cr} ${styles.crbr}`} />
+          <div className={styles.stinner}>
+            <div className={styles.pcol}>
+              <div className={styles.pplate}>
+                {artUrl !== null && <img className={styles.pimg} src={artUrl} alt="" />}
               </div>
-              <div className={styles.qcontrol}>{controlFor(m)}</div>
-              {active && (
-                <div className={styles.qnav}>
-                  <button type="button" className={styles.qghost} disabled={flowAt === 0} onClick={() => goFlow(flowAt - 1)}>
-                    &larr; Back
-                  </button>
-                  <button type="button" className={styles.qghost} onClick={() => goFlow(flowAt + 1)}>
-                    Skip
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.qnext}
-                    disabled={flowAt === flowModules.length - 1}
-                    onClick={() => goFlow(flowAt + 1)}
-                  >
-                    Next &rarr;
-                  </button>
-                </div>
-              )}
+              <b className={styles.pname}>{stageName}</b>
             </div>
-          );
-        })}
+            <div className={styles.dossier}>
+              {dossier.map((row) => {
+                const has = row.v.trim() !== "";
+                return (
+                  <div key={row.k} className={`${styles.drow}${has ? "" : ` ${styles.drowAwait}`}`}>
+                    <span className={styles.dk}>{row.k}</span>
+                    <span className={styles.dv}>{has ? snippet(row.v) : row.path === active.path ? "answering now…" : "—"}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className={styles.floor} />
+          <div className={styles.taking}>{`~${tokenEstimate(draft)} tokens · ${answeredCount} of ${flowModules.length} answered`}</div>
+        </div>
       </div>
     </div>
   );
 
   return (
-    <div className={styles.root}>
+    <div className={styles.root} style={entityAccent !== undefined ? ({ ["--a"]: entityAccent } as CSSProperties) : undefined}>
       <div className={styles.tabstrip}>
         <PlatformTabs
           platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
@@ -840,6 +985,14 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onOffTarget={pickOffTarget}
         />
         <span className={styles.done}>
+          <span className={styles.seg}>
+            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
+              Quiz
+            </button>
+            <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
+              Grid
+            </button>
+          </span>
           <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
             Save
           </button>

@@ -72,6 +72,10 @@
   --status-fg: #e7e3da;
   --status-dim: #8a8496;
   --tooth: rgba(10, 10, 11, 0.026);
+  /* the editor quiz's character stage - FLIPS with the theme (Chi 2026-07-06, overrides the
+     dark-in-both stage rule for this surface): a deeper tan than the card on paper. */
+  --q-stage: #eae0ca;
+  --q-stage-deck: #dccdb2;
 }
 
 /* DARK = the forge (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
@@ -103,6 +107,9 @@
   --status-fg: #c9c4d2;
   --status-dim: #6a6576;
   --tooth: rgba(255, 255, 255, 0.02);
+  /* the editor quiz's character stage - the deep well on the forge (flips per Chi's call) */
+  --q-stage: #08080a;
+  --q-stage-deck: #131119;
 }
 
 /* the stamp: rest sits, hover lifts, active presses down (the beloved interaction, one place) */

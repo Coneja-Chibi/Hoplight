@@ -370,100 +370,411 @@
   border-color: #7a2b3a;
   color: #ff8d9a;
 }
-/* Guided flow: answered questions accumulate as masonry cards; the newest (active) card carries the
-   question prompt + Back/Skip/Next, and the character sheet grows before your eyes. */
+/* ===== the guided quiz: bright question card (the setup's language) + the character stage ===== */
+.quiz {
+  display: grid;
+  grid-template-columns: minmax(0, var(--ql, 42%)) 14px minmax(0, 1fr);
+  align-items: start;
+  padding: clamp(1.1rem, 3vw, 2rem) clamp(0.9rem, 2vw, 1.6rem);
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--tooth) 0.5px, transparent 0.6px), radial-gradient(var(--tooth) 0.5px, transparent 0.6px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 2px 3px;
+}
+@media (max-width: 60rem) {
+  .quiz { grid-template-columns: 1fr; gap: 1.25rem; }
+}
+.qcol { min-width: 0; }
+/* the drag handle between the panels: a thin rule that lights up on hover */
+.splitter {
+  align-self: stretch;
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+.splitter::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--ghost);
+}
+.splitter:hover::before {
+  background: var(--rose);
+  width: 3px;
+}
+@media (max-width: 60rem) {
+  .splitter { display: none; }
+}
+
+/* the question card: warm stock, a deck sitting behind, an inset frame, offset shadow that flips */
 .qcard {
-  border: 3px solid #000;
-  border-top: 3px solid #2b2833;
-  background: #17161d;
-  padding: 0.75rem 0.8rem;
+  position: relative;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 9px 9px 0 0 var(--ink);
+  padding: clamp(1.3rem, 3vw, 1.9rem);
+}
+.qcard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translate(7px, 7px);
+  background: var(--paper-2);
+  border: 3px solid var(--edge);
+  z-index: -1;
+}
+.qframe {
+  position: absolute;
+  inset: 9px;
+  border: 1px solid var(--ghost);
+  pointer-events: none;
+}
+.qtop {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.9rem;
+  border-bottom: 1.5px solid var(--ghost);
 }
-.qcardActive {
-  border-top: 3px solid var(--rose, #e11d48);
-  box-shadow: 5px 5px 0 0 #000;
-}
-.qcardHead {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-}
-.qcount {
+.qstep {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.09em;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #6a6576;
+  color: var(--text-dim);
+  border: 2px solid var(--ghost);
+  padding: 0.2rem 0.45rem;
+}
+.qprog {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.qdots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.qdots i {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  display: block;
+}
+.qdotDone {
+  background: var(--edge);
+}
+.qdotNow {
+  background: var(--rose);
+  border-color: var(--rose);
 }
 .qbig {
+  position: relative;
   font-family: var(--font-big);
-  font-weight: 800;
-  font-size: clamp(1rem, 2.2vw, 1.25rem);
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-  color: #f2eee5;
-  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.05rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 1.2rem 0 0.35rem;
   text-wrap: balance;
 }
 .qreq {
-  color: var(--rose, #e11d48);
+  color: var(--rose);
 }
-.qvoice {
+.qsay {
+  position: relative;
   font-family: var(--font-body);
   font-style: italic;
-  font-size: 0.92rem;
-  color: #a6a1b4;
-  margin: 0.05rem 0 0;
+  font-weight: 600;
+  font-size: clamp(1.02rem, 1rem + 0.2vw, 1.12rem);
+  color: var(--text-soft);
+  margin: 0 0 1.2rem;
 }
-.qcontrol {
+.qanswer {
+  position: relative;
+}
+.write {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--edge);
+  padding: 0.5rem 0.2rem;
+}
+.write::placeholder {
+  color: var(--text-faint);
+}
+.writeArea {
+  min-height: 7rem;
+  resize: vertical;
+  line-height: 1.45;
+}
+.composite {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+}
+/* pickable answer cards: a hand you choose from; the pick snaps into the rose PICKED frame */
+.opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.opt {
+  position: relative;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 5px 5px 0 0 var(--ink);
+  padding: 0.8rem 0.95rem;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+}
+.opt:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 0 var(--ink);
+}
+.opt:active {
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 0 var(--ink);
+}
+.optOn {
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 0 var(--rose);
+  border-color: var(--rose);
+}
+@media (prefers-reduced-motion: reduce) {
+  .opt { transition: none; }
+}
+.rank {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--edge);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--paper-2);
+  color: var(--text);
+}
+.optOn .rank {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+.optBody {
   min-width: 0;
 }
-.qnav {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.35rem;
-}
-.qghost {
+.optMark {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--rose);
+  color: var(--stage-paper);
   font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.6rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: transparent;
-  border: 2px solid #2b2833;
-  color: #a6a1b4;
-  padding: 0.45rem 0.75rem;
-  cursor: pointer;
+  padding: 0.15rem 0.4rem;
 }
-.qghost:disabled {
-  opacity: 0.4;
+.optTitle {
+  display: block;
+  font-family: var(--font-big);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.optSub {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.qcontrols {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+.qskip {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+.qskip:disabled {
+  opacity: 0.35;
   cursor: default;
+  text-decoration: none;
 }
 .qnext {
-  margin-left: auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-big);
   font-weight: 700;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
-  background: var(--rose, #e11d48);
-  color: #faf8f3;
-  border: 3px solid #000;
-  box-shadow: 3px 3px 0 0 #000;
-  padding: 0.45rem 0.9rem;
-  cursor: pointer;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--stage-paper);
+  background: var(--rose);
+  padding: 0.65rem 1.3rem;
 }
 .qnext:disabled {
   opacity: 0.5;
-  box-shadow: none;
-  cursor: default;
+  pointer-events: none;
+}
+
+/* the stage: the character taking shape (dark well or light panel per theme) */
+.stagecol {
+  align-self: start;
+  min-width: 0;
+}
+.stagecap {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.stagecap::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--ghost);
+}
+.stagecap em {
+  font-style: normal;
+  color: var(--a, var(--accent));
+}
+.stage {
+  position: relative;
+  background: var(--q-stage);
+  border: 3px solid var(--edge);
+  box-shadow: 9px 9px 0 0 var(--ink);
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+}
+.cr {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--text);
+}
+.crtl { top: 9px; left: 9px; border-right: none; border-bottom: none; }
+.crtr { top: 9px; right: 9px; border-left: none; border-bottom: none; }
+.crbl { bottom: 9px; left: 9px; border-right: none; border-top: none; }
+.crbr { bottom: 9px; right: 9px; border-left: none; border-top: none; }
+.stinner {
+  display: grid;
+  grid-template-columns: 9rem 1fr;
+  gap: 1.1rem;
+  padding: 0.5rem;
+}
+@media (max-width: 34rem) {
+  .stinner { grid-template-columns: 1fr; }
+}
+.pcol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.pplate {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 3px solid var(--a, var(--accent));
+  background: var(--q-stage-deck);
+  overflow: hidden;
+}
+.pimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.pname {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.dossier {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+}
+.drow {
+  display: flex;
+  gap: 0.7rem;
+  align-items: baseline;
+  padding: 0.45rem 0;
+  border-bottom: 1.5px solid var(--ghost);
+}
+.drow:last-child {
+  border-bottom: none;
+}
+.dk {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  width: 4.2rem;
+  flex: none;
+}
+.dv {
+  font-family: var(--font-body);
+  color: var(--text);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.drowAwait .dv {
+  color: var(--text-faint);
+  font-style: italic;
+}
+.floor {
+  height: 2px;
+  background: var(--rose);
+  margin: 1rem 0.5rem 0;
+}
+.taking {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0.7rem 0.5rem 0;
 }
 
 /* ===== 1:1 pass (vs-editor-2 exact values; later definitions override the first-slice block) ===== */
