@@ -158,12 +158,23 @@ export const FIELD_MODULES: FieldModule[] = [
     question: "Start their reply for them?", helper: "Assistant prefill (Claude-style): the first words of every response. Optional.", sheetLabel: "Prefill" },
   { id: "additionalText", path: "prompts.additionalText", kind: "prose", step: "prompts",
     question: "Any extra text to append?", helper: "Plain text added to the prompt. Optional.", sheetLabel: "Additional text" },
+  { id: "depthInjections", path: "prompts.depthInjections", kind: "list-subeditor", step: "prompts", addLabel: "+ add an injection",
+    question: "Inject anything at a set depth?", helper: "Text slipped into the chat N messages from the end. Advanced. Optional.", sheetLabel: "Depth injections",
+    subFields: [
+      { key: "text", kind: "prose", label: "Text" },
+      { key: "depth", kind: "number", label: "Depth", number: { min: 0, step: 1 } },
+      { key: "role", kind: "select", label: "Role",
+        options: [{ value: "system", label: "System" }, { value: "user", label: "User" }, { value: "assistant", label: "Assistant" }] },
+      { key: "enabled", kind: "toggle", label: "Enabled" },
+    ] },
 
   // advanced - how the story starts and sounds
   { id: "firstMes", path: "greetings.firstMessage", kind: "prose", step: "advanced",
     question: "How do they say hello?", helper: "Their first message to open a chat.", sheetLabel: "First message" },
   { id: "alternateGreetings", path: "greetings.alternateGreetings", kind: "greetings", step: "advanced",
     question: "Any alternate greetings?", helper: "Other ways a chat can open. Optional.", sheetLabel: "Alt greetings" },
+  { id: "groupOnlyGreetings", path: "greetings.groupOnlyGreetings", kind: "greetings", step: "advanced",
+    question: "Any group-only greetings?", helper: "Openers used only in group chats. Optional.", sheetLabel: "Group-only greetings" },
   { id: "mesExample", path: "examples.exampleMessages", kind: "prose", step: "advanced",
     question: "Show a sample of their voice?", helper: "Example dialogue teaches the model how they talk.", sheetLabel: "Example messages" },
 
@@ -205,6 +216,18 @@ export const FIELD_MODULES: FieldModule[] = [
     subFields: [
       { key: "phrase", kind: "text", label: "Phrase", placeholder: "a phrase" },
       { key: "weight", kind: "number", label: "Weight", number: { step: 1 } },
+    ] },
+  { id: "mediaLinks", path: "presentation.mediaLinks", kind: "list", step: "finalize",
+    question: "Any media links?", helper: "Links shown on their card (art, refs, socials). Add each, press enter. Optional.", sheetLabel: "Media links" },
+  { id: "risuSettings", path: "settings.risu", kind: "structured-subeditor", step: "finalize",
+    question: "RisuAI display settings?", helper: "How RisuAI shows them. Only used on RisuAI. Optional.", sheetLabel: "RisuAI settings",
+    subFields: [
+      { key: "viewScreen", kind: "select", label: "View screen",
+        options: [{ value: "none", label: "None" }, { value: "emotion", label: "Emotion" }, { value: "imggen", label: "Image gen" }] },
+      { key: "largePortrait", kind: "toggle", label: "Large portrait" },
+      { key: "inlayViewScreen", kind: "toggle", label: "Inlay view screen" },
+      { key: "utilityBot", kind: "toggle", label: "Utility bot" },
+      { key: "lorePlus", kind: "toggle", label: "Lore+" },
     ] },
   { id: "voice", path: "persona.voice", kind: "structured-subeditor", step: "finalize",
     question: "A voice for them?", helper: "Text-to-speech settings, where a platform supports it. Optional.", sheetLabel: "Voice",

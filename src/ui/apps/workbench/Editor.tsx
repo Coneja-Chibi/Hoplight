@@ -69,8 +69,8 @@ interface Greeting {
   text: string;
   title?: string;
 }
-const greetingsOf = (draft: unknown): Greeting[] => {
-  const raw = readPath(draft, "greetings.alternateGreetings");
+const greetingsOf = (draft: unknown, path: string): Greeting[] => {
+  const raw = readPath(draft, path);
   if (!Array.isArray(raw)) return [];
   return raw.map((g) => ({ text: str(rec(g).text), title: str(rec(g).title) || undefined }));
 };
@@ -442,42 +442,42 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     );
   };
 
-  const greetings = greetingsOf(draft);
-  const setGreetings = (rows: Greeting[]): void =>
-    setField(
-      "greetings.alternateGreetings",
-      rows.filter((g) => g.text !== "" || (g.title ?? "") !== ""),
-    );
-  const greetingsBody = (
-    <>
-      {greetings.map((g, i) => (
-        <div className={styles.greetRow} key={i}>
-          <div className={styles.greetHead}>
-            <input
-              className={styles.in}
-              placeholder="optional title"
-              value={g.title ?? ""}
-              onChange={(e) => setGreetings(greetings.map((x, j) => (j === i ? { ...x, title: e.target.value || undefined } : x)))}
-            />
-            <button type="button" className={styles.rm} onClick={() => setGreetings(greetings.filter((_, j) => j !== i))}>
-              remove
-            </button>
+  // greetings control, bound to a path so alternateGreetings AND groupOnlyGreetings share one editor.
+  const greetingsBodyFor = (path: string): JSX.Element => {
+    const rows = greetingsOf(draft, path);
+    const setRows = (next: Greeting[]): void =>
+      setField(path, next.filter((g) => g.text !== "" || (g.title ?? "") !== ""));
+    return (
+      <>
+        {rows.map((g, i) => (
+          <div className={styles.greetRow} key={i}>
+            <div className={styles.greetHead}>
+              <input
+                className={styles.in}
+                placeholder="optional title"
+                value={g.title ?? ""}
+                onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, title: e.target.value || undefined } : x)))}
+              />
+              <button type="button" className={styles.rm} onClick={() => setRows(rows.filter((_, j) => j !== i))}>
+                remove
+              </button>
+            </div>
+            <RenderBox value={g.text} format="markdown">
+              <textarea
+                className={`${styles.ta} ${styles.mono}`}
+                spellCheck={false}
+                value={g.text}
+                onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
+              />
+            </RenderBox>
           </div>
-          <RenderBox value={g.text} format="markdown">
-            <textarea
-              className={`${styles.ta} ${styles.mono}`}
-              spellCheck={false}
-              value={g.text}
-              onChange={(e) => setGreetings(greetings.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
-            />
-          </RenderBox>
-        </div>
-      ))}
-      <button type="button" className={styles.add} onClick={() => setGreetings([...greetings, { text: "" }])}>
-        + add a greeting
-      </button>
-    </>
-  );
+        ))}
+        <button type="button" className={styles.add} onClick={() => setRows([...rows, { text: "" }])}>
+          + add a greeting
+        </button>
+      </>
+    );
+  };
 
   const gradient = strArr(readPath(draft, "presentation.gradientColors"));
   const setGradient = (rows: string[]): void =>
@@ -730,7 +730,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       case "portrait": return leftCard;
       case "gradient": return gradientBody;
       case "palette": return paletteBody;
-      case "greetings": return greetingsBody;
+      case "greetings": return greetingsBodyFor(m.path);
       case "background": return backgroundBody;
       case "spotlight": return spotlightBody;
       case "list": {
