@@ -245,7 +245,7 @@
 .hint {
   font-family: var(--font-mono);
   font-size: 0.5625rem;
-  color: #4a4556;
+  color: var(--text-dim, #a6a1b4); /* readability floor: #4a4556 was ~2:1, invisible on the card */
   letter-spacing: 0.05em;
 }
 .tags {
@@ -317,32 +317,12 @@
   color: #e7e3da;
   border-color: #8f8a9e;
 }
-.gradRow {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-.gradSlot {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-.swatch {
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
+/* live preview of the accent gradient the chosen stops blend into */
+.gradBar {
+  height: 2.4rem;
   border: 3px solid #000;
-  box-shadow: 2px 2px 0 0 #000;
-}
-.hexIn {
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  width: 5.2rem;
-  background: #0a0a0b;
-  border: 2px solid #2b2833;
-  color: #c9c4d2;
-  padding: 0.3rem 0.4rem;
-  text-transform: lowercase;
+  box-shadow: 3px 3px 0 0 #000;
+  margin: 0.1rem 0 0.5rem;
 }
 .palRow {
   display: flex;

@@ -171,6 +171,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     ctx.prefs.get(PREF_OFF_TARGET) === "hide" ? "hide" : "dim",
   );
   const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
+  const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
 
   useEffect(() => {
     void ctx.api.coverage().then(setCoverage).catch(() => setCoverage([]));
@@ -494,28 +495,64 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   );
 
   const gradient = strArr(readPath(draft, "presentation.gradientColors"));
+  const setGradient = (rows: string[]): void =>
+    setField("presentation.gradientColors", rows.filter(Boolean).slice(0, 3));
+  const gradAt = Math.min(gradSel, Math.max(0, gradient.length - 1));
+  // a single color renders solid; two or more blend left to right (a 1-stop gradient is invalid CSS)
+  const gradCss = gradient.length < 2 ? (gradient[0] ?? "transparent") : `linear-gradient(90deg, ${gradient.join(", ")})`;
   const gradientBody = (
     <>
-      <span className={styles.hint}>up to 3 colors for the gradient accent</span>
-      <div className={styles.gradRow}>
-        {[0, 1, 2].map((i) => (
-          <span className={styles.gradSlot} key={i}>
-            <span className={styles.swatch} style={{ background: gradient[i] ?? "transparent" }} />
-            <input
-              className={styles.hexIn}
-              placeholder="#hex"
-              value={gradient[i] ?? ""}
-              onChange={(e) => {
-                const next = [...gradient];
-                const norm = normalizeHex(e.target.value);
-                if (e.target.value === "") next.splice(i, 1);
-                else next[i] = norm ?? e.target.value;
-                setField("presentation.gradientColors", next.filter(Boolean).slice(0, 3));
-              }}
-            />
-          </span>
+      <span className={styles.hint}>up to 3 colors, blended left to right into the accent gradient</span>
+      <div className={styles.palGrid}>
+        {gradient.map((hex, i) => (
+          <button
+            key={i}
+            type="button"
+            className={`${styles.palTile}${i === gradAt ? ` ${styles.palTileOn}` : ""}`}
+            onClick={() => setGradSel(i)}
+            title={hex}
+          >
+            <span className={styles.palChip} style={{ background: hex }} />
+            <span className={styles.palName}>{hex}</span>
+          </button>
         ))}
+        {gradient.length < 3 && (
+          <button
+            type="button"
+            className={styles.palAdd}
+            onClick={() => {
+              const next = [...gradient, "#e11d48"];
+              setGradient(next);
+              setGradSel(next.length - 1);
+            }}
+          >
+            + add
+          </button>
+        )}
       </div>
+      {gradient.length === 0 ? (
+        <span className={styles.hint}>no colors yet - add one to start the gradient</span>
+      ) : (
+        <>
+          <div className={styles.gradBar} style={{ background: gradCss }} />
+          <div className={styles.palEdit}>
+            <ColorPicker
+              value={normalizeHex(gradient[gradAt] ?? "") ?? gradient[gradAt]}
+              onChange={(hex) => setGradient(gradient.map((c, i) => (i === gradAt ? hex : c)))}
+            />
+            <button
+              type="button"
+              className={styles.rm}
+              onClick={() => {
+                setGradient(gradient.filter((_, i) => i !== gradAt));
+                setGradSel(Math.max(0, gradAt - 1));
+              }}
+            >
+              remove color
+            </button>
+          </div>
+        </>
+      )}
     </>
   );
 
