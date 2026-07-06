@@ -172,6 +172,9 @@ export function App(): JSX.Element | null {
           }),
       },
     }),
+    // storeState is an identity TRIGGER, not a consumed value: its whole job is invalidating ctx on
+    // any store change (the anti-staleness rule above); eslint correctly notes it is unused inside
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [storeState],
   );
 

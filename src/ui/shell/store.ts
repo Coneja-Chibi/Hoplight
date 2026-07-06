@@ -254,10 +254,12 @@ export const useShellStore = create<ShellState>((set, get) => ({
   },
 
   setStatus(text) {
-    set({ statusNote: text });
+    if (get().statusNote === text) return; // idempotent: same-value writes no-op, so any
+    set({ statusNote: text });             // effect-echo loop settles in one pass instead of spinning
   },
 
   setStudioCount(n) {
+    if (get().studioCount === n) return; // idempotent (same loop-killing rule as setStatus)
     set({ studioCount: n });
   },
 
@@ -355,3 +357,29 @@ export const useShellStore = create<ShellState>((set, get) => ({
 export function workbenchRecents(): Record<string, number> {
   return parseRecents(useShellStore.getState().settings[SETTING_KEYS.workbenchRecents]);
 }
+
+// -- write-storm tripwire ---------------------------------------------------------------------------
+// A burst of store writes inside one task is ALWAYS a bug (a render-phase write or an effect echo
+// loop). React's own failure mode is a frozen app with "Maximum update depth exceeded" pointing at
+// its internals; this converts the storm into a loud, NAMED error at the write site instead. The
+// idempotent-setter rule above prevents the common class; this catches whatever invents a new one.
+const WRITE_STORM_LIMIT = 150;
+let writesThisTask = 0;
+let resetQueued = false;
+useShellStore.subscribe(() => {
+  writesThisTask++;
+  if (!resetQueued) {
+    resetQueued = true;
+    setTimeout(() => {
+      writesThisTask = 0;
+      resetQueued = false;
+    }, 0);
+  }
+  if (writesThisTask > WRITE_STORM_LIMIT) {
+    writesThisTask = 0;
+    throw new Error(
+      "shell-store: write storm - more than 150 store writes in one task. Almost certainly a " +
+        "render-phase store write or an effect that writes what it subscribes to. Check the stack.",
+    );
+  }
+});

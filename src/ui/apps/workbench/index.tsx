@@ -206,7 +206,10 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
 
   useEffect(() => {
     void ctx.api.listEntities().then(setEntities);
-  }, [ctx]);
+    // mount-once on purpose: ctx identity churns on every store write (whole-store reactivity), and
+    // the shelf list only feeds the recents rail - refreshing it per keystroke would be noise
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const pieces = ctx.workbench.pieces();
   const active = ctx.workbench.active();
