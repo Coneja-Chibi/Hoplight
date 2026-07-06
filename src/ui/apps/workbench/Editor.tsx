@@ -38,17 +38,13 @@ import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
-const PREF_SECTION_SCALES = "editor.sectionScales";
+const PREF_EDITOR_SCALE = "editor.scale";
+const SCALE_MIN = 0.75;
+const SCALE_MAX = 1.5;
 
-/** tolerant reader for the app-wide per-section scale map (bad entries drop, never throw). */
-const parseScales = (v: unknown): Record<string, number> => {
-  if (v === null || typeof v !== "object" || Array.isArray(v)) return {};
-  const out: Record<string, number> = {};
-  for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
-    if (typeof val === "number" && Number.isFinite(val) && val >= 0.5 && val <= 2) out[k] = val;
-  }
-  return out;
-};
+/** tolerant reader for the app-wide editor scale (out-of-range or malformed drops to 1). */
+const parseScale = (v: unknown): number =>
+  typeof v === "number" && Number.isFinite(v) && v >= 0.5 && v <= 2 ? v : 1;
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
 
@@ -192,17 +188,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
     ctx.prefs.get(PREF_OFF_TARGET) === "hide" ? "hide" : "dim",
   );
-  // per-section scale, keyed by section id and remembered APP-WIDE (prefs, same as targets), so a
-  // section's size persists across characters, presenters, and fullscreen. 1 = default (unstored).
-  const [sectionScales, setSectionScales] = useState<Record<string, number>>(() => parseScales(ctx.prefs.get(PREF_SECTION_SCALES)));
-  const setSectionScale = (id: string, next: number): void => {
-    setSectionScales((prev) => {
-      const map = { ...prev };
-      if (next === 1) delete map[id];
-      else map[id] = next;
-      ctx.prefs.set(PREF_SECTION_SCALES, map);
-      return map;
-    });
+  // editor-wide content scale, remembered APP-WIDE (prefs, same as targets): sizes the grid/quiz
+  // content up or down. Persists across characters, presenters, and fullscreen; 1 = default.
+  const [editorScale, setEditorScaleState] = useState<number>(() => parseScale(ctx.prefs.get(PREF_EDITOR_SCALE)));
+  const setEditorScale = (next: number): void => {
+    setEditorScaleState(next);
+    ctx.prefs.set(PREF_EDITOR_SCALE, next);
   };
   const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
   const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
@@ -912,12 +903,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         const mods = FIELD_MODULES.filter((m) => m.path.startsWith(`${prefix}.`));
         if (mods.length === 0) return null;
         return (
-          <BentoCard
-            key={prefix}
-            title={label}
-            scale={sectionScales[prefix] ?? 1}
-            onScale={(n) => setSectionScale(prefix, n)}
-          >
+          <BentoCard key={prefix} title={label}>
             {mods.map((m) => (
               <div key={m.id} className={styles.gfield}>
                 <span className={styles.glabel}>
@@ -948,6 +934,20 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onOffTarget={pickOffTarget}
         />
         <span className={styles.done}>
+          <span className={styles.escale} title="Scale the editor">
+            <input
+              type="range"
+              min={SCALE_MIN}
+              max={SCALE_MAX}
+              step={0.05}
+              value={editorScale}
+              onChange={(e) => setEditorScale(Number(e.target.value))}
+              aria-label="Scale the editor"
+            />
+            <button type="button" className={styles.escalePct} onClick={() => setEditorScale(1)} title="Reset to 100%">
+              {`${Math.round(editorScale * 100)}%`}
+            </button>
+          </span>
           <span className={styles.seg}>
             <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
               Quiz
@@ -963,7 +963,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      {mode === "grid" ? gridView : flowView}
+      <div className={styles.scaled} style={editorScale !== 1 ? { zoom: editorScale } : undefined}>
+        {mode === "grid" ? gridView : flowView}
+      </div>
     </div>
   );
 }
