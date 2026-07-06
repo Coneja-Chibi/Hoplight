@@ -51,13 +51,43 @@ async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
 const discoverApps = (): Promise<DiscoveredModule[]> => discoverModules("./apps/");
 const discoverSetupSteps = (): Promise<DiscoveredModule[]> => discoverModules("./setup/steps/");
 
+/** The react family stays OUT of every app/boot bundle; the page's import map resolves these to
+ * the single /vendor copies (one React per page - two copies crash hooks with a null dispatcher). */
+const REACT_EXTERNALS = ["react", "react/jsx-runtime", "react-dom/client", "react-dom"];
+
+/** name -> entry stub + externals; mirrored in scripts/build-desktop.ts for the packaged bake. */
+const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
+  react: { entry: "./vendor/react.ts", external: [] },
+  "jsx-runtime": { entry: "./vendor/jsx-runtime.ts", external: ["react"] },
+  "react-dom-client": { entry: "./vendor/react-dom-client.ts", external: ["react", "react/jsx-runtime"] },
+};
+
 /** Bundle one module for the browser, fresh every request (dev serves live edits; ~20ms a build).
  * The packaged exe never calls this - its bundles are baked. */
 async function bundleModule(mod: DiscoveredModule): Promise<string> {
-  const built = await Bun.build({ entrypoints: [mod.entrypoint], target: "browser", format: "esm" });
+  const built = await Bun.build({
+    entrypoints: [mod.entrypoint],
+    target: "browser",
+    format: "esm",
+    external: REACT_EXTERNALS,
+  });
   if (!built.success || built.outputs.length === 0) {
     throw new Error(`ui: module "${mod.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
   }
+  return built.outputs[0]!.text();
+}
+
+/** Dev-serve a shared vendor bundle (packaged mode reads the baked copy instead). */
+async function bundleVendor(name: string): Promise<string | null> {
+  const spec = VENDOR_SPECS[name];
+  if (!spec) return null; // deny by absence: only the three known vendor names exist
+  const built = await Bun.build({
+    entrypoints: [fileURLToPath(new URL(spec.entry, import.meta.url))],
+    target: "browser",
+    format: "esm",
+    external: spec.external,
+  });
+  if (!built.success || built.outputs.length === 0) return null;
   return built.outputs[0]!.text();
 }
 
@@ -220,9 +250,19 @@ export function createHandler(
         entrypoints: [fileURLToPath(new URL("./boot.ts", import.meta.url))],
         target: "browser",
         format: "esm",
+        external: REACT_EXTERNALS,
       });
       if (!built.success) return err("boot bundle failed", 500);
       return new Response(await built.outputs[0]!.text(), { headers: { "content-type": "text/javascript" } });
+    }
+    if (p.startsWith("/vendor/") && p.endsWith(".js")) {
+      const name = p.slice("/vendor/".length, -".js".length);
+      if (packaged) {
+        const code = packaged.vendor[name];
+        return code !== undefined ? text(code, "text/javascript") : err("no such vendor bundle", 404);
+      }
+      const code = await bundleVendor(name);
+      return code !== null ? text(code, "text/javascript") : err("no such vendor bundle", 404);
     }
 
     if (p === "/api/apps") {

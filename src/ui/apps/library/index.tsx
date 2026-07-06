@@ -336,6 +336,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     deck,
     open: openKeys,
     selected: selectedValid,
+    menus: ctx.menus,
     portraitUrl,
     sourceLabel: (e) => sourceLabelFor(formatLabels, e),
     peek: (e) => peekPiece(ctx, e),

@@ -10,6 +10,7 @@ import {
   isShellFile,
   missingCoreSiblings,
   shellBranchHits,
+  shellImportTokens,
 } from "./lib";
 
 test("htmlSinkTokens flags every banned sink in UI source", () => {
@@ -24,6 +25,15 @@ test("htmlSinkTokens passes clean source, comments, and non-UI paths", () => {
   expect(htmlSinkTokens("src/ui/x.ts", "// never use el.innerHTML = here")).toEqual([]);
   expect(htmlSinkTokens("src/core/adapter.ts", "el.innerHTML = markup;")).toEqual([]); // not UI scope
   expect(htmlSinkTokens("src/ui/x.test.ts", "el.innerHTML = markup;")).toEqual([]);
+});
+
+test("shellImportTokens flags shell imports from apps and setup, nowhere else", () => {
+  const src = 'import { useContextMenu } from "../../shell/store";';
+  expect(shellImportTokens("src/ui/apps/library/views/grid.tsx", src)).toEqual(["../../shell/store"]);
+  expect(shellImportTokens("src/ui/setup/steps/theme/index.tsx", src)).toEqual(["../../shell/store"]);
+  expect(shellImportTokens("src/ui/shell/App.tsx", 'import { menus } from "./store";')).toEqual([]);
+  expect(shellImportTokens("src/ui/apps/library/index.tsx", 'import type { AppContext } from "../../app-contract";')).toEqual([]);
+  expect(shellImportTokens("src/ui/apps/x/index.tsx", "// from '../../shell/store' in a comment")).toEqual([]);
 });
 
 test("addedDependencies ignores comma-churn re-emits of unchanged deps", () => {

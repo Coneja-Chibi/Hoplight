@@ -162,6 +162,21 @@ export function addedDependencies(diff: string): string[] {
   return out;
 }
 
+/** Apps and setup steps may reach the shell ONLY through ctx (contract v2). A direct import of a
+ * shell module gets bundled PER-APP, which forks the module: a second store instance, a second menu
+ * universe, a second React - the exact split-brain class that black-screened the first React boot.
+ * Returns the offending import specifiers found in an app/setup source file. */
+export function shellImportTokens(path: string, source: string): string[] {
+  const p = path.replace(/\\/g, "/");
+  if (!/^src\/ui\/(apps|setup)\//.test(p)) return [];
+  if (p.endsWith(".test.ts") || p.endsWith(".test.tsx")) return [];
+  const clean = source.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  const out: string[] = [];
+  const re = /from\s+["']([^"']*\/shell\/[^"']*|[^"']*\/shell)["']/g;
+  for (let m = re.exec(clean); m; m = re.exec(clean)) out.push(m[1]!);
+  return out;
+}
+
 /** Does the commit message declare the new dependency? (One line per package, with a reason.) */
 export const declaresDependency = (message: string, pkg: string): boolean =>
   new RegExp(`^\\s*new-dependency\\s*:\\s*${pkg.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\b\\s*\\S`, "im").test(message);

@@ -7,7 +7,6 @@
 import { useEffect, useReducer, useState } from "react";
 import type { CSSProperties, JSX } from "react";
 import { deckMeta } from "../../../_shared/decks";
-import { useContextMenu } from "../../../shell/store";
 import { pieceKey, type DeckView, type DeckViewContext, type PiecePeek } from "../view-contract";
 
 const CSS = `
@@ -70,7 +69,7 @@ function Showcase({ ctx }: { ctx: DeckViewContext }): JSX.Element {
   const accent = e.accent ?? deckMeta(e.kind).accent;
   const isOpen = ctx.open.has(pieceKey(e));
   const staged = ctx.selected.has(pieceKey(e));
-  const menuRef = useContextMenu(() => ({ type: "entity", label: e.name, data: e }));
+  const menuRef = ctx.menus.useContextMenu(() => ({ type: "entity", label: e.name, data: e }));
   const [peek, setPeek] = useState<PiecePeek | null>(null);
 
   useEffect(() => {

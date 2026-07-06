@@ -9,7 +9,7 @@
  * Run: bun run scripts/hooks/gate.ts --staged
  */
 import { readFileSync, statSync } from "node:fs";
-import { htmlSinkTokens, impureCoreTokens, isCoreFile, isTestFile, missingCoreSiblings } from "./lib";
+import { htmlSinkTokens, impureCoreTokens, isCoreFile, isTestFile, missingCoreSiblings, shellImportTokens } from "./lib";
 
 const mode: "staged" | "worktree" = process.argv.includes("--staged") ? "staged" : "worktree";
 
@@ -71,11 +71,18 @@ function main(): number {
   }
 
   // 2b. html sinks: UI source never injects raw HTML (ADR-008; the auto-escape rule has no quiet exceptions)
+  // 2c. shell imports: apps/setup reach the shell ONLY through ctx (a per-bundle module copy is a
+  //     split-brain store/react - the class that black-screened the first React boot)
   for (const p of changed) {
     try {
-      const sinks = htmlSinkTokens(p, readFileSync(p, "utf8"));
+      const source = readFileSync(p, "utf8");
+      const sinks = htmlSinkTokens(p, source);
       if (sinks.length) {
         violations.push(`${p} uses a banned HTML-injection sink (${sinks.join(", ")}). Build nodes (textContent/DOMParser icon pattern) or JSX; see ADR-008.`);
+      }
+      const shellImports = shellImportTokens(p, source);
+      if (shellImports.length) {
+        violations.push(`${p} imports shell modules (${shellImports.join(", ")}). Apps use ctx only; a per-bundle copy forks the store/React.`);
       }
     } catch {
       /* deleted/unreadable: not this gate's problem */

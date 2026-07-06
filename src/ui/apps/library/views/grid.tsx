@@ -6,7 +6,6 @@
 import type { CSSProperties, JSX } from "react";
 import type { StudioEntitySummary } from "../../../app-contract";
 import { deckMeta } from "../../../_shared/decks";
-import { useContextMenu } from "../../../shell/store";
 import { pieceKey, type DeckView, type DeckViewContext } from "../view-contract";
 
 const CSS = `
@@ -42,7 +41,7 @@ function GridCard({ ctx, e }: { ctx: DeckViewContext; e: StudioEntitySummary }):
   const key = pieceKey(e);
   const isOpen = ctx.open.has(key);
   const staged = ctx.selected.has(key);
-  const menuRef = useContextMenu(() => ({ type: "entity", label: e.name, data: e }));
+  const menuRef = ctx.menus.useContextMenu(() => ({ type: "entity", label: e.name, data: e }));
   const art = ctx.portraitUrl(e);
   const fmt = ctx.sourceLabel(e);
   const title = isOpen

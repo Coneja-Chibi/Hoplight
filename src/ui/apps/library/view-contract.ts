@@ -6,7 +6,7 @@
  * persistence all derive from this contract; the library names no view.
  */
 import type { ReactNode } from "react";
-import type { StudioEntitySummary } from "../../app-contract";
+import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import type { DeckMeta } from "../../_shared/decks";
 
 /** Art size is a continuous user dial (rem), not fixed steps. The workbench publishes the choice
@@ -35,6 +35,9 @@ export interface DeckViewContext {
   selected: Set<string>;
   /** tap a piece: toggle it in the staging selection (already-open pieces just note, no toggle) */
   onPiece(e: StudioEntitySummary): void;
+  /** the shell's menu door threaded through, so views never import shell modules (one-store law:
+   * a per-bundle copy of the store would be a second, invisible menu universe) */
+  menus: AppContext["menus"];
   /** the piece's art url, or null when it carries none (render the initial instead) */
   portraitUrl(e: StudioEntitySummary): string | null;
   /** the card-type chip: platform when detected, "Default" for generic cards, plus version

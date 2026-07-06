@@ -11,7 +11,6 @@ import { useEffect, useState } from "react";
 import type { CSSProperties, JSX, ReactNode } from "react";
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
-import { useContextMenu } from "../../shell/store";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
 import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
@@ -37,8 +36,8 @@ const metaLine = (p: StudioEntitySummary): string => {
 };
 
 /** the shared art + sheet frame every open piece's pane renders inside */
-function PieceFrame({ piece, children }: { piece: StudioEntitySummary; children: ReactNode }): JSX.Element {
-  const menuRef = useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
+function PieceFrame({ ctx, piece, children }: { ctx: AppContext; piece: StudioEntitySummary; children: ReactNode }): JSX.Element {
+  const menuRef = ctx.menus.useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
   const url = portraitUrl(piece);
   return (
     <div className={styles.pane}>
@@ -81,7 +80,7 @@ function CharacterPane({ ctx, piece, hidden }: { ctx: AppContext; piece: StudioE
 
   return (
     <div style={hidden ? { display: "none" } : undefined}>
-      <PieceFrame piece={piece}>
+      <PieceFrame ctx={ctx} piece={piece}>
         {entity ? (
           <CharacterEditor entity={entity} api={ctx.api} setStatus={ctx.setStatus} />
         ) : (
@@ -115,7 +114,7 @@ function InspectorPane({ ctx, piece }: { ctx: AppContext; piece: StudioEntitySum
   }, [ctx, piece.id, piece.kind]);
 
   return (
-    <PieceFrame piece={piece}>
+    <PieceFrame ctx={ctx} piece={piece}>
       <div className={styles.sheet} style={{ gap: ".7rem" }}>
         {fields.map((f) => (
           <div className={styles.field} key={f.k}>
@@ -130,7 +129,7 @@ function InspectorPane({ ctx, piece }: { ctx: AppContext; piece: StudioEntitySum
 }
 
 function RecentCard({ ctx, entity }: { ctx: AppContext; entity: StudioEntitySummary }): JSX.Element {
-  const menuRef = useContextMenu(() => ({ type: "entity", label: entity.name, data: entity }));
+  const menuRef = ctx.menus.useContextMenu(() => ({ type: "entity", label: entity.name, data: entity }));
   const url = portraitUrl(entity);
   return (
     <button

@@ -196,6 +196,15 @@ body.focus-editor #dock,body.focus-editor #topbar,body.focus-editor #tabstrip{di
 </head>
 <body>
 <div id="shell-root"></div>
+<!-- ONE React per page: every bundle marks the react family external; the import map resolves
+     them all to the single vendor copies (two React instances = null-dispatcher hook crashes) -->
+<script type="importmap">
+{"imports":{
+  "react":"/vendor/react.js",
+  "react/jsx-runtime":"/vendor/jsx-runtime.js",
+  "react-dom/client":"/vendor/react-dom-client.js"
+}}
+</script>
 <script type="module" src="/boot.js"></script>
 </body>
 </html>

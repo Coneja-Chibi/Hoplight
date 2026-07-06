@@ -18,11 +18,22 @@ await mkdir(genDir, { recursive: true });
 
 // -- 1. UI assets -----------------------------------------------------------------------------------
 
-async function bundleBrowser(entry: string): Promise<string> {
-  const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm" });
+/** The react family stays OUT of every app/boot bundle; the page's import map resolves these to
+ * the single /vendor copies (one React per page - two copies crash hooks with a null dispatcher). */
+const REACT_EXTERNALS = ["react", "react/jsx-runtime", "react-dom/client", "react-dom"];
+
+async function bundleBrowser(entry: string, external: string[] = REACT_EXTERNALS): Promise<string> {
+  const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm", external });
   if (!built.success) throw new Error(`bundle failed for ${entry}: ${built.logs.map((l) => l.message).join("; ")}`);
   return built.outputs[0]!.text();
 }
+
+/** name -> entry stub + externals: react itself bundles fully; the other two link against it. */
+const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
+  react: { entry: "vendor/react.ts", external: [] },
+  "jsx-runtime": { entry: "vendor/jsx-runtime.ts", external: ["react"] },
+  "react-dom-client": { entry: "vendor/react-dom-client.ts", external: ["react", "react/jsx-runtime"] },
+};
 
 const appsGlob = new Bun.Glob("*/index.{ts,tsx}");
 const appIds: string[] = [];
@@ -48,10 +59,16 @@ for await (const rel of stepsGlob.scan({ cwd: join(uiDir, "setup", "steps") })) 
   setupSteps[id] = await bundleBrowser(join(uiDir, "setup", "steps", rel));
 }
 
+const vendor: Record<string, string> = {};
+for (const [name, spec] of Object.entries(VENDOR_SPECS)) {
+  vendor[name] = await bundleBrowser(join(uiDir, spec.entry), spec.external);
+}
+
 const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
   tokensCss: await Bun.file(join(uiDir, "theme", "tokens.css")).text(),
   bootJs: await bundleBrowser(join(uiDir, "boot.ts")),
+  vendor,
   faviconIcoB64: Buffer.from(await Bun.file(join(root, "build", "vaude.ico")).arrayBuffer()).toString("base64"),
   iconPngB64: Buffer.from(await Bun.file(join(root, "build", "vaude-256.png")).arrayBuffer()).toString("base64"),
   apps,

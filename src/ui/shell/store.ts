@@ -56,6 +56,9 @@ export interface ContextMenus {
   attach(el: HTMLElement, factory: () => MenuTarget): () => void;
   /** contribute items for a target type; returns an unregister (call it in the app's cleanup) */
   register(type: string, provider: MenuProvider): () => void;
+  /** the ref-callback hook form, ON the ctx so apps never import shell modules (a per-bundle copy
+   * of this store would be a second menu universe; the ctx is the one door - gate-enforced) */
+  useContextMenu(factory: () => MenuTarget): RefCallback<HTMLElement>;
 }
 
 export interface OpenMenu {
@@ -99,6 +102,9 @@ export const menus: ContextMenus = {
     set.add(provider);
     menuProviders.set(type, set);
     return () => set.delete(provider);
+  },
+  useContextMenu(factory) {
+    return useContextMenu(factory);
   },
 };
 
