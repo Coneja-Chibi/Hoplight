@@ -918,14 +918,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             <button type="button" className={styles.qskip} disabled={flowAt === 0 && active.kind !== "rating"} onClick={() => goFlow(flowAt - 1)}>
               &larr; Back
             </button>
-            <button
-              type="button"
-              className={`stamp ${styles.qnext}`}
-              disabled={flowAt === flowModules.length - 1}
-              onClick={() => goFlow(flowAt + 1)}
-            >
-              Next &rarr;
-            </button>
+            {flowAt === flowModules.length - 1 ? (
+              <button type="button" className={`stamp ${styles.qnext}`} disabled={saving} onClick={() => void doSave()}>
+                {saving ? "Saving…" : "Complete"}
+              </button>
+            ) : (
+              <button type="button" className={`stamp ${styles.qnext}`} onClick={() => goFlow(flowAt + 1)}>
+                Next &rarr;
+              </button>
+            )}
           </div>
         </div>
       </div>
