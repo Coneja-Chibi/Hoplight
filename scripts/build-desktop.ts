@@ -22,10 +22,27 @@ await mkdir(genDir, { recursive: true });
  * the single /vendor copies (one React per page - two copies crash hooks with a null dispatcher). */
 const REACT_EXTERNALS = ["react", "react/jsx-runtime", "react-dom/client", "react-dom"];
 
+/** CSS Modules emit SEPARATE css artifacts from Bun.build; keeping only outputs[0] shipped the
+ * class names without their stylesheet (the unstyled-interiors bug). Each module's css rides
+ * inside its own JS as a head-injected <style>, keeping the one-file-per-module contract. */
+const withCssInjected = async (outputs: Bun.BuildArtifact[]): Promise<string> => {
+  let js = "";
+  let css = "";
+  for (const out of outputs) {
+    if (out.path.endsWith(".css")) css += await out.text();
+    else js += await out.text();
+  }
+  if (!css) return js;
+  const inject =
+    `{const s=document.createElement("style");s.dataset.vaudeModuleCss="1";` +
+    `s.textContent=${JSON.stringify(css)};document.head.append(s);}\n`;
+  return inject + js; // statements before import declarations are legal ESM (imports hoist)
+};
+
 async function bundleBrowser(entry: string, external: string[] = REACT_EXTERNALS): Promise<string> {
   const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm", external });
   if (!built.success) throw new Error(`bundle failed for ${entry}: ${built.logs.map((l) => l.message).join("; ")}`);
-  return built.outputs[0]!.text();
+  return withCssInjected(built.outputs);
 }
 
 /** name -> entry stub + externals. One family bundle (react + both jsx runtimes inlined against a

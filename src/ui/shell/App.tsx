@@ -139,6 +139,9 @@ export function App(): JSX.Element | null {
   }, []);
 
   // -- the AppContext handed to every app; methods read live state via getState() (thin adapters) ---
+  // subscribed to settings ON PURPOSE: a prefs.set must repaint the active app (the old shell's
+  // call-and-response), and a fresh ctx identity is what tells React the app's inputs changed
+  const settings = useShellStore((s) => s.settings);
   const ctx: AppContext = useMemo(
     () => ({
       api,
@@ -167,7 +170,7 @@ export function App(): JSX.Element | null {
           }),
       },
     }),
-    [],
+    [settings],
   );
 
   if (phase === "loading") return null; // chrome renders only from real state; nothing to paint yet

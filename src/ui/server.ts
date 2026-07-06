@@ -63,6 +63,22 @@ const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
 
 /** Bundle one module for the browser, fresh every request (dev serves live edits; ~20ms a build).
  * The packaged exe never calls this - its bundles are baked. */
+/** CSS Modules emit SEPARATE css artifacts; the stylesheet rides inside the module's JS as a
+ * head-injected <style> (mirrors scripts/build-desktop.ts - the unstyled-interiors bug). */
+async function withCssInjected(outputs: Bun.BuildArtifact[]): Promise<string> {
+  let js = "";
+  let css = "";
+  for (const out of outputs) {
+    if (out.path.endsWith(".css")) css += await out.text();
+    else js += await out.text();
+  }
+  if (!css) return js;
+  const inject =
+    `{const s=document.createElement("style");s.dataset.vaudeModuleCss="1";` +
+    `s.textContent=${JSON.stringify(css)};document.head.append(s);}\n`;
+  return inject + js; // statements before import declarations are legal ESM (imports hoist)
+}
+
 async function bundleModule(mod: DiscoveredModule): Promise<string> {
   const built = await Bun.build({
     entrypoints: [mod.entrypoint],
@@ -73,7 +89,7 @@ async function bundleModule(mod: DiscoveredModule): Promise<string> {
   if (!built.success || built.outputs.length === 0) {
     throw new Error(`ui: module "${mod.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
   }
-  return built.outputs[0]!.text();
+  return withCssInjected(built.outputs);
 }
 
 /** Dev-serve a shared vendor bundle (packaged mode reads the baked copy instead). */
