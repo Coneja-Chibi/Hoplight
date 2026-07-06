@@ -530,6 +530,38 @@
   color: #4a4556;
   margin: 0.55rem 0 0.2rem;
 }
+/* a field label that carries the RC-style ? help + wand affordance inline (name, tagline) */
+.klabel {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.55rem 0 0.2rem;
+}
+.klabel .k {
+  margin: 0;
+}
+.kaff {
+  display: flex;
+  gap: 0.25rem;
+}
+.kaff > span,
+.kaff > button {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  line-height: 1;
+  color: #8f8a9e;
+  border: 2px solid #2b2833;
+  background: transparent;
+  padding: 0.1rem 0.3rem;
+  cursor: help;
+}
+.kaff > button {
+  cursor: pointer;
+}
+.kaff > button:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
 .in,
 .ta {
   width: 100%;

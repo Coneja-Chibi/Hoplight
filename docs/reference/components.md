@@ -11,7 +11,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
 | App | src/ui/shell/App.tsx | () |  |  |
-| BentoCard | src/ui/components/bento-card/index.tsx | ({ title, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .title .aff .dot .full .carry ... |
+| BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .stage .crumb .pip .cn .cc .pane .art ... |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |

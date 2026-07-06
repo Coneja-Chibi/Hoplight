@@ -90,6 +90,27 @@ function tokenEstimate(draft: unknown): number {
 
 const cardById = new Map(EDITOR_CARDS.map((c) => [c.id, c]));
 
+/** one line glyph per card, struck in the card's hot color before the title (RC card marks) */
+const glyph = (children: ReactNode): JSX.Element => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+const CARD_ICONS: Record<string, JSX.Element> = {
+  identity: glyph(<><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></>),
+  casting: glyph(<><rect x="3" y="5" width="18" height="14" rx="1" /><circle cx="8" cy="11" r="2" /><path d="M13 10h5M13 14h5M6 15h5" /></>),
+  description: glyph(<path d="M5 4h14M5 9h14M5 14h9M5 19h9" />),
+  personality: glyph(<><path d="M12 3a9 9 0 1 0 9 9" /><path d="M8.5 15a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>),
+  scenario: glyph(<><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></>),
+  firstMes: glyph(<path d="M4 5h16v11H8l-4 4V5Z" />),
+  mesExample: glyph(<><path d="M4 4h12v9H8l-4 4V4Z" /><path d="M9 8h11v9l-3-3" /></>),
+  alternateGreetings: glyph(<><path d="M4 5h11v8H8l-4 4V5Z" /><path d="M10 9h9v7l-3-3" /></>),
+  gradient: glyph(<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />),
+  palette: glyph(<><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.4 1-2 2-2h1a3 3 0 0 0 3-3 8 8 0 0 0-8-9Z" /><circle cx="8" cy="10" r="1" /><circle cx="12" cy="7" r="1" /><circle cx="16" cy="10" r="1" /></>),
+  background: glyph(<><rect x="3" y="5" width="18" height="14" rx="1" /><circle cx="8.5" cy="10" r="1.5" /><path d="m4 17 5-4 4 3 3-2 4 3" /></>),
+  spotlight: glyph(<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>),
+};
+
 export interface CharacterEditorProps {
   /** the fetched entity (summary fields + canonical body) - fetched once by the caller */
   entity: unknown;
@@ -289,11 +310,23 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   // -- card bodies -----------------------------------------------------------------------------------
 
+  const labelAff = (help: string): ReactNode => (
+    <span className={styles.kaff}>
+      <span title={help}>?</span>
+      <button type="button" disabled title="Per-field AI lands with the brain milestone">&#10022;</button>
+    </span>
+  );
   const identityBody = (
     <>
-      <label className={styles.k}>character name *</label>
+      <div className={styles.klabel}>
+        <span className={styles.k}>character name *</span>
+        {labelAff("The display name every platform shows first")}
+      </div>
       <input className={styles.in} value={text("identity.name")} onChange={(e) => setField("identity.name", e.target.value)} />
-      <label className={styles.k}>tagline</label>
+      <div className={styles.klabel}>
+        <span className={styles.k}>tagline</span>
+        {labelAff("A short hook shown under the name in browse and search")}
+      </div>
       <input
         className={styles.in}
         placeholder="A short, catchy description..."
@@ -562,6 +595,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       <BentoCard
         key={card.id}
         title={card.label}
+        icon={CARD_ICONS[card.id]}
         aff={RENDERED_ORDER_IDS.has(card.id) && card.id !== "alternateGreetings" ? proseAff(card.id) : undefined}
         filled={filled}
         off={v.off}

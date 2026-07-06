@@ -10,6 +10,8 @@ import styles from "./styles.module.css";
 
 export interface BentoCardProps {
   title: string;
+  /** small line icon struck before the title (RC-style card marks); omit for a bare header */
+  icon?: ReactNode;
   /** header affordance chips (the wireframe's ? / wand / convert slots) */
   aff?: ReactNode;
   /** the "has content" dot; omit to hide the dot */
@@ -25,12 +27,13 @@ export interface BentoCardProps {
 }
 
 /** One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. */
-export function BentoCard({ title, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps): JSX.Element | null {
+export function BentoCard({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps): JSX.Element | null {
   const [folded, setFolded] = useState(false);
   if (off && offMode === "hide") return null;
   return (
     <section className={`${styles.card}${off ? ` ${styles.off}` : ""}`}>
       <header className={styles.head}>
+        {icon !== undefined && <span className={styles.mark}>{icon}</span>}
         <span className={styles.title}>{title}</span>
         {aff !== undefined && <span className={styles.aff}>{aff}</span>}
         {filled !== undefined && <span className={`${styles.dot}${filled ? ` ${styles.full}` : ""}`} />}
