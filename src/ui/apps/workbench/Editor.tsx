@@ -890,39 +890,17 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
-  // Grid presenter: the SAME field-module registry, one bento card per canonical section. Both grid and
-  // stepper read FIELD_MODULES - add a field once, it shows in both. controlFor is the shared renderer.
-  // Media (the portrait) leads: multicol fills the left column first, so first = pinned top-left.
-  const GRID_SECTIONS: ReadonlyArray<readonly [prefix: string, label: string]> = [
-    ["media", "Media"],
-    ["identity", "Identity"],
-    ["persona", "Persona"],
-    ["prompts", "Prompts"],
-    ["greetings", "Greetings"],
-    ["examples", "Examples"],
-    ["discovery", "Discovery"],
-    ["presentation", "Presentation"],
-    ["attribution", "Attribution"],
-  ];
+  // Grid presenter: ONE bento per field (not per section) so the boxes pack naturally as a masonry -
+  // a short field is a short box, a big prose field is a tall box, and they flow to fill the width
+  // instead of a few giant section columns. Reads FIELD_MODULES in registry order (section-grouped),
+  // so related fields stay adjacent. controlFor is the shared renderer with the quiz.
   const gridView = (
     <div className={styles.gridsec}>
-      {GRID_SECTIONS.map(([prefix, label]) => {
-        const mods = FIELD_MODULES.filter((m) => m.path.startsWith(`${prefix}.`));
-        if (mods.length === 0) return null;
-        return (
-          <BentoCard key={prefix} title={label}>
-            {mods.map((m) => (
-              <div key={m.id} className={styles.gfield}>
-                <span className={styles.glabel}>
-                  {m.sheetLabel}
-                  {m.required && <span className={styles.qreq}> *</span>}
-                </span>
-                {controlFor(m)}
-              </div>
-            ))}
-          </BentoCard>
-        );
-      })}
+      {FIELD_MODULES.map((m) => (
+        <BentoCard key={m.id} title={m.required ? `${m.sheetLabel} *` : m.sheetLabel}>
+          {controlFor(m)}
+        </BentoCard>
+      ))}
     </div>
   );
 
