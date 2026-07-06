@@ -17,6 +17,7 @@ import type { JSX, ReactNode } from "react";
 import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-contract";
 import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
+import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
 import { normalizeHex } from "../../_shared/color-math";
 import {
   completionOf,
@@ -109,6 +110,28 @@ const CARD_ICONS: Record<string, JSX.Element> = {
   palette: glyph(<><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.4 1-2 2-2h1a3 3 0 0 0 3-3 8 8 0 0 0-8-9Z" /><circle cx="8" cy="10" r="1" /><circle cx="12" cy="7" r="1" /><circle cx="16" cy="10" r="1" /></>),
   background: glyph(<><rect x="3" y="5" width="18" height="14" rx="1" /><circle cx="8.5" cy="10" r="1.5" /><path d="m4 17 5-4 4 3 3-2 4 3" /></>),
   spotlight: glyph(<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>),
+};
+
+/** a smaller line glyph for tag chips (11px, sits before the tag text) */
+const tglyph = (children: ReactNode): JSX.Element => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    {children}
+  </svg>
+);
+/** presentation for each tag category: RC-style base color + a line icon. Categorization itself is
+ * pure core (categorizeTag); this map is the UI's read of the result. */
+const TAG_CATEGORY_STYLE: Record<TagCategory, { color: string; icon: JSX.Element }> = {
+  identity: { color: "#22d3ee", icon: tglyph(<><circle cx="12" cy="8" r="3.5" /><path d="M5.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1" /></>) },
+  trait: { color: "#a78bfa", icon: tglyph(<path d="M12 3l2.4 6H21l-5 4 1.9 6-5.9-4-5.9 4 1.9-6-5-4h6.6z" />) },
+  role: { color: "#fb7185", icon: tglyph(<><rect x="3" y="7" width="18" height="13" rx="1" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>) },
+  genre: { color: "#818cf8", icon: tglyph(<><path d="M12 6c-2-1.4-5-1.4-7 0v12c2-1.4 5-1.4 7 0 2-1.4 5-1.4 7 0V6c-2-1.4-5-1.4-7 0z" /><path d="M12 6v12" /></>) },
+  theme: { color: "#f472b6", icon: tglyph(<path d="M7 4h10v16l-5-4-5 4z" />) },
+  setting: { color: "#34d399", icon: tglyph(<><path d="M12 21s-6-5-6-10a6 6 0 0 1 12 0c0 5-6 10-6 10z" /><circle cx="12" cy="11" r="2" /></>) },
+  pov: { color: "#38bdf8", icon: tglyph(<><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" /><circle cx="12" cy="12" r="2.5" /></>) },
+  mood: { color: "#fbbf24", icon: tglyph(<><circle cx="12" cy="12" r="9" /><path d="M8.5 14a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>) },
+  kink: { color: "#f87171", icon: tglyph(<path d="M12 3s5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.2 2-4 .4 2 3 1.6 3-5z" />) },
+  warning: { color: "#fb923c", icon: tglyph(<><path d="M12 4l9 16H3z" /><path d="M12 10v4M12 17h.01" /></>) },
+  meta: { color: "#94a3b8", icon: tglyph(<path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16" />) },
 };
 
 export interface CharacterEditorProps {
@@ -343,17 +366,22 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </div>
       <label className={styles.k}>{`selected tags (${strArr(readPath(draft, "discovery.tags")).length})`}</label>
       <div className={styles.tags}>
-        {strArr(readPath(draft, "discovery.tags")).map((tag) => (
-          <button
-            key={tag}
-            type="button"
-            className={styles.tag}
-            title={`Remove tag ${tag}`}
-            onClick={() => setField("discovery.tags", strArr(readPath(draft, "discovery.tags")).filter((t) => t !== tag))}
-          >
-            {tag} <i>x</i>
-          </button>
-        ))}
+        {strArr(readPath(draft, "discovery.tags")).map((tag) => {
+          const cs = TAG_CATEGORY_STYLE[categorizeTag(tag)];
+          return (
+            <button
+              key={tag}
+              type="button"
+              className={styles.tag}
+              style={{ color: cs.color, borderColor: `${cs.color}80`, background: `${cs.color}1f` }}
+              title={`Remove tag ${tag}`}
+              onClick={() => setField("discovery.tags", strArr(readPath(draft, "discovery.tags")).filter((t) => t !== tag))}
+            >
+              <span className={styles.tagIco}>{cs.icon}</span>
+              {tag} <i>x</i>
+            </button>
+          );
+        })}
         <input
           className={styles.tagIn}
           placeholder="+ tag, enter"

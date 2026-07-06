@@ -255,6 +255,9 @@
   align-items: center;
 }
 .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
   font-family: var(--font-mono);
   font-size: 0.5625rem;
   border: 2px solid #4a4656;
@@ -263,12 +266,18 @@
   padding: 0.16rem 0.45rem;
   cursor: pointer;
 }
+.tagIco {
+  display: inline-flex;
+  flex: none;
+  opacity: 0.85;
+}
 .tag i {
   font-style: normal;
-  color: #8f8a9e;
+  color: currentColor;
+  opacity: 0.55;
 }
 .tag:hover {
-  border-color: var(--rose, #e11d48);
+  border-color: currentColor; /* the category color set inline; hover brings it to full strength */
 }
 .tagIn {
   font-family: var(--font-mono);
