@@ -425,7 +425,6 @@
 
 /* ===== 1:1 pass (vs-editor-2 exact values; later definitions override the first-slice block) ===== */
 .root {
-  --hot: #ff3b1f;
   gap: 0;
 }
 .tabstrip {
@@ -586,7 +585,7 @@
 .lcard {
   background: #17161d;
   border: 3px solid #000;
-  border-top: 3px solid var(--hot);
+  border-top: 3px solid var(--a, var(--accent, #ff3b1f));
   display: flex;
   flex-direction: column;
   min-width: 0;

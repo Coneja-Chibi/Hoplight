@@ -1,9 +1,10 @@
-/* transcribed 1:1 from vs-editor-2's .card / .h / .t / .aff / .dot / .fold (hot top line and all;
-   --hot falls back to the wireframe's #ff3b1f when the surface does not retune it) */
+/* transcribed from vs-editor-2's .card / .h / .t / .aff / .dot / .fold. The accent line wears the
+   ENTITY's own accent (--a, art-derived signature color), falling back to the user's house accent
+   (--accent), and only then to brand rose - entities wear their own color, the brand does not. */
 .card {
   background: #17161d;
   border: 3px solid #000;
-  border-top: 3px solid var(--hot, #ff3b1f);
+  border-top: 3px solid var(--a, var(--accent, #ff3b1f));
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -21,7 +22,7 @@
 .mark {
   display: flex;
   flex: none;
-  color: var(--hot, #ff3b1f);
+  color: var(--a, var(--accent, #ff3b1f));
 }
 .mark :global(svg) {
   display: block;
