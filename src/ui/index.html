@@ -89,21 +89,16 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 #dock.slim #dockToggle .exp{display:inline}
 /* focus mode: the shared editor-fullscreen (_shared/focus.ts) stamps this on <body>; the shell
    hides its own chrome so the active pane takes the window. Esc exits; never persisted. */
-body.focus-editor #dock,body.focus-editor #topbar,body.focus-editor #tabstrip{display:none}
+body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 
-/* ───────── TOP STRIP ───────── */
-#topbar{grid-column:2;grid-row:1;background:var(--chrome);border-bottom:3px solid var(--seam);
-  display:flex;align-items:center;gap:clamp(.5rem,1.5vw,1rem);padding:.5rem clamp(.6rem,1.5vw,1rem)}
-#crumb{display:flex;align-items:baseline;gap:.5rem;flex:none;min-width:0}
-#crumb .ck{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-dim)}
-#crumb .cn{font-family:var(--font-big);font-weight:900;font-size:clamp(.95rem,.85rem+.4vw,1.15rem);letter-spacing:-.01em;
-  color:var(--text);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#search{flex:1;max-width:24rem;margin:0 auto;display:flex;align-items:center;gap:.55rem;min-width:0;
-  background:var(--shell-panel);border:3px solid var(--seam);padding:.42rem .75rem}
+/* ───────── TABSTRIP-RESIDENT GLOBAL ACTIONS (the TopBar row is deleted: its crumb duplicated the
+   dock, import duplicates the shelves, theme duplicates Settings - one chrome row total) ───────── */
+#search{flex:0 1 16rem;margin-left:auto;align-self:center;display:flex;align-items:center;gap:.5rem;min-width:0;
+  background:var(--shell-panel);border:3px solid var(--seam);padding:.28rem .6rem}
 #search svg{flex:none;display:block;color:var(--text-dim)}
-#search input{flex:1;min-width:0;background:none;border:none;outline:none;font:inherit;font-size:.95rem;color:var(--text)}
+#search input{flex:1;min-width:0;background:none;border:none;outline:none;font:inherit;font-size:.85rem;color:var(--text)}
 #search input::placeholder{color:var(--text-dim)}
-#topact{display:flex;align-items:center;gap:.5rem;flex:none}
+#topact{display:flex;align-items:center;align-self:center;gap:.5rem;flex:none;padding:0 .4rem}
 .topbtn{display:flex;align-items:center;gap:.4rem;font-family:var(--font-big);font-weight:800;
   font-size:.625rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text);
   background:var(--chrome);border:3px solid var(--edge);box-shadow:3px 3px 0 0 var(--edge);
@@ -187,10 +182,7 @@ body.focus-editor #dock,body.focus-editor #topbar,body.focus-editor #tabstrip{di
   #importBtn{padding:.45rem .5rem}
 }
 @media(max-width:40rem){
-  #topbar{flex-wrap:wrap}
-  #crumb{order:1}
-  #topact{order:2;margin-left:auto}
-  #search{order:3;max-width:none;flex:1 1 100%;margin:0}
+  #search{display:none} /* narrow screens: tabs win; search returns with the search milestone */
 }
 </style>
 </head>

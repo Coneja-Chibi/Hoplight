@@ -1,9 +1,9 @@
-/* transcribed from vs-editor-2's .card anatomy (RC geometry, Vaude tokens; the top accent line
-   rides the piece accent --a like the rest of the stage) */
+/* transcribed 1:1 from vs-editor-2's .card / .h / .t / .aff / .dot / .fold (hot top line and all;
+   --hot falls back to the wireframe's #ff3b1f when the surface does not retune it) */
 .card {
   background: #17161d;
   border: 3px solid #000;
-  border-top: 3px solid var(--a, var(--accent));
+  border-top: 3px solid var(--hot, #ff3b1f);
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -15,7 +15,7 @@
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.55rem 0.75rem;
+  padding: 0.6rem 0.75rem;
   border-bottom: 2px solid #2b2833;
 }
 .title {
@@ -25,6 +25,21 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #e7e3da;
+}
+.aff {
+  display: flex;
+  gap: 0.3rem;
+  margin-left: 0.2rem;
+}
+.aff :global(span),
+.aff :global(button) {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: #8f8a9e;
+  border: 2px solid #2b2833;
+  background: transparent;
+  padding: 0.05rem 0.3rem;
+  cursor: pointer;
 }
 .dot {
   width: 7px;
@@ -67,6 +82,7 @@
   border-color: #8f8a9e;
 }
 .fold {
+  margin-left: auto;
   font-family: var(--font-mono);
   color: #4a4556;
   background: none;
@@ -75,18 +91,12 @@
   padding: 0 0.2rem;
 }
 .move + .fold {
-  margin-left: 0;
-}
-.head > .fold:last-child {
-  margin-left: auto;
-}
-.move ~ .fold {
   margin-left: 0.2rem;
 }
 .body {
   padding: 0.7rem 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.1rem;
   min-width: 0;
 }

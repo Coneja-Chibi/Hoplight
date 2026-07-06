@@ -1,11 +1,13 @@
 /**
- * TabStrip - the Workbench's open-piece tabs (transcribed 1:1 from src/ui/index.html's #tabstrip
- * markup and CSS). Clicking a tab focuses its editor; the close glyph removes it without
- * navigating; "+" walks to the first-landing app (the shelves) to open another.
+ * TabStrip - the ONE chrome row above the canvas: open-piece tabs left, global actions right
+ * (search, import, theme - absorbed from the deleted TopBar, whose other jobs duplicated the dock
+ * and Settings; a second full-height row bought nothing). Clicking a tab focuses its editor; the
+ * close glyph removes it; "+" walks to the shelves.
  */
 import type { CSSProperties, JSX, MouseEvent } from "react";
 import type { StudioEntitySummary } from "../app-contract";
 import { deckMeta } from "../_shared/decks";
+import { Stamp } from "../components/stamp";
 import { keyOf } from "./store-core";
 import { useContextMenu, useShellStore } from "./store";
 
@@ -41,10 +43,17 @@ export function TabStrip(): JSX.Element {
   const activeKey = useShellStore((s) => s.activeKey);
   const manifests = useShellStore((s) => s.manifests);
   const mountApp = useShellStore((s) => s.mountApp);
+  const setStatus = useShellStore((s) => s.setStatus);
+  const toggleTheme = useShellStore((s) => s.toggleTheme);
 
   const openAnother = (): void => {
     const lib = manifests.find((m) => m.firstRunLanding && !m.comingSoon);
     if (lib) mountApp(lib.id);
+  };
+  const goImport = (): void => {
+    const shelves = manifests.find((m) => m.firstRunLanding && !m.comingSoon);
+    if (shelves) mountApp(shelves.id);
+    setStatus("drop files anywhere on the shelves");
   };
 
   return (
@@ -56,6 +65,29 @@ export function TabStrip(): JSX.Element {
         +
       </button>
       <span className="tabfill" />
+      <label id="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input placeholder="Search your whole studio" aria-label="Search your whole studio" />
+      </label>
+      <span id="topact">
+        <Stamp id="importBtn" onClick={goImport}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+            <path d="M12 3v12" />
+            <path d="m7 10 5 5 5-5" />
+            <path d="M4 20h16" />
+          </svg>
+          <span className="im-t">Import</span>
+        </Stamp>
+        <Stamp id="themeBtn" onClick={toggleTheme} title="Switch theme" aria-label="Switch theme">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1">
+            <circle cx="12" cy="12" r="4.2" />
+            <path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7" />
+          </svg>
+        </Stamp>
+      </span>
     </nav>
   );
 }

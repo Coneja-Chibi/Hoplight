@@ -55,7 +55,17 @@ function PieceFrame({ ctx, piece, children }: { ctx: AppContext; piece: StudioEn
 
 /** One mounted-per-open-character pane; hidden (not unmounted) while another tab is active, so its
  * edits survive the switch. Fetches its entity once, on mount. */
-function CharacterPane({ ctx, piece, hidden }: { ctx: AppContext; piece: StudioEntitySummary; hidden: boolean }): JSX.Element {
+function CharacterPane({
+  ctx,
+  piece,
+  hidden,
+  topRight,
+}: {
+  ctx: AppContext;
+  piece: StudioEntitySummary;
+  hidden: boolean;
+  topRight?: ReactNode;
+}): JSX.Element {
   const [entity, setEntity] = useState<unknown | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -82,13 +92,15 @@ function CharacterPane({ ctx, piece, hidden }: { ctx: AppContext; piece: StudioE
     // the wrapper must FILL the stage (flex column, bounded height) or the pane inside can never
     // scroll - an unstyled block just grows past the stage's overflow:hidden (the unscrollable bug)
     <div className={hidden ? styles.paneWrapHidden : styles.paneWrap}>
-      <PieceFrame ctx={ctx} piece={piece}>
+      {/* vs-editor-2 owns the WHOLE pane (its left column IS the portrait card); PieceFrame stays
+          the inspector's frame only - wrapping the editor in it doubled the art and broke 1:1 */}
+      <div className={styles.paneFlush}>
         {entity ? (
-          <CharacterEditor entity={entity} ctx={ctx} />
+          <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
         ) : (
           <div className={styles.soon}>{failed ? `could not load ${piece.name}` : "loading the piece…"}</div>
         )}
-      </PieceFrame>
+      </div>
     </div>
   );
 }
@@ -220,28 +232,34 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
     ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
   }, [ctx, pieces.length]);
 
+  // NO crumb bar and NO prosc wrapper: the name lives in the shell tab strip + the editor header,
+  // the count lives in the status bar, and every wrapper layer between the window and the cards is
+  // prime vertical space (the editor's own top rows are the room's chrome now). The focus toggle
+  // rides inside the editor's tab strip; the empty room keeps it beside the ghost text.
+  const focusNode = <FocusToggle focused={focused} onToggle={toggle} />;
   return (
     <div className={`${styles.room}${focused ? ` ${styles.focused}` : ""}`}>
-      <div className={styles.prosc}>
-        <div className={styles.stage} style={active?.accent ? ({ "--a": active.accent } as CSSProperties) : undefined}>
-          <div className={styles.crumb}>
-            <span className={styles.pip} />
-            <span className={styles.cn}>{active ? active.name : "The Workbench"}</span>
-            <span className={styles.cc}>{pieces.length === 0 ? "nothing open" : `${pieces.length} open`}</span>
-            <FocusToggle focused={focused} onToggle={toggle} />
+      <div className={styles.stage} style={active?.accent ? ({ "--a": active.accent } as CSSProperties) : undefined}>
+        {!active && (
+          <div className={styles.ghostRoom}>
+            nothing is open on the workbench · open the Library and send pieces here · each one opens as a tab above
+            <div className={styles.ghostFocus}>{focusNode}</div>
           </div>
-          {!active && (
-            <div className={styles.ghostRoom}>
-              nothing is open on the workbench · open the Library and send pieces here · each one opens as a tab above
-            </div>
-          )}
-          {characterPieces.map((p) => (
-            <CharacterPane key={pieceKey(p.id, p.kind)} ctx={ctx} piece={p} hidden={pieceKey(p.id, p.kind) !== activeKey} />
-          ))}
-          {active && active.kind !== "character" && <InspectorPane ctx={ctx} piece={active} />}
-        </div>
+        )}
+        {characterPieces.map((p) => (
+          <CharacterPane
+            key={pieceKey(p.id, p.kind)}
+            ctx={ctx}
+            piece={p}
+            hidden={pieceKey(p.id, p.kind) !== activeKey}
+            topRight={focusNode}
+          />
+        ))}
+        {active && active.kind !== "character" && <InspectorPane ctx={ctx} piece={active} />}
       </div>
-      {!focused && <RecentsRail ctx={ctx} entities={entities} />}
+      {/* the rail is an empty-bench amenity: while a piece is open, even its folded label is a
+          dead row - it vanishes entirely and returns when the bench clears */}
+      {!focused && !active && <RecentsRail ctx={ctx} entities={entities} />}
     </div>
   );
 }

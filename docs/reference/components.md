@@ -11,8 +11,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
 | App | src/ui/shell/App.tsx | () |  |  |
-| BentoCard | src/ui/components/bento-card/index.tsx | ({ title, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .title .dot .full .carry .move ... |
-| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface). | .room .focused .prosc .stage .crumb .pip .cn .cc ... |
+| BentoCard | src/ui/components/bento-card/index.tsx | ({ title, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .title .aff .dot .full .carry ... |
+| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .stage .crumb .pip .cn .cc .pane .art ... |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
@@ -29,7 +29,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
-| TopBar | src/ui/shell/TopBar.tsx | () |  |  |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

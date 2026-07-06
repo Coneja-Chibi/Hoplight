@@ -19,7 +19,6 @@ import type { AppContext, AppManifestEntry, StudioEntitySummary, VaudeApp } from
 import { parseSettings, type StudioSettings } from "../../studio/settings-shape";
 import { SetupWizard } from "../setup/wizard";
 import { Dock } from "./Dock";
-import { TopBar } from "./TopBar";
 import { TabStrip } from "./TabStrip";
 import { StatusBar } from "./StatusBar";
 import { FollowDialog } from "./FollowDialog";
@@ -193,7 +192,6 @@ export function App(): JSX.Element | null {
   return (
     <div id="shell">
       <Dock />
-      <TopBar />
       <div id="main">
         <TabStrip />
         <main id="canvas">{ActiveComponent && <ActiveComponent ctx={ctx} />}</main>

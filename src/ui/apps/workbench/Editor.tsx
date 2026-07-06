@@ -1,22 +1,20 @@
 /**
- * The character editor pane - vs-editor-2 TRANSCRIBED (the locked wireframe): multi-select
- * platform tabs whose lens dims/hides what no selected platform carries (computed from
- * /api/coverage data - this file names no platform), completion chips, Grid|Steps dual mode over
- * one draft, and the bento of cards (identity + casting + reorderable prose + greetings rows +
- * signature colors + palette + background + spotlight). RC bones, Vaude skin.
- *
- * Layout adaptation, stated: the wireframe's LEFT column (portrait/variants) is PieceFrame's art
- * column in this shell, so the bento here is center + right; the portrait card's lens entry stays
- * registered for steps/completion. Deferred with honesty: palette EDITING (swatches render
- * read-only), per-field AI affordances (brain milestone), the action rail beyond Save.
+ * The character editor pane - vs-editor-2 TRANSCRIBED 1:1 (the locked wireframe): tab strip
+ * (platform tabs + completion chips right), header row (close square + NAME + version chip left;
+ * Grid|Steps + save state right), then the THREE-column bento: the portrait card (dashed frame,
+ * variants strip, name + token/edited meta, Change Image / Manage Sprites stamps), the prompts
+ * center, the utilities right. Lens verdicts come from /api/coverage data via editor-core
+ * lensVerdict - this file names zero platforms. Wired-shut affordances (tagsheet, auto-tag, AI
+ * wand/convert, image/sprite management) render exactly where the wireframe drew them, disabled
+ * with their milestone named.
  *
  * One instance stays mounted per open piece (hidden, not unmounted): its React state IS the
  * unsaved draft. The draft is the WHOLE body (writePath immutable ops), so saving round-trips
  * every untouched field - the no-data-loss law, pinned in editor-core tests.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { JSX } from "react";
-import type { AppContext, CoverageInfo } from "../../app-contract";
+import type { JSX, ReactNode } from "react";
+import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-contract";
 import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { normalizeHex } from "../../_shared/color-math";
@@ -41,9 +39,16 @@ import roomStyles from "./styles.module.css";
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
 
-const PROSE_IDS = ["description", "personality", "scenario", "firstMes", "mesExample"] as const;
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
-const RENDERED_ORDER_IDS = new Set([...PROSE_IDS, "alternateGreetings"]);
+const RENDERED_ORDER_IDS = new Set(["description", "personality", "scenario", "firstMes", "alternateGreetings", "mesExample"]);
+
+const FIELD_HELP: Record<string, string> = {
+  description: "Who the character is - the main definition block every platform reads",
+  personality: "Voice and temperament; some platforms fold this into the description",
+  scenario: "Where a chat starts - setting and situation",
+  firstMes: "The opening message; macros run at chat time on the target platform",
+  mesExample: "Example dialogue in chat format; teaches the model the voice",
+};
 
 /** spoiler rows offered by the spotlight card (canonical spoilers.fields is an open map) */
 const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
@@ -76,16 +81,26 @@ const greetingsOf = (draft: unknown): Greeting[] => {
   return raw.map((g) => ({ text: str(rec(g).text), title: str(rec(g).title) || undefined }));
 };
 
+/** honest rough size: prose chars / 4, labeled "~tokens" (a real tokenizer is macro-layer work) */
+function tokenEstimate(draft: unknown): number {
+  const paths = ["identity.description", "persona.personality", "persona.scenario", "greetings.firstMessage", "examples.exampleMessages", "prompts.systemPrompt"];
+  const chars = paths.reduce((n, p) => n + str(readPath(draft, p)).length, 0);
+  return Math.round(chars / 4);
+}
+
 const cardById = new Map(EDITOR_CARDS.map((c) => [c.id, c]));
 
 export interface CharacterEditorProps {
   /** the fetched entity (summary fields + canonical body) - fetched once by the caller */
   entity: unknown;
   ctx: AppContext;
+  piece: StudioEntitySummary;
+  /** room chrome hoisted into the editor's own tab strip (the focus toggle) - no crumb bar exists */
+  topRight?: ReactNode;
 }
 
-/** Build the writable pane for one canonical character (the vs-editor-2 surface). */
-export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Element {
+/** Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). */
+export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEditorProps): JSX.Element {
   const [init] = useState(() => {
     const ent = rec(entity);
     const baseline = structuredClone(rec(ent.body));
@@ -124,9 +139,7 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
   const platformLabel = useCallback(
     (id: string): string => {
       const hit = coverage.find((c) => c.id === id);
-      if (!hit) return id;
-      // "SillyTavern character card (...)" -> the platform word is the honest short label
-      return hit.label.split(" ")[0] ?? id;
+      return hit ? (hit.label.split(" ")[0] ?? id) : id;
     },
     [coverage],
   );
@@ -137,10 +150,19 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
 
   const done = completionOf(draft);
   const lensClean = targets.length > 0 && EDITOR_CARDS.every((c) => lensVerdict(c.paths, targets, coverage).missing.length === 0);
+  const chips = [
+    ["Portrait", done.portrait],
+    ["Name", done.name],
+    ["Core Prompts", done.corePrompts],
+    ["Greeting", done.greeting],
+    ["Tags", done.tags],
+    ["Lens Check", lensClean],
+  ] as const;
+  const doneCount = chips.filter(([, ok]) => ok).length;
 
   const doSave = useCallback(async (): Promise<void> => {
     if (saving || !dirty) return;
-    const name = text("identity.name").trim();
+    const name = str(readPath(draft, "identity.name")).trim();
     if (!name) {
       ctx.setStatus("a name is required before saving");
       return;
@@ -161,8 +183,6 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
     } finally {
       setSaving(false);
     }
-    // text() closes over draft, which the deps carry
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx, dirty, draft, init.ent, init.hadOrder, order, saving]);
 
   useEffect(() => {
@@ -195,15 +215,83 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
     ctx.prefs.set(PREF_OFF_TARGET, m);
   };
 
+  // -- left column: the portrait card (wireframe 1:1) ------------------------------------------------
+
+  const artUrl = piece.hasPortrait
+    ? `/api/studio/portrait?kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`
+    : null;
+  const assets = ((): { label: string }[] => {
+    const raw = readPath(draft, "media.assets");
+    if (!Array.isArray(raw)) return [];
+    return raw
+      .map((a) => rec(a))
+      .filter((a) => a.role !== "portrait")
+      .slice(0, 2)
+      .map((a) => ({ label: str(a.label) || str(a.name) || "asset" }));
+  })();
+  const updatedAt = ((): string | null => {
+    const t = readPath(draft, "attribution.updatedAt");
+    return typeof t === "number" && Number.isFinite(t) ? new Date(t * 1000).toLocaleDateString() : null;
+  })();
+
+  const leftCard = (
+    <section className={styles.lcard}>
+      <div className={styles.portrait}>
+        {artUrl ? <img src={artUrl} alt="" /> : <b>{(text("identity.name") || piece.name).charAt(0).toUpperCase()}</b>}
+      </div>
+      <div className={styles.variants}>
+        <span className={`${styles.varThumb} ${styles.varOn}`} style={artUrl ? { backgroundImage: `url("${artUrl}")` } : undefined}>
+          <i>Base</i>
+        </span>
+        {assets.map((a, i) => (
+          <span className={styles.varThumb} key={i}>
+            <i>{a.label}</i>
+          </span>
+        ))}
+        <button type="button" className={styles.varAdd} disabled title="Alternate art variants land with the media milestone">
+          +
+        </button>
+      </div>
+      <div className={styles.lmeta}>
+        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
+        <div className={styles.lsub}>
+          {`~${tokenEstimate(draft)} tokens`}
+          {updatedAt !== null && ` · last edited ${updatedAt}`}
+        </div>
+      </div>
+      <div className={styles.btnrow}>
+        <button type="button" className={styles.stampBtn} disabled title="Image management lands with the media milestone">
+          Change Image
+        </button>
+        <button type="button" className={styles.stampBtn} disabled title="Sprites land with the media milestone">
+          Manage Sprites
+        </button>
+      </div>
+    </section>
+  );
+
   // -- card bodies -----------------------------------------------------------------------------------
 
   const identityBody = (
     <>
-      <label className={styles.k}>name</label>
+      <label className={styles.k}>character name *</label>
       <input className={styles.in} value={text("identity.name")} onChange={(e) => setField("identity.name", e.target.value)} />
       <label className={styles.k}>tagline</label>
-      <input className={styles.in} value={text("identity.tagline")} onChange={(e) => setField("identity.tagline", e.target.value)} />
-      <label className={styles.k}>tags</label>
+      <input
+        className={styles.in}
+        placeholder="A short, catchy description..."
+        value={text("identity.tagline")}
+        onChange={(e) => setField("identity.tagline", e.target.value)}
+      />
+      <div className={styles.tagbar}>
+        <button type="button" className={styles.tagsheet} disabled title="The tagsheet taxonomy lands with the discovery milestone">
+          Open Tagsheet
+        </button>
+        <button type="button" className={styles.autotag} disabled title="Auto-tag lands with the brain milestone">
+          Auto-tag
+        </button>
+      </div>
+      <label className={styles.k}>{`selected tags (${strArr(readPath(draft, "discovery.tags")).length})`}</label>
       <div className={styles.tags}>
         {strArr(readPath(draft, "discovery.tags")).map((tag) => (
           <button
@@ -229,17 +317,20 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
           }}
         />
       </div>
-      <label className={styles.k}>content rating</label>
-      <select
-        className={styles.in}
-        value={text("discovery.rating") || ""}
-        onChange={(e) => setField("discovery.rating", e.target.value)}
-      >
-        <option value="">unrated</option>
-        <option value="all-ages">all ages</option>
-        <option value="mature">mature</option>
-        <option value="explicit">explicit</option>
-      </select>
+      <div className={styles.rating}>
+        <div className={styles.ratingRow}>
+          <b>CONTENT RATING</b>
+          <span className={styles.pill}>{text("discovery.rating") || "unrated"}</span>
+          <i>auto-calc lands with the tagsheet</i>
+        </div>
+        <label className={styles.k}>override</label>
+        <select className={styles.in} value={text("discovery.rating") || ""} onChange={(e) => setField("discovery.rating", e.target.value)}>
+          <option value="">unrated</option>
+          <option value="all-ages">all ages</option>
+          <option value="mature">mature</option>
+          <option value="explicit">explicit</option>
+        </select>
+      </div>
     </>
   );
 
@@ -247,18 +338,26 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
     <div className={styles.idGrid}>
       {(
         [
-          ["identity.fullName", "full name / legal name"],
-          ["identity.title", "title / epithet"],
-          ["identity.age", "age"],
-          ["identity.pronouns", "pronouns"],
+          ["identity.fullName", "full name / legal name", "Legal or birth name..."],
+          ["identity.title", "title / epithet", "The Magnificent, Lord of..., etc."],
+          ["identity.age", "age", "Ancient, 25, Timeless..."],
+          ["identity.pronouns", "pronouns", "He/Him, She/Her, They..."],
         ] as const
-      ).map(([path, label]) => (
+      ).map(([path, label, ph]) => (
         <div className={styles.field} key={path}>
           <span className={styles.k}>{label}</span>
-          <input className={styles.in} value={text(path)} onChange={(e) => setField(path, e.target.value)} />
+          <input className={styles.in} placeholder={ph} value={text(path)} onChange={(e) => setField(path, e.target.value)} />
         </div>
       ))}
     </div>
+  );
+
+  const proseAff = (id: string): ReactNode => (
+    <>
+      <span title={FIELD_HELP[id] ?? ""}>?</span>
+      <button type="button" disabled title="Per-field AI lands with the brain milestone">&#10022;</button>
+      <button type="button" disabled title="Format conversion lands with the brain milestone">&#8646;</button>
+    </>
   );
 
   const proseBody = (id: string, path: string): JSX.Element => {
@@ -344,43 +443,69 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
   })();
   const paletteBody = (
     <>
-      <div className={styles.palRow}>
-        {palette.length === 0 && <span className={styles.hint}>no palette on this card yet</span>}
+      <div className={styles.pal}>
         {palette.map((s, i) => (
-          <span className={styles.palSwatch} key={i}>
-            <span className={styles.swatch} style={{ background: s.hex }} />
-            <i>{s.label ?? s.name ?? s.hex}</i>
+          <span className={styles.swl} key={i}>
+            <span className={styles.sw} style={{ background: s.hex }} />
+            {s.label ?? s.name ?? s.hex}
           </span>
         ))}
+        <button type="button" className={`${styles.sw} ${styles.swAdd}`} disabled title="Palette editing lands next slice">
+          +
+        </button>
       </div>
-      <span className={styles.hint}>palette editing lands next slice; shown honestly meanwhile</span>
+      {palette.length === 0 && <span className={styles.hint}>no palette on this card yet</span>}
     </>
   );
 
+  const bgRef = text("presentation.background.ref");
   const backgroundBody = (
     <>
-      <label className={styles.k}>background ref / url</label>
-      <input
-        className={styles.in}
-        placeholder="applied when starting a chat"
-        value={text("presentation.background.ref")}
-        onChange={(e) => setField("presentation.background.ref", e.target.value)}
-      />
+      {bgRef === "" && <div className={styles.bgempty}>No default background</div>}
+      <div className={styles.bgrow}>
+        <span>Custom URL</span>
+        <input
+          className={styles.in}
+          style={{ maxWidth: "12rem" }}
+          placeholder="applied when starting a chat"
+          value={bgRef}
+          onChange={(e) => setField("presentation.background.ref", e.target.value)}
+        />
+      </div>
     </>
   );
 
-  const spoilFields = rec(readPath(draft, "presentation.spoilers.fields"));
+  const spoilers = rec(readPath(draft, "presentation.spoilers"));
+  const spoilFields = rec(spoilers.fields);
+  const spoilOrder = ((): string[] => {
+    const saved = strArr(spoilers.order).filter((k) => SPOTLIGHT_FIELDS.some(([key]) => key === k));
+    const missing = SPOTLIGHT_FIELDS.map(([key]) => key).filter((k) => !saved.includes(k));
+    return [...saved, ...missing];
+  })();
+  const moveSpoil = (key: string, dir: -1 | 1): void => {
+    const at = spoilOrder.indexOf(key);
+    const to = at + dir;
+    if (to < 0 || to >= spoilOrder.length) return;
+    const next = [...spoilOrder];
+    [next[at], next[to]] = [next[to]!, next[at]!];
+    setField("presentation.spoilers", { ...spoilers, order: next });
+  };
   const spotlightBody = (
     <>
-      {SPOTLIGHT_FIELDS.map(([key, label]) => {
+      {spoilOrder.map((key) => {
+        const label = SPOTLIGHT_FIELDS.find(([k]) => k === key)?.[1] ?? key;
         const on = spoilFields[key] === true;
         return (
           <div className={styles.spoilRow} key={key}>
+            <span className={styles.ud}>
+              <button type="button" onClick={() => moveSpoil(key, -1)} title={`Move ${label} up`}>&#8593;</button>
+              <button type="button" onClick={() => moveSpoil(key, 1)} title={`Move ${label} down`}>&#8595;</button>
+            </span>
             <span>{label}</span>
             <button
               type="button"
               className={`${styles.spoil}${on ? ` ${styles.spoilOn}` : ""}`}
-              onClick={() => setField("presentation.spoilers.fields", { ...spoilFields, [key]: !on })}
+              onClick={() => setField("presentation.spoilers", { ...spoilers, fields: { ...spoilFields, [key]: !on } })}
             >
               {on ? "SPOILERED" : "visible"}
             </button>
@@ -404,7 +529,7 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
       case "scenario": return proseBody(id, "persona.scenario");
       case "firstMes": return proseBody(id, "greetings.firstMessage");
       case "mesExample": return proseBody(id, "examples.exampleMessages");
-      default: return null; // portrait: PieceFrame's art column IS that card in this shell
+      default: return null; // portrait renders as the bespoke left card
     }
   };
 
@@ -420,6 +545,7 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
       <BentoCard
         key={card.id}
         title={card.label}
+        aff={RENDERED_ORDER_IDS.has(card.id) && card.id !== "alternateGreetings" ? proseAff(card.id) : undefined}
         filled={filled}
         off={v.off}
         offMode={offTarget}
@@ -450,60 +576,66 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
 
   return (
     <div className={styles.root}>
-      <PlatformTabs
-        platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
-        selected={targets}
-        onToggle={toggleTarget}
-        onClear={() => {
-          setTargets([]);
-          ctx.prefs.set(PREF_TARGETS, []);
-        }}
-        offTarget={offTarget}
-        onOffTarget={pickOffTarget}
-      />
-
-      <div className={styles.chips}>
-        {(
-          [
-            ["Portrait", done.portrait],
-            ["Name", done.name],
-            ["Core Prompts", done.corePrompts],
-            ["Greeting", done.greeting],
-            ["Tags", done.tags],
-            ["Lens Check", lensClean],
-          ] as const
-        ).map(([label, ok]) => (
-          <span key={label} className={`${styles.chip}${ok ? ` ${styles.chipOk}` : ""}`}>
-            {label}
-          </span>
-        ))}
+      <div className={styles.tabstrip}>
+        <PlatformTabs
+          platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
+          selected={targets}
+          onToggle={toggleTarget}
+          onClear={() => {
+            setTargets([]);
+            ctx.prefs.set(PREF_TARGETS, []);
+          }}
+          offTarget={offTarget}
+          onOffTarget={pickOffTarget}
+        />
+        <span className={styles.done}>
+          <span className={styles.frac}>{`${doneCount}/${chips.length}`}</span>
+          {chips.map(([label, ok]) => (
+            <span key={label} className={`${styles.chip}${ok ? ` ${styles.chipOk}` : ""}`}>
+              {label}
+            </span>
+          ))}
+          {topRight}
+        </span>
       </div>
 
-      <div className={styles.bar}>
-        <span className={styles.seg}>
-          <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
-            Grid
-          </button>
-          <button type="button" className={mode === "steps" ? styles.on : undefined} onClick={() => setMode("steps")}>
-            Steps
-          </button>
-        </span>
-        <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
-          Save
+      <div className={styles.hdr}>
+        <button
+          type="button"
+          className={styles.back}
+          title={`Close ${piece.name}'s tab`}
+          onClick={() => ctx.workbench.remove(piece.id, piece.kind)}
+        >
+          &#8592;
         </button>
-        <span className={`${styles.flag}${dirty ? ` ${styles.on}` : ""}`}>
-          <span className={styles.flagDot} />
-          {dirty ? "unsaved changes" : "saved"}
+        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
+        {piece.sourceVariant !== undefined && <span className={styles.vchip}>{piece.sourceVariant.toUpperCase()}</span>}
+        <span className={styles.hdrRight}>
+          <span className={styles.seg}>
+            <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
+              Grid
+            </button>
+            <button type="button" className={mode === "steps" ? styles.on : undefined} onClick={() => setMode("steps")}>
+              Steps
+            </button>
+          </span>
+          <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
+            Save
+          </button>
+          <span className={`${styles.flag}${dirty ? ` ${styles.flagOn}` : ""}`}>
+            {dirty ? "unsaved changes" : "saved locally"}
+          </span>
         </span>
       </div>
 
       {mode === "grid" ? (
         <div className={styles.bento}>
+          <div className={styles.col}>{leftCard}</div>
           <div className={styles.col}>{centerOrdered}</div>
           <div className={styles.col}>{rightCards}</div>
         </div>
       ) : (
-        <div className={styles.col}>
+        <div className={`${styles.col} ${styles.stepsWrap}`}>
           <div className={styles.stepRail}>
             {STEP_ORDER.map((s, i) => (
               <button
@@ -533,7 +665,7 @@ export function CharacterEditor({ entity, ctx }: CharacterEditorProps): JSX.Elem
       )}
 
       {tail.length > 0 && (
-        <div className={styles.col}>
+        <div className={`${styles.col} ${styles.tailWrap}`}>
           {tail.map((f) => (
             <div className={roomStyles.field} key={f.k}>
               <div className={roomStyles.fk}>{f.k}</div>
