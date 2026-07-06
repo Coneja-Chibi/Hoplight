@@ -838,51 +838,48 @@
   gap: 0.35rem;
   flex-wrap: wrap;
 }
-/* editor-wide scale slider: hard track, square thumb, no glow (house neobrutalist). The % readout
-   doubles as a reset-to-100% button. Sizes the grid/quiz content; the chrome stays fixed. */
+/* editor-wide scale stepper [- 100% +], grouped like the Quiz/Grid seg toggle: the universal zoom
+   control (browsers/VS Code/Figma). The % readout doubles as a reset-to-100% button. Token-based. */
 .escale {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  border: 2px solid var(--seam);
   margin-right: 0.35rem;
 }
-.escale input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 60px;
-  height: 3px;
-  background: var(--seam);
-  cursor: ew-resize;
-}
-.escale input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 9px;
-  height: 9px;
-  border-radius: 0;
-  background: var(--ink);
-  border: 2px solid var(--ink);
-  cursor: ew-resize;
-}
-.escale input[type="range"]::-moz-range-thumb {
-  width: 9px;
-  height: 9px;
-  border-radius: 0;
-  border: none;
-  background: var(--ink);
-  cursor: ew-resize;
-}
-.escalePct {
+.escaleStep {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
-  letter-spacing: 0.04em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
   color: var(--text-dim);
   background: transparent;
   border: none;
-  padding: 0;
-  min-width: 2.6em;
-  text-align: right;
+  padding: 0.12rem 0.45rem;
   cursor: pointer;
+}
+.escaleStep:hover:not(:disabled) {
+  color: var(--text);
+}
+.escaleStep:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.escalePct {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-left: 2px solid var(--seam);
+  border-right: 2px solid var(--seam);
+  padding: 0.15rem 0.4rem;
+  min-width: 3em;
+  text-align: center;
+  cursor: pointer;
+}
+.escalePct:hover {
+  color: var(--text);
 }
 .frac {
   font-family: var(--font-mono);

@@ -39,8 +39,9 @@ import styles from "./Editor.module.css";
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
 const PREF_EDITOR_SCALE = "editor.scale";
-const SCALE_MIN = 0.75;
-const SCALE_MAX = 1.5;
+const SCALE_MIN = 0.5;
+const SCALE_MAX = 2;
+const SCALE_STEP = 0.1;
 
 /** tolerant reader for the app-wide editor scale (out-of-range or malformed drops to 1). */
 const parseScale = (v: unknown): number =>
@@ -191,10 +192,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // editor-wide content scale, remembered APP-WIDE (prefs, same as targets): sizes the grid/quiz
   // content up or down. Persists across characters, presenters, and fullscreen; 1 = default.
   const [editorScale, setEditorScaleState] = useState<number>(() => parseScale(ctx.prefs.get(PREF_EDITOR_SCALE)));
+  // the ref holds the live scale so rapid +/- clicks accumulate from the latest value, not a stale
+  // render's (two quick clicks would otherwise both read the same number and lose a step).
+  const scaleRef = useRef(editorScale);
   const setEditorScale = (next: number): void => {
-    setEditorScaleState(next);
-    ctx.prefs.set(PREF_EDITOR_SCALE, next);
+    const clamped = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round(next * 100) / 100));
+    scaleRef.current = clamped;
+    setEditorScaleState(clamped);
+    ctx.prefs.set(PREF_EDITOR_SCALE, clamped);
   };
+  const stepScale = (dir: -1 | 1): void => setEditorScale(scaleRef.current + dir * SCALE_STEP);
   const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
   const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
 
@@ -943,17 +950,28 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         />
         <span className={styles.done}>
           <span className={styles.escale} title="Scale the editor">
-            <input
-              type="range"
-              min={SCALE_MIN}
-              max={SCALE_MAX}
-              step={0.05}
-              value={editorScale}
-              onChange={(e) => setEditorScale(Number(e.target.value))}
-              aria-label="Scale the editor"
-            />
+            <button
+              type="button"
+              className={styles.escaleStep}
+              onClick={() => stepScale(-1)}
+              disabled={editorScale <= SCALE_MIN}
+              aria-label="Scale editor down"
+              title="Smaller"
+            >
+              &#8722;
+            </button>
             <button type="button" className={styles.escalePct} onClick={() => setEditorScale(1)} title="Reset to 100%">
               {`${Math.round(editorScale * 100)}%`}
+            </button>
+            <button
+              type="button"
+              className={styles.escaleStep}
+              onClick={() => stepScale(1)}
+              disabled={editorScale >= SCALE_MAX}
+              aria-label="Scale editor up"
+              title="Bigger"
+            >
+              &#43;
             </button>
           </span>
           <span className={styles.seg}>
