@@ -1,6 +1,8 @@
 #!/bin/sh
 # Repo gate: discipline checks + green suite on the staged change. See scripts/hooks/README.md.
 bun run scripts/hooks/gate.ts --staged || exit 1
+# Color gate: no raw hex/rgb/hsl added to UI files - theme through tokens (retroactive: --scan).
+bun run scripts/hooks/no-hardcode-colors.ts --staged || exit 1
 # Staleness gate: docs/reference/components.md must match a fresh scan of the real exports.
 bun run scripts/hooks/component-catalog.ts --check || exit 1
 # React-hooks gate: rules-of-hooks violations and effect echo loops die here, not on screen.

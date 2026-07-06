@@ -3,15 +3,39 @@ import {
   addedDependencies,
   addedLinesByFile,
   declaresDependency,
+  hardcodedColorLiteral,
   hasVerifiedNote,
   htmlSinkTokens,
   impureCoreTokens,
+  isColorGuardedFile,
   isCoreFile,
   isShellFile,
   missingCoreSiblings,
   shellBranchHits,
   shellImportTokens,
 } from "./lib";
+
+test("hardcodedColorLiteral catches hex and color functions, ignores tokens and opt-outs", () => {
+  expect(hardcodedColorLiteral("  color: #e11d48;")).toBe("#e11d48");
+  expect(hardcodedColorLiteral("  border: 3px solid #000;")).toBe("#000");
+  expect(hardcodedColorLiteral("  box-shadow: 3px 3px 0 rgba(0,0,0,.5);")).toBe("rgba(");
+  expect(hardcodedColorLiteral("  background: hsl(210 50% 40%);")).toBe("hsl(");
+  expect(hardcodedColorLiteral("  color: var(--rose);")).toBeNull(); // tokens are the point
+  expect(hardcodedColorLiteral("  border-color: var(--a, var(--accent));")).toBeNull();
+  expect(hardcodedColorLiteral('  { name: "X", color: "#111111" }, // hardcode-ok: brand datum')).toBeNull();
+  expect(hardcodedColorLiteral("  {dirty && <span>&#9679;</span>}")).toBeNull(); // HTML entity, not a color
+  expect(hardcodedColorLiteral("  <span>&#10022;</span>")).toBeNull();
+});
+
+test("isColorGuardedFile guards UI styles/components, spares definitions and color-domain files", () => {
+  expect(isColorGuardedFile("src/ui/components/render-box/styles.module.css")).toBe(true);
+  expect(isColorGuardedFile("src/ui/apps/workbench/Editor.tsx")).toBe(true);
+  expect(isColorGuardedFile("src/ui/theme/tokens.css")).toBe(false); // token definitions live here
+  expect(isColorGuardedFile("src/ui/_shared/color-math.ts")).toBe(false);
+  expect(isColorGuardedFile("src/ui/_shared/platform-registry.ts")).toBe(false);
+  expect(isColorGuardedFile("src/studio/signature-color.ts")).toBe(false); // not a UI file
+  expect(isColorGuardedFile("design/vs-pick-11.html")).toBe(false);
+});
 
 test("htmlSinkTokens flags every banned sink in UI source", () => {
   expect(htmlSinkTokens("src/ui/apps/x/index.ts", "el.innerHTML = markup;")).toEqual(["innerHTML"]);

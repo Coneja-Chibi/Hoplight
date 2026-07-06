@@ -180,3 +180,41 @@ export function shellImportTokens(path: string, source: string): string[] {
 /** Does the commit message declare the new dependency? (One line per package, with a reason.) */
 export const declaresDependency = (message: string, pkg: string): boolean =>
   new RegExp(`^\\s*new-dependency\\s*:\\s*${pkg.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\b\\s*\\S`, "im").test(message);
+
+// -- no hardcoded colors: UI wears tokens, not raw hex ----------------------------------------------
+
+/** The only src/ui files where a raw color literal is legitimate: the token DEFINITIONS, and the few
+ * modules whose whole job IS color (the HSV math, the platform brand-color data). Everything else must
+ * reference a token (var(--x)). */
+const COLOR_ALLOWLIST: ReadonlySet<string> = new Set<string>([
+  "src/ui/theme/tokens.css",
+  "src/ui/_shared/color-math.ts",
+  "src/ui/_shared/color-math.test.ts",
+  "src/ui/_shared/platform-registry.ts",
+  "src/ui/_shared/platform-registry.test.ts",
+]);
+
+/** A UI style/component file the color rule guards: a .module.css or .tsx under src/ui, not a
+ * definition/color-domain file. These must theme through tokens; a raw color literal is a violation. */
+export const isColorGuardedFile = (path: string): boolean => {
+  const p = norm(path);
+  if (!p.startsWith("src/ui/")) return false;
+  if (!p.endsWith(".module.css") && !p.endsWith(".tsx")) return false;
+  return !COLOR_ALLOWLIST.has(p);
+};
+
+/** A hardcoded color literal: a hex color, or an rgb/rgba/hsl/hsla function with literal channels.
+ * The `(?<!&)` guard skips HTML numeric entities (`&#9679;`, `&#x2022;`) - glyphs, not colors. */
+const COLOR_LITERAL = /(?<!&)#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/;
+
+/**
+ * The first hardcoded color literal on a line, or null when there is none. A line carrying the token
+ * `hardcode-ok` (in a comment) opts out - the rare legitimate one-off (a brand-color datum, a
+ * documented exception). Everything else should be a `var(--token)`. Pure, so both the pre-commit
+ * diff-block and the retroactive scan share exactly this decision.
+ */
+export const hardcodedColorLiteral = (line: string): string | null => {
+  if (line.includes("hardcode-ok")) return null;
+  const m = COLOR_LITERAL.exec(line);
+  return m ? m[0] : null;
+};
