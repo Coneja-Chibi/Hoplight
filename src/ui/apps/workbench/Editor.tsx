@@ -30,12 +30,11 @@ import {
   moveCard,
   readPath,
   reconcileOrder,
-  STEP_ORDER,
   writePath,
   type EditorCard,
-  type StepId,
 } from "./editor-core";
 import { fieldsFor } from "./inspect-core";
+import { FIELD_MODULES, type FieldModule } from "./fields";
 import styles from "./Editor.module.css";
 import roomStyles from "./styles.module.css";
 
@@ -163,8 +162,8 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [order, setOrder] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
-  const [mode, setMode] = useState<"grid" | "steps">("grid");
-  const [step, setStep] = useState<StepId>("casting");
+  const [mode, setMode] = useState<"grid" | "interview">("grid");
+  const [flowIndex, setFlowIndex] = useState(0); // which field module the Interview presenter is on
   const [coverage, setCoverage] = useState<CoverageInfo[]>([]);
   const [targets, setTargets] = useState<string[]>(() => strArr(ctx.prefs.get(PREF_TARGETS)));
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
@@ -343,23 +342,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       <button type="button" disabled title="Per-field AI lands with the brain milestone">&#10022;</button>
     </span>
   );
-  const identityBody = (
+  // extracted so BOTH the grid's identity card and the Interview/Callsheet presenters render the one
+  // tags editor and the one rating control - a field module and a bento card call the same JSX.
+  const tagsControl = (
     <>
-      <div className={styles.klabel}>
-        <span className={styles.k}>character name *</span>
-        {labelAff("The display name every platform shows first")}
-      </div>
-      <input className={styles.in} value={text("identity.name")} onChange={(e) => setField("identity.name", e.target.value)} />
-      <div className={styles.klabel}>
-        <span className={styles.k}>tagline</span>
-        {labelAff("A short hook shown under the name in browse and search")}
-      </div>
-      <input
-        className={styles.in}
-        placeholder="A short, catchy description..."
-        value={text("identity.tagline")}
-        onChange={(e) => setField("identity.tagline", e.target.value)}
-      />
       <div className={styles.tagbar}>
         <button type="button" className={styles.tagsheet} disabled title="The tagsheet taxonomy lands with the discovery milestone">
           Open Tagsheet
@@ -399,20 +385,45 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           }}
         />
       </div>
-      <div className={styles.rating}>
-        <div className={styles.ratingRow}>
-          <b>CONTENT RATING</b>
-          <span className={styles.pill}>{text("discovery.rating") || "unrated"}</span>
-          <i>auto-calc lands with the tagsheet</i>
-        </div>
-        <label className={styles.k}>override</label>
-        <select className={styles.in} value={text("discovery.rating") || ""} onChange={(e) => setField("discovery.rating", e.target.value)}>
-          <option value="">unrated</option>
-          <option value="all-ages">all ages</option>
-          <option value="mature">mature</option>
-          <option value="explicit">explicit</option>
-        </select>
+    </>
+  );
+
+  const ratingControl = (
+    <div className={styles.rating}>
+      <div className={styles.ratingRow}>
+        <b>CONTENT RATING</b>
+        <span className={styles.pill}>{text("discovery.rating") || "unrated"}</span>
+        <i>auto-calc lands with the tagsheet</i>
       </div>
+      <label className={styles.k}>override</label>
+      <select className={styles.in} value={text("discovery.rating") || ""} onChange={(e) => setField("discovery.rating", e.target.value)}>
+        <option value="">unrated</option>
+        <option value="all-ages">all ages</option>
+        <option value="mature">mature</option>
+        <option value="explicit">explicit</option>
+      </select>
+    </div>
+  );
+
+  const identityBody = (
+    <>
+      <div className={styles.klabel}>
+        <span className={styles.k}>character name *</span>
+        {labelAff("The display name every platform shows first")}
+      </div>
+      <input className={styles.in} value={text("identity.name")} onChange={(e) => setField("identity.name", e.target.value)} />
+      <div className={styles.klabel}>
+        <span className={styles.k}>tagline</span>
+        {labelAff("A short hook shown under the name in browse and search")}
+      </div>
+      <input
+        className={styles.in}
+        placeholder="A short, catchy description..."
+        value={text("identity.tagline")}
+        onChange={(e) => setField("identity.tagline", e.target.value)}
+      />
+      {tagsControl}
+      {ratingControl}
     </>
   );
 
@@ -737,10 +748,65 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     .map((c) => renderCard(c, false))
     .filter((el): el is JSX.Element => el !== null);
 
-  const stepCards = EDITOR_CARDS.filter((c) => c.step === step)
-    .map((c) => renderCard(c, false))
-    .filter((el): el is JSX.Element => el !== null);
-  const stepIndex = STEP_ORDER.indexOf(step);
+  // the one control per field kind - reused by every presenter (and, later, by the grid). Composite
+  // kinds return the bespoke body already built above; text/prose are generic.
+  const controlFor = (m: FieldModule): JSX.Element => {
+    switch (m.kind) {
+      case "text":
+        return (
+          <input
+            className={styles.in}
+            placeholder={m.placeholder}
+            value={text(m.path)}
+            onChange={(e) => setField(m.path, e.target.value)}
+          />
+        );
+      case "prose": return proseBody(m.id, m.path);
+      case "tags": return tagsControl;
+      case "rating": return ratingControl;
+      case "portrait": return leftCard;
+      case "gradient": return gradientBody;
+      case "palette": return paletteBody;
+      case "greetings": return greetingsBody;
+      case "background": return backgroundBody;
+      case "spotlight": return spotlightBody;
+    }
+  };
+
+  // Interview presenter: one field module per screen, walked in registry order. A pure view over the
+  // same draft - Next/Back only moves the cursor, every edit is setField on the whole body.
+  const flowAt = Math.min(flowIndex, FIELD_MODULES.length - 1);
+  const activeModule = FIELD_MODULES[flowAt]!;
+  const goFlow = (i: number): void => setFlowIndex(Math.max(0, Math.min(i, FIELD_MODULES.length - 1)));
+  const interviewView = (
+    <div className={styles.interview}>
+      <div className={styles.iask}>
+        <div className={styles.qcount}>{`Question ${flowAt + 1} of ${FIELD_MODULES.length} · ${activeModule.step}`}</div>
+        <h3 className={styles.qbig}>
+          {activeModule.question}
+          {activeModule.required && <span className={styles.qreq}> *</span>}
+        </h3>
+        {activeModule.helper !== undefined && <p className={styles.qvoice}>{activeModule.helper}</p>}
+        <div className={styles.qcontrol}>{controlFor(activeModule)}</div>
+        <div className={styles.qnav}>
+          <button type="button" className={styles.qghost} disabled={flowAt === 0} onClick={() => goFlow(flowAt - 1)}>
+            &larr; Back
+          </button>
+          <button type="button" className={styles.qghost} onClick={() => goFlow(flowAt + 1)}>
+            Skip
+          </button>
+          <button type="button" className={styles.qnext} disabled={flowAt === FIELD_MODULES.length - 1} onClick={() => goFlow(flowAt + 1)}>
+            Next &rarr;
+          </button>
+        </div>
+        <div className={styles.qdots}>
+          {FIELD_MODULES.map((mod, i) => (
+            <span key={mod.id} className={`${styles.qdot}${i < flowAt ? ` ${styles.qdotDone}` : ""}${i === flowAt ? ` ${styles.qdotOn}` : ""}`} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 
   const tail = fieldsFor("character", draft).filter((f) => !COVERED_LABELS.has(f.k) && !f.k.startsWith("alt greeting"));
 
@@ -763,8 +829,8 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
               Grid
             </button>
-            <button type="button" className={mode === "steps" ? styles.on : undefined} onClick={() => setMode("steps")}>
-              Steps
+            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
+              Interview
             </button>
           </span>
           <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
@@ -785,33 +851,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           </div>
         </div>
       ) : (
-        <div className={`${styles.col} ${styles.stepsWrap}`}>
-          <div className={styles.stepRail}>
-            {STEP_ORDER.map((s, i) => (
-              <button
-                key={s}
-                type="button"
-                className={`${styles.stepTab}${s === step ? ` ${styles.on}` : ""}`}
-                onClick={() => setStep(s)}
-              >
-                {`${i + 1} ${s}`}
-              </button>
-            ))}
-          </div>
-          {stepCards}
-          <div className={styles.stepNav}>
-            <button type="button" disabled={stepIndex === 0} onClick={() => setStep(STEP_ORDER[stepIndex - 1]!)}>
-              back
-            </button>
-            <button
-              type="button"
-              disabled={stepIndex === STEP_ORDER.length - 1}
-              onClick={() => setStep(STEP_ORDER[stepIndex + 1]!)}
-            >
-              next
-            </button>
-          </div>
-        </div>
+        interviewView
       )}
 
       {tail.length > 0 && (
