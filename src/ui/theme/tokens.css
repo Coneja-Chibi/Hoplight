@@ -65,6 +65,7 @@
   --text-soft: #3a352c;
   --text-dim: #6e6857;    /* readability floor: darker on cream so labels stay legible */
   --text-faint: #b3a88e;
+  --link: #c81e4a;        /* rendered links: legible on cream, NOT the entity accent (which can be dark) */
   --stamp-bg: #0a0a0b;
   --stamp-fg: #faf8f3;
   --status-bg: #0a0a0b;
@@ -95,6 +96,7 @@
   --text-soft: #c9c4d2;
   --text-dim: #a6a1b4;    /* readability floor: brighter on the forge so labels stay legible */
   --text-faint: #4a4556;
+  --link: #ff8f7a;        /* rendered links: bright coral, high contrast on the dark forge */
   --stamp-bg: #e7e3da;
   --stamp-fg: #0a0a0b;
   --status-bg: #000;

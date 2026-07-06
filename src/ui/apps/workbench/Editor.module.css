@@ -139,7 +139,7 @@
 .cnt {
   font-family: var(--font-mono);
   font-size: 0.5625rem;
-  color: #4a4556;
+  color: var(--text-dim, #a6a1b4); /* readability floor: #4a4556 was ~2:1, invisible on the card */
   align-self: flex-end;
 }
 .idGrid {

@@ -61,8 +61,9 @@
   margin: 0.15rem 0;
 }
 .out :global(a) {
-  color: var(--a, var(--accent, #ff6f61));
+  color: var(--link, #ff8f7a);
   text-decoration: underline;
+  overflow-wrap: anywhere;
 }
 .out :global(blockquote) {
   margin: 0 0 0.6rem;
@@ -110,8 +111,14 @@
   overflow-wrap: anywhere;
 }
 
-/* plain fields: inline safe text, no toggle */
+/* plain fields: inline safe text, no toggle. a bare URL is linkified, so it needs the same legible
+   link treatment as the rendered face (it was falling back to the browser's near-invisible default). */
 .plain {
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+.plain :global(a) {
+  color: var(--link, #ff8f7a);
+  text-decoration: underline;
   overflow-wrap: anywhere;
 }

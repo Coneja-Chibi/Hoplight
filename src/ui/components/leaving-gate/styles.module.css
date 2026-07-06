@@ -41,7 +41,7 @@
   font-family: var(--font-mono);
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--rose, #e11d48);
+  color: #fb7185; /* brighter rose than brand --rose: the destination is the key line, keep it crisp */
   word-break: break-all;
   margin-top: 0.3rem;
 }
