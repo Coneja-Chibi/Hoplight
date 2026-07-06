@@ -27,7 +27,30 @@ export type FieldKind =
   | "greetings"
   | "background"
   | "spotlight"
-  | "list";
+  | "list"
+  // P2 primitives (each is one controlFor case, stamped across dozens of fields):
+  | "select" // one-of an open/closed string union, pickable cards
+  | "number" // a number (optionally a 0..1 range) with min/max/step
+  | "keyvalue" // Record<string, string> rows (locale->text, attribute maps)
+  | "list-subeditor" // a repeating list of small objects (bias, depthInjections)
+  | "structured-subeditor"; // one fixed nested object (voice, sprite, settings.risu)
+
+/**
+ * One control inside a composite (a structured-subeditor's object, or a list-subeditor's row). A
+ * lighter FieldModule: a relative key + a kind + a label. Recursion stops here (composites of
+ * composites are not needed yet); the sharp nested cases stay flat.
+ */
+export interface SubField {
+  /** relative key under the parent object */
+  key: string;
+  kind: "text" | "prose" | "number" | "toggle" | "select";
+  label: string;
+  placeholder?: string;
+  /** select options */
+  options?: ReadonlyArray<{ value: string; label: string }>;
+  /** number bounds */
+  number?: { min?: number; max?: number; step?: number; unit?: string };
+}
 
 export interface FieldModule {
   /** stable id (RC field-order id where one exists, else the field name) */
@@ -48,6 +71,18 @@ export interface FieldModule {
   required?: boolean;
   /** short caption for the read-only living-sheet row */
   sheetLabel: string;
+
+  // -- kind-specific config (only the matching kind reads its field) --
+  /** `select`: the choices */
+  options?: ReadonlyArray<{ value: string; label: string }>;
+  /** `number`: bounds; `range: true` renders a slider instead of a stepper input */
+  number?: { min?: number; max?: number; step?: number; unit?: string; range?: boolean };
+  /** `keyvalue`: the row captions */
+  keyValue?: { keyLabel: string; valueLabel: string; keyPlaceholder?: string };
+  /** `list-subeditor` (the row's object shape) and `structured-subeditor` (the object's shape) */
+  subFields?: readonly SubField[];
+  /** `list-subeditor`: the add-row button caption */
+  addLabel?: string;
 }
 
 /**
@@ -153,4 +188,32 @@ export const FIELD_MODULES: FieldModule[] = [
     question: "A link to the original?", helper: "The source URL. Optional.", placeholder: "https://...", sheetLabel: "Source URL" },
   { id: "license", path: "attribution.license", kind: "text", step: "finalize",
     question: "A license?", helper: "How others may use them, e.g. CC-BY. Optional.", placeholder: "CC-BY", sheetLabel: "License" },
+
+  // -- P2 CONTROL-VOCABULARY REPRESENTATIVES (one field per new primitive; the rest of P2 stamps these
+  //    kinds across ~50 rows once the look is approved). --
+  { id: "visualKind", path: "media.visualKind", kind: "select", step: "finalize",
+    question: "How is their art shown?", helper: "A single portrait, or a layered sprite. Optional.", sheetLabel: "Visual kind",
+    options: [{ value: "avatar", label: "Portrait" }, { value: "sprite", label: "Sprite" }] },
+  { id: "creatorNotesMultilingual", path: "attribution.creatorNotesMultilingual", kind: "keyvalue", step: "finalize",
+    question: "Creator notes in other languages?", helper: "One entry per locale. Optional.", sheetLabel: "Notes by locale",
+    keyValue: { keyLabel: "Locale", valueLabel: "Notes", keyPlaceholder: "en" } },
+  { id: "talkativeness", path: "settings.talkativeness", kind: "number", step: "finalize",
+    question: "How talkative are they?", helper: "0 is terse, 1 is chatty. Some platforms use this in group chats. Optional.", sheetLabel: "Talkativeness",
+    number: { min: 0, max: 1, step: 0.05, range: true } },
+  { id: "bias", path: "bias", kind: "list-subeditor", step: "finalize",
+    question: "Any phrase bias?", helper: "Nudge words up or down. Positive favors, negative avoids. Optional.", sheetLabel: "Bias", addLabel: "+ add a bias",
+    subFields: [
+      { key: "phrase", kind: "text", label: "Phrase", placeholder: "a phrase" },
+      { key: "weight", kind: "number", label: "Weight", number: { step: 1 } },
+    ] },
+  { id: "voice", path: "persona.voice", kind: "structured-subeditor", step: "finalize",
+    question: "A voice for them?", helper: "Text-to-speech settings, where a platform supports it. Optional.", sheetLabel: "Voice",
+    subFields: [
+      { key: "provider", kind: "select", label: "Provider",
+        options: [{ value: "", label: "None" }, { value: "elevenlabs", label: "ElevenLabs" }, { value: "openai", label: "OpenAI" }, { value: "webspeech", label: "Web Speech" }] },
+      { key: "voiceId", kind: "text", label: "Voice ID", placeholder: "provider voice id" },
+      { key: "rate", kind: "number", label: "Rate", number: { step: 0.1 } },
+      { key: "pitch", kind: "number", label: "Pitch", number: { step: 0.1 } },
+      { key: "disabled", kind: "toggle", label: "Disabled" },
+    ] },
 ];

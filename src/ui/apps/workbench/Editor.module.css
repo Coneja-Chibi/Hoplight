@@ -1292,3 +1292,97 @@
 .spoilRow span:nth-child(2) {
   margin-right: auto;
 }
+
+/* ===== P2 composite controls (toggle / number-range / keyvalue / list-subeditor / structured) ===== */
+.toggle {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid var(--seam);
+  padding: 0.2rem 0.75rem;
+  cursor: pointer;
+}
+.toggleOn {
+  color: var(--stamp-fg);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.numrange {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.numrange input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--seam);
+  cursor: ew-resize;
+}
+.numrange input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  cursor: ew-resize;
+}
+.numrange input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  border: none;
+  background: var(--ink);
+  cursor: ew-resize;
+}
+.numval {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  min-width: 3.2em;
+  text-align: right;
+}
+.kv,
+.sublist,
+.structured {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.kvrow {
+  display: grid;
+  grid-template-columns: minmax(0, 6rem) minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+/* a list-subeditor row and a structured object: a bordered card of labelled sub-cells */
+.subrow,
+.structured {
+  border: 2px solid var(--seam);
+  padding: 0.6rem;
+}
+.subrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.subcell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.subk {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}

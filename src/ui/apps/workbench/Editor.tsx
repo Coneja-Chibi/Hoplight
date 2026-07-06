@@ -32,7 +32,7 @@ import {
   writePath,
   type LensVerdict,
 } from "./editor-core";
-import { FIELD_MODULES, type FieldModule } from "./fields";
+import { FIELD_MODULES, type FieldModule, type SubField } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
 import styles from "./Editor.module.css";
 
@@ -671,6 +671,48 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   // the one control per field kind - reused by every presenter (and, later, by the grid). Composite
   // kinds return the bespoke body already built above; text/prose are generic.
+  // one SubField control: value in, new value out. Small and total; reused by the structured-subeditor
+  // (object fields) and the list-subeditor (row fields), so a composite never re-implements a control.
+  const renderSub = (value: unknown, onChange: (v: unknown) => void, sf: SubField): JSX.Element => {
+    switch (sf.kind) {
+      case "prose":
+        return <textarea className={styles.ta} spellCheck={false} value={str(value)} onChange={(e) => onChange(e.target.value)} />;
+      case "number":
+        return (
+          <input
+            className={styles.in}
+            type="number"
+            step={sf.number?.step}
+            min={sf.number?.min}
+            max={sf.number?.max}
+            value={typeof value === "number" ? value : ""}
+            onChange={(e) => onChange(e.target.value === "" ? undefined : Number(e.target.value))}
+          />
+        );
+      case "toggle":
+        return (
+          <button
+            type="button"
+            className={`${styles.toggle}${value === true ? ` ${styles.toggleOn}` : ""}`}
+            aria-pressed={value === true}
+            onClick={() => onChange(value !== true)}
+          >
+            {value === true ? "On" : "Off"}
+          </button>
+        );
+      case "select":
+        return (
+          <select className={styles.in} value={str(value)} onChange={(e) => onChange(e.target.value)}>
+            {(sf.options ?? []).map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        );
+      default:
+        return <input className={styles.in} placeholder={sf.placeholder} value={str(value)} onChange={(e) => onChange(e.target.value)} />;
+    }
+  };
+
   const controlFor = (m: FieldModule): JSX.Element => {
     switch (m.kind) {
       case "text":
@@ -718,6 +760,132 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
                 e.currentTarget.value = "";
               }}
             />
+          </div>
+        );
+      }
+      case "select": {
+        const cur = text(m.path);
+        return (
+          <div className={styles.opts}>
+            {(m.options ?? []).map((o, i) => {
+              const on = cur === o.value;
+              return (
+                <button
+                  key={o.value || "none"}
+                  type="button"
+                  className={`${styles.opt}${on ? ` ${styles.optOn}` : ""}`}
+                  onClick={() => setField(m.path, o.value)}
+                >
+                  {on && <span className={styles.optMark}>Picked</span>}
+                  <span className={styles.rank}>{String.fromCharCode(65 + i)}</span>
+                  <span className={styles.optBody}>
+                    <span className={styles.optTitle}>{o.label}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        );
+      }
+      case "number": {
+        const raw = readPath(draft, m.path);
+        const n = typeof raw === "number" ? raw : undefined;
+        const meta = m.number;
+        if (meta?.range) {
+          return (
+            <div className={styles.numrange}>
+              <input
+                type="range"
+                min={meta.min}
+                max={meta.max}
+                step={meta.step}
+                value={n ?? meta.min ?? 0}
+                onChange={(e) => setField(m.path, Number(e.target.value))}
+              />
+              <span className={styles.numval}>{n === undefined ? "unset" : `${n}${meta.unit ?? ""}`}</span>
+            </div>
+          );
+        }
+        return (
+          <input
+            className={styles.in}
+            type="number"
+            step={meta?.step}
+            min={meta?.min}
+            max={meta?.max}
+            value={n ?? ""}
+            onChange={(e) => setField(m.path, e.target.value === "" ? undefined : Number(e.target.value))}
+          />
+        );
+      }
+      case "keyvalue": {
+        const entries = Object.entries(rec(readPath(draft, m.path)));
+        const kv = m.keyValue ?? { keyLabel: "Key", valueLabel: "Value" };
+        const write = (next: [string, unknown][]): void => setField(m.path, Object.fromEntries(next));
+        return (
+          <div className={styles.kv}>
+            {entries.map(([k, v], i) => (
+              <div className={styles.kvrow} key={i}>
+                <input
+                  className={styles.in}
+                  placeholder={kv.keyPlaceholder ?? kv.keyLabel}
+                  value={k}
+                  onChange={(e) => write(entries.map((en, j) => (j === i ? [e.target.value, en[1]] : en)))}
+                />
+                <input
+                  className={styles.in}
+                  placeholder={kv.valueLabel}
+                  value={str(v)}
+                  onChange={(e) => write(entries.map((en, j) => (j === i ? [en[0], e.target.value] : en)))}
+                />
+                <button type="button" className={styles.rm} onClick={() => write(entries.filter((_, j) => j !== i))}>
+                  remove
+                </button>
+              </div>
+            ))}
+            <button type="button" className={styles.add} onClick={() => write([...entries, ["", ""]])}>
+              {`+ add ${kv.keyLabel.toLowerCase()}`}
+            </button>
+          </div>
+        );
+      }
+      case "list-subeditor": {
+        const raw = readPath(draft, m.path);
+        const rows: Record<string, unknown>[] = Array.isArray(raw) ? raw.map(rec) : [];
+        const subs = m.subFields ?? [];
+        const setRows = (next: Record<string, unknown>[]): void => setField(m.path, next);
+        return (
+          <div className={styles.sublist}>
+            {rows.map((row, i) => (
+              <div className={styles.subrow} key={i}>
+                {subs.map((sf) => (
+                  <label className={styles.subcell} key={sf.key}>
+                    <span className={styles.subk}>{sf.label}</span>
+                    {renderSub(row[sf.key], (v) => setRows(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r))), sf)}
+                  </label>
+                ))}
+                <button type="button" className={styles.rm} onClick={() => setRows(rows.filter((_, j) => j !== i))}>
+                  remove
+                </button>
+              </div>
+            ))}
+            <button type="button" className={styles.add} onClick={() => setRows([...rows, {}])}>
+              {m.addLabel ?? "+ add"}
+            </button>
+          </div>
+        );
+      }
+      case "structured-subeditor": {
+        const obj = rec(readPath(draft, m.path));
+        const subs = m.subFields ?? [];
+        return (
+          <div className={styles.structured}>
+            {subs.map((sf) => (
+              <label className={styles.subcell} key={sf.key}>
+                <span className={styles.subk}>{sf.label}</span>
+                {renderSub(obj[sf.key], (v) => setField(`${m.path}.${sf.key}`, v), sf)}
+              </label>
+            ))}
           </div>
         );
       }
