@@ -26,6 +26,21 @@ export function normalizeHex(input: string): string | null {
   return /^[0-9a-f]{6}$/.test(full) ? `#${full}` : null;
 }
 
+/**
+ * Pick a legible ink (near-black or cream) to sit ON a solid hex fill, by WCAG relative luminance.
+ * Used for monogram badges: the tile wears a brand color, the letter must stay readable on it. Tolerant:
+ * an unparseable fill reads as dark, so it gets cream ink.
+ */
+export const readableInk = (fill: string): string => {
+  const hex = normalizeHex(fill) ?? "#000000";
+  const lin = (pair: string): number => {
+    const s = parseInt(pair, 16) / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  const lum = 0.2126 * lin(hex.slice(1, 3)) + 0.7152 * lin(hex.slice(3, 5)) + 0.0722 * lin(hex.slice(5, 7));
+  return lum > 0.42 ? "#0a0a0b" : "#faf8f3";
+};
+
 /** Hex -> HSV. Tolerant: an unparseable value reads as black (never throws). */
 export function hexToHsv(hex: string): Hsv {
   const norm = normalizeHex(hex) ?? "#000000";

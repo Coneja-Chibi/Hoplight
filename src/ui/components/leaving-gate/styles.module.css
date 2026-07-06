@@ -37,13 +37,41 @@
   line-height: 1.5;
   color: #a7a2b3;
 }
-.host {
-  font-family: var(--font-mono);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fb7185; /* brighter rose than brand --rose: the destination is the key line, keep it crisp */
-  word-break: break-all;
-  margin-top: 0.3rem;
+/* the recognized-site badge: a colored monogram tile + the site name. Recognition is LOCAL only
+   (platform-registry), so this never fetches a favicon or thumbnail from the destination. */
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+.tile {
+  flex: none;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1.15rem;
+  border: 3px solid #000;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+}
+.globe {
+  background: #2b2833;
+  color: #c9c4d2;
+}
+.globe svg {
+  display: block;
+}
+.pname {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+  color: #f2eee5;
+  word-break: break-word;
 }
 .url {
   font-family: var(--font-mono);

@@ -58,6 +58,14 @@ adversarial unit battery (schemes, whitespace/CRLF, quotes, IDN).
 Bare URLs in `plain` fields (a creator or source URL) are linkified by `linkifyEscaped` so they become
 clickable and pass through the same gate.
 
+The gate recognizes the destination from a LOCAL registry (`src/ui/_shared/platform-registry.ts`, a
+curated ~150-host seed of the AI-roleplay ecosystem plus mainstream sites) and shows a colored monogram
+tile + the site's name, or a neutral globe + the bare host when unrecognized. Recognition is a pure
+lookup: it never fetches a favicon, thumbnail, or preview from the destination, so the badge cannot leak
+the user's IP or ping a hostile host. A real metadata unfurl was considered and declined - it would mean
+the app fetching arbitrary user-supplied URLs (SSRF surface) and pinging the site, which defeats the
+gate's purpose. Widen the registry by adding a SEED row, never a code branch.
+
 ## The RenderBox component
 
 Source: `src/ui/components/render-box`. One reusable box with a per-box "render" toggle, default ON. It

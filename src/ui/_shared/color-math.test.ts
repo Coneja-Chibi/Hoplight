@@ -1,5 +1,12 @@
 import { expect, test } from "bun:test";
-import { clamp01, dragFraction, hexToHsv, hsvToHex, normalizeHex } from "./color-math";
+import { clamp01, dragFraction, hexToHsv, hsvToHex, normalizeHex, readableInk } from "./color-math";
+
+test("readableInk picks dark ink on light fills and cream on dark fills", () => {
+  expect(readableInk("#ffd21e")).toBe("#0a0a0b"); // hugging-face yellow -> dark ink
+  expect(readableInk("#111111")).toBe("#faf8f3"); // near-black fill -> cream ink
+  expect(readableInk("#5865f2")).toBe("#faf8f3"); // discord blurple -> cream ink
+  expect(readableInk("not a color")).toBe("#faf8f3"); // fail closed to cream on garbage
+});
 
 test("normalizeHex expands 3-digit shorthand and lowercases", () => {
   expect(normalizeHex("#ABC")).toBe("#aabbcc");

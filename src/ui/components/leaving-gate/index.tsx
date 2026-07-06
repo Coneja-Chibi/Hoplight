@@ -12,7 +12,17 @@ import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { ExternalLink } from "../../_shared/external-url";
 import { subscribeExternal } from "../../_shared/link-gate";
+import { platformFor, platformMark } from "../../_shared/platform-registry";
+import { readableInk } from "../../_shared/color-math";
 import styles from "./styles.module.css";
+
+/** Globe mark for an unrecognized host - a neutral badge, never a fetched favicon. */
+const GlobeMark = (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18" />
+  </svg>
+);
 
 export function LeavingGate(): JSX.Element | null {
   const [target, setTarget] = useState<ExternalLink | null>(null);
@@ -46,6 +56,9 @@ export function LeavingGate(): JSX.Element | null {
 
   if (target === null) return null;
 
+  // recognize the host from the LOCAL registry only - a badge never fetches anything from the site
+  const platform = platformFor(target.host);
+
   const proceed = async (): Promise<void> => {
     setBusy(true);
     setFailed(false);
@@ -68,7 +81,16 @@ export function LeavingGate(): JSX.Element | null {
       <div className={styles.card}>
         <div className={styles.kicker}>You are leaving Vaude</div>
         <p className={styles.lede}>This link opens in your web browser. Vaude does not vouch for where it goes.</p>
-        <div className={styles.host}>{target.host}</div>
+        <div className={styles.badge}>
+          {platform ? (
+            <span className={styles.tile} style={{ background: platform.color, color: readableInk(platform.color) }}>
+              {platformMark(platform)}
+            </span>
+          ) : (
+            <span className={`${styles.tile} ${styles.globe}`}>{GlobeMark}</span>
+          )}
+          <span className={styles.pname}>{platform ? platform.name : target.host}</span>
+        </div>
         <div className={styles.url}>{target.url}</div>
         {target.mismatch && (
           <div className={styles.warn}>
