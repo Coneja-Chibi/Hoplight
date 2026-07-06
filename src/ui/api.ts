@@ -34,4 +34,5 @@ export const api: AppContext["api"] = {
       })
     ).json(),
   formats: async () => (await fetch("/api/formats")).json(),
+  coverage: async () => (await fetch("/api/coverage")).json(),
 };

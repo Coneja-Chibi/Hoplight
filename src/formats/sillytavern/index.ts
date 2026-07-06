@@ -6,6 +6,7 @@
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { embedCharacterBook } from "../_shared/character-book";
+import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion, pngSourceMedia } from "../_shared/png";
@@ -76,6 +77,7 @@ const adapter: CharacterAdapter = {
   label: "SillyTavern character card (v2/v3, png/json)",
   outputExtensions: ["json"],
   kind: "character",
+  coverage,
   generic: true, // the generic Tavern/CC reader: its cards chip as "Default", not a platform
 
   // 0.9, not 1.0: SillyTavern is the generic Tavern reader. More-specific adapters (RoleCall) claim

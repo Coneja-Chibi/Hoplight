@@ -107,3 +107,77 @@ test("identity fields cover the casting card and bind to identity paths", () => 
   for (const f of IDENTITY_FIELDS) expect(f.path[0]).toBe("identity");
   expect(IDENTITY_FIELDS.map((f) => f.id)).toEqual(["name", "tagline", "fullName", "title", "age", "pronouns"]);
 });
+
+// ===== v2: lens, draft ops, completion (vs-editor-2) =====
+import {
+  completionOf,
+  deepEq,
+  EDITOR_CARDS,
+  lensVerdict,
+  readPath,
+  STEP_ORDER,
+  writePath,
+} from "./editor-core";
+
+const PLATFORMS = [
+  { id: "st", carries: ["identity.name", "identity.description", "greetings"] },
+  { id: "rc", carries: ["identity", "presentation"] },
+];
+
+test("lensVerdict: empty selection judges nothing (the full VAUDE card)", () => {
+  expect(lensVerdict(["presentation.palette"], [], PLATFORMS)).toEqual({ off: false, missing: [] });
+});
+
+test("lensVerdict: carried by one selected platform lights the card, tags the other", () => {
+  const v = lensVerdict(["presentation.palette"], ["st", "rc"], PLATFORMS);
+  expect(v.off).toBe(false);
+  expect(v.missing).toEqual(["st"]);
+});
+
+test("lensVerdict: carried by nothing selected goes off; unknown platforms count as not carrying", () => {
+  expect(lensVerdict(["presentation.palette"], ["st"], PLATFORMS).off).toBe(true);
+  expect(lensVerdict(["identity.name"], ["ghost"], PLATFORMS)).toEqual({ off: true, missing: ["ghost"] });
+});
+
+test("writePath sets nested values immutably and deletes on empty", () => {
+  const body = { identity: { name: "Ada" }, behavior: { virtualScript: "opaque" } };
+  const withTagline = writePath(body, "identity.tagline", "a rogue");
+  expect(readPath(withTagline, "identity.tagline")).toBe("a rogue");
+  expect(readPath(body, "identity.tagline")).toBeUndefined(); // input untouched
+  const cleared = writePath(withTagline, "identity.tagline", "");
+  expect(readPath(cleared, "identity.tagline")).toBeUndefined();
+  // no-data-loss: untouched branches survive identically
+  expect(cleared.behavior).toEqual(body.behavior);
+  const withArr = writePath(body, "greetings.alternateGreetings", [{ text: "hi" }]);
+  expect(readPath(withArr, "greetings.alternateGreetings")).toEqual([{ text: "hi" }]);
+  expect(readPath(writePath(withArr, "greetings.alternateGreetings", []), "greetings.alternateGreetings")).toBeUndefined();
+});
+
+test("deepEq compares JSON shapes structurally", () => {
+  expect(deepEq({ a: [1, { b: "x" }] }, { a: [1, { b: "x" }] })).toBe(true);
+  expect(deepEq({ a: 1 }, { a: 1, b: 2 })).toBe(false);
+  expect(deepEq([1, 2], [2, 1])).toBe(false);
+  expect(deepEq(null, {})).toBe(false);
+});
+
+test("completionOf reports real facts about the draft", () => {
+  const done = completionOf({
+    media: { portrait: { role: "portrait", ref: "x" } },
+    identity: { name: "Ada", description: "tall" },
+    persona: { personality: "wry" },
+    greetings: { firstMessage: "hey" },
+    discovery: { tags: ["fantasy"] },
+  });
+  expect(done).toEqual({ portrait: true, name: true, corePrompts: true, greeting: true, tags: true });
+  const empty = completionOf({});
+  expect(Object.values(empty).every((v) => v === false)).toBe(true);
+});
+
+test("EDITOR_CARDS registry is well-formed: unique ids, known steps, non-empty paths", () => {
+  const ids = EDITOR_CARDS.map((c) => c.id);
+  expect(new Set(ids).size).toBe(ids.length);
+  for (const c of EDITOR_CARDS) {
+    expect((STEP_ORDER as readonly string[]).includes(c.step)).toBe(true);
+    expect(c.paths.length).toBeGreaterThan(0);
+  }
+});

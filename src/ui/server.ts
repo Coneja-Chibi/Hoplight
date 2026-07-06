@@ -336,6 +336,16 @@ export function createHandler(
     }
 
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
+    // the editor lens's ground truth: every character adapter that declared coverage (deny by
+    // absence - an undeclared platform simply is not lensable yet, and the UI says so honestly)
+    if (p === "/api/coverage") {
+      return json(
+        registry
+          .all()
+          .filter((a) => a.kind === "character" && a.coverage && !a.native)
+          .map((a) => ({ id: a.id, label: a.label, carries: a.coverage!.carries, notes: a.coverage!.notes })),
+      );
+    }
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
     if (p === "/api/export" && req.method === "POST") return handleExport(req);
 

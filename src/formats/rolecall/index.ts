@@ -16,6 +16,7 @@ import type {
   Greeting,
   Presentation,
 } from "../../entities/character/schema";
+import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import personaCodec from "./persona";
 import { embedCharacterBook } from "../_shared/character-book";
@@ -237,6 +238,7 @@ const adapter: CharacterAdapter = {
   label: "RoleCall character card (v3, png/json)",
   outputExtensions: ["json"],
   kind: "character",
+  coverage,
 
   // 1.0: an RC card is a CCv3 card PLUS an extensions.rolecall block, so it outranks the generic
   // SillyTavern reader (0.9) and gets to map its own layer. CROSS-KIND FIREWALL: RC's persona export

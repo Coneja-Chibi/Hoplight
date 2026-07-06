@@ -50,6 +50,8 @@ export interface AppContext {
     inspectFile(file: File): Promise<InspectResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
+    /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */
+    coverage(): Promise<CoverageInfo[]>;
   };
   /** update the mono status bar's app segment */
   setStatus(text: string): void;
@@ -145,4 +147,14 @@ export interface FormatInfo {
   native: boolean;
   /** the generic reader of a family: its cards chip as "Default", not a platform name */
   generic: boolean;
+}
+
+/** One platform's coverage claims (served by /api/coverage; declared in src/formats/<id>/coverage.ts).
+ * The editor lens computes every dim/tag from these - the editor itself knows zero platforms. */
+export interface CoverageInfo {
+  id: string;
+  label: string;
+  /** canonical body path prefixes the platform's wire carries (dot-boundary prefix semantics) */
+  carries: string[];
+  notes?: Record<string, string>;
 }

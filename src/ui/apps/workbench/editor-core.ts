@@ -127,3 +127,141 @@ export function computeDirty(
   }
   return false;
 }
+
+// ====================================================================================================
+// v2 - the vs-editor-2 surface (locked wireframe): multi-select platform lens, three-region bento,
+// guided steps, generic draft ops, completion chips. Pure logic only; Editor.tsx renders it.
+// ====================================================================================================
+
+import { coversPath } from "../../../core/coverage";
+
+/** The guided mode's fixed step order (RC's stepper, transcribed). */
+export const STEP_ORDER = ["casting", "prompts", "advanced", "finalize"] as const;
+export type StepId = (typeof STEP_ORDER)[number];
+
+/** One bento card of the vs-editor-2 surface: a region, the canonical paths it edits (the card
+ * side of the lens), and the guided step that owns it. Prose ids stay RC field-order ids. */
+export interface EditorCard {
+  id: string;
+  label: string;
+  region: "left" | "center" | "right";
+  paths: string[];
+  step: StepId;
+}
+
+/** The transcribed card set. Order within a region is the render order (center prose cards still
+ * reorder by presentation.fieldOrder; this list is the lens/step registry, not the visual order). */
+export const EDITOR_CARDS: EditorCard[] = [
+  { id: "portrait", label: "portrait", region: "left", paths: ["media.portrait", "media.assets"], step: "casting" },
+  { id: "identity", label: "identity", region: "center", paths: ["identity.name", "identity.tagline", "discovery.tags", "discovery.rating"], step: "casting" },
+  { id: "casting", label: "casting card", region: "center", paths: ["identity.fullName", "identity.title", "identity.age", "identity.pronouns"], step: "casting" },
+  { id: "description", label: "description", region: "center", paths: ["identity.description"], step: "prompts" },
+  { id: "personality", label: "personality", region: "center", paths: ["persona.personality"], step: "prompts" },
+  { id: "scenario", label: "scenario", region: "center", paths: ["persona.scenario"], step: "prompts" },
+  { id: "firstMes", label: "first message", region: "center", paths: ["greetings.firstMessage"], step: "advanced" },
+  { id: "alternateGreetings", label: "alt greetings", region: "center", paths: ["greetings.alternateGreetings"], step: "advanced" },
+  { id: "mesExample", label: "example messages", region: "center", paths: ["examples.exampleMessages"], step: "advanced" },
+  { id: "gradient", label: "signature colors", region: "center", paths: ["presentation.gradientColors"], step: "casting" },
+  { id: "palette", label: "color palette", region: "right", paths: ["presentation.palette", "presentation.signatureColor"], step: "casting" },
+  { id: "background", label: "default background", region: "right", paths: ["presentation.background"], step: "finalize" },
+  { id: "spotlight", label: "spotlight definitions", region: "right", paths: ["presentation.spoilers"], step: "finalize" },
+];
+
+/** A platform's coverage claims as the lens consumes them (mirrors /api/coverage entries). */
+export interface LensPlatform {
+  id: string;
+  carries: string[];
+}
+
+export interface LensVerdict {
+  /** no SELECTED platform carries any of the card's paths (dim or hide per the off-target pref) */
+  off: boolean;
+  /** selected platform ids that do NOT carry this card (the "not carried on: X" tag) */
+  missing: string[];
+}
+
+/** The multi-select lens rule (vs-editor-2): empty selection = the full card, nothing judged;
+ * otherwise a card is carried by a platform when ANY of its paths is covered. */
+export function lensVerdict(cardPaths: string[], selected: string[], platforms: LensPlatform[]): LensVerdict {
+  if (selected.length === 0) return { off: false, missing: [] };
+  const byId = new Map(platforms.map((p) => [p.id, p]));
+  const missing: string[] = [];
+  let carried = false;
+  for (const id of selected) {
+    const platform = byId.get(id);
+    const carries = platform !== undefined && cardPaths.some((path) => coversPath({ carries: platform.carries }, path));
+    if (carries) carried = true;
+    else missing.push(id);
+  }
+  return { off: !carried, missing };
+}
+
+const isEmptyValue = (v: unknown): boolean =>
+  v === undefined || v === "" || (Array.isArray(v) && v.length === 0);
+
+/** Read any value at a dot path ("" segments never occur; absent = undefined). */
+export function readPath(body: unknown, dotPath: string): unknown {
+  let cur: unknown = body;
+  for (const key of dotPath.split(".")) {
+    if (cur === null || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string, unknown>)[key];
+  }
+  return cur;
+}
+
+/** Immutably write any value at a dot path, returning a NEW body. Empty values ("" / [] /
+ * undefined) DELETE the leaf - canonical stores absence, never empty husks. Untouched branches
+ * are structurally shared, and the no-data-loss law holds: nothing outside the path changes. */
+export function writePath(body: Record<string, unknown>, dotPath: string, value: unknown): Record<string, unknown> {
+  const keys = dotPath.split(".");
+  const out: Record<string, unknown> = { ...body };
+  let host: Record<string, unknown> = out;
+  for (const key of keys.slice(0, -1)) {
+    const next = host[key];
+    const clone: Record<string, unknown> =
+      next !== null && typeof next === "object" && !Array.isArray(next) ? { ...(next as Record<string, unknown>) } : {};
+    host[key] = clone;
+    host = clone;
+  }
+  const leaf = keys[keys.length - 1]!;
+  if (isEmptyValue(value)) delete host[leaf];
+  else host[leaf] = value;
+  return out;
+}
+
+/** JSON-shape structural equality (drafts and baselines are parsed JSON; functions never appear). */
+export function deepEq(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== typeof b || a === null || b === null) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((v, i) => deepEq(v, b[i]));
+  }
+  if (typeof a === "object") {
+    const ka = Object.keys(a as object);
+    const kb = Object.keys(b as object);
+    if (ka.length !== kb.length) return false;
+    return ka.every((k) => deepEq((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]));
+  }
+  return false;
+}
+
+/** The completion chips (RC's checklist, transcribed): real facts about the draft, no vibes. */
+export interface Completion {
+  portrait: boolean;
+  name: boolean;
+  corePrompts: boolean;
+  greeting: boolean;
+  tags: boolean;
+}
+
+export function completionOf(body: unknown): Completion {
+  const has = (p: string): boolean => !isEmptyValue(readPath(body, p));
+  return {
+    portrait: has("media.portrait"),
+    name: has("identity.name"),
+    corePrompts: has("identity.description") && has("persona.personality"),
+    greeting: has("greetings.firstMessage"),
+    tags: has("discovery.tags"),
+  };
+}

@@ -1,6 +1,7 @@
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalPersona } from "../entities/persona/schema";
+import type { CoverageDecl } from "./coverage";
 import type { FormatId } from "./canonical";
 
 /** Raw input handed to an adapter. Binary formats use bytes; text/json use text. */
@@ -41,6 +42,10 @@ interface AdapterBase {
   /** True on the GENERIC reader of a family (the plain Tavern/CC card): cards it claims carry no
    * platform-specific fields, so the UI's card-type chip says "Default" instead of a platform. */
   generic?: boolean;
+  /** Which canonical body paths this format's wire carries (the editor lens's ground truth; the
+   * format folder owns the claim - src/formats/<id>/coverage.ts). Absent = lens shows the platform
+   * tab marked "coverage not declared" and dims nothing (deny-by-absence stays honest). */
+  coverage?: CoverageDecl;
 }
 
 /** An adapter that reads and writes character cards. */

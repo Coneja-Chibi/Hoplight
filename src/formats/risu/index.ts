@@ -8,6 +8,7 @@
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import coverage from "./coverage";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
 import { applyRisuToBody, applyBodyToRisu } from "./risu-fields";
 import { assetsToMedia } from "../_shared/assets";
@@ -85,6 +86,7 @@ const adapter: CharacterAdapter = {
   label: "RisuAI .charx (zip: card.json + assets)",
   outputExtensions: ["charx"],
   kind: "character",
+  coverage,
 
   detect(input: AdapterInput): number {
     const b = input.bytes;
