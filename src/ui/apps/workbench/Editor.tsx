@@ -873,16 +873,18 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     return <div className={styles.composite}>{controlFor(m)}</div>;
   };
 
-  // the stage dossier: key facts, lit when answered, ghosted (or "answering now") until then
-  const dossier: ReadonlyArray<{ k: string; path: string; v: string }> = [
-    { k: "Name", path: "identity.name", v: text("identity.name") },
-    { k: "Tagline", path: "identity.tagline", v: text("identity.tagline") },
-    { k: "Tags", path: "discovery.tags", v: strArr(readPath(draft, "discovery.tags")).slice(0, 5).join(" · ") },
-    { k: "Persona", path: "persona.personality", v: text("persona.personality") || text("identity.description") },
-    { k: "Rating", path: "discovery.rating", v: text("discovery.rating") },
-  ];
   const stageName = text("identity.name") || piece.name;
   const snippet = (s: string): string => (s.length > 84 ? `${s.slice(0, 84).trimEnd()}…` : s);
+  // one dossier line per module, shown as a short display value; the sheet grows richer with each answer
+  const dossierValue = (m: FieldModule): string => {
+    const raw = readPath(draft, m.path);
+    if (typeof raw === "string") return snippet(raw);
+    if (Array.isArray(raw)) return m.kind === "tags" ? strArr(raw).join(" · ") : `${raw.length} set`;
+    if (raw !== null && typeof raw === "object") return "set";
+    return "";
+  };
+  // the growing record: every answered module, plus the one being answered now
+  const dossierRows = flowModules.filter((m) => filled(m) || m.id === active.id);
   const entityAccent =
     str(readPath(draft, "presentation.signatureColor")) ||
     strArr(readPath(draft, "presentation.gradientColors"))[0] ||
@@ -952,12 +954,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               <b className={styles.pname}>{stageName}</b>
             </div>
             <div className={styles.dossier}>
-              {dossier.map((row) => {
-                const has = row.v.trim() !== "";
+              {dossierRows.map((m) => {
+                const has = filled(m);
                 return (
-                  <div key={row.k} className={`${styles.drow}${has ? "" : ` ${styles.drowAwait}`}`}>
-                    <span className={styles.dk}>{row.k}</span>
-                    <span className={styles.dv}>{has ? snippet(row.v) : row.path === active.path ? "answering now…" : "—"}</span>
+                  <div key={m.id} className={`${styles.drow}${has ? "" : ` ${styles.drowAwait}`}`}>
+                    <span className={styles.dk}>{m.sheetLabel}</span>
+                    <span className={styles.dv}>{has ? dossierValue(m) : "answering now…"}</span>
                   </div>
                 );
               })}
