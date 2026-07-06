@@ -18,6 +18,7 @@ import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-co
 import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
+import { ColorPicker } from "../../components/color-picker";
 import { normalizeHex } from "../../_shared/color-math";
 import {
   completionOf,
@@ -168,6 +169,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
     ctx.prefs.get(PREF_OFF_TARGET) === "hide" ? "hide" : "dim",
   );
+  const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
 
   useEffect(() => {
     void ctx.api.coverage().then(setCoverage).catch(() => setCoverage([]));
@@ -519,27 +521,76 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     if (!Array.isArray(raw)) return [];
     return raw.map((s) => rec(s)).filter((s) => typeof s.hex === "string") as { label?: string; name?: string; hex: string }[];
   })();
+  const setPalette = (rows: { label?: string; name?: string; hex: string }[]): void =>
+    setField("presentation.palette", rows.filter((r) => r.hex));
+  const palAt = Math.min(palSel, Math.max(0, palette.length - 1));
+  const palCur = palette[palAt];
   const paletteBody = (
     <>
-      <div className={styles.pal}>
+      <div className={styles.palGrid}>
         {palette.map((s, i) => (
-          <span className={styles.swl} key={i}>
-            <span className={styles.sw} style={{ background: s.hex }} />
-            {s.label ?? s.name ?? s.hex}
-          </span>
+          <button
+            key={i}
+            type="button"
+            className={`${styles.palTile}${i === palAt ? ` ${styles.palTileOn}` : ""}`}
+            onClick={() => setPalSel(i)}
+            title={s.name ?? s.label ?? s.hex}
+          >
+            <span className={styles.palChip} style={{ background: s.hex }} />
+            <span className={styles.palName}>{s.name ?? s.label ?? "unnamed"}</span>
+          </button>
         ))}
-        <button type="button" className={`${styles.sw} ${styles.swAdd}`} disabled title="Palette editing lands next slice">
-          +
+        <button
+          type="button"
+          className={styles.palAdd}
+          onClick={() => {
+            const next = [...palette, { name: "", hex: "#e11d48" }];
+            setPalette(next);
+            setPalSel(next.length - 1);
+          }}
+        >
+          + add
         </button>
       </div>
-      {palette.length === 0 && <span className={styles.hint}>no palette on this card yet</span>}
+      {palette.length === 0 ? (
+        <span className={styles.hint}>no palette on this card yet - add a swatch to name a signature color</span>
+      ) : (
+        palCur && (
+          <div className={styles.palEdit}>
+            <input
+              className={styles.in}
+              placeholder="Name this swatch (Hair, Eyes, Skin...)"
+              value={palCur.name ?? palCur.label ?? ""}
+              onChange={(e) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, name: e.target.value } : s)))}
+            />
+            <ColorPicker
+              value={normalizeHex(palCur.hex) ?? palCur.hex}
+              onChange={(hex) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, hex } : s)))}
+            />
+            <button
+              type="button"
+              className={styles.rm}
+              onClick={() => {
+                setPalette(palette.filter((_, i) => i !== palAt));
+                setPalSel(Math.max(0, palAt - 1));
+              }}
+            >
+              remove swatch
+            </button>
+          </div>
+        )
+      )}
     </>
   );
 
   const bgRef = text("presentation.background.ref");
   const backgroundBody = (
     <>
-      {bgRef === "" && <div className={styles.bgempty}>No default background</div>}
+      {bgRef === "" ? (
+        <div className={styles.bgempty}>No default background</div>
+      ) : (
+        <div className={styles.bgPreview} style={{ backgroundImage: `url("${bgRef}")` }} />
+      )}
       <div className={styles.bgrow}>
         <span>Custom URL</span>
         <input
