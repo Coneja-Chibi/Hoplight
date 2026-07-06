@@ -185,6 +185,22 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     }
   }, [ctx, dirty, draft, init.ent, init.hadOrder, order, saving]);
 
+  // the shell tab wears THE dirty dot (row-3's "saved locally" pill is dead - one indicator, one
+  // home). ctx stays OUT of these deps: it is a stable adapter whose identity churns on every
+  // store write, and identity-retriggered writers are how the status ping-pong loop was born.
+  useEffect(() => {
+    ctx.workbench.setDirty(piece.id, piece.kind, dirty);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dirty, piece.id, piece.kind]);
+
+  // completion reports in the STATUS BAR (passive status does not rent space in a control row);
+  // only what is MISSING is worth words
+  const missingChips = chips.filter(([, ok]) => !ok).map(([label]) => label.toLowerCase()).join(" · ");
+  useEffect(() => {
+    ctx.setStatus(missingChips === "" ? `${doneCount}/${chips.length} · piece complete` : `${doneCount}/${chips.length} · needs ${missingChips}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doneCount, missingChips]);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -255,6 +271,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       <div className={styles.lmeta}>
         <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
         <div className={styles.lsub}>
+          {piece.sourceVariant !== undefined && `${piece.sourceVariant} · `}
           {`~${tokenEstimate(draft)} tokens`}
           {updatedAt !== null && ` · last edited ${updatedAt}`}
         </div>
@@ -589,28 +606,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onOffTarget={pickOffTarget}
         />
         <span className={styles.done}>
-          <span className={styles.frac}>{`${doneCount}/${chips.length}`}</span>
-          {chips.map(([label, ok]) => (
-            <span key={label} className={`${styles.chip}${ok ? ` ${styles.chipOk}` : ""}`}>
-              {label}
-            </span>
-          ))}
-          {topRight}
-        </span>
-      </div>
-
-      <div className={styles.hdr}>
-        <button
-          type="button"
-          className={styles.back}
-          title={`Close ${piece.name}'s tab`}
-          onClick={() => ctx.workbench.remove(piece.id, piece.kind)}
-        >
-          &#8592;
-        </button>
-        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
-        {piece.sourceVariant !== undefined && <span className={styles.vchip}>{piece.sourceVariant.toUpperCase()}</span>}
-        <span className={styles.hdrRight}>
           <span className={styles.seg}>
             <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
               Grid
@@ -622,9 +617,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
             Save
           </button>
-          <span className={`${styles.flag}${dirty ? ` ${styles.flagOn}` : ""}`}>
-            {dirty ? "unsaved changes" : "saved locally"}
-          </span>
+          {topRight}
         </span>
       </div>
 

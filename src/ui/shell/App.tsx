@@ -163,6 +163,7 @@ export function App(): JSX.Element | null {
         sendMany: (pieces) => useShellStore.getState().sendMany(pieces),
         remove: (id, kind) => useShellStore.getState().removePiece(id, kind),
         isOpen: (id, kind) => useShellStore.getState().isOpen(id, kind),
+        setDirty: (id, kind, dirty) => useShellStore.getState().setPieceDirty(id, kind, dirty),
         recents: () => workbenchRecents(),
         focus: (id, kind) => useShellStore.getState().focusPiece(id, kind),
         onChange: (cb) =>

@@ -14,6 +14,7 @@ import { useContextMenu, useShellStore } from "./store";
 function Tab({ piece, active }: { piece: StudioEntitySummary; active: boolean }): JSX.Element {
   const focusPiece = useShellStore((s) => s.focusPiece);
   const removePiece = useShellStore((s) => s.removePiece);
+  const dirty = useShellStore((s) => s.dirtyPieces[keyOf(piece.id, piece.kind)] === true);
   const menuRef = useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
 
   const onClose = (e: MouseEvent): void => {
@@ -30,6 +31,7 @@ function Tab({ piece, active }: { piece: StudioEntitySummary; active: boolean })
     >
       <span className="pip" />
       {piece.name}
+      {dirty && <span className="dirty" title="unsaved changes">&#9679;</span>}
       <span className="kind">{deckMeta(piece.kind).short}</span>
       <span className="close" onClick={onClose}>
         &times;

@@ -84,6 +84,9 @@ export interface AppContext {
     remove(id: string, kind: string): void;
     /** is this piece open on the Workbench? */
     isOpen(id: string, kind: string): boolean;
+    /** report an editor's unsaved state; the shell tab wears the dirty dot (the one saved/unsaved
+     * indicator - no "saved locally" pill competes with it) */
+    setDirty(id: string, kind: string, dirty: boolean): void;
     /** per-piece last-opened timestamps ("kind:id" -> epoch ms); merged with importedAt to rank
      * the Workbench recents rail. A copy - callers never mutate the store. */
     recents(): Record<string, number>;

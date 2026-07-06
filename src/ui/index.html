@@ -94,10 +94,12 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 /* ───────── TABSTRIP-RESIDENT GLOBAL ACTIONS (the TopBar row is deleted: its crumb duplicated the
    dock, import duplicates the shelves, theme duplicates Settings - one chrome row total) ───────── */
 #search{flex:0 1 16rem;margin-left:auto;align-self:center;display:flex;align-items:center;gap:.5rem;min-width:0;
-  background:var(--shell-panel);border:3px solid var(--seam);padding:.28rem .6rem}
+  background:var(--shell-panel);border:3px solid var(--edge);box-shadow:2px 2px 0 0 var(--edge);padding:.34rem .6rem}
 #search svg{flex:none;display:block;color:var(--text-dim)}
-#search input{flex:1;min-width:0;background:none;border:none;outline:none;font:inherit;font-size:.85rem;color:var(--text)}
-#search input::placeholder{color:var(--text-dim)}
+#search input{flex:1;min-width:0;background:none;border:none;outline:none;
+  font-family:var(--font-mono);font-size:.72rem;letter-spacing:.05em;color:var(--text)}
+#search input::placeholder{color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-size:.62rem}
+#search:focus-within{box-shadow:3px 3px 0 0 var(--edge)}
 #topact{display:flex;align-items:center;align-self:center;gap:.5rem;flex:none;padding:0 .4rem}
 .topbtn{display:flex;align-items:center;gap:.4rem;font-family:var(--font-big);font-weight:800;
   font-size:.625rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text);
@@ -123,6 +125,7 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 .tab.active{color:var(--text)}
 .tab .close{font-family:var(--font-mono);font-size:.8125rem;color:var(--text-dim);line-height:1}
 .tab .close:hover{color:var(--text)}
+.tab .dirty{color:var(--a,var(--rose));font-size:.6rem;line-height:1} /* THE unsaved indicator */
 #tabadd{display:none;align-items:center;justify-content:center;flex:none;cursor:pointer;color:var(--text-dim);
   background:var(--shell-panel);border:none;border-right:3px solid var(--seam);padding:0 .8rem;font-size:1.1rem;
   font-family:var(--font-big);font-weight:700;transition:color .1s ease-out}

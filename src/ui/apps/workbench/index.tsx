@@ -229,8 +229,12 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const characterPieces = pieces.filter((p) => p.kind === "character");
 
   useEffect(() => {
+    if (active) return; // ONE writer per status line: the editor owns it while a piece is open
     ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
-  }, [ctx, pieces.length]);
+    // ctx is a stable adapter over the store; depending on its identity re-fires this on every
+    // store write and (with a second writer) ping-pongs the status into an update-depth loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pieces.length, activeKey]);
 
   // NO crumb bar and NO prosc wrapper: the name lives in the shell tab strip + the editor header,
   // the count lives in the status bar, and every wrapper layer between the window and the cards is

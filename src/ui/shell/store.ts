@@ -142,6 +142,8 @@ interface ShellState {
   dockSlim: boolean;
   followPrompt: FollowPrompt | null;
   openMenu: OpenMenu | null;
+  /** "kind:id" -> has unsaved edits; the shell tab wears the dot (the ONE dirty indicator) */
+  dirtyPieces: Record<string, boolean>;
 
   // -- settings / theme --------------------------------------------------------------------------
   applySettings(next: StudioSettings): void;
@@ -167,6 +169,7 @@ interface ShellState {
   sendMany(pieces: StudioEntitySummary[]): void;
   removePiece(id: string, kind: string): void;
   focusPiece(id: string, kind: string): void;
+  setPieceDirty(id: string, kind: string, dirty: boolean): void;
   answerFollow(follow: boolean, remember: boolean): void;
 
   // -- context menu ---------------------------------------------------------------------------------
@@ -195,6 +198,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
   dockSlim: false,
   followPrompt: null,
   openMenu: null,
+  dirtyPieces: {},
 
   applySettings(next) {
     const theme = next.theme ?? "paper";
@@ -312,13 +316,25 @@ export const useShellStore = create<ShellState>((set, get) => ({
     }
   },
 
+  setPieceDirty(id, kind, dirty) {
+    const key = keyOf(id, kind);
+    const cur = get().dirtyPieces;
+    if ((cur[key] === true) === dirty) return; // idempotent (the loop-killing store rule)
+    const next = { ...cur };
+    if (dirty) next[key] = true;
+    else delete next[key];
+    set({ dirtyPieces: next });
+  },
+
   removePiece(id, kind) {
-    const { openPieces, activeKey } = get();
+    const { openPieces, activeKey, dirtyPieces } = get();
     const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
     if (at < 0) return;
     const next = [...openPieces.slice(0, at), ...openPieces.slice(at + 1)];
     const nextActiveKey = activeKey === keyOf(id, kind) ? (next[0] ? keyOf(next[0].id, next[0].kind) : "") : activeKey;
-    set({ openPieces: next, activeKey: nextActiveKey });
+    const nextDirty = { ...dirtyPieces };
+    delete nextDirty[keyOf(id, kind)]; // closing IS the discard; the dot must not haunt a reopen
+    set({ openPieces: next, activeKey: nextActiveKey, dirtyPieces: nextDirty });
   },
 
   focusPiece(id, kind) {
