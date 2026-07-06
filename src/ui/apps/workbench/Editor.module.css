@@ -165,3 +165,246 @@
   font-size: 0.9rem;
   padding: 0.4rem 0.55rem;
 }
+
+/* ===== vs-editor-2 additions: tabs live in components/platform-tabs; these are the surface's own ===== */
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid #2b2833;
+  color: #8f8a9e;
+  padding: 0.22rem 0.5rem;
+}
+.chipOk {
+  color: var(--a, var(--accent));
+  border-color: var(--a, var(--accent));
+}
+.seg {
+  display: flex;
+  border: 3px solid #000;
+}
+.seg button {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #111015;
+  border: none;
+  border-left: 3px solid #000;
+  color: #8f8a9e;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+.seg button:first-child {
+  border-left: none;
+}
+.seg button.on {
+  background: #e7e3da;
+  color: #0a0a0b;
+}
+.bento {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 0.8rem;
+  align-items: start;
+}
+@media (max-width: 64rem) {
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+}
+.hint {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: #4a4556;
+  letter-spacing: 0.05em;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  border: 2px solid #4a4656;
+  color: #c9c4d2;
+  background: transparent;
+  padding: 0.16rem 0.45rem;
+  cursor: pointer;
+}
+.tag i {
+  font-style: normal;
+  color: #8f8a9e;
+}
+.tag:hover {
+  border-color: var(--rose, #e11d48);
+}
+.tagIn {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  background: #0a0a0b;
+  border: 2px dashed #2b2833;
+  color: #c9c4d2;
+  padding: 0.2rem 0.45rem;
+  width: 8rem;
+}
+.greetRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border: 2px solid #2b2833;
+  padding: 0.5rem;
+}
+.greetHead {
+  display: flex;
+  gap: 0.5rem;
+}
+.rm,
+.add {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #111015;
+  border: 2px solid #2b2833;
+  color: #8f8a9e;
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+.rm:hover,
+.add:hover {
+  color: #e7e3da;
+  border-color: #8f8a9e;
+}
+.gradRow {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.gradSlot {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border: 3px solid #000;
+  box-shadow: 2px 2px 0 0 #000;
+}
+.hexIn {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  width: 5.2rem;
+  background: #0a0a0b;
+  border: 2px solid #2b2833;
+  color: #c9c4d2;
+  padding: 0.3rem 0.4rem;
+  text-transform: lowercase;
+}
+.palRow {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.palSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8f8a9e;
+}
+.palSwatch i {
+  font-style: normal;
+}
+.spoilRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: space-between;
+  border-bottom: 1px solid #2b2833;
+  padding: 0.4rem 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: #c9c4d2;
+}
+.spoil {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: transparent;
+  border: 2px solid #2b2833;
+  color: #8f8a9e;
+  padding: 0.14rem 0.4rem;
+  cursor: pointer;
+}
+.spoilOn {
+  background: #3d1120;
+  border-color: #7a2b3a;
+  color: #ff8d9a;
+}
+.stepRail {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.stepTab {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 3px solid #000;
+  padding: 0.4rem 0.7rem;
+  color: #8f8a9e;
+  background: #111015;
+  cursor: pointer;
+}
+.stepTab.on {
+  background: #e7e3da;
+  color: #0a0a0b;
+}
+.stepNav {
+  display: flex;
+  gap: 0.6rem;
+}
+.stepNav button {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #111015;
+  border: 3px solid #000;
+  color: #e7e3da;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+}
+.stepNav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}

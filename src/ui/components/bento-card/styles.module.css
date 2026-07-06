@@ -1,0 +1,92 @@
+/* transcribed from vs-editor-2's .card anatomy (RC geometry, Vaude tokens; the top accent line
+   rides the piece accent --a like the rest of the stage) */
+.card {
+  background: #17161d;
+  border: 3px solid #000;
+  border-top: 3px solid var(--a, var(--accent));
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.off {
+  opacity: 0.35;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 2px solid #2b2833;
+}
+.title {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e7e3da;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  flex: none;
+  border: 2px solid #000;
+  background: #2b2833;
+}
+.full {
+  background: #5ad07a;
+}
+.carry {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rose, #e11d48);
+  border: 2px solid var(--rose, #e11d48);
+  padding: 0.1rem 0.35rem;
+  margin-left: 0.35rem;
+}
+.move {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+.move button {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #8f8a9e;
+  background: transparent;
+  border: 2px solid #2b2833;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+}
+.move button:hover {
+  color: #e7e3da;
+  border-color: #8f8a9e;
+}
+.fold {
+  font-family: var(--font-mono);
+  color: #4a4556;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.2rem;
+}
+.move + .fold {
+  margin-left: 0;
+}
+.head > .fold:last-child {
+  margin-left: auto;
+}
+.move ~ .fold {
+  margin-left: 0.2rem;
+}
+.body {
+  padding: 0.7rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}

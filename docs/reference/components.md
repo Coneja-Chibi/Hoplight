@@ -11,7 +11,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
 | App | src/ui/shell/App.tsx | () |  |  |
-| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, api, setStatus }: CharacterEditorProps) | Build the writable pane for one canonical character. | .room .focused .prosc .stage .crumb .pip .cn .cc ... |
+| BentoCard | src/ui/components/bento-card/index.tsx | ({ title, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .title .dot .full .carry .move ... |
+| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface). | .room .focused .prosc .stage .crumb .pip .cn .cc ... |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
@@ -21,6 +22,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
+| PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .on .hint .offt |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .room .tabs .tab .on .body .row .tx .label ... |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .room .tabs .tab .on .body .row .tx .label ... |
 | Stamp | src/ui/components/stamp/index.tsx | ({ children, onClick, disabled, accent, title, type = "button", id, "aria-label": ariaLabel, }: StampProps) | The stamp button: rest sits flush, hover lifts and grows its shadow, active presses flat. | .stamp |

@@ -84,7 +84,7 @@ function CharacterPane({ ctx, piece, hidden }: { ctx: AppContext; piece: StudioE
     <div className={hidden ? styles.paneWrapHidden : styles.paneWrap}>
       <PieceFrame ctx={ctx} piece={piece}>
         {entity ? (
-          <CharacterEditor entity={entity} api={ctx.api} setStatus={ctx.setStatus} />
+          <CharacterEditor entity={entity} ctx={ctx} />
         ) : (
           <div className={styles.soon}>{failed ? `could not load ${piece.name}` : "loading the piece…"}</div>
         )}

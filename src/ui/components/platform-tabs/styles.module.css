@@ -1,0 +1,55 @@
+/* transcribed from vs-editor-2's .ptab / .offt (Vaude tokens on RC geometry) */
+.strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.tab {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 0 0 0.15rem;
+  cursor: pointer;
+}
+.tab.on {
+  color: var(--text);
+  border-bottom-color: var(--a, var(--accent));
+}
+.hint {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  color: var(--text-faint);
+  letter-spacing: 0.08em;
+  margin-left: 0.25rem;
+  text-transform: uppercase;
+}
+.offt {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.5rem;
+}
+.offt button {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px solid var(--seam, #2b2833);
+  color: var(--text-dim);
+  padding: 0.18rem 0.4rem;
+  cursor: pointer;
+}
+.offt button.on {
+  background: var(--text);
+  color: var(--canvas, #0a0a0b);
+  border-color: var(--edge, #000);
+}
