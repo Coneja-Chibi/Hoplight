@@ -516,13 +516,28 @@
   color: #e6a52a;
 }
 .bento {
-  grid-template-columns: 21rem minmax(0, 1fr) 23rem;
+  /* portrait pinned left, everything else in one masonry that fills the remaining width */
+  grid-template-columns: 21rem minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem 0.9rem;
+}
+/* the fill: all non-portrait cards balance across two columns (column-fill balances height by
+   default), so utility cards pack in beside the prose instead of leaving the right half empty. */
+.masonry {
+  columns: 2;
+  column-gap: 1rem;
+  min-width: 0;
+}
+.masonry > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
 }
 @media (max-width: 74rem) {
   .bento {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .masonry {
+    columns: 1;
   }
 }
 .stepsWrap,

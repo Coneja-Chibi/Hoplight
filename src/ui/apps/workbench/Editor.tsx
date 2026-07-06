@@ -737,8 +737,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       {mode === "grid" ? (
         <div className={styles.bento}>
           <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
-          <div className={styles.col}>{centerOrdered}</div>
-          <div className={styles.col}>{rightCards}</div>
+          {/* every non-portrait card flows into ONE balanced masonry so both columns end near the
+              same height - no dead right half once you scroll past the short utility cards */}
+          <div className={styles.masonry}>
+            {centerOrdered}
+            {rightCards}
+          </div>
         </div>
       ) : (
         <div className={`${styles.col} ${styles.stepsWrap}`}>
