@@ -27,11 +27,9 @@ import {
   EDITOR_CARDS,
   KNOWN_FIELD_ORDER,
   lensVerdict,
-  moveCard,
   readPath,
   reconcileOrder,
   writePath,
-  type EditorCard,
 } from "./editor-core";
 import { FIELD_MODULES, type FieldModule } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
@@ -41,15 +39,6 @@ const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
-const RENDERED_ORDER_IDS = new Set(["description", "personality", "scenario", "firstMes", "alternateGreetings", "mesExample"]);
-
-const FIELD_HELP: Record<string, string> = {
-  description: "Who the character is - the main definition block every platform reads",
-  personality: "Voice and temperament; some platforms fold this into the description",
-  scenario: "Where a chat starts - setting and situation",
-  firstMes: "The opening message; macros run at chat time on the target platform",
-  mesExample: "Example dialogue in chat format; teaches the model the voice",
-};
 
 /** spoiler rows offered by the spotlight card (canonical spoilers.fields is an open map) */
 const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
@@ -83,29 +72,6 @@ function tokenEstimate(draft: unknown): number {
   const chars = paths.reduce((n, p) => n + str(readPath(draft, p)).length, 0);
   return Math.round(chars / 4);
 }
-
-const cardById = new Map(EDITOR_CARDS.map((c) => [c.id, c]));
-
-/** one line glyph per card, struck in the card's hot color before the title (RC card marks) */
-const glyph = (children: ReactNode): JSX.Element => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-const CARD_ICONS: Record<string, JSX.Element> = {
-  identity: glyph(<><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></>),
-  casting: glyph(<><rect x="3" y="5" width="18" height="14" rx="1" /><circle cx="8" cy="11" r="2" /><path d="M13 10h5M13 14h5M6 15h5" /></>),
-  description: glyph(<path d="M5 4h14M5 9h14M5 14h9M5 19h9" />),
-  personality: glyph(<><path d="M12 3a9 9 0 1 0 9 9" /><path d="M8.5 15a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>),
-  scenario: glyph(<><path d="M12 21s-7-6-7-11a7 7 0 0 1 14 0c0 5-7 11-7 11Z" /><circle cx="12" cy="10" r="2.5" /></>),
-  firstMes: glyph(<path d="M4 5h16v11H8l-4 4V5Z" />),
-  mesExample: glyph(<><path d="M4 4h12v9H8l-4 4V4Z" /><path d="M9 8h11v9l-3-3" /></>),
-  alternateGreetings: glyph(<><path d="M4 5h11v8H8l-4 4V5Z" /><path d="M10 9h9v7l-3-3" /></>),
-  gradient: glyph(<path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z" />),
-  palette: glyph(<><path d="M12 3a9 9 0 1 0 0 18c1.4 0 2-1 2-2 0-1.4 1-2 2-2h1a3 3 0 0 0 3-3 8 8 0 0 0-8-9Z" /><circle cx="8" cy="10" r="1" /><circle cx="12" cy="7" r="1" /><circle cx="16" cy="10" r="1" /></>),
-  background: glyph(<><rect x="3" y="5" width="18" height="14" rx="1" /><circle cx="8.5" cy="10" r="1.5" /><path d="m4 17 5-4 4 3 3-2 4 3" /></>),
-  spotlight: glyph(<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></>),
-};
 
 /** a smaller line glyph for tag chips (11px, sits before the tag text) */
 const tglyph = (children: ReactNode): JSX.Element => (
@@ -153,7 +119,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   });
   const [baseline, setBaseline] = useState(init.baseline);
   const [draft, setDraft] = useState(init.baseline);
-  const [order, setOrder] = useState(init.order);
+  const [order] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
   // Quiz is the default presenter; Grid (the bento) is the power view. The toggle in the header
@@ -235,11 +201,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     },
     [coverage],
   );
-  const verdictOf = (card: EditorCard): { off: boolean; missing: string[] } => {
-    const v = lensVerdict(card.paths, targets, coverage);
-    return { off: v.off, missing: v.missing.map(platformLabel) };
-  };
-
   const done = completionOf(draft);
   const lensClean = targets.length > 0 && EDITOR_CARDS.every((c) => lensVerdict(c.paths, targets, coverage).missing.length === 0);
   const chips = [
@@ -379,14 +340,8 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </section>
   );
 
-  // -- card bodies -----------------------------------------------------------------------------------
+  // -- field controls --------------------------------------------------------------------------------
 
-  const labelAff = (help: string): ReactNode => (
-    <span className={styles.kaff}>
-      <span title={help}>?</span>
-      <button type="button" disabled title="Per-field AI lands with the brain milestone">&#10022;</button>
-    </span>
-  );
   // extracted so BOTH the grid's identity card and the Interview/Callsheet presenters render the one
   // tags editor and the one rating control - a field module and a bento card call the same JSX.
   const tagsControl = (
@@ -448,54 +403,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         <option value="explicit">explicit</option>
       </select>
     </div>
-  );
-
-  const identityBody = (
-    <>
-      <div className={styles.klabel}>
-        <span className={styles.k}>character name *</span>
-        {labelAff("The display name every platform shows first")}
-      </div>
-      <input className={styles.in} value={text("identity.name")} onChange={(e) => setField("identity.name", e.target.value)} />
-      <div className={styles.klabel}>
-        <span className={styles.k}>tagline</span>
-        {labelAff("A short hook shown under the name in browse and search")}
-      </div>
-      <input
-        className={styles.in}
-        placeholder="A short, catchy description..."
-        value={text("identity.tagline")}
-        onChange={(e) => setField("identity.tagline", e.target.value)}
-      />
-      {tagsControl}
-      {ratingControl}
-    </>
-  );
-
-  const castingBody = (
-    <div className={styles.idGrid}>
-      {(
-        [
-          ["identity.fullName", "full name / legal name", "Legal or birth name..."],
-          ["identity.title", "title / epithet", "The Magnificent, Lord of..., etc."],
-          ["identity.age", "age", "Ancient, 25, Timeless..."],
-          ["identity.pronouns", "pronouns", "He/Him, She/Her, They..."],
-        ] as const
-      ).map(([path, label, ph]) => (
-        <div className={styles.field} key={path}>
-          <span className={styles.k}>{label}</span>
-          <input className={styles.in} placeholder={ph} value={text(path)} onChange={(e) => setField(path, e.target.value)} />
-        </div>
-      ))}
-    </div>
-  );
-
-  const proseAff = (id: string): ReactNode => (
-    <>
-      <span title={FIELD_HELP[id] ?? ""}>?</span>
-      <button type="button" disabled title="Per-field AI lands with the brain milestone">&#10022;</button>
-      <button type="button" disabled title="Format conversion lands with the brain milestone">&#8646;</button>
-    </>
   );
 
   const proseBody = (id: string, path: string): JSX.Element => {
@@ -740,59 +647,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </>
   );
 
-  const bodyFor = (id: string): JSX.Element | null => {
-    switch (id) {
-      case "identity": return identityBody;
-      case "casting": return castingBody;
-      case "alternateGreetings": return greetingsBody;
-      case "gradient": return gradientBody;
-      case "palette": return paletteBody;
-      case "background": return backgroundBody;
-      case "spotlight": return spotlightBody;
-      case "description": return proseBody(id, "identity.description");
-      case "personality": return proseBody(id, "persona.personality");
-      case "scenario": return proseBody(id, "persona.scenario");
-      case "firstMes": return proseBody(id, "greetings.firstMessage");
-      case "mesExample": return proseBody(id, "examples.exampleMessages");
-      default: return null; // portrait renders as the bespoke left card
-    }
-  };
-
-  const renderCard = (card: EditorCard, movable: boolean): JSX.Element | null => {
-    const body = bodyFor(card.id);
-    if (body === null) return null;
-    const v = verdictOf(card);
-    const filled = card.paths.some((p) => {
-      const val = readPath(draft, p);
-      return val !== undefined && val !== "" && !(Array.isArray(val) && val.length === 0);
-    });
-    return (
-      <BentoCard
-        key={card.id}
-        title={card.label}
-        icon={CARD_ICONS[card.id]}
-        aff={RENDERED_ORDER_IDS.has(card.id) && card.id !== "alternateGreetings" ? proseAff(card.id) : undefined}
-        filled={filled}
-        off={v.off}
-        offMode={offTarget}
-        missing={v.missing}
-        onMove={movable ? (dir) => setOrder((prev) => moveCard(prev, card.id, dir, RENDERED_ORDER_IDS)) : undefined}
-      >
-        {body}
-      </BentoCard>
-    );
-  };
-
-  const centerOrdered: JSX.Element[] = [
-    renderCard(cardById.get("identity")!, false),
-    renderCard(cardById.get("casting")!, false),
-    ...order.map((id) => (RENDERED_ORDER_IDS.has(id) ? renderCard(cardById.get(id)!, true) : null)),
-    renderCard(cardById.get("gradient")!, false),
-  ].filter((el): el is JSX.Element => el !== null);
-  const rightCards = EDITOR_CARDS.filter((c) => c.region === "right")
-    .map((c) => renderCard(c, false))
-    .filter((el): el is JSX.Element => el !== null);
-
   // the one control per field kind - reused by every presenter (and, later, by the grid). Composite
   // kinds return the bespoke body already built above; text/prose are generic.
   const controlFor = (m: FieldModule): JSX.Element => {
@@ -1004,6 +858,41 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
+  // Grid presenter: the SAME field-module registry, one bento card per canonical section. Both grid and
+  // stepper read FIELD_MODULES - add a field once, it shows in both. controlFor is the shared renderer.
+  const GRID_SECTIONS: ReadonlyArray<readonly [prefix: string, label: string]> = [
+    ["identity", "Identity"],
+    ["persona", "Persona"],
+    ["prompts", "Prompts"],
+    ["greetings", "Greetings"],
+    ["examples", "Examples"],
+    ["discovery", "Discovery"],
+    ["media", "Media"],
+    ["presentation", "Presentation"],
+    ["attribution", "Attribution"],
+  ];
+  const gridView = (
+    <div className={styles.gridsec}>
+      {GRID_SECTIONS.map(([prefix, label]) => {
+        const mods = FIELD_MODULES.filter((m) => m.path.startsWith(`${prefix}.`));
+        if (mods.length === 0) return null;
+        return (
+          <BentoCard key={prefix} title={label}>
+            {mods.map((m) => (
+              <div key={m.id} className={styles.gfield}>
+                <span className={styles.glabel}>
+                  {m.sheetLabel}
+                  {m.required && <span className={styles.qreq}> *</span>}
+                </span>
+                {controlFor(m)}
+              </div>
+            ))}
+          </BentoCard>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div className={styles.root} style={entityAccent !== undefined ? ({ ["--a"]: entityAccent } as CSSProperties) : undefined}>
       <div className={styles.tabstrip}>
@@ -1034,18 +923,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      {mode === "grid" ? (
-        // grid render parked for the future flow customizer (Power Grid preset); not reachable today
-        <div className={styles.bento}>
-          <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
-          <div className={styles.masonry}>
-            {centerOrdered}
-            {rightCards}
-          </div>
-        </div>
-      ) : (
-        flowView
-      )}
+      {mode === "grid" ? gridView : flowView}
     </div>
   );
 }

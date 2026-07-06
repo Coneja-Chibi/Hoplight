@@ -370,6 +370,38 @@
   border-color: #7a2b3a;
   color: #ff8d9a;
 }
+/* ===== grid presenter: one bento card per canonical section, from the same field registry ===== */
+.gridsec {
+  columns: 2;
+  column-gap: 1rem;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+.gridsec > * {
+  break-inside: avoid;
+  margin-bottom: 1rem;
+}
+@media (max-width: 60rem) {
+  .gridsec { columns: 1; }
+}
+.gfield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.7rem;
+  min-width: 0;
+}
+.gfield:last-child {
+  margin-bottom: 0;
+}
+.glabel {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
 /* ===== the guided quiz: bright question card (the setup's language) + the character stage ===== */
 .quiz {
   display: grid;
