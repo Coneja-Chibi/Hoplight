@@ -884,10 +884,6 @@
   text-align: right;
   cursor: pointer;
 }
-/* the editor content (grid or quiz); wears the editor-wide zoom so the chrome above stays fixed */
-.scaled {
-  min-width: 0;
-}
 .frac {
   font-family: var(--font-mono);
   font-size: 0.625rem;

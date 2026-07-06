@@ -919,8 +919,14 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
+  // the editor-wide scale zooms the ENTIRE editor - chrome (tabstrip) and content together - so "make
+  // it smaller" shrinks everything. --a rides along for the entity accent.
+  const rootStyle: CSSProperties = {
+    ...(entityAccent !== undefined ? { ["--a"]: entityAccent } : {}),
+    ...(editorScale !== 1 ? { zoom: editorScale } : {}),
+  };
   return (
-    <div className={styles.root} style={entityAccent !== undefined ? ({ ["--a"]: entityAccent } as CSSProperties) : undefined}>
+    <div className={styles.root} style={rootStyle}>
       <div className={styles.tabstrip}>
         <PlatformTabs
           platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
@@ -963,9 +969,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      <div className={styles.scaled} style={editorScale !== 1 ? { zoom: editorScale } : undefined}>
-        {mode === "grid" ? gridView : flowView}
-      </div>
+      {mode === "grid" ? gridView : flowView}
     </div>
   );
 }
