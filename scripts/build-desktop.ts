@@ -28,12 +28,12 @@ async function bundleBrowser(entry: string, external: string[] = REACT_EXTERNALS
   return built.outputs[0]!.text();
 }
 
-/** name -> entry stub + externals: react itself bundles fully; the other two link against it. */
+/** name -> entry stub + externals. One family bundle (react + both jsx runtimes inlined against a
+ * single React copy - Bun's external "react" also externalizes react/* subpaths, so separate
+ * runtime stubs self-alias through the import map); the renderer links against the family. */
 const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
-  react: { entry: "vendor/react.ts", external: [] },
-  "jsx-runtime": { entry: "vendor/jsx-runtime.ts", external: ["react"] },
-  "jsx-dev-runtime": { entry: "vendor/jsx-dev-runtime.ts", external: ["react"] },
-  "react-dom-client": { entry: "vendor/react-dom-client.ts", external: ["react", "react/jsx-runtime"] },
+  "react-family": { entry: "vendor/react-family.ts", external: [] },
+  "react-dom-client": { entry: "vendor/react-dom-client.ts", external: ["react"] },
 };
 
 const appsGlob = new Bun.Glob("*/index.{ts,tsx}");
@@ -89,9 +89,10 @@ console.log(`baked ui assets (${appIds.length} apps: ${appIds.join(", ")}; ${ste
 // So the build (a) EXECUTES each vendor bundle and asserts the named exports the app relies on,
 // and (b) asserts every bare import in every baked bundle has an import-map entry. Fail = no exe.
 const REQUIRED_VENDOR_EXPORTS: Record<string, string[]> = {
-  react: ["createElement", "useState", "useEffect"],
-  "jsx-runtime": ["jsx", "jsxs", "Fragment"],
-  "jsx-dev-runtime": ["jsxDEV", "Fragment"],
+  "react-family": [
+    "createElement", "useState", "useEffect", "Fragment", "jsx", "jsxs", "jsxDEV",
+    "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
+  ],
   "react-dom-client": ["createRoot"],
 };
 const importMapMatch = /<script type="importmap">\s*([\s\S]*?)<\/script>/.exec(assets.indexHtml);
@@ -100,10 +101,19 @@ const importMapKeys = Object.keys((JSON.parse(importMapMatch[1]!) as { imports: 
 
 const smokeDir = join(root, "dist", ".smoke");
 await mkdir(smokeDir, { recursive: true });
+/** Reproduce the PAGE's linkage: vendor bundles must resolve the react family to OUR built stubs
+ * (as the import map does), never to node_modules - the internals-drop crash slipped a smoke that
+ * linked against node_modules react. Bare specifiers rewrite to the sibling smoke files. */
+const linkToStubs = (code: string): string =>
+  code
+    .replace(/from\s*["']react\/jsx-dev-runtime["']/g, 'from"./react-family.mjs"')
+    .replace(/from\s*["']react\/jsx-runtime["']/g, 'from"./react-family.mjs"')
+    .replace(/from\s*["']react["']/g, 'from"./react-family.mjs"');
+for (const name of Object.keys(REQUIRED_VENDOR_EXPORTS)) {
+  await Bun.write(join(smokeDir, `${name}.mjs`), linkToStubs(vendor[name]!));
+}
 for (const [name, wanted] of Object.entries(REQUIRED_VENDOR_EXPORTS)) {
-  const file = join(smokeDir, `${name}.mjs`);
-  await Bun.write(file, vendor[name]!);
-  const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>;
+  const mod = (await import(pathToFileURL(join(smokeDir, `${name}.mjs`)).href)) as Record<string, unknown>;
   const missing = wanted.filter((exp) => mod[exp] === undefined);
   if (missing.length) {
     throw new Error(`smoke: /vendor/${name}.js lacks export(s) ${missing.join(", ")} - the page would crash at boot`);
