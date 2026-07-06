@@ -623,7 +623,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
       {mode === "grid" ? (
         <div className={styles.bento}>
-          <div className={styles.col}>{leftCard}</div>
+          <div className={`${styles.col} ${styles.stickyCol}`}>{leftCard}</div>
           <div className={styles.col}>{centerOrdered}</div>
           <div className={styles.col}>{rightCards}</div>
         </div>

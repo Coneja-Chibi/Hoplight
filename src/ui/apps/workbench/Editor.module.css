@@ -228,6 +228,20 @@
   gap: 0.8rem;
   min-width: 0;
 }
+/* the portrait column rides along as the center prompts scroll: it pins to the scroll viewport
+   (.paneFlush) top instead of scrolling off. align-self:start keeps the card its own height inside
+   the taller grid row so it has room to stick. Collapsed single-column layout turns this off - a
+   pinned picture over a stacked form would just cover the fields below it. */
+.stickyCol {
+  position: sticky;
+  top: 0.9rem;
+  align-self: start;
+}
+@media (max-width: 74rem) {
+  .stickyCol {
+    position: static;
+  }
+}
 .hint {
   font-family: var(--font-mono);
   font-size: 0.5625rem;
