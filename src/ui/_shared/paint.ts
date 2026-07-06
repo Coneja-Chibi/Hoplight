@@ -4,7 +4,7 @@
  * picker drives an accent, a card background, a pack cover, whatever. Pure: the model, its CSS
  * rendering, and a fail-closed parser for stored values. No DOM here.
  */
-import { clamp01, normalizeHex } from "./color-picker";
+import { clamp01, normalizeHex } from "./color-math";
 
 export interface SolidPaint {
   kind: "solid";

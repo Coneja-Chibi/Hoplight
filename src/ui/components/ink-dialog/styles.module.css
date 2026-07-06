@@ -1,0 +1,22 @@
+/**
+ * InkDialog styles - transcribed 1:1 from src/ui/index.html's .vdialog-overlay / .vdialog rules.
+ */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.sheet {
+  background: var(--face);
+  color: var(--text);
+  border: 3px solid var(--edge);
+  box-shadow: 6px 6px 0 0 var(--edge);
+  padding: 1.1rem 1.3rem;
+  max-width: 24rem;
+  width: 100%;
+}

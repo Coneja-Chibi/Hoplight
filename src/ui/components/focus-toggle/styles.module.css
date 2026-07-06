@@ -1,0 +1,20 @@
+/**
+ * FocusToggle styles - transcribed 1:1 from the deleted _shared/focus.ts's .focus-btn rule.
+ */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  background: transparent;
+  border: 2px solid #4a4556;
+  color: #8f8a9e;
+  cursor: pointer;
+  padding: 0;
+}
+.btn:hover {
+  color: #e7e3da;
+  border-color: #8f8a9e;
+}

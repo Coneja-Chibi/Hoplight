@@ -1,11 +1,12 @@
 /**
- * The setup-step contract - folders-as-schema for the first-run wizard (DECISIONS #10 build law).
- * A STEP is a folder in src/ui/setup/steps/<name>/ whose index.ts default-exports a SetupStep.
- * The server discovers and bundles them exactly like apps; the wizard imports them, orders them,
- * and derives EVERYTHING from the list: progress dots, "N of M", defaults, skip-all, the stage
- * zones, the summary sentence, the recap chips. Adding a step = dropping a folder in; nothing
- * central is edited. Shared by server (discovery) and client (wizard), so it stays DOM-light.
+ * The setup-step contract (CONTRACT V2, React) - folders-as-schema for the first-run wizard
+ * (DECISIONS #10 build law). A STEP is a folder in src/ui/setup/steps/<name>/ whose index.tsx
+ * default-exports a SetupStep. The server discovers and bundles them exactly like apps; the wizard
+ * imports them, orders them, and derives EVERYTHING from the list: progress dots, "N of M",
+ * defaults, skip-all, the stage zones, the summary sentence, the recap chips. Adding a step =
+ * dropping a folder in; nothing central is edited. Steps render JSX now instead of building DOM.
  */
+import type { ReactNode } from "react";
 import type { FormatInfo } from "../app-contract";
 
 /** One pressable answer. `value` is what lands in settings (defaults to `id`). */
@@ -59,18 +60,23 @@ export interface SetupContext {
 
 export interface SetupStep {
   manifest: SetupStepManifest;
-  /** step-owned css (its zone + its option widgets); the wizard injects it once */
+  /** step-owned css (its zone + its option widgets); the wizard injects it once, combined */
   css?: string;
   /** resolve options; may be data-driven via ctx (publish targets from the live format registry) */
   options(ctx: SetupContext): SetupOption[] | Promise<SetupOption[]>;
-  /** custom option widget (theme thumbnails, color swatches); wizard wires press + aria state.
-   * Absent = the standard title/sub option card. */
-  renderOption?(opt: SetupOption): HTMLElement;
+  /** whole-group options override (the accent step's shared SwatchRow); receives the live picker
+   * `onPick` so the group can drive selection through the wizard's own single/multi logic instead
+   * of reimplementing it. Absent = the wizard renders one card per option (renderOption / default). */
+  renderOptions?(options: SetupOption[], draft: SetupDraft, onPick: (opt: SetupOption) => void): ReactNode;
+  /** custom single-option card (theme's thumbnails); the wizard supplies pressed state + the click
+   * handler. Absent = the standard title/sub option card. Ignored when renderOptions is set. */
+  renderOption?(opt: SetupOption, pressed: boolean, onPick: () => void): ReactNode;
   /** this step's stage zone, re-rendered on every answer; render the GHOST state while the
    * draft has no value yet (unanswered = waiting in the dark). Absent = no zone. */
-  renderZone?(draft: SetupDraft, options: SetupOption[]): HTMLElement;
-  /** direct stage effects (the accent step repaints --accent on the stage root) */
-  applyStage?(stageRoot: HTMLElement, draft: SetupDraft): void;
+  renderZone?(draft: SetupDraft, options: SetupOption[]): ReactNode;
+  /** CSS custom properties this step paints onto the stage root (the accent step's live --accent
+   * repaint); merged from every step, in step order, each render. Absent = no stage vars. */
+  stageVars?(draft: SetupDraft): Record<string, string> | undefined;
   /** fragment for the final summary sentence; null = omitted (e.g. no publish picks) */
   phrase(draft: SetupDraft, options: SetupOption[]): SummaryFragment | null;
   /** recap chip on the final screen ("theme dark"); null = omitted */

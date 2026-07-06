@@ -1,0 +1,74 @@
+/**
+ * ColorPicker styles - transcribed 1:1 from the deleted _shared/color-picker.ts's COLOR_PICKER_CSS.
+ */
+.cp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: clamp(11rem, 17rem, 100%);
+}
+.sv {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/2;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 4px 4px 0 0 var(--ink, #000);
+  cursor: crosshair;
+  touch-action: none;
+}
+.hue {
+  position: relative;
+  width: 100%;
+  height: 1rem;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  cursor: ew-resize;
+  touch-action: none;
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.thumb {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 3px solid #fff;
+  outline: 2px solid #000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 1px #000;
+}
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.chip {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 2px 2px 0 0 var(--ink, #000);
+}
+.hex {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink, #111);
+  background: var(--paper, #fff);
+  border: 3px solid var(--ink, #000);
+  padding: 0.4rem 0.55rem;
+}
+.hex:focus {
+  outline: none;
+  box-shadow: 3px 3px 0 0 var(--ink, #000);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sv,
+  .hue {
+    transition: none;
+  }
+}

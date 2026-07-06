@@ -1,0 +1,167 @@
+/**
+ * CharacterEditor styles - transcribed 1:1 from the deleted editor.ts's injected CSS block.
+ */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  min-width: 0;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.save {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--a);
+  color: #0a0a0c;
+  border: 3px solid #000;
+  box-shadow: 3px 3px 0 0 #000;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+.save:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 0 #000;
+}
+.save:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 #000;
+}
+.save:disabled {
+  opacity: 0.45;
+  cursor: default;
+  transform: none;
+  box-shadow: 3px 3px 0 0 #000;
+}
+.flag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4a4556;
+}
+.flagDot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #000;
+  background: #2b2833;
+}
+.flag.on {
+  color: #c9c4d2;
+}
+.flag.on .flagDot {
+  background: var(--a);
+}
+.card {
+  background: #111015;
+  border: 3px solid #000;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8f8a9e;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border: 2px solid #000;
+  background: #2b2833;
+}
+.dot.full {
+  background: var(--a);
+}
+.mv {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+.ar {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #8f8a9e;
+  background: transparent;
+  border: 2px solid #2b2833;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+}
+.ar:hover {
+  color: #e7e3da;
+  border-color: #8f8a9e;
+}
+.ta {
+  width: 100%;
+  background: #0a0a0b;
+  border: 2px solid #2b2833;
+  color: #c9c4d2;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  padding: 0.55rem;
+  min-height: 8rem;
+  resize: vertical;
+}
+.ta.mono {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.ta:focus,
+.in:focus {
+  outline: none;
+  border-color: var(--a);
+}
+.cnt {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: #4a4556;
+  align-self: flex-end;
+}
+.idGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.field.span2 {
+  grid-column: 1 / -1;
+}
+.in {
+  width: 100%;
+  background: #0a0a0b;
+  border: 2px solid #2b2833;
+  color: #c9c4d2;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.55rem;
+}

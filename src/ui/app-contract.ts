@@ -1,10 +1,14 @@
 /**
- * The Vaude app contract - the dock's folders-as-schema (DECISIONS #14, the locked shell).
- * An APP is a folder in src/ui/apps/<name>/ whose index.ts default-exports a VaudeApp. The server
- * discovers and bundles them; the client builds the dock from the manifest. Drop a folder in, the
- * dock gains a tile - nothing central lists apps, exactly like format adapters. This file is shared
- * by server (discovery) and client (mounting), so it stays dependency-free and DOM-light.
+ * The Vaude app contract v2 (ADR-008, CONTRACT V2) - the dock's folders-as-schema, React shaped.
+ * An APP is a folder in src/ui/apps/<name>/ whose index.tsx default-exports a VaudeApp. The server
+ * discovers and bundles them; the client builds the dock from the manifest and renders the app's
+ * Component into the Workbench canvas. Drop a folder in, the dock gains a tile - nothing central
+ * lists apps, exactly like format adapters. This file is shared by server (discovery) and client
+ * (mounting), so it imports react and the menu types only as `import type` - erased at build time,
+ * no runtime framework dependency leaks into discovery.
  */
+import type { ReactNode } from "react";
+import type { ContextMenus } from "./shell/store";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
 export interface AppManifestEntry {
@@ -28,15 +32,16 @@ export interface AppManifestEntry {
   firstRunLanding?: boolean;
   /** this app is where open pieces are edited: the shell's tab strip focuses into it */
   editsPieces?: boolean;
+  /** placeholder for the agent-surface plan (state selector + offered actions land later);
+   * typed now so manifests can start carrying a plain-words description of the surface. */
+  agentSurface?: { describe: string };
 }
 
 /** Everything an app may touch. Apps NEVER import the engine or reach the filesystem directly:
- * the shell hands them this context, and all IO goes through the local API - one engine, thin shells. */
+ * the shell hands them this context, and all IO goes through the local API - one engine, thin
+ * shells. Theme lives in the shell store now (apps read it via useShellStore if they need it);
+ * there is no `root` - a VaudeApp renders JSX, the shell owns the DOM. */
 export interface AppContext {
-  /** the element the app owns; the shell clears it between mounts */
-  root: HTMLElement;
-  /** current theme, live-updated ("paper" = light letterpress, "stage" = dark forge) */
-  theme: "paper" | "stage";
   /** authenticated-local API base (loopback server) */
   api: {
     listEntities(kind?: string): Promise<StudioEntitySummary[]>;
@@ -50,9 +55,12 @@ export interface AppContext {
   setStatus(text: string): void;
   /** every installed app's manifest (Settings needs the roster for the home-app picker) */
   apps(): AppManifestEntry[];
-  /** THE right-click system (src/ui/_shared/context-menu.ts): attach targets on your elements,
-   * register providers for target types; one consistent menu everywhere, extended by registration */
-  menus: import("./_shared/context-menu").ContextMenus;
+  /** THE right-click system (src/ui/shell/store.ts): attach targets on your elements, register
+   * providers for target types; one consistent menu everywhere, extended by registration. Prefer
+   * the `useContextMenu` hook for React elements (attaches on mount, detaches on unmount); `attach`
+   * stays here for the shell's own imperative use (e.g. the document-level fallback target) and
+   * now returns a detach function. */
+  menus: ContextMenus;
   /** per-user app preferences, persisted into the studio's settings.json open record
    * (namespace your key by app id: "workbench.view"); read returns undefined when unset */
   prefs: {
@@ -84,11 +92,11 @@ export interface AppContext {
   };
 }
 
-/** The module an app folder default-exports. */
+/** The module an app folder default-exports. Component renders the app's whole surface; the shell
+ * mounts it into the Workbench canvas and hands it the context every render. */
 export interface VaudeApp {
   manifest: AppManifestEntry;
-  /** render into ctx.root; return a cleanup called before unmount */
-  mount(ctx: AppContext): void | (() => void);
+  Component: (props: { ctx: AppContext }) => ReactNode;
 }
 
 // -- shared wire shapes (server <-> client) ---------------------------------------------------------

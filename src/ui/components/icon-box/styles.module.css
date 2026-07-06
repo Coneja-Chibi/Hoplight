@@ -1,0 +1,17 @@
+/**
+ * IconBox styles - transcribed from src/ui/index.html's .apptile .mk rule.
+ */
+.box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border: 3px solid var(--edge);
+  background: var(--face);
+  color: var(--text-soft);
+}
+.box svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}

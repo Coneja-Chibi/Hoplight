@@ -1,0 +1,38 @@
+/**
+ * Stamp styles - transcribed 1:1 from src/ui/index.html's .topbtn rule (colors already swapped to
+ * tokens there), same border/shadow/spacing/transition values.
+ */
+.stamp {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.625rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: var(--chrome);
+  border: 3px solid var(--edge);
+  box-shadow: 3px 3px 0 0 var(--edge);
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+.stamp:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 0 var(--edge);
+}
+.stamp:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 0 var(--edge);
+}
+.stamp:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stamp {
+    transition: none;
+  }
+}

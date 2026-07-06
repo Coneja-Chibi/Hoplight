@@ -1,0 +1,351 @@
+/**
+ * The shell store (CONTRACT V2) - the ONE source of truth for shell state: settings, the app
+ * manifest roster, the active app, the Workbench's open pieces (they ARE the tab strip), the
+ * follow-prompt dialog, the status note, dock collapse, and the context menu's live render state.
+ * Plain serializable data only - the future agent-surface plan reads this store directly, so no
+ * DOM refs, no React nodes, and no menu-provider functions live in it; those stay in the
+ * module-level menu registry below (the same shape as the old _shared/context-menu.ts, now paired
+ * with store-rendered state instead of its own DOM renderer).
+ *
+ * `ctx.workbench` and `ctx.prefs` (app-contract.ts) are thin adapters over this store's actions and
+ * selectors, so app code and shell chrome read state the ONE way CONTRACT V2 requires.
+ *
+ * Loading the app MODULE behind an id is deliberately NOT store state (a VaudeApp export is not
+ * serializable): App.tsx keeps its own module cache and effect keyed on `activeAppId`.
+ */
+import { create } from "zustand";
+import { useRef } from "react";
+import type { RefCallback } from "react";
+import { parseSettings, SETTING_KEYS, type StudioSettings } from "../../studio/settings-shape";
+import { decideFollow } from "../follow-core";
+import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
+import { bumpRecents, keyOf, parseRecents } from "./store-core";
+
+export type Theme = "paper" | "stage";
+
+const RECENTS_CAP = 60;
+const THEME_CACHE_KEY = "vaude.theme";
+
+// -- the context-menu system (ported from _shared/context-menu.ts) ----------------------------------
+
+export interface MenuTarget {
+  /** open string ("entity", "app", "shell", ...); drop-in features may claim new types */
+  type: string;
+  /** the header line the menu shows ("Adrian", "The Library") */
+  label: string;
+  /** whatever the providers need (the entity summary, the manifest, ...) */
+  data?: unknown;
+}
+
+export interface MenuItem {
+  label: string;
+  /** pick handler; the menu closes itself first */
+  onPick(): void;
+  disabled?: boolean;
+  /** destructive styling (rose text) */
+  danger?: boolean;
+}
+
+/** items for a target, or null/[] to contribute nothing (deny by absence) */
+export type MenuProvider = (target: MenuTarget) => MenuItem[] | null;
+
+export interface ContextMenus {
+  /** mark an element as a right-click target; the deepest attached element wins. Returns a detach
+   * function (CONTRACT V2) - the shell's own imperative attaches (the document-level fallback)
+   * call it on their own cleanup path. */
+  attach(el: HTMLElement, factory: () => MenuTarget): () => void;
+  /** contribute items for a target type; returns an unregister (call it in the app's cleanup) */
+  register(type: string, provider: MenuProvider): () => void;
+}
+
+export interface OpenMenu {
+  x: number;
+  y: number;
+  target: MenuTarget;
+  sections: MenuItem[][];
+}
+
+const menuTargets = new WeakMap<HTMLElement, () => MenuTarget>();
+const menuProviders = new Map<string, Set<MenuProvider>>();
+
+/** Walk up from `start`; the deepest attached element wins. Exported so the shell's one document
+ * `contextmenu` listener (Menu.tsx) can decide whether to preventDefault BEFORE touching the store. */
+export function findMenuTarget(start: EventTarget | null): MenuTarget | null {
+  for (let el = start as HTMLElement | null; el; el = el.parentElement) {
+    const factory = menuTargets.get(el);
+    if (factory) return factory();
+  }
+  return null;
+}
+
+/** Collect every provider's items for a target's type; empty sections = deny by absence. */
+export function menuSectionsFor(target: MenuTarget): MenuItem[][] {
+  const sections: MenuItem[][] = [];
+  for (const provider of menuProviders.get(target.type) ?? []) {
+    const items = provider(target);
+    if (items && items.length > 0) sections.push(items);
+  }
+  return sections;
+}
+
+/** The one menus object handed to every app via ctx.menus and used by the shell's own targets. */
+export const menus: ContextMenus = {
+  attach(el, factory) {
+    menuTargets.set(el, factory);
+    return () => menuTargets.delete(el);
+  },
+  register(type, provider) {
+    const set = menuProviders.get(type) ?? new Set();
+    set.add(provider);
+    menuProviders.set(type, set);
+    return () => set.delete(provider);
+  },
+};
+
+/** CONTRACT V2's ref-callback form of `menus.attach`: attaches on mount, detaches on unmount, via
+ * React 19's ref-cleanup-function return (no separate effect needed). One stable identity per
+ * component instance so re-renders never thrash the WeakMap registration. */
+export function useContextMenu(factory: () => MenuTarget): RefCallback<HTMLElement> {
+  const factoryRef = useRef(factory);
+  factoryRef.current = factory;
+  const cbRef = useRef<RefCallback<HTMLElement> | null>(null);
+  if (!cbRef.current) {
+    cbRef.current = (el) => {
+      if (!el) return;
+      return menus.attach(el, () => factoryRef.current());
+    };
+  }
+  return cbRef.current;
+}
+
+// -- store shape ------------------------------------------------------------------------------------
+
+export interface FollowPrompt {
+  count: number;
+}
+
+interface ShellState {
+  settings: StudioSettings;
+  theme: Theme;
+  manifests: AppManifestEntry[];
+  activeAppId: string;
+  openPieces: StudioEntitySummary[];
+  activeKey: string;
+  statusNote: string;
+  studioCount: number;
+  dockSlim: boolean;
+  followPrompt: FollowPrompt | null;
+  openMenu: OpenMenu | null;
+
+  // -- settings / theme --------------------------------------------------------------------------
+  applySettings(next: StudioSettings): void;
+  saveSettings(next: StudioSettings): Promise<void>;
+  toggleTheme(): void;
+  toggleDockSlim(): void;
+
+  // -- manifests / app mounting -------------------------------------------------------------------
+  setManifests(manifests: AppManifestEntry[]): void;
+  homeApp(): AppManifestEntry | undefined;
+  benchApp(): AppManifestEntry | undefined;
+  firstLandingApp(): AppManifestEntry | undefined;
+  mountApp(id: string): void;
+  goHome(): void;
+
+  // -- status bar -----------------------------------------------------------------------------------
+  setStatus(text: string): void;
+  setStudioCount(n: number): void;
+
+  // -- the Workbench's open pieces ------------------------------------------------------------------
+  isOpen(id: string, kind: string): boolean;
+  activePiece(): StudioEntitySummary | null;
+  sendMany(pieces: StudioEntitySummary[]): void;
+  removePiece(id: string, kind: string): void;
+  focusPiece(id: string, kind: string): void;
+  answerFollow(follow: boolean, remember: boolean): void;
+
+  // -- context menu ---------------------------------------------------------------------------------
+  /** the caller (Menu.tsx) already resolved the target and its non-empty sections */
+  showMenu(x: number, y: number, target: MenuTarget, sections: MenuItem[][]): void;
+  closeMenu(): void;
+}
+
+function paintTheme(t: Theme, houseAccent?: string): void {
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem(THEME_CACHE_KEY, t); // pre-paint cache only; settings.json is the truth
+  if (houseAccent) document.documentElement.style.setProperty("--accent", houseAccent);
+}
+
+export const useShellStore = create<ShellState>((set, get) => ({
+  settings: parseSettings(null),
+  // guarded: this initializer runs at module eval, which also happens in DOM-less contexts
+  // (the desktop bake imports app modules to read manifests) - there the cache simply misses
+  theme: (typeof localStorage !== "undefined" ? (localStorage.getItem(THEME_CACHE_KEY) as Theme | null) : null) ?? "paper",
+  manifests: [],
+  activeAppId: "",
+  openPieces: [],
+  activeKey: "",
+  statusNote: "",
+  studioCount: 0,
+  dockSlim: false,
+  followPrompt: null,
+  openMenu: null,
+
+  applySettings(next) {
+    const theme = next.theme ?? "paper";
+    paintTheme(theme, next.houseAccent);
+    set({ settings: next, theme, dockSlim: next[SETTING_KEYS.dockSlim] === true });
+  },
+
+  async saveSettings(next) {
+    get().applySettings(next);
+    await fetch("/api/settings", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(next),
+    });
+  },
+
+  toggleTheme() {
+    const next: Theme = get().theme === "paper" ? "stage" : "paper";
+    void get().saveSettings({ ...get().settings, [SETTING_KEYS.theme]: next });
+  },
+
+  toggleDockSlim() {
+    const slim = !get().dockSlim;
+    void get().saveSettings({ ...get().settings, [SETTING_KEYS.dockSlim]: slim });
+  },
+
+  setManifests(manifests) {
+    set({ manifests });
+  },
+
+  homeApp() {
+    const { manifests, settings } = get();
+    const chosen = settings[SETTING_KEYS.homeApp];
+    return (
+      manifests.find((m) => m.id === chosen && !m.comingSoon && !m.dockFoot) ??
+      manifests.find((m) => !m.comingSoon && !m.dockFoot)
+    );
+  },
+
+  benchApp() {
+    return get().manifests.find((m) => m.editsPieces && !m.comingSoon);
+  },
+
+  firstLandingApp() {
+    return get().manifests.find((m) => m.firstRunLanding && !m.comingSoon);
+  },
+
+  mountApp(id) {
+    const m = get().manifests.find((a) => a.id === id);
+    if (!m || m.comingSoon || m.id === get().activeAppId) return;
+    set({ activeAppId: m.id, statusNote: "" });
+  },
+
+  goHome() {
+    const home = get().homeApp();
+    if (home) get().mountApp(home.id);
+  },
+
+  setStatus(text) {
+    set({ statusNote: text });
+  },
+
+  setStudioCount(n) {
+    set({ studioCount: n });
+  },
+
+  isOpen(id, kind) {
+    return get().openPieces.some((p) => p.id === id && p.kind === kind);
+  },
+
+  activePiece() {
+    const { openPieces, activeKey } = get();
+    return openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null;
+  },
+
+  sendMany(batch) {
+    const { openPieces, settings, activeAppId } = get();
+    const fresh = batch.filter((p) => !get().isOpen(p.id, p.kind));
+    if (fresh.length === 0) {
+      const only = batch[0];
+      set({
+        statusNote: only && batch.length === 1 ? `${only.name} is already on the Workbench` : "already on the Workbench",
+      });
+      return;
+    }
+
+    const onWorkbench = activeAppId !== "" && activeAppId === get().benchApp()?.id;
+    const freshKeys = fresh.map((p) => keyOf(p.id, p.kind));
+    const now = Date.now();
+    const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), freshKeys, now, RECENTS_CAP);
+    void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+
+    const last = fresh[fresh.length - 1]!;
+    const action = decideFollow(onWorkbench, settings[SETTING_KEYS.workbenchFollow]);
+    const nextOpenPieces = [...openPieces, ...fresh];
+    // surface/navigate land the view on the newest piece; note/ask keep the current active piece
+    const nextActiveKey =
+      action === "surface" || action === "navigate"
+        ? keyOf(last.id, last.kind)
+        : get().activeKey || keyOf(fresh[0]!.id, fresh[0]!.kind);
+    set({ openPieces: nextOpenPieces, activeKey: nextActiveKey });
+
+    if (action === "navigate") {
+      const bench = get().benchApp();
+      if (bench) get().mountApp(bench.id);
+    } else if (action === "note") {
+      set({
+        statusNote:
+          fresh.length === 1 ? `${fresh[0]!.name} sent to the Workbench` : `${fresh.length} pieces sent to the Workbench`,
+      });
+    } else if (action === "ask") {
+      set({ followPrompt: { count: fresh.length } });
+    }
+  },
+
+  removePiece(id, kind) {
+    const { openPieces, activeKey } = get();
+    const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
+    if (at < 0) return;
+    const next = [...openPieces.slice(0, at), ...openPieces.slice(at + 1)];
+    const nextActiveKey = activeKey === keyOf(id, kind) ? (next[0] ? keyOf(next[0].id, next[0].kind) : "") : activeKey;
+    set({ openPieces: next, activeKey: nextActiveKey });
+  },
+
+  focusPiece(id, kind) {
+    if (!get().isOpen(id, kind)) return;
+    const { settings } = get();
+    const now = Date.now();
+    const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), [keyOf(id, kind)], now, RECENTS_CAP);
+    void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+    set({ activeKey: keyOf(id, kind) });
+    const bench = get().benchApp();
+    if (bench) get().mountApp(bench.id);
+  },
+
+  answerFollow(follow, remember) {
+    const { settings } = get();
+    set({ followPrompt: null });
+    if (remember) {
+      void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchFollow]: follow ? "always" : "never" });
+    }
+    if (follow) {
+      const bench = get().benchApp();
+      if (bench) get().mountApp(bench.id);
+    }
+  },
+
+  showMenu(x, y, target, sections) {
+    set({ openMenu: { x, y, target, sections } });
+  },
+
+  closeMenu() {
+    if (get().openMenu) set({ openMenu: null });
+  },
+}));
+
+/** Read the persisted recents map straight off current settings (the recents rail's data source). */
+export function workbenchRecents(): Record<string, number> {
+  return parseRecents(useShellStore.getState().settings[SETTING_KEYS.workbenchRecents]);
+}

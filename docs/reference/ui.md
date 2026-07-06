@@ -128,37 +128,40 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   their saved positions). Explicit save only: Save button + Ctrl+S, dirty flag, beforeunload guard;
   saving round-trips the WHOLE body so untouched fields (escrow, behavior, media) survive
   byte-identical - pinned by editor-core tests. Fields the editor does not write yet stay visible
-  in a read-only tail. Editor instances cache per open piece, so tab switches keep unsaved drafts;
-  closing the tab discards them. Pure logic in `workbench/editor-core.ts` (tested), DOM in
-  `workbench/editor.ts`. Other kinds keep the read-only inspector until their editors land.
+  in a read-only tail. One `CharacterEditor` stays mounted (hidden via CSS) per open character, so
+  its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
+  the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in
+  `workbench/Editor.tsx`. Other kinds keep the read-only inspector until their editors land.
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.
 
 ## Settings (drop-in sections)
 Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
-`SettingsSection` (id, label, order, render); `sections/registry.ts` is the one stated seam. Tabs
-derive from the registry; every control is call-and-response against live settings (theme/accent
-repaint instantly). Shipped sections: Appearance (theme, house accent via the shared swatches),
-Studio (home app, Library first deck, publish targets from the live registry), Workbench (follow
-behavior).
+`SettingsSection` (id, label, order, `Component: (props: { ctx }) => JSX.Element`);
+`sections/registry.ts` is the one stated seam. Tabs derive from the registry (`src/ui/apps/settings/
+index.tsx`); every control is call-and-response against live settings (theme/accent repaint
+instantly). Shipped sections: Appearance (theme, house accent via the shared SwatchRow), Studio
+(home app, Library first deck, publish targets from the live registry), Workbench (follow behavior).
 
-## Shared components (`src/ui/_shared/`)
+## Shared components (`src/ui/_shared/` and `src/ui/components/`)
 Extracted-once UI, layered so a single implementation serves every consumer:
-- `swatches.ts` - the house swatch row. Preset tiles are the fast path; with `allowCustom` a final
-  `custom` tile opens the Paint picker (solid mode) for any color. Consumers: setup accent step,
-  Settings Appearance, later the editor's per-entity accent.
-- `color-picker.ts` - the on-brand HSV surface (saturation/value square, hue strip, hex field; no OS
-  dialog). Functional core, imperative shell: the color math (`normalizeHex`/`hexToHsv`/`hsvToHex`,
-  fail-closed on garbage) is pure and unit-tested; `createColorPicker` is the thin DOM around it.
-  Exports `horizontalDrag(surface, onFraction, ref?, fireOnDown?)` - reused by the gradient stop rail.
-- `paint.ts` - the pure Paint model: a `solid | gradient(linear|radial)` discriminated union with
-  `paintToCss` and a fail-closed `normalizePaint` (a gradient needs >=2 valid stops). Unit-tested.
-- `paint-picker.ts` - `createPaintPicker({value, allow, onChange})` composes the HSV surface to edit a
-  solid color or each stop of a gradient. `allow` gates the modes, so the same widget serves a
-  solid-only accent and a full linear/radial gradient fill. Solid mode is live via the accent's custom
-  tile; gradient mode (stop rail, add/drag/remove stops, linear-angle slider, true-curve preview) is
-  built and model-tested, awaiting its first fill consumer (per-entity/pack background in the editor).
+- `components/swatch-row/` - `SwatchRow` (+ the `HOUSE_PALETTE` constant), the house color-swatch
+  row. Preset tiles are the fast path; with `allowCustom` a final `custom` tile opens `PaintPicker`
+  (solid mode) for any color. Controlled: `value` in, `onChange(hex)` out. Consumers: setup accent
+  step, Settings Appearance, later the editor's per-entity accent.
+- `components/color-picker/` - `ColorPicker`, the on-brand HSV surface (saturation/value square, hue
+  strip, hex field; no OS dialog). HSV, not hex, is its internal state (hex is lossy at s=0/v=0).
+- `_shared/color-math.ts` - the pure color math powering the picker: `normalizeHex`/`hexToHsv`/
+  `hsvToHex` (fail-closed on garbage) and `dragFraction` (the pointer-drag fraction math shared by
+  the SV square, the hue strip, and the gradient stop rail). Unit-tested.
+- `_shared/paint.ts` - the pure Paint model: a `solid | gradient(linear|radial)` discriminated union
+  with `paintToCss` and a fail-closed `normalizePaint` (a gradient needs >=2 valid stops). Unit-tested.
+- `components/paint-picker/` - `PaintPicker` composes `ColorPicker` to edit a solid color or each
+  stop of a gradient. `allow` gates the modes, so the same widget serves a solid-only accent and a
+  full linear/radial gradient fill. Solid mode is live via the accent's custom tile; gradient mode
+  (stop rail, add/drag/remove stops, linear-angle slider, true-curve preview) is built and
+  model-tested, awaiting its first fill consumer (per-entity/pack background in the editor).
 
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps

@@ -32,10 +32,13 @@ interface DiscoveredModule {
   entrypoint: string;
 }
 
-/** Folders-as-schema scan: <baseDir>/<id>/index.ts, _-prefixed skipped (templates/shared). */
+/** Folders-as-schema scan: <baseDir>/<id>/index.{ts,tsx}, _-prefixed skipped (templates/shared).
+ * .tsx is the dev-mode twin of scripts/build-desktop.ts's widened glob (ADR-008 conversion): apps
+ * and setup steps convert to React one folder at a time, and the dev server must keep finding both
+ * shapes mid-conversion, or every converted folder 404s until the whole run lands. */
 async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
   const baseDir = fileURLToPath(new URL(baseRel, import.meta.url));
-  const glob = new Bun.Glob("*/index.ts");
+  const glob = new Bun.Glob("*/index.{ts,tsx}");
   const found: DiscoveredModule[] = [];
   for await (const rel of glob.scan({ cwd: baseDir })) {
     const id = rel.split(/[\\/]/)[0]!;

@@ -24,7 +24,7 @@ async function bundleBrowser(entry: string): Promise<string> {
   return built.outputs[0]!.text();
 }
 
-const appsGlob = new Bun.Glob("*/index.ts");
+const appsGlob = new Bun.Glob("*/index.{ts,tsx}");
 const appIds: string[] = [];
 const apps: Record<string, string> = {};
 const manifests: unknown[] = [];
@@ -38,7 +38,7 @@ for await (const rel of appsGlob.scan({ cwd: join(uiDir, "apps") })) {
   if (mod.default?.manifest) manifests.push(mod.default.manifest);
 }
 
-const stepsGlob = new Bun.Glob("*/index.ts");
+const stepsGlob = new Bun.Glob("*/index.{ts,tsx}");
 const stepIds: string[] = [];
 const setupSteps: Record<string, string> = {};
 for await (const rel of stepsGlob.scan({ cwd: join(uiDir, "setup", "steps") })) {

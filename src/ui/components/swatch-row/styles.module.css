@@ -1,0 +1,79 @@
+/**
+ * SwatchRow styles - transcribed 1:1 from the deleted _shared/swatches.ts's SWATCH_CSS. The old
+ * .swpanel/.swpanel.open display toggle is dropped: React conditionally renders the panel instead
+ * of hiding it with CSS, so only its own padding survives here.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.row {
+  display: flex;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 0.4rem 0 1.9rem;
+}
+.sw {
+  width: clamp(3rem, 8vw, 3.5rem);
+  aspect-ratio: 1;
+  border: 3px solid var(--ink);
+  cursor: pointer;
+  position: relative;
+  box-shadow: 4px 4px 0 0 var(--ink);
+  padding: 0;
+  transition:
+    transform 0.1s ease-out,
+    box-shadow 0.1s ease-out;
+}
+.sw:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--ink);
+}
+.sw:active,
+.sw.on {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--ink);
+}
+.sw.on::after {
+  content: "";
+  position: absolute;
+  inset: -9px;
+  border: 3px solid var(--ink);
+}
+.sw .lbl {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1.4rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.sw.custom {
+  background: conic-gradient(from 0deg, #e11d48, #f59e0b, #10b981, #3b82f6, #8b5cf6, #e11d48);
+}
+.sw.custom.empty::before {
+  content: "+";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.panel {
+  padding-top: 0.2rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sw {
+    transition: none;
+  }
+}

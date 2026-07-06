@@ -1,3 +1,5 @@
 #!/bin/sh
 # Repo gate: discipline checks + green suite on the staged change. See scripts/hooks/README.md.
-exec bun run scripts/hooks/gate.ts --staged
+bun run scripts/hooks/gate.ts --staged || exit 1
+# Staleness gate: docs/reference/components.md must match a fresh scan of the real exports.
+exec bun run scripts/hooks/component-catalog.ts --check

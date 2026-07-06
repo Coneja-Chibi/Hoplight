@@ -1,0 +1,137 @@
+/**
+ * PaintPicker styles - transcribed 1:1 from the deleted _shared/paint-picker.ts's PAINT_PICKER_CSS.
+ */
+.pp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: clamp(11rem, 17rem, 100%);
+}
+.modes {
+  display: flex;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 3px 3px 0 0 var(--ink, #000);
+}
+.modes button {
+  flex: 1;
+  border: none;
+  border-left: 3px solid var(--ink, #000);
+  background: var(--paper, #fff);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink, #111);
+  padding: 0.42rem;
+  cursor: pointer;
+}
+.modes button:first-child {
+  border-left: none;
+}
+.modes button.on {
+  background: var(--ink, #111);
+  color: var(--paper, #fff);
+}
+.grad {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.bar {
+  position: relative;
+  width: 100%;
+  height: 1.5rem;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  cursor: copy;
+  touch-action: none;
+  margin-top: 0.5rem;
+}
+.stop {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 2rem;
+  transform: translate(-50%, -50%);
+  border: 3px solid var(--ink, #000);
+  cursor: grab;
+  touch-action: none;
+  box-shadow: 0 0 0 2px var(--paper, #fff);
+}
+.stop.sel {
+  box-shadow:
+    0 0 0 2px var(--paper, #fff),
+    0 0 0 5px var(--ink, #000);
+  z-index: 2;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.out {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: none;
+  border: 3px solid var(--ink, #000);
+  box-shadow: 2px 2px 0 0 var(--ink, #000);
+}
+.seg {
+  display: flex;
+  border: 3px solid var(--ink, #000);
+}
+.seg button {
+  border: none;
+  border-left: 3px solid var(--ink, #000);
+  background: var(--paper, #fff);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink, #111);
+  padding: 0.32rem 0.55rem;
+  cursor: pointer;
+}
+.seg button:first-child {
+  border-left: none;
+}
+.seg button.on {
+  background: var(--ink, #111);
+  color: var(--paper, #fff);
+}
+.rm {
+  margin-left: auto;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--paper, #fff);
+  border: 3px solid var(--ink, #000);
+  color: var(--ink, #111);
+  padding: 0.32rem 0.55rem;
+  cursor: pointer;
+}
+.rm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.angle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.angle input {
+  flex: 1;
+  min-width: 0;
+}
+.deg {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: var(--ink, #111);
+  min-width: 2.6rem;
+  text-align: right;
+}

@@ -1,10 +1,11 @@
 /**
- * The deck-view contract - how a deck is presented (grid / showcase / list, user-sized art) is a
- * DROP-IN MODULE. A view is one file in views/ default-exporting a DeckView; views/registry.ts
- * lists them (one import line per view - the single seam, because a browser bundle cannot glob the
- * filesystem at runtime). The view toolbar, the size control, and persistence all derive from this
- * contract; the library names no view.
+ * The deck-view contract (CONTRACT V2) - how a deck is presented (grid / showcase / list,
+ * user-sized art) is a DROP-IN MODULE. A view is one file in views/ default-exporting a DeckView;
+ * views/registry.ts lists them (one import line per view - the single seam, because a browser
+ * bundle cannot glob the filesystem at runtime). The view toolbar, the size control, and
+ * persistence all derive from this contract; the library names no view.
  */
+import type { ReactNode } from "react";
 import type { StudioEntitySummary } from "../../app-contract";
 import type { DeckMeta } from "../../_shared/decks";
 
@@ -41,10 +42,6 @@ export interface DeckViewContext {
   sourceLabel(e: StudioEntitySummary): string | null;
   /** fetch the piece's own words (tagline/description) for close-up views; null on any failure */
   peek(e: StudioEntitySummary): Promise<PiecePeek | null>;
-  /** ask the workbench to re-render (a view changed its own internal state, e.g. showcase focus) */
-  refresh(): void;
-  /** mark an element as the piece's right-click target (the shell renders the menu) */
-  menu(el: HTMLElement, e: StudioEntitySummary): void;
 }
 
 export interface DeckView {
@@ -57,16 +54,8 @@ export interface DeckView {
   order: number;
   /** the view's own css, injected once by the workbench */
   css: string;
-  /** render the deck into a fresh element (called on every state change) */
-  render(ctx: DeckViewContext): HTMLElement;
+  /** render the deck; each piece attaches its own right-click target via useContextMenu */
+  Component: (props: { ctx: DeckViewContext }) => ReactNode;
 }
-
-/** tiny DOM helper shared by views */
-export const h = (tag: string, cls?: string, text?: string): HTMLElement => {
-  const n = document.createElement(tag);
-  if (cls) n.className = cls;
-  if (text !== undefined) n.textContent = text;
-  return n;
-};
 
 export const pieceKey = (e: StudioEntitySummary): string => `${e.kind}:${e.id}`;
