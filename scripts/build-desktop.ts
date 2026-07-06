@@ -9,7 +9,7 @@
  */
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const uiDir = join(root, "src", "ui");
@@ -83,6 +83,57 @@ await Bun.write(
     `export const PACKAGED_ASSETS: PackagedAssets = ${JSON.stringify(assets)};\n`,
 );
 console.log(`baked ui assets (${appIds.length} apps: ${appIds.join(", ")}; ${stepIds.length} setup steps: ${stepIds.join(", ")})`);
+
+// -- 1b. BOOT SMOKE: the build proves the page can boot before anyone claims done -------------------
+// Three first-boot crashes taught this: tsc + tests never exercise module RESOLUTION in the page.
+// So the build (a) EXECUTES each vendor bundle and asserts the named exports the app relies on,
+// and (b) asserts every bare import in every baked bundle has an import-map entry. Fail = no exe.
+const REQUIRED_VENDOR_EXPORTS: Record<string, string[]> = {
+  react: ["createElement", "useState", "useEffect"],
+  "jsx-runtime": ["jsx", "jsxs", "Fragment"],
+  "jsx-dev-runtime": ["jsxDEV", "Fragment"],
+  "react-dom-client": ["createRoot"],
+};
+const importMapMatch = /<script type="importmap">\s*([\s\S]*?)<\/script>/.exec(assets.indexHtml);
+if (!importMapMatch) throw new Error("smoke: index.html carries no import map");
+const importMapKeys = Object.keys((JSON.parse(importMapMatch[1]!) as { imports: Record<string, string> }).imports);
+
+const smokeDir = join(root, "dist", ".smoke");
+await mkdir(smokeDir, { recursive: true });
+for (const [name, wanted] of Object.entries(REQUIRED_VENDOR_EXPORTS)) {
+  const file = join(smokeDir, `${name}.mjs`);
+  await Bun.write(file, vendor[name]!);
+  const mod = (await import(pathToFileURL(file).href)) as Record<string, unknown>;
+  const missing = wanted.filter((exp) => mod[exp] === undefined);
+  if (missing.length) {
+    throw new Error(`smoke: /vendor/${name}.js lacks export(s) ${missing.join(", ")} - the page would crash at boot`);
+  }
+}
+
+const bareSpecifiers = (code: string): string[] => {
+  const out = new Set<string>();
+  const re = /from\s*["']([^"'\n]+)["']|import\s*\(\s*["']([^"'\n]+)["']\s*\)/g;
+  for (let m = re.exec(code); m; m = re.exec(code)) {
+    const spec = (m[1] ?? m[2])!;
+    if (spec.startsWith("./") || spec.startsWith("../") || spec.startsWith("/") || spec.startsWith("http")) continue;
+    if (!/^[@\w][\w@/.-]*$/.test(spec)) continue; // module-shaped only: skips prose/concat inside bundled strings
+    out.add(spec);
+  }
+  return [...out];
+};
+const allBundles: Record<string, string> = {
+  boot: assets.bootJs,
+  ...Object.fromEntries(Object.entries(apps).map(([k, v]) => [`app:${k}`, v])),
+  ...Object.fromEntries(Object.entries(setupSteps).map(([k, v]) => [`step:${k}`, v])),
+  ...Object.fromEntries(Object.entries(vendor).map(([k, v]) => [`vendor:${k}`, v])),
+};
+for (const [name, code] of Object.entries(allBundles)) {
+  const uncovered = bareSpecifiers(code).filter((s) => !importMapKeys.includes(s));
+  if (uncovered.length) {
+    throw new Error(`smoke: bundle "${name}" imports bare ${uncovered.join(", ")} with no import-map entry - the page would crash at boot`);
+  }
+}
+console.log(`boot smoke passed (${Object.keys(REQUIRED_VENDOR_EXPORTS).length} vendor graphs executed, ${Object.keys(allBundles).length} bundles resolution-checked)`);
 
 // -- 2. static format registry ----------------------------------------------------------------------
 
