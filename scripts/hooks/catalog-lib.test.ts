@@ -1,5 +1,17 @@
 import { expect, test } from "bun:test";
-import { extractCatalogEntries } from "./catalog-lib";
+import { cssClassNames, extractCatalogEntries } from "./catalog-lib";
+
+test("cssClassNames walks module-css classes in order, deduped, comments ignored", () => {
+  const css = `
+/* .ghost never counts */
+.card{color:red}
+.card:hover{color:blue}
+.h > .k, .dot.full{border:0}
+@media (max-width:40rem){ .card{padding:0} .mv{display:none} }
+`;
+  expect(cssClassNames(css)).toEqual(["card", "h", "k", "dot", "full", "mv"]);
+  expect(cssClassNames("")).toEqual([]);
+});
 
 test("finds a React function component that returns JSX", () => {
   const src = `

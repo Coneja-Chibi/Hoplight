@@ -16,6 +16,28 @@ export interface CatalogEntry {
   signature: string;
   /** first line of the preceding /** *\/ block, "" if none */
   doc: string;
+  /** class names of the colocated *.module.css (walkable styles: the shell attaches these) */
+  styles?: string[];
+}
+
+/** Class names declared in a CSS Modules source, in first-appearance order, deduped. Pure text
+ * scan (same crude-but-sufficient doctrine as the component extraction): a selector's `.name`
+ * counts; names inside comments do not. Makes stylesheets walkable the same way components are. */
+export function cssClassNames(cssSource: string): string[] {
+  const clean = cssSource.replace(/\/\*[\s\S]*?\*\//g, " ");
+  const out: string[] = [];
+  const seen = new Set<string>();
+  // any `.name` token: chained selectors (.dot.full) count too; the letter-first rule keeps
+  // decimals (.45) out. url()/content false positives are tolerable noise for a discovery index.
+  const re = /\.([A-Za-z_][\w-]*)/g;
+  for (let m = re.exec(clean); m; m = re.exec(clean)) {
+    const name = m[1]!;
+    if (!seen.has(name)) {
+      seen.add(name);
+      out.push(name);
+    }
+  }
+  return out;
 }
 
 const norm = (path: string): string => path.replace(/\\/g, "/");

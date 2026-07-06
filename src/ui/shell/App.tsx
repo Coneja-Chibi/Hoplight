@@ -139,9 +139,11 @@ export function App(): JSX.Element | null {
   }, []);
 
   // -- the AppContext handed to every app; methods read live state via getState() (thin adapters) ---
-  // subscribed to settings ON PURPOSE: a prefs.set must repaint the active app (the old shell's
-  // call-and-response), and a fresh ctx identity is what tells React the app's inputs changed
-  const settings = useShellStore((s) => s.settings);
+  // Subscribed to the WHOLE store ON PURPOSE (owner's rule: staleness is a structural impossibility,
+  // not a per-slice bugfix). Every store action produces a fresh state object, so any change
+  // rebuilds ctx and repaints the active app. If a surface ever measures hot, IT narrows to a
+  // selector deliberately; the default is always-correct, never quietly stale.
+  const storeState = useShellStore((s) => s);
   const ctx: AppContext = useMemo(
     () => ({
       api,
@@ -170,7 +172,7 @@ export function App(): JSX.Element | null {
           }),
       },
     }),
-    [settings],
+    [storeState],
   );
 
   if (phase === "loading") return null; // chrome renders only from real state; nothing to paint yet

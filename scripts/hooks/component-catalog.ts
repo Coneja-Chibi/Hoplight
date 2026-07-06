@@ -14,7 +14,8 @@
  * Run: bun run scripts/hooks/component-catalog.ts [--check|--digest]
  */
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { extractCatalogEntries, type CatalogEntry } from "./catalog-lib";
+import { dirname, join } from "node:path";
+import { cssClassNames, extractCatalogEntries, type CatalogEntry } from "./catalog-lib";
 
 const GLOBS = [
   "src/ui/components/**/*.tsx",
@@ -38,10 +39,23 @@ function collectFiles(): string[] {
   return [...files].sort();
 }
 
+/** The colocated stylesheet's class names for a component file, "" absence tolerated (walkable
+ * styles: CSS reuse rides the same catalog as the components that own it). */
+function stylesFor(file: string): string[] | undefined {
+  const candidates = ["styles.module.css", "Editor.module.css"];
+  for (const name of candidates) {
+    const p = join(dirname(file), name);
+    if (existsSync(p)) return cssClassNames(readFileSync(p, "utf8"));
+  }
+  return undefined;
+}
+
 function allEntries(files: string[]): CatalogEntry[] {
   const entries: CatalogEntry[] = [];
   for (const file of files) {
-    entries.push(...extractCatalogEntries(file, readFileSync(file, "utf8")));
+    for (const entry of extractCatalogEntries(file, readFileSync(file, "utf8"))) {
+      entries.push(entry.kind === "component" ? { ...entry, styles: stylesFor(file) } : entry);
+    }
   }
   // kind then name (both alphabetical): "component" sorts before "legacy-widget" on its own, so this
   // one comparator gives the grouped, deterministic order the table renders in.
@@ -53,9 +67,14 @@ const escapeCell = (s: string): string => s.replace(/\|/g, "\\|");
 function table(rows: CatalogEntry[], emptyNote: string): string {
   if (rows.length === 0) return `_${emptyNote}_\n`;
   const body = rows
-    .map((e) => `| ${escapeCell(e.name)} | ${escapeCell(e.file)} | ${escapeCell(e.signature)} | ${escapeCell(e.doc)} |`)
+    .map(
+      (e) =>
+        `| ${escapeCell(e.name)} | ${escapeCell(e.file)} | ${escapeCell(e.signature)} | ${escapeCell(e.doc)} | ${escapeCell(
+          e.styles?.length ? `.${e.styles.slice(0, 8).join(" .")}${e.styles.length > 8 ? " ..." : ""}` : "",
+        )} |`,
+    )
     .join("\n");
-  return `| Name | File | Signature | Doc |\n| --- | --- | --- | --- |\n${body}\n`;
+  return `| Name | File | Signature | Doc | Styles |\n| --- | --- | --- | --- | --- |\n${body}\n`;
 }
 
 function renderMarkdown(entries: CatalogEntry[]): string {
