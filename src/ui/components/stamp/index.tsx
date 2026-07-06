@@ -1,8 +1,9 @@
 /**
- * Stamp - the ink-bordered button with the hard offset shadow (transcribed 1:1 from
- * src/ui/index.html's .topbtn rule: 3px ink border, 3px hard offset shadow, hover-lift to -2,-2
- * with the shadow growing to 5px, active press flattens to 0). This is the shell's one button skin;
- * every top-strip and dialog action renders through it.
+ * Stamp - the shell's one button skin: the canonical global `.stamp` (theme/tokens.css) supplies the
+ * ink border, the hard offset shadow cast in --ink, and the beloved rest/hover-lift/press interaction;
+ * this module adds only the typography and fill. Composed, not duplicated - the shadow stays theme-true
+ * (cream on the dark forge, ink on paper) so the button never flattens into an invisible rectangle.
+ * Every top-strip and dialog action renders through it.
  */
 import { useMemo } from "react";
 import type { JSX, ReactNode } from "react";
@@ -37,7 +38,7 @@ export function Stamp({
     <button
       id={id}
       type={type}
-      className={styles.stamp}
+      className={`stamp ${styles.topbtn}`}
       style={style}
       onClick={onClick}
       disabled={disabled}

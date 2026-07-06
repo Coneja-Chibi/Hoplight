@@ -101,13 +101,7 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 #search input::placeholder{color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;font-size:.62rem}
 #search:focus-within{box-shadow:3px 3px 0 0 var(--edge)}
 #topact{display:flex;align-items:center;align-self:center;gap:.5rem;flex:none;padding:0 .4rem}
-.topbtn{display:flex;align-items:center;gap:.4rem;font-family:var(--font-big);font-weight:800;
-  font-size:.625rem;letter-spacing:.13em;text-transform:uppercase;color:var(--text);
-  background:var(--chrome);border:3px solid var(--edge);box-shadow:3px 3px 0 0 var(--edge);
-  padding:.45rem .7rem;cursor:pointer;transition:transform .1s ease-out,box-shadow .1s ease-out}
-.topbtn:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
-.topbtn:active{transform:translate(3px,3px);box-shadow:0 0 0 0 var(--edge)}
-.topbtn svg{display:block}
+/* the stamp skin now lives on the composed global .stamp + Stamp component dress (no dead .topbtn here) */
 #themeBtn{width:2.35rem;height:2.35rem;padding:0;justify-content:center}
 
 /* ───────── MAIN (tabs + canvas) ───────── */

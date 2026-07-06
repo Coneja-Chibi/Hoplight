@@ -1,8 +1,11 @@
 /**
- * Stamp styles - transcribed 1:1 from src/ui/index.html's .topbtn rule (colors already swapped to
- * tokens there), same border/shadow/spacing/transition values.
+ * Stamp dress - ONLY this button's typography + fill. The border, the hard offset shadow, and the
+ * beloved rest/hover-lift/press interaction come from the canonical global `.stamp` (theme/tokens.css)
+ * so they stay theme-correct: that shadow is cast in --ink (cream on the dark forge), which is why the
+ * button reads as a struck stamp instead of an invisible black-on-black rectangle. Never re-declare
+ * border/shadow here - one stamp interaction, one place.
  */
-.stamp {
+.topbtn {
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -13,26 +16,14 @@
   text-transform: uppercase;
   color: var(--text);
   background: var(--chrome);
-  border: 3px solid var(--edge);
-  box-shadow: 3px 3px 0 0 var(--edge);
   padding: 0.45rem 0.7rem;
   cursor: pointer;
-  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
 }
-.stamp:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: 5px 5px 0 0 var(--edge);
+.topbtn svg {
+  display: block; /* kill the inline-svg baseline gap so the icon sits centered */
 }
-.stamp:active:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 0 var(--edge);
-}
-.stamp:disabled {
+.topbtn:disabled {
   opacity: 0.45;
   cursor: default;
-}
-@media (prefers-reduced-motion: reduce) {
-  .stamp {
-    transition: none;
-  }
+  pointer-events: none; /* also blocks the global .stamp hover-lift on a dead control */
 }

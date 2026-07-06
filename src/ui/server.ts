@@ -268,7 +268,10 @@ export function createHandler(
         external: REACT_EXTERNALS,
       });
       if (!built.success) return err("boot bundle failed", 500);
-      return new Response(await built.outputs[0]!.text(), { headers: { "content-type": "text/javascript" } });
+      // the shell's own CSS Modules (Stamp, dialogs, tags) ride in the boot bundle as separate css
+      // artifacts; without this they serve style-less in dev while the packaged exe (bundleBrowser)
+      // injects - the unstyled-Import-stamp split. Boot goes through the SAME injector now.
+      return new Response(await withCssInjected(built.outputs), { headers: { "content-type": "text/javascript" } });
     }
     if (p.startsWith("/vendor/") && p.endsWith(".js")) {
       const name = p.slice("/vendor/".length, -".js".length);
