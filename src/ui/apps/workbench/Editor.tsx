@@ -815,6 +815,36 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       case "greetings": return greetingsBody;
       case "background": return backgroundBody;
       case "spotlight": return spotlightBody;
+      case "list": {
+        const items = strArr(readPath(draft, m.path));
+        return (
+          <div className={styles.tags}>
+            {items.map((it) => (
+              <button
+                key={it}
+                type="button"
+                className={styles.tag}
+                style={{ color: "var(--text-dim)", borderColor: "var(--seam)", background: "transparent" }}
+                title={`Remove ${it}`}
+                onClick={() => setField(m.path, items.filter((x) => x !== it))}
+              >
+                {it} <i>x</i>
+              </button>
+            ))}
+            <input
+              className={styles.tagIn}
+              placeholder="+ add, enter"
+              onKeyDown={(e) => {
+                if (e.key !== "Enter") return;
+                const v = e.currentTarget.value.trim();
+                if (v === "") return;
+                if (!items.includes(v)) setField(m.path, [...items, v]);
+                e.currentTarget.value = "";
+              }}
+            />
+          </div>
+        );
+      }
     }
   };
 
@@ -879,7 +909,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const dossierValue = (m: FieldModule): string => {
     const raw = readPath(draft, m.path);
     if (typeof raw === "string") return snippet(raw);
-    if (Array.isArray(raw)) return m.kind === "tags" ? strArr(raw).join(" · ") : `${raw.length} set`;
+    if (Array.isArray(raw)) return m.kind === "tags" || m.kind === "list" ? strArr(raw).join(" · ") : `${raw.length} set`;
     if (raw !== null && typeof raw === "object") return "set";
     return "";
   };
