@@ -38,6 +38,17 @@ import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
+const PREF_SECTION_SCALES = "editor.sectionScales";
+
+/** tolerant reader for the app-wide per-section scale map (bad entries drop, never throw). */
+const parseScales = (v: unknown): Record<string, number> => {
+  if (v === null || typeof v !== "object" || Array.isArray(v)) return {};
+  const out: Record<string, number> = {};
+  for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+    if (typeof val === "number" && Number.isFinite(val) && val >= 0.5 && val <= 2) out[k] = val;
+  }
+  return out;
+};
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
 
@@ -181,6 +192,18 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [offTarget, setOffTarget] = useState<OffTarget>(() =>
     ctx.prefs.get(PREF_OFF_TARGET) === "hide" ? "hide" : "dim",
   );
+  // per-section scale, keyed by section id and remembered APP-WIDE (prefs, same as targets), so a
+  // section's size persists across characters, presenters, and fullscreen. 1 = default (unstored).
+  const [sectionScales, setSectionScales] = useState<Record<string, number>>(() => parseScales(ctx.prefs.get(PREF_SECTION_SCALES)));
+  const setSectionScale = (id: string, next: number): void => {
+    setSectionScales((prev) => {
+      const map = { ...prev };
+      if (next === 1) delete map[id];
+      else map[id] = next;
+      ctx.prefs.set(PREF_SECTION_SCALES, map);
+      return map;
+    });
+  };
   const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
   const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
 
@@ -889,7 +912,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         const mods = FIELD_MODULES.filter((m) => m.path.startsWith(`${prefix}.`));
         if (mods.length === 0) return null;
         return (
-          <BentoCard key={prefix} title={label}>
+          <BentoCard
+            key={prefix}
+            title={label}
+            scale={sectionScales[prefix] ?? 1}
+            onScale={(n) => setSectionScale(prefix, n)}
+          >
             {mods.map((m) => (
               <div key={m.id} className={styles.gfield}>
                 <span className={styles.glabel}>

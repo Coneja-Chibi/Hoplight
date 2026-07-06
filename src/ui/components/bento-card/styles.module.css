@@ -90,6 +90,53 @@
   color: #e7e3da;
   border-color: #8f8a9e;
 }
+/* inline per-section scale slider: hard track, square thumb, no glow (house neobrutalist).
+   The % readout doubles as a reset-to-100% button. Token-based (this file's legacy hexes above
+   are the color-guard backlog; new chrome uses tokens). */
+.scale {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.scale input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 54px;
+  height: 3px;
+  background: var(--seam);
+  cursor: ew-resize;
+}
+.scale input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  cursor: ew-resize;
+}
+.scale input[type="range"]::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border-radius: 0;
+  border: none;
+  background: var(--ink);
+  cursor: ew-resize;
+}
+.pct {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  padding: 0;
+  min-width: 2.4em;
+  text-align: right;
+  cursor: pointer;
+}
 .fold {
   margin-left: auto;
   font-family: var(--font-mono);
@@ -99,7 +146,8 @@
   cursor: pointer;
   padding: 0 0.2rem;
 }
-.move + .fold {
+.move + .fold,
+.scale + .fold {
   margin-left: 0.2rem;
 }
 .body {

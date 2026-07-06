@@ -23,11 +23,19 @@ export interface BentoCardProps {
   missing?: string[];
   /** reorder arrows (center prose cards); absent = fixed card */
   onMove?: (dir: -1 | 1) => void;
+  /** per-section scale factor (1 = default); present with onScale to show the inline scale slider */
+  scale?: number;
+  /** called with the next scale when the inline slider moves; absent = no scale control */
+  onScale?: (next: number) => void;
   children: ReactNode;
 }
 
-/** One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. */
-export function BentoCard({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps): JSX.Element | null {
+const SCALE_MIN = 0.75;
+const SCALE_MAX = 1.5;
+
+/** One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. Each card can
+ * carry an inline scale slider (its factor is owned by the caller, remembered app-wide). */
+export function BentoCard({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, scale = 1, onScale, children }: BentoCardProps): JSX.Element | null {
   const [folded, setFolded] = useState(false);
   if (off && offMode === "hide") return null;
   return (
@@ -46,6 +54,23 @@ export function BentoCard({ title, icon, aff, filled, off, offMode = "dim", miss
             <button type="button" onClick={() => onMove(1)} title={`Move ${title} down`}>&#8595;</button>
           </span>
         )}
+        {onScale && (
+          <span className={styles.scale}>
+            <input
+              type="range"
+              min={SCALE_MIN}
+              max={SCALE_MAX}
+              step={0.05}
+              value={scale}
+              onChange={(e) => onScale(Number(e.target.value))}
+              title={`Scale ${title}`}
+              aria-label={`Scale ${title}`}
+            />
+            <button type="button" className={styles.pct} onClick={() => onScale(1)} title={`Reset ${title} to 100%`}>
+              {`${Math.round(scale * 100)}%`}
+            </button>
+          </span>
+        )}
         <button
           type="button"
           className={styles.fold}
@@ -56,7 +81,11 @@ export function BentoCard({ title, icon, aff, filled, off, offMode = "dim", miss
           {folded ? "▸" : "▾"}
         </button>
       </header>
-      {!folded && <div className={styles.body}>{children}</div>}
+      {!folded && (
+        <div className={styles.body} style={scale !== 1 ? { zoom: scale } : undefined}>
+          {children}
+        </div>
+      )}
     </section>
   );
 }
