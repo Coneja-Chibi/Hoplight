@@ -883,8 +883,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     if (raw !== null && typeof raw === "object") return "set";
     return "";
   };
-  // the growing record: every answered module, plus the one being answered now
-  const dossierRows = flowModules.filter((m) => filled(m) || m.id === active.id);
+  // the growing record: every field REACHED so far, in order (filled shows its value, skipped is
+  // marked, the current one is "answering now") - so it grows predictably, never cherry-picked.
+  const dossierRows = flowModules.slice(0, flowAt + 1);
   const entityAccent =
     str(readPath(draft, "presentation.signatureColor")) ||
     strArr(readPath(draft, "presentation.gradientColors"))[0] ||
@@ -959,7 +960,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
                 return (
                   <div key={m.id} className={`${styles.drow}${has ? "" : ` ${styles.drowAwait}`}`}>
                     <span className={styles.dk}>{m.sheetLabel}</span>
-                    <span className={styles.dv}>{has ? dossierValue(m) : "answering now…"}</span>
+                    <span className={styles.dv}>{has ? dossierValue(m) : m.id === active.id ? "answering now…" : "skipped"}</span>
                   </div>
                 );
               })}
