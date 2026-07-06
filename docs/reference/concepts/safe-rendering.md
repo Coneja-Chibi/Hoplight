@@ -35,6 +35,29 @@ never the weaker "it did not pop an alert".
 - Results are memoized (bounded map) keyed on format + raw, so re-rendering an unchanged field does not
   re-run marked + DOMPurify.
 
+## The leaving-gate (external links)
+
+A rendered link is untrusted twice over: it can point anywhere, and its visible text can lie about where
+it points. So no link navigates directly. `RenderBox` intercepts a plain left-click on any rendered
+anchor (`onRenderedClick`) and routes it to a full-window "you are leaving Vaude" page
+(`src/ui/components/leaving-gate`) that shows the REAL destination host and url, and warns when the
+link's text named a different host (`externalLinkInfo.mismatch`). Modified clicks (ctrl/meta/middle) are
+left to native behavior - a deliberate "open anyway".
+
+Because RenderBox (in an app bundle) and the gate (in the shell bundle) are separate bundles, the click
+crosses to the gate as a `window` CustomEvent (`src/ui/_shared/link-gate.ts`), not a shared module - a
+module-scoped bus would split-brain across bundles.
+
+The gate is UX. The enforcement boundary is the server: `POST /api/open` (`src/ui/server.ts`) re-runs
+`safeExternalUrl` (`src/ui/_shared/external-url.ts` - http/https only, normalized) and spawns the OS
+browser with an argv ARRAY (no shell, no command injection). It is POST-only so embedded content cannot
+GET-trigger it, and DOMPurify forbids `<form>`, so rendered content cannot auto-submit one. A click that
+somehow bypasses the gate still cannot open anything the route refuses; `safeExternalUrl` has an
+adversarial unit battery (schemes, whitespace/CRLF, quotes, IDN).
+
+Bare URLs in `plain` fields (a creator or source URL) are linkified by `linkifyEscaped` so they become
+clickable and pass through the same gate.
+
 ## The RenderBox component
 
 Source: `src/ui/components/render-box`. One reusable box with a per-box "render" toggle, default ON. It

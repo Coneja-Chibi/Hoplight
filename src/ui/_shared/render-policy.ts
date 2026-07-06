@@ -33,6 +33,34 @@ const ESC: Readonly<Record<string, string>> = {
  */
 export const escapeHtml = (raw: string): string => raw.replace(/[&<>"']/g, (c) => ESC[c] ?? c);
 
+/** bare http/https URLs inside plain text, so a creator/source URL field becomes a clickable link */
+const BARE_URL = /https?:\/\/[^\s<>"']+/g;
+/** trailing sentence punctuation that should stay text, not ride into the link */
+const TRAILING_PUNCT = /[.,;:!?)\]}]+$/;
+
+/**
+ * Escape plain text AND turn bare http/https URLs within it into safe anchors. Everything is escaped
+ * (a stray `<b>` still reads literally); only matched URLs become links, and their href/text are
+ * escaped too. The anchors carry rel/target as defense in depth, though the render layer intercepts
+ * clicks and routes them through the leaving-gate before any navigation happens. Pure, no DOM.
+ */
+export const linkifyEscaped = (raw: string): string => {
+  let out = "";
+  let last = 0;
+  for (const m of raw.matchAll(BARE_URL)) {
+    const whole = m[0];
+    const start = m.index ?? 0;
+    out += escapeHtml(raw.slice(last, start));
+    const tail = TRAILING_PUNCT.exec(whole)?.[0] ?? "";
+    const link = tail ? whole.slice(0, whole.length - tail.length) : whole;
+    const safe = escapeHtml(link);
+    out += `<a href="${safe}" rel="noopener noreferrer" target="_blank">${safe}</a>${escapeHtml(tail)}`;
+    last = start + whole.length;
+  }
+  out += escapeHtml(raw.slice(last));
+  return out;
+};
+
 /** schemes we allow on an anchor href; everything else (javascript:, data:, vbscript:, file:) is dropped */
 const SAFE_SCHEME = /^(?:https?:|mailto:)/i;
 

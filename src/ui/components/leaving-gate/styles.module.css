@@ -1,0 +1,88 @@
+/* LeavingGate - a full-window takeover (fixed inset 0, above all shell chrome) that reads as a page,
+   not a modal: it fills the viewport and covers the dock/tabs/footer. Neobrutalist card centered on a
+   near-opaque forge scrim. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: rgba(10, 10, 11, 0.94);
+}
+.card {
+  width: 100%;
+  max-width: 34rem;
+  background: #17161d;
+  border: 3px solid #000;
+  border-top: 6px solid var(--rose, #e11d48);
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.55);
+  padding: 1.6rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.kicker {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f2eee5;
+}
+.lede {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #a7a2b3;
+}
+.host {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--rose, #e11d48);
+  word-break: break-all;
+  margin-top: 0.3rem;
+}
+.url {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #8f8a9e;
+  word-break: break-all;
+  padding: 0.5rem 0.6rem;
+  background: #131218;
+  border: 2px solid #2b2833;
+}
+.warn {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #fbbf24;
+  border: 2px solid #7a5a12;
+  background: rgba(251, 191, 36, 0.08);
+  padding: 0.5rem 0.6rem;
+}
+.row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+.back,
+.go {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.5rem 0.9rem;
+}
+.go {
+  color: #faf8f3;
+  background: var(--rose, #e11d48);
+}
+.back:disabled,
+.go:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

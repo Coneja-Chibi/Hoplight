@@ -17,6 +17,7 @@ import { StudioStore } from "../studio/store";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
+import { safeExternalUrl } from "./_shared/external-url";
 import type { PackagedAssets } from "./assets";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
@@ -24,6 +25,26 @@ type AnyEntity = CanonicalEntity<string, unknown>;
 const json = (v: unknown, status = 200): Response =>
   new Response(JSON.stringify(v), { status, headers: { "content-type": "application/json" } });
 const err = (message: string, status = 400): Response => json({ error: message }, status);
+
+/**
+ * Hand a validated http(s) URL to the OS default browser. Spawns with an argv ARRAY (never a shell
+ * string) so a crafted URL cannot inject a command; the caller has already scheme-validated via
+ * safeExternalUrl. The launcher itself is not a boundary (it would open file:// too) - the allowlist
+ * that ran before this is. Fire-and-forget; a failed launch is not worth crashing the request.
+ */
+const openInBrowser = (href: string): void => {
+  const argv =
+    process.platform === "win32"
+      ? ["rundll32", "url.dll,FileProtocolHandler", href]
+      : process.platform === "darwin"
+        ? ["open", href]
+        : ["xdg-open", href];
+  try {
+    Bun.spawn(argv, { stdout: "ignore", stderr: "ignore", stdin: "ignore" });
+  } catch {
+    // a missing launcher on an exotic OS is a degraded experience, not a server fault
+  }
+};
 
 // -- drop-in module discovery (apps AND setup steps share one mechanism) ----------------------------
 
@@ -376,6 +397,18 @@ export function createHandler(
       const entity = await store.read(kind, id);
       return entity ? json(entity) : err("not found", 404);
     }
+    // the leaving-gate's enforcement boundary: open a link in the OS browser. POST-only (so embedded
+    // content cannot GET-trigger it) and re-validated here - the client gate is UX, this is the gate.
+    // Only http/https survive safeExternalUrl; the NORMALIZED href is what we spawn, never the raw body.
+    if (p === "/api/open" && req.method === "POST") {
+      const body = (await req.json().catch(() => null)) as { url?: unknown } | null;
+      const raw = typeof body?.url === "string" ? body.url : "";
+      const href = safeExternalUrl(raw);
+      if (href === null) return err("refused: only http and https links open externally", 400);
+      openInBrowser(href);
+      return new Response(null, { status: 204 });
+    }
+
     if (p === "/api/studio/save" && req.method === "POST") {
       const entity = (await req.json().catch(() => null)) as AnyEntity | null;
       if (!entity) return err("expected a canonical entity");

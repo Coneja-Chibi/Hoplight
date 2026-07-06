@@ -4,7 +4,7 @@
  * render-markup.test.ts (it needs a DOM); this file guards the half that decides what is even allowed.
  */
 import { describe, expect, test } from "bun:test";
-import { capInput, isSafeHref, RENDER_INPUT_CAP } from "./render-policy";
+import { capInput, isSafeHref, linkifyEscaped, RENDER_INPUT_CAP } from "./render-policy";
 
 describe("isSafeHref", () => {
   test("keeps http, https, and mailto", () => {
@@ -25,6 +25,31 @@ describe("isSafeHref", () => {
     expect(isSafeHref("vbscript:msgbox(1)")).toBe(false);
     expect(isSafeHref("file:///etc/passwd")).toBe(false);
     expect(isSafeHref("")).toBe(false);
+  });
+});
+
+describe("linkifyEscaped", () => {
+  test("wraps a bare http/https url in an anchor to itself", () => {
+    const out = linkifyEscaped("see https://janitorai.com/profiles/abc for more");
+    expect(out).toContain('<a href="https://janitorai.com/profiles/abc"');
+    expect(out).toContain(">https://janitorai.com/profiles/abc</a>");
+  });
+
+  test("escapes surrounding text and never interprets it as markup", () => {
+    const out = linkifyEscaped("<b>not bold</b> https://x.com");
+    expect(out).toContain("&lt;b&gt;not bold&lt;/b&gt;");
+    expect(out).not.toContain("<b>");
+  });
+
+  test("leaves trailing sentence punctuation outside the link", () => {
+    const out = linkifyEscaped("go to https://x.com.");
+    expect(out).toContain('href="https://x.com"');
+    expect(out).toContain("</a>.");
+  });
+
+  test("plain text with no url is just escaped, no anchors", () => {
+    expect(linkifyEscaped("just a version 1.2")).toBe("just a version 1.2");
+    expect(linkifyEscaped("a & b < c")).toBe("a &amp; b &lt; c");
   });
 });
 

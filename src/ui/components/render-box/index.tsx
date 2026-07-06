@@ -12,10 +12,25 @@
  * the button only appears where markup actually transforms the text.
  */
 import { useMemo, useState } from "react";
-import type { JSX, ReactNode } from "react";
+import type { JSX, MouseEvent, ReactNode } from "react";
 import { renderMarkup } from "../../_shared/render-markup";
 import type { RenderFormat } from "../../_shared/render-policy";
+import { requestExternal } from "../../_shared/link-gate";
 import styles from "./styles.module.css";
+
+/**
+ * Intercept a plain left-click on a rendered link and route it through the leaving-gate. Modified
+ * clicks (ctrl/meta/middle/shift) are left to native behavior - a deliberate "open anyway", and the
+ * single-window webview has nowhere to spawn a tab regardless. The gate is confirmation; the /api/open
+ * route is the actual guard, so a click that slips past here still cannot open an unsafe target.
+ */
+const onRenderedClick = (e: MouseEvent<HTMLDivElement>): void => {
+  if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const anchor = (e.target as HTMLElement).closest("a");
+  const href = anchor?.getAttribute("href");
+  if (!href) return;
+  if (requestExternal(href, anchor?.textContent ?? "")) e.preventDefault();
+};
 
 interface RenderBoxProps {
   /** the stored field value */
@@ -46,9 +61,9 @@ export function RenderBox({ value, format, children, defaultRendered = true }: R
   const [rendered, setRendered] = useState(defaultRendered);
   const html = useMemo(() => renderMarkup(value, format), [value, format]);
 
-  // plain fields carry no markup: show them as safe text, no toggle to offer
+  // plain fields carry no markup, but a URL in one (creator, source) is linkified and still gated
   if (format === "plain") {
-    return <div className={styles.plain} dangerouslySetInnerHTML={{ __html: html }} />;
+    return <div className={styles.plain} onClick={onRenderedClick} dangerouslySetInnerHTML={{ __html: html }} />;
   }
 
   const empty = value.trim() === "";
@@ -70,7 +85,7 @@ export function RenderBox({ value, format, children, defaultRendered = true }: R
         </button>
       </div>
       {showRendered ? (
-        <div className={styles.out} dangerouslySetInnerHTML={{ __html: html }} />
+        <div className={styles.out} onClick={onRenderedClick} dangerouslySetInnerHTML={{ __html: html }} />
       ) : (
         children ?? <pre className={styles.src}>{value}</pre>
       )}

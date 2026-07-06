@@ -23,6 +23,7 @@ import { TabStrip } from "./TabStrip";
 import { StatusBar } from "./StatusBar";
 import { FollowDialog } from "./FollowDialog";
 import { Menu } from "./Menu";
+import { LeavingGate } from "../components/leaving-gate";
 import { menus, useShellStore, workbenchRecents } from "./store";
 
 type Phase = "loading" | "setup" | "ready";
@@ -200,6 +201,7 @@ export function App(): JSX.Element | null {
       <StatusBar />
       <FollowDialog />
       <Menu />
+      <LeavingGate />
     </div>
   );
 }
