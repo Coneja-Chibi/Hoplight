@@ -919,11 +919,13 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
-  // the editor-wide scale zooms the ENTIRE editor - chrome (tabstrip) and content together - so "make
-  // it smaller" shrinks everything. --a rides along for the entity accent.
+  // the editor-wide scale is a pure TRANSFORM (not zoom, no width compensation) so EVERYTHING shrinks
+  // or grows uniformly - fields, images, text, spacing, chrome - anchored top-left. zoom leaves
+  // percentage-width boxes full size; compensating width would refill and defeat the shrink. Below
+  // 100% the editor gets smaller and frees space; above 100% it grows and the pane scrolls.
   const rootStyle: CSSProperties = {
     ...(entityAccent !== undefined ? { ["--a"]: entityAccent } : {}),
-    ...(editorScale !== 1 ? { zoom: editorScale } : {}),
+    ...(editorScale !== 1 ? { transform: `scale(${editorScale})`, transformOrigin: "top left" } : {}),
   };
   return (
     <div className={styles.root} style={rootStyle}>
