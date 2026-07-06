@@ -32,6 +32,7 @@ async function bundleBrowser(entry: string, external: string[] = REACT_EXTERNALS
 const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
   react: { entry: "vendor/react.ts", external: [] },
   "jsx-runtime": { entry: "vendor/jsx-runtime.ts", external: ["react"] },
+  "jsx-dev-runtime": { entry: "vendor/jsx-dev-runtime.ts", external: ["react"] },
   "react-dom-client": { entry: "vendor/react-dom-client.ts", external: ["react", "react/jsx-runtime"] },
 };
 
