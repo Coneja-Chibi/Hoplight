@@ -55,6 +55,10 @@ export function Dock(): JSX.Element {
   const dockSlim = useShellStore((s) => s.dockSlim);
   const toggleDockSlim = useShellStore((s) => s.toggleDockSlim);
   const goHome = useShellStore((s) => s.goHome);
+  // Discord rule: while pieces are open for editing, the dock is marks-only regardless of the
+  // saved preference (the pref still governs the empty-bench state; the toggle keeps writing it)
+  const editing = useShellStore((s) => s.openPieces.length > 0);
+  const slim = dockSlim || editing;
 
   const body = manifests.filter((m) => !m.dockFoot);
   const foot = manifests.filter((m) => m.dockFoot);
@@ -62,7 +66,7 @@ export function Dock(): JSX.Element {
   const future = body.filter((m) => m.comingSoon);
 
   return (
-    <nav id="dock" className={dockSlim ? "slim" : undefined} aria-label="Apps">
+    <nav id="dock" className={slim ? "slim" : undefined} aria-label="Apps">
       <button id="dockhome" title="Home" aria-label="Home" onClick={goHome}>
         <span className="beam">
           <svg viewBox="0 0 100 100" aria-hidden="true">

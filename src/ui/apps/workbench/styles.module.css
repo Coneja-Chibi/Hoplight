@@ -296,3 +296,15 @@
     flex: 1 1 100%;
   }
 }
+
+/* keep-mounted piece panes: the wrapper fills the stage so the pane inside can actually scroll;
+   hidden panes stay mounted (drafts live in their React state) but take no layout */
+.paneWrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.paneWrapHidden {
+  display: none;
+}

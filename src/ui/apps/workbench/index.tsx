@@ -79,7 +79,9 @@ function CharacterPane({ ctx, piece, hidden }: { ctx: AppContext; piece: StudioE
   }, [piece.id, piece.kind]);
 
   return (
-    <div style={hidden ? { display: "none" } : undefined}>
+    // the wrapper must FILL the stage (flex column, bounded height) or the pane inside can never
+    // scroll - an unstyled block just grows past the stage's overflow:hidden (the unscrollable bug)
+    <div className={hidden ? styles.paneWrapHidden : styles.paneWrap}>
       <PieceFrame ctx={ctx} piece={piece}>
         {entity ? (
           <CharacterEditor entity={entity} api={ctx.api} setStatus={ctx.setStatus} />
@@ -152,6 +154,14 @@ function RecentCard({ ctx, entity }: { ctx: AppContext; entity: StudioEntitySumm
  * nothing when no entity qualifies (empty studio, or everything recent is already an open tab). */
 function RecentsRail({ ctx, entities }: { ctx: AppContext; entities: StudioEntitySummary[] }): JSX.Element | null {
   const [open, setOpen] = useState<boolean>(() => ctx.prefs.get(PREF_RAIL_OPEN) !== false); // default open
+
+  // editing takes the room: whenever the ACTIVE piece changes, the rail folds itself away
+  // (the show button still reopens it; the next piece folds it again)
+  const active = ctx.workbench.active();
+  const activeKey = active ? pieceKey(active.id, active.kind) : "";
+  useEffect(() => {
+    if (activeKey) setOpen(false);
+  }, [activeKey]);
 
   const openKeys = new Set(ctx.workbench.pieces().map((p) => pieceKey(p.id, p.kind)));
   const recent = rankRecents(entities, ctx.workbench.recents(), openKeys, RECENTS_SHOWN);
