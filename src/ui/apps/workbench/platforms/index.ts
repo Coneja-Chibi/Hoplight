@@ -9,9 +9,10 @@ import type { NativeSchema } from "../../../components/native-card";
 import sillytavern from "./sillytavern";
 import rolecall from "./rolecall";
 import marinara from "./marinara";
+import chub from "./chub";
 
 /** every declared platform schema, in lens/build order */
-export const NATIVE_SCHEMAS: readonly NativeSchema[] = [sillytavern, rolecall, marinara];
+export const NATIVE_SCHEMAS: readonly NativeSchema[] = [sillytavern, rolecall, marinara, chub];
 
 /** the native schema for an original key, or undefined when that platform has none declared yet */
 export const nativeSchemaFor = (key: string): NativeSchema | undefined =>
