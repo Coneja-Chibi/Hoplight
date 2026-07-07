@@ -18,9 +18,7 @@ import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-co
 import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
-import { ColorPicker } from "../../components/color-picker";
 import { RenderBox } from "../../components/render-box";
-import { normalizeHex } from "../../_shared/color-math";
 import {
   completionOf,
   deepEq,
@@ -45,6 +43,7 @@ import { TAG_CATEGORY_STYLE } from "./tag-category-style";
 import { OptionCards } from "./controls/option-cards";
 import { PlaybillView } from "./presenters/playbill-view";
 import { BentoView } from "./presenters/bento-view";
+import { GradientControl, PaletteControl } from "./controls/color-controls";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -200,10 +199,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // show here only during onboarding so the tour has a real control to teach. Recomputed each render,
   // so finishing the tour hides them and "Replay tutorials" brings them back.
   const onboarded = hasSeenTour(ctx.prefs.get(tourSeenKey("workbench")));
-  const [palSel, setPalSel] = useState(0); // which palette swatch the picker edits
-  const [palOpen, setPalOpen] = useState(false); // whether the palette picker popover is open
-  const [gradSel, setGradSel] = useState(0); // which gradient stop the picker edits
-  const [gradOpen, setGradOpen] = useState(false); // whether the gradient picker popover is open
 
   useEffect(() => {
     void ctx.api.coverage().then(setCoverage).catch(() => setCoverage([]));
@@ -468,78 +463,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       setField("presentation.gradientColors", []);
     }
   };
-  const gradAt = Math.min(gradSel, Math.max(0, gradient.length - 1));
-  // a single color renders solid; two or more blend left to right (a 1-stop gradient is invalid CSS)
-  const gradCss = gradient.length < 2 ? (gradient[0] ?? "transparent") : `linear-gradient(90deg, ${gradient.join(", ")})`;
-  const gradientBody = (
-    <>
-      <span className={styles.hint}>one color is solid; add up to 3 to blend them into a gradient</span>
-      <div className={styles.palGrid}>
-        {gradient.map((hex, i) => (
-          <button
-            key={i}
-            type="button"
-            className={`${styles.palTile}${i === gradAt && gradOpen ? ` ${styles.palTileOn}` : ""}`}
-            onClick={() => {
-              const closing = i === gradSel && gradOpen;
-              setGradSel(i);
-              setGradOpen(!closing);
-            }}
-            title={hex}
-          >
-            <span className={styles.palChip} style={{ background: hex }} />
-            <span className={styles.palName}>{hex}</span>
-          </button>
-        ))}
-        {gradient.length < 3 && (
-          <button
-            type="button"
-            className={styles.palAdd}
-            onClick={() => {
-              const next = [...gradient, "#e11d48"]; // hardcode-ok: default swatch hex value (data, not theming)
-              setGradient(next);
-              setGradSel(next.length - 1);
-              setGradOpen(true);
-            }}
-          >
-            + add
-          </button>
-        )}
-      </div>
-      {gradient.length === 0 ? (
-        <span className={styles.hint}>no signature color yet - add one, or add up to 3 to blend a gradient</span>
-      ) : (
-        <>
-          <div className={styles.gradBar} style={{ background: gradCss }} />
-          {gradOpen && (
-            <div className={styles.palEdit}>
-              {/* eslint-disable-next-line no-restricted-syntax -- open-gated popover: raw picker edits the one selected gradient stop; SwatchRow is single-value, PaintPicker boxes hex in a Paint */}
-              <ColorPicker
-                value={normalizeHex(gradient[gradAt] ?? "") ?? gradient[gradAt]}
-                onChange={(hex) => setGradient(gradient.map((c, i) => (i === gradAt ? hex : c)))}
-              />
-              <div className={styles.palRow}>
-                <button type="button" className={styles.rm} onClick={() => setGradOpen(false)}>
-                  done
-                </button>
-                <button
-                  type="button"
-                  className={styles.rm}
-                  onClick={() => {
-                    setGradient(gradient.filter((_, i) => i !== gradAt));
-                    setGradSel(Math.max(0, gradAt - 1));
-                    setGradOpen(false);
-                  }}
-                >
-                  remove color
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-    </>
-  );
+  const gradientBody = <GradientControl value={gradient} onChange={setGradient} styles={styles} />;
 
   const palette = ((): { label?: string; name?: string; hex: string }[] => {
     const raw = readPath(draft, "presentation.palette");
@@ -548,77 +472,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   })();
   const setPalette = (rows: { label?: string; name?: string; hex: string }[]): void =>
     setField("presentation.palette", rows.filter((r) => r.hex));
-  const palAt = Math.min(palSel, Math.max(0, palette.length - 1));
-  const palCur = palette[palAt];
-  const paletteBody = (
-    <>
-      <div className={styles.palGrid}>
-        {palette.map((s, i) => (
-          <button
-            key={i}
-            type="button"
-            className={`${styles.palTile}${i === palAt && palOpen ? ` ${styles.palTileOn}` : ""}`}
-            onClick={() => {
-              const closing = i === palSel && palOpen;
-              setPalSel(i);
-              setPalOpen(!closing);
-            }}
-            title={s.name ?? s.label ?? s.hex}
-          >
-            <span className={styles.palChip} style={{ background: s.hex }} />
-            <span className={styles.palName}>{s.name ?? s.label ?? "unnamed"}</span>
-          </button>
-        ))}
-        <button
-          type="button"
-          className={styles.palAdd}
-          onClick={() => {
-            const next = [...palette, { name: "", hex: "#e11d48" }]; // hardcode-ok: default swatch hex value (data, not theming)
-            setPalette(next);
-            setPalSel(next.length - 1);
-            setPalOpen(true);
-          }}
-        >
-          + add
-        </button>
-      </div>
-      {palette.length === 0 ? (
-        <span className={styles.hint}>no palette on this card yet - add a swatch to name a signature color</span>
-      ) : (
-        palOpen && palCur && (
-          <div className={styles.palEdit}>
-            <input
-              className={styles.in}
-              placeholder="Name this swatch (Hair, Eyes, Skin...)"
-              value={palCur.name ?? palCur.label ?? ""}
-              onChange={(e) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, name: e.target.value } : s)))}
-            />
-            {/* eslint-disable-next-line no-restricted-syntax -- open-gated popover: raw picker edits the one selected named swatch; SwatchRow is single-value, PaintPicker boxes hex in a Paint */}
-            <ColorPicker
-              value={normalizeHex(palCur.hex) ?? palCur.hex}
-              onChange={(hex) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, hex } : s)))}
-            />
-            <div className={styles.palRow}>
-              <button type="button" className={styles.rm} onClick={() => setPalOpen(false)}>
-                done
-              </button>
-              <button
-                type="button"
-                className={styles.rm}
-                onClick={() => {
-                  setPalette(palette.filter((_, i) => i !== palAt));
-                  setPalSel(Math.max(0, palAt - 1));
-                  setPalOpen(false);
-                }}
-              >
-                remove swatch
-              </button>
-            </div>
-          </div>
-        )
-      )}
-    </>
-  );
+  const paletteBody = <PaletteControl value={palette} onChange={setPalette} styles={styles} />;
 
   const bgRef = text("presentation.background.ref");
   const backgroundBody = (
