@@ -15,6 +15,8 @@ import { AssetManager, type Asset } from "../asset-manager";
 import { StubEditor } from "../stub-editor";
 import { TrackerSetup } from "../tracker-setup";
 import { Recommendations } from "../recommendations";
+import { BentoCard } from "../bento-card";
+import { MonoTag } from "../mono-tag";
 import styles from "./styles.module.css";
 
 /** an open stub-editor request: what to show while the real content-type editor does not exist yet */
@@ -231,41 +233,47 @@ function fieldControl(
   }
 }
 
+/**
+ * One platform's native fields, rendered as INDIVIDUAL bento cards (one per field, not a wall), each
+ * carrying a small platform pill so it reads as "this field is <platform>-specific" and flows in the
+ * masonry beside the canonical cards.
+ */
 export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Element {
   const [stub, setStub] = useState<Stub | null>(null);
+  const pill = <MonoTag dim>{schema.label}</MonoTag>;
+
+  const body = (f: NativeField): JSX.Element => {
+    if (f.control === "raw-extensions") {
+      const prefix = `${f.path}.`;
+      const handled = [
+        ...schema.fields
+          .filter((o) => o !== f && o.path.startsWith(prefix))
+          .map((o) => o.path.slice(prefix.length))
+          .filter((seg) => !seg.includes(".")),
+        ...(f.hide ?? []),
+      ];
+      return <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />;
+    }
+    return (
+      <>
+        {f.help ? <div className={styles.help}>{f.help}</div> : null}
+        {fieldControl(f, read, write, setStub)}
+      </>
+    );
+  };
+
   return (
-    <section className={styles.card}>
-      <div className={styles.head}>{schema.label} fields</div>
+    <>
       {stub ? (
         <StubEditor title={stub.title} note={stub.note} onClose={() => setStub(null)}>
           {stub.view}
         </StubEditor>
       ) : null}
-      {schema.fields.map((f) => {
-        // the catch-all needs schema context: hide the keys other fields already own
-        if (f.control === "raw-extensions") {
-          const prefix = `${f.path}.`;
-          const handled = [
-            ...schema.fields
-              .filter((o) => o !== f && o.path.startsWith(prefix))
-              .map((o) => o.path.slice(prefix.length))
-              .filter((seg) => !seg.includes(".")), // direct children only
-            ...(f.hide ?? []), // keys handled elsewhere (e.g. canonical fields under this object)
-          ];
-          return (
-            <div className={styles.field} key={f.path}>
-              <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />
-            </div>
-          );
-        }
-        return (
-          <div className={styles.field} key={f.path}>
-            <div className={styles.label}>{f.label}</div>
-            {f.help ? <div className={styles.help}>{f.help}</div> : null}
-            {fieldControl(f, read, write, setStub)}
-          </div>
-        );
-      })}
-    </section>
+      {schema.fields.map((f) => (
+        <BentoCard key={f.path} title={f.label} aff={pill}>
+          {body(f)}
+        </BentoCard>
+      ))}
+    </>
   );
 }
