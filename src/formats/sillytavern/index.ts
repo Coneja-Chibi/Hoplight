@@ -1,7 +1,7 @@
 /**
  * SillyTavern character-card adapter (V1/V2/V3, PNG or JSON).
  * Version detection adapted from RoleCall's parse-v2.ts; field mapping is the shared
- * Tavern mapping (../_shared/tavern-fields). Lossless: the whole original card rides in escrow.
+ * Tavern mapping (../_shared/tavern-fields). Lossless: the whole original card rides in original.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
@@ -28,7 +28,7 @@ type Variant = "v2" | "v3" | "v1" | "flat";
 
 const VARIANTS: readonly Variant[] = ["v2", "v3", "v1", "flat"];
 
-/** Read the round-trip variant back out of untyped escrow, coercing anything unknown to "v2". */
+/** Read the round-trip variant back out of untyped original, coercing anything unknown to "v2". */
 function toVariant(v: unknown): Variant {
   return typeof v === "string" && (VARIANTS as readonly string[]).includes(v) ? (v as Variant) : "v2";
 }
@@ -100,7 +100,7 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(det.data.name),
       body,
-      escrow: {
+      original: {
         // a PNG card's pixels are authored art: keep the carrier as the raw-bytes twin
         sillytavern: { raw: json, unmapped: { variant: det.variant }, sourceMedia: pngSourceMedia(input.bytes) },
       },
@@ -108,7 +108,7 @@ const adapter: CharacterAdapter = {
   },
 
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
-    const esc = entity.escrow?.sillytavern;
+    const esc = entity.original?.sillytavern;
     const variant = toVariant(esc?.unmapped?.["variant"]);
     const rawCard = esc?.raw as Record<string, unknown> | undefined;
 
@@ -121,7 +121,7 @@ const adapter: CharacterAdapter = {
     applyBodyToData(base, entity.body);
 
     // Re-embed referenced lorebooks into the card's one character_book slot (shared by every CCv3
-    // card writer), sourcing each book's twin from ITS OWN escrow, not this card's stale copy.
+    // card writer), sourcing each book's twin from ITS OWN original, not this card's stale copy.
     if (context?.lorebooks?.length) embedCharacterBook(base as Record<string, unknown>, context.lorebooks);
 
     let out: unknown;

@@ -19,12 +19,12 @@ const adapter: CharacterAdapter = {
     return 0;
   },
 
-  /** read the file INTO the canonical model; stash originals + unmapped fields in escrow */
+  /** read the file INTO the canonical model; stash originals + unmapped fields in original */
   toCanonical() {
     throw new Error("template is not a real format - copy this folder and implement it");
   },
 
-  /** write the canonical entity OUT to your format; re-emit your escrow for round-trip */
+  /** write the canonical entity OUT to your format; re-emit your original for round-trip */
   fromCanonical() {
     return { text: "", suggestedExtension: "txt" };
   },

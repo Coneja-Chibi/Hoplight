@@ -4,10 +4,10 @@
  * scanSources groups) to the flat canonical LorebookEntry and back. Field shapes verified against
  * VAUDEVILLE packages/lorebook schemas.ts + serializer.ts + parser.ts (interop facts only).
  *
- * Lossless by escrow-of-raw: the whole parsed RoleCallExportV1 rides in escrow, so raw-only carriers
+ * Lossless by original-of-raw: the whole parsed RoleCallExportV1 rides in original, so raw-only carriers
  * the canonical body does not model (tree, exportDate, per-entry unsupportedFields, trigger runtime
  * junk) survive a round-trip verbatim. fromCanonical re-projects the canonical body onto a clone of
- * the raw wire, matching entries by id; a from-scratch canonical (no escrow) serializes fresh defaults.
+ * the raw wire, matching entries by id; a from-scratch canonical (no original) serializes fresh defaults.
  *
  * NOTE: standalone codec, not yet wired into the character-only registry. Conforming it to the
  * entity-generic FormatAdapter (task #5 wiring step) is additive: id/label/outputExtensions + a type.
@@ -26,7 +26,7 @@ import { parseCharacterFilter } from "../_shared/lore-enums";
 
 const RC_LOREBOOK_SCHEMA_PREFIX = "1.0.0";
 
-/** The RC v1 export wire, kept loose: we read known fields and carry the rest in escrow. */
+/** The RC v1 export wire, kept loose: we read known fields and carry the rest in original. */
 interface RcExportRaw {
   schemaVersion?: unknown;
   exportDate?: unknown;
@@ -236,7 +236,7 @@ function entryToWire(e: LorebookEntry, raw: Record<string, unknown> | undefined)
   else delete wire.sideEffects;
   if (e.metadata != null) wire.metadata = e.metadata;
   else delete wire.metadata;
-  // de-escrowed ST-origin toggles re-emit into the unsupportedFields bag (other bag keys ride the clone)
+  // de-kept ST-origin toggles re-emit into the unsupportedFields bag (other bag keys ride the clone)
   const de: [string, unknown][] = [
     ["vectorized", e.vectorized],
     ["groupOverride", e.groupOverride],
@@ -320,12 +320,12 @@ const rolecallLorebook: LorebookAdapter = {
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      escrow: { "rolecall-lorebook": { raw } },
+      original: { "rolecall-lorebook": { raw } },
     };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
-    const raw = entity.escrow?.["rolecall-lorebook"]?.raw as RcExportRaw | undefined;
+    const raw = entity.original?.["rolecall-lorebook"]?.raw as RcExportRaw | undefined;
     const rawBook = (raw?.lorebook ?? undefined) as Record<string, unknown> | undefined;
     const out = {
       schemaVersion: isRcVersion(raw?.schemaVersion) ? (raw?.schemaVersion as string) : RC_LOREBOOK_SCHEMA_PREFIX,

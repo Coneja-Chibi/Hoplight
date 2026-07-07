@@ -5,7 +5,7 @@
  * RENDERING of what the engine already knows; no format logic lives here.
  */
 import type { CanonicalEntity } from "../core/canonical";
-import { primaryEscrowRaw } from "../core/canonical";
+import { primaryOriginalRaw } from "../core/canonical";
 import { extractCharacterBook } from "../formats/_shared/character-book";
 import type { CharacterBody } from "../entities/character/schema";
 
@@ -51,7 +51,7 @@ export function buildReceipt(entity: AnyEntity, formatId: string): Receipt {
 
   if (entity.kind === "character") {
     const body = entity.body as CharacterBody;
-    const embedded = extractCharacterBook(primaryEscrowRaw(entity.escrow));
+    const embedded = extractCharacterBook(primaryOriginalRaw(entity.original));
     if (embedded && embedded.body.entries.length > 0) {
       extras.push(
         `It brought its own lorebook (${embedded.body.entries.length} ${

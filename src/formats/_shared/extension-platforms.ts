@@ -3,14 +3,14 @@
  * CCv2/v3 `extensions` bag (Lumiverse, Marinara, Chub, ...) or a closed site export (Character.AI,
  * Crushon, Janitor, Pygmalion) rather than shipping their own character adapter. They are lensable so a
  * creator can TARGET them and see which canonical fields carry; each platform's authored fields with no
- * canonical home ride escrow and are named in `escrowFields` for honest exposure. Merged into
+ * canonical home ride original and are named in `originalFields` for honest exposure. Merged into
  * /api/coverage. Grounded in the source-code / deep-web re-audit (design/EXTENSIONS-CENSUS.md).
  */
 import type { CoverageEntry } from "../../core/coverage";
 
 export interface ExtensionPlatform extends CoverageEntry {
-  /** platform-specific authored fields with no canonical home yet (ride escrow), named for honesty */
-  escrowFields?: string[];
+  /** platform-specific authored fields with no canonical home yet (ride original), named for honesty */
+  originalFields?: string[];
 }
 
 export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
@@ -23,7 +23,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "greetings.firstMessage", "greetings.alternateGreetings", "examples.exampleMessages",
       "discovery.tags", "attribution.creator", "attribution.creatorNotes", "worldName", "knowledgeRefs",
     ],
-    escrowFields: ["pygmalion_id"],
+    originalFields: ["pygmalion_id"],
   },
   {
     id: "lumiverse",
@@ -35,7 +35,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "discovery.tags", "attribution.creator", "attribution.creatorNotes", "knowledgeRefs",
       "behavior.regexScripts", "media.portrait", "media.assets", "media.sprite",
     ],
-    escrowFields: [
+    originalFields: [
       "expressions (label->sprite maps)", "expression_groups (multi-char)", "alternate_fields",
       "alternate_avatars", "world_books (bundled)", "entry.vectorized", "entry.group_override",
       "entry.automation_id",
@@ -52,7 +52,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "presentation.palette", "media.portrait", "media.sprite",
       "settings.talkativeness", "worldName", "knowledgeRefs",
     ],
-    escrowFields: [
+    originalFields: [
       "backstory", "rpgStats.enabled", "rpgStats.attributes[] (STR/DEX/...)", "rpgStats.hp {value,max}",
       "rpgStats.pools[] {name,value,max,color}",
     ],
@@ -67,7 +67,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "media.portrait", "media.assets", "presentation.background", "prompts.depthInjections",
       "knowledgeRefs",
     ],
-    escrowFields: ["related_lorebooks", "custom_css", "full_path", "id", "expressions", "vectorized"],
+    originalFields: ["related_lorebooks", "custom_css", "full_path", "id", "expressions", "vectorized"],
   },
   {
     id: "characterai",
@@ -77,7 +77,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "persona.voice", "persona.imagePrompt", "greetings.firstMessage", "discovery.tags",
       "media.portrait", "attribution.creator",
     ],
-    escrowFields: ["starter_prompts", "visibility", "copyable", "img_gen_enabled", "songs"],
+    originalFields: ["starter_prompts", "visibility", "copyable", "img_gen_enabled", "songs"],
   },
   {
     id: "crushon",
@@ -87,7 +87,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "greetings.firstMessage", "examples.exampleMessages", "discovery.tags", "discovery.genre",
       "discovery.rating", "media.portrait", "presentation.background",
     ],
-    escrowFields: ["gender", "visibility"],
+    originalFields: ["gender", "visibility"],
   },
   {
     id: "janitor",
@@ -99,6 +99,6 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "attribution.updatedAt", "media.portrait", "knowledgeRefs", "behavior.triggerScripts",
       "behavior.virtualScript",
     ],
-    escrowFields: ["allow_proxy", "is_public", "definition_visibility", "advanced script (JS)"],
+    originalFields: ["allow_proxy", "is_public", "definition_visibility", "advanced script (JS)"],
   },
 ];

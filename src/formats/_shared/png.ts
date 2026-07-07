@@ -33,7 +33,7 @@ function safeExtract(png: Uint8Array): ReturnType<typeof extract> {
 }
 
 /**
- * The escrow sourceMedia twin for a PNG-carried card: the pixels are authored art, so every
+ * The original sourceMedia twin for a PNG-carried card: the pixels are authored art, so every
  * Tavern-lineage PNG adapter keeps the carrier. Returns undefined for non-PNG input (tolerant).
  */
 export function pngSourceMedia(bytes: Uint8Array | undefined): { b64: string; mime: string } | undefined {

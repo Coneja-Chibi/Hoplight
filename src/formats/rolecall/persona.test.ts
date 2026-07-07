@@ -132,7 +132,7 @@ test("rcpersona edit: mutating brief/content/rating reaches the wire", () => {
   expect(out.data.description).toBe("New blurb.");
   expect(out.data.content).toBe("Rewritten voice.");
   expect(out.data.metadata.content_rating).toBe("all_hours");
-  expect(out.data.metadata.tags).toEqual(["fantasy", "adventurer"]); // escrow residue survives
+  expect(out.data.metadata.tags).toEqual(["fantasy", "adventurer"]); // original residue survives
 });
 
 // -- shape 2: RC V2-export --------------------------------------------------------------------------
@@ -180,7 +180,7 @@ test("rc-v2-export edit: section + identity edits re-fold into their exact wire 
 
 test("cross-shape: an rc-v2-export persona re-emits as native rcpersona when its twin is absent", () => {
   const ent = adapter.toCanonical(asText(rcV2Export()));
-  delete ent.escrow; // simulate a cross-format/authored entity with no twin
+  delete ent.original; // simulate a cross-format/authored entity with no twin
   const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
   expect(out.spec).toBe("rolecall_persona");
   expect(out.data.name).toBe("Ada");

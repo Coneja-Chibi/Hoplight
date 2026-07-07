@@ -10,7 +10,7 @@
  * in the inward-pointing core.
  */
 import type { AdapterInput, AdapterOutput, FormatAdapter } from "./core";
-import { primaryEscrowRaw } from "./core";
+import { primaryOriginalRaw } from "./core";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
 import { extractCharacterBook } from "./formats/_shared/character-book";
 
@@ -34,7 +34,7 @@ export function convertFile(src: FormatAdapter, target: FormatAdapter, input: Ad
     // via its own adapter override; every CCv3-lineage card uses the shared extractor.
     const lorebook = src.extractLorebook
       ? src.extractLorebook(entity)
-      : extractCharacterBook(primaryEscrowRaw(entity.escrow));
+      : extractCharacterBook(primaryOriginalRaw(entity.original));
     const lorebooks = lorebook ? [lorebook] : [];
     if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
     const out = target.fromCanonical(entity, lorebooks.length > 0 ? { lorebooks } : undefined);

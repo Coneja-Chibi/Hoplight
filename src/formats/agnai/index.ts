@@ -3,7 +3,7 @@
  * its persona is structured (kind + attributes: boostyle/wpp/sbf/attributes/text), which is exactly
  * the canonical `persona.structured` field. Schema read from Agnai source (common/types/library.ts,
  * common/adapters.ts; AGPL-3.0) as interop facts only - no Agnai code is copied. Lossless: the whole
- * original card rides in escrow.
+ * original card rides in original.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import coverage from "./coverage";
@@ -111,7 +111,7 @@ const spriteToWire = (s: Sprite): Record<string, unknown> => ({
   ...(s.hairColor !== undefined ? { hairColor: s.hairColor } : {}),
 });
 
-/** imageSettings AFFIXES only (authored text); sampler/provider knobs stay on the twin (escrow). */
+/** imageSettings AFFIXES only (authored text); sampler/provider knobs stay on the twin (original). */
 function readImagePrompt(v: unknown): ImagePrompt | undefined {
   if (!isRec(v)) return undefined;
   const out: ImagePrompt = {};
@@ -197,7 +197,7 @@ function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
   if (depth) base.insert = { depth: depth.depth, prompt: depth.text };
   base.persona = toAgnaiPersona(b);
 
-  // Authored config blocks pulled out of escrow: write only when set (absence leaves the twin alone).
+  // Authored config blocks pulled out of original: write only when set (absence leaves the twin alone).
   set("culture", b.identity.culture);
   set("visualType", b.media.visualKind);
   if (b.media.sprite) base.sprite = spriteToWire(b.media.sprite);
@@ -233,7 +233,7 @@ function baseCard(): AgnaiCard {
 
 /**
  * Re-embed a linked lorebook into the card's native `characterBook` (a MemoryBook). Only writes when a
- * book is present, never injects an empty one. The book twin-overlays its own `agnai-lorebook` escrow so
+ * book is present, never injects an empty one. The book twin-overlays its own `agnai-lorebook` original so
  * a same-format re-embed is byte-identical; a foreign book (no twin) full-encodes. `characterBook` is
  * singular, and `convertFile` links 0 or 1, so the first book is the one. A future bundle layer that
  * passes N will need deliberate merge semantics (split boundaries) - it adds them then, not here.
@@ -241,7 +241,7 @@ function baseCard(): AgnaiCard {
 function applyLorebook(card: AgnaiCard, lorebooks?: CanonicalLorebook[]): void {
   const book = lorebooks?.[0];
   if (!book) return;
-  const twin = book.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
+  const twin = book.original?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
   card.characterBook = canonicalToMemoryBook(book.body, twin);
 }
 
@@ -282,19 +282,19 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(card.name),
       body: cardToBody(card),
-      escrow: { agnai: { raw: card } },
+      original: { agnai: { raw: card } },
     };
   },
 
   /** Pull Agnai's native embedded `characterBook` (a MemoryBook) as a linked canonical lorebook. */
   extractLorebook(entity: CanonicalCharacter): CanonicalLorebook | null {
-    const raw = entity.escrow?.agnai?.raw as AgnaiCard | undefined;
+    const raw = entity.original?.agnai?.raw as AgnaiCard | undefined;
     const book = coerceMemoryBook(raw?.characterBook);
     return book ? memoryBookToCanonical(book) : null;
   },
 
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
-    const raw = entity.escrow?.agnai?.raw as AgnaiCard | undefined;
+    const raw = entity.original?.agnai?.raw as AgnaiCard | undefined;
     const card = raw ? structuredClone(raw) : baseCard();
     applyBodyToCard(card, entity.body);
     applyLorebook(card, context?.lorebooks);

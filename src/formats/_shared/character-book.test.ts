@@ -89,7 +89,7 @@ function makeCardWithBook() {
   };
 }
 
-/** A standalone ST worldbook - a lorebook whose escrow key is `sillytavern-lorebook`, NOT
+/** A standalone ST worldbook - a lorebook whose original key is `sillytavern-lorebook`, NOT
  * `character-book`. Re-embedding it exercises the from-scratch (no-twin) encode path that
  * cross-format card conversion actually hits. */
 function makeWorldbook() {
@@ -182,13 +182,13 @@ test("characterBookToLorebook maps CCv3 names + reads ST extras from extensions 
   expect(e1.triggerMode).toBe("simple");
 });
 
-test("extractCharacterBook produces a CanonicalLorebook carrying the raw book in its own escrow", () => {
+test("extractCharacterBook produces a CanonicalLorebook carrying the raw book in its own original", () => {
   const lb = extractCharacterBook(makeCardWithBook())!;
   expect(lb.kind).toBe("lorebook");
   expect(lb.id).toBe("aetheria-lore");
   expect(lb.body.entries).toHaveLength(2);
-  // raw-only residue survives in the lorebook's OWN escrow (so a standalone write keeps it)
-  const raw = lb.escrow?.["character-book"]?.raw as ReturnType<typeof makeCardWithBook>["data"]["character_book"];
+  // raw-only residue survives in the lorebook's OWN original (so a standalone write keeps it)
+  const raw = lb.original?.["character-book"]?.raw as ReturnType<typeof makeCardWithBook>["data"]["character_book"];
   expect((raw.entries[0]!.extensions as { vectorized?: boolean }).vectorized).toBe(true);
   // a card with no book extracts nothing
   expect(extractCharacterBook({ data: { name: "x" } })).toBe(null);
@@ -207,7 +207,7 @@ test("the character adapter round-trips the whole card (embedded book + chub bag
 
 test("GATING: a no-twin lorebook re-embeds into data.character_book, encoded from body alone", () => {
   const lb = stWorldbook.toCanonical(asText(makeWorldbook()));
-  expect(lb.escrow?.["character-book"]).toBeUndefined(); // no character_book twin: from-scratch path
+  expect(lb.original?.["character-book"]).toBeUndefined(); // no character_book twin: from-scratch path
   const character = stCharacter.toCanonical(asText(bareCard()));
 
   const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
@@ -247,7 +247,7 @@ test("a no-twin re-embed re-parses back to the same canonical lorebook (round-tr
 
 test("a same-dialect (twin present) re-embed overlays byte-identically when unedited", () => {
   const card = makeCardWithBook();
-  const lb = extractCharacterBook(card)!; // carries the character_book twin in escrow
+  const lb = extractCharacterBook(card)!; // carries the character_book twin in original
   const character = stCharacter.toCanonical(asText(card));
   const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
   expect(back.data.character_book).toEqual(card.data.character_book);
@@ -263,23 +263,23 @@ test("an edited lorebook entry re-embeds the change while raw-only residue survi
   expect(back.data.character_book.entries[0].extensions.vectorized).toBe(true); // untouched residue
 });
 
-// -- Real-corpus de-escrow: the official Seraphina.png embedded 4-entry book carries the ST-extended
+// -- Real-corpus de-original: the official Seraphina.png embedded 4-entry book carries the ST-extended
 // per-entry fields (vectorized, group_override, use_group_scoring, automation_id, display_index) that
-// were escrow-only residue. Prove they now reach first-class canonical slots AND survive an edit to the
-// wire. Twin PRESENT (extract the book so its escrow twin exists), else a dropped edit hides behind it. --
+// were original-only residue. Prove they now reach first-class canonical slots AND survive an edit to the
+// wire. Twin PRESENT (extract the book so its original twin exists), else a dropped edit hides behind it. --
 
 const seraphinaPng = new Uint8Array(
   readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
 );
 
-/** Extract Seraphina's character + its embedded book (with the book's escrow twin) for de-escrow tests. */
+/** Extract Seraphina's character + its embedded book (with the book's original twin) for de-original tests. */
 function seraphina(): { character: CanonicalCharacter; lb: CanonicalLorebook } {
   const character = stCharacter.toCanonical({ bytes: seraphinaPng });
-  const lb = extractCharacterBook(character.escrow?.sillytavern?.raw)!;
+  const lb = extractCharacterBook(character.original?.sillytavern?.raw)!;
   return { character, lb };
 }
 
-test("real Seraphina book: ST-extended entry fields de-escrow to first-class canonical slots", () => {
+test("real Seraphina book: ST-extended entry fields de-original to first-class canonical slots", () => {
   const { lb } = seraphina();
   const e0 = lb.body.entries[0]!;
   // present-and-read (Seraphina authored these at their defaults; the point is they are now VISIBLE)
@@ -292,7 +292,7 @@ test("real Seraphina book: ST-extended entry fields de-escrow to first-class can
   expect(new Set(lb.body.entries.map((e) => e.sortOrder)).size).toBe(1); // all equal -> not regenerable from it
 });
 
-test("real Seraphina book: editing a de-escrowed field reaches the wire (twin present, not dropped)", () => {
+test("real Seraphina book: editing a de-kept field reaches the wire (twin present, not dropped)", () => {
   const { character, lb } = seraphina();
   lb.body.entries[0]!.vectorized = true; // twin holds false
   lb.body.entries[0]!.groupOverride = true; // twin holds false
@@ -306,9 +306,9 @@ test("real Seraphina book: editing a de-escrowed field reaches the wire (twin pr
 
 test("real Seraphina book: an unedited re-embed leaves the character_book byte-identical", () => {
   const { character, lb } = seraphina();
-  const rawBook = (character.escrow?.sillytavern?.raw as { data: { character_book: unknown } }).data.character_book;
+  const rawBook = (character.original?.sillytavern?.raw as { data: { character_book: unknown } }).data.character_book;
   const back = JSON.parse(stCharacter.fromCanonical(character, { lorebooks: [lb] }).text ?? "");
-  // de-escrowing the fields must NOT perturb the twin when nothing was edited
+  // de-keeping the fields must NOT perturb the twin when nothing was edited
   expect(back.data.character_book).toEqual(rawBook);
 });
 

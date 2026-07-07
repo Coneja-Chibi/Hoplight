@@ -7,7 +7,7 @@
  * Field maps from specs/formats/personas.md, pinned by RC's own persona-roundtrip tests (RC is ours;
  * reuse is free). The load-bearing rule: `brief` (short blurb) and `content` (injected {{user}} text)
  * must never swap - every source has some short/long split and swapping them was a live RC bug.
- * Lossless: the whole original rides in escrow; unedited fields re-emit from the twin.
+ * Lossless: the whole original rides in original; unedited fields re-emit from the twin.
  */
 import type { PersonaAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
@@ -101,7 +101,7 @@ function rcpersonaToBody(data: Rec): PersonaBody {
     brief: nonEmpty(data.description),
     content,
     sections,
-    traits: undefined, // metadata.tags is a related-but-separate concept (open question); it rides escrow
+    traits: undefined, // metadata.tags is a related-but-separate concept (open question); it rides original
     attribution:
       meta.creator || meta.version || meta.created_at || meta.source
         ? {
@@ -267,12 +267,12 @@ const adapter: PersonaAdapter = {
       kind: "persona",
       id: canonicalId(body.name),
       body,
-      escrow: { "rolecall-persona": { raw: det.root, unmapped: { shape: det.shape } } },
+      original: { "rolecall-persona": { raw: det.root, unmapped: { shape: det.shape } } },
     };
   },
 
   fromCanonical(entity: CanonicalPersona): AdapterOutput {
-    const esc = entity.escrow?.["rolecall-persona"];
+    const esc = entity.original?.["rolecall-persona"];
     const raw = isRec(esc?.raw) ? (esc.raw as Rec) : undefined;
     const shape = esc?.unmapped?.["shape"];
     // Same-shape round-trip re-emits the source shape from its twin; anything else (cross-format,

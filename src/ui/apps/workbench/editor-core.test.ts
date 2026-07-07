@@ -65,7 +65,7 @@ test("applyEdits sets values, deletes empties, and NEVER touches unedited fields
     identity: { name: "Lucio", description: "old words" },
     persona: { personality: "wry" },
     behavior: { virtualScript: "opaque payload" },
-    escrowish: { deep: { blob: [1, 2, 3] } },
+    originalish: { deep: { blob: [1, 2, 3] } },
   };
   const edits = new Map([
     ["description", "new words"],
@@ -76,7 +76,7 @@ test("applyEdits sets values, deletes empties, and NEVER touches unedited fields
   expect("personality" in (out.persona as Record<string, unknown>)).toBe(false);
   // the no-data-loss property: everything untouched is byte-identical
   expect(out.behavior).toEqual(body.behavior);
-  expect(out.escrowish).toEqual(body.escrowish);
+  expect(out.originalish).toEqual(body.originalish);
   expect(getAtPath(out, ["identity", "name"])).toBe("Lucio");
   // and the input body was not mutated
   expect(getAtPath(body, ["identity", "description"])).toBe("old words");

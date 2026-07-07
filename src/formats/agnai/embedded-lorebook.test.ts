@@ -66,7 +66,7 @@ test("container-invariance: standalone memory book == embedded characterBook, ca
 test("agnai -> agnai round-trips a card WITH its book byte-identical", () => {
   const src = cardWithBook();
   const { out } = convertFile(adapter, adapter, asText(src));
-  expect(JSON.parse(out.text ?? "")).toEqual(src); // characterBook re-emits via its escrow twin
+  expect(JSON.parse(out.text ?? "")).toEqual(src); // characterBook re-emits via its original twin
 });
 
 test("cross-format re-embed: a foreign lorebook writes into card.characterBook (no twin, full encode)", () => {
@@ -77,7 +77,7 @@ test("cross-format re-embed: a foreign lorebook writes into card.characterBook (
     },
     name: "Aetheria",
   };
-  const lb = stWorldbook.toCanonical(asText(worldbook)); // escrow keyed sillytavern-lorebook, no agnai twin
+  const lb = stWorldbook.toCanonical(asText(worldbook)); // original keyed sillytavern-lorebook, no agnai twin
   const out = adapter.fromCanonical(charEntity, { lorebooks: [lb] });
   const card = JSON.parse(out.text ?? "");
   expect(card.characterBook.kind).toBe("memory");

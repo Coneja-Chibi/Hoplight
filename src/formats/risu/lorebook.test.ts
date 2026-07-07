@@ -57,7 +57,7 @@ test("risu-lorebook maps native fields to the canonical entry", () => {
   expect(e.role).toBe("assistant"); // native-richer than the .charx path
 });
 
-test("risu-lorebook round-trips a native envelope byte-identical (escrow-of-raw twin)", () => {
+test("risu-lorebook round-trips a native envelope byte-identical (original-of-raw twin)", () => {
   const src = nativeEnvelope();
   const canon = risuLorebook.toCanonical(asText(src));
   const out = JSON.parse(risuLorebook.fromCanonical(canon).text ?? "");
@@ -125,7 +125,7 @@ test("cross-format: an ST worldbook writes a Risu native lorebook (no-twin full 
     },
     name: "Aetheria",
   };
-  const canon = stWorldbook.toCanonical(asText(worldbook)); // escrow keyed "sillytavern-lorebook"
+  const canon = stWorldbook.toCanonical(asText(worldbook)); // original keyed "sillytavern-lorebook"
   const out = JSON.parse(risuLorebook.fromCanonical(canon).text ?? ""); // no risu twin -> full encode
   expect(out.type).toBe("risu");
   expect(out.data[0].comment).toBe("Skyports");
@@ -138,7 +138,7 @@ test("cross-format: an ST worldbook writes a Risu native lorebook (no-twin full 
 /**
  * RECONCILED (#15): placement order has ONE canonical home, `sortOrder`, across every codec. A Risu
  * `insertorder` therefore lands in ST worldbook `order` (the placement axis) on convert, NOT in eviction
- * `priority`. And per the de-escrow doctrine (CF-1): `displayIndex` is a DISTINCT authored axis, not a
+ * `priority`. And per the de-original doctrine (CF-1): `displayIndex` is a DISTINCT authored axis, not a
  * function of placement, so a Risu book that never authored one must NOT have it fabricated from sortOrder
  * on cross-format export (the old fabrication corrupted real cards where order != displayIndex).
  */
@@ -150,8 +150,8 @@ test("risu insertorder lands in ST worldbook `order` (placement), and displayInd
   expect(e.displayIndex).toBeUndefined(); // Risu authored no displayIndex -> none fabricated
 });
 
-// -- De-escrow W2: Risu's entry-folder hierarchy is first-class (folders -> categories, folder ref ->
-// categoryId), no longer opaque escrow residue. --
+// -- De-original W2: Risu's entry-folder hierarchy is first-class (folders -> categories, folder ref ->
+// categoryId), no longer opaque original residue. --
 
 function folderedEnvelope() {
   return {

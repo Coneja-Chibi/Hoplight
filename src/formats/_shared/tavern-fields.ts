@@ -72,7 +72,7 @@ const isRole = (v: unknown): v is "system" | "user" | "assistant" =>
 /**
  * `extensions.depth_prompt` -> a depth-injection with `origin:"depth_prompt"` so it re-emits home on
  * export. An empty prompt string means "no note authored" (ST writes a default {prompt:"",depth,role}
- * even when unset), so we return none and let the depth/role config ride the escrow twin untouched.
+ * even when unset), so we return none and let the depth/role config ride the original twin untouched.
  */
 const readDepthPrompt = (ext: Record<string, unknown>): DepthInjection[] | undefined => {
   const dp = ext.depth_prompt;
@@ -127,7 +127,7 @@ export function dataToBody(d: TavernData): CharacterBody {
 
 /**
  * Overlay canonical edits onto a `data` object (mutates + returns it).
- * Only defined values are written, so a `data` built from escrow keeps every
+ * Only defined values are written, so a `data` built from original keeps every
  * unmapped field (extensions, character_book, assets, ...) untouched -> lossless.
  */
 export function applyBodyToData(base: TavernData, b: CharacterBody): TavernData {

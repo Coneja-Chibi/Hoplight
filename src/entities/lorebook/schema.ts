@@ -8,16 +8,16 @@ import type { CanonicalEntity } from "../../core/canonical";
  *
  * Only PORTABLE format content is first-classed here. RC's DB/platform baggage (creator, stats,
  * publishing status, fork lineage, versioning, timestamps, token counts, per-session runtime state)
- * is NOT part of the canonical body - it rides in escrow or on the Entity wrapper, exactly as the
+ * is NOT part of the canonical body - it rides in original or on the Entity wrapper, exactly as the
  * character body strips its DB fields. A character references lorebooks by id via
  * CharacterBody.knowledgeRefs (ordered); a format that must embed the book resolves those on export.
  *
  * The wire gate still holds: a field earns a first-class slot only if some real WIRE format SERIALIZES
  * it. RC in-memory-only fields with no serializer producer (allowRecursion, boostIds, boostAmount,
  * scanPreset, probabilityMode - verified absent from packages/lorebook serializeEntryToRoleCallV1 + the
- * ST serializer) ride escrow: first-classing a field nothing serializes is dead surface. But under the
+ * ST serializer) ride original: first-classing a field nothing serializes is dead surface. But under the
  * schema-is-editor doctrine, an AUTHORED field a real format DOES serialize gets a slot even if only one
- * format produces it (single-platform is not a reason to escrow). So ST's extra scan sources
+ * format produces it (single-platform is not a reason to original). So ST's extra scan sources
  * (matchCharacterDepthPrompt, matchCreatorNotes), the vectorized/group-override/group-scoring toggles,
  * the automation binding, and the distinct displayIndex axis are first-classed below - they are ST wire
  * fields a creator sets, not in-memory residue.
@@ -141,7 +141,7 @@ export interface LorebookEntry {
    * Placement / insertion order: where the entry lands relative to its siblings in the assembled
    * prompt. The universal ordering axis - ST `order`, Risu `insertorder`, CCv3 `insertion_order`,
    * Agnai `weight`, RC `sortOrder`. (ST's cosmetic `displayIndex` is a distinct display axis with only
-   * one source format, so it rides escrow, not a canonical slot.)
+   * one source format, so it rides original, not a canonical slot.)
    */
   sortOrder: number;
   /**
@@ -188,9 +188,9 @@ export interface LorebookEntry {
   /**
    * Authored ST-lineage entry toggles that only some formats carry (optional: undefined = the format has
    * no such field, distinct from an explicit false a producer set). First-classed per the schema-is-editor
-   * doctrine, not escrow. `vectorized` is the RAG toggle (the SETTING, not the vectors, which stay escrow);
+   * doctrine, not original. `vectorized` is the RAG toggle (the SETTING, not the vectors, which stay original);
    * `groupOverride`/`useGroupScoring` extend the groupName/groupWeight mutual-exclusion axis; `automationId`
-   * binds an entry to a Quick-Reply automation by id (the id only, the automation set stays escrow).
+   * binds an entry to a Quick-Reply automation by id (the id only, the automation set stays original).
    */
   vectorized?: boolean;
   groupOverride?: boolean;

@@ -45,7 +45,7 @@ export interface PersonaPresentation {
 
 /**
  * SillyTavern-only prompt-positioning fields, carried for round-trip when a persona genuinely
- * originates from ST. Formats without the concept escrow or omit it.
+ * originates from ST. Formats without the concept original or omit it.
  */
 export interface PersonaChatInjection {
   position: "prompt" | "author_note_top" | "author_note_bottom" | "in_chat" | "none";

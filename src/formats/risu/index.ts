@@ -3,7 +3,7 @@
  * optionally `module.risum`. The card.json is a Tavern V3 card, so we reuse the shared V3
  * field mapping + the shared asset mapping; the zip container is handled here. Field map in
  * design/RISU-CARD-DEEP.md (extracted clean-room from card DATA, never Risu source). Lossless:
- * raw card + asset bytes + module ride escrow, including opaque executable content we never run.
+ * raw card + asset bytes + module ride original, including opaque executable content we never run.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
@@ -61,7 +61,7 @@ function baseCard(): V3Card {
 
 /**
  * True if the card carries content vaud must treat as opaque and never execute: Risu trigger/virtual
- * scripts, a custom-HTML background, or a bundled module. Surfaced on escrow so consumers can gate it.
+ * scripts, a custom-HTML background, or a bundled module. Surfaced on original so consumers can gate it.
  */
 function hasExecutableContent(data: TavernData, moduleRisum: string | undefined): boolean {
   const ext = isRecord(data.extensions) ? data.extensions : {};
@@ -110,7 +110,7 @@ const adapter: CharacterAdapter = {
     const card = parsed as V3Card;
 
     const body = dataToBody(card.data);
-    applyRisuToBody(card.data, body); // authored risuai scalars -> first-class slots (de-escrow)
+    applyRisuToBody(card.data, body); // authored risuai scalars -> first-class slots (de-original)
     body.media = assetsToMedia(card.data.assets);
     body.attribution.createdAt = msToSeconds(body.attribution.createdAt);
     body.attribution.updatedAt = msToSeconds(body.attribution.updatedAt);
@@ -131,7 +131,7 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(card.data.name),
       body,
-      escrow: {
+      original: {
         risu: {
           raw: card,
           unmapped: {
@@ -146,7 +146,7 @@ const adapter: CharacterAdapter = {
   },
 
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
-    const esc = entity.escrow?.risu;
+    const esc = entity.original?.risu;
     const card = (esc?.raw ? structuredClone(esc.raw) : baseCard()) as V3Card;
 
     // Preserve Risu's original millisecond dates: the canonical body carries them in seconds, so
@@ -154,7 +154,7 @@ const adapter: CharacterAdapter = {
     const rawCreated = card.data.creation_date;
     const rawModified = card.data.modification_date;
     applyBodyToData(card.data, entity.body);
-    applyBodyToRisu(card.data, entity.body); // de-escrowed risuai scalars, twin-diffed
+    applyBodyToRisu(card.data, entity.body); // de-kept risuai scalars, twin-diffed
     if (rawCreated !== undefined) card.data.creation_date = rawCreated;
     if (rawModified !== undefined) card.data.modification_date = rawModified;
 

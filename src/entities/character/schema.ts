@@ -3,7 +3,7 @@ import type { CanonicalEntity } from "../../core/canonical";
 /**
  * CanonicalCharacter - the character entity schema. Seeded from RoleCall + SillyTavern + Risu,
  * widened by the format deep-dive (see design/FORMATS-LANDSCAPE.md). Only fields a real now-tier
- * format actually produces are first-classed here; everything else rides in escrow.
+ * format actually produces are first-classed here; everything else rides in original.
  *
  * This folder IS the character entity. Drop a sibling folder in src/entities/ to add a new
  * content type (lorebook, preset, persona, regex) the same way.
@@ -33,7 +33,7 @@ export interface Identity {
 
 /**
  * Per-character voice/TTS selection - the authored SELECTION/config, never the model bytes (those are
- * assets/escrow). Producers: Agnai `voice`+`voiceDisabled` (rich), Risu `vits` (narrow: only the vits
+ * assets/original). Producers: Agnai `voice`+`voiceDisabled` (rich), Risu `vits` (narrow: only the vits
  * config actually serializes to .charx; Risu's other TTS fields are app-local and never hit the wire).
  */
 export interface Voice {
@@ -52,7 +52,7 @@ export interface Voice {
  * Authored image-generation prompt hints: the text a creator writes to steer image gen for this
  * character. Two real producers (Agnai imageSettings affixes; Risu sdData rows + newGenData), so the
  * shape covers both: shared affix fields plus open labeled rows. Sampler/provider knobs are NOT here
- * (platform config, escrow).
+ * (platform config, original).
  */
 export interface ImagePrompt {
   /** full base prompt (Risu newGenData.prompt) */

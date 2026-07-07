@@ -6,7 +6,7 @@ import codec from "./lorebook";
  * VAUDEVILLE packages/lorebook serializeToRoleCallV1 (settings/metadata/entries[+categories+tree],
  * each entry grouped into triggers/matching/injection/priority/timing/grouping/advanced/scanSources).
  * Exercises advanced per-trigger probability, secondary triggers, sideEffects, entry metadata, and
- * the raw-only carriers (tree, per-entry unsupportedFields) that must survive via escrow.
+ * the raw-only carriers (tree, per-entry unsupportedFields) that must survive via original.
  */
 function makeRcExport() {
   return {
@@ -66,7 +66,7 @@ function makeRcExport() {
             clearOnDeactivate: false,
           },
           metadata: { entry_type: "location", structured_data: { region: "north" } },
-          // ST fields RC preserves but does not model natively: raw-only, must ride escrow untouched.
+          // ST fields RC preserves but does not model natively: raw-only, must ride original untouched.
           unsupportedFields: { vectorized: true, automationId: "auto-9", matchCreatorNotes: false },
         },
         {
@@ -158,9 +158,9 @@ test("toCanonical flattens the nested wire and preserves advanced per-trigger pr
   expect(ent.body.categories).toEqual([{ id: "cat1", name: "Places", sortOrder: 0, enabled: true }]);
 });
 
-test("the whole raw export rides in escrow (raw-only tree + unsupportedFields captured)", () => {
+test("the whole raw export rides in original (raw-only tree + unsupportedFields captured)", () => {
   const ent = codec.toCanonical(asText(makeRcExport()));
-  const raw = ent.escrow?.["rolecall-lorebook"]?.raw as ReturnType<typeof makeRcExport>;
+  const raw = ent.original?.["rolecall-lorebook"]?.raw as ReturnType<typeof makeRcExport>;
   expect(raw.lorebook.tree.build_mode).toBe("auto");
   expect(raw.lorebook.entries[0]!.unsupportedFields).toEqual({
     vectorized: true,
@@ -187,7 +187,7 @@ test("an edited entry field re-projects into the nested wire on serialize", () =
   expect(back.lorebook.entries[0].unsupportedFields.automationId).toBe("auto-9");
 });
 
-// -- De-escrow (real sample): the unsupportedFields bag's authored ST-origin toggles are first-class --
+// -- De-original (real sample): the unsupportedFields bag's authored ST-origin toggles are first-class --
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -197,7 +197,7 @@ const realBook = readFileSync(
   "utf8",
 );
 
-test("de-escrow read: unsupportedFields toggles land in first-class canonical slots", () => {
+test("de-original read: unsupportedFields toggles land in first-class canonical slots", () => {
   const canon = codec.toCanonical({ text: realBook });
   const e0 = canon.body.entries[0]!;
   expect(e0.vectorized).toBe(true);
@@ -208,7 +208,7 @@ test("de-escrow read: unsupportedFields toggles land in first-class canonical sl
   expect(e0.scanCreatorNotes).toBe(false);
 });
 
-test("de-escrow edit: flipping the toggles reaches the unsupportedFields bag, residue survives", () => {
+test("de-original edit: flipping the toggles reaches the unsupportedFields bag, residue survives", () => {
   const canon = codec.toCanonical({ text: realBook });
   canon.body.entries[0]!.vectorized = false;
   canon.body.entries[0]!.useGroupScoring = true;
@@ -222,7 +222,7 @@ test("de-escrow edit: flipping the toggles reaches the unsupportedFields bag, re
   expect(bag.outletName).toBe("");
 });
 
-test("de-escrow round-trip: the real RC lorebook re-emits unedited without wire mutation", () => {
+test("de-original round-trip: the real RC lorebook re-emits unedited without wire mutation", () => {
   const canon = codec.toCanonical({ text: realBook });
   expect(JSON.parse(codec.fromCanonical(canon).text ?? "")).toEqual(JSON.parse(realBook));
 });

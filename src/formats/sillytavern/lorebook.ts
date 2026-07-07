@@ -5,9 +5,9 @@
  * parsePosition/parseRole/parseSelectiveLogic) + serializer.ts (interop facts only).
  *
  * ST encodes richer canonical positions lossily (append/append_bottom -> @depth 4, prepend_top -> 0)
- * and drops per-trigger probability; that loss is inherent to ST and is what escrow-of-raw guards:
+ * and drops per-trigger probability; that loss is inherent to ST and is what original-of-raw guards:
  * an unedited entry re-projects from its raw twin, so a vaud round-trip is byte-lossless. ST's two
- * extra scan sources (matchCharacterDepthPrompt, matchCreatorNotes) and uid ride escrow untouched.
+ * extra scan sources (matchCharacterDepthPrompt, matchCreatorNotes) and uid ride original untouched.
  *
  * NOTE: standalone codec, not yet registry-wired (same wiring step as the RC lorebook codec).
  */
@@ -145,7 +145,7 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
     role: parseRole(raw.role),
 
     // ST `order` IS the placement axis (insertion order) -> canonical sortOrder. ST has no eviction
-    // field, so priority defaults; ST's cosmetic `displayIndex` has no canonical slot and rides escrow.
+    // field, so priority defaults; ST's cosmetic `displayIndex` has no canonical slot and rides original.
     sortOrder: typeof raw.order === "number" ? raw.order : index,
     priority: 100,
 
@@ -175,7 +175,7 @@ function entryToCanonical(raw: Record<string, unknown>, index: number): Lorebook
 
     ignoreBudget: raw.ignoreBudget === true,
 
-    // Authored ST toggles, de-escrowed to first-class slots (present-or-absent so a cross-format book
+    // Authored ST toggles, de-kept to first-class slots (present-or-absent so a cross-format book
     // that never had them stays clean). displayIndex is a DISTINCT authored axis from `order`/sortOrder.
     vectorized: presentBool(raw.vectorized),
     groupOverride: presentBool(raw.groupOverride),
@@ -308,12 +308,12 @@ const sillytavernLorebook: LorebookAdapter = {
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      escrow: { "sillytavern-lorebook": { raw: book } },
+      original: { "sillytavern-lorebook": { raw: book } },
     };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
-    const rawBook = entity.escrow?.["sillytavern-lorebook"]?.raw as StBook | undefined;
+    const rawBook = entity.original?.["sillytavern-lorebook"]?.raw as StBook | undefined;
     const out = bookToWire(entity.body, rawBook);
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },

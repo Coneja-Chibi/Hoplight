@@ -91,7 +91,7 @@ export function getAtPath(body: unknown, path: string[]): string {
 
 /**
  * Apply text edits onto a body, returning a NEW body: set non-empty values, DELETE keys edited to
- * empty (canonical stores absence, not ""). Every untouched field - escrow, behavior, media, all of
+ * empty (canonical stores absence, not ""). Every untouched field - original, behavior, media, all of
  * it - survives byte-identical; this is the no-data-loss property the tests pin down.
  */
 export function applyEdits(body: unknown, edits: ReadonlyMap<string, string>, defs: CardDef[]): Record<string, unknown> {

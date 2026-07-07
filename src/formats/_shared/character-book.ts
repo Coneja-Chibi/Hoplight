@@ -9,7 +9,7 @@
  *
  * Field map verified against VAUDEVILLE apps/rc character-book.ts fromCharacterBook/toCharacterBook
  * (interop facts only: names, coercions, defaults - not code). The whole raw book rides in the
- * extracted lorebook's own escrow so a re-embed can overlay onto its twin and re-emit unedited
+ * extracted lorebook's own original so a re-embed can overlay onto its twin and re-emit unedited
  * entries byte-for-byte, and so decorators / per-entry extension residue survive even when the
  * lorebook is later written out standalone.
  */
@@ -220,7 +220,7 @@ function entryToCanonical(entry: CharacterBookEntry, index: number): LorebookEnt
 
     ignoreBudget: boolOr(pick("ignoreBudget", "ignore_budget"), false),
 
-    // Authored ST-lineage toggles, first-classed (were escrow-only residue). presentX keeps undefined when
+    // Authored ST-lineage toggles, first-classed (were original-only residue). presentX keeps undefined when
     // the book has no such key, so a byte-identical twin overlay never manufactures a default.
     vectorized: presentBool(pick("vectorized")),
     groupOverride: presentBool(pick("groupOverride", "group_override")),
@@ -265,7 +265,7 @@ const isCharacterBook = (v: unknown): v is CharacterBook =>
 /**
  * Locate an embedded character_book on a raw card. Honors the CCv3 slot (`data.character_book`),
  * the CCv2 convention (`data.extensions.character_book`), and the flat V1 shapes, returning the raw
- * book verbatim (not yet mapped) so the caller controls escrow.
+ * book verbatim (not yet mapped) so the caller controls original.
  */
 export function findCharacterBook(rawCard: unknown): CharacterBook | null {
   if (!rawCard || typeof rawCard !== "object") return null;
@@ -281,7 +281,7 @@ export function findCharacterBook(rawCard: unknown): CharacterBook | null {
 
 /**
  * Extract a card's embedded character_book into a standalone CanonicalLorebook, stashing the raw book
- * in the lorebook's own escrow (keyed by the dialect, not the host format) so a re-embed can overlay
+ * in the lorebook's own original (keyed by the dialect, not the host format) so a re-embed can overlay
  * onto it. Returns null when the card carries no book.
  */
 export function extractCharacterBook(rawCard: unknown): CanonicalLorebook | null {
@@ -293,7 +293,7 @@ export function extractCharacterBook(rawCard: unknown): CanonicalLorebook | null
     kind: "lorebook",
     id: canonicalId(body.name),
     body,
-    escrow: { "character-book": { raw: book } },
+    original: { "character-book": { raw: book } },
   };
 }
 
@@ -390,7 +390,7 @@ function entryToBook(e: LorebookEntry, twin: CharacterBookEntry | undefined, ind
   setExt("scanUserPersona", "matchPersonaDescription", e.scanUserPersona);
   setExt("scanScenario", "matchScenario", e.scanScenario);
 
-  // Authored ST-lineage toggles, de-escrowed. Only write when the canonical value is defined (undefined =
+  // Authored ST-lineage toggles, de-kept. Only write when the canonical value is defined (undefined =
   // the format has no such field) AND changed vs the twin, so a byte-identical overlay is untouched.
   if (e.scanCharacterDepthPrompt !== undefined)
     setExt("scanCharacterDepthPrompt", "matchCharacterDepthPrompt", e.scanCharacterDepthPrompt);
@@ -416,7 +416,7 @@ function entryToBook(e: LorebookEntry, twin: CharacterBookEntry | undefined, ind
 
 /**
  * Map ONE canonical lorebook back to an embedded character_book. `rawBook` is the twin from the
- * lorebook's OWN escrow (escrow-of-raw), NOT the host card - so same-dialect round-trips overlay and
+ * lorebook's OWN original (original-of-raw), NOT the host card - so same-dialect round-trips overlay and
  * cross-format encodes from scratch. Book-level fields diff against the twin's decode the same way.
  */
 export function lorebookToCharacterBook(body: LorebookBody, rawBook?: CharacterBook): CharacterBook {
@@ -459,7 +459,7 @@ export function embedCharacterBook(data: Record<string, unknown>, lorebooks: Can
 export function lorebooksToCharacterBook(lorebooks: CanonicalLorebook[]): CharacterBook | null {
   if (lorebooks.length === 0) return null;
   const rawOf = (l: CanonicalLorebook): CharacterBook | undefined =>
-    l.escrow?.["character-book"]?.raw as CharacterBook | undefined;
+    l.original?.["character-book"]?.raw as CharacterBook | undefined;
   if (lorebooks.length === 1) return lorebookToCharacterBook(lorebooks[0]!.body, rawOf(lorebooks[0]!));
 
   const books = lorebooks.map((l) => lorebookToCharacterBook(l.body, rawOf(l)));

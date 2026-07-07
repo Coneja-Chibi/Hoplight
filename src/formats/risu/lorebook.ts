@@ -18,7 +18,7 @@
  * it maps here rather than being discarded. Risu's entry-folder hierarchy is FIRST-CLASS: a
  * `mode:"folder"` row becomes a canonical LorebookCategory and a child's `folder` ref becomes
  * `categoryId`, both editable and re-emitted in original row order. `loreCache`/`bookVersion` are
- * runtime cache / bookkeeping and stay escrow-of-raw, so a same-format round-trip is byte-identical.
+ * runtime cache / bookkeeping and stay original-of-raw, so a same-format round-trip is byte-identical.
  */
 import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type {
@@ -188,7 +188,7 @@ function bookToCanonical(rows: LoreBook[]): LorebookBody {
   };
 }
 
-// -- entry: canonical -> native, overlaying the escrow twin so unedited entries re-emit verbatim ----
+// -- entry: canonical -> native, overlaying the original twin so unedited entries re-emit verbatim ----
 
 const allRegex = (ts: Trigger[]): boolean => ts.length > 0 && ts.every((t) => t.isRegex);
 
@@ -217,7 +217,7 @@ function entryToWire(e: LorebookEntry, twin: LoreBook | undefined, index: number
   if (changed("title")) base.comment = e.title; // native `comment` IS the label
   if (changed("content")) base.content = e.content;
   if (changed("sortOrder")) base.insertorder = e.sortOrder;
-  if (changed("constant")) base.alwaysActive = e.constant; // leave `mode` to escrow-of-raw
+  if (changed("constant")) base.alwaysActive = e.constant; // leave `mode` to original-of-raw
   if (changed("role")) base.role = e.role;
   if (changed("probability")) base.activationPercent = e.probability;
   if (changed("caseSensitive")) {
@@ -303,12 +303,12 @@ const risuLorebook: LorebookAdapter = {
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      escrow: { "risu-lorebook": { raw } },
+      original: { "risu-lorebook": { raw } },
     };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
-    const raw = entity.escrow?.["risu-lorebook"]?.raw as RisuLoreExport | undefined;
+    const raw = entity.original?.["risu-lorebook"]?.raw as RisuLoreExport | undefined;
     const out = bookToWire(entity.body, raw);
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },

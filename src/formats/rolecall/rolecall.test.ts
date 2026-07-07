@@ -174,9 +174,9 @@ test("real RC card round-trips unedited without wire mutation", () => {
   expect(JSON.parse(adapter.fromCanonical(ent).text ?? "")).toEqual(JSON.parse(realCard));
 });
 
-// -- De-escrow (real sample): authored casting-card fields land in first-class slots + edits reach wire --
+// -- De-original (real sample): authored casting-card fields land in first-class slots + edits reach wire --
 
-test("de-escrow read: identity attrs / signatureColor / spoiler fields / publicNote / mediaLinks", () => {
+test("de-original read: identity attrs / signatureColor / spoiler fields / publicNote / mediaLinks", () => {
   const ent = adapter.toCanonical({ text: realCard });
   expect(ent.body.identity.fullName).toBe("Veranika Sandoval");
   expect(ent.body.identity.title).toBe("The Wandering Cartographer");
@@ -188,7 +188,7 @@ test("de-escrow read: identity attrs / signatureColor / spoiler fields / publicN
   expect(ent.body.presentation?.mediaLinks).toBeDefined();
 });
 
-test("de-escrow edit: mutating the new RC slots reaches their exact wire homes", () => {
+test("de-original edit: mutating the new RC slots reaches their exact wire homes", () => {
   const ent = adapter.toCanonical({ text: realCard });
   ent.body.identity.title = "Master Cartographer";
   ent.body.identity.age = "35";

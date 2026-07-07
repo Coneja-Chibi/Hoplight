@@ -4,7 +4,7 @@
  * standard CCv3 `data` fields go through the shared Tavern mapping; this file adds the RC layer:
  * graded content rating, per-greeting titles, presentation (palette/background/field order/spoilers),
  * RC-native depth injections, source url, and the sprite/expression pack. Field map from RC's own
- * apps/rc source, recorded in design/RC-CARD-FORMAT.md. Lossless: the whole card rides in escrow, so
+ * apps/rc source, recorded in design/RC-CARD-FORMAT.md. Lossless: the whole card rides in original, so
  * an RC -> canonical -> RC round-trip reproduces every field, including ones with no canonical home.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
@@ -185,7 +185,7 @@ function cardToBody(data: TavernData, rc: RcExtension): CharacterBody {
 /**
  * Write the canonically-editable scalars back onto a cloned raw RC extension block. Only the exact
  * 1:1 mappings are re-applied so an untouched card round-trips byte-identical; the rich fields
- * (details/presentation/sprites) stay as escrowed verbatim.
+ * (details/presentation/sprites) stay as kept verbatim.
  */
 function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   const set = <K extends keyof RcExtension>(k: K, v: RcExtension[K] | undefined): void => {
@@ -201,7 +201,7 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   const titles = body.greetings.alternateGreetings?.map((g) => g.title ?? null);
   if (titles?.some((t) => t !== null)) ext.alternate_greeting_titles = titles;
 
-  // De-escrowed details fields write back into their exact wire homes; anything undefined leaves the
+  // De-kept details fields write back into their exact wire homes; anything undefined leaves the
   // twin's value alone, so an untouched card still round-trips byte-identical.
   const id = body.identity;
   const pres = body.presentation;
@@ -270,12 +270,12 @@ const adapter: CharacterAdapter = {
       id: canonicalId(data.name),
       body: cardToBody(data, rc),
       // a PNG card's pixels are authored art: keep the carrier as the raw-bytes twin
-      escrow: { rolecall: { raw: json, sourceMedia: pngSourceMedia(input.bytes) } },
+      original: { rolecall: { raw: json, sourceMedia: pngSourceMedia(input.bytes) } },
     };
   },
 
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
-    const raw = entity.escrow?.rolecall?.raw;
+    const raw = entity.original?.rolecall?.raw;
     const card: Rec = isRecord(raw)
       ? (structuredClone(raw) as Rec)
       : { spec: CARD_SPEC_V3, spec_version: "3.0", data: {} };

@@ -44,7 +44,7 @@ test("novelai-lorebook maps native fields to the canonical entry", () => {
   expect(canon.body.entries[1]!.sortOrder).toBe(399);
 });
 
-test("novelai-lorebook re-emits an unedited entry byte-for-byte (escrow-of-raw twin)", () => {
+test("novelai-lorebook re-emits an unedited entry byte-for-byte (original-of-raw twin)", () => {
   const canon = novelaiLorebook.toCanonical({ text: fixtureText });
   const out = novelaiLorebook.fromCanonical(canon);
   expect(out.text).toBe(fixtureText); // contextConfig, category, settings residue untouched
@@ -70,7 +70,7 @@ test("cross-format INTO NAI (no twin): ST worldbook placement lands in budgetPri
       "0": { uid: 0, comment: "Lore A", content: "body A", key: ["alpha", "/beta/i"], order: 55, disable: false },
     },
   };
-  const canon = stWorldbook.toCanonical(asText(worldbook)); // escrow keyed "sillytavern-lorebook", no NAI twin
+  const canon = stWorldbook.toCanonical(asText(worldbook)); // original keyed "sillytavern-lorebook", no NAI twin
   const out = JSON.parse(novelaiLorebook.fromCanonical(canon).text ?? "");
 
   expect(out.lorebookVersion).toBe(3); // no twin -> proven-valid v3 shell
@@ -88,9 +88,9 @@ test("cross-format INTO NAI (no twin): ST worldbook placement lands in budgetPri
   expect(e.searchRange).toBe(1000); // ST has no per-entry scan window -> NAI default
 });
 
-// -- De-escrow: authored NAI surface is first-class (contextConfig, toggles, category refs) ---------
+// -- De-original: authored NAI surface is first-class (contextConfig, toggles, category refs) ---------
 
-test("de-escrow read: contextConfig / keyRelative / nonStoryActivatable / category land in canonical slots", () => {
+test("de-original read: contextConfig / keyRelative / nonStoryActivatable / category land in canonical slots", () => {
   const canon = novelaiLorebook.toCanonical({ text: fixtureText });
   const e0 = canon.body.entries[0]!;
   expect(e0.contextConfig).toEqual({
@@ -111,7 +111,7 @@ test("de-escrow read: contextConfig / keyRelative / nonStoryActivatable / catego
   ]);
 });
 
-test("de-escrow edit: mutating contextConfig/toggles/category reaches the wire (twin present)", () => {
+test("de-original edit: mutating contextConfig/toggles/category reaches the wire (twin present)", () => {
   const canon = novelaiLorebook.toCanonical({ text: fixtureText });
   const e0 = canon.body.entries[0]!;
   e0.contextConfig = { ...e0.contextConfig, prefix: "[ NEW: ", tokenBudget: 1024, trimDirection: "trimBottom" };
@@ -128,7 +128,7 @@ test("de-escrow edit: mutating contextConfig/toggles/category reaches the wire (
   expect(out.entries[1]).toEqual(JSON.parse(fixtureText).entries[1]); // sibling untouched
 });
 
-test("de-escrow edit: renaming a category reaches the wire, subcontext residue survives", () => {
+test("de-original edit: renaming a category reaches the wire, subcontext residue survives", () => {
   const canon = novelaiLorebook.toCanonical({ text: fixtureText });
   canon.body.categories![0]!.name = "Malcolm";
   const out = JSON.parse(novelaiLorebook.fromCanonical(canon).text ?? "");
@@ -139,7 +139,7 @@ test("de-escrow edit: renaming a category reaches the wire, subcontext residue s
   expect(restOut).toEqual(restTwin); // createSubcontext/settings/etc. rode the twin clone untouched
 });
 
-// Real corpus: a first-party v6 lorebook (see samples/novelai/SOURCES.md) - proves the de-escrow against
+// Real corpus: a first-party v6 lorebook (see samples/novelai/SOURCES.md) - proves the de-original against
 // a genuine export with a real category and the richer v6 entry surface.
 const v6Text = await Bun.file(
   new URL("../../../samples/novelai/nai-v6-crystal-dragon.lorebook.json", import.meta.url),

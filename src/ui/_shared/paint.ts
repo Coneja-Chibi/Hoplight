@@ -63,7 +63,7 @@ function parseStop(raw: unknown): GradientStop | null {
 }
 
 /**
- * Fail-closed reader for a stored Paint (settings/escrow): anything malformed reads as null, and
+ * Fail-closed reader for a stored Paint (settings/original): anything malformed reads as null, and
  * the caller falls back to a default. Never throws, never trusts the shape.
  */
 export function normalizePaint(raw: unknown): Paint | null {

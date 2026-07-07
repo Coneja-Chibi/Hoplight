@@ -6,7 +6,7 @@
  */
 
 import { basename, extname } from "node:path";
-import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryEscrowRaw } from "./core";
+import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryOriginalRaw } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
@@ -57,14 +57,14 @@ function resolveTarget(forced: string | undefined, outPath: string): Resolved {
 }
 
 /**
- * Best-effort recover the source card object for labeling: the detected adapter's escrowed raw
+ * Best-effort recover the source card object for labeling: the detected adapter's kept raw
  * (works for png/charx without re-implementing extraction), else a direct JSON parse. Always a raw
  * card object or undefined - never the canonical entity, whose shape the labeler cannot read.
  */
 function sourceCardOf(src: FormatAdapter | undefined, input: AdapterInput): unknown {
   if (src) {
     try {
-      const raw = primaryEscrowRaw(src.toCanonical(input).escrow);
+      const raw = primaryOriginalRaw(src.toCanonical(input).original);
       if (raw !== undefined) return raw;
     } catch {
       /* fall through to a raw parse */
@@ -107,7 +107,7 @@ const HELP = `${BANNER}
     vaud convert vera.png vera.charx      SillyTavern PNG  ->  Risu .charx
 
   Status
-    Engine core: canonical schema v${CANONICAL_SCHEMA_VERSION}, escrow, adapter contract.
+    Engine core: canonical schema v${CANONICAL_SCHEMA_VERSION}, original, adapter contract.
     Run "vaud formats" to see the adapters vaud currently knows about.
 `;
 

@@ -1,7 +1,7 @@
 /**
  * CCv3 `data.assets[]` -> canonical media. Shared by every format that serializes sprites/images
  * into the CCv3 asset array (RoleCall sprites, Risu .charx assets). Maps refs + roles + labels; the
- * actual bytes stay in each format's escrow. One owner so both adapters map assets identically.
+ * actual bytes stay in each format's original. One owner so both adapters map assets identically.
  */
 import type { Media, MediaAsset } from "../../entities/character/schema";
 

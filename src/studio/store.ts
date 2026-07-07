@@ -26,7 +26,7 @@ export interface EntitySummary {
   /** the entity's signature color: the creator's authored signature when set, else a swatch derived
    * from its own art (skin-masked vibrant color) */
   accent?: string;
-  /** the source format id (first escrow entry that is not our own bookkeeping) */
+  /** the source format id (first original entry that is not our own bookkeeping) */
   sourceFormat?: string;
   /** the source format's variant when it recorded one ("v2", "v3") */
   sourceVariant?: string;
@@ -47,9 +47,9 @@ function authoredSignature(entity: AnyEntity): string | undefined {
   return hex && HEX6.test(hex) ? hex : undefined;
 }
 
-/** The entity's source format: the first escrow entry that is not vaud's own bookkeeping slot. */
+/** The entity's source format: the first original entry that is not vaud's own bookkeeping slot. */
 function sourceOf(entity: AnyEntity): { format?: string; variant?: string } {
-  for (const [formatId, entry] of Object.entries(entity.escrow ?? {})) {
+  for (const [formatId, entry] of Object.entries(entity.original ?? {})) {
     if (formatId === "vaud-studio") continue;
     const variant = entry?.unmapped?.["variant"];
     return { format: formatId, variant: typeof variant === "string" ? variant : undefined };
@@ -89,7 +89,7 @@ export class StudioStore {
       for (const f of files.filter((n) => n.endsWith(".json")).sort()) {
         const entity = await this.read(k, f.slice(0, -5));
         if (entity) {
-          const studioMeta = entity.escrow?.["vaud-studio"]?.unmapped;
+          const studioMeta = entity.original?.["vaud-studio"]?.unmapped;
           const cached = studioMeta?.["accent"];
           const artAccent = typeof cached === "string" && HEX6.test(cached) ? cached : undefined;
           const source = sourceOf(entity);
@@ -114,7 +114,13 @@ export class StudioStore {
     try {
       const text = await Bun.file(join(this.kindDir(kind), `${id}.json`)).text();
       const parsed = JSON.parse(text) as AnyEntity;
-      return parsed && typeof parsed === "object" && typeof parsed.kind === "string" ? parsed : null;
+      if (!parsed || typeof parsed !== "object" || typeof parsed.kind !== "string") return null;
+      // forward-migrate cards saved before this field was renamed, so their kept-whole originals are
+      // never lost on load (harmless when absent; the next save writes the new key).
+      const legacy = (parsed as { escrow?: unknown }).escrow;
+      if (legacy !== undefined && parsed.original === undefined) parsed.original = legacy as AnyEntity["original"];
+      delete (parsed as { escrow?: unknown }).escrow;
+      return parsed;
     } catch {
       return null; // tolerant reader: missing/corrupt reads as absent, never throws to the surface
     }
@@ -137,8 +143,8 @@ export class StudioStore {
     }
 
     // derive the signature color ONCE at save (skin-masked vibrant swatch of the card's own art);
-    // regenerable bookkeeping, so it lives in our vaud-studio escrow, never in the authored body
-    const prior = entity.escrow?.["vaud-studio"]?.unmapped?.["accent"];
+    // regenerable bookkeeping, so it lives in our vaud-studio original, never in the authored body
+    const prior = entity.original?.["vaud-studio"]?.unmapped?.["accent"];
     let accent = typeof prior === "string" ? prior : undefined;
     if (!accent) {
       const art = portraitBytes(entity);
@@ -148,10 +154,10 @@ export class StudioStore {
     const stamped: AnyEntity = {
       ...entity,
       id,
-      escrow: {
-        ...(entity.escrow ?? {}),
+      original: {
+        ...(entity.original ?? {}),
         "vaud-studio": {
-          raw: entity.escrow?.["vaud-studio"]?.raw ?? null,
+          raw: entity.original?.["vaud-studio"]?.raw ?? null,
           unmapped: { importedAt: new Date().toISOString(), ...(accent ? { accent } : {}) },
         },
       },

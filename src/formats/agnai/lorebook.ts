@@ -166,7 +166,7 @@ function bookToCanonical(book: MemoryBook): LorebookBody {
   };
 }
 
-// -- entry: canonical -> native, overlaying the escrow twin so unedited entries re-emit verbatim ----
+// -- entry: canonical -> native, overlaying the original twin so unedited entries re-emit verbatim ----
 
 /** Structural equality for the small values we diff. */
 const deepEq = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
@@ -209,7 +209,7 @@ function entryToWire(e: LorebookEntry, twin: MemoryEntry | undefined, index: num
   if (changed("priority")) base.priority = e.priority;
   if (changed("position")) base.position = positionToWire(e.position);
   // Type-only V2 fields Agnai never authors: emit only when meaningful, else clear (keeps the twin-edit
-  // case correct and cross-format output clean; escrow-of-raw still guards same-format byte-fidelity).
+  // case correct and cross-format output clean; original-of-raw still guards same-format byte-fidelity).
   if (changed("excludeRecursion")) {
     if (e.excludeRecursion) base.excludeRecursion = true;
     else delete base.excludeRecursion;
@@ -255,10 +255,10 @@ export function canonicalToMemoryBook(body: LorebookBody, raw: MemoryBook | unde
 }
 
 /**
- * Wrap a parsed MemoryBook into a CanonicalLorebook. The SINGLE source of the schema/id/escrow
+ * Wrap a parsed MemoryBook into a CanonicalLorebook. The SINGLE source of the schema/id/original
  * wrapper, shared by `toCanonical` (standalone file) and the Agnai character adapter's `extractLorebook`
  * (embedded `characterBook`), so both canonicalize a given MemoryBook identically - container-invariance
- * by construction. The book rides its OWN escrow key so a re-embed twin-overlays it byte-for-byte.
+ * by construction. The book rides its OWN original key so a re-embed twin-overlays it byte-for-byte.
  */
 export function memoryBookToCanonical(book: MemoryBook): CanonicalLorebook {
   const body = bookToCanonical(book);
@@ -267,7 +267,7 @@ export function memoryBookToCanonical(book: MemoryBook): CanonicalLorebook {
     kind: "lorebook",
     id: canonicalId(body.name),
     body,
-    escrow: { "agnai-lorebook": { raw: book } },
+    original: { "agnai-lorebook": { raw: book } },
   };
 }
 
@@ -312,7 +312,7 @@ const agnaiLorebook: LorebookAdapter = {
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
-    const raw = entity.escrow?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
+    const raw = entity.original?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
     const out = canonicalToMemoryBook(entity.body, raw);
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },

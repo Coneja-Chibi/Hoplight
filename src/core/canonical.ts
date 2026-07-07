@@ -1,6 +1,6 @@
 /**
  * Canonical core - the superset model every format converts through.
- * The STRUCTURE here (wrapper, escrow, per-app profiles, format ids) is the stable spine.
+ * The STRUCTURE here (wrapper, original, per-app profiles, format ids) is the stable spine.
  * Entity field details live in ../entities/<kind>/schema.ts. Formats live in ../formats/<name>/.
  */
 
@@ -22,7 +22,7 @@ export function canonicalId(name: unknown): string {
 }
 
 /** What we preserve from a source format so a round-trip loses nothing. */
-export interface EscrowEntry {
+export interface OriginalEntry {
   /** The original parsed payload, verbatim. */
   raw: unknown;
   /** Fields the canonical model did not (yet) express. */
@@ -33,16 +33,16 @@ export interface EscrowEntry {
   sourceMedia?: { b64: string; mime: string };
 }
 
-/** Per-source escrow. Filled automatically on import, never hand-edited. */
-export type Escrow = Record<FormatId, EscrowEntry>;
+/** Per-source original. Filled automatically on import, never hand-edited. */
+export type Original = Record<FormatId, OriginalEntry>;
 
 /**
- * The raw source payload an entity was imported from: the first escrow entry's `raw`. One owner for
- * "which escrow entry is the source", so a reader (labeler) and the bundle layer can't drift on it.
- * Returns undefined for a from-scratch entity that never carried escrow.
+ * The raw source payload an entity was imported from: the first original entry's `raw`. One owner for
+ * "which original entry is the source", so a reader (labeler) and the bundle layer can't drift on it.
+ * Returns undefined for a from-scratch entity that never carried original.
  */
-export const primaryEscrowRaw = (escrow: Partial<Escrow> | undefined): unknown =>
-  escrow ? Object.values(escrow)[0]?.raw : undefined;
+export const primaryOriginalRaw = (original: Partial<Original> | undefined): unknown =>
+  original ? Object.values(original)[0]?.raw : undefined;
 
 /**
  * Sparse per-app overrides. Empty by default.
@@ -63,5 +63,5 @@ export interface CanonicalEntity<Kind extends string, Body> {
   /** Optional per-app deltas. */
   profiles?: Partial<Profiles<Body>>;
   /** Lossless carry of source-format specifics. */
-  escrow?: Partial<Escrow>;
+  original?: Partial<Original>;
 }

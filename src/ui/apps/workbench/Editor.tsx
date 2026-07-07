@@ -1263,12 +1263,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   // sealed cargo: the FOREIGN-format twin(s) kept for lossless round-trip, shown honestly. Vaude's own
   // internal keys (vaud-studio bookkeeping, vaud-json passthrough) are not sealed cargo - exclude them.
-  const escrowFormats = Object.keys(rec(init.ent.escrow)).filter((k) => k !== "vaud-studio" && k !== "vaud-json");
+  const originalFormats = Object.keys(rec(init.ent.original)).filter((k) => k !== "vaud-studio" && k !== "vaud-json");
   const sealedCard =
-    escrowFormats.length === 0 ? null : (
+    originalFormats.length === 0 ? null : (
       <BentoCard key="sealed" title="Sealed Cargo">
         <div className={styles.sealed}>
-          {`The original ${escrowFormats.map((k) => platformLabel(k)).join(" and ")} card is kept here whole and re-emitted byte-for-byte when you export back to that format. Read-only.`}
+          {`The original ${originalFormats.map((k) => platformLabel(k)).join(" and ")} card is kept here whole and re-emitted byte-for-byte when you export back to that format. Read-only.`}
         </div>
       </BentoCard>
     );

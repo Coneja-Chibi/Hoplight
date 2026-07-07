@@ -22,7 +22,7 @@ function memoryBook() {
         secondaryKeys: ["harbor"],
         constant: false,
         position: "after_char",
-        selectiveLogic: 2, // Agnai-only residue: never interpreted, must survive escrow untouched
+        selectiveLogic: 2, // Agnai-only residue: never interpreted, must survive original untouched
       },
     ],
   };
@@ -57,7 +57,7 @@ test("agnai-lorebook maps native fields, with weight->sortOrder and priority->pr
   expect(canon.body.lorebookType).toBe("other");
 });
 
-test("agnai-lorebook round-trips a memory book byte-identical (escrow-of-raw twin)", () => {
+test("agnai-lorebook round-trips a memory book byte-identical (original-of-raw twin)", () => {
   const src = memoryBook();
   const canon = agnaiLorebook.toCanonical(asText(src));
   const out = JSON.parse(agnaiLorebook.fromCanonical(canon).text ?? "");
@@ -94,7 +94,7 @@ test("cross-format: an ST worldbook writes an Agnai memory book (no-twin full en
     },
     name: "Aetheria",
   };
-  const canon = stWorldbook.toCanonical(asText(worldbook)); // escrow keyed "sillytavern-lorebook"
+  const canon = stWorldbook.toCanonical(asText(worldbook)); // original keyed "sillytavern-lorebook"
   const out = JSON.parse(agnaiLorebook.fromCanonical(canon).text ?? ""); // no agnai twin -> full encode
   expect(out.kind).toBe("memory");
   expect(out.name).toBe("Aetheria");

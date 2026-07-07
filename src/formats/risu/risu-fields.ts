@@ -4,7 +4,7 @@
  * authored NON-executable surface: license, bias, additionalText, display/behavior toggles, image-gen
  * hints (sdData/newGenData), and the vits voice config. The executable behavior surface (customScripts,
  * triggerscript, virtualscript, backgroundHTML/CSS) is modeled by the upcoming behavior/regex entities,
- * NOT here and NOT escrow-forever; until that slice lands it rides the raw twin, flagged via
+ * NOT here and NOT original-forever; until that slice lands it rides the raw twin, flagged via
  * hasExecutableContent. Field shapes verified against the real cherry.card.json sample
  * (samples/risu/SOURCES.md), extracted clean-room from card DATA, never Risu source.
  */

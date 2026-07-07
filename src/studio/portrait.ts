@@ -1,6 +1,6 @@
 /**
  * Portrait extraction - pure reader that finds the displayable portrait inside a canonical entity.
- * Order of truth: (1) any escrow entry's sourceMedia image carrier (a PNG card's own pixels),
+ * Order of truth: (1) any original entry's sourceMedia image carrier (a PNG card's own pixels),
  * (2) a data-URI portrait in body.media. Tolerant: anything malformed reads as "no portrait".
  */
 import type { CanonicalEntity } from "../core/canonical";
@@ -45,7 +45,7 @@ export function portraitBytes(entity: AnyEntity): PortraitBytes | null {
 }
 
 function findPortraitSource(entity: AnyEntity): { b64: string; mime: string } | null {
-  for (const entry of Object.values(entity.escrow ?? {})) {
+  for (const entry of Object.values(entity.original ?? {})) {
     const media = entry?.sourceMedia;
     if (media && typeof media.b64 === "string" && media.b64 && isSafeImageMime(media.mime)) {
       return media;

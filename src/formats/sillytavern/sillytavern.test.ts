@@ -49,7 +49,7 @@ test("detects and reads a V2 card JSON into the canonical model", () => {
   expect(c.body.greetings.firstMessage).toBe("Hello there!");
   expect(c.body.greetings.alternateGreetings).toEqual([{ text: "Hi again" }]);
   expect(c.body.discovery.tags).toEqual(["fantasy"]);
-  expect(c.escrow?.sillytavern?.raw).toBeDefined();
+  expect(c.original?.sillytavern?.raw).toBeDefined();
 });
 
 test("reads a V2 card embedded in a PNG (chara chunk)", () => {
@@ -66,9 +66,9 @@ test("round-trips a V2 card losslessly, foreign extensions survive", () => {
   expect(back).toEqual(v2card);
 });
 
-// --- De-escrow: authored `extensions` fields are first-class editable slots, not opaque escrow. ---
+// --- De-original: authored `extensions` fields are first-class editable slots, not opaque original. ---
 
-test("de-escrow read: authored extensions land in first-class canonical slots", () => {
+test("de-original read: authored extensions land in first-class canonical slots", () => {
   const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
   expect(c.body.settings?.talkativeness).toBe(0.5); // "0.5" string -> number
   expect(c.body.prompts.depthInjections).toEqual([
@@ -78,7 +78,7 @@ test("de-escrow read: authored extensions land in first-class canonical slots", 
 
 // The load-bearing proof (per advisor): a passing round-trip is NOT enough - a stale twin value
 // round-trips green while silently dropping an edit. Editing the canonical field MUST reach the wire.
-test("de-escrow edit: mutating talkativeness/depth_prompt/world reaches the wire", () => {
+test("de-original edit: mutating talkativeness/depth_prompt/world reaches the wire", () => {
   const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
   c.body.settings = { talkativeness: 0.9 };
   const inj = c.body.prompts.depthInjections?.[0];
@@ -141,7 +141,7 @@ test("round-trips a V3 card losslessly (V3 fields + assets survive)", () => {
   expect(back).toEqual(v3card);
 });
 
-test("maps CCv3 assets[] into canonical media (previously escrow-only)", () => {
+test("maps CCv3 assets[] into canonical media (previously original-only)", () => {
   const c = adapter.toCanonical({ text: JSON.stringify(v3card) });
   expect(c.body.media.portrait).toEqual({
     role: "portrait",
@@ -173,23 +173,23 @@ test("detects and round-trips a bare V1 flat card, staying flat on the way out",
 });
 
 // Real corpus: the official SillyTavern default card (samples/sillytavern/Seraphina.png). Proves the
-// de-escrow against a genuine export, not a hand-built fixture. See samples/sillytavern/SOURCES.md.
+// de-original against a genuine export, not a hand-built fixture. See samples/sillytavern/SOURCES.md.
 const seraphinaPng = new Uint8Array(
   readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
 );
 
-test("real Seraphina.png: authored extensions de-escrow to first-class slots", () => {
+test("real Seraphina.png: authored extensions de-original to first-class slots", () => {
   const c = adapter.toCanonical({ bytes: seraphinaPng });
   expect(c.body.settings?.talkativeness).toBe(0.5);
   expect(c.body.worldName).toBe("Eldoria");
   // Seraphina's depth_prompt.prompt is "" (a default ST writes even when unset) -> no injection authored;
-  // the depth/role config stays on the escrow twin. This case proves world/talkativeness, NOT depth_prompt.
+  // the depth/role config stays on the original twin. This case proves world/talkativeness, NOT depth_prompt.
   expect(c.body.prompts.depthInjections).toBeUndefined();
 });
 
 test("real Seraphina.png: unedited round-trip leaves the extensions bag byte-identical", () => {
   const c = adapter.toCanonical({ bytes: seraphinaPng });
-  const raw = c.escrow?.sillytavern?.raw as { data?: { extensions?: unknown }; extensions?: unknown };
+  const raw = c.original?.sillytavern?.raw as { data?: { extensions?: unknown }; extensions?: unknown };
   const origExt = raw.data?.extensions ?? raw.extensions;
   const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
   // pulling depth_prompt/world/talkativeness out to canonical must NOT perturb the twin when unedited

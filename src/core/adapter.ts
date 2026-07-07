@@ -51,9 +51,9 @@ interface AdapterBase {
 /** An adapter that reads and writes character cards. */
 export interface CharacterAdapter extends AdapterBase {
   kind: "character";
-  /** Read a file into the canonical model, stashing originals + unmapped fields in escrow. */
+  /** Read a file into the canonical model, stashing originals + unmapped fields in original. */
   toCanonical(input: AdapterInput): CanonicalCharacter;
-  /** Write a canonical character out to this format, re-emitting its own escrow for round-trip. */
+  /** Write a canonical character out to this format, re-emitting its own original for round-trip. */
   fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput;
   /**
    * Optional: pull an embedded lorebook whose dialect is NOT a CCv2/v3 `character_book` (which the

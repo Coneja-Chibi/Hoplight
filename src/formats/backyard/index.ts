@@ -4,7 +4,7 @@
  * larger multi-file format deferred to its own adapter). Field map + placeholder rules from
  * specs/formats/backyard.md. Backyard placeholders are single-brace ({character}/{user}); we convert
  * to Tavern {{char}}/{{user}} for the canonical model. That conversion is NOT a bijection, so
- * round-trip safety comes from escrowing the whole raw card and re-emitting unedited fields verbatim.
+ * round-trip safety comes from keeping the whole raw card and re-emitting unedited fields verbatim.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody } from "../../entities/character/schema";
@@ -118,12 +118,12 @@ const adapter: CharacterAdapter = {
       kind: "character",
       id: canonicalId(firstStr(o, NAME_KEYS)),
       body: cardToBody(o),
-      escrow: { backyard: { raw: o } },
+      original: { backyard: { raw: o } },
     };
   },
 
   fromCanonical(entity: CanonicalCharacter): AdapterOutput {
-    const raw = entity.escrow?.backyard?.raw;
+    const raw = entity.original?.backyard?.raw;
     const card: Rec = isRecord(raw) ? (structuredClone(raw) as Rec) : {};
     const b = entity.body;
 

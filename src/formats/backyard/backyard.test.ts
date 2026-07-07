@@ -80,15 +80,15 @@ for (const text of PLACEHOLDER_CORPUS) {
   });
 }
 
-test("unknown/foreign Backyard keys survive the round-trip via escrow", () => {
+test("unknown/foreign Backyard keys survive the round-trip via original", () => {
   const card = { ...makeBackyardCard(), faradayOnly: { mirostat: 2 }, someArray: [1, 2, 3] };
   const ent = adapter.toCanonical(asText(card));
   expect(JSON.parse(adapter.fromCanonical(ent).text!)).toEqual(card);
 });
 
-// -- De-escrow WB-1: the aiName SHORTHAND is a distinct authored field ({{char}} override), not a copy
+// -- De-original WB-1: the aiName SHORTHAND is a distinct authored field ({{char}} override), not a copy
 // of the display name. The old serializer stamped both keys with identity.name, destroying a distinct
-// aiName that escrow had preserved - active data loss the fixture hid by using equal names. --
+// aiName that original had preserved - active data loss the fixture hid by using equal names. --
 
 test("WB-1 read: a distinct aiName lands in identity.nickname, aiDisplayName stays the name", () => {
   const ent = adapter.toCanonical(asText({ aiName: "V", aiDisplayName: "Vera", aiPersona: "x" }));

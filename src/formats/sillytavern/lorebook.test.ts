@@ -6,7 +6,7 @@ import rcLorebook from "../rolecall/lorebook";
  * A standard SillyTavern worldbook: entries as a keyed map, ST int enums (position/role/
  * selectiveLogic), regex encoded inline as /pattern/flags, scan sources as match* flags. Two
  * entries carry raw-only keys (uid, vectorized, matchCharacterDepthPrompt, automationId) that the
- * canonical model does not first-class - they must survive a round-trip via escrow.
+ * canonical model does not first-class - they must survive a round-trip via original.
  */
 function makeStWorldbook() {
   return {
@@ -27,7 +27,7 @@ function makeStWorldbook() {
         position: 2,
         depth: 4,
         role: 0,
-        displayIndex: 7, // cosmetic display order: distinct from `order`, rides escrow (no canonical slot)
+        displayIndex: 7, // cosmetic display order: distinct from `order`, rides original (no canonical slot)
         order: 50, // insertion/placement order -> canonical sortOrder
         sticky: 3,
         cooldown: 2,
@@ -46,7 +46,7 @@ function makeStWorldbook() {
         matchPersonaDescription: false,
         matchScenario: true,
         ignoreBudget: false,
-        // raw-only: not modeled canonically, must ride escrow untouched
+        // raw-only: not modeled canonically, must ride original untouched
         vectorized: true,
         matchCharacterDepthPrompt: false,
         automationId: "auto-9",
@@ -139,9 +139,9 @@ test("toCanonical decodes ST int enums, inline regex, and match* scan sources", 
   expect(e1.groupName).toBe(null); // empty group string -> null
 });
 
-test("the whole raw worldbook rides in escrow (raw-only fields captured)", () => {
+test("the whole raw worldbook rides in original (raw-only fields captured)", () => {
   const ent = codec.toCanonical(asText(makeStWorldbook()));
-  const raw = ent.escrow?.["sillytavern-lorebook"]?.raw as ReturnType<typeof makeStWorldbook>;
+  const raw = ent.original?.["sillytavern-lorebook"]?.raw as ReturnType<typeof makeStWorldbook>;
   expect(raw.entries["0"]!.vectorized).toBe(true);
   expect(raw.entries["0"]!.automationId).toBe("auto-9");
 });

@@ -13,7 +13,7 @@
  * NAI has NO character concept and NO secondary-key / selective logic (it uses `&` AND-logic + regex
  * within `keys`), so this family ships a lorebook codec only. Authored NAI surface is FIRST-CLASS
  * (schema-is-editor): the per-entry `contextConfig` assembly dials, `keyRelative`/`nonStoryActivatable`,
- * the entry `category` ref + flat `categories` (id/name/enabled). Escrow-of-raw carries only what the
+ * the entry `category` ref + flat `categories` (id/name/enabled). Original-of-raw carries only what the
  * doctrine allows: version/bookkeeping (`lorebookVersion`, v6 `id`/`lastUpdatedAt`), UI state (category
  * `open`), the rich subcontext machinery riding each category twin, `settings`, and `loreBiasGroups`/
  * `advancedConditions` (bias pending its own reconciled shape; advancedConditions ungrounded - empty in
@@ -152,11 +152,11 @@ function entryToCanonical(entry: NaiEntry, index: number): LorebookEntry {
     caseSensitive: null,
     matchWholeWords: null,
     // searchRange IS the scan window but its unit is CHARACTERS, not messages; carried as-is, the exact
-    // value also rides escrow for a lossless NAI round-trip. Cross-format consumers see a scan number.
+    // value also rides original for a lossless NAI round-trip. Cross-format consumers see a scan number.
     scanDepth: typeof entry.searchRange === "number" ? entry.searchRange : null,
 
     // NAI has no before/after-char slot; "character" is the portable floor. The REAL authored position
-    // (insertionPosition, a signed section offset) is first-class in contextConfig below, not escrow.
+    // (insertionPosition, a signed section offset) is first-class in contextConfig below, not original.
     position: "character",
     depth: 4,
     role: "system",
@@ -174,7 +174,7 @@ function entryToCanonical(entry: NaiEntry, index: number): LorebookEntry {
     categoryId: typeof entry.category === "string" && entry.category !== "" ? entry.category : null,
     groupWeight: 1,
 
-    probability: 100, // NAI has no per-entry chance (v6 advancedConditions>random rides escrow)
+    probability: 100, // NAI has no per-entry chance (v6 advancedConditions>random rides original)
 
     useMemo: false,
     excludeRecursion: false,
@@ -190,7 +190,7 @@ function entryToCanonical(entry: NaiEntry, index: number): LorebookEntry {
 
     ignoreBudget: false,
 
-    // NAI authored activation toggles + the per-entry assembly block, de-escrowed to first-class slots.
+    // NAI authored activation toggles + the per-entry assembly block, de-kept to first-class slots.
     keyRelative: presentBool(entry.keyRelative),
     nonStoryActivatable: presentBool(entry.nonStoryActivatable),
     contextConfig: readContextConfig(entry.contextConfig),
@@ -236,7 +236,7 @@ function bookToCanonical(raw: NaiLorebook): LorebookBody {
   };
 }
 
-// -- entry: canonical -> native, overlaying the escrow twin so unedited entries re-emit verbatim -----
+// -- entry: canonical -> native, overlaying the original twin so unedited entries re-emit verbatim -----
 
 /** Structural equality for the small values we diff (triggers, primitives). */
 const deepEq = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
@@ -348,12 +348,12 @@ const novelaiLorebook: LorebookAdapter = {
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      escrow: { "novelai-lorebook": { raw } },
+      original: { "novelai-lorebook": { raw } },
     };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
-    const raw = entity.escrow?.["novelai-lorebook"]?.raw as NaiLorebook | undefined;
+    const raw = entity.original?.["novelai-lorebook"]?.raw as NaiLorebook | undefined;
     const out = bookToWire(entity.body, raw);
     return { text: JSON.stringify(out, null, 4), suggestedExtension: "lorebook" };
   },

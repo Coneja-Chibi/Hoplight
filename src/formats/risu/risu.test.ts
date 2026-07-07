@@ -65,7 +65,7 @@ test("detect recognizes a .charx (zip with card.json)", () => {
   expect(adapter.detect({ bytes: new Uint8Array([1, 2, 3]) })).toBe(0);
 });
 
-test("toCanonical reads V3 fields + escrows raw card, assets, module", () => {
+test("toCanonical reads V3 fields + originals raw card, assets, module", () => {
   const bytes = makeCharx(makeCard());
   const ent = adapter.toCanonical({ bytes });
 
@@ -79,7 +79,7 @@ test("toCanonical reads V3 fields + escrows raw card, assets, module", () => {
   expect(ent.body.attribution.createdAt).toBe(1700000000);
   expect(ent.body.media.portrait?.ref).toBe("embeded://assets/main.png");
 
-  const esc = ent.escrow?.risu;
+  const esc = ent.original?.risu;
   expect(esc).toBeTruthy();
   const unmapped = esc!.unmapped as { assetFiles: Record<string, string>; moduleRisum?: string };
   expect(Object.keys(unmapped.assetFiles).sort()).toEqual(["assets/happy.png", "assets/main.png"]);
@@ -130,22 +130,22 @@ test("normalizes Risu millisecond dates to seconds, restoring the raw ms on expo
   expect(rebuilt.data.modification_date).toBe(1761917762720);
 });
 
-test("flags opaque executable content + privilege on escrow, without ever running it", () => {
+test("flags opaque executable content + privilege on original, without ever running it", () => {
   // makeCard carries a triggerscript -> flagged as executable, not privileged
   const ent = adapter.toCanonical({ bytes: makeCharx(makeCard()) });
-  expect(ent.escrow?.risu?.unmapped?.["hasExecutableContent"]).toBe(true);
-  expect(ent.escrow?.risu?.unmapped?.["privileged"]).toBe(false);
+  expect(ent.original?.risu?.unmapped?.["hasExecutableContent"]).toBe(true);
+  expect(ent.original?.risu?.unmapped?.["privileged"]).toBe(false);
 
   // a card requesting low-level access -> privileged
   const priv = makeCard();
   (priv.data.extensions.risuai as Record<string, unknown>).lowLevelAccess = true;
   const privEnt = adapter.toCanonical({ bytes: makeCharx(priv) });
-  expect(privEnt.escrow?.risu?.unmapped?.["privileged"]).toBe(true);
+  expect(privEnt.original?.risu?.unmapped?.["privileged"]).toBe(true);
 
   // a clean card with no scripts/module -> not flagged
   const clean = { spec: "chara_card_v3", spec_version: "3.0", data: { name: "Clean", extensions: {} } };
   const cleanEnt = adapter.toCanonical({ bytes: zipSync({ "card.json": strToU8(JSON.stringify(clean)) }) });
-  expect(cleanEnt.escrow?.risu?.unmapped?.["hasExecutableContent"]).toBe(false);
+  expect(cleanEnt.original?.risu?.unmapped?.["hasExecutableContent"]).toBe(false);
 });
 
 test("a .charx whose card.json lacks a data object fails at the boundary, clearly", () => {
@@ -163,7 +163,7 @@ test("an edit to the canonical body is reflected in the rebuilt card.json", () =
   expect(rebuiltCard.data.extensions.risuai.triggerscript[0].code).toBe("log('never runs in vaud')");
 });
 
-// -- De-escrow (real sample): the authored risuai scalar surface is first-class, edit-tested against
+// -- De-original (real sample): the authored risuai scalar surface is first-class, edit-tested against
 // the real cherry card (samples/risu/cherry.card.json, sliced from the 23.7MB cherry.charx; see
 // samples/risu/SOURCES.md). The codec previously mapped ZERO risuai fields. --
 
@@ -177,7 +177,7 @@ const cherryCharx = (): Uint8Array =>
     ),
   });
 
-test("de-escrow read: real cherry risuai scalars land in first-class canonical slots", () => {
+test("de-original read: real cherry risuai scalars land in first-class canonical slots", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
   expect(ent.body.settings?.risu?.viewScreen).toBe("none");
   expect(ent.body.settings?.risu?.largePortrait).toBe(true);
@@ -190,14 +190,14 @@ test("de-escrow read: real cherry risuai scalars land in first-class canonical s
   expect(ent.body.prompts.additionalText).toBeUndefined();
 });
 
-test("de-escrow round-trip: unedited cherry card.json re-emits data-identical", () => {
+test("de-original round-trip: unedited cherry card.json re-emits data-identical", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
   const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
   const orig = JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8"));
   expect(out).toEqual(orig);
 });
 
-test("de-escrow edit: mutating toggles/bias/license/rows reaches the risuai wire, siblings survive", () => {
+test("de-original edit: mutating toggles/bias/license/rows reaches the risuai wire, siblings survive", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
   ent.body.settings!.risu!.viewScreen = "emotion";
   ent.body.bias = [{ phrase: "solo", weight: -5 }];
@@ -216,7 +216,7 @@ test("de-escrow edit: mutating toggles/bias/license/rows reaches the risuai wire
   expect(r.triggerscript.length).toBe(9);
 });
 
-// -- Behavior de-escrow: scripts are first-class editable DATA (never executed, never blind-copied). --
+// -- Behavior de-original: scripts are first-class editable DATA (never executed, never blind-copied). --
 
 test("behavior read: cherry scripts land in first-class editable slots", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
