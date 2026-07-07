@@ -51,6 +51,21 @@ test("arrays replace wholesale; a present empty string clears a field", () => {
   expect(out.identity.description).toBe(""); // cleared: key present
 });
 
+test("full override (mirrorBase=false) replaces defined sections wholesale; omitted inherit; name falls through", () => {
+  const out = applyVariant(base, {
+    id: "v2",
+    mirrorBase: false,
+    overrides: { persona: { personality: "new pers" }, identity: { tagline: "new tag" } },
+  });
+  expect(out.identity.name).toBe("Mosis"); // base name fell through
+  expect(out.identity.tagline).toBe("new tag");
+  expect(out.identity.description).toBeUndefined(); // dropped: identity section replaced
+  expect(out.persona.personality).toBe("new pers");
+  expect(out.persona.scenario).toBeUndefined(); // dropped: persona section replaced
+  expect(out.prompts.systemPrompt).toBe("base sys"); // untouched section inherits
+  expect(out.greetings.firstMessage).toBe("base hi"); // untouched section inherits
+});
+
 test("applyVariant does not mutate the base (incl. nested objects)", () => {
   const snapshot = JSON.stringify(base);
   applyVariant(base, { id: "v1", overrides: { identity: { name: "X" }, persona: { voice: { provider: "openai" } } } });

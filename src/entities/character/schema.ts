@@ -360,6 +360,11 @@ export type DeepPartial<T> = {
 export interface CharacterVariant {
   id: string;
   label?: string;
+  /** RC's two modes. true/undefined (mirror, default): deep-overlay the overrides, unset fields inherit
+   * from the base. false (full override): each section the variant defines REPLACES the base's whole
+   * section (base fields in it drop), untouched sections still inherit, and the character keeps a name
+   * (base name falls through when the override omits it). */
+  mirrorBase?: boolean;
   /** the fields this variant changes - any subset of the canonical body, deep-merged onto the base */
   overrides: DeepPartial<Omit<CharacterBody, "variants">>;
 }

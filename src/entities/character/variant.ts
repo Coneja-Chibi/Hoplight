@@ -4,9 +4,12 @@
  * generalized from RC's fixed field subset to a deep partial of the whole body). The editor/preview
  * renders the base with the active variant deep-merged in. Pure: returns a NEW body, never mutates.
  *
- * Merge rule: a field is overridden when its key is PRESENT in the variant's `overrides` - nested
- * objects recurse, arrays and primitives replace wholesale (set a field to "" to clear it). Keys the
- * variant does not mention inherit from the base.
+ * Two modes (RC's), both over the any-field overrides:
+ *   - mirror (default): deep-overlay - a field is overridden when its key is PRESENT in `overrides`
+ *     (nested objects recurse; arrays/primitives replace; set "" to clear). Absent keys inherit.
+ *   - full override (mirrorBase === false): each section the variant defines REPLACES the base's whole
+ *     section (base fields in it drop); sections the variant omits still inherit; the character keeps a
+ *     name (base name falls through when the override omits it).
  */
 import type { CharacterBody, CharacterVariant, DeepPartial } from "./schema";
 
@@ -24,7 +27,17 @@ function deepMerge<T>(base: T, over: DeepPartial<T>): T {
   return out as T;
 }
 
-/** The base body with the variant's overrides deep-merged in. Pure. */
+/** The base body with the variant applied, per its mode. Pure. */
 export function applyVariant(base: CharacterBody, variant: CharacterVariant): CharacterBody {
-  return deepMerge(base, variant.overrides as DeepPartial<CharacterBody>);
+  const overrides = variant.overrides as DeepPartial<CharacterBody>;
+  if (variant.mirrorBase !== false) return deepMerge(base, overrides); // mirror (default)
+
+  // full override: each defined section replaces the base's section wholesale; omitted sections inherit
+  const out: Record<string, unknown> = { ...(base as unknown as Record<string, unknown>) };
+  for (const [key, section] of Object.entries(overrides as Record<string, unknown>)) {
+    if (section !== undefined) out[key] = section;
+  }
+  const identity = out.identity as { name?: string } | undefined;
+  if (!identity?.name) out.identity = { ...(identity ?? {}), name: base.identity.name };
+  return out as unknown as CharacterBody;
 }
