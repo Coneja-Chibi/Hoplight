@@ -4,8 +4,13 @@ import type { CharacterBody } from "./schema";
 
 const base: CharacterBody = {
   identity: { name: "Mosis", tagline: "base tag", description: "base desc" },
-  persona: { personality: "base pers", scenario: "base scen" },
-  prompts: { systemPrompt: "base sys" },
+  persona: {
+    personality: "base pers",
+    scenario: "base scen",
+    appearance: "base look",
+    voice: { provider: "elevenlabs", voiceId: "abc" },
+  },
+  prompts: { systemPrompt: "base sys", postHistoryInstructions: "base phi" },
   greetings: { firstMessage: "base hi", alternateGreetings: [{ text: "alt base" }] },
   examples: { exampleMessages: "base ex" },
   media: {},
@@ -14,40 +19,40 @@ const base: CharacterBody = {
   presentation: { signatureColor: "#111111" }, // hardcode-ok: test fixture value, not chrome
 };
 
-test("mirror overlays only the non-empty variant fields; unset ones inherit from base", () => {
-  const out = applyVariant(base, { id: "v1", name: "Dark Mosis", personality: "cruel" });
-  expect(out.identity.name).toBe("Dark Mosis"); // overridden
+test("overrides any named field; unnamed fields inherit from base", () => {
+  const out = applyVariant(base, { id: "v1", overrides: { identity: { name: "Dark Mosis" }, persona: { personality: "cruel" } } });
+  expect(out.identity.name).toBe("Dark Mosis");
   expect(out.identity.tagline).toBe("base tag"); // inherited
-  expect(out.persona.personality).toBe("cruel"); // overridden
+  expect(out.persona.personality).toBe("cruel");
   expect(out.persona.scenario).toBe("base scen"); // inherited
+});
+
+test("can alter fields RC's fixed subset never had (appearance, post-history)", () => {
+  const out = applyVariant(base, {
+    id: "v1",
+    overrides: { persona: { appearance: "scarred" }, prompts: { postHistoryInstructions: "new phi" } },
+  });
+  expect(out.persona.appearance).toBe("scarred");
+  expect(out.prompts.postHistoryInstructions).toBe("new phi");
   expect(out.prompts.systemPrompt).toBe("base sys"); // inherited
 });
 
-test("mirror ignores empty-string overrides (keeps base)", () => {
-  const out = applyVariant(base, { id: "v1", name: "", description: "" });
-  expect(out.identity.name).toBe("Mosis");
-  expect(out.identity.description).toBe("base desc");
+test("nested objects deep-merge (voice.provider changes, voiceId kept)", () => {
+  const out = applyVariant(base, { id: "v1", overrides: { persona: { voice: { provider: "openai" } } } });
+  expect(out.persona.voice).toEqual({ provider: "openai", voiceId: "abc" });
 });
 
-test("full override replaces the base; name falls through when unset, cleared fields blank", () => {
-  const out = applyVariant(base, { id: "v2", mirrorBase: false, personality: "new pers" });
-  expect(out.identity.name).toBe("Mosis"); // fell through (variant left name unset)
-  expect(out.identity.tagline).toBe(""); // cleared
-  expect(out.identity.description).toBe(""); // cleared
-  expect(out.persona.personality).toBe("new pers"); // set
-  expect(out.persona.scenario).toBe("base scen"); // persona/scenario fall through to base (RC behavior)
-  expect(out.prompts.systemPrompt).toBe(""); // cleared
+test("arrays replace wholesale; a present empty string clears a field", () => {
+  const out = applyVariant(base, {
+    id: "v1",
+    overrides: { greetings: { alternateGreetings: [{ text: "new" }] }, identity: { description: "" } },
+  });
+  expect(out.greetings.alternateGreetings).toEqual([{ text: "new" }]);
+  expect(out.identity.description).toBe(""); // cleared: key present
 });
 
-test("alternateGreetings: mirror keeps base when omitted, replaces when provided", () => {
-  expect(applyVariant(base, { id: "v1", name: "X" }).greetings.alternateGreetings).toEqual([{ text: "alt base" }]);
-  expect(applyVariant(base, { id: "v1", alternateGreetings: [{ text: "alt new" }] }).greetings.alternateGreetings).toEqual([
-    { text: "alt new" },
-  ]);
-});
-
-test("applyVariant does not mutate the base", () => {
+test("applyVariant does not mutate the base (incl. nested objects)", () => {
   const snapshot = JSON.stringify(base);
-  applyVariant(base, { id: "v1", mirrorBase: false, name: "X", scenario: "y" });
+  applyVariant(base, { id: "v1", overrides: { identity: { name: "X" }, persona: { voice: { provider: "openai" } } } });
   expect(JSON.stringify(base)).toBe(snapshot);
 });

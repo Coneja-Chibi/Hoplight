@@ -345,27 +345,23 @@ export interface CharacterBody {
   variants?: CharacterVariant[];
 }
 
+/** A recursive partial: any subset of a type, nested, with arrays replaced wholesale (not deep-merged). */
+export type DeepPartial<T> = {
+  [K in keyof T]?: T[K] extends ReadonlyArray<unknown> ? T[K] : T[K] extends object ? DeepPartial<T[K]> : T[K];
+};
+
 /**
- * A character variant - an alternate version that overrides a subset of the base's authored fields.
- * Copied from RoleCall (apps/rc src/lib/scene/variant-merge.ts). Every override is optional; only set
- * fields diverge from base. `mirrorBase` (default true) overlays non-empty fields onto the base; false
- * fully overrides. Portrait/art overrides are deferred to the media milestone.
+ * A character variant - an alternate version that can override ANY field of the base (inspired by
+ * RoleCall's variant mechanic, generalized). `overrides` is a deep partial of the body; applyVariant
+ * (./variant.ts) deep-merges it onto the base, so a variant may change one field or the whole persona.
+ * A field is overridden when the key is PRESENT in `overrides` (set it to "" to clear); absent keys
+ * inherit from the base.
  */
 export interface CharacterVariant {
   id: string;
   label?: string;
-  /** default true = overlay non-empty fields onto base; false = full override */
-  mirrorBase?: boolean;
-  name?: string;
-  tagline?: string;
-  description?: string;
-  personality?: string;
-  scenario?: string;
-  firstMessage?: string;
-  alternateGreetings?: Greeting[];
-  exampleMessages?: string;
-  systemPrompt?: string;
-  signatureColor?: string;
+  /** the fields this variant changes - any subset of the canonical body, deep-merged onto the base */
+  overrides: DeepPartial<Omit<CharacterBody, "variants">>;
 }
 
 export type CanonicalCharacter = CanonicalEntity<"character", CharacterBody>;
