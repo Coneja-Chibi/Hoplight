@@ -119,13 +119,14 @@ function depthInjections(rc: RcExtension): DepthInjection[] | undefined {
   }));
 }
 
-/** rolecall.accent_color + details -> the casting-card presentation layer (undefined when empty). */
+/** rolecall details -> the casting-card presentation layer (undefined when empty). accent_color is
+ * account-level, not a card field, so it is not surfaced here; it still rides in the kept-whole
+ * original and re-emits unchanged on export. */
 function presentation(rc: RcExtension): Presentation | undefined {
   const d = rc.details;
   const bg = d?.default_background;
   const bgRef = bg ? (bg.customUrl ?? bg.backgroundId ?? undefined) : undefined;
   const p: Presentation = {
-    accentColor: rc.accent_color,
     signatureColor: d?.signature_color,
     gradientColors: d?.gradient_colors,
     palette: d?.colors?.map((c) => ({ label: c.label, name: c.name, hex: c.hex })),

@@ -49,7 +49,7 @@ export const EXTENSION_PLATFORMS: ExtensionPlatform[] = [
       "persona.scenario", "persona.appearance", "prompts.systemPrompt", "prompts.postHistoryInstructions",
       "prompts.depthInjections", "greetings.firstMessage", "greetings.alternateGreetings",
       "examples.exampleMessages", "discovery.tags", "attribution.creator", "attribution.creatorNotes",
-      "presentation.accentColor", "presentation.palette", "media.portrait", "media.sprite",
+      "presentation.palette", "media.portrait", "media.sprite",
       "settings.talkativeness", "worldName", "knowledgeRefs",
     ],
     escrowFields: [

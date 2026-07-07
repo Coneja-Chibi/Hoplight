@@ -19,7 +19,6 @@ import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
 import { ColorPicker } from "../../components/color-picker";
-import { SwatchRow, HOUSE_PALETTE } from "../../components/swatch-row";
 import { RenderBox } from "../../components/render-box";
 import { normalizeHex } from "../../_shared/color-math";
 import {
@@ -495,15 +494,32 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     );
   };
 
-  const gradient = strArr(readPath(draft, "presentation.gradientColors"));
-  const setGradient = (rows: string[]): void =>
-    setField("presentation.gradientColors", rows.filter(Boolean).slice(0, 3));
+  // Signature color: one concept, two storage shapes. One color is a solid signature
+  // (presentation.signatureColor); two or three blend into a gradient (presentation.gradientColors).
+  // The editor works one unified list; the setter routes it to the shape that matches the count, so a
+  // solid and a blend never both hold a value.
+  const sigSolid = str(readPath(draft, "presentation.signatureColor"));
+  const gradRaw = strArr(readPath(draft, "presentation.gradientColors"));
+  const gradient = gradRaw.length > 0 ? gradRaw : sigSolid ? [sigSolid] : [];
+  const setGradient = (rows: string[]): void => {
+    const clean = rows.filter(Boolean).slice(0, 3);
+    if (clean.length >= 2) {
+      setField("presentation.gradientColors", clean);
+      setField("presentation.signatureColor", "");
+    } else if (clean.length === 1) {
+      setField("presentation.signatureColor", clean[0]!);
+      setField("presentation.gradientColors", []);
+    } else {
+      setField("presentation.signatureColor", "");
+      setField("presentation.gradientColors", []);
+    }
+  };
   const gradAt = Math.min(gradSel, Math.max(0, gradient.length - 1));
   // a single color renders solid; two or more blend left to right (a 1-stop gradient is invalid CSS)
   const gradCss = gradient.length < 2 ? (gradient[0] ?? "transparent") : `linear-gradient(90deg, ${gradient.join(", ")})`;
   const gradientBody = (
     <>
-      <span className={styles.hint}>up to 3 colors, blended left to right into the accent gradient</span>
+      <span className={styles.hint}>one color is solid; add up to 3 to blend them into a gradient</span>
       <div className={styles.palGrid}>
         {gradient.map((hex, i) => (
           <button
@@ -537,7 +553,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         )}
       </div>
       {gradient.length === 0 ? (
-        <span className={styles.hint}>no colors yet - add one to start the gradient</span>
+        <span className={styles.hint}>no signature color yet - add one, or add up to 3 to blend a gradient</span>
       ) : (
         <>
           <div className={styles.gradBar} style={{ background: gradCss }} />
@@ -826,24 +842,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
                 </button>
               );
             })}
-          </div>
-        );
-      }
-      case "color": {
-        const cur = str(readPath(draft, m.path));
-        return (
-          <div className={styles.colorRow}>
-            <SwatchRow
-              palette={HOUSE_PALETTE}
-              value={cur}
-              onChange={(hex) => setField(m.path, hex)}
-              allowCustom
-            />
-            {cur !== "" && (
-              <button type="button" className={styles.rm} onClick={() => setField(m.path, "")}>
-                clear
-              </button>
-            )}
           </div>
         );
       }
@@ -1287,7 +1285,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         {bcard("Examples", ["mesExample"])}
       </div>
       <div className={styles.bcol}>
-        {bcard("Color Palette", ["palette", "gradient", "accentColor", "signatureColor"])}
+        {bcard("Color Palette", ["gradient", "palette"])}
         {bcard("Default Background", ["background"])}
         {macroCard}
         {bcard("Spotlight Definitions", ["spotlight"])}
@@ -1314,7 +1312,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     { id: "examples", no: "Act V", title: "Examples", ids: ["mesExample"] },
     { id: "discovery", no: "Act VI", title: "Discovery", ids: ["genre", "fandom", "contentWarnings"] },
     { id: "attribution", no: "Act VII", title: "Attribution", ids: ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"] },
-    { id: "presentation", no: "Act VIII", title: "Presentation", ids: ["palette", "gradient", "accentColor", "signatureColor", "background", "spotlight", "mediaLinks", "visualKind"] },
+    { id: "presentation", no: "Act VIII", title: "Presentation", ids: ["gradient", "palette", "background", "spotlight", "mediaLinks", "visualKind"] },
     { id: "settings", no: "Act IX", title: "Settings", ids: ["talkativeness", "risuSettings", "bias"] },
   ];
   const WIDE_KINDS = new Set(["prose", "greetings", "list", "keyvalue", "list-subeditor", "structured-subeditor", "spotlight", "background", "palette", "gradient", "asset-gallery", "tags", "rating"]);

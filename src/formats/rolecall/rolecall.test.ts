@@ -96,7 +96,8 @@ test("toCanonical maps the RC-specific layer onto the shared Tavern body", () =>
   ]);
 
   const p = ent.body.presentation!;
-  expect(p.accentColor).toBe("#3a2e1f");
+  // accent_color is account-level, not a card field: it is intentionally NOT surfaced on presentation.
+  // It is still kept whole in the original and re-emitted on export (proven by the round-trip test).
   expect(p.palette).toEqual([{ label: "Ink", name: "ink", hex: "#1a1410" }]);
   expect(p.background).toEqual({ ref: "https://cdn/bg.mp4", overlayOpacity: 0.6, videoPlaybackRate: 1 });
   expect(p.fieldOrder).toEqual(["personality", "scenario"]);

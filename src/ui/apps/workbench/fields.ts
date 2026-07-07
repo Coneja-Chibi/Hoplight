@@ -31,7 +31,6 @@ export type FieldKind =
   // P2 primitives (each is one controlFor case, stamped across dozens of fields):
   | "select" // one-of an open/closed string union, pickable cards
   | "number" // a number (optionally a 0..1 range) with min/max/step
-  | "color" // a single hex swatch (accentColor, signatureColor)
   | "keyvalue" // Record<string, string> rows (locale->text, attribute maps)
   | "list-subeditor" // a repeating list of small objects (bias, depthInjections)
   | "structured-subeditor" // one fixed nested object (voice, sprite, settings.risu)
@@ -137,8 +136,8 @@ export const FIELD_MODULES: FieldModule[] = [
   { id: "portrait", path: "media.portrait", kind: "portrait", step: "casting",
     question: "Give them a face?", helper: "Add art now, or skip and add it later.", sheetLabel: "Portrait" },
   { id: "gradient", path: "presentation.gradientColors", kind: "gradient", step: "casting",
-    question: "Signature colors?", helper: "Up to 3, blended left to right into their accent. Optional.",
-    sheetLabel: "Signature colors" },
+    question: "A signature color?", helper: "One color is solid; add up to 3 to blend into a gradient. Optional.",
+    sheetLabel: "Signature color" },
   { id: "palette", path: "presentation.palette", kind: "palette", step: "casting",
     question: "Name a color palette?", helper: "Hair, eyes, skin... named colors for later. Optional.",
     sheetLabel: "Palette" },
@@ -219,10 +218,6 @@ export const FIELD_MODULES: FieldModule[] = [
       { key: "phrase", kind: "text", label: "Phrase", placeholder: "a phrase" },
       { key: "weight", kind: "number", label: "Weight", number: { step: 1 } },
     ] },
-  { id: "accentColor", path: "presentation.accentColor", kind: "color", step: "finalize",
-    question: "An accent color?", helper: "Their card's highlight color. Optional.", sheetLabel: "Accent color" },
-  { id: "signatureColor", path: "presentation.signatureColor", kind: "color", step: "finalize",
-    question: "A signature color?", helper: "Their theme color on platforms that support it. Optional.", sheetLabel: "Signature color" },
   { id: "mediaLinks", path: "presentation.mediaLinks", kind: "list", step: "finalize",
     question: "Any media links?", helper: "Links shown on their card (art, refs, socials). Add each, press enter. Optional.", sheetLabel: "Media links" },
   { id: "risuSettings", path: "settings.risu", kind: "structured-subeditor", step: "finalize",

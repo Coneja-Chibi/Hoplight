@@ -211,9 +211,12 @@ export interface Background {
  * Optional; formats without a presentation concept simply omit it.
  */
 export interface Presentation {
-  accentColor?: string;
-  /** second theming color, distinct from accent (RC details.signature_color, Risu theme color) */
+  /** the character's signature color when it is a single solid (RC details.signature_color, Risu
+   * theme color). A signature that is a blend rides in gradientColors instead - one concept, two
+   * storage shapes. Account-level accent color is deliberately not modeled here: it belongs to the
+   * user's account, not the card. */
   signatureColor?: string;
+  /** the character's signature when it is a blend of 2-3 colors (RC details.gradient_colors) */
   gradientColors?: string[];
   palette?: Swatch[];
   background?: Background;
