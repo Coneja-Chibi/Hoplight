@@ -39,7 +39,7 @@ import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { StubEditor, type Stub } from "../../components/native-card";
 import { nativeItemsFor, nativeBentoParts, nativePlaybillSection, nativePlaybillNav } from "./native-render";
 import { useVariants } from "./use-variants";
-import { VariantStrip } from "../../components/variant-strip";
+import { PortraitCard } from "./controls/portrait-card";
 import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate, type Greeting } from "./editor-derive";
 import { TAG_CATEGORY_STYLE } from "./tag-category-style";
 import { OptionCards } from "./controls/option-cards";
@@ -318,37 +318,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   })();
 
   const leftCard = (
-    <section className={styles.lcard} data-tour="portrait">
-      <div className={styles.portrait}>
-        {artUrl ? <img src={artUrl} alt="" /> : <b>{(text("identity.name") || piece.name).charAt(0).toUpperCase()}</b>}
-      </div>
-      <VariantStrip
-        variants={vary.variants}
-        activeId={vary.activeId}
-        artUrl={artUrl}
-        onSelect={vary.select}
-        onAdd={vary.add}
-        onRemove={vary.remove}
-        onRename={vary.rename}
-        onMode={vary.setMode}
-      />
-      <div className={styles.lmeta}>
-        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
-        <div className={styles.lsub}>
-          {piece.sourceVariant !== undefined && `${piece.sourceVariant} · `}
-          {`~${tokenEstimate(draft)} tokens`}
-          {updatedAt !== null && ` · last edited ${updatedAt}`}
-        </div>
-      </div>
-      <div className={styles.btnrow}>
-        <button type="button" className={styles.stampBtn} disabled title="Image management lands with the media milestone">
-          Change Image
-        </button>
-        <button type="button" className={styles.stampBtn} disabled title="Sprites land with the media milestone">
-          Manage Sprites
-        </button>
-      </div>
-    </section>
+    <PortraitCard
+      artUrl={artUrl}
+      name={text("identity.name") || piece.name}
+      tokens={tokenEstimate(draft)}
+      updatedAt={updatedAt}
+      sourceVariant={piece.sourceVariant}
+      vary={vary}
+      styles={styles}
+    />
   );
 
   // -- field controls --------------------------------------------------------------------------------
