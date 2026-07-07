@@ -83,8 +83,9 @@ const byPlatform = (items: NativeFieldItem[]): [string, NativeFieldItem[]][] => 
 const anchor = (platform: string): string => `act-native-${platform.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 /**
- * The playbill native section: one titled group of cards per platform, appended to the acts form. Uses
- * the same bento cards as the grid layout so a field looks and behaves identically in both.
+ * The playbill native section: one act per platform, its fields rendered as BARE labeled fields (label
+ * + control), matching the acts form - NOT bento cards (that is the grid layout's shape). Big fields
+ * span the two-column grid. The act break header already names the platform, so fields drop the pill.
  */
 export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | null {
   if (items.length === 0) return null;
@@ -100,7 +101,14 @@ export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | n
             </span>
             <span className={styles.bar} />
           </div>
-          <div className={styles.grid}>{group.map(card)}</div>
+          <div className={styles.fields}>
+            {group.map((item) => (
+              <div key={item.key} className={`${styles.field}${item.big ? ` ${styles.span2}` : ""}`}>
+                <span className={styles.flabel}>{item.label}</span>
+                {item.body}
+              </div>
+            ))}
+          </div>
         </section>
       ))}
     </>

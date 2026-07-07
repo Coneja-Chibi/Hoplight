@@ -48,10 +48,28 @@
   font-size: 1rem;
   color: var(--stage-soft, var(--text-soft));
 }
-.grid {
+/* playbill: bare labeled fields in a two-column grid, matching the acts form (NOT bento cards) */
+.fields {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem 1.4rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.span2 {
+  grid-column: 1 / -1;
+}
+.flabel {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft, var(--text-soft));
 }
 
 /* playbill Bill-nav entry (mirrors the canonical toc rows) */
