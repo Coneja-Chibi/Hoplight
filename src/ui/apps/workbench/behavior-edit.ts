@@ -11,12 +11,28 @@
  * controls) or an ADVANCED shape (the assisted-code editor); the raw object rides along either way.
  */
 import type { RegexScript, TriggerScript } from "../../../entities/character/schema";
+import { asRec } from "../../../entities/character/behavior";
+
+// the pure row classification lives in the entity layer (both this editor and the sandbox runner read it);
+// re-exported here so the controls keep importing it from one place.
+export {
+  asRec,
+  classifyCondition,
+  classifyEffect,
+  triggerIsStructured,
+} from "../../../entities/character/behavior";
+export type {
+  KnownCondition,
+  AdvancedCondition,
+  ConditionView,
+  SetvarEffect,
+  ImpersonateEffect,
+  CommandEffect,
+  AdvancedEffect,
+  EffectView,
+} from "../../../entities/character/behavior";
 
 type Rec = Record<string, unknown>;
-
-/** read any value as a plain object (never mutate the result); non-objects become {}. */
-export const asRec = (v: unknown): Rec =>
-  typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Rec) : {};
 
 // -- immutable list ops (shared by every repeating-row control) --
 export const setAt = <T>(list: readonly T[], i: number, v: T): T[] => list.map((x, j) => (j === i ? v : x));
@@ -76,90 +92,9 @@ export const IMPERSONATE_ROLES: ReadonlyArray<{ value: string; label: string }> 
   { value: "char", label: "the character" },
 ];
 
-const str = (v: unknown): string => (typeof v === "string" ? v : "");
-const hasMacro = (v: unknown): boolean => typeof v === "string" && v.includes("{{");
-
-// -- CONDITION classification --
-
-/** A condition whose shape we can render as a friendly "if X is Y" row. */
-export interface KnownCondition {
-  kind: "known";
-  variable: string;
-  operator: string;
-  value: string;
-  raw: Rec;
-}
-/** A macro-built or foreign condition: shown in the assisted-code editor, never forced into inputs. */
-export interface AdvancedCondition {
-  kind: "advanced";
-  raw: Rec;
-}
-export type ConditionView = KnownCondition | AdvancedCondition;
-
-/**
- * Classify a condition row. KNOWN only when it is a plain variable comparison with no macro in the
- * variable name (Risu's `type:"value"` rows carry a macro EXPRESSION in `var`, e.g.
- * `^{{greater_equal::{{getvar::dep}}::10000}}` - those are the code escape hatch, kept advanced).
- */
-export function classifyCondition(row: unknown): ConditionView {
-  const raw = asRec(row);
-  const type = str(raw.type);
-  const variable = str(raw.var);
-  if (type === "var" && variable !== "" && !hasMacro(variable)) {
-    return { kind: "known", variable, operator: str(raw.operator), value: str(raw.value), raw };
-  }
-  return { kind: "advanced", raw };
-}
-
-// -- EFFECT classification --
-
-export interface SetvarEffect {
-  kind: "setvar";
-  variable: string;
-  operator: string;
-  value: string;
-  raw: Rec;
-}
-export interface ImpersonateEffect {
-  kind: "impersonate";
-  role: string;
-  value: string;
-  raw: Rec;
-}
-export interface CommandEffect {
-  kind: "command";
-  value: string;
-  raw: Rec;
-}
-export interface AdvancedEffect {
-  kind: "advanced";
-  raw: Rec;
-}
-export type EffectView = SetvarEffect | ImpersonateEffect | CommandEffect | AdvancedEffect;
-
-/** Classify an effect row by its `type`; unknown types stay advanced (assisted-code), never dropped. */
-export function classifyEffect(row: unknown): EffectView {
-  const raw = asRec(row);
-  switch (str(raw.type)) {
-    case "setvar":
-      return { kind: "setvar", variable: str(raw.var), operator: str(raw.operator), value: str(raw.value), raw };
-    case "impersonate":
-      return { kind: "impersonate", role: str(raw.role), value: str(raw.value), raw };
-    case "command":
-      return { kind: "command", value: str(raw.value), raw };
-    default:
-      return { kind: "advanced", raw };
-  }
-}
-
 // -- blank rows for the "add" buttons (structured authoring from scratch) --
 
 export const blankCondition = (): Rec => ({ type: "var", var: "", value: "", operator: "=" });
 export const blankSetvarEffect = (): Rec => ({ type: "setvar", var: "", value: "", operator: "=" });
 export const blankRegexScript = (): RegexScript => ({ label: "", find: "", replace: "", phase: "editdisplay" });
 export const blankTrigger = (): TriggerScript => ({ label: "", event: "output", conditions: [], effects: [] });
-
-/** whether a whole trigger is renderable structured (all condition/effect rows are known shapes). */
-export const triggerIsStructured = (t: TriggerScript): boolean =>
-  t.conditions.every((c) => classifyCondition(c).kind === "known") &&
-  t.effects.every((e) => classifyEffect(e).kind !== "advanced");
