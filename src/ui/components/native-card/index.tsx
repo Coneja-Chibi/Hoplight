@@ -9,6 +9,7 @@ import type { JSX } from "react";
 import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
 import { LinkOut } from "../link-out";
+import { RawExtensions } from "../raw-extensions";
 import styles from "./styles.module.css";
 
 /** Which reusable control renders a native field. Grown as each approved component lands. */
@@ -18,7 +19,8 @@ export type NativeControl =
   | "note"
   | "lorebook-link" // an embedded lorebook object -> link to the Lorebook editor
   | "world-link" // a lorebook bound by name -> link to the Lorebook editor
-  | "regex-link"; // regex scripts array -> link to the Regex editor
+  | "regex-link" // regex scripts array -> link to the Regex editor
+  | "raw-extensions"; // the catch-all: every leftover key in this object, editable
 
 export interface NativeField {
   /** dot path relative to entity.original */
@@ -124,6 +126,8 @@ function fieldControl(field: NativeField, read: (p: string) => unknown, write: (
       if (n === 0) return <LinkOut title="" empty emptyLabel="No regex scripts" />;
       return <LinkOut title={plural(n, "script") + " attached"} meta="card-scoped find/replace" action="Open in Regex editor" />;
     }
+    case "raw-extensions":
+      return <></>; // intercepted by NativeCard (needs schema context); never reached here
   }
 }
 
@@ -131,13 +135,28 @@ export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Elemen
   return (
     <section className={styles.card}>
       <div className={styles.head}>{schema.label} fields</div>
-      {schema.fields.map((f) => (
-        <div className={styles.field} key={f.path}>
-          <div className={styles.label}>{f.label}</div>
-          {f.help ? <div className={styles.help}>{f.help}</div> : null}
-          {fieldControl(f, read, write)}
-        </div>
-      ))}
+      {schema.fields.map((f) => {
+        // the catch-all needs schema context: hide the keys other fields already own
+        if (f.control === "raw-extensions") {
+          const prefix = `${f.path}.`;
+          const handled = schema.fields
+            .filter((o) => o !== f && o.path.startsWith(prefix))
+            .map((o) => o.path.slice(prefix.length))
+            .filter((seg) => !seg.includes(".")); // direct children only
+          return (
+            <div className={styles.field} key={f.path}>
+              <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />
+            </div>
+          );
+        }
+        return (
+          <div className={styles.field} key={f.path}>
+            <div className={styles.label}>{f.label}</div>
+            {f.help ? <div className={styles.help}>{f.help}</div> : null}
+            {fieldControl(f, read, write)}
+          </div>
+        );
+      })}
     </section>
   );
 }

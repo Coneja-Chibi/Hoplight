@@ -56,6 +56,12 @@ const SILLYTAVERN: NativeSchema = {
       control: "regex-link",
       help: "Card-scoped find/replace rules. Regex is its own editor in Vaude.",
     },
+    {
+      // the crumb net: every extensions key not owned by a field above stays editable here
+      path: "sillytavern.raw.data.extensions",
+      label: "Other extension data",
+      control: "raw-extensions",
+    },
   ],
 };
 
