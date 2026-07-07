@@ -5,13 +5,22 @@
  * becomes editable instead of frozen. The schema TYPES live here (leaf layer); the per-platform
  * schema DATA lives in the editor (apps/workbench/native-fields.ts) and imports these.
  */
+import { useState } from "react";
 import type { JSX } from "react";
 import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
 import { LinkOut } from "../link-out";
 import { RawExtensions } from "../raw-extensions";
 import { AssetManager, type Asset } from "../asset-manager";
+import { StubEditor } from "../stub-editor";
 import styles from "./styles.module.css";
+
+/** an open stub-editor request: what to show while the real content-type editor does not exist yet */
+interface Stub {
+  title: string;
+  note: string;
+  view: JSX.Element;
+}
 
 /** Which reusable control renders a native field. Grown as each approved component lands. */
 export type NativeControl =
@@ -53,7 +62,32 @@ const asRec = (v: unknown): Record<string, unknown> | undefined =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
 const plural = (n: number, one: string): string => `${n} ${n === 1 ? one : `${one}s`}`;
 
-function fieldControl(field: NativeField, read: (p: string) => unknown, write: (p: string, v: unknown) => void): JSX.Element {
+/** read-only rows for a stub editor's body (a lorebook's entries, a regex list) */
+const stubRows = (items: unknown[], titleKey: string, bodyKey: string, fallbackName: string): JSX.Element => (
+  <>
+    {items.length === 0 ? (
+      <div className={styles.help}>Nothing here yet.</div>
+    ) : (
+      items.map((it, i) => {
+        const r = asRec(it) ?? {};
+        const keys = Array.isArray(r.keys) ? r.keys.filter((k) => typeof k === "string").join(", ") : "";
+        return (
+          <div className={styles.stubEntry} key={i}>
+            <div className={styles.stubKey}>{str(r[titleKey]) || keys || `${fallbackName} ${i + 1}`}</div>
+            <div className={styles.stubText}>{str(r[bodyKey]).slice(0, 160) || "(empty)"}</div>
+          </div>
+        );
+      })
+    )}
+  </>
+);
+
+function fieldControl(
+  field: NativeField,
+  read: (p: string) => unknown,
+  write: (p: string, v: unknown) => void,
+  openStub: (s: Stub) => void,
+): JSX.Element {
   switch (field.control) {
     case "slider": {
       const s = field.slider ?? { min: 0, max: 1, step: 0.05 };
@@ -108,25 +142,58 @@ function fieldControl(field: NativeField, read: (p: string) => unknown, write: (
     case "lorebook-link": {
       const b = asRec(read(field.path));
       if (!b) return <LinkOut title="" empty emptyLabel="No embedded lorebook" />;
-      const entries = Array.isArray(b.entries) ? b.entries.length : 0;
+      const entries = Array.isArray(b.entries) ? b.entries : [];
       return (
         <LinkOut
           title={str(b.name) || "Embedded lorebook"}
-          meta={`embedded - ${plural(entries, "entry")}`}
+          meta={`embedded - ${plural(entries.length, "entry")}`}
           action="Open in Lorebook editor"
+          onAction={() =>
+            openStub({
+              title: `Lorebook: ${str(b.name) || "untitled"}`,
+              note: "The full Lorebook editor is coming. Here is what this card carries, read-only.",
+              view: stubRows(entries, "name", "content", "Entry"),
+            })
+          }
         />
       );
     }
     case "world-link": {
       const name = str(read(field.path));
       if (!name) return <LinkOut title="" empty emptyLabel="No linked world" />;
-      return <LinkOut title={name} meta="bound by name - resolves to your library" action="Open" />;
+      return (
+        <LinkOut
+          title={name}
+          meta="bound by name - resolves to your library"
+          action="Open"
+          onAction={() =>
+            openStub({
+              title: `Linked world: ${name}`,
+              note: "This card binds a lorebook by name. The Lorebook editor and library picker are coming.",
+              view: <div className={styles.help}>Resolves to a lorebook named &ldquo;{name}&rdquo; in your library.</div>,
+            })
+          }
+        />
+      );
     }
     case "regex-link": {
       const arr = read(field.path);
-      const n = Array.isArray(arr) ? arr.length : 0;
-      if (n === 0) return <LinkOut title="" empty emptyLabel="No regex scripts" />;
-      return <LinkOut title={plural(n, "script") + " attached"} meta="card-scoped find/replace" action="Open in Regex editor" />;
+      const scripts = Array.isArray(arr) ? arr : [];
+      if (scripts.length === 0) return <LinkOut title="" empty emptyLabel="No regex scripts" />;
+      return (
+        <LinkOut
+          title={plural(scripts.length, "script") + " attached"}
+          meta="card-scoped find/replace"
+          action="Open in Regex editor"
+          onAction={() =>
+            openStub({
+              title: "Regex scripts",
+              note: "The full Regex editor is coming. Here is what this card carries, read-only.",
+              view: stubRows(scripts, "scriptName", "findRegex", "Script"),
+            })
+          }
+        />
+      );
     }
     case "asset-manager": {
       const arr = read(field.path);
@@ -138,9 +205,15 @@ function fieldControl(field: NativeField, read: (p: string) => unknown, write: (
 }
 
 export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Element {
+  const [stub, setStub] = useState<Stub | null>(null);
   return (
     <section className={styles.card}>
       <div className={styles.head}>{schema.label} fields</div>
+      {stub ? (
+        <StubEditor title={stub.title} note={stub.note} onClose={() => setStub(null)}>
+          {stub.view}
+        </StubEditor>
+      ) : null}
       {schema.fields.map((f) => {
         // the catch-all needs schema context: hide the keys other fields already own
         if (f.control === "raw-extensions") {
@@ -159,7 +232,7 @@ export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Elemen
           <div className={styles.field} key={f.path}>
             <div className={styles.label}>{f.label}</div>
             {f.help ? <div className={styles.help}>{f.help}</div> : null}
-            {fieldControl(f, read, write)}
+            {fieldControl(f, read, write, setStub)}
           </div>
         );
       })}

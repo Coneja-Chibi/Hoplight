@@ -1,0 +1,47 @@
+/**
+ * StubEditor styles - a plain modal sheet: title, a coming-soon note, a scrollable read-only body,
+ * a close. Tokens only.
+ */
+.head {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.2rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+}
+.note {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin-bottom: 0.9rem;
+}
+.body {
+  max-height: 24rem;
+  overflow-y: auto;
+  border: 2px solid var(--seam);
+  background: var(--stage-well, var(--paper));
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.close {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
+  background: transparent;
+  border: 2px solid var(--seam);
+  padding: 0.4rem 0.8rem;
+  margin-top: 0.9rem;
+  cursor: pointer;
+}
+.close:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}

@@ -36,6 +36,22 @@
   color: var(--stage-mute, var(--muted));
   margin-bottom: 0.1rem;
 }
+/* read-only rows inside a stub editor's body */
+.stubEntry {
+  border-bottom: 1px solid var(--seam);
+  padding-bottom: 0.4rem;
+}
+.stubKey {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.stubText {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
 .note {
   display: flex;
   flex-direction: column;
