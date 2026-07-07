@@ -1,0 +1,72 @@
+/**
+ * LinkOut styles - a bordered link chip in the house link color. Tokens only.
+ */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 3px solid var(--link, var(--rose));
+  background: var(--stage-well, var(--field, var(--paper)));
+  padding: 0.5rem 0.6rem;
+  box-shadow: 3px 3px 0 0 var(--stage-black, var(--edge));
+}
+.ic {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border: 2px solid var(--link, var(--rose));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+.body {
+  min-width: 0;
+  flex: 1;
+}
+.title {
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--stage-soft, var(--text));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  color: var(--stage-mute, var(--muted));
+}
+.go {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--link, var(--rose));
+  border: 2px solid var(--link, var(--rose));
+  background: transparent;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+.pending {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  border: 2px dashed var(--stage-seam, var(--seam));
+  padding: 0.3rem 0.5rem;
+}
+.empty {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--stage-mute, var(--muted));
+  border: 2px dashed var(--stage-seam, var(--seam));
+  padding: 0.5rem 0.6rem;
+  text-align: center;
+}

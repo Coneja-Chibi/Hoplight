@@ -20,6 +20,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. | .overlay .sheet |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
+| LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
 | NativeCard | src/ui/components/native-card/index.tsx | ({ schema, read, write }: NativeCardProps) |  | .card .head .field .label .help .note .ta .noterow ... |

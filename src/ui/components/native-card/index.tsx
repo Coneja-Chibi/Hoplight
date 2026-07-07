@@ -8,10 +8,17 @@
 import type { JSX } from "react";
 import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
+import { LinkOut } from "../link-out";
 import styles from "./styles.module.css";
 
 /** Which reusable control renders a native field. Grown as each approved component lands. */
-export type NativeControl = "slider" | "toggle" | "note";
+export type NativeControl =
+  | "slider"
+  | "toggle"
+  | "note"
+  | "lorebook-link" // an embedded lorebook object -> link to the Lorebook editor
+  | "world-link" // a lorebook bound by name -> link to the Lorebook editor
+  | "regex-link"; // regex scripts array -> link to the Regex editor
 
 export interface NativeField {
   /** dot path relative to entity.original */
@@ -38,6 +45,9 @@ export interface NativeCardProps {
 
 const num = (v: unknown, fallback: number): number => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
 const str = (v: unknown): string => (typeof v === "string" ? v : "");
+const asRec = (v: unknown): Record<string, unknown> | undefined =>
+  v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : undefined;
+const plural = (n: number, one: string): string => `${n} ${n === 1 ? one : `${one}s`}`;
 
 function fieldControl(field: NativeField, read: (p: string) => unknown, write: (p: string, v: unknown) => void): JSX.Element {
   switch (field.control) {
@@ -90,6 +100,29 @@ function fieldControl(field: NativeField, read: (p: string) => unknown, write: (
           </div>
         </div>
       );
+    }
+    case "lorebook-link": {
+      const b = asRec(read(field.path));
+      if (!b) return <LinkOut title="" empty emptyLabel="No embedded lorebook" />;
+      const entries = Array.isArray(b.entries) ? b.entries.length : 0;
+      return (
+        <LinkOut
+          title={str(b.name) || "Embedded lorebook"}
+          meta={`embedded - ${plural(entries, "entry")}`}
+          action="Open in Lorebook editor"
+        />
+      );
+    }
+    case "world-link": {
+      const name = str(read(field.path));
+      if (!name) return <LinkOut title="" empty emptyLabel="No linked world" />;
+      return <LinkOut title={name} meta="bound by name - resolves to your library" action="Open" />;
+    }
+    case "regex-link": {
+      const arr = read(field.path);
+      const n = Array.isArray(arr) ? arr.length : 0;
+      if (n === 0) return <LinkOut title="" empty emptyLabel="No regex scripts" />;
+      return <LinkOut title={plural(n, "script") + " attached"} meta="card-scoped find/replace" action="Open in Regex editor" />;
     }
   }
 }
