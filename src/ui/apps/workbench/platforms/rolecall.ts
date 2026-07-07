@@ -34,20 +34,19 @@ const rolecall: NativeSchema = {
       help: "This character's own embedded lorebook (distinct from the lorebooks it recommends).",
     },
     { path: `${RC_EXT}.loadout`, label: "Loadout code", control: "text", help: "A RoleCall preset/config code the card ships with." },
-    { path: `${RC_EXT}.image_url`, label: "Image URL", control: "url" },
-    { path: `${RC_EXT}.thumbnail_url`, label: "Thumbnail URL", control: "url" },
-    { path: `${RC_EXT}.accent_color`, label: "Accent color (account-level)", control: "read-only", help: "Belongs to the account, not the card." },
-    { path: `${RC_EXT}.id`, label: "RoleCall id", control: "read-only" },
-    { path: `${RC_EXT}.token_count`, label: "Token count (derived)", control: "read-only" },
     {
       path: RC_EXT,
       label: "Other RoleCall data",
       control: "raw-extensions",
-      // canonical + bundled-content keys already handled elsewhere; keep them out of the catch-all
+      // Kept in the original for lossless round-trip, but NOT surfaced as editable fields:
+      //  - canonical/bundled keys handled elsewhere, and
+      //  - account/DB/hosting state that is not authored card content (accent belongs to the account,
+      //    id/token_count are RC-derived, image/thumbnail urls are RC hosting - the portrait is canonical).
       hide: [
         "tagline", "genre", "fandom", "nsfw", "content_rating", "source_url", "creators_note",
         "creator_notes", "details", "alternate_greeting_titles", "linkedLorebooks",
         "linkedRegexScripts", "type",
+        "accent_color", "id", "token_count", "image_url", "thumbnail_url",
       ],
     },
   ],

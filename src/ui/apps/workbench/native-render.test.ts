@@ -13,7 +13,7 @@ test("nativeItemsFor gathers a targeted platform's native fields, tagged with it
   expect(items.every((i) => i.platform === "RoleCall")).toBe(true);
 });
 
-test("nativeBentoParts spreads small cards across all three columns and full-spans the big ones", () => {
+test("nativeBentoParts distributes small cards across columns and full-spans the big ones", () => {
   const items = nativeItemsFor(["rolecall"], read, noop, noop);
   const parts = nativeBentoParts(items);
   expect(parts.columns.length).toBe(3);
@@ -21,7 +21,8 @@ test("nativeBentoParts spreads small cards across all three columns and full-spa
   const bigs = items.filter((i) => i.big).length;
   expect(parts.columns.flat().length).toBe(smalls); // every small card is placed exactly once
   expect(parts.spanRow === null).toBe(bigs === 0); // the span row exists iff there are big cards
-  if (smalls >= 3) expect(parts.columns.every((c) => c.length > 0)).toBe(true); // not dumped in one column
+  // with 2+ small cards they are not all dumped into one column (weighted bin-pack may leave one empty)
+  if (smalls >= 2) expect(parts.columns.filter((c) => c.length > 0).length).toBeGreaterThan(1);
 });
 
 test("both layouts derive from the SAME items: the playbill gets one native section per platform", () => {
