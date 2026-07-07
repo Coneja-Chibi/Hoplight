@@ -18,6 +18,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
+| FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
