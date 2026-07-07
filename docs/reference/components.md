@@ -31,6 +31,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
+| RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .room .tabs .tab .on .body .row .tx .label ... |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .room .tabs .tab .on .body .row .tx .label ... |
 | Slider | src/ui/components/slider/index.tsx | ({ value, min, max, step = 1, onChange, format, "aria-label": ariaLabel, }: SliderProps) |  | .wrap .range .readout |

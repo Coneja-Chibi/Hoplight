@@ -14,6 +14,7 @@ import { AssetManager, type Asset } from "../asset-manager";
 import { StubEditor } from "../stub-editor";
 import { TrackerSetup } from "../tracker-setup";
 import { Recommendations } from "../recommendations";
+import { RpgStats } from "../rpg-stats";
 import styles from "./styles.module.css";
 
 /** an open stub-editor request: what to show while the real content-type editor does not exist yet */
@@ -35,6 +36,8 @@ export type NativeControl =
   | "tracker-setup" // RoleCall trackerPreset -> the tracker module + seed editor
   | "recommendations" // RoleCall recommendations -> the 4-group bundle editor
   | "text" // a single line of text (a code, a name)
+  | "textarea" // multi-line free text (a backstory, a long note)
+  | "rpg-stats" // an RPG stat block: attributes, health, resource pools
   | "url" // a URL
   | "read-only" // shown but not editable (account-level / derived fields)
   | "raw-extensions"; // the catch-all: every leftover key in this object, editable
@@ -205,6 +208,10 @@ function fieldControl(
       return <Recommendations value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
     case "text":
       return <input className={styles.rowInput} value={str(read(field.path))} onChange={(e) => write(field.path, e.target.value)} />;
+    case "textarea":
+      return <textarea className={styles.ta} value={str(read(field.path))} placeholder={field.label} onChange={(e) => write(field.path, e.target.value)} />;
+    case "rpg-stats":
+      return <RpgStats value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
     case "url":
       return (
         <input
@@ -227,8 +234,10 @@ function fieldControl(
 const WEIGHT: Record<NativeControl, number> = {
   "tracker-setup": 5,
   recommendations: 5,
+  "rpg-stats": 4,
   "asset-manager": 4,
   note: 2,
+  textarea: 2,
   "raw-extensions": 2,
   "lorebook-link": 2,
   "regex-link": 2,

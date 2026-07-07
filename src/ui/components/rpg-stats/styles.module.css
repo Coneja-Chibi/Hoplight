@@ -1,0 +1,37 @@
+/**
+ * RpgStats styles: a stacked stat block (enabled row + attribute/health/pool groups). Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft, var(--text-soft));
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.gtitle {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  border-bottom: 1px solid var(--stage-seam, var(--seam));
+  padding-bottom: 0.2rem;
+}
