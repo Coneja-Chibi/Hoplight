@@ -40,6 +40,8 @@ import { StubEditor, type Stub } from "../../components/native-card";
 import { nativeItemsFor, nativeBentoParts, nativePlaybillSection, nativePlaybillNav } from "./native-render";
 import { useVariants } from "./use-variants";
 import { VariantStrip } from "../../components/variant-strip";
+import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate, type Greeting } from "./editor-derive";
+import { TAG_CATEGORY_STYLE } from "./tag-category-style";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -50,10 +52,6 @@ const PREF_EDITOR_MODE = "editor.mode";
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 2;
 const SCALE_STEP = 0.1;
-
-/** tolerant reader for the app-wide editor scale (out-of-range or malformed drops to 1). */
-const parseScale = (v: unknown): number =>
-  typeof v === "number" && Number.isFinite(v) && v >= 0.5 && v <= 2 ? v : 1;
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
 
@@ -69,51 +67,6 @@ const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
   ["creatorNotes", "From the Creator"],
   ["systemPrompt", "System Prompt"],
 ];
-
-/** inspector labels the editor writes; the read-only tail shows everything else */
-const rec = (x: unknown): Record<string, unknown> =>
-  x !== null && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, unknown>) : {};
-const str = (x: unknown): string => (typeof x === "string" ? x : "");
-const strArr = (x: unknown): string[] => (Array.isArray(x) ? x.filter((s): s is string => typeof s === "string") : []);
-
-interface Greeting {
-  text: string;
-  title?: string;
-}
-const greetingsOf = (draft: unknown, path: string): Greeting[] => {
-  const raw = readPath(draft, path);
-  if (!Array.isArray(raw)) return [];
-  return raw.map((g) => ({ text: str(rec(g).text), title: str(rec(g).title) || undefined }));
-};
-
-/** honest rough size: prose chars / 4, labeled "~tokens" (a real tokenizer is macro-layer work) */
-function tokenEstimate(draft: unknown): number {
-  const paths = ["identity.description", "persona.personality", "persona.scenario", "greetings.firstMessage", "examples.exampleMessages", "prompts.systemPrompt"];
-  const chars = paths.reduce((n, p) => n + str(readPath(draft, p)).length, 0);
-  return Math.round(chars / 4);
-}
-
-/** a smaller line glyph for tag chips (11px, sits before the tag text) */
-const tglyph = (children: ReactNode): JSX.Element => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    {children}
-  </svg>
-);
-/** presentation for each tag category: RC-style base color + a line icon. Categorization itself is
- * pure core (categorizeTag); this map is the UI's read of the result. */
-const TAG_CATEGORY_STYLE: Record<TagCategory, { color: string; icon: JSX.Element }> = {
-  identity: { color: "#22d3ee", icon: tglyph(<><circle cx="12" cy="8" r="3.5" /><path d="M5.5 20v-1a5 5 0 0 1 5-5h3a5 5 0 0 1 5 5v1" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  trait: { color: "#a78bfa", icon: tglyph(<path d="M12 3l2.4 6H21l-5 4 1.9 6-5.9-4-5.9 4 1.9-6-5-4h6.6z" />) }, // hardcode-ok: tag-category identity color, not theming
-  role: { color: "#fb7185", icon: tglyph(<><rect x="3" y="7" width="18" height="13" rx="1" /><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  genre: { color: "#818cf8", icon: tglyph(<><path d="M12 6c-2-1.4-5-1.4-7 0v12c2-1.4 5-1.4 7 0 2-1.4 5-1.4 7 0V6c-2-1.4-5-1.4-7 0z" /><path d="M12 6v12" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  theme: { color: "#f472b6", icon: tglyph(<path d="M7 4h10v16l-5-4-5 4z" />) }, // hardcode-ok: tag-category identity color, not theming
-  setting: { color: "#34d399", icon: tglyph(<><path d="M12 21s-6-5-6-10a6 6 0 0 1 12 0c0 5-6 10-6 10z" /><circle cx="12" cy="11" r="2" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  pov: { color: "#38bdf8", icon: tglyph(<><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" /><circle cx="12" cy="12" r="2.5" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  mood: { color: "#fbbf24", icon: tglyph(<><circle cx="12" cy="12" r="9" /><path d="M8.5 14a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  kink: { color: "#f87171", icon: tglyph(<path d="M12 3s5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.2 2-4 .4 2 3 1.6 3-5z" />) }, // hardcode-ok: tag-category identity color, not theming
-  warning: { color: "#fb923c", icon: tglyph(<><path d="M12 4l9 16H3z" /><path d="M12 10v4M12 17h.01" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  meta: { color: "#94a3b8", icon: tglyph(<path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16" />) }, // hardcode-ok: tag-category identity color, not theming
-};
 
 export interface CharacterEditorProps {
   /** the fetched entity (summary fields + canonical body) - fetched once by the caller */
