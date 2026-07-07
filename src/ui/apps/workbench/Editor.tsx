@@ -27,6 +27,7 @@ import {
   EDITOR_CARDS,
   KNOWN_FIELD_ORDER,
   lensVerdict,
+  macroInventory,
   readPath,
   reconcileOrder,
   writePath,
@@ -35,8 +36,8 @@ import {
 import { FIELD_MODULES, type FieldModule, type SubField } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
-import { NativeCard } from "../../components/native-card";
-import { nativeSchemaFor } from "./native-schemas";
+import { StubEditor, type Stub } from "../../components/native-card";
+import { nativeItemsFor, nativeBentoParts, nativePlaybillSection, nativePlaybillNav } from "./native-render";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -251,6 +252,8 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const dirty = orderDirty || !deepEq(draft, baseline) || !deepEq(originalDraft, nativeBaseline);
   const setField = (path: string, value: unknown): void => setDraft((d) => writePath(d, path, value));
   const setNative = (path: string, value: unknown): void => setOriginalDraft((d) => writePath(d, path, value));
+  // one stub-modal state for the whole editor: a native link-out (lorebook/regex) opens it, both layouts share it
+  const [nativeStub, setNativeStub] = useState<Stub | null>(null);
   const text = (path: string): string => str(readPath(draft, path));
 
   const platformLabel = useCallback(
@@ -1241,21 +1244,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   };
 
   // macro inventory: scan the prose the way the wireframe does - every {{macro}} with a count.
-  const macroCounts = ((): Array<[string, number]> => {
-    const paths = [
-      "identity.description", "persona.personality", "persona.scenario", "persona.appearance",
-      "greetings.firstMessage", "examples.exampleMessages", "prompts.systemPrompt",
-      "prompts.postHistoryInstructions", "prompts.prefill", "prompts.additionalText",
-    ];
-    const tally = new Map<string, number>();
-    for (const p of paths) {
-      for (const mm of str(readPath(draft, p)).matchAll(/\{\{\s*([^}|:]+?)\s*(?:[:|][^}]*)?\}\}/g)) {
-        const name = `{{${mm[1]!.trim()}}}`;
-        tally.set(name, (tally.get(name) ?? 0) + 1);
-      }
-    }
-    return [...tally.entries()].sort((a, b) => b[1] - a[1]);
-  })();
+  const macroCounts = macroInventory(draft);
   const macroCard = (
     <BentoCard key="macros" title="Variables · Macro Inventory">
       {macroCounts.length === 0 ? (
@@ -1283,24 +1272,22 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </BentoCard>
     );
 
-  // native cards are LENS-DRIVEN: a platform's fields appear when you TARGET it (even empty, ready to
-  // fill), plus any platform already present in the original. Not gated by what the card happens to
-  // hold - you select RoleCall to ADD RoleCall data to any character. Binds to originalDraft.
-  const nativeCards = [...new Set([...targets, ...Object.keys(rec(originalDraft))])]
-    .filter((k) => k !== "vaud-studio" && k !== "vaud-json")
-    .map((k) => {
-      const schema = nativeSchemaFor(k);
-      return schema ? (
-        <NativeCard key={k} schema={schema} read={(p) => readPath(originalDraft, p)} write={setNative} />
-      ) : null;
-    })
-    .filter(Boolean);
+  // native fields are LENS-DRIVEN: a platform's fields appear when you TARGET it (even empty, ready to
+  // fill), plus any platform already present in the original. ONE shared definition (native-render)
+  // feeds BOTH layouts, so a field can never show in bento and vanish in playbill. Binds to originalDraft.
+  const nativeKeys = [...new Set([...targets, ...Object.keys(rec(originalDraft))])].filter(
+    (k) => k !== "vaud-studio" && k !== "vaud-json",
+  );
+  const nativeItems = nativeItemsFor(nativeKeys, (p) => readPath(originalDraft, p), setNative, setNativeStub);
+  const nb = nativeBentoParts(nativeItems);
 
   const bentoView = (
+    <>
     <div className={styles.bento}>
       <div className={`${styles.bcol} ${styles.bcolLeft}`}>
         {leftCard}
         {sealedCard}
+        {nb.columns[0]}
       </div>
       <div className={styles.bcol}>
         {bcard("Identity", ["name", "tagline", "tags", "rating"])}
@@ -1319,6 +1306,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         {bcard("Alt Greetings", ["alternateGreetings"])}
         {bcard("Group Greetings", ["groupOnlyGreetings"])}
         {bcard("Examples", ["mesExample"])}
+        {nb.columns[1]}
       </div>
       <div className={styles.bcol}>
         {bcard("Color Palette", ["gradient", "palette"])}
@@ -1332,9 +1320,11 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         {bcard("Settings", ["talkativeness", "risuSettings"])}
         {bcard("Bias", ["bias"])}
         {bcard("Attribution", ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"])}
-        {nativeCards}
+        {nb.columns[2]}
       </div>
     </div>
+    {nb.spanRow}
+    </>
   );
 
   // ===== PLAYBILL layout, transcribed from design/vs-editor-v2.html, with the Bill and the character
@@ -1392,6 +1382,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             </section>
           );
         })}
+        {nativePlaybillSection(nativeItems)}
       </div>
       <aside className={styles.pbBill}>
         <div className={styles.pbTitle}>The Bill</div>
@@ -1410,6 +1401,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               </li>
             );
           })}
+          {nativePlaybillNav(nativeItems)}
         </ul>
       </aside>
     </div>
@@ -1424,6 +1416,11 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   };
   return (
     <div className={styles.root} style={rootStyle}>
+      {nativeStub && (
+        <StubEditor title={nativeStub.title} note={nativeStub.note} onClose={() => setNativeStub(null)}>
+          {nativeStub.view}
+        </StubEditor>
+      )}
       {/* row 1: platform lens tabs + off-target + completion chips (vs-editor-2 tabstrip) */}
       <div className={styles.tabstrip} data-tour="lens">
         <PlatformTabs

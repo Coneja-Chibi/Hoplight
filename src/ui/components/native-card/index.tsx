@@ -5,7 +5,6 @@
  * becomes editable instead of frozen. The schema TYPES live here (leaf layer); the per-platform
  * schema DATA lives in the editor (apps/workbench/native-fields.ts) and imports these.
  */
-import { useState } from "react";
 import type { JSX } from "react";
 import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
@@ -15,8 +14,6 @@ import { AssetManager, type Asset } from "../asset-manager";
 import { StubEditor } from "../stub-editor";
 import { TrackerSetup } from "../tracker-setup";
 import { Recommendations } from "../recommendations";
-import { BentoCard } from "../bento-card";
-import { MonoTag } from "../mono-tag";
 import styles from "./styles.module.css";
 
 /** an open stub-editor request: what to show while the real content-type editor does not exist yet */
@@ -57,14 +54,6 @@ export interface NativeSchema {
   key: string;
   label: string;
   fields: NativeField[];
-}
-
-export interface NativeCardProps {
-  schema: NativeSchema;
-  /** read a value at a path relative to entity.original */
-  read(path: string): unknown;
-  /** write a value at a path relative to entity.original */
-  write(path: string, value: unknown): void;
 }
 
 const num = (v: unknown, fallback: number): number => (typeof v === "number" && Number.isFinite(v) ? v : fallback);
@@ -233,47 +222,87 @@ function fieldControl(
   }
 }
 
-/**
- * One platform's native fields, rendered as INDIVIDUAL bento cards (one per field, not a wall), each
- * carrying a small platform pill so it reads as "this field is <platform>-specific" and flows in the
- * masonry beside the canonical cards.
- */
-export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Element {
-  const [stub, setStub] = useState<Stub | null>(null);
-  const pill = <MonoTag dim>{schema.label}</MonoTag>;
+/** rough card size per control, so a layout can bin-pack native cards (a big Tracker Setup should not
+ * share a column with ten one-liners); big ones (>= 4) render full-span. */
+const WEIGHT: Record<NativeControl, number> = {
+  "tracker-setup": 5,
+  recommendations: 5,
+  "asset-manager": 4,
+  note: 2,
+  "raw-extensions": 2,
+  "lorebook-link": 2,
+  "regex-link": 2,
+  "world-link": 1,
+  slider: 1,
+  toggle: 1,
+  text: 1,
+  url: 1,
+  "read-only": 1,
+};
 
-  const body = (f: NativeField): JSX.Element => {
-    if (f.control === "raw-extensions") {
-      const prefix = `${f.path}.`;
-      const handled = [
-        ...schema.fields
-          .filter((o) => o !== f && o.path.startsWith(prefix))
-          .map((o) => o.path.slice(prefix.length))
-          .filter((seg) => !seg.includes(".")),
-        ...(f.hide ?? []),
-      ];
-      return <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />;
-    }
-    return (
-      <>
-        {f.help ? <div className={styles.help}>{f.help}</div> : null}
-        {fieldControl(f, read, write, setStub)}
-      </>
-    );
-  };
-
+/** the body of one native field (help + control, or the schema-aware catch-all). */
+function fieldBody(
+  f: NativeField,
+  schema: NativeSchema,
+  read: (p: string) => unknown,
+  write: (p: string, v: unknown) => void,
+  openStub: (s: Stub) => void,
+): JSX.Element {
+  if (f.control === "raw-extensions") {
+    const prefix = `${f.path}.`;
+    const handled = [
+      ...schema.fields
+        .filter((o) => o !== f && o.path.startsWith(prefix))
+        .map((o) => o.path.slice(prefix.length))
+        .filter((seg) => !seg.includes(".")),
+      ...(f.hide ?? []),
+    ];
+    return <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />;
+  }
   return (
     <>
-      {stub ? (
-        <StubEditor title={stub.title} note={stub.note} onClose={() => setStub(null)}>
-          {stub.view}
-        </StubEditor>
-      ) : null}
-      {schema.fields.map((f) => (
-        <BentoCard key={f.path} title={f.label} aff={pill}>
-          {body(f)}
-        </BentoCard>
-      ))}
+      {f.help ? <div className={styles.help}>{f.help}</div> : null}
+      {fieldControl(f, read, write, openStub)}
     </>
   );
 }
+
+/**
+ * One renderable native field with NO layout baked in: its label, platform pill text, size weight, and
+ * rendered body. A layout wraps `body` however it likes (a bento card, a playbill row), so bento and
+ * playbill share one definition instead of each hand-wiring the fields.
+ */
+export interface NativeFieldItem {
+  key: string;
+  label: string;
+  platform: string;
+  weight: number;
+  big: boolean;
+  body: JSX.Element;
+}
+
+/**
+ * Every native field of a platform as renderable items. The caller owns the single stub-modal state for
+ * the whole editor and passes openStub; render it with <StubEditor> (re-exported).
+ */
+export function nativeFieldItems(
+  schema: NativeSchema,
+  read: (p: string) => unknown,
+  write: (p: string, v: unknown) => void,
+  openStub: (s: Stub) => void,
+): NativeFieldItem[] {
+  return schema.fields.map((f) => {
+    const weight = WEIGHT[f.control] ?? 1;
+    return {
+      key: `${schema.key}:${f.path}`,
+      label: f.label,
+      platform: schema.label,
+      weight,
+      big: weight >= 4,
+      body: fieldBody(f, schema, read, write, openStub),
+    };
+  });
+}
+
+export { StubEditor };
+export type { Stub };

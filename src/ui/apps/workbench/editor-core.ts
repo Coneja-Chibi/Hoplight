@@ -265,3 +265,27 @@ export function completionOf(body: unknown): Completion {
     tags: has("discovery.tags"),
   };
 }
+
+/** The prose fields the macro inventory scans (the fields that carry {{macros}}). */
+const MACRO_SCAN_PATHS = [
+  "identity.description", "persona.personality", "persona.scenario", "persona.appearance",
+  "greetings.firstMessage", "examples.exampleMessages", "prompts.systemPrompt",
+  "prompts.postHistoryInstructions", "prompts.prefill", "prompts.additionalText",
+] as const;
+
+/**
+ * The {{macro}} inventory across the prose fields: every macro name with how many times it appears,
+ * most-used first. Pure, so the editor's macro card is a view over it.
+ */
+export function macroInventory(body: unknown): Array<[string, number]> {
+  const tally = new Map<string, number>();
+  for (const path of MACRO_SCAN_PATHS) {
+    const v = readPath(body, path);
+    const text = typeof v === "string" ? v : "";
+    for (const mm of text.matchAll(/\{\{\s*([^}|:]+?)\s*(?:[:|][^}]*)?\}\}/g)) {
+      const name = `{{${mm[1]!.trim()}}}`;
+      tally.set(name, (tally.get(name) ?? 0) + 1);
+    }
+  }
+  return [...tally.entries()].sort((a, b) => b[1] - a[1]);
+}

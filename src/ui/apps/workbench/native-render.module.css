@@ -1,0 +1,74 @@
+/**
+ * Native-render styles: the full-span row under the bento grid, and the per-platform native sections
+ * appended to the playbill form. Kept in its own module so the frozen Editor.module.css never grows.
+ * Tokens only.
+ */
+
+/* bento: the full-width row of big native cards below the three columns */
+.span {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
+/* playbill: a native section per platform */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 1.1rem;
+}
+.break {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.bar {
+  flex: 1;
+  height: 2px;
+  background: var(--stage-seam, var(--seam));
+}
+.mid {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.no {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.nm {
+  font-family: var(--font-display, var(--font-body));
+  font-size: 1rem;
+  color: var(--stage-soft, var(--text-soft));
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: 0.6rem;
+}
+
+/* playbill Bill-nav entry (mirrors the canonical toc rows) */
+.tno {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.tnm {
+  flex: 1;
+  font-family: var(--font-body);
+  color: var(--stage-soft, var(--text-soft));
+}
+.tct {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--stage-mute, var(--muted));
+}
