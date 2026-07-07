@@ -23,6 +23,8 @@ export interface TrackerModule {
 
 const num = (key: string, label: string, extra?: Partial<FormField>): FormField => ({ key, label, kind: "number", half: true, ...extra });
 const stat = (key: string, label: string): FormField => ({ key, label, kind: "slider", min: 0, max: 100 });
+/** a value/max resource (HP + Max HP): a value bar bounded by an editable max, not two number boxes */
+const resource = (key: string, label: string, maxKey: string): FormField => ({ key, label, kind: "resource", maxKey, half: true });
 const txt = (key: string, label: string, extra?: Partial<FormField>): FormField => ({ key, label, kind: "text", ...extra });
 const sel = (key: string, label: string, options: string[]): FormField => ({
   key,
@@ -39,9 +41,9 @@ export const TRACKER_MODULES: readonly TrackerModule[] = [
     seed: {
       kind: "fields",
       fields: [
-        num("hp", "HP"), num("maxHp", "Max HP"),
-        num("mp", "MP"), num("maxMp", "Max MP"),
-        num("ap", "AP"), num("maxAp", "Max AP"),
+        resource("hp", "HP", "maxHp"),
+        resource("mp", "MP", "maxMp"),
+        resource("ap", "AP", "maxAp"),
         num("shield", "Shield"), num("xp", "XP"),
         num("level", "Level"), num("currency", "Currency"),
       ],
@@ -114,7 +116,7 @@ export const TRACKER_MODULES: readonly TrackerModule[] = [
       itemFields: [
         txt("name", "Name"),
         sel("combatRole", "Role", ["tank", "healer", "dps", "support", "hybrid"]),
-        num("level", "Level"), num("hp", "HP"), num("maxHp", "Max HP"), num("mp", "MP"), num("maxMp", "Max MP"),
+        num("level", "Level"), resource("hp", "HP", "maxHp"), resource("mp", "MP", "maxMp"),
       ],
     },
   },
@@ -173,7 +175,7 @@ export const TRACKER_MODULES: readonly TrackerModule[] = [
       addLabel: "+ add an enemy",
       itemFields: [
         txt("name", "Name"),
-        num("hp", "HP"), num("maxHp", "Max HP"), num("level", "Level"),
+        resource("hp", "HP", "maxHp"), num("level", "Level"),
         { key: "isBoss", label: "Boss", kind: "toggle", half: true },
         sel("threat", "Threat", ["low", "medium", "high", "critical"]),
       ],

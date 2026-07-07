@@ -10,7 +10,7 @@ import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
 import styles from "./styles.module.css";
 
-export type FormFieldKind = "text" | "textarea" | "number" | "select" | "slider" | "toggle";
+export type FormFieldKind = "text" | "textarea" | "number" | "select" | "slider" | "toggle" | "resource";
 
 export interface FormField {
   key: string;
@@ -25,6 +25,8 @@ export interface FormField {
   placeholder?: string;
   /** layout hint: render at half width so two sit per row */
   half?: boolean;
+  /** `resource` only: the sibling key holding this value's max (renders a value bar + an editable max) */
+  maxKey?: string;
 }
 
 export interface FieldFormProps {
@@ -78,13 +80,37 @@ function control(field: FormField, value: unknown, set: (v: unknown) => void): J
   }
 }
 
+/** a value/max resource bar: a slider bounded by its (editable) max, RC-style, instead of two boxes */
+function ResourceControl({ field, value, onChange }: { field: FormField; value: Record<string, unknown>; onChange(key: string, v: unknown): void }): JSX.Element {
+  const maxRaw = field.maxKey ? value[field.maxKey] : undefined;
+  const max = typeof maxRaw === "number" && maxRaw > 0 ? maxRaw : 100;
+  const cur = numOr(value[field.key], 0);
+  return (
+    <div className={styles.resource}>
+      <Slider value={Math.min(cur, max)} min={0} max={max} step={1} onChange={(v) => onChange(field.key, v)} aria-label={field.label} />
+      <input
+        className={styles.rmax}
+        type="number"
+        min={0}
+        value={typeof maxRaw === "number" ? maxRaw : ""}
+        placeholder="max"
+        onChange={(e) => field.maxKey && onChange(field.maxKey, e.target.value === "" ? undefined : Number(e.target.value))}
+      />
+    </div>
+  );
+}
+
 export function FieldForm({ fields, value, onChange }: FieldFormProps): JSX.Element {
   return (
     <div className={styles.grid}>
       {fields.map((f) => (
         <label className={f.half ? `${styles.field} ${styles.half}` : styles.field} key={f.key}>
           <span className={styles.label}>{f.label}</span>
-          {control(f, value[f.key], (v) => onChange(f.key, v))}
+          {f.kind === "resource" ? (
+            <ResourceControl field={f} value={value} onChange={onChange} />
+          ) : (
+            control(f, value[f.key], (v) => onChange(f.key, v))
+          )}
         </label>
       ))}
     </div>

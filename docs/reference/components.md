@@ -16,7 +16,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .stage .crumb .pip .cn .cc .pane .art ... |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
-| FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .ta |
+| FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
