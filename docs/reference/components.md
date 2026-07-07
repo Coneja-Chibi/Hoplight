@@ -41,6 +41,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
 | ToggleSwitch | src/ui/components/toggle-switch/index.tsx | ({ on, onChange, label }: ToggleSwitchProps) |  | .btn .track .on .knob |
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
+| TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

@@ -1,0 +1,77 @@
+/**
+ * TrackerSetup styles - a world-theme header, a stack of module rows (each a toggle, opening its seed
+ * form when on), and a notes box. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.wt,
+.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.notes {
+  margin-top: 0.4rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.sel,
+.ta {
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.32rem 0.45rem;
+}
+.sel {
+  max-width: 11rem;
+}
+.ta {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  min-height: 2.6rem;
+  resize: vertical;
+}
+.mod {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-panel, var(--panel));
+  padding: 0.45rem 0.55rem;
+}
+.mod.on {
+  border-color: var(--rose);
+}
+.mhead {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.mtitle {
+  flex: 1;
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--stage-soft, var(--text));
+}
+.mdesc {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-mute, var(--muted));
+  margin-top: 0.2rem;
+}
+.mseed {
+  margin-top: 0.55rem;
+  padding-top: 0.5rem;
+  border-top: 2px solid var(--stage-seam, var(--seam));
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
