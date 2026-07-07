@@ -36,6 +36,7 @@
     "png-chunks-extract": "^1.0.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
+    "wasmoon": "1.16.0",
     "webview-bun": "^2.4.0",
     "zustand": "^5.0.14"
   }
