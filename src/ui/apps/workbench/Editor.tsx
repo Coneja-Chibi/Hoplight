@@ -543,6 +543,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           <div className={styles.gradBar} style={{ background: gradCss }} />
           {gradOpen && (
             <div className={styles.palEdit}>
+              {/* eslint-disable-next-line no-restricted-syntax -- open-gated popover: raw picker edits the one selected gradient stop; SwatchRow is single-value, PaintPicker boxes hex in a Paint */}
               <ColorPicker
                 value={normalizeHex(gradient[gradAt] ?? "") ?? gradient[gradAt]}
                 onChange={(hex) => setGradient(gradient.map((c, i) => (i === gradAt ? hex : c)))}
@@ -622,6 +623,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               value={palCur.name ?? palCur.label ?? ""}
               onChange={(e) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, name: e.target.value } : s)))}
             />
+            {/* eslint-disable-next-line no-restricted-syntax -- open-gated popover: raw picker edits the one selected named swatch; SwatchRow is single-value, PaintPicker boxes hex in a Paint */}
             <ColorPicker
               value={normalizeHex(palCur.hex) ?? palCur.hex}
               onChange={(hex) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, hex } : s)))}
