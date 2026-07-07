@@ -995,6 +995,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const moduleVerdict = (m: FieldModule): LensVerdict => lensVerdict([m.path], targets, coverage);
   const hidByLens = targets.length > 0 && offTarget === "hide";
   const lensWalk = hidByLens ? walkable.filter((m) => !moduleVerdict(m).off) : walkable;
+  // per-field lens for the bento/playbill layouts: a field no selected platform carries HIDES under
+  // the hide treatment and DIMS (stays visible, honest) under dim. Empty selection = the full card.
+  const lensHides = (m: FieldModule): boolean => hidByLens && moduleVerdict(m).off;
+  const lensDims = (m: FieldModule): boolean => targets.length > 0 && offTarget === "dim" && moduleVerdict(m).off;
   // never strand the walk empty (a near-empty platform under HIDE) - fall back to the full list.
   const flowModules = lensWalk.length > 0 ? lensWalk : walkable;
   const flowAt = Math.min(flowIndex, flowModules.length - 1);
@@ -1162,12 +1166,14 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // second layout (playbill) and drag-drop are just different data over the same registry.
   const moduleById = new Map(FIELD_MODULES.map((m) => [m.id, m]));
   const bcard = (title: string, ids: readonly string[]): JSX.Element | null => {
-    const mods = ids.map((id) => moduleById.get(id)).filter((m): m is FieldModule => m !== undefined);
-    if (mods.length === 0) return null;
+    const mods = ids
+      .map((id) => moduleById.get(id))
+      .filter((m): m is FieldModule => m !== undefined && !lensHides(m));
+    if (mods.length === 0) return null; // all fields hidden by the lens -> drop the whole card
     return (
       <BentoCard key={title} title={title}>
         {mods.map((m) => (
-          <div key={m.id} className={styles.bfield}>
+          <div key={m.id} className={`${styles.bfield}${lensDims(m) ? ` ${styles.dimlens}` : ""}`}>
             <span className={styles.blabel}>
               {m.sheetLabel}
               {m.required && <span className={styles.qreq}> *</span>}
@@ -1287,7 +1293,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </div>
       <div className={styles.pbForm}>
         {ACTS.map((act) => {
-          const mods = actModules(act.ids);
+          const mods = actModules(act.ids).filter((m) => !lensHides(m));
           if (mods.length === 0) return null;
           return (
             <section key={act.id} id={`act-${act.id}`} className={styles.act}>
@@ -1301,7 +1307,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               </div>
               <div className={styles.pbfields}>
                 {mods.map((m) => (
-                  <div key={m.id} className={`${styles.pbfield}${WIDE_KINDS.has(m.kind) ? ` ${styles.span2}` : ""}`}>
+                  <div
+                    key={m.id}
+                    className={`${styles.pbfield}${WIDE_KINDS.has(m.kind) ? ` ${styles.span2}` : ""}${lensDims(m) ? ` ${styles.dimlens}` : ""}`}
+                  >
                     <span className={styles.blabel}>
                       {m.sheetLabel}
                       {m.required && <span className={styles.qreq}> *</span>}
@@ -1315,12 +1324,11 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         })}
       </div>
       <aside className={styles.pbBill}>
-        <div className={styles.pbKick}>The Program</div>
         <div className={styles.pbTitle}>The Bill</div>
-        <p className={styles.pbSay}>Every field group is an act. Jump to any.</p>
+        <p className={styles.pbSay}>Jump to any act.</p>
         <ul className={styles.toc}>
           {ACTS.map((act) => {
-            const n = actModules(act.ids).length;
+            const n = actModules(act.ids).filter((m) => !lensHides(m)).length;
             if (n === 0) return null;
             return (
               <li key={act.id}>

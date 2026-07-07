@@ -394,6 +394,11 @@
   text-transform: uppercase;
   color: var(--text-dim);
 }
+/* platform lens: a field no selected platform carries fades but stays (the honest default); hide
+   drops it entirely (handled in JS by filtering the field out of the card). */
+.dimlens {
+  opacity: 0.32;
+}
 .sealed {
   font-family: var(--font-mono);
   font-size: 0.62rem;
