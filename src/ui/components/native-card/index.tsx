@@ -15,6 +15,7 @@ import { StubEditor } from "../stub-editor";
 import { TrackerSetup } from "../tracker-setup";
 import { Recommendations } from "../recommendations";
 import { RpgStats } from "../rpg-stats";
+import { SwatchRow, HOUSE_PALETTE } from "../swatch-row";
 import styles from "./styles.module.css";
 
 /** an open stub-editor request: what to show while the real content-type editor does not exist yet */
@@ -38,6 +39,7 @@ export type NativeControl =
   | "text" // a single line of text (a code, a name)
   | "textarea" // multi-line free text (a backstory, a long note)
   | "rpg-stats" // an RPG stat block: attributes, health, resource pools
+  | "color" // a single theming color (hex) - a name/dialogue/box color
   | "url" // a URL
   | "read-only" // shown but not editable (account-level / derived fields)
   | "raw-extensions"; // the catch-all: every leftover key in this object, editable
@@ -212,6 +214,8 @@ function fieldControl(
       return <textarea className={styles.ta} value={str(read(field.path))} placeholder={field.label} onChange={(e) => write(field.path, e.target.value)} />;
     case "rpg-stats":
       return <RpgStats value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
+    case "color":
+      return <SwatchRow palette={HOUSE_PALETTE} value={str(read(field.path)) || undefined} onChange={(hex) => write(field.path, hex)} allowCustom />;
     case "url":
       return (
         <input
@@ -245,6 +249,7 @@ const WEIGHT: Record<NativeControl, number> = {
   slider: 1,
   toggle: 1,
   text: 1,
+  color: 1,
   url: 1,
   "read-only": 1,
 };
