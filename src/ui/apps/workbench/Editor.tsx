@@ -34,6 +34,7 @@ import {
 } from "./editor-core";
 import { FIELD_MODULES, type FieldModule, type SubField } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
+import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -223,6 +224,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     setEditorLayoutState(l);
     ctx.prefs.set(PREF_EDITOR_LAYOUT, l);
   };
+  // once the workbench tour has run, the layout/mode toggles retire from this header to Settings; they
+  // show here only during onboarding so the tour has a real control to teach. Recomputed each render,
+  // so finishing the tour hides them and "Replay tutorials" brings them back.
+  const onboarded = hasSeenTour(ctx.prefs.get(tourSeenKey("workbench")));
   const [palSel, setPalSel] = useState(0); // which palette swatch the picker edits
   const [palOpen, setPalOpen] = useState(false); // whether the palette picker popover is open
   const [gradSel, setGradSel] = useState(0); // which gradient stop the picker edits
@@ -1441,7 +1446,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               &#43;
             </button>
           </span>
-          {mode === "grid" && (
+          {/* layout + mode are preferences: shown here only through onboarding (so the tour can teach
+              them), then they retire to Settings > Workbench once the tour is done */}
+          {!onboarded && mode === "grid" && (
             <span className={styles.seg} data-tour="layout">
               <button type="button" className={editorLayout === "bento" ? styles.on : undefined} onClick={() => setEditorLayout("bento")}>
                 Bento
@@ -1451,14 +1458,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               </button>
             </span>
           )}
-          <span className={styles.seg} data-tour="mode">
-            <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
-              Grid
-            </button>
-            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
-              Steps
-            </button>
-          </span>
+          {!onboarded && (
+            <span className={styles.seg} data-tour="mode">
+              <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
+                Grid
+              </button>
+              <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
+                Steps
+              </button>
+            </span>
+          )}
           <button type="button" className={styles.save} data-tour="save" disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
             {saving ? "Saving…" : dirty ? "Save" : "● Saved locally"}
           </button>
