@@ -10,7 +10,7 @@ import type { JSX } from "react";
 import { nativeFieldItems, type NativeFieldItem } from "../../components/native-card";
 import { BentoCard } from "../../components/bento-card";
 import { MonoTag } from "../../components/mono-tag";
-import { nativeSchemaFor } from "./native-schemas";
+import { nativeSchemaFor } from "./platforms";
 import type { Stub } from "../../components/native-card";
 import styles from "./native-render.module.css";
 
