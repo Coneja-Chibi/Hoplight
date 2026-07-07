@@ -13,25 +13,16 @@ import type { NativeSchema } from "../../../components/native-card";
 const sillytavern: NativeSchema = {
   key: "sillytavern",
   label: "SillyTavern",
+  // talkativeness (settings.talkativeness) and the character's-note depth_prompt (prompts.depthInjections)
+  // are CANONICAL per coverage AND have canonical cards in the shared layout, so they are NOT declared
+  // here - that was the duplication (they rendered twice). world (worldName) and assets (media.assets)
+  // are carried too but have NO canonical card yet, so they stay native below to remain editable.
   fields: [
-    {
-      path: "sillytavern.raw.data.extensions.talkativeness",
-      label: "Talkativeness",
-      control: "slider",
-      slider: { min: 0, max: 1, step: 0.05 },
-      help: "How eagerly they jump into a group chat, 0 to 1.",
-    },
     {
       path: "sillytavern.raw.data.extensions.fav",
       label: "Favorite",
       control: "toggle",
       help: "Starred in SillyTavern's character list.",
-    },
-    {
-      path: "sillytavern.raw.data.extensions.depth_prompt",
-      label: "Character's Note",
-      control: "note",
-      help: "A note injected at a fixed depth every turn, to keep a trait from drifting.",
     },
     {
       path: "sillytavern.raw.data.character_book",
