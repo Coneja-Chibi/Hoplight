@@ -49,6 +49,9 @@ const parseScale = (v: unknown): number =>
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
 
+/** MediaAsset.role choices for the asset gallery (mirrors the canonical MediaAsset role union). */
+const ASSET_ROLES: readonly string[] = ["portrait", "emotion", "outfit", "pose", "background", "other"];
+
 /** spoiler rows offered by the spotlight card (canonical spoilers.fields is an open map) */
 const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
   ["description", "Description"],
@@ -905,6 +908,71 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           </div>
         );
       }
+      case "asset-gallery": {
+        const raw = readPath(draft, m.path);
+        const assets: Record<string, unknown>[] = Array.isArray(raw) ? raw.map(rec) : [];
+        const setAssets = (next: Record<string, unknown>[]): void => setField(m.path, next);
+        const update = (i: number, patch: Record<string, unknown>): void =>
+          setAssets(assets.map((a, j) => (j === i ? { ...a, ...patch } : a)));
+        const addFiles = (files: FileList | null): void => {
+          if (files === null) return;
+          const readers = [...files].map(
+            (f) =>
+              new Promise<Record<string, unknown>>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve({ role: "other", ref: String(reader.result), mime: f.type, label: f.name });
+                reader.readAsDataURL(f);
+              }),
+          );
+          void Promise.all(readers).then((added) => setAssets([...assets, ...added]));
+        };
+        return (
+          <div className={styles.gallery}>
+            {assets.map((a, i) => {
+              const ref = str(a.ref);
+              const isImg = ref.startsWith("data:image") || ref.startsWith("http");
+              return (
+                <div className={styles.assetCard} key={i}>
+                  <div className={styles.assetThumb}>
+                    {isImg ? <img src={ref} alt="" /> : <span>{str(a.role) || "asset"}</span>}
+                  </div>
+                  <select className={styles.in} value={str(a.role)} onChange={(e) => update(i, { role: e.target.value })}>
+                    {ASSET_ROLES.map((rr) => (
+                      <option key={rr} value={rr}>{rr}</option>
+                    ))}
+                  </select>
+                  <input className={styles.in} placeholder="label" value={str(a.label)} onChange={(e) => update(i, { label: e.target.value })} />
+                  <div className={styles.assetRow}>
+                    <button
+                      type="button"
+                      className={`${styles.toggle}${a.primary === true ? ` ${styles.toggleOn}` : ""}`}
+                      onClick={() => update(i, { primary: a.primary !== true })}
+                    >
+                      Primary
+                    </button>
+                    <button type="button" className={styles.rm} onClick={() => setAssets(assets.filter((_, j) => j !== i))}>
+                      remove
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            <label className={styles.add}>
+              + add images
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  addFiles(e.target.files);
+                  e.currentTarget.value = "";
+                }}
+              />
+            </label>
+          </div>
+        );
+      }
     }
   };
 
@@ -1078,13 +1146,108 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // a short field is a short box, a big prose field is a tall box, and they flow to fill the width
   // instead of a few giant section columns. Reads FIELD_MODULES in registry order (section-grouped),
   // so related fields stay adjacent. controlFor is the shared renderer with the quiz.
-  const gridView = (
-    <div className={styles.gridsec}>
-      {FIELD_MODULES.map((m) => (
-        <BentoCard key={m.id} title={m.required ? `${m.sheetLabel} *` : m.sheetLabel}>
-          {controlFor(m)}
-        </BentoCard>
-      ))}
+  // ===== BENTO layout, transcribed 1:1 from design/vs-editor-2.html. Fixed 3 columns: the face +
+  // sealed rail | everything you write | presentation + meta. Fields render from FIELD_MODULES via
+  // controlFor - the LAYOUT is data (a column's ordered cards, each naming its module ids), so a
+  // second layout (playbill) and drag-drop are just different data over the same registry.
+  const moduleById = new Map(FIELD_MODULES.map((m) => [m.id, m]));
+  const bcard = (title: string, ids: readonly string[]): JSX.Element | null => {
+    const mods = ids.map((id) => moduleById.get(id)).filter((m): m is FieldModule => m !== undefined);
+    if (mods.length === 0) return null;
+    return (
+      <BentoCard key={title} title={title}>
+        {mods.map((m) => (
+          <div key={m.id} className={styles.bfield}>
+            <span className={styles.blabel}>
+              {m.sheetLabel}
+              {m.required && <span className={styles.qreq}> *</span>}
+            </span>
+            {controlFor(m)}
+          </div>
+        ))}
+      </BentoCard>
+    );
+  };
+
+  // macro inventory: scan the prose the way the wireframe does - every {{macro}} with a count.
+  const macroCounts = ((): Array<[string, number]> => {
+    const paths = [
+      "identity.description", "persona.personality", "persona.scenario", "persona.appearance",
+      "greetings.firstMessage", "examples.exampleMessages", "prompts.systemPrompt",
+      "prompts.postHistoryInstructions", "prompts.prefill", "prompts.additionalText",
+    ];
+    const tally = new Map<string, number>();
+    for (const p of paths) {
+      for (const mm of str(readPath(draft, p)).matchAll(/\{\{\s*([^}|:]+?)\s*(?:[:|][^}]*)?\}\}/g)) {
+        const name = `{{${mm[1]!.trim()}}}`;
+        tally.set(name, (tally.get(name) ?? 0) + 1);
+      }
+    }
+    return [...tally.entries()].sort((a, b) => b[1] - a[1]);
+  })();
+  const macroCard = (
+    <BentoCard key="macros" title="Variables · Macro Inventory">
+      {macroCounts.length === 0 ? (
+        <div className={styles.blabel}>No macros detected yet</div>
+      ) : (
+        macroCounts.map(([name, n]) => (
+          <div key={name} className={styles.mrow}>
+            <span className={styles.mname}>{name}</span>
+            <span className={styles.mcnt}>{`× ${n}`}</span>
+          </div>
+        ))
+      )}
+    </BentoCard>
+  );
+
+  // sealed cargo: escrow shown honestly - visible, labeled, never editable, never executed here.
+  const escrowFormats = Object.keys(rec(init.ent.escrow));
+  const sealedCard =
+    escrowFormats.length === 0 ? null : (
+      <BentoCard key="sealed" title="Sealed Cargo · Escrow">
+        <div className={styles.sealed}>
+          {`Preserved from ${escrowFormats.join(", ")}. Re-emitted byte-identical on same-format export. Never executed, never editable here.`}
+        </div>
+      </BentoCard>
+    );
+
+  const bentoView = (
+    <div className={styles.bento}>
+      <div className={styles.bcol}>
+        {leftCard}
+        {sealedCard}
+      </div>
+      <div className={styles.bcol}>
+        {bcard("Identity", ["name", "tagline", "tags", "rating"])}
+        {bcard("Casting Card", ["fullName", "title", "age", "pronouns", "nickname", "culture", "characterVersion"])}
+        {bcard("Description", ["description"])}
+        {bcard("Personality", ["personality"])}
+        {bcard("Appearance", ["appearance"])}
+        {bcard("Scenario", ["scenario"])}
+        {bcard("Persona · Structured", ["structuredKind", "structuredAttributes"])}
+        {bcard("System Prompt", ["systemPrompt"])}
+        {bcard("Post-History", ["postHistoryInstructions"])}
+        {bcard("Prefill", ["prefill"])}
+        {bcard("Additional Text", ["additionalText"])}
+        {bcard("Depth Injections", ["depthInjections"])}
+        {bcard("First Message", ["firstMes"])}
+        {bcard("Alt Greetings", ["alternateGreetings"])}
+        {bcard("Group Greetings", ["groupOnlyGreetings"])}
+        {bcard("Examples", ["mesExample"])}
+      </div>
+      <div className={styles.bcol}>
+        {bcard("Color Palette", ["palette", "gradient", "accentColor", "signatureColor"])}
+        {bcard("Default Background", ["background"])}
+        {macroCard}
+        {bcard("Spotlight Definitions", ["spotlight"])}
+        {bcard("Discovery", ["genre", "fandom", "contentWarnings"])}
+        {bcard("Voice", ["voice"])}
+        {bcard("Image Prompt", ["imagePrompt", "imagePromptRows"])}
+        {bcard("Media", ["visualKind", "mediaLinks"])}
+        {bcard("Settings", ["talkativeness", "risuSettings"])}
+        {bcard("Bias", ["bias"])}
+        {bcard("Attribution", ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"])}
+      </div>
     </div>
   );
 
@@ -1150,7 +1313,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      {mode === "grid" ? gridView : flowView}
+      {mode === "grid" ? bentoView : flowView}
     </div>
   );
 }

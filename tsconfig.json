@@ -12,5 +12,8 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["bun"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  // src/macros is brought-over format-coverage work (vitest tests, not yet wired in or ported to
+  // bun test); kept out of the app typecheck until integrated. See archive/README.md.
+  "exclude": ["src/macros"]
 }
