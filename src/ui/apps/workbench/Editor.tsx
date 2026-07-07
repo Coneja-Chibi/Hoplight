@@ -40,6 +40,7 @@ const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
 const PREF_EDITOR_SCALE = "editor.scale";
 const PREF_EDITOR_LAYOUT = "editor.layout";
+const PREF_EDITOR_MODE = "editor.mode";
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 2;
 const SCALE_STEP = 0.1;
@@ -136,8 +137,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
   // Quiz is the default presenter; Grid (the bento) is the power view. The toggle in the header
-  // switches between them - both pure views over the same draft.
-  const [mode, setMode] = useState<"grid" | "interview">("interview");
+  // switches between them - both pure views over the same draft - and the choice is remembered, so a
+  // creator who lives in Grid is not dropped back into the quiz on every open.
+  const [mode, setModeState] = useState<"grid" | "interview">(() =>
+    ctx.prefs.get(PREF_EDITOR_MODE) === "grid" ? "grid" : "interview",
+  );
+  const setMode = (m: "grid" | "interview"): void => {
+    setModeState(m);
+    ctx.prefs.set(PREF_EDITOR_MODE, m);
+  };
   const [flowIndex, setFlowIndex] = useState(0); // how many questions the guided flow has revealed
   const activeCardRef = useRef<HTMLDivElement>(null);
 
@@ -1262,7 +1270,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   const bentoView = (
     <div className={styles.bento}>
-      <div className={styles.bcol}>
+      <div className={`${styles.bcol} ${styles.bcolLeft}`}>
         {leftCard}
         {sealedCard}
       </div>

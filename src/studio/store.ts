@@ -23,12 +23,28 @@ export interface EntitySummary {
   importedAt?: string;
   /** the entity carries displayable art (serve it via /api/studio/portrait) */
   hasPortrait?: boolean;
-  /** the entity's signature color, derived from its own art at import (skin-masked vibrant swatch) */
+  /** the entity's signature color: the creator's authored signature when set, else a swatch derived
+   * from its own art (skin-masked vibrant color) */
   accent?: string;
   /** the source format id (first escrow entry that is not our own bookkeeping) */
   sourceFormat?: string;
   /** the source format's variant when it recorded one ("v2", "v3") */
   sourceVariant?: string;
+}
+
+const HEX6 = /^#[0-9a-f]{6}$/i;
+
+/** The creator's authored signature color, if they set one: a solid signature, or the first color of
+ * a gradient signature. This is an explicit choice and wins over the art-derived fallback. Tolerant:
+ * returns undefined for a non-character entity or an unset/malformed value. */
+function authoredSignature(entity: AnyEntity): string | undefined {
+  const pres = (entity as { body?: { presentation?: { signatureColor?: unknown; gradientColors?: unknown } } })
+    .body?.presentation;
+  const solid = typeof pres?.signatureColor === "string" ? pres.signatureColor : undefined;
+  const stops = pres?.gradientColors;
+  const first = Array.isArray(stops) && typeof stops[0] === "string" ? stops[0] : undefined;
+  const hex = solid || first;
+  return hex && HEX6.test(hex) ? hex : undefined;
 }
 
 /** The entity's source format: the first escrow entry that is not vaud's own bookkeeping slot. */
@@ -74,7 +90,8 @@ export class StudioStore {
         const entity = await this.read(k, f.slice(0, -5));
         if (entity) {
           const studioMeta = entity.escrow?.["vaud-studio"]?.unmapped;
-          const accent = studioMeta?.["accent"];
+          const cached = studioMeta?.["accent"];
+          const artAccent = typeof cached === "string" && HEX6.test(cached) ? cached : undefined;
           const source = sourceOf(entity);
           out.push({
             id: f.slice(0, -5),
@@ -82,7 +99,8 @@ export class StudioStore {
             name: entityName(entity),
             importedAt: (studioMeta?.["importedAt"] as string) ?? undefined,
             hasPortrait: hasPortrait(entity),
-            accent: typeof accent === "string" && /^#[0-9a-f]{6}$/i.test(accent) ? accent : undefined,
+            // an authored signature color is an explicit choice: it wins over the art-derived fallback
+            accent: authoredSignature(entity) ?? artAccent,
             sourceFormat: source.format,
             sourceVariant: source.variant,
           });

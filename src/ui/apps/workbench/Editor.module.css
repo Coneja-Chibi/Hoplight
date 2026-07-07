@@ -380,6 +380,12 @@
   gap: 1rem;
   min-width: 0;
 }
+/* the portrait column stays in view while the long form scrolls past it (matches playbill's .pbLeft) */
+.bcolLeft {
+  position: sticky;
+  top: 0.5rem;
+  align-self: start;
+}
 /* a field inside a bento card: a small mono label over its control */
 .bfield {
   display: flex;
