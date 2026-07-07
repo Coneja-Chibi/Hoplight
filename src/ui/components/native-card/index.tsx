@@ -13,6 +13,8 @@ import { LinkOut } from "../link-out";
 import { RawExtensions } from "../raw-extensions";
 import { AssetManager, type Asset } from "../asset-manager";
 import { StubEditor } from "../stub-editor";
+import { TrackerSetup } from "../tracker-setup";
+import { Recommendations } from "../recommendations";
 import styles from "./styles.module.css";
 
 /** an open stub-editor request: what to show while the real content-type editor does not exist yet */
@@ -31,6 +33,11 @@ export type NativeControl =
   | "world-link" // a lorebook bound by name -> link to the Lorebook editor
   | "regex-link" // regex scripts array -> link to the Regex editor
   | "asset-manager" // data.assets[] -> the type-grouped media manager
+  | "tracker-setup" // RoleCall trackerPreset -> the tracker module + seed editor
+  | "recommendations" // RoleCall recommendations -> the 4-group bundle editor
+  | "text" // a single line of text (a code, a name)
+  | "url" // a URL
+  | "read-only" // shown but not editable (account-level / derived fields)
   | "raw-extensions"; // the catch-all: every leftover key in this object, editable
 
 export interface NativeField {
@@ -40,6 +47,8 @@ export interface NativeField {
   control: NativeControl;
   help?: string;
   slider?: { min: number; max: number; step?: number };
+  /** raw-extensions only: extra keys to hide (already handled elsewhere, e.g. canonical fields) */
+  hide?: readonly string[];
 }
 
 export interface NativeSchema {
@@ -199,6 +208,24 @@ function fieldControl(
       const arr = read(field.path);
       return <AssetManager assets={Array.isArray(arr) ? (arr as Asset[]) : []} onChange={(next) => write(field.path, next)} />;
     }
+    case "tracker-setup":
+      return <TrackerSetup value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
+    case "recommendations":
+      return <Recommendations value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
+    case "text":
+      return <input className={styles.rowInput} value={str(read(field.path))} onChange={(e) => write(field.path, e.target.value)} />;
+    case "url":
+      return (
+        <input
+          className={styles.rowInput}
+          type="url"
+          value={str(read(field.path))}
+          placeholder="https://..."
+          onChange={(e) => write(field.path, e.target.value)}
+        />
+      );
+    case "read-only":
+      return <div className={styles.readonly}>{str(read(field.path)) || String(read(field.path) ?? "(none)")}</div>;
     case "raw-extensions":
       return <></>; // intercepted by NativeCard (needs schema context); never reached here
   }
@@ -218,10 +245,13 @@ export function NativeCard({ schema, read, write }: NativeCardProps): JSX.Elemen
         // the catch-all needs schema context: hide the keys other fields already own
         if (f.control === "raw-extensions") {
           const prefix = `${f.path}.`;
-          const handled = schema.fields
-            .filter((o) => o !== f && o.path.startsWith(prefix))
-            .map((o) => o.path.slice(prefix.length))
-            .filter((seg) => !seg.includes(".")); // direct children only
+          const handled = [
+            ...schema.fields
+              .filter((o) => o !== f && o.path.startsWith(prefix))
+              .map((o) => o.path.slice(prefix.length))
+              .filter((seg) => !seg.includes(".")), // direct children only
+            ...(f.hide ?? []), // keys handled elsewhere (e.g. canonical fields under this object)
+          ];
           return (
             <div className={styles.field} key={f.path}>
               <RawExtensions data={asRec(read(f.path)) ?? {}} handled={handled} onChange={(k, v) => write(`${f.path}.${k}`, v)} />

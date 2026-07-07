@@ -1,0 +1,21 @@
+/**
+ * Recommendations styles - four labeled groups, each a ListEditor. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.group {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-panel, var(--panel));
+  padding: 0.5rem 0.55rem;
+}
+.ghead {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  margin-bottom: 0.45rem;
+}

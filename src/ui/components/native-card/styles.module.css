@@ -52,6 +52,24 @@
   font-size: 0.85rem;
   color: var(--muted);
 }
+.rowInput {
+  width: 100%;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  padding: 0.35rem 0.5rem;
+}
+.readonly {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--stage-mute, var(--muted));
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  padding: 0.35rem 0.5rem;
+  word-break: break-all;
+}
 .note {
   display: flex;
   flex-direction: column;
