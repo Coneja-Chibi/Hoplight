@@ -1,0 +1,110 @@
+/**
+ * AssetManager styles - type-grouped media tiles with previews and a dropper. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.group {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--field, var(--paper)));
+  padding: 0.5rem 0.55rem;
+}
+.ghead {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  margin-bottom: 0.45rem;
+}
+.tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+.tile {
+  width: 5.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.preview {
+  width: 5.2rem;
+  height: 5.2rem;
+  border: 3px solid var(--stage-black, var(--edge));
+  background: var(--stage-panel, var(--panel));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ph {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--stage-mute, var(--muted));
+}
+.name {
+  width: 100%;
+  background: var(--stage-panel, var(--panel));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 0.2rem 0.3rem;
+}
+.src {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.url {
+  width: 100%;
+  background: var(--stage-panel, var(--panel));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  padding: 0.2rem 0.3rem;
+}
+.rm {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  background: transparent;
+  border: 2px solid var(--stage-seam, var(--seam));
+  padding: 0.15rem 0.3rem;
+  cursor: pointer;
+}
+.rm:hover {
+  color: var(--rose);
+  border-color: var(--rose);
+}
+.drop {
+  width: 5.2rem;
+  height: 5.2rem;
+  border: 3px dashed var(--stage-seam, var(--seam));
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  cursor: pointer;
+}
+.drop:hover {
+  border-color: var(--stage-mute, var(--muted));
+  color: var(--stage-soft, var(--text-soft));
+}
+.hidden {
+  display: none;
+}

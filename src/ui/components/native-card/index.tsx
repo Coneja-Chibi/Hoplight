@@ -10,6 +10,7 @@ import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
 import { LinkOut } from "../link-out";
 import { RawExtensions } from "../raw-extensions";
+import { AssetManager, type Asset } from "../asset-manager";
 import styles from "./styles.module.css";
 
 /** Which reusable control renders a native field. Grown as each approved component lands. */
@@ -20,6 +21,7 @@ export type NativeControl =
   | "lorebook-link" // an embedded lorebook object -> link to the Lorebook editor
   | "world-link" // a lorebook bound by name -> link to the Lorebook editor
   | "regex-link" // regex scripts array -> link to the Regex editor
+  | "asset-manager" // data.assets[] -> the type-grouped media manager
   | "raw-extensions"; // the catch-all: every leftover key in this object, editable
 
 export interface NativeField {
@@ -125,6 +127,10 @@ function fieldControl(field: NativeField, read: (p: string) => unknown, write: (
       const n = Array.isArray(arr) ? arr.length : 0;
       if (n === 0) return <LinkOut title="" empty emptyLabel="No regex scripts" />;
       return <LinkOut title={plural(n, "script") + " attached"} meta="card-scoped find/replace" action="Open in Regex editor" />;
+    }
+    case "asset-manager": {
+      const arr = read(field.path);
+      return <AssetManager assets={Array.isArray(arr) ? (arr as Asset[]) : []} onChange={(next) => write(field.path, next)} />;
     }
     case "raw-extensions":
       return <></>; // intercepted by NativeCard (needs schema context); never reached here
