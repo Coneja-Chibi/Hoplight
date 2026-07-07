@@ -19,6 +19,7 @@ import { BentoCard } from "../../components/bento-card";
 import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
 import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
 import { ColorPicker } from "../../components/color-picker";
+import { SwatchRow, HOUSE_PALETTE } from "../../components/swatch-row";
 import { RenderBox } from "../../components/render-box";
 import { normalizeHex } from "../../_shared/color-math";
 import {
@@ -215,8 +216,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     setEditorLayoutState(l);
     ctx.prefs.set(PREF_EDITOR_LAYOUT, l);
   };
-  const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
-  const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
+  const [palSel, setPalSel] = useState(0); // which palette swatch the picker edits
+  const [palOpen, setPalOpen] = useState(false); // whether the palette picker popover is open
+  const [gradSel, setGradSel] = useState(0); // which gradient stop the picker edits
+  const [gradOpen, setGradOpen] = useState(false); // whether the gradient picker popover is open
 
   useEffect(() => {
     void ctx.api.coverage().then(setCoverage).catch(() => setCoverage([]));
@@ -506,8 +509,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           <button
             key={i}
             type="button"
-            className={`${styles.palTile}${i === gradAt ? ` ${styles.palTileOn}` : ""}`}
-            onClick={() => setGradSel(i)}
+            className={`${styles.palTile}${i === gradAt && gradOpen ? ` ${styles.palTileOn}` : ""}`}
+            onClick={() => {
+              const closing = i === gradSel && gradOpen;
+              setGradSel(i);
+              setGradOpen(!closing);
+            }}
             title={hex}
           >
             <span className={styles.palChip} style={{ background: hex }} />
@@ -522,6 +529,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               const next = [...gradient, "#e11d48"];
               setGradient(next);
               setGradSel(next.length - 1);
+              setGradOpen(true);
             }}
           >
             + add
@@ -533,22 +541,30 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       ) : (
         <>
           <div className={styles.gradBar} style={{ background: gradCss }} />
-          <div className={styles.palEdit}>
-            <ColorPicker
-              value={normalizeHex(gradient[gradAt] ?? "") ?? gradient[gradAt]}
-              onChange={(hex) => setGradient(gradient.map((c, i) => (i === gradAt ? hex : c)))}
-            />
-            <button
-              type="button"
-              className={styles.rm}
-              onClick={() => {
-                setGradient(gradient.filter((_, i) => i !== gradAt));
-                setGradSel(Math.max(0, gradAt - 1));
-              }}
-            >
-              remove color
-            </button>
-          </div>
+          {gradOpen && (
+            <div className={styles.palEdit}>
+              <ColorPicker
+                value={normalizeHex(gradient[gradAt] ?? "") ?? gradient[gradAt]}
+                onChange={(hex) => setGradient(gradient.map((c, i) => (i === gradAt ? hex : c)))}
+              />
+              <div className={styles.palRow}>
+                <button type="button" className={styles.rm} onClick={() => setGradOpen(false)}>
+                  done
+                </button>
+                <button
+                  type="button"
+                  className={styles.rm}
+                  onClick={() => {
+                    setGradient(gradient.filter((_, i) => i !== gradAt));
+                    setGradSel(Math.max(0, gradAt - 1));
+                    setGradOpen(false);
+                  }}
+                >
+                  remove color
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </>
@@ -570,8 +586,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           <button
             key={i}
             type="button"
-            className={`${styles.palTile}${i === palAt ? ` ${styles.palTileOn}` : ""}`}
-            onClick={() => setPalSel(i)}
+            className={`${styles.palTile}${i === palAt && palOpen ? ` ${styles.palTileOn}` : ""}`}
+            onClick={() => {
+              const closing = i === palSel && palOpen;
+              setPalSel(i);
+              setPalOpen(!closing);
+            }}
             title={s.name ?? s.label ?? s.hex}
           >
             <span className={styles.palChip} style={{ background: s.hex }} />
@@ -585,6 +605,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             const next = [...palette, { name: "", hex: "#e11d48" }];
             setPalette(next);
             setPalSel(next.length - 1);
+            setPalOpen(true);
           }}
         >
           + add
@@ -593,7 +614,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       {palette.length === 0 ? (
         <span className={styles.hint}>no palette on this card yet - add a swatch to name a signature color</span>
       ) : (
-        palCur && (
+        palOpen && palCur && (
           <div className={styles.palEdit}>
             <input
               className={styles.in}
@@ -605,16 +626,22 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               value={normalizeHex(palCur.hex) ?? palCur.hex}
               onChange={(hex) => setPalette(palette.map((s, i) => (i === palAt ? { ...s, hex } : s)))}
             />
-            <button
-              type="button"
-              className={styles.rm}
-              onClick={() => {
-                setPalette(palette.filter((_, i) => i !== palAt));
-                setPalSel(Math.max(0, palAt - 1));
-              }}
-            >
-              remove swatch
-            </button>
+            <div className={styles.palRow}>
+              <button type="button" className={styles.rm} onClick={() => setPalOpen(false)}>
+                done
+              </button>
+              <button
+                type="button"
+                className={styles.rm}
+                onClick={() => {
+                  setPalette(palette.filter((_, i) => i !== palAt));
+                  setPalSel(Math.max(0, palAt - 1));
+                  setPalOpen(false);
+                }}
+              >
+                remove swatch
+              </button>
+            </div>
           </div>
         )
       )}
@@ -804,7 +831,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         const cur = str(readPath(draft, m.path));
         return (
           <div className={styles.colorRow}>
-            <ColorPicker value={normalizeHex(cur) ?? cur} onChange={(hex) => setField(m.path, hex)} />
+            <SwatchRow
+              palette={HOUSE_PALETTE}
+              value={cur}
+              onChange={(hex) => setField(m.path, hex)}
+              allowCustom
+            />
             {cur !== "" && (
               <button type="button" className={styles.rm} onClick={() => setField(m.path, "")}>
                 clear
