@@ -42,6 +42,7 @@ import { useVariants } from "./use-variants";
 import { VariantStrip } from "../../components/variant-strip";
 import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate, type Greeting } from "./editor-derive";
 import { TAG_CATEGORY_STYLE } from "./tag-category-style";
+import { OptionCards } from "./controls/option-cards";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -794,30 +795,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           </div>
         );
       }
-      case "select": {
-        const cur = text(m.path);
+      case "select":
         return (
-          <div className={styles.opts}>
-            {(m.options ?? []).map((o, i) => {
-              const on = cur === o.value;
-              return (
-                <button
-                  key={o.value || "none"}
-                  type="button"
-                  className={`${styles.opt}${on ? ` ${styles.optOn}` : ""}`}
-                  onClick={() => setField(m.path, o.value)}
-                >
-                  {on && <span className={styles.optMark}>Picked</span>}
-                  <span className={styles.rank}>{String.fromCharCode(65 + i)}</span>
-                  <span className={styles.optBody}>
-                    <span className={styles.optTitle}>{o.label}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <OptionCards
+            options={(m.options ?? []).map((o) => ({ value: o.value, title: o.label }))}
+            value={text(m.path)}
+            onSelect={(v) => setField(m.path, v)}
+            styles={styles}
+          />
         );
-      }
       case "number": {
         const raw = readPath(draft, m.path);
         const n = typeof raw === "number" ? raw : undefined;
@@ -1025,29 +1011,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   ];
   const answerFor = (m: FieldModule): JSX.Element => {
     if (m.kind === "rating") {
-      const cur = text(m.path);
-      return (
-        <div className={styles.opts}>
-          {RATING_OPTIONS.map((o, i) => {
-            const on = cur === o.value;
-            return (
-              <button
-                key={o.value || "unrated"}
-                type="button"
-                className={`${styles.opt}${on ? ` ${styles.optOn}` : ""}`}
-                onClick={() => setField(m.path, o.value)}
-              >
-                {on && <span className={styles.optMark}>Picked</span>}
-                <span className={styles.rank}>{String.fromCharCode(65 + i)}</span>
-                <span className={styles.optBody}>
-                  <span className={styles.optTitle}>{o.title}</span>
-                  <span className={styles.optSub}>{o.sub}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      );
+      return <OptionCards options={RATING_OPTIONS} value={text(m.path)} onSelect={(v) => setField(m.path, v)} styles={styles} />;
     }
     if (m.kind === "text") {
       return <input className={styles.write} placeholder={m.placeholder} value={text(m.path)} onChange={(e) => setField(m.path, e.target.value)} />;

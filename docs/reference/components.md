@@ -26,6 +26,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
+| OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .on .hint .offt |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
