@@ -4,7 +4,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { Tour } from "./tour-contract";
-import { hasSeenTour, isRunnable, nextIndex, positionAt, prevIndex, tourSeenKey } from "./tour-core";
+import { hasSeenTour, isRunnable, nextIndex, positionAt, prevIndex, seenTourKeys, tourSeenKey } from "./tour-core";
 
 const tour = (n: number): Tour => ({
   manifest: { appId: "workbench", title: "Getting started" },
@@ -22,6 +22,22 @@ describe("tourSeenKey / hasSeenTour", () => {
     expect(hasSeenTour(undefined)).toBe(false);
     expect(hasSeenTour("true")).toBe(false);
     expect(hasSeenTour(1)).toBe(false);
+  });
+});
+
+describe("seenTourKeys", () => {
+  test("finds every tour-seen key and ignores the rest", () => {
+    const settings = {
+      "tour.workbench.seen": true,
+      "tour.library.seen": false,
+      "editor.layout": "bento",
+      "theme": "dark",
+      "tour.press.seen": true,
+    };
+    expect(seenTourKeys(settings).sort()).toEqual(["tour.library.seen", "tour.press.seen", "tour.workbench.seen"]);
+  });
+  test("empty when there are no tours", () => {
+    expect(seenTourKeys({ theme: "dark" })).toEqual([]);
   });
 });
 

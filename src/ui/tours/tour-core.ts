@@ -14,6 +14,11 @@ export const tourSeenKey = (appId: string): string => `tour.${appId}.seen`;
  * anything other than the literal `true` (unset, stale shapes) reads as not-yet-seen. */
 export const hasSeenTour = (prefValue: unknown): boolean => prefValue === true;
 
+/** Every tour-seen key currently in a settings record - the "replay all tutorials" reset clears
+ * these so every app's tour auto-launches again on its next visit. Pure: the shell does the write. */
+export const seenTourKeys = (settings: Record<string, unknown>): string[] =>
+  Object.keys(settings).filter((k) => /^tour\..+\.seen$/.test(k));
+
 /** Where the tour is right now, resolved from a raw (possibly out-of-range) index. */
 export interface TourPosition {
   /** the active step, or null for an empty tour */

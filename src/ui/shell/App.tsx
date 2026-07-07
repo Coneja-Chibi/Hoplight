@@ -26,7 +26,7 @@ import { Menu } from "./Menu";
 import { LeavingGate } from "../components/leaving-gate";
 import { TourGuide } from "../components/tour-guide";
 import type { Tour } from "../tours/tour-contract";
-import { hasSeenTour, isRunnable, tourSeenKey } from "../tours/tour-core";
+import { hasSeenTour, isRunnable, seenTourKeys, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
 
 type Phase = "loading" | "setup" | "ready";
@@ -162,6 +162,17 @@ export function App(): JSX.Element | null {
         },
       },
       { label: "Switch theme", onPick: () => useShellStore.getState().toggleTheme() },
+      {
+        label: "Replay tutorials",
+        onPick: () => {
+          // clear every tour's seen flag so each app's tour auto-launches again on its next visit
+          const s = useShellStore.getState();
+          const cleared = { ...s.settings };
+          for (const k of seenTourKeys(s.settings)) cleared[k] = false;
+          void s.saveSettings(cleared);
+          s.setStatus("tutorials will show again");
+        },
+      },
     ]);
 
     const detachShellTarget = menus.attach(document.body, () => ({ type: "shell", label: "Vaude." }));

@@ -365,7 +365,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     >
       <style>{allCss}</style>
       <div className="wbbar">
-        <div className="deckchips">
+        <div className="deckchips" data-tour="decks">
           {decks.map(({ kind, count }) => {
             const meta = deckMeta(kind);
             return (
@@ -382,7 +382,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             );
           })}
         </div>
-        <div className="viewseg">
+        <div className="viewseg" data-tour="views">
           {deckViews().map((v) => (
             <button
               key={v.id}
@@ -395,7 +395,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             </button>
           ))}
         </div>
-        <label className="sizedial">
+        <label className="sizedial" data-tour="size">
           <span className="sk">art</span>
           <input
             type="range"
