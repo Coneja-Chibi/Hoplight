@@ -43,6 +43,7 @@ import { PortraitCard } from "./controls/portrait-card";
 import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate, type Greeting } from "./editor-derive";
 import { TAG_CATEGORY_STYLE } from "./tag-category-style";
 import { OptionCards } from "./controls/option-cards";
+import { PlaybillView } from "./presenters/playbill-view";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -1233,65 +1234,20 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const actModules = (ids: readonly string[]): FieldModule[] =>
     ids.map((id) => moduleById.get(id)).filter((m): m is FieldModule => m !== undefined);
   const playbillView = (
-    <div className={styles.playbill}>
-      <div className={styles.pbLeft}>
-        {leftCard}
-        {sealedCard}
-      </div>
-      <div className={styles.pbForm}>
-        {ACTS.map((act) => {
-          const mods = actModules(act.ids).filter((m) => !lensHides(m));
-          if (mods.length === 0) return null;
-          return (
-            <section key={act.id} id={`act-${act.id}`} className={styles.act}>
-              <div className={styles.actbreak}>
-                <span className={styles.abar} />
-                <span className={styles.amid}>
-                  <span className={styles.ano}>{act.no}</span>
-                  <span className={styles.anm}>{act.title}</span>
-                </span>
-                <span className={styles.abar} />
-              </div>
-              <div className={styles.pbfields}>
-                {mods.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`${styles.pbfield}${WIDE_KINDS.has(m.kind) ? ` ${styles.span2}` : ""}${lensDims(m) ? ` ${styles.dimlens}` : ""}`}
-                  >
-                    <span className={styles.blabel}>
-                      {m.sheetLabel}
-                      {m.required && <span className={styles.qreq}> *</span>}
-                    </span>
-                    {controlFor(m)}
-                  </div>
-                ))}
-              </div>
-            </section>
-          );
-        })}
-        {nativePlaybillSection(nativeItems)}
-      </div>
-      <aside className={styles.pbBill}>
-        <div className={styles.pbTitle}>The Bill</div>
-        <p className={styles.pbSay}>Jump to any act.</p>
-        <ul className={styles.toc}>
-          {ACTS.map((act) => {
-            const n = actModules(act.ids).filter((m) => !lensHides(m)).length;
-            if (n === 0) return null;
-            return (
-              <li key={act.id}>
-                <a href={`#act-${act.id}`}>
-                  <span className={styles.tno}>{act.no}</span>
-                  <span className={styles.tnm}>{act.title}</span>
-                  <span className={styles.tct}>{n}</span>
-                </a>
-              </li>
-            );
-          })}
-          {nativePlaybillNav(nativeItems)}
-        </ul>
-      </aside>
-    </div>
+    <PlaybillView
+      leftCard={leftCard}
+      sealedCard={sealedCard}
+      acts={ACTS}
+      actModules={actModules}
+      lensHides={lensHides}
+      lensDims={lensDims}
+      wideKinds={WIDE_KINDS}
+      controlFor={controlFor}
+      nativeItems={nativeItems}
+      nativeSection={nativePlaybillSection}
+      nativeNav={nativePlaybillNav}
+      styles={styles}
+    />
   );
 
   // the editor-wide scale uses zoom (not transform) so the editor REFLOWS as it shrinks - the bento
