@@ -39,6 +39,7 @@ import styles from "./Editor.module.css";
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
 const PREF_EDITOR_SCALE = "editor.scale";
+const PREF_EDITOR_LAYOUT = "editor.layout";
 const SCALE_MIN = 0.5;
 const SCALE_MAX = 2;
 const SCALE_STEP = 0.1;
@@ -205,6 +206,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     ctx.prefs.set(PREF_EDITOR_SCALE, clamped);
   };
   const stepScale = (dir: -1 | 1): void => setEditorScale(scaleRef.current + dir * SCALE_STEP);
+  // which grid-mode layout: the Bento (default) or the Playbill. Remembered app-wide; both are pure
+  // views over FIELD_MODULES, selectable here and in Settings.
+  const [editorLayout, setEditorLayoutState] = useState<"bento" | "playbill">(() =>
+    ctx.prefs.get(PREF_EDITOR_LAYOUT) === "playbill" ? "playbill" : "bento",
+  );
+  const setEditorLayout = (l: "bento" | "playbill"): void => {
+    setEditorLayoutState(l);
+    ctx.prefs.set(PREF_EDITOR_LAYOUT, l);
+  };
   const [palSel, setPalSel] = useState(0); // which palette swatch the inline picker edits
   const [gradSel, setGradSel] = useState(0); // which gradient stop the inline picker edits
 
@@ -1251,6 +1261,82 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     </div>
   );
 
+  // ===== PLAYBILL layout, transcribed from design/vs-editor-v2.html, with the Bill and the character
+  // image SWAPPED (owner's call): portrait LEFT, the Acts form center, the act nav (The Bill) RIGHT.
+  // Same FIELD_MODULES, arranged as vertical "acts" (field-group sections) with a jump nav - the
+  // second layout over the one registry, proving the modularity.
+  const ACTS: ReadonlyArray<{ id: string; no: string; title: string; ids: readonly string[] }> = [
+    { id: "identity", no: "Act I", title: "Identity", ids: ["name", "tagline", "fullName", "title", "age", "pronouns", "nickname", "culture", "characterVersion", "tags", "rating"] },
+    { id: "persona", no: "Act II", title: "Persona", ids: ["personality", "scenario", "appearance", "structuredKind", "structuredAttributes", "voice", "imagePrompt", "imagePromptRows"] },
+    { id: "prompts", no: "Act III", title: "Prompts", ids: ["systemPrompt", "postHistoryInstructions", "prefill", "additionalText", "depthInjections"] },
+    { id: "greetings", no: "Act IV", title: "Greetings", ids: ["firstMes", "alternateGreetings", "groupOnlyGreetings"] },
+    { id: "examples", no: "Act V", title: "Examples", ids: ["mesExample"] },
+    { id: "discovery", no: "Act VI", title: "Discovery", ids: ["genre", "fandom", "contentWarnings"] },
+    { id: "attribution", no: "Act VII", title: "Attribution", ids: ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"] },
+    { id: "presentation", no: "Act VIII", title: "Presentation", ids: ["palette", "gradient", "accentColor", "signatureColor", "background", "spotlight", "mediaLinks", "visualKind"] },
+    { id: "settings", no: "Act IX", title: "Settings", ids: ["talkativeness", "risuSettings", "bias"] },
+  ];
+  const WIDE_KINDS = new Set(["prose", "greetings", "list", "keyvalue", "list-subeditor", "structured-subeditor", "spotlight", "background", "palette", "gradient", "asset-gallery", "tags", "rating"]);
+  const actModules = (ids: readonly string[]): FieldModule[] =>
+    ids.map((id) => moduleById.get(id)).filter((m): m is FieldModule => m !== undefined);
+  const playbillView = (
+    <div className={styles.playbill}>
+      <div className={styles.pbLeft}>
+        {leftCard}
+        {sealedCard}
+      </div>
+      <div className={styles.pbForm}>
+        {ACTS.map((act) => {
+          const mods = actModules(act.ids);
+          if (mods.length === 0) return null;
+          return (
+            <section key={act.id} id={`act-${act.id}`} className={styles.act}>
+              <div className={styles.actbreak}>
+                <span className={styles.abar} />
+                <span className={styles.amid}>
+                  <span className={styles.ano}>{act.no}</span>
+                  <span className={styles.anm}>{act.title}</span>
+                </span>
+                <span className={styles.abar} />
+              </div>
+              <div className={styles.pbfields}>
+                {mods.map((m) => (
+                  <div key={m.id} className={`${styles.pbfield}${WIDE_KINDS.has(m.kind) ? ` ${styles.span2}` : ""}`}>
+                    <span className={styles.blabel}>
+                      {m.sheetLabel}
+                      {m.required && <span className={styles.qreq}> *</span>}
+                    </span>
+                    {controlFor(m)}
+                  </div>
+                ))}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+      <aside className={styles.pbBill}>
+        <div className={styles.pbKick}>The Program</div>
+        <div className={styles.pbTitle}>The Bill</div>
+        <p className={styles.pbSay}>Every field group is an act. Jump to any.</p>
+        <ul className={styles.toc}>
+          {ACTS.map((act) => {
+            const n = actModules(act.ids).length;
+            if (n === 0) return null;
+            return (
+              <li key={act.id}>
+                <a href={`#act-${act.id}`}>
+                  <span className={styles.tno}>{act.no}</span>
+                  <span className={styles.tnm}>{act.title}</span>
+                  <span className={styles.tct}>{n}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </aside>
+    </div>
+  );
+
   // the editor-wide scale uses zoom (not transform) so the editor REFLOWS as it shrinks - the bento
   // grid is column-WIDTH based, so smaller = more, narrower bento columns that fill the freed space
   // (like browser zoom), never a shrink-into-the-corner with an empty void. --a rides along.
@@ -1306,6 +1392,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               &#43;
             </button>
           </span>
+          {mode === "grid" && (
+            <span className={styles.seg}>
+              <button type="button" className={editorLayout === "bento" ? styles.on : undefined} onClick={() => setEditorLayout("bento")}>
+                Bento
+              </button>
+              <button type="button" className={editorLayout === "playbill" ? styles.on : undefined} onClick={() => setEditorLayout("playbill")}>
+                Playbill
+              </button>
+            </span>
+          )}
           <span className={styles.seg}>
             <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
               Grid
@@ -1321,7 +1417,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      {mode === "grid" ? bentoView : flowView}
+      {mode === "grid" ? (editorLayout === "playbill" ? playbillView : bentoView) : flowView}
     </div>
   );
 }
