@@ -11,7 +11,8 @@
   "scripts": {
     "vaud": "bun run src/cli.ts",
     "dev": "bun run src/cli.ts ui 8321 \"C:/Users/chiev/Documents/Vaude Studio\"",
-    "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan"
+    "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
+    "scan:lines": "bun run scripts/hooks/file-lines.ts --scan"
   },
   "engines": {
     "bun": ">=1.3.0"

@@ -9,7 +9,8 @@
  * Run: bun run scripts/hooks/gate.ts --staged
  */
 import { readFileSync, statSync } from "node:fs";
-import { htmlSinkTokens, impureCoreTokens, isCoreFile, isTestFile, missingCoreSiblings, shellImportTokens } from "./lib";
+import { htmlSinkTokens, impureCoreTokens, isCoreFile, isLineGuardedFile, isTestFile, missingCoreSiblings, overLineCap, shellImportTokens } from "./lib";
+import { countLines, loadCeilings } from "./file-lines";
 
 const mode: "staged" | "worktree" = process.argv.includes("--staged") ? "staged" : "worktree";
 
@@ -42,16 +43,37 @@ const fileExists = (path: string): boolean => {
 };
 
 function main(): number {
-  let changed: string[];
+  let all: string[];
   try {
-    changed = changedFiles().filter((p) => p.endsWith(".ts"));
+    all = changedFiles();
   } catch (err) {
     console.error(`gate: could not read git state, skipping (${String(err)})`);
     return 1; // infra failure -> non-blocking
   }
-  if (changed.length === 0) return 0; // no TS touched (e.g. a conversation-only turn): nothing to check
 
   const violations: string[] = [];
+
+  // 0. size cap: no changed file may cross its ceiling (frozen godfiles) or the default cap. Runs on
+  //    every guarded file (any extension), so a growing .tsx/.css is caught, not just .ts.
+  const ceilings = loadCeilings();
+  for (const p of all.filter(isLineGuardedFile)) {
+    try {
+      const v = overLineCap(p, countLines(p), ceilings);
+      if (v) violations.push(v);
+    } catch {
+      /* deleted/unreadable: not this gate's problem */
+    }
+  }
+
+  const changed = all.filter((p) => p.endsWith(".ts"));
+  if (changed.length === 0) {
+    // no TS touched: only the size cap could have fired
+    if (violations.length) {
+      console.error(`\nGUARDRAIL BLOCK (${mode})\n\n${violations.map((v) => `  - ${v}`).join("\n\n")}\n`);
+      return 2;
+    }
+    return 0;
+  }
 
   // 1. core purity: a *-core.ts may not reach for effects
   for (const p of changed.filter(isCoreFile).filter((x) => !isTestFile(x))) {

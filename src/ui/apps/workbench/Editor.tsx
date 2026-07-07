@@ -36,7 +36,7 @@ import { FIELD_MODULES, type FieldModule, type SubField } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { NativeCard } from "../../components/native-card";
-import { nativeSchemaFor } from "./native-fields";
+import { nativeSchemaFor } from "./native-schemas";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";

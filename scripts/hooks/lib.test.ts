@@ -9,8 +9,10 @@ import {
   impureCoreTokens,
   isColorGuardedFile,
   isCoreFile,
+  isLineGuardedFile,
   isShellFile,
   missingCoreSiblings,
+  overLineCap,
   shellBranchHits,
   shellImportTokens,
 } from "./lib";
@@ -170,4 +172,26 @@ test("hasVerifiedNote accepts an explicit note and rejects an empty stamp", () =
   expect(hasVerifiedNote("Fix thing\n\nTested: bun test green + manual")).toBe(true);
   expect(hasVerifiedNote("Fix thing")).toBe(false);
   expect(hasVerifiedNote("Verified:")).toBe(false); // bare stamp, nothing after
+});
+
+test("isLineGuardedFile covers src/scripts source, skips decls and other trees", () => {
+  expect(isLineGuardedFile("src/ui/components/slider/index.tsx")).toBe(true);
+  expect(isLineGuardedFile("scripts/hooks/gate.ts")).toBe(true);
+  expect(isLineGuardedFile("src/ui/apps/workbench/Editor.module.css")).toBe(true);
+  expect(isLineGuardedFile("src/types/global.d.ts")).toBe(false); // type decl
+  expect(isLineGuardedFile("docs/plan.md")).toBe(false); // not source
+  expect(isLineGuardedFile("scripts/hooks/big-files.json")).toBe(false); // not code
+});
+
+test("overLineCap flags an unlisted file over the default and passes one under it", () => {
+  expect(overLineCap("src/foo.ts", 501, {})).toContain("past the 500-line cap");
+  expect(overLineCap("src/foo.ts", 500, {})).toBeNull();
+  expect(overLineCap("docs/x.md", 9000, {})).toBeNull(); // not guarded, never flagged
+});
+
+test("overLineCap freezes a grandfathered file: may shrink, may not grow", () => {
+  const ceilings = { "src/ui/apps/workbench/Editor.tsx": 1506 };
+  expect(overLineCap("src/ui/apps/workbench/Editor.tsx", 1506, ceilings)).toBeNull(); // at ceiling
+  expect(overLineCap("src/ui/apps/workbench/Editor.tsx", 1400, ceilings)).toBeNull(); // shrank
+  expect(overLineCap("src/ui/apps/workbench/Editor.tsx", 1507, ceilings)).toContain("frozen ceiling of 1506");
 });

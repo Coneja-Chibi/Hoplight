@@ -218,3 +218,36 @@ export const hardcodedColorLiteral = (line: string): string | null => {
   const m = COLOR_LITERAL.exec(line);
   return m ? m[0] : null;
 };
+
+/** Default max length for a source file, in lines. Past this a file is trending toward a godfile:
+ * split it into one-concept pieces. Known offenders are grandfathered in big-files.json at their
+ * current length (shrink-only) - see file-lines.ts. */
+export const DEFAULT_LINE_CAP = 500;
+
+/** A source file the size cap guards: .ts/.tsx/.css under src or scripts, excluding type decls. */
+export const isLineGuardedFile = (path: string): boolean => {
+  const p = norm(path);
+  if (!p.startsWith("src/") && !p.startsWith("scripts/")) return false;
+  if (p.endsWith(".d.ts")) return false;
+  return p.endsWith(".ts") || p.endsWith(".tsx") || p.endsWith(".css");
+};
+
+/**
+ * A violation message when a guarded file runs longer than its cap, else null. `ceilings` grandfathers
+ * known-long files at a frozen length (they may only shrink); every other file caps at DEFAULT_LINE_CAP.
+ * Pure - the caller counts the lines - so the pre-commit gate and the retroactive scan share one rule.
+ */
+export const overLineCap = (
+  path: string,
+  lines: number,
+  ceilings: Readonly<Record<string, number>>,
+): string | null => {
+  if (!isLineGuardedFile(path)) return null;
+  const p = norm(path);
+  const grandfathered = p in ceilings;
+  const cap = grandfathered ? ceilings[p]! : DEFAULT_LINE_CAP;
+  if (lines <= cap) return null;
+  return grandfathered
+    ? `${p} is ${lines} lines, past its frozen ceiling of ${cap}. Known godfile: split it (that is the plan), never grow it.`
+    : `${p} is ${lines} lines, past the ${DEFAULT_LINE_CAP}-line cap. Split it into one-concept files before committing.`;
+};
