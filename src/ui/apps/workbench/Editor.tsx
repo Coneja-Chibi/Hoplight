@@ -44,6 +44,7 @@ import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate, type Greeting
 import { TAG_CATEGORY_STYLE } from "./tag-category-style";
 import { OptionCards } from "./controls/option-cards";
 import { PlaybillView } from "./presenters/playbill-view";
+import { BentoView } from "./presenters/bento-view";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -1170,49 +1171,15 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const nb = nativeBentoParts(nativeItems);
 
   const bentoView = (
-    <>
-    <div className={styles.bento}>
-      <div className={`${styles.bcol} ${styles.bcolLeft}`}>
-        {leftCard}
-        {sealedCard}
-        {nb.columns[0]}
-      </div>
-      <div className={styles.bcol}>
-        {bcard("Identity", ["name", "tagline", "tags", "rating"])}
-        {bcard("Casting Card", ["fullName", "title", "age", "pronouns", "nickname", "culture", "characterVersion"])}
-        {bcard("Description", ["description"])}
-        {bcard("Personality", ["personality"])}
-        {bcard("Appearance", ["appearance"])}
-        {bcard("Scenario", ["scenario"])}
-        {bcard("Persona · Structured", ["structuredKind", "structuredAttributes"])}
-        {bcard("System Prompt", ["systemPrompt"])}
-        {bcard("Post-History", ["postHistoryInstructions"])}
-        {bcard("Prefill", ["prefill"])}
-        {bcard("Additional Text", ["additionalText"])}
-        {bcard("Depth Injections", ["depthInjections"])}
-        {bcard("First Message", ["firstMes"])}
-        {bcard("Alt Greetings", ["alternateGreetings"])}
-        {bcard("Group Greetings", ["groupOnlyGreetings"])}
-        {bcard("Examples", ["mesExample"])}
-        {nb.columns[1]}
-      </div>
-      <div className={styles.bcol}>
-        {bcard("Color Palette", ["gradient", "palette"])}
-        {bcard("Default Background", ["background"])}
-        {macroCard}
-        {bcard("Spotlight Definitions", ["spotlight"])}
-        {bcard("Discovery", ["genre", "fandom", "contentWarnings"])}
-        {bcard("Voice", ["voice"])}
-        {bcard("Image Prompt", ["imagePrompt", "imagePromptRows"])}
-        {bcard("Media", ["visualKind", "mediaLinks"])}
-        {bcard("Settings", ["talkativeness", "risuSettings"])}
-        {bcard("Bias", ["bias"])}
-        {bcard("Attribution", ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"])}
-        {nb.columns[2]}
-      </div>
-    </div>
-    {nb.spanRow}
-    </>
+    <BentoView
+      bcard={bcard}
+      leftCard={leftCard}
+      sealedCard={sealedCard}
+      macroCard={macroCard}
+      columns={nb.columns}
+      spanRow={nb.spanRow}
+      styles={styles}
+    />
   );
 
   // ===== PLAYBILL layout, transcribed from design/vs-editor-v2.html, with the Bill and the character
