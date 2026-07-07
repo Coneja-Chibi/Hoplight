@@ -276,7 +276,7 @@ const app: VaudeApp = {
     id: "workbench",
     title: "The Workbench",
     markSvg: MARK_SVG,
-    accent: "#e6a52a",
+    accent: "#e6a52a", // hardcode-ok: app identity color, not theme chrome
     order: 10,
     subtitle: "app · home",
     editsPieces: true, // the shell's tab strip focuses into this room

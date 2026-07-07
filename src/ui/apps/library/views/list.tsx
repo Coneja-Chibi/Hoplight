@@ -11,19 +11,19 @@ const CSS = `
 .dv-listscroll{flex:1;min-height:0;overflow-y:auto;padding:clamp(.6rem,1.4vw,.9rem)}
 .dv-list{display:flex;flex-direction:column;gap:.35rem}
 .dv-row{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;font:inherit;cursor:pointer;
-  background:#111015;border:3px solid #000;padding:.35rem .55rem;transition:transform .1s ease-out}
+  background:var(--stage-row);border:3px solid var(--stage-black);padding:.35rem .55rem;transition:transform .1s ease-out}
 .dv-row:hover{transform:translate(-1px,-1px);border-color:var(--a)}
-.dv-row .thumb{width:calc(var(--card-w) * .28);aspect-ratio:2/3;flex:none;background:var(--a);border:2px solid #000;
+.dv-row .thumb{width:calc(var(--card-w) * .28);aspect-ratio:2/3;flex:none;background:var(--a);border:2px solid var(--stage-black);
   background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-big);font-weight:900;color:#0a0a0c}
-.dv-row .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:#f4f1ee}
-.dv-row .kd{font-family:var(--font-mono);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#a6a1b4}
+  font-family:var(--font-big);font-weight:900;color:var(--stage-ink)}
+.dv-row .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:var(--stage-card)}
+.dv-row .kd{font-family:var(--font-mono);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--stage-text-dim)}
 .dv-row .bench{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--a);border:2px solid var(--a);padding:2px 6px}
-.dv-row.cast{border-color:var(--a);background:#0d0c11;opacity:.72}
-.dv-row.pick{border-color:var(--a);background:#0d0c11;box-shadow:inset 4px 0 0 0 var(--a)}
+.dv-row.cast{border-color:var(--a);background:var(--stage-sunken);opacity:.72}
+.dv-row.pick{border-color:var(--a);background:var(--stage-sunken);box-shadow:inset 4px 0 0 0 var(--a)}
 .dv-row .stag{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
-  text-transform:uppercase;color:#0a0a0c;background:var(--a);padding:2px 7px;font-weight:700}
+  text-transform:uppercase;color:var(--stage-ink);background:var(--a);padding:2px 7px;font-weight:700}
 `;
 
 function ListRow({ ctx, e }: { ctx: DeckViewContext; e: StudioEntitySummary }): JSX.Element {

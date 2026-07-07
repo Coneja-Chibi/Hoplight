@@ -23,15 +23,15 @@ const CSS = `
   text-transform:uppercase;color:var(--accent)}
 .troupe{display:flex;gap:.6rem;align-items:flex-end;justify-content:center;flex-wrap:wrap;
   margin-top:-3.6rem;position:relative;z-index:2;min-height:9.4rem}
-.dcard{width:6.5rem;background:var(--stage-deck);border:3px solid #000;
+.dcard{width:6.5rem;background:var(--stage-deck);border:3px solid var(--stage-black);
   box-shadow:5px 6px 0 0 rgba(0,0,0,.55);position:relative}
-.dcard .cov{aspect-ratio:3/4;background:#111015;border-bottom:3px solid #000;
+.dcard .cov{aspect-ratio:3/4;background:var(--stage-row);border-bottom:3px solid var(--stage-black);
   display:flex;align-items:flex-end;padding:7px;position:relative}
 .dcard .cov b{font-family:var(--font-big);font-weight:900;font-size:clamp(2rem,2rem+1vw,2.75rem);
   line-height:.68;color:var(--stage-paper);opacity:.92}
-.dcard .cov .ct{position:absolute;top:0;left:0;background:var(--accent);color:#fff;
+.dcard .cov .ct{position:absolute;top:0;left:0;background:var(--accent);color:var(--stage-white);
   font-family:var(--font-mono);font-size:.44rem;font-weight:500;padding:2px 5px;
-  letter-spacing:.06em;text-transform:uppercase;border-right:2px solid #000;border-bottom:2px solid #000}
+  letter-spacing:.06em;text-transform:uppercase;border-right:2px solid var(--stage-black);border-bottom:2px solid var(--stage-black)}
 .dcard .dn{font-family:var(--font-big);font-weight:700;font-size:.625rem;letter-spacing:.02em;
   text-transform:uppercase;color:var(--stage-paper);padding:6px 8px 7px}
 .ghost-deck{width:6.5rem;aspect-ratio:3/4;border:2px dashed var(--stage-faint);

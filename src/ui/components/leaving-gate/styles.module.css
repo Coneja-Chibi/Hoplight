@@ -14,8 +14,8 @@
 .card {
   width: 100%;
   max-width: 34rem;
-  background: #17161d;
-  border: 3px solid #000;
+  background: var(--stage-panel);
+  border: 3px solid var(--stage-black);
   border-top: 6px solid var(--rose, #e11d48);
   box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.55);
   padding: 1.6rem 1.5rem;
@@ -55,12 +55,12 @@
   font-family: var(--font-big);
   font-weight: 800;
   font-size: 1.15rem;
-  border: 3px solid #000;
+  border: 3px solid var(--stage-black);
   box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
 }
 .globe {
-  background: #2b2833;
-  color: #c9c4d2;
+  background: var(--stage-seam);
+  color: var(--stage-soft);
 }
 .globe svg {
   display: block;
@@ -76,11 +76,11 @@
 .url {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  color: #8f8a9e;
+  color: var(--stage-mute);
   word-break: break-all;
   padding: 0.5rem 0.6rem;
   background: #131218;
-  border: 2px solid #2b2833;
+  border: 2px solid var(--stage-seam);
 }
 .warn {
   font-size: 0.75rem;

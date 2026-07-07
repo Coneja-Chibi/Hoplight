@@ -83,7 +83,9 @@ export function ColorPicker({ value, onChange }: ColorPickerProps): JSX.Element 
     <div className={styles.cp}>
       <div
         className={styles.sv}
-        style={{ background: `linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,${pure})` }}
+        style={{
+          background: `linear-gradient(to top,var(--stage-black),transparent),linear-gradient(to right,var(--stage-white),${pure})`,
+        }}
         onPointerDown={onSvPointerDown}
         onPointerMove={onSvPointerMove}
       >

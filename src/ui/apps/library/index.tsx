@@ -25,13 +25,13 @@ const PREF_FIRST_DECK = "firstDeck"; // written by the setup wizard; the shelves
 const STYLE = `
 .chipbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
   text-transform:uppercase;background:var(--panel);color:var(--ink);cursor:pointer;padding:.45rem .8rem}
-.chipbtn.primary{background:var(--rose);color:#fff}
+.chipbtn.primary{background:var(--rose);color:var(--stage-white)}
 .lib{display:flex;flex-direction:column;gap:.7rem;padding:clamp(.7rem,1.8vw,1.1rem);min-height:100%}
 .lib .stagezone{flex:1;display:flex;flex-wrap:wrap;gap:var(--gap-l);align-items:center;justify-content:center;padding:var(--gap-l)}
 .doorcard{aspect-ratio:2/3;width:clamp(11rem,22vw,16rem);display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:var(--gap-m);background:var(--panel);color:var(--ink);cursor:pointer;padding:var(--gap-m);text-align:center;
   font-family:var(--font-big);font-weight:900;font-size:clamp(1rem,1.6vw,1.3rem);line-height:1.15}
-.doorcard.primary{background:var(--rose);color:#fff}
+.doorcard.primary{background:var(--rose);color:var(--stage-white)}
 .voice{font-style:italic;font-weight:600;color:var(--muted);text-align:center;font-size:1.05rem}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:var(--gap-l);z-index:50}
 .sheet{background:var(--paper);color:var(--ink);border:var(--ink-border);box-shadow:8px 8px 0 0 var(--ink);
@@ -48,7 +48,7 @@ const STYLE = `
   border:3px solid var(--edge);box-shadow:4px 4px 0 0 var(--accent);padding:.4rem .55rem .4rem .7rem}
 .sendbar .cnt{font-family:var(--font-big);font-weight:900;font-size:.75rem;letter-spacing:.04em;color:var(--stamp-fg)}
 .sendbar .send{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
-  text-transform:uppercase;background:var(--accent);color:#0a0a0c;border:3px solid var(--edge);cursor:pointer;
+  text-transform:uppercase;background:var(--accent);color:var(--stage-ink);border:3px solid var(--edge);cursor:pointer;
   padding:.4rem .8rem;box-shadow:3px 3px 0 0 var(--edge);transition:transform .1s ease-out,box-shadow .1s ease-out}
 .sendbar .send:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--edge)}
 .sendbar .clear{font-family:var(--font-mono);font-weight:700;font-size:.5625rem;letter-spacing:.1em;
@@ -82,20 +82,20 @@ const STYLE = `
 .sizedial input::-moz-range-thumb{width:12px;height:12px;background:var(--text);border:2px solid var(--edge);border-radius:0}
 .prosc{position:relative;flex:1;min-height:0;background:var(--shell-panel-2);border:3px solid var(--edge);
   box-shadow:6px 6px 0 0 var(--edge);padding:.55rem;display:flex}
-.libstage{position:relative;flex:1;min-height:0;background:#0a0a0b;border:3px solid #000;overflow:hidden;
+.libstage{position:relative;flex:1;min-height:0;background:var(--stage-well);border:3px solid var(--stage-black);overflow:hidden;
   box-shadow:inset 8px 8px 0 0 rgba(0,0,0,.7);display:flex;flex-direction:column}
-.stage-crumb{display:flex;align-items:center;gap:.5rem;border-bottom:3px solid #000;background:#0d0c11;padding:.5rem .75rem;flex:none}
-.stage-crumb .pip{width:11px;height:11px;border:2px solid #000;background:var(--a)}
-.stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:#e7e3da}
-.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:#8f8a9e;margin-left:auto}
-.ghost-shelf{margin:auto;width:clamp(9rem,30vw,14rem);aspect-ratio:2/3;border:2px dashed #39353f;
+.stage-crumb{display:flex;align-items:center;gap:.5rem;border-bottom:3px solid var(--stage-black);background:var(--stage-sunken);padding:.5rem .75rem;flex:none}
+.stage-crumb .pip{width:11px;height:11px;border:2px solid var(--stage-black);background:var(--a)}
+.stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--stage-paper)}
+.stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stage-mute);margin-left:auto}
+.ghost-shelf{margin:auto;width:clamp(9rem,30vw,14rem);aspect-ratio:2/3;border:2px dashed var(--stage-faint);
   display:flex;align-items:center;justify-content:center;text-align:center;padding:.8rem;
   font-family:var(--font-mono);font-size:.625rem;letter-spacing:.06em;line-height:1.5;
-  text-transform:uppercase;color:#6a6576}
+  text-transform:uppercase;color:var(--stage-kicker)}
 /* scrollbars wear the house ink, never the OS chrome */
-.lib *{scrollbar-width:thin;scrollbar-color:#2b2833 transparent}
+.lib *{scrollbar-width:thin;scrollbar-color:var(--stage-seam) transparent}
 .lib *::-webkit-scrollbar{width:8px;height:8px}
-.lib *::-webkit-scrollbar-thumb{background:#2b2833}
+.lib *::-webkit-scrollbar-thumb{background:var(--stage-seam)}
 .lib *::-webkit-scrollbar-track{background:transparent}
 .deckchips{scrollbar-width:none}
 .deckchips::-webkit-scrollbar{display:none}
@@ -468,7 +468,7 @@ const app: VaudeApp = {
     id: "library",
     title: "The Library",
     markSvg: MARK_SVG,
-    accent: "#3b82f6",
+    accent: "#3b82f6", // hardcode-ok: this app's own identity color in the shell manifest, not theme chrome
     order: 20,
     subtitle: "app",
     firstRunLanding: true, // JOURNEY 1.1: a fresh studio lands on the two doors

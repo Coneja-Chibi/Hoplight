@@ -43,13 +43,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: transparent;
-  border: 2px solid var(--seam, #2b2833);
+  border: 2px solid var(--seam, var(--stage-seam));
   color: var(--text-dim);
   padding: 0.18rem 0.4rem;
   cursor: pointer;
 }
 .offt button.on {
   background: var(--text);
-  color: var(--canvas, #0a0a0b);
-  border-color: var(--edge, #000);
+  color: var(--canvas, var(--stage-well));
+  border-color: var(--edge, var(--stage-black));
 }

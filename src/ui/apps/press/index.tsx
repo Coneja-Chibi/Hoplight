@@ -44,7 +44,7 @@ const app: VaudeApp = {
     id: "press",
     title: "The Press",
     markSvg: MARK_SVG,
-    accent: "#8b5cf6",
+    accent: "#8b5cf6", // hardcode-ok: per-app identity accent, not theming
     order: 30,
     subtitle: "app · convert",
   },

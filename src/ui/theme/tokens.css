@@ -41,6 +41,23 @@
   --stage-dim: #5f5b6b;
   --stage-faint: #39353f;
   --stage-paper: #e7e3da;
+
+  /* stage chrome: cards/decks/panels that stay dark in BOTH themes (workbench editor, bento
+     cards, library shelf, leaving-gate) - distinct from --panel/--ink/etc above, which FLIP */
+  --stage-black: #000;
+  --stage-white: #fff;
+  --stage-panel: #17161d;   /* card/panel fill */
+  --stage-row: #111015;     /* row/plate fill, one step darker than the panel */
+  --stage-sunken: #0d0c11;  /* recessed row (cast/picked state) */
+  --stage-ink: #0a0a0c;     /* near-black text on an accent chip */
+  --stage-well: #0a0a0b;    /* near-black card bg, one hex off stage-ink, kept distinct */
+  --stage-seam: #2b2833;    /* borders, scrollbar thumb */
+  --stage-line: #4a4556;    /* dashed borders, secondary dim text */
+  --stage-mute: #8f8a9e;    /* muted labels on stage chrome */
+  --stage-soft: #c9c4d2;    /* soft body text on stage chrome */
+  --stage-text-dim: #a6a1b4; /* readability-floor text on stage chrome */
+  --stage-card: #f4f1ee;    /* bright name/title text on stage chrome */
+  --stage-kicker: #6a6576;  /* small uppercase kicker text on stage chrome */
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

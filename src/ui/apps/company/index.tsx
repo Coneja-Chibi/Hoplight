@@ -19,7 +19,7 @@ const app: VaudeApp = {
     id: "company",
     title: "The Company",
     markSvg: MARK_SVG,
-    accent: "#2aa198",
+    accent: "#2aa198", // hardcode-ok: app identity accent, not theme chrome
     order: 90,
     comingSoon: true,
   },

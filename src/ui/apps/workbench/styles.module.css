@@ -19,7 +19,7 @@
   position: relative;
   flex: 1;
   min-height: 0;
-  background: #0a0a0b;
+  background: var(--stage-well);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -28,15 +28,15 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-bottom: 3px solid #000;
-  background: #0d0c11;
+  border-bottom: 3px solid var(--stage-black);
+  background: var(--stage-sunken);
   padding: 0.5rem 0.75rem;
   flex: none;
 }
 .crumb .pip {
   width: 11px;
   height: 11px;
-  border: 2px solid #000;
+  border: 2px solid var(--stage-black);
   background: var(--a, var(--accent));
 }
 .crumb .cn {
@@ -45,7 +45,7 @@
   font-size: 0.6875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #e7e3da;
+  color: var(--stage-paper);
 }
 .crumb .cc {
   font-family: var(--font-mono);
@@ -53,7 +53,7 @@
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #8f8a9e;
+  color: var(--stage-mute);
   margin-left: auto;
 }
 .pane {
@@ -69,7 +69,7 @@
   width: clamp(9rem, 22vw, 16rem);
   align-self: flex-start;
   background: var(--a);
-  border: 3px solid #000;
+  border: 3px solid var(--stage-black);
   aspect-ratio: 2 / 3;
   background-size: cover;
   background-position: center top;
@@ -83,7 +83,7 @@
   font-weight: 900;
   font-size: 3rem;
   line-height: 0.72;
-  color: #0a0a0c;
+  color: var(--stage-ink);
   opacity: 0.82;
 }
 .sheet {
@@ -98,7 +98,7 @@
   font-weight: 900;
   font-size: clamp(1.3rem, 2.6vw, 2rem);
   letter-spacing: -0.01em;
-  color: #f4f1ee;
+  color: var(--stage-card);
   line-height: 1;
 }
 .meta {
@@ -107,11 +107,11 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #a6a1b4;
+  color: var(--stage-text-dim);
 }
 .field {
-  background: #111015;
-  border: 3px solid #000;
+  background: var(--stage-row);
+  border: 3px solid var(--stage-black);
   padding: 0.6rem 0.8rem;
 }
 .field .fk {
@@ -120,13 +120,13 @@
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #8f8a9e;
+  color: var(--stage-mute);
   margin-bottom: 0.3rem;
 }
 .field .fv {
   font-size: 0.95rem;
   line-height: 1.55;
-  color: #c9c4d2;
+  color: var(--stage-soft);
   white-space: pre-line;
 }
 .soon {
@@ -135,14 +135,14 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8f8a9e;
-  border: 2px dashed #4a4556;
+  color: var(--stage-mute);
+  border: 2px dashed var(--stage-line);
   padding: 0.55rem 0.8rem;
 }
 .ghostRoom {
   margin: auto;
   max-width: 26rem;
-  border: 2px dashed #4a4556;
+  border: 2px dashed var(--stage-line);
   padding: 1.4rem 1.6rem;
   text-align: center;
   font-family: var(--font-mono);
@@ -151,7 +151,7 @@
   line-height: 1.8;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #8f8a9e;
+  color: var(--stage-mute);
 }
 /* the recents rail: a low deck of recently imported/opened pieces, offered as "bring one up" */
 .recents {
@@ -204,8 +204,8 @@
   flex: none;
   width: clamp(3rem, 7vw, 4.4rem);
   cursor: pointer;
-  background: #17161d;
-  border: 3px solid #000;
+  background: var(--stage-panel);
+  border: 3px solid var(--stage-black);
   box-shadow: 3px 3px 0 0 var(--a);
   padding: 0;
   font: inherit;
@@ -219,7 +219,7 @@
 .rcov {
   aspect-ratio: 2 / 3;
   background: var(--a);
-  border-bottom: 3px solid #000;
+  border-bottom: 3px solid var(--stage-black);
   background-size: cover;
   background-position: center top;
   display: flex;
@@ -230,7 +230,7 @@
   font-family: var(--font-big);
   font-weight: 900;
   font-size: 1.05rem;
-  color: #0a0a0c;
+  color: var(--stage-ink);
   opacity: 0.82;
   line-height: 0.7;
 }
@@ -238,7 +238,7 @@
   font-family: var(--font-big);
   font-weight: 800;
   font-size: 0.5625rem;
-  color: #f4f1ee;
+  color: var(--stage-card);
   padding: 0.22rem 0.3rem;
   white-space: nowrap;
   overflow: hidden;
@@ -246,14 +246,14 @@
 }
 .room *{
   scrollbar-width: thin;
-  scrollbar-color: #2b2833 transparent;
+  scrollbar-color: var(--stage-seam) transparent;
 }
 .room *::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 .room *::-webkit-scrollbar-thumb {
-  background: #2b2833;
+  background: var(--stage-seam);
 }
 .room *::-webkit-scrollbar-track {
   background: transparent;

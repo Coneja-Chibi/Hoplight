@@ -58,7 +58,7 @@ const CSS = `
 .vsetup .opt:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 0 var(--ink)}
 .vsetup .opt:active{transform:translate(4px,4px);box-shadow:1px 1px 0 0 var(--ink)}
 .vsetup .opt.on{transform:translate(4px,4px);box-shadow:1px 1px 0 0 var(--rose);border-color:var(--rose)}
-.vsetup .opt .on-mark{position:absolute;top:-3px;right:-3px;background:var(--rose);color:#fff;
+.vsetup .opt .on-mark{position:absolute;top:-3px;right:-3px;background:var(--rose);color:var(--stage-white);
   font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;
   padding:3px 7px;display:none}
 .vsetup .opt.on .on-mark{display:block}
@@ -75,7 +75,7 @@ const CSS = `
 .vsetup .back.ghost{visibility:hidden}
 .vsetup .next{font-family:var(--font-big);font-weight:900;font-size:.875rem;letter-spacing:.1em;
   text-transform:uppercase;padding:.9rem 1.75rem;border:var(--ink-border);
-  background:var(--rose);color:#fff;box-shadow:6px 6px 0 0 var(--ink);cursor:pointer;
+  background:var(--rose);color:var(--stage-white);box-shadow:6px 6px 0 0 var(--ink);cursor:pointer;
   transition:transform .1s ease-out,box-shadow .1s ease-out}
 .vsetup .next:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 0 var(--ink)}
 .vsetup .next:active{transform:translate(4px,4px);box-shadow:2px 2px 0 0 var(--ink)}
@@ -98,7 +98,7 @@ const CSS = `
 .vsetup .orn{position:absolute;width:11px;height:11px;background:var(--ink);transform:rotate(45deg);z-index:5}
 .vsetup .orn.tl{left:14px;top:14px}.vsetup .orn.tr{right:14px;top:14px}
 .vsetup .orn.bl{left:14px;bottom:14px}.vsetup .orn.br{right:14px;bottom:14px}
-.vsetup .stage{position:relative;background:var(--stage);border:3px solid #000;
+.vsetup .stage{position:relative;background:var(--stage);border:3px solid var(--stage-black);
   box-shadow:inset 9px 9px 0 0 rgba(0,0,0,.72);
   min-height:25rem;overflow:hidden;display:flex;flex-direction:column}
 .vsetup .final-card{text-align:center}
@@ -112,12 +112,12 @@ const CSS = `
 .vsetup .recap span b{color:var(--rose);font-weight:500}
 .vsetup .open{font-family:var(--font-big);font-weight:900;font-size:1rem;letter-spacing:.1em;
   text-transform:uppercase;padding:1.1rem 2.6rem;border:var(--ink-border);
-  background:var(--rose);color:#fff;box-shadow:8px 8px 0 0 var(--ink);cursor:pointer;
+  background:var(--rose);color:var(--stage-white);box-shadow:8px 8px 0 0 var(--ink);cursor:pointer;
   display:inline-flex;align-items:baseline;gap:2px;
   transition:transform .1s ease-out,box-shadow .1s ease-out}
 .vsetup .open:hover{transform:translate(-2px,-2px);box-shadow:10px 10px 0 0 var(--ink)}
 .vsetup .open:active{transform:translate(5px,5px);box-shadow:3px 3px 0 0 var(--ink)}
-.vsetup .open .q2{display:inline-block;width:.16em;height:.16em;background:#fff;margin-left:.06em}
+.vsetup .open .q2{display:inline-block;width:.16em;height:.16em;background:var(--stage-white);margin-left:.06em}
 .vsetup .change{font-style:italic;font-weight:600;font-size:clamp(1rem,.97rem+.2vw,1.0625rem);
   color:var(--muted);margin-top:1.1rem}
 @media(prefers-reduced-motion:reduce){.vsetup *{transition:none!important}}
@@ -139,7 +139,7 @@ function Lockup(): JSX.Element {
     <span className="lock">
       <svg viewBox="0 0 100 100" aria-label="Vaude">
         {BEAM_POLYGONS.map((points) => (
-          <polygon key={points} points={points} fill="#e11d48" />
+          <polygon key={points} points={points} fill="#e11d48" /> // hardcode-ok: locked brand mark, always rose, not a themed surface
         ))}
       </svg>
       <span className="txt">aude</span>

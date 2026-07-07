@@ -31,7 +31,7 @@ export interface PaintPickerProps {
 }
 
 const rgb = (hex: string): [number, number, number] => {
-  const n = parseInt((normalizeHex(hex) ?? "#000000").slice(1), 16);
+  const n = parseInt((normalizeHex(hex) ?? "#000000").slice(1), 16); // hardcode-ok: parseInt fallback, not a CSS value
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 };
 const toHex = (n: number): string => Math.round(n).toString(16).padStart(2, "0");

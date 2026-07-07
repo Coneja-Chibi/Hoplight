@@ -70,8 +70,8 @@ export function Dock(): JSX.Element {
       <button id="dockhome" title="Home" aria-label="Home" onClick={goHome}>
         <span className="beam">
           <svg viewBox="0 0 100 100" aria-hidden="true">
-            <polygon points="60,92 4,12 34,3" fill="#e11d48" />
-            <polygon points="40,92 96,12 66,3" fill="#e11d48" />
+            <polygon points="60,92 4,12 34,3" fill="var(--rose)" />
+            <polygon points="40,92 96,12 66,3" fill="var(--rose)" />
           </svg>
         </span>
         <span className="hk">Vaude.</span>

@@ -24,18 +24,18 @@
   box-shadow: 3px 3px 0 0 var(--ink, #000);
   cursor: ew-resize;
   touch-action: none;
-  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); /* hardcode-ok: literal hue spectrum, not theming */
 }
 .thumb {
   position: absolute;
   width: 14px;
   height: 14px;
-  border: 3px solid #fff;
-  outline: 2px solid #000;
+  border: 3px solid var(--stage-white);
+  outline: 2px solid var(--stage-black);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  box-shadow: 0 0 0 1px #000;
+  box-shadow: 0 0 0 1px var(--stage-black);
 }
 .foot {
   display: flex;

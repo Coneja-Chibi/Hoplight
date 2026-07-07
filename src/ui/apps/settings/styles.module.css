@@ -134,7 +134,7 @@
 }
 .room * {
   scrollbar-width: thin;
-  scrollbar-color: #2b2833 transparent;
+  scrollbar-color: var(--stage-seam) transparent;
 }
 @media (max-width: 40rem) {
   .room {

@@ -52,7 +52,7 @@ const app: VaudeApp = {
     id: "settings",
     title: "Settings",
     markSvg: MARK_SVG,
-    accent: "#8a8496",
+    accent: "#8a8496", // hardcode-ok: app identity accent, not theming
     order: 100,
     subtitle: "app",
     dockFoot: true,

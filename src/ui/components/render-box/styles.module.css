@@ -45,7 +45,7 @@
   font-family: var(--font-big);
   font-weight: 800;
   margin: 0.4rem 0 0.5rem;
-  color: #e7e3da;
+  color: var(--stage-paper);
 }
 .out :global(h1) { font-size: 1rem; }
 .out :global(h2) { font-size: 0.9rem; }
@@ -68,19 +68,19 @@
 .out :global(blockquote) {
   margin: 0 0 0.6rem;
   padding-left: 0.7rem;
-  border-left: 3px solid #2b2833;
+  border-left: 3px solid var(--stage-seam);
   color: #a7a2b3;
 }
 .out :global(code) {
   font-family: var(--font-mono);
   font-size: 0.75rem;
-  background: #17161d;
-  border: 1px solid #2b2833;
+  background: var(--stage-panel);
+  border: 1px solid var(--stage-seam);
   padding: 0.05rem 0.25rem;
 }
 .out :global(pre) {
   background: #131218;
-  border: 2px solid #2b2833;
+  border: 2px solid var(--stage-seam);
   padding: 0.6rem;
   overflow-x: auto;
 }
@@ -95,7 +95,7 @@
 }
 .out :global(hr) {
   border: none;
-  border-top: 2px solid #2b2833;
+  border-top: 2px solid var(--stage-seam);
   margin: 0.6rem 0;
 }
 
