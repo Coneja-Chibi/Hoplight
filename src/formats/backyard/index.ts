@@ -9,6 +9,7 @@
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import coverage from "./coverage";
 
 type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -90,6 +91,7 @@ const adapter: CharacterAdapter = {
   label: "Backyard.ai / Faraday character (legacy json)",
   outputExtensions: ["json"],
   kind: "character",
+  coverage,
 
   // Strong, Backyard-unique keys score high; the bare-persona heuristic is weak and must not fire on
   // an Agnai card (kind: "character"). Both stay below the Tavern/RC/Agnai adapters on a shared input.

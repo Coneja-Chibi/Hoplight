@@ -6,6 +6,7 @@
  * original card rides in escrow.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
+import coverage from "./coverage";
 import type {
   CanonicalCharacter,
   CharacterBody,
@@ -249,6 +250,7 @@ const adapter: CharacterAdapter = {
   label: "Agnai (Agnaistic) character (.json)",
   outputExtensions: ["json"],
   kind: "character",
+  coverage,
 
   detect(input: AdapterInput): number {
     if (!input.text) return 0;

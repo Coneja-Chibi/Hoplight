@@ -34,7 +34,8 @@ export type FieldKind =
   | "color" // a single hex swatch (accentColor, signatureColor)
   | "keyvalue" // Record<string, string> rows (locale->text, attribute maps)
   | "list-subeditor" // a repeating list of small objects (bias, depthInjections)
-  | "structured-subeditor"; // one fixed nested object (voice, sprite, settings.risu)
+  | "structured-subeditor" // one fixed nested object (voice, sprite, settings.risu)
+  | "asset-gallery"; // a repeating list of MediaAsset (emotion/outfit/pose packs) with thumbs + upload
 
 /**
  * One control inside a composite (a structured-subeditor's object, or a list-subeditor's row). A

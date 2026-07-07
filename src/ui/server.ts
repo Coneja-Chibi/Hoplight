@@ -18,6 +18,7 @@ import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
 import { safeExternalUrl } from "./_shared/external-url";
+import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
 import type { PackagedAssets } from "./assets";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
@@ -363,12 +364,14 @@ export function createHandler(
     // the editor lens's ground truth: every character adapter that declared coverage (deny by
     // absence - an undeclared platform simply is not lensable yet, and the UI says so honestly)
     if (p === "/api/coverage") {
-      return json(
-        registry
-          .all()
-          .filter((a) => a.kind === "character" && a.coverage && !a.native)
-          .map((a) => ({ id: a.id, label: a.label, carries: a.coverage!.carries, notes: a.coverage!.notes })),
-      );
+      const adapters = registry
+        .all()
+        .filter((a) => a.kind === "character" && a.coverage && !a.native)
+        .map((a) => ({ id: a.id, label: a.label, carries: a.coverage!.carries, notes: a.coverage!.notes }));
+      // plus the extension-map platforms (Lumiverse, Marinara, Chub, ...) that ride the generic CCv2/v3
+      // wire and carry canonical fields without shipping their own adapter - lensable all the same.
+      const extras = EXTENSION_PLATFORMS.map((e) => ({ id: e.id, label: e.label, carries: e.carries, notes: e.notes }));
+      return json([...adapters, ...extras]);
     }
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
     if (p === "/api/export" && req.method === "POST") return handleExport(req);
