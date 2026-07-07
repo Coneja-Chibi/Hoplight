@@ -1,0 +1,45 @@
+/**
+ * FieldForm styles - a flowing grid of labeled controls; `half` fields pair up. Tokens only.
+ */
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.6rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1 1 100%;
+  min-width: 0;
+}
+.half {
+  flex: 1 1 calc(50% - 0.3rem);
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.text,
+.num,
+.sel,
+.ta {
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 0.32rem 0.45rem;
+}
+.num,
+.sel {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.ta {
+  min-height: 2.6rem;
+  resize: vertical;
+}

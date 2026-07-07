@@ -1,0 +1,62 @@
+/**
+ * ListEditor styles - each item a framed card with a header + remove; a dashed add button. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.item {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--field, var(--paper)));
+  padding: 0.45rem 0.55rem;
+}
+.ihead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+.ititle {
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--stage-soft, var(--text));
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rm {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  background: transparent;
+  border: 2px solid var(--stage-seam, var(--seam));
+  padding: 0.12rem 0.35rem;
+  cursor: pointer;
+}
+.rm:hover {
+  color: var(--rose);
+  border-color: var(--rose);
+}
+.add {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  background: transparent;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+.add:hover {
+  color: var(--stage-soft, var(--text-soft));
+  border-color: var(--stage-mute, var(--muted));
+}
