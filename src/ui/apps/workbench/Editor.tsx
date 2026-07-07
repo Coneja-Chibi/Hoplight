@@ -1266,12 +1266,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </BentoCard>
     );
 
-  // native fields are LENS-DRIVEN: a platform's fields appear when you TARGET it (even empty, ready to
-  // fill), plus any platform already present in the original. ONE shared definition (native-render)
-  // feeds BOTH layouts, so a field can never show in bento and vanish in playbill. Binds to originalDraft.
-  const nativeKeys = [...new Set([...targets, ...Object.keys(rec(originalDraft))])].filter(
-    (k) => k !== "vaud-studio" && k !== "vaud-json",
-  );
+  // native fields are LENS-DRIVEN: a platform's fields appear ONLY when you TARGET it in the lens (even
+  // empty, ready to fill), NOT merely because the card carries that platform's data - the Sealed Cargo
+  // already preserves that; target the platform to edit it. ONE shared definition feeds BOTH layouts.
+  const nativeKeys = targets.filter((k) => k !== "vaud-studio" && k !== "vaud-json");
   const nativeItems = nativeItemsFor(nativeKeys, (p) => readPath(originalDraft, p), setNative, setNativeStub);
   const nb = nativeBentoParts(nativeItems);
 
