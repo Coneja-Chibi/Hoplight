@@ -1,0 +1,8116 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-adjacent: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-bot: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-char: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-in-sentence: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-mixed-case: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-non-token: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > angle-user: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-colon: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-colon-else: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "0",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-colon-malformed-no-close: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-comparison: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{getvar::t}} >= 8",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-contains-inline-if: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-dotshorthand-cond: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if .body_roll <= 25",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-else: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if false",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-elseif-2arm: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if .x == 1",
+  },
+  {
+    "args": [],
+    "name": "else if .x == 2",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-elseif-3arm: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{getvar::m}} == a",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [
+      "m",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [
+      "{{getvar::m}} == b",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "m",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [
+      "{{getvar::m}} == c",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "m",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-empty-lhs: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{getvar::missing}} == wp",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-false-string: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if false",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-hash: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "#if true",
+  },
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-inline-ternary: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "true",
+      "then",
+      "else",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-inline-ternary-2arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+      "yes",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-malformed-no-close: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-mixed-hash-space-nest: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "#if 1",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-negation: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if !x",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-nested-4: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-nested-compare: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::x}}::>=::3}}",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-nonzero-truthy: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 3",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-space: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-term-doubleslash: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-term-endif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-term-hashclose: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "#if 1",
+  },
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-term-slashif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-true-string: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-unknown-literal-truthy: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if somethingtruthy",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > blockif-zero-falsy: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 0",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-comma-escape: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:hello\\, world,goodbye\\, world",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-getvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar:mood",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-idempotent-canonical: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-not-allowlisted: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "upper:x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-random: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:a,b,c",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-roll: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll:1d50",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-roll-already-canonical: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1d50",
+    ],
+    "name": "roll",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > colon-setvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar:x:5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-doubleslashif-is-orphan: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-empty: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-leading-space: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-multiline: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-simple: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-with-colons: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > comment-with-macro-after: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dollar-global: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$global",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dollar-positional-1: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$1",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dollar-positional-2: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-addeq: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v += 2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-dec: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v--",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-eq: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v == 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-get: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-gte: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v >= 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-inc: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v++",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-inc-then-get: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".n++",
+  },
+  {
+    "args": [],
+    "name": ".n",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-lt: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v < 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-neq: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v != 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-set: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v = 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-set-then-get: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".score = 10",
+  },
+  {
+    "args": [],
+    "name": ".score",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > dot-subeq: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v -= 2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-adjacent-real: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-full: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-half-close: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-half-open: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-inside-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "\\{\\{x\\}\\",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-only-close: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-only-open: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-sentinel-close-raw: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-sentinel-open-raw: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-sentinel-phase-raw: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-sentinel-trim-raw: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > escaped-sentinels-with-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-all-empty-args: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-arg-whitespace: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "hello",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-arg-with-colon-text: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "note",
+      "a:b:c",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-deep-12: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{char}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{lower::{{upper::{{char}}}}}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "{{upper::{{char}}}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "{{char}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-empty-both-args: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "y",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-leading-empty-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "a",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-mixed-text-and-nest: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "pre {{char}} post",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-name-mixedcase: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "Mood",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-name-uppercase: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-nested-deepest-first: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{upper::HeLLo}}",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "HeLLo",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-nested-in-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{b::c}}",
+    ],
+    "name": "a",
+  },
+  {
+    "args": [
+      "c",
+    ],
+    "name": "b",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-nested-real: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{char}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-one-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "hello",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-simple: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-three-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-trailing-empty-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-two-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "name",
+      "value",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > inline-two-side-by-side: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "random",
+  },
+  {
+    "args": [
+      "c",
+      "d",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-foreach: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "d in [A,B,C]",
+      "- $d",
+    ],
+    "name": "foreach",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-foreach-field: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "x in [one,two]",
+      "$x done",
+    ],
+    "name": "foreach",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-ifset: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "mood",
+      "has mood",
+      "no mood",
+    ],
+    "name": "ifset",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-volatile-random: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-volatile-rcounter-multi: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "b",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "a",
+    ],
+    "name": "rcounter",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-volatile-rcounter-seq: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-volatile-roll: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1d20",
+    ],
+    "name": "roll",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-when-all: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+      "1",
+      "both set",
+    ],
+    "name": "when_all",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > lazy-when-any: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "0",
+      "1",
+      "at least one",
+    ],
+    "name": "when_any",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-doubleslashif: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-else: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "else",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-elseif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "x",
+    ],
+    "name": "else if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-endif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-hashslashif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-multiple: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-slashif: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-slashsetglobalvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/setglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-slashsetvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > orphan-slashtrim: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setglobalvar-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "msg",
+    ],
+    "name": "setglobalvar",
+  },
+  {
+    "args": [],
+    "name": "/setglobalvar",
+  },
+  {
+    "args": [
+      "msg",
+    ],
+    "name": "getglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setglobalvar-inline: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "counter",
+      "42",
+    ],
+    "name": "setglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "greeting",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "greeting",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-block-nested-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "inner",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "inner",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-block-nested-macro-value: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "x",
+      "y",
+    ],
+    "name": "random",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "a",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-block-with-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "info",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "info",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-inline-inside-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "inner",
+      "x",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-inline-nested-name: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{lower::AUTHOR}}",
+      "{{upper::value}}",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "AUTHOR",
+    ],
+    "name": "lower",
+  },
+  {
+    "args": [
+      "value",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "author",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-inline-nested-value: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "Author",
+      "style of {{random::A::B}} text",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "A",
+      "B",
+    ],
+    "name": "random",
+  },
+  {
+    "args": [
+      "Author",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > setvar-inline-not-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "n",
+      "v",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-addvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "addvar score 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-getvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-hasvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "hasvar x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-incvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "incvar count",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-roll: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll 1d20",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-setvar: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar x y",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > space-setvar-multiword-value: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar mood very happy",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > template-group-card-branch: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{groupCardMode}} == solo",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "groupcardmode",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "chargroupfocused",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > template-phase-cascade: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "t",
+      "200",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "phase",
+      "Opening",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::16}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Rising",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::51}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Cruising",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::151}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Marathon",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::500}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Endurance",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [
+      "phase",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > template-roster-snippet: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+  {
+    "args": [],
+    "name": "if .nsfw_on",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [
+      "{{getvar::mood}}",
+    ],
+    "name": "upper",
+  },
+  {
+    "args": [
+      "mood",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > template-threadbare-mode: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{getvar::mode}} == solo",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [
+      "mode",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [
+      "{{getvar::mode}} == swap",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "mode",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [
+      "{{getvar::mode}} == ensemble",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "mode",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-adjacent-macros: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-around-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-braces-only-single: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-empty: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-internal-ws: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-leading-ws: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-macro-then-text: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-only-ws: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-plain: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-tabs-newlines: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-then-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-trailing-ws: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > text-unicode: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-bare: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-bare-no-neighbors: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-block: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-block-with-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-inline: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "x",
+    ],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > trim-orphan: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-bare: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-in-sentence: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknownmacro",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-mixed-with-known: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "bad",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-multi-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-nested-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "{{char}}",
+    ],
+    "name": "unknown",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-one-arg: lint scanner name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unknown-typo-suggestion: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "chr",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-bare-pairs: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-close-before-open: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-empty-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-lone-close: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-lone-open: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-open-eof: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-open-name-eof: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-quad-open: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{{char}}",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-triple-both: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-triple-close: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-triple-open: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > unterm-whitespace-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-five-newlines: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-mixed-block: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-newlines-with-macro: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-three-newlines: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-trim-sentinel-collapse: lint scanner name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (lint scanner snapshot) > ws-two-newlines-kept: lint scanner name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-adjacent: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-bot: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-char: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-in-sentence: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-mixed-case: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-non-token: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > angle-user: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-colon: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-colon-else: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "0",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-colon-malformed-no-close: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-comparison: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{getvar::t}} >= 8",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-contains-inline-if: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-dotshorthand-cond: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if .body_roll <= 25",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-else: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if false",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-elseif-2arm: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if .x == 1",
+  },
+  {
+    "args": [],
+    "name": "else if .x == 2",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-elseif-3arm: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{getvar::m}} == a",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [
+      "{{getvar::m}} == b",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "{{getvar::m}} == c",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-empty-lhs: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{getvar::missing}} == wp",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-false-string: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if false",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-hash: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "#if true",
+  },
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-inline-ternary: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "true",
+      "then",
+      "else",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-inline-ternary-2arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+      "yes",
+    ],
+    "name": "if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-malformed-no-close: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-mixed-hash-space-nest: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "#if 1",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-negation: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if !x",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-nested-4: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-nested-compare: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::x}}::>=::3}}",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-nonzero-truthy: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 3",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-space: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-term-doubleslash: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "//if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-term-endif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-term-hashclose: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "#if 1",
+  },
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-term-slashif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 1",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-true-string: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if true",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-unknown-literal-truthy: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if somethingtruthy",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > blockif-zero-falsy: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "if 0",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-comma-escape: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:hello\\, world,goodbye\\, world",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-getvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar:mood",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-idempotent-canonical: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-not-allowlisted: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "upper:x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-random: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:a,b,c",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-roll: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll:1d50",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-roll-already-canonical: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1d50",
+    ],
+    "name": "roll",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > colon-setvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar:x:5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-doubleslashif-is-orphan: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "//if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-empty: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "//",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-leading-space: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "//   spaced comment",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-multiline: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "// line one
+line two
+line three",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-simple: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "// this is a comment",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-with-colons: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "note: a",
+      "b",
+      "c",
+    ],
+    "name": "//",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > comment-with-macro-after: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "// setup",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dollar-global: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$global",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dollar-positional-1: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$1",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dollar-positional-2: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "$2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-addeq: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v += 2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-dec: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v--",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-eq: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v == 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-get: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-gte: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v >= 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-inc: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v++",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-inc-then-get: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".n++",
+  },
+  {
+    "args": [],
+    "name": ".n",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-lt: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v < 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-neq: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v != 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-set: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v = 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-set-then-get: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".score = 10",
+  },
+  {
+    "args": [],
+    "name": ".score",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > dot-subeq: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v -= 2",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-adjacent-real: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-full: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-half-close: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-half-open: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-inside-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "\\{\\{x\\}\\",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-only-close: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-only-open: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-sentinel-close-raw: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-sentinel-open-raw: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-sentinel-phase-raw: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-sentinel-trim-raw: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > escaped-sentinels-with-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-all-empty-args: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-arg-whitespace: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "hello",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-arg-with-colon-text: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "note",
+      "a:b:c",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-deep-12: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}}}}}",
+    ],
+    "name": "lower",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-empty-both-args: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "y",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-leading-empty-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "",
+      "a",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-mixed-text-and-nest: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "pre {{char}} post",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-name-mixedcase: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "Mood",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-name-uppercase: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-nested-deepest-first: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{upper::HeLLo}}",
+    ],
+    "name": "lower",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-nested-in-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{b::c}}",
+    ],
+    "name": "a",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-nested-real: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{char}}",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-one-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "hello",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-simple: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-three-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-trailing-empty-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "",
+    ],
+    "name": "x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-two-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "name",
+      "value",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > inline-two-side-by-side: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+    ],
+    "name": "random",
+  },
+  {
+    "args": [
+      "c",
+      "d",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-foreach: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "d in [A,B,C]",
+      "- $d",
+    ],
+    "name": "foreach",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-foreach-field: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "x in [one,two]",
+      "$x done",
+    ],
+    "name": "foreach",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-ifset: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "mood",
+      "has mood",
+      "no mood",
+    ],
+    "name": "ifset",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-volatile-random: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "random",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-volatile-rcounter-multi: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "b",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "a",
+    ],
+    "name": "rcounter",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-volatile-rcounter-seq: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+  {
+    "args": [
+      "s",
+    ],
+    "name": "rcounter",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-volatile-roll: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1d20",
+    ],
+    "name": "roll",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-when-all: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "1",
+      "1",
+      "both set",
+    ],
+    "name": "when_all",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > lazy-when-any: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "0",
+      "1",
+      "at least one",
+    ],
+    "name": "when_any",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-doubleslashif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "//if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-else: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "else",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-elseif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "x",
+    ],
+    "name": "else if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-endif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-hashslashif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/#if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-multiple: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+  {
+    "args": [],
+    "name": "endif",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-slashif: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-slashsetglobalvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/setglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-slashsetvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > orphan-slashtrim: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setglobalvar-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "msg",
+    ],
+    "name": "setglobalvar",
+  },
+  {
+    "args": [],
+    "name": "/setglobalvar",
+  },
+  {
+    "args": [
+      "msg",
+    ],
+    "name": "getglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setglobalvar-inline: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "counter",
+      "42",
+    ],
+    "name": "setglobalvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "greeting",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "greeting",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-block-nested-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "inner",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "inner",
+    ],
+    "name": "getvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-block-nested-macro-value: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "x",
+      "y",
+    ],
+    "name": "random",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "a",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-block-with-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "info",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "info",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-inline-inside-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "inner",
+      "x",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/setvar",
+  },
+  {
+    "args": [
+      "outer",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-inline-nested-name: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{lower::AUTHOR}}",
+      "{{upper::value}}",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "author",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-inline-nested-value: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "Author",
+      "style of {{random::A::B}} text",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "Author",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > setvar-inline-not-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "n",
+      "v",
+    ],
+    "name": "setvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-addvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "addvar score 5",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-getvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-hasvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "hasvar x",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-incvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "incvar count",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-roll: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll 1d20",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-setvar: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar x y",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > space-setvar-multiword-value: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar mood very happy",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > template-group-card-branch: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{groupCardMode}} == solo",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "chargroupfocused",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > template-phase-cascade: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "t",
+      "200",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [
+      "phase",
+      "Opening",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::16}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Rising",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::51}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Cruising",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::151}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Marathon",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [],
+    "name": "if {{compare::{{getvar::t}}::>=::500}}",
+  },
+  {
+    "args": [
+      "phase",
+      "Endurance",
+    ],
+    "name": "setvar",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [
+      "phase",
+    ],
+    "name": "getvar",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > template-roster-snippet: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "// roster block",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+  {
+    "args": [],
+    "name": "if .nsfw_on",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+  {
+    "args": [
+      "{{getvar::mood}}",
+    ],
+    "name": "upper",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > template-threadbare-mode: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{getvar::mode}} == solo",
+    ],
+    "name": "if",
+  },
+  {
+    "args": [
+      "{{getvar::mode}} == swap",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [
+      "{{getvar::mode}} == ensemble",
+    ],
+    "name": "else if",
+  },
+  {
+    "args": [],
+    "name": "else",
+  },
+  {
+    "args": [],
+    "name": "/if",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-adjacent-macros: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-around-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-braces-only-single: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-empty: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-internal-ws: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-leading-ws: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-macro-then-text: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-only-ws: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-plain: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-tabs-newlines: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-then-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-trailing-ws: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > text-unicode: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-bare: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-bare-no-neighbors: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-block: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-block-with-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-inline: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "x",
+    ],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > trim-orphan: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "/trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-bare: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-in-sentence: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknownmacro",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-mixed-with-known: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "bad",
+  },
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-multi-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+      "b",
+      "c",
+    ],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-nested-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "{{char}}",
+    ],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-one-arg: offband top-level name+args 1`] = `
+[
+  {
+    "args": [
+      "a",
+    ],
+    "name": "unknown",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unknown-typo-suggestion: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "chr",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-bare-pairs: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-close-before-open: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-empty-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-lone-close: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-lone-open: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-open-eof: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-open-name-eof: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-quad-open: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{{char}}",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-triple-both: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-triple-close: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-triple-open: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > unterm-whitespace-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-five-newlines: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-mixed-block: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-newlines-with-macro: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+  },
+  {
+    "args": [],
+    "name": "user",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-three-newlines: offband top-level name+args 1`] = `[]`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-trim-sentinel-collapse: offband top-level name+args 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+  },
+]
+`;
+
+exports[`flat tokenizers agree: exact name+args record (offband top-level snapshot) > ws-two-newlines-kept: offband top-level name+args 1`] = `[]`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-adjacent: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<char><user>",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-bot: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<bot>",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-char: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<char>",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-in-sentence: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "Hi <user>, I am <char>.",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-mixed-case: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<USER> meets <Char>; <Bot> nods",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-non-token: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<div>HTML stays</div> <userdata>too</userdata>",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > angle-user: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "<user>",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-colon: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-colon-else: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "0",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-colon-malformed-no-close: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "1",
+        },
+      ],
+    ],
+    "name": "if",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "no terminator here",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-comparison: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "t",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " >= 8",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "B",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "A",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-contains-inline-if: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "true",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "a",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "b",
+            },
+          ],
+        ],
+        "name": "if",
+        "t": "macro",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-dotshorthand-cond: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": ".body_roll <= 25",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "high",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "low",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-else: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "false",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-elseif-2arm: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": ".x == 1",
+      },
+    ],
+    "else": [
+      {
+        "condition": [
+          {
+            "t": "text",
+            "value": ".x == 2",
+          },
+        ],
+        "else": [],
+        "t": "blockIf",
+        "then": [
+          {
+            "t": "text",
+            "value": "two",
+          },
+        ],
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "one",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-elseif-3arm: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "m",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " == a",
+      },
+    ],
+    "else": [
+      {
+        "condition": [
+          {
+            "args": [
+              [
+                {
+                  "t": "text",
+                  "value": "m",
+                },
+              ],
+            ],
+            "name": "getvar",
+            "t": "macro",
+          },
+          {
+            "t": "text",
+            "value": " == b",
+          },
+        ],
+        "else": [
+          {
+            "condition": [
+              {
+                "args": [
+                  [
+                    {
+                      "t": "text",
+                      "value": "m",
+                    },
+                  ],
+                ],
+                "name": "getvar",
+                "t": "macro",
+              },
+              {
+                "t": "text",
+                "value": " == c",
+              },
+            ],
+            "else": [
+              {
+                "t": "text",
+                "value": "D",
+              },
+            ],
+            "t": "blockIf",
+            "then": [
+              {
+                "t": "text",
+                "value": "C",
+              },
+            ],
+          },
+        ],
+        "t": "blockIf",
+        "then": [
+          {
+            "t": "text",
+            "value": "B",
+          },
+        ],
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "A",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-empty-lhs: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "missing",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " == wp",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "N",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "Y",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-false-string: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "false",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-hash: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "true",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-inline-ternary: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "true",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "then",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "else",
+        },
+      ],
+    ],
+    "name": "if",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-inline-ternary-2arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "yes",
+        },
+      ],
+    ],
+    "name": "if",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-malformed-no-close: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "{{if true}}",
+  },
+  {
+    "t": "text",
+    "value": "content without closing tag",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-mixed-hash-space-nest: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "A",
+      },
+      {
+        "condition": [
+          {
+            "t": "text",
+            "value": "1",
+          },
+        ],
+        "else": [],
+        "t": "blockIf",
+        "then": [
+          {
+            "t": "text",
+            "value": "B",
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-negation: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "!x",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "pos",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "neg",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-nested-4: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "true",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "condition": [
+          {
+            "t": "text",
+            "value": "true",
+          },
+        ],
+        "else": [],
+        "t": "blockIf",
+        "then": [
+          {
+            "condition": [
+              {
+                "t": "text",
+                "value": "true",
+              },
+            ],
+            "else": [],
+            "t": "blockIf",
+            "then": [
+              {
+                "condition": [
+                  {
+                    "t": "text",
+                    "value": "true",
+                  },
+                ],
+                "else": [],
+                "t": "blockIf",
+                "then": [
+                  {
+                    "t": "text",
+                    "value": "DEEP",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-nested-compare: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "t": "text",
+                    "value": "x",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "t": "macro",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "3",
+            },
+          ],
+        ],
+        "name": "compare",
+        "t": "macro",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-nonzero-truthy: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "3",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-space: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "true",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-term-doubleslash: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "X",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-term-endif: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "X",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-term-hashclose: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "X",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-term-slashif: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "1",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "X",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-true-string: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "true",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-unknown-literal-truthy: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "somethingTruthy",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "taken",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > blockif-zero-falsy: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": "0",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "NO",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "YES",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-comma-escape: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:hello\\, world,goodbye\\, world",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-getvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar:mood",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-idempotent-canonical: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "random",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-not-allowlisted: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "upper:x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-random: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:a,b,c",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-roll: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll:1d50",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-roll-already-canonical: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "1d50",
+        },
+      ],
+    ],
+    "name": "roll",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > colon-setvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar:x:5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-doubleslashif-is-orphan: processor AST shape 1`] = `[]`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-empty: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "args": [],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-leading-space: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "spaced comment",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-multiline: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "line one
+line two
+line three",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-simple: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "this is a comment",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-with-colons: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": ":: note: a::b::c",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > comment-with-macro-after: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "setup",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "Hello ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "!",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dollar-global: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "$global",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dollar-positional-1: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "$1",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dollar-positional-2: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "$2",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-addeq: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v += 2",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-dec: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v--",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-eq: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v == 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-get: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-gte: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v >= 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-inc: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v++",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-inc-then-get: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".n++",
+    "t": "macro",
+  },
+  {
+    "args": [],
+    "name": ".n",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-lt: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v < 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-neq: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v != 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-set: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v = 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-set-then-get: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".score = 10",
+    "t": "macro",
+  },
+  {
+    "args": [],
+    "name": ".score",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > dot-subeq: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v -= 2",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-adjacent-real: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "\\{\\{x\\}\\}",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-full: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "Use \\{\\{char\\}\\} literally",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-half-close: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "\\}}",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-half-open: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "half \\",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-inside-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "\\{\\{x\\}\\",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-only-close: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "just \\}\\} close",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-only-open: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "just \\{\\{ open",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-sentinel-close-raw: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "raw close sentinel  here",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-sentinel-open-raw: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "raw open sentinel  here",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-sentinel-phase-raw: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "raw phase sentinel  here",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-sentinel-trim-raw: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "raw trim sentinel  here",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > escaped-sentinels-with-macro: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-all-empty-args: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [],
+      [],
+    ],
+    "name": "x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-arg-whitespace: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "  hello  ",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-arg-with-colon-text: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "note",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "a:b:c",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-deep-12: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "args": [
+                  [
+                    {
+                      "args": [
+                        [
+                          {
+                            "args": [
+                              [
+                                {
+                                  "args": [
+                                    [
+                                      {
+                                        "args": [
+                                          [
+                                            {
+                                              "args": [
+                                                [
+                                                  {
+                                                    "args": [
+                                                      [
+                                                        {
+                                                          "args": [
+                                                            [
+                                                              {
+                                                                "args": [
+                                                                  [
+                                                                    {
+                                                                      "args": [
+                                                                        [
+                                                                          {
+                                                                            "args": [],
+                                                                            "name": "char",
+                                                                            "t": "macro",
+                                                                          },
+                                                                        ],
+                                                                      ],
+                                                                      "name": "upper",
+                                                                      "t": "macro",
+                                                                    },
+                                                                  ],
+                                                                ],
+                                                                "name": "lower",
+                                                                "t": "macro",
+                                                              },
+                                                            ],
+                                                          ],
+                                                          "name": "upper",
+                                                          "t": "macro",
+                                                        },
+                                                      ],
+                                                    ],
+                                                    "name": "lower",
+                                                    "t": "macro",
+                                                  },
+                                                ],
+                                              ],
+                                              "name": "upper",
+                                              "t": "macro",
+                                            },
+                                          ],
+                                        ],
+                                        "name": "lower",
+                                        "t": "macro",
+                                      },
+                                    ],
+                                  ],
+                                  "name": "upper",
+                                  "t": "macro",
+                                },
+                              ],
+                            ],
+                            "name": "lower",
+                            "t": "macro",
+                          },
+                        ],
+                      ],
+                      "name": "upper",
+                      "t": "macro",
+                    },
+                  ],
+                ],
+                "name": "lower",
+                "t": "macro",
+              },
+            ],
+          ],
+          "name": "upper",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "lower",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-empty-both-args: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [],
+      [
+        {
+          "t": "text",
+          "value": "y",
+        },
+      ],
+    ],
+    "name": "x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-leading-empty-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [],
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-mixed-text-and-nest: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "pre ",
+        },
+        {
+          "args": [],
+          "name": "char",
+          "t": "macro",
+        },
+        {
+          "t": "text",
+          "value": " post",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-name-mixedcase: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "Mood",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-name-uppercase: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-nested-deepest-first: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "HeLLo",
+              },
+            ],
+          ],
+          "name": "upper",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "lower",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-nested-in-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "c",
+              },
+            ],
+          ],
+          "name": "b",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "a",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-nested-real: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [],
+          "name": "char",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-one-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "hello",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-simple: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-three-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "random",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-trailing-empty-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [],
+    ],
+    "name": "x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-two-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "name",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "value",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > inline-two-side-by-side: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "random",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": " and ",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "c",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "d",
+        },
+      ],
+    ],
+    "name": "random",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-foreach: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "d in [A,B,C]",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "- $d",
+        },
+      ],
+    ],
+    "name": "foreach",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-foreach-field: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "x in [one,two]",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "$x done",
+        },
+      ],
+    ],
+    "name": "foreach",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-ifset: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "mood",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "has mood",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "no mood",
+        },
+      ],
+    ],
+    "name": "ifset",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-volatile-random: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "random",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-volatile-rcounter-multi: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "-",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "-",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-volatile-rcounter-seq: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "S",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": ".S",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": ".S",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": ".",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-volatile-roll: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "1d20",
+        },
+      ],
+    ],
+    "name": "roll",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-when-all: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "both set",
+        },
+      ],
+    ],
+    "name": "when_all",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > lazy-when-any: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "0",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "at least one",
+        },
+      ],
+    ],
+    "name": "when_any",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-doubleslashif: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-else: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-elseif: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-endif: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-hashslashif: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-multiple: processor AST shape 1`] = `[]`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-slashif: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-slashsetglobalvar: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-slashsetvar: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > orphan-slashtrim: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before",
+  },
+  {
+    "t": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setglobalvar-block: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "Greetings",
+      },
+    ],
+    "scope": "global",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "msg",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "msg",
+        },
+      ],
+    ],
+    "name": "getglobalvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setglobalvar-inline: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "counter",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "42",
+        },
+      ],
+    ],
+    "name": "setglobalvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-block: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "Hello World",
+      },
+    ],
+    "scope": "local",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "greeting",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "greeting",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-block-nested-block: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "A",
+      },
+      {
+        "content": [
+          {
+            "t": "text",
+            "value": "B",
+          },
+        ],
+        "scope": "local",
+        "t": "blockSetvar",
+        "varName": [
+          {
+            "t": "text",
+            "value": "inner",
+          },
+        ],
+      },
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "inner",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "t": "macro",
+      },
+    ],
+    "scope": "local",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "outer",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "outer",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-block-nested-macro-value: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "x",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "y",
+            },
+          ],
+        ],
+        "name": "random",
+        "t": "macro",
+      },
+    ],
+    "scope": "local",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "a",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-block-with-macro: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "Name is ",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "t": "macro",
+      },
+    ],
+    "scope": "local",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "info",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "info",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-inline-inside-block: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "pre ",
+      },
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "inner",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "x",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " post",
+      },
+    ],
+    "scope": "local",
+    "t": "blockSetvar",
+    "varName": [
+      {
+        "t": "text",
+        "value": "outer",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "outer",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-inline-nested-name: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "AUTHOR",
+              },
+            ],
+          ],
+          "name": "lower",
+          "t": "macro",
+        },
+      ],
+      [
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "value",
+              },
+            ],
+          ],
+          "name": "upper",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "author",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-inline-nested-value: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "Author",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "style of ",
+        },
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "A",
+              },
+            ],
+            [
+              {
+                "t": "text",
+                "value": "B",
+              },
+            ],
+          ],
+          "name": "random",
+          "t": "macro",
+        },
+        {
+          "t": "text",
+          "value": " text",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "Author",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > setvar-inline-not-block: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "n",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "v",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-addvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "addvar score 5",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-getvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-hasvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "hasvar x",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-incvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "incvar count",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-roll: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll 1d20",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-setvar: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar x y",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > space-setvar-multiword-value: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar mood very happy",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > template-group-card-branch: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [],
+        "name": "groupcardmode",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " == solo",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "FOCUS:",
+      },
+      {
+        "args": [],
+        "name": "chargroupfocused",
+        "t": "macro",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "SOLO:",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "t": "macro",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > template-phase-cascade: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "t",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "200",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "phase",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "Opening",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "t": "macro",
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "t": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "t": "macro",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "16",
+            },
+          ],
+        ],
+        "name": "compare",
+        "t": "macro",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "Rising",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "t": "macro",
+      },
+    ],
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "t": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "t": "macro",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "51",
+            },
+          ],
+        ],
+        "name": "compare",
+        "t": "macro",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "Cruising",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "t": "macro",
+      },
+    ],
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "t": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "t": "macro",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "151",
+            },
+          ],
+        ],
+        "name": "compare",
+        "t": "macro",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "Marathon",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "t": "macro",
+      },
+    ],
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "t": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "t": "macro",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "500",
+            },
+          ],
+        ],
+        "name": "compare",
+        "t": "macro",
+      },
+    ],
+    "else": [],
+    "t": "blockIf",
+    "then": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "t": "text",
+              "value": "Endurance",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "t": "macro",
+      },
+    ],
+  },
+  {
+    "t": "text",
+    "value": "Phase: ",
+  },
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "phase",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > template-roster-snippet: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "roster block",
+        },
+      ],
+    ],
+    "name": "//",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "
+You are ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": ", talking to ",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": ".
+",
+  },
+  {
+    "condition": [
+      {
+        "t": "text",
+        "value": ".nsfw_on",
+      },
+    ],
+    "else": [
+      {
+        "t": "text",
+        "value": "Keep it clean.",
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "Adult content enabled.",
+      },
+    ],
+  },
+  {
+    "t": "text",
+    "value": "
+Mood today: ",
+  },
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "t": "text",
+                "value": "mood",
+              },
+            ],
+          ],
+          "name": "getvar",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "upper",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > template-threadbare-mode: processor AST shape 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "t": "text",
+              "value": "mode",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": " == solo",
+      },
+    ],
+    "else": [
+      {
+        "condition": [
+          {
+            "args": [
+              [
+                {
+                  "t": "text",
+                  "value": "mode",
+                },
+              ],
+            ],
+            "name": "getvar",
+            "t": "macro",
+          },
+          {
+            "t": "text",
+            "value": " == swap",
+          },
+        ],
+        "else": [
+          {
+            "condition": [
+              {
+                "args": [
+                  [
+                    {
+                      "t": "text",
+                      "value": "mode",
+                    },
+                  ],
+                ],
+                "name": "getvar",
+                "t": "macro",
+              },
+              {
+                "t": "text",
+                "value": " == ensemble",
+              },
+            ],
+            "else": [
+              {
+                "t": "text",
+                "value": "UNKNOWN",
+              },
+            ],
+            "t": "blockIf",
+            "then": [
+              {
+                "t": "text",
+                "value": "ENSEMBLE",
+              },
+            ],
+          },
+        ],
+        "t": "blockIf",
+        "then": [
+          {
+            "t": "text",
+            "value": "SWAP",
+          },
+        ],
+      },
+    ],
+    "t": "blockIf",
+    "then": [
+      {
+        "t": "text",
+        "value": "SOLO",
+      },
+    ],
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-adjacent-macros: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-around-macro: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": " after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-braces-only-single: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a { b } c",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-empty: processor AST shape 1`] = `[]`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-internal-ws: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "lots   of   internal    spaces",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-leading-ws: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "   leading whitespace",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-macro-then-text: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": " after",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-only-ws: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "     ",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-plain: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "Just plain text with no macros.",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-tabs-newlines: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "	indented
+	with tabs",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-then-macro: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-trailing-ws: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "trailing whitespace   ",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > text-unicode: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "emoji 👁 and accents café résumé",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-bare: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "left  
+ ",
+  },
+  {
+    "args": [],
+    "name": "trim",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": " 
+  right",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-bare-no-neighbors: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-block: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a[",
+  },
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "  spaced out  ",
+      },
+    ],
+    "t": "blockTrim",
+  },
+  {
+    "t": "text",
+    "value": "]b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-block-with-macro: processor AST shape 1`] = `
+[
+  {
+    "content": [
+      {
+        "t": "text",
+        "value": "  ",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "t": "macro",
+      },
+      {
+        "t": "text",
+        "value": "  ",
+      },
+    ],
+    "t": "blockTrim",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-inline: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "  x  ",
+        },
+      ],
+    ],
+    "name": "trim",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > trim-orphan: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a",
+  },
+  {
+    "t": "text",
+    "value": "b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-bare: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknown",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-in-sentence: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "Hello ",
+  },
+  {
+    "args": [],
+    "name": "unknownmacro",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "!",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-mixed-with-known: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "bad",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": " meets ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-multi-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "t": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-nested-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [],
+          "name": "char",
+          "t": "macro",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-one-arg: processor AST shape 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "t": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unknown-typo-suggestion: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "chr",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-bare-pairs: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "}} ",
+  },
+  {
+    "t": "text",
+    "value": "{{",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-close-before-open: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "}} before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-empty-macro: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-lone-close: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a } b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-lone-open: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a { b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-open-eof: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "text ",
+  },
+  {
+    "t": "text",
+    "value": "{{",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-open-name-eof: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "text ",
+  },
+  {
+    "t": "text",
+    "value": "{{char",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-quad-open: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "{{char}}",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-triple-both: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-triple-close: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-triple-open: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > unterm-whitespace-macro: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-five-newlines: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a
+
+
+
+
+b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-mixed-block: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "line1
+
+
+line2
+
+
+
+line3",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-newlines-with-macro: processor AST shape 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "
+
+
+
+",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "t": "macro",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-three-newlines: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a
+
+
+b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-trim-sentinel-collapse: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a  ",
+  },
+  {
+    "args": [],
+    "name": "trim",
+    "t": "macro",
+  },
+  {
+    "t": "text",
+    "value": "  b",
+  },
+]
+`;
+
+exports[`processor AST shape is stable (all inputs, incl. block grammar) > ws-two-newlines-kept: processor AST shape 1`] = `
+[
+  {
+    "t": "text",
+    "value": "a
+
+b",
+  },
+]
+`;

@@ -1,0 +1,8314 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-adjacent > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<char><user>",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-adjacent > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "CharacterUser",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-bot > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<bot>",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-bot > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-char > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<char>",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-char > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-in-sentence > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "Hi <user>, I am <char>.",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-in-sentence > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "Hi User, I am Character.",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-mixed-case > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<USER> meets <Char>; <Bot> nods",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-mixed-case > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 2,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "text": "User meets Character; Character nods",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-non-token > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<div>HTML stays</div> <userdata>too</userdata>",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-non-token > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "<div>HTML stays</div> <userdata>too</userdata>",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-user > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "<user>",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: angle (7) > angle-user > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "User",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "YES",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon-else > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "0",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon-else > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "NO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon-malformed-no-close > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "1",
+        },
+      ],
+    ],
+    "name": "if",
+    "rawContent": "if::1",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "no terminator here",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-colon-malformed-no-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{if::1}}",
+      "message": "if requires condition and then value",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{if::1}}no terminator here",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-comparison > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "t",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "rawContent": "getvar::t",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " >= 8",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "B",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "A",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-comparison > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::t}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "B",
+  "touchedVariables": [
+    "local:t",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-contains-inline-if > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "true",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "a",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "b",
+            },
+          ],
+        ],
+        "name": "if",
+        "rawContent": "if::a::b",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-contains-inline-if > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "b",
+      "macroName": "if",
+      "original": "{{if::a::b}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-dotshorthand-cond > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": ".body_roll <= 25",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "high",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "low",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-dotshorthand-cond > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "low",
+  "touchedVariables": [
+    "local:body_roll",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-else > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "false",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-else > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "NO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-elseif-2arm > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": ".x == 1",
+      },
+    ],
+    "elseBranch": [
+      {
+        "condition": [
+          {
+            "type": "text",
+            "value": ".x == 2",
+          },
+        ],
+        "elseBranch": [],
+        "thenBranch": [
+          {
+            "type": "text",
+            "value": "two",
+          },
+        ],
+        "type": "blockIf",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "one",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-elseif-2arm > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:x",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-elseif-3arm > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "m",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "rawContent": "getvar::m",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " == a",
+      },
+    ],
+    "elseBranch": [
+      {
+        "condition": [
+          {
+            "args": [
+              [
+                {
+                  "type": "text",
+                  "value": "m",
+                },
+              ],
+            ],
+            "name": "getvar",
+            "rawContent": "getvar::m",
+            "type": "macro",
+          },
+          {
+            "type": "text",
+            "value": " == b",
+          },
+        ],
+        "elseBranch": [
+          {
+            "condition": [
+              {
+                "args": [
+                  [
+                    {
+                      "type": "text",
+                      "value": "m",
+                    },
+                  ],
+                ],
+                "name": "getvar",
+                "rawContent": "getvar::m",
+                "type": "macro",
+              },
+              {
+                "type": "text",
+                "value": " == c",
+              },
+            ],
+            "elseBranch": [
+              {
+                "type": "text",
+                "value": "D",
+              },
+            ],
+            "thenBranch": [
+              {
+                "type": "text",
+                "value": "C",
+              },
+            ],
+            "type": "blockIf",
+          },
+        ],
+        "thenBranch": [
+          {
+            "type": "text",
+            "value": "B",
+          },
+        ],
+        "type": "blockIf",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "A",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-elseif-3arm > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::m}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::m}}",
+    },
+    {
+      "depth": 2,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::m}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "text": "D",
+  "touchedVariables": [
+    "local:m",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-empty-lhs > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "missing",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "rawContent": "getvar::missing",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " == wp",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "N",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "Y",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-empty-lhs > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::missing}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "N",
+  "touchedVariables": [
+    "local:missing",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-false-string > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "false",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-false-string > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "NO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-hash > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "true",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-hash > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "YES",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-inline-ternary > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "true",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "then",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "else",
+        },
+      ],
+    ],
+    "name": "if",
+    "rawContent": "if::true::then::else",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-inline-ternary > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "then",
+      "macroName": "if",
+      "original": "{{if::true::then::else}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "then",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-inline-ternary-2arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "yes",
+        },
+      ],
+    ],
+    "name": "if",
+    "rawContent": "if::1::yes",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-inline-ternary-2arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "yes",
+      "macroName": "if",
+      "original": "{{if::1::yes}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "yes",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-malformed-no-close > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "{{if true}}",
+  },
+  {
+    "type": "text",
+    "value": "content without closing tag",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-malformed-no-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "{{if true}}content without closing tag",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-mixed-hash-space-nest > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "A",
+      },
+      {
+        "condition": [
+          {
+            "type": "text",
+            "value": "1",
+          },
+        ],
+        "elseBranch": [],
+        "thenBranch": [
+          {
+            "type": "text",
+            "value": "B",
+          },
+        ],
+        "type": "blockIf",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-mixed-hash-space-nest > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "AB",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-negation > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "!x",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "pos",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "neg",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-negation > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "pos",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nested-4 > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "true",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "condition": [
+          {
+            "type": "text",
+            "value": "true",
+          },
+        ],
+        "elseBranch": [],
+        "thenBranch": [
+          {
+            "condition": [
+              {
+                "type": "text",
+                "value": "true",
+              },
+            ],
+            "elseBranch": [],
+            "thenBranch": [
+              {
+                "condition": [
+                  {
+                    "type": "text",
+                    "value": "true",
+                  },
+                ],
+                "elseBranch": [],
+                "thenBranch": [
+                  {
+                    "type": "text",
+                    "value": "DEEP",
+                  },
+                ],
+                "type": "blockIf",
+              },
+            ],
+            "type": "blockIf",
+          },
+        ],
+        "type": "blockIf",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nested-4 > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "DEEP",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nested-compare > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "type": "text",
+                    "value": "x",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "rawContent": "getvar::x",
+              "type": "macro",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "3",
+            },
+          ],
+        ],
+        "name": "compare",
+        "rawContent": "compare::{{getvar::x}}::>=::3",
+        "type": "macro",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nested-compare > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::x}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "false",
+      "macroName": "compare",
+      "original": "{{compare::::>=::3}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "NO",
+  "touchedVariables": [
+    "local:x",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nonzero-truthy > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "3",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-nonzero-truthy > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "YES",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-space > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "true",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-space > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "YES",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-doubleslash > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "X",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-doubleslash > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "X",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-endif > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "X",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-endif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "X",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-hashclose > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "X",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-hashclose > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "X",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-slashif > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "1",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "X",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-term-slashif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "X",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-true-string > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "true",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-true-string > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "YES",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-unknown-literal-truthy > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "somethingTruthy",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "taken",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-unknown-literal-truthy > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "taken",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-zero-falsy > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": "0",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "NO",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "YES",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: blockif (28) > blockif-zero-falsy > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "NO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-doubleslashif-is-orphan > parses to the golden AST 1`] = `[]`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-doubleslashif-is-orphan > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-empty > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "args": [],
+    "name": "//",
+    "rawContent": "//",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-empty > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-leading-space > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "spaced comment",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "//   spaced comment   ",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-leading-space > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//::spaced comment}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-multiline > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "line one
+line two
+line three",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "// line one
+line two
+line three",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-multiline > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//::line one
+line two
+line three}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-simple > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "this is a comment",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "// this is a comment",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-simple > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//::this is a comment}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-with-colons > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": ":: note: a::b::c",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "//:: note: a::b::c",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-with-colons > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//:::: note: a::b::c}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-with-macro-after > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "setup",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "// setup",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "Hello ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "!",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: comment (7) > comment-with-macro-after > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//::setup}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "Hello Character!",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-global > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "$global",
+    "rawContent": "$global",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-global > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getglobalvar",
+      "original": "{{getglobalvar::global}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "global:global",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-positional-1 > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "$1",
+    "rawContent": "$1",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-positional-1 > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{$1}}",
+      "message": "Unknown macro "$1". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{$1}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-positional-2 > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "$2",
+    "rawContent": "$2",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dollar-positional-2 > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{$2}}",
+      "message": "Unknown macro "$2". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{$2}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-addeq > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v += 2",
+    "rawContent": ".v += 2",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-addeq > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "addvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "addvar",
+      "key": "v",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:v",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-dec > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v--",
+    "rawContent": ".v--",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-dec > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "decvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "decvar",
+      "key": "v",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:v",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-eq > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v == 5",
+    "rawContent": ".v == 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-eq > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::v}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "false",
+      "macroName": "compare",
+      "original": "{{compare::::==::5}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "false",
+  "touchedVariables": [
+    "local:v",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-get > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v",
+    "rawContent": ".v",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-get > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::v}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:v",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-gte > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v >= 5",
+    "rawContent": ".v >= 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-gte > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::v}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "false",
+      "macroName": "compare",
+      "original": "{{compare::::>=::5}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "false",
+  "touchedVariables": [
+    "local:v",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-inc > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v++",
+    "rawContent": ".v++",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-inc > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "incvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "incvar",
+      "key": "v",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:v",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-inc-then-get > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".n++",
+    "rawContent": ".n++",
+    "type": "macro",
+  },
+  {
+    "args": [],
+    "name": ".n",
+    "rawContent": ".n",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-inc-then-get > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "incvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "incvar",
+      "key": "n",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:n",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-lt > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v < 5",
+    "rawContent": ".v < 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-lt > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::v}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "false",
+      "macroName": "compare",
+      "original": "{{compare::::<::5}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "false",
+  "touchedVariables": [
+    "local:v",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-neq > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v != 5",
+    "rawContent": ".v != 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-neq > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::v}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "true",
+      "macroName": "compare",
+      "original": "{{compare::::!=::5}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "true",
+  "touchedVariables": [
+    "local:v",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-set > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v = 5",
+    "rawContent": ".v = 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-set > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "v",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:v",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-set-then-get > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".score = 10",
+    "rawContent": ".score = 10",
+    "type": "macro",
+  },
+  {
+    "args": [],
+    "name": ".score",
+    "rawContent": ".score",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-set-then-get > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "score",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:score",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-subeq > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": ".v -= 2",
+    "rawContent": ".v -= 2",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: dotdollar (15) > dot-subeq > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "addvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "addvar",
+      "key": "v",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:v",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-adjacent-real > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "\\{\\{x\\}\\}",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-adjacent-real > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "{{x}}Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-full > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "Use \\{\\{char\\}\\} literally",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-full > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "Use {{char}} literally",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-half-close > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "\\}}",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-half-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-half-open > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "half \\",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-half-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "half {{char}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-inside-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "\\{\\{x\\}\\",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::\\{\\{x\\}\\",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-inside-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "X",
+      "macroName": "upper",
+      "original": "{{upper::x}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "{{X}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-only-close > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "just \\}\\} close",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-only-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "just }} close",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-only-open > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "just \\{\\{ open",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-only-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "just {{ open",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-close-raw > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "raw close sentinel  here",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-close-raw > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "raw close sentinel } here",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-open-raw > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "raw open sentinel  here",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-open-raw > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "raw open sentinel { here",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-phase-raw > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "raw phase sentinel  here",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-phase-raw > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "raw phase sentinel  here",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-trim-raw > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "raw trim sentinel  here",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinel-trim-raw > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "raw trim sentinelhere",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinels-with-macro > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: escaped (12) > escaped-sentinels-with-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "{}Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-all-empty-args > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [],
+      [],
+    ],
+    "name": "x",
+    "rawContent": "x::::",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-all-empty-args > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{x::::}}",
+      "message": "Unknown macro "x". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{x::::}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-arg-whitespace > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "  hello  ",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::  hello  ",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-arg-whitespace > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "HELLO",
+      "macroName": "upper",
+      "original": "{{upper::hello}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "HELLO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-arg-with-colon-text > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "note",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "a:b:c",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::note::a:b:c",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-arg-with-colon-text > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "note",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:note",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-deep-12 > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "args": [
+                  [
+                    {
+                      "args": [
+                        [
+                          {
+                            "args": [
+                              [
+                                {
+                                  "args": [
+                                    [
+                                      {
+                                        "args": [
+                                          [
+                                            {
+                                              "args": [
+                                                [
+                                                  {
+                                                    "args": [
+                                                      [
+                                                        {
+                                                          "args": [
+                                                            [
+                                                              {
+                                                                "args": [
+                                                                  [
+                                                                    {
+                                                                      "args": [
+                                                                        [
+                                                                          {
+                                                                            "args": [],
+                                                                            "name": "char",
+                                                                            "rawContent": "char",
+                                                                            "type": "macro",
+                                                                          },
+                                                                        ],
+                                                                      ],
+                                                                      "name": "upper",
+                                                                      "rawContent": "upper::{{char}}",
+                                                                      "type": "macro",
+                                                                    },
+                                                                  ],
+                                                                ],
+                                                                "name": "lower",
+                                                                "rawContent": "lower::{{upper::{{char}}}}",
+                                                                "type": "macro",
+                                                              },
+                                                            ],
+                                                          ],
+                                                          "name": "upper",
+                                                          "rawContent": "upper::{{lower::{{upper::{{char}}}}}}",
+                                                          "type": "macro",
+                                                        },
+                                                      ],
+                                                    ],
+                                                    "name": "lower",
+                                                    "rawContent": "lower::{{upper::{{lower::{{upper::{{char}}}}}}}}",
+                                                    "type": "macro",
+                                                  },
+                                                ],
+                                              ],
+                                              "name": "upper",
+                                              "rawContent": "upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}",
+                                              "type": "macro",
+                                            },
+                                          ],
+                                        ],
+                                        "name": "lower",
+                                        "rawContent": "lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}",
+                                        "type": "macro",
+                                      },
+                                    ],
+                                  ],
+                                  "name": "upper",
+                                  "rawContent": "upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}",
+                                  "type": "macro",
+                                },
+                              ],
+                            ],
+                            "name": "lower",
+                            "rawContent": "lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}",
+                            "type": "macro",
+                          },
+                        ],
+                      ],
+                      "name": "upper",
+                      "rawContent": "upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}",
+                      "type": "macro",
+                    },
+                  ],
+                ],
+                "name": "lower",
+                "rawContent": "lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}",
+                "type": "macro",
+              },
+            ],
+          ],
+          "name": "upper",
+          "rawContent": "upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}}}",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "lower",
+    "rawContent": "lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{lower::{{upper::{{char}}}}}}}}}}}}}}}}}}}}}}}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-deep-12 > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::Character}}",
+    },
+    {
+      "depth": 2,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+    {
+      "depth": 3,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::character}}",
+    },
+    {
+      "depth": 4,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+    {
+      "depth": 5,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::character}}",
+    },
+    {
+      "depth": 6,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+    {
+      "depth": 7,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::character}}",
+    },
+    {
+      "depth": 8,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+    {
+      "depth": 9,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::character}}",
+    },
+    {
+      "depth": 10,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+    {
+      "depth": 11,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::character}}",
+    },
+    {
+      "depth": 12,
+      "expanded": "character",
+      "macroName": "lower",
+      "original": "{{lower::CHARACTER}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 12,
+    "successfulExpansions": 13,
+    "totalMacros": 13,
+  },
+  "text": "character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-empty-both-args > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [],
+      [
+        {
+          "type": "text",
+          "value": "y",
+        },
+      ],
+    ],
+    "name": "x",
+    "rawContent": "x::::y",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-empty-both-args > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{x::::y}}",
+      "message": "Unknown macro "x". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{x::::y}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-leading-empty-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [],
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "x",
+    "rawContent": "x::::a",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-leading-empty-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{x::::a}}",
+      "message": "Unknown macro "x". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{x::::a}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-mixed-text-and-nest > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "pre ",
+        },
+        {
+          "args": [],
+          "name": "char",
+          "rawContent": "char",
+          "type": "macro",
+        },
+        {
+          "type": "text",
+          "value": " post",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::pre {{char}} post",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-mixed-text-and-nest > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "PRE CHARACTER POST",
+      "macroName": "upper",
+      "original": "{{upper::pre Character post}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "PRE CHARACTER POST",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-name-mixedcase > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "Mood",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "GetVar::Mood",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-name-mixedcase > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::Mood}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:Mood",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-name-uppercase > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "CHAR",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-name-uppercase > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-deepest-first > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "HeLLo",
+              },
+            ],
+          ],
+          "name": "upper",
+          "rawContent": "upper::HeLLo",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "lower",
+    "rawContent": "lower::{{upper::HeLLo}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-deepest-first > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "HELLO",
+      "macroName": "upper",
+      "original": "{{upper::HeLLo}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "hello",
+      "macroName": "lower",
+      "original": "{{lower::HELLO}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "hello",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-in-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "c",
+              },
+            ],
+          ],
+          "name": "b",
+          "rawContent": "b::c",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "a",
+    "rawContent": "a::{{b::c}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-in-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{b::c}}",
+      "message": "Unknown macro "b". Did you mean "if"?",
+    },
+    {
+      "macro": "{{a::{{b::c}}}}",
+      "message": "Unknown macro "a". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 2,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 2,
+  },
+  "text": "{{a::{{b::c}}}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-real > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [],
+          "name": "char",
+          "rawContent": "char",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::{{char}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-nested-real > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "CHARACTER",
+      "macroName": "upper",
+      "original": "{{upper::Character}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "CHARACTER",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-one-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "hello",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::hello",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-one-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "HELLO",
+      "macroName": "upper",
+      "original": "{{upper::hello}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "HELLO",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-simple > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-simple > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-three-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "random",
+    "rawContent": "random::a::b::c",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-three-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-trailing-empty-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [],
+    ],
+    "name": "x",
+    "rawContent": "x::a::",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-trailing-empty-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{x::a::}}",
+      "message": "Unknown macro "x". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{x::a::}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-two-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "name",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "value",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::name::value",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-two-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "name",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:name",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-two-side-by-side > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "random",
+    "rawContent": "random::a::b",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": " and ",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "c",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "d",
+        },
+      ],
+    ],
+    "name": "random",
+    "rawContent": "random::c::d",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: inline (18) > inline-two-side-by-side > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-foreach > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "d in [A,B,C]",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "- $d",
+        },
+      ],
+    ],
+    "name": "foreach",
+    "rawContent": "foreach::d in [A,B,C]::- $d",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-foreach > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "- A
+- B
+- C",
+      "macroName": "foreach",
+      "original": "{{foreach::d in [A,B,C]::- $d}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "- A
+- B
+- C",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-foreach-field > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "x in [one,two]",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "$x done",
+        },
+      ],
+    ],
+    "name": "foreach",
+    "rawContent": "foreach::x in [one,two]::$x done",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-foreach-field > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "one done
+two done",
+      "macroName": "foreach",
+      "original": "{{foreach::x in [one,two]::$x done}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "one done
+two done",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-ifset > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "mood",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "has mood",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "no mood",
+        },
+      ],
+    ],
+    "name": "ifset",
+    "rawContent": "ifset::mood::has mood::no mood",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-ifset > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "ifset",
+      "original": "{{ifset::mood::has mood::no mood}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:mood",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-random > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "random",
+    "rawContent": "random::a::b::c",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-random > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-rcounter-multi > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::a",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "-",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::b",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "-",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::a",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-rcounter-multi > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "rcounter",
+    "rcounter",
+    "rcounter",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-rcounter-seq > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "S",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::s",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": ".S",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::s",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": ".S",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "s",
+        },
+      ],
+    ],
+    "name": "rcounter",
+    "rawContent": "rcounter::s",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": ".",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-rcounter-seq > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "rcounter",
+    "rcounter",
+    "rcounter",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-roll > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "1d20",
+        },
+      ],
+    ],
+    "name": "roll",
+    "rawContent": "roll::1d20",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-volatile-roll > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "roll",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-when-all > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "both set",
+        },
+      ],
+    ],
+    "name": "when_all",
+    "rawContent": "when_all::1::1::both set",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-when-all > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "both set",
+      "macroName": "when_all",
+      "original": "{{when_all::1::1::both set}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "both set",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-when-any > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "0",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "1",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "at least one",
+        },
+      ],
+    ],
+    "name": "when_any",
+    "rawContent": "when_any::0::1::at least one",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: lazyvolatile (9) > lazy-when-any > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "at least one",
+      "macroName": "when_any",
+      "original": "{{when_any::0::1::at least one}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "at least one",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-doubleslashif > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-doubleslashif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-else > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-else > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-elseif > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-elseif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-endif > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-endif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-hashslashif > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-hashslashif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-multiple > parses to the golden AST 1`] = `[]`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-multiple > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashif > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashif > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashsetglobalvar > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashsetglobalvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashsetvar > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashsetvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashtrim > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before",
+  },
+  {
+    "type": "text",
+    "value": "after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: orphan (10) > orphan-slashtrim > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "beforeafter",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setglobalvar-block > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "Greetings",
+      },
+    ],
+    "scope": "global",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "msg",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "msg",
+        },
+      ],
+    ],
+    "name": "getglobalvar",
+    "rawContent": "getglobalvar::msg",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setglobalvar-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "getglobalvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setglobalvar",
+      "key": "msg",
+      "type": "setGlobalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "global:msg",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setglobalvar-inline > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "counter",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "42",
+        },
+      ],
+    ],
+    "name": "setglobalvar",
+    "rawContent": "setglobalvar::counter::42",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setglobalvar-inline > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setglobalvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setglobalvar",
+      "key": "counter",
+      "type": "setGlobalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "global:counter",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "Hello World",
+      },
+    ],
+    "scope": "local",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "greeting",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "greeting",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::greeting",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "greeting",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:greeting",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-nested-block > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "A",
+      },
+      {
+        "content": [
+          {
+            "type": "text",
+            "value": "B",
+          },
+        ],
+        "scope": "local",
+        "type": "blockSetvar",
+        "varName": [
+          {
+            "type": "text",
+            "value": "inner",
+          },
+        ],
+      },
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "inner",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "rawContent": "getvar::inner",
+        "type": "macro",
+      },
+    ],
+    "scope": "local",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "outer",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "outer",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::outer",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-nested-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "getvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "inner",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "outer",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:inner",
+    "local:outer",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-nested-macro-value > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "x",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "y",
+            },
+          ],
+        ],
+        "name": "random",
+        "rawContent": "random::x::y",
+        "type": "macro",
+      },
+    ],
+    "scope": "local",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "a",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::a",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-nested-macro-value > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "a",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:a",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-with-macro > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "Name is ",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "rawContent": "char",
+        "type": "macro",
+      },
+    ],
+    "scope": "local",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "info",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "info",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::info",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-block-with-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "char",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "info",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:info",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-inside-block > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "pre ",
+      },
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "inner",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "x",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "rawContent": "setvar::inner::x",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " post",
+      },
+    ],
+    "scope": "local",
+    "type": "blockSetvar",
+    "varName": [
+      {
+        "type": "text",
+        "value": "outer",
+      },
+    ],
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "outer",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::outer",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-inside-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "inner",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "outer",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "touchedVariables": [
+    "local:inner",
+    "local:outer",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-nested-name > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "AUTHOR",
+              },
+            ],
+          ],
+          "name": "lower",
+          "rawContent": "lower::AUTHOR",
+          "type": "macro",
+        },
+      ],
+      [
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "value",
+              },
+            ],
+          ],
+          "name": "upper",
+          "rawContent": "upper::value",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::{{lower::AUTHOR}}::{{upper::value}}",
+    "type": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "author",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::author",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-nested-name > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "lower",
+    "upper",
+    "setvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "author",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 3,
+    "successfulExpansions": 4,
+    "totalMacros": 4,
+  },
+  "touchedVariables": [
+    "local:author",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-nested-value > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "Author",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "style of ",
+        },
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "A",
+              },
+            ],
+            [
+              {
+                "type": "text",
+                "value": "B",
+              },
+            ],
+          ],
+          "name": "random",
+          "rawContent": "random::A::B",
+          "type": "macro",
+        },
+        {
+          "type": "text",
+          "value": " text",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::Author::style of {{random::A::B}} text",
+    "type": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "Author",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::Author",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-nested-value > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+    "setvar",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "Author",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "touchedVariables": [
+    "local:Author",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-not-block > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "n",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "v",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::n::v",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: setvar (10) > setvar-inline-not-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "n",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:n",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-comma-escape > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:hello\\, world,goodbye\\, world",
+    "rawContent": "random:hello\\, world,goodbye\\, world",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-comma-escape > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-getvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar:mood",
+    "rawContent": "getvar:mood",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-getvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::mood}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:mood",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-idempotent-canonical > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+    ],
+    "name": "random",
+    "rawContent": "random::a::b",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-idempotent-canonical > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-not-allowlisted > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "upper:x",
+    "rawContent": "upper:x",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-not-allowlisted > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{upper:x}}",
+      "message": "Unknown macro "upper:x". Did you mean "upper"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{upper:x}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-random > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "random:a,b,c",
+    "rawContent": "random:a,b,c",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-random > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "random",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-roll > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll:1d50",
+    "rawContent": "roll:1d50",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-roll > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "roll",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-roll-already-canonical > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "1d50",
+        },
+      ],
+    ],
+    "name": "roll",
+    "rawContent": "roll::1d50",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-roll-already-canonical > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "roll",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-setvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar:x:5",
+    "rawContent": "setvar:x:5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: singlecolon (8) > colon-setvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "x",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:x",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-addvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "addvar score 5",
+    "rawContent": "addvar score 5",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-addvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "addvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "addvar",
+      "key": "score",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:score",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-getvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "getvar x",
+    "rawContent": "getvar x",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-getvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::x}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [
+    "local:x",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-hasvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "hasvar x",
+    "rawContent": "hasvar x",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-hasvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "false",
+      "macroName": "hasvar",
+      "original": "{{hasvar::x}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "false",
+  "touchedVariables": [
+    "local:x",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-incvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "incvar count",
+    "rawContent": "incvar count",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-incvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "incvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "incvar",
+      "key": "count",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:count",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-roll > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "roll 1d20",
+    "rawContent": "roll 1d20",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-roll > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "roll",
+  ],
+  "sideEffectShape": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-setvar > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar x y",
+    "rawContent": "setvar x y",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-setvar > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "x",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:x",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-setvar-multiword-value > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "setvar mood very happy",
+    "rawContent": "setvar mood very happy",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: spaceform (7) > space-setvar-multiword-value > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "mood",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "touchedVariables": [
+    "local:mood",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-group-card-branch > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [],
+        "name": "groupcardmode",
+        "rawContent": "groupCardMode",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " == solo",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "FOCUS:",
+      },
+      {
+        "args": [],
+        "name": "chargroupfocused",
+        "rawContent": "charGroupFocused",
+        "type": "macro",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "SOLO:",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "rawContent": "char",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-group-card-branch > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "solo",
+      "macroName": "groupcardmode",
+      "original": "{{groupcardmode}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "SOLO:Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-phase-cascade > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "t",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "200",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::t::200",
+    "type": "macro",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "phase",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "Opening",
+        },
+      ],
+    ],
+    "name": "setvar",
+    "rawContent": "setvar::phase::Opening",
+    "type": "macro",
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "type": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "rawContent": "getvar::t",
+              "type": "macro",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "16",
+            },
+          ],
+        ],
+        "name": "compare",
+        "rawContent": "compare::{{getvar::t}}::>=::16",
+        "type": "macro",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Rising",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "rawContent": "setvar::phase::Rising",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "type": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "rawContent": "getvar::t",
+              "type": "macro",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "51",
+            },
+          ],
+        ],
+        "name": "compare",
+        "rawContent": "compare::{{getvar::t}}::>=::51",
+        "type": "macro",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Cruising",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "rawContent": "setvar::phase::Cruising",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "type": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "rawContent": "getvar::t",
+              "type": "macro",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "151",
+            },
+          ],
+        ],
+        "name": "compare",
+        "rawContent": "compare::{{getvar::t}}::>=::151",
+        "type": "macro",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Marathon",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "rawContent": "setvar::phase::Marathon",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "args": [
+                [
+                  {
+                    "type": "text",
+                    "value": "t",
+                  },
+                ],
+              ],
+              "name": "getvar",
+              "rawContent": "getvar::t",
+              "type": "macro",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": ">=",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "500",
+            },
+          ],
+        ],
+        "name": "compare",
+        "rawContent": "compare::{{getvar::t}}::>=::500",
+        "type": "macro",
+      },
+    ],
+    "elseBranch": [],
+    "thenBranch": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "phase",
+            },
+          ],
+          [
+            {
+              "type": "text",
+              "value": "Endurance",
+            },
+          ],
+        ],
+        "name": "setvar",
+        "rawContent": "setvar::phase::Endurance",
+        "type": "macro",
+      },
+    ],
+    "type": "blockIf",
+  },
+  {
+    "type": "text",
+    "value": "Phase: ",
+  },
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "phase",
+        },
+      ],
+    ],
+    "name": "getvar",
+    "rawContent": "getvar::phase",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-phase-cascade > processMacros produces the golden result 1`] = `
+{
+  "cacheable": false,
+  "errors": [],
+  "expandedMacroNames": [
+    "setvar",
+    "setvar",
+    "getvar",
+    "compare",
+    "setvar",
+    "getvar",
+    "compare",
+    "setvar",
+    "getvar",
+    "compare",
+    "setvar",
+    "getvar",
+    "compare",
+    "getvar",
+  ],
+  "sideEffectShape": [
+    {
+      "cause": "setvar",
+      "key": "t",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "phase",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "phase",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "phase",
+      "type": "setLocalVar",
+    },
+    {
+      "cause": "setvar",
+      "key": "phase",
+      "type": "setLocalVar",
+    },
+  ],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 13,
+    "successfulExpansions": 14,
+    "totalMacros": 14,
+  },
+  "touchedVariables": [
+    "local:phase",
+    "local:t",
+  ],
+  "volatile": true,
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-roster-snippet > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "roster block",
+        },
+      ],
+    ],
+    "name": "//",
+    "rawContent": "// roster block",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "
+You are ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": ", talking to ",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "rawContent": "user",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": ".
+",
+  },
+  {
+    "condition": [
+      {
+        "type": "text",
+        "value": ".nsfw_on",
+      },
+    ],
+    "elseBranch": [
+      {
+        "type": "text",
+        "value": "Keep it clean.",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "Adult content enabled.",
+      },
+    ],
+    "type": "blockIf",
+  },
+  {
+    "type": "text",
+    "value": "
+Mood today: ",
+  },
+  {
+    "args": [
+      [
+        {
+          "args": [
+            [
+              {
+                "type": "text",
+                "value": "mood",
+              },
+            ],
+          ],
+          "name": "getvar",
+          "rawContent": "getvar::mood",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "upper",
+    "rawContent": "upper::{{getvar::mood}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-roster-snippet > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "//",
+      "original": "{{//::roster block}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 2,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+    {
+      "depth": 3,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::mood}}",
+    },
+    {
+      "depth": 4,
+      "expanded": "",
+      "macroName": "upper",
+      "original": "{{upper::}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 4,
+    "successfulExpansions": 5,
+    "totalMacros": 5,
+  },
+  "text": "
+You are Character, talking to User.
+Keep it clean.
+Mood today: ",
+  "touchedVariables": [
+    "local:mood",
+    "local:nsfw_on",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-threadbare-mode > parses to the golden AST 1`] = `
+[
+  {
+    "condition": [
+      {
+        "args": [
+          [
+            {
+              "type": "text",
+              "value": "mode",
+            },
+          ],
+        ],
+        "name": "getvar",
+        "rawContent": "getvar::mode",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": " == solo",
+      },
+    ],
+    "elseBranch": [
+      {
+        "condition": [
+          {
+            "args": [
+              [
+                {
+                  "type": "text",
+                  "value": "mode",
+                },
+              ],
+            ],
+            "name": "getvar",
+            "rawContent": "getvar::mode",
+            "type": "macro",
+          },
+          {
+            "type": "text",
+            "value": " == swap",
+          },
+        ],
+        "elseBranch": [
+          {
+            "condition": [
+              {
+                "args": [
+                  [
+                    {
+                      "type": "text",
+                      "value": "mode",
+                    },
+                  ],
+                ],
+                "name": "getvar",
+                "rawContent": "getvar::mode",
+                "type": "macro",
+              },
+              {
+                "type": "text",
+                "value": " == ensemble",
+              },
+            ],
+            "elseBranch": [
+              {
+                "type": "text",
+                "value": "UNKNOWN",
+              },
+            ],
+            "thenBranch": [
+              {
+                "type": "text",
+                "value": "ENSEMBLE",
+              },
+            ],
+            "type": "blockIf",
+          },
+        ],
+        "thenBranch": [
+          {
+            "type": "text",
+            "value": "SWAP",
+          },
+        ],
+        "type": "blockIf",
+      },
+    ],
+    "thenBranch": [
+      {
+        "type": "text",
+        "value": "SOLO",
+      },
+    ],
+    "type": "blockIf",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: template (4) > template-threadbare-mode > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::mode}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::mode}}",
+    },
+    {
+      "depth": 2,
+      "expanded": "",
+      "macroName": "getvar",
+      "original": "{{getvar::mode}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 2,
+    "successfulExpansions": 3,
+    "totalMacros": 3,
+  },
+  "text": "UNKNOWN",
+  "touchedVariables": [
+    "local:mode",
+  ],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-adjacent-macros > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "rawContent": "user",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-adjacent-macros > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "CharacterUser",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-around-macro > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": " after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-around-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "before Character after",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-braces-only-single > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a { b } c",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-braces-only-single > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a { b } c",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-empty > parses to the golden AST 1`] = `[]`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-empty > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-internal-ws > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "lots   of   internal    spaces",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-internal-ws > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "lots   of   internal    spaces",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-leading-ws > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "   leading whitespace",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-leading-ws > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "   leading whitespace",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-macro-then-text > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": " after",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-macro-then-text > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character after",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-only-ws > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "     ",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-only-ws > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "     ",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-plain > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "Just plain text with no macros.",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-plain > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "Just plain text with no macros.",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-tabs-newlines > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "	indented
+	with tabs",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-tabs-newlines > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "	indented
+	with tabs",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-then-macro > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-then-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "before Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-trailing-ws > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "trailing whitespace   ",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-trailing-ws > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "trailing whitespace   ",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-unicode > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "emoji 👁 and accents café résumé",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: text (13) > text-unicode > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "emoji 👁 and accents café résumé",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-bare > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "left  
+ ",
+  },
+  {
+    "args": [],
+    "name": "trim",
+    "rawContent": "trim",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": " 
+  right",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-bare > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "trim",
+      "original": "{{trim}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "leftright",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-bare-no-neighbors > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "trim",
+    "rawContent": "trim",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-bare-no-neighbors > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "trim",
+      "original": "{{trim}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-block > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a[",
+  },
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "  spaced out  ",
+      },
+    ],
+    "type": "blockTrim",
+  },
+  {
+    "type": "text",
+    "value": "]b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a[spaced out]b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-block-with-macro > parses to the golden AST 1`] = `
+[
+  {
+    "content": [
+      {
+        "type": "text",
+        "value": "  ",
+      },
+      {
+        "args": [],
+        "name": "char",
+        "rawContent": "char",
+        "type": "macro",
+      },
+      {
+        "type": "text",
+        "value": "  ",
+      },
+    ],
+    "type": "blockTrim",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-block-with-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-inline > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "  x  ",
+        },
+      ],
+    ],
+    "name": "trim",
+    "rawContent": "trim::  x  ",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-inline > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "x",
+      "macroName": "trim",
+      "original": "{{trim::x}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "x",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-orphan > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a",
+  },
+  {
+    "type": "text",
+    "value": "b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: trim (6) > trim-orphan > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "ab",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-bare > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "unknown",
+    "rawContent": "unknown",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-bare > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{unknown}}",
+      "message": "Unknown macro "unknown"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{unknown}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-in-sentence > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "Hello ",
+  },
+  {
+    "args": [],
+    "name": "unknownmacro",
+    "rawContent": "unknownmacro",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "!",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-in-sentence > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{unknownmacro}}",
+      "message": "Unknown macro "unknownmacro"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "Hello {{unknownmacro}}!",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-mixed-with-known > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "bad",
+    "rawContent": "bad",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": " meets ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-mixed-with-known > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{bad}}",
+      "message": "Unknown macro "bad"",
+    },
+  ],
+  "expansions": [
+    {
+      "depth": 1,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 1,
+    "totalMacros": 2,
+  },
+  "text": "{{bad}} meets Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-multi-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "b",
+        },
+      ],
+      [
+        {
+          "type": "text",
+          "value": "c",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "rawContent": "unknown::a::b::c",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-multi-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{unknown::a::b::c}}",
+      "message": "Unknown macro "unknown"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{unknown::a::b::c}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-nested-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "args": [],
+          "name": "char",
+          "rawContent": "char",
+          "type": "macro",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "rawContent": "unknown::{{char}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-nested-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{unknown::Character}}",
+      "message": "Unknown macro "unknown"",
+    },
+  ],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 2,
+  },
+  "text": "{{unknown::Character}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-one-arg > parses to the golden AST 1`] = `
+[
+  {
+    "args": [
+      [
+        {
+          "type": "text",
+          "value": "a",
+        },
+      ],
+    ],
+    "name": "unknown",
+    "rawContent": "unknown::a",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-one-arg > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{unknown::a}}",
+      "message": "Unknown macro "unknown"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{unknown::a}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-typo-suggestion > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "chr",
+    "rawContent": "chr",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unknown (7) > unknown-typo-suggestion > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{chr}}",
+      "message": "Unknown macro "chr". Did you mean "char"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{chr}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-bare-pairs > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "}} ",
+  },
+  {
+    "type": "text",
+    "value": "{{",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-bare-pairs > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "}} {{",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-close-before-open > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "}} before ",
+  },
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-close-before-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "}} before Character",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-empty-macro > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+    "rawContent": "",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-empty-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{}}",
+      "message": "Unknown macro "". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-lone-close > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a } b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-lone-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a } b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-lone-open > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a { b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-lone-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a { b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-open-eof > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "text ",
+  },
+  {
+    "type": "text",
+    "value": "{{",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-open-eof > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "text {{",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-open-name-eof > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "text ",
+  },
+  {
+    "type": "text",
+    "value": "{{char",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-open-name-eof > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "text {{char",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-quad-open > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "{{char}}",
+    "rawContent": "{{char}}",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-quad-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{{{char}}}}",
+      "message": "Unknown macro "{{char}}"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{{{char}}}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-both > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+    "rawContent": "{char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-both > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{{char}}",
+      "message": "Unknown macro "{char"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{{char}}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-close > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "}",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-close > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "Character}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-open > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "{char",
+    "rawContent": "{char",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-triple-open > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{{char}}",
+      "message": "Unknown macro "{char"",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{{char}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-whitespace-macro > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "",
+    "rawContent": "   ",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: unterminated (12) > unterm-whitespace-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [
+    {
+      "macro": "{{}}",
+      "message": "Unknown macro "". Did you mean "if"?",
+    },
+  ],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 1,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 1,
+  },
+  "text": "{{}}",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-five-newlines > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a
+
+
+
+
+b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-five-newlines > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a
+
+b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-mixed-block > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "line1
+
+
+line2
+
+
+
+line3",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-mixed-block > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "line1
+
+line2
+
+line3",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-newlines-with-macro > parses to the golden AST 1`] = `
+[
+  {
+    "args": [],
+    "name": "char",
+    "rawContent": "char",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "
+
+
+
+",
+  },
+  {
+    "args": [],
+    "name": "user",
+    "rawContent": "user",
+    "type": "macro",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-newlines-with-macro > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "Character",
+      "macroName": "char",
+      "original": "{{char}}",
+    },
+    {
+      "depth": 1,
+      "expanded": "User",
+      "macroName": "user",
+      "original": "{{user}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 1,
+    "successfulExpansions": 2,
+    "totalMacros": 2,
+  },
+  "text": "Character
+
+User",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-three-newlines > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a
+
+
+b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-three-newlines > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a
+
+b",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-trim-sentinel-collapse > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a  ",
+  },
+  {
+    "args": [],
+    "name": "trim",
+    "rawContent": "trim",
+    "type": "macro",
+  },
+  {
+    "type": "text",
+    "value": "  b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-trim-sentinel-collapse > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [
+    {
+      "depth": 0,
+      "expanded": "",
+      "macroName": "trim",
+      "original": "{{trim}}",
+    },
+  ],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 1,
+    "totalMacros": 1,
+  },
+  "text": "ab",
+  "touchedVariables": [],
+}
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-two-newlines-kept > parses to the golden AST 1`] = `
+[
+  {
+    "type": "text",
+    "value": "a
+
+b",
+  },
+]
+`;
+
+exports[`parser characterization: AST + processMacros snapshots > category: whitespace (6) > ws-two-newlines-kept > processMacros produces the golden result 1`] = `
+{
+  "cacheable": true,
+  "errors": [],
+  "expansions": [],
+  "sideEffects": [],
+  "stats": {
+    "failedExpansions": 0,
+    "nestingDepthReached": 0,
+    "successfulExpansions": 0,
+    "totalMacros": 0,
+  },
+  "text": "a
+
+b",
+  "touchedVariables": [],
+}
+`;
