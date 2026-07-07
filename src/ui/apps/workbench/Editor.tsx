@@ -1260,6 +1260,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   };
   return (
     <div className={styles.root} style={rootStyle}>
+      {/* row 1: platform lens tabs + off-target + completion chips (vs-editor-2 tabstrip) */}
       <div className={styles.tabstrip}>
         <PlatformTabs
           platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
@@ -1273,41 +1274,48 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           onOffTarget={pickOffTarget}
         />
         <span className={styles.done}>
+          <span className={styles.frac}>{`${doneCount}/${chips.length}`}</span>
+          {chips.map(([label, ok]) => (
+            <span key={label} className={`${styles.chip}${ok ? ` ${styles.chipOk}` : ""}`}>
+              {label}
+            </span>
+          ))}
+        </span>
+      </div>
+
+      {/* row 2: back + name + version | scale + Grid/Steps + saved status (vs-editor-2 header) */}
+      <div className={styles.hdr}>
+        <button type="button" className={styles.back} aria-label="Close" title="Close" onClick={() => ctx.workbench.remove(piece.id, piece.kind)}>
+          &#8592;
+        </button>
+        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
+        {/* the version badge is a short label (V2, v1, 2024-final); a URL or a long string is not a
+            version, so keep it out of the badge rather than blow out the header */}
+        {text("identity.characterVersion") !== "" && text("identity.characterVersion").length <= 16 && (
+          <span className={styles.vchip}>{text("identity.characterVersion")}</span>
+        )}
+        <span className={styles.hdrRight}>
           <span className={styles.escale} title="Scale the editor">
-            <button
-              type="button"
-              className={styles.escaleStep}
-              onClick={() => stepScale(-1)}
-              disabled={editorScale <= SCALE_MIN}
-              aria-label="Scale editor down"
-              title="Smaller"
-            >
+            <button type="button" className={styles.escaleStep} onClick={() => stepScale(-1)} disabled={editorScale <= SCALE_MIN} aria-label="Scale editor down" title="Smaller">
               &#8722;
             </button>
             <button type="button" className={styles.escalePct} onClick={() => setEditorScale(1)} title="Reset to 100%">
               {`${Math.round(editorScale * 100)}%`}
             </button>
-            <button
-              type="button"
-              className={styles.escaleStep}
-              onClick={() => stepScale(1)}
-              disabled={editorScale >= SCALE_MAX}
-              aria-label="Scale editor up"
-              title="Bigger"
-            >
+            <button type="button" className={styles.escaleStep} onClick={() => stepScale(1)} disabled={editorScale >= SCALE_MAX} aria-label="Scale editor up" title="Bigger">
               &#43;
             </button>
           </span>
           <span className={styles.seg}>
-            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
-              Quiz
-            </button>
             <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
               Grid
             </button>
+            <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
+              Steps
+            </button>
           </span>
-          <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()}>
-            Save
+          <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
+            {saving ? "Saving…" : dirty ? "Save" : "● Saved locally"}
           </button>
           {topRight}
         </span>
