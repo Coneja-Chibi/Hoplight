@@ -23,15 +23,11 @@ const ATTR_FIELDS: readonly FormField[] = [
   { key: "name", label: "Attribute", kind: "text", placeholder: "STR", half: true },
   { key: "value", label: "Value", kind: "number", half: true },
 ];
-const HP_FIELDS: readonly FormField[] = [
-  { key: "value", label: "HP", kind: "number", half: true },
-  { key: "max", label: "Max HP", kind: "number", half: true },
-];
+const HP_FIELDS: readonly FormField[] = [{ key: "value", label: "HP", kind: "resource", maxKey: "max" }];
 const POOL_FIELDS: readonly FormField[] = [
   { key: "name", label: "Pool", kind: "text", placeholder: "Mana", half: true },
   { key: "color", label: "Color (hex)", kind: "text", placeholder: "#rrggbb", half: true },
-  { key: "value", label: "Value", kind: "number", half: true },
-  { key: "max", label: "Max", kind: "number", half: true },
+  { key: "value", label: "Value", kind: "resource", maxKey: "max" },
 ];
 
 export function RpgStats({ value, onChange }: RpgStatsProps): JSX.Element {
