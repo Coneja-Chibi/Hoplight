@@ -138,8 +138,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [draft, setDraft] = useState(init.baseline);
   // the entity's kept-whole original (the platform natives) edits separately from the canonical body,
   // then merges back at save. Native fields (per platform) bind here through readPath/writePath.
-  const [originalDraft, setOriginalDraft] = useState(() => structuredClone(rec(init.ent.original ?? {})));
-  const [nativeBaseline, setNativeBaseline] = useState(() => structuredClone(rec(init.ent.original ?? {})));
+  // tolerate the pre-rename key so cards saved before the migration still surface their native data
+  const initOriginal = (): Record<string, unknown> => rec(init.ent.original ?? init.ent.escrow ?? {});
+  const [originalDraft, setOriginalDraft] = useState(() => structuredClone(initOriginal()));
+  const [nativeBaseline, setNativeBaseline] = useState(() => structuredClone(initOriginal()));
   const [order] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
@@ -1281,9 +1283,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </BentoCard>
     );
 
-  // one native card per platform present in the original that has a declared schema (the editable
-  // "everything else"): binds each field to the originalDraft through readPath/setNative
-  const nativeCards = Object.keys(rec(originalDraft))
+  // native cards are LENS-DRIVEN: a platform's fields appear when you TARGET it (even empty, ready to
+  // fill), plus any platform already present in the original. Not gated by what the card happens to
+  // hold - you select RoleCall to ADD RoleCall data to any character. Binds to originalDraft.
+  const nativeCards = [...new Set([...targets, ...Object.keys(rec(originalDraft))])]
     .filter((k) => k !== "vaud-studio" && k !== "vaud-json")
     .map((k) => {
       const schema = nativeSchemaFor(k);
