@@ -1,7 +1,7 @@
 {
   "src/ui/apps/workbench/Editor.module.css": 1560,
-  "src/ui/apps/workbench/Editor.tsx": 1313,
   "src/macros/processor.test.ts": 1226,
+  "src/ui/apps/workbench/Editor.tsx": 1167,
   "src/macros/processor.ts": 946,
   "src/macros/handlers/variables.ts": 854,
   "src/macros/hooks.ts": 577,
