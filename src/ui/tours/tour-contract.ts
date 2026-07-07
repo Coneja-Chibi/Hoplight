@@ -20,8 +20,23 @@ export interface TourChoice {
   options: { value: string; label: string; sub?: string }[];
 }
 
+/** A navigation the engine runs the moment a step becomes active, so the tour DRIVES the user to the
+ * right place instead of only describing it. Declarative: the tour data names intent, the engine
+ * (which holds ctx) maps each to real calls. Every field is optional and additive.
+ *   - open "piece": open a character on the Workbench so the editor populates (and later steps have
+ *     real elements to highlight - a live layout/mode toggle beats a static mockup).
+ *   - setPref: flip a preference first (e.g. force Grid so the bento chrome the next steps point at
+ *     is actually on screen). Namespaced key, same store the app uses.
+ */
+export interface TourAct {
+  open?: "piece";
+  setPref?: { key: string; value: string };
+}
+
 /** One stop on the tour. */
 export interface TourStep {
+  /** a navigation to run when this step activates (drives the user; see TourAct) */
+  act?: TourAct;
   /** stable id; also this step's progress key */
   id: string;
   /** the `data-tour` attribute value to point at ("layout-toggle"); omit for an intro/outro step

@@ -32,14 +32,48 @@ export function TourGuide({ tour, ctx, onClose }: TourGuideProps): JSX.Element {
   const pos = positionAt(tour, index);
   const anchor = pos.step?.anchor;
 
-  // highlight the current step's anchor and bring it into view; clean up on step change / unmount
+  // run this step's navigation the moment it activates, so the tour DRIVES the user (e.g. opens a
+  // character so the next steps have a live editor to point at). Declarative act -> real ctx calls.
+  useEffect(() => {
+    const act = pos.step?.act;
+    if (!act) return;
+    if (act.setPref) ctx.prefs.set(act.setPref.key, act.setPref.value);
+    if (act.open === "piece") {
+      void (async () => {
+        const open = ctx.workbench.pieces();
+        if (open.length > 0) {
+          ctx.workbench.focus(open[0]!.id, open[0]!.kind);
+          return;
+        }
+        const chars = await ctx.api.listEntities("character");
+        if (chars[0]) ctx.workbench.send(chars[0]); // open a real one so the editor populates
+      })();
+    }
+    // run once per step activation; ctx methods read live state and are stable for the tour
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pos.step?.id]);
+
+  // highlight the current step's anchor and bring it into view; clean up on step change / unmount.
+  // re-runs when the step's own render settles, so an anchor that appears after an act (a just-opened
+  // editor) still gets caught on the next tick.
   useEffect(() => {
     if (!anchor) return;
-    const el = document.querySelector(`[data-tour="${anchor}"]`);
-    if (!el) return; // tolerant: an absent anchor just gets no highlight
-    el.classList.add(HL_CLASS);
-    el.scrollIntoView({ block: "center", behavior: "smooth" });
-    return () => el.classList.remove(HL_CLASS);
+    let raf = 0;
+    let tries = 0;
+    const paint = (): void => {
+      const el = document.querySelector(`[data-tour="${anchor}"]`);
+      if (!el) {
+        if (tries++ < 40) raf = requestAnimationFrame(paint); // ~0.6s for a just-navigated surface
+        return; // give up quietly after the cap: a truly absent anchor just gets no highlight
+      }
+      el.classList.add(HL_CLASS);
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    };
+    paint();
+    return () => {
+      cancelAnimationFrame(raf);
+      document.querySelector(`[data-tour="${anchor}"]`)?.classList.remove(HL_CLASS);
+    };
   }, [anchor]);
 
   const finish = (): void => {

@@ -1,8 +1,12 @@
 /**
  * The Workbench tour - the first drop-in over the tutorial framework, and the proof of the pattern:
  * a folder with an index that default-exports a Tour, discovered by the same loader apps and setup
- * steps use. Pure data. Each step points at a `data-tour` anchor in the editor; the layout and mode
- * steps offer the real preferences inline (writing editor.layout / editor.mode through ctx.prefs).
+ * steps use. Pure data.
+ *
+ * It DRIVES the user, not just talks: the second step opens one of their characters (and forces Grid)
+ * so the editor populates, then the following steps highlight the real controls. Picking a layout or
+ * mode means clicking the actual highlighted toggle, so the editor responds live - a real preview
+ * beats a mockup. Anchors: portrait, layout, mode, lens, save.
  */
 import type { Tour } from "../tour-contract";
 
@@ -12,33 +16,25 @@ const workbenchTour: Tour = {
     {
       id: "welcome",
       title: "This is the Workbench",
-      body: "Where you build and edit a character. Everything about them lives on this one page.",
+      body: "Where you build and edit a character. Everything about them lives on this one page. Let me open one of yours so you can see it.",
+    },
+    {
+      id: "open",
+      act: { setPref: { key: "editor.mode", value: "grid" }, open: "piece" },
+      title: "Here's the editor",
+      body: "I opened one of your characters. This is where every detail lives, laid out as cards you can fill in.",
     },
     {
       id: "layout",
       anchor: "layout",
       title: "Pick your layout",
-      body: "Bento packs every field into cards you see at once. Playbill turns it into acts you page through. Change it whenever.",
-      choice: {
-        prefKey: "editor.layout",
-        options: [
-          { value: "bento", label: "Bento", sub: "All fields, at once" },
-          { value: "playbill", label: "Playbill", sub: "Acts you page through" },
-        ],
-      },
+      body: "Click Bento or Playbill up here (highlighted) and watch the fields rearrange. Bento shows them all at once; Playbill turns them into acts you page through.",
     },
     {
       id: "mode",
       anchor: "mode",
       title: "Fill it in your way",
-      body: "Grid shows every field to edit directly. Steps walks you through like a quiz. This choice sticks, so you are not dropped back into the quiz next time.",
-      choice: {
-        prefKey: "editor.mode",
-        options: [
-          { value: "grid", label: "Grid", sub: "Everything visible" },
-          { value: "interview", label: "Steps", sub: "Guided, quiz-like" },
-        ],
-      },
+      body: "Grid shows every field to edit directly. Steps walks you through like a quiz. Give the toggle a click to feel the difference, your choice sticks.",
     },
     {
       id: "portrait",
@@ -61,7 +57,7 @@ const workbenchTour: Tour = {
     {
       id: "done",
       title: "That is the whole tour",
-      body: "Poke around, nothing here can break. Need it again? The ? up top replays this any time.",
+      body: "Poke around, nothing here can break. Need it again? The ? in the corner replays this any time.",
     },
   ],
 };
