@@ -1,0 +1,84 @@
+/**
+ * NativeCard styles - a bento-family card (matches the editor's .card) holding a platform's native
+ * controls. Tokens only.
+ */
+.card {
+  background: var(--stage-panel, var(--panel));
+  border: 3px solid var(--stage-black, var(--edge));
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.head {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft, var(--text-soft));
+}
+.help {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-mute, var(--muted));
+  margin-bottom: 0.1rem;
+}
+.note {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ta {
+  width: 100%;
+  min-height: 3rem;
+  resize: vertical;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.55rem;
+}
+.noterow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.num {
+  width: 4rem;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.4rem;
+  text-align: center;
+}
+.sel {
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.4rem;
+}

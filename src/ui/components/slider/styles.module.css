@@ -1,0 +1,42 @@
+/**
+ * Slider styles - transcribed from the editor's .numrange so the standalone primitive looks identical
+ * to the canonical number-range control. Tokens only; the thumb is the house ink square.
+ */
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--seam);
+  cursor: ew-resize;
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  cursor: ew-resize;
+}
+.range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  border: none;
+  background: var(--ink);
+  cursor: ew-resize;
+}
+.readout {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-soft, var(--muted));
+  min-width: 2.6rem;
+  text-align: right;
+}

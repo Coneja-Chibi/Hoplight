@@ -35,6 +35,8 @@ import {
 import { FIELD_MODULES, type FieldModule, type SubField } from "./fields";
 import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
+import { NativeCard } from "../../components/native-card";
+import { nativeSchemaFor } from "./native-fields";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -134,6 +136,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   });
   const [baseline, setBaseline] = useState(init.baseline);
   const [draft, setDraft] = useState(init.baseline);
+  // the entity's kept-whole original (the platform natives) edits separately from the canonical body,
+  // then merges back at save. Native fields (per platform) bind here through readPath/writePath.
+  const [originalDraft, setOriginalDraft] = useState(() => structuredClone(rec(init.ent.original ?? {})));
+  const [nativeBaseline, setNativeBaseline] = useState(() => structuredClone(rec(init.ent.original ?? {})));
   const [order] = useState(init.order);
   const orderBaselineRef = useRef(init.order);
   const [saving, setSaving] = useState(false);
@@ -240,8 +246,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   }, []);
 
   const orderDirty = JSON.stringify(order) !== JSON.stringify(orderBaselineRef.current);
-  const dirty = orderDirty || !deepEq(draft, baseline);
+  const dirty = orderDirty || !deepEq(draft, baseline) || !deepEq(originalDraft, nativeBaseline);
   const setField = (path: string, value: unknown): void => setDraft((d) => writePath(d, path, value));
+  const setNative = (path: string, value: unknown): void => setOriginalDraft((d) => writePath(d, path, value));
   const text = (path: string): string => str(readPath(draft, path));
 
   const platformLabel = useCallback(
@@ -276,9 +283,10 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       if (init.hadOrder || JSON.stringify(order) !== JSON.stringify(KNOWN_FIELD_ORDER)) {
         newBody = writePath(newBody, "presentation.fieldOrder", [...order]);
       }
-      await ctx.api.saveEntity({ ...init.ent, body: newBody });
+      await ctx.api.saveEntity({ ...init.ent, body: newBody, original: originalDraft });
       setBaseline(structuredClone(newBody));
       setDraft(newBody);
+      setNativeBaseline(structuredClone(originalDraft));
       orderBaselineRef.current = [...order];
       ctx.setStatus(`${name} saved`);
     } catch (e) {
@@ -286,7 +294,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     } finally {
       setSaving(false);
     }
-  }, [ctx, dirty, draft, init.ent, init.hadOrder, order, saving]);
+  }, [ctx, dirty, draft, originalDraft, init.ent, init.hadOrder, order, saving]);
 
   // the shell tab wears THE dirty dot (row-3's "saved locally" pill is dead - one indicator, one
   // home). ctx stays OUT of these deps: it is a stable adapter whose identity churns on every
@@ -1273,6 +1281,18 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       </BentoCard>
     );
 
+  // one native card per platform present in the original that has a declared schema (the editable
+  // "everything else"): binds each field to the originalDraft through readPath/setNative
+  const nativeCards = Object.keys(rec(originalDraft))
+    .filter((k) => k !== "vaud-studio" && k !== "vaud-json")
+    .map((k) => {
+      const schema = nativeSchemaFor(k);
+      return schema ? (
+        <NativeCard key={k} schema={schema} read={(p) => readPath(originalDraft, p)} write={setNative} />
+      ) : null;
+    })
+    .filter(Boolean);
+
   const bentoView = (
     <div className={styles.bento}>
       <div className={`${styles.bcol} ${styles.bcolLeft}`}>
@@ -1309,6 +1329,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         {bcard("Settings", ["talkativeness", "risuSettings"])}
         {bcard("Bias", ["bias"])}
         {bcard("Attribution", ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"])}
+        {nativeCards}
       </div>
     </div>
   );

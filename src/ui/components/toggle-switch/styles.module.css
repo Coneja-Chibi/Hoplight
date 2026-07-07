@@ -1,0 +1,44 @@
+/**
+ * ToggleSwitch styles - the house pill: a bordered track, an ink knob that slides to the rose side
+ * when on. Tokens only.
+ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-soft, var(--muted));
+}
+.track {
+  width: 2.1rem;
+  height: 1.1rem;
+  flex: none;
+  position: relative;
+  background: var(--seam);
+  border: 2px solid var(--edge);
+}
+.on .track {
+  background: var(--rose);
+}
+.knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0.9rem;
+  height: 0.9rem;
+  background: var(--panel);
+  border-right: 2px solid var(--edge);
+}
+.on .knob {
+  left: auto;
+  right: 0;
+  border-right: none;
+  border-left: 2px solid var(--edge);
+}

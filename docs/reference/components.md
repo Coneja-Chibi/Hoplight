@@ -22,15 +22,18 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
+| NativeCard | src/ui/components/native-card/index.tsx | ({ schema, read, write }: NativeCardProps) |  | .card .head .field .label .help .note .ta .noterow ... |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .on .hint .offt |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .room .tabs .tab .on .body .row .tx .label ... |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .room .tabs .tab .on .body .row .tx .label ... |
+| Slider | src/ui/components/slider/index.tsx | ({ value, min, max, step = 1, onChange, format, "aria-label": ariaLabel, }: SliderProps) |  | .wrap .range .readout |
 | Stamp | src/ui/components/stamp/index.tsx | ({ children, onClick, disabled, accent, title, type = "button", id, "aria-label": ariaLabel, }: StampProps) | The stamp button: rest sits flush, hover lifts and grows its shadow, active presses flat. | .topbtn |
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
+| ToggleSwitch | src/ui/components/toggle-switch/index.tsx | ({ on, onChange, label }: ToggleSwitchProps) |  | .btn .track .on .knob |
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
