@@ -1356,6 +1356,11 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+.colorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
 .kvrow {
   display: grid;
   grid-template-columns: minmax(0, 6rem) minmax(0, 1fr) auto;

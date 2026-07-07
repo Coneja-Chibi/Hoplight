@@ -31,6 +31,7 @@ export type FieldKind =
   // P2 primitives (each is one controlFor case, stamped across dozens of fields):
   | "select" // one-of an open/closed string union, pickable cards
   | "number" // a number (optionally a 0..1 range) with min/max/step
+  | "color" // a single hex swatch (accentColor, signatureColor)
   | "keyvalue" // Record<string, string> rows (locale->text, attribute maps)
   | "list-subeditor" // a repeating list of small objects (bias, depthInjections)
   | "structured-subeditor"; // one fixed nested object (voice, sprite, settings.risu)
@@ -77,8 +78,8 @@ export interface FieldModule {
   options?: ReadonlyArray<{ value: string; label: string }>;
   /** `number`: bounds; `range: true` renders a slider instead of a stepper input */
   number?: { min?: number; max?: number; step?: number; unit?: string; range?: boolean };
-  /** `keyvalue`: the row captions */
-  keyValue?: { keyLabel: string; valueLabel: string; keyPlaceholder?: string };
+  /** `keyvalue`: the row captions; `valueList` stores each value as a comma-split string[] (W++ maps) */
+  keyValue?: { keyLabel: string; valueLabel: string; keyPlaceholder?: string; valueList?: boolean };
   /** `list-subeditor` (the row's object shape) and `structured-subeditor` (the object's shape) */
   subFields?: readonly SubField[];
   /** `list-subeditor`: the add-row button caption */
@@ -217,6 +218,10 @@ export const FIELD_MODULES: FieldModule[] = [
       { key: "phrase", kind: "text", label: "Phrase", placeholder: "a phrase" },
       { key: "weight", kind: "number", label: "Weight", number: { step: 1 } },
     ] },
+  { id: "accentColor", path: "presentation.accentColor", kind: "color", step: "finalize",
+    question: "An accent color?", helper: "Their card's highlight color. Optional.", sheetLabel: "Accent color" },
+  { id: "signatureColor", path: "presentation.signatureColor", kind: "color", step: "finalize",
+    question: "A signature color?", helper: "Their theme color on platforms that support it. Optional.", sheetLabel: "Signature color" },
   { id: "mediaLinks", path: "presentation.mediaLinks", kind: "list", step: "finalize",
     question: "Any media links?", helper: "Links shown on their card (art, refs, socials). Add each, press enter. Optional.", sheetLabel: "Media links" },
   { id: "risuSettings", path: "settings.risu", kind: "structured-subeditor", step: "finalize",
@@ -228,6 +233,32 @@ export const FIELD_MODULES: FieldModule[] = [
       { key: "inlayViewScreen", kind: "toggle", label: "Inlay view screen" },
       { key: "utilityBot", kind: "toggle", label: "Utility bot" },
       { key: "lorePlus", kind: "toggle", label: "Lore+" },
+    ] },
+  { id: "structuredKind", path: "persona.structured.kind", kind: "select", step: "finalize",
+    question: "A structured persona format?", helper: "How the persona map is written, on platforms that use one. Optional.", sheetLabel: "Persona format",
+    options: [
+      { value: "text", label: "Plain text" }, { value: "attributes", label: "Attributes" },
+      { value: "wpp", label: "W++" }, { value: "sbf", label: "SBF" }, { value: "boostyle", label: "Boostyle" },
+    ] },
+  { id: "structuredAttributes", path: "persona.structured.attributes", kind: "keyvalue", step: "finalize",
+    question: "Persona attributes?", helper: "Named traits with comma-separated values (W++/attribute maps). Optional.", sheetLabel: "Attributes",
+    keyValue: { keyLabel: "Trait", valueLabel: "values, comma separated", valueList: true } },
+  { id: "imagePrompt", path: "persona.imagePrompt", kind: "structured-subeditor", step: "finalize",
+    question: "Image-generation prompts?", helper: "Affixes and instructions for image gen, where supported. Optional.", sheetLabel: "Image prompt",
+    subFields: [
+      { key: "prompt", kind: "prose", label: "Prompt" },
+      { key: "prefix", kind: "text", label: "Prefix" },
+      { key: "suffix", kind: "text", label: "Suffix" },
+      { key: "negative", kind: "prose", label: "Negative" },
+      { key: "template", kind: "text", label: "Template" },
+      { key: "instructions", kind: "prose", label: "Instructions" },
+      { key: "emotionInstructions", kind: "prose", label: "Emotion instructions" },
+    ] },
+  { id: "imagePromptRows", path: "persona.imagePrompt.rows", kind: "list-subeditor", step: "finalize", addLabel: "+ add a row",
+    question: "Image prompt label/value rows?", helper: "Extra structured affixes as label + value. Optional.", sheetLabel: "Image prompt rows",
+    subFields: [
+      { key: "label", kind: "text", label: "Label" },
+      { key: "value", kind: "text", label: "Value" },
     ] },
   { id: "voice", path: "persona.voice", kind: "structured-subeditor", step: "finalize",
     question: "A voice for them?", helper: "Text-to-speech settings, where a platform supports it. Optional.", sheetLabel: "Voice",

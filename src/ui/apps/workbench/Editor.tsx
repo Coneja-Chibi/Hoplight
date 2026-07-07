@@ -787,6 +787,19 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           </div>
         );
       }
+      case "color": {
+        const cur = str(readPath(draft, m.path));
+        return (
+          <div className={styles.colorRow}>
+            <ColorPicker value={normalizeHex(cur) ?? cur} onChange={(hex) => setField(m.path, hex)} />
+            {cur !== "" && (
+              <button type="button" className={styles.rm} onClick={() => setField(m.path, "")}>
+                clear
+              </button>
+            )}
+          </div>
+        );
+      }
       case "number": {
         const raw = readPath(draft, m.path);
         const n = typeof raw === "number" ? raw : undefined;
@@ -821,6 +834,9 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       case "keyvalue": {
         const entries = Object.entries(rec(readPath(draft, m.path)));
         const kv = m.keyValue ?? { keyLabel: "Key", valueLabel: "Value" };
+        const isList = kv.valueList === true;
+        const showVal = (v: unknown): string => (isList ? strArr(v).join(", ") : str(v));
+        const parseVal = (s: string): unknown => (isList ? s.split(",").map((x) => x.trim()).filter(Boolean) : s);
         const write = (next: [string, unknown][]): void => setField(m.path, Object.fromEntries(next));
         return (
           <div className={styles.kv}>
@@ -835,8 +851,8 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
                 <input
                   className={styles.in}
                   placeholder={kv.valueLabel}
-                  value={str(v)}
-                  onChange={(e) => write(entries.map((en, j) => (j === i ? [en[0], e.target.value] : en)))}
+                  value={showVal(v)}
+                  onChange={(e) => write(entries.map((en, j) => (j === i ? [en[0], parseVal(e.target.value)] : en)))}
                 />
                 <button type="button" className={styles.rm} onClick={() => write(entries.filter((_, j) => j !== i))}>
                   remove
