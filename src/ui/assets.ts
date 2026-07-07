@@ -17,6 +17,8 @@ export interface PackagedAssets {
   manifests: unknown[];
   /** setup step id -> browser bundle (same drop-in mechanism as apps) */
   setupSteps: Record<string, string>;
+  /** app id -> its tour bundle (same drop-in mechanism; optional - not every app ships a tour) */
+  tours?: Record<string, string>;
   /** shared platform bundles (react, jsx-runtime, react-dom-client) served at /vendor/<name>.js;
    * every other bundle marks these external and resolves them through the page's import map so
    * exactly ONE React instance exists (two copies = null-dispatcher hook crashes) */

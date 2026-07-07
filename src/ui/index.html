@@ -130,6 +130,13 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
   background-image:radial-gradient(var(--tooth) 22%,transparent 24%);background-size:7px 7px}
 #canvas>*{flex:1}
 
+/* the tour replay affordance: a small ? pinned to the corner when the active app has a tour */
+.tourHelp{position:fixed;right:1.1rem;bottom:1.1rem;z-index:55;width:2rem;height:2rem;
+  font-family:"Archivo",sans-serif;font-weight:900;font-size:1rem;line-height:1;
+  background:var(--panel);color:var(--rose);border:3px solid var(--rose);box-shadow:3px 3px 0 0 var(--edge);
+  cursor:pointer;display:flex;align-items:center;justify-content:center}
+.tourHelp:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--edge)}
+
 /* ───────── STATUS BAR ───────── */
 #status{grid-column:1/3;grid-row:3;background:var(--status-bg);color:var(--status-fg);
   border-top:3px solid var(--edge);

@@ -31,6 +31,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
+| TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

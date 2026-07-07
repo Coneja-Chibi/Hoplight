@@ -1,0 +1,186 @@
+/**
+ * TourGuide styles - a floating docked rail (fixed, right edge) so the engine needs no shell layout
+ * surgery, plus the global highlight the anchored piece wears. Tokens only; the rose border and
+ * offset shadow give the rail presence over the dark stage without a blocking scrim.
+ */
+.rail {
+  position: fixed;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19rem;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--panel);
+  border: 3px solid var(--rose);
+  box-shadow: 6px 6px 0 0 var(--edge);
+  padding: 1rem 1.1rem;
+  font-family: var(--font-body);
+}
+.kick {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.skip {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.skip:hover {
+  color: var(--text);
+}
+.dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 0.3rem;
+}
+.dots i {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  display: block;
+}
+.dots i.done {
+  background: var(--edge);
+}
+.dots i.now {
+  background: var(--rose);
+  border-color: var(--rose);
+}
+.count {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.title {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.3rem;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin: 0.1rem 0 0.2rem;
+}
+.body {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text-soft, var(--soft));
+  margin: 0;
+}
+.choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+.pick {
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  background: var(--face, var(--panel));
+  border: 3px solid var(--edge);
+  box-shadow: 3px 3px 0 0 var(--edge);
+  padding: 0.45rem 0.6rem;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+}
+.pick:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 0 var(--edge);
+}
+.pickOn {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--rose);
+  border-color: var(--rose);
+}
+.pick b {
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+  display: block;
+}
+.pick span {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.ctl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  border-top: 2px solid var(--line, var(--seam));
+  padding-top: 0.7rem;
+  margin-top: 0.3rem;
+}
+.back {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.back:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.next {
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  color: var(--stage-white);
+  background: var(--rose);
+  border: 3px solid var(--edge);
+  box-shadow: 4px 4px 0 0 var(--edge);
+  padding: 0.45rem 0.95rem;
+  cursor: pointer;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+.next:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 0 var(--edge);
+}
+.next:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 0 var(--edge);
+}
+
+/* the highlight the anchored piece wears while its step is active (global: the target lives in
+   another component's module scope, so the class is un-hashed and matched globally) */
+:global(.tourHl) {
+  outline: 3px solid var(--rose);
+  outline-offset: 3px;
+  border-radius: 2px;
+  scroll-margin: 6rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pick,
+  .next {
+    transition: none;
+  }
+}

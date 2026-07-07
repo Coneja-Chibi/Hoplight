@@ -22,6 +22,10 @@ const { url, stop } = startUi(PORT, studioDir); // no packaged assets -> live so
 console.log(`Vaude (dev) is up at ${url} - live source, no rebuild needed`);
 
 const windowWorker = new Worker(new URL("./desktop-window.ts", import.meta.url));
+windowWorker.addEventListener("error", (e) => {
+  // a silent worker crash is why "nothing pops up": surface it instead of dying quietly
+  console.error("desktop-dev: window worker error:", (e as ErrorEvent).message ?? e);
+});
 windowWorker.postMessage({ url });
 windowWorker.onmessage = () => {
   stop();

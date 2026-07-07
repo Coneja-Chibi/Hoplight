@@ -24,6 +24,9 @@ import { StatusBar } from "./StatusBar";
 import { FollowDialog } from "./FollowDialog";
 import { Menu } from "./Menu";
 import { LeavingGate } from "../components/leaving-gate";
+import { TourGuide } from "../components/tour-guide";
+import type { Tour } from "../tours/tour-contract";
+import { hasSeenTour, isRunnable, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
 
 type Phase = "loading" | "setup" | "ready";
@@ -33,6 +36,10 @@ export function App(): JSX.Element | null {
   const modulesRef = useRef(new Map<string, VaudeApp>());
   const [ActiveComponent, setActiveComponent] = useState<VaudeApp["Component"] | null>(null);
   const activeAppId = useShellStore((s) => s.activeAppId);
+  // the active app's tour (folders-as-schema, loaded like an app module); null = this app has none
+  const toursRef = useRef(new Map<string, Tour | null>());
+  const [tour, setTour] = useState<Tour | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
 
   // -- boot: settings first (gates the wizard), then the app roster + landing app -------------------
   async function bootStudio(freshFromSetup: boolean): Promise<void> {
@@ -88,6 +95,35 @@ export function App(): JSX.Element | null {
       const mod = (await import(`/apps/${activeAppId}.js`)) as { default: VaudeApp };
       modulesRef.current.set(activeAppId, mod.default);
       if (!cancelled) setActiveComponent(() => mod.default.Component);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [activeAppId]);
+
+  // -- load the active app's tour (if any) and auto-launch it once, on first visit ------------------
+  useEffect(() => {
+    if (!activeAppId) {
+      setTour(null);
+      setTourOpen(false);
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      let t = toursRef.current.get(activeAppId);
+      if (t === undefined) {
+        try {
+          const mod = (await import(`/tours/${activeAppId}.js`)) as { default: Tour };
+          t = isRunnable(mod.default) ? mod.default : null;
+        } catch {
+          t = null; // no tour for this app (a 404) - the common case, not an error
+        }
+        toursRef.current.set(activeAppId, t);
+      }
+      if (cancelled) return;
+      setTour(t);
+      const seen = hasSeenTour(useShellStore.getState().settings[tourSeenKey(activeAppId)]);
+      setTourOpen(!!t && !seen); // first visit with an unseen tour opens it; otherwise it waits on ?
     })();
     return () => {
       cancelled = true;
@@ -202,6 +238,18 @@ export function App(): JSX.Element | null {
       <FollowDialog />
       <Menu />
       <LeavingGate />
+      {tour && isRunnable(tour) && !tourOpen && (
+        <button
+          className="tourHelp"
+          type="button"
+          onClick={() => setTourOpen(true)}
+          aria-label="Replay the tour"
+          title="Replay the tour"
+        >
+          ?
+        </button>
+      )}
+      {tour && tourOpen && <TourGuide tour={tour} ctx={ctx} onClose={() => setTourOpen(false)} />}
     </div>
   );
 }

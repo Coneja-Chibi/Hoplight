@@ -349,7 +349,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   })();
 
   const leftCard = (
-    <section className={styles.lcard}>
+    <section className={styles.lcard} data-tour="portrait">
       <div className={styles.portrait}>
         {artUrl ? <img src={artUrl} alt="" /> : <b>{(text("identity.name") || piece.name).charAt(0).toUpperCase()}</b>}
       </div>
@@ -1396,7 +1396,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   return (
     <div className={styles.root} style={rootStyle}>
       {/* row 1: platform lens tabs + off-target + completion chips (vs-editor-2 tabstrip) */}
-      <div className={styles.tabstrip}>
+      <div className={styles.tabstrip} data-tour="lens">
         <PlatformTabs
           platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
           selected={targets}
@@ -1442,7 +1442,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
             </button>
           </span>
           {mode === "grid" && (
-            <span className={styles.seg}>
+            <span className={styles.seg} data-tour="layout">
               <button type="button" className={editorLayout === "bento" ? styles.on : undefined} onClick={() => setEditorLayout("bento")}>
                 Bento
               </button>
@@ -1451,7 +1451,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               </button>
             </span>
           )}
-          <span className={styles.seg}>
+          <span className={styles.seg} data-tour="mode">
             <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
               Grid
             </button>
@@ -1459,7 +1459,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               Steps
             </button>
           </span>
-          <button type="button" className={styles.save} disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
+          <button type="button" className={styles.save} data-tour="save" disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
             {saving ? "Saving…" : dirty ? "Save" : "● Saved locally"}
           </button>
           {topRight}

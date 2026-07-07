@@ -72,6 +72,9 @@ async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
 
 const discoverApps = (): Promise<DiscoveredModule[]> => discoverModules("./apps/");
 const discoverSetupSteps = (): Promise<DiscoveredModule[]> => discoverModules("./setup/steps/");
+// tours ride the SAME drop-in mechanism: src/ui/tours/<appId>/index.tsx (the shared _-prefixed infra
+// files - tour-contract, tour-core - are not <id>/index folders, so the glob never sees them)
+const discoverTours = (): Promise<DiscoveredModule[]> => discoverModules("./tours/");
 
 /** The react family stays OUT of every app/boot bundle; the page's import map resolves these to
  * the single /vendor copies (one React per page - two copies crash hooks with a null dispatcher). */
@@ -332,6 +335,19 @@ export function createHandler(
       const step = (await discoverSetupSteps()).find((s) => s.id === id);
       if (!step) return err("no such step", 404);
       return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript" } });
+    }
+
+    // tours: one per app, same drop-in mechanism. A 404 is normal (an app with no tour), so the
+    // shell treats it as "no tour" rather than an error.
+    if (p.startsWith("/tours/") && p.endsWith(".js")) {
+      const id = p.slice("/tours/".length, -".js".length);
+      if (packaged) {
+        const code = packaged.tours?.[id];
+        return code !== undefined ? text(code, "text/javascript") : err("no such tour", 404);
+      }
+      const tour = (await discoverTours()).find((t) => t.id === id);
+      if (!tour) return err("no such tour", 404);
+      return new Response(await bundleModule(tour), { headers: { "content-type": "text/javascript" } });
     }
 
     // dev live-reload stream (404 in the packaged exe; the client goes quiet on error)
