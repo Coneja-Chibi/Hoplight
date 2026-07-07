@@ -340,6 +340,32 @@ export interface CharacterBody {
   behavior?: CharacterBehavior;
   /** linked canonical regex/script entity id(s) - for STANDALONE behavior files (ST/Lumiverse regex) */
   behaviorRefs?: string[];
+  /** alternate versions of this character (copied from RoleCall's variant mechanic): each OVERRIDES a
+   * subset of fields; the editor shows the base with the active one merged in. See ./variant.ts. */
+  variants?: CharacterVariant[];
+}
+
+/**
+ * A character variant - an alternate version that overrides a subset of the base's authored fields.
+ * Copied from RoleCall (apps/rc src/lib/scene/variant-merge.ts). Every override is optional; only set
+ * fields diverge from base. `mirrorBase` (default true) overlays non-empty fields onto the base; false
+ * fully overrides. Portrait/art overrides are deferred to the media milestone.
+ */
+export interface CharacterVariant {
+  id: string;
+  label?: string;
+  /** default true = overlay non-empty fields onto base; false = full override */
+  mirrorBase?: boolean;
+  name?: string;
+  tagline?: string;
+  description?: string;
+  personality?: string;
+  scenario?: string;
+  firstMessage?: string;
+  alternateGreetings?: Greeting[];
+  exampleMessages?: string;
+  systemPrompt?: string;
+  signatureColor?: string;
 }
 
 export type CanonicalCharacter = CanonicalEntity<"character", CharacterBody>;
