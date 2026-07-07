@@ -38,6 +38,8 @@ import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { StubEditor, type Stub } from "../../components/native-card";
 import { nativeItemsFor, nativeBentoParts, nativePlaybillSection, nativePlaybillNav } from "./native-render";
+import { useVariants } from "./use-variants";
+import { VariantStrip } from "../../components/variant-strip";
 import styles from "./Editor.module.css";
 
 const PREF_TARGETS = "editor.targets";
@@ -136,7 +138,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     };
   });
   const [baseline, setBaseline] = useState(init.baseline);
-  const [draft, setDraft] = useState(init.baseline);
+  const [baseDraft, setBaseDraft] = useState(init.baseline);
+  // portrait-strip variants: `draft` DISPLAYS the base with the active variant merged in, and `setField`
+  // writes either the base or the active variant's overrides. Save + dirty stay on baseDraft. (use-variants)
+  const vary = useVariants(baseDraft, setBaseDraft);
+  const draft = vary.draft;
+  const setField = vary.setField;
   // the entity's kept-whole original (the platform natives) edits separately from the canonical body,
   // then merges back at save. Native fields (per platform) bind here through readPath/writePath.
   // tolerate the pre-rename key so cards saved before the migration still surface their native data
@@ -249,8 +256,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   }, []);
 
   const orderDirty = JSON.stringify(order) !== JSON.stringify(orderBaselineRef.current);
-  const dirty = orderDirty || !deepEq(draft, baseline) || !deepEq(originalDraft, nativeBaseline);
-  const setField = (path: string, value: unknown): void => setDraft((d) => writePath(d, path, value));
+  const dirty = orderDirty || !deepEq(baseDraft, baseline) || !deepEq(originalDraft, nativeBaseline);
   const setNative = (path: string, value: unknown): void => setOriginalDraft((d) => writePath(d, path, value));
   // one stub-modal state for the whole editor: a native link-out (lorebook/regex) opens it, both layouts share it
   const [nativeStub, setNativeStub] = useState<Stub | null>(null);
@@ -277,20 +283,20 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
 
   const doSave = useCallback(async (): Promise<void> => {
     if (saving || !dirty) return;
-    const name = str(readPath(draft, "identity.name")).trim();
+    const name = str(readPath(baseDraft, "identity.name")).trim();
     if (!name) {
       ctx.setStatus("a name is required before saving");
       return;
     }
     setSaving(true);
     try {
-      let newBody = draft;
+      let newBody = baseDraft;
       if (init.hadOrder || JSON.stringify(order) !== JSON.stringify(KNOWN_FIELD_ORDER)) {
         newBody = writePath(newBody, "presentation.fieldOrder", [...order]);
       }
       await ctx.api.saveEntity({ ...init.ent, body: newBody, original: originalDraft });
       setBaseline(structuredClone(newBody));
-      setDraft(newBody);
+      setBaseDraft(newBody);
       setNativeBaseline(structuredClone(originalDraft));
       orderBaselineRef.current = [...order];
       ctx.setStatus(`${name} saved`);
@@ -299,7 +305,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     } finally {
       setSaving(false);
     }
-  }, [ctx, dirty, draft, originalDraft, init.ent, init.hadOrder, order, saving]);
+  }, [ctx, dirty, baseDraft, originalDraft, init.ent, init.hadOrder, order, saving]);
 
   // the shell tab wears THE dirty dot (row-3's "saved locally" pill is dead - one indicator, one
   // home). ctx stays OUT of these deps: it is a stable adapter whose identity churns on every
@@ -352,15 +358,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const artUrl = piece.hasPortrait
     ? `/api/studio/portrait?kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`
     : null;
-  const assets = ((): { label: string }[] => {
-    const raw = readPath(draft, "media.assets");
-    if (!Array.isArray(raw)) return [];
-    return raw
-      .map((a) => rec(a))
-      .filter((a) => a.role !== "portrait")
-      .slice(0, 2)
-      .map((a) => ({ label: str(a.label) || str(a.name) || "asset" }));
-  })();
   const updatedAt = ((): string | null => {
     const t = readPath(draft, "attribution.updatedAt");
     return typeof t === "number" && Number.isFinite(t) ? new Date(t * 1000).toLocaleDateString() : null;
@@ -371,19 +368,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       <div className={styles.portrait}>
         {artUrl ? <img src={artUrl} alt="" /> : <b>{(text("identity.name") || piece.name).charAt(0).toUpperCase()}</b>}
       </div>
-      <div className={styles.variants}>
-        <span className={`${styles.varThumb} ${styles.varOn}`} style={artUrl ? { backgroundImage: `url("${artUrl}")` } : undefined}>
-          <i>Base</i>
-        </span>
-        {assets.map((a, i) => (
-          <span className={styles.varThumb} key={i}>
-            <i>{a.label}</i>
-          </span>
-        ))}
-        <button type="button" className={styles.varAdd} disabled title="Alternate art variants land with the media milestone">
-          +
-        </button>
-      </div>
+      <VariantStrip
+        variants={vary.variants}
+        activeId={vary.activeId}
+        artUrl={artUrl}
+        onSelect={vary.select}
+        onAdd={vary.add}
+        onRemove={vary.remove}
+        onRename={vary.rename}
+        onMode={vary.setMode}
+      />
       <div className={styles.lmeta}>
         <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
         <div className={styles.lsub}>

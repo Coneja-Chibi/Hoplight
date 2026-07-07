@@ -1,0 +1,91 @@
+/**
+ * VariantStrip styles - a row of small square tiles (Base + variants + add) and a compact edit row.
+ * Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.thumb {
+  position: relative;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background-color: var(--stage-well, var(--panel));
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+.thumb i {
+  position: absolute;
+  inset: auto 0 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0.1rem 0.15rem;
+  background: var(--stage-black, var(--panel));
+  color: var(--stage-soft, var(--text-soft));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.thumb.on {
+  border-color: var(--a, var(--rose));
+}
+.add {
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.editRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.name {
+  flex: 1;
+  min-width: 0;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.25rem 0.4rem;
+}
+.mode {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+}
+.rm {
+  background: transparent;
+  border: none;
+  color: var(--stage-mute, var(--muted));
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.rm:hover {
+  color: var(--rose);
+}
