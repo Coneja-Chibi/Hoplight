@@ -58,6 +58,10 @@
   --stage-text-dim: #a6a1b4; /* readability-floor text on stage chrome */
   --stage-card: #f4f1ee;    /* bright name/title text on stage chrome */
   --stage-kicker: #6a6576;  /* small uppercase kicker text on stage chrome */
+  /* workshop console semantics on the dark stage: a rule fired, a macro token, a variable name */
+  --stage-ok: #5ad07a;      /* success / a trigger fired */
+  --stage-macro: #b78bff;   /* a {{macro}} token, sealed-code marker */
+  --stage-var: #6ea8ff;     /* a variable name in the rule builder */
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

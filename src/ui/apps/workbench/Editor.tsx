@@ -41,6 +41,8 @@ import { parseScale, rec, str, strArr, tokenEstimate } from "./editor-derive";
 import { PlaybillView } from "./presenters/playbill-view";
 import { BentoView } from "./presenters/bento-view";
 import { FlowView } from "./presenters/flow-view";
+import { WorkshopView } from "./presenters/workshop-view";
+import { EditorModeBar } from "./presenters/editor-modebar";
 import { GradientControl, PaletteControl } from "./controls/color-controls";
 import { makeControlFor } from "./controls/field-control";
 import styles from "./Editor.module.css";
@@ -103,6 +105,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     ctx.prefs.set(PREF_EDITOR_MODE, m);
   };
   const [flowIndex, setFlowIndex] = useState(0); // how many questions the guided flow has revealed
+  const [workshop, setWorkshop] = useState(false); // the behavior/scripts workspace, beside the field editor
   const activeCardRef = useRef<HTMLDivElement>(null);
 
   // drag-resizable split between the question card and the stage (the user sets the balance)
@@ -504,6 +507,11 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     />
   );
 
+  // the behavior/scripts workspace, offered beside the fields only for cards that carry behavior (Risu
+  // selected, or the card already has scripts). Its console runs the data-format triggers for real.
+  const hasBehavior = targets.includes("risu") || Object.keys(rec(readPath(draft, "behavior"))).length > 0;
+  const workshopView = <WorkshopView draft={draft} setField={setField} />;
+
   // the editor-wide scale uses zoom (not transform) so the editor REFLOWS as it shrinks - the bento
   // grid is column-WIDTH based, so smaller = more, narrower bento columns that fill the freed space
   // (like browser zoom), never a shrink-into-the-corner with an empty void. --a rides along.
@@ -564,28 +572,18 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
               &#43;
             </button>
           </span>
-          {/* layout + mode are preferences: shown here only through onboarding (so the tour can teach
-              them), then they retire to Settings > Workbench once the tour is done */}
-          {!onboarded && mode === "grid" && (
-            <span className={styles.seg} data-tour="layout">
-              <button type="button" className={editorLayout === "bento" ? styles.on : undefined} onClick={() => setEditorLayout("bento")}>
-                Bento
-              </button>
-              <button type="button" className={editorLayout === "playbill" ? styles.on : undefined} onClick={() => setEditorLayout("playbill")}>
-                Playbill
-              </button>
-            </span>
-          )}
-          {!onboarded && (
-            <span className={styles.seg} data-tour="mode">
-              <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
-                Grid
-              </button>
-              <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
-                Steps
-              </button>
-            </span>
-          )}
+          {/* layout + mode are onboarding-taught preferences; Fields | Workshop shows for behavior cards */}
+          <EditorModeBar
+            onboarded={onboarded}
+            mode={mode}
+            setMode={setMode}
+            editorLayout={editorLayout}
+            setEditorLayout={setEditorLayout}
+            hasBehavior={hasBehavior}
+            workshop={workshop}
+            setWorkshop={setWorkshop}
+            styles={styles}
+          />
           <button type="button" className={styles.save} data-tour="save" disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
             {saving ? "Saving…" : dirty ? "Save" : "● Saved locally"}
           </button>
@@ -593,7 +591,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
         </span>
       </div>
 
-      {mode === "grid" ? (editorLayout === "playbill" ? playbillView : bentoView) : flowView}
+      {workshop && hasBehavior ? workshopView : mode === "grid" ? (editorLayout === "playbill" ? playbillView : bentoView) : flowView}
     </div>
   );
 }

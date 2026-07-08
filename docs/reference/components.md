@@ -17,6 +17,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .stage .crumb .pip .cn .cc .pane .art ... |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
+| EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
@@ -51,6 +52,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 | TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
 | VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, onSelect, onAdd, onRemove, onRename, onMode }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
+| WorkshopView | src/ui/apps/workbench/presenters/workshop-view.tsx | ({ draft, setField }: WorkshopViewProps) |  |  |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

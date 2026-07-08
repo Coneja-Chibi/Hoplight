@@ -42,7 +42,9 @@ export function classifyCondition(row: unknown): ConditionView {
   const raw = asRec(row);
   const type = str(raw.type);
   const variable = str(raw.var);
-  if (type === "var" && variable !== "" && !hasMacro(variable)) {
+  // KNOWN = a plain variable comparison; the discriminator is macro-vs-plain, NOT filled-vs-empty (a blank
+  // var is an unfinished known row the editor must let you fill, not a foreign row shown read-only).
+  if (type === "var" && !hasMacro(variable)) {
     return { kind: "known", variable, operator: str(raw.operator), value: str(raw.value), raw };
   }
   return { kind: "advanced", raw };
