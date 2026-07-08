@@ -3,6 +3,12 @@
 Milestones are strictly ordered; a milestone is DONE when every exit criterion passes
 live on Chi's machine, not when its tickets close.
 
+> **Active workstream (spans M4-M5): Risu deep card editing + Workshop.** Making vaud the tool that
+> opens what Risu hides - edit a card's real source (triggers, variables, HTML, lorebook, module) and run
+> it safely in a sandbox. The sealed room, card runtime, Workshop mode, and code editor are built and
+> verified; the clean-room RPack decoder (modules are recoverable JSON, proven) is next. Full plan +
+> status: [RISU-WORKSHOP-PLAN.md](RISU-WORKSHOP-PLAN.md).
+
 ## M0 — Foundation
 
 Repo scaffold (Bun workspace, CI, lint, LICENSE + CLA bot), fixture corpus seeded
