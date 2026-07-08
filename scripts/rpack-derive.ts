@@ -24,7 +24,8 @@ const KEY_CRIBS = [
 const WORD_CRIBS = [
   "triggerlua", "function", "local", "return", "Constants", "Startup", "Runtime", "Assets", "Prompts",
   "Achievements", "Calendar", "Romance", "Campus", "Social", "Settings", "Reports", "Visibility", "Tables",
-  "description", "Module for", "start",
+  "description", "Module for", "start", "English", "University", "Korea", "Women", "Student", "Female",
+  "Name", "Male", "Board", "Feed", "Counsel", "Init", "then", "else", "elseif", "true", "false", "nil",
 ];
 
 const path = process.argv[2] ?? "";
@@ -160,6 +161,27 @@ for (let i = 0; i < main.length; i++) {
 const numericGlyphs = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2e, 0x2d, 0x65, 0x2b]; // 0-9 . - e +
 const outC = [...outsideFreq.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]);
 for (let d = 0; d < outC.length && d < numericGlyphs.length; d++) put(outC[d]!, numericGlyphs[d]!);
+
+// 3b. Lua-only symbols (never appear in JSON structure, so schema/structural cribs miss them). Cribbed
+// from ubiquitous Lua patterns inside the code string. Getting these exact is what makes the engine RUN.
+const spC = decode.indexOf(0x20);
+// `=` : the modal unmapped byte flanked by spaces (Lua ` = ` assignment is everywhere)
+put(modalWhere((i) => main[i - 1] === spC && main[i + 1] === spC && decode[main[i]!] === -1, (i) => main[i]!), 0x3d);
+// `(` : the modal unmapped byte that immediately FOLLOWS a letter (a call / definition `name(`)
+put(modalWhere((i) => decode[main[i - 1]!]! >= 0x61 && decode[main[i - 1]!]! <= 0x7a && decode[main[i]!] === -1, (i) => main[i]!), 0x28);
+// `)` : the modal unmapped byte that PRECEDES a known-comma/newline and follows content (call close)
+const cmC2 = decode.indexOf(0x2c);
+put(modalWhere((i) => (main[i + 1] === cmC2 || main[i + 1] === NL) && decode[main[i]!] === -1 && decode[main[i - 1]!] !== -1, (i) => main[i]!), 0x29);
+const isLower = (c: number): boolean => decode[c]! >= 0x61 && decode[c]! <= 0x7a;
+// `.` : field access `obj.field` - the modal unmapped byte between two letters
+put(modalWhere((i) => isLower(main[i - 1]!) && decode[main[i]!] === -1 && isLower(main[i + 1]!), (i) => main[i]!), 0x2e);
+// `-` : Lua comment `--` - the modal unmapped byte that appears doubled (with `.` now known, doubled
+// unknown is overwhelmingly the comment dash, not `..` concat)
+put(modalWhere((i) => main[i] === main[i + 1] && decode[main[i]!] === -1, (i) => main[i]!), 0x2d);
+// NOTE: the arithmetic/comparison operators (+ - * / < > << >> % ^ etc.) are all space-flanked and
+// frequency-ambiguous from a SINGLE card, so they are NOT cribbed here - a confident-wrong operator would
+// silently break the running engine. They resolve cleanly by cross-validating a SECOND .risum sample (the
+// table is fixed, so two cards disambiguate), or from known-plaintext. Left as placeholder until then.
 
 // 4. complete the bijection for remaining APPEARING bytes with JSON-SAFE plain bytes, so JSON.parse works
 // even before the exact content table is known (content decodes to safe placeholder glyphs, refined later).
