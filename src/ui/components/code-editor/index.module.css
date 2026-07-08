@@ -1,0 +1,124 @@
+/**
+ * CodeEditor - a dependency-free source editor: a highlight layer (a <pre> of typed token spans) sitting
+ * exactly under a transparent-text <textarea>, with a line-number gutter and a caret-anchored macro
+ * popover. The textarea and the pre MUST share identical font metrics + padding + wrapping so the caret
+ * lands on the highlighted glyphs. Tokenized colors only (no hardcoded hex).
+ */
+.wrap {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-well);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  overflow: hidden;
+}
+
+.gutter {
+  padding: 0.6rem 0.5rem 0.6rem 0.6rem;
+  text-align: right;
+  color: var(--stage-line);
+  background: var(--stage-ink);
+  border-right: 1px solid var(--stage-seam);
+  user-select: none;
+  overflow: hidden;
+  white-space: pre;
+}
+
+/* the overlay stack: pre (highlight) behind, textarea (editable, transparent text) on top */
+.stack {
+  position: relative;
+  overflow: hidden;
+}
+.pre,
+.ta {
+  margin: 0;
+  padding: 0.6rem 0.7rem;
+  font: inherit;
+  line-height: inherit;
+  white-space: pre;
+  overflow: auto;
+  tab-size: 2;
+  border: 0;
+}
+.pre {
+  position: absolute;
+  inset: 0;
+  color: var(--stage-soft);
+  pointer-events: none;
+  overflow: hidden;
+}
+.ta {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100%;
+  resize: none;
+  background: transparent;
+  color: transparent;
+  caret-color: var(--stage-paper);
+  outline: none;
+}
+.ta::selection {
+  background: var(--stage-seam);
+  color: transparent;
+}
+
+/* token colors */
+.macro { color: var(--stage-macro); }
+.string { color: var(--stage-ok); }
+.comment { color: var(--stage-line); font-style: italic; }
+.keyword { color: var(--rose); }
+.number { color: var(--stage-var); }
+
+/* macro autocomplete popover */
+.ac {
+  position: absolute;
+  z-index: 30;
+  width: 22rem;
+  max-width: 90vw;
+  background: var(--stage-panel);
+  border: 3px solid var(--stage-black);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+}
+.acHead {
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-line);
+  padding: 0.35rem 0.55rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+.acItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.acItemOn {
+  background: var(--stage-row);
+  border-left-color: var(--rose);
+}
+.acSig {
+  color: var(--stage-macro);
+  white-space: nowrap;
+}
+.acDesc {
+  margin-left: auto;
+  color: var(--stage-mute);
+  font-family: var(--font-body);
+}
+
+/* offscreen mirror used to locate the caret for the popover */
+.mirror {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}

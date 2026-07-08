@@ -14,6 +14,8 @@ import { classifyCondition, classifyEffect } from "../../../../entities/characte
 import { setAt, appendTo, removeAt, overlayField } from "../behavior-edit";
 import { runDataTriggers, type TriggerVars } from "../../../../sandbox/triggers/run-data-trigger";
 import type { TriggerScript } from "../../../../entities/character/schema";
+import { CodeEditor } from "../../../components/code-editor";
+import type { CodeLang } from "../../../components/code-editor/highlight";
 import styles from "./Workshop.module.css";
 
 const EVENTS: ReadonlyArray<[string, string]> = [
@@ -43,7 +45,14 @@ export interface WorkshopViewProps {
   setField(path: string, value: unknown): void;
 }
 
-type Part = "triggers" | "regex" | "virtual" | "background";
+type Part = "triggers" | "variables" | "regex" | "virtual" | "background";
+
+/** the code parts: which behavior field each edits + the language the editor highlights. */
+const CODE_PARTS: Record<"variables" | "virtual" | "background", { path: string; lang: CodeLang; title: string; sub: string }> = {
+  variables: { path: "behavior.defaultVariables", lang: "vars", title: "Variables", sub: "the card's starting state, one per line" },
+  virtual: { path: "behavior.virtualScript", lang: "js", title: "Virtual script", sub: "raw script carried on the card" },
+  background: { path: "behavior.backgroundHTML", lang: "html", title: "Background", sub: "custom HTML/CSS backdrop" },
+};
 
 /** distinct variable names a trigger set touches, so the console can seed a test row per var. */
 function seedVars(triggers: TriggerScript[]): VarRow[] {
@@ -180,6 +189,7 @@ export function WorkshopView({ draft, setField }: WorkshopViewProps): JSX.Elemen
 
   const parts: ReadonlyArray<{ id: Part; ico: string; label: string; count?: number; sealed?: boolean }> = [
     { id: "triggers", ico: "◆", label: "Triggers", count: triggers.length },
+    { id: "variables", ico: "=", label: "Variables" },
     { id: "regex", ico: "⇄", label: "Regex", count: regex.length },
     { id: "virtual", ico: "</>", label: "Virtual script", sealed: true },
     { id: "background", ico: "■", label: "Background", sealed: true },
@@ -216,10 +226,19 @@ export function WorkshopView({ draft, setField }: WorkshopViewProps): JSX.Elemen
             <p className={styles.hint}>The find/replace editor lands in the next slice; the rules are kept whole meanwhile.</p>
           </>
         )}
-        {(part === "virtual" || part === "background") && (
+        {(part === "variables" || part === "virtual" || part === "background") && (
           <>
-            <div className={styles.ehead}><h2>{part === "virtual" ? "Virtual script" : "Background"}</h2><span className={styles.sub}>sealed code &middot; never run here</span></div>
-            <p className={styles.hint}>The assisted-code editor lands in the next slice; this content is kept whole and re-emitted on export.</p>
+            <div className={styles.ehead}>
+              <h2>{CODE_PARTS[part].title}</h2>
+              <span className={styles.sub}>{CODE_PARTS[part].sub} &middot; edited as source, never run here</span>
+            </div>
+            <CodeEditor
+              value={str(readPath(draft, CODE_PARTS[part].path))}
+              onChange={(v) => setField(CODE_PARTS[part].path, v)}
+              language={CODE_PARTS[part].lang}
+              minRows={16}
+              placeholder={part === "variables" ? "hp = 100\nmood = calm" : "type {{ for macros"}
+            />
           </>
         )}
       </section>
