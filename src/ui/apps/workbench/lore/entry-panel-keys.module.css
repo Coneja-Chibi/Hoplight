@@ -1,0 +1,415 @@
+/**
+ * Keys, position bar, instruments, form atoms for the lore entry panel.
+ * Merged with entry-panel.module.css by LorebookEditor.
+ */
+
+/* ---------- keys ---------- */
+
+/* primary + secondary on one horizontal band (RC key row) */
+.keysBand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.keysPrimary {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.keysSecondary {
+  flex: 1 1 10rem;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.keyCluster {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.keyLine {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.keybox {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.28rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+  min-height: 2rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.key {
+  border: 2px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 14%, var(--stage-sunken));
+  color: var(--stage-soft);
+  padding: 0.12rem 0.28rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  display: inline-flex;
+  gap: 0.22rem;
+  align-items: center;
+}
+
+.keyx {
+  font: inherit;
+  font-family: var(--font-mono);
+  border: 0;
+  background: transparent;
+  color: var(--stage-mute);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.keyPct {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 800;
+  width: 2.2rem;
+  text-align: center;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-ok);
+  padding: 0.05rem;
+}
+
+.keyin {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  flex: 1;
+  min-width: 5rem;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.12rem;
+}
+
+.keyin:focus {
+  outline: 2px solid var(--a, var(--stage-macro));
+}
+
+.secRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.keysGrow {
+  flex: 1;
+  min-width: 0;
+}
+
+.keysSecondary .keyCluster {
+  flex: 1;
+}
+
+.keyLabel {
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.keyPicked {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.keyPicked .keyx {
+  color: var(--stage-ink);
+}
+
+.riderRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px dashed var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.3rem 0.4rem;
+}
+
+.riderName {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--a, var(--stage-macro));
+}
+
+/* ---------- position + instruments ---------- */
+
+.posRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.pos {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.28rem 0.42rem;
+  cursor: pointer;
+}
+
+.posOn {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 16%, var(--stage-sunken));
+  color: var(--stage-card);
+}
+
+.posDepthWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0 0.2rem 0 0;
+}
+
+.posDepthWrap.posOn {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 16%, var(--stage-sunken));
+}
+
+.posInner {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.28rem 0.35rem;
+  cursor: pointer;
+}
+
+.posDepthNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  width: 2rem;
+  text-align: center;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.15rem 0;
+}
+
+.posRole {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.15rem 0.1rem;
+}
+
+.instrument {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.85rem;
+  padding: 0.2rem 0;
+  border-top: 1px solid var(--stage-seam);
+  border-bottom: 1px solid var(--stage-seam);
+}
+
+.instCluster {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.seg {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.4rem;
+  cursor: pointer;
+}
+
+.segOn {
+  border-color: var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 16%, var(--stage-sunken));
+  color: var(--stage-ok);
+}
+
+/* ---------- content ---------- */
+
+.contentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+  min-height: 10rem;
+}
+
+.contentHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.macros {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+.macro {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.15rem 0.35rem;
+  cursor: pointer;
+}
+
+.macro:hover {
+  color: var(--stage-soft);
+  border-color: var(--stage-soft);
+}
+
+.textarea {
+  font: inherit;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  flex: 1;
+  min-height: 10rem;
+  width: 100%;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.55rem 0.65rem;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--a, var(--stage-macro));
+}
+
+/* ---------- shared form atoms (riders, drawer) ---------- */
+
+.fld {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.18rem 0.35rem;
+}
+
+.fld > span {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.fldBtn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.26rem 0.42rem;
+  cursor: pointer;
+}
+
+.fldHot {
+  border-color: var(--stage-warn);
+  color: var(--stage-warn);
+}
+
+.fldOn {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.num {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  width: 3.4rem;
+  text-align: center;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.15rem;
+}
+
+.groupIn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  width: 6.5rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.3rem;
+}
+
+.miniSel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.24rem 0.3rem;
+}
+
+.timeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* drawer owns entry-drawer.module.css — do not redefine .details/.label/.field here
+   or they clobber LorebookEditor.module.css form tokens when styles are merged. */

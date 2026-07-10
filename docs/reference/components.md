@@ -13,6 +13,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | AltFields | src/ui/components/alt-fields/index.tsx | ({ value, onChange }: AltFieldsProps) |  | .wrap .section .gtitle |
 | App | src/ui/shell/App.tsx | () |  |  |
 | AssetManager | src/ui/components/asset-manager/index.tsx | ({ assets, onChange, onOpenSprites }: AssetManagerProps) |  | .wrap .group .ghead .handoff .handoffBtn .tiles .tile .preview ... |
+| AttachLoreDialog | src/ui/components/attach-lore-dialog/index.tsx | ({ books, alreadyLinked, onConfirm, onDismiss, }: AttachLoreDialogProps) |  | .body .h .p .empty .list .row .name .id ... |
 | AttachPanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ packCatalog, attachId, attachBusy, onAttachId, onAttach, }: { packCatalog: readonly PackCatalogEntry[]; attachId: ... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
@@ -32,6 +33,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
+| EntryDrawerNaiSection | src/ui/apps/workbench/lore/entry-drawer-nai.tsx | ({ entry, show, onPatch, }: { entry: LorebookEntry; show: (key: string) => boolean; onPatch: (patch: Partial<Lorebook... |  |  |
+| EntryDrawerStSection | src/ui/apps/workbench/lore/entry-drawer-st.tsx | ({ entry, show, onPatch, }: { entry: LorebookEntry; show: (key: string) => boolean; onPatch: (patch: Partial<Lorebook... |  |  |
 | ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
@@ -43,17 +46,22 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
+| ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, }: { state: ImportState; onCommit: () => void; onCancel: () => void; }) |  |  |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. | .overlay .sheet |
-| KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, pickedIndex, onPick, }: KeywordChipsProps) |  |  |
+| KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, advanced = false, pickedIndex, onPick, entryProbability = 100,... |  |  |
 | KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
-| LoreEntryDrawer | src/ui/apps/workbench/lore/entry-drawer.tsx | ({ entry, writeFor, styles, onPatch }: EntryDrawerProps) |  |  |
-| LoreEntryPanel | src/ui/apps/workbench/lore/entry-panel.tsx | ({ entry, writeFor, styles, onPatch, onClose, focused, onFocus, tokenEstimate, }: EntryPanelProps) |  |  |
-| LoreEntrySidebar | src/ui/apps/workbench/lore/entry-sidebar.tsx | ({ session, styles, health, bookEstimate, onSelect, onOpenBeside, onAdd, onDuplicate, onDelete, onMove, onPatchEntry,... |  |  |
+| LoreCategories | src/ui/components/lore-categories/index.tsx | ({ categories, onChange }: LoreCategoriesProps) |  | .wrap .head .label .add .empty .list .row .name ... |
+| LoreEntryDrawer | src/ui/apps/workbench/lore/entry-drawer.tsx | ({ entry, writeFor, onPatch, }: EntryDrawerProps) |  |  |
+| LoreEntryPage | src/ui/apps/workbench/lore/entry-page.tsx | ({ entry, writeFor, styles, onPatch, index, count, onPrev, onNext, tokenEstimate, }: EntryPageProps) |  |  |
+| LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ entry, entries, notes, writeFor, styles, onPatch, onDuplicate, onDelete, onMove, }: EntryRailProps) |  |  |
+| LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, styles, onSelect, onAdd }: EntryTocProps) |  |  |
+| LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
+| LoreWriteFor | src/ui/components/lore-write-for/index.tsx | ({ value, onChange }: LoreWriteForProps) |  | .strip .hint |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
@@ -97,7 +105,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 | TrackerCardColors | src/ui/components/tracker-card-colors/index.tsx | ({ value, onChange }: TrackerCardColorsProps) |  | .wrap .help .colorBlock .k .cssIn |
 | TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
-| TriggerEditor | src/ui/apps/workbench/lore/trigger-editor.tsx | ({ triggers, onChange, styles, advanced, placeholder, ariaLabel, }: TriggerEditorProps) |  |  |
+| TriggerEditor | src/ui/apps/workbench/lore/trigger-editor.tsx | ({ triggers, onChange, styles, advanced, placeholder, ariaLabel, showSpecials = false, entryProbability = 100, }: Tri... |  |  |
 | VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, variantArt = {}, onSelect, onAdd, onRemove, onRename, onMode, }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
 | VoiceSetup | src/ui/components/voice-setup/index.tsx | ({ value, onChange }: VoiceSetupProps) |  | .wrap .grid .lbl .sel .input .extras .exrow .rm ... |
 | WorkshopCodePane | src/ui/apps/workbench/workshop/code-pane.tsx | (props: WorkshopCodePaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |

@@ -1,20 +1,17 @@
 /**
- * Pure lorebook editing session: open entry panels (the desk shows up to two side by side),
- * focus, entry CRUD, book settings, dirty/reconcile.
+ * Pure lorebook editing session: one focused entry (the binder shows one entry per screen),
+ * entry CRUD, book settings, dirty/reconcile.
  */
 import type { LorebookBody, LorebookEntry } from "../../../../entities/lorebook/schema";
 import { emptyLoreEntry } from "../../../../core/lore";
 import { newUiId } from "../../../_shared/new-id";
 import { deepEq, reconcileAfterSave } from "../editor-core";
 
-/** How many entry panels the desk shows at once (vs-lorebook-desk-f: two, side by side). */
-export const MAX_OPEN_PANELS = 2;
-
 export interface LoreSession {
   body: LorebookBody;
-  /** entries whose panels are open, in pane order (left first); length 0..MAX_OPEN_PANELS */
+  /** kept as a list for a future multi-panel view; the binder always holds exactly [focusedId] */
   openIds: string[];
-  /** the panel keyboard/summary focus rides on; always a member of openIds (or null when none) */
+  /** the entry the page shows; always a member of openIds (or null on an empty book) */
   focusedId: string | null;
 }
 
@@ -38,56 +35,16 @@ export function normalizeSession(body: LorebookBody): LoreSession {
   };
 }
 
-/** The entry the focused panel is editing (drives the sidebar quick controls + stagehand). */
+/** The entry the page is editing (drives the masthead, the cards, and the fine-print rail). */
 export function focusedEntry(session: LoreSession): LorebookEntry | null {
   if (!session.focusedId) return null;
   return session.body.entries.find((e) => e.id === session.focusedId) ?? null;
 }
 
-/** The open panels' entries in pane order (missing ids are impossible by construction). */
-export function openEntries(session: LoreSession): LorebookEntry[] {
-  return session.openIds
-    .map((id) => session.body.entries.find((e) => e.id === id))
-    .filter((e): e is LorebookEntry => e !== undefined);
-}
-
-/** Sidebar row click: an already-open entry just takes focus; otherwise it REPLACES the focused
- * panel's entry (single-panel muscle memory - the second panel never opens by accident). */
+/** TOC row click / pager flip: the picked entry takes the page. */
 export function selectEntry(session: LoreSession, id: string): LoreSession {
   if (!hasEntry(session.body, id)) return session;
-  if (session.openIds.includes(id)) return { ...session, focusedId: id };
-  if (session.openIds.length === 0) return { ...session, openIds: [id], focusedId: id };
-  const at = session.focusedId !== null ? session.openIds.indexOf(session.focusedId) : 0;
-  const openIds = [...session.openIds];
-  openIds[at < 0 ? 0 : at] = id;
-  return { ...session, openIds, focusedId: id };
-}
-
-/** The explicit second-panel move (the quick-controls "Open beside"): pushes a new panel while
- * room remains, else replaces the panel that does NOT hold focus. */
-export function openEntryBeside(session: LoreSession, id: string): LoreSession {
-  if (!hasEntry(session.body, id)) return session;
-  if (session.openIds.includes(id)) return { ...session, focusedId: id };
-  if (session.openIds.length < MAX_OPEN_PANELS) {
-    return { ...session, openIds: [...session.openIds, id], focusedId: id };
-  }
-  const openIds = session.openIds.map((open) => (open === session.focusedId ? open : id));
-  // all panels focused (single panel edge): replace the last slot
-  if (!openIds.includes(id)) openIds[openIds.length - 1] = id;
-  return { ...session, openIds, focusedId: id };
-}
-
-/** Close one panel; focus falls to the surviving panel. The entry itself is untouched. */
-export function closeEntryPanel(session: LoreSession, id: string): LoreSession {
-  if (!session.openIds.includes(id)) return session;
-  const openIds = session.openIds.filter((open) => open !== id);
-  const focusedId = session.focusedId === id ? openIds[0] ?? null : session.focusedId;
-  return { ...session, openIds, focusedId };
-}
-
-export function focusEntryPanel(session: LoreSession, id: string): LoreSession {
-  if (!session.openIds.includes(id) || session.focusedId === id) return session;
-  return { ...session, focusedId: id };
+  return { ...session, openIds: [id], focusedId: id };
 }
 
 export function addEntry(session: LoreSession): LoreSession {

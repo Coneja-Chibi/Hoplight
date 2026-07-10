@@ -1,7 +1,8 @@
 /**
- * LorebookEditor - the lorebook desk (vs-lorebook-desk-f, 1:1): Book settings fold, Write for
- * strip, entry sidebar with quick controls + the stagehand stack, up to two entry panels side by
- * side, and the status bar. Pure session ops; save via Studio API overwrite.
+ * LorebookEditor - the binder (vs-lorebook-binder-2, 1:1): header with the book's spine chip and
+ * the Writing-for select, a quiet searchable table of contents, ONE entry owning the page as
+ * dossier cards, and the fine-print rail. Book rules live behind a dialog. Pure session ops;
+ * save via Studio API overwrite.
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
@@ -19,13 +20,10 @@ import {
 } from "../../../core/lore";
 import {
   addEntry,
-  closeEntryPanel,
   deleteEntry,
   duplicateEntry,
-  focusEntryPanel,
+  focusedEntry,
   normalizeSession,
-  openEntries,
-  openEntryBeside,
   reconcileLoreAfterSave,
   reorderEntry,
   selectEntry,
@@ -34,16 +32,21 @@ import {
   updateEntry,
   type LoreSession,
 } from "./lore/session";
-import { LoreEntryPanel } from "./lore/entry-panel";
-import { LoreEntrySidebar } from "./lore/entry-sidebar";
+import { LoreEntryPage } from "./lore/entry-page";
+import { LoreEntryToc } from "./lore/entry-toc";
+import { LoreEntryRail } from "./lore/entry-rail";
 import { LoreBookSettings } from "./lore/book-settings";
+import { InkDialog } from "../../components/ink-dialog";
 import deskStyles from "./LorebookEditor.module.css";
 import panelStyles from "./lore/entry-panel.module.css";
-import sidebarStyles from "./lore/entry-sidebar.module.css";
+import panelKeyStyles from "./lore/entry-panel-keys.module.css";
+import pageStyles from "./lore/entry-page.module.css";
+import tocStyles from "./lore/entry-toc.module.css";
+import railStyles from "./lore/entry-rail.module.css";
 
-/** one styles object for the whole desk: chrome + panel skin + sidebar skin (disjoint class sets;
- * the leaves keep taking a single `styles` prop so they stay platform- and file-layout-blind) */
-const styles = { ...deskStyles, ...panelStyles, ...sidebarStyles };
+/** one styles object for the whole binder (disjoint class sets - a name lives in exactly ONE
+ * module; the leaves keep taking a single `styles` prop so they stay file-layout-blind) */
+const styles = { ...deskStyles, ...panelStyles, ...panelKeyStyles, ...pageStyles, ...tocStyles, ...railStyles };
 
 export interface LorebookEditorProps {
   entity: unknown;
@@ -80,19 +83,29 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [session, setSession] = useState<LoreSession>(() => normalizeSession(initBody));
   const [saving, setSaving] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
 
   const dirty = sessionDirty(session, baseline);
-  const panels = openEntries(session);
+  const entry = focusedEntry(session);
   const summary = loreSummary(session.body);
   const health = loreHealth(session.body);
   const bookEstimate = estimateBookTokens(session.body);
+  const entryIndex = entry ? session.body.entries.findIndex((e) => e.id === entry.id) : -1;
 
   const setWriteFor = (p: LoreWriteForProfile): void => {
     setWriteForState(p);
     ctx.prefs.set(WRITE_FOR_PREF, p);
+  };
+
+  const flip = (dir: -1 | 1): void => {
+    setSession((s) => {
+      const at = s.focusedId !== null ? s.body.entries.findIndex((e) => e.id === s.focusedId) : -1;
+      const next = s.body.entries[at + dir];
+      return next ? selectEntry(s, next.id) : s;
+    });
   };
 
   const doSave = useCallback(async (): Promise<void> => {
@@ -161,17 +174,41 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [summary.entryCount, summary.enabledCount, summary.keyCount, health.length]);
 
+  const monogram = (session.body.name.trim().charAt(0) || "?").toUpperCase();
+
   return (
     <div
       className={styles.root}
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
     >
-      <header className={styles.hdr}>
-        <h1 className={styles.title}>{session.body.name || "Untitled lorebook"}</h1>
-        <span className={styles.hdrMeta}>
-          {summary.entryCount} {summary.entryCount === 1 ? "entry" : "entries"}
-        </span>
-        <span className={styles.hdrRight}>
+      {/* ---- header: spine chip + writing-for + save ---- */}
+      <header className={styles.ehead}>
+        <div className={styles.spine}>
+          <span className={styles.spineMark}>{monogram}</span>
+          <div className={styles.spineText}>
+            <b className={styles.spineName}>{session.body.name || "Untitled lorebook"}</b>
+            <span className={styles.spineMeta}>
+              {summary.entryCount} {summary.entryCount === 1 ? "entry" : "entries"} · ~{bookEstimate}
+              {session.body.tokenBudget > 0 ? ` / ${session.body.tokenBudget}` : ""} tok ·{" "}
+              <button type="button" className={styles.rulesLink} onClick={() => setRulesOpen(true)}>
+                book rules
+              </button>
+            </span>
+          </div>
+        </div>
+        <span className={styles.eheadActs}>
+          <select
+            className={styles.lensSel}
+            value={writeFor}
+            aria-label="Writing for one host"
+            onChange={(ev) => setWriteFor(parseWriteFor(ev.target.value))}
+          >
+            {LORE_WRITE_FOR_PROFILES.map((p) => (
+              <option key={p} value={p}>
+                Writing for: {LORE_WRITE_FOR_LABELS[p]}
+              </option>
+            ))}
+          </select>
           <button
             type="button"
             className={styles.save}
@@ -185,87 +222,78 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         </span>
       </header>
 
-      <details className={styles.fold}>
-        <summary className={styles.foldSum}>
-          <span className={styles.foldMark}>B</span>
-          <strong className={styles.foldTitle}>Book settings</strong>
-          <span className={styles.foldMeta}>
-            {summary.entryCount} {summary.entryCount === 1 ? "entry" : "entries"} · ~{bookEstimate} tokens
-            {session.body.tokenBudget > 0 ? ` · ${session.body.tokenBudget} budget` : ""}
-          </span>
-          <span className={styles.foldHint}>name · description · matching · budget</span>
-        </summary>
-        <div className={styles.foldBody}>
-          <LoreBookSettings
-            body={session.body}
-            styles={styles}
-            onBook={(patch) => setSession((s) => updateBook(s, patch))}
-          />
-        </div>
-      </details>
-
-      <div className={styles.strip}>
-        <strong className={styles.stripTitle}>Write for</strong>
-        <span className={styles.stripNote}>one host at a time · the book itself never forks</span>
-        {LORE_WRITE_FOR_PROFILES.map((p) => (
-          <button
-            key={p}
-            type="button"
-            className={p === writeFor ? `${styles.stripChip} ${styles.stripChipOn}` : styles.stripChip}
-            aria-pressed={p === writeFor}
-            onClick={() => setWriteFor(p)}
-          >
-            {LORE_WRITE_FOR_LABELS[p]}
-          </button>
-        ))}
-        <span className={styles.stripHint}>shows and hides advanced dials only</span>
-      </div>
-
-      <div className={styles.body}>
-        <LoreEntrySidebar
-          session={session}
+      {/* ---- toc | page | rail ---- */}
+      <div className={styles.cols}>
+        <LoreEntryToc
+          entries={session.body.entries}
+          focusedId={session.focusedId}
           styles={styles}
-          health={health}
-          bookEstimate={bookEstimate}
           onSelect={(id) => setSession((s) => selectEntry(s, id))}
-          onOpenBeside={(id) => setSession((s) => openEntryBeside(s, id))}
           onAdd={() => setSession((s) => addEntry(s))}
-          onDuplicate={(id) => setSession((s) => duplicateEntry(s, id))}
-          onDelete={(id) => setSession((s) => deleteEntry(s, id))}
-          onMove={(id, dir) =>
-            setSession((s) => {
-              const at = s.body.entries.findIndex((e) => e.id === id);
-              return at < 0 ? s : reorderEntry(s, id, at + dir);
-            })
-          }
-          onPatchEntry={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
         />
 
-        <main className={panels.length === 2 ? `${styles.panes} ${styles.panesSplit}` : styles.panes}>
-          {panels.length === 0 && <div className={styles.empty}>Select or add an entry.</div>}
-          {panels.map((entry) => (
-            <LoreEntryPanel
-              key={entry.id}
+        <main className={styles.pageCol}>
+          {!entry ? (
+            <div className={styles.empty}>The book is empty. Add an entry from the contents.</div>
+          ) : (
+            <LoreEntryPage
               entry={entry}
               writeFor={writeFor}
               styles={styles}
-              focused={entry.id === session.focusedId}
+              index={entryIndex}
+              count={session.body.entries.length}
+              onPrev={() => flip(-1)}
+              onNext={() => flip(1)}
               tokenEstimate={estimateEntryTokens(entry)}
               onPatch={(patch) => setSession((s) => updateEntry(s, entry.id, patch))}
-              onClose={() => setSession((s) => closeEntryPanel(s, entry.id))}
-              onFocus={() => setSession((s) => focusEntryPanel(s, entry.id))}
             />
-          ))}
+          )}
         </main>
+
+        {entry && (
+          <LoreEntryRail
+            entry={entry}
+            entries={session.body.entries}
+            notes={health.filter((h) => h.entryId === entry.id)}
+            writeFor={writeFor}
+            styles={styles}
+            onPatch={(patch) => setSession((s) => updateEntry(s, entry.id, patch))}
+            onDuplicate={() => setSession((s) => duplicateEntry(s, entry.id))}
+            onDelete={() => setSession((s) => deleteEntry(s, entry.id))}
+            onMove={(dir) =>
+              setSession((s) => {
+                const at = s.body.entries.findIndex((e) => e.id === entry.id);
+                return at < 0 ? s : reorderEntry(s, entry.id, at + dir);
+              })
+            }
+          />
+        )}
       </div>
 
-      <footer className={styles.statusbar}>
-        <span>
-          <b>{panels.length} panel{panels.length === 1 ? "" : "s"} open</b> · {summary.entryCount}{" "}
-          {summary.entryCount === 1 ? "entry" : "entries"}
-        </span>
-        <span className={styles.statusRight}>~{bookEstimate} tokens estimated</span>
-      </footer>
+      {/* ---- book rules: the book-level form behind its own sheet ---- */}
+      {rulesOpen && (
+        <InkDialog onDismiss={() => setRulesOpen(false)} ariaLabel="Book rules">
+          <div className={styles.rulesSheet}>
+            <div className={styles.rulesHead}>
+              <b>Book rules</b>
+              <i>name · description · matching defaults · budget</i>
+              <button
+                type="button"
+                className={styles.pgBtn}
+                aria-label="Close book rules"
+                onClick={() => setRulesOpen(false)}
+              >
+                &times;
+              </button>
+            </div>
+            <LoreBookSettings
+              body={session.body}
+              styles={styles}
+              onBook={(patch) => setSession((s) => updateBook(s, patch))}
+            />
+          </div>
+        </InkDialog>
+      )}
     </div>
   );
 }

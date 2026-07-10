@@ -1,0 +1,244 @@
+/**
+ * The binder page skin (vs-lorebook-binder-2): masthead (pager, on/off, entry name, fires-line)
+ * and the dossier cards. Dial/key/segment classes (headFld, headNum, seg, plabel, macro...) stay
+ * in entry-panel.module.css / entry-panel-keys.module.css - one name, one module.
+ */
+
+.page {
+  padding: 0.9rem 1.1rem 1.4rem;
+  min-width: 0;
+}
+
+/* ---------- masthead ---------- */
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.3rem;
+}
+
+.pageNo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--a, var(--stage-macro));
+}
+
+.pgBtn {
+  font: inherit;
+  font-family: var(--font-mono);
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.pgBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pgFill {
+  flex: 1;
+}
+
+.tokchip {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.onoff {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-ok);
+  color: var(--stage-ok);
+  background: transparent;
+  padding: 0.18rem 0.4rem;
+  cursor: pointer;
+  flex: none;
+}
+
+.onoffOff {
+  border-color: var(--stage-faint);
+  color: var(--stage-mute);
+}
+
+.entryName {
+  width: 100%;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: clamp(1.35rem, 2.2cqw + 0.9rem, 1.9rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  border: 0;
+  background: none;
+  padding: 0.1rem 0 0.15rem;
+}
+
+.entryName:focus {
+  outline: 0;
+  border-bottom: 3px solid var(--a, var(--stage-macro));
+}
+
+.entryLine {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.85rem;
+}
+
+/* ---------- dossier cards ---------- */
+
+.bcard,
+.bfold {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  margin-bottom: 0.85rem;
+}
+
+.bchead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 2px solid var(--stage-seam);
+  list-style: none;
+}
+
+.bfold > .bchead {
+  cursor: pointer;
+  border-bottom: 0;
+}
+
+.bfold[open] > .bchead {
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.bchead::-webkit-details-marker {
+  display: none;
+}
+
+.bchead b {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.bchead i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.bcheadActs {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bcbody {
+  padding: 0.7rem 0.8rem 0.85rem;
+}
+
+.cardHint {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.45rem;
+}
+
+.foldNote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.55rem;
+}
+
+/* ---------- the passage ---------- */
+
+.passageTa {
+  width: 100%;
+  min-height: 13rem;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-body);
+  font-size: 1.02rem;
+  line-height: 1.6;
+  padding: 0.7rem;
+}
+
+.countRight {
+  display: block;
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  color: var(--stage-kicker);
+  margin-top: 0.3rem;
+}
+
+/* ---------- keys: primary and secondary side by side ---------- */
+
+.keysSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.keysCol {
+  min-width: 0;
+}
+
+@container (max-width: 52rem) {
+  .keysSplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- timing fold internals ---------- */
+
+.timeRow2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.timeCluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}

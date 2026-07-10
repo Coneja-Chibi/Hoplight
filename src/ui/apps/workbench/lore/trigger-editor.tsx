@@ -1,10 +1,10 @@
 /**
- * TriggerEditor - one trigger list (primary or secondary) with the advanced riders. Simple mode is
- * the chip box alone; advanced mode makes chips pickable and opens a rider row for the picked one
- * (regex + flags, frequency, per-trigger chance) - the RC advanced-trigger surface.
+ * TriggerEditor - RC-style key row: chips (+ per-key % in advanced) and optional + Condition menu.
+ * Advanced still exposes regex/frequency riders when a chip is picked.
  */
 import { useState, type JSX } from "react";
 import type { Trigger } from "../../../../entities/lorebook/schema";
+import { LoreSpecialTriggers } from "../../../components/lore-special-triggers";
 import { KeywordChips } from "./keyword-chips";
 import { patchTriggerAt, type TriggerRiderPatch } from "./trigger-edit";
 
@@ -12,10 +12,11 @@ export interface TriggerEditorProps {
   triggers: Trigger[];
   onChange: (next: Trigger[]) => void;
   styles: Readonly<Record<string, string>>;
-  /** entry-level triggerMode: riders only exist in advanced mode */
   advanced: boolean;
   placeholder?: string;
   ariaLabel: string;
+  showSpecials?: boolean;
+  entryProbability?: number;
 }
 
 export function TriggerEditor({
@@ -25,6 +26,8 @@ export function TriggerEditor({
   advanced,
   placeholder,
   ariaLabel,
+  showSpecials = false,
+  entryProbability = 100,
 }: TriggerEditorProps): JSX.Element {
   const [picked, setPicked] = useState<number | null>(null);
   const current = picked !== null && picked < triggers.length ? triggers[picked]! : null;
@@ -35,20 +38,26 @@ export function TriggerEditor({
   };
 
   return (
-    <>
-      <KeywordChips
-        triggers={triggers}
-        onChange={(next) => {
-          // removals shift indexes; dropping the pick beats editing the wrong trigger
-          setPicked(null);
-          onChange(next);
-        }}
-        styles={styles}
-        placeholder={placeholder}
-        ariaLabel={ariaLabel}
-        pickedIndex={advanced ? picked : null}
-        onPick={advanced ? (i) => setPicked(picked === i ? null : i) : undefined}
-      />
+    <div className={styles.keyCluster}>
+      <div className={styles.keyLine}>
+        <KeywordChips
+          triggers={triggers}
+          onChange={(next) => {
+            setPicked(null);
+            onChange(next);
+          }}
+          styles={styles}
+          placeholder={placeholder}
+          ariaLabel={ariaLabel}
+          advanced={advanced}
+          entryProbability={entryProbability}
+          pickedIndex={advanced ? picked : null}
+          onPick={advanced ? (i) => setPicked(picked === i ? null : i) : undefined}
+        />
+        {showSpecials && advanced && (
+          <LoreSpecialTriggers triggers={triggers} onChange={onChange} advanced={advanced} />
+        )}
+      </div>
       {advanced && current && (
         <div className={styles.riderRow} role="group" aria-label={`Dials for ${current.keyword}`}>
           <span className={styles.riderName}>{current.keyword}</span>
@@ -88,24 +97,8 @@ export function TriggerEditor({
               }}
             />
           </label>
-          <label className={styles.fld}>
-            <span>Chance</span>
-            <input
-              className={styles.num}
-              type="number"
-              min={0}
-              max={100}
-              value={current.probability ?? ""}
-              placeholder="entry"
-              aria-label="Per-key activation chance (blank uses the entry chance)"
-              onChange={(ev) => {
-                const v = ev.target.value;
-                patch({ probability: v === "" ? undefined : Number(v) || 0 });
-              }}
-            />
-          </label>
         </div>
       )}
-    </>
+    </div>
   );
 }

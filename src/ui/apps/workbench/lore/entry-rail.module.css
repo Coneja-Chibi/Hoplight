@@ -1,0 +1,197 @@
+/**
+ * The binder's fine-print rail (vs-lorebook-binder-2): Order & survival label/value rows for the
+ * focused entry, the try-a-line tester, quiet health tips.
+ */
+
+.rail {
+  border-left: 2px solid var(--stage-seam);
+  padding: 0.75rem 0.7rem;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@container (max-width: 74rem) {
+  .rail {
+    border-left: 0;
+    border-top: 2px solid var(--stage-seam);
+    height: auto;
+  }
+}
+
+.railTitle {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0 0 0.5rem;
+}
+
+.rcard {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-panel);
+  margin-bottom: 0.7rem;
+}
+
+.rhead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.rhead b {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.rhead i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.rbody {
+  padding: 0.5rem 0.6rem 0.6rem;
+}
+
+.rrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.26rem 0;
+  border-top: 1px solid var(--stage-faint);
+}
+
+.rrow:first-child {
+  border-top: 0;
+}
+
+.rk {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  flex: none;
+}
+
+.rvNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  width: 3.6rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  text-align: center;
+  padding: 0.16rem;
+}
+
+.rvSel {
+  font: inherit;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.3rem;
+  max-width: 9rem;
+}
+
+.rswitch {
+  width: 2rem;
+  height: 1.05rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rswitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.58rem;
+  height: 0.58rem;
+  background: var(--stage-ink);
+}
+
+.rswitchOff {
+  background: var(--stage-faint);
+}
+
+.rswitchOff::after {
+  left: 2px;
+  right: auto;
+}
+
+.rtri {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.4rem;
+  cursor: pointer;
+}
+
+.racts {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.ract2 {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.18rem 0.35rem;
+  cursor: pointer;
+}
+
+.ractDanger2 {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+}
+
+.healthTip {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1.55;
+  color: var(--stage-warn);
+  padding: 0.15rem 0;
+}
+
+.healthOk {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1.55;
+  color: var(--stage-ok);
+  padding: 0.15rem 0;
+}

@@ -146,29 +146,31 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   collapses via `@container` queries against the PANE, never `@media` against the viewport - a
   half-width split, a future drawer, and a phone all compose the same way (design/DECISIONS.md,
   the fluid law). A stage too narrow for two readable panes stacks the split vertically.
-- **LOREBOOKS EDIT (the desk, vs-lorebook-desk-f 1:1).** `workbench/LorebookEditor.tsx` composes
-  three one-concept skins (desk chrome + `lore/entry-panel` + `lore/entry-sidebar` CSS modules,
-  merged into one styles object - class names live in exactly one module). Shape: Book settings
-  fold (name/description/matching/budget), the Write for strip (single-select profile chips;
-  shows/hides advanced dials only, the book never forks), the entry sidebar (rows with enabled dot,
-  kind letter, live token estimate; the focused row expands quick controls - move/copy/delete +
-  per-entry matching tri-states; non-open rows wear an open-beside glyph), up to TWO entry panels
-  side by side (pure session ops in `lore/session.ts`: `openIds`/`focusedId`, capped at
-  `MAX_OPEN_PANELS`, unit-tested), the stagehand stack at the sidebar's foot (budget meter, focused
-  entry health, the sample-match try-a-line), and a status bar (panels open · entries · ~tokens).
-  Entry panels carry the WHOLE RC wire (the codec in `formats/rolecall/lorebook.ts` is the
-  checklist; capabilities keys exist for every field): mode/order/priority/scan/preserve/chance
-  dials, trigger editor (`lore/trigger-editor.tsx`: chips + triggerMode, advanced mode picks a chip
-  and edits its riders - regex/flags/frequency/per-key chance, pure edits in `lore/trigger-edit.ts`),
-  position chips (`lore/position-picker.tsx`), timing/recursion/group, content, and the Fine
-  control drawer (`lore/entry-drawer.tsx`): creator note, group weight/override/scoring, memo,
-  recursion level, character filter (only-for/never-for + names/tags), all six scan sources,
-  vectorized/category/automation, the NovelAI cluster (key-relative, non-story activation, full
-  context assembly), and a structured side-effects editor (reuses ListEditor/FieldForm; declared
-  data only, never executed; rows are a local draft so a just-added empty row survives typing -
-  pure mappers in `lore/entry-extras.ts`). Token estimates are the core's honest gauge
-  (`core/lore/summary.ts` `estimateEntryTokens`/`estimateBookTokens`, ~4 chars/token, always
-  rendered with "~").
+- **LOREBOOKS EDIT (the binder, vs-lorebook-binder-2 1:1 - LOCKED by Chi 2026-07-10).** The
+  character editor's sibling: ONE ENTRY OWNS THE SCREEN. `workbench/LorebookEditor.tsx` merges
+  one-concept skins (chassis + `lore/entry-page` + `lore/entry-toc` + `lore/entry-rail` + the dial/
+  key skins; a class name lives in exactly ONE module). Header: the book's SPINE CHIP (monogram,
+  name, entries · ~tokens/budget, a "book rules" link opening an InkDialog with the book form),
+  the Writing-for select (presentation only; the book never forks), Save. LEFT: the quiet TOC
+  (`entry-toc.tsx`: search across titles+keys, grouped with counts - "Always on" + the rest;
+  category folders slot in later - active row wears the accent bar, disabled entries strike
+  through, + New entry). CENTER (`entry-page.tsx`): the entry masthead (ENTRY N OF M pager, ~tok,
+  On/Off, name in display type, a COMPUTED "Fires on: …" line - never a stored field) and the
+  dossier cards: KEYS (primary + "only together with" side by side, AND-any logic select always
+  visible, Simple/Advanced tabs in the card head; advanced picks a chip and edits its riders via
+  `trigger-editor.tsx`/`trigger-edit.ts`), TIMING & CHANCE directly under Keys (a fold whose
+  summary line honestly states what it hides: sticky/cool/delay, recursion segments, group), 
+  PLACEMENT (one row of position pills, `position-picker.tsx`), THE PASSAGE (big serif textarea,
+  {{user}}/{{char}} inserts, char/~token count), and the self-styled Fine control drawer
+  (`entry-drawer.tsx`: the whole RC wire long tail - creator note, group tuning, memo, character
+  filter, scan sources, vectorized/automation, NovelAI cluster, structured side effects). RIGHT
+  (`entry-rail.tsx`): the fine print - Order & survival label/value rows (order, priority, always
+  keep, chance, speaks-as, scan depth, whole-words/case tri-states, move/copy/delete), the
+  sample-match try-a-line, and quiet health tips for the focused entry. Session is pure and
+  unit-tested (`lore/session.ts`: one focusedId; TOC click and pager both go through
+  `selectEntry`). The RC codec (`formats/rolecall/lorebook.ts`) remains the field-coverage
+  checklist; token estimates are the core's honest gauge (`estimateEntryTokens`/
+  `estimateBookTokens`, ~4 chars/token, always rendered with "~").
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.

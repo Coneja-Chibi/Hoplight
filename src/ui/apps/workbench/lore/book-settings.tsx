@@ -1,9 +1,10 @@
 /**
- * Lorebook-level settings: name, description, global matching, budget. Lives inside the desk's
- * Book settings fold; the Write for profile is the desk strip's job, not this form's.
+ * Lorebook-level settings: name, description, global matching, budget, categories.
+ * Lives inside the desk's Book settings fold; Write for is the desk strip's job.
  */
 import type { JSX } from "react";
 import type { LorebookBody } from "../../../../entities/lorebook/schema";
+import { LoreCategories } from "../../../components/lore-categories";
 
 export interface BookSettingsProps {
   body: LorebookBody;
@@ -88,6 +89,20 @@ export function LoreBookSettings({ body, styles, onBook }: BookSettingsProps): J
           <option value="entry">entry</option>
         </select>
       </label>
+      <label className={styles.field}>
+        <span className={styles.label}>Entry budget (when mode is entry)</span>
+        <input
+          className={styles.input}
+          type="number"
+          min={0}
+          value={body.entryBudget}
+          onChange={(ev) => onBook({ entryBudget: Number(ev.target.value) || 0 })}
+        />
+      </label>
+      <LoreCategories
+        categories={body.categories ?? []}
+        onChange={(categories) => onBook({ categories: categories.length ? categories : undefined })}
+      />
     </>
   );
 }

@@ -4,6 +4,7 @@
  */
 import { useEffect, useState, type JSX } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
+import { AttachLoreDialog } from "../../../components/attach-lore-dialog";
 import {
   attachKnowledgeRef,
   detachKnowledgeRef,
@@ -20,7 +21,7 @@ export interface KnowledgeRailProps {
 
 export function KnowledgeRail({ ctx, refs, onChange }: KnowledgeRailProps): JSX.Element {
   const [books, setBooks] = useState<StudioEntitySummary[]>([]);
-  const [pickOpen, setPickOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     void ctx.api.listEntities("lorebook").then(setBooks).catch(() => setBooks([]));
@@ -77,27 +78,21 @@ export function KnowledgeRail({ ctx, refs, onChange }: KnowledgeRailProps): JSX.
           </button>
         </div>
       ))}
-      <button type="button" className={styles.attach} onClick={() => setPickOpen((v) => !v)}>
-        {pickOpen ? "Close attach" : "Attach lorebook…"}
+      <button type="button" className={styles.attach} onClick={() => setDialogOpen(true)}>
+        Attach lorebook…
       </button>
-      {pickOpen && (
-        <div className={styles.pick}>
-          {books.length === 0 && <div className={styles.empty}>No lorebooks in the library.</div>}
-          {books.map((b) => (
-            <button
-              key={b.id}
-              type="button"
-              className={styles.pickBook}
-              disabled={refs.includes(b.id)}
-              onClick={() => {
-                onChange(attachKnowledgeRef(refs, b.id));
-                setPickOpen(false);
-              }}
-            >
-              {b.name}
-            </button>
-          ))}
-        </div>
+      {dialogOpen && (
+        <AttachLoreDialog
+          books={books}
+          alreadyLinked={refs}
+          onDismiss={() => setDialogOpen(false)}
+          onConfirm={(ids) => {
+            let next = [...refs];
+            for (const id of ids) next = attachKnowledgeRef(next, id);
+            onChange(next);
+            setDialogOpen(false);
+          }}
+        />
       )}
     </section>
   );

@@ -1,9 +1,9 @@
 /**
- * The lorebook desk chrome (vs-lorebook-desk-f, 1:1): root, top bar, Book settings fold, Write for
- * strip, body grid, status bar, and the shared form pieces the lore leaves reuse. Panel and
- * sidebar skins live in lore/entry-panel.module.css and lore/entry-sidebar.module.css; the editor
- * merges the three into one styles object. A stage-chrome surface, dark in both themes; lore
- * identity rides the entity accent (--a), stage-macro as the fallback.
+ * The binder chassis (vs-lorebook-binder-2, 1:1): header with the spine chip, the toc|page|rail
+ * columns, the book-rules sheet, and the shared form pieces the lore leaves reuse (SampleMatch,
+ * BookSettings). Page/toc/rail skins live in their own modules; LorebookEditor merges them - a
+ * class name lives in exactly ONE module. Stage-chrome surface, dark in both themes; lore identity
+ * rides the entity accent (--a), stage-macro as the fallback.
  */
 
 .root {
@@ -15,55 +15,109 @@
   color: var(--stage-soft);
 }
 
-/* ---------- top bar ---------- */
+/* ---------- header: spine chip + writing-for + save ---------- */
 
-.hdr {
+.ehead {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.55rem 0.85rem;
-  border-bottom: 3px solid var(--stage-black);
-  background: var(--stage-panel);
+  gap: 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 2px solid var(--stage-seam);
+  background: var(--stage-well);
   flex: none;
 }
 
-.title {
+.spine {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.spineMark {
+  width: 1.6rem;
+  height: 2rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-sunken);
+  color: var(--a, var(--stage-macro));
+  display: grid;
+  place-items: center;
   font-family: var(--font-big);
   font-weight: 900;
-  font-size: 1.05rem;
-  letter-spacing: 0.01em;
-  color: var(--stage-card);
-  margin: 0;
+  font-size: 0.62rem;
+  flex: none;
+}
+
+.spineText {
   min-width: 0;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.spineName {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--stage-card);
   white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.hdrMeta {
+.spineMeta {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 0.54rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-mute);
-  flex: 1;
+  color: var(--stage-kicker);
+  white-space: nowrap;
 }
 
-.hdrRight {
+.rulesLink {
+  font: inherit;
+  border: 0;
+  background: none;
+  color: var(--stage-mute);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rulesLink:hover {
+  color: var(--a, var(--stage-macro));
+}
+
+.eheadActs {
+  margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   flex: none;
+}
+
+.lensSel {
+  font: inherit;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.66rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  padding: 0.3rem 0.45rem;
+  max-width: 18rem;
 }
 
 .save {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.35rem 0.65rem;
-  border: 3px solid var(--stage-black);
+  border: 2px solid var(--stage-black);
   background: var(--rose);
   color: var(--stage-white);
   cursor: pointer;
@@ -77,136 +131,76 @@
   cursor: default;
 }
 
-/* ---------- book settings fold ---------- */
+/* ---------- toc | page | rail ---------- */
 
-.fold {
-  border-bottom: 3px solid var(--stage-black);
-  background: var(--stage-sunken);
-  flex: none;
-}
-
-.foldSum {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.85rem;
-  cursor: pointer;
-  list-style: none;
-}
-
-.foldSum::-webkit-details-marker {
-  display: none;
-}
-
-.foldMark {
-  width: 1.4rem;
-  height: 1.4rem;
-  border: 2px solid var(--stage-black);
-  background: var(--a, var(--stage-macro));
-  color: var(--stage-ink);
+.cols {
   display: grid;
-  place-items: center;
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.7rem;
-  flex: none;
-}
-
-.foldTitle {
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--stage-card);
-}
-
-.foldMeta,
-.foldHint,
-.stripNote,
-.stripHint {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-mute);
-}
-
-.foldHint {
-  margin-left: auto;
-}
-
-.foldBody {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-  gap: 0.35rem 0.9rem;
-  padding: 0.35rem 0.85rem 0.75rem;
-}
-
-/* ---------- write for strip ---------- */
-
-.strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.85rem;
-  border-bottom: 3px solid var(--stage-black);
-  background: var(--stage-panel);
-  flex: none;
-}
-
-.stripTitle {
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--stage-card);
-}
-
-.stripHint {
-  margin-left: auto;
-}
-
-.stripChip {
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border: 2px dashed var(--stage-seam);
-  background: transparent;
-  color: var(--stage-mute);
-  padding: 0.26rem 0.45rem;
-  cursor: pointer;
-}
-
-.stripChipOn {
-  border-style: solid;
-  border-color: var(--a, var(--stage-macro));
-  background: var(--a, var(--stage-macro));
-  color: var(--stage-ink);
-  font-weight: 700;
-}
-
-/* ---------- body: sidebar + panes ---------- */
-
-.body {
-  display: grid;
-  grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr) minmax(15rem, 17.5rem);
+  align-items: start;
   min-height: 0;
   flex: 1;
+  overflow: hidden;
 }
 
-/* fluid law: collapse by the pane's width, not the window's */
-@container (max-width: 52rem) {
-  .body {
+.pageCol {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* fluid law: collapse by the pane's width, never the viewport's */
+@container (max-width: 74rem) {
+  .cols {
     grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+  .pageCol {
+    height: auto;
+    overflow-y: visible;
   }
 }
 
-/* ---------- shared form pieces (fold body, drawer, sample match) ---------- */
+/* ---------- book rules sheet ---------- */
+
+.rulesSheet {
+  width: min(34rem, 88vw);
+  max-height: 78vh;
+  overflow-y: auto;
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.rulesHead {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.7rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.rulesHead b {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.rulesHead i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  flex: 1;
+}
+
+/* ---------- shared form pieces (book rules sheet, sample match) ---------- */
 
 .field {
   display: flex;
@@ -243,34 +237,17 @@
 }
 
 .textarea {
-  min-height: 9rem;
+  min-height: 5rem;
   resize: vertical;
   font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.tools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-bottom: 0.5rem;
-}
-
-.tool {
-  font: inherit;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.5rem;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  cursor: pointer;
-  color: var(--stage-soft);
-}
-
 .empty {
   color: var(--stage-mute);
   font-size: 0.9rem;
-  padding: 1rem 0.25rem;
+  padding: 1.2rem 1rem;
 }
 
 .chip {
@@ -280,23 +257,6 @@
   display: flex;
   align-items: center;
   gap: 0.35rem;
-}
-
-.details {
-  margin-top: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 2px dashed var(--stage-seam);
-}
-
-.details summary {
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-}
-
-.healthWarn {
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  color: var(--stage-warn);
 }
 
 .matchList {
@@ -318,29 +278,4 @@
 .matchMiss {
   font-size: 0.78rem;
   color: var(--stage-mute);
-}
-
-/* ---------- status bar ---------- */
-
-.statusbar {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.35rem 0.85rem;
-  border-top: 3px solid var(--stage-black);
-  background: var(--stage-panel);
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-mute);
-  flex: none;
-}
-
-.statusbar b {
-  color: var(--stage-soft);
-}
-
-.statusRight {
-  margin-left: auto;
 }

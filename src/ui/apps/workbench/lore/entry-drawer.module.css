@@ -1,0 +1,215 @@
+/**
+ * Fine-control drawer skin (own module — not merged into desk styles, so class
+ * names cannot clobber header/content tokens).
+ */
+
+.root {
+  margin-top: 0.35rem;
+  border-top: 2px solid var(--stage-seam);
+  padding-top: 0.25rem;
+}
+
+.root > summary {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  cursor: pointer;
+  padding: 0.3rem 0;
+  list-style: none;
+}
+
+.root > summary::-webkit-details-marker {
+  display: none;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.35rem 0 0.5rem;
+}
+
+/* nested platform / topic sections */
+.section {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0;
+}
+
+.section > summary {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  list-style: none;
+  background: var(--stage-sunken);
+  border-bottom: 1px solid var(--stage-seam);
+}
+
+.section > summary::-webkit-details-marker {
+  display: none;
+}
+
+.section[open] > summary {
+  color: var(--a, var(--stage-macro));
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem 0.55rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.lbl {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.fld {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.14rem 0.3rem;
+}
+
+.fld > span {
+  font-family: var(--font-mono);
+  font-size: 0.46rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.btn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.38rem;
+  cursor: pointer;
+}
+
+.btnOn {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 14%, var(--stage-sunken));
+}
+
+.num {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  width: 3.2rem;
+  text-align: center;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.1rem 0;
+}
+
+.text {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  flex: 1;
+  min-width: 6rem;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.1rem 0.15rem;
+}
+
+.input {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.32rem 0.4rem;
+}
+
+.textarea {
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  width: 100%;
+  min-height: 3rem;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.35rem 0.45rem;
+}
+
+.sel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.2rem 0.28rem;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  color: var(--stage-mute);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.18rem 0.35rem;
+  cursor: pointer;
+}
+
+.chip input {
+  accent-color: var(--a, var(--stage-macro));
+}
+
+.chipOn {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-soft);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}

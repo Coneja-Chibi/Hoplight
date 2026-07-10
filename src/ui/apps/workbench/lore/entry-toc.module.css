@@ -1,0 +1,165 @@
+/**
+ * The binder's quiet table of contents (vs-lorebook-binder-2): search, grouped rows with counts,
+ * accent bar on the active row, strike-through on disabled entries. No dotted leaders - ever.
+ */
+
+.toc {
+  border-right: 2px solid var(--stage-seam);
+  padding: 0.75rem 0.65rem;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@container (max-width: 74rem) {
+  .toc {
+    border-right: 0;
+    border-bottom: 2px solid var(--stage-seam);
+    height: auto;
+    max-height: 16rem;
+  }
+}
+
+.tocTitle {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0 0 0.5rem;
+}
+
+.tocSearch {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.32rem 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.tocSearch input {
+  border: 0;
+  background: none;
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  width: 100%;
+}
+
+.tocSearch span {
+  color: var(--stage-kicker);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.tocGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  padding: 0.55rem 0.25rem 0.3rem;
+}
+
+.gcount {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  color: var(--stage-kicker);
+  margin-left: auto;
+  border: 2px solid var(--stage-seam);
+  padding: 0.02rem 0.28rem;
+}
+
+.trow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--stage-mute);
+  padding: 0.3rem 0.35rem 0.3rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.trow:hover {
+  color: var(--stage-soft);
+}
+
+.tpip {
+  width: 0.3rem;
+  height: 0.3rem;
+  background: var(--stage-faint);
+  flex: none;
+}
+
+.tnm {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.trowOn {
+  color: var(--stage-card);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--a, var(--stage-macro)) 13%, transparent), transparent);
+  border-left: 3px solid var(--a, var(--stage-macro));
+  padding-left: 0.65rem;
+}
+
+.trowOn .tpip {
+  background: var(--a, var(--stage-macro));
+}
+
+.trowOff {
+  color: var(--stage-kicker);
+}
+
+.trowOff .tnm {
+  text-decoration: line-through;
+}
+
+.tocEmpty {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-mute);
+  padding: 0.4rem 0.35rem;
+  margin: 0;
+}
+
+.tocAdd {
+  width: 100%;
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px dashed var(--stage-seam);
+  background: none;
+  color: var(--stage-mute);
+  padding: 0.4rem;
+  margin-top: 0.7rem;
+  cursor: pointer;
+}
+
+.tocAdd:hover {
+  color: var(--a, var(--stage-macro));
+  border-color: var(--a, var(--stage-macro));
+}
