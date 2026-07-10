@@ -43,10 +43,19 @@ import panelKeyStyles from "./lore/entry-panel-keys.module.css";
 import pageStyles from "./lore/entry-page.module.css";
 import tocStyles from "./lore/entry-toc.module.css";
 import railStyles from "./lore/entry-rail.module.css";
+import platformCardStyles from "./lore/platforms/cards.module.css";
 
 /** one styles object for the whole binder (disjoint class sets - a name lives in exactly ONE
  * module; the leaves keep taking a single `styles` prop so they stay file-layout-blind) */
-const styles = { ...deskStyles, ...panelStyles, ...panelKeyStyles, ...pageStyles, ...tocStyles, ...railStyles };
+const styles = {
+  ...deskStyles,
+  ...panelStyles,
+  ...panelKeyStyles,
+  ...pageStyles,
+  ...tocStyles,
+  ...railStyles,
+  ...platformCardStyles,
+};
 
 export interface LorebookEditorProps {
   entity: unknown;

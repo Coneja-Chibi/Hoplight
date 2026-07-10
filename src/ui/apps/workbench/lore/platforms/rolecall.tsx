@@ -67,38 +67,52 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
   return (
     <>
       {show("useMemo") && (
-        <div className={styles.timeRow2}>
-          <button
-            type="button"
-            className={entry.useMemo ? `${styles.fldBtn} ${styles.fldOn}` : styles.fldBtn}
-            aria-pressed={entry.useMemo}
-            title="Remember this entry once triggered"
-            onClick={() => onPatch({ useMemo: !entry.useMemo })}
-          >
-            Memo
-          </button>
+        <div className={styles.pcSection}>
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Memo (remember once triggered)</span>
+            <button
+              type="button"
+              className={entry.useMemo ? styles.pcSwitch : `${styles.pcSwitch} ${styles.pcSwitchOff}`}
+              role="switch"
+              aria-checked={entry.useMemo}
+              aria-label="Memo: remember this entry once triggered"
+              onClick={() => onPatch({ useMemo: !entry.useMemo })}
+            />
+          </div>
         </div>
       )}
       {show("sideEffects") && (
-        <>
-          <span className={styles.plabel}>Side effects (declared data · never executed in Studio)</span>
-          <div className={styles.timeRow2}>
-            <label className={styles.chip}>
-              <input
-                type="checkbox"
-                checked={entry.sideEffects?.onlyOnFirstTrigger === true}
-                onChange={(ev) => patchSe(seRows, ev.target.checked, undefined)}
-              />{" "}
-              Only on first trigger
-            </label>
-            <label className={styles.chip}>
-              <input
-                type="checkbox"
-                checked={entry.sideEffects?.clearOnDeactivate === true}
-                onChange={(ev) => patchSe(seRows, undefined, ev.target.checked)}
-              />{" "}
-              Clear on deactivate
-            </label>
+        <div className={styles.pcSection}>
+          <span className={styles.pcLabel}>Side effects (declared data · never executed in Studio)</span>
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Only on first trigger</span>
+            <button
+              type="button"
+              className={
+                entry.sideEffects?.onlyOnFirstTrigger === true
+                  ? styles.pcSwitch
+                  : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+              }
+              role="switch"
+              aria-checked={entry.sideEffects?.onlyOnFirstTrigger === true}
+              aria-label="Only on first trigger"
+              onClick={() => patchSe(seRows, !(entry.sideEffects?.onlyOnFirstTrigger === true), undefined)}
+            />
+          </div>
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Clear on deactivate</span>
+            <button
+              type="button"
+              className={
+                entry.sideEffects?.clearOnDeactivate === true
+                  ? styles.pcSwitch
+                  : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+              }
+              role="switch"
+              aria-checked={entry.sideEffects?.clearOnDeactivate === true}
+              aria-label="Clear on deactivate"
+              onClick={() => patchSe(seRows, undefined, !(entry.sideEffects?.clearOnDeactivate === true))}
+            />
           </div>
           <ListEditor
             items={seRows}
@@ -110,7 +124,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
             }
             makeItem={() => ({ type: "setvar", variable: "", value: "", scope: "local" })}
           />
-        </>
+        </div>
       )}
       {show("characterFilter") && <CharacterFilterBlock entry={entry} styles={styles} onPatch={onPatch} />}
     </>

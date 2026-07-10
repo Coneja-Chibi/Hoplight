@@ -8,16 +8,17 @@ import type { LorePlatformCard, LorePlatformCardProps } from "./card-contract";
 function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX.Element | null {
   if (!show("categoryId")) return null;
   return (
-    <div className={styles.timeRow2}>
-      <label className={styles.headFld} title="Risu folder this entry belongs to">
-        <span>Folder id</span>
+    <div className={styles.pcSection}>
+      <div className={styles.pcRow}>
+        <span className={styles.pcK}>Folder id</span>
         <input
-          className={styles.groupIn}
+          className={styles.pcText}
           value={entry.categoryId ?? ""}
           aria-label="Folder id"
+          title="Risu folder this entry belongs to"
           onChange={(ev) => onPatch({ categoryId: ev.target.value || null })}
         />
-      </label>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,129 @@
+/**
+ * Platform-card layout grammar - ONE way every platform card lays out: section labels, a grid for
+ * checkbox banks, and label-left/control-right rows with hairline separators (the fine-print row
+ * pattern). No ad-hoc flex piles.
+ */
+
+.pcSection {
+  margin-bottom: 0.7rem;
+}
+
+.pcSection:last-child {
+  margin-bottom: 0;
+}
+
+.pcLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0 0 0.3rem;
+}
+
+/* checkbox bank: aligned columns, consistent row height */
+.pcChecks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.25rem 0.8rem;
+}
+
+.pcCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--stage-soft);
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+
+/* label-left / control-right rows (the fine-print grammar) */
+.pcRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.28rem 0;
+  border-top: 1px solid var(--stage-faint);
+}
+
+.pcRow:first-of-type {
+  border-top: 0;
+}
+
+.pcK {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  flex: none;
+}
+
+.pcNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  width: 3.6rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  text-align: center;
+  padding: 0.16rem;
+}
+
+.pcText {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  width: min(14rem, 55%);
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.3rem;
+}
+
+.pcSel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.3rem;
+  max-width: min(14rem, 55%);
+}
+
+.pcSwitch {
+  width: 2rem;
+  height: 1.05rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pcSwitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.58rem;
+  height: 0.58rem;
+  background: var(--stage-ink);
+}
+
+.pcSwitchOff {
+  background: var(--stage-faint);
+}
+
+.pcSwitchOff::after {
+  left: 2px;
+  right: auto;
+}

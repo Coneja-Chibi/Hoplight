@@ -1,6 +1,6 @@
 /**
  * Character-filter block - shared by the SillyTavern and RoleCall cards (both wires carry it).
- * Whitelist/blacklist an entry to characters by name or tag.
+ * Whitelist/blacklist an entry to characters by name or tag, in the card row grammar.
  */
 import type { JSX } from "react";
 import type { LorebookEntry } from "../../../../../entities/lorebook/schema";
@@ -20,11 +20,12 @@ export function CharacterFilterBlock({
     onPatch({ characterFilter: filterFromInputs(nextMode, names, tags) });
 
   return (
-    <>
-      <span className={styles.plabel}>Character filter</span>
-      <div className={styles.timeRow2}>
+    <div className={styles.pcSection}>
+      <span className={styles.pcLabel}>Character filter</span>
+      <div className={styles.pcRow}>
+        <span className={styles.pcK}>Applies to</span>
         <select
-          className={styles.headSel}
+          className={styles.pcSel}
           value={mode}
           aria-label="Character filter mode"
           onChange={(ev) =>
@@ -36,34 +37,34 @@ export function CharacterFilterBlock({
           }
         >
           <option value="off">Every character</option>
-          <option value="include">Only for…</option>
-          <option value="exclude">Never for…</option>
+          <option value="include">Only these…</option>
+          <option value="exclude">All except…</option>
         </select>
-        {mode !== "off" && (
-          <>
-            <label className={styles.headFld}>
-              <span>Names</span>
-              <input
-                className={styles.groupIn}
-                value={joinCsv(entry.characterFilter?.names ?? [])}
-                placeholder="comma-separated"
-                aria-label="Character names (comma-separated)"
-                onChange={(ev) => patchFilter(mode, ev.target.value, joinCsv(entry.characterFilter?.tags ?? []))}
-              />
-            </label>
-            <label className={styles.headFld}>
-              <span>Tags</span>
-              <input
-                className={styles.groupIn}
-                value={joinCsv(entry.characterFilter?.tags ?? [])}
-                placeholder="comma-separated"
-                aria-label="Character tags (comma-separated)"
-                onChange={(ev) => patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), ev.target.value)}
-              />
-            </label>
-          </>
-        )}
       </div>
-    </>
+      {mode !== "off" && (
+        <>
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Names</span>
+            <input
+              className={styles.pcText}
+              value={joinCsv(entry.characterFilter?.names ?? [])}
+              placeholder="comma-separated"
+              aria-label="Character names (comma-separated)"
+              onChange={(ev) => patchFilter(mode, ev.target.value, joinCsv(entry.characterFilter?.tags ?? []))}
+            />
+          </div>
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Tags</span>
+            <input
+              className={styles.pcText}
+              value={joinCsv(entry.characterFilter?.tags ?? [])}
+              placeholder="comma-separated"
+              aria-label="Character tags (comma-separated)"
+              onChange={(ev) => patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), ev.target.value)}
+            />
+          </div>
+        </>
+      )}
+    </div>
   );
 }

@@ -22,92 +22,92 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
     show("automationId") || show("characterFilter");
   if (!any) return null;
 
+  const switchRow = (
+    label: string,
+    on: boolean,
+    title: string,
+    flip: () => void,
+  ): JSX.Element => (
+    <div className={styles.pcRow}>
+      <span className={styles.pcK}>{label}</span>
+      <button
+        type="button"
+        className={on ? styles.pcSwitch : `${styles.pcSwitch} ${styles.pcSwitchOff}`}
+        role="switch"
+        aria-checked={on}
+        aria-label={label}
+        title={title}
+        onClick={flip}
+      />
+    </div>
+  );
+
   return (
     <>
       {show("scanSources") && (
-        <>
-          <span className={styles.plabel}>Also scan these for keys</span>
-          <div className={styles.timeRow2}>
+        <div className={styles.pcSection}>
+          <span className={styles.pcLabel}>Also scan these for keys</span>
+          <div className={styles.pcChecks}>
             {SCAN_KEYS.map(([key, label]) => (
-              <label key={key} className={styles.chip}>
+              <label key={key} className={styles.pcCheck}>
                 <input
                   type="checkbox"
                   checked={entry[key] === true}
                   onChange={(ev) => onPatch({ [key]: ev.target.checked })}
-                />{" "}
+                />
                 {label}
               </label>
             ))}
           </div>
-        </>
-      )}
-      {(show("vectorized") || show("groupTuning")) && (
-        <div className={styles.timeRow2}>
-          {show("vectorized") && (
-            <label className={styles.chip}>
-              <input
-                type="checkbox"
-                checked={entry.vectorized === true}
-                onChange={(ev) => onPatch({ vectorized: ev.target.checked })}
-              />{" "}
-              Vectorized (RAG)
-            </label>
-          )}
-          {show("groupTuning") && (
-            <>
-              <button
-                type="button"
-                className={entry.groupOverride === true ? `${styles.fldBtn} ${styles.fldOn}` : styles.fldBtn}
-                aria-pressed={entry.groupOverride === true}
-                title="This entry always wins its inclusion group"
-                onClick={() => onPatch({ groupOverride: entry.groupOverride === true ? undefined : true })}
-              >
-                Group override
-              </button>
-              <button
-                type="button"
-                className={entry.useGroupScoring === true ? `${styles.fldBtn} ${styles.fldOn}` : styles.fldBtn}
-                aria-pressed={entry.useGroupScoring === true}
-                title="Pick the group winner by match score instead of weight"
-                onClick={() => onPatch({ useGroupScoring: entry.useGroupScoring === true ? undefined : true })}
-              >
-                Group scoring
-              </button>
-            </>
-          )}
         </div>
       )}
-      {(show("displayIndex") || show("automationId")) && (
-        <div className={styles.timeRow2}>
-          {show("displayIndex") && (
-            <label className={styles.headFld} title="SillyTavern's cosmetic list order (not placement)">
-              <span>List index</span>
-              <input
-                className={styles.headNum}
-                type="number"
-                value={entry.displayIndex ?? ""}
-                placeholder="—"
-                aria-label="List display index (blank follows order)"
-                onChange={(ev) => {
-                  const v = ev.target.value;
-                  onPatch({ displayIndex: v === "" ? null : Number(v) || 0 });
-                }}
-              />
-            </label>
+      <div className={styles.pcSection}>
+        <span className={styles.pcLabel}>Search &amp; groups</span>
+        {show("vectorized") &&
+          switchRow("Vectorized (RAG)", entry.vectorized === true, "Match by embedding similarity, not keywords", () =>
+            onPatch({ vectorized: entry.vectorized === true ? undefined : true }),
           )}
-          {show("automationId") && (
-            <label className={styles.headFld} title="Bind this entry to a Quick Reply automation">
-              <span>Automation id</span>
-              <input
-                className={styles.groupIn}
-                value={entry.automationId ?? ""}
-                aria-label="Automation id"
-                onChange={(ev) => onPatch({ automationId: ev.target.value || null })}
-              />
-            </label>
-          )}
-        </div>
-      )}
+        {show("groupTuning") && (
+          <>
+            {switchRow("Group override", entry.groupOverride === true, "This entry always wins its inclusion group", () =>
+              onPatch({ groupOverride: entry.groupOverride === true ? undefined : true }),
+            )}
+            {switchRow(
+              "Group scoring",
+              entry.useGroupScoring === true,
+              "Pick the group winner by match score instead of weight",
+              () => onPatch({ useGroupScoring: entry.useGroupScoring === true ? undefined : true }),
+            )}
+          </>
+        )}
+        {show("displayIndex") && (
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>List index (cosmetic)</span>
+            <input
+              className={styles.pcNum}
+              type="number"
+              value={entry.displayIndex ?? ""}
+              placeholder="—"
+              aria-label="List display index (blank follows order)"
+              onChange={(ev) => {
+                const v = ev.target.value;
+                onPatch({ displayIndex: v === "" ? null : Number(v) || 0 });
+              }}
+            />
+          </div>
+        )}
+        {show("automationId") && (
+          <div className={styles.pcRow}>
+            <span className={styles.pcK}>Automation id</span>
+            <input
+              className={styles.pcText}
+              value={entry.automationId ?? ""}
+              aria-label="Automation id"
+              onChange={(ev) => onPatch({ automationId: ev.target.value || null })}
+            />
+          </div>
+        )}
+      </div>
       {show("characterFilter") && <CharacterFilterBlock entry={entry} styles={styles} onPatch={onPatch} />}
     </>
   );
