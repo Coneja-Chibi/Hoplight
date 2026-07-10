@@ -8,8 +8,6 @@ import type {
   EntryContextConfig,
   EntrySideEffect,
   EntrySideEffects,
-  LorebookCategory,
-  LorebookEntry,
   SideEffectType,
 } from "../../../../entities/lorebook/schema";
 
@@ -74,31 +72,6 @@ export function rowsFromSideEffects(se: EntrySideEffects | null): Record<string,
     amount: e.amount,
     scope: e.scope,
   }));
-}
-
-/** ListEditor rows -> book categories: empty names drop, sortOrder restamps by row position,
- * ids and enabled flags ride through (the row factory mints ids - this stays pure). */
-export function categoriesFromRows(rows: readonly Record<string, unknown>[]): LorebookCategory[] {
-  return rows
-    .filter((r) => typeof r.name === "string" && (r.name as string).trim() !== "")
-    .map((r, i) => ({
-      id: typeof r.id === "string" ? r.id : "",
-      name: (r.name as string).trim(),
-      sortOrder: i * 10,
-      enabled: r.enabled !== false,
-    }));
-}
-
-export function rowsFromCategories(categories: readonly LorebookCategory[] | undefined): Record<string, unknown>[] {
-  return (categories ?? []).map((c) => ({ id: c.id, name: c.name, enabled: c.enabled !== false }));
-}
-
-/** After a manual reorder: if ANY entry already uses the displayIndex axis, restamp it from the
- * new array order (that IS what the axis means); a book that never used it stays clean. */
-export function stampDisplayIndexes(entries: readonly LorebookEntry[]): LorebookEntry[] {
-  const inUse = entries.some((e) => typeof e.displayIndex === "number");
-  if (!inUse) return [...entries];
-  return entries.map((e, i) => ({ ...e, displayIndex: i }));
 }
 
 /** Patch contextConfig dropping empty-string/undefined keys; an all-empty config becomes undefined. */

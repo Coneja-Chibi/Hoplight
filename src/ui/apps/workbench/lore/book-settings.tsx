@@ -1,27 +1,15 @@
 /**
- * Lorebook-level settings: identity (name, description, type, genre, fandom, tags), global
- * matching, budget - the full RC book wire (formats/rolecall/lorebook.ts bookToWire is the
- * checklist). Lives inside the desk's Book settings fold; the Write for profile is the desk
- * strip's job, not this form's; categories are the SIDEBAR's folders, not a form here.
+ * Lorebook-level settings: name, description, global matching, budget. Lives inside the desk's
+ * Book settings fold; the Write for profile is the desk strip's job, not this form's.
  */
 import type { JSX } from "react";
-import type { LorebookBody, LorebookType } from "../../../../entities/lorebook/schema";
-import { CsvInput } from "./csv-input";
+import type { LorebookBody } from "../../../../entities/lorebook/schema";
 
 export interface BookSettingsProps {
   body: LorebookBody;
   styles: Readonly<Record<string, string>>;
   onBook: (patch: Partial<LorebookBody>) => void;
 }
-
-const BOOK_TYPES: readonly [LorebookType, string][] = [
-  ["world", "World"],
-  ["character", "Character"],
-  ["scenario", "Scenario"],
-  ["rules", "Rules"],
-  ["utility", "Utility"],
-  ["other", "Other"],
-];
 
 export function LoreBookSettings({ body, styles, onBook }: BookSettingsProps): JSX.Element {
   return (
@@ -41,45 +29,6 @@ export function LoreBookSettings({ body, styles, onBook }: BookSettingsProps): J
           style={{ minHeight: "3.5rem" }}
           value={body.description ?? ""}
           onChange={(ev) => onBook({ description: ev.target.value || null })}
-        />
-      </label>
-      <label className={styles.field}>
-        <span className={styles.label}>Kind of book</span>
-        <select
-          className={styles.select}
-          value={body.lorebookType ?? "other"}
-          onChange={(ev) => onBook({ lorebookType: ev.target.value as LorebookType })}
-        >
-          {BOOK_TYPES.map(([v, label]) => (
-            <option key={v} value={v}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className={styles.field}>
-        <span className={styles.label}>Genre</span>
-        <input
-          className={styles.input}
-          value={body.genre ?? ""}
-          onChange={(ev) => onBook({ genre: ev.target.value || null })}
-        />
-      </label>
-      <label className={styles.field}>
-        <span className={styles.label}>Fandom</span>
-        <input
-          className={styles.input}
-          value={body.fandom ?? ""}
-          onChange={(ev) => onBook({ fandom: ev.target.value || null })}
-        />
-      </label>
-      <label className={styles.field}>
-        <span className={styles.label}>Tags (discovery metadata, comma-separated)</span>
-        <CsvInput
-          value={body.tags}
-          onCommit={(tags) => onBook({ tags })}
-          className={styles.input}
-          ariaLabel="Book tags, comma-separated"
         />
       </label>
       <label className={styles.chip}>
@@ -135,22 +84,10 @@ export function LoreBookSettings({ body, styles, onBook }: BookSettingsProps): J
             onBook({ budgetMode: ev.target.value === "entry" ? "entry" : "token" })
           }
         >
-          <option value="token">count tokens</option>
-          <option value="entry">count entries</option>
+          <option value="token">token</option>
+          <option value="entry">entry</option>
         </select>
       </label>
-      {body.budgetMode === "entry" && (
-        <label className={styles.field}>
-          <span className={styles.label}>Entry budget (max entries injected)</span>
-          <input
-            className={styles.input}
-            type="number"
-            min={0}
-            value={body.entryBudget}
-            onChange={(ev) => onBook({ entryBudget: Number(ev.target.value) || 0 })}
-          />
-        </label>
-      )}
     </>
   );
 }

@@ -26,7 +26,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CssStarters | src/ui/components/css-workshop/starters.tsx | ({ packId, packBlurb, onApply }: CssStartersProps) | Recipe list filtered by active target pack. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshop | src/ui/components/css-workshop/index.tsx | ({ value, onChange, defaultPackId = "universal", onPackChange, note = DEFAULT_NOTE, mode: modeProp, onModeChange, ini... | Main assisted CSS editor shell. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
-| CsvInput | src/ui/apps/workbench/lore/csv-input.tsx | ({ value, onCommit, className, placeholder, ariaLabel }: CsvInputProps) |  |  |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
 | EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |
@@ -54,7 +53,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreEntryDrawer | src/ui/apps/workbench/lore/entry-drawer.tsx | ({ entry, writeFor, styles, onPatch }: EntryDrawerProps) |  |  |
 | LoreEntryPanel | src/ui/apps/workbench/lore/entry-panel.tsx | ({ entry, writeFor, styles, onPatch, onClose, focused, onFocus, tokenEstimate, }: EntryPanelProps) |  |  |
-| LoreEntrySidebar | src/ui/apps/workbench/lore/entry-sidebar.tsx | (props: EntrySidebarProps) |  |  |
+| LoreEntrySidebar | src/ui/apps/workbench/lore/entry-sidebar.tsx | ({ session, styles, health, bookEstimate, onSelect, onOpenBeside, onAdd, onDuplicate, onDelete, onMove, onPatchEntry,... |  |  |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |

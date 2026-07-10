@@ -18,10 +18,8 @@ import {
   type LoreWriteForProfile,
 } from "../../../core/lore";
 import {
-  addCategory,
   addEntry,
   closeEntryPanel,
-  deleteCategory,
   deleteEntry,
   duplicateEntry,
   focusEntryPanel,
@@ -29,11 +27,9 @@ import {
   openEntries,
   openEntryBeside,
   reconcileLoreAfterSave,
-  renameCategory,
   reorderEntry,
   selectEntry,
   sessionDirty,
-  setEntryCategory,
   updateBook,
   updateEntry,
   type LoreSession,
@@ -243,10 +239,6 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
             })
           }
           onPatchEntry={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
-          onAddCategory={(name) => setSession((s) => addCategory(s, name))}
-          onRenameCategory={(id, name) => setSession((s) => renameCategory(s, id, name))}
-          onDeleteCategory={(id) => setSession((s) => deleteCategory(s, id))}
-          onSetCategory={(entryId, categoryId) => setSession((s) => setEntryCategory(s, entryId, categoryId))}
         />
 
         <main className={panels.length === 2 ? `${styles.panes} ${styles.panesSplit}` : styles.panes}>

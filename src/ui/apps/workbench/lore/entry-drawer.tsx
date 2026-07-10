@@ -18,7 +18,6 @@ import {
   sideEffectsFromRows,
   type FilterMode,
 } from "./entry-extras";
-import { CsvInput } from "./csv-input";
 
 export interface EntryDrawerProps {
   entry: LorebookEntry;
@@ -189,22 +188,22 @@ export function LoreEntryDrawer({ entry, writeFor, styles, onPatch }: EntryDrawe
               <>
                 <label className={styles.fld}>
                   <span>Names</span>
-                  <CsvInput
-                    value={entry.characterFilter?.names ?? []}
-                    onCommit={(names) => patchFilter(mode, joinCsv(names), joinCsv(entry.characterFilter?.tags ?? []))}
+                  <input
                     className={styles.groupIn}
+                    value={joinCsv(entry.characterFilter?.names ?? [])}
                     placeholder="comma-separated"
-                    ariaLabel="Character names (comma-separated)"
+                    aria-label="Character names (comma-separated)"
+                    onChange={(ev) => patchFilter(mode, ev.target.value, joinCsv(entry.characterFilter?.tags ?? []))}
                   />
                 </label>
                 <label className={styles.fld}>
                   <span>Tags</span>
-                  <CsvInput
-                    value={entry.characterFilter?.tags ?? []}
-                    onCommit={(tags) => patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), joinCsv(tags))}
+                  <input
                     className={styles.groupIn}
+                    value={joinCsv(entry.characterFilter?.tags ?? [])}
                     placeholder="comma-separated"
-                    ariaLabel="Character tags (comma-separated)"
+                    aria-label="Character tags (comma-separated)"
+                    onChange={(ev) => patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), ev.target.value)}
                   />
                 </label>
               </>
@@ -247,7 +246,16 @@ export function LoreEntryDrawer({ entry, writeFor, styles, onPatch }: EntryDrawe
           Vectorized (RAG)
         </label>
       )}
-      {/* folder (categoryId) assignment lives in the SIDEBAR's quick controls, beside the folders */}
+      {show("categoryId") && (
+        <label className={styles.field}>
+          <span className={styles.label}>Category id</span>
+          <input
+            className={styles.input}
+            value={entry.categoryId ?? ""}
+            onChange={(ev) => onPatch({ categoryId: ev.target.value || null })}
+          />
+        </label>
+      )}
       {show("automationId") && (
         <label className={styles.field}>
           <span className={styles.label}>Automation id</span>

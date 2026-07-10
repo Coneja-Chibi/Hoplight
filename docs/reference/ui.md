@@ -156,13 +156,6 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   side by side (pure session ops in `lore/session.ts`: `openIds`/`focusedId`, capped at
   `MAX_OPEN_PANELS`, unit-tested), the stagehand stack at the sidebar's foot (budget meter, focused
   entry health, the sample-match try-a-line), and a status bar (panels open · entries · ~tokens).
-  The BOOK side carries its whole wire too: the fold edits name/description/kind/genre/fandom/tags
-  (CSV via `lore/csv-input.tsx` - a raw local draft, because a parse/join round-trip eats the comma
-  as you type), matching defaults, token/entry budget by mode. CATEGORIES are the sidebar's FOLDERS
-  (the RC pattern): create/rename/collapse/delete (delete moves entries to No folder), entries
-  assign via the quick-controls folder select; pure ops in `lore/session.ts`
-  (addCategory/renameCategory/deleteCategory/setEntryCategory, tested). A manual reorder restamps
-  the authored `displayIndex` axis only when the book already uses it (`stampDisplayIndexes`).
   Entry panels carry the WHOLE RC wire (the codec in `formats/rolecall/lorebook.ts` is the
   checklist; capabilities keys exist for every field): mode/order/priority/scan/preserve/chance
   dials, trigger editor (`lore/trigger-editor.tsx`: chips + triggerMode, advanced mode picks a chip
