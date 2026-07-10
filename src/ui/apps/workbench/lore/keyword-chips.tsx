@@ -12,9 +12,20 @@ export interface KeywordChipsProps {
   styles: Readonly<Record<string, string>>;
   placeholder?: string;
   ariaLabel: string;
+  /** advanced mode: clicking a chip picks it for the rider editor below (TriggerEditor owns state) */
+  pickedIndex?: number | null;
+  onPick?: (index: number) => void;
 }
 
-export function KeywordChips({ triggers, onChange, styles, placeholder, ariaLabel }: KeywordChipsProps): JSX.Element {
+export function KeywordChips({
+  triggers,
+  onChange,
+  styles,
+  placeholder,
+  ariaLabel,
+  pickedIndex,
+  onPick,
+}: KeywordChipsProps): JSX.Element {
   const [draft, setDraft] = useState("");
 
   const commit = (): void => {
@@ -39,9 +50,24 @@ export function KeywordChips({ triggers, onChange, styles, placeholder, ariaLabe
 
   return (
     <div className={styles.keybox} role="group" aria-label={ariaLabel}>
-      {triggers.map((t) => (
-        <span key={t.keyword} className={styles.key}>
-          {t.isRegex ? `/${t.keyword}/` : t.keyword}
+      {triggers.map((t, i) => (
+        <span
+          key={t.keyword}
+          className={i === pickedIndex ? `${styles.key} ${styles.keyPicked}` : styles.key}
+        >
+          {onPick ? (
+            <button
+              type="button"
+              className={styles.keyLabel}
+              aria-pressed={i === pickedIndex}
+              title="Edit this key's dials"
+              onClick={() => onPick(i)}
+            >
+              {t.isRegex ? `/${t.keyword}/` : t.keyword}
+            </button>
+          ) : (
+            t.isRegex ? `/${t.keyword}/` : t.keyword
+          )}
           <button
             type="button"
             className={styles.keyx}

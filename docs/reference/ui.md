@@ -156,11 +156,19 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   side by side (pure session ops in `lore/session.ts`: `openIds`/`focusedId`, capped at
   `MAX_OPEN_PANELS`, unit-tested), the stagehand stack at the sidebar's foot (budget meter, focused
   entry health, the sample-match try-a-line), and a status bar (panels open · entries · ~tokens).
-  Entry panels carry the full canonical field set - mode/order/priority/scan/preserve/chance dials,
-  keyword chips (`lore/keyword-chips.tsx`), position chips (`lore/position-picker.tsx`),
-  timing/recursion/group, content, and a Fine control drawer for the profile-gated rest. Token
-  estimates are the core's honest gauge (`core/lore/summary.ts` `estimateEntryTokens`/
-  `estimateBookTokens`, ~4 chars/token, always rendered with "~").
+  Entry panels carry the WHOLE RC wire (the codec in `formats/rolecall/lorebook.ts` is the
+  checklist; capabilities keys exist for every field): mode/order/priority/scan/preserve/chance
+  dials, trigger editor (`lore/trigger-editor.tsx`: chips + triggerMode, advanced mode picks a chip
+  and edits its riders - regex/flags/frequency/per-key chance, pure edits in `lore/trigger-edit.ts`),
+  position chips (`lore/position-picker.tsx`), timing/recursion/group, content, and the Fine
+  control drawer (`lore/entry-drawer.tsx`): creator note, group weight/override/scoring, memo,
+  recursion level, character filter (only-for/never-for + names/tags), all six scan sources,
+  vectorized/category/automation, the NovelAI cluster (key-relative, non-story activation, full
+  context assembly), and a structured side-effects editor (reuses ListEditor/FieldForm; declared
+  data only, never executed; rows are a local draft so a just-added empty row survives typing -
+  pure mappers in `lore/entry-extras.ts`). Token estimates are the core's honest gauge
+  (`core/lore/summary.ts` `estimateEntryTokens`/`estimateBookTokens`, ~4 chars/token, always
+  rendered with "~").
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.

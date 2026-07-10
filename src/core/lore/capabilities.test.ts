@@ -36,6 +36,30 @@ describe("lore capabilities", () => {
     expect(fieldVisible("agnai", "secondaryTriggers")).toBe(true);
     expect(fieldVisible("agnai", "sideEffects")).toBe(false);
   });
+
+  test("full profile shows the WHOLE RC wire - nothing hidden", () => {
+    const m = loreFieldVisibility("full");
+    for (const vis of Object.values(m)) expect(vis).not.toBe("hide");
+    // the long-tail keys exist and are visible on full
+    for (const key of [
+      "comment",
+      "triggerRiders",
+      "groupTuning",
+      "useMemo",
+      "delayUntilRecursion",
+      "characterFilter",
+      "naiActivation",
+    ] as const) {
+      expect(fieldVisible("full", key)).toBe(true);
+    }
+  });
+
+  test("profile shaping on the long tail: riders hidden for st-family, NAI cluster emphasized for novelai", () => {
+    expect(fieldVisible("st-family", "triggerRiders")).toBe(false);
+    expect(loreFieldVisibility("st-family").groupTuning).toBe("emphasize");
+    expect(loreFieldVisibility("novelai").naiActivation).toBe("emphasize");
+    expect(fieldVisible("agnai", "characterFilter")).toBe(false);
+  });
 });
 
 describe("loreSummary / health", () => {

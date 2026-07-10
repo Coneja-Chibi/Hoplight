@@ -7,7 +7,8 @@ import type { JSX } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { ToggleSwitch } from "../../../components/toggle-switch";
-import { KeywordChips } from "./keyword-chips";
+import { TriggerEditor } from "./trigger-editor";
+import { LoreEntryDrawer } from "./entry-drawer";
 import { PositionPicker } from "./position-picker";
 
 export interface EntryPanelProps {
@@ -157,11 +158,25 @@ export function LoreEntryPanel({
       <div className={styles.pbody}>
         {show("triggers") && (
           <>
-            <span className={styles.plabel}>Primary keys</span>
-            <KeywordChips
+            <span className={styles.plabel}>
+              Primary keys
+              {show("triggerRiders") && (
+                <select
+                  className={styles.miniSel}
+                  value={entry.triggerMode}
+                  aria-label="Trigger mode (advanced unlocks per-key dials)"
+                  onChange={(ev) => onPatch({ triggerMode: ev.target.value === "advanced" ? "advanced" : "simple" })}
+                >
+                  <option value="simple">Simple</option>
+                  <option value="advanced">Advanced · per-key dials</option>
+                </select>
+              )}
+            </span>
+            <TriggerEditor
               triggers={entry.triggers}
               onChange={(triggers) => onPatch({ triggers })}
               styles={styles}
+              advanced={show("triggerRiders") && entry.triggerMode === "advanced"}
               ariaLabel="Primary keys"
             />
           </>
@@ -182,13 +197,16 @@ export function LoreEntryPanel({
                 ))}
               </select>
             )}
-            <KeywordChips
-              triggers={entry.secondaryTriggers}
-              onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
-              styles={styles}
-              placeholder="secondary (optional)…"
-              ariaLabel="Secondary keys"
-            />
+            <div className={styles.keysGrow}>
+              <TriggerEditor
+                triggers={entry.secondaryTriggers}
+                onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
+                styles={styles}
+                advanced={show("triggerRiders") && entry.triggerMode === "advanced"}
+                placeholder="secondary (optional)…"
+                ariaLabel="Secondary keys"
+              />
+            </div>
           </div>
         )}
 
@@ -300,93 +318,7 @@ export function LoreEntryPanel({
           </>
         )}
 
-        <details className={styles.details}>
-          <summary className={styles.label}>Fine control (profile-gated · hidden fields stay in data)</summary>
-          {show("scanSources") && (
-            <div className={styles.tools}>
-              {(
-                [
-                  ["scanCharacterDescription", "Scan description"],
-                  ["scanCharacterPersonality", "Scan personality"],
-                  ["scanUserPersona", "Scan persona"],
-                  ["scanScenario", "Scan scenario"],
-                ] as const
-              ).map(([key, label]) => (
-                <label key={key} className={styles.chip}>
-                  <input
-                    type="checkbox"
-                    checked={entry[key]}
-                    onChange={(ev) => onPatch({ [key]: ev.target.checked })}
-                  />{" "}
-                  {label}
-                </label>
-              ))}
-            </div>
-          )}
-          {show("vectorized") && (
-            <label className={styles.chip}>
-              <input
-                type="checkbox"
-                checked={entry.vectorized === true}
-                onChange={(ev) => onPatch({ vectorized: ev.target.checked })}
-              />{" "}
-              Vectorized (RAG)
-            </label>
-          )}
-          {show("categoryId") && (
-            <label className={styles.field}>
-              <span className={styles.label}>Category id</span>
-              <input
-                className={styles.input}
-                value={entry.categoryId ?? ""}
-                onChange={(ev) => onPatch({ categoryId: ev.target.value || null })}
-              />
-            </label>
-          )}
-          {show("contextConfig") && (
-            <>
-              <label className={styles.field}>
-                <span className={styles.label}>Context prefix</span>
-                <input
-                  className={styles.input}
-                  value={entry.contextConfig?.prefix ?? ""}
-                  onChange={(ev) =>
-                    onPatch({
-                      contextConfig: { ...entry.contextConfig, prefix: ev.target.value || undefined },
-                    })
-                  }
-                />
-              </label>
-              <label className={styles.field}>
-                <span className={styles.label}>Context suffix</span>
-                <input
-                  className={styles.input}
-                  value={entry.contextConfig?.suffix ?? ""}
-                  onChange={(ev) =>
-                    onPatch({
-                      contextConfig: { ...entry.contextConfig, suffix: ev.target.value || undefined },
-                    })
-                  }
-                />
-              </label>
-            </>
-          )}
-          {show("automationId") && (
-            <label className={styles.field}>
-              <span className={styles.label}>Automation id</span>
-              <input
-                className={styles.input}
-                value={entry.automationId ?? ""}
-                onChange={(ev) => onPatch({ automationId: ev.target.value || null })}
-              />
-            </label>
-          )}
-          {show("sideEffects") && entry.sideEffects && (
-            <p className={styles.chip}>
-              Side effects: {entry.sideEffects.effects.length} declared (opaque; not executed in Studio)
-            </p>
-          )}
-        </details>
+        <LoreEntryDrawer entry={entry} writeFor={writeFor} styles={styles} onPatch={onPatch} />
       </div>
     </article>
   );

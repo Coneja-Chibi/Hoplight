@@ -208,9 +208,47 @@
   margin-top: 0.4rem;
 }
 
-.keysRow > .keybox {
+.keysRow > .keybox,
+.keysGrow {
   flex: 1;
   min-width: 0;
+}
+
+/* advanced-trigger riders: the picked chip + its dial row */
+.keyLabel {
+  font: inherit;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.keyPicked {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.keyPicked .keyx {
+  color: var(--stage-ink);
+}
+
+.riderRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  border: 2px dashed var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.35rem 0.45rem;
+  margin-top: 0.3rem;
+}
+
+.riderName {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: var(--a, var(--stage-macro));
 }
 
 /* ---------- position + timing ---------- */

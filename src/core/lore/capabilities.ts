@@ -12,15 +12,19 @@ export type LoreWriteForProfile =
 
 export type FieldVisibility = "show" | "emphasize" | "demote" | "hide";
 
-/** Canonical entry/book field keys the UI may surface. */
+/** Canonical entry/book field keys the UI may surface. FULL COVERAGE of the RC wire (the codec in
+ * formats/rolecall/lorebook.ts is the ground truth): every authored field a real format serializes
+ * has a key here so the editor can gate it - the schema-is-editor doctrine. */
 export type LoreFieldKey =
   | "title"
   | "content"
+  | "comment"
   | "enabled"
   | "constant"
   | "triggers"
   | "secondaryTriggers"
   | "selectiveLogic"
+  | "triggerRiders"
   | "position"
   | "depth"
   | "role"
@@ -32,10 +36,15 @@ export type LoreFieldKey =
   | "cooldown"
   | "delay"
   | "groupName"
+  | "groupTuning"
   | "categoryId"
   | "recursion"
+  | "delayUntilRecursion"
+  | "useMemo"
+  | "characterFilter"
   | "sideEffects"
   | "contextConfig"
+  | "naiActivation"
   | "scanSources"
   | "vectorized"
   | "automationId";
@@ -43,11 +52,13 @@ export type LoreFieldKey =
 const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   title: "emphasize",
   content: "emphasize",
+  comment: "show",
   enabled: "show",
   constant: "show",
   triggers: "emphasize",
   secondaryTriggers: "show",
   selectiveLogic: "show",
+  triggerRiders: "show",
   position: "show",
   depth: "show",
   role: "show",
@@ -59,10 +70,15 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   cooldown: "show",
   delay: "show",
   groupName: "show",
+  groupTuning: "show",
   categoryId: "show",
   recursion: "show",
+  delayUntilRecursion: "show",
+  useMemo: "show",
+  characterFilter: "show",
   sideEffects: "show",
   contextConfig: "show",
+  naiActivation: "show",
   scanSources: "show",
   vectorized: "show",
   automationId: "show",
@@ -71,42 +87,69 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
 const PROFILE_OVERRIDES: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey, FieldVisibility>>> = {
   full: {},
   "st-family": {
+    comment: "demote",
+    triggerRiders: "hide",
     sideEffects: "demote",
     contextConfig: "hide",
+    naiActivation: "hide",
+    useMemo: "hide",
     sticky: "emphasize",
     groupName: "emphasize",
+    groupTuning: "emphasize",
     recursion: "emphasize",
+    delayUntilRecursion: "show",
+    characterFilter: "show",
     scanSources: "emphasize",
     vectorized: "show",
   },
   agnai: {
+    comment: "hide",
     secondaryTriggers: "demote",
+    triggerRiders: "hide",
     sticky: "hide",
     groupName: "hide",
+    groupTuning: "hide",
     recursion: "demote",
+    delayUntilRecursion: "hide",
+    useMemo: "hide",
+    characterFilter: "hide",
     sideEffects: "hide",
     contextConfig: "hide",
+    naiActivation: "hide",
     vectorized: "hide",
     automationId: "hide",
     priority: "emphasize",
     sortOrder: "emphasize",
   },
   risu: {
+    comment: "demote",
+    triggerRiders: "show",
+    groupTuning: "demote",
+    delayUntilRecursion: "demote",
+    useMemo: "hide",
+    characterFilter: "demote",
     sideEffects: "hide",
     contextConfig: "hide",
+    naiActivation: "hide",
     scanSources: "demote",
     categoryId: "emphasize",
     probability: "emphasize",
     role: "emphasize",
   },
   novelai: {
+    comment: "demote",
     sticky: "hide",
     groupName: "demote",
+    groupTuning: "hide",
+    delayUntilRecursion: "hide",
+    useMemo: "hide",
+    characterFilter: "hide",
     sideEffects: "hide",
     scanSources: "hide",
     vectorized: "hide",
     automationId: "hide",
     contextConfig: "emphasize",
+    naiActivation: "emphasize",
     categoryId: "emphasize",
   },
 };
