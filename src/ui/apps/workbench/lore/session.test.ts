@@ -1,8 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { emptyLorebookBody } from "../../../../core/lore";
 import {
+  addCategory,
   addEntry,
   closeEntryPanel,
+  deleteCategory,
   deleteEntry,
   duplicateEntry,
   focusEntryPanel,
@@ -12,8 +14,11 @@ import {
   openEntries,
   openEntryBeside,
   reconcileLoreAfterSave,
+  renameCategory,
+  reorderEntry,
   selectEntry,
   sessionDirty,
+  setEntryCategory,
   updateBook,
   updateEntry,
 } from "./session";
@@ -147,5 +152,43 @@ describe("lore session", () => {
     const s = normalizeSession(emptyLorebookBody("A"));
     expect(selectEntry(s, "nope")).toBe(s);
     expect(openEntryBeside(s, "nope")).toBe(s);
+  });
+
+  test("categories: add/rename/assign/delete; delete moves entries to Uncategorized", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    const entryId = s.body.entries[0]!.id;
+    s = addCategory(s, "  People  ");
+    const cat = s.body.categories![0]!;
+    expect(cat.name).toBe("People");
+    expect(cat.enabled).toBe(true);
+    s = renameCategory(s, cat.id, "Factions");
+    expect(s.body.categories![0]!.name).toBe("Factions");
+    s = setEntryCategory(s, entryId, cat.id);
+    expect(s.body.entries[0]!.categoryId).toBe(cat.id);
+    // unknown category id is refused (deny by absence)
+    expect(setEntryCategory(s, entryId, "nope")).toBe(s);
+    s = deleteCategory(s, cat.id);
+    expect(s.body.categories).toBeUndefined();
+    expect(s.body.entries[0]!.categoryId).toBeNull();
+  });
+
+  test("addCategory ignores blank names; renameCategory ignores unknown ids", () => {
+    const s = normalizeSession(emptyLorebookBody("A"));
+    expect(addCategory(s, "   ")).toBe(s);
+    expect(renameCategory(s, "nope", "X")).toBe(s);
+  });
+
+  test("reorderEntry restamps displayIndex only when the axis is in use", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    s = addEntry(s);
+    const [a, b] = s.body.entries.map((e) => e.id);
+    // axis unused: reorder leaves displayIndex absent
+    s = reorderEntry(s, b!, 0);
+    expect(s.body.entries.every((e) => e.displayIndex === undefined)).toBe(true);
+    // axis in use: reorder restamps every entry from the new order
+    s = updateEntry(s, a!, { displayIndex: 0 });
+    s = reorderEntry(s, a!, 0);
+    expect(s.body.entries.map((e) => e.displayIndex)).toEqual([0, 1]);
+    expect(s.body.entries[0]!.id).toBe(a!);
   });
 });

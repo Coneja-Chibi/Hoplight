@@ -2,10 +2,11 @@
  * Pure lorebook editing session: open entry panels (the desk shows up to two side by side),
  * focus, entry CRUD, book settings, dirty/reconcile.
  */
-import type { LorebookBody, LorebookEntry } from "../../../../entities/lorebook/schema";
+import type { LorebookBody, LorebookCategory, LorebookEntry } from "../../../../entities/lorebook/schema";
 import { emptyLoreEntry } from "../../../../core/lore";
 import { newUiId } from "../../../_shared/new-id";
 import { deepEq, reconcileAfterSave } from "../editor-core";
+import { stampDisplayIndexes } from "./entry-extras";
 
 /** How many entry panels the desk shows at once (vs-lorebook-desk-f: two, side by side). */
 export const MAX_OPEN_PANELS = 2;
@@ -130,7 +131,55 @@ export function reorderEntry(session: LoreSession, id: string, toIndex: number):
   const [row] = entries.splice(from, 1);
   const clamped = Math.max(0, Math.min(toIndex, entries.length));
   entries.splice(clamped, 0, row!);
-  return { ...session, body: { ...session.body, entries } };
+  // a book already using the authored displayIndex axis gets it restamped from the new order
+  return { ...session, body: { ...session.body, entries: stampDisplayIndexes(entries) } };
+}
+
+// -- categories (the sidebar's folders; RC pattern: delete moves entries to Uncategorized) -----------
+
+export function addCategory(session: LoreSession, name: string): LoreSession {
+  const trimmed = name.trim();
+  if (!trimmed) return session;
+  const categories = session.body.categories ?? [];
+  const next: LorebookCategory = {
+    id: newUiId("cat_"),
+    name: trimmed,
+    sortOrder: (categories.at(-1)?.sortOrder ?? 0) + 10,
+    enabled: true,
+  };
+  return { ...session, body: { ...session.body, categories: [...categories, next] } };
+}
+
+export function renameCategory(session: LoreSession, id: string, name: string): LoreSession {
+  const trimmed = name.trim();
+  const categories = session.body.categories ?? [];
+  if (!trimmed || !categories.some((c) => c.id === id)) return session;
+  return {
+    ...session,
+    body: {
+      ...session.body,
+      categories: categories.map((c) => (c.id === id ? { ...c, name: trimmed } : c)),
+    },
+  };
+}
+
+export function deleteCategory(session: LoreSession, id: string): LoreSession {
+  const categories = session.body.categories ?? [];
+  if (!categories.some((c) => c.id === id)) return session;
+  const remaining = categories.filter((c) => c.id !== id);
+  const entries = session.body.entries.map((e) =>
+    e.categoryId === id ? { ...e, categoryId: null } : e,
+  );
+  const body = { ...session.body, entries, categories: remaining };
+  if (remaining.length === 0) delete (body as Partial<LorebookBody>).categories;
+  return { ...session, body };
+}
+
+export function setEntryCategory(session: LoreSession, entryId: string, categoryId: string | null): LoreSession {
+  if (categoryId !== null && !(session.body.categories ?? []).some((c) => c.id === categoryId)) {
+    return session;
+  }
+  return updateEntry(session, entryId, { categoryId });
 }
 
 export function updateEntry(
