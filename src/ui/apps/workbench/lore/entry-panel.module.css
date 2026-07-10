@@ -1,0 +1,290 @@
+/**
+ * Entry panel skin (vs-lorebook-desk-f): the panes grid, one panel's head/dial-row/keys/position/
+ * timing. Merged into the desk's styles object by LorebookEditor (shared form pieces live there).
+ */
+
+.panes {
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  padding: 0.85rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.85rem;
+  align-content: start;
+  background: var(--stage-floor);
+}
+
+.panesSplit {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* fluid law: the desk lives in a workbench pane (a container), so the two-panel grid collapses
+   by the PANE's width - a half-width split or a phone both stack, a wide pane stays side by side */
+@container (max-width: 68rem) {
+  .panesSplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.panel {
+  border: 3px solid var(--stage-black);
+  box-shadow: 6px 6px 0 0 var(--stage-black);
+  background: var(--stage-panel);
+  min-width: 0;
+}
+
+.panelFocused {
+  border-color: var(--a, var(--stage-macro));
+}
+
+.phead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 3px solid var(--stage-black);
+  background: var(--stage-row);
+}
+
+.ptitle {
+  font: inherit;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.85rem;
+  flex: 1;
+  min-width: 8rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  padding: 0.3rem 0.45rem;
+}
+
+.pclose {
+  font: inherit;
+  font-family: var(--font-mono);
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 2px solid var(--stage-seam);
+  background: transparent;
+  color: var(--stage-mute);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.fld {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.18rem 0.35rem;
+}
+
+.fld > span {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.fldBtn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.26rem 0.42rem;
+  cursor: pointer;
+}
+
+.fldHot {
+  border-color: var(--stage-warn);
+  color: var(--stage-warn);
+}
+
+.fldOn {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.tokest {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  color: var(--stage-mute);
+}
+
+.pbody {
+  padding: 0.6rem 0.7rem 0.85rem;
+}
+
+/* the panel's own section label - NOT named .label: the desk merges the three modules into one
+ * styles object, so a class name may live in exactly one module (a duplicate silently clobbers) */
+.plabel {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  display: block;
+  margin: 0.6rem 0 0.25rem;
+}
+
+.plabel:first-child {
+  margin-top: 0;
+}
+
+/* ---------- keys ---------- */
+
+.keybox {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  align-items: center;
+  min-height: 2.2rem;
+}
+
+.key {
+  border: 2px solid var(--a, var(--stage-macro));
+  color: var(--stage-soft);
+  padding: 0.14rem 0.32rem;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  display: inline-flex;
+  gap: 0.28rem;
+  align-items: center;
+}
+
+.keyx {
+  font: inherit;
+  font-family: var(--font-mono);
+  border: 0;
+  background: transparent;
+  color: var(--stage-mute);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.keyin {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  flex: 1;
+  min-width: 6rem;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.15rem;
+}
+
+.keyin:focus {
+  outline: 2px solid var(--a, var(--stage-macro));
+}
+
+.keysRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.45rem;
+  margin-top: 0.4rem;
+}
+
+.keysRow > .keybox {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- position + timing ---------- */
+
+.posRow,
+.timeRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.pos {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.26rem 0.4rem;
+  cursor: pointer;
+}
+
+.posOn {
+  border-color: var(--a, var(--stage-macro));
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+}
+
+.posDial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.dialLabel {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.num {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  width: 3.4rem;
+  text-align: center;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.15rem;
+}
+
+.groupIn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  width: 6.5rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.3rem;
+}
+
+.miniSel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.24rem 0.3rem;
+}

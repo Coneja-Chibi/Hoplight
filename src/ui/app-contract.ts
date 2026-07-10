@@ -46,7 +46,14 @@ export interface AppContext {
   api: {
     listEntities(kind?: string): Promise<StudioEntitySummary[]>;
     getEntity(id: string): Promise<unknown>;
-    saveEntity(entity: unknown): Promise<StudioEntitySummary>;
+    /** Persist an entity. `overwrite: true` for editor re-saves; omit for import keep-both. */
+    saveEntity(entity: unknown, opts?: { overwrite?: boolean }): Promise<StudioEntitySummary>;
+    /** Persist a character plus related lorebooks; rewrites keep-both knowledgeRefs. */
+    saveBundle(payload: {
+      entity: unknown;
+      related?: { lorebooks?: unknown[] };
+      overwrite?: boolean;
+    }): Promise<SaveBundleResult>;
     inspectFile(file: File): Promise<InspectResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
@@ -75,8 +82,15 @@ export interface AppContext {
     pieces(): StudioEntitySummary[];
     /** the piece whose editor the Workbench shows */
     active(): StudioEntitySummary | null;
+    /** the piece pinned beside the active one, or null when the stage is a single pane. ANY kind
+     * can sit beside any other - the split lives in the shell, not in one editor. */
+    beside(): StudioEntitySummary | null;
     /** open a piece on the Workbench (follow-prompt per settings; no-op if already open) */
     send(s: StudioEntitySummary): void;
+    /** pin a piece into the second pane beside the active one (opens it first if needed) */
+    openBeside(s: StudioEntitySummary): void;
+    /** collapse back to a single pane; the pinned piece stays open as a tab */
+    closeSplit(): void;
     /** open a batch of pieces at once (already-open ones are skipped); the follow-prompt fires
      * ONCE with the count actually opened - the multi-select commit path */
     sendMany(pieces: StudioEntitySummary[]): void;
@@ -127,9 +141,21 @@ export interface InspectResult {
   /** friendly, plain-words lines for the receipt (already humanized by the server) */
   receipt?: { name: string; kindLine: string; extras: string[] };
   entity?: unknown;
+  /** Related entities extracted with the primary (same pass as CLI inspectBundle). */
+  related?: { lorebooks?: unknown[] };
   formatId?: string;
   kind?: string;
   /** plain-words failure ("We could not read this one. ...") - warm, never technical */
+  error?: string;
+}
+
+/** Result of POST /api/studio/save-bundle. Partial failures retain already-written related entities. */
+export interface SaveBundleResult {
+  ok: boolean;
+  primary?: StudioEntitySummary;
+  related: StudioEntitySummary[];
+  knowledgeRefs?: string[];
+  partial?: boolean;
   error?: string;
 }
 
@@ -160,4 +186,6 @@ export interface CoverageInfo {
   /** canonical body path prefixes the platform's wire carries (dot-boundary prefix semantics) */
   carries: string[];
   notes?: Record<string, string>;
+  /** false = export honesty only; omit from the editor platform strip. Default true. */
+  lens?: boolean;
 }

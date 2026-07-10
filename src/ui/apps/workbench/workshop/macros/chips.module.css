@@ -1,0 +1,39 @@
+/**
+ * Macro assist styles (ladder level 2) - split from workshop/styles.module.css (file-size cap);
+ * chips.tsx is the one consumer.
+ */
+.macroAssist {
+  margin-top: 0.35rem;
+  width: 100%;
+}
+.macroChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.macroChip {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--stage-well);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-macro);
+  padding: 0.18rem 0.4rem;
+  cursor: pointer;
+}
+.macroChip:hover {
+  border-color: var(--stage-macro);
+  color: var(--stage-paper);
+}
+.macroPreview {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--stage-mute);
+  margin: 0.3rem 0 0;
+}
+.macroPreview b {
+  color: var(--stage-var);
+  font-weight: 700;
+}

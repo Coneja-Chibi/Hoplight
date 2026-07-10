@@ -19,7 +19,8 @@ import type { RefCallback } from "react";
 import { parseSettings, SETTING_KEYS, type StudioSettings } from "../../studio/settings-shape";
 import { decideFollow } from "../follow-core";
 import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
-import { bumpRecents, keyOf, parseRecents } from "./store-core";
+import { apiFetchJson } from "../_shared/api-fetch";
+import { besideKeys, bumpRecents, focusKeys, keyOf, parseRecents, removeKeys } from "./store-core";
 
 export type Theme = "paper" | "stage";
 
@@ -137,6 +138,8 @@ interface ShellState {
   activeAppId: string;
   openPieces: StudioEntitySummary[];
   activeKey: string;
+  /** a second piece pinned beside the active one ("" = single pane); NEVER equals activeKey */
+  splitKey: string;
   statusNote: string;
   studioCount: number;
   dockSlim: boolean;
@@ -166,7 +169,13 @@ interface ShellState {
   // -- the Workbench's open pieces ------------------------------------------------------------------
   isOpen(id: string, kind: string): boolean;
   activePiece(): StudioEntitySummary | null;
+  /** the piece pinned beside the active one, or null when the stage is a single pane */
+  besidePiece(): StudioEntitySummary | null;
   sendMany(pieces: StudioEntitySummary[]): void;
+  /** open a piece in the second pane, beside whatever is active (opens it first if needed) */
+  openBeside(piece: StudioEntitySummary): void;
+  /** collapse back to a single pane (the pinned piece stays open as a tab) */
+  closeSplit(): void;
   removePiece(id: string, kind: string): void;
   focusPiece(id: string, kind: string): void;
   setPieceDirty(id: string, kind: string, dirty: boolean): void;
@@ -193,6 +202,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
   activeAppId: "",
   openPieces: [],
   activeKey: "",
+  splitKey: "",
   statusNote: "",
   studioCount: 0,
   dockSlim: false,
@@ -207,12 +217,23 @@ export const useShellStore = create<ShellState>((set, get) => ({
   },
 
   async saveSettings(next) {
-    get().applySettings(next);
-    await fetch("/api/settings", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(next),
-    });
+    const prior = get().settings;
+    try {
+      const saved = await apiFetchJson<StudioSettings>("/api/settings", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      if (!saved || typeof saved !== "object" || Array.isArray(saved)) {
+        throw new Error("settings save failed");
+      }
+      get().applySettings(saved);
+    } catch (e) {
+      get().applySettings(prior);
+      const msg = e instanceof Error ? e.message : "settings save failed";
+      set({ statusNote: msg });
+      throw e;
+    }
   },
 
   toggleTheme() {
@@ -276,6 +297,12 @@ export const useShellStore = create<ShellState>((set, get) => ({
     return openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null;
   },
 
+  besidePiece() {
+    const { openPieces, splitKey } = get();
+    if (!splitKey) return null;
+    return openPieces.find((p) => keyOf(p.id, p.kind) === splitKey) ?? null;
+  },
+
   sendMany(batch) {
     const { openPieces, settings, activeAppId } = get();
     const fresh = batch.filter((p) => !get().isOpen(p.id, p.kind));
@@ -326,24 +353,43 @@ export const useShellStore = create<ShellState>((set, get) => ({
     set({ dirtyPieces: next });
   },
 
+  openBeside(piece) {
+    const { activeKey, splitKey, settings } = get();
+    const key = keyOf(piece.id, piece.kind);
+    if (!get().isOpen(piece.id, piece.kind)) {
+      // an explicit "open beside" skips the follow prompt: the user is already steering the bench
+      set({ openPieces: [...get().openPieces, piece] });
+      const now = Date.now();
+      const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), [key], now, RECENTS_CAP);
+      void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+    }
+    set(besideKeys({ activeKey, splitKey }, key));
+    const bench = get().benchApp();
+    if (bench) get().mountApp(bench.id);
+  },
+
+  closeSplit() {
+    if (get().splitKey) set({ splitKey: "" });
+  },
+
   removePiece(id, kind) {
-    const { openPieces, activeKey, dirtyPieces } = get();
+    const { openPieces, activeKey, splitKey, dirtyPieces } = get();
     const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
     if (at < 0) return;
     const next = [...openPieces.slice(0, at), ...openPieces.slice(at + 1)];
-    const nextActiveKey = activeKey === keyOf(id, kind) ? (next[0] ? keyOf(next[0].id, next[0].kind) : "") : activeKey;
+    const fallback = next[0] ? keyOf(next[0].id, next[0].kind) : "";
     const nextDirty = { ...dirtyPieces };
     delete nextDirty[keyOf(id, kind)]; // closing IS the discard; the dot must not haunt a reopen
-    set({ openPieces: next, activeKey: nextActiveKey, dirtyPieces: nextDirty });
+    set({ openPieces: next, ...removeKeys({ activeKey, splitKey }, keyOf(id, kind), fallback), dirtyPieces: nextDirty });
   },
 
   focusPiece(id, kind) {
     if (!get().isOpen(id, kind)) return;
-    const { settings } = get();
+    const { settings, activeKey, splitKey } = get();
     const now = Date.now();
     const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), [keyOf(id, kind)], now, RECENTS_CAP);
     void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
-    set({ activeKey: keyOf(id, kind) });
+    set(focusKeys({ activeKey, splitKey }, keyOf(id, kind)));
     const bench = get().benchApp();
     if (bench) get().mountApp(bench.id);
   },

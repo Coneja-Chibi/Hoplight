@@ -10,50 +10,104 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
+| AltFields | src/ui/components/alt-fields/index.tsx | ({ value, onChange }: AltFieldsProps) |  | .wrap .section .gtitle |
 | App | src/ui/shell/App.tsx | () |  |  |
-| AssetManager | src/ui/components/asset-manager/index.tsx | ({ assets, onChange }: AssetManagerProps) |  | .wrap .group .ghead .tiles .tile .preview .img .ph ... |
+| AssetManager | src/ui/components/asset-manager/index.tsx | ({ assets, onChange, onOpenSprites }: AssetManagerProps) |  | .wrap .group .ghead .handoff .handoffBtn .tiles .tile .preview ... |
+| AttachPanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ packCatalog, attachId, attachBusy, onAttachId, onAttach, }: { packCatalog: readonly PackCatalogEntry[]; attachId: ... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
+| AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
-| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .stage .crumb .pip .cn .cc .pane .art ... |
+| CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
+| CssAdvancedPane | src/ui/components/css-workshop/advanced-pane.tsx | ({ value, onChange, doc, selected, onSelectRule, onRuleChange, onChip, }: CssAdvancedPaneProps) | Code + breakdown split for advanced authors. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| CssAssistPane | src/ui/components/css-workshop/assist-pane.tsx | ({ pack, doc, selected, onSelectRule, onAddRule, onRuleChange, onDeleteRule, }: CssAssistPaneProps) | Structured assist over one rule at a time. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| CssSourcePane | src/ui/components/css-workshop/source-pane.tsx | ({ value, onChange, onChip }: CssSourcePaneProps) | Source tab: chips assist, editor is the sheet. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| CssStarters | src/ui/components/css-workshop/starters.tsx | ({ packId, packBlurb, onApply }: CssStartersProps) | Recipe list filtered by active target pack. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| CssWorkshop | src/ui/components/css-workshop/index.tsx | ({ value, onChange, defaultPackId = "universal", onPackChange, note = DEFAULT_NOTE, mode: modeProp, onModeChange, ini... | Main assisted CSS editor shell. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
+| EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
+| EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |
+| EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
+| EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
+| ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
+| ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
+| ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
+| ExpressionStage | src/ui/components/expression-stage/index.tsx | ({ pack, profile }: ExpressionStageProps) |  | .wrap .seal .row .face .moods .mood .moodOn .ta ... |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
+| ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. | .overlay .sheet |
+| KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel }: KeywordChipsProps) |  |  |
+| KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
+| LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
+| LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
+| LoreEntryPanel | src/ui/apps/workbench/lore/entry-panel.tsx | ({ entry, writeFor, styles, onPatch, onClose, focused, onFocus, tokenEstimate, }: EntryPanelProps) |  |  |
+| LoreEntrySidebar | src/ui/apps/workbench/lore/entry-sidebar.tsx | ({ session, styles, health, bookEstimate, onSelect, onOpenBeside, onAdd, onDuplicate, onDelete, onMove, onPatchEntry,... |  |  |
+| MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
+| MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
+| NamedAssets | src/ui/components/named-assets/index.tsx | ({ value, onChange, assetFiles, macroHint = true, }: NamedAssetsProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
+| NamedAssetsDialog | src/ui/components/named-assets/dialog.tsx | ({ characterName, value, assetFiles, onApply, onClose, }: NamedAssetsDialogProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
+| PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
+| PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .on .hint .offt |
-| PlaybillView | src/ui/apps/workbench/presenters/playbill-view.tsx | ({ leftCard, sealedCard, acts, actModules, lensHides, lensDims, wideKinds, controlFor, nativeItems, nativeSection, na... |  |  |
-| PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles }: PortraitCardProps) |  |  |
+| PlaybillView | src/ui/apps/workbench/presenters/playbill-view.tsx | ({ leftCard, sealedCard, acts, actModules, lensHides, lensDims, wideKinds, panelKinds, controlFor, nativeItems, nativ... |  |  |
+| PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
+| PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, onOpenSprites, spriteCount = 0, sh... |  |  |
+| PositionPicker | src/ui/apps/workbench/lore/position-picker.tsx | ({ position, depth, role, showDepth, showRole, styles, onPatch, }: PositionPickerProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
+| ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
+| RuleKnobs | src/ui/components/css-workshop/knobs.tsx | ({ rule, onChange }: RuleKnobsProps) | Property knobs for the selected rule. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
+| SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
+| SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .room .tabs .tab .on .body .row .tx .label ... |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .room .tabs .tab .on .body .row .tx .label ... |
+| SheetSlicePanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ sheetCols, sheetRows, sheetRef, onCols, onRows, onPick, onFile, }: { sheetCols: number; sheetRows: number; sheetRe... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | Slider | src/ui/components/slider/index.tsx | ({ value, min, max, step = 1, onChange, format, "aria-label": ariaLabel, }: SliderProps) |  | .wrap .range .readout |
+| SpritePack | src/ui/components/sprite-pack/index.tsx | ({ value, onChange, showEnabled = false, showDefault = true, allowMultiFile = true, profile, showSlots = false, focus... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
+| SpritePackDialog | src/ui/components/sprite-pack/dialog.tsx | ({ characterName, pack, groups: initialGroups = {}, targets = [], showEnabled = false, showDefault = true, showGroups... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
+| SpriteParts | src/ui/components/sprite-parts/index.tsx | ({ value, visualType = "sprite", onChange, onVisualTypeChange, }: SpritePartsProps) |  | .wrap .row .lbl .sel .input .parts .part .color ... |
 | Stamp | src/ui/components/stamp/index.tsx | ({ children, onClick, disabled, accent, title, type = "button", id, "aria-label": ariaLabel, }: StampProps) | The stamp button: rest sits flush, hover lifts and grows its shadow, active presses flat. | .topbtn |
+| StateGraphPane | src/ui/apps/workbench/workshop/state-graph/pane.tsx | ({ triggers, defaultVarsText, onApply, }: StateGraphPaneProps) |  |  |
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
+| StructuredPersona | src/ui/components/structured-persona/index.tsx | ({ value, onChange }: StructuredPersonaProps) |  | .wrap .kinds .kind .kindOn .attr .top .key .chips ... |
 | StubEditor | src/ui/components/stub-editor/index.tsx | ({ title, note, onClose, children }: StubEditorProps) |  | .head .note .body .close |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
 | ToggleSwitch | src/ui/components/toggle-switch/index.tsx | ({ on, onChange, label }: ToggleSwitchProps) |  | .btn .track .on .knob |
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
+| TrackerCardColors | src/ui/components/tracker-card-colors/index.tsx | ({ value, onChange }: TrackerCardColorsProps) |  | .wrap .help .colorBlock .k .cssIn |
 | TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
-| VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, onSelect, onAdd, onRemove, onRename, onMode }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
-| WorkshopView | src/ui/apps/workbench/presenters/workshop-view.tsx | ({ draft, setField }: WorkshopViewProps) |  |  |
+| VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, variantArt = {}, onSelect, onAdd, onRemove, onRename, onMode, }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
+| VoiceSetup | src/ui/components/voice-setup/index.tsx | ({ value, onChange }: VoiceSetupProps) |  | .wrap .grid .lbl .sel .input .extras .exrow .rm ... |
+| WorkshopCodePane | src/ui/apps/workbench/workshop/code-pane.tsx | (props: WorkshopCodePaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopConsole | src/ui/apps/workbench/workshop/console.tsx | (props: WorkshopConsoleProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopEhead | src/ui/apps/workbench/workshop/ehead.tsx | ({ title, sub, trailing }: WorkshopEheadProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopNotice | src/ui/apps/workbench/workshop/notice.tsx | ({ kind, children, role = "status" }: WorkshopNoticeProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopRail | src/ui/apps/workbench/workshop/rail.tsx | ({ parts, part, onPart, hasPackage }: WorkshopRailProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopStarters | src/ui/apps/workbench/workshop/starters.tsx | ({ emptyTriggers, undo, onApply }: WorkshopStartersProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopTriggerCard | src/ui/apps/workbench/workshop/trigger-card.tsx | ({ trigger: t, index: ti, triggers, onWrite, vars = [], }: WorkshopTriggerCardProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopTriggersPane | src/ui/apps/workbench/workshop/triggers-pane.tsx | ({ triggers, onWrite, undo, vars = [], }: WorkshopTriggersPaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopVariablesPane | src/ui/apps/workbench/workshop/variables-pane.tsx | ({ vars, onChange }: WorkshopVariablesPaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WorkshopView | src/ui/apps/workbench/workshop/view.tsx | ({ draft, setField, original, setOriginal, targets = [], ctx, }: WorkshopViewProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

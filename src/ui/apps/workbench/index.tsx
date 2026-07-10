@@ -16,6 +16,11 @@ import { RenderBox } from "../../components/render-box";
 import { rankRecents } from "./recents-core";
 import { fieldsFor, type InspectField } from "./inspect-core";
 import { CharacterEditor } from "./Editor";
+import { PackEditor } from "./PackEditor";
+import { LorebookEditor } from "./LorebookEditor";
+import { emptyPackBody } from "../../../entities/pack/schema";
+import { emptyLorebookBody } from "../../../core/lore";
+import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import styles from "./styles.module.css";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
@@ -54,17 +59,19 @@ function PieceFrame({ ctx, piece, children }: { ctx: AppContext; piece: StudioEn
   );
 }
 
-/** One mounted-per-open-character pane; hidden (not unmounted) while another tab is active, so its
- * edits survive the switch. Fetches its entity once, on mount. */
-function CharacterPane({
+/** One mounted-per-open editable piece; hidden (not unmounted) while another tab is active. */
+function EditablePane({
   ctx,
   piece,
   hidden,
+  beside,
   topRight,
 }: {
   ctx: AppContext;
   piece: StudioEntitySummary;
   hidden: boolean;
+  /** rendered as the second pane of a split: seam on its left, ordered after the active pane */
+  beside?: boolean;
   topRight?: ReactNode;
 }): JSX.Element {
   const [entity, setEntity] = useState<unknown | null>(null);
@@ -85,21 +92,31 @@ function CharacterPane({
     return () => {
       cancelled = true;
     };
-    // fetch exactly once per mounted piece: the pane stays mounted for the piece's whole tab life
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [piece.id, piece.kind]);
 
+  const editor =
+    entity == null ? null
+    : piece.kind === "pack" ? (
+      <PackEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : piece.kind === "lorebook" ? (
+      <LorebookEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : (
+      <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+    );
+
   return (
-    // the wrapper must FILL the stage (flex column, bounded height) or the pane inside can never
-    // scroll - an unstyled block just grows past the stage's overflow:hidden (the unscrollable bug)
-    <div className={hidden ? styles.paneWrapHidden : styles.paneWrap}>
-      {/* vs-editor-2 owns the WHOLE pane (its left column IS the portrait card); PieceFrame stays
-          the inspector's frame only - wrapping the editor in it doubled the art and broke 1:1 */}
+    <div
+      className={
+        hidden ? styles.paneWrapHidden : beside ? `${styles.paneWrap} ${styles.paneWrapBeside}` : styles.paneWrap
+      }
+      style={beside ? { order: 1 } : undefined}
+    >
       <div className={styles.paneFlush}>
-        {entity ? (
-          <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
-        ) : (
-          <div className={styles.soon}>{failed ? `could not load ${piece.name}` : "loading the piece…"}</div>
+        {editor ?? (
+          <div className={styles.soon}>
+            {failed ? `could not load ${piece.name}` : "loading the piece…"}
+          </div>
         )}
       </div>
     </div>
@@ -228,41 +245,99 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const pieces = ctx.workbench.pieces();
   const active = ctx.workbench.active();
+  const beside = ctx.workbench.beside();
   const activeKey = active ? pieceKey(active.id, active.kind) : "";
-  const characterPieces = pieces.filter((p) => p.kind === "character");
+  const besideKey = beside ? pieceKey(beside.id, beside.kind) : "";
+  const editablePieces = pieces.filter(
+    (p) => p.kind === "character" || p.kind === "pack" || p.kind === "lorebook",
+  );
+  // the split is real only when the beside piece can actually render an editor here
+  const splitOn = besideKey !== "" && editablePieces.some((p) => pieceKey(p.id, p.kind) === besideKey);
 
   useEffect(() => {
     if (active) return; // ONE writer per status line: the editor owns it while a piece is open
     ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
-    // ctx is a stable adapter over the store; depending on its identity re-fires this on every
-    // store write and (with a second writer) ping-pongs the status into an update-depth loop
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pieces.length, activeKey]);
 
-  // NO crumb bar and NO prosc wrapper: the name lives in the shell tab strip + the editor header,
-  // the count lives in the status bar, and every wrapper layer between the window and the cards is
-  // prime vertical space (the editor's own top rows are the room's chrome now). The focus toggle
-  // rides inside the editor's tab strip; the empty room keeps it beside the ghost text.
   const focusNode = <FocusToggle focused={focused} onToggle={toggle} />;
+
+  const newPack = async (): Promise<void> => {
+    const body = emptyPackBody("New pack");
+    const saved = await ctx.api.saveEntity({
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "pack",
+      id: "pack",
+      body,
+    });
+    const summary: StudioEntitySummary = {
+      id: saved.id,
+      kind: "pack",
+      name: saved.name || body.name,
+      accent: saved.accent,
+    };
+    ctx.workbench.send(summary);
+    setEntities((prev) => {
+      if (prev.some((e) => e.kind === "pack" && e.id === saved.id)) return prev;
+      return [...prev, summary];
+    });
+    ctx.setStatus(`opened pack folder · ${summary.name}`);
+  };
+
+  const newLorebook = async (): Promise<void> => {
+    const body = emptyLorebookBody("Untitled lorebook");
+    const saved = await ctx.api.saveEntity({
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "lorebook",
+      id: "lorebook",
+      body,
+    });
+    const summary: StudioEntitySummary = {
+      id: saved.id,
+      kind: "lorebook",
+      name: saved.name || body.name,
+      accent: saved.accent,
+    };
+    ctx.workbench.send(summary);
+    setEntities((prev) => {
+      if (prev.some((e) => e.kind === "lorebook" && e.id === saved.id)) return prev;
+      return [...prev, summary];
+    });
+    ctx.setStatus(`opened lorebook · ${summary.name}`);
+  };
+
   return (
     <div className={`${styles.room}${focused ? ` ${styles.focused}` : ""}`}>
       <div className={styles.stage} style={active?.accent ? ({ "--a": active.accent } as CSSProperties) : undefined}>
         {!active && (
           <div className={styles.ghostRoom}>
             nothing is open on the workbench · open the Library and send pieces here · each one opens as a tab above
-            <div className={styles.ghostFocus}>{focusNode}</div>
+            <div className={styles.ghostFocus}>
+              {focusNode}
+              <button type="button" className={styles.newPackBtn} onClick={() => void newPack()}>
+                New pack folder
+              </button>
+              <button type="button" className={styles.newPackBtn} onClick={() => void newLorebook()}>
+                New lorebook
+              </button>
+            </div>
           </div>
         )}
-        {characterPieces.map((p) => (
-          <CharacterPane
-            key={pieceKey(p.id, p.kind)}
-            ctx={ctx}
-            piece={p}
-            hidden={pieceKey(p.id, p.kind) !== activeKey}
-            topRight={focusNode}
-          />
-        ))}
-        {active && active.kind !== "character" && <InspectorPane ctx={ctx} piece={active} />}
+        <div className={splitOn ? `${styles.paneRow} ${styles.paneRowSplit}` : styles.paneRow}>
+          {editablePieces.map((p) => {
+            const key = pieceKey(p.id, p.kind);
+            return (
+              <EditablePane
+                key={key}
+                ctx={ctx}
+                piece={p}
+                hidden={key !== activeKey && !(splitOn && key === besideKey)}
+                beside={splitOn && key === besideKey}
+                topRight={focusNode}
+              />
+            );
+          })}
+        </div>
       </div>
       {/* the rail is an empty-bench amenity: while a piece is open, even its folded label is a
           dead row - it vanishes entirely and returns when the bench clears */}
@@ -276,7 +351,7 @@ const app: VaudeApp = {
     id: "workbench",
     title: "The Workbench",
     markSvg: MARK_SVG,
-    accent: "#e6a52a", // hardcode-ok: app identity color, not theme chrome
+    accent: "var(--stage-warn)", // hardcode-ok: app identity color, not theme chrome
     order: 10,
     subtitle: "app · home",
     editsPieces: true, // the shell's tab strip focuses into this room

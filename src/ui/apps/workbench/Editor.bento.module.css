@@ -1,0 +1,80 @@
+/**
+ * Editor bento styles - split from Editor.module.css (last-wins cascade).
+ */
+
+.bento {
+  display: grid;
+  grid-template-columns: 21rem minmax(0, 1fr) 23rem;
+  gap: 1rem;
+  padding: 1rem 0.9rem;
+  align-items: start;
+}
+
+.bcol {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.bcolLeft {
+  position: sticky;
+  top: 0.5rem;
+  align-self: start;
+}
+
+/* fluid law: the rigid side columns need ~66rem of PANE; below that the bento stacks (this grid
+   had no collapse at all - the first split pane exposed it overlapping) */
+@container (max-width: 66rem) {
+  .bento {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bcolLeft {
+    position: static;
+  }
+}
+
+.bfield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 0.55rem;
+}
+
+.blabel {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dimlens {
+  opacity: 0.32;
+}
+
+.sealed {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.7;
+  color: var(--text-faint);
+}
+
+.mrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--seam);
+  padding: 0.35rem 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+}
+
+.mname {
+  color: var(--text);
+}
+
+.mcnt {
+  margin-left: auto;
+  color: var(--text-faint);
+}

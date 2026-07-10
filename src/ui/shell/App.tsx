@@ -29,10 +29,11 @@ import type { Tour } from "../tours/tour-contract";
 import { hasSeenTour, isRunnable, seenTourKeys, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
 
-type Phase = "loading" | "setup" | "ready";
+type Phase = "loading" | "setup" | "ready" | "boot-error";
 
 export function App(): JSX.Element | null {
   const [phase, setPhase] = useState<Phase>("loading");
+  const [bootError, setBootError] = useState<string | null>(null);
   const modulesRef = useRef(new Map<string, VaudeApp>());
   const [ActiveComponent, setActiveComponent] = useState<VaudeApp["Component"] | null>(null);
   const activeAppId = useShellStore((s) => s.activeAppId);
@@ -43,7 +44,9 @@ export function App(): JSX.Element | null {
 
   // -- boot: settings first (gates the wizard), then the app roster + landing app -------------------
   async function bootStudio(freshFromSetup: boolean): Promise<void> {
-    const manifestList = ((await (await fetch("/api/apps")).json()) as AppManifestEntry[]).sort(
+    const appsRes = await fetch("/api/apps");
+    if (!appsRes.ok) throw new Error("could not load app roster");
+    const manifestList = ((await appsRes.json()) as AppManifestEntry[]).sort(
       (a, b) => a.order - b.order,
     );
     useShellStore.getState().setManifests(manifestList);
@@ -59,15 +62,29 @@ export function App(): JSX.Element | null {
 
   useEffect(() => {
     void (async () => {
-      const stored = parseSettings(await (await fetch("/api/settings")).json().catch(() => null));
-      useShellStore.getState().applySettings(stored);
-      if (!stored.setupComplete) {
-        // FIRST RUN (DECISIONS #10): the wizard owns the screen; the setup surface itself is paper
-        document.documentElement.dataset.theme = "paper";
-        setPhase("setup");
-        return;
+      try {
+        const res = await fetch("/api/settings");
+        if (!res.ok) {
+          const body = (await res.json().catch(() => null)) as { error?: string } | null;
+          throw new Error(body?.error ?? "could not read settings");
+        }
+        const raw = await res.json();
+        if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+          throw new Error("could not read settings");
+        }
+        const stored = parseSettings(raw);
+        useShellStore.getState().applySettings(stored);
+        if (!stored.setupComplete) {
+          // FIRST RUN (DECISIONS #10): the wizard owns the screen; the setup surface itself is paper
+          document.documentElement.dataset.theme = "paper";
+          setPhase("setup");
+          return;
+        }
+        await bootStudio(false);
+      } catch (e) {
+        setBootError(e instanceof Error ? e.message : "could not start Studio");
+        setPhase("boot-error");
       }
-      await bootStudio(false);
     })();
     // boot runs exactly once; bootStudio is stable for the component's lifetime
   }, []);
@@ -135,13 +152,21 @@ export function App(): JSX.Element | null {
     const unregisterEntity = menus.register("entity", (t) => {
       const e = t.data as StudioEntitySummary;
       const wb = useShellStore.getState();
+      const key = `${e.kind}:${e.id}`;
       if (wb.isOpen(e.id, e.kind)) {
-        return [
-          { label: "Show on the Workbench", onPick: () => wb.focusPiece(e.id, e.kind) },
-          { label: "Remove from the Workbench", onPick: () => wb.removePiece(e.id, e.kind) },
-        ];
+        const items = [{ label: "Show on the Workbench", onPick: () => wb.focusPiece(e.id, e.kind) }];
+        // the split slots: pin beside the active piece, or unpin if this IS the pinned piece
+        if (key === wb.splitKey) {
+          items.push({ label: "Close the split", onPick: () => wb.closeSplit() });
+        } else if (wb.activeKey && key !== wb.activeKey) {
+          items.push({ label: "Open beside", onPick: () => wb.openBeside(e) });
+        }
+        items.push({ label: "Remove from the Workbench", onPick: () => wb.removePiece(e.id, e.kind) });
+        return items;
       }
-      return [{ label: "Send to the Workbench", onPick: () => wb.sendMany([e]) }];
+      const items = [{ label: "Send to the Workbench", onPick: () => wb.sendMany([e]) }];
+      if (wb.activeKey) items.push({ label: "Open beside", onPick: () => wb.openBeside(e) });
+      return items;
     });
 
     const unregisterApp = menus.register("app", (t) => {
@@ -207,8 +232,11 @@ export function App(): JSX.Element | null {
       workbench: {
         pieces: () => [...useShellStore.getState().openPieces],
         active: () => useShellStore.getState().activePiece(),
+        beside: () => useShellStore.getState().besidePiece(),
         send: (s) => useShellStore.getState().sendMany([s]),
         sendMany: (pieces) => useShellStore.getState().sendMany(pieces),
+        openBeside: (s) => useShellStore.getState().openBeside(s),
+        closeSplit: () => useShellStore.getState().closeSplit(),
         remove: (id, kind) => useShellStore.getState().removePiece(id, kind),
         isOpen: (id, kind) => useShellStore.getState().isOpen(id, kind),
         setDirty: (id, kind, dirty) => useShellStore.getState().setPieceDirty(id, kind, dirty),
@@ -216,7 +244,12 @@ export function App(): JSX.Element | null {
         focus: (id, kind) => useShellStore.getState().focusPiece(id, kind),
         onChange: (cb) =>
           useShellStore.subscribe((state, prev) => {
-            if (state.openPieces !== prev.openPieces || state.activeKey !== prev.activeKey) cb();
+            if (
+              state.openPieces !== prev.openPieces ||
+              state.activeKey !== prev.activeKey ||
+              state.splitKey !== prev.splitKey
+            )
+              cb();
           }),
       },
     }),
@@ -227,6 +260,28 @@ export function App(): JSX.Element | null {
   );
 
   if (phase === "loading") return null; // chrome renders only from real state; nothing to paint yet
+
+  if (phase === "boot-error") {
+    return (
+      <div
+        id="shell"
+        style={{
+          display: "grid",
+          placeItems: "center",
+          minHeight: "100dvh",
+          padding: "2rem",
+          fontFamily: "var(--font-body, system-ui)",
+        }}
+      >
+        <div role="alert" style={{ maxWidth: "28rem", textAlign: "center" }}>
+          <h1 style={{ fontSize: "1.25rem", margin: "0 0 0.75rem" }}>Studio could not start</h1>
+          <p style={{ margin: 0, color: "var(--text-soft)" }}>
+            {bootError ?? "settings are unreadable. Fix or restore settings.json, then reload."}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "setup") {
     return (

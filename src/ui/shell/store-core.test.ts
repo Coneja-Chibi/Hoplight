@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { bumpRecents, keyOf, parseRecents } from "./store-core";
+import { besideKeys, bumpRecents, focusKeys, keyOf, parseRecents, removeKeys } from "./store-core";
 
 test("keyOf composes kind:id", () => {
   expect(keyOf("abc", "character")).toBe("character:abc");
@@ -34,4 +34,55 @@ test("bumpRecents caps at the newest `cap` entries", () => {
 
 test("bumpRecents no-ops cleanly on an empty key list", () => {
   expect(bumpRecents({ a: 1 }, [], 5, 10)).toEqual({ a: 1 });
+});
+
+// -- split-pane key rules ----------------------------------------------------------------------------
+
+test("focusKeys: focusing the active piece changes nothing", () => {
+  expect(focusKeys({ activeKey: "a", splitKey: "b" }, "a")).toEqual({ activeKey: "a", splitKey: "b" });
+});
+
+test("focusKeys: focusing the split piece swaps the panes (both stay visible)", () => {
+  expect(focusKeys({ activeKey: "a", splitKey: "b" }, "b")).toEqual({ activeKey: "b", splitKey: "a" });
+});
+
+test("focusKeys: focusing a third piece takes the primary pane, split stays pinned", () => {
+  expect(focusKeys({ activeKey: "a", splitKey: "b" }, "c")).toEqual({ activeKey: "c", splitKey: "b" });
+});
+
+test("focusKeys: without a split, focus just moves the primary", () => {
+  expect(focusKeys({ activeKey: "a", splitKey: "" }, "c")).toEqual({ activeKey: "c", splitKey: "" });
+});
+
+test("removeKeys: closing the split piece empties the split slot", () => {
+  expect(removeKeys({ activeKey: "a", splitKey: "b" }, "b", "a")).toEqual({ activeKey: "a", splitKey: "" });
+});
+
+test("removeKeys: closing the primary promotes the split piece", () => {
+  expect(removeKeys({ activeKey: "a", splitKey: "b" }, "a", "b")).toEqual({ activeKey: "b", splitKey: "" });
+});
+
+test("removeKeys: closing the primary with no split falls back to the first remaining", () => {
+  expect(removeKeys({ activeKey: "a", splitKey: "" }, "a", "z")).toEqual({ activeKey: "z", splitKey: "" });
+  expect(removeKeys({ activeKey: "a", splitKey: "" }, "a", "")).toEqual({ activeKey: "", splitKey: "" });
+});
+
+test("removeKeys: closing an uninvolved piece changes nothing", () => {
+  expect(removeKeys({ activeKey: "a", splitKey: "b" }, "c", "a")).toEqual({ activeKey: "a", splitKey: "b" });
+});
+
+test("besideKeys: pinning a piece beside the primary sets the split slot", () => {
+  expect(besideKeys({ activeKey: "a", splitKey: "" }, "b")).toEqual({ activeKey: "a", splitKey: "b" });
+});
+
+test("besideKeys: pinning replaces an existing split", () => {
+  expect(besideKeys({ activeKey: "a", splitKey: "b" }, "c")).toEqual({ activeKey: "a", splitKey: "c" });
+});
+
+test("besideKeys: a piece cannot sit beside itself", () => {
+  expect(besideKeys({ activeKey: "a", splitKey: "b" }, "a")).toEqual({ activeKey: "a", splitKey: "b" });
+});
+
+test("besideKeys: with nothing active the piece becomes the primary, not a lone split", () => {
+  expect(besideKeys({ activeKey: "", splitKey: "" }, "b")).toEqual({ activeKey: "b", splitKey: "" });
 });

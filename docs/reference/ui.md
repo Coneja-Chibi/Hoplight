@@ -42,9 +42,10 @@ One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended 
 - a feature contributes items: `ctx.menus.register(type, provider)` (any number of providers per
   type; each provider's items form a section; empty/null = deny by absence). Returns an
   unregister for app cleanup.
-- shell-owned providers: `entity` (Send / Show / Remove on the Workbench - the one-shot single path,
-  works in every room), `app` (dock tiles), `shell` (Go home / Import files / Switch theme). Adding a
-  menu later (Open in editor, Export, Delete) = one register() call; nothing central is edited.
+- shell-owned providers: `entity` (Send / Show / Open beside / Close the split / Remove on the
+  Workbench - the one-shot single path, works in every room), `app` (dock tiles), `shell` (Go home /
+  Import files / Switch theme). Adding a menu later (Open in editor, Export, Delete) = one
+  register() call; nothing central is edited.
 
 ## Dev live-reload
 `vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
@@ -132,6 +133,34 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
   the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in
   `workbench/Editor.tsx`. Other kinds keep the read-only inspector until their editors land.
+- **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
+  (`splitKey`, never equal to `activeKey`); "Open beside" on the `entity` menu pins any piece into
+  a second pane next to the active one (opening it first if needed - the explicit gesture skips the
+  follow prompt). Focusing the pinned piece SWAPS the panes (both stay visible); closing the primary
+  promotes the pinned piece; the pinned tab wears an inset accent bar. The pane-key rules are pure
+  and unit-tested (`shell/store-core.ts`: `focusKeys`/`removeKeys`/`besideKeys`). Apps read
+  `workbench.beside()/openBeside()/closeSplit()` off the ctx. The capability lives in the shell -
+  no editor owns it, every current and future kind inherits it.
+- **THE FLUID-LAW CONTAINER SEAM.** The workbench stage and every piece pane declare
+  `container-type: inline-size`, and the editor family (Character, Pack, Lorebook, Workshop)
+  collapses via `@container` queries against the PANE, never `@media` against the viewport - a
+  half-width split, a future drawer, and a phone all compose the same way (design/DECISIONS.md,
+  the fluid law). A stage too narrow for two readable panes stacks the split vertically.
+- **LOREBOOKS EDIT (the desk, vs-lorebook-desk-f 1:1).** `workbench/LorebookEditor.tsx` composes
+  three one-concept skins (desk chrome + `lore/entry-panel` + `lore/entry-sidebar` CSS modules,
+  merged into one styles object - class names live in exactly one module). Shape: Book settings
+  fold (name/description/matching/budget), the Write for strip (single-select profile chips;
+  shows/hides advanced dials only, the book never forks), the entry sidebar (rows with enabled dot,
+  kind letter, live token estimate; the focused row expands quick controls - move/copy/delete +
+  per-entry matching tri-states; non-open rows wear an open-beside glyph), up to TWO entry panels
+  side by side (pure session ops in `lore/session.ts`: `openIds`/`focusedId`, capped at
+  `MAX_OPEN_PANELS`, unit-tested), the stagehand stack at the sidebar's foot (budget meter, focused
+  entry health, the sample-match try-a-line), and a status bar (panels open · entries · ~tokens).
+  Entry panels carry the full canonical field set - mode/order/priority/scan/preserve/chance dials,
+  keyword chips (`lore/keyword-chips.tsx`), position chips (`lore/position-picker.tsx`),
+  timing/recursion/group, content, and a Fine control drawer for the profile-gated rest. Token
+  estimates are the core's honest gauge (`core/lore/summary.ts` `estimateEntryTokens`/
+  `estimateBookTokens`, ~4 chars/token, always rendered with "~").
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.

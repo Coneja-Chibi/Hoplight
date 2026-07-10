@@ -11,7 +11,7 @@ import { Stamp } from "../components/stamp";
 import { keyOf } from "./store-core";
 import { useContextMenu, useShellStore } from "./store";
 
-function Tab({ piece, active }: { piece: StudioEntitySummary; active: boolean }): JSX.Element {
+function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: boolean; beside: boolean }): JSX.Element {
   const focusPiece = useShellStore((s) => s.focusPiece);
   const removePiece = useShellStore((s) => s.removePiece);
   const dirty = useShellStore((s) => s.dirtyPieces[keyOf(piece.id, piece.kind)] === true);
@@ -25,7 +25,7 @@ function Tab({ piece, active }: { piece: StudioEntitySummary; active: boolean })
   return (
     <button
       ref={menuRef}
-      className={`tab${active ? " active" : ""}`}
+      className={`tab${active ? " active" : ""}${beside ? " beside" : ""}`}
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
       onClick={() => focusPiece(piece.id, piece.kind)}
     >
@@ -43,6 +43,7 @@ function Tab({ piece, active }: { piece: StudioEntitySummary; active: boolean })
 export function TabStrip(): JSX.Element {
   const openPieces = useShellStore((s) => s.openPieces);
   const activeKey = useShellStore((s) => s.activeKey);
+  const splitKey = useShellStore((s) => s.splitKey);
   const manifests = useShellStore((s) => s.manifests);
   const mountApp = useShellStore((s) => s.mountApp);
   const setStatus = useShellStore((s) => s.setStatus);
@@ -61,7 +62,12 @@ export function TabStrip(): JSX.Element {
   return (
     <nav id="tabstrip" className={openPieces.length > 0 ? "hastabs" : undefined} aria-label="Open pieces">
       {openPieces.map((p) => (
-        <Tab key={keyOf(p.id, p.kind)} piece={p} active={keyOf(p.id, p.kind) === activeKey} />
+        <Tab
+          key={keyOf(p.id, p.kind)}
+          piece={p}
+          active={keyOf(p.id, p.kind) === activeKey}
+          beside={keyOf(p.id, p.kind) === splitKey}
+        />
       ))}
       <button id="tabadd" title="Open another" onClick={openAnother}>
         +

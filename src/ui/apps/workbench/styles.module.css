@@ -15,6 +15,23 @@
   padding: 0;
   gap: 0;
 }
+.newPackBtn {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+.newPackBtn:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
 .stage {
   position: relative;
   flex: 1;
@@ -73,7 +90,7 @@
   aspect-ratio: 2 / 3;
   background-size: cover;
   background-position: center top;
-  box-shadow: 0 24px 38px -14px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 24px 38px -14px var(--shadow-ink-deep);
   display: flex;
   align-items: flex-end;
   padding: 0.5rem;
@@ -288,6 +305,42 @@
 }
 .paneWrapHidden {
   display: none;
+}
+
+/* the split stage: two panes share the row, active left, the pinned piece right of the seam.
+   THE FLUID LAW SEAM: the stage and each pane are size containers, so editors respond to the
+   PANE they live in (a half-width split, a future drawer) via @container - never the viewport. */
+.stage {
+  container-type: inline-size;
+}
+.paneRow {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.paneRowSplit {
+  flex-direction: row;
+}
+.paneRowSplit > .paneWrap {
+  min-width: 0;
+  flex: 1 1 0;
+}
+.paneWrap {
+  container-type: inline-size;
+}
+.paneWrapBeside {
+  border-left: 3px solid var(--seam);
+}
+/* a stage too narrow for two readable panes stacks them instead (queries the stage, not the window) */
+@container (max-width: 60rem) {
+  .paneRowSplit {
+    flex-direction: column;
+  }
+  .paneRowSplit > .paneWrapBeside {
+    border-left: 0;
+    border-top: 3px solid var(--seam);
+  }
 }
 
 /* flat room: no crumb, no prosc wrapper - the editor's own bars are the chrome. paneFlush scrolls
