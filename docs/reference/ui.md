@@ -161,9 +161,14 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   `trigger-editor.tsx`/`trigger-edit.ts`), TIMING & CHANCE directly under Keys (a fold whose
   summary line honestly states what it hides: sticky/cool/delay, recursion segments, group), 
   PLACEMENT (one row of position pills, `position-picker.tsx`), THE PASSAGE (big serif textarea,
-  {{user}}/{{char}} inserts, char/~token count), and the self-styled Fine control drawer
-  (`entry-drawer.tsx`: the whole RC wire long tail - creator note, group tuning, memo, character
-  filter, scan sources, vectorized/automation, NovelAI cluster, structured side effects). RIGHT
+  {{user}}/{{char}} inserts, char/~token count), a folded CREATOR NOTE card, and PLATFORM CARDS -
+  the character editor's native-fields doctrine applied to lore: ONE FILE PER PLATFORM under
+  `lore/platforms/` (sillytavern/rolecall/novelai/risu; registry.ts is the one stated seam;
+  platforms with no long tail have no file - deny by absence), each rendering a platform-NAMED
+  folded card surfaced only by its Write-for lens (Vaude shows them all; RoleCall has no lens -
+  the Vaude card covers its wire). The lens select lists each platform separately - SillyTavern,
+  Chub, and Lumiverse are three lenses on the codec-grounded ownership matrix
+  (`core/lore/platform-fields.ts`), never one smushed tab. RIGHT
   (`entry-rail.tsx`): the fine print - Order & survival label/value rows (order, priority, always
   keep, chance, speaks-as, scan depth, whole-words/case tri-states, move/copy/delete), the
   sample-match try-a-line, and quiet health tips for the focused entry. Session is pure and

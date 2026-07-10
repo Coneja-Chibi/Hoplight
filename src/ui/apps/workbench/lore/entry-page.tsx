@@ -8,8 +8,8 @@ import type { JSX } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { TriggerEditor } from "./trigger-editor";
-import { LoreEntryDrawer } from "./entry-drawer";
 import { PositionPicker } from "./position-picker";
+import { cardsForLens } from "./platforms/registry";
 
 export interface EntryPageProps {
   entry: LorebookEntry;
@@ -318,6 +318,19 @@ export function LoreEntryPage({
                   />
                 </label>
               )}
+              {show("groupTuning") && (
+                <label className={styles.headFld} title="Higher weight wins the group more often">
+                  <span>Weight</span>
+                  <input
+                    className={styles.headNum}
+                    type="number"
+                    min={0}
+                    value={entry.groupWeight}
+                    aria-label="Inclusion-group weight"
+                    onChange={(ev) => onPatch({ groupWeight: Number(ev.target.value) || 0 })}
+                  />
+                </label>
+              )}
             </div>
           </div>
         </details>
@@ -383,8 +396,37 @@ export function LoreEntryPage({
         </section>
       )}
 
-      {/* ---- Fine control: the whole wire, self-styled drawer ---- */}
-      <LoreEntryDrawer entry={entry} writeFor={writeFor} styles={styles} onPatch={onPatch} />
+      {/* ---- Creator note: yours, never the model's ---- */}
+      {show("comment") && (
+        <details className={styles.bfold}>
+          <summary className={styles.bchead}>
+            <b>Creator note</b>
+            <i>never sent to the model</i>
+          </summary>
+          <div className={styles.bcbody}>
+            <textarea
+              className={styles.textarea}
+              value={entry.comment ?? ""}
+              aria-label="Creator note"
+              onChange={(ev) => onPatch({ comment: ev.target.value || null })}
+            />
+          </div>
+        </details>
+      )}
+
+      {/* ---- Platform cards: one platform, one card, one def file (the character editor's
+           native-fields doctrine) - surfaced by the active lens; Vaude shows them all ---- */}
+      {cardsForLens(writeFor).map((card) => (
+        <details key={card.id} className={styles.bfold}>
+          <summary className={styles.bchead}>
+            <b>{card.label}</b>
+            <i>platform extras · kept on every export</i>
+          </summary>
+          <div className={styles.bcbody}>
+            <card.Component entry={entry} show={show} styles={styles} onPatch={onPatch} />
+          </div>
+        </details>
+      ))}
     </div>
   );
 }

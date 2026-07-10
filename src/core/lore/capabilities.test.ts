@@ -4,6 +4,7 @@ import {
   loreFieldVisibility,
   parseWriteFor,
   LORE_WRITE_FOR_PROFILES,
+  LORE_WRITE_FOR_LABELS,
 } from "./capabilities";
 import { loreSummary } from "./summary";
 import { loreHealth } from "./health";
@@ -16,49 +17,49 @@ describe("lore capabilities", () => {
     expect(parseWriteFor("risu")).toBe("risu");
   });
 
-  test("every profile has a visibility map", () => {
+  test("every profile has a visibility map and label", () => {
     for (const p of LORE_WRITE_FOR_PROFILES) {
       const m = loreFieldVisibility(p);
       expect(m.title).toBe("emphasize");
       expect(m.content).toBe("emphasize");
+      expect(LORE_WRITE_FOR_LABELS[p].length).toBeGreaterThan(0);
     }
   });
 
-  test("agnai hides sticky; novelai emphasizes contextConfig", () => {
+  test("full is Vaude card (no RC tab) and shows all first-class keys including specials", () => {
+    expect(LORE_WRITE_FOR_LABELS.full.toLowerCase()).toContain("vaude");
+    const m = loreFieldVisibility("full");
+    for (const vis of Object.values(m)) expect(vis).not.toBe("hide");
+    expect(fieldVisible("full", "displayIndex")).toBe(true);
+    expect(fieldVisible("full", "matchOverrides")).toBe(true);
+    expect(fieldVisible("full", "triggerRiders")).toBe(true);
+    expect(fieldVisible("full", "specialTriggers")).toBe(true);
+    expect(fieldVisible("full", "contextConfig")).toBe(true);
+  });
+
+  test("agnai keeps comment (wire has it); hides sticky (no wire)", () => {
+    expect(fieldVisible("agnai", "comment")).toBe(true);
     expect(fieldVisible("agnai", "sticky")).toBe(false);
     expect(loreFieldVisibility("novelai").contextConfig).toBe("emphasize");
   });
 
-  test("st-family emphasizes recursion; agnai demotes secondary triggers", () => {
-    expect(loreFieldVisibility("st-family").recursion).toBe("emphasize");
-    expect(loreFieldVisibility("agnai").secondaryTriggers).toBe("demote");
-    // demote is still visible in UI (drawer can show); hide is not
-    expect(fieldVisible("agnai", "secondaryTriggers")).toBe(true);
-    expect(fieldVisible("agnai", "sideEffects")).toBe(false);
+  test("sillytavern shows displayIndex and timing; hides per-key riders and NAI assembly", () => {
+    expect(fieldVisible("sillytavern", "displayIndex")).toBe(true);
+    expect(loreFieldVisibility("sillytavern").recursion).toBe("emphasize");
+    expect(fieldVisible("sillytavern", "triggerRiders")).toBe(false);
+    expect(fieldVisible("sillytavern", "contextConfig")).toBe(false);
   });
 
-  test("full profile shows the WHOLE RC wire - nothing hidden", () => {
-    const m = loreFieldVisibility("full");
-    for (const vis of Object.values(m)) expect(vis).not.toBe("hide");
-    // the long-tail keys exist and are visible on full
-    for (const key of [
-      "comment",
-      "triggerRiders",
-      "groupTuning",
-      "useMemo",
-      "delayUntilRecursion",
-      "characterFilter",
-      "naiActivation",
-    ] as const) {
-      expect(fieldVisible("full", key)).toBe(true);
+  test("chub and lumiverse are their own lenses on the character-book floor, never smushed", () => {
+    for (const p of ["chub", "lumiverse"] as const) {
+      expect(LORE_WRITE_FOR_LABELS[p]).not.toContain("/");
+      expect(fieldVisible(p, "secondaryTriggers")).toBe(true);
+      expect(fieldVisible(p, "priority")).toBe(true);
+      // ST-app-only fields have no chub/lumi wire home
+      expect(fieldVisible(p, "scanSources")).toBe(false);
+      expect(fieldVisible(p, "vectorized")).toBe(false);
+      expect(fieldVisible(p, "automationId")).toBe(false);
     }
-  });
-
-  test("profile shaping on the long tail: riders hidden for st-family, NAI cluster emphasized for novelai", () => {
-    expect(fieldVisible("st-family", "triggerRiders")).toBe(false);
-    expect(loreFieldVisibility("st-family").groupTuning).toBe("emphasize");
-    expect(loreFieldVisibility("novelai").naiActivation).toBe("emphasize");
-    expect(fieldVisible("agnai", "characterFilter")).toBe(false);
   });
 });
 

@@ -1,20 +1,29 @@
 /**
- * Lore Write-for profiles: presentation guidance only (visibility/emphasis), not alternate models.
- * Single-select preference; platform names live only in this layer.
+ * Lore Write-for profiles: which first-class fields the editor shows.
+ * Full = union of every platform wire. Other profiles hide only fields that
+ * platform cannot serialize. Hiding never deletes body data.
+ *
+ * Ownership matrix: platform-fields.ts (codec-grounded).
  */
+import {
+  platformOwnsField,
+} from "./platform-fields";
 
 export type LoreWriteForProfile =
   | "full"
-  | "st-family"
+  | "sillytavern"
+  | "chub"
+  | "lumiverse"
   | "agnai"
   | "risu"
   | "novelai";
 
 export type FieldVisibility = "show" | "emphasize" | "demote" | "hide";
 
-/** Canonical entry/book field keys the UI may surface. FULL COVERAGE of the RC wire (the codec in
- * formats/rolecall/lorebook.ts is the ground truth): every authored field a real format serializes
- * has a key here so the editor can gate it - the schema-is-editor doctrine. */
+/**
+ * Editor-facing keys. Every key maps to a first-class LorebookEntry / body slot
+ * (or a cluster of slots). Codec-grounded: if a real format serializes it, it lives here.
+ */
 export type LoreFieldKey =
   | "title"
   | "content"
@@ -25,6 +34,8 @@ export type LoreFieldKey =
   | "secondaryTriggers"
   | "selectiveLogic"
   | "triggerRiders"
+  /** RC [type:value] insert chips. Full card only — RC is not a Write-for tab. */
+  | "specialTriggers"
   | "position"
   | "depth"
   | "role"
@@ -47,7 +58,9 @@ export type LoreFieldKey =
   | "naiActivation"
   | "scanSources"
   | "vectorized"
-  | "automationId";
+  | "automationId"
+  | "displayIndex"
+  | "matchOverrides";
 
 const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   title: "emphasize",
@@ -59,6 +72,7 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   secondaryTriggers: "show",
   selectiveLogic: "show",
   triggerRiders: "show",
+  specialTriggers: "show",
   position: "show",
   depth: "show",
   role: "show",
@@ -82,81 +96,65 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   scanSources: "show",
   vectorized: "show",
   automationId: "show",
+  displayIndex: "show",
+  matchOverrides: "show",
 };
 
-const PROFILE_OVERRIDES: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey, FieldVisibility>>> = {
+/** Emphasis only (never hide). Hide is owned exclusively by platformOwnsField. */
+const PROFILE_EMPHASIS: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey, FieldVisibility>>> = {
   full: {},
-  "st-family": {
-    comment: "demote",
-    triggerRiders: "hide",
-    sideEffects: "demote",
-    contextConfig: "hide",
-    naiActivation: "hide",
-    useMemo: "hide",
+  sillytavern: {
     sticky: "emphasize",
     groupName: "emphasize",
     groupTuning: "emphasize",
     recursion: "emphasize",
-    delayUntilRecursion: "show",
-    characterFilter: "show",
     scanSources: "emphasize",
+    displayIndex: "emphasize",
     vectorized: "show",
+    comment: "demote",
+    sideEffects: "demote",
+  },
+  chub: {
+    priority: "emphasize",
+    secondaryTriggers: "emphasize",
+  },
+  lumiverse: {
+    priority: "emphasize",
+    secondaryTriggers: "emphasize",
   },
   agnai: {
-    comment: "hide",
-    secondaryTriggers: "demote",
-    triggerRiders: "hide",
-    sticky: "hide",
-    groupName: "hide",
-    groupTuning: "hide",
-    recursion: "demote",
-    delayUntilRecursion: "hide",
-    useMemo: "hide",
-    characterFilter: "hide",
-    sideEffects: "hide",
-    contextConfig: "hide",
-    naiActivation: "hide",
-    vectorized: "hide",
-    automationId: "hide",
+    comment: "emphasize",
     priority: "emphasize",
     sortOrder: "emphasize",
+    probability: "emphasize",
+    secondaryTriggers: "demote",
+    selectiveLogic: "demote",
+    recursion: "demote",
   },
   risu: {
-    comment: "demote",
-    triggerRiders: "show",
-    groupTuning: "demote",
-    delayUntilRecursion: "demote",
-    useMemo: "hide",
-    characterFilter: "demote",
-    sideEffects: "hide",
-    contextConfig: "hide",
-    naiActivation: "hide",
-    scanSources: "demote",
     categoryId: "emphasize",
     probability: "emphasize",
     role: "emphasize",
+    comment: "demote",
+    groupTuning: "demote",
+    scanSources: "demote",
   },
   novelai: {
-    comment: "demote",
-    sticky: "hide",
-    groupName: "demote",
-    groupTuning: "hide",
-    delayUntilRecursion: "hide",
-    useMemo: "hide",
-    characterFilter: "hide",
-    sideEffects: "hide",
-    scanSources: "hide",
-    vectorized: "hide",
-    automationId: "hide",
     contextConfig: "emphasize",
     naiActivation: "emphasize",
     categoryId: "emphasize",
+    scanDepth: "emphasize",
+    comment: "demote",
   },
 };
 
+/** Platform tab labels (character lens precedent: ONE platform per lens, never smushed).
+ * Full is the Vaude tab, not a platform name. */
 export const LORE_WRITE_FOR_LABELS: Record<LoreWriteForProfile, string> = {
-  full: "Full (RoleCall)",
-  "st-family": "SillyTavern / Chub / Lumiverse",
+  full: "Vaude",
+  sillytavern: "SillyTavern",
+  chub: "Chub",
+  lumiverse: "Lumiverse",
   agnai: "Agnai",
   risu: "Risu",
   novelai: "NovelAI",
@@ -164,7 +162,9 @@ export const LORE_WRITE_FOR_LABELS: Record<LoreWriteForProfile, string> = {
 
 export const LORE_WRITE_FOR_PROFILES: readonly LoreWriteForProfile[] = [
   "full",
-  "st-family",
+  "sillytavern",
+  "chub",
+  "lumiverse",
   "agnai",
   "risu",
   "novelai",
@@ -178,20 +178,26 @@ export function parseWriteFor(v: unknown): LoreWriteForProfile {
   return isLoreWriteForProfile(v) ? v : "full";
 }
 
-/** Visibility map for a Write-for profile. Hidden fields stay in data; UI just omits controls. */
+/**
+ * Visibility for a Write-for profile.
+ * 1) Start with all show.
+ * 2) Hide only fields the platform does not own (full owns everything).
+ * 3) Apply emphasis/demote on remaining visible keys.
+ */
 export function loreFieldVisibility(profile: LoreWriteForProfile): Record<LoreFieldKey, FieldVisibility> {
   const base = { ...ALL_SHOW };
-  const over = PROFILE_OVERRIDES[profile] ?? {};
+  for (const key of Object.keys(base) as LoreFieldKey[]) {
+    if (!platformOwnsField(profile, key)) base[key] = "hide";
+  }
+  const over = PROFILE_EMPHASIS[profile] ?? {};
   for (const [k, vis] of Object.entries(over) as [LoreFieldKey, FieldVisibility][]) {
+    if (base[k] === "hide") continue;
+    if (vis === "hide") continue; // emphasis map must not hide
     base[k] = vis;
   }
   return base;
 }
 
-export function fieldVisible(
-  profile: LoreWriteForProfile,
-  key: LoreFieldKey,
-): boolean {
-  const v = loreFieldVisibility(profile)[key];
-  return v !== "hide";
+export function fieldVisible(profile: LoreWriteForProfile, key: LoreFieldKey): boolean {
+  return loreFieldVisibility(profile)[key] !== "hide";
 }

@@ -19,6 +19,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
+| CharacterFilterBlock | src/ui/apps/workbench/lore/platforms/filter-block.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | CssAdvancedPane | src/ui/components/css-workshop/advanced-pane.tsx | ({ value, onChange, doc, selected, onSelectRule, onRuleChange, onChip, }: CssAdvancedPaneProps) | Code + breakdown split for advanced authors. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
@@ -33,8 +34,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
-| EntryDrawerNaiSection | src/ui/apps/workbench/lore/entry-drawer-nai.tsx | ({ entry, show, onPatch, }: { entry: LorebookEntry; show: (key: string) => boolean; onPatch: (patch: Partial<Lorebook... |  |  |
-| EntryDrawerStSection | src/ui/apps/workbench/lore/entry-drawer-st.tsx | ({ entry, show, onPatch, }: { entry: LorebookEntry; show: (key: string) => boolean; onPatch: (patch: Partial<Lorebook... |  |  |
 | ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
@@ -56,7 +55,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreCategories | src/ui/components/lore-categories/index.tsx | ({ categories, onChange }: LoreCategoriesProps) |  | .wrap .head .label .add .empty .list .row .name ... |
-| LoreEntryDrawer | src/ui/apps/workbench/lore/entry-drawer.tsx | ({ entry, writeFor, onPatch, }: EntryDrawerProps) |  |  |
 | LoreEntryPage | src/ui/apps/workbench/lore/entry-page.tsx | ({ entry, writeFor, styles, onPatch, index, count, onPrev, onNext, tokenEstimate, }: EntryPageProps) |  |  |
 | LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ entries, notes, styles }: EntryRailProps) |  |  |
 | LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, onSelect, onAdd, onPatch, onDuplicate, onDelete, onMove, }: EntryTocProps) |  |  |

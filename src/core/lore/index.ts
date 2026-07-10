@@ -12,6 +12,12 @@ export {
   loreFieldVisibility,
   fieldVisible,
 } from "./capabilities";
+export {
+  LORE_CORE_KEYS,
+  PLATFORM_OWNED_EXTRAS,
+  allPlatformFieldKeys,
+  platformOwnsField,
+} from "./platform-fields";
 export { type LoreSummary, estimateBookTokens, estimateEntryTokens, loreSummary } from "./summary";
 export { type LoreHealthLevel, type LoreHealthNote, loreHealth } from "./health";
 export { emptyLoreEntry, emptyLorebookBody } from "./empty-book";
