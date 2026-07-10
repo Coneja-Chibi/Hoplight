@@ -1,5 +1,6 @@
 /**
  * Character knowledge rail: list/attach/detach/reorder library lorebooks via knowledgeRefs.
+ * Stage-token skin in knowledge-rail.module.css (the rail is dark in both themes).
  */
 import { useEffect, useState, type JSX } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
@@ -9,6 +10,7 @@ import {
   missingKnowledgeRefs,
   reorderKnowledgeRef,
 } from "./knowledge-refs";
+import styles from "./knowledge-rail.module.css";
 
 export interface KnowledgeRailProps {
   ctx: AppContext;
@@ -29,31 +31,18 @@ export function KnowledgeRail({ ctx, refs, onChange }: KnowledgeRailProps): JSX.
   const nameOf = (id: string): string => books.find((b) => b.id === id)?.name ?? id;
 
   return (
-    <section aria-label="Linked lorebooks" style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
-      <div style={{ fontFamily: "var(--font-mono)", fontSize: "0.65rem", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-dim)" }}>
-        Knowledge
-      </div>
-      {refs.length === 0 && (
-        <div style={{ color: "var(--text-soft)", fontSize: "0.85rem" }}>No library books linked.</div>
-      )}
+    <section aria-label="Linked lorebooks" className={styles.rail}>
+      <div className={styles.head}>Knowledge</div>
+      {refs.length === 0 && <div className={styles.empty}>No library books linked.</div>}
       {refs.map((id, i) => (
-        <div key={id} style={{ display: "flex", gap: "0.35rem", alignItems: "center", flexWrap: "wrap" }}>
+        <div key={id} className={styles.row}>
           <button
             type="button"
+            className={missing.includes(id) ? `${styles.book} ${styles.bookMissing}` : styles.book}
             onClick={() => {
               const hit = books.find((b) => b.id === id);
               if (hit) ctx.workbench.send(hit);
               else ctx.setStatus(`missing lorebook · ${id}`);
-            }}
-            style={{
-              flex: 1,
-              textAlign: "left",
-              font: "inherit",
-              border: "3px solid var(--edge)",
-              background: "var(--face)",
-              padding: "0.35rem 0.45rem",
-              cursor: "pointer",
-              color: missing.includes(id) ? "var(--rose)" : "var(--text)",
             }}
             title={missing.includes(id) ? "Missing from library" : "Open in Workbench"}
           >
@@ -62,41 +51,48 @@ export function KnowledgeRail({ ctx, refs, onChange }: KnowledgeRailProps): JSX.
           </button>
           <button
             type="button"
+            className={styles.op}
             disabled={i === 0}
             onClick={() => onChange(reorderKnowledgeRef(refs, id, i - 1))}
             aria-label="Move up"
           >
-            ↑
+            &#8593;
           </button>
           <button
             type="button"
+            className={styles.op}
             disabled={i >= refs.length - 1}
             onClick={() => onChange(reorderKnowledgeRef(refs, id, i + 1))}
             aria-label="Move down"
           >
-            ↓
+            &#8595;
           </button>
-          <button type="button" onClick={() => onChange(detachKnowledgeRef(refs, id))} aria-label="Detach">
-            ×
+          <button
+            type="button"
+            className={styles.op}
+            onClick={() => onChange(detachKnowledgeRef(refs, id))}
+            aria-label="Detach"
+          >
+            &times;
           </button>
         </div>
       ))}
-      <button type="button" onClick={() => setPickOpen((v) => !v)}>
+      <button type="button" className={styles.attach} onClick={() => setPickOpen((v) => !v)}>
         {pickOpen ? "Close attach" : "Attach lorebook…"}
       </button>
       {pickOpen && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", maxHeight: "10rem", overflow: "auto" }}>
-          {books.length === 0 && <div style={{ color: "var(--text-soft)" }}>No lorebooks in the library.</div>}
+        <div className={styles.pick}>
+          {books.length === 0 && <div className={styles.empty}>No lorebooks in the library.</div>}
           {books.map((b) => (
             <button
               key={b.id}
               type="button"
+              className={styles.pickBook}
               disabled={refs.includes(b.id)}
               onClick={() => {
                 onChange(attachKnowledgeRef(refs, b.id));
                 setPickOpen(false);
               }}
-              style={{ textAlign: "left", font: "inherit", padding: "0.3rem", cursor: "pointer" }}
             >
               {b.name}
             </button>

@@ -1,0 +1,105 @@
+/**
+ * Knowledge rail skin - stage tokens (the editor rail is dark in BOTH themes; flipping tokens
+ * like --face painted these white on paper). Replaces the component's original inline styles.
+ */
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.head {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.empty {
+  color: var(--stage-soft);
+  font-size: 0.85rem;
+}
+
+.row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.book {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  font: inherit;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.35rem 0.45rem;
+  cursor: pointer;
+  color: var(--stage-soft);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.bookMissing {
+  color: var(--stage-danger-text);
+  border-color: var(--stage-danger-edge);
+}
+
+.op {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.op:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.attach {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.pick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 10rem;
+  overflow: auto;
+}
+
+.pickBook {
+  text-align: left;
+  font: inherit;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+}
+
+.pickBook:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
