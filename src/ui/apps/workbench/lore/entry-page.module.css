@@ -209,12 +209,12 @@
   margin-top: 0.3rem;
 }
 
-/* ---------- keys: primary and secondary side by side ---------- */
+/* ---------- keys: primary | logic | secondary, boxes on ONE baseline ---------- */
 
 .keysSplit {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: 0.8rem;
+  grid-template-columns: minmax(0, 1.2fr) auto minmax(0, 1fr);
+  gap: 0.6rem;
   align-items: start;
 }
 
@@ -222,9 +222,50 @@
   min-width: 0;
 }
 
+/* every column leads with a label row of the same height, so the boxes align; the logic column's
+   spacer is its own class - NEVER reference another module's class name here (the merge exports
+   an unstyled twin that clobbers it) */
+.logicCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: none;
+}
+
+.logicSpacer {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  margin: 0.45rem 0 0.2rem;
+  visibility: hidden;
+}
+
+.logicSel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 16%, var(--stage-row));
+  color: var(--stage-card);
+  padding: 0.28rem 0.3rem;
+  margin-top: 0.3rem;
+}
+
 @container (max-width: 52rem) {
   .keysSplit {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .logicCol {
+    align-items: flex-start;
+  }
+  .logicSpacer {
+    display: none;
+  }
+  .logicSel {
+    margin-top: 0;
   }
 }
 

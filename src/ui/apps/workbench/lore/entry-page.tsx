@@ -142,6 +142,17 @@ export function LoreEntryPage({
           <div className={styles.bchead}>
             <b>Keys</b>
             <i>when this entry speaks</i>
+            {show("constant") && (
+              <select
+                className={styles.headSel}
+                value={entry.constant ? "constant" : "keyed"}
+                aria-label="Activation mode"
+                onChange={(ev) => onPatch({ constant: ev.target.value === "constant" })}
+              >
+                <option value="keyed">Keyword-fired</option>
+                <option value="constant">Always on</option>
+              </select>
+            )}
             {show("triggerRiders") && (
               <span className={styles.bcheadActs}>
                 <button
@@ -164,7 +175,9 @@ export function LoreEntryPage({
             )}
           </div>
           <div className={styles.bcbody}>
-            <p className={styles.cardHint}>It fires when the chat mentions any of these.</p>
+            {entry.constant && (
+              <p className={styles.cardHint}>Always on - the keys below are kept but not needed.</p>
+            )}
             <div className={styles.keysSplit}>
               <div className={styles.keysCol}>
                 <span className={styles.plabel}>Primary keys</span>
@@ -179,12 +192,14 @@ export function LoreEntryPage({
                 />
               </div>
               {show("secondaryTriggers") && (
-                <div className={styles.keysCol}>
-                  <span className={styles.plabel}>
-                    Only together with (optional)
-                    {show("selectiveLogic") && (
+                <>
+                  {show("selectiveLogic") && (
+                    <div className={styles.logicCol}>
+                      <span className={styles.logicSpacer} aria-hidden="true">
+                        &nbsp;
+                      </span>
                       <select
-                        className={styles.headSel}
+                        className={styles.logicSel}
                         value={entry.selectiveLogic}
                         aria-label="How secondary keys combine"
                         onChange={(ev) => onPatch({ selectiveLogic: ev.target.value as SelectiveLogic })}
@@ -195,18 +210,21 @@ export function LoreEntryPage({
                           </option>
                         ))}
                       </select>
-                    )}
-                  </span>
-                  <TriggerEditor
-                    triggers={entry.secondaryTriggers}
-                    onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
-                    styles={styles}
-                    advanced={advanced}
-                    placeholder="a second word that must also appear…"
-                    ariaLabel="Secondary keys"
-                    entryProbability={entry.probability}
-                  />
-                </div>
+                    </div>
+                  )}
+                  <div className={styles.keysCol}>
+                    <span className={styles.plabel}>Only together with (optional)</span>
+                    <TriggerEditor
+                      triggers={entry.secondaryTriggers}
+                      onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
+                      styles={styles}
+                      advanced={advanced}
+                      placeholder="a second word that must also appear…"
+                      ariaLabel="Secondary keys"
+                      entryProbability={entry.probability}
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>

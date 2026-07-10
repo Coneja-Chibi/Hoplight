@@ -133,6 +133,110 @@
   text-decoration: line-through;
 }
 
+/* ---------- the focused row's expanded fine print (the old desk exprow, relocated) ---------- */
+
+.texp {
+  border-left: 3px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 7%, transparent);
+  margin: 0 0 0.25rem;
+  padding: 0.3rem 0.45rem 0.45rem 0.65rem;
+}
+
+.texpRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.18rem 0;
+}
+
+.texpK {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  flex: none;
+}
+
+.texpNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  width: 3.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  text-align: center;
+  padding: 0.12rem;
+}
+
+.texpSwitch {
+  width: 1.8rem;
+  height: 0.95rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.texpSwitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--stage-ink);
+}
+
+.texpSwitchOff {
+  background: var(--stage-faint);
+}
+
+.texpSwitchOff::after {
+  left: 2px;
+  right: auto;
+}
+
+.texpLabel {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.46rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0.35rem 0 0.15rem;
+}
+
+.texpActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.texpBtn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.3rem;
+  cursor: pointer;
+}
+
+.texpDanger {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+}
+
 .tocEmpty {
   font-family: var(--font-body);
   font-style: italic;

@@ -227,9 +227,19 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         <LoreEntryToc
           entries={session.body.entries}
           focusedId={session.focusedId}
+          writeFor={writeFor}
           styles={styles}
           onSelect={(id) => setSession((s) => selectEntry(s, id))}
           onAdd={() => setSession((s) => addEntry(s))}
+          onPatch={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
+          onDuplicate={(id) => setSession((s) => duplicateEntry(s, id))}
+          onDelete={(id) => setSession((s) => deleteEntry(s, id))}
+          onMove={(id, dir) =>
+            setSession((s) => {
+              const at = s.body.entries.findIndex((e) => e.id === id);
+              return at < 0 ? s : reorderEntry(s, id, at + dir);
+            })
+          }
         />
 
         <main className={styles.pageCol}>
@@ -252,20 +262,9 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
 
         {entry && (
           <LoreEntryRail
-            entry={entry}
             entries={session.body.entries}
             notes={health.filter((h) => h.entryId === entry.id)}
-            writeFor={writeFor}
             styles={styles}
-            onPatch={(patch) => setSession((s) => updateEntry(s, entry.id, patch))}
-            onDuplicate={() => setSession((s) => duplicateEntry(s, entry.id))}
-            onDelete={() => setSession((s) => deleteEntry(s, entry.id))}
-            onMove={(dir) =>
-              setSession((s) => {
-                const at = s.body.entries.findIndex((e) => e.id === entry.id);
-                return at < 0 ? s : reorderEntry(s, entry.id, at + dir);
-              })
-            }
           />
         )}
       </div>
