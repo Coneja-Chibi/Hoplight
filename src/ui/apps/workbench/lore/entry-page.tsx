@@ -283,9 +283,12 @@ export function LoreEntryPage({
                   type="range"
                   min={0}
                   max={100}
+                  step={1}
                   value={entry.probability}
                   aria-label="Activation chance percent"
-                  disabled={entry.probability >= 100}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={entry.probability}
                   onChange={(ev) => {
                     const n = Math.max(0, Math.min(100, Number(ev.target.value) || 0));
                     onPatch({ probability: n });

@@ -1,5 +1,6 @@
 /**
- * Derived activation mode for the Keys tri-mode control (Keywords / Always on / By meaning).
+ * Derived activation mode for the Keys tri-mode control (Keywords / Always on / By meaning)
+ * plus live plain-language summary lines for the masthead and Timing fold.
  */
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 
@@ -17,7 +18,7 @@ export function fireModePatch(mode: EntryFireMode): Partial<LorebookEntry> {
   return { constant: false, vectorized: false };
 }
 
-/** Masthead italic line: honest computed sentence, never a stored field. */
+/** Masthead voice line: honest computed sentence, never a stored field. */
 export function firesLine(entry: LorebookEntry): string {
   if (entry.constant) return "Always on - it speaks in every scene.";
   if (entry.vectorized) return "By meaning - it fires when the chat is similar, not on exact keys.";
@@ -27,17 +28,40 @@ export function firesLine(entry: LorebookEntry): string {
   return `Fires on: ${shown}${words.length > 5 ? ` and ${words.length - 5} more` : ""}.`;
 }
 
-/** Timing fold summary of what it currently hides. */
+/**
+ * Live Timing & chance status. Recomputes from the entry on every patch so sticky / cool /
+ * delay / chance / recursion / group always show what is actually set.
+ */
 export function timingLine(entry: LorebookEntry): string {
   const parts: string[] = [];
-  if (entry.sticky > 0) parts.push(`sticks for ${entry.sticky}`);
-  if (entry.cooldown > 0) parts.push(`cools down ${entry.cooldown}`);
-  if (entry.delay > 0) parts.push(`waits ${entry.delay} messages`);
-  if (entry.preventRecursion) parts.push("never triggers others");
-  if (entry.delayUntilRecursion > 0) parts.push(`waits for recursion ${entry.delayUntilRecursion}`);
-  if (entry.groupName) parts.push(`in group "${entry.groupName}"`);
-  if (parts.length === 0) {
-    return "Fires every time, immediately. Open to add stickiness, cooldowns, or recursion rules.";
+
+  if (entry.probability <= 0) {
+    parts.push("0% chance (never fires)");
+  } else if (entry.probability < 100) {
+    parts.push(`${entry.probability}% chance`);
   }
-  return `Currently: ${parts.join(" · ")}.`;
+
+  if (entry.sticky > 0) {
+    parts.push(`sticks for ${entry.sticky} message${entry.sticky === 1 ? "" : "s"}`);
+  }
+  if (entry.cooldown > 0) {
+    parts.push(`cooldown ${entry.cooldown} message${entry.cooldown === 1 ? "" : "s"}`);
+  }
+  if (entry.delay > 0) {
+    parts.push(`waits ${entry.delay} message${entry.delay === 1 ? "" : "s"} first`);
+  }
+
+  if (entry.preventRecursion) parts.push("never wakes others");
+  if (entry.excludeRecursion) parts.push("cannot be woken by recursion");
+  if (entry.delayUntilRecursion > 0) {
+    parts.push(`only from recursion level ${entry.delayUntilRecursion}`);
+  }
+
+  if (entry.groupName?.trim()) parts.push(`group "${entry.groupName.trim()}"`);
+  if (entry.ignoreBudget) parts.push("always kept past the budget");
+
+  if (parts.length === 0) {
+    return "Fires every time keys match. No chance roll, stickiness, cooldown, or delay.";
+  }
+  return parts.join(" · ") + ".";
 }

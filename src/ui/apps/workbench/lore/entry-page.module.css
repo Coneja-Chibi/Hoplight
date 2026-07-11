@@ -97,12 +97,13 @@
   border-bottom: 3px solid var(--a, var(--stage-macro));
 }
 
+/* Masthead voice line: the ONE italic on the page (doctrine). Soft, not mute-on-dark. */
 .entryLine {
   font-family: var(--font-body);
   font-style: italic;
   font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--stage-mute);
+  font-size: 1rem;
+  color: var(--stage-soft);
   margin: 0 0 0.85rem;
 }
 
@@ -166,21 +167,24 @@
   padding: 0.7rem 0.8rem 0.85rem;
 }
 
+/* Status / explanation lines: upright body (not voice italic). Readable contrast. */
 .cardHint {
   font-family: var(--font-body);
-  font-style: italic;
+  font-style: normal;
   font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--stage-mute);
+  font-size: 0.9rem;
+  color: var(--stage-soft);
   margin: 0 0 0.45rem;
 }
 
+/* Live Timing status - recomputes from entry; MUST stay upright (data, not voice). */
 .foldNote {
   font-family: var(--font-body);
-  font-style: italic;
+  font-style: normal;
   font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--stage-mute);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--stage-soft);
   margin: 0 0 0.55rem;
 }
 
@@ -333,10 +337,10 @@
   border: 2px dashed var(--stage-seam);
   padding: 0.55rem 0.65rem;
   font-family: var(--font-body);
-  font-style: italic;
+  font-style: normal;
   font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--stage-mute);
+  font-size: 0.9rem;
+  color: var(--stage-soft);
   margin: 0;
 }
 
@@ -351,7 +355,14 @@
 .chanceRange {
   flex: 1;
   min-width: 9rem;
+  height: 1.4rem;
+  cursor: pointer;
   accent-color: var(--stage-ok);
+}
+
+.chanceRange:focus-visible {
+  outline: 2px solid var(--a, var(--stage-macro));
+  outline-offset: 2px;
 }
 
 .chanceReadout {
