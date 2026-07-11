@@ -1,25 +1,16 @@
 /**
- * LoreEntryToc - health pip, fire-mode select (icons+color), slide enable, chrom expand,
- * drag-and-drop reorder. Match overrides live on the page Keys card, not here.
+ * LoreEntryToc - health pip, fire-mode select, slide enable, chrom expand, drag reorder.
+ * Match overrides live on the page Keys card, not here.
  */
-import { useEffect, useRef, useState, type JSX } from "react";
-import { Columns2, Copy, KeyRound, Pin, Sparkles, Trash2 } from "lucide-react";
+import { useState, type JSX } from "react";
+import { Columns2, Copy, Trash2 } from "lucide-react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
-import { entryFireMode, fireModePatch, type EntryFireMode } from "./entry-fire-mode";
+import { entryFireMode, fireModePatch } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
+import { ModeSelect } from "./entry-toc-mode";
 
 const ICO = { size: 12, strokeWidth: 2.25, "aria-hidden": true as const };
-
-const MODE_OPTS: readonly {
-  mode: EntryFireMode;
-  label: string;
-  Icon: typeof KeyRound;
-}[] = [
-  { mode: "keyed", label: "Keywords", Icon: KeyRound },
-  { mode: "always", label: "Always on", Icon: Pin },
-  { mode: "meaning", label: "By meaning", Icon: Sparkles },
-];
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -61,97 +52,6 @@ function healthTitle(health: "problem" | "worth-a-look" | undefined, enabled: bo
   if (health === "problem") return "Health problem";
   if (health === "worth-a-look") return "Worth a look";
   return "Healthy";
-}
-
-function modeTone(mode: EntryFireMode, styles: Readonly<Record<string, string>>): string {
-  if (mode === "always") return styles.modeAlways ?? "";
-  if (mode === "meaning") return styles.modeMeaning ?? "";
-  return styles.modeKey ?? "";
-}
-
-function ModeSelect({
-  mode,
-  vectorOk,
-  styles,
-  onChange,
-}: {
-  mode: EntryFireMode;
-  vectorOk: boolean;
-  styles: Readonly<Record<string, string>>;
-  onChange: (mode: EntryFireMode) => void;
-}): JSX.Element {
-  const [open, setOpen] = useState(false);
-  const wrap = useRef<HTMLDivElement | null>(null);
-  const current = MODE_OPTS.find((o) => o.mode === mode) ?? MODE_OPTS[0]!;
-  const CurIcon = current.Icon;
-
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (ev: MouseEvent): void => {
-      if (wrap.current && !wrap.current.contains(ev.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, [open]);
-
-  return (
-    <div className={styles.modeSelect} ref={wrap}>
-      <button
-        type="button"
-        className={`${styles.modeTrigger} ${modeTone(mode, styles)}`.trim()}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={`Trigger method: ${current.label}`}
-        title={current.label}
-        onClick={(ev) => {
-          ev.stopPropagation();
-          setOpen((o) => !o);
-        }}
-      >
-        <CurIcon {...ICO} />
-        <span>{current.label}</span>
-      </button>
-      {open && (
-        <ul className={styles.modeMenu} role="listbox" aria-label="Trigger method">
-          {MODE_OPTS.map(({ mode: m, label, Icon }) => {
-            const gated = m === "meaning" && !vectorOk;
-            return (
-              <li key={m}>
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={m === mode}
-                  disabled={gated}
-                  className={[
-                    styles.modeOpt,
-                    modeTone(m, styles),
-                    m === mode ? styles.modeOptOn : "",
-                    gated ? styles.modeOptGated : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  title={
-                    gated
-                      ? "This host cannot carry by-meaning (vectorized) entries."
-                      : label
-                  }
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    if (gated) return;
-                    onChange(m);
-                    setOpen(false);
-                  }}
-                >
-                  <Icon {...ICO} />
-                  <span>{label}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
-  );
 }
 
 function FinePrint({
@@ -378,28 +278,6 @@ export function LoreEntryToc({
             }
           }}
         >
-          {selectMode ? (
-            <span
-              className={isPicked ? `${styles.cb} ${styles.cbOn}` : styles.cb}
-              aria-hidden="true"
-            />
-          ) : (
-            <span
-              className={healthPipClass(health, e.enabled, styles)}
-              title={healthTitle(health, e.enabled)}
-              aria-label={healthTitle(health, e.enabled)}
-            />
-          )}
-          <span className={styles.tnm}>{e.title || "(untitled)"}</span>
-          {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
-          {!selectMode && canMode && (
-            <ModeSelect
-              mode={mode}
-              vectorOk={vectorOk}
-              styles={styles}
-              onChange={(m) => onPatch(e.id, fireModePatch(m))}
-            />
-          )}
           {!selectMode && (
             <button
               type="button"
@@ -416,6 +294,32 @@ export function LoreEntryToc({
               }}
             />
           )}
+          {selectMode ? (
+            <span
+              className={isPicked ? `${styles.cb} ${styles.cbOn}` : styles.cb}
+              aria-hidden="true"
+            />
+          ) : (
+            <span
+              className={healthPipClass(health, e.enabled, styles)}
+              title={healthTitle(health, e.enabled)}
+              aria-label={healthTitle(health, e.enabled)}
+            />
+          )}
+          <div className={styles.tMain}>
+            <div className={styles.tTitleRow}>
+              <span className={styles.tnm}>{e.title || "(untitled)"}</span>
+              {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
+            </div>
+            {!selectMode && canMode && (
+              <ModeSelect
+                mode={mode}
+                vectorOk={vectorOk}
+                styles={styles}
+                onChange={(m) => onPatch(e.id, fireModePatch(m))}
+              />
+            )}
+          </div>
         </div>
         {focused && !selectMode && (
           <FinePrint

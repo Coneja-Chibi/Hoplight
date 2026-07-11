@@ -73,6 +73,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MobileEditorHead | src/ui/components/mobile-editor-head/index.tsx | ({ name, sub, dirty, saving, onBack, onSave, menu }: MobileEditorHeadProps) | Back / name / save / kebab at 2.2rem touch targets; the kebab holds the long tail. | .head .back .name .save .kebabWrap .kebab .menu |
+| ModeSelect | src/ui/apps/workbench/lore/entry-toc-mode.tsx | ({ mode, vectorOk, styles, onChange, }: { mode: EntryFireMode; vectorOk: boolean; styles: Readonly<Record<string, str... |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
 | NamedAssets | src/ui/components/named-assets/index.tsx | ({ value, onChange, assetFiles, macroHint = true, }: NamedAssetsProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | NamedAssetsDialog | src/ui/components/named-assets/dialog.tsx | ({ characterName, value, assetFiles, onApply, onClose, }: NamedAssetsDialogProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |

@@ -8,6 +8,7 @@ import panelKeyStyles from "./entry-panel-keys.module.css";
 import pageStyles from "./entry-page.module.css";
 import whenWhereStyles from "./entry-when-where.module.css";
 import tocStyles from "./entry-toc.module.css";
+import tocModeStyles from "./entry-toc-mode.module.css";
 import tocFineStyles from "./entry-toc-fine.module.css";
 import railStyles from "./entry-rail.module.css";
 import platformCardStyles from "./platforms/cards.module.css";
@@ -21,6 +22,7 @@ export const binderStyles: Readonly<Record<string, string>> = {
   ...pageStyles,
   ...whenWhereStyles,
   ...tocStyles,
+  ...tocModeStyles,
   ...tocFineStyles,
   ...railStyles,
   ...platformCardStyles,

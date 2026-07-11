@@ -1,0 +1,93 @@
+/**
+ * TOC fire-mode dropdown (icons + color).
+ */
+
+.modeSelect {
+  position: relative;
+  flex: none;
+  max-width: 100%;
+}
+
+.modeTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.14rem 0.28rem;
+  cursor: pointer;
+  max-width: 100%;
+}
+
+.modeTrigger span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeKey {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.modeAlways {
+  border-color: var(--stage-var);
+  color: var(--stage-var);
+}
+
+.modeMeaning {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--a, var(--stage-macro));
+}
+
+.modeMenu {
+  position: absolute;
+  z-index: 20;
+  left: 0;
+  top: calc(100% + 0.15rem);
+  margin: 0;
+  padding: 0.2rem;
+  list-style: none;
+  min-width: 8.5rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-panel);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+}
+
+.modeOpt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.35rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.modeOpt:hover:not(:disabled) {
+  background: var(--stage-row);
+  color: var(--stage-card);
+}
+
+.modeOptOn {
+  background: var(--stage-row);
+}
+
+.modeOptGated {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
