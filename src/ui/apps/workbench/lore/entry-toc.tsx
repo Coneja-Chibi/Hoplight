@@ -352,6 +352,21 @@ export function LoreEntryToc({
           )}
           {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
           {!selectMode && (
+            <button
+              type="button"
+              className={e.enabled ? styles.tEn : `${styles.tEn} ${styles.tEnOff}`}
+              aria-pressed={e.enabled}
+              aria-label={e.enabled ? "Entry on" : "Entry off"}
+              title={e.enabled ? "On - click to disable" : "Off - click to enable"}
+              onClick={(ev) => {
+                ev.stopPropagation();
+                onPatch(e.id, { enabled: !e.enabled });
+              }}
+            >
+              {e.enabled ? "On" : "Off"}
+            </button>
+          )}
+          {!selectMode && (
             <span className={styles.hoverActs} onClick={(ev) => ev.stopPropagation()}>
               <button type="button" aria-label="Move up" onClick={() => onMove(e.id, -1)}>
                 &#8593;

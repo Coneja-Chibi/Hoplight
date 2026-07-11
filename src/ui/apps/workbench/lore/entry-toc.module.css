@@ -154,6 +154,42 @@
   flex: none;
 }
 
+/* Always-visible entry enable (collapsed and expanded rows) */
+.tEn {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-ok);
+  background: transparent;
+  color: var(--stage-ok);
+  padding: 0.1rem 0.32rem;
+  cursor: pointer;
+  line-height: 1.15;
+}
+
+.tEn:hover {
+  background: color-mix(in srgb, var(--stage-ok) 14%, transparent);
+}
+
+.tEnOff {
+  border-color: var(--stage-seam);
+  color: var(--stage-mute);
+}
+
+.tEnOff:hover {
+  border-color: var(--stage-line);
+  color: var(--stage-soft);
+  background: var(--stage-sunken);
+}
+
+.trowOff .tEnOff {
+  /* keep off chip readable when the row is dimmed */
+  opacity: 1;
+}
+
 .healthBad {
   flex: none;
   font-family: var(--font-mono);
