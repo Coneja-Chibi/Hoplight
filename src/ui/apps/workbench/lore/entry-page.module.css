@@ -164,6 +164,14 @@
   gap: 0.3rem;
 }
 
+/* Simple / Advanced sits next to Keys title (not trailing fluff copy) */
+.keysMode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-left: 0.35rem;
+}
+
 .bcbody {
   padding: 0.7rem 0.8rem 0.85rem;
 }

@@ -103,9 +103,8 @@ export function LoreEntryPage({
         <section className={styles.bcard} aria-label="Keys">
           <div className={styles.bchead}>
             <b>Keys</b>
-            <i>when this entry speaks</i>
             {show("triggerRiders") && (
-              <span className={styles.bcheadActs}>
+              <span className={styles.keysMode} role="group" aria-label="Trigger editor mode">
                 <button
                   type="button"
                   className={simpleMode ? `${styles.modeTab} ${styles.modeOn}` : styles.modeTab}
