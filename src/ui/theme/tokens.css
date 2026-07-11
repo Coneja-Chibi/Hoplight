@@ -21,7 +21,7 @@
 
   /* fluid type scale (16px body floor) */
   --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
-  --text-meta: 0.875rem;
+  --text-meta: 0.7rem;
   --text-title: clamp(1.5rem, 1.2rem + 1.4vw, 2.4rem);
 
   /* ornament pixels (the ONLY allowed px) */

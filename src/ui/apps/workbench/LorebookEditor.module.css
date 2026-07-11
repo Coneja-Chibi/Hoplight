@@ -44,7 +44,7 @@
   place-items: center;
   font-family: var(--font-big);
   font-weight: 900;
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   flex: none;
 }
 
@@ -57,7 +57,7 @@
 .spineName {
   font-family: var(--font-big);
   font-weight: 900;
-  font-size: 1rem;
+  font-size: 0.75rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -68,7 +68,7 @@
 
 .spineMeta {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -102,7 +102,7 @@
   font: inherit;
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-card);
@@ -113,7 +113,7 @@
 .save {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.35rem 0.65rem;
@@ -196,7 +196,7 @@
 .rulesHead i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -219,7 +219,7 @@
 
 .label {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -249,13 +249,13 @@
 
 .empty {
   color: var(--stage-text-dim);
-  font-size: 1.05rem;
+  font-size: 0.79rem;
   padding: 1.2rem 1rem;
 }
 
 .chip {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   color: var(--stage-text-dim);
   display: flex;
   align-items: center;
@@ -274,12 +274,12 @@
 }
 
 .matchHit {
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--stage-ok);
 }
 
 .matchMiss {
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--stage-text-dim);
 }
 
@@ -305,7 +305,7 @@
 .mContents {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);
@@ -321,7 +321,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--a, var(--accent));
@@ -377,7 +377,7 @@
 .viewBtn {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 0;

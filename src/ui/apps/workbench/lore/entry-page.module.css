@@ -27,7 +27,7 @@
 .pageNo {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--a, var(--stage-macro));
@@ -58,7 +58,7 @@
 
 .tokchip {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -68,7 +68,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid var(--stage-ok);
@@ -137,7 +137,7 @@
 .bchead b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -146,7 +146,7 @@
 .bchead i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -168,7 +168,7 @@
   font-family: var(--font-body);
   font-style: normal;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.79rem;
   color: var(--stage-soft);
   margin: 0 0 0.45rem;
 }
@@ -178,7 +178,7 @@
   font-family: var(--font-mono);
   font-style: normal;
   font-weight: 500;
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   letter-spacing: 0.02em;
   line-height: 1.5;
   color: var(--stage-soft);
@@ -204,7 +204,7 @@
   display: block;
   text-align: right;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.06em;
   color: var(--stage-text-dim);
   margin-top: 0.3rem;
@@ -236,7 +236,7 @@
 .logicSpacer {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   margin: 0.45rem 0 0.2rem;
   visibility: hidden;
 }
@@ -245,7 +245,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 2px solid var(--a, var(--stage-macro));
@@ -296,7 +296,7 @@
 .md {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 0;
@@ -336,7 +336,7 @@
   font-family: var(--font-body);
   font-style: normal;
   font-weight: 600;
-  font-size: 1.05rem;
+  font-size: 0.79rem;
   color: var(--stage-soft);
   margin: 0;
 }
@@ -365,7 +365,7 @@
 .chanceReadout {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--stage-soft);
   min-width: 2.4rem;
   text-align: right;

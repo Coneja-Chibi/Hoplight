@@ -23,7 +23,7 @@
 .railTitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -47,7 +47,7 @@
 .rhead b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -56,7 +56,7 @@
 .rhead i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -68,7 +68,7 @@
 
 .healthTip {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   line-height: 1.55;
   color: var(--stage-warn);
   padding: 0.15rem 0;
@@ -76,7 +76,7 @@
 
 .healthOk {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   line-height: 1.55;
   color: var(--stage-ok);
   padding: 0.15rem 0;
@@ -89,7 +89,7 @@
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-body);
-  font-size: 1.05rem;
+  font-size: 0.79rem;
   line-height: 1.4;
   padding: 0.4rem 0.45rem;
   resize: vertical;
@@ -99,7 +99,7 @@
 .hint {
   margin: 0.35rem 0 0;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   line-height: 1.45;
   color: var(--stage-text-dim);
 }
@@ -108,7 +108,7 @@
   display: inline-block;
   margin-top: 0.35rem;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -135,7 +135,7 @@
 
 .matchHit {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   line-height: 1.45;
   color: var(--stage-soft);
   padding: 0.12rem 0;
@@ -156,7 +156,7 @@
   border-left: 3px solid var(--stage-ok);
   background: var(--stage-row);
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   color: var(--stage-soft);
 }
 
@@ -165,7 +165,7 @@
 }
 
 .focusLbl {
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -178,7 +178,7 @@
 .wakeLbl {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -206,7 +206,7 @@
   margin-top: 0.4rem;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);

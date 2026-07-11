@@ -24,7 +24,7 @@
 .head b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -33,7 +33,7 @@
 .head i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -66,7 +66,7 @@
   max-width: 90%;
   padding: 0.35rem 0.5rem;
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -89,7 +89,7 @@
   font-family: var(--font-body);
   font-style: italic;
   color: var(--stage-text-dim);
-  font-size: 1rem;
+  font-size: 0.75rem;
 }
 
 .composer {
@@ -103,7 +103,7 @@
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-body);
-  font-size: 1rem;
+  font-size: 0.75rem;
   padding: 0.35rem 0.5rem;
 }
 
@@ -113,7 +113,7 @@
   color: var(--stage-ink);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.35rem 0.55rem;
@@ -136,7 +136,7 @@
 .rhead {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -165,7 +165,7 @@
 .hit b,
 .skip b {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -173,14 +173,14 @@
 
 .hit span,
 .skip span {
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--stage-text-dim);
 }
 
 .budget {
   margin: 0.2rem 0;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   color: var(--stage-text-dim);
 }
 
@@ -195,7 +195,7 @@
 .miss summary {
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -218,7 +218,7 @@
 .tab {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 0;
@@ -254,7 +254,7 @@
   font-family: var(--font-body);
   font-style: italic;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.75rem;
   padding: 0.7rem;
   cursor: pointer;
 }
@@ -283,7 +283,7 @@
 .firedList {
   margin-top: 0.25rem;
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-ok);
@@ -298,7 +298,7 @@
 
 .budgetLbl {
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -321,7 +321,7 @@
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.8125rem;
+  font-size: 0.61rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.2rem 0.35rem;

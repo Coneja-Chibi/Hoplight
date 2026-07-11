@@ -17,7 +17,7 @@
   display: block;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -36,7 +36,7 @@
   align-items: center;
   gap: 0.4rem;
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: 0.75rem;
   color: var(--stage-soft);
   padding: 0.2rem 0;
   cursor: pointer;
@@ -58,7 +58,7 @@
 
 .pcK {
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -68,7 +68,7 @@
 .pcNum {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   width: 3.6rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
@@ -80,7 +80,7 @@
 .pcText {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.9375rem;
+  font-size: 0.7rem;
   width: min(14rem, 55%);
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
@@ -91,7 +91,7 @@
 .pcSel {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 0.66rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
