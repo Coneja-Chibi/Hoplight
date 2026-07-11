@@ -6,7 +6,7 @@
  *   --font-big  (Archivo)     = entry title ONLY
  *   --font-mono               = all chrome: card titles, kickers, chips, dials, modes,
  *                               live timing status (foldNote)
- *   --font-body upright       = passage content (+ sleep/card hints if any)
+ *   --font-mono               = passage content
  * No masthead "Fires on:" line - Keys card already owns that truth.
  */
 
@@ -229,9 +229,9 @@
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
-  font-family: var(--font-body);
-  font-size: 1.02rem;
-  line-height: 1.6;
+  font-family: var(--font-mono);
+  font-size: 0.92rem;
+  line-height: 1.55;
   padding: 0.7rem;
 }
 
