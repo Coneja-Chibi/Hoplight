@@ -4,10 +4,10 @@
  *
  * Type ladder for THIS surface (house tokens, no random faces):
  *   --font-big  (Archivo)     = entry title ONLY
- *   --font-body italic        = firesLine voice ONLY (one per page)
- *   --font-mono               = all chrome: card titles, kickers, chips, dials, modes
- *   --font-body upright       = status lines + passage content
- * Never Archivo on small card labels (that was the "random mix" look).
+ *   --font-mono               = all chrome: card titles, kickers, chips, dials, modes,
+ *                               live timing status (foldNote)
+ *   --font-body upright       = passage content (+ sleep/card hints if any)
+ * No masthead "Fires on:" line - Keys card already owns that truth.
  */
 
 .page {
@@ -103,16 +103,6 @@
   border-bottom: 3px solid var(--a, var(--stage-macro));
 }
 
-/* Masthead voice line: the ONE italic on the page (doctrine). Soft, not mute-on-dark. */
-.entryLine {
-  font-family: var(--font-body);
-  font-style: italic;
-  font-weight: 600;
-  font-size: 1rem;
-  color: var(--stage-soft);
-  margin: 0 0 0.85rem;
-}
-
 /* ---------- dossier cards ---------- */
 
 .bcard,
@@ -183,14 +173,15 @@
   margin: 0 0 0.45rem;
 }
 
-/* Live Timing status - recomputes from entry; MUST stay upright (data, not voice). */
+/* Live Timing status: mono meta scale (same family as STICKY/COOL labels), not body shout. */
 .foldNote {
-  font-family: var(--font-body);
+  font-family: var(--font-mono);
   font-style: normal;
-  font-weight: 600;
-  font-size: 0.92rem;
-  line-height: 1.45;
-  color: var(--stage-soft);
+  font-weight: 500;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--stage-kicker);
   margin: 0 0 0.55rem;
 }
 

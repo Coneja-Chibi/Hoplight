@@ -10,7 +10,7 @@ import { fieldVisible, positionsForProfile, type LoreWriteForProfile } from "../
 import { TriggerEditor } from "./trigger-editor";
 import { PositionPicker } from "./position-picker";
 import { cardsForLens } from "./platforms/registry";
-import { entryFireMode, fireModePatch, firesLine, timingLine } from "./entry-fire-mode";
+import { entryFireMode, fireModePatch, timingLine } from "./entry-fire-mode";
 
 export type { EntryFireMode } from "./entry-fire-mode";
 export { entryFireMode, fireModePatch } from "./entry-fire-mode";
@@ -116,7 +116,6 @@ export function LoreEntryPage({
           onChange={(ev) => onPatch({ title: ev.target.value })}
         />
       )}
-      <p className={styles.entryLine}>{firesLine(entry)}</p>
 
       {/* ---- Keys ---- */}
       {show("triggers") && (
