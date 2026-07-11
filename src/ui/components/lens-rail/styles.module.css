@@ -1,0 +1,56 @@
+/**
+ * LensRail styles - transcribed from design/vs-mobile-editors.html (.lensRail/.lensScroll/.lensChip).
+ */
+.rail {
+  position: relative;
+  min-width: 0;
+}
+
+.scroll {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 0.6rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chip {
+  flex: none;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.34rem 0.6rem;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 2.2rem;
+}
+
+.chip.on {
+  border-color: var(--stage-black);
+  background: var(--a, var(--accent));
+  color: var(--stage-ink);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+
+.offt {
+  display: flex;
+  gap: 0.3rem;
+  padding-left: 0.4rem;
+  border-left: 2px solid var(--stage-seam);
+  flex: none;
+}
+
+.fade {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 2.2rem;
+  background: linear-gradient(90deg, transparent, var(--stage-row));
+  pointer-events: none;
+}

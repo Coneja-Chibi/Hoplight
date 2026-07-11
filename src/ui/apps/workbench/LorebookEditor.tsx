@@ -36,6 +36,7 @@ import { LoreEntryPage } from "./lore/entry-page";
 import { LoreEntryToc } from "./lore/entry-toc";
 import { LoreEntryRail } from "./lore/entry-rail";
 import { LoreBookSettings } from "./lore/book-settings";
+import { BottomSheet } from "../../components/bottom-sheet";
 import { InkDialog } from "../../components/ink-dialog";
 import deskStyles from "./LorebookEditor.module.css";
 import panelStyles from "./lore/entry-panel.module.css";
@@ -93,6 +94,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [session, setSession] = useState<LoreSession>(() => normalizeSession(initBody));
   const [saving, setSaving] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [tocOpen, setTocOpen] = useState(false);
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
@@ -231,8 +233,25 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         </span>
       </header>
 
+      {/* ---- mobile contents bar: the TOC leaves the flow below 34rem (vs-mobile-editors) ---- */}
+      <div className={styles.mBar}>
+        <button type="button" className={styles.mContents} onClick={() => setTocOpen(true)}>
+          &#9776; Contents
+        </button>
+        <span className={styles.mPageNo}>
+          {entry ? `${entryIndex + 1} / ${session.body.entries.length}` : "empty"}
+        </span>
+        <button type="button" className={styles.mPg} aria-label="Previous entry" disabled={!entry || entryIndex <= 0} onClick={() => flip(-1)}>
+          &#8249;
+        </button>
+        <button type="button" className={styles.mPg} aria-label="Next entry" disabled={!entry || entryIndex >= session.body.entries.length - 1} onClick={() => flip(1)}>
+          &#8250;
+        </button>
+      </div>
+
       {/* ---- toc | page | rail ---- */}
       <div className={styles.cols}>
+        <div className={styles.tocCol}>
         <LoreEntryToc
           entries={session.body.entries}
           focusedId={session.focusedId}
@@ -250,6 +269,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
             })
           }
         />
+        </div>
 
         <main className={styles.pageCol}>
           {!entry ? (
@@ -277,6 +297,34 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
           />
         )}
       </div>
+
+      {/* ---- mobile contents sheet: same TOC, docked to the pane bottom ---- */}
+      {tocOpen && (
+        <div className={styles.mGate}>
+        <BottomSheet title="Contents" onDismiss={() => setTocOpen(false)}>
+          <LoreEntryToc
+            entries={session.body.entries}
+            focusedId={session.focusedId}
+            writeFor={writeFor}
+            styles={styles}
+            onSelect={(id) => {
+              setSession((s) => selectEntry(s, id));
+              setTocOpen(false);
+            }}
+            onAdd={() => setSession((s) => addEntry(s))}
+            onPatch={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
+            onDuplicate={(id) => setSession((s) => duplicateEntry(s, id))}
+            onDelete={(id) => setSession((s) => deleteEntry(s, id))}
+            onMove={(id, dir) =>
+              setSession((s) => {
+                const at = s.body.entries.findIndex((e) => e.id === id);
+                return at < 0 ? s : reorderEntry(s, id, at + dir);
+              })
+            }
+          />
+        </BottomSheet>
+        </div>
+      )}
 
       {/* ---- book rules: the book-level form behind its own sheet ---- */}
       {rulesOpen && (

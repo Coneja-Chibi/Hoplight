@@ -1,0 +1,75 @@
+/**
+ * ProgressChecklist styles - transcribed from design/vs-mobile-editors.html (.prog/.ckRow).
+ */
+.prog {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.bar {
+  flex: 1;
+  height: 0.55rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-well, var(--stage-row));
+  position: relative;
+  display: block;
+}
+
+.bar i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--stage-ok);
+}
+
+.tap {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.32rem 0.45rem;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 2.2rem;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.4rem;
+  border-top: 1px solid var(--stage-seam);
+  font-family: var(--font-prose, inherit);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--stage-soft);
+  min-height: 2.6rem;
+}
+
+.row:first-child {
+  border-top: 0;
+}
+
+.ok {
+  color: var(--stage-ok);
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.no {
+  color: var(--stage-kicker, var(--stage-mute));
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+.pendingLabel {
+  color: var(--stage-mute);
+}

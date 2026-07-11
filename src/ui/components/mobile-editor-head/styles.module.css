@@ -1,0 +1,129 @@
+/**
+ * MobileEditorHead styles - transcribed from design/vs-mobile-editors.html (.mhead family).
+ */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.back {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  flex: none;
+  cursor: pointer;
+}
+
+.name {
+  min-width: 0;
+  flex: 1;
+}
+
+.name b {
+  display: block;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.95rem;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--stage-paper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.name i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+  white-space: nowrap;
+}
+
+.save {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--stage-black);
+  background: var(--a, var(--accent));
+  color: var(--stage-ink);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.8rem;
+  flex: none;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+
+.save:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.kebabWrap {
+  position: relative;
+  flex: none;
+}
+
+.kebab {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  cursor: pointer;
+}
+
+.menu {
+  position: absolute;
+  top: 2.5rem;
+  right: 0;
+  z-index: 130;
+  min-width: 10rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  display: flex;
+  flex-direction: column;
+}
+
+.menu button {
+  border: 0;
+  background: none;
+  color: var(--stage-soft);
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  min-height: 2.2rem;
+}
+
+.menu button:hover:not(:disabled) {
+  background: var(--stage-panel);
+  color: var(--stage-paper);
+}
+
+.menu button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

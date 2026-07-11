@@ -454,40 +454,18 @@
   gap: 0.6rem;
 }
 
-/* narrow pane: the checklist chips fold to their count and the scale widget yields; interim
-   until the full mobile grammar (design/vs-mobile-editors.html) is built. Lives at the FILE END
+/* Mobile grammar gate (design/vs-mobile-editors.html): the chrome renders BOTH grammars and the
+   pane width picks one. Components SWAP below 34rem, they do not shrink. Lives at the FILE END
    on purpose: container queries add no specificity, a later base rule would override this. */
+.mobileChrome {
+  display: none;
+}
+
 @container (max-width: 34rem) {
-  .escale {
-    display: none;
+  .mobileChrome {
+    display: block;
   }
-  .hdr {
-    gap: 0.45rem;
-    padding: 0.5rem 0.6rem;
-    flex-wrap: nowrap;
-  }
-  .hdr b {
-    font-size: 0.9rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-    flex: 1;
-  }
-  .hdrRight {
-    flex-wrap: nowrap;
-    gap: 0.4rem;
-    flex: none;
-  }
-  .hdrRight .save {
-    font-size: 0.6rem;
-    letter-spacing: 0.04em;
-    padding: 0.4rem 0.55rem;
-    white-space: nowrap;
-  }
-  /* "Saved locally" is status, not an action - on a phone the name wins; the dirty-state Save
-     still shows because it is enabled */
-  .hdrRight .save:disabled {
+  .desktopChrome {
     display: none;
   }
 }

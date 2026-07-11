@@ -282,3 +282,88 @@
   font-size: 0.78rem;
   color: var(--stage-mute);
 }
+
+/* ---------- mobile grammar (design/vs-mobile-editors.html frames 3-4) ----------
+   Lives at the FILE END: container queries add no specificity; a later base rule would win. */
+
+.mBar {
+  display: none;
+}
+
+/* mobile-only render gate: hosts the Contents sheet so a sheet left open while the pane widens
+   (window resize, split closed) vanishes instead of shadowing the desktop columns */
+.mGate {
+  display: none;
+}
+
+/* wrapper exists so the desktop TOC column can fold away without hiding the same TOC when it
+   rides inside the mobile Contents sheet (.toc's hash belongs to entry-toc.module.css) */
+.tocCol {
+  display: contents;
+}
+
+.mContents {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  color: var(--stage-paper);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  min-height: 2.2rem;
+}
+
+.mPageNo {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a, var(--accent));
+}
+
+.mPg {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  flex: none;
+}
+
+.mPg:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@container (max-width: 34rem) {
+  .mBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 2px solid var(--stage-seam);
+  }
+  .mGate {
+    display: contents;
+  }
+  .tocCol {
+    display: none;
+  }
+  /* header: the meta line and the long select yield to the name */
+  .spineMeta {
+    display: none;
+  }
+  .lensSel {
+    max-width: 9rem;
+  }
+}

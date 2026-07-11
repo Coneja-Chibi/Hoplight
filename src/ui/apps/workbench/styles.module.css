@@ -328,6 +328,8 @@
 }
 .paneWrap {
   container-type: inline-size;
+  /* positioned ancestor for pane-scoped overlays (BottomSheet docks to the pane, not the window) */
+  position: relative;
 }
 .paneWrapBeside {
   border-left: 3px solid var(--seam);
