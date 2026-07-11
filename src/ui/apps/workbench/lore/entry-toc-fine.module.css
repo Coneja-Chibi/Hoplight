@@ -78,6 +78,57 @@
   margin: 0.35rem 0 0.15rem;
 }
 
+/* Fire mode: Keywords / Always on / By meaning (lives in TOC, not Keys head) */
+.modeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin: 0 0 0.35rem;
+}
+
+.modeBtn {
+  display: inline-grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 2px solid var(--stage-seam);
+  border-radius: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  cursor: pointer;
+  flex: none;
+  line-height: 0;
+}
+
+.modeBtn:hover:not(:disabled) {
+  color: var(--stage-card);
+  border-color: var(--stage-line, var(--stage-seam));
+}
+
+.modeBtnGated {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.modeKey.modeBtnOn {
+  border-color: var(--stage-ok);
+  color: var(--stage-ink);
+  background: var(--stage-ok);
+}
+
+.modeAlways.modeBtnOn {
+  border-color: var(--stage-var);
+  color: var(--stage-ink);
+  background: var(--stage-var);
+}
+
+.modeMeaning.modeBtnOn {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+  background: var(--a, var(--stage-macro));
+}
+
 /* Square icon buttons only - stage chrome, no rounded pills, no text */
 .iconRow {
   display: flex;

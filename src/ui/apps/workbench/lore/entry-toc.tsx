@@ -9,15 +9,28 @@ import {
   CaseSensitive,
   Columns2,
   Copy,
+  KeyRound,
+  Pin,
+  Sparkles,
   Trash2,
   WholeWord,
 } from "lucide-react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
-import { entryFireMode } from "./entry-fire-mode";
+import { entryFireMode, fireModePatch, type EntryFireMode } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
 
 const ICO = { size: 13, strokeWidth: 2.25, "aria-hidden": true as const };
+
+const MODE_META: readonly {
+  mode: EntryFireMode;
+  label: string;
+  Icon: typeof KeyRound;
+}[] = [
+  { mode: "keyed", label: "Keywords", Icon: KeyRound },
+  { mode: "always", label: "Always on", Icon: Pin },
+  { mode: "meaning", label: "By meaning", Icon: Sparkles },
+];
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -86,8 +99,51 @@ function FinePrint({
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
   const act = styles.iconBtn ?? "iconBtn";
+  const mode = entryFireMode(entry);
+  const vectorOk = show("vectorized");
   return (
     <div className={styles.texp}>
+      {show("constant") && (
+        <div className={styles.modeRow} role="group" aria-label="Activation mode">
+          {MODE_META.map(({ mode: m, label, Icon }) => {
+            const gated = m === "meaning" && !vectorOk;
+            const on = mode === m;
+            const tone =
+              m === "keyed"
+                ? styles.modeKey
+                : m === "always"
+                  ? styles.modeAlways
+                  : styles.modeMeaning;
+            return (
+              <button
+                key={m}
+                type="button"
+                className={[
+                  styles.modeBtn,
+                  tone,
+                  on ? styles.modeBtnOn : "",
+                  gated ? styles.modeBtnGated : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                aria-pressed={on}
+                aria-label={label}
+                title={
+                  gated
+                    ? "This host cannot carry by-meaning (vectorized) entries."
+                    : label
+                }
+                disabled={gated}
+                onClick={() => {
+                  if (!gated) onPatch(fireModePatch(m));
+                }}
+              >
+                <Icon {...ICO} />
+              </button>
+            );
+          })}
+        </div>
+      )}
       {show("sortOrder") && (
         <div className={styles.texpRow}>
           <span className={styles.texpK}>Order</span>

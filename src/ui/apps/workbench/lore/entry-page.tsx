@@ -8,7 +8,7 @@ import type { LorebookEntry, SelectiveLogic } from "../../../../entities/loreboo
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { TriggerEditor } from "./trigger-editor";
 import { cardsForLens } from "./platforms/registry";
-import { entryFireMode, fireModePatch } from "./entry-fire-mode";
+import { entryFireMode } from "./entry-fire-mode";
 import { EntryWhenWhere } from "./entry-when-where";
 
 export type { EntryFireMode } from "./entry-fire-mode";
@@ -104,46 +104,6 @@ export function LoreEntryPage({
           <div className={styles.bchead}>
             <b>Keys</b>
             <i>when this entry speaks</i>
-            {show("constant") && (
-              <span className={styles.modeSet} role="group" aria-label="Activation mode">
-                {(
-                  [
-                    ["keyed", "Keywords", styles.mdKey],
-                    ["always", "Always on", styles.mdAlways],
-                    ["meaning", "By meaning", styles.mdMeaning],
-                  ] as const
-                ).map(([mode, label, mdCls]) => {
-                  const gated = mode === "meaning" && !show("vectorized");
-                  const on = entryFireMode(entry) === mode;
-                  return (
-                    <button
-                      key={mode}
-                      type="button"
-                      className={[
-                        styles.md,
-                        mdCls,
-                        on ? styles.mdOn : "",
-                        gated ? styles.mdGated : "",
-                      ]
-                        .filter(Boolean)
-                        .join(" ")}
-                      aria-pressed={on}
-                      disabled={gated}
-                      title={
-                        gated
-                          ? "This host cannot carry by-meaning (vectorized) entries."
-                          : undefined
-                      }
-                      onClick={() => {
-                        if (!gated) onPatch(fireModePatch(mode));
-                      }}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </span>
-            )}
             {show("triggerRiders") && (
               <span className={styles.bcheadActs}>
                 <button
