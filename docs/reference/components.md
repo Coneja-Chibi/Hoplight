@@ -38,6 +38,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
+| EntryWhenWhere | src/ui/apps/workbench/lore/entry-when-where.tsx | ({ entry, writeFor, styles, onPatch, }: EntryWhenWhereProps) |  |  |
 | ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |

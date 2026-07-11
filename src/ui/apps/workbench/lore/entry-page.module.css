@@ -190,6 +190,28 @@
   margin: 0 0 0.55rem;
 }
 
+/* Sub-zones inside When & where (timing then placement, one island) */
+.zone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.zone + .zone {
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--stage-seam);
+}
+
+.zoneLbl {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+}
+
 /* ---------- the passage ---------- */
 
 .passageTa {
