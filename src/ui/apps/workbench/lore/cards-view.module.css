@@ -1,0 +1,120 @@
+/**
+ * Cards lens grid (vs-lore-lenses). Theme tokens only.
+ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 1.4rem;
+  overflow-y: auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.ecard {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  padding: 0.65rem 0.7rem 0.7rem;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 9rem;
+}
+
+.ecard:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0 0 var(--stage-black);
+}
+
+.ecardOff {
+  opacity: 0.55;
+}
+
+.ehead {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+.etitle {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  flex: 1;
+  min-width: 0;
+}
+
+.modeChip {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  color: var(--stage-ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.35rem;
+  cursor: pointer;
+  flex: none;
+}
+
+.clamp {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--stage-soft);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.kchip {
+  border: 1px solid var(--stage-seam);
+  color: var(--a, var(--stage-macro));
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  padding: 0.1rem 0.3rem;
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.ghost {
+  border: 2px dashed var(--stage-seam);
+  background: transparent;
+  color: var(--stage-mute);
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-height: 9rem;
+  cursor: pointer;
+}
+
+.ghost:hover {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+}

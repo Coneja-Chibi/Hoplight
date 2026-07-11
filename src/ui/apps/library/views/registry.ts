@@ -7,8 +7,9 @@ import type { DeckView } from "../view-contract";
 import grid from "./grid";
 import showcase from "./showcase";
 import list from "./list";
+import shelf from "./shelf";
 
-const VIEWS: DeckView[] = [grid, showcase, list];
+const VIEWS: DeckView[] = [grid, showcase, list, shelf];
 
 export const deckViews = (): DeckView[] => [...VIEWS].sort((a, b) => a.order - b.order);
 

@@ -18,8 +18,10 @@ import {
   parseWriteFor,
   type LoreWriteForProfile,
 } from "../../../core/lore";
+import type { LorebookEntry } from "../../../entities/lorebook/schema";
 import {
   addEntry,
+  applyBookTransform,
   deleteEntries,
   deleteEntry,
   duplicateEntry,
@@ -27,6 +29,8 @@ import {
   normalizeSession,
   reconcileLoreAfterSave,
   reorderEntry,
+  restoreEntry,
+  revertField,
   selectEntry,
   sessionDirty,
   setEntriesEnabled,
@@ -38,6 +42,11 @@ import { LoreEntryPage } from "./lore/entry-page";
 import { LoreEntryToc } from "./lore/entry-toc";
 import { LoreEntryRail } from "./lore/entry-rail";
 import { LoreBookSettings } from "./lore/book-settings";
+import { HealthPane } from "./lore/health-pane";
+import { ChangesPane } from "./lore/changes-pane";
+import { CardsView } from "./lore/cards-view";
+import { WebView } from "./lore/web-view";
+import { RehearsalPane } from "./lore/rehearsal-pane";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { InkDialog } from "../../components/ink-dialog";
 import deskStyles from "./LorebookEditor.module.css";
@@ -47,6 +56,8 @@ import pageStyles from "./lore/entry-page.module.css";
 import tocStyles from "./lore/entry-toc.module.css";
 import railStyles from "./lore/entry-rail.module.css";
 import platformCardStyles from "./lore/platforms/cards.module.css";
+import healthStyles from "./lore/health-pane.module.css";
+import changesStyles from "./lore/changes-pane.module.css";
 
 /** one styles object for the whole binder (disjoint class sets - a name lives in exactly ONE
  * module; the leaves keep taking a single `styles` prop so they stay file-layout-blind) */
@@ -58,6 +69,8 @@ const styles = {
   ...tocStyles,
   ...railStyles,
   ...platformCardStyles,
+  ...healthStyles,
+  ...changesStyles,
 };
 
 export interface LorebookEditorProps {
@@ -99,9 +112,13 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [tocOpen, setTocOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(() => new Set());
+  const [sidePane, setSidePane] = useState<"health" | "changes" | "rehearsal" | null>(null);
+  const [view, setView] = useState<"pages" | "cards" | "web">("pages");
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
+  // Session baseline for Changes: body as it arrived this sitting (does not move on save).
+  const [importBaseline] = useState(() => structuredClone(initBody));
 
   // Open-beside / deep-link: piece.params.focusEntry lands on that entry once.
   useEffect(() => {
@@ -267,6 +284,25 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
           </div>
         </div>
         <span className={styles.eheadActs}>
+          <span className={styles.viewSwitch} role="group" aria-label="Binder view">
+            {(
+              [
+                ["pages", "Pages"],
+                ["cards", "Cards"],
+                ["web", "Web"],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                className={view === id ? `${styles.viewBtn} ${styles.viewBtnOn}` : styles.viewBtn}
+                aria-pressed={view === id}
+                onClick={() => setView(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </span>
           <select
             className={styles.lensSel}
             value={writeFor}
@@ -315,7 +351,27 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         </div>
 
         <main className={styles.pageCol}>
-          {!entry ? (
+          {view === "cards" ? (
+            <CardsView
+              entries={session.body.entries}
+              writeFor={writeFor}
+              onSelect={(id) => {
+                setSession((s) => selectEntry(s, id));
+                setView("pages");
+              }}
+              onPatch={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
+              onAdd={() => setSession((s) => addEntry(s))}
+            />
+          ) : view === "web" ? (
+            <WebView
+              body={session.body}
+              onSelect={(id) => {
+                setSession((s) => selectEntry(s, id));
+                setView("pages");
+              }}
+              onFallbackCards={() => setView("cards")}
+            />
+          ) : !entry ? (
             <div className={styles.empty}>The book is empty. Add an entry from the contents.</div>
           ) : (
             <LoreEntryPage
@@ -332,12 +388,51 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
           )}
         </main>
 
-        {entry && (
-          <LoreEntryRail
-            entries={session.body.entries}
-            notes={health.filter((h) => h.entryId === entry.id)}
-            styles={styles}
+        {sidePane === "health" ? (
+          <HealthPane
+            body={session.body}
+            onTransform={(fn) => setSession((s) => applyBookTransform(s, fn))}
+            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
+            onClose={() => setSidePane(null)}
           />
+        ) : sidePane === "changes" ? (
+          <ChangesPane
+            baseline={importBaseline}
+            body={session.body}
+            onRevertField={(entryId, field, value) =>
+              setSession((s) => revertField(s, entryId, field, value))
+            }
+            onRestoreEntry={(e: LorebookEntry) => setSession((s) => restoreEntry(s, e))}
+            onUndoSwap={(aId, bId) => {
+              setSession((s) => {
+                const a = s.body.entries.find((e) => e.id === aId);
+                const b = s.body.entries.find((e) => e.id === bId);
+                if (!a || !b) return s;
+                let next = updateEntry(s, aId, { sortOrder: b.sortOrder });
+                next = updateEntry(next, bId, { sortOrder: a.sortOrder });
+                return next;
+              });
+            }}
+            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
+            onClose={() => setSidePane(null)}
+          />
+        ) : sidePane === "rehearsal" ? (
+          <RehearsalPane
+            body={session.body}
+            onClose={() => setSidePane(null)}
+            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
+          />
+        ) : (
+          entry && (
+            <LoreEntryRail
+              entries={session.body.entries}
+              notes={health.filter((h) => h.entryId === entry.id)}
+              styles={styles}
+              onOpenHealth={() => setSidePane("health")}
+              onOpenChanges={() => setSidePane("changes")}
+              onOpenRehearsal={() => setSidePane("rehearsal")}
+            />
+          )
         )}
       </div>
 

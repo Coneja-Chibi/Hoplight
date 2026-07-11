@@ -56,3 +56,21 @@ export {
   revertField,
   restoreEntry,
 } from "./diff";
+export {
+  renumberEntries,
+  splitBook,
+  mergeBooks,
+  duplicateBook,
+} from "./book-ops";
+export { nearMisses, type NearMissHit } from "./near-miss";
+export { parseChatJsonl, type ImportedChat } from "./chat-import";
+export { healBook, type HealNote, type HealResult } from "./heal";
+export {
+  type LayoutNode,
+  type LayoutEdge,
+  type LayoutBounds,
+  WEB_NODE_CAP,
+  componentLabels,
+  stepLayout,
+  seedLayout,
+} from "./web-layout";

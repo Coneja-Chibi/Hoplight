@@ -19,6 +19,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
+| CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
+| ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | CharacterFilterBlock | src/ui/apps/workbench/lore/platforms/filter-block.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
@@ -44,6 +46,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
+| HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, }: HealthPaneProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, }: { state: ImportState; onCommit: () => void; onCancel: () => void; }) |  |  |
@@ -59,7 +62,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, moveDisabled = true, }: BulkBarProps) |  |  |
 | LoreCategories | src/ui/components/lore-categories/index.tsx | ({ categories, onChange }: LoreCategoriesProps) |  | .wrap .head .label .add .empty .list .row .name ... |
 | LoreEntryPage | src/ui/apps/workbench/lore/entry-page.tsx | ({ entry, writeFor, styles, onPatch, index, count, onPrev, onNext, tokenEstimate, }: EntryPageProps) |  |  |
-| LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ entries, notes, styles }: EntryRailProps) |  |  |
+| LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ entries, notes, styles, onOpenHealth, onOpenChanges, onOpenRehearsal, }: EntryRailProps) |  |  |
 | LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, onSelect, onAdd, onPatch, onDuplicate, onDelete, onMove, selectMode = false,... |  |  |
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
 | LoreWriteFor | src/ui/components/lore-write-for/index.tsx | ({ value, onChange }: LoreWriteForProps) |  | .strip .hint |
@@ -83,6 +86,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
+| RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry }: RehearsalPaneProps) |  |  |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
@@ -108,9 +112,11 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 | TrackerCardColors | src/ui/components/tracker-card-colors/index.tsx | ({ value, onChange }: TrackerCardColorsProps) |  | .wrap .help .colorBlock .k .cssIn |
 | TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
+| TransferBench | src/ui/components/transfer-bench/index.tsx | ({ leftTitle, rightTitle, left, right, name, namePlaceholder = "Name for the new book", applyLabel = "Apply", require... |  | .wrap .nameRow .note .bench .col .colHead .small .list ... |
 | TriggerEditor | src/ui/apps/workbench/lore/trigger-editor.tsx | ({ triggers, onChange, styles, advanced, placeholder, ariaLabel, showSpecials = false, entryProbability = 100, }: Tri... |  |  |
 | VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, variantArt = {}, onSelect, onAdd, onRemove, onRename, onMode, }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
 | VoiceSetup | src/ui/components/voice-setup/index.tsx | ({ value, onChange }: VoiceSetupProps) |  | .wrap .grid .lbl .sel .input .extras .exrow .rm ... |
+| WebView | src/ui/apps/workbench/lore/web-view.tsx | ({ body, onSelect, onFallbackCards }: WebViewProps) |  |  |
 | WorkshopCodePane | src/ui/apps/workbench/workshop/code-pane.tsx | (props: WorkshopCodePaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | WorkshopConsole | src/ui/apps/workbench/workshop/console.tsx | (props: WorkshopConsoleProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | WorkshopEhead | src/ui/apps/workbench/workshop/ehead.tsx | ({ title, sub, trailing }: WorkshopEheadProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |

@@ -1,0 +1,209 @@
+/**
+ * Rehearsal pane (vs-lore-rehearsal). Theme tokens only.
+ */
+
+.pane {
+  border-left: 2px solid var(--stage-seam);
+  background: var(--stage-panel);
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.65rem 0.7rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.head b {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.head i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.x {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  color: var(--stage-kicker);
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.chat {
+  flex: 1;
+  min-height: 8rem;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.user,
+.bot {
+  max-width: 90%;
+  padding: 0.35rem 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.user {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 22%, transparent);
+  color: var(--stage-card);
+  border: 1px solid var(--stage-seam);
+}
+
+.bot {
+  align-self: flex-start;
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  border: 1px solid var(--stage-seam);
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  color: var(--stage-kicker);
+  font-size: 0.85rem;
+}
+
+.composer {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.composer input {
+  flex: 1;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.composer button {
+  border: 2px solid var(--stage-black);
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+}
+
+.composer button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.results {
+  border-top: 2px solid var(--stage-seam);
+  padding-top: 0.45rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rhead {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.hit,
+.skip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  border: 0;
+  background: var(--stage-row);
+  border-left: 3px solid var(--stage-ok);
+  color: var(--stage-soft);
+  text-align: left;
+  padding: 0.3rem 0.45rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.skip {
+  border-left-color: var(--stage-warn);
+}
+
+.hit b,
+.skip b {
+  font-family: var(--font-big);
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.hit span,
+.skip span {
+  font-size: 0.75rem;
+  color: var(--stage-mute);
+}
+
+.budget {
+  margin: 0.2rem 0;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  color: var(--stage-kicker);
+}
+
+.cuts,
+.miss {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-soft);
+}
+
+.cuts summary,
+.miss summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+@container (max-width: 34rem) {
+  .pane {
+    border-left: 0;
+    border-top: 2px solid var(--stage-seam);
+  }
+}

@@ -47,6 +47,7 @@ export function emptyLorebookBody(name = "Untitled lorebook"): LorebookBody {
   return {
     name,
     tags: [],
+    enabled: true,
     globalCaseSensitive: false,
     globalMatchWholeWords: false,
     globalScanDepth: 4,

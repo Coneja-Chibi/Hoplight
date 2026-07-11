@@ -233,6 +233,12 @@ export interface LorebookBody {
   fandom?: string | null;
   tags: string[];
 
+  /**
+   * Book-level on/off for the shelf + Press export filter. Default true when absent (older books).
+   * RC can round-trip it; other formats ignore (deny by absence).
+   */
+  enabled?: boolean;
+
   /** global matching defaults; entries with null matching options inherit these */
   globalCaseSensitive: boolean;
   globalMatchWholeWords: boolean;

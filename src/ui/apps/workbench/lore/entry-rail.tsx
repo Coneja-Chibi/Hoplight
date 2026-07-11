@@ -1,7 +1,5 @@
 /**
- * LoreEntryRail - the binder's right margin: the try-a-line tester and quiet health tips for the
- * focused entry. The entry's fine print (order/priority/keep/chance/matching + actions) lives in
- * the TOC's expanded row, not here.
+ * LoreEntryRail - the binder's right margin: try-a-line, health tips, launchers for full panes.
  */
 import type { JSX } from "react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
@@ -12,9 +10,19 @@ export interface EntryRailProps {
   entries: readonly LorebookEntry[];
   notes: readonly LoreHealthNote[];
   styles: Readonly<Record<string, string>>;
+  onOpenHealth?: () => void;
+  onOpenChanges?: () => void;
+  onOpenRehearsal?: () => void;
 }
 
-export function LoreEntryRail({ entries, notes, styles }: EntryRailProps): JSX.Element {
+export function LoreEntryRail({
+  entries,
+  notes,
+  styles,
+  onOpenHealth,
+  onOpenChanges,
+  onOpenRehearsal,
+}: EntryRailProps): JSX.Element {
   return (
     <aside className={styles.rail} aria-label="Try a line and health">
       <div className={styles.rcard}>
@@ -24,6 +32,11 @@ export function LoreEntryRail({ entries, notes, styles }: EntryRailProps): JSX.E
         </div>
         <div className={styles.rbody}>
           <SampleMatchStage entries={[...entries]} styles={styles} />
+          {onOpenRehearsal && (
+            <button type="button" className={styles.texpBtn} onClick={onOpenRehearsal}>
+              Open Rehearsal
+            </button>
+          )}
         </div>
       </div>
 
@@ -40,6 +53,16 @@ export function LoreEntryRail({ entries, notes, styles }: EntryRailProps): JSX.E
               {h.message}
             </div>
           ))}
+          {onOpenHealth && (
+            <button type="button" className={styles.texpBtn} onClick={onOpenHealth}>
+              Open the full check
+            </button>
+          )}
+          {onOpenChanges && (
+            <button type="button" className={styles.texpBtn} onClick={onOpenChanges}>
+              Open Changes
+            </button>
+          )}
         </div>
       </div>
     </aside>

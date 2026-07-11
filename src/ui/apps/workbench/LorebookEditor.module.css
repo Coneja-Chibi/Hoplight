@@ -367,3 +367,29 @@
     max-width: 9rem;
   }
 }
+
+/* view switch Pages / Cards / Web (vs-lore-lenses) */
+.viewSwitch {
+  display: inline-flex;
+  border: 2px solid var(--stage-black);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+.viewBtn {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.28rem 0.5rem;
+  cursor: pointer;
+}
+.viewBtn + .viewBtn {
+  border-left: 2px solid var(--stage-black);
+}
+.viewBtnOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
