@@ -9,9 +9,12 @@ import {
   PLATFORM_OWNED_EXTRAS,
   phasesForProfile,
   platformOwnsField,
+  profileRunsReplaceFeature,
   REGEX_ALL_PHASES,
   REGEX_CORE_KEYS,
+  REGEX_HOST_AGE_FEATURES,
   REGEX_PHASES_BY_PROFILE,
+  REGEX_REPLACE_FEATURE_SUPPORT,
 } from "./platform-fields";
 
 describe("platform field ownership (all regex platforms)", () => {
@@ -42,10 +45,12 @@ describe("platform field ownership (all regex platforms)", () => {
     expect(fieldVisible("sillytavern", "characterIds")).toBe(false);
   });
 
-  test("rolecall owns the same field cluster as sillytavern (timeout is engine behavior, not a field)", () => {
-    for (const k of PLATFORM_OWNED_EXTRAS.sillytavern) {
-      expect(fieldVisible("rolecall", k)).toBe(true);
-    }
+  test("rolecall owns ST's timing cluster EXCEPT substituteFind (subsystem A never round-trips it - REGEX-FORMATS.md residual)", () => {
+    expect(fieldVisible("rolecall", "trimStrings")).toBe(true);
+    expect(fieldVisible("rolecall", "minDepth")).toBe(true);
+    expect(fieldVisible("rolecall", "maxDepth")).toBe(true);
+    expect(fieldVisible("rolecall", "runOnEdit")).toBe(true);
+    expect(fieldVisible("rolecall", "substituteFind")).toBe(false);
   });
 
   test("risu owns only useFlags among the extras", () => {
@@ -146,5 +151,35 @@ describe("pipeline phases per profile (grounded in design/REGEX-FORMATS.md)", ()
       expect(REGEX_PHASES_BY_PROFILE[p]).toBeDefined();
       expect(REGEX_PHASES_BY_PROFILE[p].length).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("engine-feature support table (travel-honesty axis, grounded in design/REGEX-FORMATS.md)", () => {
+  test("{{match}} runs on full/sillytavern/rolecall only", () => {
+    expect(REGEX_REPLACE_FEATURE_SUPPORT["match-token"]).toEqual(["full", "sillytavern", "rolecall"]);
+    for (const p of REGEX_WRITE_FOR_PROFILES) {
+      const expected = p === "full" || p === "sillytavern" || p === "rolecall";
+      expect(profileRunsReplaceFeature(p, "match-token")).toBe(expected);
+    }
+  });
+
+  test("case transforms / conditional chaining / overlay are vaud-engine only", () => {
+    for (const f of ["case-transform", "conditional-chaining", "overlay"] as const) {
+      expect(REGEX_REPLACE_FEATURE_SUPPORT[f]).toEqual(["full"]);
+      for (const p of REGEX_WRITE_FOR_PROFILES) {
+        expect(profileRunsReplaceFeature(p, f)).toBe(p === "full");
+      }
+    }
+  });
+
+  test("<cbs> flag tokens run on Risu only (Vaude strips them at compile)", () => {
+    expect(REGEX_REPLACE_FEATURE_SUPPORT["cbs-flag-tokens"]).toEqual(["risu"]);
+    for (const p of REGEX_WRITE_FOR_PROFILES) {
+      expect(profileRunsReplaceFeature(p, "cbs-flag-tokens")).toBe(p === "risu");
+    }
+  });
+
+  test("v-flag and lookbehind are exactly the host-age pattern risks", () => {
+    expect(REGEX_HOST_AGE_FEATURES).toEqual(["v-flag", "lookbehind"]);
   });
 });

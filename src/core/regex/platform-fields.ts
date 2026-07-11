@@ -7,8 +7,11 @@
  *
  * Grounded in design/REGEX-FORMATS.md (the dialect survey), field-by-field:
  * - ST owns trimStrings / substituteFind (none|raw|escaped) / minDepth / maxDepth / runOnEdit.
- * - RC owns the same cluster as ST plus per-rule timeout budgeting (an engine behavior, not a
- *   field, so it adds nothing here).
+ * - RC owns ST's cluster MINUS substituteFind, plus per-rule timeout budgeting (an engine behavior,
+ *   not a field, so it adds nothing here). The subsystem A wire (the only live RC path) never
+ *   round-trips substituteFind; subsystem B, which had it, is dead code (design/REGEX-FORMATS.md
+ *   "Residuals", src/formats/rolecall/regex.ts header). The original plan-seeded claim is corrected
+ *   here per that residual's explicit deferral to "whichever phase next touches this file".
  * - Lumiverse owns targets (the placement x target matrix) / substituteFind (all four modes,
  *   including "after") / trimStrings / depths / runOnEdit / note (its `description` field).
  * - Risu owns useFlags (`ableFlag`) only - the leanest wire, richest OUTPUT language instead.
@@ -47,7 +50,7 @@ export const PLATFORM_OWNED_EXTRAS: Record<RegexWriteForProfile, readonly RegexF
   ],
   sillytavern: ["trimStrings", "substituteFind", "minDepth", "maxDepth", "runOnEdit"],
   risu: ["useFlags"],
-  rolecall: ["trimStrings", "substituteFind", "minDepth", "maxDepth", "runOnEdit"],
+  rolecall: ["trimStrings", "minDepth", "maxDepth", "runOnEdit"],
   lumiverse: ["note", "targets", "substituteFind", "trimStrings", "minDepth", "maxDepth", "runOnEdit"],
   marinara: ["characterIds", "targets", "minDepth", "maxDepth"],
 };
@@ -89,6 +92,72 @@ export const REGEX_PHASES_BY_PROFILE: Record<RegexWriteForProfile, readonly Rege
 export function phasesForProfile(profile: RegexWriteForProfile): readonly RegexPhase[] {
   const owned = REGEX_PHASES_BY_PROFILE[profile] ?? REGEX_ALL_PHASES;
   return REGEX_ALL_PHASES.filter((p) => owned.includes(p));
+}
+
+// ---------------------------------------------------------------------------
+// Engine-feature support (the travel-honesty axis, beside the phase matrix)
+// ---------------------------------------------------------------------------
+
+/**
+ * Beyond field ownership and phases, the wires diverge on which REPLACE/flag extensions their engine
+ * actually EXECUTES, and which PATTERN features risk breaking on an old install. The AST is
+ * single-dialect (all five targets run JS RegExp - one grammar, by fact), so this divergence is a
+ * travel LINT, never a parser fork (REGEX-JEWEL-PLAN.md R2X, QOL 27). core/regex/travel-lint.ts
+ * walks a rule against this table and returns plain-language notes; the editor shows them under the
+ * active Write-for lens (dashed amber) and export surfaces them in the summary. Nothing is blocked.
+ *
+ * Grounded in design/REGEX-FORMATS.md:
+ * - {{match}}: ST `replaceString` sugar for `$0` (survey "SillyTavern (RegexScriptData)"). RC runs it
+ *   too (task + REGEX-JEWEL-PLAN.md R2X mandate "{{match}}: ST+RC only"; the survey grounds ST
+ *   explicitly and RC's `import-st-regex.ts` maps the same replace grammar, so RC is the plan's call,
+ *   not a survey-derived one). Vaude runs it as well (core/regex/replace-ops.ts).
+ * - case transforms (\u \l \U \L \E): a vaud-engine extension (replace-ops.ts); no surveyed wire
+ *   executes them, so on every other lens they print literally.
+ * - conditional chaining (run B only if A fired) and overlay (display-only spans): vaud-engine only
+ *   (REGEX-JEWEL-PLAN.md R2X). Both are rule-level / cross-rule behaviors with NO single-rule token,
+ *   so they live here for capability gating but travel-lint cannot detect them from one rule's
+ *   find/replace/flags. That is by design, not a coverage gap.
+ * - <cbs> flag tokens: Risu-only output-macro processing (survey "RisuAI", live "gu<cbs>"); every
+ *   other engine (Vaude included - apply.ts strips it before compiling) ignores it.
+ */
+export type RegexReplaceFeature =
+  | "match-token"
+  | "case-transform"
+  | "conditional-chaining"
+  | "overlay"
+  | "cbs-flag-tokens";
+
+/** Which profiles' engines EXECUTE each replace/flag extension. A profile absent = prints/ignores it. */
+export const REGEX_REPLACE_FEATURE_SUPPORT: Record<
+  RegexReplaceFeature,
+  readonly RegexWriteForProfile[]
+> = {
+  "match-token": ["full", "sillytavern", "rolecall"],
+  "case-transform": ["full"],
+  "conditional-chaining": ["full"],
+  "overlay": ["full"],
+  "cbs-flag-tokens": ["risu"],
+};
+
+/**
+ * PATTERN features every wire's JS engine supports on a CURRENT runtime but that OLDER installs may
+ * reject (design/REGEX-FORMATS.md notes all five execute JS RegExp; the risk is the reader's engine
+ * VERSION, not the platform). travel-lint flags these on every destination except full - Vaude is the
+ * current, controlled runtime, i.e. "home", never a travel hop.
+ */
+export type RegexHostAgeFeature = "v-flag" | "lookbehind";
+
+export const REGEX_HOST_AGE_FEATURES: readonly RegexHostAgeFeature[] = ["v-flag", "lookbehind"];
+
+/** Every engine-feature the travel lint can name (replace/flag extensions + host-age pattern risks). */
+export type RegexEngineFeature = RegexReplaceFeature | RegexHostAgeFeature;
+
+/** True if this profile's engine executes the given replace/flag extension. */
+export function profileRunsReplaceFeature(
+  profile: RegexWriteForProfile,
+  feature: RegexReplaceFeature,
+): boolean {
+  return REGEX_REPLACE_FEATURE_SUPPORT[feature].includes(profile);
 }
 
 /** Every key the union editor knows (full list). */
