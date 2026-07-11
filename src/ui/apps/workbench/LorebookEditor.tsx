@@ -18,10 +18,8 @@ import {
   parseWriteFor,
   type LoreWriteForProfile,
 } from "../../../core/lore";
-import type { LorebookEntry } from "../../../entities/lorebook/schema";
 import {
   addEntry,
-  applyBookTransform,
   deleteEntries,
   deleteEntry,
   duplicateEntry,
@@ -29,8 +27,6 @@ import {
   normalizeSession,
   reconcileLoreAfterSave,
   reorderEntry,
-  restoreEntry,
-  revertField,
   selectEntry,
   sessionDirty,
   setEntriesEnabled,
@@ -40,38 +36,17 @@ import {
 } from "./lore/session";
 import { LoreEntryPage } from "./lore/entry-page";
 import { LoreEntryToc } from "./lore/entry-toc";
-import { LoreEntryRail } from "./lore/entry-rail";
 import { LoreBookSettings } from "./lore/book-settings";
-import { HealthPane } from "./lore/health-pane";
-import { ChangesPane } from "./lore/changes-pane";
 import { CardsView } from "./lore/cards-view";
 import { WebView } from "./lore/web-view";
-import { RehearsalPane } from "./lore/rehearsal-pane";
+import { BinderSide, type BinderSidePane } from "./lore/binder-side";
+import { binderStyles as styles } from "./lore/binder-styles";
+import {
+  LoreWorkshopDialog,
+  type LoreWorkshopState,
+} from "../library/lore-workshop-dialog";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { InkDialog } from "../../components/ink-dialog";
-import deskStyles from "./LorebookEditor.module.css";
-import panelStyles from "./lore/entry-panel.module.css";
-import panelKeyStyles from "./lore/entry-panel-keys.module.css";
-import pageStyles from "./lore/entry-page.module.css";
-import tocStyles from "./lore/entry-toc.module.css";
-import railStyles from "./lore/entry-rail.module.css";
-import platformCardStyles from "./lore/platforms/cards.module.css";
-import healthStyles from "./lore/health-pane.module.css";
-import changesStyles from "./lore/changes-pane.module.css";
-
-/** one styles object for the whole binder (disjoint class sets - a name lives in exactly ONE
- * module; the leaves keep taking a single `styles` prop so they stay file-layout-blind) */
-const styles = {
-  ...deskStyles,
-  ...panelStyles,
-  ...panelKeyStyles,
-  ...pageStyles,
-  ...tocStyles,
-  ...railStyles,
-  ...platformCardStyles,
-  ...healthStyles,
-  ...changesStyles,
-};
 
 export interface LorebookEditorProps {
   entity: unknown;
@@ -112,8 +87,9 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [tocOpen, setTocOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(() => new Set());
-  const [sidePane, setSidePane] = useState<"health" | "changes" | "rehearsal" | null>(null);
+  const [sidePane, setSidePane] = useState<BinderSidePane>(null);
   const [view, setView] = useState<"pages" | "cards" | "web">("pages");
+  const [workshop, setWorkshop] = useState<LoreWorkshopState | null>(null);
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
@@ -255,6 +231,14 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       setPicked(new Set());
     },
     onClearPick: () => setPicked(new Set()),
+    onBulkMove: () => {
+      if (picked.size === 0) return;
+      setWorkshop({
+        mode: "split",
+        source: piece,
+        seedMovedIds: [...picked],
+      });
+    },
     onOpenBeside: (id: string) => {
       ctx.workbench.openBeside({
         ...piece,
@@ -388,52 +372,16 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
           )}
         </main>
 
-        {sidePane === "health" ? (
-          <HealthPane
-            body={session.body}
-            onTransform={(fn) => setSession((s) => applyBookTransform(s, fn))}
-            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
-            onClose={() => setSidePane(null)}
-          />
-        ) : sidePane === "changes" ? (
-          <ChangesPane
-            baseline={importBaseline}
-            body={session.body}
-            onRevertField={(entryId, field, value) =>
-              setSession((s) => revertField(s, entryId, field, value))
-            }
-            onRestoreEntry={(e: LorebookEntry) => setSession((s) => restoreEntry(s, e))}
-            onUndoSwap={(aId, bId) => {
-              setSession((s) => {
-                const a = s.body.entries.find((e) => e.id === aId);
-                const b = s.body.entries.find((e) => e.id === bId);
-                if (!a || !b) return s;
-                let next = updateEntry(s, aId, { sortOrder: b.sortOrder });
-                next = updateEntry(next, bId, { sortOrder: a.sortOrder });
-                return next;
-              });
-            }}
-            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
-            onClose={() => setSidePane(null)}
-          />
-        ) : sidePane === "rehearsal" ? (
-          <RehearsalPane
-            body={session.body}
-            onClose={() => setSidePane(null)}
-            onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
-          />
-        ) : (
-          entry && (
-            <LoreEntryRail
-              entries={session.body.entries}
-              notes={health.filter((h) => h.entryId === entry.id)}
-              styles={styles}
-              onOpenHealth={() => setSidePane("health")}
-              onOpenChanges={() => setSidePane("changes")}
-              onOpenRehearsal={() => setSidePane("rehearsal")}
-            />
-          )
-        )}
+        <BinderSide
+          sidePane={sidePane}
+          setSidePane={setSidePane}
+          body={session.body}
+          baseline={importBaseline}
+          entry={entry}
+          notes={health.filter((h) => (entry ? h.entryId === entry.id : false))}
+          styles={styles}
+          setSession={setSession}
+        />
       </div>
 
       {/* ---- mobile contents sheet: same TOC, docked to the pane bottom ---- */}
@@ -474,6 +422,32 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
             />
           </div>
         </InkDialog>
+      )}
+
+      {workshop && (
+        <LoreWorkshopDialog
+          ctx={ctx}
+          state={workshop}
+          onDismiss={() => setWorkshop(null)}
+          onDone={() => {
+            setWorkshop(null);
+            setPicked(new Set());
+            setSelectMode(false);
+            void (async () => {
+              try {
+                const raw = await ctx.api.getEntity(
+                  `kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`,
+                );
+                const body = bodyFromEntity(raw);
+                setSession(normalizeSession(body));
+                setBaseline(structuredClone(body));
+                ctx.setStatus("book updated after split");
+              } catch (e) {
+                ctx.setStatus(e instanceof Error ? e.message : "reload failed");
+              }
+            })();
+          }}
+        />
       )}
     </div>
   );

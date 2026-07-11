@@ -11,6 +11,7 @@ import {
   type SkipReason,
   type TimedState,
 } from "../../../../core/lore";
+import { PlaybackTab } from "./playback-tab";
 import styles from "./rehearsal-pane.module.css";
 
 const CANNED = [
@@ -66,6 +67,7 @@ function reasonText(r: FireReason | SkipReason): string {
 }
 
 export function RehearsalPane({ body, onClose, onJumpEntry }: RehearsalPaneProps): JSX.Element {
+  const [tab, setTab] = useState<"try" | "playback">("try");
   const [chat, setChat] = useState<ScanLine[]>([]);
   const [input, setInput] = useState("");
   const [turnState, setTurnState] = useState<TimedState>(emptyTimed);
@@ -114,74 +116,103 @@ export function RehearsalPane({ body, onClose, onJumpEntry }: RehearsalPaneProps
         </button>
       </div>
 
-      <div className={styles.chat}>
-        {chat.length === 0 && (
-          <p className={styles.empty}>Type a line to see what would fire.</p>
-        )}
-        {chat.map((m, i) => (
-          <div key={i} className={m.role === "user" ? styles.user : styles.bot}>
-            {m.text}
-          </div>
-        ))}
+      <div className={styles.tabs} role="tablist" aria-label="Rehearsal mode">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "try"}
+          className={tab === "try" ? `${styles.tab} ${styles.tabOn}` : styles.tab}
+          onClick={() => setTab("try")}
+        >
+          Try lines
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "playback"}
+          className={tab === "playback" ? `${styles.tab} ${styles.tabOn}` : styles.tab}
+          onClick={() => setTab("playback")}
+        >
+          Playback
+        </button>
       </div>
 
-      <form className={styles.composer} onSubmit={onSubmit}>
-        <input
-          value={input}
-          onChange={(ev) => setInput(ev.target.value)}
-          placeholder="Type something to test…"
-          aria-label="Rehearsal line"
-        />
-        <button type="submit" disabled={!input.trim()}>
-          Say
-        </button>
-      </form>
+      {tab === "playback" ? (
+        <PlaybackTab body={body} onJumpEntry={onJumpEntry} />
+      ) : (
+        <>
+          <div className={styles.chat}>
+            {chat.length === 0 && (
+              <p className={styles.empty}>Type a line to see what would fire.</p>
+            )}
+            {chat.map((m, i) => (
+              <div key={i} className={m.role === "user" ? styles.user : styles.bot}>
+                {m.text}
+              </div>
+            ))}
+          </div>
 
-      {last && (
-        <div className={styles.results}>
-          <div className={styles.rhead}>Fired ({fired.length})</div>
-          {fired.length === 0 && <p className={styles.empty}>Nothing fired.</p>}
-          {fired.map((v) => {
-            const title = body.entries.find((e) => e.id === v.entryId)?.title || v.entryId;
-            return (
-              <button
-                key={v.entryId}
-                type="button"
-                className={styles.hit}
-                onClick={() => onJumpEntry(v.entryId)}
-              >
-                <b>{title}</b>
-                <span>{reasonText(v.reason)} · ~{v.tokenCost}t</span>
-              </button>
-            );
-          })}
-          {budgetLine && <p className={styles.budget}>{budgetLine}</p>}
-          {last.budget.cuts.length > 0 && (
-            <details className={styles.cuts}>
-              <summary>Cut by budget ({last.budget.cuts.length})</summary>
-              {last.budget.cuts.map((c) => (
-                <div key={c.entryId}>{reasonText(c.reason)}</div>
-              ))}
-            </details>
+          <form className={styles.composer} onSubmit={onSubmit}>
+            <input
+              value={input}
+              onChange={(ev) => setInput(ev.target.value)}
+              placeholder="Type something to test…"
+              aria-label="Rehearsal line"
+            />
+            <button type="submit" disabled={!input.trim()}>
+              Say
+            </button>
+          </form>
+
+          {last && (
+            <div className={styles.results}>
+              <div className={styles.rhead}>Fired ({fired.length})</div>
+              {fired.length === 0 && <p className={styles.empty}>Nothing fired.</p>}
+              {fired.map((v) => {
+                const title = body.entries.find((e) => e.id === v.entryId)?.title || v.entryId;
+                return (
+                  <button
+                    key={v.entryId}
+                    type="button"
+                    className={styles.hit}
+                    onClick={() => onJumpEntry(v.entryId)}
+                  >
+                    <b>{title}</b>
+                    <span>
+                      {reasonText(v.reason)} · ~{v.tokenCost}t
+                    </span>
+                  </button>
+                );
+              })}
+              {budgetLine && <p className={styles.budget}>{budgetLine}</p>}
+              {last.budget.cuts.length > 0 && (
+                <details className={styles.cuts}>
+                  <summary>Cut by budget ({last.budget.cuts.length})</summary>
+                  {last.budget.cuts.map((c) => (
+                    <div key={c.entryId}>{reasonText(c.reason)}</div>
+                  ))}
+                </details>
+              )}
+              <details className={styles.miss}>
+                <summary>Didn&apos;t fire ({skipped.length})</summary>
+                {skipped.map((v) => {
+                  const title = body.entries.find((e) => e.id === v.entryId)?.title || v.entryId;
+                  return (
+                    <button
+                      key={v.entryId}
+                      type="button"
+                      className={styles.skip}
+                      onClick={() => onJumpEntry(v.entryId)}
+                    >
+                      <b>{title}</b>
+                      <span>{reasonText(v.reason)}</span>
+                    </button>
+                  );
+                })}
+              </details>
+            </div>
           )}
-          <details className={styles.miss}>
-            <summary>Didn&apos;t fire ({skipped.length})</summary>
-            {skipped.map((v) => {
-              const title = body.entries.find((e) => e.id === v.entryId)?.title || v.entryId;
-              return (
-                <button
-                  key={v.entryId}
-                  type="button"
-                  className={styles.skip}
-                  onClick={() => onJumpEntry(v.entryId)}
-                >
-                  <b>{title}</b>
-                  <span>{reasonText(v.reason)}</span>
-                </button>
-              );
-            })}
-          </details>
-        </div>
+        </>
       )}
     </aside>
   );

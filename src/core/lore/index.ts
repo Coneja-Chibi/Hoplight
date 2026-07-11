@@ -61,6 +61,7 @@ export {
   splitBook,
   mergeBooks,
   duplicateBook,
+  filterEnabledBooks,
 } from "./book-ops";
 export { nearMisses, type NearMissHit } from "./near-miss";
 export { parseChatJsonl, type ImportedChat } from "./chat-import";

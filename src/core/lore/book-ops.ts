@@ -98,3 +98,10 @@ export function duplicateBook(book: LorebookBody, name: string): LorebookBody {
     entries: renumber(freshIds(book.entries, "dup_")),
   };
 }
+
+/** Press / export: drop books whose book-level enabled is explicitly false. */
+export function filterEnabledBooks<T extends { body?: { enabled?: boolean } }>(
+  books: readonly T[],
+): T[] {
+  return books.filter((b) => b.body?.enabled !== false);
+}

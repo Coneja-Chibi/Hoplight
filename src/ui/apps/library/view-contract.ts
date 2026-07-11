@@ -45,6 +45,19 @@ export interface DeckViewContext {
   sourceLabel(e: StudioEntitySummary): string | null;
   /** fetch the piece's own words (tagline/description) for close-up views; null on any failure */
   peek(e: StudioEntitySummary): Promise<PiecePeek | null>;
+  /**
+   * Optional lorebook shelf ops (vs-lore-shelf). Absent on non-lore decks / older callers.
+   * Views must deny by absence - never require this bag.
+   */
+  loreShelf?: {
+    /** book-level on/off; undefined = treat as on */
+    enabledOf(e: StudioEntitySummary): boolean;
+    entryCountOf(e: StudioEntitySummary): number | undefined;
+    onToggleEnabled(e: StudioEntitySummary, on: boolean): void;
+    onSplit(e: StudioEntitySummary): void;
+    onMerge(into: StudioEntitySummary, from: StudioEntitySummary): void;
+    onDuplicate(e: StudioEntitySummary): void;
+  };
 }
 
 export interface DeckView {

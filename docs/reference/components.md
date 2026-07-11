@@ -18,6 +18,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
+| BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, }: BinderSideProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
@@ -49,7 +50,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, }: HealthPaneProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
-| ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, }: { state: ImportState; onCommit: () => void; onCancel: () => void; }) |  |  |
+| ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. | .overlay .sheet |
 | KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, advanced = false, pickedIndex, onPick, entryProbability = 100,... |  |  |
 | KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
@@ -59,12 +60,13 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
-| LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, moveDisabled = true, }: BulkBarProps) |  |  |
+| LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
 | LoreCategories | src/ui/components/lore-categories/index.tsx | ({ categories, onChange }: LoreCategoriesProps) |  | .wrap .head .label .add .empty .list .row .name ... |
 | LoreEntryPage | src/ui/apps/workbench/lore/entry-page.tsx | ({ entry, writeFor, styles, onPatch, index, count, onPrev, onNext, tokenEstimate, }: EntryPageProps) |  |  |
 | LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ entries, notes, styles, onOpenHealth, onOpenChanges, onOpenRehearsal, }: EntryRailProps) |  |  |
 | LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, onSelect, onAdd, onPatch, onDuplicate, onDelete, onMove, selectMode = false,... |  |  |
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
+| LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
 | LoreWriteFor | src/ui/components/lore-write-for/index.tsx | ({ value, onChange }: LoreWriteForProps) |  | .strip .hint |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
@@ -79,6 +81,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .offt .on .hint |
+| PlaybackTab | src/ui/apps/workbench/lore/playback-tab.tsx | ({ body, onJumpEntry }: PlaybackTabProps) |  |  |
 | PlaybillView | src/ui/apps/workbench/presenters/playbill-view.tsx | ({ leftCard, sealedCard, acts, actModules, lensHides, lensDims, wideKinds, panelKinds, controlFor, nativeItems, nativ... |  |  |
 | PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
 | PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, onOpenSprites, spriteCount = 0, sh... |  |  |

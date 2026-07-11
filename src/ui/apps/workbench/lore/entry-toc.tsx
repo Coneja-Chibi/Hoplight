@@ -26,6 +26,7 @@ export interface EntryTocProps {
   onBulkEnable?: (on: boolean) => void;
   onBulkDelete?: () => void;
   onClearPick?: () => void;
+  onBulkMove?: () => void;
   onOpenBeside?: (id: string) => void;
 }
 
@@ -192,6 +193,7 @@ export function LoreEntryToc({
   onBulkEnable,
   onBulkDelete,
   onClearPick,
+  onBulkMove,
   onOpenBeside,
 }: EntryTocProps): JSX.Element {
   const [query, setQuery] = useState("");
@@ -325,7 +327,7 @@ export function LoreEntryToc({
           onEnable={onBulkEnable}
           onDelete={onBulkDelete}
           onClear={onClearPick}
-          moveDisabled
+          onMove={onBulkMove}
         />
       )}
     </aside>

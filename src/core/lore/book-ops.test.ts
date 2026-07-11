@@ -2,7 +2,13 @@
  * split/merge/duplicate pure book ops.
  */
 import { describe, expect, test } from "bun:test";
-import { duplicateBook, mergeBooks, renumberEntries, splitBook } from "./book-ops";
+import {
+  duplicateBook,
+  filterEnabledBooks,
+  mergeBooks,
+  renumberEntries,
+  splitBook,
+} from "./book-ops";
 import { emptyLoreEntry, emptyLorebookBody } from "./empty-book";
 
 const bookWith = (name: string, titles: string[]) => {
@@ -71,5 +77,12 @@ describe("book-ops", () => {
       x.entries.map((e) => e.content).sort();
     // remainder has B; split has A,C; merge has all three contents
     expect(contents(back).sort()).toEqual(contents(b).sort());
+  });
+
+  test("filterEnabledBooks drops explicit off books", () => {
+    const a = { body: { enabled: true } };
+    const b = { body: { enabled: false } };
+    const c = { body: {} };
+    expect(filterEnabledBooks([a, b, c])).toEqual([a, c]);
   });
 });

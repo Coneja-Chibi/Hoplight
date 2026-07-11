@@ -10,8 +10,7 @@ export interface BulkBarProps {
   onEnable: (on: boolean) => void;
   onDelete: () => void;
   onClear: () => void;
-  /** Move is Phase 2 (needs a target book); disabled until then. */
-  moveDisabled?: boolean;
+  onMove?: () => void;
 }
 
 export function LoreBulkBar({
@@ -20,7 +19,7 @@ export function LoreBulkBar({
   onEnable,
   onDelete,
   onClear,
-  moveDisabled = true,
+  onMove,
 }: BulkBarProps): JSX.Element {
   return (
     <div className={styles.bulkBar} role="toolbar" aria-label="Bulk entry actions">
@@ -42,8 +41,9 @@ export function LoreBulkBar({
         <button
           type="button"
           className={styles.bAct}
-          disabled={moveDisabled}
-          title={moveDisabled ? "Move to another book lands with the workshop (next)." : "Move to book…"}
+          disabled={!onMove}
+          title={onMove ? "Split selected entries into a new book" : "Move unavailable"}
+          onClick={() => onMove?.()}
         >
           Move…
         </button>
