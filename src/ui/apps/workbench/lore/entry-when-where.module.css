@@ -1,53 +1,56 @@
 /**
- * When & where instrument tiles + placement stop-rail.
+ * When & where: one related panel (shared chrome, hairline seams), compact height.
  */
 
 .wwGrid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: 0.45rem;
-}
-
-/* Top row: Group (old chance slot) · Rhythm · Recursion */
-.wwGroup {
-  grid-column: span 5;
+  gap: 0;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
-  padding: 0.55rem 0.6rem 0.6rem;
   min-width: 0;
+}
+
+/* Shared cell surface inside the panel */
+.wwGroup,
+.wwTurns,
+.wwRec,
+.wwChance,
+.wwPlace {
+  background: transparent;
+  border: 0;
+  min-width: 0;
+}
+
+/* Top row */
+.wwGroup {
+  grid-column: span 5;
+  padding: 0.35rem 0.45rem 0.4rem;
+  border-right: 1px solid var(--stage-seam);
 }
 
 .wwTurns {
   grid-column: span 4;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  padding: 0.55rem 0.6rem 0.6rem;
-  min-width: 0;
+  padding: 0.35rem 0.45rem 0.4rem;
+  border-right: 1px solid var(--stage-seam);
 }
 
 .wwRec {
   grid-column: span 3;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  padding: 0.55rem 0.6rem 0.6rem;
-  min-width: 0;
+  padding: 0.35rem 0.45rem 0.4rem;
 }
 
-/* Middle: full-width chance bar */
+/* Full-width bands */
 .wwChance {
   grid-column: span 12;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  padding: 0.55rem 0.7rem 0.65rem;
-  min-width: 0;
+  padding: 0.35rem 0.55rem 0.4rem;
+  border-top: 1px solid var(--stage-seam);
 }
 
 .wwPlace {
   grid-column: span 12;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  padding: 0.55rem 0.65rem 0.7rem;
-  min-width: 0;
+  padding: 0.35rem 0.5rem 0.45rem;
+  border-top: 1px solid var(--stage-seam);
 }
 
 @media (max-width: 48rem) {
@@ -57,20 +60,26 @@
   .wwGroup,
   .wwPlace {
     grid-column: span 12;
+    border-right: 0;
+    border-top: 1px solid var(--stage-seam);
+  }
+
+  .wwGroup {
+    border-top: 0;
   }
 }
 
 .wwTileH {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.4rem;
+  gap: 0.3rem;
+  margin-bottom: 0.22rem;
 }
 
 .wwTileH b {
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
-  font-weight: 800;
-  font-size: 0.55rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -80,56 +89,63 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.46rem;
+  font-size: 0.44rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
 }
 
+/* Shared inset control surface */
+.wwInset {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+}
+
 .wwChanceRow {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
 }
 
 .wwPct {
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
-  font-weight: 900;
-  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.85rem;
   line-height: 1;
   color: var(--stage-card);
-  min-width: 3.4rem;
+  min-width: 2.6rem;
+  letter-spacing: 0.02em;
 }
 
 .wwChanceRange {
   flex: 1;
   min-width: 0;
   accent-color: var(--stage-ok);
-  height: 0.35rem;
+  height: 0.28rem;
   cursor: pointer;
 }
 
 .wwMini {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.3rem;
+  gap: 0.22rem;
 }
 
 .wwMiniCell {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  border: 2px solid var(--stage-seam);
+  gap: 0.06rem;
+  border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
-  padding: 0.28rem 0.32rem;
+  padding: 0.14rem 0.22rem 0.16rem;
   min-width: 0;
 }
 
 .wwMiniCell span {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
-  letter-spacing: 0.08em;
+  font-size: 0.44rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
 }
@@ -139,35 +155,37 @@
   border: 0;
   background: none;
   color: var(--stage-card);
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.72rem;
   text-align: center;
   padding: 0;
+  line-height: 1.15;
 }
 
 .wwSeg {
   display: flex;
-  border: 2px solid var(--stage-seam);
+  border: 1px solid var(--stage-seam);
   width: 100%;
+  background: var(--stage-sunken);
 }
 
 .wwSegBtn {
   flex: 1;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.46rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 0;
-  background: var(--stage-row);
+  background: transparent;
   color: var(--stage-mute);
-  padding: 0.32rem 0.15rem;
+  padding: 0.28rem 0.12rem;
   cursor: pointer;
 }
 
 .wwSegBtn + .wwSegBtn {
-  border-left: 2px solid var(--stage-seam);
+  border-left: 1px solid var(--stage-seam);
 }
 
 .wwSegOn {
@@ -177,72 +195,72 @@
 
 .wwRecLevel {
   width: 100%;
-  margin-top: 0.35rem;
-  border: 2px solid var(--stage-seam);
+  margin-top: 0.22rem;
+  border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   text-align: center;
-  padding: 0.2rem;
+  padding: 0.14rem;
 }
 
 .wwGroupRow {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .wwGroupIn {
   flex: 1;
   min-width: 0;
-  border: 2px solid var(--stage-seam);
+  border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
-  padding: 0.2rem 0.35rem;
+  font-size: 0.64rem;
+  padding: 0.22rem 0.32rem;
 }
 
 .wwW {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.44rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
 }
 
 .wwWeight {
-  width: 2.6rem;
-  border: 2px solid var(--stage-seam);
+  width: 2.4rem;
+  border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   text-align: center;
-  padding: 0.2rem;
+  padding: 0.22rem 0.15rem;
 }
 
-/* ---- placement rail ---- */
+/* ---- placement rail (same family, compact) ---- */
 
 .placeRail {
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
+  align-items: center;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .placeTitles {
-  min-width: 5.2rem;
+  min-width: 4.6rem;
   flex: none;
 }
 
 .placeTitles b {
   display: block;
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
-  font-weight: 800;
-  font-size: 0.55rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -252,28 +270,28 @@
   display: block;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.46rem;
+  font-size: 0.44rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
-  margin-top: 0.12rem;
+  margin-top: 0.06rem;
 }
 
 .placeTrackWrap {
   flex: 1;
-  min-width: 12rem;
+  min-width: 10rem;
 }
 
 .placeTrack {
   position: relative;
-  padding: 0.35rem 0.35rem 1.55rem;
+  padding: 0.2rem 0.25rem 1.15rem;
 }
 
 .placeLine {
   position: relative;
-  height: 3px;
+  height: 2px;
   background: var(--stage-seam);
-  margin: 0 0.2rem;
+  margin: 0 0.15rem;
 }
 
 .placeFill {
@@ -288,11 +306,11 @@
 .placeThumb {
   position: absolute;
   top: 50%;
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.7rem;
+  height: 0.7rem;
   background: var(--a, var(--stage-macro));
   border: 2px solid var(--stage-black);
-  box-shadow: 2px 2px 0 0 var(--stage-black);
+  box-shadow: 1px 1px 0 0 var(--stage-black);
   transform: translate(-50%, -50%);
   z-index: 2;
   pointer-events: none;
@@ -301,10 +319,10 @@
 .placeDot {
   position: absolute;
   top: 50%;
-  width: 0.42rem;
-  height: 0.42rem;
+  width: 0.36rem;
+  height: 0.36rem;
   background: var(--stage-row);
-  border: 2px solid var(--stage-line, var(--stage-seam));
+  border: 1px solid var(--stage-line, var(--stage-seam));
   transform: translate(-50%, -50%);
   z-index: 1;
   pointer-events: none;
@@ -317,8 +335,8 @@
 
 .placeLabels {
   position: relative;
-  height: 1.15rem;
-  margin-top: 0.55rem;
+  height: 0.95rem;
+  margin-top: 0.4rem;
 }
 
 .placeLbl {
@@ -326,13 +344,13 @@
   transform: translateX(-50%);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.46rem;
+  font-size: 0.44rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
   border: 0;
   background: none;
-  padding: 0.1rem 0.15rem;
+  padding: 0.06rem 0.1rem;
   cursor: pointer;
   white-space: nowrap;
 }
@@ -348,12 +366,11 @@
 .placeDepthCap {
   display: inline-flex;
   align-items: center;
-  gap: 0.28rem;
-  border: 2px solid var(--a, var(--stage-macro));
+  gap: 0.2rem;
+  border: 1px solid var(--a, var(--stage-macro));
   background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
-  padding: 0.18rem 0.4rem;
+  padding: 0.12rem 0.32rem;
   flex: none;
-  margin-top: 0.1rem;
 }
 
 .placeDepthSleep {
@@ -365,7 +382,7 @@
 .placeAt {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   letter-spacing: 0.06em;
   color: var(--a, var(--stage-macro));
 }
@@ -375,13 +392,13 @@
 }
 
 .placeDepthNum {
-  width: 2.2rem;
+  width: 1.9rem;
   border: 0;
   background: none;
   color: var(--stage-card);
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
-  font-weight: 800;
-  font-size: 0.85rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
   text-align: center;
   padding: 0;
 }
@@ -396,7 +413,7 @@
   background: none;
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   text-transform: uppercase;
   padding: 0;
 }
@@ -405,23 +422,23 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .placeFloorLine {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   letter-spacing: 0.04em;
   color: var(--stage-soft);
 }
 
 .placeForeign {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-warn);
   border: 1px solid var(--stage-warn);
-  padding: 0.12rem 0.35rem;
+  padding: 0.08rem 0.28rem;
 }
