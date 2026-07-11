@@ -74,6 +74,12 @@
   --shadow-ink: rgba(0, 0, 0, 0.55); /* default stamp/overlay shadow */
   --shadow-ink-deep: rgba(0, 0, 0, 0.8);
   --scrim: rgba(10, 10, 11, 0.94);
+
+  /* lore platform host accents (logos / press kits; minor use only: rail, dot, on-state) */
+  --host-st: #c62828;   /* SillyTavern logo crimson, UI-lifted for dark stage */
+  --host-rc: #e11d48;   /* RoleCall / Vaude house rose */
+  --host-nai: #9773ff;  /* NovelAI press-kit purple */
+  --host-risu: #6ea8ff; /* Risu: calm stage-var blue until a stronger mark is locked */
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

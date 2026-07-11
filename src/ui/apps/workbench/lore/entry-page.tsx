@@ -248,19 +248,34 @@ export function LoreEntryPage({
         </details>
       )}
 
-      {/* ---- Platform cards: one platform, one card, one def file (the character editor's
-           native-fields doctrine) - surfaced by the active lens; Vaude shows them all ---- */}
-      {cardsForLens(writeFor).map((card) => (
-        <details key={card.id} className={styles.bfold}>
-          <summary className={styles.bchead}>
-            <b>{card.label}</b>
-            <i>platform extras Â· kept on every export</i>
-          </summary>
-          <div className={styles.bcbody}>
-            <card.Component entry={entry} show={show} styles={styles} onPatch={onPatch} />
-          </div>
-        </details>
-      ))}
+      {/* ---- Platform cards: one host, one file; minor host color on rail/dot/on-state ---- */}
+      {cardsForLens(writeFor).map((card) => {
+        const host =
+          card.id === "sillytavern"
+            ? styles.pcHostSt
+            : card.id === "rolecall"
+              ? styles.pcHostRc
+              : card.id === "novelai"
+                ? styles.pcHostNai
+                : card.id === "risu"
+                  ? styles.pcHostRisu
+                  : "";
+        return (
+          <details
+            key={card.id}
+            className={[styles.bfold, styles.pcHost, host, styles.pcShell].filter(Boolean).join(" ")}
+          >
+            <summary className={styles.bchead}>
+              <span className={styles.pcHostDot} aria-hidden="true" />
+              <b>{card.label}</b>
+              <i>platform extras · kept on every export</i>
+            </summary>
+            <div className={styles.bcbody}>
+              <card.Component entry={entry} show={show} styles={styles} onPatch={onPatch} />
+            </div>
+          </details>
+        );
+      })}
     </div>
   );
 }

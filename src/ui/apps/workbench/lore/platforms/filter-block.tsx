@@ -1,6 +1,5 @@
 /**
- * Character-filter block - shared by the SillyTavern and RoleCall cards (both wires carry it).
- * Whitelist/blacklist an entry to characters by name or tag, in the card row grammar.
+ * Character-filter zone - shared by SillyTavern and RoleCall cards.
  */
 import type { JSX } from "react";
 import type { LorebookEntry } from "../../../../../entities/lorebook/schema";
@@ -20,8 +19,11 @@ export function CharacterFilterBlock({
     onPatch({ characterFilter: filterFromInputs(nextMode, names, tags) });
 
   return (
-    <div className={styles.pcSection}>
-      <span className={styles.pcLabel}>Character filter</span>
+    <div className={styles.pcZone}>
+      <div className={styles.pcZh}>
+        <b>Character filter</b>
+        <span>who this entry is allowed to bind to</span>
+      </div>
       <div className={styles.pcRow}>
         <span className={styles.pcK}>Applies to</span>
         <select
@@ -50,7 +52,9 @@ export function CharacterFilterBlock({
               value={joinCsv(entry.characterFilter?.names ?? [])}
               placeholder="comma-separated"
               aria-label="Character names (comma-separated)"
-              onChange={(ev) => patchFilter(mode, ev.target.value, joinCsv(entry.characterFilter?.tags ?? []))}
+              onChange={(ev) =>
+                patchFilter(mode, ev.target.value, joinCsv(entry.characterFilter?.tags ?? []))
+              }
             />
           </div>
           <div className={styles.pcRow}>
@@ -60,7 +64,9 @@ export function CharacterFilterBlock({
               value={joinCsv(entry.characterFilter?.tags ?? [])}
               placeholder="comma-separated"
               aria-label="Character tags (comma-separated)"
-              onChange={(ev) => patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), ev.target.value)}
+              onChange={(ev) =>
+                patchFilter(mode, joinCsv(entry.characterFilter?.names ?? []), ev.target.value)
+              }
             />
           </div>
         </>

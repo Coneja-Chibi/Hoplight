@@ -1,7 +1,6 @@
 /**
- * SillyTavern's lore long tail (its own card - never smushed with Chub or Lumiverse): the six
- * extra scan sources, RAG vectorization, group override/scoring, the cosmetic display index, the
- * automation binding, and the character filter. Codec: formats/sillytavern/lorebook.ts.
+ * SillyTavern lore long tail: scan surface, match/groups, editor chrome, character filter.
+ * Codec: formats/sillytavern/lorebook.ts. Layout: design/vs-lore-platform-extras.html pass 3.2.
  */
 import type { JSX } from "react";
 import type { LorePlatformCard, LorePlatformCardProps } from "./card-contract";
@@ -18,96 +17,168 @@ const SCAN_KEYS = [
 
 function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX.Element | null {
   const any =
-    show("scanSources") || show("vectorized") || show("groupTuning") || show("displayIndex") ||
-    show("automationId") || show("characterFilter");
+    show("scanSources") ||
+    show("vectorized") ||
+    show("groupTuning") ||
+    show("displayIndex") ||
+    show("automationId") ||
+    show("characterFilter");
   if (!any) return null;
 
-  const switchRow = (
-    label: string,
-    on: boolean,
-    title: string,
-    flip: () => void,
-  ): JSX.Element => (
-    <div className={styles.pcRow}>
-      <span className={styles.pcK}>{label}</span>
-      <button
-        type="button"
-        className={on ? styles.pcSwitch : `${styles.pcSwitch} ${styles.pcSwitchOff}`}
-        role="switch"
-        aria-checked={on}
-        aria-label={label}
-        title={title}
-        onClick={flip}
-      />
-    </div>
-  );
+  const scanOn = SCAN_KEYS.filter(([key]) => entry[key] === true).length;
 
   return (
     <>
       {show("scanSources") && (
-        <div className={styles.pcSection}>
-          <span className={styles.pcLabel}>Also scan these for keys</span>
-          <div className={styles.pcChecks}>
-            {SCAN_KEYS.map(([key, label]) => (
-              <label key={key} className={styles.pcCheck}>
-                <input
-                  type="checkbox"
-                  checked={entry[key] === true}
-                  onChange={(ev) => onPatch({ [key]: ev.target.checked })}
-                />
-                {label}
-              </label>
-            ))}
+        <div className={styles.pcZone}>
+          <div className={styles.pcZh}>
+            <b>Also scan</b>
+            <span>where keys look beyond the chat</span>
+            <em>
+              {scanOn} of {SCAN_KEYS.length}
+            </em>
+          </div>
+          <div className={styles.pcScanGrid}>
+            {SCAN_KEYS.map(([key, label]) => {
+              const on = entry[key] === true;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  className={on ? `${styles.pcScanChip} ${styles.pcScanOn}` : styles.pcScanChip}
+                  aria-pressed={on}
+                  onClick={() => onPatch({ [key]: on ? false : true })}
+                >
+                  <span className={styles.pcScanBox} aria-hidden="true" />
+                  {label}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
-      <div className={styles.pcSection}>
-        <span className={styles.pcLabel}>Search &amp; groups</span>
-        {show("vectorized") &&
-          switchRow("Vectorized (RAG)", entry.vectorized === true, "Match by embedding similarity, not keywords", () =>
-            onPatch({ vectorized: entry.vectorized === true ? undefined : true }),
-          )}
-        {show("groupTuning") && (
-          <>
-            {switchRow("Group override", entry.groupOverride === true, "This entry always wins its inclusion group", () =>
-              onPatch({ groupOverride: entry.groupOverride === true ? undefined : true }),
-            )}
-            {switchRow(
-              "Group scoring",
-              entry.useGroupScoring === true,
-              "Pick the group winner by match score instead of weight",
-              () => onPatch({ useGroupScoring: entry.useGroupScoring === true ? undefined : true }),
-            )}
-          </>
-        )}
-        {show("displayIndex") && (
-          <div className={styles.pcRow}>
-            <span className={styles.pcK}>List index (cosmetic)</span>
-            <input
-              className={styles.pcNum}
-              type="number"
-              value={entry.displayIndex ?? ""}
-              placeholder="—"
-              aria-label="List display index (blank follows order)"
-              onChange={(ev) => {
-                const v = ev.target.value;
-                onPatch({ displayIndex: v === "" ? null : Number(v) || 0 });
-              }}
-            />
+
+      {(show("vectorized") || show("groupTuning")) && (
+        <div className={styles.pcZone}>
+          <div className={styles.pcZh}>
+            <b>Match &amp; groups</b>
+            <span>how this entry competes when several want in</span>
           </div>
-        )}
-        {show("automationId") && (
-          <div className={styles.pcRow}>
-            <span className={styles.pcK}>Automation id</span>
-            <input
-              className={styles.pcText}
-              value={entry.automationId ?? ""}
-              aria-label="Automation id"
-              onChange={(ev) => onPatch({ automationId: ev.target.value || null })}
-            />
+          <div className={styles.pcPair}>
+            {show("vectorized") && (
+              <div className={styles.pcCell}>
+                <div className={styles.pcCellT}>
+                  <b>Vectorized</b>
+                  <span>RAG / by meaning instead of exact keys.</span>
+                </div>
+                <button
+                  type="button"
+                  className={
+                    entry.vectorized === true
+                      ? styles.pcSwitch
+                      : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+                  }
+                  role="switch"
+                  aria-checked={entry.vectorized === true}
+                  aria-label="Vectorized (RAG)"
+                  onClick={() =>
+                    onPatch({ vectorized: entry.vectorized === true ? undefined : true })
+                  }
+                />
+              </div>
+            )}
+            {show("groupTuning") && (
+              <>
+                <div className={styles.pcCell}>
+                  <div className={styles.pcCellT}>
+                    <b>Group override</b>
+                    <span>Always wins its inclusion group.</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={
+                      entry.groupOverride === true
+                        ? styles.pcSwitch
+                        : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+                    }
+                    role="switch"
+                    aria-checked={entry.groupOverride === true}
+                    aria-label="Group override"
+                    onClick={() =>
+                      onPatch({
+                        groupOverride: entry.groupOverride === true ? undefined : true,
+                      })
+                    }
+                  />
+                </div>
+                <div className={`${styles.pcCell} ${styles.pcCellWide}`}>
+                  <div className={styles.pcCellT}>
+                    <b>Group scoring</b>
+                    <span>Pick the group winner by match score, not weight.</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={
+                      entry.useGroupScoring === true
+                        ? styles.pcSwitch
+                        : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+                    }
+                    role="switch"
+                    aria-checked={entry.useGroupScoring === true}
+                    aria-label="Group scoring"
+                    onClick={() =>
+                      onPatch({
+                        useGroupScoring: entry.useGroupScoring === true ? undefined : true,
+                      })
+                    }
+                  />
+                </div>
+              </>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {(show("displayIndex") || show("automationId")) && (
+        <div className={styles.pcZone}>
+          <div className={styles.pcZh}>
+            <b>Editor chrome</b>
+            <span>list order and automation bind</span>
+          </div>
+          <div className={styles.pcChrome}>
+            {show("displayIndex") && (
+              <>
+                <span className={styles.pcK}>List index</span>
+                <input
+                  className={styles.pcNum}
+                  type="number"
+                  value={entry.displayIndex ?? ""}
+                  placeholder="—"
+                  aria-label="List display index (blank follows order)"
+                  onChange={(ev) => {
+                    const v = ev.target.value;
+                    onPatch({ displayIndex: v === "" ? null : Number(v) || 0 });
+                  }}
+                />
+              </>
+            )}
+            {show("automationId") && (
+              <>
+                <span className={styles.pcK}>Automation</span>
+                <input
+                  className={styles.pcText}
+                  style={{ width: "100%", maxWidth: "none" }}
+                  value={entry.automationId ?? ""}
+                  placeholder="quick-reply id"
+                  aria-label="Automation id"
+                  onChange={(ev) => onPatch({ automationId: ev.target.value || null })}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       {show("characterFilter") && <CharacterFilterBlock entry={entry} styles={styles} onPatch={onPatch} />}
     </>
   );

@@ -1,7 +1,6 @@
 /**
- * RoleCall's lore long tail: the memo flag, declared side effects (data only - Studio never
- * executes them), and the character filter. RoleCall has no Write-for lens (the Vaude full card
- * covers its wire), so this card surfaces on the full lens. Codec: formats/rolecall/lorebook.ts.
+ * RoleCall lore long tail: memo, side-effect deck, character filter.
+ * Layout: design/vs-lore-platform-extras.html pass 3.2. Codec: formats/rolecall/lorebook.ts.
  */
 import { useEffect, useState, type JSX } from "react";
 import type { FormField } from "../../../../components/field-form";
@@ -40,9 +39,6 @@ const SIDE_EFFECT_FIELDS: readonly FormField[] = [
 ];
 
 function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX.Element | null {
-  // side-effect rows are a LOCAL draft: a just-added row has an empty variable and would be
-  // filtered out of the body before it could be typed into; re-seeds when the page shows
-  // a different entry
   const [seRows, setSeRows] = useState<Record<string, unknown>[]>(() =>
     rowsFromSideEffects(entry.sideEffects),
   );
@@ -67,9 +63,14 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
   return (
     <>
       {show("useMemo") && (
-        <div className={styles.pcSection}>
-          <div className={styles.pcRow}>
-            <span className={styles.pcK}>Memo (remember once triggered)</span>
+        <div className={styles.pcZone}>
+          <div className={styles.pcZh}>
+            <b>Memory</b>
+            <span>once this entry has spoken</span>
+          </div>
+          <div className={styles.pcMemo}>
+            <b>Memo</b>
+            <span>Remember this entry once it has fired.</span>
             <button
               type="button"
               className={entry.useMemo ? styles.pcSwitch : `${styles.pcSwitch} ${styles.pcSwitchOff}`}
@@ -81,38 +82,55 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
           </div>
         </div>
       )}
+
       {show("sideEffects") && (
-        <div className={styles.pcSection}>
-          <span className={styles.pcLabel}>Side effects (declared data · never executed in Studio)</span>
-          <div className={styles.pcRow}>
-            <span className={styles.pcK}>Only on first trigger</span>
-            <button
-              type="button"
-              className={
-                entry.sideEffects?.onlyOnFirstTrigger === true
-                  ? styles.pcSwitch
-                  : `${styles.pcSwitch} ${styles.pcSwitchOff}`
-              }
-              role="switch"
-              aria-checked={entry.sideEffects?.onlyOnFirstTrigger === true}
-              aria-label="Only on first trigger"
-              onClick={() => patchSe(seRows, !(entry.sideEffects?.onlyOnFirstTrigger === true), undefined)}
-            />
+        <div className={styles.pcZone}>
+          <div className={styles.pcZh}>
+            <b>Side effects</b>
+            <span>declared data · Studio never runs these</span>
+            <em>
+              {seRows.length} effect{seRows.length === 1 ? "" : "s"}
+            </em>
           </div>
-          <div className={styles.pcRow}>
-            <span className={styles.pcK}>Clear on deactivate</span>
-            <button
-              type="button"
-              className={
-                entry.sideEffects?.clearOnDeactivate === true
-                  ? styles.pcSwitch
-                  : `${styles.pcSwitch} ${styles.pcSwitchOff}`
-              }
-              role="switch"
-              aria-checked={entry.sideEffects?.clearOnDeactivate === true}
-              aria-label="Clear on deactivate"
-              onClick={() => patchSe(seRows, undefined, !(entry.sideEffects?.clearOnDeactivate === true))}
-            />
+          <div className={styles.pcPair} style={{ marginBottom: "0.4rem" }}>
+            <div className={styles.pcCell}>
+              <div className={styles.pcCellT}>
+                <b>Only on first trigger</b>
+              </div>
+              <button
+                type="button"
+                className={
+                  entry.sideEffects?.onlyOnFirstTrigger === true
+                    ? styles.pcSwitch
+                    : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+                }
+                role="switch"
+                aria-checked={entry.sideEffects?.onlyOnFirstTrigger === true}
+                aria-label="Only on first trigger"
+                onClick={() =>
+                  patchSe(seRows, !(entry.sideEffects?.onlyOnFirstTrigger === true), undefined)
+                }
+              />
+            </div>
+            <div className={styles.pcCell}>
+              <div className={styles.pcCellT}>
+                <b>Clear on deactivate</b>
+              </div>
+              <button
+                type="button"
+                className={
+                  entry.sideEffects?.clearOnDeactivate === true
+                    ? styles.pcSwitch
+                    : `${styles.pcSwitch} ${styles.pcSwitchOff}`
+                }
+                role="switch"
+                aria-checked={entry.sideEffects?.clearOnDeactivate === true}
+                aria-label="Clear on deactivate"
+                onClick={() =>
+                  patchSe(seRows, undefined, !(entry.sideEffects?.clearOnDeactivate === true))
+                }
+              />
+            </div>
           </div>
           <ListEditor
             items={seRows}
@@ -120,13 +138,18 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
             onChange={(rows) => patchSe(rows)}
             addLabel="+ add a side effect"
             itemTitle={(it, i) =>
-              typeof it.variable === "string" && it.variable ? `${it.type} · ${it.variable}` : `Effect ${i + 1}`
+              typeof it.variable === "string" && it.variable
+                ? `${it.type} · ${it.variable}`
+                : `Effect ${i + 1}`
             }
             makeItem={() => ({ type: "setvar", variable: "", value: "", scope: "local" })}
           />
         </div>
       )}
-      {show("characterFilter") && <CharacterFilterBlock entry={entry} styles={styles} onPatch={onPatch} />}
+
+      {show("characterFilter") && (
+        <CharacterFilterBlock entry={entry} styles={styles} onPatch={onPatch} />
+      )}
     </>
   );
 }

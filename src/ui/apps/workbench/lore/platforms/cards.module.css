@@ -1,30 +1,375 @@
 /**
- * Platform-card layout grammar - ONE way every platform card lays out: section labels, a grid for
- * checkbox banks, and label-left/control-right rows with hairline separators (the fine-print row
- * pattern). No ad-hoc flex piles.
+ * Platform extras cards - placed zones, readable type, minor host color.
+ * Host accent only: inset rail, head dot, on-state switches/chips.
  */
 
+/* Outer host shell (wraps a card body; --host set by host class) */
+.pcHost {
+  --host: var(--a, var(--stage-macro));
+}
+
+.pcHostSt {
+  --host: var(--host-st);
+}
+
+.pcHostRc {
+  --host: var(--host-rc);
+}
+
+.pcHostNai {
+  --host: var(--host-nai);
+}
+
+.pcHostRisu {
+  --host: var(--host-risu);
+}
+
+.pcShell {
+  box-shadow: inset 3px 0 0 0 var(--host);
+}
+
+.pcHostDot {
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--host);
+  border: 1px solid var(--stage-black);
+  flex: none;
+}
+
+/* Zone: one job per bordered block */
+.pcZone {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.5rem 0.55rem 0.55rem;
+  margin-bottom: 0.45rem;
+}
+
+.pcZone:last-child {
+  margin-bottom: 0;
+}
+
+.pcZh {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0 0 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pcZh b {
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.pcZh span {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 0.8rem;
+  color: var(--stage-soft);
+}
+
+.pcZh em {
+  font-style: normal;
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+/* Legacy section label (still used by simple cards) */
 .pcSection {
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.55rem;
 }
 
 .pcSection:last-child {
   margin-bottom: 0;
 }
 
-/* legibility floor: section kickers stay small but must clear the dim-mud contrast band */
 .pcLabel {
   display: block;
-  font-family: var(--font-mono);
-  font-weight: 700;
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
   font-size: 0.66rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-text-dim);
+  color: var(--stage-card);
   margin: 0 0 0.35rem;
 }
 
-/* checkbox bank: aligned columns, consistent row height */
+/* ST scan chips */
+.pcScanGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+  gap: 0.3rem;
+}
+
+.pcScanChip {
+  display: flex;
+  align-items: center;
+  gap: 0.38rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.36rem 0.42rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  color: var(--stage-soft);
+  text-align: left;
+}
+
+.pcScanChip:hover {
+  border-color: var(--stage-line);
+  color: var(--stage-card);
+}
+
+.pcScanOn {
+  border-color: var(--host);
+  color: var(--stage-card);
+  background: color-mix(in srgb, var(--host) 10%, var(--stage-sunken));
+}
+
+.pcScanBox {
+  width: 0.72rem;
+  height: 0.72rem;
+  border: 1px solid var(--stage-line);
+  background: var(--stage-row);
+  flex: none;
+}
+
+.pcScanOn .pcScanBox {
+  border-color: var(--host);
+  background: var(--host);
+}
+
+/* Pair / cell cards for toggles with short prose */
+.pcPair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+}
+
+.pcCell {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.42rem 0.48rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.pcCellWide {
+  grid-column: 1 / -1;
+}
+
+.pcCellT b {
+  display: block;
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.64rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.pcCellT span {
+  display: block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--stage-soft);
+  margin-top: 0.16rem;
+}
+
+/* Chrome grid (label / control) */
+.pcChrome {
+  display: grid;
+  grid-template-columns: 7.2rem 1fr;
+  gap: 0.35rem 0.55rem;
+  align-items: center;
+}
+
+/* Memo strip */
+.pcMemo {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.42rem 0.5rem;
+}
+
+.pcMemo b {
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  flex: none;
+}
+
+.pcMemo span {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 0.88rem;
+  color: var(--stage-soft);
+  flex: 1;
+  min-width: 0;
+}
+
+/* NAI wrap sandwich */
+.pcWrap {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.pcWrapLab {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.pcWrapMid {
+  border: 1px dashed var(--stage-seam);
+  background: var(--stage-well, var(--stage-sunken));
+  padding: 0.55rem 0.6rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-style: normal;
+  font-size: 0.9rem;
+  color: var(--stage-mute);
+  text-align: center;
+}
+
+/* Budget / policy trios */
+.pcTrio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+
+.pcTrioCell {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.36rem 0.4rem;
+  text-align: center;
+}
+
+.pcTrioCell .pcK {
+  display: block;
+  margin-bottom: 0.16rem;
+  text-align: center;
+}
+
+.pcTrioCell .pcNum,
+.pcTrioCell .pcSel {
+  width: 100%;
+  max-width: none;
+}
+
+/* Rows (filter, chrome, simple hosts) */
+.pcRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.22rem 0;
+}
+
+.pcK {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  flex: none;
+}
+
+.pcNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.76rem;
+  width: 3rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  text-align: center;
+  padding: 0.2rem 0.3rem;
+}
+
+.pcText {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.76rem;
+  width: min(14rem, 55%);
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  padding: 0.2rem 0.38rem;
+}
+
+.pcSel {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.72rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  padding: 0.2rem 0.35rem;
+  max-width: min(14rem, 55%);
+}
+
+.pcSwitch {
+  width: 1.75rem;
+  height: 0.92rem;
+  border: 2px solid var(--stage-black);
+  background: var(--host);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.pcSwitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--stage-ink);
+}
+
+.pcSwitchOff {
+  background: var(--stage-faint);
+}
+
+.pcSwitchOff::after {
+  left: 2px;
+  right: auto;
+}
+
+/* Keep old check grid name for any residual use */
 .pcChecks {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
@@ -40,91 +385,4 @@
   color: var(--stage-soft);
   padding: 0.2rem 0;
   cursor: pointer;
-}
-
-/* label-left / control-right rows (the fine-print grammar) */
-.pcRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem;
-  padding: 0.28rem 0;
-  border-top: 1px solid var(--stage-faint);
-}
-
-.pcRow:first-of-type {
-  border-top: 0;
-}
-
-.pcK {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-soft);
-  flex: none;
-}
-
-.pcNum {
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  width: 3.6rem;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-soft);
-  text-align: center;
-  padding: 0.16rem;
-}
-
-.pcText {
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  width: min(14rem, 55%);
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-soft);
-  padding: 0.16rem 0.3rem;
-}
-
-.pcSel {
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  border: 2px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-soft);
-  padding: 0.16rem 0.3rem;
-  max-width: min(14rem, 55%);
-}
-
-.pcSwitch {
-  width: 2rem;
-  height: 1.05rem;
-  border: 2px solid var(--stage-black);
-  background: var(--stage-ok);
-  position: relative;
-  flex: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.pcSwitch::after {
-  content: "";
-  position: absolute;
-  right: 2px;
-  top: 1px;
-  width: 0.58rem;
-  height: 0.58rem;
-  background: var(--stage-ink);
-}
-
-.pcSwitchOff {
-  background: var(--stage-faint);
-}
-
-.pcSwitchOff::after {
-  left: 2px;
-  right: auto;
 }
