@@ -12,15 +12,16 @@
   margin-bottom: 0;
 }
 
+/* legibility floor: section kickers stay small but must clear the dim-mud contrast band */
 .pcLabel {
   display: block;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.58rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
-  margin: 0 0 0.3rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.35rem;
 }
 
 /* checkbox bank: aligned columns, consistent row height */
@@ -35,9 +36,9 @@
   align-items: center;
   gap: 0.4rem;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   color: var(--stage-soft);
-  padding: 0.15rem 0;
+  padding: 0.2rem 0;
   cursor: pointer;
 }
 
@@ -57,10 +58,10 @@
 
 .pcK {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.66rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-soft);
   flex: none;
 }
 

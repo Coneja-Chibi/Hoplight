@@ -13,6 +13,7 @@
  * - risu: risu/lorebook.ts
  * - novelai: novelai/lorebook.ts
  */
+import type { InjectionPosition } from "../../entities/lorebook/schema";
 import type { LoreFieldKey, LoreWriteForProfile } from "./capabilities";
 
 /** Fields every profile always shows (portable floor). */
@@ -128,6 +129,44 @@ export const PLATFORM_OWNED_EXTRAS: Record<LoreWriteForProfile, readonly LoreFie
     "matchOverrides", // searchRange maps to scanDepth; match overrides still useful as scanDepth UI
   ],
 };
+
+/** Canonical display order for injection slots (RC's flat superset carries all of them). */
+export const LORE_ALL_POSITIONS: readonly InjectionPosition[] = [
+  "world",
+  "character",
+  "scene",
+  "depth",
+  "append",
+  "prepend_top",
+  "append_bottom",
+  "before_example",
+  "after_example",
+];
+
+/**
+ * Which injection slots each profile's wire can actually carry. Grounded in codecs:
+ * - full / RC: rolecall/lorebook.ts round-trips the whole canonical set
+ * - sillytavern: sillytavern/lorebook.ts parsePosition (numeric 0-4: before/after char,
+ *   before/after example, @depth); the rest collapse lossily on export
+ * - chub / lumiverse / agnai: before_char/after_char floor (character-book wire)
+ * - risu: risu/lorebook.ts - native lore has no position slot (character floor)
+ * - novelai: novelai/lorebook.ts - placement rides contextConfig, not a slot (character floor)
+ */
+export const LORE_POSITIONS_BY_PROFILE: Record<LoreWriteForProfile, readonly InjectionPosition[]> = {
+  full: LORE_ALL_POSITIONS,
+  sillytavern: ["world", "character", "depth", "before_example", "after_example"],
+  chub: ["world", "character"],
+  lumiverse: ["world", "character"],
+  agnai: ["world", "character"],
+  risu: ["character"],
+  novelai: ["character"],
+};
+
+/** The slots this profile's wire carries, in canonical display order. */
+export function positionsForProfile(profile: LoreWriteForProfile): readonly InjectionPosition[] {
+  const owned = LORE_POSITIONS_BY_PROFILE[profile] ?? LORE_ALL_POSITIONS;
+  return LORE_ALL_POSITIONS.filter((p) => owned.includes(p));
+}
 
 /** Every key the union editor knows (full list). */
 export function allPlatformFieldKeys(): LoreFieldKey[] {

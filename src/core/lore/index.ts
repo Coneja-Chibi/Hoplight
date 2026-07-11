@@ -13,10 +13,13 @@ export {
   fieldVisible,
 } from "./capabilities";
 export {
+  LORE_ALL_POSITIONS,
   LORE_CORE_KEYS,
+  LORE_POSITIONS_BY_PROFILE,
   PLATFORM_OWNED_EXTRAS,
   allPlatformFieldKeys,
   platformOwnsField,
+  positionsForProfile,
 } from "./platform-fields";
 export { type LoreSummary, estimateBookTokens, estimateEntryTokens, loreSummary } from "./summary";
 export { type LoreHealthLevel, type LoreHealthNote, loreHealth } from "./health";

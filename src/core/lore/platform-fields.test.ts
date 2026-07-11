@@ -4,10 +4,12 @@
 import { describe, expect, test } from "bun:test";
 import { fieldVisible, loreFieldVisibility, LORE_WRITE_FOR_PROFILES, type LoreFieldKey } from "./capabilities";
 import {
+  LORE_ALL_POSITIONS,
   LORE_CORE_KEYS,
   PLATFORM_OWNED_EXTRAS,
   allPlatformFieldKeys,
   platformOwnsField,
+  positionsForProfile,
 } from "./platform-fields";
 
 describe("platform field ownership (all lore platforms)", () => {
@@ -104,6 +106,40 @@ describe("platform field ownership (all lore platforms)", () => {
         if (!platformOwnsField(p, k)) expect(vis).toBe("hide");
         else expect(vis).not.toBe("hide");
       }
+    }
+  });
+});
+
+describe("injection positions per profile (grounded in codecs)", () => {
+  test("full carries the whole canonical slot set, in display order", () => {
+    expect(positionsForProfile("full")).toEqual([...LORE_ALL_POSITIONS]);
+  });
+
+  test("sillytavern carries exactly its numeric 0-4 slots; RC-only slots are foreign", () => {
+    const st = positionsForProfile("sillytavern");
+    expect(st).toEqual(["world", "character", "depth", "before_example", "after_example"]);
+    expect(st).not.toContain("scene");
+    expect(st).not.toContain("append");
+    expect(st).not.toContain("prepend_top");
+    expect(st).not.toContain("append_bottom");
+  });
+
+  test("character-book wires carry the before/after-char floor only", () => {
+    for (const p of ["chub", "lumiverse", "agnai"] as const) {
+      expect(positionsForProfile(p)).toEqual(["world", "character"]);
+    }
+  });
+
+  test("risu and novelai have no position slot: character floor only", () => {
+    expect(positionsForProfile("risu")).toEqual(["character"]);
+    expect(positionsForProfile("novelai")).toEqual(["character"]);
+  });
+
+  test("every profile's slots are a subset of the canonical set and every profile is mapped", () => {
+    for (const p of LORE_WRITE_FOR_PROFILES) {
+      const slots = positionsForProfile(p);
+      expect(slots.length).toBeGreaterThan(0);
+      for (const s of slots) expect(LORE_ALL_POSITIONS).toContain(s);
     }
   });
 });

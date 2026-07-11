@@ -6,7 +6,7 @@
  */
 import type { JSX } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
-import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
+import { fieldVisible, positionsForProfile, type LoreWriteForProfile } from "../../../../core/lore";
 import { TriggerEditor } from "./trigger-editor";
 import { PositionPicker } from "./position-picker";
 import { cardsForLens } from "./platforms/registry";
@@ -348,6 +348,7 @@ export function LoreEntryPage({
               position={entry.position}
               depth={entry.depth}
               role={entry.role}
+              allowed={positionsForProfile(writeFor)}
               showDepth={show("depth")}
               showRole={false}
               styles={styles}
