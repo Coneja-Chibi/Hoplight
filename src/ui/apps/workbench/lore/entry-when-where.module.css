@@ -8,7 +8,8 @@
   gap: 0.45rem;
 }
 
-.wwChance {
+/* Top row: Group (old chance slot) · Rhythm · Recursion */
+.wwGroup {
   grid-column: span 5;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
@@ -32,11 +33,12 @@
   min-width: 0;
 }
 
-.wwGroup {
-  grid-column: span 4;
+/* Middle: full-width chance bar */
+.wwChance {
+  grid-column: span 12;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
-  padding: 0.55rem 0.6rem 0.6rem;
+  padding: 0.55rem 0.7rem 0.65rem;
   min-width: 0;
 }
 
