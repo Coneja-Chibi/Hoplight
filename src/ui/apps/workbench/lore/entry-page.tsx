@@ -248,15 +248,19 @@ export function LoreEntryPage({
         </section>
       )}
 
-      {/* ---- Timing & chance: directly under Keys (it shapes WHEN the keys fire) ---- */}
-      {(show("sticky") || show("cooldown") || show("delay") || show("recursion") || show("groupName")) && (
+      {/* ---- Timing & chance: sole home for chance/sticky/cool/delay/recursion dials ---- */}
+      {(show("probability") ||
+        show("sticky") ||
+        show("cooldown") ||
+        show("delay") ||
+        show("recursion") ||
+        show("groupName")) && (
         <details className={styles.bfold}>
           <summary className={styles.bchead}>
             <b>Timing &amp; chance</b>
-            <i>folded until you need it</i>
+            <i title={timingLine(entry)}>{timingLine(entry)}</i>
           </summary>
           <div className={styles.bcbody}>
-            <p className={styles.foldNote}>{timingLine(entry)}</p>
             {show("probability") && (
               <div className={styles.chanceRow}>
                 <button

@@ -100,20 +100,7 @@ function FinePrint({
           onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
         />
       </div>
-      {show("probability") && (
-        <div className={styles.texpRow}>
-          <span className={styles.texpK}>Chance %</span>
-          <input
-            className={styles.texpNum}
-            type="number"
-            min={0}
-            max={100}
-            value={entry.probability}
-            aria-label="Activation chance percent"
-            onChange={(ev) => onPatch({ probability: Number(ev.target.value) || 0 })}
-          />
-        </div>
-      )}
+      {/* Chance / sticky / cool / delay live only in the page Timing & chance fold */}
       {show("scanDepth") && (
         <div className={styles.texpRow}>
           <span className={styles.texpK}>Scan depth</span>

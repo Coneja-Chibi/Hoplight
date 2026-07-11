@@ -2,15 +2,14 @@
  * Lore binder right rail: Carrot-Compass-grade tools that stay on-screen while editing.
  * - Live try: real scanBook (keys, chance, recursion, timed) not sample-match
  * - Wake map: who can wake this entry / who this entry can wake (bookWakeGraph)
- * - Timed dials: sticky / cool / delay / recursion flags for the focused entry
  * - Health tips + launchers into full panes
+ * Timing dials (chance/sticky/cool/delay) are NOT here: one home on the page fold.
  */
 import { useMemo, useState, type JSX } from "react";
 import type { LorebookBody, LorebookEntry } from "../../../../entities/lorebook/schema";
 import {
   bookWakeGraph,
   cryptoUnit,
-  estimateEntryTokens,
   scanBook,
   type FireReason,
   type LoreHealthNote,
@@ -271,38 +270,6 @@ export function LoreEntryRail({
           )}
         </div>
       </div>
-
-      {/* ---- Timed dials for focused entry ---- */}
-      {focused && (
-        <div className={styles.rcard}>
-          <div className={styles.rhead}>
-            <b>Timed dials</b>
-            <i>~{estimateEntryTokens(focused)}t</i>
-          </div>
-          <div className={styles.rbody}>
-            <div className={styles.chipRow}>
-              <span className={styles.chip}>
-                sticky {focused.sticky || 0}
-              </span>
-              <span className={styles.chip}>
-                cool {focused.cooldown || 0}
-              </span>
-              <span className={styles.chip}>
-                delay {focused.delay || 0}
-              </span>
-              <span className={styles.chip}>
-                chance {focused.probability}%
-              </span>
-              {focused.ignoreBudget && (
-                <span className={styles.chip}>always keep</span>
-              )}
-            </div>
-            <p className={styles.hint}>
-              Multi-turn sticky/cooldown live in Rehearsal (threaded turns).
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* ---- Health ---- */}
       <div className={styles.rcard}>
