@@ -1,5 +1,6 @@
 /**
- * Pure lore capabilities, summaries, health, empty factory, sample match.
+ * Pure lore capabilities, summaries, health, empty factory, sample match,
+ * plus the jewel activation/inspect/diff engine (LOREBOOK-JEWEL-PLAN Phase 0).
  */
 export {
   type LoreWriteForProfile,
@@ -25,3 +26,33 @@ export { type LoreSummary, estimateBookTokens, estimateEntryTokens, loreSummary 
 export { type LoreHealthLevel, type LoreHealthNote, loreHealth } from "./health";
 export { emptyLoreEntry, emptyLorebookBody } from "./empty-book";
 export { type SampleMatchHit, sampleMatchEntries } from "./sample-match";
+export {
+  type ScanLine,
+  type ActivationOptions,
+  type TimedState,
+  type FireReason,
+  type SkipReason,
+  type EntryVerdict,
+  type ActivationResult,
+  type MatchOpts,
+  type WakeEdge,
+  keywordMatches,
+  resolveMatchOpts,
+  secondaryLogicOk,
+  scanBook,
+  bookWakeGraph,
+} from "./activation";
+export {
+  type LoreFinding,
+  type LoreFindingRule,
+  inspectBook,
+  applyAllFixes,
+} from "./inspect";
+export {
+  type FieldChange,
+  type BookDiff,
+  diffBooks,
+  wordDiffRanges,
+  revertField,
+  restoreEntry,
+} from "./diff";
