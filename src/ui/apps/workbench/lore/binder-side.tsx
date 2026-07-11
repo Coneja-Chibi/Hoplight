@@ -93,12 +93,15 @@ export function BinderSide({
   if (!entry) return null;
   return (
     <LoreEntryRail
+      body={body}
+      focusedId={entry.id}
       entries={body.entries}
       notes={notes}
       styles={styles}
       onOpenHealth={() => setSidePane("health")}
       onOpenChanges={() => setSidePane("changes")}
       onOpenRehearsal={() => setSidePane("rehearsal")}
+      onSelectEntry={(id) => setSession((s) => selectEntry(s, id))}
     />
   );
 }

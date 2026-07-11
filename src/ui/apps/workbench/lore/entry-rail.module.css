@@ -81,3 +81,143 @@
   color: var(--stage-ok);
   padding: 0.15rem 0;
 }
+
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  padding: 0.4rem 0.45rem;
+  resize: vertical;
+  min-height: 3.2rem;
+}
+
+.hint {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  line-height: 1.45;
+  color: var(--stage-text-dim);
+}
+
+.chip {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  border: 1px solid var(--stage-seam);
+  padding: 0.12rem 0.3rem;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.chipRow .chip {
+  margin-top: 0;
+}
+
+.matchList {
+  list-style: none;
+  margin: 0.35rem 0 0;
+  padding: 0;
+}
+
+.matchHit {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  line-height: 1.45;
+  color: var(--stage-soft);
+  padding: 0.12rem 0;
+  border-bottom: 1px solid var(--stage-seam);
+}
+
+.matchHit span {
+  color: var(--stage-text-dim);
+}
+
+.focusHit,
+.focusMiss {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.4rem;
+  border-left: 3px solid var(--stage-ok);
+  background: var(--stage-row);
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--stage-soft);
+}
+
+.focusMiss {
+  border-left-color: var(--stage-warn);
+}
+
+.focusLbl {
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+}
+
+.wakeBlock {
+  margin-top: 0.4rem;
+}
+
+.wakeLbl {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  margin-bottom: 0.15rem;
+}
+
+.linkish {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--stage-card);
+  cursor: pointer;
+  text-align: left;
+}
+
+.linkish:hover {
+  color: var(--a, var(--stage-macro));
+}
+
+.texpBtn {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.28rem 0.35rem;
+  cursor: pointer;
+  text-align: center;
+}
+
+.texpBtn:hover {
+  border-color: var(--stage-line);
+  color: var(--stage-card);
+}
