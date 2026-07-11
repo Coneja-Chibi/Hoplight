@@ -1,34 +1,38 @@
 /**
- * Dense cards lens - short tiles, meta as pills, no tall empty gutters.
+ * Dense cards lens - content-height tiles, meta as pills, no stretch gutters.
  */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-  gap: 0.5rem;
-  padding: 0.65rem 0.85rem 1.1rem;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 0.4rem;
+  padding: 0.55rem 0.75rem 1rem;
   overflow-y: auto;
   min-height: 0;
   height: 100%;
   align-content: start;
+  /* critical: do not stretch short cards to match tall siblings in a row */
+  align-items: start;
 }
 
 .ecard {
   border: 2px solid var(--stage-black);
   background: var(--stage-panel);
-  box-shadow: 3px 3px 0 0 var(--stage-black);
-  padding: 0.45rem 0.55rem 0.5rem;
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.35rem 0.4rem 0.4rem;
   cursor: pointer;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.22rem;
   min-height: 0;
+  height: auto;
+  align-self: start;
 }
 
 .ecard:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 0 var(--stage-black);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
 }
 
 .ecardOff {
@@ -38,15 +42,15 @@
 .ehead {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   min-width: 0;
 }
 
 .etitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.66rem;
-  letter-spacing: 0.05em;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-card);
   flex: 1;
@@ -54,52 +58,58 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.2;
 }
 
 .modeChip {
-  border: 2px solid var(--stage-black);
+  border: 1px solid var(--stage-black);
   background: var(--stage-ok);
   color: var(--stage-ink);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.1rem 0.3rem;
+  padding: 0.06rem 0.26rem;
   cursor: pointer;
   flex: none;
+  line-height: 1.2;
 }
 
-/* One line of passage for glance - not a tall empty body */
-.clamp {
-  margin: 0;
-  font-family: var(--font-body);
-  font-size: 0.82rem;
-  line-height: 1.35;
-  color: var(--stage-soft);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  align-items: center;
   min-height: 0;
 }
 
-.pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-  align-items: center;
+.kEmpty {
+  font-family: var(--font-mono);
+  font-size: 0.54rem;
+  color: var(--stage-mute);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 .kchip {
   border: 1px solid var(--a, var(--stage-macro));
   color: var(--a, var(--stage-macro));
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  padding: 0.08rem 0.28rem;
-  max-width: 7rem;
+  font-size: 0.54rem;
+  padding: 0.04rem 0.22rem;
+  max-width: 6.5rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  line-height: 1.25;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  align-items: center;
 }
 
 .mpill {
@@ -107,10 +117,35 @@
   background: var(--stage-sunken);
   color: var(--stage-text-dim);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.52rem;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  padding: 0.08rem 0.28rem;
+  padding: 0.04rem 0.22rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.mpillMute {
+  color: var(--stage-mute);
+  border-color: var(--stage-seam);
+}
+
+.mpillOk {
+  color: var(--stage-ink);
+  background: color-mix(in srgb, var(--stage-ok) 55%, var(--stage-sunken));
+  border-color: var(--stage-ok);
+}
+
+.mpillWarn {
+  color: var(--stage-danger-text, var(--stage-warn));
+  border-color: var(--stage-danger-text, var(--stage-warn));
+  background: color-mix(in srgb, var(--stage-warn) 18%, var(--stage-sunken));
+}
+
+.mpillAccent {
+  color: var(--a, var(--stage-macro));
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
 }
 
 .ghost {
@@ -119,11 +154,13 @@
   color: var(--stage-text-dim);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   min-height: 0;
-  padding: 0.75rem 0.5rem;
+  height: auto;
+  align-self: start;
+  padding: 0.55rem 0.4rem;
   cursor: pointer;
 }
 
