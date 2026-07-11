@@ -9,19 +9,20 @@
   padding: 0.3rem 0.45rem 0.45rem 0.65rem;
 }
 
-/* Compact chrom: Order / Priority / Scan / Keep */
+/* Compact chrom: ORDER [n] PRIORITY [n] SCAN [—] KEEP [toggle] — one row, label beside control */
 .chromRow {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.35rem 0.5rem;
+  align-items: center;
+  gap: 0.35rem 0.65rem;
   margin-bottom: 0.35rem;
 }
 
 .chromCell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.28rem;
   min-width: 0;
 }
 
@@ -32,6 +33,11 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-soft);
+  flex: none;
+}
+
+.chromCell .texpNum {
+  width: 2.6rem;
 }
 
 .texpRow {
