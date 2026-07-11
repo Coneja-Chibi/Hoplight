@@ -1,6 +1,6 @@
 /**
- * LoreEntryToc - binder TOC with mode pips, token counts, select mode + bulk bar
- * (vs-lore-page-2 power moves). Fine-print expand on the focused row stays.
+ * LoreEntryToc - health pip, mode pill, on/off chip, fine-print expand.
+ * Move/copy/delete live only in fine-print (no hover-arrow duplicates).
  */
 import { useState, type JSX } from "react";
 import {
@@ -9,9 +9,6 @@ import {
   CaseSensitive,
   Columns2,
   Copy,
-  KeyRound,
-  Pin,
-  Sparkles,
   Trash2,
   WholeWord,
 } from "lucide-react";
@@ -22,15 +19,17 @@ import { LoreBulkBar } from "./bulk-bar";
 
 const ICO = { size: 13, strokeWidth: 2.25, "aria-hidden": true as const };
 
-const MODE_META: readonly {
-  mode: EntryFireMode;
-  label: string;
-  Icon: typeof KeyRound;
-}[] = [
-  { mode: "keyed", label: "Keywords", Icon: KeyRound },
-  { mode: "always", label: "Always on", Icon: Pin },
-  { mode: "meaning", label: "By meaning", Icon: Sparkles },
-];
+const MODE_PILL: Record<EntryFireMode, string> = {
+  keyed: "Keys",
+  always: "Always",
+  meaning: "Meaning",
+};
+
+const cycleMode = (mode: EntryFireMode, vectorOk: boolean): EntryFireMode => {
+  if (mode === "keyed") return "always";
+  if (mode === "always") return vectorOk ? "meaning" : "keyed";
+  return "keyed";
+};
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -70,12 +69,30 @@ function triIconClass(
   return `${base} ${styles.iconInh ?? ""}`.trim();
 }
 
-function pipClass(entry: LorebookEntry, styles: Readonly<Record<string, string>>): string {
-  if (!entry.enabled) return `${styles.tpip} ${styles.pipOff}`;
-  const mode = entryFireMode(entry);
-  if (mode === "always") return `${styles.tpip} ${styles.pipAlways}`;
-  if (mode === "meaning") return `${styles.tpip} ${styles.pipMeaning}`;
-  return `${styles.tpip} ${styles.pipKey}`;
+/** Left pip = health (not fire mode). Fire mode is the Keys/Always/Meaning pill. */
+function healthPipClass(
+  health: "problem" | "worth-a-look" | undefined,
+  enabled: boolean,
+  styles: Readonly<Record<string, string>>,
+): string {
+  if (!enabled) return `${styles.tpip} ${styles.pipOff}`;
+  if (health === "problem") return `${styles.tpip} ${styles.pipProblem}`;
+  if (health === "worth-a-look") return `${styles.tpip} ${styles.pipWarn}`;
+  return `${styles.tpip} ${styles.pipOk}`;
+}
+
+function healthTitle(health: "problem" | "worth-a-look" | undefined, enabled: boolean): string {
+  if (!enabled) return "Disabled";
+  if (health === "problem") return "Health problem";
+  if (health === "worth-a-look") return "Worth a look";
+  return "Healthy";
+}
+
+function modePillClass(mode: EntryFireMode, styles: Readonly<Record<string, string>>): string {
+  const base = styles.tMode ?? "tMode";
+  if (mode === "always") return `${base} ${styles.tModeAlways ?? ""}`.trim();
+  if (mode === "meaning") return `${base} ${styles.tModeMeaning ?? ""}`.trim();
+  return `${base} ${styles.tModeKey ?? ""}`.trim();
 }
 
 function FinePrint({
@@ -99,51 +116,8 @@ function FinePrint({
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
   const act = styles.iconBtn ?? "iconBtn";
-  const mode = entryFireMode(entry);
-  const vectorOk = show("vectorized");
   return (
     <div className={styles.texp}>
-      {show("constant") && (
-        <div className={styles.modeRow} role="group" aria-label="Activation mode">
-          {MODE_META.map(({ mode: m, label, Icon }) => {
-            const gated = m === "meaning" && !vectorOk;
-            const on = mode === m;
-            const tone =
-              m === "keyed"
-                ? styles.modeKey
-                : m === "always"
-                  ? styles.modeAlways
-                  : styles.modeMeaning;
-            return (
-              <button
-                key={m}
-                type="button"
-                className={[
-                  styles.modeBtn,
-                  tone,
-                  on ? styles.modeBtnOn : "",
-                  gated ? styles.modeBtnGated : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                aria-pressed={on}
-                aria-label={label}
-                title={
-                  gated
-                    ? "This host cannot carry by-meaning (vectorized) entries."
-                    : label
-                }
-                disabled={gated}
-                onClick={() => {
-                  if (!gated) onPatch(fireModePatch(m));
-                }}
-              >
-                <Icon {...ICO} />
-              </button>
-            );
-          })}
-        </div>
-      )}
       {show("sortOrder") && (
         <div className={styles.texpRow}>
           <span className={styles.texpK}>Order</span>
@@ -305,6 +279,8 @@ export function LoreEntryToc({
   const keyed = entries.filter((e) => !e.constant && match(e));
   const pickCount = picked?.size ?? 0;
 
+  const vectorOk = fieldVisible(writeFor, "vectorized");
+
   const row = (e: LorebookEntry): JSX.Element => {
     const focused = e.id === focusedId;
     const cls = [styles.trow, focused ? styles.trowOn : "", !e.enabled ? styles.trowOff : ""]
@@ -312,6 +288,9 @@ export function LoreEntryToc({
       .join(" ");
     const tokens = estimateEntryTokens(e);
     const isPicked = picked?.has(e.id) ?? false;
+    const health = healthByEntry?.get(e.id);
+    const mode = entryFireMode(e);
+    const canMode = fieldVisible(writeFor, "constant");
 
     return (
       <div key={e.id}>
@@ -337,20 +316,28 @@ export function LoreEntryToc({
               aria-hidden="true"
             />
           ) : (
-            <span className={pipClass(e, styles)} aria-hidden="true" />
+            <span
+              className={healthPipClass(health, e.enabled, styles)}
+              title={healthTitle(health, e.enabled)}
+              aria-label={healthTitle(health, e.enabled)}
+            />
           )}
           <span className={styles.tnm}>{e.title || "(untitled)"}</span>
-          {!selectMode && healthByEntry?.get(e.id) === "problem" && (
-            <span className={styles.healthBad} title="Health problem" aria-label="Health problem">
-              !
-            </span>
-          )}
-          {!selectMode && healthByEntry?.get(e.id) === "worth-a-look" && (
-            <span className={styles.healthWarn} title="Worth a look" aria-label="Worth a look">
-              ·
-            </span>
-          )}
           {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
+          {!selectMode && canMode && (
+            <button
+              type="button"
+              className={modePillClass(mode, styles)}
+              title={`${MODE_PILL[mode]} - click to cycle fire mode`}
+              aria-label={`Fire mode: ${MODE_PILL[mode]}. Click to cycle.`}
+              onClick={(ev) => {
+                ev.stopPropagation();
+                onPatch(e.id, fireModePatch(cycleMode(mode, vectorOk)));
+              }}
+            >
+              {MODE_PILL[mode]}
+            </button>
+          )}
           {!selectMode && (
             <button
               type="button"
@@ -365,19 +352,6 @@ export function LoreEntryToc({
             >
               {e.enabled ? "On" : "Off"}
             </button>
-          )}
-          {!selectMode && (
-            <span className={styles.hoverActs} onClick={(ev) => ev.stopPropagation()}>
-              <button type="button" aria-label="Move up" onClick={() => onMove(e.id, -1)}>
-                &#8593;
-              </button>
-              <button type="button" aria-label="Move down" onClick={() => onMove(e.id, 1)}>
-                &#8595;
-              </button>
-              <button type="button" aria-label="Duplicate" onClick={() => onDuplicate(e.id)}>
-                +
-              </button>
-            </span>
           )}
         </div>
         {focused && !selectMode && (

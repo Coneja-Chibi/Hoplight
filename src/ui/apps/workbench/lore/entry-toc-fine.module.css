@@ -19,10 +19,10 @@
 
 .texpK {
   font-family: var(--font-mono);
-  font-size: 0.61rem;
-  letter-spacing: 0.07em;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-text-dim);
+  color: var(--stage-soft);
   flex: none;
 }
 

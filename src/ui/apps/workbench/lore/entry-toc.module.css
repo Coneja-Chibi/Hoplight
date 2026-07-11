@@ -100,27 +100,65 @@
   color: var(--stage-soft);
 }
 
+/* Health indicator (not fire mode - mode is the Keys/Always/Meaning pill) */
 .tpip {
-  width: 0.34rem;
-  height: 0.34rem;
+  width: 0.42rem;
+  height: 0.42rem;
   background: var(--stage-faint);
   flex: none;
+  box-shadow: 0 0 0 1px var(--stage-black);
 }
 
-.pipKey {
+.pipOk {
   background: var(--stage-ok);
 }
 
-.pipAlways {
-  background: var(--stage-var);
+.pipWarn {
+  background: var(--stage-warn);
 }
 
-.pipMeaning {
-  background: var(--a, var(--stage-macro));
+.pipProblem {
+  background: var(--stage-danger-text, var(--stage-danger-hot));
 }
 
 .pipOff {
   background: var(--stage-faint);
+  box-shadow: none;
+}
+
+/* Fire mode pill (cycles Keys / Always / Meaning) */
+.tMode {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.1rem 0.32rem;
+  cursor: pointer;
+  line-height: 1.15;
+}
+
+.tModeKey {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.tModeAlways {
+  border-color: var(--stage-var);
+  color: var(--stage-var);
+}
+
+.tModeMeaning {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--a, var(--stage-macro));
+}
+
+.tMode:hover {
+  background: var(--stage-sunken);
 }
 
 .cb {
@@ -190,63 +228,7 @@
   opacity: 1;
 }
 
-.healthBad {
-  flex: none;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 0.66rem;
-  color: var(--stage-danger-text);
-  border: 1px solid var(--stage-danger-edge);
-  background: var(--stage-danger-bg);
-  width: 0.9rem;
-  height: 0.9rem;
-  display: grid;
-  place-items: center;
-  line-height: 1;
-}
-
-.healthWarn {
-  flex: none;
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--stage-warn);
-  box-shadow: 0 0 0 1px var(--stage-black);
-}
-
-.hoverActs {
-  display: none;
-  gap: 0.15rem;
-  flex: none;
-}
-
-.hoverActs button {
-  width: 1.15rem;
-  height: 1.15rem;
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-text-dim);
-  cursor: pointer;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.61rem;
-  display: grid;
-  place-items: center;
-  padding: 0;
-}
-
-.hoverActs button:hover {
-  color: var(--stage-card);
-  border-color: var(--stage-line);
-}
-
-.trow:hover .hoverActs {
-  display: flex;
-}
-
-.trow:hover .tokc {
-  display: none;
-}
+/* Move/copy live in fine-print only - no hover arrow row (avoids duplicates) */
 
 .selMode {
   margin-left: auto;
