@@ -22,7 +22,7 @@
 .head b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.68rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -31,7 +31,7 @@
 .head i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -73,7 +73,7 @@
 .ghead b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -85,7 +85,7 @@
 .chipWarn {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.12rem 0.35rem;
@@ -108,7 +108,7 @@
   color: var(--stage-ink);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.22rem 0.4rem;
@@ -117,7 +117,7 @@
 
 .byHand {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-text-dim);

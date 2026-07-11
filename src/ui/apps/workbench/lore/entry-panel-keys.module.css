@@ -62,7 +62,7 @@
   color: var(--stage-soft);
   padding: 0.12rem 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.875rem;
   display: inline-flex;
   gap: 0.22rem;
   align-items: center;
@@ -82,7 +82,7 @@
 .keyPct {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   font-weight: 800;
   width: 2.2rem;
   text-align: center;
@@ -95,7 +95,7 @@
 .keyin {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.875rem;
   flex: 1;
   min-width: 5rem;
   border: 0;
@@ -155,7 +155,7 @@
 
 .riderName {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.875rem;
   font-weight: 700;
   color: var(--a, var(--stage-macro));
 }
@@ -172,7 +172,7 @@
 .pos {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -205,7 +205,7 @@
 .posInner {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 0;
@@ -218,7 +218,7 @@
 .posDepthNum {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.875rem;
   width: 2rem;
   text-align: center;
   border: 0;
@@ -230,7 +230,7 @@
 .posRole {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   border: 0;
   background: transparent;
   color: var(--stage-soft);
@@ -257,7 +257,7 @@
 .seg {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -298,7 +298,7 @@
 .macro {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-text-dim);
@@ -342,7 +342,7 @@
 
 .fld > span {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -351,7 +351,7 @@
 .fldBtn {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.54rem;
+  font-size: 0.875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -374,7 +374,7 @@
 .num {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.9375rem;
   width: 3.4rem;
   text-align: center;
   border: 2px solid var(--stage-seam);
@@ -386,7 +386,7 @@
 .groupIn {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.9375rem;
   width: 6.5rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
@@ -397,7 +397,7 @@
 .miniSel {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.875rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-soft);

@@ -3,9 +3,8 @@
  * Apps consume tokens only; hardcoding a color or layout pixel in an app is a review rejection.
  * Pixels appear ONLY for ornament (ink borders, stamp offsets) per the fluid law.
  */
-/* REAL weight cuts for every weight the chrome uses - a missing cut makes the browser synthesize
-   faux bold, which smears small mono labels into mush */
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Cinzel:wght@900&family=Crimson+Pro:ital,wght@0,400;0,600;1,600&family=JetBrains+Mono:wght@400;500;700;800&display=swap");
+/* The app deliberately uses local fallback stacks. A loopback desktop app must remain usable
+   offline and its CSP must not grant the UI a remote stylesheet capability. */
 
 :root {
   /* brand - FIXED, never recolored by accent picks */
@@ -22,7 +21,7 @@
 
   /* fluid type scale (16px body floor) */
   --text-body: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
-  --text-meta: 0.72rem;
+  --text-meta: 0.875rem;
   --text-title: clamp(1.5rem, 1.2rem + 1.4vw, 2.4rem);
 
   /* ornament pixels (the ONLY allowed px) */
@@ -62,6 +61,19 @@
   --stage-ok: #5ad07a;      /* success / a trigger fired */
   --stage-macro: #b78bff;   /* a {{macro}} token, sealed-code marker */
   --stage-var: #6ea8ff;     /* a variable name in the rule builder */
+  --stage-warn: #e6a52a;    /* amber caution / gilt chip */
+  --stage-warn-ink: #3d2b12; /* dark field behind amber text */
+  --stage-danger-bg: #3d1120; /* rose-tinted danger plate */
+  --stage-danger-edge: #7a2b3a;
+  --stage-danger-text: #ff8d9a;
+  --stage-danger-hot: #ff8d7a;
+  --stage-danger-deep: #20090d;
+  --stage-link: #1d4ed8;    /* blue link chip on stage */
+  --stage-rose-well: #241222; /* soft rose well */
+  --stage-ok-bg: #14351f;   /* success plate behind stage-ok text */
+  --shadow-ink: rgba(0, 0, 0, 0.55); /* default stamp/overlay shadow */
+  --shadow-ink-deep: rgba(0, 0, 0, 0.8);
+  --scrim: rgba(10, 10, 11, 0.94);
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

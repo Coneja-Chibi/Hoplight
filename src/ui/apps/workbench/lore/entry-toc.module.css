@@ -24,7 +24,7 @@
 .tocTitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.875rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -46,14 +46,14 @@
   background: none;
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.9375rem;
   width: 100%;
 }
 
 .tocSearch span {
   color: var(--stage-text-dim);
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 1rem;
 }
 
 .tocGroup {
@@ -62,7 +62,7 @@
   gap: 0.4rem;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.54rem;
+  font-size: 0.875rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -73,7 +73,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   color: var(--stage-text-dim);
   margin-left: auto;
   border: 2px solid var(--stage-seam);
@@ -93,7 +93,7 @@
   text-align: left;
   font-family: var(--font-body);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .trow:hover {
@@ -149,7 +149,7 @@
 .tokc {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   color: var(--stage-text-dim);
   flex: none;
 }
@@ -158,7 +158,7 @@
   flex: none;
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.55rem;
+  font-size: 0.875rem;
   color: var(--stage-danger-text);
   border: 1px solid var(--stage-danger-edge);
   background: var(--stage-danger-bg);
@@ -193,7 +193,7 @@
   cursor: pointer;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   display: grid;
   place-items: center;
   padding: 0;
@@ -216,7 +216,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -262,7 +262,7 @@
 .bTop b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.875rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -278,7 +278,7 @@
   white-space: nowrap;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -353,7 +353,7 @@
 
 .texpK {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -363,7 +363,7 @@
 .texpNum {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: 0.9375rem;
   width: 3.2rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-sunken);
@@ -405,7 +405,7 @@
 .texpLabel {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.46rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -423,7 +423,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.8125rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -442,7 +442,7 @@
   font-family: var(--font-body);
   font-style: italic;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--stage-text-dim);
   padding: 0.4rem 0.35rem;
   margin: 0;
@@ -453,7 +453,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px dashed var(--stage-seam);

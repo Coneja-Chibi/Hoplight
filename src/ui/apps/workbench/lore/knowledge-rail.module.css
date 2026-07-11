@@ -10,7 +10,7 @@
 
 .head {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -18,7 +18,7 @@
 
 .empty {
   color: var(--stage-soft);
-  font-size: 0.85rem;
+  font-size: 1rem;
 }
 
 .row {
@@ -51,7 +51,7 @@
 .op {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.9375rem;
   width: 1.5rem;
   height: 1.5rem;
   border: 2px solid var(--stage-seam);
@@ -71,7 +71,7 @@
 .attach {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
