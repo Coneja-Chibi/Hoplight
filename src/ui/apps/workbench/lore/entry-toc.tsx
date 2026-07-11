@@ -3,10 +3,21 @@
  * (vs-lore-page-2 power moves). Fine-print expand on the focused row stays.
  */
 import { useState, type JSX } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  CaseSensitive,
+  Columns2,
+  Copy,
+  Trash2,
+  WholeWord,
+} from "lucide-react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { entryFireMode } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
+
+const ICO = { size: 13, strokeWidth: 2.25, "aria-hidden": true as const };
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -33,18 +44,17 @@ export interface EntryTocProps {
 }
 
 const cycleTri = (v: boolean | null): boolean | null => (v === null ? true : v ? false : null);
-const triShort = (v: boolean | null): string => (v === null ? "inh" : v ? "on" : "off");
 const triTitle = (label: string, v: boolean | null): string =>
   `${label}: ${v === null ? "inherit book default" : v ? "on for this entry" : "off for this entry"} (click to cycle)`;
 
-function triPillClass(
+function triIconClass(
   v: boolean | null,
   styles: Readonly<Record<string, string>>,
 ): string {
-  const base = styles.mpill ?? "mpill";
-  if (v === true) return `${base} ${styles.mpillOn ?? ""}`.trim();
-  if (v === false) return `${base} ${styles.mpillOff ?? ""}`.trim();
-  return `${base} ${styles.mpillInh ?? ""}`.trim();
+  const base = styles.iconBtn ?? "iconBtn";
+  if (v === true) return `${base} ${styles.iconOn ?? ""}`.trim();
+  if (v === false) return `${base} ${styles.iconOff ?? ""}`.trim();
+  return `${base} ${styles.iconInh ?? ""}`.trim();
 }
 
 function pipClass(entry: LorebookEntry, styles: Readonly<Record<string, string>>): string {
@@ -75,7 +85,7 @@ function FinePrint({
   onOpenBeside?: () => void;
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
-  const act = styles.apill ?? "apill";
+  const act = styles.iconBtn ?? "iconBtn";
   return (
     <div className={styles.texp}>
       {show("sortOrder") && (
@@ -132,34 +142,28 @@ function FinePrint({
         </div>
       )}
       {show("matchOverrides") && (
-        <div className={styles.pillRow} role="group" aria-label="Matching overrides">
+        <div className={styles.iconRow} role="group" aria-label="Matching overrides">
           <button
             type="button"
-            className={triPillClass(entry.matchWholeWords, styles)}
+            className={triIconClass(entry.matchWholeWords, styles)}
             title={triTitle("Whole words", entry.matchWholeWords)}
             aria-label={triTitle("Whole words", entry.matchWholeWords)}
             onClick={() => onPatch({ matchWholeWords: cycleTri(entry.matchWholeWords) })}
           >
-            <span className={styles.mpillIco} aria-hidden="true">
-              Ww
-            </span>
-            {triShort(entry.matchWholeWords)}
+            <WholeWord {...ICO} />
           </button>
           <button
             type="button"
-            className={triPillClass(entry.caseSensitive, styles)}
+            className={triIconClass(entry.caseSensitive, styles)}
             title={triTitle("Case sensitive", entry.caseSensitive)}
             aria-label={triTitle("Case sensitive", entry.caseSensitive)}
             onClick={() => onPatch({ caseSensitive: cycleTri(entry.caseSensitive) })}
           >
-            <span className={styles.mpillIco} aria-hidden="true">
-              Aa
-            </span>
-            {triShort(entry.caseSensitive)}
+            <CaseSensitive {...ICO} />
           </button>
         </div>
       )}
-      <div className={styles.pillRow} role="group" aria-label="Entry actions">
+      <div className={styles.iconRow} role="group" aria-label="Entry actions">
         <button
           type="button"
           className={act}
@@ -167,7 +171,7 @@ function FinePrint({
           title="Move up"
           onClick={() => onMove(-1)}
         >
-          &#8593;
+          <ArrowUp {...ICO} />
         </button>
         <button
           type="button"
@@ -176,7 +180,7 @@ function FinePrint({
           title="Move down"
           onClick={() => onMove(1)}
         >
-          &#8595;
+          <ArrowDown {...ICO} />
         </button>
         <button
           type="button"
@@ -185,10 +189,7 @@ function FinePrint({
           title="Copy entry"
           onClick={onDuplicate}
         >
-          <span className={styles.apillIco} aria-hidden="true">
-            &#10697;
-          </span>
-          copy
+          <Copy {...ICO} />
         </button>
         {onOpenBeside && (
           <button
@@ -198,23 +199,17 @@ function FinePrint({
             title="Open beside"
             onClick={onOpenBeside}
           >
-            <span className={styles.apillIco} aria-hidden="true">
-              &#9638;
-            </span>
-            side
+            <Columns2 {...ICO} />
           </button>
         )}
         <button
           type="button"
-          className={`${act} ${styles.apillDanger ?? ""}`.trim()}
+          className={`${act} ${styles.iconDanger ?? ""}`.trim()}
           aria-label="Delete entry"
           title="Delete entry"
           onClick={onDelete}
         >
-          <span className={styles.apillIco} aria-hidden="true">
-            &#10005;
-          </span>
-          del
+          <Trash2 {...ICO} />
         </button>
       </div>
     </div>

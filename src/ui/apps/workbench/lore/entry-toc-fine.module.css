@@ -78,94 +78,59 @@
   margin: 0.35rem 0 0.15rem;
 }
 
-.pillRow {
+/* Square icon buttons only - stage chrome, no rounded pills, no text */
+.iconRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.22rem;
+  gap: 0.2rem;
   margin-top: 0.35rem;
 }
 
-.mpill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.22rem;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.54rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-text-dim);
-  padding: 0.12rem 0.32rem;
-  border-radius: 999px;
+.iconBtn {
+  display: inline-grid;
+  place-items: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  padding: 0;
+  border: 2px solid var(--stage-seam);
+  border-radius: 0;
+  background: var(--stage-row);
+  color: var(--stage-soft);
   cursor: pointer;
-  line-height: 1.2;
   flex: none;
+  line-height: 0;
 }
 
-.mpillIco {
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  opacity: 0.95;
+.iconBtn:hover {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
 }
 
-.mpillInh {
+.iconInh {
   border-color: var(--stage-seam);
   color: var(--stage-mute, var(--stage-text-dim));
+  background: var(--stage-sunken);
 }
 
-.mpillOn {
+.iconOn {
   border-color: var(--stage-ok);
   color: var(--stage-ok);
   background: color-mix(in srgb, var(--stage-ok) 14%, var(--stage-sunken));
 }
 
-.mpillOff {
+.iconOff {
   border-color: var(--stage-warn);
   color: var(--stage-warn);
   background: color-mix(in srgb, var(--stage-warn) 12%, var(--stage-sunken));
 }
 
-.apill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.18rem;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.54rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-row);
-  color: var(--stage-soft);
-  padding: 0.14rem 0.36rem;
-  border-radius: 999px;
-  cursor: pointer;
-  line-height: 1.2;
-  flex: none;
-  min-width: 1.55rem;
-  justify-content: center;
-}
-
-.apill:hover {
-  border-color: var(--a, var(--stage-macro));
-  color: var(--stage-card);
-}
-
-.apillIco {
-  font-size: 0.62rem;
-  line-height: 1;
-  opacity: 0.9;
-}
-
-.apillDanger {
+.iconDanger {
   border-color: var(--stage-danger-edge);
   color: var(--stage-danger-text);
 }
 
-.apillDanger:hover {
+.iconDanger:hover {
   border-color: var(--stage-danger-edge);
   color: var(--stage-danger-text);
   background: color-mix(in srgb, var(--stage-danger-edge) 12%, var(--stage-row));
