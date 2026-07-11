@@ -1,33 +1,34 @@
 /**
- * Cards lens grid (vs-lore-lenses). Theme tokens only.
+ * Dense cards lens - short tiles, meta as pills, no tall empty gutters.
  */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: 0.75rem;
-  padding: 0.85rem 1rem 1.4rem;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem 1.1rem;
   overflow-y: auto;
   min-height: 0;
   height: 100%;
+  align-content: start;
 }
 
 .ecard {
   border: 2px solid var(--stage-black);
   background: var(--stage-panel);
-  box-shadow: 4px 4px 0 0 var(--stage-black);
-  padding: 0.65rem 0.7rem 0.7rem;
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.45rem 0.55rem 0.5rem;
   cursor: pointer;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  min-height: 9rem;
+  gap: 0.3rem;
+  min-height: 0;
 }
 
 .ecard:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 6px 6px 0 0 var(--stage-black);
+  box-shadow: 5px 5px 0 0 var(--stage-black);
 }
 
 .ecardOff {
@@ -36,19 +37,23 @@
 
 .ehead {
   display: flex;
-  align-items: flex-start;
-  gap: 0.4rem;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
 }
 
 .etitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-card);
   flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .modeChip {
@@ -57,48 +62,55 @@
   color: var(--stage-ink);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
-  letter-spacing: 0.05em;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 0.15rem 0.35rem;
+  padding: 0.1rem 0.3rem;
   cursor: pointer;
   flex: none;
 }
 
+/* One line of passage for glance - not a tall empty body */
 .clamp {
   margin: 0;
   font-family: var(--font-body);
   font-size: 0.82rem;
+  line-height: 1.35;
   color: var(--stage-soft);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
   overflow: hidden;
-  flex: 1;
+  text-overflow: ellipsis;
+  min-height: 0;
 }
 
-.keys {
+.pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
+  gap: 0.2rem;
+  align-items: center;
 }
 
 .kchip {
-  border: 1px solid var(--stage-seam);
+  border: 1px solid var(--a, var(--stage-macro));
   color: var(--a, var(--stage-macro));
   font-family: var(--font-mono);
-  font-size: 0.66rem;
-  padding: 0.1rem 0.3rem;
+  font-size: 0.58rem;
+  padding: 0.08rem 0.28rem;
+  max-width: 7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.foot {
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono);
-  font-size: 0.61rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.mpill {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
   color: var(--stage-text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.08rem 0.28rem;
 }
 
 .ghost {
@@ -107,10 +119,11 @@
   color: var(--stage-text-dim);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  min-height: 9rem;
+  min-height: 0;
+  padding: 0.75rem 0.5rem;
   cursor: pointer;
 }
 
