@@ -61,7 +61,7 @@
   font-size: 0.56rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .onoff {
@@ -81,7 +81,7 @@
 
 .onoffOff {
   border-color: var(--stage-faint);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .entryName {
@@ -149,7 +149,7 @@
   font-size: 0.52rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .bcheadActs {
@@ -178,10 +178,10 @@
   font-family: var(--font-mono);
   font-style: normal;
   font-weight: 500;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   letter-spacing: 0.02em;
   line-height: 1.5;
-  color: var(--stage-kicker);
+  color: var(--stage-soft);
   margin: 0 0 0.55rem;
 }
 
@@ -206,7 +206,7 @@
   font-family: var(--font-mono);
   font-size: 0.54rem;
   letter-spacing: 0.06em;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin-top: 0.3rem;
 }
 
@@ -301,7 +301,7 @@
   text-transform: uppercase;
   border: 0;
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.3rem 0.55rem;
   cursor: pointer;
 }

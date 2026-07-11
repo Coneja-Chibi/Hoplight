@@ -36,14 +36,14 @@
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .x {
   margin-left: auto;
   border: 0;
   background: none;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   cursor: pointer;
   font-size: 1.1rem;
 }
@@ -88,7 +88,7 @@
   margin: 0;
   font-family: var(--font-body);
   font-style: italic;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   font-size: 0.85rem;
 }
 
@@ -139,7 +139,7 @@
   font-size: 0.52rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .hit,
@@ -174,14 +174,14 @@
 .hit span,
 .skip span {
   font-size: 0.75rem;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .budget {
   margin: 0.2rem 0;
   font-family: var(--font-mono);
   font-size: 0.52rem;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .cuts,
@@ -198,7 +198,7 @@
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 @container (max-width: 34rem) {
@@ -223,7 +223,7 @@
   text-transform: uppercase;
   border: 0;
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.28rem 0.5rem;
   cursor: pointer;
 }
@@ -250,7 +250,7 @@
   align-items: center;
   justify-content: center;
   border: 2px dashed var(--stage-seam);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   font-family: var(--font-body);
   font-style: italic;
   font-weight: 600;
@@ -301,7 +301,7 @@
   font-size: 0.48rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin-right: 0.25rem;
 }
 

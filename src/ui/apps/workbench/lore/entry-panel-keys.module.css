@@ -73,7 +73,7 @@
   font-family: var(--font-mono);
   border: 0;
   background: transparent;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   cursor: pointer;
   padding: 0;
   line-height: 1;
@@ -301,7 +301,7 @@
   font-size: 0.52rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.15rem 0.35rem;
   cursor: pointer;
 }
@@ -345,7 +345,7 @@
   font-size: 0.48rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .fldBtn {

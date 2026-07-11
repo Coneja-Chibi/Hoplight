@@ -26,7 +26,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0 0 0.5rem;
 }
 
@@ -59,7 +59,7 @@
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .rbody {

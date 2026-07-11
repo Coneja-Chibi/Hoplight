@@ -27,7 +27,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0 0 0.5rem;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .tocSearch span {
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   font-family: var(--font-mono);
   font-size: 0.7rem;
 }
@@ -74,7 +74,7 @@
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.5rem;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin-left: auto;
   border: 2px solid var(--stage-seam);
   padding: 0.02rem 0.28rem;
@@ -87,7 +87,7 @@
   width: 100%;
   border: 0;
   background: none;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.3rem 0.35rem 0.3rem 0.9rem;
   cursor: pointer;
   text-align: left;
@@ -150,7 +150,7 @@
   font-family: var(--font-mono);
   font-weight: 500;
   font-size: 0.5rem;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   flex: none;
 }
 
@@ -189,7 +189,7 @@
   height: 1.15rem;
   border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   cursor: pointer;
   font-family: var(--font-mono);
   font-weight: 700;
@@ -221,7 +221,7 @@
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.12rem 0.35rem;
   cursor: pointer;
 }
@@ -308,7 +308,7 @@
   margin-left: auto;
   border: 0;
   background: none;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   cursor: pointer;
   font-family: var(--font-mono);
   font-size: 1rem;
@@ -327,7 +327,7 @@
 }
 
 .trowOff {
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .trowOff .tnm {
@@ -356,7 +356,7 @@
   font-size: 0.52rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   flex: none;
 }
 
@@ -408,7 +408,7 @@
   font-size: 0.46rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0.35rem 0 0.15rem;
 }
 
@@ -443,7 +443,7 @@
   font-style: italic;
   font-weight: 600;
   font-size: 0.85rem;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.4rem 0.35rem;
   margin: 0;
 }
@@ -458,7 +458,7 @@
   text-transform: uppercase;
   border: 2px dashed var(--stage-seam);
   background: none;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.4rem;
   margin-top: 0.7rem;
   cursor: pointer;

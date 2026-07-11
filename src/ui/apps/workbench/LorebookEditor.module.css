@@ -71,7 +71,7 @@
   font-size: 0.54rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   white-space: nowrap;
 }
 
@@ -79,7 +79,7 @@
   font: inherit;
   border: 0;
   background: none;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
@@ -126,7 +126,7 @@
 
 .save:disabled {
   background: var(--stage-panel);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   box-shadow: none;
   cursor: default;
 }
@@ -199,7 +199,7 @@
   font-size: 0.52rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   flex: 1;
 }
 
@@ -222,7 +222,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   display: block;
   margin-top: 0.55rem;
 }
@@ -248,7 +248,7 @@
 }
 
 .empty {
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   font-size: 0.9rem;
   padding: 1.2rem 1rem;
 }
@@ -256,7 +256,7 @@
 .chip {
   font-family: var(--font-mono);
   font-size: 0.6rem;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -280,7 +280,7 @@
 
 .matchMiss {
   font-size: 0.78rem;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 /* ---------- mobile grammar (design/vs-mobile-editors.html frames 3-4) ----------
@@ -382,7 +382,7 @@
   text-transform: uppercase;
   border: 0;
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.28rem 0.5rem;
   cursor: pointer;
 }

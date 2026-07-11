@@ -117,7 +117,7 @@
   font-size: 0.46rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .headNum {
@@ -139,7 +139,7 @@
   height: 1.4rem;
   border: 2px solid var(--stage-seam);
   background: transparent;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   cursor: pointer;
   display: grid;
   place-items: center;
@@ -149,7 +149,7 @@
 .tokest {
   font-family: var(--font-mono);
   font-size: 0.52rem;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 /* ---------- body ---------- */
@@ -174,7 +174,7 @@
   font-size: 0.48rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 /* plabel kept for drawer / legacy */
@@ -183,7 +183,7 @@
   font-size: 0.52rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   display: block;
   margin: 0.45rem 0 0.2rem;
 }
@@ -207,7 +207,7 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.1rem 0.15rem;
   cursor: pointer;
 }
@@ -221,7 +221,7 @@
   font-family: var(--font-mono);
   font-size: 0.48rem;
   letter-spacing: 0.06em;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .chanceBadge {

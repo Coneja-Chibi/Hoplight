@@ -34,14 +34,14 @@
   font-size: 0.52rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .x {
   margin-left: auto;
   border: 0;
   background: none;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   cursor: pointer;
   font-size: 1.1rem;
 }
@@ -50,7 +50,7 @@
   font-family: var(--font-body);
   font-style: italic;
   font-weight: 600;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
 }
 
 .block {
@@ -86,7 +86,7 @@
   font-size: 0.48rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin-bottom: 0.25rem;
 }
 

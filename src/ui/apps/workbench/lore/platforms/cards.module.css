@@ -20,7 +20,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   margin: 0 0 0.35rem;
 }
 

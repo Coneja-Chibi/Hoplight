@@ -24,7 +24,7 @@
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
   background: var(--stage-row);
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   padding: 0.22rem 0.45rem;
   cursor: pointer;
 }
@@ -75,7 +75,7 @@
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .notice {

@@ -98,13 +98,13 @@
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .ghost {
   border: 2px dashed var(--stage-seam);
   background: transparent;
-  color: var(--stage-mute);
+  color: var(--stage-text-dim);
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.62rem;
