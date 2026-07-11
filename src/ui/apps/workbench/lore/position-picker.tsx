@@ -76,104 +76,96 @@ export function PositionPicker({
 
   return (
     <div className={styles.placeRail} role="group" aria-label="Injection position">
-      <div className={styles.placeTitles}>
-        <b>Placement</b>
-        <span>where it lands</span>
-      </div>
-      <div className={styles.placeTrackWrap}>
-        <div className={styles.placeTrack}>
-          <div className={styles.placeLine} aria-hidden="true">
-            <span className={styles.placeFill} style={{ width: `${pct}%` }} />
-            <span className={styles.placeThumb} style={{ left: `${pct}%` }} />
-            {stops.map((slot, i) => {
-              const left = stops.length <= 1 ? 0 : (i / (stops.length - 1)) * 100;
-              const on = slot === position;
-              return (
-                <span
-                  key={`dot-${slot}`}
-                  className={on ? `${styles.placeDot} ${styles.placeDotOn}` : styles.placeDot}
-                  style={{ left: `${left}%` }}
-                />
-              );
-            })}
-          </div>
-          <div className={styles.placeLabels}>
-            {stops.map((slot, i) => {
-              const left = stops.length <= 1 ? 0 : (i / (stops.length - 1)) * 100;
-              const on = slot === position;
-              const foreignSlot = isForeign && slot === position;
-              return (
-                <button
-                  key={slot}
-                  type="button"
-                  className={
-                    on
-                      ? `${styles.placeLbl} ${styles.placeLblOn}${foreignSlot ? ` ${styles.placeLblForeign}` : ""}`
-                      : styles.placeLbl
-                  }
-                  style={{ left: `${left}%` }}
-                  aria-pressed={on}
-                  title={
-                    foreignSlot
-                      ? "Set by another platform; this host will place it at its closest slot on export"
-                      : RAIL_LABEL[slot]
-                  }
-                  onClick={() => onPatch({ position: slot })}
-                >
-                  {RAIL_LABEL[slot]}
-                </button>
-              );
-            })}
-          </div>
+      <div className={styles.placeHead}>
+        <div className={styles.placeTitles}>
+          <b>Placement</b>
+          <span>where it lands</span>
         </div>
-      </div>
-      {showDepth && (
-        <span
-          className={
-            depthOn ? styles.placeDepthCap : `${styles.placeDepthCap} ${styles.placeDepthSleep}`
-          }
-        >
-          <span className={styles.placeAt} aria-hidden="true">
-            @
-          </span>
-          <input
-            className={styles.placeDepthNum}
-            type="number"
-            min={0}
-            value={depth}
-            aria-label="Injection depth"
-            disabled={!depthOn}
-            onFocus={() => {
-              if (!depthOn) onPatch({ position: "depth" });
-            }}
-            onChange={(ev) =>
-              onPatch({
-                position: depthOn ? position : "depth",
-                depth: Number(ev.target.value) || 0,
-              })
+        {showDepth && (
+          <span
+            className={
+              depthOn ? styles.placeDepthCap : `${styles.placeDepthCap} ${styles.placeDepthSleep}`
             }
-          />
-          {showRole && depthOn && (
-            <select
-              className={styles.placeRole}
-              value={role}
-              aria-label="Injected message role"
+          >
+            <span className={styles.placeAt} aria-hidden="true">
+              @
+            </span>
+            <input
+              className={styles.placeDepthNum}
+              type="number"
+              min={0}
+              value={depth}
+              aria-label="Injection depth"
+              disabled={!depthOn}
+              onFocus={() => {
+                if (!depthOn) onPatch({ position: "depth" });
+              }}
               onChange={(ev) =>
                 onPatch({
-                  position: isDepthLikePosition(position) ? position : "depth",
-                  role: ev.target.value as MessageRole,
+                  position: depthOn ? position : "depth",
+                  depth: Number(ev.target.value) || 0,
                 })
               }
-            >
-              {ROLES.map((r) => (
-                <option key={r} value={r}>
-                  {ROLE_SHORT[r]}
-                </option>
-              ))}
-            </select>
-          )}
-        </span>
-      )}
+            />
+            {showRole && depthOn && (
+              <select
+                className={styles.placeRole}
+                value={role}
+                aria-label="Injected message role"
+                onChange={(ev) =>
+                  onPatch({
+                    position: isDepthLikePosition(position) ? position : "depth",
+                    role: ev.target.value as MessageRole,
+                  })
+                }
+              >
+                {ROLES.map((r) => (
+                  <option key={r} value={r}>
+                    {ROLE_SHORT[r]}
+                  </option>
+                ))}
+              </select>
+            )}
+          </span>
+        )}
+      </div>
+      {/* Equal-width stop cells: no absolute labels (they smush past ~5 stops) */}
+      <div className={styles.placeStops} style={{ ["--n" as string]: String(stops.length) }}>
+        <div className={styles.placeLine} aria-hidden="true">
+          <span className={styles.placeFill} style={{ width: `${pct}%` }} />
+          <span className={styles.placeThumb} style={{ left: `${pct}%` }} />
+        </div>
+        <div className={styles.placeStopRow}>
+          {stops.map((slot) => {
+            const on = slot === position;
+            const foreignSlot = isForeign && slot === position;
+            return (
+              <button
+                key={slot}
+                type="button"
+                className={
+                  on
+                    ? `${styles.placeStop} ${styles.placeStopOn}${foreignSlot ? ` ${styles.placeLblForeign}` : ""}`
+                    : styles.placeStop
+                }
+                aria-pressed={on}
+                title={
+                  foreignSlot
+                    ? "Set by another platform; this host will place it at its closest slot on export"
+                    : RAIL_LABEL[slot]
+                }
+                onClick={() => onPatch({ position: slot })}
+              >
+                <span
+                  className={on ? `${styles.placeDot} ${styles.placeDotOn}` : styles.placeDot}
+                  aria-hidden="true"
+                />
+                <span className={styles.placeStopLbl}>{RAIL_LABEL[slot]}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 }

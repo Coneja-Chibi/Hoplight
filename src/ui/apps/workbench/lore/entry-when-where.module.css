@@ -242,17 +242,24 @@
   padding: 0.22rem 0.15rem;
 }
 
-/* ---- placement rail (same family, compact) ---- */
+/* ---- placement rail: equal-width stop cells (no absolute label smash) ---- */
 
 .placeRail {
   display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.placeHead {
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .placeTitles {
-  min-width: 4.6rem;
   flex: none;
 }
 
@@ -277,21 +284,17 @@
   margin-top: 0.08rem;
 }
 
-.placeTrackWrap {
-  flex: 1;
-  min-width: 10rem;
-}
-
-.placeTrack {
-  position: relative;
-  padding: 0.2rem 0.25rem 1.15rem;
+.placeStops {
+  min-width: 0;
+  overflow-x: auto;
+  padding: 0.15rem 0 0.1rem;
 }
 
 .placeLine {
   position: relative;
   height: 2px;
   background: var(--stage-seam);
-  margin: 0 0.15rem;
+  margin: 0 calc(100% / var(--n, 2) / 2);
 }
 
 .placeFill {
@@ -306,8 +309,8 @@
 .placeThumb {
   position: absolute;
   top: 50%;
-  width: 0.7rem;
-  height: 0.7rem;
+  width: 0.72rem;
+  height: 0.72rem;
   background: var(--a, var(--stage-macro));
   border: 2px solid var(--stage-black);
   box-shadow: 1px 1px 0 0 var(--stage-black);
@@ -316,16 +319,41 @@
   pointer-events: none;
 }
 
+.placeStopRow {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 2), minmax(3.1rem, 1fr));
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  min-width: calc(var(--n, 2) * 3.1rem);
+}
+
+.placeStop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  border: 0;
+  background: transparent;
+  padding: 0.15rem 0.1rem;
+  cursor: pointer;
+  min-width: 0;
+  color: var(--stage-text-dim);
+}
+
+.placeStop:hover {
+  color: var(--stage-card);
+}
+
+.placeStopOn {
+  color: var(--a, var(--stage-macro));
+}
+
 .placeDot {
-  position: absolute;
-  top: 50%;
-  width: 0.36rem;
-  height: 0.36rem;
+  width: 0.4rem;
+  height: 0.4rem;
   background: var(--stage-row);
   border: 1px solid var(--stage-line, var(--stage-seam));
-  transform: translate(-50%, -50%);
-  z-index: 1;
-  pointer-events: none;
+  flex: none;
 }
 
 .placeDotOn {
@@ -333,30 +361,18 @@
   background: color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-row));
 }
 
-.placeLabels {
-  position: relative;
-  height: 0.95rem;
-  margin-top: 0.4rem;
-}
-
-.placeLbl {
-  position: absolute;
-  transform: translateX(-50%);
+.placeStopLbl {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.54rem;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--stage-text-dim);
-  border: 0;
-  background: none;
-  padding: 0.06rem 0.1rem;
-  cursor: pointer;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.placeLblOn {
-  color: var(--a, var(--stage-macro));
 }
 
 .placeLblForeign {
@@ -366,10 +382,10 @@
 .placeDepthCap {
   display: inline-flex;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.22rem;
   border: 1px solid var(--a, var(--stage-macro));
   background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
-  padding: 0.12rem 0.32rem;
+  padding: 0.14rem 0.36rem;
   flex: none;
 }
 
@@ -382,7 +398,7 @@
 .placeAt {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.52rem;
   letter-spacing: 0.06em;
   color: var(--a, var(--stage-macro));
 }
@@ -392,7 +408,7 @@
 }
 
 .placeDepthNum {
-  width: 1.9rem;
+  width: 2rem;
   border: 0;
   background: none;
   color: var(--stage-card);
@@ -413,7 +429,7 @@
   background: none;
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.52rem;
   text-transform: uppercase;
   padding: 0;
 }
