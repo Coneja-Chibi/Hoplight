@@ -8,6 +8,9 @@ import {
   LORE_CORE_KEYS,
   PLATFORM_OWNED_EXTRAS,
   allPlatformFieldKeys,
+  isDepthLikePosition,
+  placementRailStops,
+  placementRailVisible,
   platformOwnsField,
   positionsForProfile,
 } from "./platform-fields";
@@ -141,5 +144,44 @@ describe("injection positions per profile (grounded in codecs)", () => {
       expect(slots.length).toBeGreaterThan(0);
       for (const s of slots) expect(LORE_ALL_POSITIONS).toContain(s);
     }
+  });
+});
+
+describe("placement rail stops (depth-like last)", () => {
+  test("isDepthLikePosition marks depth and append only", () => {
+    expect(isDepthLikePosition("depth")).toBe(true);
+    expect(isDepthLikePosition("append")).toBe(true);
+    expect(isDepthLikePosition("world")).toBe(false);
+    expect(isDepthLikePosition("before_example")).toBe(false);
+  });
+
+  test("sillytavern: depth is last after before/after example", () => {
+    expect(placementRailStops("sillytavern")).toEqual([
+      "world",
+      "character",
+      "before_example",
+      "after_example",
+      "depth",
+    ]);
+  });
+
+  test("full: all depth-like after non-depth", () => {
+    const stops = placementRailStops("full");
+    const firstDepth = stops.findIndex(isDepthLikePosition);
+    expect(firstDepth).toBeGreaterThan(0);
+    expect(stops.slice(firstDepth).every(isDepthLikePosition)).toBe(true);
+    expect(stops.slice(0, firstDepth).some(isDepthLikePosition)).toBe(false);
+  });
+
+  test("foreign current is kept; depth-like foreign lands at end", () => {
+    expect(placementRailStops("chub", "depth")).toEqual(["world", "character", "depth"]);
+    expect(placementRailStops("chub", "scene")).toEqual(["world", "character", "scene"]);
+  });
+
+  test("rail visible only when profile has more than one stop", () => {
+    expect(placementRailVisible("sillytavern")).toBe(true);
+    expect(placementRailVisible("chub")).toBe(true);
+    expect(placementRailVisible("risu")).toBe(false);
+    expect(placementRailVisible("novelai")).toBe(false);
   });
 });

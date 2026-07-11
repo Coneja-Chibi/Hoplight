@@ -1,0 +1,425 @@
+/**
+ * When & where instrument tiles + placement stop-rail.
+ */
+
+.wwGrid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0.45rem;
+}
+
+.wwChance {
+  grid-column: span 5;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.6rem 0.6rem;
+  min-width: 0;
+}
+
+.wwTurns {
+  grid-column: span 4;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.6rem 0.6rem;
+  min-width: 0;
+}
+
+.wwRec {
+  grid-column: span 3;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.6rem 0.6rem;
+  min-width: 0;
+}
+
+.wwGroup {
+  grid-column: span 4;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.6rem 0.6rem;
+  min-width: 0;
+}
+
+.wwPlace {
+  grid-column: span 12;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.65rem 0.7rem;
+  min-width: 0;
+}
+
+@media (max-width: 48rem) {
+  .wwChance,
+  .wwTurns,
+  .wwRec,
+  .wwGroup,
+  .wwPlace {
+    grid-column: span 12;
+  }
+}
+
+.wwTileH {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.wwTileH b {
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.wwTileH span {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.46rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.wwChanceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wwPct {
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--stage-card);
+  min-width: 3.4rem;
+}
+
+.wwChanceRange {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--stage-ok);
+  height: 0.35rem;
+  cursor: pointer;
+}
+
+.wwMini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+}
+
+.wwMiniCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.28rem 0.32rem;
+  min-width: 0;
+}
+
+.wwMiniCell span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.wwMiniCell input {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: var(--stage-card);
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0;
+}
+
+.wwSeg {
+  display: flex;
+  border: 2px solid var(--stage-seam);
+  width: 100%;
+}
+
+.wwSegBtn {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.32rem 0.15rem;
+  cursor: pointer;
+}
+
+.wwSegBtn + .wwSegBtn {
+  border-left: 2px solid var(--stage-seam);
+}
+
+.wwSegOn {
+  background: var(--stage-ok);
+  color: var(--stage-ink);
+}
+
+.wwRecLevel {
+  width: 100%;
+  margin-top: 0.35rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0.2rem;
+}
+
+.wwGroupRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.wwGroupIn {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.35rem;
+}
+
+.wwW {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.wwWeight {
+  width: 2.6rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0.2rem;
+}
+
+/* ---- placement rail ---- */
+
+.placeRail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.placeTitles {
+  min-width: 5.2rem;
+  flex: none;
+}
+
+.placeTitles b {
+  display: block;
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.placeTitles span {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.46rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+  margin-top: 0.12rem;
+}
+
+.placeTrackWrap {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.placeTrack {
+  position: relative;
+  padding: 0.35rem 0.35rem 1.55rem;
+}
+
+.placeLine {
+  position: relative;
+  height: 3px;
+  background: var(--stage-seam);
+  margin: 0 0.2rem;
+}
+
+.placeFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--a, var(--stage-macro));
+  pointer-events: none;
+}
+
+.placeThumb {
+  position: absolute;
+  top: 50%;
+  width: 0.85rem;
+  height: 0.85rem;
+  background: var(--a, var(--stage-macro));
+  border: 2px solid var(--stage-black);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.placeDot {
+  position: absolute;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--stage-row);
+  border: 2px solid var(--stage-line, var(--stage-seam));
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.placeDotOn {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-row));
+}
+
+.placeLabels {
+  position: relative;
+  height: 1.15rem;
+  margin-top: 0.55rem;
+}
+
+.placeLbl {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.46rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+  border: 0;
+  background: none;
+  padding: 0.1rem 0.15rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.placeLblOn {
+  color: var(--a, var(--stage-macro));
+}
+
+.placeLblForeign {
+  color: var(--stage-warn);
+}
+
+.placeDepthCap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  border: 2px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
+  padding: 0.18rem 0.4rem;
+  flex: none;
+  margin-top: 0.1rem;
+}
+
+.placeDepthSleep {
+  opacity: 0.4;
+  border-color: var(--stage-seam);
+  background: var(--stage-sunken);
+}
+
+.placeAt {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  color: var(--a, var(--stage-macro));
+}
+
+.placeDepthSleep .placeAt {
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.placeDepthNum {
+  width: 2.2rem;
+  border: 0;
+  background: none;
+  color: var(--stage-card);
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 0;
+}
+
+.placeDepthNum:disabled {
+  color: var(--stage-mute);
+  cursor: not-allowed;
+}
+
+.placeRole {
+  border: 0;
+  background: none;
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  padding: 0;
+}
+
+.placeFloor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.placeFloorLine {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  color: var(--stage-soft);
+}
+
+.placeForeign {
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-warn);
+  border: 1px solid var(--stage-warn);
+  padding: 0.12rem 0.35rem;
+}

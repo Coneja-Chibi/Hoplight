@@ -1,35 +1,37 @@
 /**
- * PositionPicker - segmented injection bar. Depth + role sit inline on the @ slot. Which slots
- * render comes from the capabilities matrix (positionsForProfile), NEVER a local list: the lens
- * shows only slots its wire can carry. If the entry's current position is foreign to the lens it
- * still renders (marked off-target) - hiding never lies about data.
+ * Placement stop-rail. Stops from placementRailStops (depth-like last). @ depth is an
+ * end-cap that arms on depth-like positions. Single-slot hosts get a quiet floor line.
  */
 import type { JSX } from "react";
 import type { InjectionPosition, MessageRole } from "../../../../entities/lorebook/schema";
+import {
+  isDepthLikePosition,
+  placementRailStops,
+  type LoreWriteForProfile,
+} from "../../../../core/lore";
 
 export interface PositionPickerProps {
   position: InjectionPosition;
   depth: number;
   role: MessageRole;
-  /** slots the active Write-for lens carries (positionsForProfile(writeFor)) */
-  allowed: readonly InjectionPosition[];
+  writeFor: LoreWriteForProfile;
   showDepth: boolean;
   showRole: boolean;
   styles: Readonly<Record<string, string>>;
   onPatch: (patch: { position?: InjectionPosition; depth?: number; role?: MessageRole }) => void;
 }
 
-/** UI labels only; availability is the capability matrix's job. */
-const POSITION_LABELS: Record<InjectionPosition, string> = {
+/** Short rail labels. */
+const RAIL_LABEL: Record<InjectionPosition, string> = {
   world: "World",
-  character: "Character",
+  character: "Char",
   scene: "Scene",
-  depth: "@",
+  depth: "Depth",
   append: "Append",
   prepend_top: "Top",
-  append_bottom: "Bottom",
-  before_example: "Before ex.",
-  after_example: "After ex.",
+  append_bottom: "Bot",
+  before_example: "Bef.ex",
+  after_example: "Aft.ex",
 };
 
 const ROLES: readonly MessageRole[] = ["system", "user", "assistant"];
@@ -43,87 +45,135 @@ export function PositionPicker({
   position,
   depth,
   role,
-  allowed,
+  writeFor,
   showDepth,
   showRole,
   styles,
   onPatch,
 }: PositionPickerProps): JSX.Element {
-  const depthOn = position === "depth" || position === "append";
-  const foreign = !allowed.includes(position);
-  const slots: readonly InjectionPosition[] = foreign ? [...allowed, position] : allowed;
+  const profileStops = placementRailStops(writeFor);
+  const stops = placementRailStops(writeFor, position);
+  const isForeign = !profileStops.includes(position);
+  const depthOn = isDepthLikePosition(position);
+  const idx = Math.max(0, stops.indexOf(position));
+  const pct = stops.length <= 1 ? 0 : (idx / (stops.length - 1)) * 100;
+
+  if (profileStops.length <= 1) {
+    return (
+      <div className={styles.placeFloor} role="group" aria-label="Injection position">
+        <span className={styles.placeFloorLine}>
+          Character floor · this host has no placement dial
+        </span>
+        {isForeign && (
+          <span className={styles.placeForeign} title="Set under another platform">
+            held as {RAIL_LABEL[position] ?? position}
+            {isDepthLikePosition(position) ? ` @${depth}` : ""}
+          </span>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className={styles.posRow} role="group" aria-label="Injection position">
-      {slots.map((value) => {
-        const isForeignSlot = value === position && foreign;
-        if (value === "depth") {
-          return (
-            <span
-              key={value}
-              className={position === "depth" ? `${styles.posDepthWrap} ${styles.posOn}` : styles.posDepthWrap}
-            >
-              <button
-                type="button"
-                className={styles.posInner}
-                aria-pressed={position === "depth"}
-                onClick={() => onPatch({ position: "depth" })}
-              >
-                {POSITION_LABELS[value]}
-              </button>
-              {showDepth && (
-                <input
-                  className={styles.posDepthNum}
-                  type="number"
-                  min={0}
-                  value={depth}
-                  aria-label="Injection depth"
-                  disabled={!depthOn}
-                  onFocus={() => {
-                    if (!depthOn) onPatch({ position: "depth" });
-                  }}
-                  onChange={(ev) => onPatch({ position: "depth", depth: Number(ev.target.value) || 0 })}
+    <div className={styles.placeRail} role="group" aria-label="Injection position">
+      <div className={styles.placeTitles}>
+        <b>Placement</b>
+        <span>where it lands</span>
+      </div>
+      <div className={styles.placeTrackWrap}>
+        <div className={styles.placeTrack}>
+          <div className={styles.placeLine} aria-hidden="true">
+            <span className={styles.placeFill} style={{ width: `${pct}%` }} />
+            <span className={styles.placeThumb} style={{ left: `${pct}%` }} />
+            {stops.map((slot, i) => {
+              const left = stops.length <= 1 ? 0 : (i / (stops.length - 1)) * 100;
+              const on = slot === position;
+              return (
+                <span
+                  key={`dot-${slot}`}
+                  className={on ? `${styles.placeDot} ${styles.placeDotOn}` : styles.placeDot}
+                  style={{ left: `${left}%` }}
                 />
-              )}
-              {showRole && (
-                <select
-                  className={styles.posRole}
-                  value={role}
-                  aria-label="Injected message role"
-                  onChange={(ev) =>
-                    onPatch({
-                      position: position === "append" ? "append" : "depth",
-                      role: ev.target.value as MessageRole,
-                    })
+              );
+            })}
+          </div>
+          <div className={styles.placeLabels}>
+            {stops.map((slot, i) => {
+              const left = stops.length <= 1 ? 0 : (i / (stops.length - 1)) * 100;
+              const on = slot === position;
+              const foreignSlot = isForeign && slot === position;
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  className={
+                    on
+                      ? `${styles.placeLbl} ${styles.placeLblOn}${foreignSlot ? ` ${styles.placeLblForeign}` : ""}`
+                      : styles.placeLbl
                   }
+                  style={{ left: `${left}%` }}
+                  aria-pressed={on}
+                  title={
+                    foreignSlot
+                      ? "Set by another platform; this host will place it at its closest slot on export"
+                      : RAIL_LABEL[slot]
+                  }
+                  onClick={() => onPatch({ position: slot })}
                 >
-                  {ROLES.map((r) => (
-                    <option key={r} value={r}>
-                      {ROLE_SHORT[r]}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </span>
-          );
-        }
-        return (
-          <button
-            key={value}
-            type="button"
-            className={
-              value === position
-                ? `${styles.pos} ${styles.posOn}${isForeignSlot ? ` ${styles.posForeign}` : ""}`
-                : styles.pos
+                  {RAIL_LABEL[slot]}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      {showDepth && (
+        <span
+          className={
+            depthOn ? styles.placeDepthCap : `${styles.placeDepthCap} ${styles.placeDepthSleep}`
+          }
+        >
+          <span className={styles.placeAt} aria-hidden="true">
+            @
+          </span>
+          <input
+            className={styles.placeDepthNum}
+            type="number"
+            min={0}
+            value={depth}
+            aria-label="Injection depth"
+            disabled={!depthOn}
+            onFocus={() => {
+              if (!depthOn) onPatch({ position: "depth" });
+            }}
+            onChange={(ev) =>
+              onPatch({
+                position: depthOn ? position : "depth",
+                depth: Number(ev.target.value) || 0,
+              })
             }
-            aria-pressed={value === position}
-            title={isForeignSlot ? "Set by another platform; this host will place it at its closest slot on export" : undefined}
-            onClick={() => onPatch({ position: value })}
-          >
-            {POSITION_LABELS[value]}
-          </button>
-        );
-      })}
+          />
+          {showRole && depthOn && (
+            <select
+              className={styles.placeRole}
+              value={role}
+              aria-label="Injected message role"
+              onChange={(ev) =>
+                onPatch({
+                  position: isDepthLikePosition(position) ? position : "depth",
+                  role: ev.target.value as MessageRole,
+                })
+              }
+            >
+              {ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {ROLE_SHORT[r]}
+                </option>
+              ))}
+            </select>
+          )}
+        </span>
+      )}
     </div>
   );
 }

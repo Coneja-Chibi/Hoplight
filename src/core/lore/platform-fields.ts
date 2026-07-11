@@ -168,6 +168,39 @@ export function positionsForProfile(profile: LoreWriteForProfile): readonly Inje
   return LORE_ALL_POSITIONS.filter((p) => owned.includes(p));
 }
 
+/**
+ * Depth-like slots: need an @ depth number and sit LAST on the placement rail.
+ * `append` is ST's "at depth in chat" sibling of `depth`.
+ */
+export function isDepthLikePosition(position: InjectionPosition): boolean {
+  return position === "depth" || position === "append";
+}
+
+/**
+ * Stops for the placement rail: profile slots with non-depth first, depth-like last.
+ * If `current` is foreign to the profile it is still included (never hide real data).
+ */
+export function placementRailStops(
+  profile: LoreWriteForProfile,
+  current?: InjectionPosition | null,
+): readonly InjectionPosition[] {
+  const allowed = positionsForProfile(profile);
+  const nonDepth = allowed.filter((p) => !isDepthLikePosition(p));
+  const depthLike = allowed.filter((p) => isDepthLikePosition(p));
+  if (current == null || allowed.includes(current)) {
+    return [...nonDepth, ...depthLike];
+  }
+  if (isDepthLikePosition(current)) {
+    return [...nonDepth, ...depthLike, current];
+  }
+  return [...nonDepth, current, ...depthLike];
+}
+
+/** True when this profile has a real multi-stop placement axis (not a silent character floor). */
+export function placementRailVisible(profile: LoreWriteForProfile): boolean {
+  return positionsForProfile(profile).length > 1;
+}
+
 /** Every key the union editor knows (full list). */
 export function allPlatformFieldKeys(): LoreFieldKey[] {
   const set = new Set<LoreFieldKey>(LORE_CORE_KEYS);

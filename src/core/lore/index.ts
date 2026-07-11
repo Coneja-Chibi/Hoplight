@@ -19,6 +19,9 @@ export {
   LORE_POSITIONS_BY_PROFILE,
   PLATFORM_OWNED_EXTRAS,
   allPlatformFieldKeys,
+  isDepthLikePosition,
+  placementRailStops,
+  placementRailVisible,
   platformOwnsField,
   positionsForProfile,
 } from "./platform-fields";
