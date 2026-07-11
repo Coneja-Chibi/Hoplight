@@ -7,6 +7,7 @@ import panelStyles from "./entry-panel.module.css";
 import panelKeyStyles from "./entry-panel-keys.module.css";
 import pageStyles from "./entry-page.module.css";
 import tocStyles from "./entry-toc.module.css";
+import tocFineStyles from "./entry-toc-fine.module.css";
 import railStyles from "./entry-rail.module.css";
 import platformCardStyles from "./platforms/cards.module.css";
 import healthStyles from "./health-pane.module.css";
@@ -18,6 +19,7 @@ export const binderStyles: Readonly<Record<string, string>> = {
   ...panelKeyStyles,
   ...pageStyles,
   ...tocStyles,
+  ...tocFineStyles,
   ...railStyles,
   ...platformCardStyles,
   ...healthStyles,

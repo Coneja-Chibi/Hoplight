@@ -33,7 +33,19 @@ export interface EntryTocProps {
 }
 
 const cycleTri = (v: boolean | null): boolean | null => (v === null ? true : v ? false : null);
-const triLabel = (v: boolean | null): string => (v === null ? "Inherit" : v ? "On" : "Off");
+const triShort = (v: boolean | null): string => (v === null ? "inh" : v ? "on" : "off");
+const triTitle = (label: string, v: boolean | null): string =>
+  `${label}: ${v === null ? "inherit book default" : v ? "on for this entry" : "off for this entry"} (click to cycle)`;
+
+function triPillClass(
+  v: boolean | null,
+  styles: Readonly<Record<string, string>>,
+): string {
+  const base = styles.mpill ?? "mpill";
+  if (v === true) return `${base} ${styles.mpillOn ?? ""}`.trim();
+  if (v === false) return `${base} ${styles.mpillOff ?? ""}`.trim();
+  return `${base} ${styles.mpillInh ?? ""}`.trim();
+}
 
 function pipClass(entry: LorebookEntry, styles: Readonly<Record<string, string>>): string {
   if (!entry.enabled) return `${styles.tpip} ${styles.pipOff}`;
@@ -63,6 +75,7 @@ function FinePrint({
   onOpenBeside?: () => void;
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
+  const act = styles.apill ?? "apill";
   return (
     <div className={styles.texp}>
       {show("sortOrder") && (
@@ -119,45 +132,89 @@ function FinePrint({
         </div>
       )}
       {show("matchOverrides") && (
-        <>
-          <div className={styles.texpLabel}>Matching</div>
-          <div className={styles.texpActs}>
-            <button
-              type="button"
-              className={styles.texpBtn}
-              title="Override the book default for this entry"
-              onClick={() => onPatch({ matchWholeWords: cycleTri(entry.matchWholeWords) })}
-            >
-              Whole words · {triLabel(entry.matchWholeWords)}
-            </button>
-            <button
-              type="button"
-              className={styles.texpBtn}
-              title="Override the book default for this entry"
-              onClick={() => onPatch({ caseSensitive: cycleTri(entry.caseSensitive) })}
-            >
-              Case · {triLabel(entry.caseSensitive)}
-            </button>
-          </div>
-        </>
+        <div className={styles.pillRow} role="group" aria-label="Matching overrides">
+          <button
+            type="button"
+            className={triPillClass(entry.matchWholeWords, styles)}
+            title={triTitle("Whole words", entry.matchWholeWords)}
+            aria-label={triTitle("Whole words", entry.matchWholeWords)}
+            onClick={() => onPatch({ matchWholeWords: cycleTri(entry.matchWholeWords) })}
+          >
+            <span className={styles.mpillIco} aria-hidden="true">
+              Ww
+            </span>
+            {triShort(entry.matchWholeWords)}
+          </button>
+          <button
+            type="button"
+            className={triPillClass(entry.caseSensitive, styles)}
+            title={triTitle("Case sensitive", entry.caseSensitive)}
+            aria-label={triTitle("Case sensitive", entry.caseSensitive)}
+            onClick={() => onPatch({ caseSensitive: cycleTri(entry.caseSensitive) })}
+          >
+            <span className={styles.mpillIco} aria-hidden="true">
+              Aa
+            </span>
+            {triShort(entry.caseSensitive)}
+          </button>
+        </div>
       )}
-      <div className={styles.texpActs}>
-        <button type="button" className={styles.texpBtn} aria-label="Move up" onClick={() => onMove(-1)}>
+      <div className={styles.pillRow} role="group" aria-label="Entry actions">
+        <button
+          type="button"
+          className={act}
+          aria-label="Move up"
+          title="Move up"
+          onClick={() => onMove(-1)}
+        >
           &#8593;
         </button>
-        <button type="button" className={styles.texpBtn} aria-label="Move down" onClick={() => onMove(1)}>
+        <button
+          type="button"
+          className={act}
+          aria-label="Move down"
+          title="Move down"
+          onClick={() => onMove(1)}
+        >
           &#8595;
         </button>
-        <button type="button" className={styles.texpBtn} onClick={onDuplicate}>
-          Copy
+        <button
+          type="button"
+          className={act}
+          aria-label="Copy entry"
+          title="Copy entry"
+          onClick={onDuplicate}
+        >
+          <span className={styles.apillIco} aria-hidden="true">
+            &#10697;
+          </span>
+          copy
         </button>
         {onOpenBeside && (
-          <button type="button" className={styles.texpBtn} onClick={onOpenBeside}>
-            Beside
+          <button
+            type="button"
+            className={act}
+            aria-label="Open beside"
+            title="Open beside"
+            onClick={onOpenBeside}
+          >
+            <span className={styles.apillIco} aria-hidden="true">
+              &#9638;
+            </span>
+            side
           </button>
         )}
-        <button type="button" className={`${styles.texpBtn} ${styles.texpDanger}`} onClick={onDelete}>
-          Delete
+        <button
+          type="button"
+          className={`${act} ${styles.apillDanger ?? ""}`.trim()}
+          aria-label="Delete entry"
+          title="Delete entry"
+          onClick={onDelete}
+        >
+          <span className={styles.apillIco} aria-hidden="true">
+            &#10005;
+          </span>
+          del
         </button>
       </div>
     </div>

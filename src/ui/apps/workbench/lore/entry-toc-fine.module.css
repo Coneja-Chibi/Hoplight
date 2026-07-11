@@ -1,0 +1,199 @@
+/**
+ * Focused TOC row fine print: dials + compact matching/action pills.
+ */
+
+.texp {
+  border-left: 3px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 7%, transparent);
+  margin: 0 0 0.25rem;
+  padding: 0.3rem 0.45rem 0.45rem 0.65rem;
+}
+
+.texpRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.18rem 0;
+}
+
+.texpK {
+  font-family: var(--font-mono);
+  font-size: 0.61rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  flex: none;
+}
+
+.texpNum {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  width: 3.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  text-align: center;
+  padding: 0.12rem;
+}
+
+.texpSwitch {
+  width: 1.8rem;
+  height: 0.95rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.texpSwitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--stage-ink);
+}
+
+.texpSwitchOff {
+  background: var(--stage-faint);
+}
+
+.texpSwitchOff::after {
+  left: 2px;
+  right: auto;
+}
+
+.texpLabel {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.61rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  margin: 0.35rem 0 0.15rem;
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.22rem;
+  margin-top: 0.35rem;
+}
+
+.mpill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-text-dim);
+  padding: 0.12rem 0.32rem;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.2;
+  flex: none;
+}
+
+.mpillIco {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.95;
+}
+
+.mpillInh {
+  border-color: var(--stage-seam);
+  color: var(--stage-mute, var(--stage-text-dim));
+}
+
+.mpillOn {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 14%, var(--stage-sunken));
+}
+
+.mpillOff {
+  border-color: var(--stage-warn);
+  color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 12%, var(--stage-sunken));
+}
+
+.apill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.14rem 0.36rem;
+  border-radius: 999px;
+  cursor: pointer;
+  line-height: 1.2;
+  flex: none;
+  min-width: 1.55rem;
+  justify-content: center;
+}
+
+.apill:hover {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+}
+
+.apillIco {
+  font-size: 0.62rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.apillDanger {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+}
+
+.apillDanger:hover {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+  background: color-mix(in srgb, var(--stage-danger-edge) 12%, var(--stage-row));
+}
+
+/* Shared slab buttons (rail launchers still use these class names via binder merge) */
+.texpActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.3rem;
+}
+
+.texpBtn {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.61rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.3rem;
+  cursor: pointer;
+}
+
+.texpDanger {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+}
