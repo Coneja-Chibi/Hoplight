@@ -30,8 +30,11 @@ const CLUSTER = [
 ];
 
 export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.Element {
-  const entries = body.entries.filter((e) => e.enabled);
-  const overCap = entries.length > WEB_NODE_CAP;
+  const entryIds = useMemo(
+    () => body.entries.filter((e) => e.enabled).map((e) => e.id),
+    [body],
+  );
+  const overCap = entryIds.length > WEB_NODE_CAP;
   const { edges } = useMemo(() => bookWakeGraph(body), [body]);
   const layoutEdges = useMemo(
     () => edges.map((e) => ({ from: e.from, to: e.to })),
@@ -39,17 +42,22 @@ export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.
   );
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [nodes, setNodes] = useState<LayoutNode[]>([]);
+  const [running, setRunning] = useState(false);
   const [hover, setHover] = useState<string | null>(null);
   const drag = useRef<{ id: string; ox: number; oy: number } | null>(null);
 
   useEffect(() => {
-    if (overCap) return;
+    if (overCap) {
+      setRunning(false);
+      return;
+    }
     const bounds = { width: 640, height: 420 };
-    setNodes(seedLayout(entries.map((e) => e.id), layoutEdges, bounds));
-  }, [body, entries.length, layoutEdges, overCap]);
+    setNodes(seedLayout(entryIds, layoutEdges, bounds));
+    setRunning(true);
+  }, [entryIds, layoutEdges, overCap]);
 
   useEffect(() => {
-    if (overCap || nodes.length === 0) return;
+    if (overCap || !running) return;
     let raf = 0;
     let alive = true;
     const tick = (): void => {
@@ -62,12 +70,12 @@ export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.
       alive = false;
       cancelAnimationFrame(raf);
     };
-  }, [layoutEdges, overCap, nodes.length > 0]);
+  }, [layoutEdges, overCap, running]);
 
   if (overCap) {
     return (
       <div className={styles.notice}>
-        This book has {entries.length} entries (cap {WEB_NODE_CAP}). Showing Cards instead of the web.
+        This book has {entryIds.length} entries (cap {WEB_NODE_CAP}). Showing Cards instead of the web.
         <button type="button" className={styles.link} onClick={onFallbackCards}>
           Open Cards
         </button>
