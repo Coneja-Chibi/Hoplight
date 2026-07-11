@@ -12,11 +12,13 @@ import type {
   CharacterBehavior,
   CharacterBody,
   ImagePrompt,
-  RegexScript,
   TriggerScript,
   Voice,
 } from "../../entities/character/schema";
 import type { TavernData } from "../_shared/tavern-fields";
+import { readRegexScripts, regexScriptsToWire } from "./regex";
+
+export { readRegexScripts, regexScriptsToWire } from "./regex";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -81,33 +83,7 @@ function readToggles(r: Rec): NonNullable<CharacterBody["settings"]>["risu"] {
 }
 
 // -- authored behavior (scripts): first-class editable DATA, never executed (see CharacterBehavior) --
-
-/** customScripts wire rows -> RegexScript[] (undefined when none). */
-function readRegexScripts(v: unknown): RegexScript[] | undefined {
-  if (!Array.isArray(v)) return undefined;
-  const out = v.filter(isRec).map((s): RegexScript => {
-    const r: RegexScript = {
-      find: typeof s.in === "string" ? s.in : "",
-      replace: typeof s.out === "string" ? s.out : "",
-      phase: typeof s.type === "string" ? s.type : "",
-    };
-    if (typeof s.comment === "string") r.label = s.comment;
-    if (typeof s.flag === "string") r.flags = s.flag;
-    if (typeof s.ableFlag === "boolean") r.useFlags = s.ableFlag;
-    return r;
-  });
-  return out.length > 0 ? out : undefined;
-}
-
-const regexScriptsToWire = (list: RegexScript[]): Rec[] =>
-  list.map((r) => ({
-    comment: r.label ?? "",
-    in: r.find,
-    out: r.replace,
-    type: r.phase,
-    ...(r.flags !== undefined ? { flag: r.flags } : {}),
-    ...(r.useFlags !== undefined ? { ableFlag: r.useFlags } : {}),
-  }));
+// readRegexScripts/regexScriptsToWire moved to ./regex (REGEX-JEWEL-PLAN.md R1), re-exported above.
 
 /** triggerscript wire rows -> TriggerScript[] (condition/effect rows carried verbatim-editable). */
 function readTriggerScripts(v: unknown): TriggerScript[] | undefined {
@@ -150,7 +126,10 @@ function readBehavior(r: Rec): CharacterBehavior | undefined {
   }
   if (presentStr(r.prebuiltAssetStyle)) pre.style = r.prebuiltAssetStyle as string;
   if (Object.keys(pre).length > 0) out.prebuiltAsset = pre;
-  if (presentStr(r.customModuleToggle)) out.moduleToggles = r.customModuleToggle as string;
+  // Risu wire key is `toggles` (export createBaseV3 / import reads toggles). DB field name is
+  // customModuleToggle. Accept both on read so old VVS writes and real Risu cards both load.
+  if (presentStr(r.toggles)) out.moduleToggles = r.toggles as string;
+  else if (presentStr(r.customModuleToggle)) out.moduleToggles = r.customModuleToggle as string;
   if (typeof r.lowLevelAccess === "boolean") out.privileged = r.lowLevelAccess;
   return Object.keys(out).length > 0 ? out : undefined;
 }
@@ -242,7 +221,8 @@ export function applyBodyToRisu(data: TavernData, body: CharacterBody): void {
     s("backgroundHTML", beh.backgroundHTML, d?.backgroundHTML);
     s("backgroundCSS", beh.backgroundCSS, d?.backgroundCSS);
     s("defaultVariables", beh.defaultVariables, d?.defaultVariables);
-    s("customModuleToggle", beh.moduleToggles, d?.moduleToggles);
+    // Write the producer wire key `toggles` (not the DB-only name customModuleToggle).
+    s("toggles", beh.moduleToggles, d?.moduleToggles);
     if (beh.prebuiltAsset && !deepEq(beh.prebuiltAsset, d?.prebuiltAsset)) {
       if (beh.prebuiltAsset.command !== undefined) writes.prebuiltAssetCommand = beh.prebuiltAsset.command;
       if (beh.prebuiltAsset.exclude !== undefined) writes.prebuiltAssetExclude = beh.prebuiltAsset.exclude;

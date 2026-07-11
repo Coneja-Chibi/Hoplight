@@ -1,0 +1,37 @@
+{
+  "_source": "4 real customscript rows decoded from live .risum modules via openRisumModule (design/REGEX-FORMATS.md), picked to exercise editrequest/editprocess/editdisplay + malformed disabled + real flags. No personal data (UI-selector and moderation-tag patterns only).",
+  "rows": [
+    {
+      "comment": "AI 요청 컨텍스트 정리 — KWU UI 마커 제거",
+      "in": "(?:^|\\n)[ \\t]*(?:<!--kwu-ui:8c2f6a9d17b3-->|\\[KWU_UI_PANEL_MARKER\\])[ \\t]*(?:\\n|$)",
+      "flag": "",
+      "out": "",
+      "type": "editrequest",
+      "ableFlag": true
+    },
+    {
+      "comment": "social_event 고아 태그 숨김",
+      "in": "<social_event[^>]*>[^<]*",
+      "out": "",
+      "type": "editdisplay",
+      "ableFlag": true,
+      "flag": "",
+      "disabled": ""
+    },
+    {
+      "comment": "패널&선택지 삭제",
+      "in": "/intro■■■",
+      "out": "",
+      "type": "editprocess",
+      "ableFlag": false
+    },
+    {
+      "comment": "에셋 이미지 src 보정 — 로컬 경로만 Risu raw 매크로 적용",
+      "in": "<img\\s+(?![^>]*kwu-portrait)([^>]*?)src=['\"](?!\\{\\{raw::|[A-Za-z][A-Za-z0-9+.-]*:|/)([^'\"]+)['\"]([^>]*)\\/?>",
+      "out": "<img $1src=\"{{raw::$2}}\"$3>",
+      "type": "editdisplay",
+      "ableFlag": true,
+      "flag": "g"
+    }
+  ]
+}
