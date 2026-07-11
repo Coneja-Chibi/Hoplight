@@ -2,7 +2,9 @@ import { describe, expect, test } from "bun:test";
 import { emptyLorebookBody } from "../../../../core/lore";
 import {
   addEntry,
+  addKeywordToEntry,
   applyBookTransform,
+  canUndo,
   deleteEntries,
   deleteEntry,
   duplicateEntry,
@@ -13,6 +15,7 @@ import {
   selectEntry,
   sessionDirty,
   setEntriesEnabled,
+  undoSession,
   updateBook,
   updateEntry,
 } from "./session";
@@ -109,6 +112,27 @@ describe("lore session (the binder: one focused entry)", () => {
       ),
     }));
     expect(s.body.entries[0]?.title).toBe("Fixed");
+  });
+
+  test("bulk ops push undo; undoSession restores prior body", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    s = addEntry(s);
+    const ids = s.body.entries.map((e) => e.id);
+    expect(canUndo(s)).toBe(false);
+    s = setEntriesEnabled(s, ids, false);
+    expect(canUndo(s)).toBe(true);
+    expect(s.body.entries.every((e) => !e.enabled)).toBe(true);
+    s = undoSession(s);
+    expect(s.body.entries.every((e) => e.enabled)).toBe(true);
+    expect(canUndo(s)).toBe(false);
+  });
+
+  test("addKeywordToEntry appends once", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    const id = s.focusedId!;
+    s = addKeywordToEntry(s, id, "powers");
+    s = addKeywordToEntry(s, id, "powers");
+    expect(s.body.entries[0]?.triggers.map((t) => t.keyword)).toEqual(["powers"]);
   });
 
   test("dirty and reconcile", () => {

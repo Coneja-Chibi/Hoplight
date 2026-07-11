@@ -40,6 +40,8 @@ export interface HealthPaneProps {
   onTransform: (fn: (b: LorebookBody) => LorebookBody) => void;
   onJumpEntry: (entryId: string) => void;
   onClose: () => void;
+  /** Import heal notes (and similar) merged into the first scan. */
+  extraFindings?: readonly LoreFinding[];
 }
 
 export function HealthPane({
@@ -47,8 +49,12 @@ export function HealthPane({
   onTransform,
   onJumpEntry,
   onClose,
+  extraFindings = [],
 }: HealthPaneProps): JSX.Element {
-  const findings = useMemo(() => inspectBook(body), [body]);
+  const findings = useMemo(
+    () => [...inspectBook(body), ...extraFindings],
+    [body, extraFindings],
+  );
 
   const groups = useMemo(() => {
     const map = new Map<LoreFindingRule, LoreFinding[]>();

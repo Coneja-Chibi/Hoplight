@@ -10,6 +10,31 @@
   padding: 0.5rem 0.75rem 0.85rem;
 }
 
+.filters {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 0.4rem;
+}
+
+.fbtn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.22rem 0.45rem;
+  cursor: pointer;
+}
+
+.fbtnOn {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 18%, var(--stage-row));
+}
+
 .svg {
   flex: 1;
   min-height: 16rem;

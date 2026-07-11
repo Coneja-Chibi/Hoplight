@@ -18,7 +18,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
-| BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, }: BinderSideProps) |  |  |
+| BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
@@ -47,7 +47,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
-| HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, }: HealthPaneProps) |  |  |
+| HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
@@ -89,7 +89,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
-| RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry }: RehearsalPaneProps) |  |  |
+| RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry, onAddKeyword, }: RehearsalPaneProps) |  |  |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |

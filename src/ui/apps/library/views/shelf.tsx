@@ -176,10 +176,58 @@ const view: DeckView = {
   css: CSS,
   Component({ ctx }) {
     const [draggingId, setDraggingId] = useState<string | null>(null);
+    const [query, setQuery] = useState("");
+    const q = query.trim().toLowerCase();
+    const filtered = !q
+      ? ctx.entities
+      : ctx.entities.filter((e) => {
+          if (e.name.toLowerCase().includes(q)) return true;
+          // loreShelf may expose key search via entryCountOf presence only - use optional bag
+          const keys = (e as StudioEntitySummary & { searchKeys?: string[] }).searchKeys;
+          if (keys?.some((k) => k.toLowerCase().includes(q))) return true;
+          return false;
+        });
     return (
       <div className="dv-shelfscroll">
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.35rem",
+            border: "2px solid var(--stage-seam)",
+            background: "var(--stage-sunken)",
+            padding: "0.35rem 0.5rem",
+            marginBottom: "0.75rem",
+          }}
+        >
+          <span
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "0.55rem",
+              color: "var(--stage-kicker)",
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+            }}
+          >
+            Find
+          </span>
+          <input
+            value={query}
+            onChange={(ev) => setQuery(ev.target.value)}
+            placeholder="Name or key…"
+            aria-label="Search lorebooks by name or key"
+            style={{
+              flex: 1,
+              border: 0,
+              background: "none",
+              color: "var(--stage-soft)",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.9rem",
+            }}
+          />
+        </label>
         <div className="dv-shelf">
-          {ctx.entities.map((e) => (
+          {filtered.map((e) => (
             <BookCard
               key={pieceKey(e)}
               ctx={ctx}
@@ -189,6 +237,17 @@ const view: DeckView = {
             />
           ))}
         </div>
+        {filtered.length === 0 && (
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontStyle: "italic",
+              color: "var(--stage-kicker)",
+            }}
+          >
+            Nothing matches that search.
+          </p>
+        )}
         <div className={`dv-trash${draggingId ? " show" : ""}`}>
           Drag onto another book to merge
         </div>

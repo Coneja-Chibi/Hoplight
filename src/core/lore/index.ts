@@ -63,9 +63,11 @@ export {
   duplicateBook,
   filterEnabledBooks,
 } from "./book-ops";
+export { cryptoUnit, mulberry32, freshSeed } from "./rng";
 export { nearMisses, type NearMissHit } from "./near-miss";
 export { parseChatJsonl, type ImportedChat } from "./chat-import";
 export { healBook, type HealNote, type HealResult } from "./heal";
+export { findingsFromHealNotes, healNotesFromOriginal } from "./heal-findings";
 export {
   type LayoutNode,
   type LayoutEdge,

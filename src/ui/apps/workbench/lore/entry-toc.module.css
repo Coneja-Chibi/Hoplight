@@ -154,6 +154,30 @@
   flex: none;
 }
 
+.healthBad {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.55rem;
+  color: var(--stage-danger-text);
+  border: 1px solid var(--stage-danger-edge);
+  background: var(--stage-danger-bg);
+  width: 0.9rem;
+  height: 0.9rem;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.healthWarn {
+  flex: none;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--stage-warn);
+  box-shadow: 0 0 0 1px var(--stage-black);
+}
+
 .hoverActs {
   display: none;
   gap: 0.15rem;

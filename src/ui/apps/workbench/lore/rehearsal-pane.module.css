@@ -288,3 +288,48 @@
   text-transform: uppercase;
   color: var(--stage-ok);
 }
+
+.budgetBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.budgetLbl {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-right: 0.25rem;
+}
+
+.hitRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+}
+
+.hitRow .hit {
+  flex: 1;
+  min-width: 0;
+}
+
+.addKey {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+  flex: none;
+}
+
+.addKey:hover {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}

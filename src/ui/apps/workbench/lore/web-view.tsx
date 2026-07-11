@@ -29,17 +29,41 @@ const CLUSTER = [
   "var(--stage-mute)",
 ];
 
+type WebFilter = "all" | "connected" | "loners";
+
 export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.Element {
-  const entryIds = useMemo(
+  const [filter, setFilter] = useState<WebFilter>("all");
+  const allIds = useMemo(
     () => body.entries.filter((e) => e.enabled).map((e) => e.id),
     [body],
   );
-  const overCap = entryIds.length > WEB_NODE_CAP;
   const { edges } = useMemo(() => bookWakeGraph(body), [body]);
-  const layoutEdges = useMemo(
+  const layoutEdgesAll = useMemo(
     () => edges.map((e) => ({ from: e.from, to: e.to })),
     [edges],
   );
+  const degree = useMemo(() => {
+    const d = new Map<string, number>();
+    for (const id of allIds) d.set(id, 0);
+    for (const e of layoutEdgesAll) {
+      d.set(e.from, (d.get(e.from) ?? 0) + 1);
+      d.set(e.to, (d.get(e.to) ?? 0) + 1);
+    }
+    return d;
+  }, [allIds, layoutEdgesAll]);
+
+  const entryIds = useMemo(() => {
+    if (filter === "all") return allIds;
+    if (filter === "loners") return allIds.filter((id) => (degree.get(id) ?? 0) === 0);
+    return allIds.filter((id) => (degree.get(id) ?? 0) > 0);
+  }, [allIds, degree, filter]);
+
+  const layoutEdges = useMemo(() => {
+    const keep = new Set(entryIds);
+    return layoutEdgesAll.filter((e) => keep.has(e.from) && keep.has(e.to));
+  }, [entryIds, layoutEdgesAll]);
+
+  const overCap = allIds.length > WEB_NODE_CAP;
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [nodes, setNodes] = useState<LayoutNode[]>([]);
   const [running, setRunning] = useState(false);
@@ -75,7 +99,7 @@ export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.
   if (overCap) {
     return (
       <div className={styles.notice}>
-        This book has {entryIds.length} entries (cap {WEB_NODE_CAP}). Showing Cards instead of the web.
+        This book has {allIds.length} entries (cap {WEB_NODE_CAP}). Showing Cards instead of the web.
         <button type="button" className={styles.link} onClick={onFallbackCards}>
           Open Cards
         </button>
@@ -124,6 +148,25 @@ export function WebView({ body, onSelect, onFallbackCards }: WebViewProps): JSX.
 
   return (
     <div className={styles.wrap} aria-label="Wake web">
+      <div className={styles.filters} role="group" aria-label="Web filter">
+        {(
+          [
+            ["all", "All"],
+            ["connected", "Connected"],
+            ["loners", "Loners"],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            className={filter === id ? `${styles.fbtn} ${styles.fbtnOn}` : styles.fbtn}
+            aria-pressed={filter === id}
+            onClick={() => setFilter(id)}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
       <svg
         ref={svgRef}
         className={styles.svg}

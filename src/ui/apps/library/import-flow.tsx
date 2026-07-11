@@ -165,24 +165,47 @@ export function pickFiles(onFiles: (files: File[]) => void): void {
   input.click();
 }
 
+const isRec = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+/** Attach heal notes onto original.vaud-studio.unmapped.healNotes for Health on first open. */
+function withHealNotes(entity: unknown, notes: { path: string; message: string }[]): unknown {
+  if (!isRec(entity) || notes.length === 0) return entity;
+  const original = isRec(entity.original) ? { ...entity.original } : {};
+  const studio = isRec(original["vaud-studio"])
+    ? { ...(original["vaud-studio"] as Record<string, unknown>) }
+    : {};
+  const unmapped = isRec(studio.unmapped)
+    ? { ...(studio.unmapped as Record<string, unknown>) }
+    : {};
+  unmapped.healNotes = notes;
+  studio.unmapped = unmapped;
+  original["vaud-studio"] = studio;
+  return { ...entity, original };
+}
+
 /** Annotate a successful inspect with heal notes when the entity is a lorebook. */
 export function annotateRead(filename: string, result: InspectResult): ReadFile {
   if (!result.ok || !result.entity) return { filename, result };
-  const entity = result.entity as { kind?: string; body?: unknown };
+  const entity = result.entity as { kind?: string; body?: unknown; original?: unknown };
   if (entity.kind !== "lorebook") {
     // related lorebooks on a character bundle
     const related = result.related?.lorebooks;
     if (Array.isArray(related) && related.length > 0) {
       const notes: string[] = [];
       let entries = 0;
-      for (const lb of related) {
+      const healedRelated = related.map((lb) => {
         const h = healBook((lb as { body?: unknown }).body ?? lb);
         notes.push(...h.healed.map((n) => n.message));
         entries += h.book.entries.length;
-      }
+        return withHealNotes(lb, h.healed);
+      });
       return {
         filename,
-        result,
+        result: {
+          ...result,
+          related: { lorebooks: healedRelated },
+        },
         healNotes: notes.length ? notes : undefined,
         entryCount: entries || undefined,
       };
@@ -190,9 +213,13 @@ export function annotateRead(filename: string, result: InspectResult): ReadFile 
     return { filename, result };
   }
   const h = healBook(entity.body);
+  const patched = withHealNotes(
+    { ...entity, body: h.book },
+    h.healed,
+  );
   return {
     filename,
-    result,
+    result: { ...result, entity: patched },
     healNotes: h.healed.map((n) => n.message),
     entryCount: h.book.entries.length,
   };

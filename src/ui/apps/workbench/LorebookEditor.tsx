@@ -11,6 +11,9 @@ import type { CanonicalLorebook, LorebookBody } from "../../../entities/lorebook
 import {
   estimateBookTokens,
   estimateEntryTokens,
+  findingsFromHealNotes,
+  healNotesFromOriginal,
+  inspectBook,
   loreHealth,
   loreSummary,
   LORE_WRITE_FOR_LABELS,
@@ -20,6 +23,7 @@ import {
 } from "../../../core/lore";
 import {
   addEntry,
+  canUndo,
   deleteEntries,
   deleteEntry,
   duplicateEntry,
@@ -30,6 +34,7 @@ import {
   selectEntry,
   sessionDirty,
   setEntriesEnabled,
+  undoSession,
   updateBook,
   updateEntry,
   type LoreSession,
@@ -110,6 +115,22 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const bookEstimate = estimateBookTokens(session.body);
   const entryIndex = entry ? session.body.entries.findIndex((e) => e.id === entry.id) : -1;
 
+  const healFindings = useMemo(() => {
+    const original =
+      isRec(entity) && isRec(entity.original) ? entity.original : undefined;
+    return findingsFromHealNotes(healNotesFromOriginal(original));
+  }, [entity]);
+
+  const healthByEntry = useMemo(() => {
+    const map = new Map<string, "problem" | "worth-a-look">();
+    for (const f of inspectBook(session.body)) {
+      if (!f.entryId) continue;
+      const prev = map.get(f.entryId);
+      if (f.severity === "problem" || !prev) map.set(f.entryId, f.severity);
+    }
+    return map;
+  }, [session.body]);
+
   const setWriteFor = (p: LoreWriteForProfile): void => {
     setWriteForState(p);
     ctx.prefs.set(WRITE_FOR_PREF, p);
@@ -162,6 +183,17 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
         e.preventDefault();
         void doSave();
+        return;
+      }
+      // Undo bulk / Fix All only when not typing in a field
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+        const t = e.target as HTMLElement | null;
+        const tag = t?.tagName?.toLowerCase();
+        if (tag === "input" || tag === "textarea" || t?.isContentEditable) return;
+        if (!canUndo(session)) return;
+        e.preventDefault();
+        setSession((s) => undoSession(s));
+        ctx.setStatus("undid last bulk change");
       }
     };
     const onBeforeUnload = (e: BeforeUnloadEvent): void => {
@@ -173,7 +205,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("beforeunload", onBeforeUnload);
     };
-  }, [doSave, dirty]);
+  }, [doSave, dirty, session, ctx]);
 
   useEffect(() => {
     ctx.workbench.setDirty(piece.id, piece.kind, dirty);
@@ -196,6 +228,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     focusedId: session.focusedId,
     writeFor,
     styles,
+    healthByEntry,
     onSelect: (id: string) => setSession((s) => selectEntry(s, id)),
     onAdd: () => setSession((s) => addEntry(s)),
     onPatch: (id: string, patch: Parameters<typeof updateEntry>[2]) =>
@@ -381,6 +414,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
           notes={health.filter((h) => (entry ? h.entryId === entry.id : false))}
           styles={styles}
           setSession={setSession}
+          extraFindings={healFindings}
         />
       </div>
 

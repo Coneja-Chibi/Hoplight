@@ -28,6 +28,8 @@ export interface EntryTocProps {
   onClearPick?: () => void;
   onBulkMove?: () => void;
   onOpenBeside?: (id: string) => void;
+  /** entryId -> problem | worth-a-look from inspectBook (hidden in select mode). */
+  healthByEntry?: ReadonlyMap<string, "problem" | "worth-a-look">;
 }
 
 const cycleTri = (v: boolean | null): boolean | null => (v === null ? true : v ? false : null);
@@ -195,6 +197,7 @@ export function LoreEntryToc({
   onClearPick,
   onBulkMove,
   onOpenBeside,
+  healthByEntry,
 }: EntryTocProps): JSX.Element {
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -242,6 +245,16 @@ export function LoreEntryToc({
             <span className={pipClass(e, styles)} aria-hidden="true" />
           )}
           <span className={styles.tnm}>{e.title || "(untitled)"}</span>
+          {!selectMode && healthByEntry?.get(e.id) === "problem" && (
+            <span className={styles.healthBad} title="Health problem" aria-label="Health problem">
+              !
+            </span>
+          )}
+          {!selectMode && healthByEntry?.get(e.id) === "worth-a-look" && (
+            <span className={styles.healthWarn} title="Worth a look" aria-label="Worth a look">
+              ·
+            </span>
+          )}
           {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
           {!selectMode && (
             <span className={styles.hoverActs} onClick={(ev) => ev.stopPropagation()}>

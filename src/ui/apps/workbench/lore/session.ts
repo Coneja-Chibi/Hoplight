@@ -13,6 +13,42 @@ export interface LoreSession {
   openIds: string[];
   /** the entry the page shows; always a member of openIds (or null on an empty book) */
   focusedId: string | null;
+  /**
+   * Bounded undo ring for bulk ops + Fix All (deep-cloned bodies). Cap 20.
+   * Not filled on every keystroke - only explicit pushUndo callers.
+   */
+  undoStack?: LorebookBody[];
+}
+
+const UNDO_CAP = 20;
+
+/** Snapshot the current body onto the undo stack (call before bulk/Fix All). */
+export function pushUndo(session: LoreSession): LoreSession {
+  const stack = [...(session.undoStack ?? []), structuredClone(session.body)];
+  while (stack.length > UNDO_CAP) stack.shift();
+  return { ...session, undoStack: stack };
+}
+
+/** Pop last undo body; no-op if empty. Restores open focus onto surviving ids. */
+export function undoSession(session: LoreSession): LoreSession {
+  const stack = session.undoStack ?? [];
+  if (stack.length === 0) return session;
+  const prev = stack[stack.length - 1]!;
+  const rest = stack.slice(0, -1);
+  const open = pruneOpen(prev, session.openIds, session.focusedId);
+  if (open.openIds.length === 0 && prev.entries[0]) {
+    return {
+      body: prev,
+      openIds: [prev.entries[0].id],
+      focusedId: prev.entries[0].id,
+      undoStack: rest,
+    };
+  }
+  return { body: prev, ...open, undoStack: rest };
+}
+
+export function canUndo(session: LoreSession): boolean {
+  return (session.undoStack?.length ?? 0) > 0;
 }
 
 const hasEntry = (body: LorebookBody, id: string): boolean =>
@@ -111,19 +147,20 @@ export function updateBook(
   };
 }
 
-/** Bulk enable/disable. Empty selection = no-op. */
+/** Bulk enable/disable. Empty selection = no-op. Pushes undo. */
 export function setEntriesEnabled(
   session: LoreSession,
   ids: readonly string[],
   on: boolean,
 ): LoreSession {
   if (ids.length === 0) return session;
+  const base = pushUndo(session);
   const want = new Set(ids);
   return {
-    ...session,
+    ...base,
     body: {
-      ...session.body,
-      entries: session.body.entries.map((e) =>
+      ...base.body,
+      entries: base.body.entries.map((e) =>
         want.has(e.id) ? { ...e, enabled: on } : e,
       ),
     },
@@ -132,31 +169,49 @@ export function setEntriesEnabled(
 
 /**
  * Bulk delete. Empty selection = no-op. If the focused entry is removed, focus moves to a
- * neighbor (same rule as deleteEntry).
+ * neighbor (same rule as deleteEntry). Pushes undo.
  */
 export function deleteEntries(session: LoreSession, ids: readonly string[]): LoreSession {
   if (ids.length === 0) return session;
+  const base = pushUndo(session);
   const want = new Set(ids);
-  const entries = session.body.entries.filter((e) => !want.has(e.id));
-  const body = { ...session.body, entries };
-  const open = pruneOpen(body, session.openIds, session.focusedId);
+  const entries = base.body.entries.filter((e) => !want.has(e.id));
+  const body = { ...base.body, entries };
+  const open = pruneOpen(body, base.openIds, base.focusedId);
   if (open.openIds.length === 0 && entries[0]) {
-    return { body, openIds: [entries[0].id], focusedId: entries[0].id };
+    return { ...base, body, openIds: [entries[0].id], focusedId: entries[0].id };
   }
-  return { body, ...open };
+  return { ...base, body, ...open };
 }
 
-/** Apply a pure book -> book transform (Health Fix All, import heal, etc.). */
+/** Apply a pure book -> book transform (Health Fix All, import heal, etc.). Pushes undo. */
 export function applyBookTransform(
   session: LoreSession,
   fn: (body: LorebookBody) => LorebookBody,
 ): LoreSession {
-  const body = fn(session.body);
-  const open = pruneOpen(body, session.openIds, session.focusedId);
+  const base = pushUndo(session);
+  const body = fn(base.body);
+  const open = pruneOpen(body, base.openIds, base.focusedId);
   if (open.openIds.length === 0 && body.entries[0]) {
-    return { body, openIds: [body.entries[0].id], focusedId: body.entries[0].id };
+    return { ...base, body, openIds: [body.entries[0].id], focusedId: body.entries[0].id };
   }
-  return { body, ...open };
+  return { ...base, body, ...open };
+}
+
+/** Append a primary keyword to an entry (Rehearsal "copy fired as key"). */
+export function addKeywordToEntry(
+  session: LoreSession,
+  entryId: string,
+  keyword: string,
+): LoreSession {
+  const kw = keyword.trim();
+  if (!kw) return session;
+  const entry = session.body.entries.find((e) => e.id === entryId);
+  if (!entry) return session;
+  if (entry.triggers.some((t) => t.keyword === kw && !t.isRegex)) return session;
+  return updateEntry(session, entryId, {
+    triggers: [...entry.triggers, { keyword: kw, isRegex: false }],
+  });
 }
 
 /** Named intent: restore one field on one entry (Changes pane). */

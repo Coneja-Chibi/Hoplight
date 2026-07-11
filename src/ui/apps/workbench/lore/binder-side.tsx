@@ -3,8 +3,9 @@
  */
 import type { JSX } from "react";
 import type { LorebookBody, LorebookEntry } from "../../../../entities/lorebook/schema";
-import type { LoreHealthNote } from "../../../../core/lore";
+import type { LoreFinding, LoreHealthNote } from "../../../../core/lore";
 import {
+  addKeywordToEntry,
   applyBookTransform,
   restoreEntry,
   revertField,
@@ -28,6 +29,7 @@ export interface BinderSideProps {
   notes: readonly LoreHealthNote[];
   styles: Readonly<Record<string, string>>;
   setSession: (fn: (s: LoreSession) => LoreSession) => void;
+  extraFindings?: readonly LoreFinding[];
 }
 
 export function BinderSide({
@@ -39,6 +41,7 @@ export function BinderSide({
   notes,
   styles,
   setSession,
+  extraFindings,
 }: BinderSideProps): JSX.Element | null {
   if (sidePane === "health") {
     return (
@@ -47,6 +50,7 @@ export function BinderSide({
         onTransform={(fn) => setSession((s) => applyBookTransform(s, fn))}
         onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
         onClose={() => setSidePane(null)}
+        extraFindings={extraFindings}
       />
     );
   }
@@ -80,6 +84,9 @@ export function BinderSide({
         body={body}
         onClose={() => setSidePane(null)}
         onJumpEntry={(id) => setSession((s) => selectEntry(s, id))}
+        onAddKeyword={(entryId, keyword) =>
+          setSession((s) => addKeywordToEntry(s, entryId, keyword))
+        }
       />
     );
   }

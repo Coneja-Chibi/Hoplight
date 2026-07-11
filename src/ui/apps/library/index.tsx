@@ -21,13 +21,16 @@ import {
   LoreWorkshopDialog,
   type LoreWorkshopState,
 } from "./lore-workshop-dialog";
+import {
+  attachSearchKeys,
+  loadLoreMeta,
+  makeLoreShelf,
+  type LoreMeta,
+} from "./lore-shelf-ops";
 import { createAndOpenLorebook } from "./new-lorebook";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
-import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
-import { duplicateBook } from "../../../core/lore";
-import type { CanonicalLorebook, LorebookBody } from "../../../entities/lorebook/schema";
 
 // -- the browse room --------------------------------------------------------------------------------
 
@@ -76,54 +79,18 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importState, setImportState] = useState<ImportState | null>(null);
   const [workshop, setWorkshop] = useState<LoreWorkshopState | null>(null);
-  const [loreMeta, setLoreMeta] = useState<
-    Record<string, { enabled: boolean; entryCount: number }>
-  >({});
+  const [loreMeta, setLoreMeta] = useState<Record<string, LoreMeta>>({});
   const [, setWorkbenchTick] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const [sizeRem, setSizeRem] = useState(() => clampSize(ctx.prefs.get(PREF_SIZE)));
-
-  const isRec = (v: unknown): v is Record<string, unknown> =>
-    typeof v === "object" && v !== null && !Array.isArray(v);
-
-  const refreshLoreMeta = useCallback(
-    (list: StudioEntitySummary[]) => {
-      const books = list.filter((e) => e.kind === "lorebook");
-      if (books.length === 0) {
-        setLoreMeta({});
-        return;
-      }
-      void (async () => {
-        const next: Record<string, { enabled: boolean; entryCount: number }> = {};
-        for (const b of books) {
-          try {
-            const raw = await ctx.api.getEntity(
-              `kind=lorebook&id=${encodeURIComponent(b.id)}`,
-            );
-            const body =
-              isRec(raw) && isRec(raw.body) ? (raw.body as unknown as LorebookBody) : null;
-            if (!body) continue;
-            next[b.id] = {
-              enabled: body.enabled !== false,
-              entryCount: Array.isArray(body.entries) ? body.entries.length : 0,
-            };
-          } catch {
-            /* skip unreadable */
-          }
-        }
-        setLoreMeta(next);
-      })();
-    },
-    [ctx],
-  );
 
   const reload = useCallback(() => {
     void (async () => {
       const list = await ctx.api.listEntities();
       setEntities(list);
-      refreshLoreMeta(list);
+      setLoreMeta(await loadLoreMeta(ctx, list));
     })();
-  }, [ctx, refreshLoreMeta]);
+  }, [ctx]);
 
   useEffect(() => {
     // the workbench-driven repaint: sending/removing/focusing pieces elsewhere flips the "on the
@@ -146,7 +113,10 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const decks = deckCounts(entities, knownDecks().map((d) => d.kind));
   const deck = deckMeta(activeKind);
-  const inDeck = entities.filter((e) => e.kind === activeKind);
+  const inDeck = attachSearchKeys(
+    entities.filter((e) => e.kind === activeKind),
+    loreMeta,
+  );
 
   useEffect(() => {
     ctx.setStatus(
@@ -261,73 +231,13 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     },
     loreShelf:
       activeKind === "lorebook"
-        ? {
-            enabledOf: (e) => loreMeta[e.id]?.enabled !== false,
-            entryCountOf: (e) => loreMeta[e.id]?.entryCount,
-            onToggleEnabled: (e, on) => {
-              void (async () => {
-                try {
-                  const raw = await ctx.api.getEntity(
-                    `kind=lorebook&id=${encodeURIComponent(e.id)}`,
-                  );
-                  if (!isRec(raw) || !isRec(raw.body)) return;
-                  const body = {
-                    ...(raw.body as unknown as LorebookBody),
-                    enabled: on,
-                  };
-                  await ctx.api.saveEntity(
-                    {
-                      schemaVersion: CANONICAL_SCHEMA_VERSION,
-                      kind: "lorebook",
-                      id: e.id,
-                      body,
-                      original: isRec(raw.original)
-                        ? (raw.original as CanonicalLorebook["original"])
-                        : {},
-                    } satisfies CanonicalLorebook,
-                    { overwrite: true },
-                  );
-                  setLoreMeta((m) => ({
-                    ...m,
-                    [e.id]: {
-                      enabled: on,
-                      entryCount: m[e.id]?.entryCount ?? body.entries?.length ?? 0,
-                    },
-                  }));
-                  ctx.setStatus(on ? `${e.name} is on` : `${e.name} is off (skipped on export)`);
-                } catch (err) {
-                  ctx.setStatus(err instanceof Error ? err.message : "toggle failed");
-                }
-              })();
-            },
-            onSplit: (e) => setWorkshop({ mode: "split", source: e }),
-            onMerge: (into, from) =>
-              setWorkshop({ mode: "merge", source: into, other: from }),
-            onDuplicate: (e) => {
-              void (async () => {
-                try {
-                  const raw = await ctx.api.getEntity(
-                    `kind=lorebook&id=${encodeURIComponent(e.id)}`,
-                  );
-                  if (!isRec(raw) || !isRec(raw.body)) return;
-                  const body = duplicateBook(
-                    raw.body as unknown as LorebookBody,
-                    `${e.name} (copy)`,
-                  );
-                  const saved = await ctx.api.saveEntity({
-                    schemaVersion: CANONICAL_SCHEMA_VERSION,
-                    kind: "lorebook",
-                    id: "lorebook",
-                    body,
-                  } satisfies CanonicalLorebook);
-                  reload();
-                  ctx.setStatus(`duplicated · ${saved.name || body.name}`);
-                } catch (err) {
-                  ctx.setStatus(err instanceof Error ? err.message : "duplicate failed");
-                }
-              })();
-            },
-          }
+        ? makeLoreShelf({
+            ctx,
+            loreMeta,
+            setLoreMeta,
+            setWorkshop,
+            reload,
+          })
         : undefined,
   };
 
