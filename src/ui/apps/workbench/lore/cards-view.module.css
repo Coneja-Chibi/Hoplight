@@ -1,166 +1,176 @@
 /**
- * Dense cards lens - content-height tiles, meta as pills, no stretch gutters.
+ * Cards lens - transcribed from design/vs-lore-lenses.html.
+ * Title + mode, 3-line peek, key chips, tok/on foot. Fixed min height.
  */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
-  gap: 0.4rem;
-  padding: 0.55rem 0.75rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 0.9rem;
+  padding: 1rem;
   overflow-y: auto;
   min-height: 0;
   height: 100%;
   align-content: start;
-  /* critical: do not stretch short cards to match tall siblings in a row */
-  align-items: start;
 }
 
 .ecard {
   border: 2px solid var(--stage-black);
   background: var(--stage-panel);
-  box-shadow: 2px 2px 0 0 var(--stage-black);
-  padding: 0.35rem 0.4rem 0.4rem;
-  cursor: pointer;
-  text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 0.22rem;
-  min-height: 0;
-  height: auto;
-  align-self: start;
+  min-height: 10.5rem;
+  cursor: pointer;
+  text-align: left;
 }
 
 .ecard:hover {
-  transform: translate(-1px, -1px);
   box-shadow: 4px 4px 0 0 var(--stage-black);
+  transform: translate(-2px, -2px);
 }
 
 .ecardOff {
   opacity: 0.55;
 }
 
-.ehead {
+.echead {
   display: flex;
-  align-items: center;
-  gap: 0.3rem;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.6rem 0.65rem 0.3rem;
   min-width: 0;
 }
 
 .etitle {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-weight: 900;
+  font-size: 0.85rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--stage-card);
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.2;
 }
 
-.modeChip {
-  border: 1px solid var(--stage-black);
-  background: var(--stage-ok);
-  color: var(--stage-ink);
+.mode {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.54rem;
-  letter-spacing: 0.04em;
+  font-size: 0.48rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 0.06rem 0.26rem;
-  cursor: pointer;
+  border: 2px solid;
+  background: transparent;
+  padding: 0.14rem 0.34rem;
   flex: none;
+  cursor: pointer;
   line-height: 1.2;
 }
 
-.keys {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem;
-  align-items: center;
+.mKey {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.mAlways {
+  border-color: var(--stage-var);
+  color: var(--stage-var);
+}
+
+.mMeaning {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--a, var(--stage-macro));
+}
+
+.esnip {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--stage-mute);
+  padding: 0 0.65rem;
+  margin: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   min-height: 0;
 }
 
-.kEmpty {
-  font-family: var(--font-mono);
-  font-size: 0.54rem;
-  color: var(--stage-mute);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+.ekeys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.45rem 0.6rem;
+  min-height: 0;
 }
 
-.kchip {
+.ekey {
   border: 1px solid var(--a, var(--stage-macro));
   color: var(--a, var(--stage-macro));
+  opacity: 0.92;
+  padding: 0.08rem 0.32rem;
   font-family: var(--font-mono);
-  font-size: 0.54rem;
-  padding: 0.04rem 0.22rem;
-  max-width: 6.5rem;
+  font-weight: 500;
+  font-size: 0.56rem;
+  max-width: 8rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.25;
 }
 
-.pills {
+.ekeyMore {
+  border-color: var(--stage-faint, var(--stage-seam));
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.ecfoot {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.15rem;
   align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.65rem 0.55rem;
+  border-top: 1px solid var(--stage-faint, var(--stage-seam));
+  margin-top: auto;
 }
 
-.mpill {
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  color: var(--stage-text-dim);
+.tok {
   font-family: var(--font-mono);
+  font-weight: 500;
   font-size: 0.52rem;
-  letter-spacing: 0.02em;
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.onoff {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  padding: 0.04rem 0.22rem;
-  line-height: 1.25;
-  white-space: nowrap;
+  border: 2px solid var(--stage-ok);
+  color: var(--stage-ok);
+  padding: 0.1rem 0.3rem;
+  background: transparent;
 }
 
-.mpillMute {
-  color: var(--stage-mute);
-  border-color: var(--stage-seam);
-}
-
-.mpillOk {
-  color: var(--stage-ink);
-  background: color-mix(in srgb, var(--stage-ok) 55%, var(--stage-sunken));
-  border-color: var(--stage-ok);
-}
-
-.mpillWarn {
-  color: var(--stage-danger-text, var(--stage-warn));
-  border-color: var(--stage-danger-text, var(--stage-warn));
-  background: color-mix(in srgb, var(--stage-warn) 18%, var(--stage-sunken));
-}
-
-.mpillAccent {
-  color: var(--a, var(--stage-macro));
-  border-color: var(--a, var(--stage-macro));
-  background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
+.onoffOff {
+  border-color: var(--stage-faint, var(--stage-seam));
+  color: var(--stage-kicker, var(--stage-mute));
 }
 
 .ghost {
   border: 2px dashed var(--stage-seam);
   background: transparent;
-  color: var(--stage-text-dim);
+  color: var(--stage-mute);
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.6rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  min-height: 0;
-  height: auto;
-  align-self: start;
-  padding: 0.55rem 0.4rem;
+  min-height: 10.5rem;
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
 
