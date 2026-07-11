@@ -1,35 +1,25 @@
 /**
- * LoreEntryToc - health pip, mode pill, on/off chip, fine-print expand.
- * Move/copy/delete live only in fine-print (no hover-arrow duplicates).
+ * LoreEntryToc - health pip, fire-mode select (icons+color), slide enable, chrom expand,
+ * drag-and-drop reorder. Match overrides live on the page Keys card, not here.
  */
-import { useState, type JSX } from "react";
-import {
-  ArrowDown,
-  ArrowUp,
-  CaseSensitive,
-  Columns2,
-  Copy,
-  Trash2,
-  WholeWord,
-} from "lucide-react";
+import { useEffect, useRef, useState, type JSX } from "react";
+import { Columns2, Copy, KeyRound, Pin, Sparkles, Trash2 } from "lucide-react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { entryFireMode, fireModePatch, type EntryFireMode } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
 
-const ICO = { size: 13, strokeWidth: 2.25, "aria-hidden": true as const };
+const ICO = { size: 12, strokeWidth: 2.25, "aria-hidden": true as const };
 
-const MODE_PILL: Record<EntryFireMode, string> = {
-  keyed: "Keys",
-  always: "Always",
-  meaning: "Meaning",
-};
-
-const cycleMode = (mode: EntryFireMode, vectorOk: boolean): EntryFireMode => {
-  if (mode === "keyed") return "always";
-  if (mode === "always") return vectorOk ? "meaning" : "keyed";
-  return "keyed";
-};
+const MODE_OPTS: readonly {
+  mode: EntryFireMode;
+  label: string;
+  Icon: typeof KeyRound;
+}[] = [
+  { mode: "keyed", label: "Keywords", Icon: KeyRound },
+  { mode: "always", label: "Always on", Icon: Pin },
+  { mode: "meaning", label: "By meaning", Icon: Sparkles },
+];
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -41,7 +31,8 @@ export interface EntryTocProps {
   onPatch: (id: string, patch: Partial<LorebookEntry>) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
-  onMove: (id: string, dir: -1 | 1) => void;
+  /** Drag-drop reorder: move id to toIndex in body.entries. */
+  onReorder: (id: string, toIndex: number) => void;
   selectMode?: boolean;
   onSelectMode?: (on: boolean) => void;
   picked?: ReadonlySet<string>;
@@ -51,25 +42,9 @@ export interface EntryTocProps {
   onClearPick?: () => void;
   onBulkMove?: () => void;
   onOpenBeside?: (id: string) => void;
-  /** entryId -> problem | worth-a-look from inspectBook (hidden in select mode). */
   healthByEntry?: ReadonlyMap<string, "problem" | "worth-a-look">;
 }
 
-const cycleTri = (v: boolean | null): boolean | null => (v === null ? true : v ? false : null);
-const triTitle = (label: string, v: boolean | null): string =>
-  `${label}: ${v === null ? "inherit book default" : v ? "on for this entry" : "off for this entry"} (click to cycle)`;
-
-function triIconClass(
-  v: boolean | null,
-  styles: Readonly<Record<string, string>>,
-): string {
-  const base = styles.iconBtn ?? "iconBtn";
-  if (v === true) return `${base} ${styles.iconOn ?? ""}`.trim();
-  if (v === false) return `${base} ${styles.iconOff ?? ""}`.trim();
-  return `${base} ${styles.iconInh ?? ""}`.trim();
-}
-
-/** Left pip = health (not fire mode). Fire mode is the Keys/Always/Meaning pill. */
 function healthPipClass(
   health: "problem" | "worth-a-look" | undefined,
   enabled: boolean,
@@ -88,11 +63,95 @@ function healthTitle(health: "problem" | "worth-a-look" | undefined, enabled: bo
   return "Healthy";
 }
 
-function modePillClass(mode: EntryFireMode, styles: Readonly<Record<string, string>>): string {
-  const base = styles.tMode ?? "tMode";
-  if (mode === "always") return `${base} ${styles.tModeAlways ?? ""}`.trim();
-  if (mode === "meaning") return `${base} ${styles.tModeMeaning ?? ""}`.trim();
-  return `${base} ${styles.tModeKey ?? ""}`.trim();
+function modeTone(mode: EntryFireMode, styles: Readonly<Record<string, string>>): string {
+  if (mode === "always") return styles.modeAlways ?? "";
+  if (mode === "meaning") return styles.modeMeaning ?? "";
+  return styles.modeKey ?? "";
+}
+
+function ModeSelect({
+  mode,
+  vectorOk,
+  styles,
+  onChange,
+}: {
+  mode: EntryFireMode;
+  vectorOk: boolean;
+  styles: Readonly<Record<string, string>>;
+  onChange: (mode: EntryFireMode) => void;
+}): JSX.Element {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement | null>(null);
+  const current = MODE_OPTS.find((o) => o.mode === mode) ?? MODE_OPTS[0]!;
+  const CurIcon = current.Icon;
+
+  useEffect(() => {
+    if (!open) return;
+    const onDoc = (ev: MouseEvent): void => {
+      if (wrap.current && !wrap.current.contains(ev.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [open]);
+
+  return (
+    <div className={styles.modeSelect} ref={wrap}>
+      <button
+        type="button"
+        className={`${styles.modeTrigger} ${modeTone(mode, styles)}`.trim()}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`Trigger method: ${current.label}`}
+        title={current.label}
+        onClick={(ev) => {
+          ev.stopPropagation();
+          setOpen((o) => !o);
+        }}
+      >
+        <CurIcon {...ICO} />
+        <span>{current.label}</span>
+      </button>
+      {open && (
+        <ul className={styles.modeMenu} role="listbox" aria-label="Trigger method">
+          {MODE_OPTS.map(({ mode: m, label, Icon }) => {
+            const gated = m === "meaning" && !vectorOk;
+            return (
+              <li key={m}>
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={m === mode}
+                  disabled={gated}
+                  className={[
+                    styles.modeOpt,
+                    modeTone(m, styles),
+                    m === mode ? styles.modeOptOn : "",
+                    gated ? styles.modeOptGated : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  title={
+                    gated
+                      ? "This host cannot carry by-meaning (vectorized) entries."
+                      : label
+                  }
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    if (gated) return;
+                    onChange(m);
+                    setOpen(false);
+                  }}
+                >
+                  <Icon {...ICO} />
+                  <span>{label}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 function FinePrint({
@@ -102,7 +161,6 @@ function FinePrint({
   onPatch,
   onDuplicate,
   onDelete,
-  onMove,
   onOpenBeside,
 }: {
   entry: LorebookEntry;
@@ -111,107 +169,69 @@ function FinePrint({
   onPatch: (patch: Partial<LorebookEntry>) => void;
   onDuplicate: () => void;
   onDelete: () => void;
-  onMove: (dir: -1 | 1) => void;
   onOpenBeside?: () => void;
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
   const act = styles.iconBtn ?? "iconBtn";
   return (
     <div className={styles.texp}>
-      {show("sortOrder") && (
-        <div className={styles.texpRow}>
-          <span className={styles.texpK}>Order</span>
-          <input
-            className={styles.texpNum}
-            type="number"
-            value={entry.sortOrder}
-            aria-label="Insertion order"
-            onChange={(ev) => onPatch({ sortOrder: Number(ev.target.value) || 0 })}
+      <div className={styles.chromRow}>
+        {show("sortOrder") && (
+          <label className={styles.chromCell}>
+            <span>Order</span>
+            <input
+              className={styles.texpNum}
+              type="number"
+              value={entry.sortOrder}
+              aria-label="Insertion order"
+              onChange={(ev) => onPatch({ sortOrder: Number(ev.target.value) || 0 })}
+            />
+          </label>
+        )}
+        {show("priority") && (
+          <label className={styles.chromCell}>
+            <span>Priority</span>
+            <input
+              className={styles.texpNum}
+              type="number"
+              value={entry.priority}
+              aria-label="Budget priority"
+              onChange={(ev) => onPatch({ priority: Number(ev.target.value) || 0 })}
+            />
+          </label>
+        )}
+        {show("scanDepth") && (
+          <label className={styles.chromCell}>
+            <span>Scan</span>
+            <input
+              className={styles.texpNum}
+              type="number"
+              min={0}
+              placeholder="—"
+              value={entry.scanDepth ?? ""}
+              aria-label="Scan depth (blank inherits the book default)"
+              onChange={(ev) => {
+                const v = ev.target.value;
+                onPatch({ scanDepth: v === "" ? null : Number(v) || 0 });
+              }}
+            />
+          </label>
+        )}
+        <label className={styles.chromCell}>
+          <span>Keep</span>
+          <button
+            type="button"
+            className={
+              entry.ignoreBudget ? styles.texpSwitch : `${styles.texpSwitch} ${styles.texpSwitchOff}`
+            }
+            role="switch"
+            aria-checked={entry.ignoreBudget}
+            aria-label="Always keep: skip the token budget"
+            onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
           />
-        </div>
-      )}
-      {show("priority") && (
-        <div className={styles.texpRow}>
-          <span className={styles.texpK}>Priority</span>
-          <input
-            className={styles.texpNum}
-            type="number"
-            value={entry.priority}
-            aria-label="Budget priority"
-            onChange={(ev) => onPatch({ priority: Number(ev.target.value) || 0 })}
-          />
-        </div>
-      )}
-      <div className={styles.texpRow}>
-        <span className={styles.texpK}>Always keep</span>
-        <button
-          type="button"
-          className={entry.ignoreBudget ? styles.texpSwitch : `${styles.texpSwitch} ${styles.texpSwitchOff}`}
-          role="switch"
-          aria-checked={entry.ignoreBudget}
-          aria-label="Always keep: skip the token budget"
-          onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
-        />
+        </label>
       </div>
-      {/* Chance / sticky / cool / delay live only in the page Timing & chance fold */}
-      {show("scanDepth") && (
-        <div className={styles.texpRow}>
-          <span className={styles.texpK}>Scan depth</span>
-          <input
-            className={styles.texpNum}
-            type="number"
-            min={0}
-            placeholder="—"
-            value={entry.scanDepth ?? ""}
-            aria-label="Scan depth (blank inherits the book default)"
-            onChange={(ev) => {
-              const v = ev.target.value;
-              onPatch({ scanDepth: v === "" ? null : Number(v) || 0 });
-            }}
-          />
-        </div>
-      )}
-      {show("matchOverrides") && (
-        <div className={styles.iconRow} role="group" aria-label="Matching overrides">
-          <button
-            type="button"
-            className={triIconClass(entry.matchWholeWords, styles)}
-            title={triTitle("Whole words", entry.matchWholeWords)}
-            aria-label={triTitle("Whole words", entry.matchWholeWords)}
-            onClick={() => onPatch({ matchWholeWords: cycleTri(entry.matchWholeWords) })}
-          >
-            <WholeWord {...ICO} />
-          </button>
-          <button
-            type="button"
-            className={triIconClass(entry.caseSensitive, styles)}
-            title={triTitle("Case sensitive", entry.caseSensitive)}
-            aria-label={triTitle("Case sensitive", entry.caseSensitive)}
-            onClick={() => onPatch({ caseSensitive: cycleTri(entry.caseSensitive) })}
-          >
-            <CaseSensitive {...ICO} />
-          </button>
-        </div>
-      )}
       <div className={styles.iconRow} role="group" aria-label="Entry actions">
-        <button
-          type="button"
-          className={act}
-          aria-label="Move up"
-          title="Move up"
-          onClick={() => onMove(-1)}
-        >
-          <ArrowUp {...ICO} />
-        </button>
-        <button
-          type="button"
-          className={act}
-          aria-label="Move down"
-          title="Move down"
-          onClick={() => onMove(1)}
-        >
-          <ArrowDown {...ICO} />
-        </button>
         <button
           type="button"
           className={act}
@@ -256,7 +276,7 @@ export function LoreEntryToc({
   onPatch,
   onDuplicate,
   onDelete,
-  onMove,
+  onReorder,
   selectMode = false,
   onSelectMode,
   picked,
@@ -269,6 +289,8 @@ export function LoreEntryToc({
   healthByEntry,
 }: EntryTocProps): JSX.Element {
   const [query, setQuery] = useState("");
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [overId, setOverId] = useState<string | null>(null);
   const q = query.trim().toLowerCase();
   const match = (e: LorebookEntry): boolean =>
     q === "" ||
@@ -278,12 +300,29 @@ export function LoreEntryToc({
   const alwaysOn = entries.filter((e) => e.constant && match(e));
   const keyed = entries.filter((e) => !e.constant && match(e));
   const pickCount = picked?.size ?? 0;
-
   const vectorOk = fieldVisible(writeFor, "vectorized");
+  const canDrag = !selectMode && q === "";
+
+  const dropOn = (targetId: string): void => {
+    if (!dragId || dragId === targetId) {
+      setDragId(null);
+      setOverId(null);
+      return;
+    }
+    const toIndex = entries.findIndex((e) => e.id === targetId);
+    if (toIndex >= 0) onReorder(dragId, toIndex);
+    setDragId(null);
+    setOverId(null);
+  };
 
   const row = (e: LorebookEntry): JSX.Element => {
     const focused = e.id === focusedId;
-    const cls = [styles.trow, focused ? styles.trowOn : "", !e.enabled ? styles.trowOff : ""]
+    const cls = [
+      styles.trow,
+      focused ? styles.trowOn : "",
+      !e.enabled ? styles.trowOff : "",
+      overId === e.id && dragId && dragId !== e.id ? styles.trowDrop : "",
+    ]
       .filter(Boolean)
       .join(" ");
     const tokens = estimateEntryTokens(e);
@@ -293,7 +332,36 @@ export function LoreEntryToc({
     const canMode = fieldVisible(writeFor, "constant");
 
     return (
-      <div key={e.id}>
+      <div
+        key={e.id}
+        draggable={canDrag}
+        onDragStart={(ev) => {
+          if (!canDrag) {
+            ev.preventDefault();
+            return;
+          }
+          setDragId(e.id);
+          ev.dataTransfer.effectAllowed = "move";
+          ev.dataTransfer.setData("text/plain", e.id);
+        }}
+        onDragEnd={() => {
+          setDragId(null);
+          setOverId(null);
+        }}
+        onDragOver={(ev) => {
+          if (!dragId || dragId === e.id) return;
+          ev.preventDefault();
+          ev.dataTransfer.dropEffect = "move";
+          setOverId(e.id);
+        }}
+        onDragLeave={() => {
+          if (overId === e.id) setOverId(null);
+        }}
+        onDrop={(ev) => {
+          ev.preventDefault();
+          dropOn(e.id);
+        }}
+      >
         <div
           role="button"
           tabIndex={0}
@@ -325,33 +393,28 @@ export function LoreEntryToc({
           <span className={styles.tnm}>{e.title || "(untitled)"}</span>
           {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
           {!selectMode && canMode && (
-            <button
-              type="button"
-              className={modePillClass(mode, styles)}
-              title={`${MODE_PILL[mode]} - click to cycle fire mode`}
-              aria-label={`Fire mode: ${MODE_PILL[mode]}. Click to cycle.`}
-              onClick={(ev) => {
-                ev.stopPropagation();
-                onPatch(e.id, fireModePatch(cycleMode(mode, vectorOk)));
-              }}
-            >
-              {MODE_PILL[mode]}
-            </button>
+            <ModeSelect
+              mode={mode}
+              vectorOk={vectorOk}
+              styles={styles}
+              onChange={(m) => onPatch(e.id, fireModePatch(m))}
+            />
           )}
           {!selectMode && (
             <button
               type="button"
-              className={e.enabled ? styles.tEn : `${styles.tEn} ${styles.tEnOff}`}
-              aria-pressed={e.enabled}
+              className={
+                e.enabled ? styles.tSlide : `${styles.tSlide} ${styles.tSlideOff}`
+              }
+              role="switch"
+              aria-checked={e.enabled}
               aria-label={e.enabled ? "Entry on" : "Entry off"}
               title={e.enabled ? "On - click to disable" : "Off - click to enable"}
               onClick={(ev) => {
                 ev.stopPropagation();
                 onPatch(e.id, { enabled: !e.enabled });
               }}
-            >
-              {e.enabled ? "On" : "Off"}
-            </button>
+            />
           )}
         </div>
         {focused && !selectMode && (
@@ -362,7 +425,6 @@ export function LoreEntryToc({
             onPatch={(patch) => onPatch(e.id, patch)}
             onDuplicate={() => onDuplicate(e.id)}
             onDelete={() => onDelete(e.id)}
-            onMove={(dir) => onMove(e.id, dir)}
             onOpenBeside={onOpenBeside ? () => onOpenBeside(e.id) : undefined}
           />
         )}
@@ -394,6 +456,9 @@ export function LoreEntryToc({
           onChange={(ev) => setQuery(ev.target.value)}
         />
       </label>
+      {canDrag && (
+        <p className={styles.dragHint}>Drag rows to reorder</p>
+      )}
 
       {alwaysOn.length > 0 && (
         <>
@@ -410,7 +475,7 @@ export function LoreEntryToc({
       {keyed.map(row)}
       {entries.length === 0 && <p className={styles.tocEmpty}>The book is empty.</p>}
       {entries.length > 0 && alwaysOn.length + keyed.length === 0 && (
-        <p className={styles.tocEmpty}>Nothing matches "{query.trim()}".</p>
+        <p className={styles.tocEmpty}>Nothing matches &quot;{query.trim()}&quot;.</p>
       )}
 
       <button type="button" className={styles.tocAdd} onClick={onAdd}>

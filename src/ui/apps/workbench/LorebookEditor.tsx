@@ -235,11 +235,8 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       setSession((s) => updateEntry(s, id, patch)),
     onDuplicate: (id: string) => setSession((s) => duplicateEntry(s, id)),
     onDelete: (id: string) => setSession((s) => deleteEntry(s, id)),
-    onMove: (id: string, dir: -1 | 1) =>
-      setSession((s) => {
-        const at = s.body.entries.findIndex((e) => e.id === id);
-        return at < 0 ? s : reorderEntry(s, id, at + dir);
-      }),
+    onReorder: (id: string, toIndex: number) =>
+      setSession((s) => reorderEntry(s, id, toIndex)),
     selectMode,
     onSelectMode: (on: boolean) => {
       setSelectMode(on);

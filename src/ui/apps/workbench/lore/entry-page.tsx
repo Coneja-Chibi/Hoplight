@@ -162,7 +162,7 @@ export function LoreEntryPage({
                           }
                         >
                           {LOGIC_LABELS.map(([v, label]) => (
-                            <option key={v} value={v} >
+                            <option key={v} value={v}>
                               {label}
                             </option>
                           ))}
@@ -176,13 +176,52 @@ export function LoreEntryPage({
                         onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
                         styles={styles}
                         advanced={advanced}
-                        placeholder="a second word that must also appearâ€¦"
+                        placeholder="a second word that must also appear…"
                         ariaLabel="Secondary keys"
                         entryProbability={entry.probability}
                       />
                     </div>
                   </>
                 )}
+              </div>
+            )}
+            {show("matchOverrides") && (
+              <div className={styles.matchRow} role="group" aria-label="Matching overrides">
+                <span className={styles.plabel}>Matching</span>
+                <button
+                  type="button"
+                  className={styles.matchSeg}
+                  title="Override book default for whole-word matching"
+                  onClick={() => {
+                    const v = entry.matchWholeWords;
+                    const next = v === null ? true : v ? false : null;
+                    onPatch({ matchWholeWords: next });
+                  }}
+                >
+                  Whole words ·{" "}
+                  {entry.matchWholeWords === null
+                    ? "inherit"
+                    : entry.matchWholeWords
+                      ? "on"
+                      : "off"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.matchSeg}
+                  title="Override book default for case sensitivity"
+                  onClick={() => {
+                    const v = entry.caseSensitive;
+                    const next = v === null ? true : v ? false : null;
+                    onPatch({ caseSensitive: next });
+                  }}
+                >
+                  Case ·{" "}
+                  {entry.caseSensitive === null
+                    ? "inherit"
+                    : entry.caseSensitive
+                      ? "on"
+                      : "off"}
+                </button>
               </div>
             )}
           </div>

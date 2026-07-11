@@ -297,6 +297,35 @@
   }
 }
 
+/* Matching overrides on the page (not the TOC rail) */
+.matchRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.55rem;
+  margin-top: 0.65rem;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--stage-seam);
+}
+
+.matchSeg {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.28rem 0.45rem;
+  cursor: pointer;
+}
+
+.matchSeg:hover {
+  border-color: var(--stage-line);
+  color: var(--stage-card);
+}
+
 /* ---------- timing fold internals ---------- */
 
 .timeRow2 {

@@ -192,43 +192,146 @@
   flex: none;
 }
 
-/* Always-visible entry enable (collapsed and expanded rows) */
-.tEn {
+/* Enable: slide toggle */
+.tSlide {
   flex: none;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  font-size: 0.52rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border: 2px solid var(--stage-ok);
-  background: transparent;
-  color: var(--stage-ok);
-  padding: 0.1rem 0.32rem;
+  width: 1.7rem;
+  height: 0.9rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
   cursor: pointer;
-  line-height: 1.15;
+  padding: 0;
 }
 
-.tEn:hover {
-  background: color-mix(in srgb, var(--stage-ok) 14%, transparent);
+.tSlide::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.48rem;
+  height: 0.48rem;
+  background: var(--stage-ink);
 }
 
-.tEnOff {
-  border-color: var(--stage-seam);
-  color: var(--stage-mute);
+.tSlideOff {
+  background: var(--stage-faint);
 }
 
-.tEnOff:hover {
-  border-color: var(--stage-line);
-  color: var(--stage-soft);
-  background: var(--stage-sunken);
+.tSlideOff::after {
+  left: 2px;
+  right: auto;
 }
 
-.trowOff .tEnOff {
-  /* keep off chip readable when the row is dimmed */
+.trowOff .tSlideOff {
   opacity: 1;
 }
 
-/* Move/copy live in fine-print only - no hover arrow row (avoids duplicates) */
+.trowDrop {
+  outline: 1px dashed var(--a, var(--stage-macro));
+  outline-offset: -1px;
+}
+
+.dragHint {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker, var(--stage-mute));
+  margin: 0 0 0.35rem;
+}
+
+/* Fire-mode dropdown (icons + color) */
+.modeSelect {
+  position: relative;
+  flex: none;
+}
+
+.modeTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.14rem 0.28rem;
+  cursor: pointer;
+  max-width: 7.2rem;
+}
+
+.modeTrigger span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modeKey {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.modeAlways {
+  border-color: var(--stage-var);
+  color: var(--stage-var);
+}
+
+.modeMeaning {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--a, var(--stage-macro));
+}
+
+.modeMenu {
+  position: absolute;
+  z-index: 20;
+  right: 0;
+  top: calc(100% + 0.15rem);
+  margin: 0;
+  padding: 0.2rem;
+  list-style: none;
+  min-width: 8.5rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-panel);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+}
+
+.modeOpt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.35rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.modeOpt:hover:not(:disabled) {
+  background: var(--stage-row);
+  color: var(--stage-card);
+}
+
+.modeOptOn {
+  background: var(--stage-row);
+}
+
+.modeOptGated {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Fire mode pill leftovers unused */
 
 .selMode {
   margin-left: auto;

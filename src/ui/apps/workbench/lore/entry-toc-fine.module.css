@@ -9,6 +9,31 @@
   padding: 0.3rem 0.45rem 0.45rem 0.65rem;
 }
 
+/* Compact chrom: Order / Priority / Scan / Keep */
+.chromRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.chromCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.chromCell span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
 .texpRow {
   display: flex;
   align-items: center;

@@ -65,7 +65,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreCategories | src/ui/components/lore-categories/index.tsx | ({ categories, onChange }: LoreCategoriesProps) |  | .wrap .head .label .add .empty .list .row .name ... |
 | LoreEntryPage | src/ui/apps/workbench/lore/entry-page.tsx | ({ entry, writeFor, styles, onPatch, index, count, onPrev, onNext, tokenEstimate, }: EntryPageProps) |  |  |
 | LoreEntryRail | src/ui/apps/workbench/lore/entry-rail.tsx | ({ body, focusedId, entries, notes, styles, onOpenHealth, onOpenChanges, onOpenRehearsal, onSelectEntry, }: EntryRail... |  |  |
-| LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, onSelect, onAdd, onPatch, onDuplicate, onDelete, onMove, selectMode = false,... |  |  |
+| LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, onSelect, onAdd, onPatch, onDuplicate, onDelete, onReorder, selectMode = fal... |  |  |
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
 | LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
 | LoreWriteFor | src/ui/components/lore-write-for/index.tsx | ({ value, onChange }: LoreWriteForProps) |  | .strip .hint |
