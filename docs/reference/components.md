@@ -71,7 +71,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
-| PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .on .hint .offt |
+| PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .offt .on .hint |
 | PlaybillView | src/ui/apps/workbench/presenters/playbill-view.tsx | ({ leftCard, sealedCard, acts, actModules, lensHides, lensDims, wideKinds, panelKinds, controlFor, nativeItems, nativ... |  |  |
 | PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
 | PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, onOpenSprites, spriteCount = 0, sh... |  |  |

@@ -5,6 +5,26 @@
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+/* fluid law: on a narrow pane the names become ONE line that scrolls sideways - never a
+   stacked word-wall (full mobile grammar: design/vs-mobile-editors.html) */
+@container (max-width: 34rem) {
+  .strip {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 0.7rem;
+    scrollbar-width: none;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .tab {
+    white-space: nowrap;
+    flex: none;
+  }
+  .offt {
+    flex: none;
+  }
+}
 .tab {
   font-family: var(--font-big);
   font-weight: 800;
