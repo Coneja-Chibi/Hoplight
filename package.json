@@ -1,6 +1,6 @@
 {
   "name": "vaudeville-studios",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
@@ -11,8 +11,23 @@
   "scripts": {
     "vaud": "bun run src/cli.ts",
     "dev": "bun run src/cli.ts ui 8321 \"C:/Users/chiev/Documents/Vaude Studio\"",
+    "test": "bun test src/core src/entities src/formats src/studio src/ui scripts --timeout 120000",
+    "test:macros": "bun test src/macros --timeout 30000",
+    "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
+    "test:m1": "bun test src/m1.convert.smoke.test.ts src/convert.test.ts --timeout 60000",
+    "typecheck": "bunx tsc --noEmit",
+    "matrix": "bun run scripts/format-matrix.ts",
+    "matrix:check": "bun run scripts/format-matrix.ts --check",
+    "license:audit": "bun run scripts/license-audit.ts",
+    "build:cli": "bun build --compile src/cli.ts --outfile dist/vaud",
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
-    "scan:lines": "bun run scripts/hooks/file-lines.ts --scan"
+    "scan:colors:check": "bun run scripts/hooks/no-hardcode-colors.ts --check",
+    "scan:lines": "bun run scripts/hooks/file-lines.ts --scan",
+    "lint:ui": "bunx eslint \"src/ui/**/*.tsx\" --max-warnings 0",
+    "catalog": "bun run scripts/hooks/component-catalog.ts",
+    "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
+    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run lint:ui && bun run catalog:check && bun run matrix:check",
+    "gate": "bun run scripts/hooks/gate.ts --worktree"
   },
   "engines": {
     "bun": ">=1.3.0"
@@ -30,6 +45,7 @@
   "dependencies": {
     "dompurify": "^3.4.11",
     "fflate": "^0.8.3",
+    "lucide-react": "^1.24.0",
     "marked": "^18.0.5",
     "png-chunk-text": "^1.0.0",
     "png-chunks-encode": "^1.0.0",
