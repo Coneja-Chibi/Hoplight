@@ -10,6 +10,10 @@ import { fieldVisible, positionsForProfile, type LoreWriteForProfile } from "../
 import { TriggerEditor } from "./trigger-editor";
 import { PositionPicker } from "./position-picker";
 import { cardsForLens } from "./platforms/registry";
+import { entryFireMode, fireModePatch, firesLine, timingLine } from "./entry-fire-mode";
+
+export type { EntryFireMode } from "./entry-fire-mode";
+export { entryFireMode, fireModePatch } from "./entry-fire-mode";
 
 export interface EntryPageProps {
   entry: LorebookEntry;
@@ -36,28 +40,6 @@ const insertMacro = (content: string, token: string): string => {
   const needsSpace = !/\s$/.test(content);
   return needsSpace ? `${content} ${token}` : content + token;
 };
-
-/** the masthead's italic line: an honest computed sentence, never a stored field */
-function firesLine(entry: LorebookEntry): string {
-  if (entry.constant) return "Always on - it speaks in every scene.";
-  const words = entry.triggers.map((t) => t.keyword).filter(Boolean);
-  if (words.length === 0) return "No keys yet - it never fires.";
-  const shown = words.slice(0, 5).join(", ");
-  return `Fires on: ${shown}${words.length > 5 ? ` and ${words.length - 5} more` : ""}.`;
-}
-
-/** the Timing & chance fold's honest summary of what it currently hides */
-function timingLine(entry: LorebookEntry): string {
-  const parts: string[] = [];
-  if (entry.sticky > 0) parts.push(`sticks for ${entry.sticky}`);
-  if (entry.cooldown > 0) parts.push(`cools down ${entry.cooldown}`);
-  if (entry.delay > 0) parts.push(`waits ${entry.delay} messages`);
-  if (entry.preventRecursion) parts.push("never triggers others");
-  if (entry.delayUntilRecursion > 0) parts.push(`waits for recursion ${entry.delayUntilRecursion}`);
-  if (entry.groupName) parts.push(`in group "${entry.groupName}"`);
-  if (parts.length === 0) return "Fires every time, immediately. Open to add stickiness, cooldowns, or recursion rules.";
-  return `Currently: ${parts.join(" · ")}.`;
-}
 
 export function LoreEntryPage({
   entry,
@@ -143,15 +125,44 @@ export function LoreEntryPage({
             <b>Keys</b>
             <i>when this entry speaks</i>
             {show("constant") && (
-              <select
-                className={styles.headSel}
-                value={entry.constant ? "constant" : "keyed"}
-                aria-label="Activation mode"
-                onChange={(ev) => onPatch({ constant: ev.target.value === "constant" })}
-              >
-                <option value="keyed">Keyword-fired</option>
-                <option value="constant">Always on</option>
-              </select>
+              <span className={styles.modeSet} role="group" aria-label="Activation mode">
+                {(
+                  [
+                    ["keyed", "Keywords", styles.mdKey],
+                    ["always", "Always on", styles.mdAlways],
+                    ["meaning", "By meaning", styles.mdMeaning],
+                  ] as const
+                ).map(([mode, label, mdCls]) => {
+                  const gated = mode === "meaning" && !show("vectorized");
+                  const on = entryFireMode(entry) === mode;
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      className={[
+                        styles.md,
+                        mdCls,
+                        on ? styles.mdOn : "",
+                        gated ? styles.mdGated : "",
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                      aria-pressed={on}
+                      disabled={gated}
+                      title={
+                        gated
+                          ? "This host cannot carry by-meaning (vectorized) entries."
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (!gated) onPatch(fireModePatch(mode));
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </span>
             )}
             {show("triggerRiders") && (
               <span className={styles.bcheadActs}>
@@ -175,58 +186,65 @@ export function LoreEntryPage({
             )}
           </div>
           <div className={styles.bcbody}>
-            {entry.constant && (
-              <p className={styles.cardHint}>Always on - the keys below are kept but not needed.</p>
-            )}
-            <div className={styles.keysSplit}>
-              <div className={styles.keysCol}>
-                <span className={styles.plabel}>Primary keys</span>
-                <TriggerEditor
-                  triggers={entry.triggers}
-                  onChange={(triggers) => onPatch({ triggers })}
-                  styles={styles}
-                  advanced={advanced}
-                  ariaLabel="Primary keys"
-                  showSpecials={show("specialTriggers")}
-                  entryProbability={entry.probability}
-                />
-              </div>
-              {show("secondaryTriggers") && (
-                <>
-                  {show("selectiveLogic") && (
-                    <div className={styles.logicCol}>
-                      <span className={styles.logicSpacer} aria-hidden="true">
-                        &nbsp;
-                      </span>
-                      <select
-                        className={styles.logicSel}
-                        value={entry.selectiveLogic}
-                        aria-label="How secondary keys combine"
-                        onChange={(ev) => onPatch({ selectiveLogic: ev.target.value as SelectiveLogic })}
-                      >
-                        {LOGIC_LABELS.map(([v, label]) => (
-                          <option key={v} value={v}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
+            {entryFireMode(entry) !== "keyed" ? (
+              <p className={styles.sleepNote}>
+                {entryFireMode(entry) === "always"
+                  ? "Always on - keys are kept but not needed for this entry to fire."
+                  : "By meaning - keys are kept but this entry fires on similarity, not exact words."}
+              </p>
+            ) : (
+              <div className={styles.keysSplit}>
+                <div className={styles.keysCol}>
+                  <span className={styles.plabel}>Primary keys</span>
+                  <TriggerEditor
+                    triggers={entry.triggers}
+                    onChange={(triggers) => onPatch({ triggers })}
+                    styles={styles}
+                    advanced={advanced}
+                    ariaLabel="Primary keys"
+                    showSpecials={show("specialTriggers")}
+                    entryProbability={entry.probability}
+                  />
+                </div>
+                {show("secondaryTriggers") && (
+                  <>
+                    {show("selectiveLogic") && (
+                      <div className={styles.logicCol}>
+                        <span className={styles.logicSpacer} aria-hidden="true">
+                          &nbsp;
+                        </span>
+                        <select
+                          className={styles.logicSel}
+                          value={entry.selectiveLogic}
+                          aria-label="How secondary keys combine"
+                          onChange={(ev) =>
+                            onPatch({ selectiveLogic: ev.target.value as SelectiveLogic })
+                          }
+                        >
+                          {LOGIC_LABELS.map(([v, label]) => (
+                            <option key={v} value={v} >
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                    <div className={styles.keysCol}>
+                      <span className={styles.plabel}>Only together with (optional)</span>
+                      <TriggerEditor
+                        triggers={entry.secondaryTriggers}
+                        onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
+                        styles={styles}
+                        advanced={advanced}
+                        placeholder="a second word that must also appear…"
+                        ariaLabel="Secondary keys"
+                        entryProbability={entry.probability}
+                      />
                     </div>
-                  )}
-                  <div className={styles.keysCol}>
-                    <span className={styles.plabel}>Only together with (optional)</span>
-                    <TriggerEditor
-                      triggers={entry.secondaryTriggers}
-                      onChange={(secondaryTriggers) => onPatch({ secondaryTriggers })}
-                      styles={styles}
-                      advanced={advanced}
-                      placeholder="a second word that must also appear…"
-                      ariaLabel="Secondary keys"
-                      entryProbability={entry.probability}
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -240,6 +258,42 @@ export function LoreEntryPage({
           </summary>
           <div className={styles.bcbody}>
             <p className={styles.foldNote}>{timingLine(entry)}</p>
+            {show("probability") && (
+              <div className={styles.chanceRow}>
+                <button
+                  type="button"
+                  className={
+                    entry.probability < 100
+                      ? styles.texpSwitch
+                      : `${styles.texpSwitch} ${styles.texpSwitchOff}`
+                  }
+                  role="switch"
+                  aria-checked={entry.probability < 100}
+                  aria-label="Leave it to chance"
+                  title="Off: always fires when keys match (100%). On: roll the slider."
+                  onClick={() =>
+                    onPatch({
+                      probability: entry.probability < 100 ? 100 : 75,
+                    })
+                  }
+                />
+                <span className={styles.plabel}>Leave it to chance</span>
+                <input
+                  className={styles.chanceRange}
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={entry.probability}
+                  aria-label="Activation chance percent"
+                  disabled={entry.probability >= 100}
+                  onChange={(ev) => {
+                    const n = Math.max(0, Math.min(100, Number(ev.target.value) || 0));
+                    onPatch({ probability: n });
+                  }}
+                />
+                <span className={styles.chanceReadout}>{entry.probability}%</span>
+              </div>
+            )}
             <div className={styles.timeRow2}>
               {show("sticky") && (
                 <label className={styles.headFld}>

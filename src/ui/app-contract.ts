@@ -134,6 +134,11 @@ export interface StudioEntitySummary {
   /** source format id ("sillytavern") + its variant ("v3") for the card-type chip */
   sourceFormat?: string;
   sourceVariant?: string;
+  /**
+   * Optional view params. Lorebooks use `focusEntry` so the same book can open beside itself
+   * on two different entries (pane key is kind:id@focusEntry; dirty stays kind:id).
+   */
+  params?: { focusEntry?: string };
 }
 
 export interface InspectResult {

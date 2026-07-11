@@ -2,6 +2,8 @@ import { describe, expect, test } from "bun:test";
 import { emptyLorebookBody } from "../../../../core/lore";
 import {
   addEntry,
+  applyBookTransform,
+  deleteEntries,
   deleteEntry,
   duplicateEntry,
   focusedEntry,
@@ -10,6 +12,7 @@ import {
   reorderEntry,
   selectEntry,
   sessionDirty,
+  setEntriesEnabled,
   updateBook,
   updateEntry,
 } from "./session";
@@ -66,6 +69,46 @@ describe("lore session (the binder: one focused entry)", () => {
     expect(s.body.entries[0]!.title).toBe("Dragon");
     s = updateBook(s, { name: "Aetheria" });
     expect(s.body.name).toBe("Aetheria");
+  });
+
+  test("setEntriesEnabled bulk on/off; empty selection is no-op", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    s = addEntry(s);
+    const ids = s.body.entries.map((e) => e.id);
+    s = setEntriesEnabled(s, ids, false);
+    expect(s.body.entries.every((e) => !e.enabled)).toBe(true);
+    s = setEntriesEnabled(s, [ids[0]!], true);
+    expect(s.body.entries.find((e) => e.id === ids[0])?.enabled).toBe(true);
+    const snap = s;
+    expect(setEntriesEnabled(s, [], false)).toBe(snap);
+  });
+
+  test("deleteEntries removes many; focused deleted moves to neighbor", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    s = addEntry(s);
+    s = addEntry(s);
+    const ids = s.body.entries.map((e) => e.id);
+    const a = ids[0]!;
+    const b = ids[1]!;
+    const c = ids[2]!;
+    s = selectEntry(s, b);
+    s = deleteEntries(s, [b, c]);
+    expect(s.body.entries.map((e) => e.id)).toEqual([a]);
+    expect(s.focusedId).toBe(a);
+    const snap = s;
+    expect(deleteEntries(s, [])).toBe(snap);
+  });
+
+  test("applyBookTransform rewrites body and prunes focus", () => {
+    let s = normalizeSession(emptyLorebookBody("A"));
+    const id = s.focusedId!;
+    s = applyBookTransform(s, (body) => ({
+      ...body,
+      entries: body.entries.map((e) =>
+        e.id === id ? { ...e, title: "Fixed" } : e,
+      ),
+    }));
+    expect(s.body.entries[0]?.title).toBe("Fixed");
   });
 
   test("dirty and reconcile", () => {

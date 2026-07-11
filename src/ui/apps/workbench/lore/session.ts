@@ -111,6 +111,74 @@ export function updateBook(
   };
 }
 
+/** Bulk enable/disable. Empty selection = no-op. */
+export function setEntriesEnabled(
+  session: LoreSession,
+  ids: readonly string[],
+  on: boolean,
+): LoreSession {
+  if (ids.length === 0) return session;
+  const want = new Set(ids);
+  return {
+    ...session,
+    body: {
+      ...session.body,
+      entries: session.body.entries.map((e) =>
+        want.has(e.id) ? { ...e, enabled: on } : e,
+      ),
+    },
+  };
+}
+
+/**
+ * Bulk delete. Empty selection = no-op. If the focused entry is removed, focus moves to a
+ * neighbor (same rule as deleteEntry).
+ */
+export function deleteEntries(session: LoreSession, ids: readonly string[]): LoreSession {
+  if (ids.length === 0) return session;
+  const want = new Set(ids);
+  const entries = session.body.entries.filter((e) => !want.has(e.id));
+  const body = { ...session.body, entries };
+  const open = pruneOpen(body, session.openIds, session.focusedId);
+  if (open.openIds.length === 0 && entries[0]) {
+    return { body, openIds: [entries[0].id], focusedId: entries[0].id };
+  }
+  return { body, ...open };
+}
+
+/** Apply a pure book -> book transform (Health Fix All, import heal, etc.). */
+export function applyBookTransform(
+  session: LoreSession,
+  fn: (body: LorebookBody) => LorebookBody,
+): LoreSession {
+  const body = fn(session.body);
+  const open = pruneOpen(body, session.openIds, session.focusedId);
+  if (open.openIds.length === 0 && body.entries[0]) {
+    return { body, openIds: [body.entries[0].id], focusedId: body.entries[0].id };
+  }
+  return { body, ...open };
+}
+
+/** Named intent: restore one field on one entry (Changes pane). */
+export function revertField(
+  session: LoreSession,
+  entryId: string,
+  field: keyof LorebookEntry,
+  value: unknown,
+): LoreSession {
+  return updateEntry(session, entryId, { [field]: value } as Partial<LorebookEntry>);
+}
+
+/** Bring a removed entry back at the end (Changes pane). */
+export function restoreEntry(session: LoreSession, entry: LorebookEntry): LoreSession {
+  const id = session.body.entries.some((e) => e.id === entry.id)
+    ? newUiId("entry_")
+    : entry.id;
+  const restored: LorebookEntry = { ...structuredClone(entry), id };
+  const entries = [...session.body.entries, restored];
+  return selectEntry({ ...session, body: { ...session.body, entries } }, restored.id);
+}
+
 export function sessionDirty(session: LoreSession, baseline: LorebookBody): boolean {
   return !deepEq(session.body, baseline);
 }

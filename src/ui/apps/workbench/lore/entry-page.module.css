@@ -283,3 +283,82 @@
   align-items: center;
   gap: 0.3rem;
 }
+
+/* tri-mode (vs-lore-page-2 .modeSet) - lives here; one hash owner */
+.modeSet {
+  margin-left: auto;
+  display: inline-flex;
+  border: 2px solid var(--stage-black);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+
+.md {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.md + .md {
+  border-left: 2px solid var(--stage-black);
+}
+
+.mdKey.mdOn {
+  background: var(--stage-ok);
+  color: var(--stage-ink);
+}
+
+.mdAlways.mdOn {
+  background: var(--stage-var);
+  color: var(--stage-ink);
+}
+
+.mdMeaning.mdOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.mdGated {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sleepNote {
+  border: 2px dashed var(--stage-seam);
+  padding: 0.55rem 0.65rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-mute);
+  margin: 0;
+}
+
+.chanceRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.65rem;
+}
+
+.chanceRange {
+  flex: 1;
+  min-width: 9rem;
+  accent-color: var(--stage-ok);
+}
+
+.chanceReadout {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  color: var(--stage-soft);
+  min-width: 2.4rem;
+  text-align: right;
+}

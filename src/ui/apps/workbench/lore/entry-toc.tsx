@@ -1,13 +1,12 @@
 /**
- * LoreEntryToc - the binder's quiet table of contents: search, grouped rows with counts, accent
- * bar on the active row, disabled entries strike through. THE FOCUSED ROW EXPANDS IN PLACE with
- * the entry's fine print (order/priority/keep/chance/scan/matching + move/copy/delete) - the old
- * desk's expanded-row pattern, relocated here per Chi. Groups today: "Always on" + the rest;
- * category folders arrive with the categories milestone.
+ * LoreEntryToc - binder TOC with mode pips, token counts, select mode + bulk bar
+ * (vs-lore-page-2 power moves). Fine-print expand on the focused row stays.
  */
 import { useState, type JSX } from "react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
-import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
+import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
+import { entryFireMode } from "./entry-fire-mode";
+import { LoreBulkBar } from "./bulk-bar";
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -20,13 +19,27 @@ export interface EntryTocProps {
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
   onMove: (id: string, dir: -1 | 1) => void;
+  selectMode?: boolean;
+  onSelectMode?: (on: boolean) => void;
+  picked?: ReadonlySet<string>;
+  onTogglePick?: (id: string) => void;
+  onBulkEnable?: (on: boolean) => void;
+  onBulkDelete?: () => void;
+  onClearPick?: () => void;
+  onOpenBeside?: (id: string) => void;
 }
 
-/** inherit -> on -> off -> inherit (the entry's tri-state matching override) */
 const cycleTri = (v: boolean | null): boolean | null => (v === null ? true : v ? false : null);
 const triLabel = (v: boolean | null): string => (v === null ? "Inherit" : v ? "On" : "Off");
 
-/** the focused row's fine print: the old desk exprow, grown up */
+function pipClass(entry: LorebookEntry, styles: Readonly<Record<string, string>>): string {
+  if (!entry.enabled) return `${styles.tpip} ${styles.pipOff}`;
+  const mode = entryFireMode(entry);
+  if (mode === "always") return `${styles.tpip} ${styles.pipAlways}`;
+  if (mode === "meaning") return `${styles.tpip} ${styles.pipMeaning}`;
+  return `${styles.tpip} ${styles.pipKey}`;
+}
+
 function FinePrint({
   entry,
   writeFor,
@@ -35,6 +48,7 @@ function FinePrint({
   onDuplicate,
   onDelete,
   onMove,
+  onOpenBeside,
 }: {
   entry: LorebookEntry;
   writeFor: LoreWriteForProfile;
@@ -43,6 +57,7 @@ function FinePrint({
   onDuplicate: () => void;
   onDelete: () => void;
   onMove: (dir: -1 | 1) => void;
+  onOpenBeside?: () => void;
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
   return (
@@ -146,6 +161,11 @@ function FinePrint({
         <button type="button" className={styles.texpBtn} onClick={onDuplicate}>
           Copy
         </button>
+        {onOpenBeside && (
+          <button type="button" className={styles.texpBtn} onClick={onOpenBeside}>
+            Beside
+          </button>
+        )}
         <button type="button" className={`${styles.texpBtn} ${styles.texpDanger}`} onClick={onDelete}>
           Delete
         </button>
@@ -165,6 +185,14 @@ export function LoreEntryToc({
   onDuplicate,
   onDelete,
   onMove,
+  selectMode = false,
+  onSelectMode,
+  picked,
+  onTogglePick,
+  onBulkEnable,
+  onBulkDelete,
+  onClearPick,
+  onOpenBeside,
 }: EntryTocProps): JSX.Element {
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
@@ -175,19 +203,59 @@ export function LoreEntryToc({
 
   const alwaysOn = entries.filter((e) => e.constant && match(e));
   const keyed = entries.filter((e) => !e.constant && match(e));
+  const pickCount = picked?.size ?? 0;
 
   const row = (e: LorebookEntry): JSX.Element => {
     const focused = e.id === focusedId;
     const cls = [styles.trow, focused ? styles.trowOn : "", !e.enabled ? styles.trowOff : ""]
       .filter(Boolean)
       .join(" ");
+    const tokens = estimateEntryTokens(e);
+    const isPicked = picked?.has(e.id) ?? false;
+
     return (
       <div key={e.id}>
-        <button type="button" className={cls} onClick={() => onSelect(e.id)}>
-          <span className={styles.tpip} />
+        <div
+          role="button"
+          tabIndex={0}
+          className={cls}
+          onClick={() => {
+            if (selectMode && onTogglePick) onTogglePick(e.id);
+            else onSelect(e.id);
+          }}
+          onKeyDown={(ev) => {
+            if (ev.key === "Enter" || ev.key === " ") {
+              ev.preventDefault();
+              if (selectMode && onTogglePick) onTogglePick(e.id);
+              else onSelect(e.id);
+            }
+          }}
+        >
+          {selectMode ? (
+            <span
+              className={isPicked ? `${styles.cb} ${styles.cbOn}` : styles.cb}
+              aria-hidden="true"
+            />
+          ) : (
+            <span className={pipClass(e, styles)} aria-hidden="true" />
+          )}
           <span className={styles.tnm}>{e.title || "(untitled)"}</span>
-        </button>
-        {focused && (
+          {!selectMode && <span className={styles.tokc}>~{tokens}</span>}
+          {!selectMode && (
+            <span className={styles.hoverActs} onClick={(ev) => ev.stopPropagation()}>
+              <button type="button" aria-label="Move up" onClick={() => onMove(e.id, -1)}>
+                &#8593;
+              </button>
+              <button type="button" aria-label="Move down" onClick={() => onMove(e.id, 1)}>
+                &#8595;
+              </button>
+              <button type="button" aria-label="Duplicate" onClick={() => onDuplicate(e.id)}>
+                +
+              </button>
+            </span>
+          )}
+        </div>
+        {focused && !selectMode && (
           <FinePrint
             entry={e}
             writeFor={writeFor}
@@ -196,6 +264,7 @@ export function LoreEntryToc({
             onDuplicate={() => onDuplicate(e.id)}
             onDelete={() => onDelete(e.id)}
             onMove={(dir) => onMove(e.id, dir)}
+            onOpenBeside={onOpenBeside ? () => onOpenBeside(e.id) : undefined}
           />
         )}
       </div>
@@ -204,7 +273,19 @@ export function LoreEntryToc({
 
   return (
     <aside className={styles.toc} aria-label="Table of contents">
-      <p className={styles.tocTitle}>Table of contents</p>
+      <p className={styles.tocTitle}>
+        Table of contents
+        {onSelectMode && (
+          <button
+            type="button"
+            className={selectMode ? `${styles.selMode} ${styles.selModeOn}` : styles.selMode}
+            aria-pressed={selectMode}
+            onClick={() => onSelectMode(!selectMode)}
+          >
+            Select
+          </button>
+        )}
+      </p>
       <label className={styles.tocSearch}>
         <span>&#8981;</span>
         <input
@@ -236,6 +317,17 @@ export function LoreEntryToc({
       <button type="button" className={styles.tocAdd} onClick={onAdd}>
         + New entry
       </button>
+
+      {selectMode && pickCount > 0 && onBulkEnable && onBulkDelete && onClearPick && (
+        <LoreBulkBar
+          count={pickCount}
+          styles={styles}
+          onEnable={onBulkEnable}
+          onDelete={onBulkDelete}
+          onClear={onClearPick}
+          moveDisabled
+        />
+      )}
     </aside>
   );
 }

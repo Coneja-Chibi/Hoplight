@@ -20,7 +20,15 @@ import { parseSettings, SETTING_KEYS, type StudioSettings } from "../../studio/s
 import { decideFollow } from "../follow-core";
 import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
 import { apiFetchJson } from "../_shared/api-fetch";
-import { besideKeys, bumpRecents, focusKeys, keyOf, parseRecents, removeKeys } from "./store-core";
+import {
+  besideKeys,
+  bumpRecents,
+  focusKeys,
+  keyOf,
+  paneKeyOf,
+  parseRecents,
+  removeKeys,
+} from "./store-core";
 
 export type Theme = "paper" | "stage";
 
@@ -176,8 +184,8 @@ interface ShellState {
   openBeside(piece: StudioEntitySummary): void;
   /** collapse back to a single pane (the pinned piece stays open as a tab) */
   closeSplit(): void;
-  removePiece(id: string, kind: string): void;
-  focusPiece(id: string, kind: string): void;
+  removePiece(id: string, kind: string, focusEntry?: string): void;
+  focusPiece(id: string, kind: string, focusEntry?: string): void;
   setPieceDirty(id: string, kind: string, dirty: boolean): void;
   answerFollow(follow: boolean, remember: boolean): void;
 
@@ -294,13 +302,13 @@ export const useShellStore = create<ShellState>((set, get) => ({
 
   activePiece() {
     const { openPieces, activeKey } = get();
-    return openPieces.find((p) => keyOf(p.id, p.kind) === activeKey) ?? null;
+    return openPieces.find((p) => paneKeyOf(p) === activeKey) ?? null;
   },
 
   besidePiece() {
     const { openPieces, splitKey } = get();
     if (!splitKey) return null;
-    return openPieces.find((p) => keyOf(p.id, p.kind) === splitKey) ?? null;
+    return openPieces.find((p) => paneKeyOf(p) === splitKey) ?? null;
   },
 
   sendMany(batch) {
@@ -326,8 +334,8 @@ export const useShellStore = create<ShellState>((set, get) => ({
     // surface/navigate land the view on the newest piece; note/ask keep the current active piece
     const nextActiveKey =
       action === "surface" || action === "navigate"
-        ? keyOf(last.id, last.kind)
-        : get().activeKey || keyOf(fresh[0]!.id, fresh[0]!.kind);
+        ? paneKeyOf(last)
+        : get().activeKey || paneKeyOf(fresh[0]!);
     set({ openPieces: nextOpenPieces, activeKey: nextActiveKey });
 
     if (action === "navigate") {
@@ -354,13 +362,20 @@ export const useShellStore = create<ShellState>((set, get) => ({
   },
 
   openBeside(piece) {
-    const { activeKey, splitKey, settings } = get();
-    const key = keyOf(piece.id, piece.kind);
-    if (!get().isOpen(piece.id, piece.kind)) {
+    const { activeKey, splitKey, settings, openPieces } = get();
+    const key = paneKeyOf(piece);
+    // Pane identity includes focusEntry so the same lorebook can sit beside itself.
+    const already = openPieces.some((p) => paneKeyOf(p) === key);
+    if (!already) {
       // an explicit "open beside" skips the follow prompt: the user is already steering the bench
       set({ openPieces: [...get().openPieces, piece] });
       const now = Date.now();
-      const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), [key], now, RECENTS_CAP);
+      const recents = bumpRecents(
+        parseRecents(settings[SETTING_KEYS.workbenchRecents]),
+        [keyOf(piece.id, piece.kind)],
+        now,
+        RECENTS_CAP,
+      );
       void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
     }
     set(besideKeys({ activeKey, splitKey }, key));
@@ -372,24 +387,48 @@ export const useShellStore = create<ShellState>((set, get) => ({
     if (get().splitKey) set({ splitKey: "" });
   },
 
-  removePiece(id, kind) {
+  removePiece(id, kind, focusEntry) {
     const { openPieces, activeKey, splitKey, dirtyPieces } = get();
-    const at = openPieces.findIndex((p) => p.id === id && p.kind === kind);
-    if (at < 0) return;
-    const next = [...openPieces.slice(0, at), ...openPieces.slice(at + 1)];
-    const fallback = next[0] ? keyOf(next[0].id, next[0].kind) : "";
+    const want = paneKeyOf({ id, kind, params: focusEntry ? { focusEntry } : undefined });
+    const at = openPieces.findIndex((p) => paneKeyOf(p) === want);
+    // Fallback: first matching id+kind when no focusEntry (legacy callers).
+    const idx =
+      at >= 0
+        ? at
+        : openPieces.findIndex((p) => p.id === id && p.kind === kind);
+    if (idx < 0) return;
+    const removed = openPieces[idx]!;
+    const removedKey = paneKeyOf(removed);
+    const next = [...openPieces.slice(0, idx), ...openPieces.slice(idx + 1)];
+    const stillOpen = next.some((p) => p.id === id && p.kind === kind);
+    const fallback = next[0] ? paneKeyOf(next[0]) : "";
     const nextDirty = { ...dirtyPieces };
-    delete nextDirty[keyOf(id, kind)]; // closing IS the discard; the dot must not haunt a reopen
-    set({ openPieces: next, ...removeKeys({ activeKey, splitKey }, keyOf(id, kind), fallback), dirtyPieces: nextDirty });
+    // Dirty is entity-level: only clear when no pane of this entity remains.
+    if (!stillOpen) delete nextDirty[keyOf(id, kind)];
+    set({
+      openPieces: next,
+      ...removeKeys({ activeKey, splitKey }, removedKey, fallback),
+      dirtyPieces: nextDirty,
+    });
   },
 
-  focusPiece(id, kind) {
-    if (!get().isOpen(id, kind)) return;
-    const { settings, activeKey, splitKey } = get();
+  focusPiece(id, kind, focusEntry) {
+    const { openPieces, settings, activeKey, splitKey } = get();
+    const want = paneKeyOf({ id, kind, params: focusEntry ? { focusEntry } : undefined });
+    const hit =
+      openPieces.find((p) => paneKeyOf(p) === want) ??
+      openPieces.find((p) => p.id === id && p.kind === kind);
+    if (!hit) return;
+    const key = paneKeyOf(hit);
     const now = Date.now();
-    const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), [keyOf(id, kind)], now, RECENTS_CAP);
+    const recents = bumpRecents(
+      parseRecents(settings[SETTING_KEYS.workbenchRecents]),
+      [keyOf(id, kind)],
+      now,
+      RECENTS_CAP,
+    );
     void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
-    set(focusKeys({ activeKey, splitKey }, keyOf(id, kind)));
+    set(focusKeys({ activeKey, splitKey }, key));
     const bench = get().benchApp();
     if (bench) get().mountApp(bench.id);
   },

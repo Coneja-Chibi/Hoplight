@@ -1,5 +1,14 @@
 import { expect, test } from "bun:test";
-import { besideKeys, bumpRecents, focusKeys, keyOf, parseRecents, removeKeys } from "./store-core";
+import {
+  besideKeys,
+  bumpRecents,
+  focusKeys,
+  keyOf,
+  paneKey,
+  paneKeyOf,
+  parseRecents,
+  removeKeys,
+} from "./store-core";
 
 test("keyOf composes kind:id", () => {
   expect(keyOf("abc", "character")).toBe("character:abc");
@@ -85,4 +94,22 @@ test("besideKeys: a piece cannot sit beside itself", () => {
 
 test("besideKeys: with nothing active the piece becomes the primary, not a lone split", () => {
   expect(besideKeys({ activeKey: "", splitKey: "" }, "b")).toEqual({ activeKey: "b", splitKey: "" });
+});
+
+test("paneKey: focusEntry distinguishes two views of the same entity", () => {
+  expect(paneKey("b1", "lorebook")).toBe("lorebook:b1");
+  expect(paneKey("b1", "lorebook", "e2")).toBe("lorebook:b1@e2");
+  expect(paneKeyOf({ id: "b1", kind: "lorebook", params: { focusEntry: "e2" } })).toBe(
+    "lorebook:b1@e2",
+  );
+  // same entity, different focus entries can sit beside each other
+  expect(
+    besideKeys(
+      { activeKey: paneKey("b1", "lorebook", "e1"), splitKey: "" },
+      paneKey("b1", "lorebook", "e2"),
+    ),
+  ).toEqual({
+    activeKey: "lorebook:b1@e1",
+    splitKey: "lorebook:b1@e2",
+  });
 });

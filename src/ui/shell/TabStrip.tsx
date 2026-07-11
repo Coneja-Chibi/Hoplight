@@ -8,7 +8,7 @@ import type { CSSProperties, JSX, MouseEvent } from "react";
 import type { StudioEntitySummary } from "../app-contract";
 import { deckMeta } from "../_shared/decks";
 import { Stamp } from "../components/stamp";
-import { keyOf } from "./store-core";
+import { keyOf, paneKeyOf } from "./store-core";
 import { useContextMenu, useShellStore } from "./store";
 
 function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: boolean; beside: boolean }): JSX.Element {
@@ -16,10 +16,12 @@ function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: bo
   const removePiece = useShellStore((s) => s.removePiece);
   const dirty = useShellStore((s) => s.dirtyPieces[keyOf(piece.id, piece.kind)] === true);
   const menuRef = useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
+  const focusHint = piece.params?.focusEntry;
+  const label = focusHint ? `${piece.name} · entry` : piece.name;
 
   const onClose = (e: MouseEvent): void => {
     e.stopPropagation();
-    removePiece(piece.id, piece.kind);
+    removePiece(piece.id, piece.kind, focusHint);
   };
 
   return (
@@ -27,10 +29,11 @@ function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: bo
       ref={menuRef}
       className={`tab${active ? " active" : ""}${beside ? " beside" : ""}`}
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
-      onClick={() => focusPiece(piece.id, piece.kind)}
+      onClick={() => focusPiece(piece.id, piece.kind, focusHint)}
+      title={focusHint ? `${piece.name} (focused entry)` : piece.name}
     >
       <span className="pip" />
-      {piece.name}
+      {label}
       {dirty && <span className="dirty" title="unsaved changes">&#9679;</span>}
       <span className="kind">{deckMeta(piece.kind).short}</span>
       <span className="close" onClick={onClose}>
@@ -63,10 +66,10 @@ export function TabStrip(): JSX.Element {
     <nav id="tabstrip" className={openPieces.length > 0 ? "hastabs" : undefined} aria-label="Open pieces">
       {openPieces.map((p) => (
         <Tab
-          key={keyOf(p.id, p.kind)}
+          key={paneKeyOf(p)}
           piece={p}
-          active={keyOf(p.id, p.kind) === activeKey}
-          beside={keyOf(p.id, p.kind) === splitKey}
+          active={paneKeyOf(p) === activeKey}
+          beside={paneKeyOf(p) === splitKey}
         />
       ))}
       <button id="tabadd" title="Open another" onClick={openAnother}>

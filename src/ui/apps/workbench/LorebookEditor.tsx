@@ -20,6 +20,7 @@ import {
 } from "../../../core/lore";
 import {
   addEntry,
+  deleteEntries,
   deleteEntry,
   duplicateEntry,
   focusedEntry,
@@ -28,6 +29,7 @@ import {
   reorderEntry,
   selectEntry,
   sessionDirty,
+  setEntriesEnabled,
   updateBook,
   updateEntry,
   type LoreSession,
@@ -95,9 +97,18 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [saving, setSaving] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [picked, setPicked] = useState<Set<string>>(() => new Set());
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
+
+  // Open-beside / deep-link: piece.params.focusEntry lands on that entry once.
+  useEffect(() => {
+    const focus = piece.params?.focusEntry;
+    if (!focus) return;
+    setSession((s) => (s.body.entries.some((e) => e.id === focus) ? selectEntry(s, focus) : s));
+  }, [piece.params?.focusEntry, piece.id]);
 
   const dirty = sessionDirty(session, baseline);
   const entry = focusedEntry(session);
@@ -187,6 +198,54 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
 
   const monogram = (session.body.name.trim().charAt(0) || "?").toUpperCase();
 
+  const tocProps = {
+    entries: session.body.entries,
+    focusedId: session.focusedId,
+    writeFor,
+    styles,
+    onSelect: (id: string) => setSession((s) => selectEntry(s, id)),
+    onAdd: () => setSession((s) => addEntry(s)),
+    onPatch: (id: string, patch: Parameters<typeof updateEntry>[2]) =>
+      setSession((s) => updateEntry(s, id, patch)),
+    onDuplicate: (id: string) => setSession((s) => duplicateEntry(s, id)),
+    onDelete: (id: string) => setSession((s) => deleteEntry(s, id)),
+    onMove: (id: string, dir: -1 | 1) =>
+      setSession((s) => {
+        const at = s.body.entries.findIndex((e) => e.id === id);
+        return at < 0 ? s : reorderEntry(s, id, at + dir);
+      }),
+    selectMode,
+    onSelectMode: (on: boolean) => {
+      setSelectMode(on);
+      if (!on) setPicked(new Set());
+    },
+    picked,
+    onTogglePick: (id: string) => {
+      setPicked((prev) => {
+        const next = new Set(prev);
+        if (next.has(id)) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+    },
+    onBulkEnable: (on: boolean) => {
+      const ids = [...picked];
+      setSession((s) => setEntriesEnabled(s, ids, on));
+    },
+    onBulkDelete: () => {
+      const ids = [...picked];
+      setSession((s) => deleteEntries(s, ids));
+      setPicked(new Set());
+    },
+    onClearPick: () => setPicked(new Set()),
+    onOpenBeside: (id: string) => {
+      ctx.workbench.openBeside({
+        ...piece,
+        params: { focusEntry: id },
+      });
+    },
+  };
+
   return (
     <div
       className={styles.root}
@@ -252,23 +311,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       {/* ---- toc | page | rail ---- */}
       <div className={styles.cols}>
         <div className={styles.tocCol}>
-        <LoreEntryToc
-          entries={session.body.entries}
-          focusedId={session.focusedId}
-          writeFor={writeFor}
-          styles={styles}
-          onSelect={(id) => setSession((s) => selectEntry(s, id))}
-          onAdd={() => setSession((s) => addEntry(s))}
-          onPatch={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
-          onDuplicate={(id) => setSession((s) => duplicateEntry(s, id))}
-          onDelete={(id) => setSession((s) => deleteEntry(s, id))}
-          onMove={(id, dir) =>
-            setSession((s) => {
-              const at = s.body.entries.findIndex((e) => e.id === id);
-              return at < 0 ? s : reorderEntry(s, id, at + dir);
-            })
-          }
-        />
+          <LoreEntryToc {...tocProps} />
         </div>
 
         <main className={styles.pageCol}>
@@ -301,28 +344,15 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       {/* ---- mobile contents sheet: same TOC, docked to the pane bottom ---- */}
       {tocOpen && (
         <div className={styles.mGate}>
-        <BottomSheet title="Contents" onDismiss={() => setTocOpen(false)}>
-          <LoreEntryToc
-            entries={session.body.entries}
-            focusedId={session.focusedId}
-            writeFor={writeFor}
-            styles={styles}
-            onSelect={(id) => {
-              setSession((s) => selectEntry(s, id));
-              setTocOpen(false);
-            }}
-            onAdd={() => setSession((s) => addEntry(s))}
-            onPatch={(id, patch) => setSession((s) => updateEntry(s, id, patch))}
-            onDuplicate={(id) => setSession((s) => duplicateEntry(s, id))}
-            onDelete={(id) => setSession((s) => deleteEntry(s, id))}
-            onMove={(id, dir) =>
-              setSession((s) => {
-                const at = s.body.entries.findIndex((e) => e.id === id);
-                return at < 0 ? s : reorderEntry(s, id, at + dir);
-              })
-            }
-          />
-        </BottomSheet>
+          <BottomSheet title="Contents" onDismiss={() => setTocOpen(false)}>
+            <LoreEntryToc
+              {...tocProps}
+              onSelect={(id) => {
+                tocProps.onSelect(id);
+                setTocOpen(false);
+              }}
+            />
+          </BottomSheet>
         </div>
       )}
 
