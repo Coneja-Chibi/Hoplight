@@ -201,3 +201,35 @@ describe("travelLint - tolerance and composition", () => {
     expect(features).toEqual(["case-transform", "lookbehind", "match-token", "v-flag"]);
   });
 });
+
+describe("R2X part B: vaud-engine-only rule fields lint as unsupported on every non-full lens", () => {
+  test("condition, overlay, and firstMatchOnly each produce a rule-level note", () => {
+    const r = rule({
+      condition: { ruleId: "a", matched: true },
+      overlay: true,
+      firstMatchOnly: true,
+    });
+    const notes = travelLint(r, "sillytavern");
+    const features = notes.filter((n) => n.field === "rule").map((n) => n.feature).sort();
+    expect(features).toEqual(["conditional-chaining", "first-match-only", "overlay"]);
+    for (const n of notes.filter((x) => x.field === "rule")) {
+      expect(n.severity).toBe("unsupported");
+      expect(n.span).toEqual({ start: 0, end: 0 });
+      expect(n.message).toContain("SillyTavern");
+    }
+  });
+
+  test("the extras spelling of firstMatchOnly also lints", () => {
+    const notes = travelLint(rule({ extras: { firstMatchOnly: true } }), "risu");
+    expect(notes.some((n) => n.feature === "first-match-only")).toBe(true);
+  });
+
+  test("full is home - rule fields never lint there", () => {
+    const r = rule({ condition: { ruleId: "a", matched: true }, overlay: true, firstMatchOnly: true });
+    expect(travelLint(r, "full")).toEqual([]);
+  });
+
+  test("a plain rule produces no rule-level notes", () => {
+    expect(travelLint(rule({}), "marinara").filter((n) => n.field === "rule")).toEqual([]);
+  });
+});

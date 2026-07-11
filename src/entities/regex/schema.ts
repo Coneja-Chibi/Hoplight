@@ -37,6 +37,17 @@ export type RegexPhase =
 export type RegexTargetChannel = "prompt" | "response" | "display";
 
 /**
+ * Deterministic rule chaining (vaud-engine-only, R2X): run the carrying rule only when the rule
+ * named by `ruleId` DID (`matched: true`) or DID NOT (`matched: false`) apply earlier in the same
+ * pass. One pass, sortOrder order: a condition naming a rule that has not run yet (or does not
+ * exist) skips the carrying rule with an honest trace reason - never forward-resolves.
+ */
+export interface RegexRuleCondition {
+  ruleId: string;
+  matched: boolean;
+}
+
+/**
  * Find-side macro substitution mode (ST/RC share none/raw/escaped; Lumi adds "after" - substitute
  * after the replace runs, exact semantics pending the R1 residual read of
  * regex-scripts.service.ts). Risu and Marinara have no such control (capability-hidden, data kept).
@@ -79,6 +90,19 @@ export interface RegexRule {
   runOnEdit?: boolean;
   /** Marinara `targetCharacterIds`: limit to specific recipient characters; empty/absent = all */
   characterIds?: string[];
+  /**
+   * Vaud-engine-only (R2X, no wire home anywhere - travel lint marks these three under every
+   * platform lens; export keeps the data canonical-side and emits nothing):
+   * replace only the FIRST match even under a global flag.
+   */
+  firstMatchOnly?: boolean;
+  /** Vaud-engine-only: run only when another rule in this set did (or did not) apply this pass. */
+  condition?: RegexRuleCondition;
+  /**
+   * Vaud-engine-only: display-channel rule that returns match spans + replacement as an OVERLAY
+   * instead of mutating text (ST names this "Overlay strategy" and implements it nowhere).
+   */
+  overlay?: boolean;
   enabled: boolean;
   sortOrder: number;
   /**

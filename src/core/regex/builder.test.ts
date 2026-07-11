@@ -71,10 +71,22 @@ describe("explainPattern", () => {
 
   test("build -> explain recovers a single-word pattern", () => {
     const built = buildFromPhrases(["cat"]);
-    expect(explainPattern(built.find, built.flags)).toEqual({
-      phrases: ["cat"],
-      complete: true,
-    });
+    const explained = explainPattern(built.find, built.flags);
+    // R2X integration widened ExplainResult with the AST explainer's full `reading` (QOL 20);
+    // the vocabulary contract (phrases/complete/note) is unchanged - assert it precisely, then
+    // the new field's presence for a parseable pattern.
+    expect(explained).toMatchObject({ phrases: ["cat"], complete: true });
+    expect(explained.note).toBeUndefined();
+    expect(typeof explained.reading).toBe("string");
+    expect(explained.reading!.length).toBeGreaterThan(0);
+  });
+
+  test("R2X: the full reading is present even for patterns outside the vocabulary", () => {
+    const explained = explainPattern("^\\[status\\][\\s\\S]*?\\[\\/status\\]$", "gm");
+    expect(explained.complete).toBe(false);
+    expect(typeof explained.reading).toBe("string");
+    // the mechanical reading names the literal pieces the vocabulary cannot
+    expect(explained.reading).toContain("[status]");
   });
 
   test("a pattern outside the vocabulary is marked partial with an honest note", () => {

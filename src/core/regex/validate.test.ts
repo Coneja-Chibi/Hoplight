@@ -60,15 +60,12 @@ describe("validateRule", () => {
   });
 
   test("nested quantifier variants also trip the gate", () => {
+    // R2's note called "(a|a)+b" (overlapping alternation, not nested-quantifier shaped) out of
+    // scope for the regex heuristic. R2X's AST analysis (ast/redos overlapping-alternation
+    // detector) brings it in scope: it IS a real backtracking bomb, now correctly rejected.
     for (const find of ["(.*)+", "(.+)*", "([^x]*)+", "(a|a)+b"]) {
       const result = validateRule(rule({ find }));
-      if (find === "(a|a)+b") {
-        // alternation-only bombs are not nested-quantifier shaped; complexity stays low but the
-        // pattern is still valid regex syntax, so it passes this gate (out of scope for R2).
-        expect(result.ok).toBe(true);
-      } else {
-        expect(result.ok).toBe(false);
-      }
+      expect(result.ok).toBe(false);
     }
   });
 
@@ -76,5 +73,32 @@ describe("validateRule", () => {
     const result = validateRule(rule({ find: "a+b*c?d{2,4}" }));
     expect(result.ok).toBe(true);
     expect(result.complexity).toBeLessThan(COMPLEXITY_HARD_CAP);
+  });
+});
+
+describe("R2X: validate delegates to ast/redos when the pattern parses", () => {
+  test("(a+)+$ is rejected with the culprit's exact span", () => {
+    const v = validateRule(rule({ find: "(a+)+$" }));
+    expect(v.ok).toBe(false);
+    expect(v.error).toContain("catastrophic");
+    // the culprit span points inside the pattern (the nested-quantifier construct)
+    expect(v.culprit).toBeDefined();
+    expect(v.culprit!.start).toBeGreaterThanOrEqual(0);
+    expect(v.culprit!.end).toBeLessThanOrEqual("(a+)+$".length);
+    expect(v.culprit!.end).toBeGreaterThan(v.culprit!.start);
+  });
+
+  test("a linear equivalent passes clean with no culprit", () => {
+    const v = validateRule(rule({ find: "a+$" }));
+    expect(v.ok).toBe(true);
+    expect(v.culprit).toBeUndefined();
+  });
+
+  test("a pattern the u-mode parser refuses still validates via the heuristic fallback", () => {
+    // Annex-B legacy: a lone `{` is a literal in non-u mode; host RegExp compiles it, our
+    // u-mode parser refuses it - the heuristic path must still answer.
+    const v = validateRule(rule({ find: "a{" }));
+    expect(v.ok).toBe(true);
+    expect(v.complexity).toBeGreaterThanOrEqual(0);
   });
 });

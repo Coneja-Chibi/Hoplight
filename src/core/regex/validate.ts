@@ -9,6 +9,9 @@
  * refusing before the call is the only "clean timeout" a synchronous engine can offer.
  */
 import type { RegexRule } from "../../entities/regex/schema";
+import type { Span } from "./ast/ast-types";
+import { parseRegex } from "./ast/parser";
+import { analyzeRedos } from "./ast/redos";
 
 export const MAX_PATTERN_LENGTH = 10_000;
 export const MAX_REPLACEMENT_LENGTH = 10_000;
@@ -21,6 +24,8 @@ export interface RuleValidation {
   ok: boolean;
   error?: string;
   complexity: number;
+  /** exact character range of the dangerous construct, when the AST analysis found one (R2X) */
+  culprit?: Span;
 }
 
 function estimateComplexity(pattern: string): number {
@@ -62,21 +67,47 @@ export function validateRule(rule: RegexRule): RuleValidation {
     };
   }
 
-  const complexity = estimateComplexity(pattern);
-  if (complexity >= COMPLEXITY_HARD_CAP) {
-    return {
-      ok: false,
-      error: "regex/validate: pattern has nested quantifiers that risk catastrophic backtracking",
-      complexity,
-    };
-  }
-
   try {
     new RegExp(pattern);
   } catch (err) {
     return {
       ok: false,
       error: `regex/validate: invalid pattern - ${err instanceof Error ? err.message : String(err)}`,
+      complexity: estimateComplexity(pattern),
+    };
+  }
+
+  // R2X: real static analysis on the AST when the pattern parses (nested unbounded quantifiers,
+  // overlapping alternation under a star, quantified backreferences - with the culprit's exact
+  // span). The regex heuristic below remains the fallback for patterns our u-mode parser refuses
+  // (Annex-B legacy forms that the host engine still compiles).
+  const parsed = parseRegex(pattern); // pattern-only analysis; flags don't change ReDoS shape
+  if ("ast" in parsed) {
+    const report = analyzeRedos(parsed.ast);
+    const worst = report.findings[0];
+    if (report.severity === "dangerous") {
+      return {
+        ok: false,
+        error: "regex/validate: pattern has nested quantifiers that risk catastrophic backtracking",
+        complexity: COMPLEXITY_HARD_CAP,
+        ...(worst ? { culprit: worst.culpritSpan } : {}),
+      };
+    }
+    const complexity = report.severity === "suspicious"
+      ? Math.max(estimateComplexity(pattern), COMPLEXITY_HARD_CAP - 10)
+      : estimateComplexity(pattern);
+    return {
+      ok: true,
+      complexity,
+      ...(worst ? { culprit: worst.culpritSpan } : {}),
+    };
+  }
+
+  const complexity = estimateComplexity(pattern);
+  if (complexity >= COMPLEXITY_HARD_CAP) {
+    return {
+      ok: false,
+      error: "regex/validate: pattern has nested quantifiers that risk catastrophic backtracking",
       complexity,
     };
   }

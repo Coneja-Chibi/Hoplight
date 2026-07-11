@@ -29,9 +29,9 @@ export type TravelSeverity = "unsupported" | "host-age";
 /** One travel-honesty note: a feature used by the rule that the destination lens handles differently. */
 export interface TravelNote {
   feature: RegexEngineFeature;
-  /** Which rule string the span indexes into. */
-  field: "find" | "flags" | "replace";
-  /** Half-open [start, end) into that field's string - the exact characters to underline. */
+  /** Which rule string the span indexes into; "rule" = a rule-level field with no string span. */
+  field: "find" | "flags" | "replace" | "rule";
+  /** Half-open [start, end) into that field's string; {0,0} for rule-level fields. */
   span: Span;
   severity: TravelSeverity;
   /** Plain-language sentence a naive reader follows cold; names the destination platform. */
@@ -49,7 +49,51 @@ export function travelLint(rule: RegexRule, profile: RegexWriteForProfile): Trav
     ...lintFind(rule.find, label),
     ...lintFlags(rule.flags, profile, label),
     ...lintReplace(rule.replace, profile, label),
+    ...lintRuleFields(rule, label),
   ];
+}
+
+/**
+ * Vaud-engine-only RULE FIELDS (R2X Part B: schema condition/overlay/firstMatchOnly). No string
+ * span exists for these - the whole rule carries the behavior - so field is "rule" and the span
+ * is {0,0}. Support table says only "full" runs them; this lints for every non-full profile.
+ */
+function lintRuleFields(rule: RegexRule, label: string): TravelNote[] {
+  const zero: Span = { start: 0, end: 0 };
+  const notes: TravelNote[] = [];
+  if (rule.condition) {
+    notes.push({
+      feature: "conditional-chaining",
+      field: "rule",
+      span: zero,
+      severity: "unsupported",
+      message:
+        `This rule only runs when another rule fires - that chaining exists only here; ` +
+        `${label} will run it unconditionally.`,
+    });
+  }
+  if (rule.overlay === true) {
+    notes.push({
+      feature: "overlay",
+      field: "rule",
+      span: zero,
+      severity: "unsupported",
+      message:
+        `Overlay display (drawing over the text without changing it) exists only here; ` +
+        `${label} will replace the text for real.`,
+    });
+  }
+  if (rule.firstMatchOnly === true || rule.extras?.firstMatchOnly === true) {
+    notes.push({
+      feature: "first-match-only",
+      field: "rule",
+      span: zero,
+      severity: "unsupported",
+      message:
+        `"First match only" exists only here; ${label} will replace every match.`,
+    });
+  }
+  return notes;
 }
 
 // ---------------------------------------------------------------------------

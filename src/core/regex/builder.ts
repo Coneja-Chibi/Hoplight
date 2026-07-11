@@ -13,7 +13,13 @@
  * confirmed by builder-core.ts's own import). The full multi-mode RegexBuilderState (phrases
  * mode, exclude/suffix/followed-by controls) is UI-gated R3 work, not this prerequisite; this
  * module ports only the words-mode grammar both directions need to stay honest.
+ *
+ * R2X integration: explainPattern additionally carries the AST explainer's FULL mechanical
+ * `reading` for any parseable pattern (QOL 20) - the vocabulary answer (`phrases`/`complete`)
+ * stays the "can Plain-words edit this?" verdict; the reading answers "what does it do?".
  */
+import { explainAst } from "./ast/explain";
+import { parseRegex } from "./ast/parser";
 
 /** Characters the builder escapes when turning a literal word into a pattern fragment. */
 const REGEX_SPECIALS = new Set([
@@ -65,6 +71,12 @@ export interface ExplainResult {
   phrases: string[];
   complete: boolean; // true only when the pattern is EXACTLY buildFromPhrases's own shape
   note?: string; // present whenever complete is false
+  /**
+   * The FULL mechanical reading from ast/explain, present whenever the pattern parses - even
+   * when `complete` is false (QOL 20). Absent only when the u-mode parser refuses the pattern
+   * (Annex-B legacy forms).
+   */
+  reading?: string;
 }
 
 const ADVANCED_NOTE = "plus advanced parts outside the words vocabulary";
@@ -197,9 +209,19 @@ function extractKnownWords(pattern: string): string[] {
 export function explainPattern(find: string, flags: string): ExplainResult {
   if (!find) return { phrases: [], complete: true };
 
+  const parsed = parseRegex(find);
+  const reading = "ast" in parsed ? explainAst(parsed.ast, flags).text : undefined;
+
   const exact = decompileWords(find, flags);
-  if (exact !== null) return { phrases: exact, complete: true };
+  if (exact !== null) {
+    return { phrases: exact, complete: true, ...(reading !== undefined ? { reading } : {}) };
+  }
 
   const known = extractKnownWords(find);
-  return { phrases: known, complete: false, note: ADVANCED_NOTE };
+  return {
+    phrases: known,
+    complete: false,
+    note: ADVANCED_NOTE,
+    ...(reading !== undefined ? { reading } : {}),
+  };
 }

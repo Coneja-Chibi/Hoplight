@@ -6,3 +6,11 @@
 export * from "./ast-types";
 export { V_MODE_ENABLED, parseRegex, printRegex } from "./parser";
 export type { ParseResult } from "./parser";
+export { explainAst } from "./explain";
+export type { PlainExplanation } from "./explain";
+export { examplesFor } from "./examples";
+export type { ExamplesOptions, ExamplesResult } from "./examples";
+export { analyzeRedos } from "./redos";
+export type { RedosFinding, RedosKind, RedosReport, RedosSeverity } from "./redos";
+export { parseFlagTokens, tolerate } from "./dialect";
+export type { ToleranceNote, ToleranceResult } from "./dialect";

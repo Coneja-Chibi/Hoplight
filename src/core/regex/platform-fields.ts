@@ -113,10 +113,11 @@ export function phasesForProfile(profile: RegexWriteForProfile): readonly RegexP
  *   not a survey-derived one). Vaude runs it as well (core/regex/replace-ops.ts).
  * - case transforms (\u \l \U \L \E): a vaud-engine extension (replace-ops.ts); no surveyed wire
  *   executes them, so on every other lens they print literally.
- * - conditional chaining (run B only if A fired) and overlay (display-only spans): vaud-engine only
- *   (REGEX-JEWEL-PLAN.md R2X). Both are rule-level / cross-rule behaviors with NO single-rule token,
- *   so they live here for capability gating but travel-lint cannot detect them from one rule's
- *   find/replace/flags. That is by design, not a coverage gap.
+ * - conditional chaining (run B only if A fired), overlay (display-only spans), and
+ *   first-match-only: vaud-engine only (REGEX-JEWEL-PLAN.md R2X). Since Part B these are
+ *   FIRST-CLASS RULE FIELDS (entities/regex/schema.ts condition/overlay/firstMatchOnly), so
+ *   travel-lint detects them straight off the rule (field: "rule") - the earlier "no single-rule
+ *   token" note predates the schema fields.
  * - <cbs> flag tokens: Risu-only output-macro processing (survey "RisuAI", live "gu<cbs>"); every
  *   other engine (Vaude included - apply.ts strips it before compiling) ignores it.
  */
@@ -125,6 +126,7 @@ export type RegexReplaceFeature =
   | "case-transform"
   | "conditional-chaining"
   | "overlay"
+  | "first-match-only"
   | "cbs-flag-tokens";
 
 /** Which profiles' engines EXECUTE each replace/flag extension. A profile absent = prints/ignores it. */
@@ -136,6 +138,7 @@ export const REGEX_REPLACE_FEATURE_SUPPORT: Record<
   "case-transform": ["full"],
   "conditional-chaining": ["full"],
   "overlay": ["full"],
+  "first-match-only": ["full"],
   "cbs-flag-tokens": ["risu"],
 };
 

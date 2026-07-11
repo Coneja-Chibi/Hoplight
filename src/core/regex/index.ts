@@ -22,3 +22,24 @@ export {
   phasesForProfile,
   platformOwnsField,
 } from "./platform-fields";
+export {
+  DEFAULT_MAX_MATCHES,
+  DEFAULT_TIMEOUT_MS,
+  MAX_TIMEOUT_MS,
+  applyRules,
+  validateRule,
+} from "./apply";
+export type {
+  RegexRunOptions,
+  RegexRunResult,
+  RuleOverlay,
+  RuleTrace,
+  TraceMatch,
+} from "./apply";
+export type { RuleValidation } from "./validate";
+export { buildFromPhrases, explainPattern } from "./builder";
+export type { BuildOptions, BuiltRegex, ExplainResult } from "./builder";
+export { expandReplacement, substituteAfterMacros, substituteFindMacros } from "./replace-ops";
+export { travelLint } from "./travel-lint";
+export type { TravelNote, TravelSeverity } from "./travel-lint";
+export * from "./ast";
