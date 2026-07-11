@@ -22,10 +22,10 @@
 }
 
 .head b {
-  font-family: var(--font-big);
-  font-weight: 800;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
 }
@@ -164,9 +164,9 @@
 
 .hit b,
 .skip b {
-  font-family: var(--font-big);
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-card);
 }

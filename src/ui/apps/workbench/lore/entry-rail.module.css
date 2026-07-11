@@ -45,10 +45,10 @@
 }
 
 .rhead b {
-  font-family: var(--font-big);
-  font-weight: 800;
-  font-size: 0.6rem;
-  letter-spacing: 0.09em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
 }

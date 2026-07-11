@@ -51,12 +51,13 @@
   flex: none;
 }
 
+/* Panel title field: mono chrome (Archivo is reserved for the page entry title). */
 .ptitle {
   font: inherit;
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   flex: 1;
   min-width: 6rem;

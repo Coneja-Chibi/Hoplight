@@ -60,9 +60,9 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-family: var(--font-big);
-  font-weight: 800;
-  font-size: 0.56rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-soft);

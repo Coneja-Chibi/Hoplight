@@ -1,7 +1,13 @@
 /**
- * The binder page skin (vs-lorebook-binder-2): masthead (pager, on/off, entry name, fires-line)
- * and the dossier cards. Dial/key/segment classes (headFld, headNum, seg, plabel, macro...) stay
- * in entry-panel.module.css / entry-panel-keys.module.css - one name, one module.
+ * The binder page skin (vs-lorebook-binder-2): masthead + dossier cards.
+ * Dial/key/segment classes live in entry-panel.module.css / entry-panel-keys.module.css.
+ *
+ * Type ladder for THIS surface (house tokens, no random faces):
+ *   --font-big  (Archivo)     = entry title ONLY
+ *   --font-body italic        = firesLine voice ONLY (one per page)
+ *   --font-mono               = all chrome: card titles, kickers, chips, dials, modes
+ *   --font-body upright       = status lines + passage content
+ * Never Archivo on small card labels (that was the "random mix" look).
  */
 
 .page {
@@ -139,10 +145,10 @@
 }
 
 .bchead b {
-  font-family: var(--font-big);
-  font-weight: 800;
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-card);
 }
@@ -297,10 +303,10 @@
 }
 
 .md {
-  font-family: var(--font-big);
-  font-weight: 800;
-  font-size: 0.54rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 0;
   background: var(--stage-row);
