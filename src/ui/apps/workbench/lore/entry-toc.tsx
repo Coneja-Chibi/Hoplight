@@ -3,14 +3,11 @@
  * Match overrides live on the page Keys card, not here.
  */
 import { useState, type JSX } from "react";
-import { Columns2, Copy, Trash2 } from "lucide-react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { entryFireMode, fireModePatch } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
 import { ModeSelect } from "./entry-toc-mode";
-
-const ICO = { size: 12, strokeWidth: 2.25, "aria-hidden": true as const };
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
@@ -72,95 +69,80 @@ function FinePrint({
   onOpenBeside?: () => void;
 }): JSX.Element {
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
-  const act = styles.iconBtn ?? "iconBtn";
   return (
     <div className={styles.texp}>
-      <div className={styles.chromRow}>
-        {show("sortOrder") && (
-          <label className={styles.chromCell}>
-            <span>Order</span>
-            <input
-              className={styles.texpNum}
-              type="number"
-              value={entry.sortOrder}
-              aria-label="Insertion order"
-              onChange={(ev) => onPatch({ sortOrder: Number(ev.target.value) || 0 })}
+      <div className={styles.texpPanel}>
+        <div className={styles.chromGrid}>
+          {show("sortOrder") && (
+            <label className={styles.chromTile}>
+              <span className={styles.chromLab}>Order</span>
+              <input
+                className={styles.chromIn}
+                type="number"
+                value={entry.sortOrder}
+                aria-label="Insertion order"
+                onChange={(ev) => onPatch({ sortOrder: Number(ev.target.value) || 0 })}
+              />
+            </label>
+          )}
+          {show("priority") && (
+            <label className={styles.chromTile}>
+              <span className={styles.chromLab}>Priority</span>
+              <input
+                className={styles.chromIn}
+                type="number"
+                value={entry.priority}
+                aria-label="Budget priority"
+                onChange={(ev) => onPatch({ priority: Number(ev.target.value) || 0 })}
+              />
+            </label>
+          )}
+          {show("scanDepth") && (
+            <label className={styles.chromTile}>
+              <span className={styles.chromLab}>Scan</span>
+              <input
+                className={styles.chromIn}
+                type="number"
+                min={0}
+                placeholder="—"
+                value={entry.scanDepth ?? ""}
+                aria-label="Scan depth (blank inherits the book default)"
+                onChange={(ev) => {
+                  const v = ev.target.value;
+                  onPatch({ scanDepth: v === "" ? null : Number(v) || 0 });
+                }}
+              />
+            </label>
+          )}
+          <div className={styles.chromTile}>
+            <span className={styles.chromLab}>Keep</span>
+            <button
+              type="button"
+              className={
+                entry.ignoreBudget
+                  ? styles.texpSwitch
+                  : `${styles.texpSwitch} ${styles.texpSwitchOff}`
+              }
+              role="switch"
+              aria-checked={entry.ignoreBudget}
+              aria-label="Always keep: skip the token budget"
+              onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
             />
-          </label>
-        )}
-        {show("priority") && (
-          <label className={styles.chromCell}>
-            <span>Priority</span>
-            <input
-              className={styles.texpNum}
-              type="number"
-              value={entry.priority}
-              aria-label="Budget priority"
-              onChange={(ev) => onPatch({ priority: Number(ev.target.value) || 0 })}
-            />
-          </label>
-        )}
-        {show("scanDepth") && (
-          <label className={styles.chromCell}>
-            <span>Scan</span>
-            <input
-              className={styles.texpNum}
-              type="number"
-              min={0}
-              placeholder="—"
-              value={entry.scanDepth ?? ""}
-              aria-label="Scan depth (blank inherits the book default)"
-              onChange={(ev) => {
-                const v = ev.target.value;
-                onPatch({ scanDepth: v === "" ? null : Number(v) || 0 });
-              }}
-            />
-          </label>
-        )}
-        <label className={styles.chromCell}>
-          <span>Keep</span>
-          <button
-            type="button"
-            className={
-              entry.ignoreBudget ? styles.texpSwitch : `${styles.texpSwitch} ${styles.texpSwitchOff}`
-            }
-            role="switch"
-            aria-checked={entry.ignoreBudget}
-            aria-label="Always keep: skip the token budget"
-            onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
-          />
-        </label>
-      </div>
-      <div className={styles.iconRow} role="group" aria-label="Entry actions">
-        <button
-          type="button"
-          className={act}
-          aria-label="Copy entry"
-          title="Copy entry"
-          onClick={onDuplicate}
-        >
-          <Copy {...ICO} />
-        </button>
-        {onOpenBeside && (
-          <button
-            type="button"
-            className={act}
-            aria-label="Open beside"
-            title="Open beside"
-            onClick={onOpenBeside}
-          >
-            <Columns2 {...ICO} />
+          </div>
+        </div>
+        <div className={styles.texpFoot} role="group" aria-label="Entry actions">
+          <button type="button" className={styles.texpAct} onClick={onDuplicate}>
+            Copy
           </button>
-        )}
-        <button
-          type="button"
-          className={`${act} ${styles.iconDanger ?? ""}`.trim()}
-          aria-label="Delete entry"
-          title="Delete entry"
-          onClick={onDelete}
-        >
-          <Trash2 {...ICO} />
-        </button>
+          {onOpenBeside && (
+            <button type="button" className={styles.texpAct} onClick={onOpenBeside}>
+              Beside
+            </button>
+          )}
+          <button type="button" className={styles.texpActDanger} onClick={onDelete}>
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );

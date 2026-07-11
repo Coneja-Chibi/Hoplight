@@ -1,43 +1,112 @@
 /**
- * Focused TOC row fine print: dials + compact matching/action pills.
+ * Focused TOC expand: one panel, 2x2 chrom grid + action footer.
  */
 
 .texp {
-  border-left: 3px solid var(--a, var(--stage-macro));
-  background: color-mix(in srgb, var(--a, var(--stage-macro)) 7%, transparent);
-  margin: 0 0 0.25rem;
-  padding: 0.3rem 0.45rem 0.45rem 0.65rem;
+  margin: 0 0 0.3rem;
+  padding: 0 0.35rem 0.15rem 0.55rem;
 }
 
-/* Compact chrom: ORDER [n] PRIORITY [n] SCAN [—] KEEP [toggle] — one row, label beside control */
-.chromRow {
+.texpPanel {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  overflow: hidden;
+}
+
+.chromGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.chromTile {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem 0.65rem;
-  margin-bottom: 0.35rem;
-}
-
-.chromCell {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.28rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.22rem;
+  padding: 0.4rem 0.45rem 0.42rem;
+  border-right: 1px solid var(--stage-seam);
+  border-bottom: 1px solid var(--stage-seam);
   min-width: 0;
+  background: transparent;
 }
 
-.chromCell span {
+.chromTile:nth-child(2n) {
+  border-right: 0;
+}
+
+.chromTile:nth-last-child(-n + 2) {
+  border-bottom: 0;
+}
+
+.chromLab {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.55rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-soft);
-  flex: none;
+  color: var(--stage-text-dim);
 }
 
-.chromCell .texpNum {
-  width: 2.6rem;
+.chromIn {
+  width: 100%;
+  max-width: 4rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  text-align: center;
+  padding: 0.18rem 0.2rem;
+}
+
+.texpFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 0.75rem;
+  padding: 0.35rem 0.45rem;
+  border-top: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+}
+
+.texpAct {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
+.texpAct:hover {
+  color: var(--stage-card);
+}
+
+.texpActDanger {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-danger-text);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.14em;
+}
+
+.texpActDanger:hover {
+  color: var(--stage-danger-hot, var(--stage-danger-text));
 }
 
 .texpRow {
