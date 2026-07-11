@@ -243,6 +243,18 @@
   flex-wrap: wrap;
 }
 
+/* fluid law: when the pane can't fit names + progress on one line, the progress chips become a
+   deliberate second row, left-aligned - not a right-floating orphan mid-wrap */
+@container (max-width: 74rem) {
+  .tabstrip {
+    gap: 0.4rem 0.8rem;
+  }
+  .done {
+    margin-left: 0;
+    flex-basis: 100%;
+  }
+}
+
 .escale {
   display: flex;
   align-items: center;
@@ -294,6 +306,16 @@
   font-family: var(--font-mono);
   font-size: 0.625rem;
   color: var(--stage-mute);
+  margin-right: 0.2rem;
+}
+
+.lensStat {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.05em;
+  color: var(--stage-mute);
+  border: 2px solid var(--stage-seam);
+  padding: 0.1rem 0.35rem;
   margin-right: 0.2rem;
 }
 

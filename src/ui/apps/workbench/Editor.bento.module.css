@@ -29,8 +29,13 @@
   .bento {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* stacked, the identity column stays card-sized: unconstrained it goes pane-wide and the
+     2/3-aspect portrait balloons to fill the whole screen */
   .bcolLeft {
     position: static;
+    width: 100%;
+    max-width: 26rem;
+    margin-inline: auto;
   }
 }
 

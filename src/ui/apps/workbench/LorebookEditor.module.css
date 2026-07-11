@@ -149,10 +149,13 @@
   overflow-y: auto;
 }
 
-/* fluid law: collapse by the pane's width, never the viewport's */
+/* fluid law: collapse by the pane's width, never the viewport's.
+   Stacked mode leaves grid entirely: a definite-height grid distributes its height across the
+   auto rows while the percentage-height columns overflow them, and the three sections draw on
+   top of each other. Block flow sizes each section by its content and lets .cols scroll. */
 @container (max-width: 74rem) {
   .cols {
-    grid-template-columns: minmax(0, 1fr);
+    display: block;
     overflow-y: auto;
   }
   .pageCol {
