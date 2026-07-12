@@ -48,9 +48,10 @@ export async function writeExclusive(finalPath: string, body: string): Promise<v
 /** Windows can refuse rename-over-target with a transient share violation (EPERM/EACCES/EBUSY)
  * while another handle briefly holds the destination - a concurrent save of the SAME file (two
  * settings writes land together when a piece opens), the search indexer, a scanner. The temp is
- * ours alone, so retrying just the rename is idempotent and safe: bounded attempts, short linear
- * backoff, then fail closed. Live repro before this: 3 of 8 rapid settings saves 500'd. */
-const RENAME_ATTEMPTS = 6;
+ * ours alone, so retrying just the rename is idempotent and safe: bounded attempts (12, ~780ms
+ * worst case - 6 was flake-prone under 24-way contention in the suite), linear backoff, then fail
+ * closed. Live repro before the retry existed: 3 of 8 rapid settings saves 500 d. */
+const RENAME_ATTEMPTS = 12;
 const RETRYABLE_RENAME_CODES: ReadonlySet<string> = new Set(["EPERM", "EACCES", "EBUSY"]);
 
 async function renameWithRetry(tmp: string, finalPath: string): Promise<void> {
@@ -61,7 +62,7 @@ async function renameWithRetry(tmp: string, finalPath: string): Promise<void> {
     } catch (e) {
       const code = (e as NodeJS.ErrnoException)?.code ?? "";
       if (attempt >= RENAME_ATTEMPTS || !RETRYABLE_RENAME_CODES.has(code)) throw e;
-      await new Promise((resolve) => setTimeout(resolve, 15 * attempt));
+      await new Promise((resolve) => setTimeout(resolve, 10 * attempt));
     }
   }
 }

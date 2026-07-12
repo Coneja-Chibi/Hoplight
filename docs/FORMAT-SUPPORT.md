@@ -40,11 +40,14 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `novelai-lorebook` | lorebook | .lorebook | NovelAI lorebook (native export .lorebook / json) |
 | `agnai-lorebook` | lorebook | .json | Agnai memory book (json) |
 
-## Personas (1)
+## Personas (4)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
+| `sillytavern-persona` | persona | .json | SillyTavern personas backup (default persona; the rest ride sealed) |
 | `rolecall-persona` | persona | .json | RoleCall persona (rcpersona / RC persona-card export) |
+| `marinara-persona` | persona | .json | Marinara persona (theming and stat bars ride sealed) |
+| `lumiverse-persona` | persona | .json | Lumiverse persona (account object) |
 
 ## Regex script sets (5)
 

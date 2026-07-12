@@ -9,6 +9,7 @@ import { embedCharacterBook } from "../_shared/character-book";
 import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import regexCodec from "./regex";
+import personaCodec from "./persona";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion, pngSourceMedia } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
@@ -154,4 +155,4 @@ export { adapter as characterAdapter };
  * regex scripts). The regex codec reads the bare `RegexScriptData[]` array (Marinara's Essentials
  * packs) and a card's `extensions.regex_scripts`; a full character card still wins detection (0.9)
  * over the codec's card-home score (0.85), so cards keep importing as characters. */
-export default [adapter, lorebookCodec, regexCodec];
+export default [adapter, lorebookCodec, regexCodec, personaCodec];

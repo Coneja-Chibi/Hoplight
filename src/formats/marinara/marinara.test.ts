@@ -7,7 +7,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import marinaraRegex from "./index";
+import { regexAdapter as marinaraRegex } from "./index";
 import sillytavernRegex from "../sillytavern/regex";
 
 const ST_FIXTURE_TEXT = readFileSync(

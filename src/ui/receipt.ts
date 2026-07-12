@@ -31,6 +31,9 @@ const FRIENDLY: Record<string, string> = {
   "rolecall-regex": "RoleCall",
   "lumiverse-regex": "Lumiverse",
   "marinara-regex": "Marinara",
+  "sillytavern-persona": "SillyTavern",
+  "lumiverse-persona": "Lumiverse",
+  "marinara-persona": "Marinara",
 };
 
 export const friendlyFormat = (formatId: string): string => FRIENDLY[formatId] ?? formatId;

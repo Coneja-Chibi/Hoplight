@@ -32,6 +32,7 @@ import {
   readMarinaraRegexScript,
   rulesToMarinaraScripts,
 } from "../_shared/marinara-regex";
+import personaAdapter from "./persona";
 
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
@@ -91,5 +92,7 @@ const regexAdapter: RegexAdapter = {
   },
 };
 
-/** Folders-as-schema: the Marinara family's one codec (regex scripts). */
-export default regexAdapter;
+export { regexAdapter };
+
+/** Folders-as-schema: the Marinara family codecs (regex scripts + persona). */
+export default [regexAdapter, personaAdapter];

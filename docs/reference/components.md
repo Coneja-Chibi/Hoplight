@@ -28,6 +28,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CharacterFilterBlock | src/ui/apps/workbench/lore/platforms/filter-block.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
+| ContentCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaWriteForProfile; }) | The flat identity text (the whole persona on section-less platforms). |  |
 | CssAdvancedPane | src/ui/components/css-workshop/advanced-pane.tsx | ({ value, onChange, doc, selected, onSelectRule, onRuleChange, onChip, }: CssAdvancedPaneProps) | Code + breakdown split for advanced authors. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssAssistPane | src/ui/components/css-workshop/assist-pane.tsx | ({ pack, doc, selected, onSelectRule, onAddRule, onRuleChange, onDeleteRule, }: CssAssistPaneProps) | Structured assist over one rule at a time. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssSourcePane | src/ui/components/css-workshop/source-pane.tsx | ({ value, onChange, onChip }: CssSourcePaneProps) | Source tab: chips assist, editor is the sheet. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
@@ -47,6 +48,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionStage | src/ui/components/expression-stage/index.tsx | ({ pack, profile }: ExpressionStageProps) |  | .wrap .seal .row .face .moods .mood .moodOn .ta ... |
+| FaceCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, portraitUrl, tokens, }: { body: PersonaBody; portraitUrl: string \| null; tokens: number; }) | The left face plate: the character editor's .lcard/.portrait grammar, persona-simple. |  |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FinePrint | src/ui/apps/workbench/regex/fine-print.tsx | ({ rule, rules, writeFor, styles, onPatch }: FinePrintProps) |  |  |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
@@ -57,6 +59,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
 | HealthPane | src/ui/apps/workbench/regex/health-pane.tsx | ({ findings, rules, onClose, onGoTo, onFix }: HealthPaneProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
+| IdentityCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Identity: tagline + pronouns/height/age + the BRIEF with its never-injected honesty line. |  |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
 | InjectionCard | src/ui/apps/workbench/persona/injection-card.tsx | ({ body, onBody, stops, labels, showWrapper }: InjectionCardProps) |  |  |
@@ -67,6 +70,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Vaude (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
+| LorebookCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ ctx, body, onBody }: { ctx: AppContext; body: PersonaBody; onBody: OnBody }) | Linked lorebook (knowledgeRefs, first slot) - wakes with this persona. |  |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
@@ -92,6 +96,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
+| PaletteCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Color palette: signature slot + labeled swatches (compiled into the prompt as labeled tags). |  |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
 | PersonaEditor | src/ui/apps/workbench/PersonaEditor.tsx | (props: PersonaEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PersonaEditorView | src/ui/apps/workbench/persona/persona-editor.tsx | ({ entity, ctx, piece, topRight }: PersonaEditorViewProps) |  |  |
@@ -102,7 +107,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
 | PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, onOpenSprites, spriteCount = 0, sh... |  |  |
 | PositionPicker | src/ui/apps/workbench/lore/position-picker.tsx | ({ position, depth, role, writeFor, showDepth, showRole, styles, onPatch, }: PositionPickerProps) |  |  |
-| PreviewRail | src/ui/apps/workbench/persona/preview-rail.tsx | ({ ctx, body, onBody, xml, tokens, stopLabel, isDefault, onToggleDefault, }: PreviewRailProps) |  |  |
+| PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
@@ -119,7 +124,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
 | SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
-| SectionsStack | src/ui/apps/workbench/persona/sections-stack.tsx | ({ body, onBody, writeFor }: SectionsStackProps) |  |  |
+| SectionCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, sectionKey, title, placeholder, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaW... | One canonical text section as a bento tile; Personality also carries the trait chips. |  |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .room .tabs .tab .on .body .row .tx .label ... |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .room .tabs .tab .on .body .row .tx .label ... |
 | SheetSlicePanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ sheetCols, sheetRows, sheetRef, onCols, onRows, onPick, onFile, }: { sheetCols: number; sheetRows: number; sheetRe... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
@@ -128,7 +133,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SpritePackDialog | src/ui/components/sprite-pack/dialog.tsx | ({ characterName, pack, groups: initialGroups = {}, targets = [], showEnabled = false, showDefault = true, showGroups... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | SpriteParts | src/ui/components/sprite-parts/index.tsx | ({ value, visualType = "sprite", onChange, onVisualTypeChange, }: SpritePartsProps) |  | .wrap .row .lbl .sel .input .parts .part .color ... |
 | Stamp | src/ui/components/stamp/index.tsx | ({ children, onClick, disabled, accent, title, type = "button", id, "aria-label": ariaLabel, }: StampProps) | The stamp button: rest sits flush, hover lifts and grows its shadow, active presses flat. | .topbtn |
-| StarringCard | src/ui/apps/workbench/persona/starring-card.tsx | ({ body, onBody, portraitUrl, monogram }: StarringCardProps) |  |  |
 | StateGraphPane | src/ui/apps/workbench/workshop/state-graph/pane.tsx | ({ triggers, defaultVarsText, onApply, }: StateGraphPaneProps) |  |  |
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
 | StructuredPersona | src/ui/components/structured-persona/index.tsx | ({ value, onChange }: StructuredPersonaProps) |  | .wrap .kinds .kind .kindOn .attr .top .key .chips ... |

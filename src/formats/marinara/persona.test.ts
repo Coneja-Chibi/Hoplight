@@ -1,0 +1,61 @@
+/** Marinara persona codec (P5): sections map, theming/stats/crop ride SEALED and re-emit. */
+import { describe, expect, test } from "bun:test";
+import adapter from "./persona";
+
+const wire = () => ({
+  id: "mp1",
+  name: "Chi",
+  comment: "Purple menace in a suit.",
+  description: "Blunt, loyal, underpaid.",
+  personality: "Coiled confidence.",
+  scenario: "Runs the studio.",
+  backstory: "Grew up on deadlines.",
+  appearance: "Compact hourglass.",
+  avatarPath: "/img/chi.png",
+  avatarCrop: { srcX: 0, srcY: 0, srcWidth: 512, srcHeight: 512 },
+  isActive: true,
+  nameColor: "#a78bfa",
+  dialogueColor: "#d168f8",
+  boxColor: "#17161d",
+  personaStats: { enabled: true, bars: [{ name: "Energy", value: 40, max: 100, color: "#f2b235" }] },
+  tags: ["main"],
+  savedStatusOptions: ["working"],
+  createdAt: "2026-07-01",
+  updatedAt: "2026-07-12",
+});
+
+describe("detection", () => {
+  test("claims the sectioned+themed object at 0.95; refuses Lumi/plain shapes", () => {
+    expect(adapter.detect({ text: JSON.stringify(wire()) })).toBe(0.95);
+    expect(
+      adapter.detect({
+        text: JSON.stringify({ id: "x", name: "X", description: "d", subjective_pronoun: "she", objective_pronoun: "her" }),
+      }),
+    ).toBe(0);
+    expect(adapter.detect({ text: JSON.stringify({ id: "x", name: "X" }) })).toBe(0);
+  });
+});
+
+describe("round trip", () => {
+  test("brief/sections map in; theming, stats, crop, scenario seal and re-emit byte-true", () => {
+    const e = adapter.toCanonical({ text: JSON.stringify(wire()) });
+    expect(e.body.brief).toBe("Purple menace in a suit.");
+    expect(e.body.content).toBe("Blunt, loyal, underpaid.");
+    expect(e.body.sections).toEqual({
+      appearance: "Compact hourglass.",
+      personality: "Coiled confidence.",
+      history: "Grew up on deadlines.",
+    });
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as ReturnType<typeof wire>;
+    expect(out).toEqual(wire());
+  });
+
+  test("the brief-vs-content never-swap holds through the wire", () => {
+    const e = adapter.toCanonical({ text: JSON.stringify(wire()) });
+    e.body.brief = "New blurb.";
+    e.body.content = "New identity text.";
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as ReturnType<typeof wire>;
+    expect(out.comment).toBe("New blurb.");
+    expect(out.description).toBe("New identity text.");
+  });
+});
