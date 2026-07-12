@@ -5,7 +5,9 @@ The {{user}} sheet, wearing the CHARACTER editor's chassis on purpose (the kinsh
 face plate from `editor-styles`. Source: `src/ui/apps/workbench/persona/` (persona-editor
 chassis + header, persona-cards tiles, injection-card, pure session ops).
 
-Layout: LEFT = the sticky face plate (portrait via import, name, live token count) and the
+Layout: LEFT = the character editor's `PortraitCard` (click/drop the face to change art -
+writes `media.portrait` as a data-URI MediaAsset, the same slot the studio portrait resolver
+already reads; the variant strip and sprites stamp are character concepts, opted out) and the
 Knowledge rail (the character editor's `KnowledgeRail`, verbatim: attach/detach/reorder
 library books via knowledgeRefs). The header's Write-for pills are the shared `WriteForStrip`
 (the regex editor consumes the same component); field inputs wear the house `es.in`/`es.ta`

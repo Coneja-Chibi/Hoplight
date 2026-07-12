@@ -1,5 +1,5 @@
 import type { CanonicalEntity } from "../../core/canonical";
-import type { ContentRating, Swatch } from "../character/schema";
+import type { ContentRating, MediaAsset, Swatch } from "../character/schema";
 
 /**
  * CanonicalPersona - the USER-identity entity: the counterpart to a character (same prompt-injection
@@ -116,6 +116,12 @@ export interface PersonaBody {
   rating?: ContentRating;
   chatInjection?: PersonaChatInjection;
   attribution?: PersonaAttribution;
+  /**
+   * Same slot as CharacterBody: the studio portrait resolver reads media.portrait (a data-URI
+   * MediaAsset from in-editor upload). Studio-side; codecs map explicit fields only, so this
+   * never leaks into a foreign wire.
+   */
+  media?: { portrait?: MediaAsset };
 }
 
 export type CanonicalPersona = CanonicalEntity<"persona", PersonaBody>;

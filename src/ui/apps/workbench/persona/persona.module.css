@@ -103,34 +103,6 @@
 
 /* ---------- face plate extras (the plate itself is editor-styles' .lcard/.portrait) ---------- */
 
-.faceName {
-  font: 900 0.95rem var(--font-big);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--stage-card);
-  padding: 0.45rem 0.6rem 0.1rem;
-  overflow-wrap: anywhere;
-}
-
-.faceMeta {
-  font: 500 0.56rem var(--font-mono);
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-kicker);
-  padding: 0 0.6rem 0.55rem;
-}
-
-.faceHint {
-  display: grid;
-  place-items: center;
-  height: 100%;
-  width: 100%;
-  color: var(--stage-kicker);
-  font: 700 0.52rem var(--font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  text-align: center;
-}
 
 /* ---------- identity + section field bits (inside BentoCards) ---------- */
 

@@ -20,20 +20,21 @@ import {
   platformOwnsField,
   type PersonaWriteForProfile,
 } from "../../../../core/persona";
+import { isPreviewablePortraitRef } from "../../../../core/media";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
 import { WriteForStrip } from "../../../components/write-for-strip";
+import { PortraitCard } from "../controls/portrait-card";
 import { KnowledgeRail } from "../lore/KnowledgeRail";
 import es from "../editor-styles";
 import { InjectionCard } from "./injection-card";
 import {
   ContentCard,
-  FaceCard,
   IdentityCard,
   PaletteCard,
   PreviewCard,
   SectionCard,
 } from "./persona-cards";
-import { personaDirty } from "./session";
+import { personaDirty, setPortrait } from "./session";
 import s from "./persona.module.css";
 
 export interface PersonaEditorViewProps {
@@ -123,9 +124,13 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
   }));
 
   const monogram = (body.name.trim().charAt(0) || "P").toUpperCase();
-  const portraitUrl = piece.hasPortrait
-    ? `/api/studio/portrait?kind=persona&id=${encodeURIComponent(piece.id)}`
-    : null;
+  // the character editor's resolution order: a previewable draft ref wins, else the studio API
+  const draftRef = body.media?.portrait?.ref ?? "";
+  const portraitUrl = isPreviewablePortraitRef(draftRef)
+    ? draftRef
+    : piece.hasPortrait
+      ? `/api/studio/portrait?kind=persona&id=${encodeURIComponent(piece.id)}`
+      : null;
   const onBody = setBody;
 
   return (
@@ -171,7 +176,15 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
       <div className={s.body}>
         <div className={es.bento}>
           <div className={`${es.bcol} ${es.bcolLeft}`}>
-            <FaceCard body={body} portraitUrl={portraitUrl} tokens={tokens} />
+            <PortraitCard
+              artUrl={portraitUrl}
+              name={body.name || "Untitled persona"}
+              tokens={tokens}
+              updatedAt={null}
+              styles={es}
+              showSprites={false}
+              onPortraitChange={(portrait) => setBody((b) => setPortrait(b, portrait))}
+            />
             <KnowledgeRail
               ctx={ctx}
               refs={body.knowledgeRefs ?? []}

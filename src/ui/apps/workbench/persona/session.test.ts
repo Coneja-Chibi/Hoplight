@@ -6,6 +6,7 @@ import {
   patchInjection,
   patchSections,
   personaDirty,
+  setPortrait,
   toggleTrait,
 } from "./session";
 
@@ -26,6 +27,15 @@ describe("persona session ops", () => {
     const c = patchInjection(base(), { wrapper: "yo" });
     expect(c.chatInjection?.position).toBe("character"); // seeded default
     expect(c.chatInjection?.wrapper).toBe("yo");
+  });
+
+  it("setPortrait writes the media slot and clearing drops it entirely", () => {
+    const asset = { role: "portrait" as const, ref: "data:image/png;base64,AAAA", primary: true };
+    const b = setPortrait(base(), asset);
+    expect(b.media?.portrait?.ref).toBe(asset.ref);
+    const cleared = setPortrait(b, null);
+    expect(cleared.media).toBeUndefined();
+    expect(JSON.stringify(cleared)).toBe(JSON.stringify(base()));
   });
 
   it("toggleTrait dedupes and removes on second toggle; blanks ignored", () => {

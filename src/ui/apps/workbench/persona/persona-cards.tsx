@@ -18,31 +18,6 @@ import s from "./persona.module.css";
 
 type OnBody = (fn: (b: PersonaBody) => PersonaBody) => void;
 
-/** The left face plate: the character editor's .lcard/.portrait grammar, persona-simple. */
-export function FaceCard({
-  body,
-  portraitUrl,
-  tokens,
-}: {
-  body: PersonaBody;
-  portraitUrl: string | null;
-  tokens: number;
-}): JSX.Element {
-  return (
-    <div className={es.lcard}>
-      <div className={es.portrait} title="The portrait rides import for now; in-editor upload lands with the media slice">
-        {portraitUrl ? (
-          <img src={portraitUrl} alt={body.name || "persona portrait"} />
-        ) : (
-          <span className={s.faceHint}>portrait via import</span>
-        )}
-      </div>
-      <div className={s.faceName}>{body.name || "Untitled persona"}</div>
-      <div className={s.faceMeta}>persona · ~{tokens} tokens</div>
-    </div>
-  );
-}
-
 /** Identity: tagline + pronouns/height/age + the BRIEF with its never-injected honesty line. */
 export function IdentityCard({ body, onBody }: { body: PersonaBody; onBody: OnBody }): JSX.Element {
   const id = body.identity ?? {};
