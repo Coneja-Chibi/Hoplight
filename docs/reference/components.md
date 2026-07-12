@@ -16,6 +16,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | AttachLoreDialog | src/ui/components/attach-lore-dialog/index.tsx | ({ books, alreadyLinked, onConfirm, onDismiss, }: AttachLoreDialogProps) |  | .body .h .p .empty .list .row .name .id ... |
 | AttachPanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ packCatalog, attachId, attachBusy, onAttachId, onAttach, }: { packCatalog: readonly PackCatalogEntry[]; attachId: ... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
+| BenchImport | src/ui/apps/workbench/regex/bench-import.tsx | ({ ctx, sample, existingRules, onImportPicked, }: BenchImportProps) |  |  |
+| BenchPane | src/ui/apps/workbench/regex/bench-pane.tsx | ({ ctx, rules, initialTab = "try", onClose, onImportPicked, }: BenchPaneProps) |  |  |
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
@@ -40,11 +42,13 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
 | EntryTocItem | src/ui/apps/workbench/lore/entry-toc-item.tsx | ({ entry, writeFor, styles, categories, onPatch, onOpen, onDuplicate, onDelete, onOpenBeside, }: EntryTocItemProps) |  |  |
 | EntryWhenWhere | src/ui/apps/workbench/lore/entry-when-where.tsx | ({ entry, writeFor, styles, onPatch, folds, onFoldToggle, }: EntryWhenWhereProps) |  |  |
+| ExampleMode | src/ui/apps/workbench/regex/example-mode.tsx | ({ exampleText, styles, onChangeExamples }: ExampleModeProps) |  |  |
 | ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionStage | src/ui/components/expression-stage/index.tsx | ({ pack, profile }: ExpressionStageProps) |  | .wrap .seal .row .face .moods .mood .moodOn .ta ... |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
+| FinePrint | src/ui/apps/workbench/regex/fine-print.tsx | ({ rule, rules, writeFor, styles, onPatch }: FinePrintProps) |  |  |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
@@ -74,7 +78,9 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MobileEditorHead | src/ui/components/mobile-editor-head/index.tsx | ({ name, sub, dirty, saving, onBack, onSave, menu }: MobileEditorHeadProps) | Back / name / save / kebab at 2.2rem touch targets; the kebab holds the long tail. | .head .back .name .save .kebabWrap .kebab .menu |
+| ModeGuided | src/ui/apps/workbench/regex/mode-guided.tsx | ({ rule, writeFor, styles, onPatch, onEscape }: ModeGuidedProps) |  |  |
 | ModeSelect | src/ui/apps/workbench/lore/entry-toc-mode.tsx | ({ mode, vectorOk, styles, onChange, }: { mode: EntryFireMode; vectorOk: boolean; styles: Readonly<Record<string, str... |  |  |
+| ModeWords | src/ui/apps/workbench/regex/mode-words.tsx | ({ rule, styles, onPatch }: ModeWordsProps) |  |  |
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
 | NamedAssets | src/ui/components/named-assets/index.tsx | ({ value, onChange, assetFiles, macroHint = true, }: NamedAssetsProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | NamedAssetsDialog | src/ui/components/named-assets/dialog.tsx | ({ characterName, value, assetFiles, onApply, onClose, }: NamedAssetsDialogProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
@@ -84,6 +90,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
+| PhasePicker | src/ui/apps/workbench/regex/phase-picker.tsx | ({ phases, writeFor, styles, onToggle }: PhasePickerProps) |  |  |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .offt .on .hint |
 | PlaybackTab | src/ui/apps/workbench/lore/playback-tab.tsx | ({ body, onJumpEntry }: PlaybackTabProps) |  |  |
 | PlaybillView | src/ui/apps/workbench/presenters/playbill-view.tsx | ({ leftCard, sealedCard, acts, actModules, lensHides, lensDims, wideKinds, panelKinds, controlFor, nativeItems, nativ... |  |  |
@@ -93,11 +100,16 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
+| RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
+| RegexWorkshopDialog | src/ui/apps/library/regex-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: RegexWorkshopDialogProps) |  |  |
 | RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry, onAddKeyword, }: RehearsalPaneProps) |  |  |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
 | RuleKnobs | src/ui/components/css-workshop/knobs.tsx | ({ rule, onChange }: RuleKnobsProps) | Property knobs for the selected rule. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
+| RulePage | src/ui/apps/workbench/regex/rule-page.tsx | ({ rule, rules, writeFor, index, count, styles, onPrev, onNext, onPatch, }: RulePageProps) |  |  |
+| RuleRail | src/ui/apps/workbench/regex/rule-rail.tsx | ({ rule, styles, onOpenBench }: RuleRailProps) |  |  |
+| RuleToc | src/ui/apps/workbench/regex/rule-toc.tsx | ({ rules, focusedId, styles, onSelect, onAdd }: RuleTocProps) |  |  |
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
 | SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
