@@ -34,6 +34,16 @@ dashed amber), the fine-print fold shows only fields that platform owns (`platfo
 travel-lint notes render dashed-amber inline. Per-platform truth is read from the capability
 matrices, never hardcoded in the UI.
 
+## The full check (health)
+
+`health-pane.tsx` + `core/regex/inspect.ts`: six linter checks over the whole set, problems first.
+The headline is the shadowing detector - it generates execution-verified examples for each rule's
+own pattern and runs the REAL chain over them; a rule is flagged only when it provably never fires
+while an earlier rule did (indeterminate runs stay silent). Duplicates carry a one-click safe fix
+(switch the copy off - applied to the session, saved only on Save); reordering advice is always
+"fix by hand". The per-rule Health card in the rail shows that rule's slice; heavy patterns wear a
+quiet "slow" chip on the TOC rows and an "N slow" count on the Library shelf card.
+
 ## The test bench
 
 `bench-pane.tsx`, hosted BESIDE the editor (never a modal): a sample line runs through the real

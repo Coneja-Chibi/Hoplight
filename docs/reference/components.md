@@ -54,6 +54,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
+| HealthPane | src/ui/apps/workbench/regex/health-pane.tsx | ({ findings, rules, onClose, onGoTo, onFix }: HealthPaneProps) |  |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
@@ -108,8 +109,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
 | RuleKnobs | src/ui/components/css-workshop/knobs.tsx | ({ rule, onChange }: RuleKnobsProps) | Property knobs for the selected rule. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | RulePage | src/ui/apps/workbench/regex/rule-page.tsx | ({ rule, rules, writeFor, index, count, styles, onPrev, onNext, onPatch, }: RulePageProps) |  |  |
-| RuleRail | src/ui/apps/workbench/regex/rule-rail.tsx | ({ rule, styles, onOpenBench }: RuleRailProps) |  |  |
-| RuleToc | src/ui/apps/workbench/regex/rule-toc.tsx | ({ rules, focusedId, styles, onSelect, onAdd }: RuleTocProps) |  |  |
+| RuleRail | src/ui/apps/workbench/regex/rule-rail.tsx | ({ rule, styles, onOpenBench, findings, onOpenHealth }: RuleRailProps) |  |  |
+| RuleToc | src/ui/apps/workbench/regex/rule-toc.tsx | ({ rules, focusedId, styles, onSelect, onAdd, slowIds }: RuleTocProps) |  |  |
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
 | SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
