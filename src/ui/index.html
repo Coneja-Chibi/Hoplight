@@ -51,10 +51,13 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .apptile.on .nm{color:var(--stamp-fg);font-weight:800}
 .apptile.on .kd{color:var(--stamp-fg);opacity:.66}
 .apptile.on .mk{background:var(--a);border-color:var(--edge);color:var(--stage-ink)}
-/* paper: the accent offset shadow smears the black plate into brown on cream - the stamp grammar's
-   ink shadow instead (Chi 2026-07-12); the accent stays on the icon box and the edge nib. Dark keeps
-   the accent glow untouched. */
-:root[data-theme="paper"] .apptile.on{box-shadow:4px 4px 0 0 var(--edge)}
+/* paper: no black plate on the selected tile (Chi 2026-07-12, second pass - the inverted stamp
+   read as a black blob on cream). Selected = white tile pushed forward: face fill, black border,
+   ink offset shadow; the accent stays on the icon box and the edge nib. Dark keeps its inverted
+   plate and accent glow untouched. */
+:root[data-theme="paper"] .apptile.on{background:var(--face);box-shadow:4px 4px 0 0 var(--edge)}
+:root[data-theme="paper"] .apptile.on .nm{color:var(--text)}
+:root[data-theme="paper"] .apptile.on .kd{color:var(--text-soft)}
 .apptile.on::before{content:"";position:absolute;right:-3px;top:50%;transform:translateY(-50%);
   width:4px;height:1.7rem;background:var(--a)}
 .dockdiv{height:3px;background:var(--seam);opacity:.6;margin:.5rem .35rem;flex:none}
