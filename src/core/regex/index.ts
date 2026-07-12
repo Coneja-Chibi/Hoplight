@@ -67,5 +67,8 @@ export { expandReplacement, substituteAfterMacros, substituteFindMacros } from "
 export { travelLint } from "./travel-lint";
 export type { TravelNote, TravelSeverity } from "./travel-lint";
 export { findingsForRule, inspectSet, slowRuleCount, slowRuleIds, SLOW_COMPLEXITY } from "./inspect";
+export { TEMPLATE_CATEGORIES, TEMPLATE_CATEGORY_LABELS, templatesByCategory, templateToRule } from "./templates";
+export type { RegexTemplateCategory, RegexTemplateEntry } from "./templates";
+export { TEMPLATE_CATALOG } from "./template-catalog";
 export type { InspectOptions, RegexFinding, RegexFindingRule } from "./inspect";
 export * from "./ast";
