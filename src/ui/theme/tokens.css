@@ -134,31 +134,33 @@
      --stage-black/-white and the accent-chip ink stay structural: black borders and offset shadows
      ARE the letterpress grammar, and dark ink on a colored accent chip reads in both themes. */
   --stage-floor: #eae0ca;   /* q-stage tan: the recessed well */
-  --stage-deck: #dccdb2;    /* q-stage-deck: one step deeper */
-  --stage-dim: #98917c;
-  --stage-faint: #d8cfba;
-  --stage-paper: #14120d;   /* "bright text" role flips to near-ink on tan */
+  --stage-deck: #d8c8a9;    /* one real step deeper than the floor (panels must separate) */
+  --stage-dim: #7a7260;
+  --stage-faint: #ddd3bc;
+  --stage-paper: #171410;   /* "bright text" role flips to near-ink on tan */
   --stage-panel: #fffdf9;   /* card/panel fill = the shell face */
-  --stage-row: #f4efe5;     /* row/plate = shell panel */
-  --stage-sunken: #ece4d4;  /* recessed row = shell panel 2 */
-  --stage-well: #d5c5a5;    /* the deepest recess goes deepest-tan, one step past the deck */
-  --stage-seam: #d3cab2;    /* soft dividers stay soft (hard borders are --stage-black) */
-  --stage-line: #a89d82;
-  --stage-mute: #7d7663;
+  --stage-row: #f5efdf;     /* row/plate: a visible step below the panel */
+  --stage-sunken: #ebe2cb;
+  --stage-well: #cdbb97;    /* the deepest recess goes deepest-tan */
+  --stage-seam: #c9bd9e;    /* soft dividers must still READ on tan (hard borders are black) */
+  --stage-line: #948a6e;
+  /* text is the SHELL INK RAMP, never a khaki ramp: ink on paper is the letterpress rule.
+     Chi bounced the first cut for exactly this - tan text on tan ground is mud. */
+  --stage-mute: #615a49;
   --stage-soft: #3a352c;    /* soft body text = paper text-soft */
-  --stage-text-dim: #6e6857; /* readability floor = paper text-dim */
+  --stage-text-dim: #524c3d; /* the readability floor is a real floor on cream */
   --stage-card: #0a0a0b;    /* brightest title role = full ink */
-  --stage-kicker: #8d846c;
-  --stage-ok: #1d7a3f;      /* success reads forest on cream */
+  --stage-kicker: #6e6755;
+  --stage-ok: #186636;      /* success reads forest on cream */
   --stage-ok-bg: #dcead2;
   --stage-macro: #6d28d9;   /* macro purple, saturated-on-cream */
   --stage-var: #2456c4;
-  --stage-warn: #8a5a00;    /* amber flips to ochre text... */
+  --stage-warn: #7a5000;    /* amber flips to ochre text... */
   --stage-warn-ink: #f3e2b8; /* ...on a gilt plate */
   --stage-danger-bg: #f7dfe2;
   --stage-danger-edge: #c25b6b;
-  --stage-danger-text: #a41e35;
-  --stage-danger-hot: #c2410c;
+  --stage-danger-text: #97182e;
+  --stage-danger-hot: #b03a0a;
   --stage-danger-deep: #efd3d6;
   --stage-link: #1d4ed8;
   --stage-rose-well: #f1e0e8;
