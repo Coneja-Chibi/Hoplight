@@ -5,7 +5,6 @@ import {
   patchIdentity,
   patchInjection,
   patchSections,
-  patchSwatch,
   personaDirty,
   toggleTrait,
 } from "./session";
@@ -34,14 +33,5 @@ describe("persona session ops", () => {
     b = toggleTrait(b, "Blunt");
     expect(b.traits).toEqual([]);
     expect(toggleTrait(base(), "  ").traits).toBeUndefined();
-  });
-
-  it("patchSwatch appends, replaces, and deletes", () => {
-    let b = patchSwatch(base(), 0, { label: "Skin", name: "Cocoa", hex: "#93574b" });
-    b = patchSwatch(b, 1, { label: "Hair", name: "Violetta", hex: "#d168f8" });
-    b = patchSwatch(b, 0, { label: "Skin", name: "Deep Cocoa", hex: "#7a463c" });
-    expect(b.presentation?.colors?.map((c) => c.name)).toEqual(["Deep Cocoa", "Violetta"]);
-    b = patchSwatch(b, 0, null);
-    expect(b.presentation?.colors?.length).toBe(1);
   });
 });

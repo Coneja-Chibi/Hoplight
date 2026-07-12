@@ -8,6 +8,11 @@
 import { useState, type JSX } from "react";
 import { ColorPicker } from "../../../components/color-picker";
 import { normalizeHex } from "../../../_shared/color-math";
+import { resolveCssColor } from "../../../_shared/css-color";
+
+/** New swatches start on the house rose, resolved to real hex: these values are entity DATA that
+ *  export through codecs, so a raw var(--rose) string must never be stored. */
+const defaultSwatchHex = (): string => resolveCssColor("var(--rose)");
 
 type Styles = Readonly<Record<string, string>>;
 
@@ -49,7 +54,7 @@ export function GradientControl({ value, onChange, styles }: GradientControlProp
             type="button"
             className={styles.palAdd}
             onClick={() => {
-              const next = [...value, "#e11d48"]; // hardcode-ok: default swatch hex value (data, not theming)
+              const next = [...value, defaultSwatchHex()];
               onChange(next);
               setSel(next.length - 1);
               setOpen(true);
@@ -105,13 +110,20 @@ export interface PaletteControlProps {
   value: Swatch[];
   onChange(rows: Swatch[]): void;
   styles: Styles;
+  /** Opt-in second input: edit `label` (the slot the color fills - Hair, Eyes) and `name` (the
+   *  color's own name - chestnut) as separate fields, with these placeholders. Absent = the
+   *  single name field. The persona compiler needs BOTH before a swatch enters the prompt. */
+  twoField?: { label: string; name: string };
 }
 
-export function PaletteControl({ value, onChange, styles }: PaletteControlProps): JSX.Element {
+export function PaletteControl({ value, onChange, styles, twoField }: PaletteControlProps): JSX.Element {
   const [sel, setSel] = useState(0);
   const [open, setOpen] = useState(false);
   const at = Math.min(sel, Math.max(0, value.length - 1));
   const cur = value[at];
+  // two-field mode leads with the slot (label); single-field mode's one input edits name
+  const tileName = (sw: Swatch): string =>
+    (twoField ? sw.label || sw.name : sw.name || sw.label) || "unnamed";
   return (
     <>
       <div className={styles.palGrid}>
@@ -128,14 +140,14 @@ export function PaletteControl({ value, onChange, styles }: PaletteControlProps)
             title={s.name ?? s.label ?? s.hex}
           >
             <span className={styles.palChip} style={{ background: s.hex }} />
-            <span className={styles.palName}>{s.name ?? s.label ?? "unnamed"}</span>
+            <span className={styles.palName}>{tileName(s)}</span>
           </button>
         ))}
         <button
           type="button"
           className={styles.palAdd}
           onClick={() => {
-            const next = [...value, { name: "", hex: "#e11d48" }]; // hardcode-ok: default swatch hex value (data, not theming)
+            const next = [...value, { name: "", hex: defaultSwatchHex() }];
             onChange(next);
             setSel(next.length - 1);
             setOpen(true);
@@ -145,15 +157,27 @@ export function PaletteControl({ value, onChange, styles }: PaletteControlProps)
         </button>
       </div>
       {value.length === 0 ? (
-        <span className={styles.hint}>no palette on this card yet - add a swatch to name a signature color</span>
+        <span className={styles.hint}>
+          {twoField
+            ? "no labeled colors yet - add one and it rides into the prompt"
+            : "no palette on this card yet - add a swatch to name a signature color"}
+        </span>
       ) : (
         open &&
         cur && (
           <div className={styles.palEdit}>
+            {twoField && (
+              <input
+                className={styles.in}
+                placeholder={twoField.label}
+                value={cur.label ?? ""}
+                onChange={(e) => onChange(value.map((s, i) => (i === at ? { ...s, label: e.target.value } : s)))}
+              />
+            )}
             <input
               className={styles.in}
-              placeholder="Name this swatch (Hair, Eyes, Skin...)"
-              value={cur.name ?? cur.label ?? ""}
+              placeholder={twoField ? twoField.name : "Name this swatch (Hair, Eyes, Skin...)"}
+              value={cur.name ?? (twoField ? "" : cur.label) ?? ""}
               onChange={(e) => onChange(value.map((s, i) => (i === at ? { ...s, name: e.target.value } : s)))}
             />
             {/* eslint-disable-next-line no-restricted-syntax -- open-gated popover: raw picker edits the one selected named swatch; SwatchRow is single-value, PaintPicker boxes hex in a Paint */}

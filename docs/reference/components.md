@@ -96,8 +96,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
-| PaletteCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Color palette: signature slot + labeled swatches (compiled into the prompt as labeled tags). |  |
-| PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
+| PaletteCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Color palette on the SHARED controls (registry-first): SwatchRow is the signature slot (the |  |
+| PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles, twoField }: PaletteControlProps) |  |  |
 | PersonaEditor | src/ui/apps/workbench/PersonaEditor.tsx | (props: PersonaEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PersonaEditorView | src/ui/apps/workbench/persona/persona-editor.tsx | ({ entity, ctx, piece, topRight }: PersonaEditorViewProps) |  |  |
 | PhasePicker | src/ui/apps/workbench/regex/phase-picker.tsx | ({ phases, writeFor, styles, onToggle }: PhasePickerProps) |  |  |

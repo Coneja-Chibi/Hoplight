@@ -10,7 +10,10 @@ Linked Lorebook tile (knowledgeRefs - wakes with this persona). MIDDLE = Identit
 pronouns/height/age, and the BRIEF wearing its honesty line: the blurb stays on the shelf,
 never sent to the model) plus the section tiles (Appearance / Body / Personality with trait
 chips / Quirks / History) and the flat Identity Text for section-less personas. RIGHT = Color
-Palette (signature slot + labeled swatches, compiled into the prompt as labeled tags), Prompt
+Palette on the SHARED controls (registry-first): `SwatchRow` is the signature slot (the house
+per-entity accent, resolved to real hex because signatureColor exports through codecs) and
+`PaletteControl` in two-field mode edits the labeled colors (slot + color name + hex - the
+compiler needs all before a swatch enters the prompt as a labeled tag), then Prompt
 Injection (stops per Write-for lens via `injectionsForProfile` - RC's four, ST's five, hidden
 on wires with no injection; a foreign stop shows dashed amber and is kept), the LIVE PREVIEW
 (the REAL `core/persona/inject.ts` output - the ported RC compiler - counted by the lore

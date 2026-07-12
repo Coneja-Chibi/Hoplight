@@ -4,14 +4,17 @@
  * layout ruling that character and persona surfaces must feel like kin. This module owns the
  * card CONTENTS only; the grid arrangement lives in persona-editor.tsx.
  */
-import { useEffect, useState, type JSX } from "react";
+import { useEffect, useMemo, useState, type JSX } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
 import type { PersonaBody } from "../../../../entities/persona/schema";
 import type { PersonaWriteForProfile } from "../../../../core/persona";
 import { platformOwnsField } from "../../../../core/persona";
 import { BentoCard } from "../../../components/bento-card";
+import { HOUSE_PALETTE, SwatchRow } from "../../../components/swatch-row";
+import { PaletteControl } from "../controls/color-controls";
+import { resolveCssColor } from "../../../_shared/css-color";
 import es from "../editor-styles";
-import { patchBody, patchIdentity, patchSections, patchSwatch, toggleTrait } from "./session";
+import { patchBody, patchIdentity, patchSections, toggleTrait } from "./session";
 import s from "./persona.module.css";
 
 type OnBody = (fn: (b: PersonaBody) => PersonaBody) => void;
@@ -173,37 +176,32 @@ export function ContentCard({
   );
 }
 
-/** Color palette: signature slot + labeled swatches (compiled into the prompt as labeled tags). */
+/** Color palette on the SHARED controls (registry-first): SwatchRow is the signature slot (the
+ *  house per-entity accent - resolved to real hex, signatureColor exports through codecs) and
+ *  PaletteControl in two-field mode edits the labeled colors the compiler turns into tags. */
 export function PaletteCard({ body, onBody }: { body: PersonaBody; onBody: OnBody }): JSX.Element {
   const colors = body.presentation?.colors ?? [];
   const sig = body.presentation?.signatureColor;
-  const FOG_HEX = "#8a8496"; // hardcode-ok: color inputs take literal hex only (deck-fog value)
+  const sigPalette = useMemo(() => HOUSE_PALETTE.map((c) => ({ ...c, hex: resolveCssColor(c.hex) })), []);
   return (
     <BentoCard title="Color Palette" filled={colors.length > 0 || !!sig}>
-      <div className={s.pal}>
-        <span className={s.sw} title="The signature color themes this persona's cards">
-          <input type="color" className={s.dot} value={sig || FOG_HEX} aria-label="Signature color"
-            onChange={(e) =>
-              onBody((b) => ({ ...b, presentation: { ...(b.presentation ?? {}), signatureColor: e.target.value } }))
-            } />
-          <span className={`${s.swLabel} ${s.swSig}`}>Signature</span>
-        </span>
-        {colors.map((c, i) => (
-          <span className={s.sw} key={i}>
-            <input type="color" className={s.dot} value={c.hex} aria-label={`${c.label ?? "color"} swatch`}
-              onChange={(e) => onBody((b) => patchSwatch(b, i, { ...c, hex: e.target.value }))} />
-            <input className={s.swName} value={c.name ?? ""} placeholder="name" aria-label="Color name"
-              onChange={(e) => onBody((b) => patchSwatch(b, i, { ...c, name: e.target.value }))} />
-            <input className={s.swLabel} value={c.label ?? ""} placeholder="label" aria-label="Color label"
-              onChange={(e) => onBody((b) => patchSwatch(b, i, { ...c, label: e.target.value }))} />
-          </span>
-        ))}
-        <button type="button" className={s.sw} title="Add a labeled color"
-          onClick={() => onBody((b) => patchSwatch(b, colors.length, { label: "", name: "", hex: FOG_HEX }))}>
-          <span className={`${s.dot} ${s.dotAdd}`}>+</span>
-          <span className={s.swLabel}>Add</span>
-        </button>
-      </div>
+      <span className={s.honest}>signature themes this persona's cards · labeled colors go into the prompt</span>
+      <SwatchRow
+        palette={sigPalette}
+        value={sig}
+        allowCustom
+        onChange={(hex) =>
+          onBody((b) => ({ ...b, presentation: { ...(b.presentation ?? {}), signatureColor: hex } }))
+        }
+      />
+      <PaletteControl
+        value={colors}
+        styles={es}
+        twoField={{ label: "Slot this color fills (Hair, Eyes, Skin...)", name: "The color's name (chestnut, storm gray...)" }}
+        onChange={(rows) =>
+          onBody((b) => ({ ...b, presentation: { ...(b.presentation ?? {}), colors: rows } }))
+        }
+      />
     </BentoCard>
   );
 }

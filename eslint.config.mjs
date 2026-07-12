@@ -29,6 +29,15 @@ const restrictedPrimitives = COMPOSE_NOT_RAW.map(({ element, use }) => ({
   message: `Raw <${element}> in an app/shell surface. ${use}. Only render it raw inside an open-gated popover, and then add an eslint-disable with a reason. Catalog: docs/reference/components.md.`,
 }));
 
+/** Native elements that dodge the component-name rules above but still reinvent a house
+ *  primitive. The palette hand-roll walked through exactly this gap with <input type="color">. */
+const NATIVE_REINVENTIONS = [
+  {
+    selector: "JSXOpeningElement[name.name='input']:has(JSXAttribute[name.name='type'] Literal[value='color'])",
+    message: "Raw <input type=\"color\"> in an app/shell surface. Use <SwatchRow> for a single color, <PaletteControl> for named swatches, or <PaintPicker> for solid/gradient. Catalog: docs/reference/components.md.",
+  },
+];
+
 export default [
   {
     files: ["src/ui/**/*.tsx"],
@@ -49,7 +58,7 @@ export default [
     // reinvention gate: only apps and shell (components/ is where primitives legitimately compose)
     files: ["src/ui/apps/**/*.tsx", "src/ui/shell/**/*.tsx"],
     rules: {
-      "no-restricted-syntax": ["error", ...restrictedPrimitives],
+      "no-restricted-syntax": ["error", ...restrictedPrimitives, ...NATIVE_REINVENTIONS],
     },
   },
 ];

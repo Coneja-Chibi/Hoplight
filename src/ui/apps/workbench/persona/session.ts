@@ -44,16 +44,3 @@ export const toggleTrait = (body: PersonaBody, trait: string): PersonaBody => {
     ? { ...body, traits: cur.filter((x) => x !== t) }
     : { ...body, traits: [...cur, t] };
 };
-
-/** Patch one palette swatch by index; index === length appends. */
-export const patchSwatch = (
-  body: PersonaBody,
-  index: number,
-  swatch: { label?: string; name?: string; hex: string } | null,
-): PersonaBody => {
-  const colors = [...(body.presentation?.colors ?? [])];
-  if (swatch === null) colors.splice(index, 1);
-  else if (index >= colors.length) colors.push(swatch);
-  else colors[index] = swatch;
-  return { ...body, presentation: { ...(body.presentation ?? {}), colors } };
-};
