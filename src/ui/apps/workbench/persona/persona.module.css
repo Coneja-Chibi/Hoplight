@@ -1,7 +1,9 @@
 /**
- * Persona editor styles (P4) - transcribed from design/vs-persona-editor.html wire 1, stage
- * tokens throughout, --a = the persona deck accent. One module for the whole editor (a persona
- * is one document; the file stays comfortably under the cap). Collapse blocks at FILE END.
+ * Persona editor styles (P4 v2, after the layout ruling: the persona editor REUSES the character
+ * editor's chassis - .bento/.bcol grid, BentoCard, the .lcard/.portrait face plate all come from
+ * editor-styles. THIS module owns only the persona-specific bits: the write-for header, identity
+ * inputs, palette swatches, injection stops, and the live-preview block. One module again (the
+ * v1 three-way split died with the bespoke layout). Collapse blocks at FILE END.
  */
 
 .root {
@@ -124,65 +126,56 @@
   cursor: default;
 }
 
-.cols {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
-  align-items: start;
+.body {
   min-height: 0;
   flex: 1;
-  overflow: hidden;
-}
-
-.pageCol {
-  min-width: 0;
-  height: 100%;
   overflow-y: auto;
-  padding: 1rem 1.2rem;
-  border-right: 2px solid var(--stage-seam);
+  padding: 1rem 1.1rem;
 }
 
-.railCol {
-  min-width: 0;
-  height: 100%;
-  overflow-y: auto;
-  padding: 0.9rem 0.8rem;
-}
+/* ---------- face plate extras (the plate itself is editor-styles' .lcard/.portrait) ---------- */
 
-/* ---------- cards ---------- */
-
-.card {
-  border: 2px solid var(--stage-black);
-  background: var(--stage-panel);
-  margin-bottom: 1rem;
-}
-
-.chead {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  padding: 0.5rem 0.7rem;
-  border-bottom: 2px solid var(--stage-seam);
-}
-
-.cheadB {
-  font: 800 0.72rem var(--font-big);
-  letter-spacing: 0.05em;
+.faceName {
+  font: 900 0.95rem var(--font-big);
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: var(--stage-card);
+  padding: 0.45rem 0.6rem 0.1rem;
+  overflow-wrap: anywhere;
 }
 
-.cheadKick {
-  font: 500 0.55rem var(--font-mono);
-  letter-spacing: 0.08em;
+.faceMeta {
+  font: 500 0.56rem var(--font-mono);
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-kicker);
+  padding: 0 0.6rem 0.55rem;
 }
 
-.cbody {
-  padding: 0.7rem;
+.faceHint {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  width: 100%;
+  color: var(--stage-kicker);
+  font: 700 0.52rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
-.secTa {
+/* ---------- identity + section field bits (inside BentoCards) ---------- */
+
+.fIn {
+  width: 100%;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font: 600 0.72rem var(--font-mono);
+  padding: 0.3rem 0.4rem;
+}
+
+.fTa {
   width: 100%;
   background: var(--stage-row);
   border: 1px solid var(--stage-seam);
@@ -191,6 +184,18 @@
   padding: 0.45rem 0.55rem;
   min-height: 3.4rem;
   resize: vertical;
+}
+
+.idRow {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.honest {
+  font: 500 0.55rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
 }
 
 .traits {
@@ -218,7 +223,73 @@
   padding: 0.12rem 0.4rem;
 }
 
-/* ---------- injection ---------- */
+/* ---------- palette swatches ---------- */
+
+.pal {
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.sw {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dot {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  border: 2px solid var(--stage-black);
+}
+
+.dotAdd {
+  background: none;
+  border-style: dashed;
+  border-color: var(--stage-line);
+  display: grid;
+  place-items: center;
+  color: var(--stage-mute);
+}
+
+.swName {
+  width: 4.4rem;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  font: 700 0.55rem var(--font-mono);
+  color: var(--stage-soft);
+  text-align: center;
+}
+
+.swName:focus {
+  outline: none;
+  border-bottom-color: var(--a, var(--stage-macro));
+}
+
+.swLabel {
+  width: 4.4rem;
+  background: none;
+  border: 0;
+  font: 700 0.48rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  text-align: center;
+}
+
+.swSig {
+  color: var(--stage-warn);
+}
+
+/* ---------- injection stops ---------- */
 
 .stops {
   display: grid;
@@ -292,13 +363,68 @@
   margin-top: 0.5rem;
 }
 
-.finePrint {
+.stopNote {
   font-style: italic;
   font-family: var(--font-body);
   color: var(--stage-mute);
-  font-size: 0.78rem;
-  padding: 0.45rem 0.7rem;
-  border-top: 1px dashed var(--stage-line);
+  font-size: 0.75rem;
+  padding-top: 0.45rem;
+}
+
+/* ---------- live preview ---------- */
+
+.xml {
+  margin: 0;
+  font: 500 0.62rem/1.6 var(--font-mono);
+  color: var(--stage-soft);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.tokens {
+  display: flex;
+  border-top: 1px solid var(--stage-seam);
+  margin-top: 0.5rem;
+  padding-top: 0.4rem;
+  font: 700 0.58rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.tokensN {
+  margin-left: auto;
+  color: var(--stage-card);
+}
+
+.loreSel {
+  width: 100%;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font: 600 0.68rem var(--font-mono);
+  padding: 0.3rem 0.4rem;
+}
+
+.defaultBtn {
+  width: 100%;
+  font: 700 0.62rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-sunken);
+  color: var(--a, var(--stage-macro));
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.5rem;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+.defaultOn {
+  background: var(--stage-warn-ink);
+  color: var(--stage-warn);
 }
 
 /* ---------- mobile head ---------- */
@@ -307,20 +433,7 @@
   display: none;
 }
 
-/* Collapse blocks at FILE END (fluid law: fold by the PANE's width). */
-@container (max-width: 64rem) {
-  .cols {
-    display: block;
-    overflow-y: auto;
-  }
-  .pageCol,
-  .railCol {
-    height: auto;
-    overflow-y: visible;
-    border-right: none;
-  }
-}
-
+/* Collapse blocks at FILE END (fluid law; the bento grid collapses via its own module). */
 @container (max-width: 34rem) {
   .ehead {
     display: none;

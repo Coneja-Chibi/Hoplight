@@ -1,9 +1,10 @@
 /**
- * PersonaEditor (P4) - RC's PersonaPanel reborn on the binder, transcribed from
- * design/vs-persona-editor.html wire 1. One document: starring card, palette, section stack,
- * injection card, and the rail (LIVE preview = the real inject.ts output + the shared token
- * convention, linked lorebook, default star). Save preserves the sealed `original` so imported
- * personas round-trip byte-true. The default persona is a studio pref ("persona.default").
+ * PersonaEditor (P4 v2) - the persona sheet wearing the CHARACTER editor's chassis (the kinship
+ * ruling): the same .bento three-column grid, BentoCard tiles, and .lcard face plate from
+ * editor-styles. Left = sticky face + linked lorebook; middle = Identity + the section tiles +
+ * flat Identity Text; right = Color Palette + Prompt Injection + LIVE preview (the real
+ * inject.ts output + the shared token convention) + the default star. Save preserves the sealed
+ * `original` so imported personas round-trip byte-true.
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
@@ -20,12 +21,19 @@ import {
   type PersonaWriteForProfile,
 } from "../../../../core/persona";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
-import { StarringCard } from "./starring-card";
-import { SectionsStack } from "./sections-stack";
+import es from "../editor-styles";
 import { InjectionCard } from "./injection-card";
-import { PreviewRail } from "./preview-rail";
+import {
+  ContentCard,
+  FaceCard,
+  IdentityCard,
+  LorebookCard,
+  PaletteCard,
+  PreviewCard,
+  SectionCard,
+} from "./persona-cards";
 import { personaDirty } from "./session";
-import { personaStyles as s } from "./persona-styles";
+import s from "./persona.module.css";
 
 export interface PersonaEditorViewProps {
   entity: unknown;
@@ -117,6 +125,7 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
   const portraitUrl = piece.hasPortrait
     ? `/api/studio/portrait?kind=persona&id=${encodeURIComponent(piece.id)}`
     : null;
+  const onBody = setBody;
 
   return (
     <div className={s.root} style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}>
@@ -166,32 +175,47 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
         </span>
       </header>
 
-      <div className={s.cols}>
-        <main className={s.pageCol}>
-          <StarringCard body={body} onBody={setBody} portraitUrl={portraitUrl} monogram={monogram} />
-          <SectionsStack body={body} onBody={setBody} writeFor={writeFor} />
-          {stops.length > 0 && platformOwnsField(writeFor, "injection") && (
-            <InjectionCard
-              body={body}
-              onBody={setBody}
-              stops={stops}
-              labels={PERSONA_INJECTION_LABELS}
-              showWrapper={platformOwnsField(writeFor, "wrapper")}
+      <div className={s.body}>
+        <div className={es.bento}>
+          <div className={`${es.bcol} ${es.bcolLeft}`}>
+            <FaceCard body={body} portraitUrl={portraitUrl} tokens={tokens} />
+            <LorebookCard ctx={ctx} body={body} onBody={onBody} />
+          </div>
+          <div className={es.bcol}>
+            <IdentityCard body={body} onBody={onBody} />
+            <SectionCard body={body} onBody={onBody} writeFor={writeFor} sectionKey="appearance" title="Appearance" placeholder="Build, features, style..." />
+            <SectionCard body={body} onBody={onBody} writeFor={writeFor} sectionKey="body" title="Body" placeholder="Physical details (folds into Appearance in the prompt)..." />
+            <SectionCard body={body} onBody={onBody} writeFor={writeFor} sectionKey="personality" title="Personality" placeholder="How they act, their demeanor..." />
+            <SectionCard body={body} onBody={onBody} writeFor={writeFor} sectionKey="quirks" title="Quirks" placeholder="Habits, mannerisms, speech..." />
+            <SectionCard body={body} onBody={onBody} writeFor={writeFor} sectionKey="history" title="History" placeholder="Background, origins..." />
+            <ContentCard body={body} onBody={onBody} writeFor={writeFor} />
+          </div>
+          <div className={es.bcol}>
+            {platformOwnsField(writeFor, "colors") && <PaletteCard body={body} onBody={onBody} />}
+            {stops.length > 0 && platformOwnsField(writeFor, "injection") && (
+              <InjectionCard
+                body={body}
+                onBody={onBody}
+                stops={stops}
+                labels={PERSONA_INJECTION_LABELS}
+                showWrapper={platformOwnsField(writeFor, "wrapper")}
+              />
+            )}
+            <PreviewCard
+              xml={xml}
+              tokens={tokens}
+              stopLabel={PERSONA_INJECTION_LABELS[body.chatInjection?.position ?? "character"]?.label ?? "Character"}
             />
-          )}
-        </main>
-        <aside className={s.railCol}>
-          <PreviewRail
-            ctx={ctx}
-            body={body}
-            onBody={setBody}
-            xml={xml}
-            tokens={tokens}
-            stopLabel={PERSONA_INJECTION_LABELS[body.chatInjection?.position ?? "character"]?.label ?? "Character"}
-            isDefault={defaultId === piece.id}
-            onToggleDefault={toggleDefault}
-          />
-        </aside>
+            <button
+              type="button"
+              className={defaultId === piece.id ? `${s.defaultBtn} ${s.defaultOn}` : s.defaultBtn}
+              aria-pressed={defaultId === piece.id}
+              onClick={toggleDefault}
+            >
+              {defaultId === piece.id ? "★ Default persona" : "☆ Set as default persona"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
