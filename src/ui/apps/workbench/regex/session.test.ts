@@ -8,6 +8,7 @@ import type { RegexRule, RegexSetBody } from "../../../../entities/regex/schema"
 import { doesLine } from "./does-line";
 import {
   addRule,
+  addRuleFrom,
   deleteRule,
   duplicateRule,
   emptyRegexRule,
@@ -153,5 +154,28 @@ describe("doesLine", () => {
   it("falls back to a plain clause for a pattern outside the words vocabulary", () => {
     const line = doesLine(rule("a", { find: "^\\[status\\][\\s\\S]*?$", replace: "" }));
     expect(line).toContain("atches its pattern");
+  });
+});
+
+describe("addRuleFrom (gallery recipes, R5)", () => {
+  it("appends the minted rule at the end and focuses it", () => {
+    const s0 = normalizeSession({ name: "S", rules: [] });
+    const s1 = addRule(s0);
+    const s2 = addRuleFrom(s1, (id, sortOrder) => ({
+      id,
+      label: "Remove text in brackets",
+      find: "\s?\[[^\]\n]*\]",
+      flags: "g",
+      replace: "",
+      phases: ["output"],
+      enabled: true,
+      sortOrder,
+    }));
+    expect(s2.body.rules.length).toBe(2);
+    const minted = s2.body.rules.at(-1)!;
+    expect(s2.focusedId).toBe(minted.id);
+    expect(minted.label).toBe("Remove text in brackets");
+    expect(minted.sortOrder).toBeGreaterThan(s2.body.rules[0]!.sortOrder);
+    expect(s1.body.rules.length).toBe(1); // input session untouched
   });
 });

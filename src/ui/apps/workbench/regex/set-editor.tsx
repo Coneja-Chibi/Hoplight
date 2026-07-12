@@ -36,8 +36,11 @@ import { RulePage } from "./rule-page";
 import { RuleRail } from "./rule-rail";
 import { BenchPane } from "./bench-pane";
 import { HealthPane } from "./health-pane";
+import { GalleryPane } from "./gallery-pane";
+import { templateToRule } from "../../../../core/regex";
 import {
   addRule,
+  addRuleFrom,
   focusedRule,
   normalizeSession,
   reconcileRegexAfterSave,
@@ -75,6 +78,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
   const [tocOpen, setTocOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
   const [healthOpen, setHealthOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const [writeFor, setWriteForState] = useState<RegexWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
@@ -178,12 +182,17 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
 
   const monogram = (session.body.name.trim().charAt(0) || "R").toUpperCase();
 
+  // "+ New rule" opens the recipe gallery per the locked wire; Start blank keeps the old path.
   const tocProps = {
     rules: session.body.rules,
     focusedId: session.focusedId,
     styles,
     onSelect: (id: string) => setSession((s) => selectRule(s, id)),
-    onAdd: () => setSession((s) => addRule(s)),
+    onAdd: () => {
+      setBenchOpen(false);
+      setHealthOpen(false);
+      setGalleryOpen(true);
+    },
     slowIds,
   };
 
@@ -284,7 +293,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
       )}
 
       {/* toc | page | rail (or the wide test bench beside a slim editor) */}
-      <div className={benchOpen || healthOpen ? `${styles.cols} ${styles.colsBench}` : styles.cols}>
+      <div className={benchOpen || healthOpen || galleryOpen ? `${styles.cols} ${styles.colsBench}` : styles.cols}>
         <div className={styles.tocCol}>
           <RuleToc {...tocProps} />
         </div>
@@ -311,7 +320,20 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
         </main>
 
         <div className={styles.railCol}>
-          {benchOpen ? (
+          {galleryOpen ? (
+            <GalleryPane
+              onPick={(entry) => {
+                setSession((s) => addRuleFrom(s, (id, sortOrder) => templateToRule(entry, id, sortOrder)));
+                setGalleryOpen(false);
+                ctx.setStatus(`added "${entry.name}" - save to keep`);
+              }}
+              onStartBlank={() => {
+                setSession((s) => addRule(s));
+                setGalleryOpen(false);
+              }}
+              onClose={() => setGalleryOpen(false)}
+            />
+          ) : benchOpen ? (
             <BenchPane
               ctx={ctx}
               rules={session.body.rules}

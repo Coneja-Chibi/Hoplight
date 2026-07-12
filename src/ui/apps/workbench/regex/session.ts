@@ -64,6 +64,17 @@ export function addRule(session: RegexSession): RegexSession {
   return selectRule({ ...session, body: { ...session.body, rules } }, id);
 }
 
+/** Append a pre-filled rule (a gallery recipe) at the end and focus it (R5, QOL 4). */
+export function addRuleFrom(
+  session: RegexSession,
+  mint: (id: string, sortOrder: number) => RegexRule,
+): RegexSession {
+  const id = newUiId("rule_");
+  const rule = mint(id, (session.body.rules.at(-1)?.sortOrder ?? 0) + 10);
+  const rules = [...session.body.rules, rule];
+  return selectRule({ ...session, body: { ...session.body, rules } }, id);
+}
+
 export function duplicateRule(session: RegexSession, id: string): RegexSession {
   const src = session.body.rules.find((r) => r.id === id);
   if (!src) return session;

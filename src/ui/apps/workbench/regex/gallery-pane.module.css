@@ -1,0 +1,169 @@
+/**
+ * GalleryPane styles - transcribed from design/vs-regex-shelf-gallery.html wire 2 (.galGrid /
+ * .galCat / .tpl / .ba / .tplFoot), re-tokened onto the stage grammar. gp-scoped; class names
+ * live in exactly ONE module.
+ */
+
+.pane {
+  height: 100%;
+  overflow-y: auto;
+  border-left: 3px solid var(--stage-black);
+  background: var(--stage-deck);
+  padding: 0.7rem 0.8rem 1rem;
+}
+
+.phead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--stage-seam);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.7rem;
+}
+
+.pheadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.pheadKick {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.blank {
+  margin-left: auto;
+  font: 700 0.58rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px dashed var(--stage-line);
+  background: none;
+  color: var(--stage-soft);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.blank:hover {
+  color: var(--stage-card);
+  border-color: var(--a, var(--stage-macro));
+}
+
+.close {
+  font: 700 0.75rem var(--font-mono);
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.1rem 0.45rem;
+  cursor: pointer;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.cat {
+  display: block;
+  font: 800 0.58rem var(--font-mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-bottom: 0.4rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.9rem;
+}
+
+.tpl {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  padding: 0;
+  color: inherit;
+  transition: translate 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+
+.tpl:hover {
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  translate: -2px -2px;
+}
+
+.tplHead {
+  display: block;
+  padding: 0.55rem 0.65rem 0.3rem;
+}
+
+.tplName {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.78rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  display: block;
+}
+
+.tplDoes {
+  font-style: italic;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--stage-mute);
+}
+
+.ba {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--stage-faint);
+  margin-top: 0.45rem;
+}
+
+.baCell {
+  padding: 0.4rem 0.55rem;
+  font: 500 0.62rem/1.5 var(--font-mono);
+  color: var(--stage-soft);
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.baCell + .baCell {
+  border-left: 1px solid var(--stage-faint);
+}
+
+.baKick {
+  display: block;
+  font: 700 0.46rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-bottom: 0.1rem;
+}
+
+.baAfter {
+  color: var(--stage-ok);
+}
+
+.tplFoot {
+  display: block;
+  padding: 0.35rem 0.6rem 0.5rem;
+  font: 700 0.5rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--a, var(--stage-macro));
+}
