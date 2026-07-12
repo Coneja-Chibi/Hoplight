@@ -14,9 +14,11 @@ export interface RuleTocProps {
   styles: Readonly<Record<string, string>>;
   onSelect: (id: string) => void;
   onAdd: () => void;
+  /** Rule ids wearing the quiet "slow" chip (R4 health); absent = no chips. */
+  slowIds?: ReadonlySet<string>;
 }
 
-export function RuleToc({ rules, focusedId, styles, onSelect, onAdd }: RuleTocProps): JSX.Element {
+export function RuleToc({ rules, focusedId, styles, onSelect, onAdd, slowIds }: RuleTocProps): JSX.Element {
   return (
     <aside className={styles.toc}>
       <p className={styles.tocTitle}>
@@ -47,6 +49,7 @@ export function RuleToc({ rules, focusedId, styles, onSelect, onAdd }: RuleTocPr
                 aria-hidden="true"
               />
               {rule.label.trim() || "Untitled rule"}
+              {slowIds?.has(rule.id) && <span className={styles.trowSlow}>slow</span>}
             </span>
             <span className={styles.trowDoes}>{doesLine(rule)}</span>
           </button>

@@ -7,6 +7,7 @@
  */
 import {
   useCallback,
+  useDeferredValue,
   useEffect,
   useMemo,
   useState,
@@ -18,9 +19,13 @@ import type { AppContext, StudioEntitySummary } from "../../../app-contract";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { CanonicalRegexSet, RegexRule, RegexSetBody } from "../../../../entities/regex/schema";
 import {
+  findingsForRule,
+  inspectSet,
   parseWriteFor,
   REGEX_WRITE_FOR_LABELS,
   REGEX_WRITE_FOR_PROFILES,
+  slowRuleIds,
+  type RegexFinding,
   type RegexWriteForProfile,
 } from "../../../../core/regex";
 import { BottomSheet } from "../../../components/bottom-sheet";
@@ -30,6 +35,7 @@ import { RuleToc } from "./rule-toc";
 import { RulePage } from "./rule-page";
 import { RuleRail } from "./rule-rail";
 import { BenchPane } from "./bench-pane";
+import { HealthPane } from "./health-pane";
 import {
   addRule,
   focusedRule,
@@ -68,6 +74,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
   const [saving, setSaving] = useState(false);
   const [tocOpen, setTocOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
+  const [healthOpen, setHealthOpen] = useState(false);
   const [writeFor, setWriteForState] = useState<RegexWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
@@ -77,6 +84,18 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
   const count = session.body.rules.length;
   const enabledCount = session.body.rules.filter((r) => r.enabled).length;
   const ruleIndex = rule ? session.body.rules.findIndex((r) => r.id === rule.id) : -1;
+
+  // The set linter (R4): deferred so keystrokes stay snappy - the shadowing check runs the real
+  // engine over each rule's examples, which is bounded but not free.
+  const deferredBody = useDeferredValue(session.body);
+  const findings = useMemo(() => inspectSet(deferredBody), [deferredBody]);
+  const slowIds = useMemo(() => new Set(slowRuleIds(findings)), [findings]);
+
+  const applyFix = (f: RegexFinding): void => {
+    if (!f.fix) return;
+    setSession((s) => ({ ...s, body: f.fix!(s.body) }));
+    ctx.setStatus("fixed - save to keep");
+  };
 
   const setWriteFor = (p: RegexWriteForProfile): void => {
     setWriteForState(p);
@@ -165,6 +184,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
     styles,
     onSelect: (id: string) => setSession((s) => selectRule(s, id)),
     onAdd: () => setSession((s) => addRule(s)),
+    slowIds,
   };
 
   // Mobile head kebab (below 34rem the desktop Write-for strip yields to this menu): every profile is
@@ -264,7 +284,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
       )}
 
       {/* toc | page | rail (or the wide test bench beside a slim editor) */}
-      <div className={benchOpen ? `${styles.cols} ${styles.colsBench}` : styles.cols}>
+      <div className={benchOpen || healthOpen ? `${styles.cols} ${styles.colsBench}` : styles.cols}>
         <div className={styles.tocCol}>
           <RuleToc {...tocProps} />
         </div>
@@ -298,8 +318,30 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
               onClose={() => setBenchOpen(false)}
               onImportPicked={appendImported}
             />
+          ) : healthOpen ? (
+            <HealthPane
+              findings={findings}
+              rules={session.body.rules}
+              onClose={() => setHealthOpen(false)}
+              onGoTo={(id) => setSession((s) => selectRule(s, id))}
+              onFix={applyFix}
+            />
           ) : (
-            rule && <RuleRail rule={rule} styles={styles} onOpenBench={() => setBenchOpen(true)} />
+            rule && (
+              <RuleRail
+                rule={rule}
+                styles={styles}
+                findings={findingsForRule(findings, rule.id)}
+                onOpenBench={() => {
+                  setHealthOpen(false);
+                  setBenchOpen(true);
+                }}
+                onOpenHealth={() => {
+                  setBenchOpen(false);
+                  setHealthOpen(true);
+                }}
+              />
+            )
           )}
         </div>
       </div>

@@ -58,6 +58,16 @@ export function ModeWords({ rule, styles, onPatch }: ModeWordsProps): JSX.Elemen
     onPatch({ find: b.pattern, flags: b.flags });
   };
 
+  // Re-entering the words view re-seeds from the LIVE rule (the by-example view may have rebuilt
+  // find since mount); a pattern outside the words grammar keeps the prior state, never wipes.
+  const pickSubMode = (m: SubMode): void => {
+    if (m === "words" && subMode !== "words") {
+      const fresh = decompileWordsState(rule.find, rule.flags);
+      if (fresh) setState(fresh);
+    }
+    setSubMode(m);
+  };
+
   const built = useMemo(() => buildWordsPattern(state), [state]);
   const readout = useMemo(
     () => readoutFor(built.pattern, built.flags, { rng: mulberry32(seedFrom(built.pattern)), count: 5 }),
@@ -81,7 +91,7 @@ export function ModeWords({ rule, styles, onPatch }: ModeWordsProps): JSX.Elemen
           type="button"
           className={subMode === "words" ? `${styles.sm} ${styles.smOn}` : styles.sm}
           aria-pressed={subMode === "words"}
-          onClick={() => setSubMode("words")}
+          onClick={() => pickSubMode("words")}
         >
           Match these words
         </button>
@@ -89,7 +99,7 @@ export function ModeWords({ rule, styles, onPatch }: ModeWordsProps): JSX.Elemen
           type="button"
           className={subMode === "example" ? `${styles.sm} ${styles.smOn}` : styles.sm}
           aria-pressed={subMode === "example"}
-          onClick={() => setSubMode("example")}
+          onClick={() => pickSubMode("example")}
         >
           Match by example
         </button>

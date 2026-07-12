@@ -10,7 +10,7 @@
  */
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
-import { explainPattern } from "../../../core/regex";
+import { explainPattern, slowRuleCount } from "../../../core/regex";
 import type { CanonicalRegexSet, RegexRule, RegexSetBody } from "../../../entities/regex/schema";
 import { createAndOpenRegexSet } from "./new-regex-set";
 import type { DeckViewContext } from "./view-contract";
@@ -20,6 +20,8 @@ export type RegexMeta = {
   ruleCount: number;
   enabledRuleCount: number;
   doesWhat: string;
+  /** Heavy-pattern rules (the quiet "N slow" chip); cheap complexity check, no engine runs. */
+  slowCount: number;
 };
 
 /** Regex workshop dialog state (split one set, or merge two); mirrors LoreWorkshopState. */
@@ -165,6 +167,7 @@ export async function loadRegexMeta(
         ruleCount: rules.length,
         enabledRuleCount: rules.filter((r) => r.enabled !== false).length,
         doesWhat: doesWhatForSet(body),
+        slowCount: slowRuleCount(body),
       };
     } catch {
       /* skip unreadable */
@@ -186,7 +189,7 @@ export function makeRegexShelf(args: {
     ruleCountOf: (e) => regexMeta[e.id]?.ruleCount,
     enabledRuleCountOf: (e) => regexMeta[e.id]?.enabledRuleCount,
     doesWhatOf: (e) => regexMeta[e.id]?.doesWhat,
-    slowCountOf: () => undefined, // R4 Health wires this; the chip stays a quiet placeholder until then
+    slowCountOf: (e) => regexMeta[e.id]?.slowCount,
     onToggleEnabled: (e, on) => {
       void (async () => {
         try {
@@ -209,6 +212,7 @@ export function makeRegexShelf(args: {
               enabled: on,
               ruleCount: m[e.id]?.ruleCount ?? body.rules?.length ?? 0,
               enabledRuleCount: m[e.id]?.enabledRuleCount ?? 0,
+              slowCount: m[e.id]?.slowCount ?? slowRuleCount(body),
               doesWhat: m[e.id]?.doesWhat ?? doesWhatForSet(body),
             },
           }));

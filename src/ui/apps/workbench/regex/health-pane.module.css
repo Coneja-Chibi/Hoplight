@@ -1,0 +1,119 @@
+/**
+ * HealthPane styles (R4 full check) - stage grammar: panel plates, black borders, quiet kickers.
+ * Class names live in exactly ONE module (the merged-styles law); everything here is hp-scoped.
+ */
+
+.pane {
+  height: 100%;
+  overflow-y: auto;
+  border-left: 3px solid var(--stage-black);
+  background: var(--stage-deck);
+  padding: 0.7rem 0.8rem 1rem;
+}
+
+.phead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--stage-seam);
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.7rem;
+}
+
+.pheadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.pheadKick {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.close {
+  margin-left: auto;
+  font: 700 0.75rem var(--font-mono);
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.1rem 0.45rem;
+  cursor: pointer;
+}
+
+.allClear {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--stage-ok);
+  border: 1px solid var(--stage-ok);
+  background: var(--stage-ok-bg);
+  padding: 0.6rem 0.7rem;
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.groupTitle {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0 0 0.35rem;
+}
+
+.row {
+  border: 2px solid var(--stage-seam);
+  border-left: 4px solid var(--stage-warn);
+  background: var(--stage-panel);
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.45rem;
+}
+
+.rowProblem {
+  border-left-color: var(--stage-danger-edge);
+}
+
+.rowMsg {
+  font-family: var(--font-body);
+  font-size: 0.83rem;
+  line-height: 1.35;
+  color: var(--stage-soft);
+  margin: 0 0 0.4rem;
+}
+
+.rowActs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.act {
+  font: 700 0.58rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.45rem;
+  cursor: pointer;
+}
+
+.act:hover {
+  color: var(--stage-card);
+  border-color: var(--a, var(--stage-macro));
+}
+
+.actFix {
+  background: var(--stage-ok-bg);
+  color: var(--stage-ok);
+  border-color: var(--stage-ok);
+}

@@ -11,13 +11,17 @@
 import { useMemo, useState, type JSX, type ReactNode } from "react";
 import type { RegexRule } from "../../../../entities/regex/schema";
 import { applyRules, validateRule } from "../../../../core/regex";
-import type { TraceMatch } from "../../../../core/regex";
+import type { RegexFinding, TraceMatch } from "../../../../core/regex";
 
 export interface RuleRailProps {
   rule: RegexRule;
   styles: Readonly<Record<string, string>>;
   /** Open the full test bench beside the editor; absent = the launcher stays a disabled stub. */
   onOpenBench?: () => void;
+  /** This rule's slice of the set linter's findings (R4); absent = plain validate fallback. */
+  findings?: readonly RegexFinding[];
+  /** Open the full-check pane beside the editor (the whole set's findings). */
+  onOpenHealth?: () => void;
 }
 
 const DEFAULT_SAMPLE = "She dashes off before he sprinted.";
@@ -49,7 +53,7 @@ function highlight(
   return out;
 }
 
-export function RuleRail({ rule, styles, onOpenBench }: RuleRailProps): JSX.Element {
+export function RuleRail({ rule, styles, onOpenBench, findings, onOpenHealth }: RuleRailProps): JSX.Element {
   const [sample, setSample] = useState(DEFAULT_SAMPLE);
   const hasPattern = rule.find.trim() !== "";
 
@@ -124,13 +128,32 @@ export function RuleRail({ rule, styles, onOpenBench }: RuleRailProps): JSX.Elem
           <b className={styles.rheadB}>Health</b>
         </div>
         <div className={styles.rbody}>
-          {health.ok ? (
+          {findings !== undefined ? (
+            findings.length === 0 ? (
+              <p className={styles.healthLine}>&#9679; This rule looks quick and safe.</p>
+            ) : (
+              findings.map((f, i) => (
+                <p key={`${f.rule}-${i}`} className={`${styles.healthLine} ${styles.healthNote}`}>
+                  &#9679; {f.message}
+                </p>
+              ))
+            )
+          ) : health.ok ? (
             <p className={styles.healthLine}>&#9679; This rule looks quick and safe.</p>
           ) : (
             <p className={`${styles.healthLine} ${styles.healthNote}`}>
               &#9679; {health.error ?? "Check this pattern."}
             </p>
           )}
+          <button
+            type="button"
+            className={styles.openFull}
+            disabled={!onOpenHealth}
+            title={onOpenHealth ? "Check every rule in this set" : "The full check needs the set editor"}
+            onClick={onOpenHealth}
+          >
+            Open the full check
+          </button>
         </div>
       </div>
     </aside>

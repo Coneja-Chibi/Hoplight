@@ -5,9 +5,8 @@
  * RENDERING of what the engine already knows; no format logic lives here.
  */
 import type { CanonicalEntity } from "../core/canonical";
-import { primaryOriginalRaw } from "../core/canonical";
-import { extractCharacterBook } from "../formats/_shared/character-book";
 import type { CharacterBody } from "../entities/character/schema";
+import type { CanonicalLorebook } from "../entities/lorebook/schema";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -22,9 +21,16 @@ const FRIENDLY: Record<string, string> = {
   "rolecall-persona": "RoleCall",
   agnai: "Agnai",
   "agnai-lorebook": "Agnai",
-  backyard: "Backyard",
+  backyard: "Backyard (legacy)",
+  byaf: "Backyard",
   "novelai-lorebook": "NovelAI",
   "vaud-json": "Vaude",
+  pygmalion: "Pygmalion",
+  "sillytavern-regex": "SillyTavern",
+  "risu-regex": "RisuAI",
+  "rolecall-regex": "RoleCall",
+  "lumiverse-regex": "Lumiverse",
+  "marinara-regex": "Marinara",
 };
 
 export const friendlyFormat = (formatId: string): string => FRIENDLY[formatId] ?? formatId;
@@ -33,6 +39,7 @@ const KIND_WORD: Record<string, string> = {
   character: "character card",
   lorebook: "lorebook",
   persona: "persona",
+  regex: "regex set",
 };
 
 export interface Receipt {
@@ -43,7 +50,15 @@ export interface Receipt {
   extras: string[];
 }
 
-export function buildReceipt(entity: AnyEntity, formatId: string): Receipt {
+/**
+ * @param relatedLorebooks - books already extracted by inspectBundle (same pass as the entity).
+ *   When provided, the receipt describes those books rather than re-extracting from original.
+ */
+export function buildReceipt(
+  entity: AnyEntity,
+  formatId: string,
+  relatedLorebooks?: CanonicalLorebook[],
+): Receipt {
   const kindWord = KIND_WORD[entity.kind] ?? entity.kind;
   const platform = friendlyFormat(formatId);
   const article = /^[aeiou]/i.test(kindWord) ? "An" : "A";
@@ -51,11 +66,12 @@ export function buildReceipt(entity: AnyEntity, formatId: string): Receipt {
 
   if (entity.kind === "character") {
     const body = entity.body as CharacterBody;
-    const embedded = extractCharacterBook(primaryOriginalRaw(entity.original));
-    if (embedded && embedded.body.entries.length > 0) {
+    const books = relatedLorebooks ?? [];
+    if (books.length > 0) {
+      const entries = books[0]!.body.entries.length;
       extras.push(
-        `It brought its own lorebook (${embedded.body.entries.length} ${
-          embedded.body.entries.length === 1 ? "entry" : "entries"
+        `It brought its own lorebook (${entries} ${
+          entries === 1 ? "entry" : "entries"
         }) - we kept them together.`,
       );
     }
