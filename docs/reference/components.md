@@ -109,7 +109,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
 | RuleKnobs | src/ui/components/css-workshop/knobs.tsx | ({ rule, onChange }: RuleKnobsProps) | Property knobs for the selected rule. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
-| RulePage | src/ui/apps/workbench/regex/rule-page.tsx | ({ rule, rules, writeFor, index, count, styles, onPrev, onNext, onPatch, }: RulePageProps) |  |  |
+| RulePage | src/ui/apps/workbench/regex/rule-page.tsx | ({ rule, rules, writeFor, index, count, styles, onPrev, onNext, onPatch, onDuplicate, onDelete, }: RulePageProps) |  |  |
 | RuleRail | src/ui/apps/workbench/regex/rule-rail.tsx | ({ rule, styles, onOpenBench, findings, onOpenHealth }: RuleRailProps) |  |  |
 | RuleToc | src/ui/apps/workbench/regex/rule-toc.tsx | ({ rules, focusedId, styles, onSelect, onAdd, slowIds }: RuleTocProps) |  |  |
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |

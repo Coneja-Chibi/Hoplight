@@ -294,3 +294,25 @@
     text-align: center;
   }
 }
+
+/* quiet pager actions (Duplicate / Delete - found missing by the R6 audit) */
+.pgQuiet {
+  font: 700 0.55rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: none;
+  color: var(--stage-mute);
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+}
+
+.pgQuiet:hover {
+  color: var(--stage-card);
+  border-color: var(--stage-line);
+}
+
+.pgDanger:hover {
+  color: var(--stage-danger-text);
+  border-color: var(--stage-danger-edge);
+}

@@ -30,6 +30,10 @@ export interface RulePageProps {
   onPrev: () => void;
   onNext: () => void;
   onPatch: (patch: Partial<RegexRule>) => void;
+  /** Copy this rule (focuses the copy); found missing by the R6 audit. */
+  onDuplicate?: () => void;
+  /** Delete this rule; found missing by the R6 audit. */
+  onDelete?: () => void;
 }
 
 type Mode = "guided" | "words" | "pattern";
@@ -50,6 +54,8 @@ export function RulePage({
   onPrev,
   onNext,
   onPatch,
+  onDuplicate,
+  onDelete,
 }: RulePageProps): JSX.Element {
   const [mode, setMode] = useState<Mode>(() => initialMode(rule));
   const explained = explainPattern(rule.find, rule.flags);
@@ -105,6 +111,16 @@ export function RulePage({
           &#8250;
         </button>
         <span className={styles.fill} />
+        {onDuplicate && (
+          <button type="button" className={styles.pgQuiet} onClick={onDuplicate}>
+            Duplicate
+          </button>
+        )}
+        {onDelete && (
+          <button type="button" className={`${styles.pgQuiet} ${styles.pgDanger}`} onClick={onDelete}>
+            Delete
+          </button>
+        )}
         <button
           type="button"
           className={rule.enabled ? styles.onoff : `${styles.onoff} ${styles.onoffOff}`}

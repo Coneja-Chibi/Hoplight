@@ -41,12 +41,15 @@ import { templateToRule } from "../../../../core/regex";
 import {
   addRule,
   addRuleFrom,
+  deleteRule,
+  duplicateRule,
   focusedRule,
   normalizeSession,
   reconcileRegexAfterSave,
   selectRule,
   sessionDirty,
   updateRule,
+  updateSet,
   type RegexSession,
 } from "./session";
 
@@ -228,7 +231,13 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
         <div className={styles.spine}>
           <span className={styles.spineMark}>{monogram}</span>
           <div className={styles.spineText}>
-            <b className={styles.spineName}>{session.body.name || "Untitled regex set"}</b>
+            <input
+              className={styles.spineName}
+              value={session.body.name}
+              placeholder="Untitled regex set"
+              aria-label="Set name"
+              onChange={(e) => setSession((s) => updateSet(s, { name: e.target.value }))}
+            />
             <span className={styles.spineMeta}>
               {count} rule{count === 1 ? "" : "s"} · {enabledCount} on · regex set
             </span>
@@ -315,6 +324,11 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
               onPrev={() => flip(-1)}
               onNext={() => flip(1)}
               onPatch={(patch) => setSession((s) => updateRule(s, rule.id, patch))}
+              onDuplicate={() => setSession((s) => duplicateRule(s, rule.id))}
+              onDelete={() => {
+                setSession((s) => deleteRule(s, rule.id));
+                ctx.setStatus(`deleted "${rule.label.trim() || "the rule"}" - save to keep`);
+              }}
             />
           )}
         </main>
