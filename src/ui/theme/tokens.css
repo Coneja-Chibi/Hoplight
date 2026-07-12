@@ -125,6 +125,43 @@
      dark-in-both stage rule for this surface): a deeper tan than the card on paper. */
   --q-stage: #eae0ca;
   --q-stage-deck: #dccdb2;
+
+  /* THE STAGE FLIPS TOO (Chi 2026-07-12, extending the q-stage ruling to the whole stage: light
+     theme means a LIGHT stage well, the dark-in-both doctrine is retired). Derivation is anchored,
+     not invented: the well/deck tans come from the locked q-stage pair above, fills walk the locked
+     shell paper ramp (face/shell-panel/shell-panel-2), text walks the locked paper text ramp, and
+     the console semantics follow the --link precedent (darker, saturated-on-cream variants).
+     --stage-black/-white and the accent-chip ink stay structural: black borders and offset shadows
+     ARE the letterpress grammar, and dark ink on a colored accent chip reads in both themes. */
+  --stage-floor: #eae0ca;   /* q-stage tan: the recessed well */
+  --stage-deck: #dccdb2;    /* q-stage-deck: one step deeper */
+  --stage-dim: #98917c;
+  --stage-faint: #d8cfba;
+  --stage-paper: #14120d;   /* "bright text" role flips to near-ink on tan */
+  --stage-panel: #fffdf9;   /* card/panel fill = the shell face */
+  --stage-row: #f4efe5;     /* row/plate = shell panel */
+  --stage-sunken: #ece4d4;  /* recessed row = shell panel 2 */
+  --stage-well: #d5c5a5;    /* the deepest recess goes deepest-tan, one step past the deck */
+  --stage-seam: #d3cab2;    /* soft dividers stay soft (hard borders are --stage-black) */
+  --stage-line: #a89d82;
+  --stage-mute: #7d7663;
+  --stage-soft: #3a352c;    /* soft body text = paper text-soft */
+  --stage-text-dim: #6e6857; /* readability floor = paper text-dim */
+  --stage-card: #0a0a0b;    /* brightest title role = full ink */
+  --stage-kicker: #8d846c;
+  --stage-ok: #1d7a3f;      /* success reads forest on cream */
+  --stage-ok-bg: #dcead2;
+  --stage-macro: #6d28d9;   /* macro purple, saturated-on-cream */
+  --stage-var: #2456c4;
+  --stage-warn: #8a5a00;    /* amber flips to ochre text... */
+  --stage-warn-ink: #f3e2b8; /* ...on a gilt plate */
+  --stage-danger-bg: #f7dfe2;
+  --stage-danger-edge: #c25b6b;
+  --stage-danger-text: #a41e35;
+  --stage-danger-hot: #c2410c;
+  --stage-danger-deep: #efd3d6;
+  --stage-link: #1d4ed8;
+  --stage-rose-well: #f1e0e8;
 }
 
 /* DARK = the forge (shell chrome palette transcribed from the LOCKED vs-shell-apps) */
