@@ -92,6 +92,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: PaletteControlProps) |  |  |
+| PersonaEditor | src/ui/apps/workbench/PersonaEditor.tsx | ({ entity, topRight }: PersonaEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PhasePicker | src/ui/apps/workbench/regex/phase-picker.tsx | ({ phases, writeFor, styles, onToggle }: PhasePickerProps) |  |  |
 | PlatformTabs | src/ui/components/platform-tabs/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps) | Multi-select platform lens tabs + the dim/hide off-target switch (vs-editor-2). | .strip .tab .offt .on .hint |
 | PlaybackTab | src/ui/apps/workbench/lore/playback-tab.tsx | ({ body, onJumpEntry }: PlaybackTabProps) |  |  |

@@ -26,6 +26,17 @@ export interface PersonaSections {
   history?: string;
 }
 
+/**
+ * Lumiverse's structured pronoun triplet (subjective/objective/possessive) - real DATA the
+ * engine can conjugate with, unlike the free-text `pronouns` display string (which stays, for
+ * RC/ST round-trip). Additive (P0, PERSONA-JEWEL-PLAN.md); absent everywhere else.
+ */
+export interface PersonaPronounSet {
+  subjective: string;
+  objective: string;
+  possessive: string;
+}
+
 /** Authored identity attributes (RC casting-card details). */
 export interface PersonaIdentity {
   tagline?: string;
@@ -33,6 +44,7 @@ export interface PersonaIdentity {
   age?: string;
   height?: string;
   pronouns?: string;
+  pronounSet?: PersonaPronounSet;
 }
 
 /** The persona's visual identity (RC theming). */
@@ -44,13 +56,28 @@ export interface PersonaPresentation {
 }
 
 /**
- * SillyTavern-only prompt-positioning fields, carried for round-trip when a persona genuinely
- * originates from ST. Formats without the concept original or omit it.
+ * Prompt-positioning fields. Two real dialects share this slot (P0, PERSONA-JEWEL-PLAN.md):
+ * SillyTavern's five stops (prompt / author-note top+bottom / in-chat at depth+role / none) and
+ * RoleCall's four (world / character / scene / depth, PersonaPanel.tsx InjectionPosition), plus
+ * RC's optional wrapper text (`injection_prefix`). OPEN union: which stops a Write-for lens can
+ * carry lives in core/persona/platform-fields.ts (`injectionsForProfile`), never a UI literal.
  */
 export interface PersonaChatInjection {
-  position: "prompt" | "author_note_top" | "author_note_bottom" | "in_chat" | "none";
+  position:
+    | "prompt"
+    | "author_note_top"
+    | "author_note_bottom"
+    | "in_chat"
+    | "none"
+    | "world"
+    | "character"
+    | "scene"
+    | "depth"
+    | (string & {});
   depth?: number;
   role?: "system" | "user" | "assistant";
+  /** RC's custom wrapper text prepended to the injected block (injection_prefix). */
+  wrapper?: string;
 }
 
 export interface PersonaAttribution {
@@ -92,3 +119,8 @@ export interface PersonaBody {
 }
 
 export type CanonicalPersona = CanonicalEntity<"persona", PersonaBody>;
+
+/** A blank persona body (the New persona seed). */
+export function emptyPersonaBody(name: string): PersonaBody {
+  return { name, content: "" };
+}

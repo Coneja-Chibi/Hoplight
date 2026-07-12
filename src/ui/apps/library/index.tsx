@@ -36,6 +36,7 @@ import {
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { createAndOpenLorebook } from "./new-lorebook";
 import { createAndOpenRegexSet } from "./new-regex-set";
+import { createAndOpenPersona } from "./new-persona";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
@@ -399,6 +400,28 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
                     }}
                   >
                     New regex set
+                  </button>
+                </div>
+              )}
+              {activeKind === "persona" && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <button
+                    type="button"
+                    className="send"
+                    onClick={() => {
+                      void (async () => {
+                        const summary = await createAndOpenPersona(ctx);
+                        setEntities((prev) =>
+                          prev.some((e) => e.kind === "persona" && e.id === summary.id)
+                            ? prev
+                            : [...prev, summary],
+                        );
+                        ctx.workbench.send(summary);
+                        ctx.setStatus(`opened persona · ${summary.name}`);
+                      })();
+                    }}
+                  >
+                    New persona
                   </button>
                 </div>
               )}
