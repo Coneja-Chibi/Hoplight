@@ -20,8 +20,9 @@ import {
 test("hardcodedColorLiteral catches hex and color functions, ignores tokens and opt-outs", () => {
   expect(hardcodedColorLiteral("  color: #e11d48;")).toBe("#e11d48");
   expect(hardcodedColorLiteral("  border: 3px solid #000;")).toBe("#000");
-  expect(hardcodedColorLiteral("  box-shadow: 3px 3px 0 rgba(0,0,0,.5);")).toBe("rgba(");
-  expect(hardcodedColorLiteral("  background: hsl(210 50% 40%);")).toBe("hsl(");
+  expect(hardcodedColorLiteral("  box-shadow: 3px 3px 0 rgba(0,0,0,.5);")).toBe("rgba(0");
+  expect(hardcodedColorLiteral("  background: hsl(210 50% 40%);")).toBe("hsl(2");
+  expect(hardcodedColorLiteral("  const [ar, ag, ab] = rgb(a);")).toBeNull(); // helper call, not a color
   expect(hardcodedColorLiteral("  color: var(--rose);")).toBeNull(); // tokens are the point
   expect(hardcodedColorLiteral("  border-color: var(--a, var(--accent));")).toBeNull();
   expect(hardcodedColorLiteral('  { name: "X", color: "#111111" }, // hardcode-ok: brand datum')).toBeNull();
@@ -37,6 +38,20 @@ test("isColorGuardedFile guards UI styles/components, spares definitions and col
   expect(isColorGuardedFile("src/ui/_shared/platform-registry.ts")).toBe(false);
   expect(isColorGuardedFile("src/studio/signature-color.ts")).toBe(false); // not a UI file
   expect(isColorGuardedFile("design/vs-pick-11.html")).toBe(false);
+});
+
+test("isColorGuardedFile guards plain .ts under src/ui (the decks.ts blind spot), spares data payloads", () => {
+  expect(isColorGuardedFile("src/ui/_shared/decks.ts")).toBe(true); // hues hid here once, never again
+  expect(isColorGuardedFile("src/ui/server.ts")).toBe(true); // manifest one-offs use hardcode-ok
+  expect(isColorGuardedFile("src/ui/apps/workbench/regex/regex-styles.ts")).toBe(true);
+  expect(isColorGuardedFile("src/ui/app-contract.d.ts")).toBe(false); // type decls carry no styling
+  expect(isColorGuardedFile("src/ui/_shared/paint.ts")).toBe(false); // paint seeds are entity data
+  expect(isColorGuardedFile("src/ui/components/css-workshop/recipes/dark-glass/index.ts")).toBe(false); // recipe payloads (dir allowlist, drop-in safe)
+  expect(isColorGuardedFile("src/ui/components/css-workshop/recipes/some-future-recipe/index.ts")).toBe(false);
+  expect(isColorGuardedFile("src/ui/_shared/paint.test.ts")).toBe(false); // test fixtures = color data
+  expect(isColorGuardedFile("src/ui/setup/wizard-core.test.ts")).toBe(false);
+  expect(isColorGuardedFile("src/ui/components/css-workshop/preview.ts")).toBe(false); // sealed foreign-host mock payload
+  expect(isColorGuardedFile("src/ui/apps/css-workshop/prefs.ts")).toBe(false); // starter draft users paste onto foreign hosts
 });
 
 test("htmlSinkTokens flags every banned sink in UI source", () => {

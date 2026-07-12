@@ -80,6 +80,16 @@
   --host-rc: #e11d48;   /* RoleCall / Vaude house rose */
   --host-nai: #9773ff;  /* NovelAI press-kit purple */
   --host-risu: #6ea8ff; /* Risu: calm stage-var blue until a stronger mark is locked */
+
+  /* deck identity accents (per entity-kind signature hues, locked vs-shell-apps chip colors).
+     Theme-stable; consumed through decks.ts -> the --a custom property on cards/chips/tabs. */
+  --deck-character: #e6a52a;
+  --deck-lorebook: #b968f7;
+  --deck-persona: #2ba79a;
+  --deck-pack: #e11d48;
+  --deck-preset: #10b981;
+  --deck-regex: #58c4a6;
+  --deck-fog: #8a8496; /* unknown kind fallback */
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

@@ -189,23 +189,51 @@ export const declaresDependency = (message: string, pkg: string): boolean =>
 const COLOR_ALLOWLIST: ReadonlySet<string> = new Set<string>([
   "src/ui/theme/tokens.css",
   "src/ui/_shared/color-math.ts",
-  "src/ui/_shared/color-math.test.ts",
   "src/ui/_shared/platform-registry.ts",
-  "src/ui/_shared/platform-registry.test.ts",
+  // CSS Workshop samples are user-authored paint data, not app chrome
+  "src/ui/components/css-workshop/advanced-pane.tsx",
+  "src/ui/components/css-workshop/index.tsx",
+  "src/ui/components/css-workshop/knobs.tsx",
+  "src/ui/components/css-workshop/source-pane.tsx",
+  "src/ui/components/css-workshop/styles.module.css",
+  // Workshop PAYLOAD css-in-strings: a sealed srcdoc mock of foreign host pages, and the starter
+  // draft users paste onto Chub/Janitor - foreign pages cannot see our tokens, literals are correct
+  "src/ui/components/css-workshop/preview.ts",
+  "src/ui/apps/css-workshop/prefs.ts",
+  // Sprite part defaults are character paint data (not chrome)
+  "src/ui/components/sprite-parts/index.tsx",
+  // Paint seeds are entity DATA defaults (saved into user documents), not chrome
+  "src/ui/_shared/paint.ts",
 ]);
 
-/** A UI style/component file the color rule guards: a .module.css or .tsx under src/ui, not a
- * definition/color-domain file. These must theme through tokens; a raw color literal is a violation. */
+/** Allowlisted DIRECTORIES (drop-in payload folders where every file is user-paint data by design;
+ * an exact-path list would silently un-guard nothing when a new recipe lands, so prefix-match). */
+const COLOR_ALLOWLIST_DIRS: readonly string[] = [
+  // Recipe payloads are CSS text inserted into user documents, not app chrome
+  "src/ui/components/css-workshop/recipes/",
+];
+
+/** A UI style/component file the color rule guards: a .module.css, .tsx, or plain .ts under src/ui,
+ * not a definition/color-domain file. These must theme through tokens; a raw color literal is a
+ * violation. Plain .ts joined the net 2026-07-12: deck accents had been hiding there. */
 export const isColorGuardedFile = (path: string): boolean => {
   const p = norm(path);
   if (!p.startsWith("src/ui/")) return false;
-  if (!p.endsWith(".module.css") && !p.endsWith(".tsx")) return false;
+  if (p.endsWith(".test.ts") || p.endsWith(".test.tsx")) return false; // fixtures assert color DATA
+  const guarded =
+    p.endsWith(".module.css") || p.endsWith(".tsx") || (p.endsWith(".ts") && !p.endsWith(".d.ts"));
+  if (!guarded) return false;
+  if (COLOR_ALLOWLIST_DIRS.some((dir) => p.startsWith(dir))) return false;
   return !COLOR_ALLOWLIST.has(p);
 };
 
-/** A hardcoded color literal: a hex color, or an rgb/rgba/hsl/hsla function with literal channels.
- * The `(?<!&)` guard skips HTML numeric entities (`&#9679;`, `&#x2022;`) - glyphs, not colors. */
-const COLOR_LITERAL = /(?<!&)#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/;
+/**
+ * Hardcoded color: hex, or rgb/rgba/hsl/hsla with a numeric first channel.
+ * Identifier calls like `rgb(a)` (color-math helpers) are NOT colors.
+ * The `(?<!&)` guard skips HTML numeric entities (`&#9679;`).
+ */
+const HEX_COLOR = /(?<!&)#[0-9a-fA-F]{3,8}\b/;
+const FUNC_COLOR = /\b(?:rgba?|hsla?)\s*\(\s*[\d.]/;
 
 /**
  * The first hardcoded color literal on a line, or null when there is none. A line carrying the token
@@ -215,8 +243,10 @@ const COLOR_LITERAL = /(?<!&)#[0-9a-fA-F]{3,8}\b|\b(?:rgba?|hsla?)\s*\(/;
  */
 export const hardcodedColorLiteral = (line: string): string | null => {
   if (line.includes("hardcode-ok")) return null;
-  const m = COLOR_LITERAL.exec(line);
-  return m ? m[0] : null;
+  const hex = HEX_COLOR.exec(line);
+  if (hex) return hex[0];
+  const fn = FUNC_COLOR.exec(line);
+  return fn ? fn[0] : null;
 };
 
 /** Default max length for a source file, in lines. Past this a file is trending toward a godfile:

@@ -1,22 +1,23 @@
 /**
  * No-hardcoded-colors guard - UI wears tokens, not raw hex/rgb/hsl. The imperative shell around
- * lib.ts's pure detector (hardcodedColorLiteral / isColorGuardedFile). Two modes:
+ * lib.ts's pure detector (hardcodedColorLiteral / isColorGuardedFile).
  *
- *   --staged : pre-commit. Blocks only the color literals ADDED in the staged diff of guarded UI
- *              files, so new hardcoding dies at the commit while the existing backlog does not wedge
- *              every commit. A violation exits 2 (the git/Claude-Code blocking contract).
- *   --scan   : retroactive audit. Walks every guarded UI file and reports each hardcoded color plus a
- *              total. Exit 0 - a report, not a gate; the backlog is migrated to tokens deliberately.
+ *   --staged : pre-commit. Blocks color literals ADDED in the staged diff of guarded UI files.
+ *   --scan   : retroactive report of the whole tree (exit 0 even with hits).
+ *   --check  : whole-tree blocking gate (exit 2 on any hit).
  *
- * The one legal escape is a `hardcode-ok` comment on the line (a brand-color datum, a documented
- * one-off); token definitions and the color-math/brand-data files are allowlisted in lib.ts.
+ * Escape: same-line `hardcode-ok` comment with a reason.
  *
- * Run: bun run scripts/hooks/no-hardcode-colors.ts --scan
+ * Run: bun run scripts/hooks/no-hardcode-colors.ts --scan|--check|--staged
  */
 import { readFileSync } from "node:fs";
 import { addedLinesByFile, hardcodedColorLiteral, isColorGuardedFile } from "./lib";
 
-const mode: "staged" | "scan" = process.argv.includes("--scan") ? "scan" : "staged";
+const mode: "staged" | "scan" | "check" = process.argv.includes("--check")
+  ? "check"
+  : process.argv.includes("--scan")
+    ? "scan"
+    : "staged";
 
 interface Hit {
   file: string;
@@ -60,9 +61,8 @@ if (mode === "staged") {
   reportAndExit(hits, "Hardcoded colors added in this commit (UI must wear tokens):", true);
 }
 
-// --scan: the whole tree
 const glob = (pattern: string): string[] => Array.from(new Bun.Glob(pattern).scanSync("."));
-const files = [...glob("src/ui/**/*.tsx"), ...glob("src/ui/**/*.module.css")]
+const files = [...glob("src/ui/**/*.tsx"), ...glob("src/ui/**/*.module.css"), ...glob("src/ui/**/*.ts")]
   .filter(isColorGuardedFile)
   .sort();
 
@@ -75,4 +75,10 @@ for (const file of files) {
       if (literal !== null) hits.push({ file, line: i + 1, literal, text: text.trim().slice(0, 80) });
     });
 }
-reportAndExit(hits, `Retroactive scan: hardcoded colors in ${files.length} guarded UI files:`, false);
+reportAndExit(
+  hits,
+  mode === "check"
+    ? `Color check failed: hardcoded colors in ${files.length} guarded UI files:`
+    : `Retroactive scan: hardcoded colors in ${files.length} guarded UI files:`,
+  mode === "check",
+);

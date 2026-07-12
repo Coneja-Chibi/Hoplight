@@ -12,17 +12,18 @@ export interface DeckMeta {
   plural: string;
   /** short tag for tabs/chips ("char") */
   short: string;
-  /** the deck's accent (locked vs-shell-apps chip colors) */
+  /** the deck's accent: a `var(--deck-*)` reference into tokens.css (hues live THERE, the
+   *  no-hardcode doctrine). Only ever consumed in CSS contexts (`--a`/`--spine` style props). */
   accent: string;
 }
 
 const DECKS: DeckMeta[] = [
-  { kind: "character", plural: "Characters", short: "char", accent: "#e6a52a" },
-  { kind: "lorebook", plural: "Lorebooks", short: "lore", accent: "#b968f7" },
-  { kind: "persona", plural: "Personas", short: "pers", accent: "#2ba79a" },
-  { kind: "pack", plural: "Sprite packs", short: "pack", accent: "#e11d48" },
-  { kind: "preset", plural: "Presets", short: "set", accent: "#10b981" },
-  { kind: "regex", plural: "Regex sets", short: "rgx", accent: "#58c4a6" },
+  { kind: "character", plural: "Characters", short: "char", accent: "var(--deck-character)" },
+  { kind: "lorebook", plural: "Lorebooks", short: "lore", accent: "var(--deck-lorebook)" },
+  { kind: "persona", plural: "Personas", short: "pers", accent: "var(--deck-persona)" },
+  { kind: "pack", plural: "Sprite packs", short: "pack", accent: "var(--deck-pack)" },
+  { kind: "preset", plural: "Presets", short: "set", accent: "var(--deck-preset)" },
+  { kind: "regex", plural: "Regex sets", short: "rgx", accent: "var(--deck-regex)" },
 ];
 
 const BY_KIND = new Map(DECKS.map((d) => [d.kind, d]));
@@ -37,7 +38,7 @@ export function deckMeta(kind: string): DeckMeta {
       kind,
       plural: kind.charAt(0).toUpperCase() + kind.slice(1) + "s",
       short: kind.slice(0, 4),
-      accent: "#8a8496",
+      accent: "var(--deck-fog)",
     }
   );
 }
