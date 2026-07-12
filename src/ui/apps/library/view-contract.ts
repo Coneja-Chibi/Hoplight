@@ -80,6 +80,21 @@ export interface DeckViewContext {
     /** create a blank set and open it (the shelf's "+ New set" card) */
     onNew(): void;
   };
+  /**
+   * Optional persona shelf ops (vs-persona-editor wire 2). Absent on non-persona decks / older
+   * callers; views deny by absence.
+   */
+  personaShelf?: {
+    /** the library BRIEF (its one honest home - never the injected content) */
+    briefOf(e: StudioEntitySummary): string | undefined;
+    pronounsOf(e: StudioEntitySummary): string | undefined;
+    sectionCountOf(e: StudioEntitySummary): number | undefined;
+    hasLorebookOf(e: StudioEntitySummary): boolean;
+    /** the studio's default persona id ("" = none) */
+    defaultId: string;
+    /** create a blank persona and open it */
+    onNew(): void;
+  };
 }
 
 export interface DeckView {

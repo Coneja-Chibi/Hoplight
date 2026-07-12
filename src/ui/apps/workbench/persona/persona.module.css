@@ -1,0 +1,331 @@
+/**
+ * Persona editor styles (P4) - transcribed from design/vs-persona-editor.html wire 1, stage
+ * tokens throughout, --a = the persona deck accent. One module for the whole editor (a persona
+ * is one document; the file stays comfortably under the cap). Collapse blocks at FILE END.
+ */
+
+.root {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: var(--stage-floor);
+}
+
+.ehead {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 2px solid var(--stage-seam);
+  flex-wrap: wrap;
+}
+
+.spineMark {
+  width: 1.6rem;
+  height: 2rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-sunken);
+  color: var(--a, var(--stage-macro));
+  display: grid;
+  place-items: center;
+  font: 900 0.7rem var(--font-big);
+  flex: none;
+}
+
+.spineName {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0;
+  width: 12rem;
+  min-width: 0;
+}
+
+.spineName:hover {
+  border-bottom-color: var(--stage-seam);
+}
+
+.spineName:focus {
+  outline: none;
+  border-bottom-color: var(--a, var(--stage-macro));
+}
+
+.spineMeta {
+  display: block;
+  font: 500 0.56rem var(--font-mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.eacts {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wfor {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--stage-seam);
+}
+
+.wforLabel {
+  font-style: normal;
+  font: 700 0.48rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  padding: 0 0.45rem;
+}
+
+.wf {
+  font: 700 0.52rem var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 0;
+  border-left: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.32rem 0.5rem;
+  cursor: pointer;
+}
+
+.wfOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.save {
+  font: 700 0.68rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-rose-well);
+  color: var(--stage-card);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  cursor: pointer;
+}
+
+.save:disabled {
+  background: var(--stage-panel);
+  color: var(--stage-text-dim);
+  box-shadow: none;
+  cursor: default;
+}
+
+.cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
+  align-items: start;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pageCol {
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem 1.2rem;
+  border-right: 2px solid var(--stage-seam);
+}
+
+.railCol {
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  padding: 0.9rem 0.8rem;
+}
+
+/* ---------- cards ---------- */
+
+.card {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  margin-bottom: 1rem;
+}
+
+.chead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.cheadB {
+  font: 800 0.72rem var(--font-big);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.cheadKick {
+  font: 500 0.55rem var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.cbody {
+  padding: 0.7rem;
+}
+
+.secTa {
+  width: 100%;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font: 500 0.8rem var(--font-body);
+  padding: 0.45rem 0.55rem;
+  min-height: 3.4rem;
+  resize: vertical;
+}
+
+.traits {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  padding-top: 0.45rem;
+}
+
+.trait {
+  font: 700 0.55rem var(--font-mono);
+  border: 1px solid var(--a, var(--stage-macro));
+  background: none;
+  color: var(--a, var(--stage-macro));
+  padding: 0.12rem 0.4rem;
+  cursor: pointer;
+}
+
+.traitAdd {
+  width: 8rem;
+  background: var(--stage-row);
+  border: 1px dashed var(--stage-line);
+  color: var(--stage-soft);
+  font: 600 0.6rem var(--font-mono);
+  padding: 0.12rem 0.4rem;
+}
+
+/* ---------- injection ---------- */
+
+.stops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stop {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.stopB {
+  display: block;
+  font: 800 0.62rem var(--font-big);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.stopHint {
+  font: 500 0.6rem var(--font-mono);
+  color: var(--stage-kicker);
+}
+
+.stopOn {
+  border-color: var(--a, var(--stage-macro));
+  background: var(--stage-sunken);
+}
+
+.stopOn .stopB {
+  color: var(--stage-card);
+}
+
+.stopForeign {
+  border-style: dashed;
+  border-color: var(--stage-warn);
+}
+
+.depthRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font: 600 0.62rem var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.depthIn {
+  width: 4rem;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font: 600 0.68rem var(--font-mono);
+  padding: 0.2rem 0.3rem;
+  text-align: center;
+}
+
+.wrapIn {
+  width: 100%;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font: 500 0.7rem var(--font-mono);
+  padding: 0.35rem 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.finePrint {
+  font-style: italic;
+  font-family: var(--font-body);
+  color: var(--stage-mute);
+  font-size: 0.78rem;
+  padding: 0.45rem 0.7rem;
+  border-top: 1px dashed var(--stage-line);
+}
+
+/* ---------- mobile head ---------- */
+
+.mHeadGate {
+  display: none;
+}
+
+/* Collapse blocks at FILE END (fluid law: fold by the PANE's width). */
+@container (max-width: 64rem) {
+  .cols {
+    display: block;
+    overflow-y: auto;
+  }
+  .pageCol,
+  .railCol {
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+  }
+}
+
+@container (max-width: 34rem) {
+  .ehead {
+    display: none;
+  }
+  .mHeadGate {
+    display: block;
+  }
+}

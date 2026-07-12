@@ -13,8 +13,9 @@ import showcase from "./showcase";
 import list from "./list";
 import shelf from "./shelf";
 import regexShelf from "./regex-shelf";
+import personaShelf from "./persona-shelf";
 
-const VIEWS: DeckView[] = [grid, showcase, list, shelf, regexShelf];
+const VIEWS: DeckView[] = [grid, showcase, list, shelf, regexShelf, personaShelf];
 
 const applies = (v: DeckView, kind?: string): boolean =>
   !v.kinds || kind === undefined || v.kinds.includes(kind);

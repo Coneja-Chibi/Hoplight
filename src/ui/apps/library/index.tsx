@@ -37,6 +37,7 @@ import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { createAndOpenLorebook } from "./new-lorebook";
 import { createAndOpenRegexSet } from "./new-regex-set";
 import { createAndOpenPersona } from "./new-persona";
+import { loadPersonaMeta, makePersonaShelf, type PersonaMeta } from "./persona-shelf-ops";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
@@ -91,6 +92,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [regexWorkshop, setRegexWorkshop] = useState<RegexWorkshopState | null>(null);
   const [loreMeta, setLoreMeta] = useState<Record<string, LoreMeta>>({});
   const [regexMeta, setRegexMeta] = useState<Record<string, RegexMeta>>({});
+  const [personaMeta, setPersonaMeta] = useState<Record<string, PersonaMeta>>({});
   const [, setWorkbenchTick] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const [sizeRem, setSizeRem] = useState(() => clampSize(ctx.prefs.get(PREF_SIZE)));
@@ -101,6 +103,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
       setEntities(list);
       setLoreMeta(await loadLoreMeta(ctx, list));
       setRegexMeta(await loadRegexMeta(ctx, list));
+      setPersonaMeta(await loadPersonaMeta(ctx, list));
     })();
   }, [ctx]);
 
@@ -260,6 +263,10 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             setWorkshop: setRegexWorkshop,
             reload,
           })
+        : undefined,
+    personaShelf:
+      activeKind === "persona"
+        ? makePersonaShelf({ ctx, personaMeta, setEntities })
         : undefined,
   };
 
