@@ -18,3 +18,5 @@ export {
   PERSONA_INJECTIONS_BY_PROFILE,
   platformOwnsField,
 } from "./platform-fields";
+export { compileSections, escapeXml, injectPersonaXml, toXmlTagName } from "./inject";
+export type { InjectOptions } from "./inject";
