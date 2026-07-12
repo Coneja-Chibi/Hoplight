@@ -18,9 +18,20 @@ const mountNode = document.getElementById("shell-root");
 if (!mountNode) throw new Error("boot: #shell-root missing from index.html");
 createRoot(mountNode).render(createElement(App));
 
-// dev live-reload: the server only streams this in dev; the packaged exe 404s and we go quiet
+// dev live-reload: the server streams "hello <bootId>" on connect and "reload" on rebuild. Never
+// close() on error - EventSource auto-reconnects across transient drops and server restarts, and
+// closing on the first hiccup pins the tab to a stale bundle forever (the proven failure: every
+// dev-server restart orphaned every open tab). In the packaged exe the endpoint 404s and the
+// browser fails the connection permanently on its own, so quiet needs no help from us. A hello
+// with a NEW boot id means a different server process (the bundle may have changed): reload once.
 const devReload = new EventSource("/dev/reload");
+let devBootId: string | null = null;
 devReload.addEventListener("message", (ev) => {
-  if (ev.data === "reload") location.reload();
+  const data = typeof ev.data === "string" ? ev.data : "";
+  if (data === "reload") location.reload();
+  if (data.startsWith("hello ")) {
+    const id = data.slice("hello ".length);
+    if (devBootId === null) devBootId = id;
+    else if (devBootId !== id) location.reload();
+  }
 });
-devReload.onerror = () => devReload.close();
