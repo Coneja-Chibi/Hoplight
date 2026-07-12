@@ -1,0 +1,483 @@
+/**
+ * Regex test bench pane (design/vs-regex-tryit.html, 1:1): the companion pane that opens beside the
+ * set editor. Header with the Try text / Import preview tabs and a close, the sample card, and the
+ * CHAIN - one step card per rule in application order (applied steps show the word diff + colored
+ * capture chips, skipped steps show the plain reason), then the "What comes out" card. Theme tokens
+ * only; a class name lives in exactly this module. Import-preview skins live in bench-import.module.css.
+ */
+
+.pane {
+  border-left: 2px solid var(--stage-seam);
+  background: var(--stage-panel);
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.phead {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 2px solid var(--stage-seam);
+  flex: none;
+}
+
+.pheadB {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.tabs {
+  display: inline-flex;
+  border: 2px solid var(--stage-black);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+
+.tab {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.32rem 0.6rem;
+  cursor: pointer;
+}
+
+.tab + .tab {
+  border-left: 2px solid var(--stage-black);
+}
+
+.tabOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.pclose {
+  margin-left: auto;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  width: 1.7rem;
+  height: 1.7rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  flex: none;
+}
+
+.pbody {
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  overflow: auto;
+  min-height: 0;
+}
+
+/* ---------- sample in ---------- */
+
+.sampleCard {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  flex: none;
+}
+
+.schead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.scheadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.scheadI {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.escBtn {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+}
+
+.scbody {
+  padding: 0.7rem;
+}
+
+.ta {
+  width: 100%;
+  min-height: 4rem;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  padding: 0.55rem;
+  box-sizing: border-box;
+}
+
+.phaseRow {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.phaseSel {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  padding: 0.22rem 0.4rem;
+}
+
+.phaseOr {
+  margin-left: auto;
+}
+
+.ghostBtn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.24rem 0.5rem;
+  cursor: pointer;
+}
+
+.ghostBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- the chain ---------- */
+
+.step {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  flex: none;
+}
+
+.stepHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-bottom: 1px solid var(--stage-faint);
+}
+
+.stepNo {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.6rem;
+  color: var(--stage-ink);
+  background: var(--a, var(--stage-macro));
+  border: 2px solid var(--stage-black);
+  padding: 0.05rem 0.4rem;
+  flex: none;
+}
+
+.stepHeadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stepStat {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.54rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  flex: none;
+}
+
+.stepStat em {
+  font-style: normal;
+  color: var(--stage-ok);
+}
+
+.slow {
+  color: var(--stage-warn);
+}
+
+.stepBody {
+  padding: 0.55rem 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--stage-soft);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.del {
+  background: color-mix(in srgb, var(--stage-danger-text) 20%, transparent);
+  text-decoration: line-through;
+  color: color-mix(in srgb, var(--stage-danger-text) 75%, var(--stage-soft));
+  padding: 0 0.1rem;
+}
+
+.ins {
+  background: color-mix(in srgb, var(--stage-ok) 22%, transparent);
+  color: color-mix(in srgb, var(--stage-ok) 65%, var(--stage-paper));
+  padding: 0 0.1rem;
+}
+
+.groups {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem 0.55rem;
+  flex-wrap: wrap;
+}
+
+.gchip {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.56rem;
+  border: 1px solid var(--stage-faint);
+  padding: 0.14rem 0.4rem;
+  color: var(--stage-soft);
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gchip i {
+  font-style: normal;
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+
+/* Four fixed, always-distinct lanes for $1..$4 (cycled) - NOT the entity accent, which may be unset
+   and would collide with a sibling lane. */
+.c1 i {
+  color: var(--stage-var);
+}
+.c2 i {
+  color: var(--stage-macro);
+}
+.c3 i {
+  color: var(--stage-ok);
+}
+.c4 i {
+  color: var(--stage-warn);
+}
+
+/* overlay-rule chips: text untouched, spans drawn over */
+.overlayNote {
+  padding: 0.45rem 0.7rem 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-var);
+}
+
+/* ---------- skipped steps ---------- */
+
+.stepSkip {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.45rem 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.62rem;
+  color: var(--stage-kicker);
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.stepSkip b {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  color: var(--stage-mute);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.stepSkipWarn {
+  border-color: var(--stage-warn);
+}
+
+.skipWarnText {
+  color: var(--stage-warn);
+}
+
+/* ---------- final out ---------- */
+
+.finalOut {
+  border: 2px solid var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 6%, transparent);
+  padding: 0.6rem 0.7rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--stage-paper);
+  white-space: pre-wrap;
+  word-break: break-word;
+  flex: none;
+}
+
+.finalOutB {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-ok);
+  margin-bottom: 0.25rem;
+}
+
+.emptyChain {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-text-dim);
+}
+
+/* ---------- escape-a-literal dialog ---------- */
+
+.escSheet {
+  width: min(30rem, 88vw);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.escHead {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  margin: 0 0 0.2rem;
+}
+
+.escHint {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.6rem;
+}
+
+.escOut {
+  border: 2px dashed var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.5rem;
+  word-break: break-word;
+  min-height: 2.4rem;
+}
+
+.escActs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.escCopy {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-card);
+  color: var(--stage-ink);
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.escCopy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Collapse blocks at FILE END: container queries add no specificity, so a later base rule would win.
+   Fold by the PANE's width, never the viewport's (the fluid law). Below 34rem the pane sits under the
+   editor as a top-bordered strip (the set-editor grid stacks it; full-height takeover handled there). */
+@container (max-width: 34rem) {
+  .pane {
+    border-left: 0;
+    border-top: 2px solid var(--stage-seam);
+  }
+}

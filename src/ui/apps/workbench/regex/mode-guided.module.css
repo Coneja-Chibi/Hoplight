@@ -1,0 +1,197 @@
+/**
+ * Guided mode styles (design/vs-regex-editor.html wire 1.7): the quiz STRUCTURE - progress squares,
+ * one question card, a big rose Next - wearing THIS editor's binder grammar (stage panels, black
+ * borders + offset shadows, teal accent). Chi rejected both a light paper card and the imported forge
+ * palette as foreign; this must read as a mode of the same surface. Stage tokens only; one class per
+ * name in this module. The card is width-capped, so it reflows in a narrow pane without a query.
+ */
+
+.prosc {
+  background: var(--stage-sunken);
+  padding: 2rem 1rem 2.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.qprog {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.qsq {
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-faint);
+}
+
+.qsqDone {
+  background: var(--a, var(--stage-macro));
+}
+
+.qsqNow {
+  background: var(--rose);
+}
+
+.qcard {
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  border: 3px solid var(--stage-black);
+  box-shadow: 7px 7px 0 0 var(--stage-black);
+  width: min(38rem, 100%);
+  padding: clamp(1.2rem, 2.5vw, 1.7rem);
+}
+
+.qk {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.qtitle {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--stage-card);
+  margin: 0.15rem 0 0.2rem;
+}
+
+.qsub {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.7rem;
+}
+
+.qta {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 4.5rem;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 0.55rem;
+}
+
+.qcatch {
+  border: 2px dashed var(--stage-seam);
+  background: var(--stage-row);
+  padding: 0.55rem 0.65rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--stage-soft);
+  margin-top: 0.6rem;
+}
+
+.qhits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.qhit {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.64rem;
+  border: 1px solid color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-seam));
+  color: color-mix(in srgb, var(--a, var(--stage-macro)) 70%, var(--stage-card));
+  padding: 0.16rem 0.4rem;
+}
+
+.qmiss {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-weight: 500;
+  font-size: 0.64rem;
+  border: 1px solid var(--stage-faint);
+  color: var(--stage-kicker);
+  padding: 0.16rem 0.4rem;
+  text-decoration: line-through;
+}
+
+.qnote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.78rem;
+  color: var(--stage-mute);
+  margin: 0.4rem 0 0;
+}
+
+.qnav {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+}
+
+.qback {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.qback:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.qnext {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 3px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  background: var(--rose);
+  color: var(--stage-white);
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.qnext:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.escapePlan {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  border: 0;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

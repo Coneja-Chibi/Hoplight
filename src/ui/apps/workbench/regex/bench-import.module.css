@@ -1,0 +1,213 @@
+/**
+ * Regex import-preview skins (design/vs-regex-tryit.html second wire, 1:1): the drop zone, the
+ * dropped-file summary, one row per decoded rule with its would-be effect against your sample, and
+ * the staged-pick bar. Theme tokens only; a class name lives in exactly this module.
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 2px dashed var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-text-dim);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 1.6rem 1rem;
+  cursor: pointer;
+  min-height: 6rem;
+}
+
+.dropOver {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+}
+
+.summary {
+  margin: 0;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--stage-mute);
+}
+
+.summary b {
+  font-style: normal;
+  color: var(--stage-card);
+}
+
+.impRow {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  display: flex;
+  flex-direction: column;
+}
+
+.impHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-bottom: 1px solid var(--stage-faint);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.cb {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  flex: none;
+}
+
+.cbOn {
+  background: var(--a, var(--stage-macro));
+  border-color: var(--stage-black);
+}
+
+.impHead b {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.impHead i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-left: auto;
+  flex: none;
+  padding-left: 0.5rem;
+}
+
+.impEffect {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-top: 1px solid var(--stage-faint);
+}
+
+.impCell {
+  padding: 0.45rem 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--stage-soft);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.impCell + .impCell {
+  border-left: 1px solid var(--stage-faint);
+}
+
+.impCell b {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-bottom: 0.15rem;
+}
+
+.impBar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.2rem 0;
+  border-top: 2px solid var(--stage-seam);
+}
+
+.pickCount {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.ghostBtn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}
+
+.primary {
+  margin-left: auto;
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-card);
+  color: var(--stage-ink);
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.err {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.7rem;
+  color: var(--stage-warn);
+}
+
+/* Collapse blocks at FILE END (the fluid law): the before/after cells stack under a narrow pane. */
+@container (max-width: 30rem) {
+  .impEffect {
+    grid-template-columns: 1fr;
+  }
+  .impCell + .impCell {
+    border-left: 0;
+    border-top: 1px solid var(--stage-faint);
+  }
+}

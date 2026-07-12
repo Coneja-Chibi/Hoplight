@@ -27,7 +27,15 @@ import {
   makeLoreShelf,
   type LoreMeta,
 } from "./lore-shelf-ops";
+import {
+  loadRegexMeta,
+  makeRegexShelf,
+  type RegexMeta,
+  type RegexWorkshopState,
+} from "./regex-shelf-ops";
+import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { createAndOpenLorebook } from "./new-lorebook";
+import { createAndOpenRegexSet } from "./new-regex-set";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
@@ -79,7 +87,9 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importState, setImportState] = useState<ImportState | null>(null);
   const [workshop, setWorkshop] = useState<LoreWorkshopState | null>(null);
+  const [regexWorkshop, setRegexWorkshop] = useState<RegexWorkshopState | null>(null);
   const [loreMeta, setLoreMeta] = useState<Record<string, LoreMeta>>({});
+  const [regexMeta, setRegexMeta] = useState<Record<string, RegexMeta>>({});
   const [, setWorkbenchTick] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const [sizeRem, setSizeRem] = useState(() => clampSize(ctx.prefs.get(PREF_SIZE)));
@@ -89,6 +99,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
       const list = await ctx.api.listEntities();
       setEntities(list);
       setLoreMeta(await loadLoreMeta(ctx, list));
+      setRegexMeta(await loadRegexMeta(ctx, list));
     })();
   }, [ctx]);
 
@@ -205,7 +216,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     );
   }
 
-  const view = deckView(ctx.prefs.get(PREF_VIEW));
+  const view = deckView(ctx.prefs.get(PREF_VIEW), activeKind);
 
   const vctx: DeckViewContext = {
     entities: inDeck,
@@ -239,6 +250,16 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             reload,
           })
         : undefined,
+    regexShelf:
+      activeKind === "regex"
+        ? makeRegexShelf({
+            ctx,
+            regexMeta,
+            setRegexMeta,
+            setWorkshop: setRegexWorkshop,
+            reload,
+          })
+        : undefined,
   };
 
   return (
@@ -269,7 +290,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           })}
         </div>
         <div className="viewseg" data-tour="views">
-          {deckViews().map((v) => (
+          {deckViews(activeKind).map((v) => (
             <button
               key={v.id}
               className={v.id === view.id ? "on" : undefined}
@@ -359,6 +380,28 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
                   </button>
                 </div>
               )}
+              {activeKind === "regex" && (
+                <div style={{ marginTop: "0.75rem" }}>
+                  <button
+                    type="button"
+                    className="send"
+                    onClick={() => {
+                      void (async () => {
+                        const summary = await createAndOpenRegexSet(ctx);
+                        setEntities((prev) =>
+                          prev.some((e) => e.kind === "regex" && e.id === summary.id)
+                            ? prev
+                            : [...prev, summary],
+                        );
+                        ctx.workbench.send(summary);
+                        ctx.setStatus(`opened regex set · ${summary.name}`);
+                      })();
+                    }}
+                  >
+                    New regex set
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <view.Component ctx={vctx} />
@@ -381,6 +424,17 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           onDismiss={() => setWorkshop(null)}
           onDone={() => {
             setWorkshop(null);
+            reload();
+          }}
+        />
+      )}
+      {regexWorkshop && (
+        <RegexWorkshopDialog
+          ctx={ctx}
+          state={regexWorkshop}
+          onDismiss={() => setRegexWorkshop(null)}
+          onDone={() => {
+            setRegexWorkshop(null);
             reload();
           }}
         />

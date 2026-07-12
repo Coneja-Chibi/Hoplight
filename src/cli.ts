@@ -9,9 +9,16 @@ import { basename, extname } from "node:path";
 import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryOriginalRaw } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
+import {
+  assertContainerAgreement,
+  guardConvertOutput,
+  normalizeExtension,
+  parseConvertFlags,
+  publishAtomic,
+} from "./cli-io";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
 
-const VERSION = "0.0.1";
+const VERSION = "0.1.0";
 
 /** Read a file into the shape adapters expect: bytes always, text when it is UTF-8-ish. */
 async function readInput(path: string): Promise<AdapterInput> {
@@ -30,9 +37,10 @@ async function readInput(path: string): Promise<AdapterInput> {
   return input;
 }
 
-/** Write an adapter's output (bytes for binary formats, text for json/text) to disk. */
+/** Write adapter output atomically after container agreement is already checked. */
 async function writeOutput(path: string, out: { bytes?: Uint8Array; text?: string }): Promise<void> {
-  await Bun.write(path, out.bytes ?? out.text ?? "");
+  if (out.bytes) await publishAtomic(path, out.bytes);
+  else await publishAtomic(path, out.text ?? "");
 }
 
 /** Either a resolved target adapter or a reason it could not be resolved - never both, never neither. */
@@ -92,6 +100,7 @@ const HELP = `${BANNER}
   Commands
     convert <in> <out>    Convert a file from one format to another
     inspect <file>        Show what is inside a file
+    validate <file>       Detect + parse; exit 0 if vaud can open it
     label <file>          Guess a card's format and which app it is likely from
     formats               List the formats vaud knows about
     ui [port] [studio]    Open the visual studio (local only; studio dir defaults to ./studio)
@@ -102,21 +111,29 @@ const HELP = `${BANNER}
     -v, --version         Print the version
     -h, --help            Print this help
     --to <format>         convert: force the output format (else resolved from the <out> extension)
+    --yes                 convert: allow replacing an existing output file (never overwrites input)
+    --json                inspect/validate/formats: machine-readable stdout
 
   Example
-    vaud convert vera.png vera.charx      SillyTavern PNG  ->  Risu .charx
+    vaud convert vera.png vera.charx --to risu
+    vaud convert card.json out.charx --to lumiverse --yes
+    vaud validate samples/sillytavern/v3-full.json
 
   Status
-    Engine core: canonical schema v${CANONICAL_SCHEMA_VERSION}, original, adapter contract.
-    Run "vaud formats" to see the adapters vaud currently knows about.
+    Converter jewel (M1): open/inspect/validate/convert across discovered adapters.
+    Schema v${CANONICAL_SCHEMA_VERSION}. Format matrix: docs/FORMAT-SUPPORT.md
 `;
+
+const wantsJson = (args: string[]): boolean => args.includes("--json");
 
 async function main(argv: string[]): Promise<number> {
   const args = argv.slice(2);
   const first = args[0];
+  const json = wantsJson(args);
 
   if (first === "-v" || first === "--version" || first === "version") {
-    console.log(VERSION);
+    if (json) console.log(JSON.stringify({ version: VERSION, schema: CANONICAL_SCHEMA_VERSION }));
+    else console.log(VERSION);
     return 0;
   }
 
@@ -127,14 +144,75 @@ async function main(argv: string[]): Promise<number> {
 
   if (first === "formats") {
     const found = await loadFormats();
+    if (json) {
+      console.log(
+        JSON.stringify(
+          {
+            schema: CANONICAL_SCHEMA_VERSION,
+            adapters: found.map((a) => ({
+              id: a.id,
+              kind: a.kind,
+              label: a.label,
+              outputExtensions: a.outputExtensions,
+            })),
+          },
+          null,
+          2,
+        ),
+      );
+      return 0;
+    }
     console.log(`\n  Adapters discovered in src/formats/ (canonical schema v${CANONICAL_SCHEMA_VERSION}):`);
     if (found.length === 0) {
       console.log("    (none yet)");
     } else {
       for (const a of found) console.log(`    - ${a.id.padEnd(12)} writes .${a.outputExtensions.join(", .").padEnd(6)} ${a.label}`);
     }
-    console.log(`\n  Drop a folder into src/formats/ to add one (copy src/formats/_template).\n`);
+    console.log(`\n  Matrix: docs/FORMAT-SUPPORT.md (regen: bun run matrix)`);
+    console.log(`  Drop a folder into src/formats/ to add one (copy src/formats/_template).\n`);
     return 0;
+  }
+
+  if (first === "validate") {
+    const path = args.find((a) => a !== "validate" && a !== "--json");
+    if (!path) {
+      console.log(`\n  Usage: vaud validate <file> [--json]\n`);
+      return 1;
+    }
+    await loadFormats();
+    const input = await readInput(path);
+    const src = registry.detect(input);
+    if (!src) {
+      if (json) console.log(JSON.stringify({ ok: false, path, error: "unrecognized" }));
+      else {
+        console.log(`\n  INVALID  ${path}`);
+        console.log(`  vaud does not recognize this file.\n`);
+      }
+      return 1;
+    }
+    try {
+      const ent = src.toCanonical(input);
+      const name =
+        ent.kind === "character"
+          ? ent.body.identity.name
+          : ent.kind === "lorebook"
+            ? ent.body.name
+            : ent.body.name;
+      if (json) {
+        console.log(JSON.stringify({ ok: true, path, format: src.id, kind: ent.kind, name }));
+      } else {
+        console.log(`\n  OK  ${path}`);
+        console.log(`  format  ${src.id}`);
+        console.log(`  kind    ${ent.kind}`);
+        console.log(`  name    ${name || "(unnamed)"}\n`);
+      }
+      return 0;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (json) console.log(JSON.stringify({ ok: false, path, format: src.id, error: msg }));
+      else console.log(`\n  INVALID  ${path}\n  ${msg}\n`);
+      return 1;
+    }
   }
 
   if (first === "ui") {
@@ -179,6 +257,10 @@ async function main(argv: string[]): Promise<number> {
       console.log(`    brief    ${b.brief ? `${b.brief.slice(0, 60)}...` : "(none)"}`);
       console.log(`    content  ${b.content ? `${b.content.length} chars` : "(empty)"}`);
       console.log(`    sections ${b.sections ? Object.keys(b.sections).join(", ") : "(none)"}\n`);
+    } else if (ent.kind === "regex") {
+      const b = ent.body;
+      console.log(`    name     ${b.name || "(unnamed)"}`);
+      console.log(`    rules    ${b.rules.length}\n`);
     } else {
       const b = ent.body;
       console.log(`    name     ${b.identity.name || "(unnamed)"}`);
@@ -212,13 +294,25 @@ async function main(argv: string[]): Promise<number> {
   }
 
   if (first === "convert") {
-    const [, inPath, outPath, ...rest] = args;
-    if (!inPath || !outPath) {
-      console.log(`\n  Usage: vaud convert <in> <out> [--to <format>]\n`);
+    const convertArgs = args.slice(1).filter((a) => a !== "--json");
+    const flags = parseConvertFlags(convertArgs);
+    if (!flags.ok) {
+      console.log(`\n  ${flags.error}`);
+      console.log(`  Usage: vaud convert <in> <out> [--to <format>] [--yes]\n`);
       return 1;
     }
-    const toFlag = rest.indexOf("--to");
-    const forcedTarget = toFlag >= 0 ? rest[toFlag + 1] : undefined;
+    const inPath = flags.rest[0];
+    const outPath = flags.rest[1];
+    if (!inPath || !outPath || flags.rest.length !== 2) {
+      console.log(`\n  Usage: vaud convert <in> <out> [--to <format>] [--yes]\n`);
+      return 1;
+    }
+
+    const guard = await guardConvertOutput(inPath, outPath, flags.yes);
+    if (!guard.ok) {
+      console.log(`\n  ${guard.error}\n`);
+      return 1;
+    }
 
     await loadFormats();
     const input = await readInput(inPath);
@@ -229,7 +323,7 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    const target = resolveTarget(forcedTarget, outPath);
+    const target = resolveTarget(flags.to, outPath);
     if (!target.ok) {
       console.log(`\n  ${target.error}`);
       console.log(`  Pass one explicitly: vaud convert ${inPath} ${outPath} --to <format>`);
@@ -237,13 +331,55 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    const { out, lorebooks } = convertFile(src, target.adapter, input);
-    await writeOutput(outPath, out);
+    const requestedExtension = normalizeExtension(outPath);
+    let out: Awaited<ReturnType<typeof convertFile>>["out"];
+    let lorebooks: Awaited<ReturnType<typeof convertFile>>["lorebooks"];
+    try {
+      const result = convertFile(src, target.adapter, input, { requestedExtension });
+      out = result.out;
+      lorebooks = result.lorebooks;
+    } catch (e) {
+      console.log(`\n  ${e instanceof Error ? e.message : String(e)}\n`);
+      return 1;
+    }
+
+    const agree = assertContainerAgreement(requestedExtension, out.suggestedExtension, out);
+    if (!agree.ok) {
+      console.log(`\n  ${agree.error}\n`);
+      return 1;
+    }
+
+    try {
+      await writeOutput(outPath, out);
+    } catch (e) {
+      console.log(`\n  write failed: ${e instanceof Error ? e.message : String(e)}\n`);
+      return 1;
+    }
+
+    if (json) {
+      console.log(
+        JSON.stringify({
+          ok: true,
+          from: src.id,
+          to: target.adapter!.id,
+          in: inPath,
+          out: outPath,
+          extension: out.suggestedExtension,
+          lorebooks: lorebooks.length,
+          bytes: out.bytes?.length ?? 0,
+          textChars: out.text?.length ?? 0,
+        }),
+      );
+      return 0;
+    }
     console.log(`\n  ${src.id} -> ${target.adapter!.id}`);
-    console.log(`  ${inPath}  ->  ${outPath}`);
+    console.log(`  ${inPath}  ->  ${outPath} (.${out.suggestedExtension})`);
     if (lorebooks.length > 0) {
       const total = lorebooks.reduce((n, l) => n + l.body.entries.length, 0);
       console.log(`  + embedded lorebook carried across (${total} entr${total === 1 ? "y" : "ies"})`);
+    }
+    if (src.id !== target.adapter!.id) {
+      console.log(`  note: cross-format keeps what the target can express; same-format aims lossless`);
     }
     console.log("");
     return 0;

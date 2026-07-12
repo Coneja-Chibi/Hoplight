@@ -20,7 +20,9 @@ const DECKS: DeckMeta[] = [
   { kind: "character", plural: "Characters", short: "char", accent: "#e6a52a" },
   { kind: "lorebook", plural: "Lorebooks", short: "lore", accent: "#b968f7" },
   { kind: "persona", plural: "Personas", short: "pers", accent: "#2ba79a" },
+  { kind: "pack", plural: "Sprite packs", short: "pack", accent: "#e11d48" },
   { kind: "preset", plural: "Presets", short: "set", accent: "#10b981" },
+  { kind: "regex", plural: "Regex sets", short: "rgx", accent: "#58c4a6" },
 ];
 
 const BY_KIND = new Map(DECKS.map((d) => [d.kind, d]));

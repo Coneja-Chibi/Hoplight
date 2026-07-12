@@ -1,0 +1,116 @@
+/**
+ * The fine-print fold (design/vs-regex-editor.html details.card, 1:1): depth window, run-on-edit,
+ * macro substitution, who it applies to, plus the vaud-engine extras (first match only, overlay,
+ * conditional chaining) as plain switches and selects. Capability-gated per Write-for lens. One class
+ * name lives in exactly this module.
+ */
+
+.finePrint {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  margin-bottom: 0.9rem;
+}
+
+.fpSummary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 2px solid var(--stage-seam);
+  cursor: pointer;
+  list-style: none;
+}
+
+.fpSummary::-webkit-details-marker {
+  display: none;
+}
+
+.fpBody {
+  padding: 0.4rem 0.8rem 0.7rem;
+}
+
+.rrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.34rem 0;
+  border-top: 1px solid var(--stage-faint);
+}
+
+.rrow:first-child {
+  border-top: 0;
+}
+
+.rk {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.rvNum {
+  width: 4rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.68rem;
+  text-align: center;
+  padding: 0.15rem;
+}
+
+.fpSelect {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  padding: 0.2rem 0.4rem;
+  max-width: 12rem;
+}
+
+.fpInput {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.68rem;
+  padding: 0.2rem 0.4rem;
+  max-width: 12rem;
+}
+
+.rswitch {
+  width: 2rem;
+  height: 1.05rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.rswitch::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.58rem;
+  height: 0.58rem;
+  background: var(--stage-ink);
+}
+
+.rswitchOff {
+  background: var(--stage-faint);
+}
+
+.rswitchOff::after {
+  left: 2px;
+  right: auto;
+}

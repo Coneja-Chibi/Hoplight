@@ -58,6 +58,28 @@ export interface DeckViewContext {
     onMerge(into: StudioEntitySummary, from: StudioEntitySummary): void;
     onDuplicate(e: StudioEntitySummary): void;
   };
+  /**
+   * Optional regex-set shelf ops (vs-regex-shelf). Absent on non-regex decks / older callers.
+   * Views must deny by absence - never require this bag.
+   */
+  regexShelf?: {
+    /** set-level on/off; undefined = treat as on */
+    enabledOf(e: StudioEntitySummary): boolean;
+    /** total rules in the set */
+    ruleCountOf(e: StudioEntitySummary): number | undefined;
+    /** rules whose own switch is on */
+    enabledRuleCountOf(e: StudioEntitySummary): number | undefined;
+    /** computed plain-language one-liner for the whole set (engine truth, no model call) */
+    doesWhatOf(e: StudioEntitySummary): string | undefined;
+    /** count of rules Health flagged slow; undefined until R4 wires Health (the chip placeholder) */
+    slowCountOf(e: StudioEntitySummary): number | undefined;
+    onToggleEnabled(e: StudioEntitySummary, on: boolean): void;
+    onSplit(e: StudioEntitySummary): void;
+    onMerge(into: StudioEntitySummary, from: StudioEntitySummary): void;
+    onDuplicate(e: StudioEntitySummary): void;
+    /** create a blank set and open it (the shelf's "+ New set" card) */
+    onNew(): void;
+  };
 }
 
 export interface DeckView {
@@ -70,6 +92,10 @@ export interface DeckView {
   order: number;
   /** the view's own css, injected once by the workbench */
   css: string;
+  /** decks this view applies to (kinds); absent = every deck. The toolbar filters by the active
+   * deck so a kind-specific shelf (regex sets) never appears on, or renders the pieces of, another
+   * deck. */
+  kinds?: readonly string[];
   /** render the deck; each piece attaches its own right-click target via useContextMenu */
   Component: (props: { ctx: DeckViewContext }) => ReactNode;
 }

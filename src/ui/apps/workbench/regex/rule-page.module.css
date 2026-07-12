@@ -1,0 +1,296 @@
+/**
+ * One rule owning the page (design/vs-regex-editor.html .page, 1:1): pager, rule name, on/off, the
+ * three-mode switch (Pattern live this slice, Guided/Plain words disabled), the Find card with its
+ * live plain-words readback, the Replace card, and the travel notes. Phase pills and the fine-print
+ * fold live in their own modules. One class name lives in exactly this module.
+ */
+
+.page {
+  padding: 1rem 1.2rem 1.4rem;
+  min-width: 0;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+.pageNo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--a, var(--stage-macro));
+}
+
+.pgBtn {
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+}
+
+.pgBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.fill {
+  flex: 1;
+}
+
+.onoff {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 2px solid var(--stage-ok);
+  background: none;
+  color: var(--stage-ok);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.4rem;
+  cursor: pointer;
+}
+
+.onoffOff {
+  border-color: var(--stage-faint);
+  color: var(--stage-mute);
+}
+
+.ruleName {
+  width: 100%;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  border: 0;
+  background: none;
+  padding: 0.1rem 0 0.2rem;
+}
+
+.ruleName::placeholder {
+  color: var(--stage-faint);
+}
+
+.doesLine {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--stage-mute);
+  margin: 0 0 0.9rem;
+}
+
+/* the mode switch */
+.modeBar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.modeSet {
+  display: inline-flex;
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+}
+
+.md {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.42rem 0.9rem;
+  cursor: pointer;
+}
+
+.md + .md {
+  border-left: 2px solid var(--stage-black);
+}
+
+.mdOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.modeNote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--stage-kicker);
+}
+
+/* cards */
+.card {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  margin-bottom: 0.9rem;
+}
+
+.chead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.cheadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.cheadI {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.cbody {
+  padding: 0.75rem 0.8rem 0.9rem;
+}
+
+.hint {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-mute);
+  margin: 0.1rem 0 0.5rem;
+}
+
+/* pattern-mode inputs */
+.patRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 6rem;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+}
+
+.patIn {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  padding: 0.45rem 0.55rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.kLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  margin: 0.5rem 0 0.25rem;
+}
+
+.readback {
+  border: 2px dashed var(--stage-seam);
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--stage-soft);
+  margin-top: 0.4rem;
+}
+
+.readbackEm {
+  font-style: normal;
+  color: var(--stage-warn);
+}
+
+.readbackPartial {
+  display: block;
+  margin-top: 0.35rem;
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.escBtn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+/* travel notes: quiet dashed-amber lines under the active lens */
+.travelWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.6rem;
+}
+
+.travelNote {
+  border: 1px dashed var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 7%, transparent);
+  color: var(--stage-warn);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  padding: 0.35rem 0.5rem;
+}
+
+/* Mobile grammar (design/vs-regex-shelf-gallery wire 3, .mModeSet): below 34rem the mode switch
+   fills the pane at thumb height so the three modes stay tappable. At FILE END and PANE-scoped so the
+   base .modeSet/.md rules do not out-specificity it (container queries add no specificity). 2.2rem is
+   the repo's touch-target size (mPg / mback / mkebab). */
+@container (max-width: 34rem) {
+  .modeSet {
+    display: flex;
+    width: 100%;
+  }
+  .md {
+    flex: 1;
+    min-height: 2.2rem;
+    text-align: center;
+  }
+}

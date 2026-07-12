@@ -1,0 +1,323 @@
+/**
+ * Plain-words mode styles (design/vs-regex-editor.html wires 1 + 1.5): the sub-mode switch, the
+ * "Match these words" tune grid + built-pattern readout + hit/miss chips, and RC's by-example readout
+ * (syntax-colored pattern, meta lines, token chips, test box). Stage tokens only; each class name lives
+ * in exactly this module. The tune grid is auto-fit, so it reflows in a narrow pane without a query.
+ */
+
+.subMode {
+  display: inline-flex;
+  border: 2px solid var(--stage-seam);
+  margin-bottom: 0.6rem;
+}
+
+.sm {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 0;
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
+.sm + .sm {
+  border-left: 2px solid var(--stage-seam);
+}
+
+.smOn {
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 18%, var(--stage-row));
+  color: var(--stage-card);
+}
+
+.bigIn {
+  width: 100%;
+  box-sizing: border-box;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0.55rem 0.6rem;
+}
+
+.optimize {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.45rem 0 0.2rem;
+  flex-wrap: wrap;
+}
+
+.optLabel {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.optChip {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-seam));
+  color: color-mix(in srgb, var(--a, var(--stage-macro)) 70%, var(--stage-card));
+  background: none;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+}
+
+.famWarn {
+  border: 1px solid var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 7%, transparent);
+  color: var(--stage-warn);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.62rem;
+  line-height: 1.5;
+  padding: 0.35rem 0.5rem;
+  margin-top: 0.45rem;
+}
+
+.tuneGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem 0.8rem;
+  margin-top: 0.6rem;
+}
+
+.tune {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tuneLabel {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.tuneIn {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.74rem;
+  padding: 0.32rem 0.45rem;
+}
+
+.tgl {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.66rem;
+  color: var(--stage-soft);
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.wordNote {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--stage-mute);
+  margin: 0.5rem 0 0;
+}
+
+.readout {
+  border: 2px solid color-mix(in srgb, var(--a, var(--stage-macro)) 45%, var(--stage-seam));
+  background: var(--stage-sunken);
+  padding: 0.5rem 0.6rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-card));
+  margin-top: 0.6rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.readoutLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin-bottom: 0.2rem;
+}
+
+.describe {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--stage-soft);
+  margin: 0.45rem 0 0;
+}
+
+.exRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.exChip {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.62rem;
+  border: 1px solid var(--stage-faint);
+  color: var(--stage-soft);
+  padding: 0.16rem 0.4rem;
+}
+
+.exHit {
+  border-color: var(--stage-ok);
+  color: var(--stage-ok);
+}
+
+.exMiss {
+  color: var(--stage-kicker);
+  text-decoration: line-through;
+}
+
+.exBig {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 4.2rem;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  padding: 0.55rem 0.6rem;
+}
+
+.rcOut {
+  border: 2px solid color-mix(in srgb, var(--a, var(--stage-macro)) 45%, var(--stage-seam));
+  background: var(--stage-sunken);
+  padding: 0.6rem 0.7rem;
+  margin-top: 0.6rem;
+}
+
+.rcPat {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.82rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--stage-faint);
+  margin-bottom: 0.4rem;
+}
+
+.pDelim {
+  color: var(--stage-kicker);
+}
+
+.pAnchor {
+  color: color-mix(in srgb, var(--a, var(--stage-macro)) 70%, var(--stage-card));
+}
+
+.pGroup {
+  color: var(--stage-warn);
+}
+
+.pLiteral {
+  color: var(--stage-soft);
+}
+
+.pSpecial,
+.pFlag {
+  color: var(--stage-var);
+}
+
+.rcMeta {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.6rem;
+  line-height: 1.7;
+  color: var(--stage-mute);
+  margin: 0;
+}
+
+.rcMetaB {
+  color: var(--stage-soft);
+  font-weight: 700;
+}
+
+.tokRow {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tok {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.62rem;
+  border: 1px solid var(--stage-line);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  padding: 0.12rem 0.4rem;
+}
+
+.testBox {
+  margin-top: 0.6rem;
+}
+
+.testLabel {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  margin-bottom: 0.25rem;
+}
+
+.testOut {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  padding: 0.45rem;
+  margin-top: 0.4rem;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.testMark {
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 30%, transparent);
+  color: color-mix(in srgb, var(--a, var(--stage-macro)) 70%, var(--stage-card));
+  padding: 0 0.1rem;
+}

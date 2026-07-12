@@ -1,0 +1,322 @@
+/**
+ * The regex set-editor chassis (design/vs-regex-editor.html, 1:1): header with the spine chip and
+ * the Write-for tab strip, the toc | page | rail columns, and the mobile grammar. Page/toc/rail/
+ * fine-print skins live in their own modules; set-editor merges them - a class name lives in exactly
+ * ONE module. Stage-chrome surface, dark in both themes; regex identity rides the entity accent (--a)
+ * with a teal fallback, exactly as the binder rides its own accent.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  background: var(--stage-well);
+  color: var(--stage-soft);
+}
+
+/* ---------- header: spine chip + write-for strip + save ---------- */
+
+.ehead {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border-bottom: 2px solid var(--stage-seam);
+  background: var(--stage-well);
+  flex-wrap: wrap;
+  flex: none;
+}
+
+.spine {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.spineMark {
+  width: 1.6rem;
+  height: 2rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-sunken);
+  color: var(--a, var(--stage-macro));
+  display: grid;
+  place-items: center;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.7rem;
+  flex: none;
+}
+
+.spineText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.spineName {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.spineMeta {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.56rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  white-space: nowrap;
+}
+
+.eheadActs {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Write-for tab strip (buttons, not a select): one platform lens per press. */
+.wfor {
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid var(--stage-seam);
+}
+
+.wforLabel {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  padding: 0 0.45rem;
+}
+
+.wf {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 0;
+  border-left: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-mute);
+  padding: 0.32rem 0.5rem;
+  cursor: pointer;
+}
+
+.wfOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink);
+}
+
+.save {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.65rem;
+  border: 2px solid var(--stage-black);
+  background: var(--rose);
+  color: var(--stage-white);
+  cursor: pointer;
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+}
+
+.save:disabled {
+  background: var(--stage-panel);
+  color: var(--stage-text-dim);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* ---------- toc | page | rail ---------- */
+
+.cols {
+  display: grid;
+  grid-template-columns: minmax(14rem, 17rem) minmax(0, 1fr) minmax(15rem, 17.5rem);
+  align-items: start;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.tocCol {
+  display: contents;
+}
+
+.pageCol {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.railCol {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.empty {
+  color: var(--stage-text-dim);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 1.4rem 1.2rem;
+}
+
+/* ---------- mobile grammar (vs-mobile-editors) ---------- */
+
+.mHeadGate {
+  display: none;
+}
+
+.mBar {
+  display: none;
+}
+
+.mGate {
+  display: none;
+}
+
+.mContents {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  color: var(--stage-paper);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  min-height: 2.2rem;
+}
+
+.mPageNo {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--a, var(--stage-macro));
+}
+
+.mPg {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  flex: none;
+}
+
+.mPg:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Collapse blocks at FILE END: container queries add no specificity, so a later base rule would
+   win. Fold by the PANE's width, never the viewport's (the fluid law). */
+@container (max-width: 74rem) {
+  .cols {
+    display: block;
+    overflow-y: auto;
+  }
+  .pageCol {
+    height: auto;
+    overflow-y: visible;
+  }
+  .railCol {
+    height: auto;
+    overflow-y: visible;
+  }
+}
+
+@container (max-width: 34rem) {
+  /* the desktop spine + write-for strip yield to the thumb-sized mobile head; Write-for moves into
+     its kebab (set-editor.tsx). */
+  .ehead {
+    display: none;
+  }
+  .mHeadGate {
+    display: block;
+  }
+  .mBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-bottom: 2px solid var(--stage-seam);
+  }
+  .mGate {
+    display: contents;
+  }
+  .tocCol {
+    display: none;
+  }
+  .spineMeta {
+    display: none;
+  }
+}
+
+/* bench-open: the editor yields to the wide test bench beside it (vs-regex-tryit.html split). One
+   modifier on .cols - the toc folds away and the page becomes a slim, still-usable strip while the
+   bench dominates. Placed AFTER the collapse blocks so it is not out-specificity'd: the 74rem
+   collapse is sized for the THREE-column layout, but bench-open only needs two columns (~40rem),
+   so it re-asserts the grid (and per-column scroll) and holds "beside" down to its own 44rem
+   stack point. At <=44rem page-then-bench stack; at <=34rem the page hides so the bench is a
+   full-screen takeover per the mobile grammar. */
+.colsBench {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.8fr) minmax(28rem, 2.4fr);
+  overflow: hidden;
+}
+
+.colsBench .tocCol {
+  display: none;
+}
+
+.colsBench .pageCol,
+.colsBench .railCol {
+  height: 100%;
+  overflow-y: auto;
+}
+
+@container (max-width: 44rem) {
+  .colsBench {
+    display: block;
+    overflow-y: auto;
+  }
+  .colsBench .pageCol,
+  .colsBench .railCol {
+    height: auto;
+    overflow-y: visible;
+  }
+}
+
+@container (max-width: 34rem) {
+  .colsBench .pageCol {
+    display: none;
+  }
+}

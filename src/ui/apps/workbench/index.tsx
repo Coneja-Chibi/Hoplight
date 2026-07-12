@@ -18,9 +18,11 @@ import { fieldsFor, type InspectField } from "./inspect-core";
 import { CharacterEditor } from "./Editor";
 import { PackEditor } from "./PackEditor";
 import { LorebookEditor } from "./LorebookEditor";
+import { RegexSetEditor } from "./RegexSetEditor";
 import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
+import { keyOf, paneKeyOf } from "../../shell/store-core";
 import styles from "./styles.module.css";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
@@ -29,8 +31,6 @@ const PREF_RAIL_OPEN = "workbench.recentsOpen"; // collapse survives sessions; o
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13"/><path d="M3 17h18"/><rect x="9" y="10" width="6" height="7" fill="currentColor" stroke="none"/></svg>';
-
-const pieceKey = (id: string, kind: string): string => `${kind}:${id}`;
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
@@ -101,6 +101,8 @@ function EditablePane({
       <PackEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "lorebook" ? (
       <LorebookEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : piece.kind === "regex" ? (
+      <RegexSetEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     ) : (
       <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     );
@@ -190,12 +192,12 @@ function RecentsRail({ ctx, entities }: { ctx: AppContext; entities: StudioEntit
   // editing takes the room: whenever the ACTIVE piece changes, the rail folds itself away
   // (the show button still reopens it; the next piece folds it again)
   const active = ctx.workbench.active();
-  const activeKey = active ? pieceKey(active.id, active.kind) : "";
+  const activeKey = active ? keyOf(active.id, active.kind) : "";
   useEffect(() => {
     if (activeKey) setOpen(false);
   }, [activeKey]);
 
-  const openKeys = new Set(ctx.workbench.pieces().map((p) => pieceKey(p.id, p.kind)));
+  const openKeys = new Set(ctx.workbench.pieces().map((p) => keyOf(p.id, p.kind)));
   const recent = rankRecents(entities, ctx.workbench.recents(), openKeys, RECENTS_SHOWN);
   if (recent.length === 0) return null;
 
@@ -215,7 +217,7 @@ function RecentsRail({ ctx, entities }: { ctx: AppContext; entities: StudioEntit
       {open && (
         <div className={styles.strip}>
           {recent.map((e) => (
-            <RecentCard key={pieceKey(e.id, e.kind)} ctx={ctx} entity={e} />
+            <RecentCard key={keyOf(e.id, e.kind)} ctx={ctx} entity={e} />
           ))}
         </div>
       )}
@@ -246,13 +248,15 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const pieces = ctx.workbench.pieces();
   const active = ctx.workbench.active();
   const beside = ctx.workbench.beside();
-  const activeKey = active ? pieceKey(active.id, active.kind) : "";
-  const besideKey = beside ? pieceKey(beside.id, beside.kind) : "";
+  // paneKey includes focusEntry so one lorebook can sit beside itself on two entries
+  const activeKey = active ? paneKeyOf(active) : "";
+  const besideKey = beside ? paneKeyOf(beside) : "";
   const editablePieces = pieces.filter(
-    (p) => p.kind === "character" || p.kind === "pack" || p.kind === "lorebook",
+    (p) => p.kind === "character" || p.kind === "pack" || p.kind === "lorebook" || p.kind === "regex",
   );
   // the split is real only when the beside piece can actually render an editor here
-  const splitOn = besideKey !== "" && editablePieces.some((p) => pieceKey(p.id, p.kind) === besideKey);
+  const splitOn =
+    besideKey !== "" && editablePieces.some((p) => paneKeyOf(p) === besideKey);
 
   useEffect(() => {
     if (active) return; // ONE writer per status line: the editor owns it while a piece is open
@@ -325,7 +329,7 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
         )}
         <div className={splitOn ? `${styles.paneRow} ${styles.paneRowSplit}` : styles.paneRow}>
           {editablePieces.map((p) => {
-            const key = pieceKey(p.id, p.kind);
+            const key = paneKeyOf(p);
             return (
               <EditablePane
                 key={key}

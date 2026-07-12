@@ -1,0 +1,48 @@
+/**
+ * The "Where it runs" phase pills (design/vs-regex-editor.html .pillRow, 1:1). Capability-gated by
+ * phasesForProfile (the position-picker law): a phase the lens cannot carry never draws; a foreign
+ * phase already set on the rule draws dashed amber, exactly like a foreign placement. One class name
+ * lives in exactly this module.
+ */
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pill {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.pillOn {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 15%, var(--stage-row));
+  color: var(--stage-card);
+}
+
+.pillForeign {
+  border-style: dashed;
+  border-color: var(--stage-warn);
+  color: var(--stage-warn);
+  background: none;
+}
+
+.phaseHint {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--stage-mute);
+  margin: 0.5rem 0 0;
+}

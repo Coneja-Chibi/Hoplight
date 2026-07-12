@@ -1,0 +1,139 @@
+/**
+ * The try-it rail (design/vs-regex-editor.html .rail, 1:1): a Quick try card that runs the budgeted
+ * engine on a sample line and highlights the matches, an "Open the full test bench" stub, and a
+ * Health card stub. One class name lives in exactly this module.
+ */
+
+.rail {
+  border-left: 2px solid var(--stage-seam);
+  padding: 0.75rem 0.7rem;
+  min-width: 0;
+}
+
+.railTitle {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+  margin: 0 0 0.5rem;
+}
+
+.rcard {
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-panel);
+  margin-bottom: 0.7rem;
+}
+
+.rhead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.rheadB {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.rbody {
+  padding: 0.5rem 0.6rem 0.6rem;
+}
+
+.tryTa {
+  width: 100%;
+  min-height: 3.4rem;
+  resize: vertical;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  padding: 0.45rem;
+  box-sizing: border-box;
+}
+
+.tryOut {
+  border: 2px solid var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 7%, transparent);
+  padding: 0.45rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  color: var(--stage-soft);
+  margin-top: 0.4rem;
+  word-break: break-word;
+}
+
+.tryOutErr {
+  border-color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 7%, transparent);
+  color: var(--stage-warn);
+}
+
+.tryMark {
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 30%, transparent);
+  color: var(--stage-card);
+  padding: 0 0.1rem;
+}
+
+.tryResult {
+  display: block;
+  margin-top: 0.4rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--stage-faint);
+  color: var(--stage-text-dim);
+}
+
+.tryMeta {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--stage-kicker);
+}
+
+.openFull {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.4rem;
+  cursor: pointer;
+  margin-top: 0.4rem;
+}
+
+.openFull:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.healthLine {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.62rem;
+  color: var(--stage-ok);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.healthNote {
+  color: var(--stage-warn);
+}
