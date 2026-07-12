@@ -8,10 +8,11 @@ import type { CanonicalCharacter } from "../../entities/character/schema";
 import { embedCharacterBook } from "../_shared/character-book";
 import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
+import regexCodec from "./regex";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion, pngSourceMedia } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
-import { assetsToMedia } from "../_shared/assets";
+import { assetsToMedia, applyMediaToTavernData } from "../_shared/assets";
 import {
   type TavernData,
   dataToBody,
@@ -119,16 +120,28 @@ const adapter: CharacterAdapter = {
           ? { ...(rawCard as TavernData) }
           : {};
     applyBodyToData(base, entity.body);
+    applyMediaToTavernData(base, entity.body.media, "sillytavern");
 
     // Re-embed referenced lorebooks into the card's one character_book slot (shared by every CCv3
     // card writer), sourcing each book's twin from ITS OWN original, not this card's stale copy.
     if (context?.lorebooks?.length) embedCharacterBook(base as Record<string, unknown>, context.lorebooks);
 
+    const hasAssets = Array.isArray(base.assets) && base.assets.length > 0;
+    // V2 has no portable assets[] contract: carry media in a V3 envelope when assets are present.
+    // Unedited empty-media V2 twins stay V2.
+    const emitVariant: Variant = hasAssets && variant !== "v3" ? "v3" : variant;
+
     let out: unknown;
-    if (rawCard && (variant === "v2" || variant === "v3")) out = { ...rawCard, data: base };
-    else if (variant === "v3") out = wrapV3(base);
-    else if (variant === "flat" || variant === "v1") out = base;
-    else out = wrapV2(base);
+    if (emitVariant === "v3") {
+      if (rawCard && variant === "v3") out = { ...rawCard, data: base };
+      else out = wrapV3(base);
+    } else if (rawCard && (variant === "v2" || variant === "v3")) {
+      out = { ...rawCard, data: base };
+    } else if (variant === "flat" || variant === "v1") {
+      out = base;
+    } else {
+      out = wrapV2(base);
+    }
 
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
@@ -137,5 +150,8 @@ const adapter: CharacterAdapter = {
 /** The SillyTavern family's character codec, exported by name for direct importers (tests, bundle). */
 export { adapter as characterAdapter };
 
-/** Folders-as-schema: this format family exports every codec it provides (character + world info). */
-export default [adapter, lorebookCodec];
+/** Folders-as-schema: this format family exports every codec it provides (character + world info +
+ * regex scripts). The regex codec reads the bare `RegexScriptData[]` array (Marinara's Essentials
+ * packs) and a card's `extensions.regex_scripts`; a full character card still wins detection (0.9)
+ * over the codec's card-home score (0.85), so cards keep importing as characters. */
+export default [adapter, lorebookCodec, regexCodec];

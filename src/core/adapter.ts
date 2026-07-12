@@ -1,6 +1,7 @@
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalPersona } from "../entities/persona/schema";
+import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CoverageDecl } from "./coverage";
 import type { FormatId } from "./canonical";
 
@@ -26,6 +27,11 @@ export interface AdapterOutput {
  */
 export interface EmitContext {
   lorebooks?: CanonicalLorebook[];
+  /**
+   * Caller-requested output extension (no leading dot), e.g. "json" or "charx".
+   * Multi-container adapters honor this when set; omit to keep source-container defaults.
+   */
+  requestedExtension?: string;
 }
 
 /** Fields every adapter carries, whatever entity kind it reads and writes. */
@@ -46,6 +52,11 @@ interface AdapterBase {
    * format folder owns the claim - src/formats/<id>/coverage.ts). Absent = lens shows the platform
    * tab marked "coverage not declared" and dims nothing (deny-by-absence stays honest). */
   coverage?: CoverageDecl;
+  /**
+   * When false, coverage still powers export honesty but the editor platform strip omits this
+   * format (export-only / legacy wire, not a separate host product). Default true when coverage set.
+   */
+  lens?: boolean;
 }
 
 /** An adapter that reads and writes character cards. */
@@ -78,6 +89,13 @@ export interface PersonaAdapter extends AdapterBase {
   fromCanonical(entity: CanonicalPersona): AdapterOutput;
 }
 
+/** An adapter that reads and writes standalone regex-script sets (find/replace rulebooks). */
+export interface RegexAdapter extends AdapterBase {
+  kind: "regex";
+  toCanonical(input: AdapterInput): CanonicalRegexSet;
+  fromCanonical(entity: CanonicalRegexSet): AdapterOutput;
+}
+
 /**
  * The contract every format plugin implements, discriminated by `kind`. Adding a format = adding one
  * of these; adding an entity KIND = adding a member here plus a sibling entities/<kind>/ folder. Core
@@ -85,4 +103,4 @@ export interface PersonaAdapter extends AdapterBase {
  * union heterogeneously; a converter narrows on `kind` (guard src.kind === target.kind) before it
  * hands an entity to fromCanonical, so no unsafe cross-kind call is representable.
  */
-export type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter;
+export type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter | RegexAdapter;

@@ -13,3 +13,4 @@ export type {
   CanonicalRegexSet,
   CharacterRegexScript,
 } from "./schema";
+export { emptyRegexSetBody } from "./schema";

@@ -188,3 +188,65 @@ describe("byte-exact round-trip on real fixture rows (R1 must #6)", () => {
     expect(row).toEqual({ comment: "New rule", in: "x", out: "y", type: "editinput", flag: "g" });
   });
 });
+
+// -- adapter shell (file homes: bare .risum module, customscript-row array) ------------------------
+
+import { regexAdapter } from "./regex";
+import { encodeRisum, serializeModuleJson, textToModulePlain, type RisuModule } from "./rpack";
+
+describe("regexAdapter shell - detection truth table", () => {
+  const rowsJson = JSON.stringify(FIXTURE.rows);
+
+  test("claims a bare customscript-row array at 0.85", () => {
+    expect(regexAdapter.detect({ text: rowsJson })).toBe(0.85);
+  });
+
+  test("claims a bare .risum module with regex rows at 0.8", () => {
+    const mod: RisuModule = { name: "Test module", regex: FIXTURE.rows, extras: {} };
+    const plain = textToModulePlain(serializeModuleJson(mod));
+    const bytes = encodeRisum({ module: mod, modulePlain: plain, assets: [] });
+    expect(regexAdapter.detect({ bytes })).toBe(0.8);
+  });
+
+  test("refuses a .risum module with NO regex rows", () => {
+    const mod: RisuModule = { name: "Lore only module", extras: {} };
+    const plain = textToModulePlain(serializeModuleJson(mod));
+    const bytes = encodeRisum({ module: mod, modulePlain: plain, assets: [] });
+    expect(regexAdapter.detect({ bytes })).toBe(0);
+  });
+
+  test("refuses ST-dialect rows (findRegex/scriptName keys, no in/out)", () => {
+    const st = JSON.stringify([{ scriptName: "x", findRegex: "/a/g", replaceString: "" }]);
+    expect(regexAdapter.detect({ text: st })).toBe(0);
+  });
+
+  test("refuses arrays with in/out strings but no customscript signal key", () => {
+    const bare = JSON.stringify([{ in: "a", out: "b" }]);
+    expect(regexAdapter.detect({ text: bare })).toBe(0);
+  });
+
+  test("refuses non-arrays and garbage", () => {
+    expect(regexAdapter.detect({ text: "{}" })).toBe(0);
+    expect(regexAdapter.detect({ text: "not json" })).toBe(0);
+  });
+});
+
+describe("regexAdapter shell - round trip", () => {
+  test("rows file -> canonical -> rows file is deep-equal (unedited)", () => {
+    const entity = regexAdapter.toCanonical({ text: JSON.stringify(FIXTURE.rows), filename: "My Scripts.json" });
+    expect(entity.kind).toBe("regex");
+    expect(entity.body.name).toBe("My Scripts");
+    expect(entity.body.rules.length).toBe(FIXTURE.rows.length);
+    const out = regexAdapter.fromCanonical(entity);
+    expect(JSON.parse(out.text ?? "")).toEqual(FIXTURE.rows);
+  });
+
+  test(".risum home: module name becomes the set name and rules decode", () => {
+    const mod: RisuModule = { name: "Packaged regexes", regex: FIXTURE.rows, extras: {} };
+    const plain = textToModulePlain(serializeModuleJson(mod));
+    const bytes = encodeRisum({ module: mod, modulePlain: plain, assets: [] });
+    const entity = regexAdapter.toCanonical({ bytes, filename: "pack.risum" });
+    expect(entity.body.name).toBe("Packaged regexes");
+    expect(entity.body.rules.length).toBe(FIXTURE.rows.length);
+  });
+});

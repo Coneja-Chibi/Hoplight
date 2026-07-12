@@ -2,7 +2,7 @@
  * Lumiverse regex codec: full account wire + versioned export file, and the reduced module-embedded
  * shape confirmed live in character-export.service.ts (REGEX-JEWEL-PLAN.md R1 residual Q2).
  */
-import { test, expect } from "bun:test";
+import { describe, test, expect } from "bun:test";
 import {
   decodeLumiverseRegexScript,
   encodeLumiverseRegexScript,
@@ -211,4 +211,36 @@ test("rehydrate -> pack round-trips the regex sidecar byte-true when unedited (R
   );
   const { modules } = packModulesFromExtensions(data.extensions, {});
   expect(modules?.regex_scripts).toEqual([MODULE_WIRE]);
+});
+
+// -- adapter shell (file home: the versioned lumiverse_regex_scripts envelope) ---------------------
+
+import { regexAdapter } from "./regex";
+
+describe("regexAdapter shell - detection truth table", () => {
+  const file = { version: 1, type: "lumiverse_regex_scripts", scripts: [ACCOUNT_WIRE] };
+
+  test("claims the self-identifying envelope at 1.0", () => {
+    expect(regexAdapter.detect({ text: JSON.stringify(file) })).toBe(1);
+  });
+
+  test("refuses a bare scripts array (no envelope, not this adapter's wire)", () => {
+    expect(regexAdapter.detect({ text: JSON.stringify([ACCOUNT_WIRE]) })).toBe(0);
+  });
+
+  test("refuses envelopes with the wrong type tag", () => {
+    const wrong = { ...file, type: "lumiverse_presets" };
+    expect(regexAdapter.detect({ text: JSON.stringify(wrong) })).toBe(0);
+  });
+});
+
+describe("regexAdapter shell - round trip", () => {
+  test("envelope file -> canonical -> envelope file is deep-equal (unedited)", () => {
+    const file = { version: 1, type: "lumiverse_regex_scripts", scripts: [ACCOUNT_WIRE] };
+    const entity = regexAdapter.toCanonical({ text: JSON.stringify(file), filename: "My Lumi Scripts.json" });
+    expect(entity.kind).toBe("regex");
+    expect(entity.body.name).toBe("My Lumi Scripts");
+    const out = regexAdapter.fromCanonical(entity);
+    expect(JSON.parse(out.text ?? "")).toEqual(file);
+  });
 });

@@ -21,6 +21,21 @@ export function readCardJson(input: AdapterInput): unknown | null {
 }
 
 /**
+ * Decode plain json input (text, or non-PNG bytes) to ANY parsed JSON value, or null. The
+ * shape-agnostic sibling of readJsonObject for readers whose wire is not an object (the regex
+ * codecs accept bare arrays). Tolerant: never throws, null on undecodable input.
+ */
+export function readJsonAny(input: AdapterInput): unknown | null {
+  const text = input.text ?? (input.bytes ? new TextDecoder().decode(input.bytes) : null);
+  if (text == null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Decode plain json input (text, or non-PNG bytes) to an object, or null. The un-PNG'd sibling of
  * readCardJson: the shared decode+parse+object-check boundary the standalone lorebook readers layer
  * their own shape guard on. Tolerant: never throws, null on anything that is not a json object.

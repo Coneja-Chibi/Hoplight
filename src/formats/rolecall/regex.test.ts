@@ -132,3 +132,44 @@ describe("must #6: unknown fields land in extras and re-emit byte-equal", () => 
     expect(wire).toEqual(raw);
   });
 });
+
+// -- adapter shell (file home: one subsystem-A RegexScript object) ---------------------------------
+
+import { regexAdapter } from "./regex";
+
+describe("regexAdapter shell - detection truth table", () => {
+  test("claims a script object with find/replace rules at 0.9", () => {
+    expect(regexAdapter.detect({ text: JSON.stringify(fixtureScript()) })).toBe(0.9);
+  });
+
+  test("refuses empty-rules objects (too generic a JSON shape)", () => {
+    expect(regexAdapter.detect({ text: JSON.stringify({ name: "x", rules: [] }) })).toBe(0);
+  });
+
+  test("refuses arrays (a multi-script dump is several sets, not one entity)", () => {
+    expect(regexAdapter.detect({ text: JSON.stringify([fixtureScript()]) })).toBe(0);
+  });
+
+  test("refuses objects whose rules are not find/replace shaped", () => {
+    const notRules = { name: "x", rules: [{ keys: ["a"], content: "lore entry" }] };
+    expect(regexAdapter.detect({ text: JSON.stringify(notRules) })).toBe(0);
+  });
+});
+
+describe("regexAdapter shell - round trip", () => {
+  test("script file -> canonical -> script file is deep-equal (unedited)", () => {
+    const raw = fixtureScript();
+    const entity = regexAdapter.toCanonical({ text: JSON.stringify(raw), filename: "cleanup.json" });
+    expect(entity.kind).toBe("regex");
+    expect(entity.body.name).toBe("Cleanup pack"); // wire name wins over filename
+    const out = regexAdapter.fromCanonical(entity);
+    expect(JSON.parse(out.text ?? "")).toEqual(raw);
+  });
+
+  test("nameless script falls back to the filename", () => {
+    const raw = fixtureScript();
+    delete raw.name;
+    const entity = regexAdapter.toCanonical({ text: JSON.stringify(raw), filename: "My Pack.json" });
+    expect(entity.body.name).toBe("My Pack");
+  });
+});

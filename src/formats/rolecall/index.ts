@@ -19,11 +19,12 @@ import type {
 import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import personaCodec from "./persona";
+import { regexAdapter } from "./regex";
 import { embedCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
 import { pngSourceMedia } from "../_shared/png";
-import { assetsToMedia } from "../_shared/assets";
+import { assetsToMedia, applyMediaToTavernData } from "../_shared/assets";
 import { type TavernData, dataToBody, applyBodyToData, CARD_SPEC_V2, CARD_SPEC_V3 } from "../_shared/tavern-fields";
 
 type Rec = Record<string, unknown>;
@@ -182,10 +183,33 @@ function cardToBody(data: TavernData, rc: RcExtension): CharacterBody {
   return body;
 }
 
+/** Structural equality for presentation overlay decisions. */
+const same = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== typeof b) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((v, i) => same(v, b[i]));
+  }
+  if (typeof a === "object") {
+    const ao = a as Rec;
+    const bo = b as Rec;
+    const keys = new Set([...Object.keys(ao), ...Object.keys(bo)]);
+    for (const k of keys) if (!same(ao[k], bo[k])) return false;
+    return true;
+  }
+  return false;
+};
+
+/** URL/data refs go to customUrl; anything else is an opaque RoleCall backgroundId. */
+const isUrlOrDataRef = (ref: string): boolean =>
+  /^(https?:|data:|blob:|file:)/i.test(ref) || ref.startsWith("//");
+
 /**
  * Write the canonically-editable scalars back onto a cloned raw RC extension block. Only the exact
- * 1:1 mappings are re-applied so an untouched card round-trips byte-identical; the rich fields
- * (details/presentation/sprites) stay as kept verbatim.
+ * 1:1 mappings are re-applied so an untouched card round-trips byte-identical. Presentation fields
+ * the reader promotes (gradient/palette/background/fieldOrder) get a matching inverse write with
+ * Plan 009 three-state clear semantics.
  */
 function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   const set = <K extends keyof RcExtension>(k: K, v: RcExtension[K] | undefined): void => {
@@ -201,10 +225,11 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   const titles = body.greetings.alternateGreetings?.map((g) => g.title ?? null);
   if (titles?.some((t) => t !== null)) ext.alternate_greeting_titles = titles;
 
-  // De-kept details fields write back into their exact wire homes; anything undefined leaves the
-  // twin's value alone, so an untouched card still round-trips byte-identical.
   const id = body.identity;
   const pres = body.presentation;
+  // Decode twin presentation BEFORE mutating details so clear-vs-untouched is accurate.
+  const twinPres = presentation(ext);
+
   const wantsDetails =
     id.fullName !== undefined ||
     id.title !== undefined ||
@@ -212,8 +237,18 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
     id.pronouns !== undefined ||
     pres?.signatureColor !== undefined ||
     pres?.mediaLinks !== undefined ||
-    pres?.spoilers !== undefined;
+    pres?.spoilers !== undefined ||
+    pres?.gradientColors !== undefined ||
+    pres?.palette !== undefined ||
+    pres?.background !== undefined ||
+    pres?.fieldOrder !== undefined ||
+    // clear path: twin had a representable value the body no longer carries
+    (twinPres?.gradientColors !== undefined && pres?.gradientColors === undefined) ||
+    (twinPres?.palette !== undefined && pres?.palette === undefined) ||
+    (twinPres?.background !== undefined && pres?.background === undefined) ||
+    (twinPres?.fieldOrder !== undefined && pres?.fieldOrder === undefined);
   if (!wantsDetails) return;
+
   const details = (isRecord(ext.details) ? ext.details : (ext.details = {})) as RcDetails;
   const setD = <K extends keyof RcDetails>(k: K, v: RcDetails[K] | undefined): void => {
     if (v !== undefined) details[k] = v;
@@ -231,6 +266,71 @@ function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
     if (pres.spoilers.mode !== undefined) pdd.spoilerMode = pres.spoilers.mode === "on";
     if (pres.spoilers.order !== undefined) pdd.order = pres.spoilers.order;
     if (pres.spoilers.fields !== undefined) pdd.spoilers = pres.spoilers.fields;
+  }
+
+  // --- gradient_colors ---
+  if (pres?.gradientColors !== undefined) {
+    if (!same(pres.gradientColors, twinPres?.gradientColors)) details.gradient_colors = pres.gradientColors;
+  } else if (twinPres?.gradientColors !== undefined) {
+    delete details.gradient_colors;
+  }
+
+  // --- colors (palette): overlay known label/name/hex; keep unknown row siblings when matched ---
+  if (pres?.palette !== undefined) {
+    if (!same(pres.palette, twinPres?.palette)) {
+      const prev = Array.isArray(details.colors) ? details.colors : [];
+      details.colors = pres.palette.map((sw, i) => {
+        const match =
+          prev.find(
+            (p) =>
+              (sw.name !== undefined && p.name === sw.name) ||
+              (sw.label !== undefined && p.label === sw.label) ||
+              p.hex === sw.hex,
+          ) ?? prev[i];
+        if (match && isRecord(match)) {
+          const next: Rec = { ...match, hex: sw.hex };
+          if (sw.label !== undefined) next.label = sw.label;
+          if (sw.name !== undefined) next.name = sw.name;
+          return next as { label?: string; name?: string; hex: string };
+        }
+        return { ...(sw.label !== undefined ? { label: sw.label } : {}), ...(sw.name !== undefined ? { name: sw.name } : {}), hex: sw.hex };
+      });
+    }
+  } else if (twinPres?.palette !== undefined) {
+    delete details.colors;
+  }
+
+  // --- fieldOrder ---
+  if (pres?.fieldOrder !== undefined) {
+    if (!same(pres.fieldOrder, twinPres?.fieldOrder)) details.fieldOrder = pres.fieldOrder;
+  } else if (twinPres?.fieldOrder !== undefined) {
+    delete details.fieldOrder;
+  }
+
+  // --- default_background: preserve customUrl vs backgroundId home; overlay opacity/rate ---
+  if (pres?.background !== undefined) {
+    if (!same(pres.background, twinPres?.background)) {
+      const prev = isRecord(details.default_background) ? { ...details.default_background } : {};
+      const ref = pres.background.ref;
+      const hadCustom = typeof prev.customUrl === "string" && prev.customUrl !== "";
+      const hadId = typeof prev.backgroundId === "string" && prev.backgroundId !== "";
+      if (hadCustom) {
+        prev.customUrl = ref;
+      } else if (hadId) {
+        prev.backgroundId = ref;
+      } else if (isUrlOrDataRef(ref)) {
+        prev.customUrl = ref;
+        if (prev.backgroundId === undefined) prev.backgroundId = null;
+      } else {
+        prev.backgroundId = ref;
+        if (prev.customUrl === undefined) prev.customUrl = null;
+      }
+      if (pres.background.overlayOpacity !== undefined) prev.overlayOpacity = pres.background.overlayOpacity;
+      if (pres.background.videoPlaybackRate !== undefined) prev.videoPlaybackRate = pres.background.videoPlaybackRate;
+      details.default_background = prev as NonNullable<RcDetails["default_background"]>;
+    }
+  } else if (twinPres?.background !== undefined) {
+    delete details.default_background;
   }
 }
 
@@ -283,6 +383,7 @@ const adapter: CharacterAdapter = {
     if (!isRecord(card.data)) card.data = {};
     const data = card.data as TavernData;
     applyBodyToData(data, entity.body);
+    applyMediaToTavernData(data, entity.body.media, "rolecall");
 
     if (!isRecord(data.extensions)) data.extensions = {};
     const ext = data.extensions as Rec;
@@ -299,5 +400,6 @@ const adapter: CharacterAdapter = {
 /** The RoleCall family's character codec, exported by name for direct importers. */
 export { adapter as characterAdapter };
 
-/** Folders-as-schema: this format family exports every codec it provides (character + lorebook). */
-export default [adapter, lorebookCodec, personaCodec];
+/** Folders-as-schema: this format family exports every codec it provides (character + lorebook +
+ * persona + regex scripts). */
+export default [adapter, lorebookCodec, personaCodec, regexAdapter];

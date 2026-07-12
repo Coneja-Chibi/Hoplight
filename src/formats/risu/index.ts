@@ -2,7 +2,7 @@
  * RisuAI .charx adapter. A .charx is a ZIP of `card.json` (a CCv3 card) + `assets/` files,
  * optionally `module.risum`. The card.json is a Tavern V3 card, so we reuse the shared V3
  * field mapping + the shared asset mapping; the zip container is handled here. Field map in
- * design/RISU-CARD-DEEP.md (extracted clean-room from card DATA, never Risu source). Lossless:
+ * Field map: design/RISU-CARD-DEEP.md. Lossless:
  * raw card + asset bytes + module ride original, including opaque executable content we never run.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
@@ -11,10 +11,14 @@ import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import coverage from "./coverage";
 import { type TavernData, dataToBody, applyBodyToData, wrapV3 } from "../_shared/tavern-fields";
 import { applyRisuToBody, applyBodyToRisu } from "./risu-fields";
-import { assetsToMedia } from "../_shared/assets";
+import { assetsToMedia, applyMediaToTavernData } from "../_shared/assets";
 import { embedCharacterBook } from "../_shared/character-book";
 import lorebookCodec from "./lorebook";
-import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
+import { regexAdapter } from "./regex";
+import { openRisumModule, type OpenedRisumModule } from "./open-module";
+import { encodeRisumSmart } from "./rpack";
+import { zipSync, strToU8, strFromU8 } from "fflate";
+import { CARD_ARCHIVE_BOUNDS, unzipBounded } from "../../core/archive";
 
 type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -31,17 +35,9 @@ const MS_THRESHOLD = 1e11;
 const msToSeconds = (n: number | undefined): number | undefined =>
   typeof n === "number" && n > MS_THRESHOLD ? Math.floor(n / 1000) : n;
 
-/** Cap per-entry inflated size so a zip bomb cannot OOM us during detection or conversion. */
-const MAX_ENTRY_BYTES = 64 * 1024 * 1024;
-
-/**
- * unzip with a decompression-bomb guard: entries larger than the cap are filtered out BEFORE
- * inflation (fflate applies the filter pre-decompress). `only` restricts to a single entry name.
- */
+/** Bounded unzip; `only` restricts to a single entry name (detection path). */
 function safeUnzip(bytes: Uint8Array, only?: string): Record<string, Uint8Array> {
-  return unzipSync(bytes, {
-    filter: (f) => (only ? f.name === only : true) && f.size <= MAX_ENTRY_BYTES,
-  });
+  return unzipBounded(bytes, { bounds: CARD_ARCHIVE_BOUNDS, only });
 }
 
 interface V3Card {
@@ -117,14 +113,19 @@ const adapter: CharacterAdapter = {
 
     const assetFiles: Record<string, string> = {};
     let moduleRisum: string | undefined;
+    let moduleBytes: Uint8Array | undefined;
     for (const [path, data] of Object.entries(files)) {
       if (path === "card.json") continue;
       if (path === "module.risum") {
         moduleRisum = b64(data);
+        moduleBytes = data;
         continue;
       }
       assetFiles[path] = b64(data);
     }
+
+    // Structured module when RPack decode succeeds; raw base64 always kept for lossless export.
+    const openedModule = moduleBytes ? openRisumModule(moduleBytes) : null;
 
     return {
       schemaVersion: CANONICAL_SCHEMA_VERSION,
@@ -137,6 +138,7 @@ const adapter: CharacterAdapter = {
           unmapped: {
             assetFiles,
             moduleRisum,
+            ...(openedModule ? { module: openedModule } : {}),
             hasExecutableContent: hasExecutableContent(card.data, moduleRisum),
             privileged: isPrivileged(card.data),
           },
@@ -154,6 +156,7 @@ const adapter: CharacterAdapter = {
     const rawCreated = card.data.creation_date;
     const rawModified = card.data.modification_date;
     applyBodyToData(card.data, entity.body);
+    applyMediaToTavernData(card.data, entity.body.media, "risu");
     applyBodyToRisu(card.data, entity.body); // de-kept risuai scalars, twin-diffed
     if (rawCreated !== undefined) card.data.creation_date = rawCreated;
     if (rawModified !== undefined) card.data.modification_date = rawModified;
@@ -167,7 +170,13 @@ const adapter: CharacterAdapter = {
     const assetFiles = (esc?.unmapped?.["assetFiles"] as Record<string, string> | undefined) ?? {};
     for (const [path, s] of Object.entries(assetFiles)) files[path] = unb64(s);
     const moduleRisum = esc?.unmapped?.["moduleRisum"] as string | undefined;
-    if (moduleRisum) files["module.risum"] = unb64(moduleRisum);
+    if (moduleRisum) {
+      const raw = unb64(moduleRisum);
+      const opened = esc?.unmapped?.["module"] as OpenedRisumModule | undefined;
+      // Unedited: emit original package bytes. Edited: encodeRisumSmart throws in safe-block mode.
+      files["module.risum"] =
+        opened?.module != null ? encodeRisumSmart(raw, opened.module) : raw;
+    }
 
     return { bytes: zipSync(files), suggestedExtension: "charx" };
   },
@@ -176,5 +185,7 @@ const adapter: CharacterAdapter = {
 /** The RisuAI family's character codec, exported by name for direct importers (tests, bundle). */
 export { adapter as characterAdapter };
 
-/** Folders-as-schema: this format family exports every codec it provides (character + native lore). */
-export default [adapter, lorebookCodec];
+/** Folders-as-schema: this format family exports every codec it provides (character + native lore +
+ * regex scripts). The regex codec claims bare .risum modules with regex rows and customscript-row
+ * JSON arrays; .charx zips still belong to the character adapter (its 1.0 outbids). */
+export default [adapter, lorebookCodec, regexAdapter];

@@ -31,11 +31,17 @@
  * fields (characterIds) never round-trip through this codec - Lumiverse's wire has no home for them.
  */
 import type {
+  CanonicalRegexSet,
   RegexPhase,
   RegexRule,
+  RegexSetBody,
   RegexSubstitution,
   RegexTargetChannel,
 } from "../../entities/regex/schema";
+import type { AdapterInput, AdapterOutput, RegexAdapter } from "../../core/adapter";
+import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonAny } from "../_shared/card-io";
+import { setNameFromFilename } from "../_shared/regex-set-name";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -334,3 +340,49 @@ export function encodeLumiverseModuleRegexScripts(
 ): LumiverseModuleRegexScript[] {
   return rules.map(encodeModuleRegexScript);
 }
+
+// ---------------------------------------------------------------------------------------------
+// Adapter shell (registered via lumiverse/index.ts's family array)
+// ---------------------------------------------------------------------------------------------
+
+/**
+ * File home: shape 1's versioned standalone export envelope. It self-identifies
+ * (`type: "lumiverse_regex_scripts"`), so detection is 1.0 - no other dialect can collide with an
+ * explicit type tag. Shape 2 (module-embedded) has no standalone file of its own; it arrives inside
+ * a character archive and stays that import path's concern.
+ */
+export const regexAdapter: RegexAdapter = {
+  id: "lumiverse-regex",
+  label: "Lumiverse regex scripts (versioned export file)",
+  outputExtensions: ["json"],
+  kind: "regex",
+
+  detect(input: AdapterInput): number {
+    const json = readJsonAny(input);
+    return isRec(json) && json.type === "lumiverse_regex_scripts" && Array.isArray(json.scripts)
+      ? 1
+      : 0;
+  },
+
+  toCanonical(input: AdapterInput): CanonicalRegexSet {
+    const text = input.text ?? (input.bytes ? new TextDecoder().decode(input.bytes) : "");
+    const rules = decodeLumiverseRegexFile(text);
+    if (!rules) throw new Error("lumiverse-regex: not a recognizable Lumiverse regex export file");
+    const body: RegexSetBody = {
+      name: setNameFromFilename(input, "Imported regex scripts"),
+      rules,
+    };
+    return {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "regex",
+      id: canonicalId(body.name),
+      body,
+      original: { "lumiverse-regex": { raw: JSON.parse(text) as unknown } },
+    };
+  },
+
+  fromCanonical(entity: CanonicalRegexSet): AdapterOutput {
+    const file = encodeLumiverseRegexFile(entity.body.rules);
+    return { text: JSON.stringify(file, null, 2), suggestedExtension: "json" };
+  },
+};

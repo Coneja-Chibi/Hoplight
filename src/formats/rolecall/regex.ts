@@ -25,7 +25,11 @@
  * full adapter/`original` wrapper. Wiring this into a "regex" AdapterKind is a later phase
  * (core/adapter.ts is not owned here).
  */
-import type { RegexPhase, RegexRule, RegexSetBody } from "../../entities/regex/schema";
+import type { CanonicalRegexSet, RegexPhase, RegexRule, RegexSetBody } from "../../entities/regex/schema";
+import type { AdapterInput, AdapterOutput, RegexAdapter } from "../../core/adapter";
+import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonAny } from "../_shared/card-io";
+import { setNameFromFilename } from "../_shared/regex-set-name";
 
 /** Subsystem A's placement union (apply-regex.ts `RegexPlacement`), read defensively off the wire. */
 const RC_PLACEMENTS = [
@@ -165,3 +169,63 @@ export function canonicalToRolecallRegex(
     rules: body.rules.map(ruleToWire),
   };
 }
+
+// -- adapter shell (registered via rolecall/index.ts's family array) -------------------------------
+
+/**
+ * File home: ONE subsystem-A `RegexScript` object (`{ id?, name?, rules: [...] }` whose rules carry
+ * `find_pattern`/`replace_string`) - a script IS a set (must #3), so one file = one entity. `rules`
+ * must be non-empty for detection: `{ name, rules: [] }` is too generic a JSON shape to claim
+ * (fail closed at the boundary). A dumped ARRAY of scripts is deliberately not claimed - that is
+ * several sets in one file, which the one-entity adapter contract cannot express; splitting a
+ * multi-script dump is bundle-layer work if it ever shows up in reality.
+ */
+function looksLikeRcRule(v: unknown): boolean {
+  return (
+    !!v &&
+    typeof v === "object" &&
+    !Array.isArray(v) &&
+    ("find_pattern" in v || "replace_string" in v)
+  );
+}
+
+/** Read one RC regex script object off the input. Tolerant: null on anything unrecognizable. */
+function readRcScript(input: AdapterInput): Record<string, unknown> | null {
+  const json = readJsonAny(input);
+  if (!json || typeof json !== "object" || Array.isArray(json)) return null;
+  const obj = json as Record<string, unknown>;
+  const rules = obj.rules;
+  if (!Array.isArray(rules) || rules.length === 0 || !rules.every(looksLikeRcRule)) return null;
+  return obj;
+}
+
+export const regexAdapter: RegexAdapter = {
+  id: "rolecall-regex",
+  label: "RoleCall regex script (chat-pipeline find/replace set)",
+  outputExtensions: ["json"],
+  kind: "regex",
+
+  detect(input: AdapterInput): number {
+    return readRcScript(input) ? 0.9 : 0;
+  },
+
+  toCanonical(input: AdapterInput): CanonicalRegexSet {
+    const raw = readRcScript(input);
+    if (!raw) throw new Error("rolecall-regex: not a recognizable RoleCall regex script");
+    const body = rolecallRegexToCanonical(raw);
+    if (!body.name) body.name = setNameFromFilename(input, "Imported regex script");
+    return {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "regex",
+      id: canonicalId(body.name),
+      body,
+      original: { "rolecall-regex": { raw } },
+    };
+  },
+
+  fromCanonical(entity: CanonicalRegexSet): AdapterOutput {
+    const twin = entity.original?.["rolecall-regex"]?.raw;
+    const wire = canonicalToRolecallRegex(entity.body, twin);
+    return { text: JSON.stringify(wire, null, 2), suggestedExtension: "json" };
+  },
+};

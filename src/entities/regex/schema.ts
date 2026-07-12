@@ -115,10 +115,22 @@ export interface RegexRule {
 export interface RegexSetBody {
   name: string;
   description?: string;
+  /**
+   * Set-level on/off (the Library shelf's enable switch; the lorebook `enabled?` precedent). Absent
+   * = on; always read as `enabled !== false`. An off set skips export the way an off lorebook does.
+   * Additive and optional so the risu character codec and the in-flight set editor stay compatible.
+   */
+  enabled?: boolean;
   rules: RegexRule[];
 }
 
 export type CanonicalRegexSet = CanonicalEntity<"regex", RegexSetBody>;
+
+/** A blank regex set (no rules yet) - the seed the Library's "new set" flow saves and opens. */
+export const emptyRegexSetBody = (name: string): RegexSetBody => ({
+  name,
+  rules: [],
+});
 
 /**
  * Narrow character-card view of a regex rule: the Risu `customScripts` legacy shape (singular

@@ -20,6 +20,7 @@
  */
 import { explainAst } from "./ast/explain";
 import { parseRegex } from "./ast/parser";
+import { mergeUnicodeFlag, unwrapWordBoundary, wrapWordBoundary } from "./word-boundary";
 
 /** Characters the builder escapes when turning a literal word into a pattern fragment. */
 const REGEX_SPECIALS = new Set([
@@ -42,9 +43,11 @@ export interface BuiltRegex {
 
 /**
  * Build a whole-word-safe pattern from a phrase list: escape, dedupe, sort longest-first (so a
- * longer alternative is tried before a prefix of it), group as an alternation, wrap in \b...\b.
- * Empty input -> empty pattern. Never throws: an escaped-word alternation is always valid regex,
- * but a defensive try/catch still degrades to empty rather than surface a broken pattern.
+ * longer alternative is tried before a prefix of it), group as an alternation, and wrap in a
+ * unicode-aware whole-word boundary (word-boundary.ts: `\b` for ASCII, `\p{L}` lookarounds + the `u`
+ * flag for Korean/Cyrillic, an honest drop for space-less scripts). Empty input -> empty pattern.
+ * Never throws: an escaped-word alternation is always valid regex, but a defensive try/catch still
+ * degrades to empty rather than surface a broken pattern.
  */
 export function buildFromPhrases(phrases: readonly string[], options?: BuildOptions): BuiltRegex {
   const words = [...new Set(splitList(phrases))];
@@ -53,11 +56,11 @@ export function buildFromPhrases(phrases: readonly string[], options?: BuildOpti
   try {
     const sorted = [...words].sort((a, b) => b.length - a.length);
     const escaped = sorted.map(escapeWord);
-    const core = escaped.length === 1 ? escaped[0] : `(${escaped.join("|")})`;
-    const find = `\\b${core}\\b`;
-    const flags = options?.caseSensitive ? "" : "i";
-    new RegExp(find, flags); // validate; throws are caught below
-    return { find, flags };
+    const core = escaped.length === 1 ? escaped[0]! : `(${escaped.join("|")})`;
+    const wrapped = wrapWordBoundary(core, words);
+    const flags = mergeUnicodeFlag(options?.caseSensitive ? "" : "i", wrapped.needsU);
+    new RegExp(wrapped.pattern, flags); // validate; throws are caught below
+    return { find: wrapped.pattern, flags };
   } catch {
     return { find: "", flags: "" };
   }
@@ -124,14 +127,17 @@ function splitAlternation(inner: string): string[] | null {
 }
 
 /**
- * Decompile the exact shape buildFromPhrases emits: \b(w1|w2|...)\b or \bw\b, flags "" or "i".
- * Returns null for anything else (including our own words wrapped with extra modifiers a fuller
- * builder state might add later) - complete:true is reserved for a lossless round trip.
+ * Decompile the exact shape buildFromPhrases emits: a whole-word-wrapped `(w1|w2|...)` or `w`, flags
+ * drawn from {i, u}. Recognizes both the ASCII `\b...\b` wrap and the unicode lookaround wrap (so a
+ * Korean words rule reads complete, not partial). Returns null for anything else - complete:true is
+ * reserved for a lossless round trip.
  */
 function decompileWords(pattern: string, flags: string): string[] | null {
-  if (flags !== "" && flags !== "i") return null;
-  if (!pattern.startsWith("\\b") || !pattern.endsWith("\\b") || pattern.length <= 4) return null;
-  const core = pattern.slice(2, -2);
+  const known = new Set(["i", "u"]);
+  if ([...flags].some((f) => !known.has(f))) return null;
+  const unwrapped = unwrapWordBoundary(pattern);
+  if (!unwrapped.wholeWord) return null;
+  const core = unwrapped.core;
 
   let members: string[];
   if (core.startsWith("(") && core.endsWith(")")) {

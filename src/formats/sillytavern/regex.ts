@@ -30,8 +30,10 @@ import type {
   RegexSubstitution,
   RegexTargetChannel,
 } from "../../entities/regex/schema";
-import type { AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { AdapterInput, AdapterOutput, RegexAdapter } from "../../core/adapter";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonAny } from "../_shared/card-io";
+import { setNameFromFilename } from "../_shared/regex-set-name";
 
 /** A single ST `RegexScriptData` row, as it appears on the wire. Tolerant: unknown keys allowed. */
 interface StRegexRow {
@@ -80,15 +82,7 @@ function looksLikeStRegexRow(v: unknown): v is StRegexRow {
 }
 
 /** Parse raw JSON text/bytes without the object-only restriction `readJsonObject` applies. */
-function parseJson(input: AdapterInput): unknown {
-  const text = input.text ?? (input.bytes ? new TextDecoder().decode(input.bytes) : null);
-  if (text == null) return null;
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
-  }
-}
+const parseJson = readJsonAny;
 
 /** Where a card's ST extensions object lives across the v1/v2 shapes we accept. */
 function extensionsOf(obj: Record<string, unknown>): Record<string, unknown> | null {
@@ -262,27 +256,15 @@ function ruleToRow(rule: RegexRule): StRegexRow {
 // -- set name (ST has no container name; derive from the file or fall back) -----------------------
 
 function deriveSetName(input: AdapterInput, source: RowsSource): string {
-  const filename = input.filename;
-  if (filename) {
-    const base = filename.replace(/\.[^./\\]+$/, "").split(/[\\/]/).pop();
-    if (base) return base;
-  }
-  return source === "card" ? "Character regex scripts" : "Imported regex scripts";
+  return setNameFromFilename(
+    input,
+    source === "card" ? "Character regex scripts" : "Imported regex scripts",
+  );
 }
 
-// -- adapter shape (standalone; not yet wired into the FormatAdapter registry union) --------------
+// -- adapter shape (a RegexAdapter; registered via sillytavern/index.ts's family array) -----------
 
-interface SillytavernRegexAdapter {
-  id: string;
-  label: string;
-  outputExtensions: string[];
-  kind: "regex";
-  detect(input: AdapterInput): number;
-  toCanonical(input: AdapterInput): CanonicalRegexSet;
-  fromCanonical(entity: CanonicalRegexSet): AdapterOutput;
-}
-
-const sillytavernRegex: SillytavernRegexAdapter = {
+const sillytavernRegex: RegexAdapter = {
   id: "sillytavern-regex",
   label: "SillyTavern regex scripts (bare array or card extensions.regex_scripts)",
   outputExtensions: ["json"],

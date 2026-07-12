@@ -111,6 +111,42 @@ describe("explainPattern", () => {
   });
 });
 
+describe("buildFromPhrases unicode boundaries (R3 gap-closer)", () => {
+  test("ASCII input keeps the plain \\b wrap and no u flag", () => {
+    expect(buildFromPhrases(["cat", "dog"])).toMatchObject({ flags: "i" });
+    expect(buildFromPhrases(["cat"]).find).toBe("\\bcat\\b");
+  });
+
+  test("Korean input uses lookaround boundaries + the u flag, and matches AND rejects", () => {
+    const built = buildFromPhrases(["강아지", "고양이"]);
+    expect(built.flags).toContain("u");
+    expect(built.find).toContain("\\p{L}");
+    const re = new RegExp(built.find, built.flags);
+    // matches as a standalone whole word, spaced in a sentence
+    expect(re.test("나는 강아지 좋아")).toBe(true);
+    expect(re.test("고양이")).toBe(true);
+    // rejects when glued to a following Hangul syllable (the boundary holds)
+    expect(re.test("강아지들")).toBe(false);
+    expect(re.test("고양이는")).toBe(false);
+  });
+
+  test("Korean words round-trip: build -> explain is complete", () => {
+    const built = buildFromPhrases(["한글"]);
+    const explained = explainPattern(built.find, built.flags);
+    expect(explained.complete).toBe(true);
+    expect(explained.phrases).toEqual(["한글"]);
+  });
+
+  test("space-less script (Han) honestly drops the whole-word wrap", () => {
+    const built = buildFromPhrases(["猫", "犬"]);
+    // no \b and no \p{L} lookaround - a boundary is meaningless without word gaps
+    expect(built.find).not.toContain("\\b");
+    expect(built.find).not.toContain("\\p{L}");
+    const re = new RegExp(built.find, built.flags);
+    expect(re.test("猫")).toBe(true);
+  });
+});
+
 // ----------------------------------------------------------------------------
 // Round-trip stability over RC's template catalog patterns
 // ----------------------------------------------------------------------------

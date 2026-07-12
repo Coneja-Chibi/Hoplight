@@ -33,7 +33,12 @@
  * passed to `new RegExp` here (compile-time stripping is the R2 engine's job, not the codec's).
  */
 import type { RegexScript } from "../../entities/character/schema";
-import type { RegexPhase, RegexRule } from "../../entities/regex/schema";
+import type { CanonicalRegexSet, RegexPhase, RegexRule, RegexSetBody } from "../../entities/regex/schema";
+import type { AdapterInput, AdapterOutput, RegexAdapter } from "../../core/adapter";
+import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonAny } from "../_shared/card-io";
+import { setNameFromFilename } from "../_shared/regex-set-name";
+import { openRisumModule } from "./open-module";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -198,3 +203,87 @@ export function rulesToRegexRows(rules: RegexRule[], twinRows: unknown): RisuReg
   }
   return out;
 }
+
+// -- adapter shell (registered via risu/index.ts's family array) -----------------------------------
+
+/**
+ * Two real file homes converge on the standalone-entity mapping above:
+ * 1. A `.risum` module blob whose decoded `regex[]` is non-empty (openRisumModule; the bare-module
+ *    home - `.charx` zips stay the character adapter's, which scores 1.0 on them, and a zip is
+ *    never a valid RPack so this detect returns 0 there by construction).
+ * 2. A bare JSON array of `customscript` rows (`in`/`out` plus at least one of type/comment/flag/
+ *    ableFlag/disabled somewhere) - the module-source form. Key-disjoint from ST rows
+ *    (findRegex/scriptName) and Marinara rows (findRegex/name), so no cross-adapter bid.
+ *
+ * EXPORT IS ROWS-ONLY: fromCanonical emits the pretty-JSON row array, never a re-packed `.risum` -
+ * a module carries triggers/lorebook/assets this entity has no home for, and inventing a module
+ * wrapper around bare rows would fabricate wire data. Re-packing whole modules is the future module
+ * entity's job (see docs/RISU-WORKSHOP-PLAN.md), not this shell's.
+ */
+function looksLikeRisuRegexRow(v: unknown): v is RisuRegexRow {
+  return isRec(v) && (typeof v.in === "string" || typeof v.out === "string");
+}
+
+function hasRisuRowSignal(rows: readonly RisuRegexRow[]): boolean {
+  return rows.some(
+    (r) => "type" in r || "comment" in r || "flag" in r || "ableFlag" in r || "disabled" in r,
+  );
+}
+
+interface FoundRisuRows {
+  rows: RisuRegexRow[];
+  home: "risum" | "rows-file";
+  moduleName?: string;
+}
+
+/** Read rows from either home. Tolerant: null on anything unrecognizable. */
+function readRisuRows(input: AdapterInput): FoundRisuRows | null {
+  if (input.bytes) {
+    const opened = openRisumModule(input.bytes);
+    const rows = opened?.module.regex;
+    if (Array.isArray(rows) && rows.length > 0) {
+      return { rows: rows as RisuRegexRow[], home: "risum", moduleName: opened?.name };
+    }
+  }
+  const json = readJsonAny(input);
+  if (Array.isArray(json) && json.length > 0 && json.every(looksLikeRisuRegexRow)) {
+    const rows = json as RisuRegexRow[];
+    return hasRisuRowSignal(rows) ? { rows, home: "rows-file" } : null;
+  }
+  return null;
+}
+
+export const regexAdapter: RegexAdapter = {
+  id: "risu-regex",
+  label: "RisuAI regex scripts (.risum module or customscript array)",
+  outputExtensions: ["json"],
+  kind: "regex",
+
+  detect(input: AdapterInput): number {
+    const found = readRisuRows(input);
+    if (!found) return 0;
+    return found.home === "risum" ? 0.8 : 0.85;
+  },
+
+  toCanonical(input: AdapterInput): CanonicalRegexSet {
+    const found = readRisuRows(input);
+    if (!found) throw new Error("risu-regex: not a recognizable Risu regex script set");
+    const body: RegexSetBody = {
+      name: found.moduleName ?? setNameFromFilename(input, "Imported regex scripts"),
+      rules: regexRowsToRules(found.rows),
+    };
+    return {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "regex",
+      id: canonicalId(body.name),
+      body,
+      original: { "risu-regex": { raw: found.rows } },
+    };
+  },
+
+  fromCanonical(entity: CanonicalRegexSet): AdapterOutput {
+    const twin = entity.original?.["risu-regex"]?.raw;
+    const rows = rulesToRegexRows(entity.body.rules, twin);
+    return { text: JSON.stringify(rows, null, 2), suggestedExtension: "json" };
+  },
+};
