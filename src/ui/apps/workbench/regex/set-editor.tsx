@@ -30,6 +30,7 @@ import {
 } from "../../../../core/regex";
 import { BottomSheet } from "../../../components/bottom-sheet";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
+import { WriteForStrip } from "../../../components/write-for-strip";
 import { regexStyles as styles } from "./regex-styles";
 import { RuleToc } from "./rule-toc";
 import { RulePage } from "./rule-page";
@@ -244,20 +245,12 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
           </div>
         </div>
         <span className={styles.eheadActs}>
-          <span className={styles.wfor} role="group" aria-label="Write for one host">
-            <i className={styles.wforLabel}>Write for</i>
-            {REGEX_WRITE_FOR_PROFILES.map((p) => (
-              <button
-                key={p}
-                type="button"
-                className={writeFor === p ? `${styles.wf} ${styles.wfOn}` : styles.wf}
-                aria-pressed={writeFor === p}
-                onClick={() => setWriteFor(p)}
-              >
-                {REGEX_WRITE_FOR_LABELS[p]}
-              </button>
-            ))}
-          </span>
+          <WriteForStrip
+            profiles={REGEX_WRITE_FOR_PROFILES}
+            labels={REGEX_WRITE_FOR_LABELS}
+            value={writeFor}
+            onChange={setWriteFor}
+          />
           <button
             type="button"
             className={styles.save}

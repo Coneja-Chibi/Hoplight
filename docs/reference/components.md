@@ -70,7 +70,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Vaude (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
-| LorebookCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ ctx, body, onBody }: { ctx: AppContext; body: PersonaBody; onBody: OnBody }) | Linked lorebook (knowledgeRefs, first slot) - wakes with this persona. |  |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
@@ -80,7 +79,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreEntryToc | src/ui/apps/workbench/lore/entry-toc.tsx | ({ entries, focusedId, writeFor, styles, categories = [], onSelect, onAdd, onPatch, onDuplicate, onDelete, onReorder,... |  |  |
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
 | LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
-| LoreWriteFor | src/ui/components/lore-write-for/index.tsx | ({ value, onChange }: LoreWriteForProps) |  | .strip .hint |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
@@ -158,6 +156,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | WorkshopTriggersPane | src/ui/apps/workbench/workshop/triggers-pane.tsx | ({ triggers, onWrite, undo, vars = [], }: WorkshopTriggersPaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | WorkshopVariablesPane | src/ui/apps/workbench/workshop/variables-pane.tsx | ({ vars, onChange }: WorkshopVariablesPaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | WorkshopView | src/ui/apps/workbench/workshop/view.tsx | ({ draft, setField, original, setOriginal, targets = [], ctx, }: WorkshopViewProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
+| WriteForStrip | src/ui/components/write-for-strip/index.tsx | ({ profiles, labels, value, onChange, }: WriteForStripProps<P>) |  | .strip .stripLabel .pill .pillOn |
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 

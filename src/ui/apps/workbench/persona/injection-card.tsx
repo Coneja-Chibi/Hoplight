@@ -7,6 +7,7 @@
 import type { JSX } from "react";
 import type { PersonaBody } from "../../../../entities/persona/schema";
 import { BentoCard } from "../../../components/bento-card";
+import es from "../editor-styles";
 import { patchInjection } from "./session";
 import s from "./persona.module.css";
 
@@ -86,7 +87,8 @@ export function InjectionCard({ body, onBody, stops, labels, showWrapper }: Inje
 
       {showWrapper && (
         <input
-          className={s.wrapIn}
+          className={es.in}
+          style={{ marginTop: "0.5rem" }}
           value={body.chatInjection?.wrapper ?? ""}
           placeholder="Custom wrapper text (optional), e.g. This is {{user}}'s identity:"
           aria-label="Custom wrapper text"

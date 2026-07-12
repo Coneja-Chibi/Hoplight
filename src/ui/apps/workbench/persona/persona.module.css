@@ -75,38 +75,6 @@
   gap: 0.5rem;
 }
 
-.wfor {
-  display: inline-flex;
-  align-items: center;
-  border: 2px solid var(--stage-seam);
-}
-
-.wforLabel {
-  font-style: normal;
-  font: 700 0.48rem var(--font-mono);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--stage-kicker);
-  padding: 0 0.45rem;
-}
-
-.wf {
-  font: 700 0.52rem var(--font-mono);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  border: 0;
-  border-left: 2px solid var(--stage-seam);
-  background: var(--stage-row);
-  color: var(--stage-mute);
-  padding: 0.32rem 0.5rem;
-  cursor: pointer;
-}
-
-.wfOn {
-  background: var(--a, var(--stage-macro));
-  color: var(--stage-ink);
-}
-
 .save {
   font: 700 0.68rem var(--font-mono);
   letter-spacing: 0.06em;
@@ -165,26 +133,6 @@
 }
 
 /* ---------- identity + section field bits (inside BentoCards) ---------- */
-
-.fIn {
-  width: 100%;
-  background: var(--stage-row);
-  border: 1px solid var(--stage-seam);
-  color: var(--stage-soft);
-  font: 600 0.72rem var(--font-mono);
-  padding: 0.3rem 0.4rem;
-}
-
-.fTa {
-  width: 100%;
-  background: var(--stage-row);
-  border: 1px solid var(--stage-seam);
-  color: var(--stage-soft);
-  font: 500 0.8rem var(--font-body);
-  padding: 0.45rem 0.55rem;
-  min-height: 3.4rem;
-  resize: vertical;
-}
 
 .idRow {
   display: flex;
@@ -287,15 +235,6 @@
   text-align: center;
 }
 
-.wrapIn {
-  width: 100%;
-  background: var(--stage-row);
-  border: 1px solid var(--stage-seam);
-  color: var(--stage-soft);
-  font: 500 0.7rem var(--font-mono);
-  padding: 0.35rem 0.5rem;
-  margin-top: 0.5rem;
-}
 
 .stopNote {
   font-style: italic;
@@ -333,14 +272,6 @@
   color: var(--stage-card);
 }
 
-.loreSel {
-  width: 100%;
-  background: var(--stage-row);
-  border: 1px solid var(--stage-seam);
-  color: var(--stage-soft);
-  font: 600 0.68rem var(--font-mono);
-  padding: 0.3rem 0.4rem;
-}
 
 .defaultBtn {
   width: 100%;

@@ -21,13 +21,14 @@ import {
   type PersonaWriteForProfile,
 } from "../../../../core/persona";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
+import { WriteForStrip } from "../../../components/write-for-strip";
+import { KnowledgeRail } from "../lore/KnowledgeRail";
 import es from "../editor-styles";
 import { InjectionCard } from "./injection-card";
 import {
   ContentCard,
   FaceCard,
   IdentityCard,
-  LorebookCard,
   PaletteCard,
   PreviewCard,
   SectionCard,
@@ -154,20 +155,12 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
           <span className={s.spineMeta}>persona · {dirty ? "unsaved" : "saved"}</span>
         </div>
         <span className={s.eacts}>
-          <span className={s.wfor} role="group" aria-label="Write for one host">
-            <i className={s.wforLabel}>Write for</i>
-            {PERSONA_WRITE_FOR_PROFILES.map((p) => (
-              <button
-                key={p}
-                type="button"
-                className={writeFor === p ? `${s.wf} ${s.wfOn}` : s.wf}
-                aria-pressed={writeFor === p}
-                onClick={() => setWriteFor(p)}
-              >
-                {PERSONA_WRITE_FOR_LABELS[p]}
-              </button>
-            ))}
-          </span>
+          <WriteForStrip
+            profiles={PERSONA_WRITE_FOR_PROFILES}
+            labels={PERSONA_WRITE_FOR_LABELS}
+            value={writeFor}
+            onChange={setWriteFor}
+          />
           <button type="button" className={s.save} disabled={saving || !dirty} onClick={() => void doSave()}>
             {saving ? "Saving…" : dirty ? "Save" : "Saved"}
           </button>
@@ -179,7 +172,11 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
         <div className={es.bento}>
           <div className={`${es.bcol} ${es.bcolLeft}`}>
             <FaceCard body={body} portraitUrl={portraitUrl} tokens={tokens} />
-            <LorebookCard ctx={ctx} body={body} onBody={onBody} />
+            <KnowledgeRail
+              ctx={ctx}
+              refs={body.knowledgeRefs ?? []}
+              onChange={(next) => setBody((b) => ({ ...b, knowledgeRefs: next.length ? next : undefined }))}
+            />
           </div>
           <div className={es.bcol}>
             <IdentityCard body={body} onBody={onBody} />

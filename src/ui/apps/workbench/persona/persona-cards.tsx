@@ -4,8 +4,7 @@
  * layout ruling that character and persona surfaces must feel like kin. This module owns the
  * card CONTENTS only; the grid arrangement lives in persona-editor.tsx.
  */
-import { useEffect, useMemo, useState, type JSX } from "react";
-import type { AppContext, StudioEntitySummary } from "../../../app-contract";
+import { useMemo, useState, type JSX } from "react";
 import type { PersonaBody } from "../../../../entities/persona/schema";
 import type { PersonaWriteForProfile } from "../../../../core/persona";
 import { platformOwnsField } from "../../../../core/persona";
@@ -52,7 +51,7 @@ export function IdentityCard({ body, onBody }: { body: PersonaBody; onBody: OnBo
       <div className={es.bfield}>
         <span className={es.blabel}>Tagline</span>
         <input
-          className={s.fIn}
+          className={es.in}
           value={id.tagline ?? ""}
           placeholder="A brief tagline..."
           aria-label="Tagline"
@@ -62,18 +61,18 @@ export function IdentityCard({ body, onBody }: { body: PersonaBody; onBody: OnBo
       <div className={es.bfield}>
         <span className={es.blabel}>Pronouns · Height · Age</span>
         <div className={s.idRow}>
-          <input className={s.fIn} value={id.pronouns ?? ""} placeholder="pronouns" aria-label="Pronouns"
+          <input className={es.in} value={id.pronouns ?? ""} placeholder="pronouns" aria-label="Pronouns"
             onChange={(e) => onBody((b) => patchIdentity(b, { pronouns: e.target.value }))} />
-          <input className={s.fIn} value={id.height ?? ""} placeholder="height" aria-label="Height"
+          <input className={es.in} value={id.height ?? ""} placeholder="height" aria-label="Height"
             onChange={(e) => onBody((b) => patchIdentity(b, { height: e.target.value }))} />
-          <input className={s.fIn} value={id.age ?? ""} placeholder="age" aria-label="Age"
+          <input className={es.in} value={id.age ?? ""} placeholder="age" aria-label="Age"
             onChange={(e) => onBody((b) => patchIdentity(b, { age: e.target.value }))} />
         </div>
       </div>
       <div className={es.bfield}>
         <span className={es.blabel}>Brief</span>
         <textarea
-          className={s.fTa}
+          className={`${es.in} ${es.ta}`}
           style={{ minHeight: "2.4rem" }}
           value={body.brief ?? ""}
           placeholder="Library card blurb..."
@@ -117,7 +116,7 @@ export function SectionCard({
   return (
     <BentoCard title={title} filled={value.trim() !== ""}>
       <textarea
-        className={s.fTa}
+        className={`${es.in} ${es.ta}`}
         value={value}
         placeholder={placeholder}
         aria-label={title}
@@ -165,7 +164,7 @@ export function ContentCard({
         {sectioned ? "flat text · used when the sections are empty" : "the whole persona on this platform"}
       </span>
       <textarea
-        className={s.fTa}
+        className={`${es.in} ${es.ta}`}
         style={{ minHeight: "5rem" }}
         value={body.content}
         placeholder="Who you are, in first person..."
@@ -215,51 +214,6 @@ export function PreviewCard({ xml, tokens, stopLabel }: { xml: string; tokens: n
       <div className={s.tokens}>
         Tokens <b className={s.tokensN}>~{tokens}</b>
       </div>
-    </BentoCard>
-  );
-}
-
-/** Linked lorebook (knowledgeRefs, first slot) - wakes with this persona. */
-export function LorebookCard({ ctx, body, onBody }: { ctx: AppContext; body: PersonaBody; onBody: OnBody }): JSX.Element {
-  const [books, setBooks] = useState<StudioEntitySummary[]>([]);
-  useEffect(() => {
-    let cancelled = false;
-    void ctx.api
-      .listEntities("lorebook")
-      .then((list) => {
-        if (!cancelled) setBooks(list);
-      })
-      .catch(() => {
-        /* the picker just stays empty */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [ctx]);
-  const linked = body.knowledgeRefs?.[0] ?? "";
-  return (
-    <BentoCard title="Linked Lorebook" filled={linked !== ""}>
-      <span className={s.honest}>wakes with this persona</span>
-      <select
-        className={s.loreSel}
-        value={linked}
-        aria-label="Linked lorebook"
-        onChange={(e) =>
-          onBody((b) => ({
-            ...b,
-            knowledgeRefs: e.target.value
-              ? [e.target.value, ...(b.knowledgeRefs ?? []).slice(1)]
-              : (b.knowledgeRefs ?? []).slice(1),
-          }))
-        }
-      >
-        <option value="">None</option>
-        {books.map((bk) => (
-          <option key={bk.id} value={bk.id}>
-            {bk.name}
-          </option>
-        ))}
-      </select>
     </BentoCard>
   );
 }

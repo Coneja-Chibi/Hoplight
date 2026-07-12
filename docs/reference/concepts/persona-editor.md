@@ -6,7 +6,10 @@ face plate from `editor-styles`. Source: `src/ui/apps/workbench/persona/` (perso
 chassis + header, persona-cards tiles, injection-card, pure session ops).
 
 Layout: LEFT = the sticky face plate (portrait via import, name, live token count) and the
-Linked Lorebook tile (knowledgeRefs - wakes with this persona). MIDDLE = Identity (tagline,
+Knowledge rail (the character editor's `KnowledgeRail`, verbatim: attach/detach/reorder
+library books via knowledgeRefs). The header's Write-for pills are the shared `WriteForStrip`
+(the regex editor consumes the same component); field inputs wear the house `es.in`/`es.ta`
+classes. MIDDLE = Identity (tagline,
 pronouns/height/age, and the BRIEF wearing its honesty line: the blurb stays on the shelf,
 never sent to the model) plus the section tiles (Appearance / Body / Personality with trait
 chips / Quirks / History) and the flat Identity Text for section-less personas. RIGHT = Color
@@ -22,6 +25,12 @@ reads).
 
 THE FAMILY LANDMINE, enforced by compiler test: `brief` never enters the injected output;
 `content` never becomes the card blurb.
+
+## Reuse law on this surface
+
+Every element on this page was walked against the component catalog (2026-07-12); verdicts +
+fixes in docs/PERSONA-JEWEL-AUDIT.md. Anything new on this surface MUST come from
+docs/reference/components.md first.
 
 ## The shelf
 
