@@ -52,6 +52,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
+| GalleryPane | src/ui/apps/workbench/regex/gallery-pane.tsx | ({ onPick, onStartBlank, onClose }: GalleryPaneProps) |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
 | HealthPane | src/ui/apps/workbench/regex/health-pane.tsx | ({ findings, rules, onClose, onGoTo, onFix }: HealthPaneProps) |  |  |

@@ -44,6 +44,15 @@ while an earlier rule did (indeterminate runs stay silent). Duplicates carry a o
 "fix by hand". The per-rule Health card in the rail shows that rule's slice; heavy patterns wear a
 quiet "slow" chip on the TOC rows and an "N slow" count on the Library shelf card.
 
+## The recipe gallery
+
+`gallery-pane.tsx` + `core/regex/templates.ts` / `template-catalog.ts`: "+ New rule" opens the
+starter recipes (37, grouped Cleanup / Guardrails / Formatting / Style / Compatibility / Roleplay),
+each a plain-English pitch with a Before/After pair the ENGINE computed - the catalog test re-runs
+every example, so a recipe that cannot prove itself does not ship. Picking one appends a pre-filled
+rule and focuses it (Plain-words when the pattern fits the words grammar, Pattern with the reading
+otherwise); Start blank keeps the empty-rule path.
+
 ## The test bench
 
 `bench-pane.tsx`, hosted BESIDE the editor (never a modal): a sample line runs through the real
