@@ -66,4 +66,6 @@ export { guidedMiss } from "./guided-feedback";
 export { expandReplacement, substituteAfterMacros, substituteFindMacros } from "./replace-ops";
 export { travelLint } from "./travel-lint";
 export type { TravelNote, TravelSeverity } from "./travel-lint";
+export { findingsForRule, inspectSet, slowRuleCount, slowRuleIds, SLOW_COMPLEXITY } from "./inspect";
+export type { InspectOptions, RegexFinding, RegexFindingRule } from "./inspect";
 export * from "./ast";
