@@ -21,6 +21,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
+| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, onToggle, onDelete, onMove, onAdd }: BlockListProps) |  |  |
+| BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, first, last, onToggle, onDelete, onMove, }: BlockRowProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
@@ -106,7 +108,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
 | PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, showSprites = true, onOpenSprites,... |  |  |
 | PositionPicker | src/ui/apps/workbench/lore/position-picker.tsx | ({ position, depth, role, writeFor, showDepth, showRole, styles, onPatch, }: PositionPickerProps) |  |  |
-| PresetEditor | src/ui/apps/workbench/PresetEditor.tsx | ({ entity, topRight }: PresetEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
+| PresetEditor | src/ui/apps/workbench/PresetEditor.tsx | (props: PresetEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
+| PresetEditorView | src/ui/apps/workbench/preset/preset-editor.tsx | ({ entity, ctx, piece, topRight }: PresetEditorViewProps) |  |  |
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
