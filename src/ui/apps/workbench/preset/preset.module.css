@@ -1,10 +1,11 @@
 /**
- * Preset editor styles (P4 slice 1 - the manuscript spine), transcribed from
- * design/vs-preset-hybrid.html. Token-only (the no-hardcode-colors guard); legibility at reading
- * scale per the house rule. The shared EditorEhead owns the header; this owns the block manuscript.
+ * Preset editor styles (RC-port: two-column prompt list + right EDIT PROMPT sidebar, RC's split
+ * model), in vaud's language. Token-only (the no-hardcode-colors guard); legibility at reading
+ * scale. Collapse the sidebar by PANE width at the file end (the fluid-container law).
  */
 
 .root {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -12,9 +13,17 @@
   background: var(--stage-floor);
 }
 
+/* two-column body: prompt list (left) + EDIT PROMPT sidebar (right) */
 .body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
   min-height: 0;
   flex: 1;
+  overflow: hidden;
+}
+
+.listCol {
+  min-height: 0;
   overflow-y: auto;
   padding: 0.9rem 1rem 1.3rem;
 }
@@ -38,14 +47,30 @@
 .prow {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
-  padding: 0.5rem 0.6rem;
+  padding: 0.45rem 0.55rem;
 }
 
 .prowOff {
   opacity: 0.5;
+}
+
+.prowSel {
+  border-color: var(--a, var(--stage-macro));
+  box-shadow: inset 0 0 0 1px var(--a, var(--stage-macro));
+}
+
+.caretBtn {
+  border: 0;
+  background: none;
+  color: var(--stage-mute);
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.15rem 0.2rem;
+  cursor: pointer;
+  flex: none;
 }
 
 .moveCol {
@@ -85,31 +110,32 @@
   border-color: var(--a, var(--stage-macro));
 }
 
+/* the click-to-select region (name + chip + preview) */
+.rowBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rowBody:hover .ptitle {
+  color: var(--a, var(--stage-macro));
+}
+
 .ptitle {
   font: 700 0.9rem var(--font-body);
   color: var(--stage-card);
   flex: none;
-  max-width: 18rem;
+  max-width: 16rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.ptitle:hover {
-  color: var(--a, var(--stage-macro));
-}
-
-.caret {
-  color: var(--stage-mute);
-  font-size: 0.7rem;
-  flex: none;
 }
 
 .role {
@@ -194,87 +220,143 @@
   color: var(--a, var(--stage-macro));
 }
 
-/* ---------- block expansion: the ONE editing place ---------- */
+/* ---------- inline content (caret expand) ---------- */
 
-.exp {
+.content {
   border: 2px solid var(--a, var(--stage-macro));
   border-top: 0;
   background: var(--stage-panel);
-  padding: 0.8rem 0.85rem;
+  padding: 0.7rem 0.75rem;
   margin-top: -0.35rem;
 }
 
-.expMeta {
-  display: flex;
-  gap: 0.7rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  margin-bottom: 0.6rem;
+.contentTa {
+  min-height: 7rem;
 }
 
-.expName {
-  flex: 1;
-  min-width: 11rem;
-}
-
-.expDepth,
-.expOrder {
-  width: 5rem;
-}
-
-.placeRail {
-  display: inline-flex;
-  border: 1px solid var(--stage-seam);
-}
-
-.placePill {
-  font: 700 0.58rem var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.34rem 0.5rem;
-  color: var(--stage-mute);
-  background: none;
-  border: 0;
-  border-right: 1px solid var(--stage-seam);
-  cursor: pointer;
-}
-
-.placePill:last-child {
-  border-right: 0;
-}
-
-.placeOn {
-  background: var(--a, var(--stage-macro));
-  color: var(--stage-ink, var(--stage-floor));
-}
-
-.placeForeign {
-  border: 1px dashed var(--stage-warn);
-  color: var(--stage-warn);
-  background: none;
-}
-
-.expContent {
-  min-height: 8rem;
-}
-
-.expFoot {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-top: 0.5rem;
+.contentFoot {
+  margin-top: 0.45rem;
   font: 600 0.64rem var(--font-mono);
   color: var(--stage-kicker);
 }
 
-.expDelete {
-  margin-left: auto;
-  font: 700 0.62rem var(--font-mono);
-  letter-spacing: 0.05em;
+/* ---------- right sidebar: EDIT PROMPT ---------- */
+
+.sidebar {
+  border-left: 2px solid var(--stage-seam);
+  background: var(--stage-panel);
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sideHead {
+  font: 700 0.66rem var(--font-mono);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  border: 1px solid var(--stage-danger, var(--stage-warn));
-  background: none;
-  color: var(--stage-danger, var(--stage-warn));
-  padding: 0.25rem 0.5rem;
+  color: var(--stage-card);
+  padding: 0.7rem 0.8rem;
+  border-bottom: 2px solid var(--stage-seam);
+  flex: none;
+}
+
+.sideEmpty {
+  padding: 1.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  text-align: center;
+}
+
+.sideEmptyTitle {
+  font: 700 0.9rem var(--font-body);
+  color: var(--stage-soft);
+  margin: 0;
+}
+
+.sideEmptyHint {
+  font: 500 0.68rem var(--font-mono);
+  color: var(--stage-kicker);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sideBody {
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.sideRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.sideHintLine {
+  display: block;
+  margin-top: 0.2rem;
+  font: 500 0.58rem var(--font-mono);
+  color: var(--stage-kicker);
+}
+
+.sideAdvanced {
+  border-top: 1px solid var(--stage-seam);
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sideAdvancedLabel {
+  font: 700 0.58rem var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.sideCheck {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: 600 0.74rem var(--font-body);
+  color: var(--stage-soft);
   cursor: pointer;
+}
+
+.sideMarker {
+  font: 500 0.64rem var(--font-mono);
+  color: var(--a, var(--stage-macro));
+  margin: 0.2rem 0 0;
+  line-height: 1.5;
+}
+
+.sideContentNote {
+  border-top: 1px solid var(--stage-seam);
+  padding-top: 0.6rem;
+  margin: 0.2rem 0 0;
+  font: 500 0.62rem var(--font-mono);
+  font-style: italic;
+  color: var(--stage-kicker);
+  line-height: 1.5;
+}
+
+/* ---------- collapse the sidebar by PANE width (fluid-container law) ---------- */
+
+@container (max-width: 48rem) {
+  .body {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+  .listCol {
+    overflow: visible;
+  }
+  .sidebar {
+    border-left: 0;
+    border-top: 2px solid var(--stage-seam);
+    overflow: visible;
+  }
 }

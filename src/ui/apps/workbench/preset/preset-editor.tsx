@@ -19,6 +19,7 @@ import {
 import { EditorEhead } from "../../../components/editor-ehead";
 import { WriteForStrip } from "../../../components/write-for-strip";
 import { BlockList } from "./block-list";
+import { PromptEditPanel } from "./prompt-edit-panel";
 import { addBlock, deleteBlock, moveBlock, patchBlock, presetDirty, toggleBlock } from "./session";
 import s from "./preset.module.css";
 
@@ -50,10 +51,12 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const dirty = presetDirty(body, baseline);
   const weight = useMemo(() => presetWeight(body), [body]);
   const stops = useMemo(() => placementsForProfile(writeFor), [writeFor]);
+  const selectedBlock = body.prompts.find((p) => p.id === selectedId) ?? null;
 
   const toggleExpand = (id: string): void =>
     setExpandedIds((prev) => {
@@ -62,6 +65,13 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
       else next.add(id);
       return next;
     });
+
+  const selectBlock = (id: string): void => setSelectedId((cur) => (cur === id ? null : id));
+
+  const removeBlock = (id: string): void => {
+    setBody((b) => deleteBlock(b, id));
+    if (selectedId === id) setSelectedId(null);
+  };
 
   const setWriteFor = (p: PresetWriteForProfile): void => {
     setWriteForState(p);
@@ -127,16 +137,26 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
       </EditorEhead>
 
       <div className={s.body}>
-        <BlockList
-          blocks={body.prompts}
-          expandedIds={expandedIds}
+        <div className={s.listCol}>
+          <BlockList
+            blocks={body.prompts}
+            selectedId={selectedId}
+            expandedIds={expandedIds}
+            onSelect={selectBlock}
+            onExpand={toggleExpand}
+            onToggle={(id) => setBody((b) => toggleBlock(b, id))}
+            onDelete={removeBlock}
+            onMove={(id, toIndex) => setBody((b) => moveBlock(b, id, toIndex))}
+            onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
+            onAdd={() => setBody((b) => addBlock(b))}
+          />
+        </div>
+        <PromptEditPanel
+          block={selectedBlock}
           stops={stops}
-          onExpand={toggleExpand}
-          onToggle={(id) => setBody((b) => toggleBlock(b, id))}
-          onDelete={(id) => setBody((b) => deleteBlock(b, id))}
-          onMove={(id, toIndex) => setBody((b) => moveBlock(b, id, toIndex))}
-          onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
-          onAdd={() => setBody((b) => addBlock(b))}
+          onPatch={(patch) => {
+            if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
+          }}
         />
       </div>
     </div>

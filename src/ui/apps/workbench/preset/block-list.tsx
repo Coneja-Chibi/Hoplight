@@ -1,19 +1,19 @@
 /**
- * BlockList - the manuscript (PRESET-JEWEL-PLAN.md P4). The ordered prompt blocks, each expandable
- * into the inline BlockExpansion (the ONE editing place). Filter segments / bulk bar / drag reorder
- * / the AddBlockMenu marker slots are later P4 slices.
+ * BlockList - the prompt list (RC PromptListV4 port). Ordered blocks; each row selects into the
+ * right sidebar (metadata) and expands its CONTENT inline via the caret. Categories / filter tabs /
+ * bulk bar are later RC-port slices.
  */
 import { Fragment, type JSX } from "react";
 import type { PresetPrompt } from "../../../../entities/preset";
 import { BlockRow } from "./block-row";
-import { BlockExpansion } from "./block-expansion";
+import { BlockContent } from "./block-content";
 import s from "./preset.module.css";
 
 export interface BlockListProps {
   blocks: PresetPrompt[];
+  selectedId: string | null;
   expandedIds: ReadonlySet<string>;
-  /** placement stops the active Write-for lens carries */
-  stops: readonly string[];
+  onSelect: (id: string) => void;
   onExpand: (id: string) => void;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
@@ -24,8 +24,9 @@ export interface BlockListProps {
 
 export function BlockList({
   blocks,
+  selectedId,
   expandedIds,
-  stops,
+  onSelect,
   onExpand,
   onToggle,
   onDelete,
@@ -45,19 +46,16 @@ export function BlockList({
               index={i}
               first={i === 0}
               last={i === blocks.length - 1}
+              selected={selectedId === b.id}
               expanded={expandedIds.has(b.id)}
+              onSelect={() => onSelect(b.id)}
               onExpand={() => onExpand(b.id)}
               onToggle={() => onToggle(b.id)}
               onDelete={() => onDelete(b.id)}
               onMove={(dir) => onMove(b.id, i + dir)}
             />
             {expandedIds.has(b.id) && (
-              <BlockExpansion
-                block={b}
-                stops={stops}
-                onPatch={(patch) => onPatch(b.id, patch)}
-                onDelete={() => onDelete(b.id)}
-              />
+              <BlockContent block={b} onPatch={(patch) => onPatch(b.id, patch)} />
             )}
           </Fragment>
         ))

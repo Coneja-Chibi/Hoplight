@@ -21,9 +21,9 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
-| BlockExpansion | src/ui/apps/workbench/preset/block-expansion.tsx | ({ block, stops, onPatch, onDelete }: BlockExpansionProps) |  |  |
-| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, expandedIds, stops, onExpand, onToggle, onDelete, onMove, onPatch, onAdd, }: BlockListProps) |  |  |
-| BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, first, last, expanded, onExpand, onToggle, onDelete, onMove, }: BlockRowProps) |  |  |
+| BlockContent | src/ui/apps/workbench/preset/block-content.tsx | ({ block, onPatch }: BlockContentProps) |  |  |
+| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, selectedId, expandedIds, onSelect, onExpand, onToggle, onDelete, onMove, onPatch, onAdd, }: BlockListProps) |  |  |
+| BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, first, last, selected, expanded, onSelect, onExpand, onToggle, onDelete, onMove, }: BlockRowProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
@@ -113,6 +113,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PresetEditorView | src/ui/apps/workbench/preset/preset-editor.tsx | ({ entity, ctx, piece, topRight }: PresetEditorViewProps) |  |  |
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
+| PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, onPatch }: PromptEditPanelProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
