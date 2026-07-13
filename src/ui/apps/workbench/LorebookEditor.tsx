@@ -52,6 +52,7 @@ import {
 } from "../library/lore-workshop-dialog";
 import { BottomSheet } from "../../components/bottom-sheet";
 import { InkDialog } from "../../components/ink-dialog";
+import { EditorEhead } from "../../components/editor-ehead";
 
 export interface LorebookEditorProps {
   entity: unknown;
@@ -228,6 +229,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     focusedId: session.focusedId,
     writeFor,
     styles,
+    categories: session.body.categories ?? [],
     healthByEntry,
     onSelect: (id: string) => setSession((s) => selectEntry(s, id)),
     onAdd: () => setSession((s) => addEntry(s)),
@@ -283,64 +285,55 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
     >
       {/* ---- header: spine chip + writing-for + save ---- */}
-      <header className={styles.ehead}>
-        <div className={styles.spine}>
-          <span className={styles.spineMark}>{monogram}</span>
-          <div className={styles.spineText}>
-            <b className={styles.spineName}>{session.body.name || "Untitled lorebook"}</b>
-            <span className={styles.spineMeta}>
-              {summary.entryCount} {summary.entryCount === 1 ? "entry" : "entries"} · ~{bookEstimate}
-              {session.body.tokenBudget > 0 ? ` / ${session.body.tokenBudget}` : ""} tok ·{" "}
-              <button type="button" className={styles.rulesLink} onClick={() => setRulesOpen(true)}>
-                book rules
-              </button>
-            </span>
-          </div>
-        </div>
-        <span className={styles.eheadActs}>
-          <span className={styles.viewSwitch} role="group" aria-label="Binder view">
-            {(
-              [
-                ["pages", "Pages"],
-                ["cards", "Cards"],
-                ["web", "Web"],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                className={view === id ? `${styles.viewBtn} ${styles.viewBtnOn}` : styles.viewBtn}
-                aria-pressed={view === id}
-                onClick={() => setView(id)}
-              >
-                {label}
-              </button>
-            ))}
-          </span>
-          <select
-            className={styles.lensSel}
-            value={writeFor}
-            aria-label="Writing for one host"
-            onChange={(ev) => setWriteFor(parseWriteFor(ev.target.value))}
-          >
-            {LORE_WRITE_FOR_PROFILES.map((p) => (
-              <option key={p} value={p}>
-                Writing for: {LORE_WRITE_FOR_LABELS[p]}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            className={styles.save}
-            disabled={saving || !dirty}
-            onClick={() => void doSave()}
-            title="Save · ctrl+s"
-          >
-            {saving ? "Saving…" : dirty ? "Save" : "Saved"}
-          </button>
-          {topRight}
+      <EditorEhead
+        mark={monogram}
+        name={session.body.name || "Untitled lorebook"}
+        meta={
+          <>
+            {summary.entryCount} {summary.entryCount === 1 ? "entry" : "entries"} · ~{bookEstimate}
+            {session.body.tokenBudget > 0 ? ` / ${session.body.tokenBudget}` : ""} tok ·{" "}
+            <button type="button" className={styles.rulesLink} onClick={() => setRulesOpen(true)}>
+              book rules
+            </button>
+          </>
+        }
+        dirty={dirty}
+        saving={saving}
+        onSave={() => void doSave()}
+        topRight={topRight}
+      >
+        <span className={styles.viewSwitch} role="group" aria-label="Binder view">
+          {(
+            [
+              ["pages", "Pages"],
+              ["cards", "Cards"],
+              ["web", "Web"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              className={view === id ? `${styles.viewBtn} ${styles.viewBtnOn}` : styles.viewBtn}
+              aria-pressed={view === id}
+              onClick={() => setView(id)}
+            >
+              {label}
+            </button>
+          ))}
         </span>
-      </header>
+        <select
+          className={styles.lensSel}
+          value={writeFor}
+          aria-label="Writing for one host"
+          onChange={(ev) => setWriteFor(parseWriteFor(ev.target.value))}
+        >
+          {LORE_WRITE_FOR_PROFILES.map((p) => (
+            <option key={p} value={p}>
+              Writing for: {LORE_WRITE_FOR_LABELS[p]}
+            </option>
+          ))}
+        </select>
+      </EditorEhead>
 
       {/* ---- mobile contents bar: the TOC leaves the flow below 34rem (vs-mobile-editors) ---- */}
       <div className={styles.mBar}>
@@ -398,6 +391,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
               onNext={() => flip(1)}
               tokenEstimate={estimateEntryTokens(entry)}
               onPatch={(patch) => setSession((s) => updateEntry(s, entry.id, patch))}
+              prefs={ctx.prefs}
             />
           )}
         </main>

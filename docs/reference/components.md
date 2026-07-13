@@ -37,6 +37,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
+| EditorEhead | src/ui/components/editor-ehead/index.tsx | ({ mark, name, onNameChange, namePlaceholder, nameAriaLabel, meta, dirty, saving, onSave, saveTitle = "Save · ctrl+s"... |  | .ehead .spine .spineMark .spineText .spineName .spineMeta .acts .save |
 | EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |
 | EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |

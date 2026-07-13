@@ -15,65 +15,8 @@
   color: var(--stage-soft);
 }
 
-/* ---------- header: spine chip + writing-for + save ---------- */
-
-.ehead {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.55rem 0.9rem;
-  border-bottom: 2px solid var(--stage-seam);
-  background: var(--stage-well);
-  flex: none;
-}
-
-.spine {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-width: 0;
-}
-
-.spineMark {
-  width: 1.6rem;
-  height: 2rem;
-  border: 2px solid var(--stage-black);
-  background: var(--stage-sunken);
-  color: var(--a, var(--stage-macro));
-  display: grid;
-  place-items: center;
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.7rem;
-  flex: none;
-}
-
-.spineText {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.spineName {
-  font-family: var(--font-big);
-  font-weight: 900;
-  font-size: 0.75rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--stage-card);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.spineMeta {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-text-dim);
-  white-space: nowrap;
-}
+/* header: the shared EditorEhead (components/editor-ehead) owns the spine + save.
+   These two are lore's own middle controls, passed into the ehead as meta/children. */
 
 .rulesLink {
   font: inherit;
@@ -90,14 +33,6 @@
   color: var(--a, var(--stage-macro));
 }
 
-.eheadActs {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex: none;
-}
-
 .lensSel {
   font: inherit;
   font-family: var(--font-big);
@@ -108,27 +43,6 @@
   color: var(--stage-card);
   padding: 0.3rem 0.45rem;
   max-width: 18rem;
-}
-
-.save {
-  font: inherit;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 0.35rem 0.65rem;
-  border: 2px solid var(--stage-black);
-  background: var(--rose);
-  color: var(--stage-white);
-  cursor: pointer;
-  box-shadow: 3px 3px 0 0 var(--stage-black);
-}
-
-.save:disabled {
-  background: var(--stage-panel);
-  color: var(--stage-text-dim);
-  box-shadow: none;
-  cursor: default;
 }
 
 /* ---------- toc | page | rail ---------- */

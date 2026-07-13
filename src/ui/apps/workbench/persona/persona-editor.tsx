@@ -23,6 +23,7 @@ import {
 import { isPreviewablePortraitRef } from "../../../../core/media";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
 import { WriteForStrip } from "../../../components/write-for-strip";
+import { EditorEhead } from "../../../components/editor-ehead";
 import { PortraitCard } from "../controls/portrait-card";
 import { KnowledgeRail } from "../lore/KnowledgeRail";
 import es from "../editor-styles";
@@ -147,31 +148,25 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
         />
       </div>
 
-      <header className={s.ehead}>
-        <span className={s.spineMark}>{monogram}</span>
-        <div>
-          <input
-            className={s.spineName}
-            value={body.name}
-            placeholder="Untitled persona"
-            aria-label="Persona name"
-            onChange={(e) => setBody((b) => ({ ...b, name: e.target.value }))}
-          />
-          <span className={s.spineMeta}>persona · {dirty ? "unsaved" : "saved"}</span>
-        </div>
-        <span className={s.eacts}>
-          <WriteForStrip
-            profiles={PERSONA_WRITE_FOR_PROFILES}
-            labels={PERSONA_WRITE_FOR_LABELS}
-            value={writeFor}
-            onChange={setWriteFor}
-          />
-          <button type="button" className={s.save} disabled={saving || !dirty} onClick={() => void doSave()}>
-            {saving ? "Saving…" : dirty ? "Save" : "Saved"}
-          </button>
-          {topRight}
-        </span>
-      </header>
+      <EditorEhead
+        mark={monogram}
+        name={body.name}
+        onNameChange={(v) => setBody((b) => ({ ...b, name: v }))}
+        namePlaceholder="Untitled persona"
+        nameAriaLabel="Persona name"
+        meta={`persona · ${dirty ? "unsaved" : "saved"}`}
+        dirty={dirty}
+        saving={saving}
+        onSave={() => void doSave()}
+        topRight={topRight}
+      >
+        <WriteForStrip
+          profiles={PERSONA_WRITE_FOR_PROFILES}
+          labels={PERSONA_WRITE_FOR_LABELS}
+          value={writeFor}
+          onChange={setWriteFor}
+        />
+      </EditorEhead>
 
       <div className={s.body}>
         <div className={es.bento}>

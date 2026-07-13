@@ -31,6 +31,7 @@ import {
 import { BottomSheet } from "../../../components/bottom-sheet";
 import { MobileEditorHead, type MobileMenuItem } from "../../../components/mobile-editor-head";
 import { WriteForStrip } from "../../../components/write-for-strip";
+import { EditorEhead } from "../../../components/editor-ehead";
 import { regexStyles as styles } from "./regex-styles";
 import { RuleToc } from "./rule-toc";
 import { RulePage } from "./rule-page";
@@ -227,42 +228,26 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
         />
       </div>
 
-      {/* header: spine chip + write-for strip + save */}
-      <header className={styles.ehead}>
-        <div className={styles.spine}>
-          <span className={styles.spineMark}>{monogram}</span>
-          <div className={styles.spineText}>
-            <input
-              className={styles.spineName}
-              value={session.body.name}
-              placeholder="Untitled regex set"
-              aria-label="Set name"
-              onChange={(e) => setSession((s) => updateSet(s, { name: e.target.value }))}
-            />
-            <span className={styles.spineMeta}>
-              {count} rule{count === 1 ? "" : "s"} · {enabledCount} on · regex set
-            </span>
-          </div>
-        </div>
-        <span className={styles.eheadActs}>
-          <WriteForStrip
-            profiles={REGEX_WRITE_FOR_PROFILES}
-            labels={REGEX_WRITE_FOR_LABELS}
-            value={writeFor}
-            onChange={setWriteFor}
-          />
-          <button
-            type="button"
-            className={styles.save}
-            disabled={saving || !dirty}
-            onClick={() => void doSave()}
-            title="Save · ctrl+s"
-          >
-            {saving ? "Saving…" : dirty ? "Save" : "Saved"}
-          </button>
-          {topRight}
-        </span>
-      </header>
+      {/* header: the shared EditorEhead + the write-for strip */}
+      <EditorEhead
+        mark={monogram}
+        name={session.body.name}
+        onNameChange={(v) => setSession((s) => updateSet(s, { name: v }))}
+        namePlaceholder="Untitled regex set"
+        nameAriaLabel="Set name"
+        meta={`${count} rule${count === 1 ? "" : "s"} · ${enabledCount} on · regex set`}
+        dirty={dirty}
+        saving={saving}
+        onSave={() => void doSave()}
+        topRight={topRight}
+      >
+        <WriteForStrip
+          profiles={REGEX_WRITE_FOR_PROFILES}
+          labels={REGEX_WRITE_FOR_LABELS}
+          value={writeFor}
+          onChange={setWriteFor}
+        />
+      </EditorEhead>
 
       {/* mobile contents bar: the TOC leaves the flow below 34rem. Hidden while the bench is open so
           the full-screen takeover (page hidden at 34rem) isn't steered by a pager for an invisible
