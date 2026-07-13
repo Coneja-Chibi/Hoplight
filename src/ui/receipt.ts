@@ -43,6 +43,7 @@ const KIND_WORD: Record<string, string> = {
   lorebook: "lorebook",
   persona: "persona",
   regex: "regex set",
+  preset: "preset",
 };
 
 export interface Receipt {

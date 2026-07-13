@@ -18,9 +18,11 @@ describe("studio path-policy", () => {
   test("closed kinds", () => {
     expect(isStudioEntityKind("character")).toBe(true);
     expect(isStudioEntityKind("pack")).toBe(true);
+    expect(isStudioEntityKind("preset")).toBe(true);
     expect(isStudioEntityKind("evil")).toBe(false);
     expect(() => assertStudioEntityKind("../x")).toThrow(StudioValidationError);
     expect(STUDIO_ENTITY_KINDS).toContain("lorebook");
+    expect(STUDIO_ENTITY_KINDS).toContain("preset");
   });
 
   test("safe ids accept unicode and separators", () => {

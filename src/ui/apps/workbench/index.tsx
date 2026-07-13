@@ -20,6 +20,7 @@ import { PackEditor } from "./PackEditor";
 import { LorebookEditor } from "./LorebookEditor";
 import { RegexSetEditor } from "./RegexSetEditor";
 import { PersonaEditor } from "./PersonaEditor";
+import { PresetEditor } from "./PresetEditor";
 import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
@@ -106,6 +107,8 @@ function EditablePane({
       <RegexSetEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "persona" ? (
       <PersonaEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+    ) : piece.kind === "preset" ? (
+      <PresetEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     ) : (
       <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
     );
@@ -260,7 +263,8 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
       p.kind === "pack" ||
       p.kind === "lorebook" ||
       p.kind === "regex" ||
-      p.kind === "persona",
+      p.kind === "persona" ||
+      p.kind === "preset",
   );
   // the split is real only when the beside piece can actually render an editor here
   const splitOn =

@@ -88,6 +88,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | MonoTag | src/ui/components/mono-tag/index.tsx | ({ children, dim }: MonoTagProps) | A mono, uppercase, letter-spaced meta label. | .tag .tagDim |
 | NamedAssets | src/ui/components/named-assets/index.tsx | ({ value, onChange, assetFiles, macroHint = true, }: NamedAssetsProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | NamedAssetsDialog | src/ui/components/named-assets/dialog.tsx | ({ characterName, value, assetFiles, onApply, onClose, }: NamedAssetsDialogProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
+| NewInDeckButton | src/ui/apps/library/new-in-deck-button.tsx | ({ kind, ctx, onCreated }: NewInDeckButtonProps) |  |  |
 | NovelAiBiasBlock | src/ui/apps/workbench/lore/platforms/novelai-bias.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
@@ -104,6 +105,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PortableLora | src/ui/components/portable-lora/index.tsx | ({ value, onChange }: PortableLoraProps) |  | .wrap .warn .lbl .input .ta .row .k .clear |
 | PortraitCard | src/ui/apps/workbench/controls/portrait-card.tsx | ({ artUrl, name, tokens, updatedAt, sourceVariant, vary, styles, onPortraitChange, showSprites = true, onOpenSprites,... |  |  |
 | PositionPicker | src/ui/apps/workbench/lore/position-picker.tsx | ({ position, depth, role, writeFor, showDepth, showRole, styles, onPatch, }: PositionPickerProps) |  |  |
+| PresetEditor | src/ui/apps/workbench/PresetEditor.tsx | ({ entity, topRight }: PresetEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |

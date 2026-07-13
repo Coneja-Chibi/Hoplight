@@ -6,7 +6,14 @@ import { relative, resolve, sep } from "node:path";
 import { StudioValidationError } from "./errors";
 
 /** Closed set of on-disk entity folders. Extend with a plan when a new kind ships. */
-export const STUDIO_ENTITY_KINDS = ["character", "lorebook", "persona", "pack", "regex"] as const;
+export const STUDIO_ENTITY_KINDS = [
+  "character",
+  "lorebook",
+  "persona",
+  "pack",
+  "regex",
+  "preset",
+] as const;
 export type StudioEntityKind = (typeof STUDIO_ENTITY_KINDS)[number];
 
 const KIND_SET = new Set<string>(STUDIO_ENTITY_KINDS);

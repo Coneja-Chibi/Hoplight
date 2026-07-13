@@ -34,9 +34,7 @@ import {
   type RegexWorkshopState,
 } from "./regex-shelf-ops";
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
-import { createAndOpenLorebook } from "./new-lorebook";
-import { createAndOpenRegexSet } from "./new-regex-set";
-import { createAndOpenPersona } from "./new-persona";
+import { NewInDeckButton } from "./new-in-deck-button";
 import { loadPersonaMeta, makePersonaShelf, type PersonaMeta } from "./persona-shelf-ops";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
@@ -366,72 +364,17 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           {inDeck.length === 0 ? (
             <div className="ghost-shelf">
               {`your first ${activeKind} lands here · import or start fresh`}
-              {activeKind === "lorebook" && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <button
-                    type="button"
-                    className="send"
-                    onClick={() => {
-                      void (async () => {
-                        const summary = await createAndOpenLorebook(ctx);
-                        setEntities((prev) =>
-                          prev.some((e) => e.kind === "lorebook" && e.id === summary.id)
-                            ? prev
-                            : [...prev, summary],
-                        );
-                        ctx.workbench.send(summary);
-                        ctx.setStatus(`opened lorebook · ${summary.name}`);
-                      })();
-                    }}
-                  >
-                    New lorebook
-                  </button>
-                </div>
-              )}
-              {activeKind === "regex" && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <button
-                    type="button"
-                    className="send"
-                    onClick={() => {
-                      void (async () => {
-                        const summary = await createAndOpenRegexSet(ctx);
-                        setEntities((prev) =>
-                          prev.some((e) => e.kind === "regex" && e.id === summary.id)
-                            ? prev
-                            : [...prev, summary],
-                        );
-                        ctx.workbench.send(summary);
-                        ctx.setStatus(`opened regex set · ${summary.name}`);
-                      })();
-                    }}
-                  >
-                    New regex set
-                  </button>
-                </div>
-              )}
-              {activeKind === "persona" && (
-                <div style={{ marginTop: "0.75rem" }}>
-                  <button
-                    type="button"
-                    className="send"
-                    onClick={() => {
-                      void (async () => {
-                        const summary = await createAndOpenPersona(ctx);
-                        setEntities((prev) =>
-                          prev.some((e) => e.kind === "persona" && e.id === summary.id)
-                            ? prev
-                            : [...prev, summary],
-                        );
-                        ctx.workbench.send(summary);
-                        ctx.setStatus(`opened persona · ${summary.name}`);
-                      })();
-                    }}
-                  >
-                    New persona
-                  </button>
-                </div>
-              )}
+              <NewInDeckButton
+                kind={activeKind}
+                ctx={ctx}
+                onCreated={(summary) =>
+                  setEntities((prev) =>
+                    prev.some((e) => e.kind === summary.kind && e.id === summary.id)
+                      ? prev
+                      : [...prev, summary],
+                  )
+                }
+              />
             </div>
           ) : (
             <view.Component ctx={vctx} />
