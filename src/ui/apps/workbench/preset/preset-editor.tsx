@@ -10,6 +10,7 @@ import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { PresetBody } from "../../../../entities/preset";
 import {
   parseWriteFor,
+  placementsForProfile,
   presetWeight,
   PRESET_WRITE_FOR_LABELS,
   PRESET_WRITE_FOR_PROFILES,
@@ -18,7 +19,7 @@ import {
 import { EditorEhead } from "../../../components/editor-ehead";
 import { WriteForStrip } from "../../../components/write-for-strip";
 import { BlockList } from "./block-list";
-import { addBlock, deleteBlock, moveBlock, presetDirty, toggleBlock } from "./session";
+import { addBlock, deleteBlock, moveBlock, patchBlock, presetDirty, toggleBlock } from "./session";
 import s from "./preset.module.css";
 
 export interface PresetEditorViewProps {
@@ -48,9 +49,19 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const [writeFor, setWriteForState] = useState<PresetWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
+  const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() => new Set());
 
   const dirty = presetDirty(body, baseline);
   const weight = useMemo(() => presetWeight(body), [body]);
+  const stops = useMemo(() => placementsForProfile(writeFor), [writeFor]);
+
+  const toggleExpand = (id: string): void =>
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const setWriteFor = (p: PresetWriteForProfile): void => {
     setWriteForState(p);
@@ -118,9 +129,13 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
       <div className={s.body}>
         <BlockList
           blocks={body.prompts}
+          expandedIds={expandedIds}
+          stops={stops}
+          onExpand={toggleExpand}
           onToggle={(id) => setBody((b) => toggleBlock(b, id))}
           onDelete={(id) => setBody((b) => deleteBlock(b, id))}
           onMove={(id, toIndex) => setBody((b) => moveBlock(b, id, toIndex))}
+          onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
           onAdd={() => setBody((b) => addBlock(b))}
         />
       </div>

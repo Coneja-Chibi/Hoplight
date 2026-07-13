@@ -21,6 +21,8 @@ export interface BlockRowProps {
   index: number;
   first: boolean;
   last: boolean;
+  expanded: boolean;
+  onExpand: () => void;
   onToggle: () => void;
   onDelete: () => void;
   onMove: (dir: -1 | 1) => void;
@@ -31,6 +33,8 @@ export function BlockRow({
   index,
   first,
   last,
+  expanded,
+  onExpand,
   onToggle,
   onDelete,
   onMove,
@@ -49,9 +53,16 @@ export function BlockRow({
       <span className={inChat ? `${s.ord} ${s.ordAt}` : s.ord}>
         {inChat ? `@${block.injectionDepth}` : String(index + 1).padStart(2, "0")}
       </span>
-      <span className={s.ptitle} title={block.name}>
+      <button
+        type="button"
+        className={s.ptitle}
+        title="Edit this block"
+        aria-expanded={expanded}
+        onClick={onExpand}
+      >
+        <span className={s.caret}>{expanded ? "▾" : "▸"}</span>
         {block.name || "Untitled block"}
-      </span>
+      </button>
       {block.marker ? (
         <span className={s.mk}>marker</span>
       ) : (

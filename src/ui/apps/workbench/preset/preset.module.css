@@ -89,10 +89,27 @@
   font: 700 0.9rem var(--font-body);
   color: var(--stage-card);
   flex: none;
-  max-width: 16rem;
+  max-width: 18rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.ptitle:hover {
+  color: var(--a, var(--stage-macro));
+}
+
+.caret {
+  color: var(--stage-mute);
+  font-size: 0.7rem;
+  flex: none;
 }
 
 .role {
@@ -175,4 +192,89 @@
 .addBlock:hover {
   border-color: var(--a, var(--stage-macro));
   color: var(--a, var(--stage-macro));
+}
+
+/* ---------- block expansion: the ONE editing place ---------- */
+
+.exp {
+  border: 2px solid var(--a, var(--stage-macro));
+  border-top: 0;
+  background: var(--stage-panel);
+  padding: 0.8rem 0.85rem;
+  margin-top: -0.35rem;
+}
+
+.expMeta {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 0.6rem;
+}
+
+.expName {
+  flex: 1;
+  min-width: 11rem;
+}
+
+.expDepth,
+.expOrder {
+  width: 5rem;
+}
+
+.placeRail {
+  display: inline-flex;
+  border: 1px solid var(--stage-seam);
+}
+
+.placePill {
+  font: 700 0.58rem var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.34rem 0.5rem;
+  color: var(--stage-mute);
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--stage-seam);
+  cursor: pointer;
+}
+
+.placePill:last-child {
+  border-right: 0;
+}
+
+.placeOn {
+  background: var(--a, var(--stage-macro));
+  color: var(--stage-ink, var(--stage-floor));
+}
+
+.placeForeign {
+  border: 1px dashed var(--stage-warn);
+  color: var(--stage-warn);
+  background: none;
+}
+
+.expContent {
+  min-height: 8rem;
+}
+
+.expFoot {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.5rem;
+  font: 600 0.64rem var(--font-mono);
+  color: var(--stage-kicker);
+}
+
+.expDelete {
+  margin-left: auto;
+  font: 700 0.62rem var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-danger, var(--stage-warn));
+  background: none;
+  color: var(--stage-danger, var(--stage-warn));
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
 }

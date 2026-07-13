@@ -21,8 +21,9 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoCard | src/ui/components/bento-card/index.tsx | ({ title, icon, aff, filled, off, offMode = "dim", missing, onMove, children }: BentoCardProps) | One card of the editor bento. Folds from its chevron; lens states per vs-editor-2. | .card .off .head .mark .title .aff .dot .full ... |
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
-| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, onToggle, onDelete, onMove, onAdd }: BlockListProps) |  |  |
-| BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, first, last, onToggle, onDelete, onMove, }: BlockRowProps) |  |  |
+| BlockExpansion | src/ui/apps/workbench/preset/block-expansion.tsx | ({ block, stops, onPatch, onDelete }: BlockExpansionProps) |  |  |
+| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, expandedIds, stops, onExpand, onToggle, onDelete, onMove, onPatch, onAdd, }: BlockListProps) |  |  |
+| BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, first, last, expanded, onExpand, onToggle, onDelete, onMove, }: BlockRowProps) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
