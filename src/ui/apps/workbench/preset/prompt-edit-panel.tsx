@@ -18,13 +18,21 @@ export interface PromptEditPanelProps {
   block: PresetPrompt | null;
   /** placement stops the active Write-for lens carries (placementsForProfile) */
   stops: readonly string[];
+  onClose: () => void;
   onPatch: (patch: Partial<PresetPrompt>) => void;
 }
 
-export function PromptEditPanel({ block, stops, onPatch }: PromptEditPanelProps): JSX.Element {
+export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPanelProps): JSX.Element {
   return (
     <aside className={s.sidebar} aria-label="Edit prompt">
-      <div className={s.sideHead}>Edit Prompt</div>
+      <div className={s.sideHead}>
+        <span className={s.sideHeadTitle}>{block ? block.name || "Untitled block" : "Edit Prompt"}</span>
+        {block && (
+          <button type="button" className={s.sideClose} aria-label="Close editor" onClick={onClose}>
+            &#215;
+          </button>
+        )}
+      </div>
       {block === null ? (
         <div className={s.sideEmpty}>
           <p className={s.sideEmptyTitle}>No prompt selected</p>

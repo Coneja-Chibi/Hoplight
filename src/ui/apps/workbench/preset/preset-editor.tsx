@@ -51,6 +51,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [selectedChecks, setSelectedChecks] = useState<ReadonlySet<string>>(() => new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const dirty = presetDirty(body, baseline);
@@ -58,15 +59,15 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const stops = useMemo(() => placementsForProfile(writeFor), [writeFor]);
   const selectedBlock = body.prompts.find((p) => p.id === selectedId) ?? null;
 
-  const toggleExpand = (id: string): void =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const flip = (set: ReadonlySet<string>, id: string): Set<string> => {
+    const next = new Set(set);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    return next;
+  };
 
-  const selectBlock = (id: string): void => setSelectedId((cur) => (cur === id ? null : id));
+  const toggleExpand = (id: string): void => setExpandedIds((prev) => flip(prev, id));
+  const toggleCheck = (id: string): void => setSelectedChecks((prev) => flip(prev, id));
 
   const removeBlock = (id: string): void => {
     setBody((b) => deleteBlock(b, id));
@@ -141,12 +142,14 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
           <BlockList
             blocks={body.prompts}
             selectedId={selectedId}
+            selectedChecks={selectedChecks}
             expandedIds={expandedIds}
-            onSelect={selectBlock}
-            onExpand={toggleExpand}
+            onSelectRow={setSelectedId}
+            onToggleCheck={toggleCheck}
+            onToggleExpand={toggleExpand}
             onToggle={(id) => setBody((b) => toggleBlock(b, id))}
             onDelete={removeBlock}
-            onMove={(id, toIndex) => setBody((b) => moveBlock(b, id, toIndex))}
+            onReorder={(fromId, toIndex) => setBody((b) => moveBlock(b, fromId, toIndex))}
             onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
             onAdd={() => setBody((b) => addBlock(b))}
           />
@@ -154,6 +157,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
         <PromptEditPanel
           block={selectedBlock}
           stops={stops}
+          onClose={() => setSelectedId(null)}
           onPatch={(patch) => {
             if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
           }}
