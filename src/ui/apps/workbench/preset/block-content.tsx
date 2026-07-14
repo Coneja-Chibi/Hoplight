@@ -6,7 +6,6 @@
 import type { JSX } from "react";
 import type { PresetPrompt } from "../../../../entities/preset";
 import { blockTokens } from "../../../../core/preset";
-import es from "../editor-styles";
 import s from "./preset.module.css";
 
 export interface BlockContentProps {
@@ -18,7 +17,7 @@ export function BlockContent({ block, onPatch }: BlockContentProps): JSX.Element
   return (
     <div className={s.content}>
       <textarea
-        className={`${es.in} ${es.ta} ${s.contentTa}`}
+        className={`${s.field} ${s.ta} ${s.contentTa}`}
         value={block.content}
         placeholder="Block content. Macros like {{getvar::X}} stay literal - a runtime resolves them."
         aria-label="Block content"

@@ -1,23 +1,26 @@
 /**
- * Preset editor styles (a faithful transcription of RC's preset editor, in vaud's language:
- * two-column prompt list + right EDIT PROMPT sidebar, RC's split model). Token-only (the
- * no-hardcode-colors guard); legibility at reading scale. The sidebar collapses by PANE width at
- * the file end (the fluid-container law).
+ * Preset editor - shell + list + shared fields (RC-neo, in vaud's language). The prompt ROW lives in
+ * row.module.css and the EDIT PROMPT sidebar in sidebar.module.css (split for the 500-line cap).
+ * NEOBRUTALIST per RC's rc-preset-editor-neo: the darkest canvas = vaud stage; accent = violet
+ * (--pa = --stage-macro, RC's own violet); hard-neo fields (2px black border + offset shadow). Chi's
+ * "RC look here only" ruling - this editor deliberately reads like RC, unlike vaud's other editors.
  */
 
 .root {
+  --pa: var(--stage-macro);
   container-type: inline-size;
   display: flex;
   flex-direction: column;
   height: 100%;
   min-height: 0;
-  background: var(--stage-floor);
+  background: var(--stage);
+  color: var(--stage-card);
 }
 
 /* two-column body: prompt list (left) + EDIT PROMPT sidebar (right) */
 .body {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 22rem;
+  grid-template-columns: minmax(0, 1fr) 23rem;
   min-height: 0;
   flex: 1;
   overflow: hidden;
@@ -26,279 +29,42 @@
 .listCol {
   min-height: 0;
   overflow-y: auto;
-  padding: 0.9rem 1rem 1.3rem;
+  padding: 1rem;
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.4rem;
 }
 
 .empty {
-  border: 2px dashed var(--stage-seam);
+  border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);
   color: var(--stage-mute);
-  font: 500 0.82rem var(--font-body);
-  padding: 1.2rem;
+  font: 500 0.85rem var(--font-body);
+  padding: 1.4rem;
   text-align: center;
-}
-
-/* ---------- block row (RC PromptItemV4) ---------- */
-
-.rowWrap {
-  border-radius: 2px;
-}
-
-.rowWrapOpen {
-  border: 1px solid var(--a, var(--stage-macro));
-  background: var(--stage-panel);
-}
-
-.prow {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.5rem 0.7rem;
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-row);
-  cursor: pointer;
-}
-
-.prow:hover {
-  border-color: var(--stage-line, var(--stage-seam));
-}
-
-.prowActive {
-  border-color: var(--a, var(--stage-macro));
-}
-
-.prowSel {
-  box-shadow: inset 0 0 0 1px var(--a, var(--stage-macro));
-}
-
-.prowOff {
-  opacity: 0.4;
-}
-
-.rowWrapOpen .prow {
-  border-color: transparent;
-  background: none;
-}
-
-.chev {
-  border: 0;
-  background: none;
-  color: var(--stage-mute);
-  font-size: 1rem;
-  line-height: 1;
-  padding: 0;
-  cursor: pointer;
-  flex: none;
-  width: 1.1rem;
-  display: grid;
-  place-items: center;
-  transition: transform 0.15s ease;
-}
-
-.chevOpen {
-  transform: rotate(90deg);
-}
-
-.check {
-  width: 1.1rem;
-  height: 1.1rem;
-  border: 1px solid var(--stage-seam);
-  background: none;
-  color: var(--a, var(--stage-macro));
-  font-size: 0.7rem;
-  line-height: 1;
-  cursor: pointer;
-  flex: none;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-}
-
-.prow:hover .check {
-  opacity: 1;
-}
-
-.checkOn {
-  opacity: 1;
-  border-color: var(--a, var(--stage-macro));
-}
-
-.grip {
-  color: var(--stage-kicker);
-  cursor: grab;
-  flex: none;
-  font-size: 0.85rem;
-  line-height: 1;
-  opacity: 0;
-}
-
-.prow:hover .grip {
-  opacity: 1;
-}
-
-.grip:active {
-  cursor: grabbing;
-}
-
-.ord {
-  min-width: 2rem;
-  height: 1.6rem;
-  display: grid;
-  place-items: center;
-  padding: 0 0.35rem;
-  font: 700 0.6rem var(--font-mono);
-  border: 1px solid var(--stage-seam);
-  color: var(--stage-kicker);
-  flex: none;
-}
-
-.ordAt {
-  color: var(--a, var(--stage-macro));
-  border-color: var(--a, var(--stage-macro));
-}
-
-.main {
-  flex: 1;
-  min-width: 0;
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-}
-
-.ptitle {
-  font: 600 0.84rem var(--font-body);
-  color: var(--stage-card);
-}
-
-.prowOff .ptitle {
-  color: var(--stage-mute);
-}
-
-.role {
-  font: 700 0.48rem var(--font-mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding: 0.08rem 0.32rem;
-  border: 1px solid currentColor;
-  flex: none;
-}
-
-.rSys {
-  color: var(--stage-macro);
-}
-
-.rUsr {
-  color: var(--stage-ok);
-}
-
-.rAst {
-  color: var(--stage-warn);
-}
-
-.mk {
-  font: 700 0.48rem var(--font-mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  border: 1px dashed var(--a, var(--stage-macro));
-  color: var(--a, var(--stage-macro));
-  padding: 0.08rem 0.32rem;
-  flex: none;
-}
-
-.depthBadge {
-  font: 500 0.5rem var(--font-mono);
-  letter-spacing: 0.03em;
-  color: var(--a, var(--stage-macro));
-  border: 1px solid var(--a, var(--stage-macro));
-  padding: 0.08rem 0.32rem;
-  flex: none;
-}
-
-.prev {
-  margin: 0.12rem 0 0;
-  font: 400 0.72rem var(--font-body);
-  color: var(--stage-mute);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tok {
-  font: 500 0.62rem var(--font-mono);
-  color: var(--stage-kicker);
-  flex: none;
-}
-
-.toggleWrap {
-  flex: none;
-  display: flex;
-}
-
-/* expanded content area (inside .rowWrapOpen) */
-.expandArea {
-  padding: 0.2rem 0.7rem 0.6rem;
-}
-
-.expandActions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 0.55rem;
-}
-
-.actBtn {
-  font: 600 0.62rem var(--font-mono);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  border: 1px solid var(--stage-seam);
-  background: none;
-  color: var(--stage-soft);
-  padding: 0.3rem 0.55rem;
-  cursor: pointer;
-}
-
-.actBtn:hover {
-  border-color: var(--a, var(--stage-macro));
-  color: var(--a, var(--stage-macro));
-}
-
-.actDanger {
-  color: var(--stage-danger, var(--stage-warn));
-}
-
-.actDanger:hover {
-  border-color: var(--stage-danger, var(--stage-warn));
-  color: var(--stage-danger, var(--stage-warn));
 }
 
 .addBlock {
   margin-top: 0.5rem;
-  border: 2px dashed var(--stage-line, var(--stage-seam));
+  border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);
   background: none;
   color: var(--stage-soft);
   font: 700 0.7rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0.5rem;
+  padding: 0.55rem 0.8rem;
   cursor: pointer;
   align-self: flex-start;
 }
 
 .addBlock:hover {
-  border-color: var(--a, var(--stage-macro));
-  color: var(--a, var(--stage-macro));
+  border-color: var(--pa);
+  color: var(--pa);
 }
 
-/* ---------- inline content (BlockContent) ---------- */
+/* ---------- inline content ---------- */
 
 .content {
   display: flex;
@@ -306,140 +72,49 @@
 }
 
 .contentTa {
-  min-height: 7rem;
+  min-height: 8rem;
 }
 
 .contentFoot {
-  margin-top: 0.4rem;
+  margin-top: 0.45rem;
   font: 600 0.62rem var(--font-mono);
   color: var(--stage-kicker);
 }
 
-/* ---------- right sidebar: EDIT PROMPT ---------- */
+/* ---------- preset fields (hard-neo; the shared es.in is vaud's, not RC's) ---------- */
 
-.sidebar {
-  border-left: 2px solid var(--stage-seam);
-  background: var(--stage-panel);
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.sideHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.6rem 0.8rem;
-  border-bottom: 2px solid var(--stage-seam);
-  flex: none;
-}
-
-.sideHeadTitle {
-  font: 700 0.8rem var(--font-body);
+.field {
+  width: 100%;
+  background: var(--stage-sunken, var(--stage-row));
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
   color: var(--stage-card);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font: 500 0.8rem var(--font-body);
+  padding: 0.4rem 0.55rem;
 }
 
-.sideClose {
-  border: 1px solid var(--stage-seam);
-  background: none;
-  color: var(--stage-mute);
-  font-size: 0.9rem;
-  line-height: 1;
-  padding: 0.1rem 0.35rem;
-  cursor: pointer;
-  flex: none;
+.field:focus {
+  outline: none;
+  border-color: var(--pa);
 }
 
-.sideClose:hover {
-  border-color: var(--a, var(--stage-macro));
-  color: var(--a, var(--stage-macro));
-}
-
-.sideEmpty {
-  padding: 1.6rem 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  text-align: center;
-}
-
-.sideEmptyTitle {
-  font: 700 0.9rem var(--font-body);
-  color: var(--stage-soft);
-  margin: 0;
-}
-
-.sideEmptyHint {
-  font: 500 0.68rem var(--font-mono);
-  color: var(--stage-kicker);
-  margin: 0;
+.ta {
+  min-height: 5rem;
   line-height: 1.5;
+  resize: vertical;
 }
 
-.sideBody {
-  padding: 0.8rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.65rem;
-}
-
-.sideRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
-}
-
-.sideHintLine {
+.sfield {
   display: block;
-  margin-top: 0.2rem;
-  font: 500 0.58rem var(--font-mono);
-  color: var(--stage-kicker);
 }
 
-.sideAdvanced {
-  border-top: 1px solid var(--stage-seam);
-  padding-top: 0.6rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.sideAdvancedLabel {
-  font: 700 0.58rem var(--font-mono);
+.flabel {
+  display: block;
+  font: 700 0.58rem var(--font-big);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-kicker);
-}
-
-.sideCheck {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font: 600 0.74rem var(--font-body);
-  color: var(--stage-soft);
-  cursor: pointer;
-}
-
-.sideMarker {
-  font: 500 0.64rem var(--font-mono);
-  color: var(--a, var(--stage-macro));
-  margin: 0.2rem 0 0;
-  line-height: 1.5;
-}
-
-.sideContentNote {
-  border-top: 1px solid var(--stage-seam);
-  padding-top: 0.6rem;
-  margin: 0.2rem 0 0;
-  font: 500 0.62rem var(--font-mono);
-  font-style: italic;
-  color: var(--stage-kicker);
-  line-height: 1.5;
+  margin-bottom: 0.3rem;
 }
 
 /* ---------- collapse the sidebar by PANE width (fluid-container law) ---------- */
@@ -451,11 +126,6 @@
     overflow-y: auto;
   }
   .listCol {
-    overflow: visible;
-  }
-  .sidebar {
-    border-left: 0;
-    border-top: 2px solid var(--stage-seam);
     overflow: visible;
   }
 }

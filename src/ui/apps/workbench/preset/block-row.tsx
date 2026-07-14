@@ -12,7 +12,7 @@ import type { PresetPrompt } from "../../../../entities/preset";
 import { blockTokens } from "../../../../core/preset";
 import { ToggleSwitch } from "../../../components/toggle-switch";
 import { BlockContent } from "./block-content";
-import s from "./preset.module.css";
+import s from "./row.module.css";
 
 /** RC's order badge: END/TOP for the preset pins, &@depth for append-glue, @depth for in-chat. */
 function orderBadge(block: PresetPrompt, index: number): string {
@@ -63,7 +63,7 @@ export function BlockRow({
   const tokens = block.marker ? 0 : blockTokens(block);
   const tokenDisplay = tokens >= 1000 ? `${(tokens / 1000).toFixed(1)}k` : String(tokens);
 
-  const wrapCls = [s.rowWrap, expanded ? s.rowWrapOpen : ""].filter(Boolean).join(" ");
+  const wrapCls = expanded ? s.rowWrapOpen : "";
   const rowCls = [
     s.prow,
     block.enabled ? "" : s.prowOff,

@@ -1,0 +1,247 @@
+/**
+ * Preset editor - the prompt ROW (a faithful transcription of RC's PromptItemV4, neobrutalist).
+ * Split from preset.module.css for the 500-line cap. SUBTLE rows (low white-overlay fills via
+ * color-mix, near-transparent borders) with the accent (--pa, set on .root) for active/selected/
+ * expanded. Hard-neo action buttons with the translate press.
+ */
+
+.rowWrapOpen {
+  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pa) 28%, transparent);
+}
+
+.prow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0.75rem;
+  background: color-mix(in srgb, var(--stage-card) 2%, transparent);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease;
+}
+
+.prow:hover {
+  background: color-mix(in srgb, var(--stage-card) 5%, transparent);
+  border-color: color-mix(in srgb, var(--stage-card) 9%, transparent);
+}
+
+.prowActive {
+  background: color-mix(in srgb, var(--pa) 12%, transparent);
+  border-color: color-mix(in srgb, var(--pa) 35%, transparent);
+}
+
+.prowSel {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--pa) 60%, transparent);
+}
+
+.prowOff {
+  opacity: 0.4;
+}
+
+.rowWrapOpen .prow {
+  background: none;
+  border-color: transparent;
+}
+
+.chev {
+  border: 0;
+  background: none;
+  color: var(--stage-mute);
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 1.2rem;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: none;
+  transition: transform 0.15s ease, color 0.1s ease;
+}
+
+.chev:hover {
+  color: var(--stage-card);
+}
+
+.chevOpen {
+  transform: rotate(90deg);
+}
+
+.check {
+  width: 1.15rem;
+  height: 1.15rem;
+  border: 1px solid color-mix(in srgb, var(--stage-card) 14%, transparent);
+  background: none;
+  color: var(--pa);
+  font-size: 0.75rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: none;
+  opacity: 0;
+}
+
+.prow:hover .check {
+  opacity: 1;
+}
+
+.checkOn {
+  opacity: 1;
+  border-color: var(--pa);
+}
+
+.grip {
+  color: var(--stage-kicker);
+  cursor: grab;
+  flex: none;
+  font-size: 0.9rem;
+  line-height: 1;
+  opacity: 0;
+}
+
+.prow:hover .grip {
+  opacity: 1;
+}
+
+.grip:active {
+  cursor: grabbing;
+}
+
+.ord {
+  min-width: 2.1rem;
+  height: 1.75rem;
+  display: grid;
+  place-items: center;
+  padding: 0 0.4rem;
+  font: 800 0.72rem var(--font-big);
+  letter-spacing: 0.03em;
+  background: color-mix(in srgb, var(--pa) 15%, transparent);
+  color: var(--pa);
+  flex: none;
+}
+
+.ordAt {
+  background: color-mix(in srgb, var(--pa) 20%, transparent);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.ptitle {
+  font: 600 0.88rem var(--font-big);
+  letter-spacing: 0.01em;
+  color: var(--stage-card);
+}
+
+.prowOff .ptitle {
+  color: var(--stage-mute);
+}
+
+.role {
+  font: 800 0.5rem var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.12rem 0.38rem;
+  flex: none;
+}
+
+.rSys {
+  color: var(--stage-macro);
+  background: color-mix(in srgb, var(--stage-macro) 16%, transparent);
+}
+
+.rUsr {
+  color: var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 16%, transparent);
+}
+
+.rAst {
+  color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 16%, transparent);
+}
+
+.mk {
+  font: 800 0.5rem var(--font-mono);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 16%, transparent);
+  padding: 0.12rem 0.38rem;
+  flex: none;
+}
+
+.depthBadge {
+  font: 600 0.52rem var(--font-mono);
+  color: var(--pa);
+  background: color-mix(in srgb, var(--pa) 14%, transparent);
+  padding: 0.12rem 0.38rem;
+  flex: none;
+}
+
+.prev {
+  margin: 0.12rem 0 0;
+  font: 400 0.78rem var(--font-body);
+  color: var(--stage-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tok {
+  font: 600 0.62rem var(--font-mono);
+  color: var(--stage-kicker);
+  flex: none;
+}
+
+.toggleWrap {
+  flex: none;
+  display: flex;
+}
+
+.expandArea {
+  padding: 0.3rem 0.8rem 0.75rem;
+}
+
+.expandActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.6rem;
+}
+
+.actBtn {
+  font: 700 0.6rem var(--font-mono);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, color 0.1s ease;
+}
+
+.actBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  color: var(--stage-card);
+}
+
+.actBtn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.actDanger {
+  color: var(--stage-danger, var(--stage-warn));
+}

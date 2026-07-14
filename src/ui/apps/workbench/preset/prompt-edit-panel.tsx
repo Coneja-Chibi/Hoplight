@@ -1,15 +1,16 @@
 /**
- * PromptEditPanel - the right EDIT PROMPT sidebar (a 1-1 port of RC's PromptEditPanelV4). Edits the
- * SELECTED block's METADATA - name, role, injection order, placement (per-lens stops - the
- * position-picker law), injection depth (when at-depth), and the advanced flags. Content is edited
- * INLINE in the list (RC's split model), so this panel says so. Empty state when nothing is selected.
- * Edits apply live via onPatch; the ehead Save persists.
+ * PromptEditPanel - the right EDIT PROMPT sidebar (a faithful transcription of RC's
+ * PromptEditPanelV4). Edits the SELECTED block's METADATA: name, role, a token-count card, injection
+ * order (+ hint), placement (per-lens select with descriptions - the position-picker law), injection
+ * depth (when at-depth), a content-preview notice, and the Advanced flags (system prompt / forbid
+ * overrides) + marker card. Content is edited INLINE in the list (RC's split), so this says so.
+ * Edits apply live via onPatch; the ehead Save persists. Empty state when nothing is selected.
  */
 import type { JSX } from "react";
 import type { PresetPrompt, PromptRole } from "../../../../entities/preset";
 import { blockTokens, PRESET_PLACEMENT_LABELS } from "../../../../core/preset";
-import es from "../editor-styles";
-import s from "./preset.module.css";
+import s from "./sidebar.module.css";
+import f from "./preset.module.css";
 
 const ROLES: readonly PromptRole[] = ["system", "user", "assistant"];
 const DEPTH_PLACEMENTS = new Set(["in_chat", "append"]);
@@ -33,6 +34,7 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
           </button>
         )}
       </div>
+
       {block === null ? (
         <div className={s.sideEmpty}>
           <p className={s.sideEmptyTitle}>No prompt selected</p>
@@ -40,22 +42,21 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
         </div>
       ) : (
         <div className={s.sideBody}>
-          <label className={es.bfield}>
-            <span className={es.blabel}>Name</span>
-            <input
-              className={es.in}
-              value={block.name}
-              placeholder="Block name"
-              aria-label="Block name"
-              onChange={(e) => onPatch({ name: e.target.value })}
-            />
-          </label>
-
           <div className={s.sideRow}>
-            <label className={es.bfield}>
-              <span className={es.blabel}>Role</span>
+            <label className={f.sfield}>
+              <span className={f.flabel}>Name</span>
+              <input
+                className={f.field}
+                value={block.name}
+                placeholder="Block name"
+                aria-label="Block name"
+                onChange={(e) => onPatch({ name: e.target.value })}
+              />
+            </label>
+            <label className={f.sfield}>
+              <span className={f.flabel}>Role</span>
               <select
-                className={es.in}
+                className={f.field}
                 value={block.role}
                 aria-label="Block role"
                 onChange={(e) => onPatch({ role: e.target.value as PromptRole })}
@@ -67,28 +68,29 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
                 ))}
               </select>
             </label>
-            <label className={es.bfield}>
-              <span className={es.blabel}>Token count</span>
-              <input className={es.in} value={block.marker ? "slot" : `~${blockTokens(block)}`} readOnly aria-label="Token count" />
-            </label>
           </div>
 
-          <label className={es.bfield}>
-            <span className={es.blabel}>Injection order</span>
+          <div className={s.tokenCard}>
+            <span className={s.tokenCardLabel}>Token count</span>
+            <span className={s.tokenCardVal}>{block.marker ? "slot" : blockTokens(block)}</span>
+          </div>
+
+          <label className={f.sfield}>
+            <span className={f.flabel}>Injection order</span>
             <input
-              className={es.in}
+              className={f.field}
               type="number"
               value={block.injectionOrder}
               aria-label="Injection order"
               onChange={(e) => onPatch({ injectionOrder: Number(e.target.value) })}
             />
-            <span className={s.sideHintLine}>Lower values appear first.</span>
+            <span className={s.sideHintLine}>Lower values appear first in context.</span>
           </label>
 
-          <label className={es.bfield}>
-            <span className={es.blabel}>Placement</span>
+          <label className={f.sfield}>
+            <span className={f.flabel}>Placement</span>
             <select
-              className={es.in}
+              className={f.field}
               value={block.placement}
               aria-label="Placement"
               onChange={(e) => onPatch({ placement: e.target.value })}
@@ -108,10 +110,10 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
           </label>
 
           {DEPTH_PLACEMENTS.has(block.placement) && (
-            <label className={es.bfield}>
-              <span className={es.blabel}>Injection depth</span>
+            <label className={f.sfield}>
+              <span className={f.flabel}>Injection depth</span>
               <input
-                className={es.in}
+                className={f.field}
                 type="number"
                 min={0}
                 value={block.injectionDepth}
@@ -121,32 +123,34 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
             </label>
           )}
 
+          <p className={s.sideContentNote}>
+            Edit this block's content inline — click its expand arrow in the list.
+          </p>
+
           <div className={s.sideAdvanced}>
             <span className={s.sideAdvancedLabel}>Advanced</span>
             <label className={s.sideCheck}>
+              System prompt
               <input
                 type="checkbox"
                 checked={block.systemPrompt}
                 onChange={(e) => onPatch({ systemPrompt: e.target.checked })}
               />
-              System prompt
             </label>
             <label className={s.sideCheck}>
+              Forbid overrides
               <input
                 type="checkbox"
                 checked={block.forbidOverrides}
                 onChange={(e) => onPatch({ forbidOverrides: e.target.checked })}
               />
-              Forbid overrides
             </label>
             {block.marker && (
               <p className={s.sideMarker}>
-                Marker slot: <b>{block.markerSlot ?? "unset"}</b> · its content splices in at build.
+                Marker slot: {block.markerSlot ?? "unset"} · its content splices in at build.
               </p>
             )}
           </div>
-
-          <p className={s.sideContentNote}>Edit this block's content inline — click its expand arrow in the list.</p>
         </div>
       )}
     </aside>

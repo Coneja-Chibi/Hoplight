@@ -1,0 +1,177 @@
+/**
+ * Preset editor - the EDIT PROMPT sidebar (a faithful transcription of RC's PromptEditPanelV4,
+ * neobrutalist). Split from preset.module.css for the 500-line cap. Hard-neo panel (3px black
+ * border), uppercase violet heading, token-count card, bordered Advanced rows. Accent = --pa (.root).
+ */
+
+.sidebar {
+  border-left: 3px solid var(--stage-black);
+  background: var(--stage-panel);
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sideHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 3px solid var(--stage-black);
+  flex: none;
+}
+
+.sideHeadTitle {
+  font: 900 0.82rem var(--font-big);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--pa);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sideClose {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  flex: none;
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.sideClose:hover {
+  transform: translate(-1px, -1px);
+  color: var(--pa);
+}
+
+.sideClose:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.sideEmpty {
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.sideEmptyTitle {
+  font: 900 0.95rem var(--font-big);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  margin: 0;
+}
+
+.sideEmptyHint {
+  font: 500 0.74rem var(--font-body);
+  color: var(--stage-kicker);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sideBody {
+  padding: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sideRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.sideHintLine {
+  display: block;
+  margin-top: 0.25rem;
+  font: 500 0.6rem var(--font-mono);
+  color: var(--stage-kicker);
+}
+
+.tokenCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.65rem;
+  background: color-mix(in srgb, var(--pa) 8%, transparent);
+  border: 2px solid color-mix(in srgb, var(--pa) 24%, transparent);
+}
+
+.tokenCardLabel {
+  font: 700 0.6rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.tokenCardVal {
+  font: 800 1rem var(--font-mono);
+  color: var(--pa);
+}
+
+.sideAdvanced {
+  border-top: 2px solid var(--stage-black);
+  padding-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sideAdvancedLabel {
+  font: 900 0.6rem var(--font-big);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.sideCheck {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font: 600 0.78rem var(--font-body);
+  color: var(--stage-soft);
+  cursor: pointer;
+  border: 2px solid color-mix(in srgb, var(--stage-card) 8%, transparent);
+  background: color-mix(in srgb, var(--stage-card) 2%, transparent);
+  padding: 0.4rem 0.55rem;
+}
+
+.sideMarker {
+  border: 2px solid color-mix(in srgb, var(--stage-warn) 25%, transparent);
+  background: color-mix(in srgb, var(--stage-warn) 8%, transparent);
+  padding: 0.5rem 0.6rem;
+  font: 500 0.66rem var(--font-mono);
+  color: var(--stage-warn);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sideContentNote {
+  padding: 0.5rem 0.6rem;
+  background: color-mix(in srgb, var(--pa) 7%, transparent);
+  border: 2px solid color-mix(in srgb, var(--pa) 18%, transparent);
+  font: 500 0.68rem var(--font-body);
+  color: var(--stage-mute);
+  margin: 0;
+  line-height: 1.4;
+}
+
+@container (max-width: 48rem) {
+  .sidebar {
+    border-left: 0;
+    border-top: 3px solid var(--stage-black);
+    overflow: visible;
+  }
+}
