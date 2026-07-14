@@ -168,97 +168,51 @@
   line-height: 1.4;
 }
 
-/* ---------- AVAILABLE MACROS (capability-driven; per Write-for lens) ---------- */
+/* ---------- "?" help dot next to field labels (RC's RichTooltip showHelpButton) ---------- */
 
-.macros {
-  border-top: 2px solid var(--stage-black);
-  padding-top: 0.65rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.macroGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.macroHead {
-  display: flex;
+.help {
+  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  width: 100%;
-  text-align: left;
-  border: 2px solid var(--stage-black);
-  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
-  padding: 0.35rem 0.5rem;
-  cursor: pointer;
+  justify-content: center;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-left: 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--stage-card) 22%, transparent);
+  border-radius: 50%;
+  font: 700 0.55rem var(--font-mono);
+  color: var(--stage-mute);
+  cursor: help;
+  vertical-align: middle;
 }
 
-.macroHead:hover {
+.help:hover {
   border-color: var(--pa);
-}
-
-.macroChev {
-  font-size: 0.8rem;
-  line-height: 1;
   color: var(--pa);
-  transition: transform 0.12s ease;
 }
 
-.macroChev[data-open] {
-  transform: rotate(90deg);
+/* ---------- placement conditional hint (append / append-preset / prepend-preset) ---------- */
+
+.sideHint {
+  margin: 0.35rem 0 0;
+  font: 500 0.6rem var(--font-body);
+  color: var(--stage-kicker);
+  line-height: 1.45;
 }
 
-.macroName {
-  flex: 1;
-  font: 800 0.68rem var(--font-big);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--stage-soft);
+/* ---------- injection depth accent card (RC wraps depth when in-chat) ---------- */
+
+.sideDepthCard {
+  padding: 0.5rem 0.6rem;
+  background: color-mix(in srgb, var(--pa) 7%, transparent);
+  border: 2px solid color-mix(in srgb, var(--pa) 18%, transparent);
 }
 
-.macroCount {
-  font: 800 0.6rem var(--font-mono);
-  color: var(--pa);
-  background: color-mix(in srgb, var(--pa) 12%, transparent);
-  border: 1px solid color-mix(in srgb, var(--pa) 28%, transparent);
-  padding: 0.05rem 0.35rem;
-}
+/* ---------- content notice char/token line ---------- */
 
-.macroList {
-  list-style: none;
-  margin: 0.25rem 0 0.15rem;
-  padding: 0 0 0 0.4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.macroItem {
-  display: flex;
-  flex-direction: column;
-  gap: 0.05rem;
-  width: 100%;
-  text-align: left;
-  border: 0;
-  background: none;
-  padding: 0.28rem 0.4rem;
-  cursor: pointer;
-}
-
-.macroItem:hover {
-  background: color-mix(in srgb, var(--pa) 8%, transparent);
-}
-
-.macroCode {
-  font: 600 0.68rem var(--font-mono);
-  color: var(--pa);
-  word-break: break-all;
-}
-
-.macroDesc {
-  font: 500 0.62rem var(--font-body);
+.sideContentCount {
+  display: block;
+  margin-top: 0.3rem;
+  font: 500 0.6rem var(--font-mono);
   color: var(--stage-kicker);
 }
 

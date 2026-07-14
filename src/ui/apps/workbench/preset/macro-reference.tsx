@@ -1,14 +1,52 @@
 /**
- * MacroReference - the AVAILABLE MACROS section of the EDIT PROMPT sidebar (transcribed from RC's
- * MacroReferenceDropdown). Collapsible groups; each head shows its macro count; a macro row copies
- * its token to the clipboard on click (content is edited inline, so copy-then-paste is the flow).
- * Which GROUPS appear is capability-driven: the caller passes the groups the selected Write-for lens
- * supports (macroGroupsForProfile), so RC/Vaude show the whole engine while SillyTavern/Marinara
- * show only what they can run. This is the "different options per app" the fixed RC panel can't do.
+ * MacroReference - the AVAILABLE MACROS section of the EDIT PROMPT sidebar (a faithful port of RC's
+ * MacroReferenceDropdown): a "Click to copy" header, bordered collapsible group boxes (icon + name +
+ * count + chevron), and, when expanded, the group description over a wrapping grid of macro pills.
+ * Clicking a pill copies its token (green "Copied" state, then reverts). Which GROUPS appear is
+ * capability-driven: the caller passes the groups the selected Write-for lens supports
+ * (macroGroupsForProfile), so RC/Vaude show the whole engine while SillyTavern/Marinara show only
+ * what they can run - the "different options per app" the fixed RC panel can't do.
  */
-import { useState, type JSX } from "react";
+import { useState, type ComponentType, type JSX } from "react";
+import {
+  BookOpen,
+  Braces,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  Dices,
+  GitBranch,
+  Hash,
+  IdCard,
+  MessageSquare,
+  Settings,
+  Swords,
+  Type,
+  User,
+  Users,
+  Variable,
+} from "lucide-react";
 import type { MacroGroup } from "../../../../core/preset";
-import s from "./sidebar.module.css";
+import s from "./macro.module.css";
+
+type IconCmp = ComponentType<{ size?: number | string; className?: string }>;
+
+const GROUP_ICONS: Record<string, IconCmp> = {
+  Identity: User,
+  "Character Card": IdCard,
+  "Chat Context": MessageSquare,
+  "Time & Date": Clock,
+  Variables: Variable,
+  "Advanced Syntax": Braces,
+  "Random & Dice": Dices,
+  "Text Processing": Type,
+  Conditionals: GitBranch,
+  Pronouns: Users,
+  "Runtime & Stats": Settings,
+  "Roleplay & Game": Swords,
+  Lorebook: BookOpen,
+};
 
 export interface MacroReferenceProps {
   groups: MacroGroup[];
@@ -33,43 +71,58 @@ export function MacroReference({ groups }: MacroReferenceProps): JSX.Element {
 
   return (
     <div className={s.macros}>
-      <span className={s.sideAdvancedLabel}>Available macros</span>
-      {groups.map((g) => {
-        const isOpen = open.has(g.name);
-        return (
-          <div key={g.name} className={s.macroGroup}>
-            <button
-              type="button"
-              className={s.macroHead}
-              aria-expanded={isOpen}
-              onClick={() => toggle(g.name)}
-            >
-              <span className={s.macroChev} data-open={isOpen || undefined}>
-                &#8250;
-              </span>
-              <span className={s.macroName}>{g.name}</span>
-              <span className={s.macroCount}>{g.macros.length}</span>
-            </button>
-            {isOpen && (
-              <ul className={s.macroList}>
-                {g.macros.map((m) => (
-                  <li key={m.macro}>
-                    <button
-                      type="button"
-                      className={s.macroItem}
-                      title={m.example ? `${m.description} — e.g. ${m.example}` : m.description}
-                      onClick={() => copy(m.macro)}
-                    >
-                      <code className={s.macroCode}>{m.macro}</code>
-                      <span className={s.macroDesc}>{copied === m.macro ? "copied" : m.description}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        );
-      })}
+      <div className={s.macrosHead}>
+        <span className={s.macrosLabel}>Available macros</span>
+        <span className={s.macrosHint}>Click to copy</span>
+      </div>
+
+      <div className={s.macroScroll}>
+        {groups.map((g) => {
+          const isOpen = open.has(g.name);
+          const Icon = GROUP_ICONS[g.name] ?? Hash;
+          return (
+            <div key={g.name} className={s.macroGroup}>
+              <button type="button" className={s.macroHead} aria-expanded={isOpen} onClick={() => toggle(g.name)}>
+                <span className={s.macroHeadLeft}>
+                  <Icon size={14} className={s.macroIcon} />
+                  <span className={s.macroName}>{g.name}</span>
+                  <span className={s.macroCount}>({g.macros.length})</span>
+                </span>
+                {isOpen ? <ChevronUp size={14} className={s.macroChev} /> : <ChevronDown size={14} className={s.macroChev} />}
+              </button>
+
+              {isOpen && (
+                <div className={s.macroBody}>
+                  <p className={s.macroGroupDesc}>{g.description}</p>
+                  <div className={s.macroPills}>
+                    {g.macros.map((m) => {
+                      const isCopied = copied === m.macro;
+                      return (
+                        <button
+                          key={m.macro}
+                          type="button"
+                          className={`${s.macroPill} ${isCopied ? s.macroPillCopied : ""}`}
+                          title={m.example ? `${m.description}\nExample: ${m.example}` : m.description}
+                          onClick={() => copy(m.macro)}
+                        >
+                          {isCopied ? (
+                            <span className={s.macroPillCopiedInner}>
+                              <Check size={11} />
+                              Copied
+                            </span>
+                          ) : (
+                            m.macro
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -1,0 +1,140 @@
+/**
+ * The AVAILABLE MACROS section (capability-driven, per Write-for lens) - a faithful port of RC's
+ * MacroReferenceDropdown, neobrutalist in vaud's language. Bordered group boxes, wrapping macro
+ * pills (accent-tinted), green "Copied" state. Accent = --pa (inherited from the editor .root).
+ */
+
+.macros {
+  border-top: 2px solid var(--stage-black);
+  padding-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.macrosHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.macrosLabel {
+  font: 900 0.6rem var(--font-big);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.macrosHint {
+  font: 500 0.58rem var(--font-body);
+  color: var(--stage-mute);
+}
+
+.macroScroll {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 22rem;
+  overflow-y: auto;
+  padding-right: 0.15rem;
+}
+
+.macroGroup {
+  border: 2px solid var(--stage-black);
+  overflow: hidden;
+}
+
+.macroHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.macroHead:hover {
+  background: color-mix(in srgb, var(--stage-card) 6%, transparent);
+}
+
+.macroHeadLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.macroIcon {
+  color: color-mix(in srgb, var(--pa) 70%, transparent);
+  flex: none;
+}
+
+.macroName {
+  font: 800 0.68rem var(--font-big);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.macroCount {
+  font: 700 0.58rem var(--font-mono);
+  color: var(--stage-mute);
+  flex: none;
+}
+
+.macroChev {
+  color: var(--stage-kicker);
+  flex: none;
+}
+
+.macroBody {
+  padding: 0.45rem 0.5rem 0.55rem;
+  background: color-mix(in srgb, var(--stage-black) 22%, transparent);
+  border-top: 2px solid var(--stage-black);
+}
+
+.macroGroupDesc {
+  margin: 0 0 0.4rem;
+  font: 500 0.62rem var(--font-body);
+  color: var(--stage-kicker);
+  line-height: 1.4;
+}
+
+.macroPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+.macroPill {
+  font: 600 0.64rem var(--font-mono);
+  color: var(--pa);
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pa) 24%, transparent);
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.macroPill:hover {
+  background: color-mix(in srgb, var(--pa) 20%, transparent);
+}
+
+.macroPillCopied {
+  color: var(--stage-ok);
+  background: color-mix(in srgb, var(--stage-ok) 18%, transparent);
+  border-color: color-mix(in srgb, var(--stage-ok) 34%, transparent);
+}
+
+.macroPillCopiedInner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
