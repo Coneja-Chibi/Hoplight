@@ -157,6 +157,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
         <PromptEditPanel
           block={selectedBlock}
           stops={stops}
+          writeFor={writeFor}
           onClose={() => setSelectedId(null)}
           onPatch={(patch) => {
             if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));

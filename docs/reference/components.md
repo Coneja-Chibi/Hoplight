@@ -83,6 +83,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreSpecialTriggers | src/ui/components/lore-special-triggers/index.tsx | ({ triggers, onChange, advanced = false, }: LoreSpecialTriggersProps) |  | .wrap .trigger .triggerOn .menu .section .note .item .itemLabel ... |
 | LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
+| MacroReference | src/ui/apps/workbench/preset/macro-reference.tsx | ({ groups }: MacroReferenceProps) |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MobileEditorHead | src/ui/components/mobile-editor-head/index.tsx | ({ name, sub, dirty, saving, onBack, onSave, menu }: MobileEditorHeadProps) | Back / name / save / kebab at 2.2rem touch targets; the kebab holds the long tail. | .head .back .name .save .kebabWrap .kebab .menu |
@@ -113,7 +114,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PresetEditorView | src/ui/apps/workbench/preset/preset-editor.tsx | ({ entity, ctx, piece, topRight }: PresetEditorViewProps) |  |  |
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
-| PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, onClose, onPatch }: PromptEditPanelProps) |  |  |
+| PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, onClose, onPatch }: PromptEditPanelProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, ctx, piece, topRight }: RegexSetEditorProps) |  |  |

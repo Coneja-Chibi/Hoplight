@@ -6,9 +6,15 @@
  * overrides) + marker card. Content is edited INLINE in the list (RC's split), so this says so.
  * Edits apply live via onPatch; the ehead Save persists. Empty state when nothing is selected.
  */
-import type { JSX } from "react";
+import { useMemo, type JSX } from "react";
 import type { PresetPrompt, PromptRole } from "../../../../entities/preset";
-import { blockTokens, PRESET_PLACEMENT_LABELS } from "../../../../core/preset";
+import {
+  blockTokens,
+  macroGroupsForProfile,
+  PRESET_PLACEMENT_LABELS,
+  type PresetWriteForProfile,
+} from "../../../../core/preset";
+import { MacroReference } from "./macro-reference";
 import s from "./sidebar.module.css";
 import f from "./preset.module.css";
 
@@ -19,11 +25,14 @@ export interface PromptEditPanelProps {
   block: PresetPrompt | null;
   /** placement stops the active Write-for lens carries (placementsForProfile) */
   stops: readonly string[];
+  /** the selected Write-for lens - drives which macro groups the reference shows */
+  writeFor: PresetWriteForProfile;
   onClose: () => void;
   onPatch: (patch: Partial<PresetPrompt>) => void;
 }
 
-export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPanelProps): JSX.Element {
+export function PromptEditPanel({ block, stops, writeFor, onClose, onPatch }: PromptEditPanelProps): JSX.Element {
+  const macroGroups = useMemo(() => macroGroupsForProfile(writeFor), [writeFor]);
   return (
     <aside className={s.sidebar} aria-label="Edit prompt">
       <div className={s.sideHead}>
@@ -151,6 +160,8 @@ export function PromptEditPanel({ block, stops, onClose, onPatch }: PromptEditPa
               </p>
             )}
           </div>
+
+          <MacroReference groups={macroGroups} />
         </div>
       )}
     </aside>

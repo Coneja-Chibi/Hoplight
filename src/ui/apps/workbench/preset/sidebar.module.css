@@ -168,6 +168,100 @@
   line-height: 1.4;
 }
 
+/* ---------- AVAILABLE MACROS (capability-driven; per Write-for lens) ---------- */
+
+.macros {
+  border-top: 2px solid var(--stage-black);
+  padding-top: 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.macroGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.macroHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  text-align: left;
+  border: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
+  padding: 0.35rem 0.5rem;
+  cursor: pointer;
+}
+
+.macroHead:hover {
+  border-color: var(--pa);
+}
+
+.macroChev {
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--pa);
+  transition: transform 0.12s ease;
+}
+
+.macroChev[data-open] {
+  transform: rotate(90deg);
+}
+
+.macroName {
+  flex: 1;
+  font: 800 0.68rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.macroCount {
+  font: 800 0.6rem var(--font-mono);
+  color: var(--pa);
+  background: color-mix(in srgb, var(--pa) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pa) 28%, transparent);
+  padding: 0.05rem 0.35rem;
+}
+
+.macroList {
+  list-style: none;
+  margin: 0.25rem 0 0.15rem;
+  padding: 0 0 0 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.macroItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 0.28rem 0.4rem;
+  cursor: pointer;
+}
+
+.macroItem:hover {
+  background: color-mix(in srgb, var(--pa) 8%, transparent);
+}
+
+.macroCode {
+  font: 600 0.68rem var(--font-mono);
+  color: var(--pa);
+  word-break: break-all;
+}
+
+.macroDesc {
+  font: 500 0.62rem var(--font-body);
+  color: var(--stage-kicker);
+}
+
 @container (max-width: 48rem) {
   .sidebar {
     border-left: 0;

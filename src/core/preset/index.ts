@@ -20,3 +20,5 @@ export {
 } from "./platform-fields";
 export { blockTokens, buildPreview, markerLabel, MARKER_LABELS, presetWeight } from "./build";
 export type { PresetBuild, PresetBuildLine, PresetWeight } from "./build";
+export { MACRO_GROUPS, MACRO_GROUPS_BY_PROFILE, macroGroupsForProfile } from "./macros";
+export type { MacroEntry, MacroGroup } from "./macros";
