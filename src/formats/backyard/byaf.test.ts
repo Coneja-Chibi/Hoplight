@@ -126,6 +126,36 @@ test("edit background data URI rewrites scenario backgroundImage bytes", () => {
   expect(again.body.presentation?.background?.ref).toContain(pngB64);
 });
 
+test("clearing all images empties character images and deletes the archived files", () => {
+  const ent = adapter.toCanonical({ bytes: sample(1) });
+  expect(ent.body.media.portrait).toBeDefined(); // precondition: imported carrying an avatar
+  // The editor clears media by dropping the keys (writePath deletes on empty), so a full clear
+  // arrives as portrait undefined + no assets. The stale rows and files must not survive.
+  ent.body.media.portrait = undefined;
+  ent.body.media.assets = undefined;
+  const out = adapter.fromCanonical(ent);
+  const files = unzipSync(out.bytes!);
+  const charPath = Object.keys(files).find((k) => k.endsWith("character.json"))!;
+  const ch = JSON.parse(strFromU8(files[charPath]!));
+  expect(Array.isArray(ch.images) ? ch.images : []).toEqual([]);
+  expect(Object.keys(files).filter((k) => k.includes("/images/") && !k.endsWith("/"))).toEqual([]);
+  const again = adapter.toCanonical({ bytes: out.bytes! });
+  expect(again.body.media.portrait).toBeUndefined();
+});
+
+test("clearing the background removes scenario backgroundImage and its file", () => {
+  const ent = adapter.toCanonical({ bytes: sample(2) });
+  expect(ent.body.presentation?.background?.ref).toBeDefined(); // precondition
+  ent.body.presentation = undefined;
+  const out = adapter.fromCanonical(ent);
+  const files = unzipSync(out.bytes!);
+  const scenPath = Object.keys(files).find((k) => k.includes("scenario") && k.endsWith(".json"))!;
+  const sc = JSON.parse(strFromU8(files[scenPath]!));
+  expect(sc.backgroundImage ?? undefined).toBeUndefined();
+  const again = adapter.toCanonical({ bytes: out.bytes! });
+  expect(again.body.presentation?.background).toBeUndefined();
+});
+
 test("unedited multi-scenario round-trip keeps titled alt from secondary scenario", () => {
   const ent = adapter.toCanonical({ bytes: sample(3) });
   const out = adapter.fromCanonical(ent);

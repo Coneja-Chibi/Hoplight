@@ -175,10 +175,23 @@ function applyMediaToArchive(arc: OpenedByaf, b: CharacterBody): void {
   const dir = arc.characterDir;
   const portrait = b.media.portrait;
   const assets = b.media.assets ?? [];
-  if (portrait !== undefined || assets.length > 0) {
+  const prevImages = Array.isArray(ch.images) ? ch.images : [];
+  // A row whose file exists in the archive round-tripped through canonical, so canonical emptiness
+  // there means the user cleared it. Rows pointing at missing files never reached canonical: they are
+  // twin residue, and their absence from canonical says nothing.
+  const resolvableRow = (row: unknown): boolean =>
+    isRec(row) && !!str(row.path) && !!arc.files[`${dir}${str(row.path)}`.replace(/\\/g, "/")];
+  if (portrait === undefined && assets.length === 0) {
+    if (prevImages.some(resolvableRow)) {
+      const prefix = `${dir}images/`;
+      for (const k of Object.keys(arc.files)) {
+        if (k.startsWith(prefix) && !k.endsWith("/")) delete arc.files[k];
+      }
+      ch.images = [];
+    }
+  } else {
     const rows: Rec[] = [];
     const keep = new Set<string>();
-    const prevImages = Array.isArray(ch.images) ? ch.images : [];
 
     const pathForLabel = (label: string, fallbackBase: string, mime: string): string => {
       const want = label.toLowerCase();
@@ -230,6 +243,18 @@ function applyMediaToArchive(arc: OpenedByaf, b: CharacterBody): void {
           : `scenarios/background.${extForMime(parsed.mime)}`;
       arc.files[path] = parsed.bytes;
       primary.backgroundImage = path;
+    }
+  } else if (primary) {
+    // Cleared background. Same round-trip test as images: only a backgroundImage whose file exists
+    // in the archive ever reached canonical, so only that one is the user's to clear. The file goes
+    // too, unless another scenario still points at it.
+    const existing = str(primary.backgroundImage);
+    if (existing && existing.length > 0 && arc.files[existing]) {
+      const sharedElsewhere = arc.scenarios
+        .slice(1)
+        .some((s) => str(s.data.backgroundImage) === existing);
+      if (!sharedElsewhere) delete arc.files[existing];
+      delete primary.backgroundImage;
     }
   }
 }
