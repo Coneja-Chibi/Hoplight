@@ -5,7 +5,8 @@
  * The engine (canonical model + format adapters) gets poured in next.
  */
 
-import { basename, extname } from "node:path";
+import { basename, extname, join } from "node:path";
+import { homedir } from "node:os";
 import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryOriginalRaw } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
@@ -103,7 +104,7 @@ const HELP = `${BANNER}
     validate <file>       Detect + parse; exit 0 if vaud can open it
     label <file>          Guess a card's format and which app it is likely from
     formats               List the formats vaud knows about
-    ui [port] [studio]    Open the visual studio (local only; studio dir defaults to ./studio)
+    ui [port] [studio]    Open the visual studio (local only; studio defaults to Documents/Vaude Studio)
     version               Print the version
     help                  Print this help
 
@@ -219,7 +220,9 @@ async function main(argv: string[]): Promise<number> {
     await loadFormats();
     const { startUi } = await import("./ui/server");
     const port = Number(args[1]) || 8321;
-    const studioDir = args[2] ?? "studio";
+    // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
+    // scattered entities into whatever cwd the command ran from.
+    const studioDir = args[2] ?? join(homedir(), "Documents", "Vaude Studio");
     const { url } = startUi(port, studioDir);
     console.log(`\n  Vaude. is up: ${url}`);
     console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);
