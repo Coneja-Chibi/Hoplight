@@ -12,7 +12,6 @@
     "vaud": "bun run src/cli.ts",
     "dev": "bun run src/cli.ts ui 8321 \"<local>/Vaude Studio\"",
     "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
-    "test:macros": "bun test src/macros --timeout 30000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
     "test:m1": "bun test src/m1.convert.smoke.test.ts src/convert.test.ts --timeout 60000",
     "typecheck": "bunx tsc --noEmit",

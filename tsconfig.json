@@ -12,8 +12,5 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "types": ["bun"]
   },
-  "include": ["src"],
-  // src/macros is retained integration staging (unimported by the app, not a release gate).
-  // Use `bun run test:macros` for inventory; do not fold into typecheck/test until deps+aliases land.
-  "exclude": ["src/macros"]
+  "include": ["src"]
 }

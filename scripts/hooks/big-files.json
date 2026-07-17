@@ -1,8 +1,1 @@
-{
-  "src/macros/processor.test.ts": 1226,
-  "src/macros/processor.ts": 946,
-  "src/macros/handlers/variables.ts": 854,
-  "src/macros/phase1-macros.test.ts": 549,
-  "src/macros/handlers/time.ts": 526,
-  "src/macros/__characterization__/parser-ast.test.ts": 507
-}
+{}
