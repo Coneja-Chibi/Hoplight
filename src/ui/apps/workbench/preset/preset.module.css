@@ -44,6 +44,48 @@
   font: 500 0.85rem var(--font-body);
   padding: 1.4rem;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.emptyTitle {
+  font: 900 0.8rem var(--font-big);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+  margin: 0;
+}
+
+.emptyHint {
+  font: 500 0.7rem var(--font-body);
+  color: var(--stage-kicker);
+  margin: 0;
+  max-width: 26rem;
+  line-height: 1.5;
+}
+
+.emptyAction {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  color: var(--pa);
+  font: 800 0.62rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.emptyAction:hover {
+  transform: translate(-1px, -1px);
+}
+
+.emptyAction:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
 }
 
 .addBlock {

@@ -1,0 +1,213 @@
+/**
+ * The prompt list toolbar + bulk bar (RC-neo, in vaud's language). Ports RC's PromptListV4 header:
+ * search field, stats line, expand/collapse, and the selected filter tab as a filled-accent pill
+ * (RC's rc-neo-selected-button). Accent = --pa, inherited from the editor .root.
+ */
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.7rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- search ---------- */
+
+.searchWrap {
+  position: relative;
+  flex: 1;
+  min-width: 10rem;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.5rem;
+  color: var(--stage-kicker);
+  pointer-events: none;
+}
+
+.search {
+  width: 100%;
+  background: var(--stage-sunken, var(--stage-row));
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  color: var(--stage-card);
+  font: 500 0.78rem var(--font-body);
+  padding: 0.4rem 0.55rem 0.4rem 1.7rem;
+}
+
+.search:focus {
+  outline: none;
+  border-color: var(--pa);
+}
+
+.stats {
+  font: 500 0.62rem var(--font-mono);
+  color: var(--stage-kicker);
+  white-space: nowrap;
+}
+
+.statNum {
+  color: var(--pa);
+  font-weight: 800;
+}
+
+/* ---------- actions ---------- */
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  color: var(--stage-soft);
+  padding: 0.3rem;
+  cursor: pointer;
+  transition: transform 0.1s ease, color 0.1s ease;
+}
+
+.iconBtn:hover {
+  transform: translate(-1px, -1px);
+  color: var(--pa);
+}
+
+.iconBtn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 2px solid var(--stage-black);
+  background: var(--pa);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  color: var(--stage-ink, var(--stage));
+  font: 800 0.64rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.addBtn:hover {
+  transform: translate(-1px, -1px);
+}
+
+.addBtn:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+/* ---------- filter tabs ---------- */
+
+.tabs {
+  display: flex;
+  border: 2px solid var(--stage-black);
+}
+
+.tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 0;
+  border-right: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
+  color: var(--stage-mute);
+  font: 700 0.68rem var(--font-body);
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+}
+
+.tab:last-child {
+  border-right: 0;
+}
+
+.tab:hover {
+  color: var(--stage-soft);
+}
+
+.tabOn {
+  background: var(--pa);
+  color: var(--stage-ink, var(--stage));
+}
+
+.tabCount {
+  font: 800 0.58rem var(--font-mono);
+  background: color-mix(in srgb, var(--stage-card) 8%, transparent);
+  padding: 0.05rem 0.3rem;
+}
+
+.tabCountOn {
+  background: color-mix(in srgb, var(--stage-black) 30%, transparent);
+  color: var(--stage-card);
+}
+
+/* ---------- bulk bar ---------- */
+
+.bulk {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  border: 2px solid var(--pa);
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.4rem 0.55rem;
+  margin-bottom: 0.5rem;
+}
+
+.bulkCount {
+  font: 800 0.66rem var(--font-mono);
+  color: var(--pa);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bulkSep {
+  width: 2px;
+  align-self: stretch;
+  background: color-mix(in srgb, var(--pa) 30%, transparent);
+}
+
+.bulkBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  font: 700 0.62rem var(--font-body);
+  padding: 0.22rem 0.45rem;
+  cursor: pointer;
+}
+
+.bulkBtn:hover {
+  border-color: var(--pa);
+  color: var(--pa);
+}
+
+.bulkDanger:hover {
+  border-color: var(--stage-danger-edge, var(--stage-warn));
+  color: var(--stage-danger-text, var(--stage-warn));
+}

@@ -12,15 +12,30 @@ import {
   parseWriteFor,
   placementsForProfile,
   presetWeight,
+  promptCounts,
+  visiblePrompts,
   PRESET_WRITE_FOR_LABELS,
   PRESET_WRITE_FOR_PROFILES,
   type PresetWriteForProfile,
+  type PromptFilterTab,
 } from "../../../../core/preset";
 import { EditorEhead } from "../../../components/editor-ehead";
 import { WriteForStrip } from "../../../components/write-for-strip";
 import { BlockList } from "./block-list";
+import { ListToolbar } from "./list-toolbar";
+import { BulkBar } from "./bulk-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
-import { addBlock, deleteBlock, moveBlock, patchBlock, presetDirty, toggleBlock } from "./session";
+import {
+  addBlock,
+  bulkDelete,
+  bulkDuplicate,
+  bulkSetEnabled,
+  deleteBlock,
+  moveBlock,
+  patchBlock,
+  presetDirty,
+  toggleBlock,
+} from "./session";
 import s from "./preset.module.css";
 
 export interface PresetEditorViewProps {
@@ -53,11 +68,16 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() => new Set());
   const [selectedChecks, setSelectedChecks] = useState<ReadonlySet<string>>(() => new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [tab, setTab] = useState<PromptFilterTab>("all");
 
   const dirty = presetDirty(body, baseline);
   const weight = useMemo(() => presetWeight(body), [body]);
   const stops = useMemo(() => placementsForProfile(writeFor), [writeFor]);
   const selectedBlock = body.prompts.find((p) => p.id === selectedId) ?? null;
+  // counts span the WHOLE list so the tab badges hold still while you filter (RC does the same)
+  const counts = useMemo(() => promptCounts(body.prompts), [body.prompts]);
+  const shown = useMemo(() => visiblePrompts(body.prompts, tab, query), [body.prompts, tab, query]);
 
   const flip = (set: ReadonlySet<string>, id: string): Set<string> => {
     const next = new Set(set);
@@ -72,6 +92,25 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const removeBlock = (id: string): void => {
     setBody((b) => deleteBlock(b, id));
     if (selectedId === id) setSelectedId(null);
+    setSelectedChecks((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const clearChecks = (): void => setSelectedChecks(new Set());
+
+  /** Bulk ops act on the CHECKED set, which can include rows the current filter hides. */
+  const doBulk = (op: (b: PresetBody, ids: ReadonlySet<string>) => PresetBody, clearAfter: boolean): void => {
+    const ids = selectedChecks;
+    if (ids.size === 0) return;
+    setBody((b) => op(b, ids));
+    if (clearAfter) {
+      if (selectedId && ids.has(selectedId)) setSelectedId(null);
+      clearChecks();
+    }
   };
 
   const setWriteFor = (p: PresetWriteForProfile): void => {
@@ -139,8 +178,31 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
 
       <div className={s.body}>
         <div className={s.listCol}>
+          <ListToolbar
+            counts={counts}
+            query={query}
+            onQuery={setQuery}
+            tab={tab}
+            onTab={setTab}
+            onExpandAll={() => setExpandedIds(new Set(shown.map((p) => p.id)))}
+            onCollapseAll={() => setExpandedIds(new Set())}
+            onAdd={() => setBody((b) => addBlock(b))}
+          />
+          <BulkBar
+            count={selectedChecks.size}
+            onClear={clearChecks}
+            onEnable={() => doBulk((b, ids) => bulkSetEnabled(b, ids, true), false)}
+            onDisable={() => doBulk((b, ids) => bulkSetEnabled(b, ids, false), false)}
+            onDuplicate={() => doBulk(bulkDuplicate, true)}
+            onDelete={() => doBulk(bulkDelete, true)}
+          />
           <BlockList
-            blocks={body.prompts}
+            blocks={shown}
+            totalBlocks={body.prompts.length}
+            tab={tab}
+            query={query}
+            onClearQuery={() => setQuery("")}
+            onShowAll={() => setTab("all")}
             selectedId={selectedId}
             selectedChecks={selectedChecks}
             expandedIds={expandedIds}
@@ -149,7 +211,14 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
             onToggleExpand={toggleExpand}
             onToggle={(id) => setBody((b) => toggleBlock(b, id))}
             onDelete={removeBlock}
-            onReorder={(fromId, toIndex) => setBody((b) => moveBlock(b, fromId, toIndex))}
+            onReorder={(fromId, toIndex) =>
+              setBody((b) => {
+                // the row index is into the FILTERED view; moveBlock indexes the whole list
+                const target = shown[toIndex];
+                const real = target ? b.prompts.findIndex((p) => p.id === target.id) : -1;
+                return moveBlock(b, fromId, real < 0 ? toIndex : real);
+              })
+            }
             onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
             onAdd={() => setBody((b) => addBlock(b))}
           />

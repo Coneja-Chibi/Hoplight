@@ -36,6 +36,31 @@ export const addBlock = (body: PresetBody, block: PresetPrompt = newBlock()): Pr
   prompts: [...body.prompts, block],
 });
 
+/* ---------- bulk ops over a checked selection (RC's PromptListV4 bulk actions) ---------- */
+
+/** Enable or disable every selected block in one pass. */
+export const bulkSetEnabled = (body: PresetBody, ids: ReadonlySet<string>, enabled: boolean): PresetBody => ({
+  ...body,
+  prompts: body.prompts.map((p) => (ids.has(p.id) ? { ...p, enabled } : p)),
+});
+
+export const bulkDelete = (body: PresetBody, ids: ReadonlySet<string>): PresetBody => ({
+  ...body,
+  prompts: body.prompts.filter((p) => !ids.has(p.id)),
+});
+
+/**
+ * Copy each selected block in place, right after its original, preserving list order. A duplicate is
+ * an AUTHORED block: it mints a fresh id and never inherits the source identifier, or a round-trip
+ * would emit the same identifier twice.
+ */
+export const bulkDuplicate = (body: PresetBody, ids: ReadonlySet<string>): PresetBody => ({
+  ...body,
+  prompts: body.prompts.flatMap((p) =>
+    ids.has(p.id) ? [p, { ...structuredClone(p), id: newUiId("block"), name: `${p.name} (copy)` }] : [p],
+  ),
+});
+
 export const toggleBlock = (body: PresetBody, id: string): PresetBody => ({
   ...body,
   prompts: body.prompts.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p)),

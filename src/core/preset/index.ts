@@ -21,6 +21,24 @@ export {
 export { blockTokens, buildPreview, markerLabel, MARKER_LABELS, presetWeight } from "./build";
 export type { PresetBuild, PresetBuildLine, PresetWeight } from "./build";
 export {
+  filterByTab,
+  promptCounts,
+  promptMatchesSearch,
+  PROMPT_FILTER_LABELS,
+  PROMPT_FILTER_TABS,
+  visiblePrompts,
+} from "./list-view";
+export type { PromptCounts, PromptFilterTab } from "./list-view";
+export {
+  findMacro,
+  isMacroSupported,
+  macroName,
+  macroSupport,
+  scanMacroTokens,
+  supportedMacroNames,
+  unsupportedIn,
+} from "./macros/support";
+export {
   macroGroupsForProfile,
   MARINARA_MACRO_GROUPS,
   ROLECALL_MACRO_GROUPS,
