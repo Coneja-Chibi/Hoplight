@@ -82,6 +82,8 @@ function Icon({ svg }: { svg: string }): JSX.Element {
 function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const firstDeck = ctx.prefs.get(PREF_FIRST_DECK);
   const [entities, setEntities] = useState<StudioEntitySummary[]>([]);
+  /** an unreachable studio is NOT an empty one; without this the two render identically */
+  const [loadFailed, setLoadFailed] = useState(false);
   const [activeKind, setActiveKind] = useState(typeof firstDeck === "string" && firstDeck ? firstDeck : "character");
   const [formatLabels, setFormatLabels] = useState<Map<string, string>>(new Map());
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -96,12 +98,22 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [sizeRem, setSizeRem] = useState(() => clampSize(ctx.prefs.get(PREF_SIZE)));
 
   const reload = useCallback(() => {
+    // apiFetchJson throws on any non-2xx by design, so an un-caught reload turned a dev-server
+    // restart or a storage hiccup into an unhandled rejection. Worse, entities stayed [] and an
+    // EMPTY list is indistinguishable from a FAILED one - the room then showed the brand-new-user
+    // first landing, i.e. told a user with 32 pieces that their studio was gone. Track the failure
+    // instead of inferring emptiness from it. (audit ASYNC-002)
     void (async () => {
-      const list = await ctx.api.listEntities();
-      setEntities(list);
-      setLoreMeta(await loadLoreMeta(ctx, list));
-      setRegexMeta(await loadRegexMeta(ctx, list));
-      setPersonaMeta(await loadPersonaMeta(ctx, list));
+      try {
+        const list = await ctx.api.listEntities();
+        setEntities(list);
+        setLoadFailed(false);
+        setLoreMeta(await loadLoreMeta(ctx, list));
+        setRegexMeta(await loadRegexMeta(ctx, list));
+        setPersonaMeta(await loadPersonaMeta(ctx, list));
+      } catch {
+        setLoadFailed(true);
+      }
     })();
   }, [ctx]);
 
@@ -109,9 +121,16 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     // the workbench-driven repaint: sending/removing/focusing pieces elsewhere flips the "on the
     // workbench" marks here without this room ever calling render itself (see the sendbar handler)
     const unsub = ctx.workbench.onChange(() => setWorkbenchTick((t) => t + 1));
-    void ctx.api.formats().then((formats) => {
-      setFormatLabels(new Map(formats.map((f) => [f.id, f.generic ? "Default" : f.friendly])));
-    });
+    // format labels are decoration: if the call fails the shelves still work, so swallow it rather
+    // than let it reject unhandled (audit ASYNC-002)
+    void ctx.api
+      .formats()
+      .then((formats) => {
+        setFormatLabels(new Map(formats.map((f) => [f.id, f.generic ? "Default" : f.friendly])));
+      })
+      .catch(() => {
+        /* labels stay unset; sourceLabel already falls back */
+      });
     reload();
     return unsub;
   }, [ctx, reload]);
@@ -133,11 +152,13 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
 
   useEffect(() => {
     ctx.setStatus(
-      entities.length === 0
-        ? "empty studio"
-        : `${deck.plural.toLowerCase()} · ${inDeck.length} of ${entities.length} pieces`,
+      loadFailed
+        ? "could not reach the studio · your pieces are still on disk"
+        : entities.length === 0
+          ? "empty studio"
+          : `${deck.plural.toLowerCase()} · ${inDeck.length} of ${entities.length} pieces`,
     );
-  }, [ctx, entities.length, deck, inDeck.length]);
+  }, [ctx, entities.length, deck, inDeck.length, loadFailed]);
 
   const runImport = (files: File[], append = false): void => {
     void (async () => {
@@ -191,6 +212,22 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     const files = [...(evt.dataTransfer?.files ?? [])];
     if (files.length) runImport(files);
   };
+
+  if (loadFailed) {
+    // NOT the first landing: this user may have a full studio we simply could not read. Offering
+    // "start fresh" here would read as "your work is gone" (and invite them to act on it).
+    return (
+      <div className="lib">
+        <style>{allCss}</style>
+        <div className="stagezone seam">
+          <p className="voice">Could not reach the studio. Your pieces are still on disk.</p>
+          <button className="doorcard stamp" onClick={reload}>
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (entities.length === 0) {
     // FIRST LANDING (locked): two massive door-cards, verbatim copy, nothing else competing.
