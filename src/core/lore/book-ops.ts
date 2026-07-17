@@ -1,8 +1,7 @@
 /**
  * Pure lorebook split / merge / duplicate / renumber. No I/O; Studio API writes sit at the edge.
  */
-import type { LorebookBody, LorebookEntry } from "../../entities/lorebook/schema";
-import { emptyLorebookBody } from "./empty-book";
+import type { LorebookBody, LorebookCategory, LorebookEntry } from "../../entities/lorebook/schema";
 
 const renumber = (entries: LorebookEntry[]): LorebookEntry[] =>
   [...entries]
@@ -43,17 +42,12 @@ export function splitBook(
     ...book,
     entries: renumber(kept.length > 0 ? kept : []),
   };
+  // Spread the WHOLE source, never an enumerated subset: an enumerated build silently dropped every
+  // field not on its list (categories, lorebookType, genre, fandom, enabled) and left moved entries'
+  // categoryId dangling. Both halves keep every folder; unused ones are clutter, not corruption.
   const split: LorebookBody = {
-    ...emptyLorebookBody(name),
-    description: book.description ?? null,
-    tags: [...book.tags],
-    globalCaseSensitive: book.globalCaseSensitive,
-    globalMatchWholeWords: book.globalMatchWholeWords,
-    globalScanDepth: book.globalScanDepth,
-    globalRecursion: book.globalRecursion,
-    tokenBudget: book.tokenBudget,
-    budgetMode: book.budgetMode,
-    entryBudget: book.entryBudget,
+    ...structuredClone(book),
+    name,
     entries: renumber(moved),
   };
   return { remainder, split };
@@ -70,23 +64,48 @@ export function mergeBooks(a: LorebookBody, b: LorebookBody, newName?: string): 
         .map((n) => n.trim())
         .filter(Boolean)
         .join(" + ")) || "Merged lorebook";
+  // Categories get the same fresh-id treatment as entries: both books may use the same category id
+  // for different folders, so each side's ids are reminted and its entries' refs follow the map.
+  const remintCats = (
+    cats: LorebookCategory[] | undefined,
+    prefix: string,
+  ): { cats: LorebookCategory[]; map: Map<string, string> } => {
+    const map = new Map<string, string>();
+    const out = (cats ?? []).map((c, i) => {
+      const id = `${prefix}${i + 1}`;
+      map.set(c.id, id);
+      return { ...structuredClone(c), id };
+    });
+    return { cats: out, map };
+  };
+  const catsA = remintCats(a.categories, "m_a_c");
+  const catsB = remintCats(b.categories, "m_b_c");
+  const followCats = (entries: LorebookEntry[], map: Map<string, string>): LorebookEntry[] =>
+    entries.map((e) =>
+      e.categoryId != null && map.has(e.categoryId)
+        ? { ...e, categoryId: map.get(e.categoryId)! }
+        : e,
+    );
   const combined = [
-    ...freshIds(a.entries, "m_a_"),
-    ...freshIds(b.entries, "m_b_"),
+    ...followCats(freshIds(a.entries, "m_a_"), catsA.map),
+    ...followCats(freshIds(b.entries, "m_b_"), catsB.map),
   ];
-  return {
-    ...emptyLorebookBody(name),
+  // Base the merged book on a whole clone of `a` (the "into" book) so no body field is dropped;
+  // override only what merging actually combines.
+  const merged: LorebookBody = {
+    ...structuredClone(a),
+    name,
     description: a.description ?? b.description ?? null,
     tags: [...new Set([...a.tags, ...b.tags])],
-    globalCaseSensitive: a.globalCaseSensitive,
-    globalMatchWholeWords: a.globalMatchWholeWords,
-    globalScanDepth: a.globalScanDepth,
     globalRecursion: a.globalRecursion || b.globalRecursion,
     tokenBudget: Math.max(a.tokenBudget, b.tokenBudget),
-    budgetMode: a.budgetMode,
     entryBudget: Math.max(a.entryBudget, b.entryBudget),
     entries: renumber(combined),
   };
+  const cats = [...catsA.cats, ...catsB.cats];
+  if (cats.length > 0) merged.categories = cats;
+  else delete merged.categories;
+  return merged;
 }
 
 /** Deep clone with a new name; entry ids refreshed. */

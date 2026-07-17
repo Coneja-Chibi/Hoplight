@@ -86,3 +86,63 @@ describe("book-ops", () => {
     expect(filterEnabledBooks([a, b, c])).toEqual([a, c]);
   });
 });
+
+/**
+ * split/merge built their results by enumerating fields over an empty body, so every LorebookBody
+ * field not on the list silently vanished: categories (leaving entries' categoryId dangling),
+ * lorebookType, genre, fandom, enabled. Pinned here so a new body field cannot repeat the bug.
+ */
+describe("book-ops: split/merge carry the whole body, not an enumerated subset", () => {
+  const richBook = () => {
+    const b = bookWith("World", ["A", "B", "C"]);
+    b.categories = [
+      { id: "c1", name: "Places", sortOrder: 0 },
+      { id: "c2", name: "People", sortOrder: 10 },
+    ];
+    b.entries[0]!.categoryId = "c1";
+    b.entries[1]!.categoryId = "c2";
+    b.lorebookType = "world";
+    b.genre = "noir";
+    b.fandom = "original";
+    b.enabled = true;
+    return b;
+  };
+
+  test("split: both halves keep categories and the moved entry's categoryId resolves", () => {
+    const { remainder, split } = splitBook(richBook(), ["e1"], "Harbor");
+    const splitCatIds = new Set((split.categories ?? []).map((c) => c.id));
+    const moved = split.entries[0]!;
+    expect(moved.categoryId).toBe("c2");
+    expect(splitCatIds.has("c2")).toBe(true);
+    expect((remainder.categories ?? []).map((c) => c.id)).toEqual(["c1", "c2"]);
+  });
+
+  test("split: descriptor fields survive onto the split half", () => {
+    const { split } = splitBook(richBook(), ["e1"], "Harbor");
+    expect(split.lorebookType).toBe("world");
+    expect(split.genre).toBe("noir");
+    expect(split.fandom).toBe("original");
+    expect(split.enabled).toBe(true);
+  });
+
+  test("merge: categories from both books survive, colliding ids remapped, refs follow", () => {
+    const a = richBook();
+    const b = bookWith("Other", ["X"]);
+    b.categories = [{ id: "c1", name: "Villains", sortOrder: 0 }]; // id collides with a's c1
+    b.entries[0]!.categoryId = "c1";
+    const merged = mergeBooks(a, b, "Both");
+    const cats = merged.categories ?? [];
+    expect(cats.map((c) => c.name).sort()).toEqual(["People", "Places", "Villains"]);
+    const byName = new Map(cats.map((c) => [c.name, c.id]));
+    const entryFor = (title: string) => merged.entries.find((e) => e.title === title)!;
+    expect(entryFor("A").categoryId).toBe(byName.get("Places")!);
+    expect(entryFor("B").categoryId).toBe(byName.get("People")!);
+    expect(entryFor("X").categoryId).toBe(byName.get("Villains")!);
+    expect(new Set(cats.map((c) => c.id)).size).toBe(3); // no collision survived
+  });
+
+  test("merge: a book pair without categories yields no categories key", () => {
+    const merged = mergeBooks(bookWith("A", ["One"]), bookWith("B", ["Two"]));
+    expect("categories" in merged).toBe(false);
+  });
+});
