@@ -4,8 +4,8 @@
  * USER'S OWN EXAMPLES - substitute an unseen word into a real matching example, then render it struck
  * ONLY if the compiled pattern actually rejects it. The unseen word comes from the input's OWN script:
  * a fixed English list is the Latin fallback, but a non-Latin author gets an in-script mutant, never an
- * English word. Chi caught an earlier draft overpromising semantic generalization; nothing here claims
- * a word the pattern does not literally handle. Returns null when no honest miss can be built (the
+ * English word. Nothing here claims a word the compiled pattern does not literally handle: a miss
+ * chip is only shown when the real pattern rejects it. Returns null when no honest miss can be built (the
  * fixed confession line carries the honesty instead).
  *
  * PURE: no rng here (hits come from readout.ts's injected stream); this only tests candidate strings

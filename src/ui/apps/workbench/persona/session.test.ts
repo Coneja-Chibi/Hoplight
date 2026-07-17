@@ -10,7 +10,7 @@ import {
   toggleTrait,
 } from "./session";
 
-const base = (): PersonaBody => ({ name: "Chi", content: "" });
+const base = (): PersonaBody => ({ name: "Ada", content: "" });
 
 describe("persona session ops", () => {
   it("dirty compares deep and baseline stays untouched", () => {

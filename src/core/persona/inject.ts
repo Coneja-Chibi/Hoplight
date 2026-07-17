@@ -1,7 +1,7 @@
 /**
  * The persona injection compiler (PERSONA-JEWEL-PLAN.md P2): a faithful port of RoleCall's
- * `generatePersonaXml` (apps/rc/src/lib/personas/generatePersonaXml.ts - RC is Chi's own code,
- * reuse is free), retargeted from RC's PersonaDetails onto the canonical PersonaBody.
+ * `generatePersonaXml` (apps/rc/src/lib/personas/generatePersonaXml.ts), retargeted from RC's
+ * PersonaDetails onto the canonical PersonaBody.
  *
  * Ported behaviors, verbatim by intent:
  * - identity ALWAYS first (pronouns/title/height/age), never part of sectionOrder;

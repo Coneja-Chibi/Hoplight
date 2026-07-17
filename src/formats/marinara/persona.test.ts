@@ -4,7 +4,7 @@ import adapter from "./persona";
 
 const wire = () => ({
   id: "mp1",
-  name: "Chi",
+  name: "Ada",
   comment: "Purple menace in a suit.",
   description: "Blunt, loyal, underpaid.",
   personality: "Coiled confidence.",

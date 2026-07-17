@@ -51,8 +51,8 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .apptile.on .nm{color:var(--stamp-fg);font-weight:800}
 .apptile.on .kd{color:var(--stamp-fg);opacity:.66}
 .apptile.on .mk{background:var(--a);border-color:var(--edge);color:var(--stage-ink)}
-/* paper: no black plate on the selected tile (Chi 2026-07-12, second pass - the inverted stamp
-   read as a black blob on cream). Selected = white tile pushed forward: face fill, black border,
+/* paper: no black plate on the selected tile (the inverted stamp read as a black blob on cream).
+   Selected = white tile pushed forward: face fill, black border,
    ink offset shadow; the accent stays on the icon box and the edge nib. Dark keeps its inverted
    plate and accent glow untouched. */
 :root[data-theme="paper"] .apptile.on{background:var(--face);box-shadow:4px 4px 0 0 var(--edge)}

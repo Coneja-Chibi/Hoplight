@@ -78,12 +78,12 @@ describe("injectPersonaXml (the RC port)", () => {
 
   test("flat content rides as body text when no sections exist; wrapper prepends", () => {
     const p: PersonaBody = {
-      name: "Chi",
+      name: "Ada",
       content: "A grumpy senior with taste.",
       chatInjection: { position: "character", wrapper: "This is {{user}}'s identity:" },
     };
     const xml = injectPersonaXml(p);
-    expect(xml.startsWith("This is {{user}}'s identity:\n<persona name=\"Chi\">")).toBe(true);
+    expect(xml.startsWith("This is {{user}}'s identity:\n<persona name=\"Ada\">")).toBe(true);
     expect(xml).toContain("  A grumpy senior with taste.");
   });
 

@@ -185,7 +185,7 @@ describe("expandReplacement - trimStrings apply to substituted values, not conte
 
 describe("macro helpers - faithful extraction of apply.ts behavior", () => {
   test("substituteMacros replaces {{key}} case-insensitively", () => {
-    expect(substituteMacros("hi {{User}}", { user: "Chi" }, false)).toBe("hi Chi");
+    expect(substituteMacros("hi {{User}}", { user: "Ada" }, false)).toBe("hi Ada");
   });
 
   test("substituteMacros in escaped mode escapes regex metacharacters in the value", () => {
@@ -209,8 +209,8 @@ describe("macro helpers - faithful extraction of apply.ts behavior", () => {
   });
 
   test("substituteAfterMacros only resolves in 'after' mode", () => {
-    const macros = { who: "Chi" };
-    expect(substituteAfterMacros("hi {{who}}", "after", macros)).toBe("hi Chi");
+    const macros = { who: "Ada" };
+    expect(substituteAfterMacros("hi {{who}}", "after", macros)).toBe("hi Ada");
     expect(substituteAfterMacros("hi {{who}}", "none", macros)).toBe("hi {{who}}");
     expect(substituteAfterMacros("hi {{who}}", "raw", macros)).toBe("hi {{who}}");
   });

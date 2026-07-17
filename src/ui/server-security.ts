@@ -43,9 +43,9 @@ export const json = (v: unknown, status = 200): Response =>
 export const err = (message: string, status = 400): Response => json({ error: message }, status);
 
 /** The interchangeable spellings of the loopback host we bind. The Host/Origin gate exists to
- * stop DNS-rebinding from ATTACKER hostnames; rejecting `localhost` only paper-cuts the owner
- * (it bit Chi's browser bookmark) while protecting nothing - all three resolve to the same
- * loopback interface the server is bound to. */
+ * stop DNS-rebinding from ATTACKER hostnames; rejecting `localhost` only paper-cuts a user with a
+ * localhost bookmark while protecting nothing - all three resolve to the same loopback interface
+ * the server is bound to. */
 const LOOPBACK_NAMES = ["127.0.0.1", "localhost", "[::1]"] as const;
 
 /** True when `host` is a loopback-equivalent spelling of the expected `host:port`. */

@@ -2,8 +2,8 @@
  * Preset editor - shell + list + shared fields (RC-neo, in vaud's language). The prompt ROW lives in
  * row.module.css and the EDIT PROMPT sidebar in sidebar.module.css (split for the 500-line cap).
  * NEOBRUTALIST per RC's rc-preset-editor-neo: the darkest canvas = vaud stage; accent = violet
- * (--pa = --stage-macro, RC's own violet); hard-neo fields (2px black border + offset shadow). Chi's
- * "RC look here only" ruling - this editor deliberately reads like RC, unlike vaud's other editors.
+ * (--pa = --stage-macro, RC's own violet); hard-neo fields (2px black border + offset shadow). This
+ * editor deliberately reads like RC, unlike vaud's other editors: the resemblance is scoped to here.
  */
 
 .root {

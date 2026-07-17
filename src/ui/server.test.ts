@@ -117,7 +117,7 @@ describe("checkApiRequest", () => {
   });
 
   // Loopback spellings are interchangeable: the gate exists for DNS-rebinding from attacker
-  // hostnames, not to 403 the owner's localhost bookmark (bit Chi live, 2026-07-11).
+  // hostnames, not to 403 a user's localhost bookmark.
   test("localhost host spelling passes GET", () => {
     const sec = filledSec();
     expect(

@@ -121,13 +121,13 @@
   --status-fg: #e7e3da;
   --status-dim: #8a8496;
   --tooth: rgba(10, 10, 11, 0.026);
-  /* the editor quiz's character stage - FLIPS with the theme (Chi 2026-07-06, overrides the
-     dark-in-both stage rule for this surface): a deeper tan than the card on paper. */
+  /* the editor quiz's character stage - FLIPS with the theme (overrides the dark-in-both stage
+     rule for this surface): a deeper tan than the card on paper. */
   --q-stage: #eae0ca;
   --q-stage-deck: #dccdb2;
 
-  /* THE STAGE FLIPS TOO (Chi 2026-07-12, extending the q-stage ruling to the whole stage: light
-     theme means a LIGHT stage well, the dark-in-both doctrine is retired). Derivation is anchored,
+  /* THE STAGE FLIPS TOO (extending the q-stage rule to the whole stage: light theme means a LIGHT
+     stage well, the dark-in-both doctrine is retired). Derivation is anchored,
      not invented: the well/deck tans come from the locked q-stage pair above, fills walk the locked
      shell paper ramp (face/shell-panel/shell-panel-2), text walks the locked paper text ramp, and
      the console semantics follow the --link precedent (darker, saturated-on-cream variants).
@@ -145,7 +145,7 @@
   --stage-seam: #c9bd9e;    /* soft dividers must still READ on tan (hard borders are black) */
   --stage-line: #948a6e;
   /* text is the SHELL INK RAMP, never a khaki ramp: ink on paper is the letterpress rule.
-     Chi bounced the first cut for exactly this - tan text on tan ground is mud. */
+     Tan text on tan ground is mud. */
   --stage-mute: #615a49;
   --stage-soft: #3a352c;    /* soft body text = paper text-soft */
   --stage-text-dim: #524c3d; /* the readability floor is a real floor on cream */
@@ -195,7 +195,7 @@
   --status-fg: #c9c4d2;
   --status-dim: #6a6576;
   --tooth: rgba(255, 255, 255, 0.02);
-  /* the editor quiz's character stage - the deep well on the forge (flips per Chi's call) */
+  /* the editor quiz's character stage - the deep well on the forge (flips with the theme) */
   --q-stage: #08080a;
   --q-stage-deck: #131119;
 }

@@ -1,6 +1,6 @@
 /**
  * The starter-recipe catalog (REGEX-JEWEL-PLAN.md R5, QOL 4) - pure DATA, no logic. Curated from
- * RoleCall's template catalog (apps/rc/src/lib/regex/templates.ts, Chi's own code) plus the two
+ * RoleCall's template catalog (apps/rc/src/lib/regex/templates.ts) plus the two
  * house originals the locked gallery wire specs (remove-bracket-text, stop-speaking-for-me).
  * Descriptions rewritten to house voice; every before/after pair is ENGINE-COMPUTED by the
  * generator and re-verified by template-catalog.test.ts - the gallery never shows an example the
