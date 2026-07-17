@@ -13,6 +13,11 @@ import { PACKAGED_ASSETS } from "./generated/packaged-assets";
 
 const PORT = 8321;
 
+// The committed module is a null placeholder; only scripts/build-desktop.ts bakes the real one.
+// Failing loud beats a compiled exe silently serving nothing (or a stale checkout's UI).
+if (PACKAGED_ASSETS === null) {
+  throw new Error("desktop: assets not baked - build with: bun run scripts/build-desktop.ts");
+}
 registerPackagedFormats();
 const studioDir = join(homedir(), "Documents", "Vaude Studio");
 const { url: uiUrl, stop } = startUi(PORT, studioDir, PACKAGED_ASSETS);
