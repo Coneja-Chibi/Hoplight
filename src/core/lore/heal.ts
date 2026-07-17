@@ -134,7 +134,12 @@ export function healBook(raw: unknown): HealResult {
     }
 
     if (typeof er.probability === "string") {
-      e.probability = Math.max(0, Math.min(100, Number(er.probability) || 100));
+      // `|| 100` here would read a legitimate "0" (never fire on chance) as "always". Only a value
+      // that is not a number at all falls back; 0 is a real answer. Empty is absence, not zero:
+      // Number("") is 0, so it has to be rejected before parsing rather than after.
+      const raw = er.probability.trim();
+      const parsed = raw === "" ? Number.NaN : Number(raw);
+      e.probability = Number.isFinite(parsed) ? Math.max(0, Math.min(100, parsed)) : 100;
       healed.push({
         path: `entries[${i}].probability`,
         message: "Coerced probability string to a number.",

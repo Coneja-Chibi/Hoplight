@@ -53,3 +53,37 @@ describe("healBook", () => {
     );
   });
 });
+
+/**
+ * A string probability of "0" means "never fire on chance" and is a real answer, not a missing one.
+ * `Number(x) || 100` read it as "always", inverting the author's intent in the one function whose
+ * whole job is honest recovery of messy legacy data.
+ */
+describe("healBook: coercing a string probability", () => {
+  const probOf = (probability: unknown): number | undefined =>
+    healBook({ name: "P", entries: [{ id: "e1", content: "c", probability }] }).book.entries[0]?.probability;
+
+  test('"0" stays 0: never is not always', () => {
+    expect(probOf("0")).toBe(0);
+  });
+
+  test("ordinary values coerce", () => {
+    expect(probOf("50")).toBe(50);
+    expect(probOf("100")).toBe(100);
+  });
+
+  test("out-of-range values clamp, they do not fall back", () => {
+    expect(probOf("-20")).toBe(0);
+    expect(probOf("250")).toBe(100);
+  });
+
+  test("only a non-number falls back to always", () => {
+    expect(probOf("banana")).toBe(100);
+    expect(probOf("")).toBe(100);
+  });
+
+  test("the coercion is reported as healed", () => {
+    const { healed } = healBook({ name: "P", entries: [{ id: "e1", content: "c", probability: "0" }] });
+    expect(healed.some((h) => h.path === "entries[0].probability")).toBe(true);
+  });
+});
