@@ -1,34 +1,82 @@
-# Vaudeville Studios — Planning Repo
+# Vaudeville Studios
 
-The complete planning suite for **Vaudeville Studios**: an open (AGPL), local-first
-creator studio for AI-roleplay content. Character cards, lorebooks, presets, personas,
-regex scripts, worlds. Every format (SillyTavern, Risu, Backyard, RoleCall, Lumiverse,
-Agnai), every surface (CLI, agent, desktop app), AI-assisted end to end, BYOK.
+Local-first forge for AI-roleplay content. Convert, inspect, and edit character cards, lorebooks, and more
+(SillyTavern, Risu, Backyard, RoleCall, Lumiverse, Agnai, …). CLI + desktop studio. AGPL-3.0-or-later.
 
-Built by Chi (RoleCall Studios). This folder is the source of truth that implementing
-agents (and humans) work from.
+**Status (2026-07-09):** M0 Foundation jewel **DONE**. M1 Converter jewel **DONE** (v0.1). Character-card
+platform forge **CLOSED**. See `docs/ROADMAP.md`.
 
-## Read order
+## Quick start (stranger path, under 3 minutes)
 
-| # | File | What it is |
-|---|------|-----------|
-| 1 | `docs/00-MASTER-PLAN.md` | The whole project, start to ship, in one document |
-| 2 | `docs/01-VISION.md` | What we're building and why it wins |
-| 3 | `docs/02-ARCHITECTURE.md` | Monorepo, packages, engine, faces |
-| 4 | `docs/decisions/` | ADRs: every locked decision + reasoning |
-| 5 | `docs/03-CONVENTIONS.md` | Code style, testing law, repo rules |
-| 6 | `docs/04-AGENT-PLAYBOOK.md` | **Implementing agents: read this before any ticket** |
-| 7 | `docs/05-EXTRACTION-MAP.md` | What we lift from VAUDEVILLE and from where |
-| 7.5 | `docs/07-BASE-VS-SCRATCH.md` | The fork-vs-build verdict + the locked dependency stack |
-| 8 | `docs/ROADMAP.md` | Milestones M0-M7 with exit criteria |
-| 9 | `specs/` | Format, engine, and feature specifications |
-| 10 | `tickets/` | Implementation tickets, grouped by milestone |
+Requires [Bun](https://bun.sh) ≥ 1.3.
 
-## Status
+```bash
+git clone <this-repo>
+cd vaudeville-studios
+bun install
 
-- Wireframes in `wireframes/` are **draft I — rejected**. Visual direction is being
-  re-explored separately (evolving the VVS style). Nothing in `specs/` or `tickets/`
-  depends on a layout decision; the studio app face (M6) is the only layout-coupled
-  milestone.
-- Product name: **Vaudeville Studios**. CLI binary: **`vaud`**.
-- v0.1 ships **The Converter** (see `docs/ROADMAP.md`).
+# What can we open?
+bun run vaud formats
+
+# Peek at a card
+bun run vaud validate samples/sillytavern/v3-full.json
+bun run vaud inspect samples/sillytavern/v3-full.json
+
+# Convert ST JSON → Risu .charx
+bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
+
+# Studio UI (local only)
+bun run dev
+```
+
+Format matrix (auto-generated): **[docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md)**  
+Regen after adapter changes: `bun run matrix`
+
+## CLI
+
+| Command | Purpose |
+| --- | --- |
+| `vaud convert <in> <out> [--to id]` | Convert formats |
+| `vaud inspect <file>` | Summary of a file |
+| `vaud validate <file>` | Detect + parse; exit 0 if openable |
+| `vaud label <file>` | Guess format + likely origin |
+| `vaud formats` | List adapters |
+| `vaud ui [port] [studioDir]` | Local studio |
+
+`--json` on inspect/validate/formats/convert for machine output.
+
+```bash
+bun run build:cli    # compile dist/vaud (or .exe on Windows)
+```
+
+## Tests & gates
+
+```bash
+bun run test         # full src suite
+bun run test:m0      # foundation smoke
+bun run test:m1      # multi-platform convert smoke
+bun run typecheck
+bun run license:audit
+```
+
+CI: `.github/workflows/ci.yml`
+
+## Docs (read order)
+
+| File | What |
+| --- | --- |
+| `docs/ROADMAP.md` | Milestones M0–M7 + what now |
+| `docs/00-MASTER-PLAN.md` | Full product plan + handoff |
+| `docs/M0-FOUNDATION-JEWEL.md` | M0 jewel bar |
+| `docs/M1-CONVERTER-JEWEL.md` | M1 jewel bar |
+| `docs/NATIVE-FIELDS-PLAN.md` | Character-card platforms (closed) |
+| `docs/04-AGENT-PLAYBOOK.md` | Agents: how to work in this repo |
+
+## Character cards
+
+Portable default: **SillyTavern / CCv3**. Rich platforms (Chub, Lumi, Agnai, Risu Workshop, …) have
+native editors in the studio. C.AI dropped / Crushon skipped as host-native bags; use Default CCv3.
+
+## License
+
+AGPL-3.0-or-later. Dependencies must stay permissive (`bun run license:audit`).

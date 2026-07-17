@@ -5,6 +5,7 @@
  * schema's UUID-regen exemption), so newBlock() only mints for authored ones.
  */
 import { newUiId } from "../../../_shared/new-id";
+import { MARKER_LABELS } from "../../../../core/preset";
 import type { PresetBody, PresetPrompt, PresetSamplers } from "../../../../entities/preset";
 
 export const presetDirty = (body: PresetBody, baseline: PresetBody): boolean =>
@@ -59,6 +60,45 @@ export const setSampler = (
     return rest;
   }
   return { ...body, samplers };
+};
+
+/* ---------- marker slots ---------- */
+
+/**
+ * Append a marker block for an ST-compatible slot. A marker carries NO authored content - the engine
+ * splices the real thing in at build - so it gets the slot's plain-language name and an empty body,
+ * and the row renders it as a slot rather than handing anyone a textarea.
+ *
+ * Refuses a slot that is already placed: two chat-history markers is not a duplicate row, it is a
+ * broken preset. The menu greys placed slots out, but the guard lives HERE too - the UI is not the
+ * place to enforce an invariant.
+ */
+export const addMarker = (body: PresetBody, slot: string): PresetBody => {
+  if (placedMarkerSlots(body).has(slot)) return body;
+  return addBlock(
+    body,
+    newBlock({
+      name: markerSlotName(slot),
+      marker: true,
+      markerSlot: slot,
+      content: "",
+    }),
+  );
+};
+
+/** The slots already placed, so the menu can go quiet on them (and addMarker can refuse). */
+export const placedMarkerSlots = (body: PresetBody): ReadonlySet<string> => {
+  const placed = new Set<string>();
+  for (const p of body.prompts) if (p.marker && p.markerSlot) placed.add(p.markerSlot);
+  return placed;
+};
+
+/** Sentence-cased from core's own MARKER_LABELS ("the chat history" -> "Chat history"), never new copy. */
+export const markerSlotName = (slot: string): string => {
+  const label = MARKER_LABELS[slot];
+  if (!label) return slot;
+  const bare = label.replace(/^the /i, "");
+  return bare.charAt(0).toUpperCase() + bare.slice(1);
 };
 
 /* ---------- categories ---------- */
