@@ -3,7 +3,7 @@
  * has no standalone regex file/adapter folder (it rides the generic extensions bag per
  * `extension-platforms.ts`) so this is a plain mapping module: one Marinara `RegexScript` wire
  * row <-> one canonical `RegexRule`. Field shape verified against
- * `C:\Users\chiev\Documents\Marinara-Engine\packages\shared\src\types\regex.ts` and the tolerant
+ * `<local>/Marinara-Engine\packages\shared\src\types\regex.ts` and the tolerant
  * parsing precedent in `packages\server\src\services\regex\regex-application.ts` (the live engine's
  * own defensive readers - mirrored here so this codec agrees with what the server actually accepts).
  * Divergence facts: see design/REGEX-FORMATS.md axes 2-4 and the Marinara-Engine section.

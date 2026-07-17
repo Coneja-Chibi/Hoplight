@@ -1,7 +1,7 @@
 # RoleCall sample provenance
 
 No genuine RoleCall card/lorebook export file was found on disk (searched
-`C:\Users\chiev\Downloads`, `C:\Users\chiev\Documents\RoleCall`). The one
+`<local>/Downloads`, `<local>/RoleCall`). The one
 lorebook-shaped JSON at the RC repo root, `bunnymo-v2.9.json`, is a SillyTavern
 worldbook (`{entries:{...}}` map), NOT a RoleCall v1 export. So both samples here
 are CONSTRUCTED, grounded field-for-field in RoleCall's own serializers (RC is
@@ -10,7 +10,7 @@ Chi's code, read freely).
 ## vera-casting-card.v3.json (character)
 
 A Character Card V3 export as RC's serializer actually emits one. Grounded in:
-- `C:\Users\chiev\Documents\RoleCall\src\lib\formats\character\serialize-v2.ts`
+- `<local>/RoleCall\src\lib\formats\character\serialize-v2.ts`
   (`serializeToV2`, lines 140-231): the full `extensions.rolecall` block
   (id, tagline, genre, fandom, nsfw, content_rating, token_count, image_url,
   thumbnail_url, source_url, creator_notes, creators_note, accent_color, details,
@@ -24,7 +24,7 @@ A Character Card V3 export as RC's serializer actually emits one. Grounded in:
   runtime emits all V2 fields. So a real V3 card DOES carry details/creators_note/
   accent_color/token_count/alternate_greeting_titles etc. Sample reflects runtime.
 - `details` uses the RICH casting-card shape from the monorepo
-  `C:\Users\chiev\Documents\VAUDEVILLE\packages\types\src\character.ts:79-108`
+  `<RoleCall>\packages\types\src\character.ts:79-108`
   (`CharacterCardDetails`): signature_color, gradient_colors, full_name, title,
   age, pronouns, colors, media_links, fieldOrder, default_background,
   prompt_depth_injections, publicDefinitionDisplay. The pre-monorepo
@@ -45,9 +45,9 @@ A Character Card V3 export as RC's serializer actually emits one. Grounded in:
 ## aetheria-lorebook.v1.json (lorebook)
 
 A RoleCall Export v1.0 as `serializeToRoleCallV1` emits one. Grounded in:
-- `C:\Users\chiev\Documents\RoleCall\src\lib\lorebook\serializer.ts`
+- `<local>/RoleCall\src\lib\lorebook\serializer.ts`
   (`serializeToRoleCallV1` lines 534-586, `serializeEntryToRoleCallV1` 452-525).
-- `C:\Users\chiev\Documents\RoleCall\src\lib\lorebook\schemas.ts`
+- `<local>/RoleCall\src\lib\lorebook\schemas.ts`
   (`RoleCallExportV1` / `RoleCallLorebookV1` / `RoleCallEntryV1` / tree, lines
   28-299).
 - Faithful to what the real serializer PRODUCES:

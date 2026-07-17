@@ -267,7 +267,7 @@ test("SECURITY: behavior never blind-copies cross-format (Risu -> ST card carrie
   expect(stOut).not.toContain("lowLevelAccess");
 });
 
-const KWU_CHARX = "C:/Users/chiev/Downloads/한국여자대학교 V1.0.charx";
+const KWU_CHARX = "<downloads>/한국여자대학교 V1.0.charx";
 
 test.skipIf(!existsSync(KWU_CHARX))("real .charx: unedited module package is byte-identical on export", () => {
   const inBytes = new Uint8Array(readFileSync(KWU_CHARX));

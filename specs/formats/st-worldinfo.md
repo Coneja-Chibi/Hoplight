@@ -463,29 +463,29 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\types.ts` (lines
+- `<RoleCall>\packages\lorebook\src\types.ts` (lines
   1-200 trigger/position/role/side-effect types, 216-331 `LorebookEntry`,
   342-402 `Lorebook`/`LorebookWithEntries`)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\format-detection.ts`
+- `<RoleCall>\packages\lorebook\src\format-detection.ts`
   (full file; detection precedence, confidence scoring)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\parser.ts` (full
+- `<RoleCall>\packages\lorebook\src\parser.ts` (full
   file; ST/Agnai/RoleCall parse functions, position/role/selectiveLogic
   numeric mapping, name resolution chain, unsupported-field capture)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\serializer.ts`
+- `<RoleCall>\packages\lorebook\src\serializer.ts`
   (full file; ST export field-by-field construction, position/role/selectiveLogic
   export mapping, category resolution, mixed-probability collapse)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\regex-utils.ts`
+- `<RoleCall>\packages\lorebook\src\regex-utils.ts`
   (lines 1-60; `parseRegexFromString`/`escapeUnescapedSlashes` behavior)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\json-parsers.ts`
+- `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (lines 1-120; app-level `LorebookEntry`/`isLorebook` shape, confirms the
   same field set is used at the UI layer)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`,
+- `docs\00-MASTER-PLAN.md`,
   `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (project
   conventions, dependency rules, this file's brief)
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`,
+- `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md` (shared envelope, escrow rules,
   Round-Trip Law definition)
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md`
+- `templates\SPEC-TEMPLATE.md`
   (structure followed)
 
 OPEN QUESTION 1: Should this codec ever serialize canonical -> Agnai format?

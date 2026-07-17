@@ -597,41 +597,41 @@ export function validateRegexPattern(
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\apply-regex.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\apply-regex.ts`
   (lines 1-51 types; 56-246 `applyRegexRules`; 128-134 `{{match}}` token; 136-232
   trim-string token-scan replacer; 251-278 `applyRegexScripts`; 283-296
   `validateRegexPattern`).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\import-st-regex.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\import-st-regex.ts`
   (lines 16-28 `SillyTavernRegex`; 33-46 `ParsedRegexRule`; 56-140
   `parseSillyTavernRegex`, incl. 72 the VVS-502 unwrap regex, 79-97 the
   corrected placement map, 111-123 format-flag overlay; 158-195
   `LinkedRegexScript`/`pickPresetRegexSource`; 203-306
   `importLinkedRegexScripts`; 342-461 `importSTRegexScripts`).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\app\api\content\regex-scripts\[id]\export\route.ts`
+- `<RoleCall>\apps\rc\src\app\api\content\regex-scripts\[id]\export\route.ts`
   (lines 8-15 `RC_TO_ST_PLACEMENT` — flagged as a stale/buggy shifted-by-one map,
   NOT followed by this spec; lines 22-57 `ruleToSillyTavern`; line 164 flat-vs-array
   container rule).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\__tests__\st-placement-map.test.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\__tests__\st-placement-map.test.ts`
   (full file — documents the shifted-by-one regression and pins the correct
   0/1/2/3/5/6 map).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\__tests__\import-st-regex-multiline.test.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\__tests__\import-st-regex-multiline.test.ts`
   (full file — VVS-502 multi-line `findRegex` unwrap fixture basis).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\__tests__\st-format-flags.test.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\__tests__\st-format-flags.test.ts`
   (full file — `promptOnly`/`markdownOnly` overlay behavior).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\__tests__\preset-regex-roundtrip.test.ts`
+- `<RoleCall>\apps\rc\src\lib\regex\__tests__\preset-regex-roundtrip.test.ts`
   (full file — `linkedRegexScripts`-wins contract and the RC→ST→RC lossiness
   this spec's corrected export map is meant to close).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\json-parsers.ts`
+- `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (lines 174-212 `isRegexScript`; 252-268 `detectJsonType` priority order).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\engine.ts` (lines
+- `<RoleCall>\apps\rc\src\lib\regex\engine.ts` (lines
   1-80 — separate ReDoS/complexity-scoring engine, cited only for the Non-goals
   scope boundary and the `createReplacementFunction` naming referenced in
   `apply-regex.ts`'s comments).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` (brief
+- `docs\06-PRODUCTION-BIBLE.md` (brief
   row for `regex-scripts.md`, line 51).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\05-EXTRACTION-MAP.md` (lines
+- `docs\05-EXTRACTION-MAP.md` (lines
   27-33, `packages/regexkit` scope, cited for the Non-goals boundary).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`,
+- `specs\formats\canonical-model.md`,
   `escrow-and-roundtrip.md`, `docs\00-MASTER-PLAN.md`, `docs\02-ARCHITECTURE.md`
   (structure and conventions).
 

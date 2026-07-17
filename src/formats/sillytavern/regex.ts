@@ -4,7 +4,7 @@
  * REGEX-JEWEL-PLAN.md R1 must #1: a bare standalone array file (Marinara's Essentials packs ship
  * this form) and a character card's `extensions.regex_scripts` (v2 `data.extensions...` or a
  * flat `extensions...` object). Field map + int-enum decode verified against
- * `C:\Users\chiev\Downloads\SillyTavern\public\scripts\extensions\regex\engine.js` (regex_placement,
+ * `<downloads>/SillyTavern\public\scripts\extensions\regex\engine.js` (regex_placement,
  * substitute_find_regex, getRegexedString's markdownOnly/promptOnly fold) and `char-data.js`
  * (RegexScriptData shape).
  *

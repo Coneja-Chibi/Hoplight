@@ -682,12 +682,12 @@ plays for codecs.
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\tokenizer.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\tokenizer.ts`
   (full file, lines 1-453): header (1-42) documents the design intent; lexer
   (`lexMatchingClose` 76-92, `lexSplitArgs` 101-130); block-terminator scan
   (`findBlockTerminator` 153-192); block-if parse (`parseBlockIf` 202-275); main
   entry (`parseNodesV2` 285-443).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\processor.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\processor.ts`
   (lines 1-260, 260-560, 560-921): pipeline entry (`processMacros` 687-776);
   preprocessing (`preprocessDotNotation` 97-120, `normalizeSpaceSyntax` 126-138,
   single-colon rewrite 717-720); AST cache (`parseNodesCached` 186-201);
@@ -700,31 +700,31 @@ plays for codecs.
   (245-256); trim sentinel + whitespace post-process (668-676); unknown-macro
   fallback (`expandSingleMacro`, `findSimilarMacro` 785-879); interceptors
   (262-294); test-only exports confirming `__parseForTest` bypasses cache (908).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\registry.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\registry.ts`
   (full file): registration/idempotency rules (33-76); volatile macro set
   (93-106); lookup order (`getMacro` 117-134).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\types.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\types.ts`
   (lines 1-260, 260-360): `MacroContext` full shape (10-133, including the
   RC/DB-coupled fields explicitly excluded from the studio port); `MacroCategory`
   (309-319); `MacroProcessResult` (324-354); `LazyMacroArg`/`LazyMacroHandler`
   (236-253); `MacroDefinition` (258-288).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\scopes.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\scopes.ts`
   (full file): scope prefix table (20-27), resolution logic (50-78).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\handlers\identity.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\handlers\identity.ts`
   (lines 1-60): example handler shape (`char`/`user`/`persona` macros) confirming
   `MacroHandler` signature in practice.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\handlers\lumiverse-compat.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\handlers\lumiverse-compat.ts`
   (lines 1-50): `{{rcounter}}` as an example `volatile: true`, `readOnly`-respecting
   side-effect macro; header note on unknown-macro-as-truthy-passthrough being
   intentional for Lumiverse platform tokens.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\index.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\index.ts`
   (lines 1-80): confirms the public export surface shape (types, registry,
   processor, handler registration functions) as precedent for this spec's API
   sketch.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\__characterization__\corpus.ts`
+- `<RoleCall>\apps\rc\src\lib\macros\__characterization__\corpus.ts`
   (lines 1-80 read; full category list at lines 33-50): corpus structure,
   category enumeration, sentinel-collision test intent (52-58).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\macros\__characterization__\`
+- `<RoleCall>\apps\rc\src\lib\macros\__characterization__\`
   directory listing: confirms the five test files
   (`parser-ast.test.ts`, `duplicate-parsers-agreement.test.ts`,
   `preprocessing-effects.test.ts`, `processor-golden.test.ts`) plus

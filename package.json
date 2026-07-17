@@ -10,7 +10,7 @@
   },
   "scripts": {
     "vaud": "bun run src/cli.ts",
-    "dev": "bun run src/cli.ts ui 8321 \"C:/Users/chiev/Documents/Vaude Studio\"",
+    "dev": "bun run src/cli.ts ui 8321 \"<local>/Vaude Studio\"",
     "test": "bun test src/core src/entities src/formats src/studio src/ui scripts --timeout 120000",
     "test:macros": "bun test src/macros --timeout 30000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",

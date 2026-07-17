@@ -579,16 +579,16 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md`
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md`
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md:50` (brief
+- `docs/00-MASTER-PLAN.md`
+- `docs/02-ARCHITECTURE.md`
+- `docs/06-PRODUCTION-BIBLE.md:50` (brief
   row for this file), `:42` (png-embedding.md row, for chunk mechanics context),
   `:45` (rolecall-character.md row, for the shared `extensions.rolecall` convention),
   `:78` (personas-system.md row, confirming it is the DIFFERENT "house personas"
   concept excluded from this spec's scope)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md`
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/escrow-and-roundtrip.md`
-- `C:/Users/chiev/Documents/vaudeville-studios/templates/SPEC-TEMPLATE.md`
+- `specs/formats/canonical-model.md`
+- `specs/formats/escrow-and-roundtrip.md`
+- `templates/SPEC-TEMPLATE.md`
 - VAUDEVILLE `apps/rc/src/lib/library/png-parser.ts` (:1-280, keyword detection
   and all four parse branches)
 - VAUDEVILLE `apps/rc/src/lib/imports/persona.ts` (:1-125, unified PNG importer,

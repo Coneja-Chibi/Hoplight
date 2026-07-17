@@ -8,7 +8,7 @@ import { decodeRisum, listScriptEffects } from "../../formats/risu/rpack";
 import { seedRisuState } from "./risu-api";
 import { runModuleLua } from "./run-module-lua";
 
-const KWU = "C:/Users/chiev/Downloads/한국여자대학교 V1.0.charx";
+const KWU = "<downloads>/한국여자대학교 V1.0.charx";
 
 describe("runModuleLua", () => {
   test("tiny script can set vars through host API", async () => {

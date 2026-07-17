@@ -693,47 +693,47 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md` (milestones
+- `docs\00-MASTER-PLAN.md` (milestones
   table, "M3 The Script Doctor (v0.2)"; "sink #2, agent slop" antidote paragraph).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\01-VISION.md` pillar 3 ("The
+- `docs\01-VISION.md` pillar 3 ("The
   Doctor is honest... Deterministic checks... run free and offline. AI treatment is
   optional, staged, and approved fix-by-fix. The tool proves what it did in plain
   terms.") — the section this spec is a direct implementation of.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md`
+- `docs\02-ARCHITECTURE.md`
   (`packages/doctor` description; staged-edit envelope description under "The
   agent"; dependency rule `core <- formats <- everything`).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\03-CONVENTIONS.md` (typed error
+- `docs\03-CONVENTIONS.md` (typed error
   classes with `userMessage`; "Output vocabulary is plain first"; no-emoji/no-em-dash
   rule).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` line 75
+- `docs\06-PRODUCTION-BIBLE.md` line 75
   (this file's brief row).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`
+- `specs\formats\canonical-model.md`
   (shared envelope shape; "An embedded lorebook is a REFERENCE" rule 3; prompt-
   bearing field list, "Design rules" 1).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md`
+- `specs\formats\escrow-and-roundtrip.md`
   ("Reports" section — `ParseReport`/`SerializeReport` shape the `format` pass reads).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\token-counting.md` (full
+- `specs\engine\token-counting.md` (full
   file — `TokenCounter` interface, "works with zero AI key" precedent this spec's
   deterministic tier follows).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\lorebook-engine.md`
+- `specs\engine\lorebook-engine.md`
   Edge case 3 (dead-config `delayUntilRecursion` combination, explicitly names this
   spec as the intended consumer) and Edge case 15 (unreachable empty-trigger entry).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\macro-engine.md` lines
+- `specs\engine\macro-engine.md` lines
   16-27 (explicitly names "the Script Doctor's macro lint pass" as a consumer,
   non-evaluating).
-- `C:\Users\chiev\Documents\vaudeville-studios\wireframes\magic\script-doctor.html`
+- `wireframes\magic\script-doctor.html`
   (full file — SD-1 "Examination Room" fix-by-fix flow and tile layout, SD-2
   "Before & After" full-card diff mode, SD-3 "Waiting Room" batch ward-round report
   shape and phrasing, all directly cited above).
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md` (section
+- `templates\SPEC-TEMPLATE.md` (section
   structure followed).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\post-gen-actions\slopism-sets.ts`
+- `<RoleCall>\apps\rc\src\lib\post-gen-actions\slopism-sets.ts`
   lines 1-120 (`SlopismBank`/`SlopismKind`/`SlopismScope` shape, `normalizeEntry`,
   `entryDedupeForms`) — cited as informative precedent for the slop-bank file
   format only, per the file-format field-map table above; this is a live-chat
   post-generation screening system, not a card auditor, so it is adapted, not
   ported.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\anti-slop-banks\genre\academia.md`
+- `<RoleCall>\apps\rc\anti-slop-banks\genre\academia.md`
   lines 1-60 (concrete on-disk bank file shape: YAML frontmatter + Markdown body
   list — confirms banks are authored as loose `.md` files with a codegen step in
   VAUDEVILLE, which this spec's loader replaces with direct `.md` loading, no

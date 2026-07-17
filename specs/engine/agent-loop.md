@@ -712,25 +712,25 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md`: layer
+- `docs/00-MASTER-PLAN.md`: layer
   definitions (Engine/Faces/Brain), M2 milestone scope.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md:26-30,54-70,
+- `docs/02-ARCHITECTURE.md:26-30,54-70,
   78-83,85-91`: package layout (`packages/agent`), the agent bullet list (tiny
   tool surface, resource model, spill store, staged edits, model capability
   profiles, eval harness), Faces rule (CLI before studio, studio has no private
   engine capabilities), security/privacy invariants (no telemetry, keys never
   logged).
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/decisions/ADR-006-ai-and-
+- `docs/decisions/ADR-006-ai-and-
   agent.md`: full text: BYOK provider list, AI-optional, the five weak-model
   design constraints, model-role mapping (interview/treatment/test/audit), eval
   harness at M2.
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md`:
+- `specs/formats/canonical-model.md`:
   content types, shared `Entity<T>` envelope, escrow reference.
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/escrow-and-
+- `specs/formats/escrow-and-
   roundtrip.md`: Round-Trip Law definition, used in Test plan's cross-reference.
-- `C:/Users/chiev/Documents/vaudeville-studios/templates/SPEC-TEMPLATE.md`:
+- `templates/SPEC-TEMPLATE.md`:
   section shape followed here.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md:66`:
+- `docs/06-PRODUCTION-BIBLE.md:66`:
   this file's brief.
 - VAUDEVILLE (reference reading only, no code ported, conceptual lessons only):
   - `apps/rc/src/lib/ai/btw/spill.ts:1-22,43-76`: spill store rationale, inline

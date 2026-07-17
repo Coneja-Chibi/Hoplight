@@ -507,31 +507,31 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\imports\content-detector.ts`
+- `<RoleCall>\apps\rc\src\lib\imports\content-detector.ts`
   (full file, 252 lines) — `detectPngType` :32-102, `detectJsonTypeEnhanced` :107-155,
   `detectJsonLType` :160-222, `detectFileType` :227-251, misdetection comment :38-44,
   hybrid-header comment :171-175, `ContentType` union :18.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\json-parsers.ts`
+- `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (full file, 295 lines) — `isPersona` :221-246, `isCharacter` :60-84, `isLorebook`
   :117-129, `parseLorebook` :134-165, `isRegexScript` :174-212, `isPreset` :93-108,
   `detectJsonType` :261-268 and its priority-order comment :256-260,
   `LibraryItemType` union :252.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\png-parser.ts` —
+- `<RoleCall>\apps\rc\src\lib\library\png-parser.ts` —
   `readCharacterData` chunk-priority comment :10-12, :57-58, :73-126;
   `parseCharacterCard` V2/V3 branch :174-182, RC-native persona branch :184-223,
   RoleOut legacy branch :225-247.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\plot\src\lib\imports\content-detector.ts`
+- `<RoleCall>\apps\plot\src\lib\imports\content-detector.ts`
   (full file, 219 lines) — cited only to document that it retains the unfixed
   substring/ordering bug (:37-62) that `apps/rc`'s version fixed; not used as
   ground truth for behavior.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\05-EXTRACTION-MAP.md:44-45` —
+- `docs\05-EXTRACTION-MAP.md:44-45` —
   confirms the two ground-truth files and line anchors for this spec's brief.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md:52` —
+- `docs\06-PRODUCTION-BIBLE.md:52` —
   the brief this spec was written against.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`,
+- `specs\formats\canonical-model.md`,
   `escrow-and-roundtrip.md` — shared conventions (Entity envelope, escrow rules,
   fixture corpus rules) referenced above.
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md` — structure followed.
+- `templates\SPEC-TEMPLATE.md` — structure followed.
 
 ## OPEN QUESTIONs (collected)
 

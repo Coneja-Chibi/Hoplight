@@ -751,11 +751,11 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\types.ts`
+- `<RoleCall>\packages\presets-core\src\types.ts`
   (full file; `RawPreset` :38-104, `RawPrompt` :14-28, `RawPromptOrder` :30-36,
   `ParsedPreset` :240-254, `DEFAULT_PROMPT_IDENTIFIERS` :401-414, `Db*` types
   :270-395)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\preset-parser.ts`
+- `<RoleCall>\packages\presets-core\src\preset-parser.ts`
   (full file: `DEFAULT_MARKER_IDENTIFIERS` :59-65, `isCustomPrompt`/`isDefaultPrompt`/
   `isDefaultMarkerIdentifier` :91-106, `isCategory` :108-114, wiki patterns
   :83-85, `detectPresetFormat` :138-144, `parsePrompt` :146-166,
@@ -764,36 +764,36 @@ Property/unit tests beyond fixtures:
   :308, global order resolution :318-345, `serializePreset` :468-737 including
   sparse marker shape :506-527, divider UUID generation :561/:597, global
   order rebuild :634-687, `rawSettings` spread :735)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\marker-slots.ts`
+- `<RoleCall>\packages\presets-core\src\marker-slots.ts`
   (full file: `PRESET_MARKER_SLOT_TEMPLATES` and the `charDescription`/
   `charPersonality`/`scenario` marker:false rationale comments :81-92, :102-108,
   :118-124)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\default-settings.ts`
+- `<RoleCall>\packages\presets-core\src\default-settings.ts`
   (full file: all default constant values)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\internal\reasoning-effort-values.ts`
+- `<RoleCall>\packages\presets-core\src\internal\reasoning-effort-values.ts`
   (full file: `normalizeReasoningEffort` :79-88 and enum values :1-18)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\internal\sampler-defaults.ts`
+- `<RoleCall>\packages\presets-core\src\internal\sampler-defaults.ts`
   (full file: `DEFAULT_MAX_RESPONSE_TOKENS` :17)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\utils\normalize.ts`
+- `<RoleCall>\packages\presets-core\src\utils\normalize.ts`
   (full file: `normalizeInjectionPosition`, noted as an RC-DB-only concern, not
   part of the ST JSON format proper)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\utils\hash.ts`
+- `<RoleCall>\packages\presets-core\src\utils\hash.ts`
   (full file: `hashContent`/`computeContentHashes`, used only by
   `regenerateModifiedUUIDs` serialize option)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\presets-core\src\index.ts`
+- `<RoleCall>\packages\presets-core\src\index.ts`
   (full file: package barrel and vendoring/exclusion notes)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md`
+- `docs\00-MASTER-PLAN.md`
+- `docs\02-ARCHITECTURE.md`
   (Codec interface, dependency rule, canonical model + escrow summary)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md`
+- `docs\06-PRODUCTION-BIBLE.md`
   (brief row for `st-preset.md`, line 48)
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`
+- `specs\formats\canonical-model.md`
   (canonical `Preset` field enumeration, :62-64)
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md`
+- `specs\formats\escrow-and-roundtrip.md`
   (Round-Trip Law, escrow envelope rules, capabilities matrix, fixture corpus
   rules)
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md`
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\05-EXTRACTION-MAP.md`
+- `templates\SPEC-TEMPLATE.md`
+- `docs\05-EXTRACTION-MAP.md`
   (lines 7-14, confirms `packages/presets-core` as the extraction source and
   "already dependency-clean")
 

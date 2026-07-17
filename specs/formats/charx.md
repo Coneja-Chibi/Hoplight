@@ -5,7 +5,7 @@
 specs/formats/chara-card-v3.md (forthcoming, CharacterCardV3 JSON shape this codec
 wraps; the charx `card.json` payload IS a CCv3 document, so this spec does not
 re-derive the field map, only what changes because the container is a zip)
-**VAUDEVILLE reference:** none. Searched `C:\Users\chiev\Documents\VAUDEVILLE` for
+**VAUDEVILLE reference:** none. Searched `<RoleCall>` for
 `charx` and `risu` (case-insensitive, all `.ts`); zero implementation hits. The only
 "risu" hit in the whole tree is an unrelated comment in
 `packages/lorebook/src/parser.ts:505` about a field-name spelling variant
@@ -328,7 +328,7 @@ export const charxCodec: Codec<Character> = {
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE`, searched exhaustively for `charx` and
+- `<RoleCall>`, searched exhaustively for `charx` and
   `risu` (case-insensitive) across all `.ts` files; zero implementation results for
   charx; the one `risu` hit (`packages/lorebook/src/parser.ts:505`) is an unrelated
   comment about ST field-name variants, not charx. Confirms the bible's note that

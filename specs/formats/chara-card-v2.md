@@ -492,16 +492,16 @@ export const charaCardV2Codec: {
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\parse-v2.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\parse-v2.ts`
   (full file read; key lines: 22-68 `ParsedCharacter`, 96-106 `isV1Card`, 112-121
   `isV2Card`, 127-145 `CharacterCardV3`/`isV3Card`, 151-167 `parseV1`, 169-267
   `parseV2`, 269-285 `parseV3`, 291-311 `isFlatV2Data`, 316-391
   `parseCharacterJson`, 474-482 `detectFormat`).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\serialize-v2.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\serialize-v2.ts`
   (full file read; key lines: 23-52 `CharacterCardV2`/`CharacterCardV2Data`, 87-139
   `CharacterCardV2Extensions` incl. `rolecall` sub-shape, 148-260 `serializeToV2`,
   330-350 `isValidV2Card`).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\character-book.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\character-book.ts`
   (full file read; key lines: 19-58 `CharacterBookEntry`/`CharacterBook`, 262-270
   `parseRegexKeyword`, 318-422 `toCharacterBook`, 459-558 `fromCharacterBook`,
   564-598 `mergeCharacterBooks`).
@@ -515,7 +515,7 @@ export const charaCardV2Codec: {
   `case_sensitive`, `name`, `priority`, `id`, `comment`, `selective`,
   `secondary_keys`, `constant`, `position`), the V1-compatibility note, and the
   `extensions` namespacing convention.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`,
+- `docs\00-MASTER-PLAN.md`,
   `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (brief row for this file),
   `specs\formats\canonical-model.md`, `specs\formats\escrow-and-roundtrip.md`,
   `templates\SPEC-TEMPLATE.md`, read in full for conventions and the canonical

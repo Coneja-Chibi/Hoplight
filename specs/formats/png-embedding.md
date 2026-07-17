@@ -497,21 +497,21 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\png-parser.ts`
+- `<RoleCall>\apps\rc\src\lib\library\png-parser.ts`
   (read path: signature check :51-54, `readCharacterData` :62-127 including
   keyword precedence order :74-124, `parseCharacterCard` shape dispatch
   :148-284, `decodeBase64ToUtf8` :132-142)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\png\writer.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\png\writer.ts`
   (write path: `embedCharacterData` :53-91, `embedDualCharacterData`
   :103-142, `extractCharacterData` :151-175, `getCharacterVersion`
   :188-209)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\imports\content-detector.ts`
+- `<RoleCall>\apps\rc\src\lib\imports\content-detector.ts`
   (`detectPngType` :32-102, misdetection-trap comment :37-44, fast-path
   substring scan :45-67)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\exports\persona-export.ts`
+- `<RoleCall>\apps\rc\src\lib\exports\persona-export.ts`
   (`embedPersonaInPNG` :65-94, no prior-chunk stripping: basis for edge
   case 5; base64 via Node `Buffer` :76)
-- `C:\Users\chiev\Documents\VAUDEVILLE\node_modules\.pnpm\png-chunk-text@1.0.0\node_modules\png-chunk-text\decode.js`
+- `<RoleCall>\node_modules\.pnpm\png-chunk-text@1.0.0\node_modules\png-chunk-text\decode.js`
   and `encode.js` (installed dependency source, read directly: basis for
   the Latin-1/no-embedded-null constraints and the iTXt-mishandling edge
   case)

@@ -544,36 +544,36 @@ export function readFileAtSnapshot(
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md` lines 33-40 (package
+- `docs\02-ARCHITECTURE.md` lines 33-40 (package
   layout — no `packages/productions` currently listed, hence OPEN QUESTION 1), lines 62-69
   ("The agent" — staged edits, "Every commit is a version in the production's history"), lines
   71-76 ("Productions (project workspaces)" — the entire ground-truth paragraph this spec expands:
   "A production is a folder: human-readable JSON/MD files, a `vaud.json` manifest, and a
   `.vaud/history/` of content-addressed snapshots (no git dependency; git-friendly). Library mode
   ... covers loose-file users; `vaud` commands accept bare file paths too.").
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md` line 40 ("v0.1 | The
+- `docs\00-MASTER-PLAN.md` line 40 ("v0.1 | The
   Converter: works with zero AI key" — basis for bare-file operation needing no production),
   line 55 ("M5 The Test Stage + Productions ... project workspaces with version history" —
   milestone placement).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md` lines 13-29
+- `specs\formats\canonical-model.md` lines 13-29
   (the `Entity<T>` envelope, `id`/`meta.hash` fields this spec's manifest and object store build
   on), lines 72-76 ("Open items" — asset handling, "binary assets stored beside the entity in
   productions; canonical model stores typed references," directly informing the asset-placement
   rules above).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md` (full file)
+- `specs\formats\escrow-and-roundtrip.md` (full file)
   — read for the distinction between the cross-format Round-Trip Law and this spec's narrower
   in-package write/read round-trip, referenced in Test Plan.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\decisions\ADR-005-canonical-model.md` (full
+- `docs\decisions\ADR-005-canonical-model.md` (full
   file) — escrow envelope rationale, confirms `Entity.escrow` is part of what gets serialized
   into entity files (Behavior, "Entity files" rule 4).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\decisions\ADR-006-ai-and-agent.md` lines 22-24
+- `docs\decisions\ADR-006-ai-and-agent.md` lines 22-24
   ("Staged edits with validate-before-commit; the agent never writes user files directly") —
   confirms the agent-loop `commit` step this spec's `commitSnapshot`/`trigger: "agent-commit"`
   exists to serve.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\03-CONVENTIONS.md` lines 18 (kebab-case file
+- `docs\03-CONVENTIONS.md` lines 18 (kebab-case file
   naming — applied to entity-type folder names and slugs), lines 22-25 (fixture corpus / no
   hand-edited fixtures convention, applied to this spec's Test Plan fixture list).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` line 63 (this file's
+- `docs\06-PRODUCTION-BIBLE.md` line 63 (this file's
   own brief row: "vaud.json manifest, folder layout, human-readable entity files, .vaud/history
   content-addressed snapshots, restore, library mode, bare-file operation" and ground truth
   "none (design from architecture doc; git-friendly is a requirement)" — the explicit license to

@@ -772,66 +772,66 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md` (full file) —
+- `docs\00-MASTER-PLAN.md` (full file) —
   pillar/milestone framing, "M4 The Table Read (v0.3)" line 53, "packages/interview"
   reference via the layer description, locked decisions table (AI/BYOK row).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\01-VISION.md` (full file) —
+- `docs\01-VISION.md` (full file) —
   pillar 2 ("The interview is the editor," lines 22-24: adaptive depth, quick-pick
   chips, artifact assembling visibly), taste bar (line 45-48, M4 exit criterion's
   qualitative bar).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\ROADMAP.md` lines 46-55 ("M4 — The
+- `docs\ROADMAP.md` lines 46-55 ("M4 — The
   Table Read (v0.3)": event stream shape "question -> chips -> answer -> field-patch
   events," three tempos named, adaptive depth, settings, persona voices, deliverable
   bundles, and the two exit criteria quoted verbatim in this spec's Purpose/tempos
   sections).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md` lines 31-32
+- `docs\02-ARCHITECTURE.md` lines 31-32
   (`packages/interview` package description: "question planner, modes/depth, chip
   generation, living-document event stream. UI-agnostic"), lines 42-43 (dependency
   rule quoted in "Deliverable bundles"), lines 78-83 (Faces: CLI-first, Studio
   forbidden from private engine capabilities — basis for this spec's UI-agnosticism
   requirement).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\decisions\ADR-006-ai-and-agent.md`
+- `docs\decisions\ADR-006-ai-and-agent.md`
   (full file) — §1 (BYOK provider list), §2 ("AI is optional... first key ask happens
   at the first AI moment" — basis for edge case 1), §4 (model roles: "Interview,
   treatment rewrites, test-stage inference, and bulk audits can each point at a
   different configured model" — basis for `ModelRole: "interview"` usage throughout).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\03-CONVENTIONS.md` (full file) —
+- `docs\03-CONVENTIONS.md` (full file) —
   "Deterministic tests only: no network, no clock, no randomness without a seed" (Test
   plan's mocked-model-call requirement), no-emoji/no-em-dash house style, CLI output
   vocabulary note ("Flavor lives in the agent personas, not in scriptable command
   output" — informs why the persona voice hook is opt-in/hookable rather than baked
   into the engine's own event text).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` line 76
+- `docs\06-PRODUCTION-BIBLE.md` line 76
   (this file's own brief row, quoted in full at the top of this document) and the
   global rules section (lines 7-25).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md` (full
+- `specs\formats\canonical-model.md` (full
   file) — `Entity<T>` envelope (lines 13-29, used for `DeliverableBundle`'s entity
   shape), Character design rules (lines 42-50, used for `targetFormat`'s
   universal-vs-native question-plan distinction and the "embedded lorebook is a
   reference" rule cited in the deliverable-bundle test fixture), Lorebook/Persona
   content-type listing (line 9).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md`
+- `specs\formats\escrow-and-roundtrip.md`
   (full file) — confirmed `sessionNotes` is not an escrow concept (rule 1 is about
   source-format fields; a Table Read session has no source format) and that produced
   entities carry empty escrow at creation time.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\key-vault.md` (full file)
+- `specs\engine\key-vault.md` (full file)
   — `ModelRole` type (line 196) and `resolveRole()` contract (lines 264, 331-333) used
   directly in this spec's `TableReadEngineOptions.modelRole` and edge case 1.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\productions-and-history.md`
+- `specs\engine\productions-and-history.md`
   (full file) — `writeEntity`/`commitSnapshot` API (lines 324-350) used in "Deliverable
   bundles" to define the caller-driven persistence boundary; confirmed this engine
   must not import `packages/productions` directly (dependency-rule cross-check against
   `02-ARCHITECTURE.md` line 42).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\lorebook-engine.md` (full
+- `specs\engine\lorebook-engine.md` (full
   file) — read as a style/rigor precedent for a fresh-design, non-codec engine spec in
   this same suite (event/trace object shapes, edge-case numbering density, fixture
   naming conventions); no factual claims taken from it for this spec's actual content.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\productions-and-history.md`
+- `specs\engine\productions-and-history.md`
   — also read in full as a second style precedent for a "no VAUDEVILLE reference,
   design fresh from the architecture doc" spec (same category as this one).
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md` (full file)
+- `templates\SPEC-TEMPLATE.md` (full file)
   — structure followed section-by-section.
-- `C:\Users\chiev\Documents\vaudeville-studios\wireframes\magic\table-read.html` (full
+- `wireframes\magic\table-read.html` (full
   file) — primary intent source per the brief's ground-truth column: three tempos
   gallery (lines 27-36), "TR-1 The Living Card" mock (lines 40-76, source of the
   worked adaptive-depth example quoted in this spec and the field-patch

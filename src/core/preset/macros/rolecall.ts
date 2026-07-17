@@ -1,11 +1,10 @@
 /**
- * RoleCall's macro reference. GENERATED 1-1 from RC's own MacroReferenceDropdown
- * (apps/rc/src/components/presets/editor/MacroReferenceDropdown.tsx) by
- * scripts/gen-rolecall-macros.ts - do not hand-edit, regenerate.
- * hand-transcribing this silently dropped 66 of RC's macros while the header still claimed 1-1;
- * generating removes the chance to abridge. RC is a sibling product, so its prose carries over.
+ * The RoleCall macro dialect: every macro vaud can write for a RoleCall preset, in RoleCall's own
+ * grouping. Kept in step with the upstream engine by the source-pin in ./macros.test.ts (arm it with
+ * VAUD_RC_MACRO_SRC) - hand-maintaining a list this size silently drops entries, which is exactly
+ * how an earlier pass lost 66 of the 174 without noticing.
  *
- * This is RC's dialect ONLY. Its separators and meanings are NOT portable: {{roll::NdM}} and
+ * This is RoleCall's dialect ONLY. Its separators and meanings are NOT portable: {{roll::NdM}} and
  * {{random::min::max}} (a real range here) both differ from SillyTavern's and Marinara's forms.
  * Never reuse this catalog for another lens - see ./sillytavern.ts and ./marinara.ts.
  */

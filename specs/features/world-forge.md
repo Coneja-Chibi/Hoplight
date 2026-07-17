@@ -563,32 +563,32 @@ export function advanceRing(
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md` (line 40:
+- `docs/00-MASTER-PLAN.md` (line 40:
   "v0.1: The Converter: works with zero AI key"; line 59-60: M7 milestone
   description)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md` (lines
+- `docs/02-ARCHITECTURE.md` (lines
   8-33: package layout, `packages/lore`, `packages/interview`; lines 54-69: agent
   loop staged-edit envelope)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md` (line
+- `docs/06-PRODUCTION-BIBLE.md` (line
   80: world-forge.md brief — pin taxonomy, interview spiral, export mapping,
   continuity desk; line 76: table-read.md brief — event stream contract)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md`
+- `specs/formats/canonical-model.md`
   (lines 7-11: content types, "World/compendium arrives with M7 and extends
   Lorebook rather than replacing it"; lines 52-58: Lorebook/LorebookEntry
   baseline adoption instruction)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/escrow-and-roundtrip.md`
+- `specs/formats/escrow-and-roundtrip.md`
   (full file: Round-Trip Law, escrow envelope rules 1-5, byte-identity tiers,
   Reports section)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/03-CONVENTIONS.md` (line 31:
+- `docs/03-CONVENTIONS.md` (line 31:
   deterministic-tests-only law; CLI conventions section)
-- `C:/Users/chiev/Documents/vaudeville-studios/wireframes/magic/world-forge.html`
+- `wireframes/magic/world-forge.html`
   (WF-1 "The Corkboard" lines 27-52; WF-2 "The Interview Spiral" lines 54-90;
   WF-3 "The Continuity Desk" lines 92-112)
-- `C:/Users/chiev/Documents/VAUDEVILLE/apps/rc/src/lib/compendium/computed.ts`
+- `<RoleCall>/apps/rc/src/lib/compendium/computed.ts`
   (structuredOf/typeOf/nameOf helpers :17-38; SCAN_RULES table :241-318;
   computeCrossReferenceGraph :335-416; computeEntryLinks :439-546) — reused for
   the relation-scan MECHANISM only, not the 11-type catalog (see Non-goals)
-- `C:/Users/chiev/Documents/VAUDEVILLE/packages/lorebook/src/types.ts`
+- `<RoleCall>/packages/lorebook/src/types.ts`
   (`LorebookEntry` :216-331, `metadata` field :320; `Lorebook` :342-393)
 
 ## OPEN QUESTIONS

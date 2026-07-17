@@ -772,33 +772,33 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md` —
+- `docs/00-MASTER-PLAN.md` —
   M2 milestone scope ("persona system foundations"), layer definitions.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md:26-29`
+- `docs/02-ARCHITECTURE.md:26-29`
   (`packages/agent` includes "persona loader"), `:73` (human-readable
   JSON/MD files for productions, informing the frontmatter+Markdown format
   choice).
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md:78`
+- `docs/06-PRODUCTION-BIBLE.md:78`
   — this file's brief row; `:50` (personas.md's brief, confirming the
   distinct-concept boundary and cross-referenced here).
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/decisions/ADR-006-ai-and-
+- `docs/decisions/ADR-006-ai-and-
   agent.md` — AI-optional stance (§2), BYOK/no-account/no-server stance
   extended to the Bring Your Own persona concept.
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/engine/agent-loop.md:324-337`
+- `specs/engine/agent-loop.md:324-337`
   (Behavior > Persona injection point — the consumer contract this spec
   fulfills), `:685-686` (Non-goals, confirming agent-loop.md defers persona
   content definition to this file), `:611-614` (edge case 11, "policy always
   wins," restated here as this spec's Edge case 6).
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md`
+- `specs/formats/canonical-model.md`
   — content-type list, confirming `AgentPersona` is deliberately NOT a member
   (used to justify the naming-collision avoidance in Purpose).
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/personas.md` —
+- `specs/formats/personas.md` —
   read in full to confirm the `Persona` name and canonical shape are already
   claimed by the user-identity persona codec spec; its own Non-goals section
   (`:566-571`) explicitly names this file as the different concept.
-- `C:/Users/chiev/Documents/vaudeville-studios/templates/SPEC-TEMPLATE.md` —
+- `templates/SPEC-TEMPLATE.md` —
   section shape followed here.
-- `C:/Users/chiev/Documents/vaudeville-studios/wireframes/identity/names-and-
+- `wireframes/identity/names-and-
   personas.html:38-52` — "the resident personas" gallery, source of all six
   roster names, one-line style tags, and descriptive paragraphs used to seed
   the five house persona files and the Bring Your Own concept.

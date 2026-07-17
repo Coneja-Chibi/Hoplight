@@ -434,56 +434,56 @@ export interface RoleCallRecommendations {
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\types\src\character.ts` (:31-36
+- `<RoleCall>\packages\types\src\character.ts` (:31-36
   `CharacterDefaultBackground`, :42-48 `CharacterPromptDepthInjection`, :79-108
   `CharacterCardDetails`, :110-171 `Character`, :125 creators_note doc comment,
   :153 `card_layout`, :167 `manual_rating_override`)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\types\src\character-display.ts`
+- `<RoleCall>\packages\types\src\character-display.ts`
   (:1-20 `PUBLIC_CHARACTER_DEFINITION_FIELDS`, `PublicDefinitionDisplaySettings`)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\content\types.ts` (:12-25
+- `<RoleCall>\apps\rc\src\lib\content\types.ts` (:12-25
   `ContentType`/`CONTENT_TABLES`, :108-149 `CharacterContent`, :155-173
   `CharacterDetails`, :179-183 `CharacterSprite`)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\serialize-v2.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\serialize-v2.ts`
   (:23-52 `CharacterCardV2`/`CharacterCardV2Data`, :57-139
   `RoleCallRecommendations`/`CharacterCardV2Extensions`, :148-260 `serializeToV2`,
   :164-175 foreign-extension passthrough, :188-199 greeting title handling,
   :202-230 `extensions.rolecall` assembly, :246-248 creator_notes/tagline fallback)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\serialize-v3.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\serialize-v3.ts`
   (:24-45 `CharacterAsset`/`CharacterSource`/`CharacterCardV3`, :51-94
   `CharacterCardV3Data` incl. narrower `extensions.rolecall` shape, :103-183
   `serializeToV3`, :130 V2-as-base call, :135-145 sprite-to-asset merge,
   :147-157 character_book promotion/merge)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\character\parse-v2.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\character\parse-v2.ts`
   (:22-68 `ParsedCharacter`, :63-67 `_rawExtensions`, :112-121 `isV2Card`, :141-145
   `isV3Card`, :169-267 `parseV2`, :181-193 dual character_book handling, :200-215
   regex-script precedence, :230-245 greeting-title merge, :247-266 rolecall
   extension extraction, :269-285 `parseV3` delegating to `parseV2`, :296-311
   `isFlatV2Data`, :316-391 `parseCharacterJson` detection order)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\formats\png\writer.ts`
+- `<RoleCall>\apps\rc\src\lib\formats\png\writer.ts`
   (:34-43 tEXt chunk helpers, :53-91 `embedCharacterData`, :103-142
   `embedDualCharacterData` V3+V2 backfill, :151-175 `extractCharacterData`,
   :188-209 `getCharacterVersion`)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\library\png-parser.ts`
+- `<RoleCall>\apps\rc\src\lib\library\png-parser.ts`
   (:10-11 header doc on ccv3/chara precedence, :62-127 `readCharacterData`
   ccv3>chara>rcpersona>persona precedence, :148-284 `parseCharacterCard` format
   branching incl. :184-223 rolecall_persona munge and :225-247 RoleOut munge)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\exports\persona-export.ts`
+- `<RoleCall>\apps\rc\src\lib\exports\persona-export.ts`
   (:4 header, :78-79 `rcpersona` tEXt keyword write) — confirms rcpersona is the
   Persona codec's keyword, not Character's.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\imports\persona-st.ts`
+- `<RoleCall>\apps\rc\src\lib\imports\persona-st.ts`
   (:20-49 `importPersonaFromST` using the shared `library/png-parser.ts` reader,
   RoleOut/ST persona import path)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\imports\content-detector.ts`
+- `<RoleCall>\apps\rc\src\lib\imports\content-detector.ts`
   (:15,:70 use of `library/png-parser.ts` `parseCharacterCard` for content-type
   classification) — cited to show the reader is live/used, not dead code.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\sprites\types.ts` (:16-45
+- `<RoleCall>\apps\rc\src\lib\sprites\types.ts` (:16-45
   `SpriteType`/`SpriteCompact`/`Sprite`/`V3Asset`, :65-106 host allow/block lists,
   :250-284 compact/expand conversions, :289-306 `spritesToV3Assets`, :311-323
   `v3AssetsToSprites`)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`,
+- `docs\00-MASTER-PLAN.md`,
   `02-ARCHITECTURE.md`, `06-PRODUCTION-BIBLE.md` (brief row for this file, line 45)
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`
+- `specs\formats\canonical-model.md`
   (Character superset rules, escrow envelope shape, Lorebook-reference rule)
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md`
+- `specs\formats\escrow-and-roundtrip.md`
   (Round-Trip Law, escrow rules, conflict rule, capabilities matrix, fixture rules)
-- `C:\Users\chiev\Documents\vaudeville-studios\templates\SPEC-TEMPLATE.md` (structure)
+- `templates\SPEC-TEMPLATE.md` (structure)

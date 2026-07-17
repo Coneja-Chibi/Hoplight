@@ -323,32 +323,32 @@ export interface ProviderTokenCounter extends TokenCounter {
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\tokenizer.ts` (full file, lines 1-116):
+- `<RoleCall>\packages\lorebook\src\tokenizer.ts` (full file, lines 1-116):
   primary reference — `countTokens`, `TOKEN_COUNT_CACHE`/VVS-518 caching rationale, `countEntryTokens`,
   `countTotalTokens`, `estimateTokens`, `getTokenIds`, the `gpt-tokenizer`/`cl100k_base`
   approximation-for-all-models documentation in the file header.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\tokenizer.ts` (lines 1-119): duplicate
+- `<RoleCall>\apps\rc\src\lib\lorebook\tokenizer.ts` (lines 1-119): duplicate
   of the above with an expanded cache-recency comment; confirms the pattern is intentionally
   repeated app-side, not a one-off.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\persona-editor\src\lib\tokenizer.ts` (lines 1-90):
+- `<RoleCall>\packages\persona-editor\src\lib\tokenizer.ts` (lines 1-90):
   third copy, uncached variant; confirms the core counting logic (`encode().length`, char/4
   fallback) is stable across all three copies.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\inference-engine.ts` lines 31, 513-539
+- `<RoleCall>\apps\rc\src\lib\ai\inference-engine.ts` lines 31, 513-539
   (`countMessagesTokens`, the per-message/role overhead heuristic), and lines 1750-1770, 2505-2515
   (`tokensFromUsage.prompt || countMessagesTokens(...)` — provider-usage-first pattern that
   justifies this spec's `exact`/`basis` fields and the "local counter is a fallback, not a source of
   truth once a provider is in play" rule).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`: "v0.1 | The Converter: works
+- `docs\00-MASTER-PLAN.md`: "v0.1 | The Converter: works
   with zero AI key" (locked-decisions table) — the constraint that forces the default counting
   strategy to be fully offline/local.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md`: `packages/core` "token
+- `docs\02-ARCHITECTURE.md`: `packages/core` "token
   counting interfaces… ZERO deps on other packages" and `packages/ai` provider-adapter description
   (BYOK Anthropic/OpenRouter/OpenAI/Gemini/Ollama) — basis for the `core` interface / provider-adapter
   split and for `ProviderTokenCounter` being an M2 concern.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`: `## Token counting`
+- `specs\formats\canonical-model.md`: `## Token counting`
   section ("`core` defines `TokenCounter` as an interface... implementations live outside core...
   never stores them") — the authoritative statement this spec fills in.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` line 61 (this file's own
+- `docs\06-PRODUCTION-BIBLE.md` line 61 (this file's own
   brief row): "TokenCounter interface, tokenizer choice per model family, caching, honest
   approximations, counts in reports/UI."
 - Anthropic's public API documentation (via the `claude-api` skill's cached reference,

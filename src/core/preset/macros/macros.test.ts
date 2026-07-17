@@ -40,12 +40,16 @@ describe("catalog integrity", () => {
 });
 
 /**
- * Source-pin: the RoleCall catalog is generated from RC's dropdown, because hand-transcribing it
- * quietly dropped 66 of its 174 macros. Re-parse RC's source and demand an exact match.
+ * Source-pin: hand-transcribing the RoleCall catalog quietly dropped 66 of its 174 macros, so this
+ * re-parses the upstream source and demands an exact match.
+ *
+ * The path comes from an env var, never a literal: upstream lives outside this repo (and is not
+ * public), so a hardcoded path would both leak a local filesystem and make the test a permanent
+ * skip for everyone else. Set VAUD_RC_MACRO_SRC to the upstream dropdown to arm it; unset, it skips.
  */
-const RC_SRC = "C:/Users/chiev/Documents/VAUDEVILLE/apps/rc/src/components/presets/editor/MacroReferenceDropdown.tsx";
-describe("pinned to the real RoleCall source", () => {
-  test.skipIf(!existsSync(RC_SRC))("carries every group and macro RC ships, none abridged", () => {
+const RC_SRC = process.env.VAUD_RC_MACRO_SRC ?? "";
+describe("pinned to the upstream RoleCall source", () => {
+  test.skipIf(!RC_SRC || !existsSync(RC_SRC))("carries every group and macro upstream ships, none abridged", () => {
     const src = readFileSync(RC_SRC, "utf8");
     const body = src.slice(src.indexOf("const MACRO_GROUPS"), src.indexOf("interface MacroReferenceDropdownProps"));
     const marks = [...body.matchAll(/name:\s*"([^"]+)",\s*\n\s*icon:/g)].map((m) => ({ name: m[1]!, at: m.index! }));
@@ -163,7 +167,10 @@ describe("regression: real macros the old filtered catalog hid", () => {
  * Source-pinning: when the real SillyTavern install is present, assert every token we advertise is
  * one ST's own reference lists. Skipped where ST isn't installed, so CI stays green.
  */
-const ST_HELP = "C:/Users/chiev/SillyTavern/public/scripts/templates/macros.html";
+// Path via env var, not a literal: a local SillyTavern checkout is not in this repo, and hardcoding
+// one leaks a filesystem and makes the pin a permanent skip elsewhere. Point
+// VAUD_ST_MACRO_HELP at SillyTavern's public/scripts/templates/macros.html to arm it.
+const ST_HELP = process.env.VAUD_ST_MACRO_HELP ?? "";
 const bareName = (tok: string): string => tok.replace(/^\{\{/, "").split(/[:\s}\\]/)[0]!.toLowerCase();
 
 describe("pinned to the real SillyTavern install", () => {

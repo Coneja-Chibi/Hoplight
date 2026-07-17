@@ -527,37 +527,37 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md` — v0.1 "The
+- `docs/00-MASTER-PLAN.md` — v0.1 "The
   Converter" scope, `vaud convert/inspect/validate/export` command names, M1 exit
   criteria.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md` — `packages/*`
+- `docs/02-ARCHITECTURE.md` — `packages/*`
   dependency rule (`core <- formats <- everything`), escrow/capabilities mechanism,
   productions concept.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/03-CONVENTIONS.md:33-40` — CLI
+- `docs/03-CONVENTIONS.md:33-40` — CLI
   conventions section: `--json`, exit codes 0/1/2, `--yes` for destructive ops, plain-
   first output vocabulary.
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md:72` —
+- `docs/06-PRODUCTION-BIBLE.md:72` —
   brief row for `cli-converter.md`: five commands, report rendering, `--json` shapes,
   `--strict`, exit codes, multi-target naming; ground truth pointer to escrow spec and
   `03-CONVENTIONS.md`.
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md` —
+- `specs/formats/canonical-model.md` —
   `Entity<T>` envelope, `ContentType` set, escrow/capabilities relationship.
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/escrow-and-roundtrip.md` —
+- `specs/formats/escrow-and-roundtrip.md` —
   Round-Trip Law definition; Escrow envelope shape; `--strict` reacts to `dropped`
   only (quoted in section 1); `ParseReport`/`SerializeReport` field names (escrowed,
   dropped, escrowShadowed, warnings); capabilities matrix mechanism; fixture corpus
   rules (misdetection cases as permanent fixtures).
   `escrow-and-roundtrip.md` — "Reports" — the exact clause: "`--strict` exits nonzero
   if `dropped` is nonempty."
-- `C:/Users/chiev/Documents/vaudeville-studios/templates/SPEC-TEMPLATE.md` — section
+- `templates/SPEC-TEMPLATE.md` — section
   structure followed by this file.
-- `C:/Users/chiev/Documents/vaudeville-studios/wireframes/cli/cli-and-tui.html:36,49` —
+- `wireframes/cli/cli-and-tui.html:36,49` —
   illustrative (non-normative) CLI grammar examples (`vaud convert VESPER.png --to
   charx json backyard`; `vaud export production/neon-noir --all-formats --zip`) used
   to shape this spec's `--to`/`--all-formats`/`--zip` grammar and output-naming
   examples; this file is a wireframe mockup, not ground truth, and is cited only where
   explicitly noted as such above.
-- `C:/Users/chiev/Documents/VAUDEVILLE/apps/rc/src/lib/imports/bulk-import-orchestrator.ts` —
+- `<RoleCall>/apps/rc/src/lib/imports/bulk-import-orchestrator.ts` —
   read for background on mixed-ZIP classify-then-import dependency ordering (personas,
   characters, presets, lorebooks, then chats) and zip-bomb size guards; this file is
   the ground truth for `specs/formats/bundle-import.md`, not for this spec, so

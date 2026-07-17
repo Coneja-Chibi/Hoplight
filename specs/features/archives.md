@@ -661,41 +661,41 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 
 ## Sources consulted
 
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/00-MASTER-PLAN.md` (pillar/milestone
+- `docs/00-MASTER-PLAN.md` (pillar/milestone
   framing, "M7 The Archives + World Forge" line 59-60)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/01-VISION.md` (the "archivist"
+- `docs/01-VISION.md` (the "archivist"
   persona, line 13-14; "The Doctor is honest" anti-slop stance, line 25-27, applied here
   by analogy to citation trust)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/02-ARCHITECTURE.md` lines 6-40
+- `docs/02-ARCHITECTURE.md` lines 6-40
   (package layout — no `packages/archives` currently listed, hence OPEN QUESTION 1),
   lines 85-90 (security & privacy invariants — no network calls except configured
   providers, applied to Non-goals)
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/ROADMAP.md` lines 73-80 ("M7 — The
+- `docs/ROADMAP.md` lines 73-80 ("M7 — The
   Archives + The World Forge (v0.6+)" exit criterion: "distill a real character from
   >= 20k words of logs where every field cites real scenes")
-- `C:/Users/chiev/Documents/vaudeville-studios/docs/06-PRODUCTION-BIBLE.md` line 79 (this
+- `docs/06-PRODUCTION-BIBLE.md` line 79 (this
   file's own brief row: "Log ingestion (jsonl/txt/md), voice clustering, claim
   extraction with per-claim scene citations, confidence tiers, evidence review flow,
   distill outputs (card + lorebook)" and ground truth
   "wireframes/magic/archives.html for intent"), lines 75-76 (script-doctor.md and
   table-read.md brief rows, cited for the "documented, stable" health-score-formula
   convention and the UI-agnostic event-stream convention this spec reuses)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/canonical-model.md` (full
+- `specs/formats/canonical-model.md` (full
   file — `Entity<T>` envelope, `Character`/`Lorebook` field surfaces, escrow's
   "keyed by the format that owns them" definition used to justify NOT storing citations
   in escrow)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/formats/escrow-and-roundtrip.md`
+- `specs/formats/escrow-and-roundtrip.md`
   (full file — Round-Trip Law scope, used in Test plan to state non-applicability)
-- `C:/Users/chiev/Documents/vaudeville-studios/specs/engine/productions-and-history.md`
+- `specs/engine/productions-and-history.md`
   (full file — production folder layout, `.vaud/` reservation rule used to justify
   `.vaud/archives/<runId>/` placement, `writeEntity`/`SnapshotTrigger` API reused/
   extended, asset-reference-not-copy pattern reused for source-log references)
-- `C:/Users/chiev/Documents/vaudeville-studios/wireframes/magic/archives.html` (full
+- `wireframes/magic/archives.html` (full
   file — AR-1 "The Intake Desk" lines 27-57, AR-2 "The Evidence Board" lines 59-92;
   every quoted UI copy fragment in this spec — "0.94 confidence", "12 citations", "2
   scenes only", "ACCEPT ALL CITED", "nothing leaves this machine" — is drawn verbatim
   from this file)
-- `C:/Users/chiev/Documents/vaudeville-studios/templates/SPEC-TEMPLATE.md` (structure)
+- `templates/SPEC-TEMPLATE.md` (structure)
 - VAUDEVILLE `apps/rc/src/lib/imports/sillytavern-backup-client.ts`,
   `apps/rc/src/lib/imports/bulk-import-orchestrator.ts`, and other `jsonl`-matching
   files found via a repo-wide search — read only to confirm RC has no existing

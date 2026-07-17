@@ -630,61 +630,61 @@ export function pickScreenTestWinner(
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md` —
+- `docs\00-MASTER-PLAN.md` —
   "v0.1 | The Converter: works with zero AI key" (locked decisions table,
   basis for "Why this feature requires AI, unlike the Converter"); "M5 The
   Test Stage + Productions" milestone row; "Every feature must exist in the
   CLI before it exists in the app."
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\02-ARCHITECTURE.md`
+- `docs\02-ARCHITECTURE.md`
   lines 21-22 (`packages/assembly` description: "Prompt assembly for the
   Test Stage: preset + card + persona + lorebook + history -> messages
   payload, with a full trace object"), lines 78-83 (Faces: "every studio
   action maps to an engine call that the CLI can also express"), lines
   85-90 ("No telemetry of any kind" — basis for the cost line being
   ephemeral/local-only).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\decisions\ADR-006-ai-and-agent.md`
+- `docs\decisions\ADR-006-ai-and-agent.md`
   (full file) — point 4, "Model roles are user-mappable... test-stage
   inference... can each point at a different configured model," the basis
   for the `test-stage` model role and for AI being optional elsewhere but
   not here.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\lorebook-engine.md`
+- `specs\engine\lorebook-engine.md`
   (full file) — `LorebookEngine` session-instance contract ("Inputs"
   section), the full `process()` pipeline, `ActivationTrace`/
   `ActivationTraceEntry` shape (API sketch), and specifically its
   "Determinism across regenerations" section, which names this file
   (`specs/features/test-stage.md`) as the consumer of the snapshot/restore
   contract for the A/B screen test.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\macro-engine.md`
+- `specs\engine\macro-engine.md`
   lines 1-27 — confirms the Test Stage is one of three named callers of the
   macro engine and that macro evaluation never runs during codec parse/
   serialize, only at assembly/render time.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\token-counting.md`
+- `specs\engine\token-counting.md`
   (full file) — `TokenCounter`/`TokenCountResult`/`TokenCountOptions`
   interface (reused directly in this spec's API sketch), the
   provider-usage-preferred precedent cited in "The cost line" rule 1, and
   the `~`-prefix honesty convention for inexact counts.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\regex-scripts.md`
+- `specs\formats\regex-scripts.md`
   lines 1-40 — `RegexPlacement` values (`ai_output`, `display_only`,
   `prompt_only`, etc.) used in the turn lifecycle's regex post-pass step and
   `RiggingTrace.regex` shape.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\engine\productions-and-history.md`
+- `specs\engine\productions-and-history.md`
   (full file) — "Bare-file operation" (basis for `SessionAttachment`'s
   `{ filePath }` alternative to `{ entityId }`), `readFileAtSnapshot` (basis
   for the draft-axis screen test's snapshot-read option, OPEN QUESTION 5),
   and confirmation that no `Session`/`Chat` canonical entity type exists in
   this suite (basis for OPEN QUESTION 8).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`
+- `specs\formats\canonical-model.md`
   — "Content types (v1 surface)" list, confirming no session/chat type
   exists at the canonical-model level.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\README.md` lines 28-40 —
+- `specs\README.md` lines 28-40 —
   confirms `prompt-assembly.md` and `provider-adapters.md` are listed as
   planned `engine/` specs but were not present as files at the time this
   spec was written (basis for OPEN QUESTION 1 and OPEN QUESTION 2).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md`
+- `docs\06-PRODUCTION-BIBLE.md`
   line 77 (this file's own brief row: "Session model over assembly package,
   rigging trace rendering, swap model/preset mid-session, A/B screen test,
   cost line," ground truth "prompt-assembly spec").
-- `C:\Users\chiev\Documents\vaudeville-studios\wireframes\magic\test-stage.html`
+- `wireframes\magic\test-stage.html`
   (full file) — intent source for all three wireframe panels: `TS-1`
   (:27-51, plain chat, `SWAP MODEL`/`RESTART` as distinct controls), `TS-2`
   (:53-91, rigging view layout, the monospace trace block, the "why didn't
@@ -693,14 +693,14 @@ export function pickScreenTestWinner(
   "pick B" chips, and the explicit "Doubles token spend per turn; needs a
   visible cost line" objection this spec's "The cost line" section responds
   to directly).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\prompt-assembly.ts`
+- `<RoleCall>\apps\rc\src\lib\ai\prompt-assembly.ts`
   lines 1-60 (file header + imports only) — reference reading per this
   file's ground-truth listing in `docs/06-PRODUCTION-BIBLE.md` line 62
   ("VAUDEVILLE reference (reimplement, don't port)"); used only to confirm
   the INPUT shape a real assembly call needs (character, persona, preset
   prompts, lorebook engine result, chat history, model name/context limit),
   not read in algorithmic detail and not ported.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\prompt-tracking\types.ts`
+- `<RoleCall>\apps\rc\src\lib\prompt-tracking\types.ts`
   (full file, 883 lines) — read to confirm what a production-grade,
   source-attributed prompt trace looks like in practice (`SourceTree`,
   `TrackedMessage`, `PromptDebugData`, `TokenAttribution`). Used only to

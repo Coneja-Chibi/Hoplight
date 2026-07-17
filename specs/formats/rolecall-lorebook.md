@@ -468,15 +468,15 @@ export function serializeRoleCallLorebookV1(
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\schemas.ts` (whole file, 352 lines) — `RoleCallExportV1` :28, `RoleCallLorebookV1` :42, `RoleCallCategoryV1` :102, `LorebookTreeV1` :119, `RoleCallEntryV1` :139-314, `ExportOptions`/`ExportResult` :323-352.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\types.ts` — `LorebookCategory` :10, `Trigger`/`SimpleTrigger`/`AdvancedTrigger` :27-89, `SelectiveLogic` :108, `CharacterFilter` :120, `EntrySideEffect(s)` :138-153, `InjectionPosition` :182-191, `MessageRole` :193, `EntryOrigin` :210, `LorebookEntry` :216-331, `Lorebook` :342-393, `LorebookWithEntries` :399-402.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\format-detection.ts` (whole file, 232 lines) — `detectLorebookFormat` :44-148, `detectRoleCallFeatures` :154-184, `isRoleCallVersionSupported` :214-217, `getRoleCallMigration` :226-231.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\serializer.ts` (whole file, 628 lines) — ST position/role/selectiveLogic mappers :112-156, `serializeEntry` (ST) :217-348, `serializeToST` :362-407, `serializeEntryToRoleCallV1` :471-551, `serializeToRoleCallV1` :560-614, `serializeToRoleCallJSON` :624-627.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\parser.ts` — `parseRoleCallV1` :676-866, `normalizeTriggers` :875-891, `parseRoleCallInternal` header :893-899, `parseLorebook` dispatcher :1223+.
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\validation.ts` — `validateForRoleCallExport` :240-242 (delegates to base `validateLorebook`).
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\diff-engine.ts` — `EntryState`/`LorebookState`/`ChangeType` :18-90 (versioning hooks context; this codec's field set is the same one the diff engine tracks per-entry for changelog generation, confirming which fields are considered "the entry" for versioning purposes).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\compendium-parser.ts` — `compendium-` schema marker detection :83-84, version check :169-171 (cited only to scope the Non-goal / Edge case 2 boundary, not analyzed in full).
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\05-EXTRACTION-MAP.md` :16-25 (extraction inventory for `packages/lore`, confirms `schemas.ts`/`parser.ts`/`serializer.ts`/`diff-engine.ts` are the intended source set).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md` — Lorebook/LorebookEntry canonical baseline decision (:52-58), Escrow envelope shape.
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\escrow-and-roundtrip.md` — Round-Trip Law, Escrow envelope, capabilities matrix, reporting contract.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\06-PRODUCTION-BIBLE.md` :47 — this file's brief.
+- `<RoleCall>\packages\lorebook\src\schemas.ts` (whole file, 352 lines) — `RoleCallExportV1` :28, `RoleCallLorebookV1` :42, `RoleCallCategoryV1` :102, `LorebookTreeV1` :119, `RoleCallEntryV1` :139-314, `ExportOptions`/`ExportResult` :323-352.
+- `<RoleCall>\packages\lorebook\src\types.ts` — `LorebookCategory` :10, `Trigger`/`SimpleTrigger`/`AdvancedTrigger` :27-89, `SelectiveLogic` :108, `CharacterFilter` :120, `EntrySideEffect(s)` :138-153, `InjectionPosition` :182-191, `MessageRole` :193, `EntryOrigin` :210, `LorebookEntry` :216-331, `Lorebook` :342-393, `LorebookWithEntries` :399-402.
+- `<RoleCall>\packages\lorebook\src\format-detection.ts` (whole file, 232 lines) — `detectLorebookFormat` :44-148, `detectRoleCallFeatures` :154-184, `isRoleCallVersionSupported` :214-217, `getRoleCallMigration` :226-231.
+- `<RoleCall>\packages\lorebook\src\serializer.ts` (whole file, 628 lines) — ST position/role/selectiveLogic mappers :112-156, `serializeEntry` (ST) :217-348, `serializeToST` :362-407, `serializeEntryToRoleCallV1` :471-551, `serializeToRoleCallV1` :560-614, `serializeToRoleCallJSON` :624-627.
+- `<RoleCall>\packages\lorebook\src\parser.ts` — `parseRoleCallV1` :676-866, `normalizeTriggers` :875-891, `parseRoleCallInternal` header :893-899, `parseLorebook` dispatcher :1223+.
+- `<RoleCall>\packages\lorebook\src\validation.ts` — `validateForRoleCallExport` :240-242 (delegates to base `validateLorebook`).
+- `<RoleCall>\packages\lorebook\src\diff-engine.ts` — `EntryState`/`LorebookState`/`ChangeType` :18-90 (versioning hooks context; this codec's field set is the same one the diff engine tracks per-entry for changelog generation, confirming which fields are considered "the entry" for versioning purposes).
+- `<RoleCall>\apps\rc\src\lib\lorebook\compendium-parser.ts` — `compendium-` schema marker detection :83-84, version check :169-171 (cited only to scope the Non-goal / Edge case 2 boundary, not analyzed in full).
+- `docs\05-EXTRACTION-MAP.md` :16-25 (extraction inventory for `packages/lore`, confirms `schemas.ts`/`parser.ts`/`serializer.ts`/`diff-engine.ts` are the intended source set).
+- `specs\formats\canonical-model.md` — Lorebook/LorebookEntry canonical baseline decision (:52-58), Escrow envelope shape.
+- `specs\formats\escrow-and-roundtrip.md` — Round-Trip Law, Escrow envelope, capabilities matrix, reporting contract.
+- `docs\06-PRODUCTION-BIBLE.md` :47 — this file's brief.

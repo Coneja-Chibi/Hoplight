@@ -601,7 +601,7 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\prompt-assembly.ts` (full file
+- `<RoleCall>\apps\rc\src\lib\ai\prompt-assembly.ts` (full file
   read across four passes, 3991 lines): header/history note :1-15; `PromptAssemblyInput`
   :239-428; stage markers via `markStage(...)` calls :972, :1188, :1410, :1781, :2147,
   :2709, :3147, :3962; author's-note frequency gate :937-957; preset resolution +
@@ -616,33 +616,33 @@ Property/unit tests beyond fixtures:
   pass + iterative unresolved-macro strip :3699-3796; impersonate-mode injection
   :3933-3958; context-budget wiring :2928-2989, including the pre-trim safety-ceiling
   comment/rationale :2831-2864; return shape :3964-3977.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\preset-loader.ts`: `SamplerSettings`,
+- `<RoleCall>\apps\rc\src\lib\ai\preset-loader.ts`: `SamplerSettings`,
   `RawPresetPrompt`, `ProcessedPrompts` interfaces :33-124; `synthesizeDefaultPresetPrompts`
   :144-200 (full function + its doc comment explaining the synthesized-marker rationale).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\lorebook-position-injection.ts`
+- `<RoleCall>\apps\rc\src\lib\ai\lorebook-position-injection.ts`
   (full file, 202 lines): `injectStructuralLorebookEntries` anchor-resolution algorithm,
   `StructuralLorebookPosition` union, `characterBlockStart` fallback chain :129-156.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\ai\context-budget.ts` (lines
+- `<RoleCall>\apps\rc\src\lib\ai\context-budget.ts` (lines
   1-40 read: `BudgetReport`, `ContextBudgetManager` interfaces; `trimHistoryToFit`/
   `reserveRequired`/`reserveImportant` signatures only — internal trimming algorithm body
   not read in this pass, treated as reference-only per the "reimplement, don't port"
   instruction).
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\regex\apply-regex.ts` (lines 1-60
+- `<RoleCall>\apps\rc\src\lib\regex\apply-regex.ts` (lines 1-60
   read): `RegexPlacement` union and its documenting comment (six placements, which three
   are "pipeline edges" vs. "storage-layer" placements), `RegexRule`/`RegexScript` shapes.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\prompt-tracking\types.ts` (full
+- `<RoleCall>\apps\rc\src\lib\prompt-tracking\types.ts` (full
   file read): `SourceIdentifier`/`PromptSource` :16-64; `LorebookTriggerInfo` :69-90;
   `PromptDebugData` :704-776; `PromptSectionDebug` (attribution/badges) :560-590;
   `MacroExpansionDebug` :605-634; `SourceNodeDebug` :639-667; `LorebookEntryDebug`
   :670-699 — this is the reference shape `AssemblyTrace` generalizes off DB IDs onto
   canonical entity IDs.
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`,
+- `docs\00-MASTER-PLAN.md`,
   `docs\02-ARCHITECTURE.md` (`packages/assembly` description: "Prompt assembly for the
   Test Stage: preset + card + persona + lorebook + history -> messages payload, with a
   full trace object"), `docs\05-EXTRACTION-MAP.md` (:57-61, "reference only —
   reimplement, do not port" instruction and the specific RC-entanglement list),
   `docs\06-PRODUCTION-BIBLE.md` (brief row for this file, line 62).
-- `C:\Users\chiev\Documents\vaudeville-studios\specs\formats\canonical-model.md`,
+- `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `specs\formats\st-preset.md` (canonical
   `Preset.prompts[]` field shape: `identifier`, `injectionPosition` 0-4 enum,
   `injectionDepth`, `injectionOrder`, `marker`, `isDefault`), `specs\formats\regex-scripts.md`

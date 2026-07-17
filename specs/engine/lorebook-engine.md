@@ -722,37 +722,37 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\types.ts` (full
+- `<RoleCall>\packages\lorebook\src\types.ts` (full
   file: `LorebookEntry` :216-331, `Trigger`/`SimpleTrigger`/`AdvancedTrigger`
   :55-84, `SelectiveLogic` :108, `InjectionPosition` :182-192, `Lorebook`
   :342-393, `DEFAULT_ENTRY`/`DEFAULT_LOREBOOK` :717-787)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\engine.ts` (full
+- `<RoleCall>\apps\rc\src\lib\lorebook\engine.ts` (full
   file: `process()` pipeline :200-611, determinism/snapshot comments
   :200-238, `evaluateTriggers` :651-722)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\triggers\index.ts`
+- `<RoleCall>\apps\rc\src\lib\lorebook\triggers\index.ts`
   (selective logic :119-211, `matchTrigger` dispatch :57-80, frequency
   wrapper :89-104)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\triggers\keyword.ts`
+- `<RoleCall>\apps\rc\src\lib\lorebook\triggers\keyword.ts`
   (full file: RE2 vs native regex strategy :1-149)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\triggers\special.ts`
+- `<RoleCall>\apps\rc\src\lib\lorebook\triggers\special.ts`
   (full file: dispatch table :77-129, recency :184-227, frequency
   helpers :237-273, narrative-conditional always-false :117-123,
   `SPECIAL_TRIGGER_TYPES` :342-499)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\matching\index.ts`,
+- `<RoleCall>\apps\rc\src\lib\lorebook\matching\index.ts`,
   `recursion.ts` (full file, algorithm :57-201), `scan-sources.ts` (full file),
   `character-filter.ts` (full file)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\selection\index.ts`,
+- `<RoleCall>\apps\rc\src\lib\lorebook\selection\index.ts`,
   `groups.ts` (full file), `priority.ts` (full file, budget algorithm
   :62-125), `boosting.ts` (full file)
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\lorebook\runtime\state.ts`
+- `<RoleCall>\apps\rc\src\lib\lorebook\runtime\state.ts`
   (full file: sticky/cooldown/delay counters, snapshot/restore :107-126)
-- `C:\Users\chiev\Documents\VAUDEVILLE\packages\lorebook\src\triggers\special.ts`
+- `<RoleCall>\packages\lorebook\src\triggers\special.ts`
   (confirmed near-identical to `apps/rc` copy, first 60 lines diffed; used to
   confirm `packages/lorebook` is the dependency-clean extraction target per
   `docs/05-EXTRACTION-MAP.md:16-31`)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\05-EXTRACTION-MAP.md`
+- `docs\05-EXTRACTION-MAP.md`
   (:16-31, packages/lore extraction source list)
-- `C:\Users\chiev\Documents\vaudeville-studios\docs\00-MASTER-PLAN.md`,
+- `docs\00-MASTER-PLAN.md`,
   `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (brief row for this
   file, line 59), `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `templates\SPEC-TEMPLATE.md`

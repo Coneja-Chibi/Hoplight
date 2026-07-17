@@ -411,7 +411,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
 - `specs/formats/escrow-and-roundtrip.md` — confirmed as not applicable to this spec
   (no source-format round trip involved).
 - `templates/SPEC-TEMPLATE.md` — structure followed section-by-section.
-- `C:\Users\chiev\Documents\VAUDEVILLE\apps\rc\src\lib\providers\crypto.ts` (read in
+- `<RoleCall>\apps\rc\src\lib\providers\crypto.ts` (read in
   full) — used only to confirm that RC's existing provider-key encryption is a
   different problem (server-stored, BIP39/WebCrypto, client-decrypts-per-request,
   multi-tenant web app) and therefore not portable ground truth for a local,
