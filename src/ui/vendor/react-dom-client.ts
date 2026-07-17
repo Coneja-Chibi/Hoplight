@@ -1,6 +1,6 @@
 /**
  * Vendor stub: the shared DOM renderer entry. Explicit named re-exports because react-dom ships
- * CJS and `export *` from CJS drops names (see vendor/jsx-dev-runtime.ts for the war story).
+ * CJS, and `export *` from a CJS module silently drops the named exports at bundle time.
  */
 import * as ns from "react-dom/client";
 

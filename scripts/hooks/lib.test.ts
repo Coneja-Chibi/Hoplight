@@ -139,8 +139,14 @@ test("impureCoreTokens ignores effect words inside comments", () => {
 
 test("missingCoreSiblings demands a test file for each changed core", () => {
   const changed = ["src/ui/follow-core.ts", "src/ui/boot.ts", "src/ui/x-core.ts"];
-  const exists = (p: string): boolean => p === "src/ui/follow-core.test.ts"; // only follow has its test
-  expect(missingCoreSiblings(changed, exists)).toEqual(["src/ui/x-core.test.ts"]);
+  const onDisk = new Set(["src/ui/follow-core.ts", "src/ui/follow-core.test.ts", "src/ui/x-core.ts"]);
+  expect(missingCoreSiblings(changed, (p) => onDisk.has(p))).toEqual(["src/ui/x-core.test.ts"]);
+});
+
+test("missingCoreSiblings: a deleted core owes nothing (its test left with it)", () => {
+  // deletion shows up in the changed list, but neither file is on disk anymore
+  const changed = ["src/ui/gone-core.ts"];
+  expect(missingCoreSiblings(changed, () => false)).toEqual([]);
 });
 
 test("missingCoreSiblings ignores the core's own test file being what changed", () => {

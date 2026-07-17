@@ -1,8 +1,8 @@
 /**
  * The Workbench app - home: the IDE (CONTRACT V2 port of the deleted vanilla index.ts). Pieces sent
  * from the Library open here; the shell's tab strip IS the tab bar, and this room shows the ACTIVE
- * piece's editor pane. Characters get the writable editor (Editor.tsx); every other kind keeps the
- * read-only inspector until its own editor lands.
+ * piece's editor pane. Every kind opens its own writable editor (character, pack, lorebook, regex,
+ * persona, preset).
  *
  * Draft persistence: one CharacterPane stays mounted (hidden via CSS) per open character, so React
  * state IS the unsaved draft across tab switches - closing the tab unmounts it, which is the discard.
@@ -12,9 +12,7 @@ import type { CSSProperties, JSX, ReactNode } from "react";
 import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
-import { RenderBox } from "../../components/render-box";
 import { rankRecents } from "./recents-core";
-import { fieldsFor, type InspectField } from "./inspect-core";
 import { CharacterEditor } from "./Editor";
 import { PackEditor } from "./PackEditor";
 import { LorebookEditor } from "./LorebookEditor";
@@ -36,30 +34,6 @@ const MARK_SVG =
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
-
-const metaLine = (p: StudioEntitySummary): string => {
-  const bits = [deckMeta(p.kind).plural];
-  if (p.sourceFormat) bits.push(p.sourceVariant ? `${p.sourceFormat} · ${p.sourceVariant}` : p.sourceFormat);
-  return bits.join("  ·  ");
-};
-
-/** the shared art + sheet frame every open piece's pane renders inside */
-function PieceFrame({ ctx, piece, children }: { ctx: AppContext; piece: StudioEntitySummary; children: ReactNode }): JSX.Element {
-  const menuRef = ctx.menus.useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
-  const url = portraitUrl(piece);
-  return (
-    <div className={styles.pane}>
-      <div ref={menuRef} className={styles.art} style={url ? { backgroundImage: `url("${url}")` } : undefined}>
-        {!url && <b>{piece.name.charAt(0).toUpperCase()}</b>}
-      </div>
-      <div className={styles.sheet}>
-        <div className={styles.nm}>{piece.name}</div>
-        <div className={styles.meta}>{metaLine(piece)}</div>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 /** One mounted-per-open editable piece; hidden (not unmounted) while another tab is active. */
 function EditablePane({
@@ -128,45 +102,6 @@ function EditablePane({
         )}
       </div>
     </div>
-  );
-}
-
-/** Non-character kinds: the truthful read-only inspector, re-fetched fresh each time it activates
- * (nothing here needs to survive a tab switch - there is no draft). */
-function InspectorPane({ ctx, piece }: { ctx: AppContext; piece: StudioEntitySummary }): JSX.Element {
-  const [fields, setFields] = useState<InspectField[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    setFields([]);
-    void ctx.api
-      .getEntity(`kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`)
-      .then((entity) => {
-        if (cancelled) return;
-        setFields(fieldsFor(piece.kind, (entity as { body?: unknown }).body));
-      })
-      .catch(() => {
-        if (!cancelled) setFields([]);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [ctx, piece.id, piece.kind]);
-
-  return (
-    <PieceFrame ctx={ctx} piece={piece}>
-      <div className={styles.sheet} style={{ gap: ".7rem" }}>
-        {fields.map((f) => (
-          <div className={styles.field} key={f.k}>
-            <div className={styles.fk}>{f.k}</div>
-            <div className={styles.fv}>
-              <RenderBox value={f.v} format={f.format} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className={styles.soon}>read-only for now · full editing lands here next</div>
-    </PieceFrame>
   );
 }
 

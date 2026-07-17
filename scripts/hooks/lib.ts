@@ -62,6 +62,8 @@ export function missingCoreSiblings(changed: string[], exists: (path: string) =>
     .filter(isCoreFile)
     .filter((p) => !isTestFile(p))
     .map((p) => norm(p))
+    // a DELETED core owes nothing: the promise to test it left with the file
+    .filter((p) => exists(p))
     .filter((p) => !exists(p.replace(/-core\.ts$/, "-core.test.ts")))
     .map((p) => p.replace(/-core\.ts$/, "-core.test.ts"));
 }

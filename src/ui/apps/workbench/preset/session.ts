@@ -5,11 +5,14 @@
  * schema's UUID-regen exemption), so newBlock() only mints for authored ones.
  */
 import { newUiId } from "../../../_shared/new-id";
+import { deepEq } from "../editor-core";
 import { MARKER_LABELS } from "../../../../core/preset";
 import type { PresetBody, PresetPrompt, PresetSamplers } from "../../../../entities/preset";
 
+// deepEq short-circuits on the first differing leaf; the editor calls this every render, and an
+// ST-scale preset (100+ blocks) serialized twice per keystroke was the shard's costliest dirty check.
 export const presetDirty = (body: PresetBody, baseline: PresetBody): boolean =>
-  JSON.stringify(body) !== JSON.stringify(baseline);
+  !deepEq(body, baseline);
 
 export const patchBody = (body: PresetBody, patch: Partial<PresetBody>): PresetBody => ({
   ...body,
