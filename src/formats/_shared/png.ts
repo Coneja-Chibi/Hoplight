@@ -41,18 +41,27 @@ export function pngSourceMedia(bytes: Uint8Array | undefined): { b64: string; mi
   return { b64: Buffer.from(bytes).toString("base64"), mime: "image/png" };
 }
 
-/** Return the decoded character JSON string from a PNG, or null if none present. */
+/**
+ * Return the decoded character JSON string from a PNG, or null if none present.
+ *
+ * A V3 card is normally written with BOTH chunks: `ccv3` carrying the full card and `chara` carrying
+ * a V2 subset for older readers. Chunk order is not specified, so preferring whichever came first
+ * would silently downgrade such a card to its subset. Prefer `ccv3` wherever it exists, matching
+ * getVersion below; the two must never disagree about which chunk they are describing.
+ */
 export function extractCharacterJson(png: Uint8Array): string | null {
+  let fallback: string | null = null;
   for (const chunk of safeExtract(png)) {
     if (!isTextChunk(chunk.name)) continue;
     try {
       const { keyword, text: value } = text.decode(chunk.data);
-      if (keyword === "ccv3" || keyword === "chara") return b64decode(value);
+      if (keyword === "ccv3") return b64decode(value);
+      if (keyword === "chara" && fallback === null) fallback = b64decode(value);
     } catch {
       continue;
     }
   }
-  return null;
+  return fallback;
 }
 
 /** "v3" if a ccv3 chunk exists, else "v2" if a chara chunk exists, else null. */
