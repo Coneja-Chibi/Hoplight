@@ -109,9 +109,17 @@ export function App(): JSX.Element | null {
     }
     let cancelled = false;
     void (async () => {
-      const mod = (await import(`/apps/${activeAppId}.js`)) as { default: VaudeApp };
-      modulesRef.current.set(activeAppId, mod.default);
-      if (!cancelled) setActiveComponent(() => mod.default.Component);
+      // A failed chunk load (stale hash, network blip) must say so: unguarded, the dock highlights
+      // the new app while the canvas silently keeps rendering the previous one.
+      try {
+        const mod = (await import(`/apps/${activeAppId}.js`)) as { default: VaudeApp };
+        modulesRef.current.set(activeAppId, mod.default);
+        if (!cancelled) setActiveComponent(() => mod.default.Component);
+      } catch {
+        if (!cancelled) {
+          useShellStore.getState().setStatus(`could not load ${activeAppId} · reload and try again`);
+        }
+      }
     })();
     return () => {
       cancelled = true;

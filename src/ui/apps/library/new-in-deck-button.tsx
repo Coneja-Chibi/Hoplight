@@ -42,10 +42,14 @@ export function NewInDeckButton({ kind, ctx, onCreated }: NewInDeckButtonProps):
         className="send"
         onClick={() => {
           void (async () => {
-            const summary = await spec.create(ctx);
-            onCreated(summary);
-            ctx.workbench.send(summary);
-            ctx.setStatus(`opened ${spec.word} · ${summary.name}`);
+            try {
+              const summary = await spec.create(ctx);
+              onCreated(summary);
+              ctx.workbench.send(summary);
+              ctx.setStatus(`opened ${spec.word} · ${summary.name}`);
+            } catch (err) {
+              ctx.setStatus(err instanceof Error ? err.message : `could not create the ${spec.word}`);
+            }
           })();
         }}
       >

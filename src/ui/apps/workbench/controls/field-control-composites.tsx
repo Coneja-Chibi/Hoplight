@@ -2,7 +2,7 @@
  * Composite field bodies for list/keyvalue/subeditor/gallery and related kinds.
  * Extracted from field-control.tsx so the dispatcher stays under the line cap.
  */
-import type { JSX } from "react";
+import { useRef, useState, type JSX } from "react";
 import { rec, str, strArr } from "../editor-derive";
 import { readPath } from "../editor-core";
 import { OptionCards } from "./option-cards";
@@ -15,6 +15,96 @@ import type { FieldModule, SubField } from "../fields";
 import type { FieldCtx } from "./field-control-ctx";
 
 const ASSET_ROLES: readonly string[] = ["portrait", "emotion", "outfit", "pose", "background", "other"];
+
+/** One file -> a gallery asset row; rejects on read failure so a bad file can never hang the add. */
+const readAssetFile = (f: File): Promise<Record<string, unknown>> =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({ role: "other", ref: String(reader.result), mime: f.type, label: f.name });
+    reader.onerror = () => reject(new Error(`gallery: could not read ${f.name}`));
+    reader.readAsDataURL(f);
+  });
+
+/**
+ * The asset gallery. A real component (not a render-switch case) because adding files is async:
+ * the latest list lives in a ref so a read that lands after the user edited a row appends to the
+ * CURRENT rows instead of clobbering them with the click-time snapshot, and each file settles
+ * independently (allSettled) so one unreadable file skips with a note instead of hanging the add.
+ */
+function AssetGallery({
+  styles,
+  assets,
+  setAssets,
+}: {
+  styles: Readonly<Record<string, string>>;
+  assets: Record<string, unknown>[];
+  setAssets: (next: Record<string, unknown>[]) => void;
+}): JSX.Element {
+  const latest = useRef(assets);
+  latest.current = assets;
+  const [readNote, setReadNote] = useState<string | null>(null);
+  const update = (i: number, patch: Record<string, unknown>): void =>
+    setAssets(assets.map((a, j) => (j === i ? { ...a, ...patch } : a)));
+  const addFiles = (files: FileList | null): void => {
+    if (files === null || files.length === 0) return;
+    setReadNote(null);
+    void Promise.allSettled([...files].map(readAssetFile)).then((settled) => {
+      const added = settled
+        .filter((s): s is PromiseFulfilledResult<Record<string, unknown>> => s.status === "fulfilled")
+        .map((s) => s.value);
+      const failed = settled.length - added.length;
+      if (added.length > 0) setAssets([...latest.current, ...added]);
+      if (failed > 0) setReadNote(`${failed} file${failed === 1 ? "" : "s"} could not be read and ${failed === 1 ? "was" : "were"} skipped`);
+    });
+  };
+  return (
+    <div className={styles.gallery}>
+      {assets.map((a, i) => {
+        const ref = str(a.ref);
+        const isImg = ref.startsWith("data:image") || ref.startsWith("http");
+        return (
+          <div className={styles.assetCard} key={i}>
+            <div className={styles.assetThumb}>
+              {isImg ? <img src={ref} alt="" /> : <span>{str(a.role) || "asset"}</span>}
+            </div>
+            <select className={styles.in} value={str(a.role)} onChange={(e) => update(i, { role: e.target.value })}>
+              {ASSET_ROLES.map((rr) => (
+                <option key={rr} value={rr}>{rr}</option>
+              ))}
+            </select>
+            <input className={styles.in} placeholder="label" value={str(a.label)} onChange={(e) => update(i, { label: e.target.value })} />
+            <div className={styles.assetRow}>
+              <button
+                type="button"
+                className={`${styles.toggle}${a.primary === true ? ` ${styles.toggleOn}` : ""}`}
+                onClick={() => update(i, { primary: a.primary !== true })}
+              >
+                Primary
+              </button>
+              <button type="button" className={styles.rm} onClick={() => setAssets(assets.filter((_, j) => j !== i))}>
+                remove
+              </button>
+            </div>
+          </div>
+        );
+      })}
+      <label className={styles.add}>
+        + add images
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          style={{ display: "none" }}
+          onChange={(e) => {
+            addFiles(e.target.files);
+            e.currentTarget.value = "";
+          }}
+        />
+      </label>
+      {readNote && <p className={styles.sub ?? ""}>{readNote}</p>}
+    </div>
+  );
+}
 
 export function renderSub(
   styles: Readonly<Record<string, string>>,
@@ -213,71 +303,17 @@ export function compositeControlFor(
         </div>
       );
     }
-    case "asset-gallery": {
-      const raw = readPath(draft, m.path);
-      const assets: Record<string, unknown>[] = Array.isArray(raw) ? raw.map(rec) : [];
-      const setAssets = (next: Record<string, unknown>[]): void => setField(m.path, next);
-      const update = (i: number, patch: Record<string, unknown>): void =>
-        setAssets(assets.map((a, j) => (j === i ? { ...a, ...patch } : a)));
-      const addFiles = (files: FileList | null): void => {
-        if (files === null) return;
-        const readers = [...files].map(
-          (f) =>
-            new Promise<Record<string, unknown>>((resolve) => {
-              const reader = new FileReader();
-              reader.onload = () => resolve({ role: "other", ref: String(reader.result), mime: f.type, label: f.name });
-              reader.readAsDataURL(f);
-            }),
-        );
-        void Promise.all(readers).then((added) => setAssets([...assets, ...added]));
-      };
+    case "asset-gallery":
       return (
-        <div className={styles.gallery}>
-          {assets.map((a, i) => {
-            const ref = str(a.ref);
-            const isImg = ref.startsWith("data:image") || ref.startsWith("http");
-            return (
-              <div className={styles.assetCard} key={i}>
-                <div className={styles.assetThumb}>
-                  {isImg ? <img src={ref} alt="" /> : <span>{str(a.role) || "asset"}</span>}
-                </div>
-                <select className={styles.in} value={str(a.role)} onChange={(e) => update(i, { role: e.target.value })}>
-                  {ASSET_ROLES.map((rr) => (
-                    <option key={rr} value={rr}>{rr}</option>
-                  ))}
-                </select>
-                <input className={styles.in} placeholder="label" value={str(a.label)} onChange={(e) => update(i, { label: e.target.value })} />
-                <div className={styles.assetRow}>
-                  <button
-                    type="button"
-                    className={`${styles.toggle}${a.primary === true ? ` ${styles.toggleOn}` : ""}`}
-                    onClick={() => update(i, { primary: a.primary !== true })}
-                  >
-                    Primary
-                  </button>
-                  <button type="button" className={styles.rm} onClick={() => setAssets(assets.filter((_, j) => j !== i))}>
-                    remove
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-          <label className={styles.add}>
-            + add images
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              style={{ display: "none" }}
-              onChange={(e) => {
-                addFiles(e.target.files);
-                e.currentTarget.value = "";
-              }}
-            />
-          </label>
-        </div>
+        <AssetGallery
+          styles={styles}
+          assets={(() => {
+            const raw = readPath(draft, m.path);
+            return Array.isArray(raw) ? raw.map(rec) : [];
+          })()}
+          setAssets={(next) => setField(m.path, next)}
+        />
       );
-    }
     case "voice-setup":
       return (
         <VoiceSetup

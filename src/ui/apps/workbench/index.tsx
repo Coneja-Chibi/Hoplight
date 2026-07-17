@@ -245,7 +245,11 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const { focused, toggle } = useFocusMode();
 
   useEffect(() => {
-    void ctx.api.listEntities().then(setEntities);
+    // rail-only data: a failed load leaves the rail empty, which is survivable, but never unhandled
+    void ctx.api
+      .listEntities()
+      .then(setEntities)
+      .catch(() => ctx.setStatus("could not load the shelf list · the studio may be unreachable"));
     // mount-once on purpose: ctx identity churns on every store write (whole-store reactivity), and
     // the shelf list only feeds the recents rail - refreshing it per keystroke would be noise
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -280,12 +284,20 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const newPack = async (): Promise<void> => {
     const body = emptyPackBody("New pack");
-    const saved = await ctx.api.saveEntity({
-      schemaVersion: CANONICAL_SCHEMA_VERSION,
-      kind: "pack",
-      id: "pack",
-      body,
-    });
+    // guarded like EditablePane's save: these two buttons are the empty workbench's only CTAs, and a
+    // failed save must say so instead of visibly doing nothing
+    let saved: Awaited<ReturnType<typeof ctx.api.saveEntity>>;
+    try {
+      saved = await ctx.api.saveEntity({
+        schemaVersion: CANONICAL_SCHEMA_VERSION,
+        kind: "pack",
+        id: "pack",
+        body,
+      });
+    } catch (e) {
+      ctx.setStatus(`could not create the pack · ${e instanceof Error ? e.message : String(e)}`);
+      return;
+    }
     const summary: StudioEntitySummary = {
       id: saved.id,
       kind: "pack",
@@ -302,12 +314,18 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const newLorebook = async (): Promise<void> => {
     const body = emptyLorebookBody("Untitled lorebook");
-    const saved = await ctx.api.saveEntity({
-      schemaVersion: CANONICAL_SCHEMA_VERSION,
-      kind: "lorebook",
-      id: "lorebook",
-      body,
-    });
+    let saved: Awaited<ReturnType<typeof ctx.api.saveEntity>>;
+    try {
+      saved = await ctx.api.saveEntity({
+        schemaVersion: CANONICAL_SCHEMA_VERSION,
+        kind: "lorebook",
+        id: "lorebook",
+        body,
+      });
+    } catch (e) {
+      ctx.setStatus(`could not create the lorebook · ${e instanceof Error ? e.message : String(e)}`);
+      return;
+    }
     const summary: StudioEntitySummary = {
       id: saved.id,
       kind: "lorebook",

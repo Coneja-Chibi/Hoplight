@@ -44,17 +44,23 @@ export function ExportDialog({
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const [fmts, cov] = await Promise.all([ctx.api.formats(), ctx.api.coverage()]);
-      if (cancelled) return;
-      const kind = isRec(entity) && typeof entity.kind === "string" ? entity.kind : "character";
-      const publish = fmts.filter((f) => f.kind === kind && !f.native);
-      setFormats(publish);
-      setCoverage(cov);
-      const prefer =
-        publish.find((f) => f.id === "risu") ??
-        publish.find((f) => f.id === "sillytavern") ??
-        publish[0];
-      if (prefer) setTargetId(prefer.id);
+      // Guarded like Library's reload: an unreachable studio must say so, not leave the dialog
+      // showing "no formats" forever with every export silently dead.
+      try {
+        const [fmts, cov] = await Promise.all([ctx.api.formats(), ctx.api.coverage()]);
+        if (cancelled) return;
+        const kind = isRec(entity) && typeof entity.kind === "string" ? entity.kind : "character";
+        const publish = fmts.filter((f) => f.kind === kind && !f.native);
+        setFormats(publish);
+        setCoverage(cov);
+        const prefer =
+          publish.find((f) => f.id === "risu") ??
+          publish.find((f) => f.id === "sillytavern") ??
+          publish[0];
+        if (prefer) setTargetId(prefer.id);
+      } catch {
+        if (!cancelled) setErr("could not load export formats · the studio may be unreachable · close and retry");
+      }
     })();
     return () => {
       cancelled = true;

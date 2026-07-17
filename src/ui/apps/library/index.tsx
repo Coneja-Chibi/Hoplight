@@ -171,8 +171,16 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
         append && importState?.phase === "done" ? importState.reads : [];
       const read: ImportState["reads"] = [...prior];
       for (const file of files) {
-        const result = await ctx.api.inspectFile(file);
-        read.push(annotateRead(file.name, result));
+        // Per-file guard, mirroring commitImport below: one oversized or corrupt file becomes a
+        // failed receipt row. Unguarded, its rejection left the fullscreen "reading" overlay up
+        // forever with no way out but a reload.
+        try {
+          const result = await ctx.api.inspectFile(file);
+          read.push(annotateRead(file.name, result));
+        } catch (e) {
+          const error = e instanceof Error ? e.message : String(e);
+          read.push(annotateRead(file.name, { ok: false, error }));
+        }
       }
       setImportState({ phase: "done", reads: read });
     })();

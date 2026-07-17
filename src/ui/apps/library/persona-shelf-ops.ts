@@ -63,12 +63,16 @@ export function makePersonaShelf(args: {
     defaultId: String(ctx.prefs.get("persona.default") ?? ""),
     onNew: () => {
       void (async () => {
-        const summary = await createAndOpenPersona(ctx);
-        setEntities((prev) =>
-          prev.some((e) => e.kind === "persona" && e.id === summary.id) ? prev : [...prev, summary],
-        );
-        ctx.workbench.send(summary);
-        ctx.setStatus(`opened persona · ${summary.name}`);
+        try {
+          const summary = await createAndOpenPersona(ctx);
+          setEntities((prev) =>
+            prev.some((e) => e.kind === "persona" && e.id === summary.id) ? prev : [...prev, summary],
+          );
+          ctx.workbench.send(summary);
+          ctx.setStatus(`opened persona · ${summary.name}`);
+        } catch (err) {
+          ctx.setStatus(err instanceof Error ? err.message : "could not create the persona");
+        }
       })();
     },
   };
