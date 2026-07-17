@@ -39,6 +39,25 @@ describe("catalog integrity", () => {
   }
 });
 
+/**
+ * Source-pin: the RoleCall catalog is generated from RC's dropdown, because hand-transcribing it
+ * quietly dropped 66 of its 174 macros. Re-parse RC's source and demand an exact match.
+ */
+const RC_SRC = "C:/Users/chiev/Documents/VAUDEVILLE/apps/rc/src/components/presets/editor/MacroReferenceDropdown.tsx";
+describe("pinned to the real RoleCall source", () => {
+  test.skipIf(!existsSync(RC_SRC))("carries every group and macro RC ships, none abridged", () => {
+    const src = readFileSync(RC_SRC, "utf8");
+    const body = src.slice(src.indexOf("const MACRO_GROUPS"), src.indexOf("interface MacroReferenceDropdownProps"));
+    const marks = [...body.matchAll(/name:\s*"([^"]+)",\s*\n\s*icon:/g)].map((m) => ({ name: m[1]!, at: m.index! }));
+    const realCounts = marks.map((g, i) => {
+      const seg = body.slice(g.at, i + 1 < marks.length ? marks[i + 1]!.at : body.length);
+      return { name: g.name, count: (seg.match(/\{ macro:/g) ?? []).length };
+    });
+    expect(ROLECALL_MACRO_GROUPS.map((g) => g.name)).toEqual(realCounts.map((g) => g.name));
+    expect(ROLECALL_MACRO_GROUPS.map((g) => g.macros.length)).toEqual(realCounts.map((g) => g.count));
+  });
+});
+
 describe("dispatch: every lens gets its OWN engine's catalog", () => {
   test("each lens resolves to a catalog", () => {
     for (const p of PRESET_WRITE_FOR_PROFILES) expect(macroGroupsForProfile(p).length).toBeGreaterThan(0);
