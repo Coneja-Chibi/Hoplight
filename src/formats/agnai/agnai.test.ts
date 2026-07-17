@@ -29,6 +29,18 @@ function wppCard() {
   };
 }
 
+/** wppCard plus every authored config block, for the clear-path tests. */
+function richCard() {
+  return {
+    ...wppCard(),
+    avatar: "https://cdn.example/vera.png",
+    voice: { service: "elevenlabs", voiceId: "v9", rate: 1.1 },
+    sprite: { body: "b1.png", eyes: "e2.png", eyeColor: "#4ade80", gender: "female" },
+    imageSettings: { prefix: "oil painting of", negative: "blurry", steps: 30, cfg: 7 },
+    json: { type: "object", properties: { mood: { type: "string" } } },
+  };
+}
+
 const asInput = (c: unknown) => ({ text: JSON.stringify(c) });
 
 test("detect recognizes an Agnai card and rejects our native wrapper", () => {
@@ -59,6 +71,37 @@ test("round-trip is lossless: a wpp card deep-equals through canonical + back", 
   const out = adapter.fromCanonical(ent);
   expect(out.suggestedExtension).toBe("json");
   expect(JSON.parse(out.text!)).toEqual(original);
+});
+
+test("clearing the authored blocks removes them; sampler knobs on imageSettings survive", () => {
+  const ent = adapter.toCanonical(asInput(richCard()));
+  // preconditions: every block imported
+  expect(ent.body.media.portrait?.ref).toBe("https://cdn.example/vera.png");
+  expect(ent.body.persona.voice?.provider).toBe("elevenlabs");
+  expect(ent.body.media.sprite?.parts.body).toBe("b1.png");
+  expect(ent.body.persona.imagePrompt?.prefix).toBe("oil painting of");
+  expect(ent.body.settings?.responseSchema).toBeDefined();
+  expect(ent.body.prompts.depthInjections?.length).toBe(1);
+  // the user clears them all
+  ent.body.media.portrait = undefined;
+  ent.body.persona.voice = undefined;
+  ent.body.media.sprite = undefined;
+  ent.body.persona.imagePrompt = undefined;
+  ent.body.settings = undefined;
+  ent.body.prompts.depthInjections = undefined;
+  const out = JSON.parse(adapter.fromCanonical(ent).text!) as Record<string, unknown>;
+  for (const k of ["avatar", "voice", "voiceDisabled", "sprite", "json", "insert"]) {
+    expect(k in out).toBe(false);
+  }
+  // affixes leave; the twin's sampler/provider knobs are not canonical's to touch
+  expect(out.imageSettings).toEqual({ steps: 30, cfg: 7 });
+});
+
+test("clearing one affix while keeping another removes only the cleared key", () => {
+  const ent = adapter.toCanonical(asInput(richCard()));
+  ent.body.persona.imagePrompt = { prefix: "oil painting of" }; // negative cleared, prefix kept
+  const out = JSON.parse(adapter.fromCanonical(ent).text!) as Record<string, unknown>;
+  expect(out.imageSettings).toEqual({ prefix: "oil painting of", steps: 30, cfg: 7 });
 });
 
 test("clearing a scalar field removes it from the card, not reverts to the twin", () => {

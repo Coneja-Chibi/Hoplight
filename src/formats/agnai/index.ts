@@ -237,32 +237,43 @@ function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
   set("tags", b.discovery.tags);
   const depth = b.prompts.depthInjections?.[0];
   if (depth) base.insert = { depth: depth.depth, prompt: depth.text };
+  else if (isRec(base.insert)) delete base.insert;
   base.persona = toAgnaiPersona(b);
 
   set("culture", b.identity.culture);
   set("visualType", b.media.visualKind);
-  // The authored config blocks below are richer shapes (avatar/sprite/voice/imageSettings/json) whose
-  // clear-paths are not yet modeled: they still write only when set and leave the twin alone otherwise.
-  // This is the same clear-doesn't-clear shape as the scalars above, not yet closed for these fields.
+  // The authored config blocks: same clear contract as the scalars above. Each block's importer maps
+  // any twin value of the right shape, so canonical absence is a real clear; the shape guard keeps a
+  // malformed twin value (which import skipped) riding as residue instead of being stripped.
   const face = portraitToAvatar(b.media.portrait);
   if (face !== undefined) base.avatar = face;
+  else if (typeof base.avatar === "string" && base.avatar.trim() !== "") delete base.avatar;
   if (b.media.sprite) base.sprite = spriteToWire(b.media.sprite);
+  else if (isRec(base.sprite)) delete base.sprite;
   const v = voiceToWire(b.persona.voice);
   if (v) {
     base.voice = v.voice;
     if (v.disabled || base.voiceDisabled !== undefined) base.voiceDisabled = v.disabled;
+  } else if (isRec(base.voice) && typeof base.voice.service === "string") {
+    delete base.voice;
+    delete base.voiceDisabled;
   }
-  if (b.persona.imagePrompt) {
-    // merge affixes over the twin's imageSettings so the sampler/provider knobs survive untouched
-    const affixes: Record<string, unknown> = {};
-    const ip = b.persona.imagePrompt;
-    if (ip.prefix !== undefined) affixes.prefix = ip.prefix;
-    if (ip.suffix !== undefined) affixes.suffix = ip.suffix;
-    if (ip.negative !== undefined) affixes.negative = ip.negative;
-    if (ip.template !== undefined) affixes.template = ip.template;
-    base.imageSettings = { ...(isRec(base.imageSettings) ? base.imageSettings : {}), ...affixes };
+  // Affixes reconcile per-key over the twin's imageSettings: authored text is canonical's to write or
+  // clear, the sampler/provider knobs are the twin's and survive untouched either way.
+  const ip = b.persona.imagePrompt;
+  const twinSettings = isRec(base.imageSettings) ? base.imageSettings : undefined;
+  if (ip || twinSettings) {
+    const merged: Record<string, unknown> = { ...(twinSettings ?? {}) };
+    for (const key of ["prefix", "suffix", "negative", "template"] as const) {
+      const val = ip?.[key];
+      if (val !== undefined) merged[key] = val;
+      else if (typeof merged[key] === "string") delete merged[key];
+    }
+    if (Object.keys(merged).length > 0) base.imageSettings = merged;
+    else delete base.imageSettings;
   }
   if (b.settings?.responseSchema) base.json = b.settings.responseSchema;
+  else if (isRec(base.json)) delete base.json;
   return base;
 }
 
