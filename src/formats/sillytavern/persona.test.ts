@@ -46,6 +46,16 @@ describe("round trip", () => {
     expect(out.default_persona).toBe("ada.png");
   });
 
+  test("clearing the tagline drops the title; it must not revert to the stale twin", () => {
+    const e = adapter.toCanonical({ text: JSON.stringify(backup()) });
+    expect(e.body.identity?.tagline).toBe("The Boss"); // precondition: imported carrying a title
+    e.body.identity = undefined; // the user clears it
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as {
+      persona_descriptions: Record<string, Record<string, unknown>>;
+    };
+    expect("title" in out.persona_descriptions["ada.png"]!).toBe(false);
+  });
+
   test("falls back to the first persona when no default is set", () => {
     const raw = backup() as Record<string, unknown>;
     delete raw.default_persona;

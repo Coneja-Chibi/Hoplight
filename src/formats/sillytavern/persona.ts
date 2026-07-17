@@ -141,15 +141,19 @@ const adapter: PersonaAdapter = {
     const descriptions = isRec(raw.persona_descriptions) ? (raw.persona_descriptions as Rec) : {};
     const prior = isRec(descriptions[avatarId]) ? (descriptions[avatarId] as Rec) : {};
     const inj = entity.body.chatInjection;
-    descriptions[avatarId] = {
+    const entry: Rec = {
       ...prior,
       description: entity.body.content,
       position: INT_BY_POSITION[inj?.position ?? "prompt"] ?? 0,
       depth: inj?.depth ?? prior.depth ?? 2,
       role: inj?.role !== undefined ? INT_BY_ROLE[inj.role] : (prior.role ?? 0),
       lorebook: entity.body.knowledgeRefs?.[0] ?? "",
-      ...(entity.body.identity?.tagline ? { title: entity.body.identity.tagline } : {}),
     };
+    // title is optional and clearable. The ...prior spread preserves ST fields vaud does not model,
+    // but it must not resurrect a title the user has since removed: set when present, delete when not.
+    if (entity.body.identity?.tagline) entry.title = entity.body.identity.tagline;
+    else delete entry.title;
+    descriptions[avatarId] = entry;
     raw.persona_descriptions = descriptions;
 
     return { text: JSON.stringify(raw, null, 2), suggestedExtension: "json" };
