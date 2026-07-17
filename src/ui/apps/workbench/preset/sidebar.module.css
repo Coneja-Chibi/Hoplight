@@ -4,14 +4,8 @@
  * border), uppercase violet heading, token-count card, bordered Advanced rows. Accent = --pa (.root).
  */
 
-.sidebar {
-  border-left: 3px solid var(--stage-black);
-  background: var(--stage-panel);
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
+/* NOTE: the rail's own <aside> lives in preset.module.css now - the editor owns it so it can tab
+   between this panel and LiveBuild. Everything here styles the panel's CONTENT only. */
 
 .sideHead {
   display: flex;
@@ -216,10 +210,3 @@
   color: var(--stage-kicker);
 }
 
-@container (max-width: 48rem) {
-  .sidebar {
-    border-left: 0;
-    border-top: 3px solid var(--stage-black);
-    overflow: visible;
-  }
-}

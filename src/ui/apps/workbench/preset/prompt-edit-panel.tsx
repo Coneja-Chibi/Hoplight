@@ -1,6 +1,8 @@
 /**
- * PromptEditPanel - the right EDIT PROMPT sidebar (a faithful transcription of RC's
- * PromptEditPanelV4). Edits the SELECTED block's METADATA: name, role, a token-count card, injection
+ * PromptEditPanel - the EDIT PROMPT tab of the right rail (a faithful transcription of RC's
+ * PromptEditPanelV4). Returns the rail's CONTENT, not the <aside>: the rail is owned by the editor
+ * so it can tab between this (per-BLOCK truth) and LiveBuild (whole-PRESET truth).
+ * Edits the SELECTED block's METADATA: name, role, a token-count card, injection
  * order (+ hint), placement (per-lens select + the conditional hint for the non-relative stops),
  * injection depth (in an accent card when at-depth), a content-preview notice with char/token
  * counts, the Advanced flags (system prompt / forbid overrides) + marker card, and the capability-
@@ -62,7 +64,7 @@ export function PromptEditPanel({
 }: PromptEditPanelProps): JSX.Element {
   const macroGroups = useMemo(() => macroGroupsForProfile(writeFor), [writeFor]);
   return (
-    <aside className={s.sidebar} aria-label="Edit prompt">
+    <>
       <div className={s.sideHead}>
         <span className={s.sideHeadTitle}>{block ? block.name || "Untitled block" : "Edit Prompt"}</span>
         {block && (
@@ -238,6 +240,6 @@ export function PromptEditPanel({
           <MacroReference groups={macroGroups} />
         </div>
       )}
-    </aside>
+    </>
   );
 }

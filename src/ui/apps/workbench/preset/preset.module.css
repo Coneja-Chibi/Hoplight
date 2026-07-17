@@ -91,6 +91,61 @@
   box-shadow: none;
 }
 
+/* ---------- the rail (owns the aside; tabs between per-block and whole-preset truth) ---------- */
+
+.sidebar {
+  border-left: 3px solid var(--stage-black);
+  background: var(--stage-panel);
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.railTabs {
+  display: flex;
+  border-bottom: 3px solid var(--stage-black);
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--stage-panel);
+}
+
+.railTab {
+  flex: 1;
+  border: 0;
+  border-right: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 3%, transparent);
+  color: var(--stage-mute);
+  font: 800 0.6rem var(--font-big);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.4rem;
+  cursor: pointer;
+}
+
+.railTab:last-child {
+  border-right: 0;
+}
+
+.railTab:hover {
+  color: var(--stage-soft);
+}
+
+.railTabOn {
+  background: var(--pa);
+  color: var(--stage-ink, var(--stage));
+}
+
+@container (max-width: 48rem) {
+  .sidebar {
+    border-left: 0;
+    border-top: 3px solid var(--stage-black);
+    overflow: visible;
+  }
+}
+
 /* ---------- categories (RC's collapsible sections) ---------- */
 
 .section {

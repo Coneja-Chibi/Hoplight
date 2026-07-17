@@ -27,6 +27,7 @@ import { ListToolbar } from "./list-toolbar";
 import { BulkBar } from "./bulk-bar";
 import { SettingsBar } from "./settings-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
+import { LiveBuild } from "./live-build";
 import {
   addBlock,
   addGroup,
@@ -52,6 +53,13 @@ export interface PresetEditorViewProps {
 
 const WRITE_FOR_PREF = "preset.writeFor";
 
+/** The rail is the ONE place whole-preset truth lives (the locked wire's ruling), hence the tabs. */
+type RailTab = "edit" | "build";
+const RAIL_TABS: ReadonlyArray<{ id: RailTab; label: string }> = [
+  { id: "edit", label: "Edit Prompt" },
+  { id: "build", label: "Live Build" },
+];
+
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
@@ -76,6 +84,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<PromptFilterTab>("all");
   const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
+  const [rail, setRail] = useState<RailTab>("edit");
 
   const dirty = presetDirty(body, baseline);
   const weight = useMemo(() => presetWeight(body), [body]);
@@ -240,19 +249,47 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
             onAdd={() => setBody((b) => addBlock(b))}
           />
         </div>
-        <PromptEditPanel
-          block={selectedBlock}
-          stops={stops}
-          writeFor={writeFor}
-          groups={body.groups ?? []}
-          onSetGroup={(groupId) => {
-            if (selectedId) setBody((b) => setBlockGroup(b, selectedId, groupId));
-          }}
-          onClose={() => setSelectedId(null)}
-          onPatch={(patch) => {
-            if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
-          }}
-        />
+        {/* the rail: per-BLOCK truth (RC's panel) or whole-PRESET truth (the engine's build) */}
+        <aside className={s.sidebar} aria-label="Preset rail">
+          <div className={s.railTabs} role="tablist" aria-label="Rail view">
+            {RAIL_TABS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={rail === t.id}
+                className={`${s.railTab} ${rail === t.id ? s.railTabOn : ""}`}
+                onClick={() => setRail(t.id)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {rail === "edit" ? (
+            <PromptEditPanel
+              block={selectedBlock}
+              stops={stops}
+              writeFor={writeFor}
+              groups={body.groups ?? []}
+              onSetGroup={(groupId) => {
+                if (selectedId) setBody((b) => setBlockGroup(b, selectedId, groupId));
+              }}
+              onClose={() => setSelectedId(null)}
+              onPatch={(patch) => {
+                if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
+              }}
+            />
+          ) : (
+            <LiveBuild
+              body={body}
+              onSelect={(id) => {
+                setSelectedId(id);
+                setRail("edit");
+              }}
+            />
+          )}
+        </aside>
       </div>
     </div>
   );

@@ -1,0 +1,129 @@
+/**
+ * The LiveBuild (engine-truth) rail pane, RC-neo. Reads as a manuscript proof rather than an editor:
+ * mono, dense, no affordances that imply you can change anything here. Accent = --pa from .root.
+ */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem;
+  min-height: 0;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.headline {
+  font: 800 0.62rem var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-kicker);
+}
+
+.weight {
+  font: 800 0.7rem var(--font-mono);
+  color: var(--pa);
+}
+
+.empty {
+  border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);
+  color: var(--stage-mute);
+  font: 500 0.72rem var(--font-body);
+  padding: 1rem;
+  text-align: center;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.line {
+  border: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 2%, transparent);
+}
+
+.lineHead {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-bottom: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--stage-card) 4%, transparent);
+  padding: 0.3rem 0.4rem;
+  cursor: pointer;
+}
+
+.lineHead:hover {
+  background: color-mix(in srgb, var(--pa) 12%, transparent);
+}
+
+.ord {
+  font: 800 0.6rem var(--font-mono);
+  color: var(--pa);
+  flex: none;
+}
+
+.lineName {
+  flex: 1;
+  font: 700 0.68rem var(--font-body);
+  color: var(--stage-card);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role,
+.stop {
+  font: 600 0.53rem var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--stage-mute);
+  border: 1px solid color-mix(in srgb, var(--stage-card) 14%, transparent);
+  padding: 0.02rem 0.22rem;
+  flex: none;
+}
+
+.tok {
+  font: 700 0.58rem var(--font-mono);
+  color: var(--stage-kicker);
+  flex: none;
+}
+
+.text {
+  margin: 0;
+  padding: 0.4rem 0.5rem;
+  max-height: 7rem;
+  overflow: auto;
+  font: 500 0.64rem var(--font-mono);
+  line-height: 1.5;
+  color: var(--stage-soft);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* a marker line is a SLOT, not authored text: the engine splices content in here at build */
+.markerText {
+  color: var(--stage-warn);
+  background: color-mix(in srgb, var(--stage-warn) 7%, transparent);
+  font-style: italic;
+}
+
+.note {
+  margin: 0.2rem 0 0;
+  font: 500 0.6rem var(--font-body);
+  color: var(--stage-kicker);
+  line-height: 1.45;
+}

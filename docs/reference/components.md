@@ -76,6 +76,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | ListToolbar | src/ui/apps/workbench/preset/list-toolbar.tsx | ({ counts, query, onQuery, tab, onTab, onExpandAll, onCollapseAll, onAdd, onAddCategory, }: ListToolbarProps) |  |  |
+| LiveBuild | src/ui/apps/workbench/preset/live-build.tsx | ({ body, onSelect }: LiveBuildProps) |  |  |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
