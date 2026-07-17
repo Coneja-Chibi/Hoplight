@@ -24,8 +24,10 @@
   background: var(--seam);
   border: 2px solid var(--edge);
 }
+/* --toggle-on lets a surface re-tone the "on" track without forking the control; defaults to the
+   house rose. The preset editor sets it green to match RC's engine-side toggle. */
 .on .track {
-  background: var(--rose);
+  background: var(--toggle-on, var(--rose));
 }
 .knob {
   position: absolute;

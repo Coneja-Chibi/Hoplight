@@ -8,6 +8,9 @@
 
 .root {
   --pa: var(--stage-macro);
+  /* RC's prompt toggle reads green for on; the house default is rose. Scoped here only, per the
+     "reproduce RC's look in this editor" ruling - the shared control keeps its default elsewhere. */
+  --toggle-on: var(--stage-ok);
   container-type: inline-size;
   display: flex;
   flex-direction: column;
