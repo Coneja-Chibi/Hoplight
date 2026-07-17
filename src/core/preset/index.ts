@@ -22,13 +22,14 @@ export { blockTokens, buildPreview, markerLabel, MARKER_LABELS, presetWeight } f
 export type { PresetBuild, PresetBuildLine, PresetWeight } from "./build";
 export {
   filterByTab,
+  groupSections,
   promptCounts,
   promptMatchesSearch,
   PROMPT_FILTER_LABELS,
   PROMPT_FILTER_TABS,
   visiblePrompts,
 } from "./list-view";
-export type { PromptCounts, PromptFilterTab } from "./list-view";
+export type { PromptCounts, PromptFilterTab, PromptSection } from "./list-view";
 export {
   findMacro,
   isMacroSupported,

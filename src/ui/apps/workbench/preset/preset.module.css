@@ -88,6 +88,77 @@
   box-shadow: none;
 }
 
+/* ---------- categories (RC's collapsible sections) ---------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  text-align: left;
+  border: 2px solid var(--stage-black);
+  background: color-mix(in srgb, var(--pa) 10%, transparent);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+}
+
+.sectionHead:hover {
+  background: color-mix(in srgb, var(--pa) 16%, transparent);
+}
+
+.sectionChev {
+  font-size: 0.85rem;
+  line-height: 1;
+  color: var(--pa);
+  transition: transform 0.12s ease;
+}
+
+.sectionChevOpen {
+  transform: rotate(90deg);
+}
+
+.sectionName {
+  flex: 1;
+  font: 900 0.72rem var(--font-big);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sectionCount {
+  font: 800 0.6rem var(--font-mono);
+  color: var(--pa);
+  background: color-mix(in srgb, var(--stage-black) 35%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pa) 30%, transparent);
+  padding: 0.05rem 0.35rem;
+}
+
+.sectionBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-left: 0.7rem;
+  border-left: 2px solid color-mix(in srgb, var(--pa) 25%, transparent);
+  margin-left: 0.3rem;
+}
+
+.sectionEmpty {
+  font: 500 0.68rem var(--font-body);
+  color: var(--stage-kicker);
+  margin: 0;
+  padding: 0.4rem 0.2rem;
+}
+
 .addBlock {
   margin-top: 0.5rem;
   border: 2px dashed color-mix(in srgb, var(--stage-card) 15%, transparent);

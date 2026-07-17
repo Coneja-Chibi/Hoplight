@@ -5,7 +5,7 @@
  * stable while you filter (RC does the same).
  */
 import type { JSX } from "react";
-import { ChevronsDownUp, ChevronsUpDown, Plus, Search } from "lucide-react";
+import { ChevronsDownUp, ChevronsUpDown, FolderPlus, Plus, Search } from "lucide-react";
 import {
   PROMPT_FILTER_LABELS,
   PROMPT_FILTER_TABS,
@@ -23,6 +23,7 @@ export interface ListToolbarProps {
   onExpandAll: () => void;
   onCollapseAll: () => void;
   onAdd: () => void;
+  onAddCategory: () => void;
 }
 
 const tabCount = (counts: PromptCounts, tab: PromptFilterTab): number =>
@@ -37,6 +38,7 @@ export function ListToolbar({
   onExpandAll,
   onCollapseAll,
   onAdd,
+  onAddCategory,
 }: ListToolbarProps): JSX.Element {
   return (
     <div className={s.toolbar}>
@@ -68,6 +70,15 @@ export function ListToolbar({
             aria-label="Collapse all"
           >
             <ChevronsDownUp size={14} />
+          </button>
+          <button
+            type="button"
+            className={s.iconBtn}
+            onClick={onAddCategory}
+            title="New category"
+            aria-label="New category"
+          >
+            <FolderPlus size={14} />
           </button>
           <button type="button" className={s.addBtn} onClick={onAdd}>
             <Plus size={14} />

@@ -22,7 +22,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BentoView | src/ui/apps/workbench/presenters/bento-view.tsx | ({ bcard, leftCard, sealedCard, macroCard, columns, spanRow, styles }: BentoViewProps) |  |  |
 | BinderSide | src/ui/apps/workbench/lore/binder-side.tsx | ({ sidePane, setSidePane, body, baseline, entry, notes, styles, setSession, extraFindings, }: BinderSideProps) |  |  |
 | BlockContent | src/ui/apps/workbench/preset/block-content.tsx | ({ block, onPatch }: BlockContentProps) |  |  |
-| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, totalBlocks, tab, query, onClearQuery, onShowAll, selectedId, selectedChecks, expandedIds, onSelectRow, on... |  |  |
+| BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, groups = [], collapsedGroups, onToggleGroup, totalBlocks, tab, query, onClearQuery, onShowAll, selectedId,... |  |  |
 | BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, active, selected, expanded, onSelectRow, onToggleCheck, onToggleExpand, onToggle, onDelete, onPatch,... |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | BulkBar | src/ui/apps/workbench/preset/bulk-bar.tsx | ({ count, onClear, onEnable, onDisable, onDuplicate, onDelete }: BulkBarProps) |  |  |
@@ -75,7 +75,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Vaude (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
-| ListToolbar | src/ui/apps/workbench/preset/list-toolbar.tsx | ({ counts, query, onQuery, tab, onTab, onExpandAll, onCollapseAll, onAdd, }: ListToolbarProps) |  |  |
+| ListToolbar | src/ui/apps/workbench/preset/list-toolbar.tsx | ({ counts, query, onQuery, tab, onTab, onExpandAll, onCollapseAll, onAdd, onAddCategory, }: ListToolbarProps) |  |  |
 | LorebookEditor | src/ui/apps/workbench/LorebookEditor.tsx | ({ entity, ctx, piece, topRight }: LorebookEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | LoreBookSettings | src/ui/apps/workbench/lore/book-settings.tsx | ({ body, styles, onBook }: BookSettingsProps) |  |  |
 | LoreBulkBar | src/ui/apps/workbench/lore/bulk-bar.tsx | ({ count, styles, onEnable, onDelete, onClear, onMove, }: BulkBarProps) |  |  |
@@ -117,7 +117,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | PresetEditorView | src/ui/apps/workbench/preset/preset-editor.tsx | ({ entity, ctx, piece, topRight }: PresetEditorViewProps) |  |  |
 | PreviewCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ xml, tokens, stopLabel }: { xml: string; tokens: number; stopLabel: string }) | Live preview: the REAL compiler's output + the shared token convention. |  |
 | ProgressChecklist | src/ui/components/progress-checklist/index.tsx | ({ items, extraStat }: ProgressChecklistProps) | Bar + count chip; the checklist itself lives in a bottom sheet. | .prog .bar .tap .row .ok .no .pendingLabel |
-| PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, onClose, onPatch }: PromptEditPanelProps) |  |  |
+| PromptEditPanel | src/ui/apps/workbench/preset/prompt-edit-panel.tsx | ({ block, stops, writeFor, groups, onSetGroup, onClose, onPatch, }: PromptEditPanelProps) |  |  |
 | RawExtensions | src/ui/components/raw-extensions/index.tsx | ({ data, handled, onChange }: RawExtensionsProps) |  | .wrap .head .row .key .text .num .json .bad |
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, ctx, piece, topRight }: RegexSetEditorProps) |  |  |

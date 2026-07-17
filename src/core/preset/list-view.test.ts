@@ -4,12 +4,13 @@
 import { describe, expect, test } from "bun:test";
 import {
   filterByTab,
+  groupSections,
   promptCounts,
   promptMatchesSearch,
   PROMPT_FILTER_TABS,
   visiblePrompts,
 } from "./list-view";
-import type { PresetPrompt } from "../../entities/preset";
+import type { PresetGroup, PresetPrompt } from "../../entities/preset";
 
 const block = (over: Partial<PresetPrompt>): PresetPrompt => ({
   id: over.id ?? "x",
@@ -73,6 +74,50 @@ describe("promptMatchesSearch", () => {
   });
   test("blank query matches everything", () => {
     for (const p of LIST) expect(promptMatchesSearch(p, "   ")).toBe(true);
+  });
+});
+
+describe("groupSections", () => {
+  const groups: PresetGroup[] = [
+    { id: "g2", name: "Second", order: 2 },
+    { id: "g1", name: "First", order: 1 },
+  ];
+  const list: PresetPrompt[] = [
+    block({ id: "loose" }),
+    block({ id: "in1", groupId: "g1" }),
+    block({ id: "in2", groupId: "g2" }),
+    block({ id: "in1b", groupId: "g1" }),
+  ];
+
+  test("uncategorized run comes first, then groups by order", () => {
+    const s = groupSections(list, groups);
+    expect(s.map((x) => x.group?.name ?? null)).toEqual([null, "First", "Second"]);
+    expect(s[1]!.prompts.map((p) => p.id)).toEqual(["in1", "in1b"]);
+  });
+
+  test("a block naming a group that does not exist is kept as uncategorized, never dropped", () => {
+    const s = groupSections([block({ id: "orphan", groupId: "ghost" })], groups);
+    expect(s[0]!.prompts.map((p) => p.id)).toEqual(["orphan"]);
+    const total = s.reduce((n, x) => n + x.prompts.length, 0);
+    expect(total).toBe(1);
+  });
+
+  test("empty groups survive so you can still drop into them", () => {
+    const s = groupSections([block({ id: "loose" })], groups);
+    expect(s.map((x) => x.group?.id ?? null)).toEqual([null, "g1", "g2"]);
+    expect(s[1]!.prompts).toEqual([]);
+  });
+
+  test("never loses or duplicates a block", () => {
+    const s = groupSections(list, groups);
+    const ids = s.flatMap((x) => x.prompts.map((p) => p.id)).sort();
+    expect(ids).toEqual(["in1", "in1b", "in2", "loose"]);
+  });
+
+  test("no groups: one uncategorized section holding everything", () => {
+    const s = groupSections(list, []);
+    expect(s.length).toBe(1);
+    expect(s[0]!.prompts.length).toBe(4);
   });
 });
 

@@ -10,7 +10,7 @@
  * ehead) and its non-marker "Use + Add marker slot" card (vaud has no marker-slot picker yet).
  */
 import { useMemo, type JSX } from "react";
-import type { PresetPrompt, PromptRole } from "../../../../entities/preset";
+import type { PresetGroup, PresetPrompt, PromptRole } from "../../../../entities/preset";
 import {
   blockTokens,
   macroGroupsForProfile,
@@ -42,11 +42,24 @@ export interface PromptEditPanelProps {
   stops: readonly string[];
   /** the selected Write-for lens - drives which macro groups the reference shows */
   writeFor: PresetWriteForProfile;
+  /** categories this preset has; the picker is hidden entirely when there are none */
+  groups: readonly PresetGroup[];
+  onSetGroup: (groupId: string | null) => void;
   onClose: () => void;
   onPatch: (patch: Partial<PresetPrompt>) => void;
 }
 
-export function PromptEditPanel({ block, stops, writeFor, onClose, onPatch }: PromptEditPanelProps): JSX.Element {
+const UNCATEGORIZED = "__none__";
+
+export function PromptEditPanel({
+  block,
+  stops,
+  writeFor,
+  groups,
+  onSetGroup,
+  onClose,
+  onPatch,
+}: PromptEditPanelProps): JSX.Element {
   const macroGroups = useMemo(() => macroGroupsForProfile(writeFor), [writeFor]);
   return (
     <aside className={s.sidebar} aria-label="Edit prompt">
@@ -96,6 +109,25 @@ export function PromptEditPanel({ block, stops, writeFor, onClose, onPatch }: Pr
               </select>
             </label>
           </div>
+
+          {groups.length > 0 && (
+            <label className={f.sfield}>
+              <span className={f.flabel}>Category</span>
+              <select
+                className={f.field}
+                value={block.groupId ?? UNCATEGORIZED}
+                aria-label="Category"
+                onChange={(e) => onSetGroup(e.target.value === UNCATEGORIZED ? null : e.target.value)}
+              >
+                <option value={UNCATEGORIZED}>Uncategorized</option>
+                {groups.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.name || "Untitled category"}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <div className={s.tokenCard}>
             <span className={s.tokenCardLabel}>Token count</span>

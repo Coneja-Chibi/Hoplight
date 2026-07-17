@@ -36,6 +36,32 @@ export const addBlock = (body: PresetBody, block: PresetPrompt = newBlock()): Pr
   prompts: [...body.prompts, block],
 });
 
+/* ---------- categories ---------- */
+
+/**
+ * Append a category. `order` is assigned past the current tail so a new folder lands last instead of
+ * silently jumping the queue. ST has no real groups (it encodes them as divider PROMPTS), so the ST
+ * codec derives a divider identifier from this id - which is why the id is minted here and stable.
+ */
+export const addGroup = (body: PresetBody, name = "New category"): PresetBody => {
+  const groups = body.groups ?? [];
+  const order = groups.reduce((n, g) => Math.max(n, g.order ?? 0), 0) + 1;
+  return { ...body, groups: [...groups, { id: newUiId("group"), name, order }] };
+};
+
+/** Move a block into a category, or out of one when groupId is null. */
+export const setBlockGroup = (body: PresetBody, id: string, groupId: string | null): PresetBody => ({
+  ...body,
+  prompts: body.prompts.map((p) => {
+    if (p.id !== id) return p;
+    if (groupId === null) {
+      const { groupId: _drop, ...rest } = p;
+      return rest;
+    }
+    return { ...p, groupId };
+  }),
+});
+
 /* ---------- bulk ops over a checked selection (RC's PromptListV4 bulk actions) ---------- */
 
 /** Enable or disable every selected block in one pass. */

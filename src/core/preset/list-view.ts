@@ -7,7 +7,7 @@
  * PLACEMENT, so the tabs map onto placement here: relative -> "relative", in-chat -> the at-depth
  * stops. Do not compare to raw numbers - per-platform truth lives in platform-fields.ts.
  */
-import type { PresetPrompt } from "../../entities/preset";
+import type { PresetGroup, PresetPrompt } from "../../entities/preset";
 
 export type PromptFilterTab = "all" | "relative" | "inchat";
 
@@ -64,4 +64,43 @@ export function visiblePrompts(
   query: string,
 ): PresetPrompt[] {
   return filterByTab(prompts, tab).filter((p) => promptMatchesSearch(p, query));
+}
+
+/* ---------- categories (RC's PromptListV4 sections) ---------- */
+
+export interface PromptSection {
+  /** null = the uncategorized run that sits above the folders */
+  group: PresetGroup | null;
+  prompts: PresetPrompt[];
+}
+
+/**
+ * Split a (already filtered) list into the uncategorized run plus one section per group, groups in
+ * their `order` then declaration order. A block whose groupId names no existing group is treated as
+ * uncategorized rather than dropped - losing a block to a dangling reference would be silent data
+ * loss on an imported preset.
+ *
+ * Empty sections are KEPT: a folder you just made, or one whose blocks the filter hid, still has to
+ * be visible or you cannot drop anything into it.
+ */
+export function groupSections(
+  prompts: readonly PresetPrompt[],
+  groups: readonly PresetGroup[] = [],
+): PromptSection[] {
+  const known = new Map(groups.map((g) => [g.id, g]));
+  const byGroup = new Map<string, PresetPrompt[]>();
+  const loose: PresetPrompt[] = [];
+  for (const p of prompts) {
+    if (p.groupId === undefined || !known.has(p.groupId)) {
+      loose.push(p);
+      continue;
+    }
+    const bucket = byGroup.get(p.groupId);
+    if (bucket) bucket.push(p);
+    else byGroup.set(p.groupId, [p]);
+  }
+  const ordered = [...groups].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const sections: PromptSection[] = [{ group: null, prompts: loose }];
+  for (const g of ordered) sections.push({ group: g, prompts: byGroup.get(g.id) ?? [] });
+  return sections;
 }

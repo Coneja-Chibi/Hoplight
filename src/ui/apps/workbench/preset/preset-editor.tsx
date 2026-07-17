@@ -27,6 +27,7 @@ import { BulkBar } from "./bulk-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
 import {
   addBlock,
+  addGroup,
   bulkDelete,
   bulkDuplicate,
   bulkSetEnabled,
@@ -34,6 +35,7 @@ import {
   moveBlock,
   patchBlock,
   presetDirty,
+  setBlockGroup,
   toggleBlock,
 } from "./session";
 import s from "./preset.module.css";
@@ -70,6 +72,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [tab, setTab] = useState<PromptFilterTab>("all");
+  const [collapsedGroups, setCollapsedGroups] = useState<ReadonlySet<string>>(() => new Set());
 
   const dirty = presetDirty(body, baseline);
   const weight = useMemo(() => presetWeight(body), [body]);
@@ -187,6 +190,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
             onExpandAll={() => setExpandedIds(new Set(shown.map((p) => p.id)))}
             onCollapseAll={() => setExpandedIds(new Set())}
             onAdd={() => setBody((b) => addBlock(b))}
+            onAddCategory={() => setBody((b) => addGroup(b))}
           />
           <BulkBar
             count={selectedChecks.size}
@@ -198,6 +202,9 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
           />
           <BlockList
             blocks={shown}
+            groups={body.groups}
+            collapsedGroups={collapsedGroups}
+            onToggleGroup={(id) => setCollapsedGroups((prev) => flip(prev, id))}
             totalBlocks={body.prompts.length}
             tab={tab}
             query={query}
@@ -227,6 +234,10 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
           block={selectedBlock}
           stops={stops}
           writeFor={writeFor}
+          groups={body.groups ?? []}
+          onSetGroup={(groupId) => {
+            if (selectedId) setBody((b) => setBlockGroup(b, selectedId, groupId));
+          }}
           onClose={() => setSelectedId(null)}
           onPatch={(patch) => {
             if (selectedId) setBody((b) => patchBlock(b, selectedId, patch));
