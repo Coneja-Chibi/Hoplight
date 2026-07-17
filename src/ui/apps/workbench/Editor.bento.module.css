@@ -21,6 +21,12 @@
   position: sticky;
   top: 0.5rem;
   align-self: start;
+  /* sticky means this column never scrolls with the page, so anything past the viewport was simply
+     unreachable (the booth's marquee/stubs/strip pushed variants off the cliff). Cap it to the
+     viewport and let it scroll itself; the offset is the chrome above the canvas. */
+  max-height: calc(100dvh - 6.5rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 /* fluid law: the rigid side columns need ~66rem of PANE; below that the bento stacks (this grid
@@ -36,6 +42,9 @@
     width: 100%;
     max-width: 26rem;
     margin-inline: auto;
+    /* static flow scrolls with the page again: the sticky cap must not clip a stacked column */
+    max-height: none;
+    overflow-y: visible;
   }
 }
 
