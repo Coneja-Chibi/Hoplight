@@ -15,13 +15,13 @@ and effortless and becomes a deliberate, recorded act.
 | core-sibling | pre-commit, Stop | a changed `*-core.ts` has no `*-core.test.ts` | add the sibling test |
 | branch-test | commit-msg | a new branch is added to the shell (`boot.ts` / an app `index.ts`) with no test touched | touch a test **or** add a `Verified: <how>` line to the commit message |
 | typecheck | pre-push | `tsc --noEmit` is red | fix the types |
-| no-verify | Claude Code Bash | a command runs `git commit/push --no-verify` | do not bypass; fix the violation |
+| no-verify | editor pre-tool | a command runs `git commit/push --no-verify` | do not bypass; fix the violation |
 
 ## Two surfaces
 
 - **git** (`.githooks/`, wired via `git config core.hooksPath .githooks`): the commit/push backstop, for
   any committer. A fresh clone must run `git config core.hooksPath .githooks` once (or a setup script).
-- **Claude Code** (`.claude/settings.json`): the live gate that fires on every agent in this repo the
+- **Editor hooks**: an optional live gate that can fire on every command in this repo the
   moment it tries to declare done (`Stop` runs the gate) or bypass a hook (`PreToolUse` on Bash). This
   is what "stops me and other agents" mid-work, not just at commit time.
 
@@ -29,13 +29,12 @@ and effortless and becomes a deliberate, recorded act.
 
 - `lib.ts` - the pure detectors (no fs, no git, no process). Unit-tested in `lib.test.ts`, which the
   supported `bun run test` suite runs, so the guardrails cannot rot silently. This is why the logic lives here
-  in `scripts/hooks/` and not under `.claude/` (bun skips dot-directories).
+  in `scripts/hooks/` and not in a dot-directory, which bun skips when collecting tests.
 - `gate.ts` - green + core-purity + core-sibling. `--staged` (pre-commit) or `--worktree` (Stop).
   Green means `bun run test` (active roots only). Parked `src/macros` is `test:macros`, not a release gate.
 - `branch-note.ts` - the branch-test gate (commit-msg).
-- `guard-bash.ts` - the no-verify blocker (Claude Code PreToolUse).
 
-Exit contract everywhere: **2** = block (the shared git + Claude Code contract), **0** = pass, **1** =
+Exit contract everywhere: **2** = block (the shared git + editor contract), **0** = pass, **1** =
 the gate's own infrastructure broke (non-blocking, so a bad gate never locks the repo). It fails closed
 on a real violation, open on its own breakage.
 

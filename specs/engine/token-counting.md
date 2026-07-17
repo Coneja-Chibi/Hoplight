@@ -351,8 +351,7 @@ export interface ProviderTokenCounter extends TokenCounter {
 - `docs\06-PRODUCTION-BIBLE.md` line 61 (this file's own
   brief row): "TokenCounter interface, tokenizer choice per model family, caching, honest
   approximations, counts in reports/UI."
-- Anthropic's public API documentation (via the `claude-api` skill's cached reference,
-  `shared/token-counting.md` and `shared/live-sources.md` Token Counting row): confirms a real
+- Anthropic's public API documentation: confirms a real
   provider-exact endpoint exists (`POST /v1/messages/count_tokens`, model-specific, "Do not use
   `tiktoken`... undercounts Claude tokens by ~15-20%"). Cited only as external corroboration that
   local BPE approximations are provider-inexact in practice, and as the shape a future

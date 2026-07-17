@@ -1,43 +1,45 @@
-# ADR-002: License — AGPL-3.0-or-later with dual licensing
+# ADR-002: License, AGPL-3.0-or-later
 
-**Status:** accepted (recommended by Claude, standing until Chi overrules)
+**Status:** accepted
 
-## Chi's requirement
+## Context
 
-"I don't want ANYONE profiting off this. Except me. But I want people to use it.
-A standard license that gives me control without looking like a control freak."
+The project needed a license that keeps the code genuinely open and usable by anyone, while
+preventing a third party from closing it up and selling it. Those two goals pull against each other
+under a permissive license, which is what forced a decision rather than a default.
 
 ## Decision
 
-- **AGPL-3.0-or-later** for the whole repo.
-- **Dual licensing:** Chi (copyright holder) may sell commercial licenses to anyone
-  who can't or won't comply with AGPL. This is the Grafana/Qt/MongoDB(pre-SSPL) model.
-- **CLA (Contributor License Agreement)** required on every external contribution,
-  assigning Chi the right to relicense. Without this, dual licensing dies the day the
-  first outside PR merges. Use a bot (cla-assistant) from day one.
+**AGPL-3.0-or-later** for the whole repo.
 
-## Why AGPL satisfies the requirement
+The copyright holder retains the right to sell commercial licenses to anyone who cannot or will not
+comply with the AGPL. This is the model Grafana, Qt, and pre-SSPL MongoDB used.
 
-- It is a real, OSI-approved open-source license: nobody credibly calls an AGPL
-  project a control freak's project.
-- In practice it prevents closed commercial exploitation: any fork or hosted service
-  must publish its complete source under AGPL, which commercial actors almost never
-  accept, so they either stay away or buy a commercial license from Chi.
-- Chi, as copyright holder, is not bound by it: RoleCall can use any of this code in
-  its closed codebase freely (for Chi's own code; contributor code is covered by
-  the CLA).
+## Why AGPL fits
+
+- It is a real, OSI-approved open-source license. It carries no source-available stigma.
+- It prevents closed commercial exploitation in practice: any fork or hosted service must publish
+  its complete source under the same terms, which commercial actors rarely accept. They either stay
+  away or negotiate a separate license.
+- The copyright holder is not bound by their own license, so the same code can still be used in
+  their other closed projects.
 
 ## Rejected alternatives
 
-- **PolyForm-NC / FSL / BUSL:** closer to the literal requirement but source-available,
-  not open source; invites exactly the community suspicion Chi wants to avoid.
-- **MIT/Apache:** allows closed commercial forks outright.
-- **MIT core + AGPL app:** cleaner adoption story for the engine, but weakens the
-  no-profit guarantee where it's most valuable; can be revisited per-package later
-  (relicensing MIT-ward is always possible for the copyright holder; the reverse
-  is not).
+- **PolyForm-NC / FSL / BUSL:** closer to the literal requirement, but source-available rather than
+  open source. That invites exactly the community suspicion this choice exists to avoid.
+- **MIT / Apache:** allows closed commercial forks outright.
+- **MIT core plus AGPL app:** a cleaner adoption story for the engine, but it weakens the guarantee
+  where it matters most. Revisitable per-package later; relicensing toward MIT is always open to the
+  copyright holder, and the reverse is not.
 
 ## Consequences
 
-- `LICENSE` (AGPL-3.0), `LICENSING.md` (plain-English explanation + commercial
-  contact), CLA bot config, and a per-file SPDX header convention: all part of M0.
+- `LICENSE` carries the verbatim AGPL-3.0 text; `LICENSING.md` explains it in plain terms and
+  carries the commercial contact.
+- `bun run license:audit` fails the build if a copyleft or restricted dependency is introduced.
+- **No CLA is in place, and this is a live constraint.** Dual licensing depends on the copyright
+  holder owning all the code. The first merged outside contribution without a contributor agreement
+  ends that, because the project could no longer relicense the whole work. Until a CLA exists,
+  outside contributions cannot be merged without forfeiting the commercial-licensing option.
+- Per-file SPDX headers were considered and are not adopted. The repo-level `LICENSE` governs.

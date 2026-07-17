@@ -1,5 +1,5 @@
 /**
- * Pure detectors for the repo guardrails - the functional core the git/Claude-Code hooks wrap.
+ * Pure detectors for the repo guardrails - the functional core the git and editor hooks wrap.
  * Every rule here is a deterministic function over strings and path lists: no fs, no git, no process,
  * so each is unit-tested directly in lib.test.ts. The thin imperative shells (gate.ts, branch-note.ts)
  * gather the real inputs (changed files, diffs, on-disk siblings) and carry a violation out as exit 2.
