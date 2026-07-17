@@ -58,10 +58,24 @@ function scanWindow(
   return { texts, absIndex };
 }
 
-function budgetOrder(entries: readonly LorebookEntry[]): LorebookEntry[] {
+/** Placement: the order kept entries EMIT. sortOrder is the placement axis; priority only ties. */
+function placementOrder(entries: readonly LorebookEntry[]): LorebookEntry[] {
   return [...entries].sort((a, b) => {
     if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
     if (a.priority !== b.priority) return b.priority - a.priority;
+    return 0;
+  });
+}
+
+/**
+ * Eviction: the order entries CLAIM budget. priority is the eviction axis per the schema contract
+ * (higher survives, a separate axis from placement); sortOrder only breaks ties. Walking placement
+ * order here instead is the bug where where-an-entry-sits decides whether it survives.
+ */
+function evictionOrder(entries: readonly LorebookEntry[]): LorebookEntry[] {
+  return [...entries].sort((a, b) => {
+    if (a.priority !== b.priority) return b.priority - a.priority;
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
     return 0;
   });
 }
@@ -310,7 +324,7 @@ export function scanBook(
     if ((cooldownLeft[id] ?? 0) <= 0) delete cooldownLeft[id];
   }
 
-  const ordered = budgetOrder(entries.filter((e) => firedIds.has(e.id)));
+  const ordered = placementOrder(entries.filter((e) => firedIds.has(e.id)));
   const limit = opts.tokenBudget ?? null;
   let spent = 0;
   const cuts: EntryVerdict[] = [];
@@ -320,7 +334,7 @@ export function scanBook(
     for (const e of ordered) keptIds.add(e.id);
     spent = ordered.reduce((s, e) => s + estimateEntryTokens(e), 0);
   } else {
-    for (const e of ordered) {
+    for (const e of evictionOrder(ordered)) {
       const cost = estimateEntryTokens(e);
       if (e.ignoreBudget) {
         keptIds.add(e.id);

@@ -297,6 +297,29 @@ describe("scanBook: budget", () => {
     expect(r.fired.map((f) => f.entryId).sort()).toEqual(["early", "kept"]);
   });
 
+  test("priority is the eviction axis: a high-priority late entry survives over a low-priority early one", () => {
+    // The schema's contract: priority decides who survives the budget (higher survives), a separate
+    // axis from placement. Cutting by sortOrder made placement decide survival too.
+    const big = "zzzz".repeat(20);
+    const b = bookOf([
+      entry("weak-early", { title: "W", content: big, sortOrder: 1, priority: 10, constant: true }),
+      entry("vital-late", { title: "V", content: big, sortOrder: 99, priority: 200, constant: true }),
+    ]);
+    const cost = Math.ceil(("V".length + big.length) / 4);
+    const r = scanBook(b, [line("x")], { chanceMode: "always", tokenBudget: cost });
+    expect(r.fired.map((f) => f.entryId)).toEqual(["vital-late"]);
+    expect(r.budget.cuts.map((c) => c.entryId)).toEqual(["weak-early"]);
+  });
+
+  test("kept entries still emit in placement order even when priority awarded the budget", () => {
+    const b = bookOf([
+      entry("late-vip", { title: "L", content: "aa", sortOrder: 50, priority: 200, constant: true }),
+      entry("early-avg", { title: "E", content: "bb", sortOrder: 1, priority: 10, constant: true }),
+    ]);
+    const r = scanBook(b, [line("x")], { chanceMode: "always", tokenBudget: 10_000 });
+    expect(r.fired.map((f) => f.entryId)).toEqual(["early-avg", "late-vip"]);
+  });
+
   test("priority tiebreak when sortOrder equal: higher priority first", () => {
     const big = "yyyy".repeat(20);
     const b = bookOf([
