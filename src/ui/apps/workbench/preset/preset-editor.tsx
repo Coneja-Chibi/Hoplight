@@ -11,6 +11,7 @@ import type { PresetBody } from "../../../../entities/preset";
 import {
   parseWriteFor,
   placementsForProfile,
+  platformOwnsField,
   presetWeight,
   promptCounts,
   visiblePrompts,
@@ -24,6 +25,7 @@ import { WriteForStrip } from "../../../components/write-for-strip";
 import { BlockList } from "./block-list";
 import { ListToolbar } from "./list-toolbar";
 import { BulkBar } from "./bulk-bar";
+import { SettingsBar } from "./settings-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
 import {
   addBlock,
@@ -36,6 +38,7 @@ import {
   patchBlock,
   presetDirty,
   setBlockGroup,
+  setSampler,
   toggleBlock,
 } from "./session";
 import s from "./preset.module.css";
@@ -178,6 +181,13 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
           onChange={setWriteFor}
         />
       </EditorEhead>
+
+      <SettingsBar
+        body={body}
+        showSamplers={platformOwnsField(writeFor, "samplers")}
+        onDescription={(v) => setBody((b) => ({ ...b, description: v }))}
+        onSampler={(key, value) => setBody((b) => setSampler(b, key, value))}
+      />
 
       <div className={s.body}>
         <div className={s.listCol}>

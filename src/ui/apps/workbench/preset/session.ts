@@ -5,7 +5,7 @@
  * schema's UUID-regen exemption), so newBlock() only mints for authored ones.
  */
 import { newUiId } from "../../../_shared/new-id";
-import type { PresetBody, PresetPrompt } from "../../../../entities/preset";
+import type { PresetBody, PresetPrompt, PresetSamplers } from "../../../../entities/preset";
 
 export const presetDirty = (body: PresetBody, baseline: PresetBody): boolean =>
   JSON.stringify(body) !== JSON.stringify(baseline);
@@ -35,6 +35,31 @@ export const addBlock = (body: PresetBody, block: PresetPrompt = newBlock()): Pr
   ...body,
   prompts: [...body.prompts, block],
 });
+
+/* ---------- settings ---------- */
+
+/**
+ * Set one sampler, or REMOVE it when value is undefined. Removing matters: the Round-Trip Law
+ * forbids emitting a value the source never had, so clearing a field must delete the key rather
+ * than write 0 - and an empty input must reach here as undefined, never Number("") === 0. The
+ * `samplers` object itself drops away once its last key goes, so a preset that never carried
+ * samplers does not gain an empty `{}` just from being opened.
+ */
+export const setSampler = (
+  body: PresetBody,
+  key: keyof PresetSamplers,
+  value: number | string | undefined,
+): PresetBody => {
+  const samplers: PresetSamplers = { ...(body.samplers ?? {}) };
+  if (value === undefined || value === "") delete samplers[key];
+  else (samplers as Record<string, unknown>)[key] = value;
+
+  if (Object.keys(samplers).length === 0) {
+    const { samplers: _drop, ...rest } = body;
+    return rest;
+  }
+  return { ...body, samplers };
+};
 
 /* ---------- categories ---------- */
 

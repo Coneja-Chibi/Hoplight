@@ -1,0 +1,64 @@
+/**
+ * The Identity & Settings strip (RC-neo). Collapsed by default: it sits between the ehead and the
+ * prompt list, and the list is the job. Accent = --pa from the editor .root.
+ */
+
+.bar {
+  border-bottom: 3px solid var(--stage-black);
+  background: var(--stage-panel);
+  flex: none;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: none;
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+}
+
+.head:hover .title {
+  color: var(--pa);
+}
+
+.chev {
+  color: var(--pa);
+  flex: none;
+}
+
+.title {
+  font: 900 0.66rem var(--font-big);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-soft);
+}
+
+.summary {
+  margin-left: auto;
+  font: 500 0.6rem var(--font-mono);
+  color: var(--stage-kicker);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0 0.85rem 0.75rem;
+  border-top: 2px solid var(--stage-black);
+}
+
+.note {
+  margin: 0;
+  font: 500 0.62rem var(--font-body);
+  color: var(--stage-kicker);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.5rem;
+}
