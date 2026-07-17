@@ -10,7 +10,7 @@ const wire = () => ({
   subjective_pronoun: "she",
   objective_pronoun: "her",
   possessive_pronoun: "hers",
-  avatar_path: "/img/chi.png",
+  avatar_path: "/img/ada.png",
   image_id: null,
   attached_world_book_id: "wb-9",
   folder: "mains",
@@ -35,7 +35,7 @@ describe("round trip", () => {
     expect(e.body.identity?.pronounSet).toEqual({ subjective: "she", objective: "her", possessive: "hers" });
     expect(e.body.identity?.tagline).toBe("The Boss");
     expect(e.body.knowledgeRefs).toEqual(["wb-9"]);
-    expect(e.body.presentation?.imageUrl).toBe("/img/chi.png");
+    expect(e.body.presentation?.imageUrl).toBe("/img/ada.png");
     const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as ReturnType<typeof wire>;
     expect(out).toEqual(wire());
   });

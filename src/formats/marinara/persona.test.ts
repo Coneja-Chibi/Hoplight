@@ -11,7 +11,7 @@ const wire = () => ({
   scenario: "Runs the studio.",
   backstory: "Grew up on deadlines.",
   appearance: "Compact hourglass.",
-  avatarPath: "/img/chi.png",
+  avatarPath: "/img/ada.png",
   avatarCrop: { srcX: 0, srcY: 0, srcWidth: 512, srcHeight: 512 },
   isActive: true,
   nameColor: "#a78bfa",
@@ -48,6 +48,15 @@ describe("round trip", () => {
     });
     const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as ReturnType<typeof wire>;
     expect(out).toEqual(wire());
+  });
+
+  test("clearing a section to empty is honored, not reverted to the sealed twin", () => {
+    // Re-verification of a codec-read finding: the section editor sends "" for a cleared field, never
+    // undefined, so "" short-circuits the `?? str(base.X)` twin fallback and the clear survives export.
+    const e = adapter.toCanonical({ text: JSON.stringify(wire()) });
+    e.body.sections = { ...e.body.sections, personality: "" };
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "") as ReturnType<typeof wire>;
+    expect(out.personality).toBe("");
   });
 
   test("the brief-vs-content never-swap holds through the wire", () => {
