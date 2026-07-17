@@ -8,6 +8,25 @@
  * sets, separators AND semantics are all per-engine, so a filtered single catalog cannot be correct.
  *
  * Each catalog is transcribed from that engine's own capability source. See the platform files.
+ *
+ * SCOPE, and why Lumiverse / Risu / Agnai are absent: the axis here is PresetWriteForProfile, the
+ * four hosts a preset can be AUTHORED FOR. Lumiverse presets import but never serialize back, and
+ * Risu/Agnai have no preset lens, so none of them belong on this axis today.
+ *
+ * Do NOT just bolt them on when that changes - their engines break this model's assumptions, and a
+ * naive add would be wrong in three ways (checked against the local clones, 2026-07):
+ *  1. SYNTAX. Risu's CBS documents its macros as [[name]] (48 uses in its own cbs_docs.cbs, zero
+ *     {{name}}). scanMacroTokens only matches {{...}}, so it is blind to Risu text.
+ *  2. ALIASES. 77 of the 187 macros in LumiRealm's risu-macros.json carry aliases (#puredisplay =
+ *     pure_display = pure-display). One-name-per-macro would emit false "unsupported" for valid
+ *     aliases - a wrong warning is worse than none.
+ *  3. COLLISIONS. That same catalog marks 36 entries with `lumiverseCollision`: Lumi's own record of
+ *     where it diverges from Risu on a shared name. The {{random::a::b}} trap, 36 more times.
+ * Agnai is not this shape at all - it is a template system of named slots (system/history/post).
+ * Ground truth if/when it is needed: _reference/RisuAI/src/etc/docs/cbs_docs.cbs (CSV: name,
+ * description, aliases, arguments, example), _reference/LumiRealm/src/core/cbs/catalog/
+ * risu-macros.json (187 entries, machine-readable - generate it, never hand-copy), and
+ * _reference/agnai/common/template-parser.ts.
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import type { MacroGroup } from "./types";

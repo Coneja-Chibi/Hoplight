@@ -8,6 +8,12 @@
  * on SillyTavern, and {{random::a::b}} is a range on RoleCall but a list pick on SillyTavern. So
  * `unsupportedIn` is a reliable "this definitely dies" list, never a clean bill of health. For the
  * real form, read the entry `findMacro` hands back.
+ *
+ * SECOND LIMIT: this assumes the {{...}} dialect and one canonical name per macro, which holds for
+ * the four preset lenses and NOT beyond them. Risu/Lumiverse CBS documents [[name]] and aliases 77
+ * of its 187 macros; scanMacroTokens would see none of it and macroName would call valid aliases
+ * dead. The PresetWriteForProfile type is what keeps callers out - do not widen it without growing
+ * the model. See ./index.ts.
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
