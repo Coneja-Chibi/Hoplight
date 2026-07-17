@@ -1,9 +1,10 @@
 /**
  * PortraitCard - the editor's left column: the TicketWindow booth (the locked vs-image-picker wire),
- * then the labeled shelves under it - variants (a variant is alt art or alt fields, one concept),
- * expressions (the pack strip) - then name + token/edited meta and the media stamps.
+ * the variants shelf under it (a variant is alt art or alt fields, one concept), then name +
+ * token/edited meta and the media stamps. Expressions live behind the Manage Sprites stamp alone;
+ * a preview strip beside it was a second entry point to the same place.
  */
-import type { JSX, ReactNode } from "react";
+import type { JSX } from "react";
 import type { MediaAsset } from "../../../../entities/character/schema";
 import { ShelfKicker, TicketWindow } from "../../../components/ticket-window";
 import { VariantStrip } from "../../../components/variant-strip";
@@ -32,11 +33,6 @@ export interface PortraitCardProps {
   showCardAssets?: boolean;
   cardAssetCount?: number;
   onOpenCardAssets?: () => void;
-  /** Expression pack strip under variants */
-  packStrip?: ReactNode;
-  /** When strip previews an expression face, show a small chip */
-  stripPreviewLabel?: string | null;
-  onClearStripPreview?: () => void;
   /** Per-variant own portrait thumbs (id -> previewable ref) */
   variantArt?: Readonly<Record<string, string | null>>;
 }
@@ -56,9 +52,6 @@ export function PortraitCard({
   showCardAssets = false,
   cardAssetCount = 0,
   onOpenCardAssets,
-  packStrip,
-  stripPreviewLabel,
-  onClearStripPreview,
   variantArt,
 }: PortraitCardProps): JSX.Element {
   const canEdit = typeof onPortraitChange === "function";
@@ -77,16 +70,6 @@ export function PortraitCard({
         onPick={canEdit ? (asset) => onPortraitChange(asset) : undefined}
         onRemove={canEdit && artUrl ? () => onPortraitChange(null) : undefined}
       />
-      {stripPreviewLabel ? (
-        <button
-          type="button"
-          className={styles.stripChip}
-          title="Clear expression preview"
-          onClick={() => onClearStripPreview?.()}
-        >
-          {`Preview · ${stripPreviewLabel} ×`}
-        </button>
-      ) : null}
       {vary && (
         <>
           <ShelfKicker>variants · alt art or alt fields</ShelfKicker>
@@ -103,12 +86,6 @@ export function PortraitCard({
           />
         </>
       )}
-      {packStrip ? (
-        <>
-          <ShelfKicker>expressions</ShelfKicker>
-          {packStrip}
-        </>
-      ) : null}
       <div className={styles.lmeta}>
         <b>{name.toUpperCase()}</b>
         <div className={styles.lsub}>

@@ -43,7 +43,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
 | EditorEhead | src/ui/components/editor-ehead/index.tsx | ({ mark, name, onNameChange, namePlaceholder, nameAriaLabel, meta, dirty, saving, onSave, saveTitle = "Save · ctrl+s"... |  | .ehead .spine .spineMark .spineText .spineName .spineMeta .acts .save |
 | EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |
-| EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, spritePack, stripLabel, setStrip... |  |  |
+| EditorLeftCard | src/ui/apps/workbench/presenters/editor-left.tsx | ({ artUrl, draft, piece, vary, styles, setField, mediaCaps, spriteCount, namedCount, setSpritesOpen, setSpritesFocusL... |  |  |
 | EditorModeBar | src/ui/apps/workbench/presenters/editor-modebar.tsx | (props: EditorModeBarProps) |  |  |
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
 | EntryTocItem | src/ui/apps/workbench/lore/entry-toc-item.tsx | ({ entry, writeFor, styles, categories, onPatch, onOpen, onDuplicate, onDelete, onOpenBeside, }: EntryTocItemProps) |  |  |
@@ -101,7 +101,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | NovelAiBiasBlock | src/ui/apps/workbench/lore/platforms/novelai-bias.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
-| PackStrip | src/ui/components/pack-strip/index.tsx | ({ pack, activeLabel, onSelect, onOpenPack, }: PackStripProps) |  | .strip .thumb .on .ph .add |
 | PaintPicker | src/ui/components/paint-picker/index.tsx | ({ value, allow: allowProp, onChange }: PaintPickerProps) |  | .pp .modes .on .grad .bar .stop .sel .row ... |
 | PaletteCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Color palette on the SHARED controls (registry-first): SwatchRow is the signature slot (the |  |
 | PaletteControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles, twoField }: PaletteControlProps) |  |  |

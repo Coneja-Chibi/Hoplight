@@ -85,7 +85,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const [spritesOpen, setSpritesOpen] = useState(false);
   const [spritesFocusLabel, setSpritesFocusLabel] = useState<string | null>(null);
   const [namedOpen, setNamedOpen] = useState(false);
-  const [stripLabel, setStripLabel] = useState<string | null>(null);
   const [packCatalog, setPackCatalog] = useState<{ id: string; name: string }[]>([]);
   const activeCardRef = useRef<HTMLDivElement>(null);
 
@@ -282,8 +281,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     targets,
   );
   const artUrl = resolveArtUrl({
-    stripLabel,
-    spritePack,
     draft,
     varyActiveId: vary.activeId,
     piece,
@@ -292,14 +289,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const applySpritePack = (pack: SpritePackValue, groups?: Record<string, SpritePackValue>): void => {
     setBaseDraft((d) => bodyWithPack(d, pack));
     setOriginalDraft((o) => originalWithPack(o, pack, groups));
-    setStripLabel(null);
   };
 
   const applyFaceOnly = (pack: SpritePackValue, wantLabel?: string | null): void => {
     const { body, pack: empty } = bodyWithFaceOnly(baseDraft, pack, wantLabel);
     setBaseDraft(body);
     setOriginalDraft((o) => originalWithPack(o, empty));
-    setStripLabel(null);
   };
 
   const applyNamed = (value: NamedAssetsValue): void => {
@@ -351,9 +346,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       mediaCaps={mediaCaps}
       spriteCount={spriteCount}
       namedCount={namedCount}
-      spritePack={spritePack}
-      stripLabel={stripLabel}
-      setStripLabel={setStripLabel}
       setSpritesOpen={setSpritesOpen}
       setSpritesFocusLabel={setSpritesFocusLabel}
       setNamedOpen={setNamedOpen}

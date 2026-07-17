@@ -1,13 +1,11 @@
 /**
- * Editor left column: portrait card with pack strip / manage sprites / named assets.
+ * Editor left column: portrait card with manage sprites / named assets.
  * Extracted from Editor.tsx (presentational assembly only).
  */
 import type { JSX } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
-import { PackStrip } from "../../../components/pack-strip";
 import {
   mediaCapabilities,
-  resolvePackFace,
   type NamedAssetsValue,
   type SpritePackValue,
 } from "../../../../core/media";
@@ -25,16 +23,10 @@ import type { useVariants } from "../use-variants";
 type VaryApi = ReturnType<typeof useVariants>;
 
 export function resolveArtUrl(opts: {
-  stripLabel: string | null;
-  spritePack: SpritePackValue;
   draft: unknown;
   varyActiveId: string | null;
   piece: StudioEntitySummary;
 }): string | null {
-  if (opts.stripLabel) {
-    const face = resolvePackFace(opts.spritePack, opts.stripLabel);
-    if (face?.ref) return face.ref;
-  }
   const portrait = rec(readPath(opts.draft, "media.portrait"));
   const ref = str(portrait.ref);
   if (ref.startsWith("data:image/") || ref.startsWith("https://") || ref.startsWith("http://")) {
@@ -79,9 +71,6 @@ export function EditorLeftCard({
   mediaCaps,
   spriteCount,
   namedCount,
-  spritePack,
-  stripLabel,
-  setStripLabel,
   setSpritesOpen,
   setSpritesFocusLabel,
   setNamedOpen,
@@ -98,9 +87,6 @@ export function EditorLeftCard({
   mediaCaps: ReturnType<typeof mediaCapabilities>;
   spriteCount: number;
   namedCount: number;
-  spritePack: SpritePackValue;
-  stripLabel: string | null;
-  setStripLabel(v: string | null): void;
   setSpritesOpen(v: boolean): void;
   setSpritesFocusLabel(v: string | null): void;
   setNamedOpen(v: boolean): void;
@@ -140,21 +126,6 @@ export function EditorLeftCard({
         showCardAssets={mediaCaps.namedAssets}
         cardAssetCount={namedCount}
         onOpenCardAssets={mediaCaps.namedAssets ? () => setNamedOpen(true) : undefined}
-        packStrip={
-          mediaCaps.sprites ? (
-            <PackStrip
-              pack={spritePack}
-              activeLabel={stripLabel}
-              onSelect={setStripLabel}
-              onOpenPack={(focus) => {
-                setSpritesFocusLabel(focus ?? null);
-                setSpritesOpen(true);
-              }}
-            />
-          ) : null
-        }
-        stripPreviewLabel={stripLabel}
-        onClearStripPreview={() => setStripLabel(null)}
         variantArt={variantArt}
       />
       {ctx && onKnowledgeRefsChange && (
