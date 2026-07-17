@@ -1,10 +1,10 @@
 /**
- * PortraitCard - the editor's left column: portrait (art or initial), the variant strip, name + token/
- * edited meta, and media stamps. Click/drop the art to change face (media hub). Sprites stamp later.
+ * PortraitCard - the editor's left column: the TicketWindow art surface (booth + alternates strip,
+ * the locked vs-image-picker wire), the variant strip, name + token/edited meta, and media stamps.
  */
-import { useRef, useState, type DragEvent, type JSX, type ReactNode } from "react";
+import type { JSX, ReactNode } from "react";
 import type { MediaAsset } from "../../../../entities/character/schema";
-import { portraitFromRef } from "../../../../core/media";
+import { TicketWindow, type TicketAlternate } from "../../../components/ticket-window";
 import { VariantStrip } from "../../../components/variant-strip";
 import type { VariantsApi } from "../use-variants";
 
@@ -38,20 +38,11 @@ export interface PortraitCardProps {
   onClearStripPreview?: () => void;
   /** Per-variant own portrait thumbs (id -> previewable ref) */
   variantArt?: Readonly<Record<string, string | null>>;
+  /** The strip's alternates (characters: media.assets); single-slot surfaces omit and get hung + add. */
+  alternates?: readonly TicketAlternate[];
+  onHang?: (id: string) => void;
+  onAddAlternates?: (assets: MediaAsset[]) => void;
 }
-
-const IMAGE_ACCEPT = "image/png,image/jpeg,image/jpg,image/webp,image/gif";
-
-const readFileAsDataUri = (file: File): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") resolve(reader.result);
-      else reject(new Error("portrait: expected data URL"));
-    };
-    reader.onerror = () => reject(new Error("portrait: read failed"));
-    reader.readAsDataURL(file);
-  });
 
 export function PortraitCard({
   artUrl,
@@ -72,81 +63,37 @@ export function PortraitCard({
   stripPreviewLabel,
   onClearStripPreview,
   variantArt,
+  alternates,
+  onHang,
+  onAddAlternates,
 }: PortraitCardProps): JSX.Element {
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [dragOver, setDragOver] = useState(false);
   const canEdit = typeof onPortraitChange === "function";
   const canSprites = typeof onOpenSprites === "function";
   const canNamed = showCardAssets && typeof onOpenCardAssets === "function";
 
-  const applyFile = async (file: File | undefined): Promise<void> => {
-    if (!canEdit || !file || !file.type.startsWith("image/")) return;
-    try {
-      const dataUri = await readFileAsDataUri(file);
-      const asset = portraitFromRef(dataUri);
-      if (asset) onPortraitChange(asset);
-    } catch {
-      // fail closed: leave prior face
-    }
-  };
-
-  const onDrop = (e: DragEvent): void => {
-    e.preventDefault();
-    setDragOver(false);
-    void applyFile(e.dataTransfer.files?.[0]);
-  };
-
   return (
     <section className={styles.lcard} data-tour="portrait">
-      <div
-        className={`${styles.portrait}${canEdit ? ` ${styles.portraitEdit}` : ""}${dragOver ? ` ${styles.portraitDrag}` : ""}`}
-        role={canEdit ? "button" : undefined}
-        tabIndex={canEdit ? 0 : undefined}
-        title={canEdit ? "Click or drop to change art" : undefined}
-        onClick={() => {
-          if (canEdit) fileRef.current?.click();
-        }}
-        onKeyDown={(e) => {
-          if (!canEdit) return;
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            fileRef.current?.click();
-          }
-        }}
-        onDragOver={(e) => {
-          if (!canEdit) return;
-          e.preventDefault();
-          setDragOver(true);
-        }}
-        onDragLeave={() => setDragOver(false)}
-        onDrop={canEdit ? onDrop : undefined}
-      >
-        {artUrl ? <img src={artUrl} alt="" /> : <b>{name.charAt(0).toUpperCase()}</b>}
-        {stripPreviewLabel ? (
-          <button
-            type="button"
-            className={styles.stripChip}
-            title="Clear expression preview"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClearStripPreview?.();
-            }}
-          >
-            {`Preview · ${stripPreviewLabel} ×`}
-          </button>
-        ) : null}
-        {canEdit && !stripPreviewLabel ? <span className={styles.portraitCue}>Change art</span> : null}
-        <input
-          ref={fileRef}
-          type="file"
-          accept={IMAGE_ACCEPT}
-          className={styles.hiddenFile}
-          onChange={(e) => {
-            void applyFile(e.target.files?.[0]);
-            e.target.value = "";
-          }}
-        />
-      </div>
+      <TicketWindow
+        label="portrait"
+        title={name}
+        artUrl={artUrl}
+        monogram={name.charAt(0).toUpperCase()}
+        onPick={canEdit ? (asset) => onPortraitChange(asset) : undefined}
+        onRemove={canEdit && artUrl ? () => onPortraitChange(null) : undefined}
+        alternates={alternates}
+        onHang={onHang}
+        onAdd={onAddAlternates}
+      />
+      {stripPreviewLabel ? (
+        <button
+          type="button"
+          className={styles.stripChip}
+          title="Clear expression preview"
+          onClick={() => onClearStripPreview?.()}
+        >
+          {`Preview · ${stripPreviewLabel} ×`}
+        </button>
+      ) : null}
       {vary && (
         <VariantStrip
           variants={vary.variants}

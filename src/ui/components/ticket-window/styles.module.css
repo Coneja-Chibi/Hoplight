@@ -1,0 +1,194 @@
+/**
+ * TicketWindow - transcribed 1:1 from the LOCKED vs-image-picker wire (booth + alternates strip):
+ * black marquee naming the slot, art behind glass with a sheen, actions as perforated ticket stubs,
+ * and the filmstrip of alternates riding under the booth in every deployment. Stage tokens only;
+ * accent chips wear dark ink per the tokens contract (reads in both themes).
+ */
+.sheet {
+  width: 100%;
+}
+
+.booth {
+  border: 3px solid var(--stage-black);
+  box-shadow: 7px 7px 0 0 var(--stage-black);
+  background: var(--stage-row);
+}
+
+.marquee {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  background: var(--stage-black);
+  color: var(--stage-white);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+}
+
+.marqueeTitle {
+  color: var(--a);
+  font-style: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.glass {
+  aspect-ratio: 3 / 4;
+  margin: 0.6rem;
+  border: 2px solid var(--stage-black);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--stage-sunken);
+  cursor: pointer;
+  padding: 0;
+  width: calc(100% - 1.2rem);
+}
+
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in srgb, var(--stage-white) 7%, transparent) 46%,
+    transparent 55%
+  );
+}
+
+.glass img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.glassDrag {
+  outline: 3px dashed var(--a);
+  outline-offset: -8px;
+}
+
+.monogram {
+  font-family: var(--font-big);
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--stage-faint);
+}
+
+.emptyLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  text-align: center;
+  line-height: 2;
+}
+
+.stubs {
+  display: flex;
+  gap: 0.45rem;
+  padding: 0 0.6rem 0.65rem;
+}
+
+.stub {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--stage-paper);
+  background: var(--stage-panel);
+  border: 2px solid var(--stage-black);
+  border-left: 2px dashed var(--stage-line);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.35rem 0.3rem;
+  cursor: pointer;
+}
+
+.stubPrimary {
+  background: var(--a);
+  color: var(--stage-ink);
+  border-left-style: solid;
+}
+
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.thumb {
+  width: 46px;
+  height: 46px;
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  cursor: pointer;
+  position: relative;
+  padding: 0;
+  background: var(--stage-sunken);
+  overflow: hidden;
+}
+
+.thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbOn {
+  outline: 2px solid var(--a);
+  outline-offset: 2px;
+}
+
+.thumbTag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-white);
+  background: color-mix(in srgb, var(--stage-black) 72%, transparent);
+  padding: 0.1rem 0.2rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thumbAdd {
+  border-style: dashed;
+  border-color: var(--stage-line);
+  box-shadow: none;
+  background: var(--stage-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--stage-mute);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+}
+
+.hiddenFile {
+  display: none;
+}

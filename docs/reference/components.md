@@ -150,6 +150,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | StubEditor | src/ui/components/stub-editor/index.tsx | ({ title, note, onClose, children }: StubEditorProps) |  | .head .note .body .close |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
+| TicketWindow | src/ui/components/ticket-window/index.tsx | ({ label, title, artUrl, monogram, onPick, onRemove, alternates, onHang, onAdd, }: TicketWindowProps) |  | .sheet .booth .marquee .marqueeTitle .glass .glassDrag .monogram .emptyLine ... |
 | ToggleSwitch | src/ui/components/toggle-switch/index.tsx | ({ on, onChange, label }: ToggleSwitchProps) |  | .btn .track .on .knob |
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 | TrackerCardColors | src/ui/components/tracker-card-colors/index.tsx | ({ value, onChange }: TrackerCardColorsProps) |  | .wrap .help .colorBlock .k .cssIn |
