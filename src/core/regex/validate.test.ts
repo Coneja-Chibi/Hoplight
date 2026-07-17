@@ -102,3 +102,29 @@ describe("R2X: validate delegates to ast/redos when the pattern parses", () => {
     expect(v.complexity).toBeGreaterThanOrEqual(0);
   });
 });
+
+/**
+ * The gate must compile with the SAME flags apply will use. It used to compile flagless, so a
+ * pattern legal under Annex B but fatal under the rule's own u flag (\p{Foo=Bar}) validated ok and
+ * then threw on every single application: a rule that looks fine in the editor and never runs.
+ */
+describe("validateRule compiles under the rule's own flags", () => {
+  test("rejects a pattern that only dies under its stored u flag", () => {
+    const v = validateRule(rule({ find: String.raw`\p{Foo=Bar}`, flags: "gu", useFlags: true }));
+    expect(v.ok).toBe(false);
+    expect(v.error).toContain("invalid pattern");
+  });
+
+  test("still accepts real unicode-property patterns under u", () => {
+    expect(validateRule(rule({ find: String.raw`\p{Letter}+`, flags: "gu", useFlags: true })).ok).toBe(true);
+  });
+
+  test("u-flag class-range strictness is enforced, not Annex-B-forgiven", () => {
+    expect(validateRule(rule({ find: String.raw`[\d-a]`, flags: "gu", useFlags: true })).ok).toBe(false);
+  });
+
+  test("useFlags false means the stored flags are ignored, matching apply", () => {
+    // apply compiles with plain "g" when useFlags is off; \p{Foo=Bar} is Annex-B legal there.
+    expect(validateRule(rule({ find: String.raw`\p{Foo=Bar}`, flags: "gu", useFlags: false })).ok).toBe(true);
+  });
+});

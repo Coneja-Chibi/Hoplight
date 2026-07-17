@@ -21,7 +21,7 @@ import type {
   RegexTargetChannel,
 } from "../../entities/regex/schema";
 import type { Span } from "./ast/ast-types";
-import { parseFlagTokens } from "./ast/dialect";
+import { jsFlagsForRule } from "./ast/dialect";
 import { expandReplacement, substituteAfterMacros, substituteFindMacros } from "./replace-ops";
 import { validateRule } from "./validate";
 
@@ -234,7 +234,7 @@ function applyRule(
   // Flags: split Risu extension tokens (e.g. "gu<cbs>") from the clean JS flags via the shared
   // parseFlagTokens (one home in ast/dialect.ts). Always add "d" so matches carry index spans for
   // the trace - the d flag only annotates results, it never changes what matches.
-  const jsFlags = rule.useFlags ? parseFlagTokens(rule.flags || "g").jsFlags || "g" : "g";
+  const jsFlags = jsFlagsForRule(rule);
   const flags = jsFlags.includes("d") ? jsFlags : `${jsFlags}d`;
   let regex: RegExp;
   try {

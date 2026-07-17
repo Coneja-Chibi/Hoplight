@@ -89,6 +89,15 @@ const APPROXIMATE_POSIX = new Set(["graph", "print", "cntrl"]);
  * dropped; the `<...>` tokens (Risu's CBS extension et al) are returned verbatim (trimmed) as
  * directives. Plain JS flag strings pass through untouched ("ig" stays "ig").
  */
+/**
+ * The exact JS flags apply.ts compiles a rule with. validate.ts gates with these SAME flags: a
+ * pattern's validity depends on its flags (u/v strictness cuts both ways), so gate and engine
+ * deriving flags separately is how "validates ok, throws on every run" happens.
+ */
+export function jsFlagsForRule(rule: { flags?: string; useFlags?: boolean }): string {
+  return rule.useFlags ? parseFlagTokens(rule.flags || "g").jsFlags || "g" : "g";
+}
+
 export function parseFlagTokens(flags: string): { jsFlags: string; engineDirectives: string[] } {
   const engineDirectives: string[] = [];
   // Pull out every <...> token first; whatever is left is the raw JS-flag stream.

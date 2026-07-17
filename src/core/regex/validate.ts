@@ -10,6 +10,7 @@
  */
 import type { RegexRule } from "../../entities/regex/schema";
 import type { Span } from "./ast/ast-types";
+import { jsFlagsForRule } from "./ast/dialect";
 import { parseRegex } from "./ast/parser";
 import { analyzeRedos } from "./ast/redos";
 
@@ -68,7 +69,9 @@ export function validateRule(rule: RegexRule): RuleValidation {
   }
 
   try {
-    new RegExp(pattern);
+    // Compile under the SAME flags apply.ts will use (one shared derivation): a pattern's validity
+    // depends on its flags, so a flagless compile here let u-only syntax errors through to runtime.
+    new RegExp(pattern, jsFlagsForRule(rule));
   } catch (err) {
     return {
       ok: false,
