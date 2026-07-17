@@ -193,7 +193,16 @@ export function checkApiRequest(
   const host = req.headers.get("host") ?? "";
   if (!hostAllowed(host, sec.expectedHost)) return err("forbidden", 403);
 
-  if (req.method === "GET" || req.method === "HEAD") return null;
+  if (req.method === "GET" || req.method === "HEAD") {
+    // GET/HEAD cannot demand the token (an <img src> sends no headers), which would leave image
+    // loads usable as a blind existence oracle from any open tab. Sec-Fetch-Site is browser-set
+    // and unforgeable from a page: refuse cross-site, pass everything a legitimate user produces
+    // (same-origin app fetches, address-bar "none", header-less curl/older clients).
+    if ((req.headers.get("sec-fetch-site") ?? "").toLowerCase() === "cross-site") {
+      return err("forbidden", 403);
+    }
+    return null;
+  }
 
   if (req.method === "POST") {
     const origin = req.headers.get("origin");

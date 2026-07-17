@@ -33,10 +33,12 @@ const apiReq = (
     token?: string | null;
     contentType?: string;
     body?: BodyInit | null;
+    fetchSite?: string;
   } = {},
 ): Request => {
   const headers = new Headers();
   headers.set("host", init.host ?? "127.0.0.1:8321");
+  if (init.fetchSite) headers.set("sec-fetch-site", init.fetchSite);
   if (init.origin !== null) headers.set("origin", init.origin ?? "http://127.0.0.1:8321");
   if (init.token !== null && init.token !== undefined) headers.set("x-vaude-token", init.token);
   if (init.contentType) headers.set("content-type", init.contentType);
@@ -100,6 +102,28 @@ describe("checkApiRequest", () => {
   test("valid GET only needs host", () => {
     const sec = filledSec();
     expect(checkApiRequest(apiReq("/api/settings", { token: null, origin: null }), sec)).toBeNull();
+  });
+
+  // GET/HEAD can't demand the token (an <img src> cannot send a header), so a hostile background
+  // tab could use image loads as a blind existence oracle. Sec-Fetch-Site is browser-set and
+  // unforgeable from a page: cross-site fetches are denied, everything a legitimate user does
+  // (same-origin app fetches, address-bar loads, curl - which omit or send other values) passes.
+  test("cross-site GET is refused: the img-tag existence oracle closes", () => {
+    const sec = filledSec();
+    const res = checkApiRequest(
+      apiReq("/api/studio/portrait", { token: null, origin: null, fetchSite: "cross-site" }),
+      sec,
+    );
+    expect(res?.status).toBe(403);
+  });
+
+  test("same-origin and none Sec-Fetch-Site GETs still pass", () => {
+    const sec = filledSec();
+    for (const fetchSite of ["same-origin", "none"]) {
+      expect(
+        checkApiRequest(apiReq("/api/settings", { token: null, origin: null, fetchSite }), sec),
+      ).toBeNull();
+    }
   });
 
   test("valid POST passes", () => {
