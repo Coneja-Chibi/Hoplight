@@ -62,7 +62,10 @@ export async function runLua(code: string, opts: HardenedLuaOptions = {}): Promi
   try {
     engine = await createHardenedLua(opts);
     const value = (await engine.doString(code)) as unknown;
-    return { ok: true, value };
+    // A chunk that returns nothing yields Lua nil, which the bridge hands back as JS undefined.
+    // The result crosses a JSON wire where undefined is not representable; nil is a value ("no
+    // value"), so normalize it to null here at the one boundary Lua semantics enter JS.
+    return { ok: true, value: value ?? null };
   } catch (err) {
     if (err instanceof LuaTimeoutError) {
       return { ok: false, reason: "timeout", message: err.message };

@@ -12,6 +12,13 @@ describe("hardened Lua engine: fidelity to PUC-Lua 5.4", () => {
     expect(await runLua("return 40 + 2")).toEqual({ ok: true, value: 42 });
   });
 
+  test("a chunk that returns nothing succeeds with null, not undefined (JSON has no undefined)", async () => {
+    // A card that only mutates state and returns nothing is legal; its nil result must survive the
+    // JSON wire. undefined would throw in the protocol encoder, so it has to normalize to null here.
+    expect(await runLua('local x = 1')).toEqual({ ok: true, value: null });
+    expect(await runLua("return nil")).toEqual({ ok: true, value: null });
+  });
+
   test("has the 5.4 integer subtype (Luau, all-doubles, would say 'number')", async () => {
     expect(await runLua('return math.type(3)')).toEqual({ ok: true, value: "integer" });
     expect(await runLua('return math.type(3.0)')).toEqual({ ok: true, value: "float" });
