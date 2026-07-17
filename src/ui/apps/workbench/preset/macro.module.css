@@ -42,6 +42,9 @@
 .macroGroup {
   border: 2px solid var(--stage-black);
   overflow: hidden;
+  /* the scroll parent is a capped flex column: without this, groups shrink to fit it and their
+     bodies get sliced off instead of the container scrolling. */
+  flex: none;
 }
 
 .macroHead {
