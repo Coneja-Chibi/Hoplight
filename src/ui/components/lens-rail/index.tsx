@@ -54,7 +54,7 @@ export function LensRail({ platforms, selected, onToggle, onClear, offTarget, on
           <button
             type="button"
             className={`${styles.chip}${offTarget === "dim" ? ` ${styles.on}` : ""}`}
-            title="Dim fields the selected platform can't carry"
+            title="Same as hide for now: off-target fields leave so lean platforms stay lean"
             onClick={() => onOffTarget("dim")}
           >
             Dim

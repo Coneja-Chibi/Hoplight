@@ -68,7 +68,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
 | InjectionCard | src/ui/apps/workbench/persona/injection-card.tsx | ({ body, onBody, stops, labels, showWrapper }: InjectionCardProps) |  |  |
-| InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. | .overlay .sheet |
+| InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim or pressing Escape calls onDismiss. | .overlay .sheet |
 | KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, advanced = false, pickedIndex, onPick, entryProbability = 100,... |  |  |
 | KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |

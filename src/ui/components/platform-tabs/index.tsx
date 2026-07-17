@@ -28,8 +28,12 @@ export interface PlatformTabsProps {
 export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: PlatformTabsProps): JSX.Element {
   return (
     <div className={styles.strip}>
+      {/* role parity with LensRail: same contract, same semantics - the two skins must not drift */}
+      <div role="tablist" aria-label="Writing for platform" style={{ display: "contents" }}>
       <button
         type="button"
+        role="tab"
+        aria-selected={selected.length === 0}
         className={`${styles.tab}${selected.length === 0 ? ` ${styles.on}` : ""}`}
         onClick={onClear}
         title="The full canonical card: every field lit, nothing judged"
@@ -40,6 +44,8 @@ export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget
         <button
           key={p.id}
           type="button"
+          role="tab"
+          aria-selected={selected.includes(p.id)}
           className={`${styles.tab}${selected.includes(p.id) ? ` ${styles.on}` : ""}`}
           onClick={() => onToggle(p.id)}
           title={`Target ${p.label}: select every platform you ship to`}
@@ -47,6 +53,7 @@ export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget
           {p.label}
         </button>
       ))}
+      </div>
       <span className={styles.offt}>
         <i className={styles.hint}>off-target</i>
         <button

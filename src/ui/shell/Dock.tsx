@@ -86,7 +86,8 @@ export function Dock(): JSX.Element {
         {future.map((m) => (
           <DockTile key={m.id} m={m} />
         ))}
-        <div className="dockslot" role="button" title="Apps can be added - drop a folder in src/ui/apps">
+        {/* a hint, not a control: no role, so screen readers don't announce a button that does nothing */}
+        <div className="dockslot" title="Apps can be added - drop a folder in src/ui/apps">
           <span className="plus">+</span>
           <span className="sl">add app</span>
         </div>

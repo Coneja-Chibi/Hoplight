@@ -3,6 +3,7 @@
  * .vdialog-overlay / .vdialog rules: dark scrim, centered sheet, 3px ink border, 6px hard offset
  * shadow). The shell's follow dialog (boot.ts's askFollow) is the reference instance this replaces.
  */
+import { useEffect } from "react";
 import type { JSX, MouseEvent, ReactNode } from "react";
 import styles from "./styles.module.css";
 
@@ -16,8 +17,17 @@ export interface InkDialogProps {
   sheetClassName?: string;
 }
 
-/** A centered modal sheet over a dark scrim; clicking the scrim calls onDismiss. */
+/** A centered modal sheet over a dark scrim; clicking the scrim or pressing Escape calls onDismiss. */
 export function InkDialog({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps): JSX.Element {
+  // Escape closes every dialog built on this seed (Menu already had its own handler; the primitive
+  // under every other dialog never did, leaving scrim-click as the only way out).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      if (e.key === "Escape") onDismiss();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onDismiss]);
   const onOverlayClick = (e: MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) onDismiss();
   };

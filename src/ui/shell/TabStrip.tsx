@@ -30,13 +30,22 @@ function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: bo
       className={`tab${active ? " active" : ""}${beside ? " beside" : ""}`}
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
       onClick={() => focusPiece(piece.id, piece.kind, focusHint)}
-      title={focusHint ? `${piece.name} (focused entry)` : piece.name}
+      // Delete-to-close is the WAI-ARIA dismissible-tab pattern: the visible x is a mouse
+      // affordance (a nested real button inside a button is invalid HTML), so the keyboard path
+      // lives on the tab itself.
+      onKeyDown={(e) => {
+        if (e.key === "Delete") {
+          e.stopPropagation();
+          removePiece(piece.id, piece.kind, focusHint);
+        }
+      }}
+      title={`${focusHint ? `${piece.name} (focused entry)` : piece.name} · Delete closes`}
     >
       <span className="pip" />
       {label}
       {dirty && <span className="dirty" title="unsaved changes">&#9679;</span>}
       <span className="kind">{deckMeta(piece.kind).short}</span>
-      <span className="close" onClick={onClose}>
+      <span className="close" aria-hidden="true" onClick={onClose}>
         &times;
       </span>
     </button>
