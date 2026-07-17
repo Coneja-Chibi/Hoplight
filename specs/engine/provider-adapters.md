@@ -661,7 +661,7 @@ export function stripToolCallBlocksStreaming(
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` — locked decisions (BYOK, "agent must survive weak
+- the master plan (private planning notes) — locked decisions (BYOK, "agent must survive weak
   models"), milestone M2 scope.
 - `docs/02-ARCHITECTURE.md:22-26,54-69` — `packages/ai` package description;
   Orison-derived agent lessons (tiny tool surface, resource verbs, spill

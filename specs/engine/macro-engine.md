@@ -365,7 +365,7 @@ contract IS the characterization corpus:
 
 1. Port `corpus.ts` first, unmodified in content (it is pure data with no import
    of parser internals — the file's own header enforces this). This is "the
-   asset" per `docs/05-EXTRACTION-MAP.md`.
+   asset" per the extraction map (private planning notes).
 2. Port the parser (`tokenizer.ts` lineage) second, against the corpus, using the
    snapshot files as the oracle. Do NOT hand-transcribe the snapshots; regenerate
    them from the ported parser and diff against VAUDEVILLE's committed snapshots
@@ -379,7 +379,7 @@ contract IS the characterization corpus:
    `processor-golden.test.ts`'s setup when porting, since the snapshot values are
    sensitive to `characterName`/`userName`/`randomSeed`/clock.
 4. **`tokenizer.ts` was UNCOMMITTED in VAUDEVILLE as of 2026-07-02** per
-   `docs/05-EXTRACTION-MAP.md` — coordinate with Chi before extracting; the file
+   the extraction map (private planning notes) — coordinate with Chi before extracting; the file
    may have moved or changed shape by the time a ticket executes this port.
 
 ## Public API sketch
@@ -729,15 +729,15 @@ plays for codecs.
   (`parser-ast.test.ts`, `duplicate-parsers-agreement.test.ts`,
   `preprocessing-effects.test.ts`, `processor-golden.test.ts`) plus
   `__snapshots__/` exist as described in the extraction map.
-- `docs/00-MASTER-PLAN.md` (this repo): three-layer shape, "Engine" as the moat,
+- the master plan (private planning notes) (this repo): three-layer shape, "Engine" as the moat,
   extraction sourcing.
 - `docs/02-ARCHITECTURE.md` (this repo, lines 18, 22): `packages/macros`
   description ("tokenizer/parser ... + evaluator subset"), dependency rule
   (`core <- formats <- everything`).
-- `docs/05-EXTRACTION-MAP.md` (this repo, lines 48-55): `packages/macros` source
+- the extraction map (private planning notes) (this repo, lines 48-55): `packages/macros` source
   file list, tokenizer.ts UNCOMMITTED-as-of-2026-07-02 warning, characterization
   corpus called out as "THE asset; port before the parser."
-- `docs/06-PRODUCTION-BIBLE.md` (this repo, line 60): this spec's brief.
+- the production bible (private planning notes) (this repo, line 60): this spec's brief.
 - `specs/formats/canonical-model.md` (this repo): "Identity/presentation metadata
   is grouped, not flat" design rule, used to justify excluding RC's
   palette/gradient context fields from the studio `MacroContext`.

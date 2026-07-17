@@ -11,9 +11,9 @@ role this engine calls), `specs/engine/productions-and-history.md` (`writeEntity
 persona-loading contract this engine calls through the persona voice hook; see OPEN
 QUESTION 1) · **VAUDEVILLE reference:** none — the Table Read has no VAUDEVILLE
 precedent; it is a wholly new component designed fresh from `docs/01-VISION.md` pillar 2,
-`docs/00-MASTER-PLAN.md`/`docs/ROADMAP.md` M4 scope, and `wireframes/magic/table-read.html`
+the master plan (private planning notes)/`docs/ROADMAP.md` M4 scope, and `wireframes/magic/table-read.html`
 (intent only, not a literal UI spec), per the ground-truth column in
-`docs/06-PRODUCTION-BIBLE.md` line 76.
+the production bible (private planning notes) line 76.
 
 ## Purpose
 
@@ -90,7 +90,7 @@ Rules:
 ### Adaptive depth heuristics
 
 This is original engine design (no VAUDEVILLE precedent to port; licensed by the
-ground-truth column in `docs/06-PRODUCTION-BIBLE.md` line 76 to design fresh from the
+ground-truth column in the production bible (private planning notes) line 76 to design fresh from the
 wireframe's stated intent). The wireframe's worked example
 (`wireframes/magic/table-read.html` lines 56, 64: "You gave me three paragraphs on her
 bar, so I'll stop asking about setting" / "3, but she hates that she does it" ->
@@ -171,7 +171,7 @@ immediately after validation, so a UI — or a recorder building the "cold-read
 transcript" fixtures below — can treat the single outgoing stream as the complete,
 replayable transcript of the session without needing to separately log its own calls
 into the engine). This satisfies `docs/ROADMAP.md` line 48's "question -> chips ->
-answer -> field-patch events" and `docs/06-PRODUCTION-BIBLE.md` line 76's "progress"
+answer -> field-patch events" and the production bible (private planning notes) line 76's "progress"
 event, plus two lifecycle bookends and an error channel needed for any real UI to
 function (session-started/session-ended/error — infrastructure, not a deviation from
 the five named event kinds).
@@ -453,7 +453,7 @@ click-to-edit; the interview reroutes" affordance — see edge case 4).
 The Table Read's questions are voiced by an **interviewer persona** — the wireframe
 shows "Understudy," "Prompter," "Props Master" as selectable interviewer personas
 (`wireframes/magic/table-read.html` line 131), which are the same "house personas"
-`docs/06-PRODUCTION-BIBLE.md` line 78 assigns to `specs/features/personas-system.md`
+the production bible (private planning notes) line 78 assigns to `specs/features/personas-system.md`
 ("the six house personas fully written (Understudy, Prompter, Props Master, Director,
 Stage Mother + BYO)"). This spec does NOT define persona file format, the persona
 roster, or how a persona's voice/working-style/proactivity dials are authored — that is
@@ -772,7 +772,7 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `docs\00-MASTER-PLAN.md` (full file) —
+- `docs\the master plan (private planning notes)` (full file) —
   pillar/milestone framing, "M4 The Table Read (v0.3)" line 53, "packages/interview"
   reference via the layer description, locked decisions table (AI/BYOK row).
 - `docs\01-VISION.md` (full file) —
@@ -801,7 +801,7 @@ Property/unit tests beyond fixtures:
   vocabulary note ("Flavor lives in the agent personas, not in scriptable command
   output" — informs why the persona voice hook is opt-in/hookable rather than baked
   into the engine's own event text).
-- `docs\06-PRODUCTION-BIBLE.md` line 76
+- `docs\the production bible (private planning notes)` line 76
   (this file's own brief row, quoted in full at the top of this document) and the
   global rules section (lines 7-25).
 - `specs\formats\canonical-model.md` (full

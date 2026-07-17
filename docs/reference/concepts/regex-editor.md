@@ -3,8 +3,8 @@
 The Workbench surface for authoring a regex set. Source: `src/ui/apps/workbench/regex/`
 (one concept per file: `set-editor` chassis, `rule-toc`, `rule-page`, `phase-picker`, `fine-print`,
 `rule-rail`, `mode-guided`, `mode-words`, `example-mode`, `bench-pane`, `bench-import`, pure session
-ops in `session.ts`). Built by transcription from the LOCKED wireframes `design/vs-regex-editor.html`,
-`vs-regex-tryit.html`, `vs-regex-shelf-gallery.html` (Chi, 2026-07-11). Library shelf slice:
+ops in `session.ts`). Built by transcription from the LOCKED wireframes `vs-regex-editor.html` (private design files),
+`vs-regex-tryit.html`, `vs-regex-shelf-gallery.html` (all locked). Library shelf slice:
 `src/ui/apps/library/views/regex-shelf.tsx` + `regex-shelf-ops.ts`.
 
 Everything displayed about a pattern is **engine truth** from [regex-engine.md](regex-engine.md):

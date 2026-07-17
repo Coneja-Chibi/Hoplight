@@ -479,8 +479,8 @@ Property/unit tests beyond fixtures:
 - `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (lines 1-120; app-level `LorebookEntry`/`isLorebook` shape, confirms the
   same field set is used at the UI layer)
-- `docs\00-MASTER-PLAN.md`,
-  `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (project
+- `docs\the master plan (private planning notes)`,
+  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (project
   conventions, dependency rules, this file's brief)
 - `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md` (shared envelope, escrow rules,

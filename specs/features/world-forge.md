@@ -162,7 +162,7 @@ Directly reusing the mechanism in `computed.ts`, not the code:
 Per the wireframe (`wireframes/magic/world-forge.html`, block WF-2, "The
 Interview Spiral"): World Forge grows a world by reusing the Table Read interview
 engine's UI-agnostic event stream (question/chips/answer/field-patch/progress —
-contract defined in the Table Read bible brief, `docs/06-PRODUCTION-BIBLE.md`
+contract defined in the Table Read bible brief, the production bible (private planning notes)
 line 76, spec at `specs/features/table-read.md`, not yet written at the time of
 this spec) rather than defining a second interview protocol. World Forge adds:
 
@@ -494,7 +494,7 @@ export function advanceRing(
    Required behavior: `runAiContinuityChecks` returns `[]` and the caller (CLI or
    agent loop) surfaces a plain-language notice that deep contradiction checks
    are unavailable without a key; deterministic findings are unaffected and still
-   reported (M1 "works with zero AI key" invariant, 00-MASTER-PLAN.md line 40).
+   reported (M1 "works with zero AI key" invariant, the master plan (private planning notes) line 40).
 
 ## Test plan
 
@@ -563,13 +563,13 @@ export function advanceRing(
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` (line 40:
+- the master plan (private planning notes) (line 40:
   "v0.1: The Converter: works with zero AI key"; line 59-60: M7 milestone
   description)
 - `docs/02-ARCHITECTURE.md` (lines
   8-33: package layout, `packages/lore`, `packages/interview`; lines 54-69: agent
   loop staged-edit envelope)
-- `docs/06-PRODUCTION-BIBLE.md` (line
+- the production bible (private planning notes) (line
   80: world-forge.md brief — pin taxonomy, interview spiral, export mapping,
   continuity desk; line 76: table-read.md brief — event stream contract)
 - `specs/formats/canonical-model.md`

@@ -8,7 +8,7 @@ re-attached independently of the card.
 This is the concrete implementation of the bundle idea from [../architecture.md](../architecture.md).
 Source: `src/formats/_shared/character-book.ts`; orchestration in `src/convert.ts`.
 
-Studio jewel (author + attach extracted books): [LOREBOOK-BUILD-PLAN.md](../../LOREBOOK-BUILD-PLAN.md).
+Studio jewel (author + attach extracted books): the lorebook build plan (private planning notes).
 
 ## A different dialect from the worldbook file
 

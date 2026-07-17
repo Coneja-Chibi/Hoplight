@@ -14,7 +14,7 @@ detection, :184-247 rcpersona/RoleOut parse branches), `apps/rc/src/lib/imports/
 `apps/rc/src/lib/exports/persona-export.ts` (:43-56 rcpersona JSON builder, :65-94 PNG embed),
 `apps/rc/src/app/api/content/personas/[id]/export/route.ts` (:109-189 the live V2-card
 export builder that is the actual on-the-wire format today), `apps/rc/src/lib/imports/__tests__/persona-roundtrip.test.ts`
-(pins the full field map both directions), `docs/PERSONA_FORMAT.md` (RoleCall's own
+(pins the full field map both directions), the persona format notes (private planning notes) (RoleCall's own
 written spec for `rcpersona`, dated 2026-01-19, status Draft in-repo).
 
 ## Purpose
@@ -45,7 +45,7 @@ export route, which today emits a V2 character card, not `rcpersona`.
    JSON: bare envelope `{ spec: "rolecall_persona", spec_version: "1.0", data: {...} }`
    (`apps/rc/src/lib/exports/persona-export.ts:43-56`).
 
-   `data` shape (`docs/PERSONA_FORMAT.md:29-56`, confirmed against
+   `data` shape (`the persona format notes (private planning notes):29-56`, confirmed against
    `PersonaExportData` in `persona-export.ts:12-38`):
    ```
    data.name          string, required
@@ -69,7 +69,7 @@ export route, which today emits a V2 character card, not `rcpersona`.
                        wired into the PNG parser's rolecall_persona branch — see
                        Edge case 7)
    ```
-   Content-vs-sections rule (`docs/PERSONA_FORMAT.md:99-138`, confirmed in
+   Content-vs-sections rule (`the persona format notes (private planning notes):99-138`, confirmed in
    `png-parser.ts:188-202`): if `content` is a non-empty string, it wins outright;
    sections are NOT merged in. If `content` is empty/absent and `sections` exists,
    the importer compiles sections into a single text block in fixed order
@@ -172,7 +172,7 @@ export route, which today emits a V2 character card, not `rcpersona`.
 
 5. **Legacy RoleOut** — flat PNG JSON, keyword `persona`, shape
    `{ name, title, content, exportedBy?, source? }` (`png-parser.ts:225-247`,
-   `docs/PERSONA_FORMAT.md:217-219`). Map: `name`→`name`, `title`→`description`
+   `the persona format notes (private planning notes):217-219`). Map: `name`→`name`, `title`→`description`
    (the brief), `content`→`content`, `exportedBy`→escrowed (no canonical home),
    `source`→escrowed.
 
@@ -234,7 +234,7 @@ Persona {
     history?: string
   }
   sectionOrder?: string[]    // display order; canonical default matches
-                              // docs/PERSONA_FORMAT.md:95 —
+                              // the persona format notes (private planning notes):95 —
                               // ["appearance","body","personality","quirks","history"]
   traits?: string[]          // RC details.traits / V2 tags
   identity?: {                // grouped per canonical-model.md design rule 2
@@ -272,7 +272,7 @@ Design notes:
   `title`/`content`) and every codec's job is landing the short text in `brief`
   and the long injectable text in `content`, never swapped. Getting this backwards
   is the exact class of bug `persona-roundtrip.test.ts` was written to pin.
-  Bible ground truth: the doc's field table (`docs/PERSONA_FORMAT.md:60-78`) is
+  Bible ground truth: the doc's field table (`the persona format notes (private planning notes):60-78`) is
   explicit that `content` is what gets "injected into AI context" and
   `description` is the "brief user-facing summary shown on library cards."
 - `chatInjection` has no home in the RC `rcpersona` shape or the V2-card shape
@@ -295,9 +295,9 @@ Design notes:
 | `brief` | native (`description`) | native (`creator_notes`) | native (`creator_notes` only; left unset when `creator_notes` is empty/absent — NO fallback to `description`, per Edge case 3 and `persona-json.ts:173-175`) | native (`title`) |
 | `content` | native | native (unfolded from `description`) | native (unfolded from `description`) | native |
 | `sections.*` | native | escrow (folded into `description`/`personality`/`scenario` on write, unfolded on read — see shape 2 map) | escrow (same unfold heuristic, best-effort) | dropped (RoleOut has no sections) |
-| `sectionOrder` | escrow (not in `docs/PERSONA_FORMAT.md`'s JSON schema, but the doc says RC's DB tracks it — treat as escrow at the JSON-envelope level until a dedicated `rcpersona` field exists) | native (`extensions.rolecall.section_order`) | escrow (if `extensions.rolecall` present) / dropped (genuinely foreign) | dropped |
+| `sectionOrder` | escrow (not in the persona format notes (private planning notes)'s JSON schema, but the doc says RC's DB tracks it — treat as escrow at the JSON-envelope level until a dedicated `rcpersona` field exists) | native (`extensions.rolecall.section_order`) | escrow (if `extensions.rolecall` present) / dropped (genuinely foreign) | dropped |
 | `traits` | escrow (`metadata.tags` is the closest analog, but is documented as free-form content tags, e.g. "fantasy, adventurer" — not confirmed equivalent to `details.traits`' personality-descriptor semantics; see OPEN QUESTION in Non-goals-adjacent note below) | native (`tags`) | native (`tags`) | dropped |
-| `identity.*` | escrow (no home in `docs/PERSONA_FORMAT.md` schema) | native (`extensions.rolecall.{tagline,age,height,pronouns}`) | escrow if present, else dropped | dropped |
+| `identity.*` | escrow (no home in the persona format notes (private planning notes) schema) | native (`extensions.rolecall.{tagline,age,height,pronouns}`) | escrow if present, else dropped | dropped |
 | `presentation.signatureColor`/`colors` | escrow | native (`extensions.rolecall.{signature_color,colors}`) | escrow if present, else dropped | dropped |
 | `presentation.imageRef` | escrow (PNG file body when embedded; no JSON field) | native (`extensions.rolecall.image_url` for JSON; PNG file body for PNG) | dropped (generic V2 has no persona-image side-channel) | dropped |
 | `lorebookId` | native (`data.lorebook`, see Edge case 7) | native (`extensions.rolecall.lorebook_id`) | escrow if present, else dropped | dropped |
@@ -310,7 +310,7 @@ concept as the V2-export shape's `tags`/`details.traits` (personality
 descriptors like "adventurous, scholarly, stubborn" per the roundtrip
 fixture), or a distinct content-classification tag set (the doc's own example
 uses "fantasy, adventurer, optimistic," which reads more like the latter)?
-`docs/PERSONA_FORMAT.md` does not say, and no code path maps between
+the persona format notes (private planning notes) does not say, and no code path maps between
 `rcpersona`'s `metadata.tags` and the DB's `details.traits`, so there is no
 observed behavior to confirm against. Until resolved, the codec treats them
 as related-but-separate: `metadata.tags` escrows opaquely; `traits` is only
@@ -397,7 +397,7 @@ export interface PersonaCodec {
 ## Edge cases & failure modes
 
 1. **`content` non-empty AND `sections` non-empty in an `rcpersona` source.**
-   Per `docs/PERSONA_FORMAT.md:138` and `png-parser.ts:189-190`, `content` wins
+   Per `the persona format notes (private planning notes):138` and `png-parser.ts:189-190`, `content` wins
    outright; `sections` is preserved in the canonical model's `sections` field
    (never dropped — canonical keeps both, see design notes) but is NOT merged
    into `content` a second time.
@@ -439,7 +439,7 @@ export interface PersonaCodec {
 
 6. **`is_after_dark` boolean vs `contentRating` enum mismatch.** The V2-export
    shape only has a boolean; `rcpersona`'s own schema has a three-way-ish string
-   enum (`all_hours` | `after_dark`, per `docs/PERSONA_FORMAT.md:152` — no
+   enum (`all_hours` | `after_dark`, per `the persona format notes (private planning notes):152` — no
    documented third value despite the field being freeform `string` in the
    table). Serializing canonical `contentRating` to the V2-export shape drops
    any value other than the two known enum members down to a boolean via
@@ -501,10 +501,10 @@ export interface PersonaCodec {
 ## Test plan
 
 - `fixtures/persona/rcpersona/minimal.png` — PNG, `rcpersona` keyword, only
-  `name` + `content` (mirrors `docs/PERSONA_FORMAT.md:159-170` minimal example).
+  `name` + `content` (mirrors `the persona format notes (private planning notes):159-170` minimal example).
 - `fixtures/persona/rcpersona/full-sections.png` — PNG, `rcpersona` keyword, full
   `sections` + `metadata`, empty `content` (exercises section-compile-to-content,
-  mirrors `docs/PERSONA_FORMAT.md:174-201` full example).
+  mirrors `the persona format notes (private planning notes):174-201` full example).
 - `fixtures/persona/rcpersona/content-and-sections.json` — bare JSON, both
   `content` and `sections` populated (Edge case 1).
 - `fixtures/persona/rc-v2-export/full.json` — bare JSON, mirrors
@@ -579,9 +579,9 @@ Property/unit tests beyond fixtures:
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md`
+- the master plan (private planning notes)
 - `docs/02-ARCHITECTURE.md`
-- `docs/06-PRODUCTION-BIBLE.md:50` (brief
+- `the production bible (private planning notes):50` (brief
   row for this file), `:42` (png-embedding.md row, for chunk mechanics context),
   `:45` (rolecall-character.md row, for the shared `extensions.rolecall` convention),
   `:78` (personas-system.md row, confirming it is the DIFFERENT "house personas"
@@ -607,7 +607,7 @@ Property/unit tests beyond fixtures:
 - VAUDEVILLE `apps/rc/src/lib/ai/prompt-assembly.ts` (:118-121, `PersonaData`
   interface as used by chat assembly — confirms persona injection is a distinct,
   narrower surface than the full canonical model; out of scope per Non-goals)
-- VAUDEVILLE `docs/PERSONA_FORMAT.md` (:1-296, RoleCall's own written
+- VAUDEVILLE the persona format notes (private planning notes) (:1-296, RoleCall's own written
   `rcpersona` spec, in-repo status "Draft", dated 2026-01-19)
 - SillyTavern-Docs, `Usage/personas.md`,
   https://github.com/SillyTavern/SillyTavern-Docs/blob/main/Usage/personas.md

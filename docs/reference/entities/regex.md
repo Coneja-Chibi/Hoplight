@@ -6,7 +6,7 @@ stored under `studio/regex/<id>.json` (same hub-spoke shape as lorebook/persona/
 
 **Studio authoring (SHIPPED - the R3 editor):** [REGEX-JEWEL-PLAN.md](../../REGEX-JEWEL-PLAN.md), cross-format
 survey [design/REGEX-FORMATS.md](../../../design/REGEX-FORMATS.md), wireframes
-`design/vs-regex-editor.html` + `vs-regex-tryit.html` + `vs-regex-shelf-gallery.html`.
+`vs-regex-editor.html` (private design files) + `vs-regex-tryit.html` + `vs-regex-shelf-gallery.html`.
 Editor concept: [concepts/regex-editor.md](../concepts/regex-editor.md); engine concept:
 [concepts/regex-engine.md](../concepts/regex-engine.md).
 

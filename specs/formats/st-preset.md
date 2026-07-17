@@ -782,10 +782,10 @@ Property/unit tests beyond fixtures:
   `regenerateModifiedUUIDs` serialize option)
 - `<RoleCall>\packages\presets-core\src\index.ts`
   (full file: package barrel and vendoring/exclusion notes)
-- `docs\00-MASTER-PLAN.md`
+- `docs\the master plan (private planning notes)`
 - `docs\02-ARCHITECTURE.md`
   (Codec interface, dependency rule, canonical model + escrow summary)
-- `docs\06-PRODUCTION-BIBLE.md`
+- `docs\the production bible (private planning notes)`
   (brief row for `st-preset.md`, line 48)
 - `specs\formats\canonical-model.md`
   (canonical `Preset` field enumeration, :62-64)
@@ -793,12 +793,12 @@ Property/unit tests beyond fixtures:
   (Round-Trip Law, escrow envelope rules, capabilities matrix, fixture corpus
   rules)
 - `templates\SPEC-TEMPLATE.md`
-- `docs\05-EXTRACTION-MAP.md`
+- `docs\the extraction map (private planning notes)`
   (lines 7-14, confirms `packages/presets-core` as the extraction source and
   "already dependency-clean")
 
 No public/web sources were consulted: ST presets have no official published
-spec and `docs/06-PRODUCTION-BIBLE.md`'s brief for this file names only the
+spec and the production bible (private planning notes)'s brief for this file names only the
 VAUDEVILLE source as ground truth, consistent with the global rule that web
 research is reserved for the formats it explicitly calls out
 (chara_card_v2/v3, charx, Backyard).

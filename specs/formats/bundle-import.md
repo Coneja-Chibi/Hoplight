@@ -512,11 +512,11 @@ with the dependency rule.
   (lines 1-150 read; pins hybrid/flat chat detection, preset/lorebook
   classification, and per-entry failure isolation with exact expected
   shapes).
-- docs/00-MASTER-PLAN.md (product shape, package layout intent).
+- the master plan (private planning notes) (product shape, package layout intent).
 - docs/02-ARCHITECTURE.md (packages/formats role, dependency rule
   `core <- formats <- everything`, productions model referenced for
   `ProductionHandle` in the API sketch).
-- docs/06-PRODUCTION-BIBLE.md, row for `bundle-import.md` (this file's
+- the production bible (private planning notes), row for `bundle-import.md` (this file's
   brief) and row for `content-detection.md` (sibling brief, not yet
   written — referenced for terminology only).
 - specs/formats/canonical-model.md (v1 content types list, used to scope

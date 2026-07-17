@@ -92,7 +92,7 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
   The toolbar derives from the registry; the library names no view. Every view renders two piece
   states from the context: `open` (a quiet "on the workbench" annotation) and `selected` (staged,
   accent ring + corner check).
-- **Multi-select is staging** (Chi, 2026-07-06 - restored after the IDE rework dropped it): tapping a
+- **Multi-select is staging** (restored after the IDE rework dropped it): tapping a
   piece toggles it into the room's staging set (persists across deck switches - the distributed tray);
   a Send action bar appears with the live count and commits the whole batch through
   `workbench.sendMany`, which fires the follow dialog ONCE with the real newly-opened count. The
@@ -146,7 +146,7 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   collapses via `@container` queries against the PANE, never `@media` against the viewport - a
   half-width split, a future drawer, and a phone all compose the same way (design/DECISIONS.md,
   the fluid law). A stage too narrow for two readable panes stacks the split vertically.
-- **LOREBOOKS EDIT (the binder, vs-lorebook-binder-2 1:1 - LOCKED by Chi 2026-07-10).** The
+- **LOREBOOKS EDIT (the binder, vs-lorebook-binder-2 1:1 - LOCKED).** The
   character editor's sibling: ONE ENTRY OWNS THE SCREEN. `workbench/LorebookEditor.tsx` merges
   one-concept skins (chassis + `lore/entry-page` + `lore/entry-toc` + `lore/entry-rail` + the dial/
   key skins; a class name lives in exactly ONE module). Header: the book's SPINE CHIP (monogram,

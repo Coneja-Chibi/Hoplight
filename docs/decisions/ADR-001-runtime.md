@@ -1,6 +1,6 @@
 # ADR-001: Runtime — Bun + TypeScript, Node-compatible core
 
-**Status:** accepted (Chi delegated the call, 2026-07-02)
+**Status:** accepted
 
 ## Decision
 

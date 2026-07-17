@@ -2,7 +2,7 @@
 
 **Package:** `packages/archives` (new — not yet enumerated in `docs/02-ARCHITECTURE.md`'s
 package list; see OPEN QUESTION 1, same situation as `packages/productions` in
-`specs/engine/productions-and-history.md`) · **Milestone:** M7 (`docs/00-MASTER-PLAN.md`
+`specs/engine/productions-and-history.md`) · **Milestone:** M7 (the master plan (private planning notes)
 "M7 The Archives + World Forge", `docs/ROADMAP.md` "M7 — The Archives + The World Forge
 (v0.6+)") · **Status:** draft
 **Depends on:** `specs/formats/canonical-model.md` (canonical `Character`, `Lorebook`/
@@ -16,7 +16,7 @@ own package list — semantic clustering and claim extraction require a configur
 provider; see Behavior "Deterministic vs. AI-backed") · **VAUDEVILLE reference:** none —
 this feature has no VAUDEVILLE precedent (RC has no log-distillation feature); designed
 fresh from `wireframes/magic/archives.html` (AR-1 "The Intake Desk", AR-2 "The Evidence
-Board") per the ground truth column in `docs/06-PRODUCTION-BIBLE.md` line 79.
+Board") per the ground truth column in the production bible (private planning notes) line 79.
 
 ## Purpose
 
@@ -41,7 +41,7 @@ this component.
 
 ### Deterministic vs. AI-backed
 
-Unlike the M1 Converter (`docs/00-MASTER-PLAN.md`: "v0.1 | The Converter: works with
+Unlike the M1 Converter (the master plan (private planning notes): "v0.1 | The Converter: works with
 zero AI key"), the Archives' headline function genuinely requires a configured AI
 provider. The deterministic/AI split, stated honestly:
 
@@ -70,7 +70,7 @@ configured" rather than silently degrading to a worse, ungrounded distillation.
 
 ### Ingestion contract
 
-The bible's brief requires `.jsonl`, `.txt`, and `.md` intake (`docs/06-PRODUCTION-BIBLE.md`
+The bible's brief requires `.jsonl`, `.txt`, and `.md` intake (the production bible (private planning notes)
 line 79). Rather than hardcoding any one platform's chat-export schema — no such schema
 is confirmed against VAUDEVILLE source or a cited public spec in this pass, and inventing
 one would violate the "never invent format facts" rule — this spec defines an abstract
@@ -251,7 +251,7 @@ through a deterministic, provider-free verification step:
 ### Confidence tiers
 
 A documented, stable formula per claim (mirroring the Script Doctor's health-score
-approach per `docs/06-PRODUCTION-BIBLE.md` line 75's "health score formula
+approach per the production bible (private planning notes) line 75's "health score formula
 (documented, stable)" — the same house standard: heuristic, not fake precision):
 
 ```
@@ -285,7 +285,7 @@ code once decided, per the same "documented, stable" requirement as the claim ti
 ### Evidence review event stream
 
 Modeled the same way as the Table Read's living-document protocol
-(`docs/06-PRODUCTION-BIBLE.md` line 76: "UI-agnostic event stream protocol") so CLI and
+(the production bible (private planning notes) line 76: "UI-agnostic event stream protocol") so CLI and
 a future Studio surface share one implementation:
 
 - `cluster.proposed` — a new `EntityCluster` is ready for the intake-desk decision
@@ -661,7 +661,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` (pillar/milestone
+- the master plan (private planning notes) (pillar/milestone
   framing, "M7 The Archives + World Forge" line 59-60)
 - `docs/01-VISION.md` (the "archivist"
   persona, line 13-14; "The Doctor is honest" anti-slop stance, line 25-27, applied here
@@ -673,7 +673,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 - `docs/ROADMAP.md` lines 73-80 ("M7 — The
   Archives + The World Forge (v0.6+)" exit criterion: "distill a real character from
   >= 20k words of logs where every field cites real scenes")
-- `docs/06-PRODUCTION-BIBLE.md` line 79 (this
+- the production bible (private planning notes) line 79 (this
   file's own brief row: "Log ingestion (jsonl/txt/md), voice clustering, claim
   extraction with per-claim scene citations, confidence tiers, evidence review flow,
   distill outputs (card + lorebook)" and ground truth

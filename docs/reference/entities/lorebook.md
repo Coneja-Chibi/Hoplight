@@ -3,9 +3,9 @@
 The canonical lorebook (world info) superset. Source of truth for the types:
 `src/entities/lorebook/schema.ts`. A `CanonicalLorebook` is `CanonicalEntity<"lorebook", LorebookBody>`.
 
-**Studio authoring (planned jewel):** [LOREBOOK-BUILD-PLAN.md](../../LOREBOOK-BUILD-PLAN.md),
-research [LOREBOOK-RESEARCH.md](../../LOREBOOK-RESEARCH.md), wireframes
-`design/vs-lorebook-surfaces.html` + `design/vs-lorebook-components.html`.
+**Studio authoring (planned jewel):** the lorebook build plan (private planning notes),
+research the lorebook research notes (private planning notes), wireframes
+`vs-lorebook-surfaces.html` (private design files) + `vs-lorebook-components.html` (private design files).
 UI: one RC-shaped editor; single Write for profile (no multi-select host lens).
 
 A lorebook is a set of **entries**, each a chunk of text that gets injected into the prompt when its

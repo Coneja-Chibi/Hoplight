@@ -519,7 +519,7 @@ Property/unit tests beyond fixtures:
  : fetched for chunk field layout, keyword length limit (1-79 bytes),
   Latin-1 encoding requirement, and ancillary-chunk case-sensitivity
   convention.
-- `docs/00-MASTER-PLAN.md`, `docs/02-ARCHITECTURE.md`: package layout and
+- the master plan (private planning notes), `docs/02-ARCHITECTURE.md`: package layout and
   dependency rule (`core <- formats <- everything`), BYOK/local-first
   framing, ADR-001 (Bun/Node runtime: basis for preferring the Buffer-based
   base64 path over the browser `btoa` path in the API sketch).

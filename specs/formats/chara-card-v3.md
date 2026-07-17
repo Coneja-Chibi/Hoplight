@@ -221,7 +221,7 @@ The public spec defines `{{random:A,B,C}}`, `{{pick:A,B,C}}`, `{{roll:N}}`,
 `{{// A}}`, `{{hidden_key:A}}`, `{{comment:A}}`, `{{reverse:A}}` as part of
 the V3 "curly braced syntax" contract, plus `{{char}}` resolving to
 `nickname` (falling back to `name`) rather than always `name`. These are
-**not** this codec's concern to evaluate: per `docs/06-PRODUCTION-BIBLE.md`'s
+**not** this codec's concern to evaluate: per the production bible (private planning notes)'s
 macro-engine brief, macro evaluation lives in `specs/engine/macro-engine.md`.
 This codec's only obligation is to preserve macro text verbatim inside
 `description`/`personality`/etc. (it already does, since those are plain
@@ -536,4 +536,4 @@ Property/unit tests beyond fixtures:
   escrow envelope rules, capabilities matrix, fixture corpus rules.
 - `docs/02-ARCHITECTURE.md` (this repo, lines 1-44): `packages/formats`
   package location and dependency rule.
-- `docs/06-PRODUCTION-BIBLE.md` (this repo, line 41): brief for this file.
+- the production bible (private planning notes) (this repo, line 41): brief for this file.

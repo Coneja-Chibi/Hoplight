@@ -387,7 +387,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` — locked decision "AI = BYOK + local," M2 milestone
+- the master plan (private planning notes) — locked decision "AI = BYOK + local," M2 milestone
   scope ("providers; vault; loop skeleton...").
 - `docs/02-ARCHITECTURE.md:23-25` — `packages/ai` description: "key vault (OS
   keychain + encrypted file)"; `:85-90` Security & privacy invariants: "Keys: OS
@@ -398,10 +398,10 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
   (AI optional, first key ask at first AI moment), §4 (model roles: interview,
   treatment, test-stage inference, bulk audits, per-role model mapping, "sane
   single-model default").
-- `docs/06-PRODUCTION-BIBLE.md:64` — brief row for this file: "OS keychain vs
+- `the production bible (private planning notes):64` — brief row for this file: "OS keychain vs
   encrypted-file fallback, per-provider configs, model-role mapping
   (interview/treatment/test/audit), never-log-keys rule. Ground truth: ADR-006."
-- `docs/06-PRODUCTION-BIBLE.md:73` — cli-ux.md brief mentions "config file
+- `the production bible (private planning notes):73` — cli-ux.md brief mentions "config file
   (~/.vaud/config.json)" as that spec's territory; referenced here by name only,
   not read, since `vault.backend`'s exact key path is cli-ux.md's call to make.
 - `specs/formats/canonical-model.md` — shared entity envelope pattern (id/meta

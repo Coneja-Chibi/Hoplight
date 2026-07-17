@@ -1,6 +1,6 @@
 # ADR-006: AI — BYOK + local, and an agent built for weak models
 
-**Status:** accepted (Chi, 2026-07-02)
+**Status:** accepted
 
 ## Decision
 

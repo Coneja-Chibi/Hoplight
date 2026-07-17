@@ -636,12 +636,12 @@ Property/unit tests beyond fixtures:
   `MacroExpansionDebug` :605-634; `SourceNodeDebug` :639-667; `LorebookEntryDebug`
   :670-699 — this is the reference shape `AssemblyTrace` generalizes off DB IDs onto
   canonical entity IDs.
-- `docs\00-MASTER-PLAN.md`,
+- `docs\the master plan (private planning notes)`,
   `docs\02-ARCHITECTURE.md` (`packages/assembly` description: "Prompt assembly for the
   Test Stage: preset + card + persona + lorebook + history -> messages payload, with a
-  full trace object"), `docs\05-EXTRACTION-MAP.md` (:57-61, "reference only —
+  full trace object"), `docs\the extraction map (private planning notes)` (:57-61, "reference only —
   reimplement, do not port" instruction and the specific RC-entanglement list),
-  `docs\06-PRODUCTION-BIBLE.md` (brief row for this file, line 62).
+  `docs\the production bible (private planning notes)` (brief row for this file, line 62).
 - `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `specs\formats\st-preset.md` (canonical
   `Preset.prompts[]` field shape: `identifier`, `injectionPosition` 0-4 enum,

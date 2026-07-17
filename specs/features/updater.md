@@ -500,7 +500,7 @@ codec specs.
 - Code-signing certificates / notarization / SmartScreen reputation: ADR-003
   explicitly defers buying a cert; this spec's job is checksum+signature integrity,
   not OS trust-chain reputation. The "More info -> Run anyway" SmartScreen
-  documentation is a separate M1 ticket (see docs/06-PRODUCTION-BIBLE.md M1 ticket
+  documentation is a separate M1 ticket (see the production bible (private planning notes) M1 ticket
   list: "SmartScreen docs"), not part of the updater's runtime behavior.
 - Automatic/silent updates without user consent: explicitly forbidden by ADR-003
   ("never auto-install without consent").
@@ -513,7 +513,7 @@ codec specs.
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md:36`: distribution/self-updater locked decision.
+- `the master plan (private planning notes):36`: distribution/self-updater locked decision.
 - `docs/02-ARCHITECTURE.md:87-90`: network-call and telemetry invariants.
 - `docs/decisions/ADR-003-distribution.md:1-34`: full distribution decision: single
   executables via `bun build --compile`, GitHub Releases, `vaud upgrade` mechanism,
@@ -523,7 +523,7 @@ codec specs.
 - `docs/03-CONVENTIONS.md:33-40`: CLI conventions: `--json` stdout/stderr
   separation, exit codes (0/1/2), destructive-op confirmation (`--yes`), plain
   output vocabulary, typed error classes with `userMessage`.
-- `docs/06-PRODUCTION-BIBLE.md:74,93`: this file's brief (release channel, version
+- `the production bible (private planning notes):74,93`: this file's brief (release channel, version
   check etiquette 1/day non-blocking, SHA-256 + minisign verify, atomic self-swap
   Windows rename dance, rollback on failed verify) and the M1 ticket-list line
   confirming "release CI (3-OS binaries + checksums); updater" are sibling M1

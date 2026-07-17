@@ -772,13 +772,13 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` —
+- the master plan (private planning notes) —
   M2 milestone scope ("persona system foundations"), layer definitions.
 - `docs/02-ARCHITECTURE.md:26-29`
   (`packages/agent` includes "persona loader"), `:73` (human-readable
   JSON/MD files for productions, informing the frontmatter+Markdown format
   choice).
-- `docs/06-PRODUCTION-BIBLE.md:78`
+- `the production bible (private planning notes):78`
   — this file's brief row; `:50` (personas.md's brief, confirming the
   distinct-concept boundary and cross-referenced here).
 - `docs/decisions/ADR-006-ai-and-

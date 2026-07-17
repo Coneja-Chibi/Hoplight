@@ -28,7 +28,7 @@ Risu extensions, and Backyard fields; lorebooks/presets/personas need models V3 
 not define. A superset with escrow means we never argue with a format author about
 whose fields matter.
 
-## Precedents in Chi's own code
+## Precedents in the author's own earlier code
 
 RoleCall's `LorebookEntry.unsupportedFields` and `origin` fields are this pattern
 in miniature; VAUDEVILLE's normalizers already unify V1/V2/V3/rcpersona/RoleOut into
@@ -40,4 +40,4 @@ a common shape. This ADR promotes that habit to a system-wide law.
   that powers honest conversion reports and the docs' format-support matrix
   (auto-generated, never hand-maintained).
 - `core` schema changes are the most expensive changes in the repo: they require a
-  migration note and a fixture sweep. Design review required (Chi).
+  migration note and a fixture sweep, plus explicit design review.

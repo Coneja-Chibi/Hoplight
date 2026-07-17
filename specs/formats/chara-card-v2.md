@@ -515,8 +515,8 @@ export const charaCardV2Codec: {
   `case_sensitive`, `name`, `priority`, `id`, `comment`, `selective`,
   `secondary_keys`, `constant`, `position`), the V1-compatibility note, and the
   `extensions` namespacing convention.
-- `docs\00-MASTER-PLAN.md`,
-  `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (brief row for this file),
+- `docs\the master plan (private planning notes)`,
+  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (brief row for this file),
   `specs\formats\canonical-model.md`, `specs\formats\escrow-and-roundtrip.md`,
   `templates\SPEC-TEMPLATE.md`, read in full for conventions and the canonical
   model / escrow rules this spec must conform to.

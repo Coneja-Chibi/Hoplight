@@ -6,23 +6,28 @@ reference page here.
 
 ## Coverage matrix
 
-| Format | id | Kind(s) | Container | Writes | Detection | Reference |
-| --- | --- | --- | --- | --- | --- | --- |
-| SillyTavern character | `sillytavern` | character | png / json | `.json` | `0.9` (generic Tavern reader) | [sillytavern.md](sillytavern.md) |
-| SillyTavern world info | `sillytavern-lorebook` | lorebook | json | `.json` | `0.9` | [sillytavern.md](sillytavern.md) |
-| RoleCall character | `rolecall` | character | png / json | `.json` | `1.0` (CCv3 + `extensions.rolecall`) | [rolecall.md](rolecall.md) |
-| RoleCall lorebook | `rolecall-lorebook` | lorebook | json | `.json` | `1.0` (v1 export envelope) | [rolecall.md](rolecall.md) |
-| RisuAI | `risu` | character | `.charx` (zip) | `.charx` | `1.0` (zip with `card.json`) | [risu.md](risu.md) |
-| RisuAI native lorebook | `risu-lorebook` | lorebook | json | `.json` | `1.0` (`{type:"risu",data}` envelope) | [risu.md](risu.md#native-lorebook-risu-lorebook) |
-| Backyard / Faraday | `backyard` | character | json | `.json` | `0.9` / `0.55` | [backyard.md](backyard.md) |
-| Agnai | `agnai` | character | json | `.json` | `1.0` | [agnai.md](agnai.md) |
-| Agnai memory book | `agnai-lorebook` | lorebook | json | `.json` | `1.0` (`kind:"memory"`) / `0.9` | [agnai.md](agnai.md#native-memory-book-agnai-lorebook) |
-| NovelAI lorebook | `novelai-lorebook` | lorebook | `.lorebook` / json | `.lorebook` | `1.0` (`lorebookVersion` + `entries[]`) | [novelai.md](novelai.md) |
-| Vaudeville native | `vaud-json` | character | json | `.json` | `1.0` (own wrapper) | [vaud-json.md](vaud-json.md) |
+The exhaustive adapter list lives in [FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md): it is generated
+from the live registry (`bun run matrix`) and CI fails if it drifts (`matrix:check`). A hand copy
+here rotted once (it was missing three shipped adapters); it does not get a second chance.
 
-Detection scores are the confidence each adapter's `detect()` returns for its own format. Higher wins;
-`1.0` formats are more specific and outrank the generic `0.9` Tavern reader on the same card. The
-threshold to be recognized at all is `0.5`.
+## Reference pages
+
+| Family | Page | Covers |
+| --- | --- | --- |
+| SillyTavern | [sillytavern.md](sillytavern.md) | character card (v2/v3, png/json), world info, personas |
+| RoleCall | [rolecall.md](rolecall.md) | character, lorebook, regex, persona |
+| RisuAI | [risu.md](risu.md) | `.charx`, native lorebook, `.risum` modules, regex |
+| Backyard / Faraday | [backyard.md](backyard.md) | legacy json and the `.byaf` archive |
+| Agnai | [agnai.md](agnai.md) | character, memory book |
+| NovelAI | [novelai.md](novelai.md) | `.lorebook` |
+| Vaudeville native | [vaud-json.md](vaud-json.md) | the canonical wrapper |
+
+Adapters without a dedicated page yet (pygmalion, lumiverse, marinara, chub) are documented by their
+source folders under `src/formats/` and appear in the generated matrix.
+
+Detection scores are the confidence each adapter's `detect()` returns for its own format. Higher
+wins; more-specific formats outrank the generic Tavern reader on the same card. The threshold to be
+recognized at all is `0.5`.
 
 ## Cross-cutting
 

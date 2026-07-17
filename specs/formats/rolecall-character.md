@@ -480,8 +480,8 @@ export interface RoleCallRecommendations {
   `SpriteType`/`SpriteCompact`/`Sprite`/`V3Asset`, :65-106 host allow/block lists,
   :250-284 compact/expand conversions, :289-306 `spritesToV3Assets`, :311-323
   `v3AssetsToSprites`)
-- `docs\00-MASTER-PLAN.md`,
-  `02-ARCHITECTURE.md`, `06-PRODUCTION-BIBLE.md` (brief row for this file, line 45)
+- `docs\the master plan (private planning notes)`,
+  `02-ARCHITECTURE.md`, the production bible (private planning notes) (brief row for this file, line 45)
 - `specs\formats\canonical-model.md`
   (Character superset rules, escrow envelope shape, Lorebook-reference rule)
 - `specs\formats\escrow-and-roundtrip.md`

@@ -8,11 +8,11 @@ the single source of truth") + `packages/productions` (new — not yet enumerate
 content-addressed history store, restore, library mode, bare-file resolution; see OPEN QUESTION
 1) · **Milestone:** M0 (manifest schema + bare-file operation), M2 (history store, wired to the
 agent's staged-edit `commit` step), M5 (Test Stage / Studio consume production history directly,
-per `docs/00-MASTER-PLAN.md` "M5 The Test Stage + Productions") · **Status:** draft
+per the master plan (private planning notes) "M5 The Test Stage + Productions") · **Status:** draft
 **Depends on:** specs/formats/canonical-model.md (Entity envelope, `meta.hash`), ADR-005
 (escrow envelope) · **VAUDEVILLE reference:** none — this component has no VAUDEVILLE
 precedent; it is designed fresh from `docs/02-ARCHITECTURE.md`'s "Productions (project
-workspaces)" section, per the ground truth column in `docs/06-PRODUCTION-BIBLE.md` line 63.
+workspaces)" section, per the ground truth column in the production bible (private planning notes) line 63.
 
 ## Purpose
 
@@ -78,7 +78,7 @@ Rules:
    file-move + manifest update in one step.
 3. `<ext>` is `json` for every content type except Persona, which is `md`
    (`docs/02-ARCHITECTURE.md` line 73 names the folder contents "human-readable JSON/MD files";
-   the persona brief, `docs/06-PRODUCTION-BIBLE.md` line 78, is the only content type whose spec
+   the persona brief, the production bible (private planning notes) line 78, is the only content type whose spec
    names a markdown house format — `*.persona.md`). The internal structure of a `.persona.md`
    file (front matter shape, how `{ id, type, data, escrow, meta }` maps onto a markdown
    document) is `specs/features/personas-system.md`'s responsibility, not this one; that spec is
@@ -276,7 +276,7 @@ performing a codec parse/serialize/inspect in memory, with:
 - No production discovery walk performed.
 
 This is bare-file operation, and it is the mode the M1 Converter promise ("works with zero AI
-key", `docs/00-MASTER-PLAN.md`) depends on being fully independent of productions — a brand-new
+key", the master plan (private planning notes)) depends on being fully independent of productions — a brand-new
 user must be able to run `vaud convert` on a downloaded card with no production ever having been
 created. The dividing line: a command is bare-file if its inputs and outputs are both named
 explicitly as file paths on the command line and it does not invoke the agent loop. A command
@@ -551,7 +551,7 @@ export function readFileAtSnapshot(
   "A production is a folder: human-readable JSON/MD files, a `vaud.json` manifest, and a
   `.vaud/history/` of content-addressed snapshots (no git dependency; git-friendly). Library mode
   ... covers loose-file users; `vaud` commands accept bare file paths too.").
-- `docs\00-MASTER-PLAN.md` line 40 ("v0.1 | The
+- `docs\the master plan (private planning notes)` line 40 ("v0.1 | The
   Converter: works with zero AI key" — basis for bare-file operation needing no production),
   line 55 ("M5 The Test Stage + Productions ... project workspaces with version history" —
   milestone placement).
@@ -573,7 +573,7 @@ export function readFileAtSnapshot(
 - `docs\03-CONVENTIONS.md` lines 18 (kebab-case file
   naming — applied to entity-type folder names and slugs), lines 22-25 (fixture corpus / no
   hand-edited fixtures convention, applied to this spec's Test Plan fixture list).
-- `docs\06-PRODUCTION-BIBLE.md` line 63 (this file's
+- `docs\the production bible (private planning notes)` line 63 (this file's
   own brief row: "vaud.json manifest, folder layout, human-readable entity files, .vaud/history
   content-addressed snapshots, restore, library mode, bare-file operation" and ground truth
   "none (design from architecture doc; git-friendly is a requirement)" — the explicit license to

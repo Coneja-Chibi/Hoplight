@@ -1,6 +1,6 @@
 # ADR-003: Distribution — single executable + self-updater; installer later
 
-**Status:** accepted (Chi, 2026-07-02)
+**Status:** accepted
 
 ## Decision
 

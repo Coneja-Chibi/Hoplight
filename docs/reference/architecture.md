@@ -159,7 +159,8 @@ cli / app   depend on formats + core
 ```
 
 The engine never imports UI, a database, or a framework. Prove the converter (canonical + adapters +
-tests) before any UI. This is why the CLI is the first and, for now, only surface.
+tests) before any UI. The CLI was the first surface for that reason; the desktop Studio (`vaud ui`,
+a local Bun server + React app, see [ui.md](ui.md)) now sits beside it on the same engine.
 
 ## The CLI
 
@@ -170,7 +171,9 @@ tests) before any UI. This is why the CLI is the first and, for now, only surfac
 | `vaud convert <in> <out> [--to <format>]` | Convert a file. Target resolved by `--to` or the output extension. |
 | `vaud inspect <file>` | Show what is inside a file (kind, name, key fields). |
 | `vaud label <file>` | Guess a card's format and likely origin app. |
+| `vaud validate <file>` | Validate a file against its detected format and the canonical schema. |
 | `vaud formats` | List every adapter the registry discovered (the single source of truth). |
+| `vaud ui` | Launch the desktop Studio (local server, loopback-only). |
 | `vaud version` / `vaud help` | The obvious. |
 
 ## Source of truth

@@ -15,7 +15,7 @@ regex/external), canonical-skip (already a canonical card - do NOT re-declare).
   Janitor PNG, etc.): read/write via `formats/sillytavern` only. No fake `extensions.<host>` bag.
   Editor strip: **one** `default-ccv3` / label **Default** tab (not three host names). See
   `formats/_shared/extension-platforms.ts`.
-- Character.AI **DROPPED** as a native platform (Chi 2026-07-09): no official export; definition usually
+- Character.AI **DROPPED** as a native platform: no official export; definition usually
   withheld. Crushon **SKIPPED**: import sink only. Janitor: optional thin later; prefer ST/Default CCv3.
   None of those get their own lens tab.
 - Pygmalion has its own flat adapter (`formats/pygmalion/`).
@@ -57,7 +57,7 @@ runtime.
 ## Chub (HIGH - verified vs live Chub API; re-audit 2026-07-09 for jewel)
 
 Root: `sillytavern.raw.data.extensions.chub` (**namespaced**; not bare extensions).
-Wireframe: `design/vs-native-chub.html` · Plan: `docs/CHUB-JEWEL-PLAN.md`.
+Wireframe: `vs-native-chub.html` (private design files) · Plan: the chub plan (private planning notes).
 
 - id (number), full_path (string) -> read-only hub identity
 - custom_css (string CSS) -> CssWorkshop (editable plain CSS; sealed preview only; NEVER apply in Vaude chrome)
@@ -69,10 +69,10 @@ Wireframe: `design/vs-native-chub.html` · Plan: `docs/CHUB-JEWEL-PLAN.md`.
 - NOTE: `vectorized` is a lorebook-ENTRY field, not a chub-block field.
 
 
-## Lumiverse (MEDIUM - app source; expressions KEY still unverified; LoRA verified 2026-07-09 vs clone)
+## Lumiverse (MEDIUM - traced from app source; expressions KEY still unverified; LoRA verified against source)
 
-Root: `sillytavern.raw.data.extensions` (bare keys, no `.lumiverse` namespace). Source of truth for
-card-forge fields: local clone `Documents/Lumiverse` (service + CharacterEditorPage tabs).
+Root: `sillytavern.raw.data.extensions` (bare keys, no `.lumiverse` namespace). Field map traced
+from the Lumiverse app's own editor surfaces; unverified keys are marked as such rather than guessed.
 
 - expressions {enabled, defaultExpression, mappings: label->image_id} -> asset-manager + toggle + text (KEY unverified: expressions vs expression_config)
 - expression_groups: Record<charName, Record<label,image_id>> -> ListEditor of asset-managers
@@ -105,7 +105,7 @@ Card path for ST-shaped import: `original.sillytavern.raw.data.extensions.lumive
 - catch-all for remaining unknown extension keys (e.g. character_loras if some old dump used a different
   key - do not treat as the canonical LoRA path). Flag script-like opaque.
 
-## Character.AI — DROPPED (Chi 2026-07-09)
+## Character.AI - DROPPED
 
 No official card export. Community scrapers expose a flat API object; **`definition` is usually
 withheld** unless the creator set copyable. Building `platforms/characterai.ts` or
@@ -119,7 +119,7 @@ Archaeology (fields that exist on scrapers, not build targets): name, title, gre
 definition (if copyable), categories, avatar_file_name, visibility, copyable, starter_prompts,
 img_gen_*, songs/voices, external_id.
 
-## Crushon — SKIPPED (Chi 2026-07-09)
+## Crushon - SKIPPED
 
 Import sink: Create page drops PNG/JSON and fills a short form. **No verified first-party export.**
 Gender/visibility/rating are site DB, not a portable bag. Do not fabricate paths.

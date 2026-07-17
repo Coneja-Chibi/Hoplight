@@ -1,19 +1,19 @@
 # Roadmap
 
 Milestones are strictly ordered; a milestone is DONE when every exit criterion passes
-live on Chi's machine, not when its tickets close.
+live in a real install, not when its tickets close.
 
 > **Status 2026-07-09:** **M0 Foundation jewel DONE.** **M1 Converter jewel DONE (v0.1).**
 > Character-card forge **CLOSED**. **Media jewel largely landed.** **Lorebook studio jewel planned**
-> (next content-type bar). Plans: [M0-FOUNDATION-JEWEL.md](M0-FOUNDATION-JEWEL.md),
-> [M1-CONVERTER-JEWEL.md](M1-CONVERTER-JEWEL.md), [NATIVE-FIELDS-PLAN.md](NATIVE-FIELDS-PLAN.md),
-> [MEDIA-BUILD-PLAN.md](MEDIA-BUILD-PLAN.md), [LOREBOOK-BUILD-PLAN.md](LOREBOOK-BUILD-PLAN.md).
+> (next content-type bar). Plans: the M0 foundation plan (private planning notes),
+> the M1 converter plan (private planning notes), the native-fields plan (private planning notes),
+> the media build plan (private planning notes), the lorebook build plan (private planning notes).
 >
 > **Risu Workshop jewel:** DONE. Studio app usable (M6 ahead of formal packaging).
 
 ## Character-card forge (workstream, not a numbered M)
 
-Closed 2026-07-09 for Chi's bar:
+Closed against the quality bar:
 
 | Platform | Status |
 | --- | --- |
@@ -37,10 +37,10 @@ thin hosts use Default CCv3; dropped hosts named honestly.
 
 **Still not this workstream (historical note):** full lore/regex content-type editors were listed
 here while the character forge closed. **Media jewel has since landed** (see
-[MEDIA-BUILD-PLAN.md](MEDIA-BUILD-PLAN.md)). **Lorebook studio authoring is the next content-type
+the media build plan (private planning notes)). **Lorebook studio authoring is the next content-type
 jewel** (codecs already exist; editor + attach are the gap). Plan:
-[LOREBOOK-BUILD-PLAN.md](LOREBOOK-BUILD-PLAN.md). Wireframes:
-`design/vs-lorebook-surfaces.html`, `design/vs-lorebook-components.html`.
+the lorebook build plan (private planning notes). Wireframes:
+`vs-lorebook-surfaces.html` (private design files), `vs-lorebook-components.html` (private design files).
 
 ---
 
@@ -48,11 +48,11 @@ jewel** (codecs already exist; editor + attach are the gap). Plan:
 
 | Content type | Codecs / hub | Studio UI | Plan |
 | --- | --- | --- | --- |
-| Character | Done | Editor jewel closed | NATIVE-FIELDS, platforms |
-| Media (face/pack/named) | Done | Jewel largely landed | MEDIA-BUILD-PLAN |
-| **Lorebook** | **Done** (ST/RC/Agnai/Risu/NAI + character_book) | **Inspect + stub only** | **LOREBOOK-BUILD-PLAN** |
+| Character | Done | Editor jewel closed | shipped |
+| Media (face/pack/named) | Done | Jewel largely landed | shipped |
+| Lorebook | Done (ST/RC/Agnai/Risu/NAI + character_book) | Full binder editor shipped | shipped |
 | Sprite pack entity | Hub pack model | Library pack folder | MEDIA (pack entity landed) |
-| Regex / persona / preset | Partial | Inspect / thin | later |
+| Regex / persona / preset | Done | Editors shipped; preset codecs in progress | in progress |
 
 **Lore locked decisions:** one RC-shaped editor; **Write for = single host profile** (no multi-select
 lens); knowledgeRefs attach; no per-platform full editors; M5 activation engine is separate.
@@ -75,7 +75,7 @@ evolved past pure packages/*). Treat **effectively green** when tsc + bun test +
 round-trips byte-losslessly; CI blocks a deliberately-broken round-trip; CI blocks a
 deliberately-added AGPL dependency.
 
-**Status:** **JEWEL DONE** (2026-07-09). See [M0-FOUNDATION-JEWEL.md](M0-FOUNDATION-JEWEL.md).
+**Status:** **JEWEL DONE** (2026-07-09). See the M0 foundation plan (private planning notes).
 
 ---
 
@@ -88,14 +88,14 @@ honest conversion reports, single-exe builds + checksums + `vaud upgrade`,
 README + format-support matrix (auto-generated).
 
 **Code reality:** strong ST/Risu/BYAF/Agnai/Pygmalion/Lumi paths exist; CLI public release packaging
-and full matrix still the formal exit. Studio convert/export dialog covers a lot of M1 intent for Chi.
+and full matrix still the formal exit. The Studio convert/export dialog covers most of the M1 intent.
 
 **Exit:** a mixed ZIP of real content from 5 platforms converts in both directions
 with zero data loss on same-format round-trips; binaries run on win/mac/linux;
 a stranger can go from GitHub page to converted card in under 3 minutes.
 
 **Status:** **JEWEL DONE** (2026-07-09) for convert/inspect/validate/formats + multi-platform smoke +
-matrix + CLI compile script. See [M1-CONVERTER-JEWEL.md](M1-CONVERTER-JEWEL.md).
+matrix + CLI compile script. See the M1 converter plan (private planning notes).
 GitHub multi-OS Releases + `vaud upgrade` remain packaging polish (not jewel blockers).
 
 ---
@@ -137,7 +137,7 @@ alt greetings).
 
 **Exit:** Cold Read produces a playable card in under 5 minutes in the terminal;
 Deep Dive produces a card that beats a hand-written baseline in a blind vibe-check
-by Chi.
+by the owner.
 
 **Status:** **NOT STARTED**.
 
@@ -168,7 +168,7 @@ re-exploration; code has run ahead.**
 Press, Settings, **CSS Workshop**. Character Fields + Risu Workshop + platform native bags.
 
 **Exit (revised):** studio is the daily driver for forge + convert; formal Tauri/packaging polish
-and public v0.5 packaging still TBD with Chi.
+and public v0.5 packaging still TBD.
 
 **Status:** **AHEAD OF PLAN** — treat as **in progress / usable**, not formal DONE until packaging exit.
 
@@ -201,4 +201,4 @@ M0 + M1 jewels are closed. Character cards closed. Pick next:
 
 Do **not** reopen C.AI/Crushon native bags.
 
-Ground truth: this file + `docs/00-MASTER-PLAN.md` + `docs/NATIVE-FIELDS-PLAN.md` + M0/M1 jewel docs.
+Ground truth: this file + the master plan (private planning notes) + the native-fields plan (private planning notes) + M0/M1 jewel docs.

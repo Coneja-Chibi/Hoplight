@@ -749,11 +749,11 @@ Property/unit tests beyond fixtures:
 - `<RoleCall>\packages\lorebook\src\triggers\special.ts`
   (confirmed near-identical to `apps/rc` copy, first 60 lines diffed; used to
   confirm `packages/lorebook` is the dependency-clean extraction target per
-  `docs/05-EXTRACTION-MAP.md:16-31`)
-- `docs\05-EXTRACTION-MAP.md`
+  `the extraction map (private planning notes):16-31`)
+- `docs\the extraction map (private planning notes)`
   (:16-31, packages/lore extraction source list)
-- `docs\00-MASTER-PLAN.md`,
-  `docs\02-ARCHITECTURE.md`, `docs\06-PRODUCTION-BIBLE.md` (brief row for this
+- `docs\the master plan (private planning notes)`,
+  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (brief row for this
   file, line 59), `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `templates\SPEC-TEMPLATE.md`
 

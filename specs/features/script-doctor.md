@@ -18,7 +18,7 @@ AI-roleplay content play badly: wasted tokens, internal contradictions, cliche/"
 prose, dialogue and action written as if the user already said or did it, and legacy
 format relics left over from a card's editing history. It runs two tiers. The
 **deterministic tier** is free, fully offline, requires no AI key, and produces the
-same findings on the same input every time (docs/00-MASTER-PLAN.md's "sink #2, agent
+same findings on the same input every time (the master plan (private planning notes)'s "sink #2, agent
 slop" antidote and docs/01-VISION.md pillar 3: "Deterministic checks... run free and
 offline"). The **AI treatment tier** is optional, requires a configured BYOK provider
 (`specs/engine/key-vault.md`), and turns findings that need judgment or rewriting
@@ -693,7 +693,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 
 ## Sources consulted
 
-- `docs\00-MASTER-PLAN.md` (milestones
+- `docs\the master plan (private planning notes)` (milestones
   table, "M3 The Script Doctor (v0.2)"; "sink #2, agent slop" antidote paragraph).
 - `docs\01-VISION.md` pillar 3 ("The
   Doctor is honest... Deterministic checks... run free and offline. AI treatment is
@@ -705,7 +705,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 - `docs\03-CONVENTIONS.md` (typed error
   classes with `userMessage`; "Output vocabulary is plain first"; no-emoji/no-em-dash
   rule).
-- `docs\06-PRODUCTION-BIBLE.md` line 75
+- `docs\the production bible (private planning notes)` line 75
   (this file's brief row).
 - `specs\formats\canonical-model.md`
   (shared envelope shape; "An embedded lorebook is a REFERENCE" rule 3; prompt-
@@ -743,7 +743,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
   `[Character("Name"){ Attribute("value1" + "value2") ... }]` bracket/quote/plus
   syntax cited in pass 6. No VAUDEVILLE source implements or documents W++ handling,
   so this is verified against the public community reference per
-  `docs/06-PRODUCTION-BIBLE.md`'s "web research... for public formats" allowance
+  the production bible (private planning notes)'s "web research... for public formats" allowance
   (the allowance names chara_card_v2/v3/charx/Backyard explicitly; W++ is treated
   under the same spirit since it is likewise a public community format, not a
   VAUDEVILLE-internal one).

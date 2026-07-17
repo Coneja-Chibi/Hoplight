@@ -24,8 +24,8 @@ is right and the doc is a bug; file it as one.
 | [entities/character.md](entities/character.md) | The canonical character superset: every `CharacterBody` field, what it means, which formats produce it. |
 | [entities/lorebook.md](entities/lorebook.md) | The canonical lorebook superset: every entry and book field, and the fields that ride escrow instead of a canonical slot. |
 | [concepts/character-book.md](concepts/character-book.md) | The embedded CCv2/v3 `character_book` dialect and how a card's lorebook is extracted and re-embedded. |
-| [../LOREBOOK-BUILD-PLAN.md](../LOREBOOK-BUILD-PLAN.md) | **Studio jewel plan** (editor + attach; codecs already landed). |
-| [../LOREBOOK-RESEARCH.md](../LOREBOOK-RESEARCH.md) | RC UI baseline + platform divergence notes for the jewel. |
+| the lorebook build plan (private planning notes) | **Studio jewel plan** (editor + attach; codecs already landed). |
+| the lorebook research notes (private planning notes) | RC UI baseline + platform divergence notes for the jewel. |
 | [formats/README.md](formats/README.md) | The coverage matrix: every format, its entity kinds, container, and detection. |
 | formats/*.md | One reference per format family: detection, field map, escrow, quirks, source of truth. |
 

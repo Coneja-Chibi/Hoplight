@@ -118,7 +118,7 @@ Studios' codec must either (a) escrow the pre-conversion raw text alongside the
 converted canonical text so serialize-to-origin can replay the original bytes
 verbatim, or (b) accept and document the lossy behavior as a named exception to the
 Law for this one input class. Given the Law's "no codec merges without fixture-backed
-round-trip proof" rule (00-MASTER-PLAN.md), option (a) is required, not optional:
+round-trip proof" rule (the master plan (private planning notes)), option (a) is required, not optional:
 raw pre-conversion text for each converted field goes into
 `escrow.backyard.fields.raw.<fieldName>`.
 
@@ -528,9 +528,9 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
 - VAUDEVILLE `apps/rc/src/lib/formats/character/backyard.ts` (full file, all line
   refs above point here); confirmed byte-identical against
   `apps/plot/src/lib/formats/character/backyard.ts` by direct read.
-- `vaudeville-studios/docs/00-MASTER-PLAN.md`
+- `vaudeville-studios/the master plan (private planning notes)`
 - `vaudeville-studios/docs/02-ARCHITECTURE.md`
-- `vaudeville-studios/docs/06-PRODUCTION-BIBLE.md` (this file's brief row)
+- `vaudeville-studios/the production bible (private planning notes)` (this file's brief row)
 - `vaudeville-studios/specs/formats/canonical-model.md`
 - `vaudeville-studios/specs/formats/escrow-and-roundtrip.md`
 - `vaudeville-studios/templates/SPEC-TEMPLATE.md`

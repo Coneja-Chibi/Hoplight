@@ -712,7 +712,7 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md`: layer
+- the master plan (private planning notes): layer
   definitions (Engine/Faces/Brain), M2 milestone scope.
 - `docs/02-ARCHITECTURE.md:26-30,54-70,
   78-83,85-91`: package layout (`packages/agent`), the agent bullet list (tiny
@@ -730,7 +730,7 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
   roundtrip.md`: Round-Trip Law definition, used in Test plan's cross-reference.
 - `templates/SPEC-TEMPLATE.md`:
   section shape followed here.
-- `docs/06-PRODUCTION-BIBLE.md:66`:
+- `the production bible (private planning notes):66`:
   this file's brief.
 - VAUDEVILLE (reference reading only, no code ported, conceptual lessons only):
   - `apps/rc/src/lib/ai/btw/spill.ts:1-22,43-76`: spill store rationale, inline

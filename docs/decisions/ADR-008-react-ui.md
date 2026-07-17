@@ -16,8 +16,8 @@ Two constraints crystallized after ADR-007:
 2. The roadmap's chat/agent surfaces (M4 Table Read, packages/agent, Studio app) plus the
    per-surface agent-context plan require UI state to be serializable data an agent can
    read and act through. Closure-held vanilla DOM state is agent-opaque; store-driven
-   React state is the pattern both local reference apps (Marinara Engine, Lumiverse
-   frontend) ship in production.
+   React state is the pattern comparable production apps (Marinara Engine, the Lumiverse
+   frontend) ship.
 
 ## Decision
 

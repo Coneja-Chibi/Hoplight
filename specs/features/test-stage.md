@@ -16,7 +16,7 @@ that dependency is load-bearing.
 **VAUDEVILLE reference:** `apps/rc/src/lib/ai/prompt-assembly.ts` (header/imports
 only, :1-60 — confirms the shape of inputs a real assembly call needs: character,
 persona, presets, lorebook engine, chat history, model name/context limit;
-reference reading only, per `docs/06-PRODUCTION-BIBLE.md`'s "reimplement, don't
+reference reading only, per the production bible (private planning notes)'s "reimplement, don't
 port" instruction for this ground-truth path), `apps/rc/src/lib/prompt-tracking/types.ts`
 (full file — informs the *shape* of an honest assembly trace; not ported field-
 for-field, see Non-goals)
@@ -39,7 +39,7 @@ components across multiple turns, the **trace aggregation** that turns their
 individual outputs into the rigging view, and the **screen-test** orchestration
 that runs two takes without cross-contaminating engine state. Written for an
 implementing agent with no other context on this component; per
-`docs/00-MASTER-PLAN.md` ("Every feature must exist in the CLI before it
+the master plan (private planning notes) ("Every feature must exist in the CLI before it
 exists in the app"), the primary interface here is `vaud test-stage`, a
 terminal chat loop; the Studio app (M6) is expected to render the identical
 `TestSession`/`RiggingTrace`/`ScreenTestResult` objects with no new engine
@@ -50,7 +50,7 @@ engine call that the CLI can also express."
 
 ### Why this feature requires AI, unlike the Converter
 
-`docs/00-MASTER-PLAN.md`'s "v0.1 | The Converter: works with zero AI key" and
+the master plan (private planning notes)'s "v0.1 | The Converter: works with zero AI key" and
 ADR-006's "AI is optional" apply to convert/inspect/validate/Doctor-deterministic
 work, not to the Test Stage: talking to a character requires calling a
 configured provider. Two sub-modes exist so the feature degrades honestly
@@ -181,7 +181,7 @@ steps 2-4 and 7 of the turn lifecycle above, assembled into one
 - `assembly: AssemblyTrace` — whatever `specs/engine/prompt-assembly.md`
   eventually defines as its "FULL TRACE object (every segment: source,
   tokens, why-included)" per that spec's brief row in
-  `docs/06-PRODUCTION-BIBLE.md` line 62. OPEN QUESTION 1 again: this spec
+  the production bible (private planning notes) line 62. OPEN QUESTION 1 again: this spec
   treats `assembly` as an opaque pass-through field until that spec exists.
 
 Rendering is UI-agnostic: `RiggingTrace` is plain data, no terminal-escape
@@ -630,7 +630,7 @@ export function pickScreenTestWinner(
 
 ## Sources consulted
 
-- `docs\00-MASTER-PLAN.md` —
+- `docs\the master plan (private planning notes)` —
   "v0.1 | The Converter: works with zero AI key" (locked decisions table,
   basis for "Why this feature requires AI, unlike the Converter"); "M5 The
   Test Stage + Productions" milestone row; "Every feature must exist in the
@@ -680,7 +680,7 @@ export function pickScreenTestWinner(
   confirms `prompt-assembly.md` and `provider-adapters.md` are listed as
   planned `engine/` specs but were not present as files at the time this
   spec was written (basis for OPEN QUESTION 1 and OPEN QUESTION 2).
-- `docs\06-PRODUCTION-BIBLE.md`
+- `docs\the production bible (private planning notes)`
   line 77 (this file's own brief row: "Session model over assembly package,
   rigging trace rendering, swap model/preset mid-session, A/B screen test,
   cost line," ground truth "prompt-assembly spec").
@@ -695,7 +695,7 @@ export function pickScreenTestWinner(
   to directly).
 - `<RoleCall>\apps\rc\src\lib\ai\prompt-assembly.ts`
   lines 1-60 (file header + imports only) — reference reading per this
-  file's ground-truth listing in `docs/06-PRODUCTION-BIBLE.md` line 62
+  file's ground-truth listing in the production bible (private planning notes) line 62
   ("VAUDEVILLE reference (reimplement, don't port)"); used only to confirm
   the INPUT shape a real assembly call needs (character, persona, preset
   prompts, lorebook engine result, chat history, model name/context limit),
@@ -710,7 +710,7 @@ export function pickScreenTestWinner(
   field names or types from this file are copied into the API sketch above,
   per the "reimplement, don't port" instruction; VAUDEVILLE's version is
   itself named as informing `prompt-assembly.md` (not this spec) in
-  `docs/06-PRODUCTION-BIBLE.md` line 62's ground-truth column.
+  the production bible (private planning notes) line 62's ground-truth column.
 
 OPEN QUESTION 1: `specs/engine/prompt-assembly.md` does not exist yet in this
 repo (confirmed via `specs/README.md` and a directory listing at spec-writing

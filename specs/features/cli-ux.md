@@ -492,7 +492,7 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
   (`--json`, `--yes`, exit codes 0/1/2, plain-first output vocabulary); "Code"
   section lines 14-17 (typed error classes with `userMessage`, house glyphs
   `+ - · ✦`, no emoji, no em dash).
-- `docs/00-MASTER-PLAN.md` (this repo) — "The Faces" (CLI-first, every feature
+- the master plan (private planning notes) (this repo) — "The Faces" (CLI-first, every feature
   in CLI before app), "AI is optional" locked decision.
 - `docs/02-ARCHITECTURE.md` (this repo) — "Productions (project workspaces)"
   section (`vaud.json`, `.vaud/history/`, library mode); "Faces" section
@@ -513,7 +513,7 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
   own command grammar is out of scope here).
 - `templates/SPEC-TEMPLATE.md` — structure this document follows.
 - `wireframes/cli/cli-and-tui.html` — design-intent reference only (not listed
-  as ground truth in `docs/06-PRODUCTION-BIBLE.md` for this file): CLI-1
+  as ground truth in the production bible (private planning notes) for this file): CLI-1
   ("The Stagehand") transcript register for help/output tone; CLI-2 ("The
   Prompter's Box") transcript for the REPL banner shape and the
   `[y]es/[n]o/[e]dit` staged-edit confirmation; CLI-3 ("The Board Op") noted

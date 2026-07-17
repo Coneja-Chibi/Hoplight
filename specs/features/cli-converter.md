@@ -86,7 +86,7 @@ content type, not a content type of its own.
 
 `--embed-png` is valid only on character and persona targets and requires source art
 bytes (see Edge case 6). The exact keyword-precedence rule used when *reading* a PNG
-(`ccv3` > `chara` > `rcpersona` > `persona`, per `docs/06-PRODUCTION-BIBLE.md`'s
+(`ccv3` > `chara` > `rcpersona` > `persona`, per the production bible (private planning notes)'s
 `png-embedding.md` brief) is authoritative in `specs/formats/png-embedding.md`, not
 here; this spec only consumes its output.
 
@@ -527,7 +527,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 
 ## Sources consulted
 
-- `docs/00-MASTER-PLAN.md` — v0.1 "The
+- the master plan (private planning notes) — v0.1 "The
   Converter" scope, `vaud convert/inspect/validate/export` command names, M1 exit
   criteria.
 - `docs/02-ARCHITECTURE.md` — `packages/*`
@@ -536,7 +536,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 - `docs/03-CONVENTIONS.md:33-40` — CLI
   conventions section: `--json`, exit codes 0/1/2, `--yes` for destructive ops, plain-
   first output vocabulary.
-- `docs/06-PRODUCTION-BIBLE.md:72` —
+- `the production bible (private planning notes):72` —
   brief row for `cli-converter.md`: five commands, report rendering, `--json` shapes,
   `--strict`, exit codes, multi-target naming; ground truth pointer to escrow spec and
   `03-CONVENTIONS.md`.
@@ -564,5 +564,5 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
   `vaud import`'s behavior section here delegates to that spec by reference rather
   than restating its details, per this file's own brief (ground truth: escrow spec +
   `03-CONVENTIONS.md` CLI section only).
-- `docs/06-PRODUCTION-BIBLE.md` global rules and reviewer rules sections — governed
+- the production bible (private planning notes) global rules and reviewer rules sections — governed
   the "never invent format facts" / "cite every claim" constraints applied throughout.

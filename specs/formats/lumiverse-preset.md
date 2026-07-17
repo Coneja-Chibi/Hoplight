@@ -559,7 +559,7 @@ ST codec.
   header rationale for empty-string platform tokens :1-11, `rcounter` :24-43,
   reasoning tags :45-68, group-card macros :70-142, platform aliases and
   unavailable-token list :144-196, registration :198-212).
-- `docs/00-MASTER-PLAN.md`, `docs/02-ARCHITECTURE.md`, `docs/06-PRODUCTION-BIBLE.md`
+- the master plan (private planning notes), `docs/02-ARCHITECTURE.md`, the production bible (private planning notes)
   (this file's brief, row `lumiverse-preset.md`), `specs/formats/canonical-model.md`,
   `specs/formats/escrow-and-roundtrip.md`, `templates/SPEC-TEMPLATE.md` — read per
   the global rules.
