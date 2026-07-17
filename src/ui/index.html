@@ -197,6 +197,19 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 @media(max-width:40rem){
   #search{display:none} /* narrow screens: tabs win; search returns with the search milestone */
 }
+/* The crash screen (shell/error-boundary.tsx). Lives here, not in a module, because it must render
+   when the React tree is already broken - it cannot depend on anything the app loads. */
+.shell-crash{height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.9rem;padding:2rem;text-align:center;background:var(--canvas);color:var(--text)}
+.shell-crash-title{font-family:var(--font-display,var(--font-body));font-size:1.3rem;margin:0}
+.shell-crash-body{max-width:34rem;margin:0;color:var(--muted);line-height:1.5}
+.shell-crash-msg{max-width:44rem;overflow:auto;padding:.7rem .9rem;margin:0;text-align:left;
+  font-family:var(--font-mono);font-size:.72rem;color:var(--muted);background:var(--seam);
+  border:2px solid var(--edge)}
+.shell-crash-actions{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+.shell-crash-btn{font:700 .66rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
+  padding:.5rem .8rem;cursor:pointer;color:var(--text);background:var(--panel);border:2px solid var(--edge)}
+.shell-crash-btn:hover{border-color:var(--rose)}
 </style>
 </head>
 <body>

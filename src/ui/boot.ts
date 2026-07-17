@@ -6,6 +6,7 @@
 import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./shell/App";
+import { ShellErrorBoundary } from "./shell/error-boundary";
 
 // pre-paint cache: paint the last-known theme SYNCHRONOUSLY, before the settings fetch resolves,
 // so a dark-theme user never flashes paper on reload (settings.json stays the truth; App's boot
@@ -16,7 +17,9 @@ if (cachedTheme === "paper" || cachedTheme === "stage") document.documentElement
 // plain .ts (no JSX): createElement keeps this the one non-TSX file in the React tree
 const mountNode = document.getElementById("shell-root");
 if (!mountNode) throw new Error("boot: #shell-root missing from index.html");
-createRoot(mountNode).render(createElement(App));
+// the boundary wraps App, never the other way round: a crash inside App must still leave something
+// on screen to act on (see shell/error-boundary.tsx)
+createRoot(mountNode).render(createElement(ShellErrorBoundary, null, createElement(App)));
 
 // dev live-reload: the server streams "hello <bootId>" on connect and "reload" on rebuild. Never
 // close() on error - EventSource auto-reconnects across transient drops and server restarts, and

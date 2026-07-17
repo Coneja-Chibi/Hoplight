@@ -11,6 +11,7 @@ import { pieceKey, type DeckView, type DeckViewContext, type PiecePeek } from ".
 
 const CSS = `
 .dv-show{flex:1;min-height:0;display:flex;flex-direction:column}
+.dv-show .sc-empty{margin:auto;font-family:var(--font-body);font-style:italic;color:var(--stage-kicker)}
 .dv-show .main{flex:1;min-height:0;display:flex;align-items:center;gap:clamp(.7rem,2vw,1.4rem);
   padding:clamp(.8rem,2vw,1.4rem)}
 .dv-show .nav{flex:none;width:2.4rem;height:2.4rem;display:flex;align-items:center;justify-content:center;
@@ -19,18 +20,18 @@ const CSS = `
 .dv-show .nav:hover{transform:translate(-2px,-2px);box-shadow:5px 5px 0 0 var(--stage-black)}
 .dv-show .nav:active{transform:translate(3px,3px);box-shadow:0 0 0 0 var(--stage-black)}
 .dv-show .hero{flex:none;width:clamp(8rem,calc(var(--card-w) * 1.6),24rem);background:var(--stage-panel);border:3px solid var(--stage-black);
-  box-shadow:0 24px 38px -14px rgba(0,0,0,.8)}
+  box-shadow:0 24px 38px -14px var(--shadow-ink-deep)}
 .dv-show .hero .cov{aspect-ratio:2/3;background:var(--a);border-bottom:3px solid var(--stage-black);position:relative;
   display:flex;align-items:flex-end;padding:.5rem;background-size:cover;background-position:center top}
 .dv-show .hero .cov b{font-family:var(--font-big);font-weight:900;font-size:3rem;line-height:.72;color:var(--stage-ink);opacity:.82}
 .dv-show .hero .kd{position:absolute;top:0;left:0;background:var(--stage-ink);color:var(--a);font-family:var(--font-mono);
   font-size:.5625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 5px;border-right:3px solid var(--stage-black);border-bottom:3px solid var(--stage-black)}
 .dv-show .plate{flex:1;min-width:0;min-height:0;max-height:100%;overflow-y:auto;background:var(--stage-row);border:3px solid var(--stage-black);
-  box-shadow:5px 6px 0 0 rgba(0,0,0,.55);padding:clamp(.8rem,1.8vw,1.3rem);display:flex;flex-direction:column;gap:.6rem}
+  box-shadow:5px 6px 0 0 var(--shadow-ink);padding:clamp(.8rem,1.8vw,1.3rem);display:flex;flex-direction:column;gap:.6rem}
 .dv-show .plate .nm{font-family:var(--font-big);font-weight:900;font-size:clamp(1.2rem,2.4vw,1.9rem);
   letter-spacing:-.01em;color:var(--stage-card);line-height:1}
 .dv-show .plate .tag{font-style:italic;font-weight:600;font-size:1rem;color:var(--stage-soft)}
-.dv-show .plate .desc{font-size:.95rem;line-height:1.5;color:#a9a4b5;white-space:pre-line}
+.dv-show .plate .desc{font-size:.95rem;line-height:1.5;color:var(--stage-mute);white-space:pre-line}
 .dv-show .plate .meta{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;
   text-transform:uppercase;color:var(--stage-kicker)}
 .dv-show .plate .stage-btn{align-self:flex-start;font-family:var(--font-big);font-weight:900;font-size:.625rem;
@@ -58,11 +59,34 @@ const CSS = `
 /** view-internal focus per deck kind; survives re-renders, resets on reload (ephemeral by design) */
 const focusByKind = new Map<string, number>();
 
-function clampIndex(raw: number, len: number): number {
-  return Math.min(Math.max(raw, 0), len - 1);
+/**
+ * Clamp LAST to 0, not first: `Math.min(Math.max(raw, 0), len - 1)` returns -1 on an empty deck,
+ * which indexes to undefined and crashed the whole view. An empty deck has no valid index at all,
+ * so callers must check length first - this only guarantees the result is never negative.
+ */
+export function clampIndex(raw: number, len: number): number {
+  return Math.max(0, Math.min(raw, len - 1));
 }
 
+/**
+ * The deck can be empty while the studio is not: the Library's first-landing guard checks EVERY
+ * entity, and each view is handed the ACTIVE deck's filter. One pack and the (default, persisted)
+ * character deck = zero entities here. Both the view and the deck persist across reloads, so
+ * without this branch the app white-screened on every launch until prefs were cleared.
+ */
 function Showcase({ ctx }: { ctx: DeckViewContext }): JSX.Element {
+  if (ctx.entities.length === 0) {
+    return (
+      <div className="dv-show">
+        <p className="sc-empty">Nothing in the {ctx.deck.plural.toLowerCase()} deck yet.</p>
+      </div>
+    );
+  }
+  return <ShowcaseFocus ctx={ctx} />;
+}
+
+/** Assumes a non-empty deck - Showcase guards that above, so the hooks below can index safely. */
+function ShowcaseFocus({ ctx }: { ctx: DeckViewContext }): JSX.Element {
   const [, bump] = useReducer((x: number) => x + 1, 0);
   const idx = clampIndex(focusByKind.get(ctx.deck.kind) ?? 0, ctx.entities.length);
   const e = ctx.entities[idx]!;
