@@ -65,12 +65,12 @@ CI: `.github/workflows/ci.yml`
 
 | File | What |
 | --- | --- |
-| `docs/ROADMAP.md` | Milestones M0–M7 + what now |
-| `docs/00-MASTER-PLAN.md` | Full product plan + handoff |
-| `docs/M0-FOUNDATION-JEWEL.md` | M0 jewel bar |
-| `docs/M1-CONVERTER-JEWEL.md` | M1 jewel bar |
-| `docs/NATIVE-FIELDS-PLAN.md` | Character-card platforms (closed) |
-| `docs/04-AGENT-PLAYBOOK.md` | Agents: how to work in this repo |
+| [`docs/01-VISION.md`](docs/01-VISION.md) | What this is for, and who for |
+| [`docs/02-ARCHITECTURE.md`](docs/02-ARCHITECTURE.md) | The canonical model, and how adapters hang off it |
+| [`docs/03-CONVENTIONS.md`](docs/03-CONVENTIONS.md) | Code style and the rules the hooks enforce |
+| [`docs/FORMAT-SUPPORT.md`](docs/FORMAT-SUPPORT.md) | Which platforms are supported, and how completely |
+| [`docs/reference/`](docs/reference/README.md) | Per-format and per-entity reference |
+| [`docs/decisions/`](docs/decisions/ADR-001-runtime.md) | Why the consequential choices went the way they did |
 
 ## Character cards
 
