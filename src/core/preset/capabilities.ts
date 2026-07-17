@@ -4,11 +4,28 @@
  * hiding never deletes body data. Same shape + function names as core/persona and core/regex
  * capabilities (PRESET-JEWEL-PLAN.md P0). Ownership matrix: platform-fields.ts (survey-grounded).
  *
- * LUMIVERSE IS NOT A LENS: its preset codec is one-way IMPORT (parse the wrapper into the ST shape,
- * no serialize-back - specs/formats/lumiverse-preset.md). A Write-for lens gates by EXPORT
- * capability, so there is nothing to author "for Lumiverse"; imported Lumi presets are edited under
- * the SillyTavern (or full) lens. The authoring targets are the engines with a real serialize path:
- * RoleCall (native), SillyTavern (round-trip), Marinara (sealed round-trip).
+ * LUMIVERSE IS NOT A LENS *YET*, AND THE OLD REASON HERE WAS WRONG. This used to claim there is
+ * "nothing to author for Lumiverse" because the codec is import-only. That is a fact about OUR
+ * code, not about Lumiverse, and it was laundered from a draft spec whose only cited reference is
+ * RC's `packages/presets-core/src/lumiverse-converter.ts` - which exports exactly
+ * isLumiversePreset() + convertLumiversePreset() and no serializer. "RC never wrote an exporter"
+ * became "the platform cannot be authored for". It cannot support that weight.
+ *
+ * What the evidence actually shows: Lumiverse ships a clean, writable block-based JSON wrapper
+ * ({type, schemaVersion, cover_url, preset:{blocks[], promptBehavior, completionSettings,
+ * samplerOverrides, advancedSettings}}), its own {{...}} macro dialect ({{if::}}, {{rcounter}},
+ * group-card macros, lumia tokens) that RC implements in apps/rc/src/lib/macros/handlers/
+ * lumiverse-compat.ts, and a macro engine that LumiRealm's risu-macros.json records colliding with
+ * Risu on 36 names, 28 of them behaviourally INCOMPATIBLE. Nothing there blocks a serialize path.
+ *
+ * So Lumiverse is absent because the export codec is UNBUILT, not because it is unauthorable. Do
+ * not re-justify it on capability. Before promoting it to a lens, get primary sources - the
+ * Lumiverse app is NOT among the local clones (_reference/ has LumiRealm, which is a RisuAI compat
+ * PORT for Lumiverse by another author, not Lumiverse itself) and RC's wrapper types are marked
+ * "as observed in the wild", i.e. reverse-engineered.
+ *
+ * The current authoring targets are the engines vaud can really serialize: RoleCall (native),
+ * SillyTavern (round-trip), Marinara (sealed round-trip).
  */
 import { platformOwnsField } from "./platform-fields";
 
