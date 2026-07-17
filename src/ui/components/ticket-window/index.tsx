@@ -1,9 +1,10 @@
 /**
  * TicketWindow - THE image surface, transcribed 1:1 from the LOCKED vs-image-picker wire: the art
- * hangs behind glass in a booth (black marquee names the slot, actions are ticket stubs) with the
- * alternates strip riding under it in every deployment. Click or drop anywhere on the glass to hang
- * art; clicking a thumb hangs that alternate; the + tile adds (multi-add where the surface has an
- * alternates store, add-and-hang on single-slot surfaces). The naked file input never renders.
+ * hangs behind glass in a booth (black marquee names the slot, actions are ticket stubs) with a
+ * strip of hangable thumbs under it. In the editors the strip IS the variant strip (alt art is a
+ * variant, not a parallel concept), rendered by the caller under the booth; the built-in strip here
+ * serves deployments with their own thumb store (galleries, backgrounds) and renders only when one
+ * is wired. Click or drop on the glass hangs art. The naked file input never renders.
  */
 import { useRef, useState, type DragEvent, type JSX } from "react";
 import type { MediaAsset } from "../../../entities/character/schema";
@@ -39,6 +40,12 @@ export interface TicketWindowProps {
 }
 
 const IMAGE_ACCEPT = "image/png,image/jpeg,image/jpg,image/webp,image/gif";
+
+/** The mono microlabel naming a strip shelf; siblings (variants, expressions) borrow it so every
+ *  strip under the booth is named in the same voice. */
+export function ShelfKicker({ children }: { children: string }): JSX.Element {
+  return <span className={styles.shelfKick}>{children}</span>;
+}
 
 const readImageFile = (file: File): Promise<MediaAsset> =>
   new Promise((resolve, reject) => {
@@ -145,7 +152,9 @@ export function TicketWindow({
           </div>
         )}
       </div>
-      {canEdit && (
+      {canEdit && (alternates !== undefined || onAdd !== undefined) && (
+        <>
+        <ShelfKicker>alternates</ShelfKicker>
         <div className={styles.strip}>
           {(alternates ?? []).map((alt) => (
             <button
@@ -168,6 +177,7 @@ export function TicketWindow({
             +
           </button>
         </div>
+        </>
       )}
       <input
         ref={pickRef}

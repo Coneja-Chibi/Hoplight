@@ -1,10 +1,11 @@
 /**
- * PortraitCard - the editor's left column: the TicketWindow art surface (booth + alternates strip,
- * the locked vs-image-picker wire), the variant strip, name + token/edited meta, and media stamps.
+ * PortraitCard - the editor's left column: the TicketWindow booth (the locked vs-image-picker wire),
+ * then the labeled shelves under it - variants (a variant is alt art or alt fields, one concept),
+ * expressions (the pack strip) - then name + token/edited meta and the media stamps.
  */
 import type { JSX, ReactNode } from "react";
 import type { MediaAsset } from "../../../../entities/character/schema";
-import { TicketWindow, type TicketAlternate } from "../../../components/ticket-window";
+import { ShelfKicker, TicketWindow } from "../../../components/ticket-window";
 import { VariantStrip } from "../../../components/variant-strip";
 import type { VariantsApi } from "../use-variants";
 
@@ -38,10 +39,6 @@ export interface PortraitCardProps {
   onClearStripPreview?: () => void;
   /** Per-variant own portrait thumbs (id -> previewable ref) */
   variantArt?: Readonly<Record<string, string | null>>;
-  /** The strip's alternates (characters: media.assets); single-slot surfaces omit and get hung + add. */
-  alternates?: readonly TicketAlternate[];
-  onHang?: (id: string) => void;
-  onAddAlternates?: (assets: MediaAsset[]) => void;
 }
 
 export function PortraitCard({
@@ -63,9 +60,6 @@ export function PortraitCard({
   stripPreviewLabel,
   onClearStripPreview,
   variantArt,
-  alternates,
-  onHang,
-  onAddAlternates,
 }: PortraitCardProps): JSX.Element {
   const canEdit = typeof onPortraitChange === "function";
   const canSprites = typeof onOpenSprites === "function";
@@ -73,6 +67,8 @@ export function PortraitCard({
 
   return (
     <section className={styles.lcard} data-tour="portrait">
+      {/* The booth alone: alt art IS a variant, so the strip under it is the variant strip below,
+          never a parallel "alternates" list. */}
       <TicketWindow
         label="portrait"
         title={name}
@@ -80,9 +76,6 @@ export function PortraitCard({
         monogram={name.charAt(0).toUpperCase()}
         onPick={canEdit ? (asset) => onPortraitChange(asset) : undefined}
         onRemove={canEdit && artUrl ? () => onPortraitChange(null) : undefined}
-        alternates={alternates}
-        onHang={onHang}
-        onAdd={onAddAlternates}
       />
       {stripPreviewLabel ? (
         <button
@@ -95,19 +88,27 @@ export function PortraitCard({
         </button>
       ) : null}
       {vary && (
-        <VariantStrip
-          variants={vary.variants}
-          activeId={vary.activeId}
-          artUrl={artUrl}
-          variantArt={variantArt}
-          onSelect={vary.select}
-          onAdd={vary.add}
-          onRemove={vary.remove}
-          onRename={vary.rename}
-          onMode={vary.setMode}
-        />
+        <>
+          <ShelfKicker>variants · alt art or alt fields</ShelfKicker>
+          <VariantStrip
+            variants={vary.variants}
+            activeId={vary.activeId}
+            artUrl={artUrl}
+            variantArt={variantArt}
+            onSelect={vary.select}
+            onAdd={vary.add}
+            onRemove={vary.remove}
+            onRename={vary.rename}
+            onMode={vary.setMode}
+          />
+        </>
       )}
-      {packStrip}
+      {packStrip ? (
+        <>
+          <ShelfKicker>expressions</ShelfKicker>
+          {packStrip}
+        </>
+      ) : null}
       <div className={styles.lmeta}>
         <b>{name.toUpperCase()}</b>
         <div className={styles.lsub}>

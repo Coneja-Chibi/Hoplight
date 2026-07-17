@@ -114,24 +114,6 @@ export function EditorLeftCard({
   })();
   const variantArt = variantArtUrls(vary.variants);
 
-  // The strip's alternates are the gallery (media.assets): every previewable asset is a thumb the
-  // booth can hang; the hung one is whichever matches the current portrait ref.
-  const rawAssets = readPath(draft, "media.assets");
-  const assetList: Record<string, unknown>[] = Array.isArray(rawAssets) ? rawAssets.map(rec) : [];
-  const portraitRef = str(rec(readPath(draft, "media.portrait")).ref);
-  const alternates = assetList
-    .map((a, i) => ({ a, i }))
-    .filter(({ a }) => {
-      const ref = str(a.ref);
-      return ref.startsWith("data:image/") || ref.startsWith("https://") || ref.startsWith("http://");
-    })
-    .map(({ a, i }) => ({
-      id: String(i),
-      url: str(a.ref),
-      label: str(a.label) || undefined,
-      active: str(a.ref) === portraitRef,
-    }));
-
   return (
     <>
       <PortraitCard
@@ -145,18 +127,6 @@ export function EditorLeftCard({
         onPortraitChange={(portrait) => {
           if (portrait === null) setField("media.portrait", "");
           else setField("media.portrait", portrait);
-        }}
-        alternates={alternates}
-        onHang={(id) => {
-          const asset = assetList[Number(id)];
-          if (!asset) return;
-          setField("media.portrait", { ...asset, role: "portrait", primary: true });
-        }}
-        onAddAlternates={(added) => {
-          setField("media.assets", [
-            ...assetList,
-            ...added.map((a) => ({ ...a, role: "other", primary: false })),
-          ]);
         }}
         onOpenSprites={
           mediaCaps.sprites

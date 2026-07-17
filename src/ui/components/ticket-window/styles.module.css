@@ -130,7 +130,19 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.65rem;
+  margin-top: 0.35rem;
+}
+
+/* Shelf kicker - names each strip under the booth (alternates / variants / expressions). Three
+   unlabeled dashed + tiles from three different strips read as one broken control. */
+.shelfKick {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  margin-top: 0.6rem;
 }
 
 .thumb {
