@@ -101,12 +101,12 @@ for `vaud convert`'s honesty report; "notes" cites the exact conversion rule.
 | `useGroupScoring` | boolean\|null | escrow (`unsupportedFields.useGroupScoring`) | escrow | Same treatment as `groupOverride` (parser.ts:542, serializer.ts:311). |
 | `excludeRecursion` | boolean | `excludeRecursion` | native | Defaults `false`. |
 | `preventRecursion` | boolean | `preventRecursion` | native | Defaults `false`. |
-| `delayUntilRecursion` | boolean\|number | `delayUntilRecursion` | native | Import: numeric value passed through, else `0` (a `true` boolean maps to `0`, since the reference reads only `typeof === 'number'`, parser.ts:491). **Export MUST emit the numeric level, not a boolean.** The reference serializer re-encodes as a boolean (`entry.delayUntilRecursion > 0`, serializer.ts:299), but that is an import/export asymmetry bug: the reference's own ST *input* type declares `delayUntilRecursion?: number` (parser.ts:82), i.e. ST accepts a numeric recursion level. Replicating the boolean export would break the Round-Trip Law — a source value of `3` (or even `1`) exports to `true`, which reparses to `0` (`typeof true !== 'number'`), so canonical `3 -> 0`, a parse-parse mismatch. Escrow cannot rescue this: `delayUntilRecursion` is a genuine canonical field (`LorebookEntry.delayUntilRecursion`, types.ts:288), so under escrow rule 4 the recomputed canonical value shadows any escrowed original (`escrowShadowed`). The clean-room codec therefore serializes the number directly and does not port the boolean coercion. OPEN QUESTION 6: confirm against a real modern ST worldinfo export that a numeric `delayUntilRecursion` is accepted by ST itself (the reference input type asserts it; cross-check with a live fixture). |
+| `delayUntilRecursion` | boolean\|number | `delayUntilRecursion` | native | Import: numeric value passed through, else `0` (a `true` boolean maps to `0`, since the reference reads only `typeof === 'number'`, parser.ts:491). **Export MUST emit the numeric level, not a boolean.** The reference serializer re-encodes as a boolean (`entry.delayUntilRecursion > 0`, serializer.ts:299), but that is an import/export asymmetry bug: the reference's own ST *input* type declares `delayUntilRecursion?: number` (parser.ts:82), i.e. ST accepts a numeric recursion level. Replicating the boolean export would break the Round-Trip Law - a source value of `3` (or even `1`) exports to `true`, which reparses to `0` (`typeof true !== 'number'`), so canonical `3 -> 0`, a parse-parse mismatch. Escrow cannot rescue this: `delayUntilRecursion` is a genuine canonical field (`LorebookEntry.delayUntilRecursion`, types.ts:288), so under escrow rule 4 the recomputed canonical value shadows any escrowed original (`escrowShadowed`). The clean-room codec therefore serializes the number directly and does not port the boolean coercion. OPEN QUESTION 6: confirm against a real modern ST worldinfo export that a numeric `delayUntilRecursion` is accepted by ST itself (the reference input type asserts it; cross-check with a live fixture). |
 | `automationId` | string | escrow (`unsupportedFields.automationId`) | escrow | Preserved only when truthy (parser.ts:543). |
 | `vectorized` | boolean | escrow (`unsupportedFields.vectorized`) | escrow | Preserved only when truthy (parser.ts:544). |
 | `matchCharacterDepthPrompt` | boolean | escrow (`unsupportedFields.matchCharacterDepthPrompt`) | escrow | (parser.ts:545) |
 | `matchCreatorNotes` | boolean | escrow (`unsupportedFields.matchCreatorNotes`) | escrow | (parser.ts:546) |
-| `matchPersonaDescription` | boolean | `scanUserPersona` | native | Preferred name; legacy fallback field is `scanUserPersona` itself on very old exports — none observed, so only `matchPersonaDescription` is read (parser.ts:509). |
+| `matchPersonaDescription` | boolean | `scanUserPersona` | native | Preferred name; legacy fallback field is `scanUserPersona` itself on very old exports - none observed, so only `matchPersonaDescription` is read (parser.ts:509). |
 | `matchCharacterDescription` | boolean | `scanCharacterDescription` | native | Falls back to legacy key `scanCharacterDescription` if `matchCharacterDescription` is absent (parser.ts:507). |
 | `matchCharacterPersonality` | boolean | `scanCharacterPersonality` | native | (parser.ts:508) |
 | `matchScenario` | boolean | `scanScenario` | native | (parser.ts:510) |
@@ -115,7 +115,7 @@ for `vaud convert`'s honesty report; "notes" cites the exact conversion rule.
 | `disable` | boolean | `enabled` (inverted) | native | See enabled/disable precedence below. |
 | `displayIndex` | number | `sortOrder` | native | Falls back to the entry's array/object-iteration index if absent (parser.ts:468). |
 | `addMemo` | boolean | `useMemo` | native | Defaults `false`. |
-| `triggers` | string[] (generation-type hooks: `onMessage`/`onSwipe`/etc.) | escrow (`unsupportedFields.generationTriggers`) | escrow | NOTE: this is a *different* field from canonical `triggers[]` (keyword triggers) despite the name collision — ST overloads `triggers` for generation-event hooks RC does not implement. Read from `raw.triggers` first, `raw.generationTriggers` as fallback (parser.ts:552-559). Exported back under the ST key name `triggers` (serializer.ts:334), not `generationTriggers`. |
+| `triggers` | string[] (generation-type hooks: `onMessage`/`onSwipe`/etc.) | escrow (`unsupportedFields.generationTriggers`) | escrow | NOTE: this is a *different* field from canonical `triggers[]` (keyword triggers) despite the name collision - ST overloads `triggers` for generation-event hooks RC does not implement. Read from `raw.triggers` first, `raw.generationTriggers` as fallback (parser.ts:552-559). Exported back under the ST key name `triggers` (serializer.ts:334), not `generationTriggers`. |
 | `outletName` | string | escrow (`unsupportedFields.outletName`) | escrow | Preserved only when truthy (parser.ts:560). |
 | `ignoreBudget` | boolean | `ignoreBudget` | native | Defaults `false` (parser.ts:515; a prior bug hardcoded this to always-false, now fixed). |
 | `sideEffects` | `EntrySideEffects \| null` (RC extension, ST ignores unknown keys) | `sideEffects` | native, RC round-trip sidecar | Not part of the public ST spec; RC's own ST exporter embeds it so an RC->ST->RC round trip preserves variable-mutation side effects (parser.ts:526, serializer.ts:342-344). |
@@ -131,17 +131,17 @@ envelope's job in this suite (the canonical model does not keep a parallel
 
 **Canonical fields ST cannot express at all** (native only in the RoleCall
 schema, always escrow-free but simply blank/default on ST import, and dropped
-with a warning on ST export if set): `comment` (RC internal notes — ST field
+with a warning on ST export if set): `comment` (RC internal notes - ST field
 name collision with `title`'s source, see above; RC's `comment` has no ST
 home and is silently omitted, generating `STExportWarnings.commentLost`,
 serializer.ts:256-259), `allowRecursion` (ST has no such concept; import
 always sets `false`, parser.ts:488), `boostIds`/`boostAmount` (RC cross-entry
 boosting; import always `[]`/`0`, parser.ts:494-495; export drops silently,
 generates `rcFeaturesLost` warning class if used), `probabilityMode` (import
-always `highest`; per-trigger advanced probabilities are an RC extension —
+always `highest`; per-trigger advanced probabilities are an RC extension -
 see Advanced triggers below), `scanPreset` (ST has no such scan source; import
 always `false`, parser.ts:511), `metadata` (RC/TunnelVision JSONB bag; no ST
-representation, not written by this codec at all — see OPEN QUESTION 5).
+representation, not written by this codec at all - see OPEN QUESTION 5).
 
 ### Position mapping
 
@@ -152,13 +152,13 @@ parser.ts:236-261, serializer.ts:116-129):
 |---|---|---|---|
 | `world` | `0` | `0`, or string containing `"world"`, or `"before_char"` | Before character card. |
 | `character` | `1` | `1`, or string containing `"character"`, `"after_char"`, or **any unrecognized value** | Default fallback for unknown positions on both import and export. |
-| `before_example` | `2` | `2`, or string `"before_example"` | Preserved distinctly from `after_example` — a prior version of the codec collapsed both to one value; this was fixed specifically to stop data loss (parser.ts:256 comment "PRESERVED - no longer lossy!"). |
+| `before_example` | `2` | `2`, or string `"before_example"` | Preserved distinctly from `after_example` - a prior version of the codec collapsed both to one value; this was fixed specifically to stop data loss (parser.ts:256 comment "PRESERVED - no longer lossy!"). |
 | `after_example` | `3` | `3`, or string `"after_example"` | See above. |
 | `depth` | `4` | `4`, or string containing `"depth"`, or `"at_depth"` | Uses the `depth` field for placement. |
 | `append` (RC extension) | `4` + `rcPosition: "append"` sidecar | `rcPosition` sidecar only (numeric `position` alone cannot express it) | "Glue onto the end of the depth-th-from-last message of the entry's role"; collapses to plain `depth` (4) if the sidecar is stripped by an intermediate tool. |
 | `append_bottom` (RC extension) | `4` + `rcPosition: "append_bottom"` sidecar | `rcPosition` sidecar only | Pinned to the very end of the assembled prompt. |
 | `prepend_top` (RC extension) | `0` + `rcPosition: "prepend_top"` sidecar | `rcPosition` sidecar only | Pinned to the very top of the assembled prompt. |
-| `scene` (legacy/generic) | `2` | string containing `"scene"`, or `"in_chat"` | Maps to `before_example` on export "for compatibility" (serializer.ts:126 comment); this is a lossy many-to-one collapse with `before_example` itself — round-tripping a `scene`-position entry through ST changes it to `before_example`. Flag as a known lossy edge case, not a bug to fix in this codec (matches reference behavior). |
+| `scene` (legacy/generic) | `2` | string containing `"scene"`, or `"in_chat"` | Maps to `before_example` on export "for compatibility" (serializer.ts:126 comment); this is a lossy many-to-one collapse with `before_example` itself - round-tripping a `scene`-position entry through ST changes it to `before_example`. Flag as a known lossy edge case, not a bug to fix in this codec (matches reference behavior). |
 
 Import precedence when both `rcPosition` and numeric `position` are present:
 `rcPosition` wins if it parses to one of the 9 valid values; otherwise the
@@ -194,13 +194,13 @@ entry with no matching fields: `selectiveLogic: 'and_any'`, `position:
 'character'`, `depth: 4`, `role: 'system'`, `constant: false`,
 `triggerMode: 'simple'`, all timing/recursion/scan fields at their zero
 values (parser.ts:595-663). Agnai has no serializer in the reference codebase
-— `serializer.ts` only emits ST and RoleCall formats. This suite's codec MUST
+- `serializer.ts` only emits ST and RoleCall formats. This suite's codec MUST
 still implement Agnai *parse* (detection + field map above); Agnai
 *serialize* is out of scope until a concrete need appears (OPEN QUESTION 1).
 
 ### Advanced triggers (per-trigger probability)
 
-ST has no per-keyword probability — only the single entry-level
+ST has no per-keyword probability - only the single entry-level
 `probability`. RC's `AdvancedTrigger` (`{keyword, isRegex, flags?,
 probability}`, types.ts:70-72) is an extension with no ST import path: ST
 import always produces `SimpleTrigger`s and deliberately does NOT stamp a
@@ -215,7 +215,7 @@ not silently accepted.
 
 ### Categories / grouping
 
-ST has no explicit category object — only the free-text `group` string per
+ST has no explicit category object - only the free-text `group` string per
 entry. On ST import, this codec must synthesize `LorebookCategory` records
 (`{id, lorebookId, name, sortOrder, enabled: true}`) from the set of distinct
 non-empty `group` values, in first-seen order, and set each entry's
@@ -228,14 +228,14 @@ category's `name` is used as `group` (serializer.ts:384-387).
 
 | ST field | Canonical field | Notes |
 |---|---|---|
-| `name` | `name` | Falls back to `"Imported Lorebook"` if absent/blank (`normalizeNameCandidate`, resolved further by `resolveLorebookImportName` using filename/first-entry-named-"name" heuristics — see Edge case 6). |
+| `name` | `name` | Falls back to `"Imported Lorebook"` if absent/blank (`normalizeNameCandidate`, resolved further by `resolveLorebookImportName` using filename/first-entry-named-"name" heuristics - see Edge case 6). |
 | `description` | `description` | `null` if absent. |
 | `scan_depth` | `globalScanDepth` | Defaults `100` on import if absent. |
 | `token_budget` | `tokenBudget` | Defaults `0`. |
 | `recursive_scanning` | `globalRecursion` | Defaults `false`. |
 | `case_sensitive` | `globalCaseSensitive` | Defaults `false`. |
 | `match_whole_words` | `globalMatchWholeWords` | Defaults `false`. |
-| `budgetMode`, `entryBudget` | `budgetMode`, `entryBudget` | Not present in ST source at all; always defaulted (`'token'`, `20`) on ST import — these are RC/canonical-only concepts with no ST equivalent, dropped silently on ST export (ST has no budget-mode field to write). |
+| `budgetMode`, `entryBudget` | `budgetMode`, `entryBudget` | Not present in ST source at all; always defaulted (`'token'`, `20`) on ST import - these are RC/canonical-only concepts with no ST equivalent, dropped silently on ST export (ST has no budget-mode field to write). |
 | `originalData` | escrow (`st.fields.originalData`) | Passthrough bucket some tools attach; not read or interpreted, preserved opaquely. |
 
 ## Public API sketch
@@ -294,22 +294,22 @@ export const agnaiLorebookCodec: AgnaiLorebookCodec;
 
 ## Edge cases & failure modes
 
-1. **`entries` present but empty (`{}` or `[]`)** — valid, zero-entry
+1. **`entries` present but empty (`{}` or `[]`)** - valid, zero-entry
    lorebook. Not an error; `ParseReport.warnings` may note it but `errors`
    must stay empty.
-2. **Mixed numeric and non-numeric keys in an object `entries`** — per
+2. **Mixed numeric and non-numeric keys in an object `entries`** - per
    `hasNumericKeys = keys.length > 0 && keys.every(...)` (format-detection.ts:124),
    ANY non-numeric key drops confidence to the 0.3 fallback tier. This codec's
    `detect()` must still attempt the ST parse at low confidence rather than
    refusing outright, matching reference behavior (parser.ts:222 default).
 3. **`key`/`keysecondary` entries that look like partial regex** (e.g. start
-   with `/` but have unescaped internal `/` or invalid regex syntax) — NOT
+   with `/` but have unescaped internal `/` or invalid regex syntax) - NOT
    treated as regex; `parseRegexFromString` returns `null` for anything that
    fails `new RegExp()` construction or has an unescaped delimiter
    (regex-utils.ts:21,29-33), so the whole string (including the leading
    slash) becomes a literal plain keyword. This must not throw.
 4. **`selectiveLogic` given as a string instead of a number** (some
-   community exports have been observed doing this) — OPEN QUESTION: the
+   community exports have been observed doing this) - OPEN QUESTION: the
    reference parser's `parseSelectiveLogic` signature is `number | undefined`
    only (parser.ts:300); string input is not defensively handled there.
    OPEN QUESTION: confirm whether a stray string value should escrow-and-default
@@ -318,12 +318,12 @@ export const agnaiLorebookCodec: AgnaiLorebookCodec;
    `and_any`, and escrow the original string under
    `st.fields.entries[uid].selectiveLogic`.
 5. **`position` as an unrecognized string** (not matching any substring
-   rule in the position table) — falls through to `character` (parser.ts:248,
+   rule in the position table) - falls through to `character` (parser.ts:248,
    259). This is silent normalization, not an error; MUST NOT be reported as
    `dropped` since it maps to a defined canonical value, but SHOULD be
    escrowed under `st.fields.entries[uid].position` if the original string
    doesn't round-trip byte-identically through `positionToNumber`.
-6. **Duplicate/derivable lorebook name resolution** — `resolveLorebookImportName`
+6. **Duplicate/derivable lorebook name resolution** - `resolveLorebookImportName`
    (parser.ts:354-366) tries, in order: an explicit caller-supplied `name`
    option, then the file's own `name` field (rejected if it's literally the
    placeholder string `"Imported Lorebook"`), then a name derived from an
@@ -334,37 +334,37 @@ export const agnaiLorebookCodec: AgnaiLorebookCodec;
    replicate this chain when a `filename` option is supplied; without a
    filename, the chain simply skips that step.
 7. **`uid` values that are non-sequential or have gaps** (e.g. `{"0":...,
-   "5":...}`) — import must NOT assume UIDs are dense/contiguous; iterate
+   "5":...}`) - import must NOT assume UIDs are dense/contiguous; iterate
    `Object.values(entries)` in object key-insertion order (parser.ts:1043,
    `Object.values(data.entries)`), and use the iteration index (not the UID
    itself) for `sortOrder` fallback. On export, positional UIDs are
    regenerated from `0..n-1` (serializer.ts:279); this is a declared
-   byte-identity break — see byte-identity level below.
+   byte-identity break - see byte-identity level below.
 8. **A ST entry uses `triggers` for both a generation-hook array (legacy
-   overload) AND the codec later needs the canonical `triggers[]`** — no
+   overload) AND the codec later needs the canonical `triggers[]`** - no
    collision in canonical output because `LorebookEntry.triggers` is always
    sourced from ST `key`, never from ST `triggers`; the ST `triggers` field
    is exclusively escrowed as `unsupportedFields.generationTriggers` /
    canonical escrow. Document this explicitly to prevent an implementing
    agent from wiring the wrong source field.
-9. **Regex trigger with flags round-tripping through `escapeUnescapedSlashes`** —
+9. **Regex trigger with flags round-tripping through `escapeUnescapedSlashes`** -
    export re-escapes any unescaped `/` inside a stored regex `keyword` before
    wrapping it in `/pattern/flags` (serializer.ts:162-177, 190). A pattern
    containing an already-escaped `\/` must not become double-escaped; the
    escaper only touches slashes NOT already preceded by `\`.
 10. **`characterFilter` with empty `names`/`tags` but `isExclude: true`
-    present** — imports as `{names: [], tags: [], isExclude: true}`, a
+    present** - imports as `{names: [], tags: [], isExclude: true}`, a
     valid-but-vacuous blacklist-of-nothing. Not an error.
-11. **Zero probability (`probability: 0`)** — imported as-is (not treated as
+11. **Zero probability (`probability: 0`)** - imported as-is (not treated as
     "absent"/default); reference code emits a distinct advisory warning
     (`STImportWarnings.zeroProbability`, parser.ts:578-580) since a
     permanently-silent entry is often unintentional. This codec's
     `ParseReport.warnings` should carry an equivalent note.
-12. **Entry with no triggers and not `constant`** — imports successfully but
+12. **Entry with no triggers and not `constant`** - imports successfully but
     is effectively unreachable (can never fire). Reference code warns
     (`STImportWarnings.noTriggers`, parser.ts:573-575) but does not error or
     drop the entry.
-13. **Non-JSON-object top-level input** (array, string, number, null) —
+13. **Non-JSON-object top-level input** (array, string, number, null) -
     `detectLorebookFormat` throws `'Invalid JSON: Expected object'`
     (format-detection.ts:46); the legacy fallback path in `parseLorebook`
     catches that and falls through to its own array/shape checks
@@ -372,7 +372,7 @@ export const agnaiLorebookCodec: AgnaiLorebookCodec;
     populated `errors[]` and `lorebook: null` if nothing matches
     (parser.ts:1227-1236). This codec must not throw out of `parse()`; it
     returns a report with `errors` populated instead.
-14. **`scene` position round-trip loss** — see Position mapping table:
+14. **`scene` position round-trip loss** - see Position mapping table:
     `scene` and `before_example` both export to ST position `2`, so
     `scene` cannot be recovered from a foreign ST round trip once the
     original canonical entity is gone. This is inherent to the ST format
@@ -388,38 +388,38 @@ export const agnaiLorebookCodec: AgnaiLorebookCodec;
 
 Fixtures required (place under `fixtures/st-worldinfo/`):
 
-- `minimal.json` — one entry, only `key`/`comment`/`content` set, everything
+- `minimal.json` - one entry, only `key`/`comment`/`content` set, everything
   else default. Exercises baseline defaulting.
-- `full-fields.json` — one entry with every documented ST field populated
+- `full-fields.json` - one entry with every documented ST field populated
   (including `groupOverride`, `automationId`, `vectorized`,
   `matchCharacterDepthPrompt`, `matchCreatorNotes`, `outletName`,
   `triggers` generation hooks) to exercise the full escrow set.
-- `regex-triggers.json` — entries with `/pattern/flags` keys, including one
+- `regex-triggers.json` - entries with `/pattern/flags` keys, including one
   with an unescaped internal slash (must NOT parse as regex) and one with an
   escaped slash inside the pattern (must round-trip without double-escaping).
-- `positions-all.json` — nine entries, one per `InjectionPosition` value
+- `positions-all.json` - nine entries, one per `InjectionPosition` value
   (including RC-extension `append`/`append_bottom`/`prepend_top` via
   `rcPosition` sidecar, and legacy `scene`), to pin the full position table.
-- `enabled-disable-conflict.json` — entries covering all four combinations of
+- `enabled-disable-conflict.json` - entries covering all four combinations of
   `enabled`/`disable` presence to pin the precedence rule.
-- `advanced-probability-mixed.json` — RC-authored ST export with
+- `advanced-probability-mixed.json` - RC-authored ST export with
   `sideEffects` present and mixed per-trigger probabilities (via the
   `AdvancedTrigger`-shaped objects RC's own exporter never emits to ST, but a
   hand-crafted fixture simulating a third-party tool that does) to exercise
   the `mixedProbabilities` max-and-warn path.
-- `agnai-basic.json` — Agnai-shaped array lorebook (`keywords`/`name`/`entry`)
+- `agnai-basic.json` - Agnai-shaped array lorebook (`keywords`/`name`/`entry`)
   to exercise the variant parse path and confirm it is NOT misdetected as ST.
-- `groups-to-categories.json` — multiple entries sharing `group` strings, to
+- `groups-to-categories.json` - multiple entries sharing `group` strings, to
   pin category synthesis and `categoryId` back-resolution on export.
-- `malformed-not-an-object.json`, `malformed-empty.json` — negative cases for
+- `malformed-not-an-object.json`, `malformed-empty.json` - negative cases for
   edge case 13, must return a report with errors, never throw.
-- `sparse-uids.json` — non-contiguous numeric keys (`"0"`, `"7"`, `"12"`) to
+- `sparse-uids.json` - non-contiguous numeric keys (`"0"`, `"7"`, `"12"`) to
   pin edge case 7 (index-based iteration, not UID-based).
-- `filename-derived-name.json` — no `name` field, imported with a `filename`
+- `filename-derived-name.json` - no `name` field, imported with a `filename`
   option, to pin edge case 6's fallback chain.
 
 Round-Trip Law applicability: **applies** for the ST variant at
-`byteIdentityLevel: 'semantic'` (declared above) — NOT `canonical-json` or
+`byteIdentityLevel: 'semantic'` (declared above) - NOT `canonical-json` or
 `byte`, because of the known lossy normalizations documented in this spec
 (UID regeneration, `enabled`/`disable` collapse to `disable`-only,
 `selective` boolean recomputation, `scene`/`before_example` collapse,
@@ -439,7 +439,7 @@ Property/unit tests beyond fixtures:
 - `normalizeLorebookPriority` fractional-vs-integer boundary test at
   exactly `1` and just below/above.
 - Fuzz test: random valid JSON objects with an `entries` object of numeric
-  keys and random extra unknown keys — assert `parse()` never throws and
+  keys and random extra unknown keys - assert `parse()` never throws and
   every unknown key surfaces in escrow.
 
 ## Non-goals

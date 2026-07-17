@@ -23,7 +23,7 @@ function highlight(
   kind: "del" | "ins",
 ): JSX.Element {
   if (!ranges || ranges.length === 0) {
-    return <span>{text || "—"}</span>;
+    return <span>{text || "-"}</span>;
   }
   const parts: JSX.Element[] = [];
   let cursor = 0;

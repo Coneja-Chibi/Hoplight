@@ -125,16 +125,16 @@ Import sink: Create page drops PNG/JSON and fills a short form. **No verified fi
 Gender/visibility/rating are site DB, not a portable bag. Do not fabricate paths.
 
 **Interop:** emit **Default CCv3** (or flat V1 subset) from ST path so Crushon can ingest. Rich
-CCv3 features (book, alts, extensions) are **lossy** on that host — export honesty, not a native schema.
+CCv3 features (book, alts, extensions) are **lossy** on that host - export honesty, not a native schema.
 
-## Janitor (MEDIUM — thin optional; not a bag jewel)
+## Janitor (MEDIUM - thin optional; not a bag jewel)
 
 Root: flat snake_case scrape root when someone has a JSON dump; many users only have ST PNG.
 
 - Prefer Default CCv3 / ST PNG (already covered).
 - If a scrape adapter ever lands: name, personality, scenario, first_message, first_messages[],
   example_dialogs, allow_proxy (toggle), custom_tags; RO: id, creator, catalog tags, visibility flags.
-- Advanced Scripts (ES5): sealed never-run; path often a **separate** entity — do not invent.
+- Advanced Scripts (ES5): sealed never-run; path often a **separate** entity - do not invent.
 - Profile CSS ≠ character bag (CssWorkshop `janitor-profile` pack for profile work).
 
 ## Pygmalion (HIGH - classic flat; **adapter landed** `formats/pygmalion/`)
@@ -169,5 +169,5 @@ under `extensions` for dropped/skipped platforms.
 
 - color (native control) -> reuse SwatchRow (compact hex). [Marinara]
 - CssWorkshop (assisted CSS; Chub cards + optional Janitor profile). **No** starter-prompts-list for C.AI (dropped).
-- SealedContent only if a verified Janitor script path ever lands — never invent.
+- SealedContent only if a verified Janitor script path ever lands - never invent.
 - expression-map / groups: sprites milestone (Lumiverse/Chub stubs until then).

@@ -1,16 +1,16 @@
 # Spec: Productions and History
 
-**Package:** `packages/core` (the `Production` manifest zod schema — `Production` is already
+**Package:** `packages/core` (the `Production` manifest zod schema - `Production` is already
 listed as a v1 canonical content type in canonical-model.md, so its schema lives where every
 other canonical type's schema lives, per ADR-005 and `docs/03-CONVENTIONS.md` "zod schemas are
-the single source of truth") + `packages/productions` (new — not yet enumerated in
+the single source of truth") + `packages/productions` (new - not yet enumerated in
 `docs/02-ARCHITECTURE.md`'s package list; the filesystem engine: entity file I/O, the
 content-addressed history store, restore, library mode, bare-file resolution; see OPEN QUESTION
 1) · **Milestone:** M0 (manifest schema + bare-file operation), M2 (history store, wired to the
 agent's staged-edit `commit` step), M5 (Test Stage / Studio consume production history directly,
 per the master plan (private planning notes) "M5 The Test Stage + Productions") · **Status:** draft
 **Depends on:** specs/formats/canonical-model.md (Entity envelope, `meta.hash`), ADR-005
-(escrow envelope) · **VAUDEVILLE reference:** none — this component has no VAUDEVILLE
+(escrow envelope) · **VAUDEVILLE reference:** none - this component has no VAUDEVILLE
 precedent; it is designed fresh from `docs/02-ARCHITECTURE.md`'s "Productions (project
 workspaces)" section, per the ground truth column in the production bible (private planning notes) line 63.
 
@@ -24,7 +24,7 @@ This component defines: the on-disk folder layout, the manifest schema, how enti
 serialized as files, how snapshots are taken and restored, "library mode" (a managed default
 production for users who never explicitly create one), and "bare-file operation" (commands that
 touch a single file with no production context at all). It exists so that (a) every studio
-surface — CLI, agent loop, future Studio app — has one shared, filesystem-only definition of "a
+surface - CLI, agent loop, future Studio app - has one shared, filesystem-only definition of "a
 project" to read and write against, and (b) the agent's staged-edit commits
 (`specs/engine/agent-loop.md`) have somewhere durable and undo-able to land, without forcing the
 user to know or use git. It is written for an implementing agent with no other context on this
@@ -72,14 +72,14 @@ Rules:
    (`character`, `lorebook`, `preset`, `persona`, `regex`) and `<slug>` is a kebab-case slug
    derived from the entity's display name at creation time (character `name`, lorebook `name`,
    etc.), with a numeric suffix (`-2`, `-3`, ...) appended on collision. The slug is a
-   convenience for humans browsing the folder; it is NEVER the entity identity — `Entity.id`
+   convenience for humans browsing the folder; it is NEVER the entity identity - `Entity.id`
    (the ulid from canonical-model.md) is. Renaming an entity's display name does not
    retroactively rename its file; a future `vaud rename` operation may, explicitly, as a
    file-move + manifest update in one step.
 3. `<ext>` is `json` for every content type except Persona, which is `md`
    (`docs/02-ARCHITECTURE.md` line 73 names the folder contents "human-readable JSON/MD files";
    the persona brief, the production bible (private planning notes) line 78, is the only content type whose spec
-   names a markdown house format — `*.persona.md`). The internal structure of a `.persona.md`
+   names a markdown house format - `*.persona.md`). The internal structure of a `.persona.md`
    file (front matter shape, how `{ id, type, data, escrow, meta }` maps onto a markdown
    document) is `specs/features/personas-system.md`'s responsibility, not this one; that spec is
    not yet written. OPEN QUESTION 2: does a `.persona.md` file carry its `Entity<Persona>`
@@ -92,18 +92,18 @@ Rules:
    operationally (`docs/02-ARCHITECTURE.md`: "a `.vaud/history/` ... no git dependency;
    git-friendly"). `.persona.md` files must follow the same git-friendly spirit (stable field
    order in any front matter, single trailing newline) once personas-system.md fixes their shape.
-5. A JSON entity file's body is exactly `{ id, type, data, escrow, meta }` — the `Entity<T>`
+5. A JSON entity file's body is exactly `{ id, type, data, escrow, meta }` - the `Entity<T>`
    envelope from canonical-model.md, serialized directly. There is no separate "front matter"
    or wrapper format for JSON entity types. (Persona is the one exception, per rule 3 above.)
 6. Binary assets (card art PNGs, sprite sheets) are stored as sibling files next to the entity
    that references them, or under `assets/<entity-slug>-<asset-kind>/` for multi-file assets
    (sprite sets). The canonical entity stores a typed, relative-path reference
    (`{ kind: "asset", path: "aria-stormwind.png" }`-shaped; the exact asset-reference schema is
-   canonical-model.md's responsibility, not this spec's — see canonical-model.md "Open items":
+   canonical-model.md's responsibility, not this spec's - see canonical-model.md "Open items":
    "canonical model stores typed references"). This spec only fixes where those referenced files
    physically live relative to the production root.
 7. `.vaud/` is the only folder this spec reserves. Nothing else the studio writes may live
-   outside `.vaud/` except entity files, assets, and `vaud.json` themselves — a production folder
+   outside `.vaud/` except entity files, assets, and `vaud.json` themselves - a production folder
    must stay legible to a human browsing it in a file manager or git client with `.vaud/`
    collapsed.
 
@@ -145,7 +145,7 @@ Rules:
    `vaud status` surface this as "N entities modified outside the studio" and reconcile the
    manifest on next write. This is the drift-detection mechanism; it does not block reads.
 3. `vaud.json` itself is never entity data and is never snapshotted as an "entity" in
-   `.vaud/history/` — but its own bytes ARE captured as part of every snapshot (see below), so
+   `.vaud/history/` - but its own bytes ARE captured as part of every snapshot (see below), so
    history still lets you recover a prior manifest state (e.g. after a bad bulk rename).
 4. Bumping `schemaVersion` is a breaking change to this spec; `packages/productions` must ship a
    migration function for every schema version it has ever produced, run automatically and
@@ -164,9 +164,9 @@ git-style into a two-character directory prefix and the remaining 62 characters 
 
 This spec uses two different hashes and both trace back to canonical-model.md's `meta.hash`
 ("content hash of data+escrow, for history"), refined here into two layers rather than
-contradicted: `meta.hash` remains the LOGICAL version identity of an entity's payload — computed
+contradicted: `meta.hash` remains the LOGICAL version identity of an entity's payload - computed
 by `packages/core` at parse/write time from `data + escrow` alone, independent of JSON formatting
-— and is what canonical-model.md means by "for history": it is what changes (or doesn't) when the
+- and is what canonical-model.md means by "for history": it is what changes (or doesn't) when the
 entity's actual content changes, and it is what `vaud.json`'s per-entity `hash` field and the
 drift check (Behavior, manifest rule 2) key on. The object-store hash is a PHYSICAL storage key
 one layer below that: it hashes the literal on-disk bytes of a tracked file (including JSON
@@ -200,7 +200,7 @@ filenames sort chronologically:
 ```
 
 `files` covers every tracked file's path -> object hash at that moment, including files unchanged
-since the parent snapshot (a full manifest, not a diff — cheap because of object dedup, and it
+since the parent snapshot (a full manifest, not a diff - cheap because of object dedup, and it
 means restoring to any single snapshot never requires walking its ancestor chain to reassemble
 state, unlike a naive diff-chain design).
 
@@ -209,17 +209,17 @@ empty for a production with no snapshots yet). Single pointer, no branches in v1
 
 **When snapshots are taken.** This spec defines the mechanism; callers decide when to invoke it:
 
-1. `trigger: "manual"` — the user explicitly runs a snapshot command (CLI grammar is
+1. `trigger: "manual"` - the user explicitly runs a snapshot command (CLI grammar is
    `specs/features/cli-converter.md`'s / a future CLI spec's concern, not this one).
-2. `trigger: "agent-commit"` — the agent loop's staged-edit lifecycle (draft -> validate ->
+2. `trigger: "agent-commit"` - the agent loop's staged-edit lifecycle (draft -> validate ->
    approve -> commit, `docs/02-ARCHITECTURE.md` "Staged edits only") calls `commitSnapshot()` as
    its `commit` step. `docs/02-ARCHITECTURE.md` line 65: "Every commit is a version in the
-   production's history" — this is the mechanism that makes that sentence true. The staged-edit
+   production's history" - this is the mechanism that makes that sentence true. The staged-edit
    envelope's own lifecycle and validation rules are `specs/engine/agent-loop.md`'s concern; this
    spec only defines the storage side of "commit."
-3. `trigger: "restore-safety"` — see Restore, below: an automatic snapshot taken immediately
+3. `trigger: "restore-safety"` - see Restore, below: an automatic snapshot taken immediately
    before a restore operation, so restores are themselves undo-able.
-4. `trigger: "import"` — a bulk import (`specs/formats/bundle-import.md`) that writes many
+4. `trigger: "import"` - a bulk import (`specs/formats/bundle-import.md`) that writes many
    entities at once takes one snapshot after the whole import completes, not one per file.
 5. Nothing in this spec defines a periodic/idle autosave trigger for M0-M5. OPEN QUESTION 3:
    should there be a debounced autosave snapshot for direct (non-agent) edits made through a
@@ -240,7 +240,7 @@ empty for a production with no snapshots yet). Single pointer, no branches in v1
    touched and nothing is deleted.
 4. Rewrites `vaud.json`'s `entities[]` hashes to match the restored files, and updates `HEAD` to
    point at a NEW snapshot representing "the state right after this restore" (not the old target
-   snapshot's id) — restoring is a forward-moving operation, like `git revert`, not a rewrite of
+   snapshot's id) - restoring is a forward-moving operation, like `git revert`, not a rewrite of
    history, so `.vaud/history/` itself is append-only and never has records deleted or mutated in
    place.
 
@@ -252,8 +252,8 @@ that the CLI creates on first use if it does not already exist, at a fixed path:
 `<OS user config/data dir>/vaud/library/` (exact base directory per-OS is
 `docs/03-CONVENTIONS.md`/a future CLI-conventions spec's concern; this spec only requires that it
 be a single, fixed, OS-conventional location, not something the user has to configure to get
-started). Library mode is a production like any other — same `vaud.json`, same folder layout,
-same `.vaud/history/` — with two differences:
+started). Library mode is a production like any other - same `vaud.json`, same folder layout,
+same `.vaud/history/` - with two differences:
 
 1. It is implicit: any command that needs "a production" and was not given one explicitly (no
    `--production <path>`, not run from inside a directory with an ancestor `vaud.json`) targets
@@ -276,13 +276,13 @@ performing a codec parse/serialize/inspect in memory, with:
 - No production discovery walk performed.
 
 This is bare-file operation, and it is the mode the M1 Converter promise ("works with zero AI
-key", the master plan (private planning notes)) depends on being fully independent of productions — a brand-new
+key", the master plan (private planning notes)) depends on being fully independent of productions - a brand-new
 user must be able to run `vaud convert` on a downloaded card with no production ever having been
 created. The dividing line: a command is bare-file if its inputs and outputs are both named
 explicitly as file paths on the command line and it does not invoke the agent loop. A command
 crosses into production territory (and therefore at minimum library mode) the moment it needs
 durable identity for an entity across runs (history, staged edits, an agent conversation that
-references "the character I imported yesterday") — anything needing `Entity.id` continuity needs
+references "the character I imported yesterday") - anything needing `Entity.id` continuity needs
 a manifest to hold that id, and bare-file operation never persists one.
 
 Edge case: an agent-loop session invoked in a directory with no ancestor `vaud.json`, asked to
@@ -290,7 +290,7 @@ edit a bare file the user just pointed it at (not inside any production). The ag
 commit step still needs somewhere to snapshot to. Per Library mode above, this falls back to
 library mode: the file is treated as if it had been imported into the library production at that
 path (a manifest entry is created, pointing at the file's actual on-disk path, which may be
-outside the library folder itself — the manifest's `path` field is not required to be a relative
+outside the library folder itself - the manifest's `path` field is not required to be a relative
 path grounded at the production root when the entity was reached via this fallback; OPEN QUESTION
 4: should such an out-of-tree entity reference instead be disallowed, forcing an explicit
 import/copy into the library folder before the agent may stage edits against it, which is safer
@@ -299,7 +299,7 @@ but adds friction to the single most common "just point the agent at a file" flo
 ## Public API sketch
 
 ```ts
-// packages/core — the Production canonical type, per canonical-model.md's v1 content-type list
+// packages/core - the Production canonical type, per canonical-model.md's v1 content-type list
 // ("Production (workspace manifest)") and ADR-005 ("canonical types ... zod schemas in
 // packages/core"). ZERO deps on other packages, per 02-ARCHITECTURE.md's packages table: this
 // schema describes the manifest's SHAPE only, no filesystem I/O.
@@ -324,7 +324,7 @@ export const ProductionManifestSchema = z.object({
 });
 export type ProductionManifest = z.infer<typeof ProductionManifestSchema>;
 
-// packages/productions — the filesystem engine. Depends on packages/core for the schemas above
+// packages/productions - the filesystem engine. Depends on packages/core for the schemas above
 // plus the Entity<T> envelope; owns all disk I/O, history, and production discovery.
 
 import type { Entity, ContentType } from "@vaudeville/core";
@@ -354,7 +354,7 @@ export function listEntities(production: Production, type?: ContentType): Produc
 export function readEntity<T>(production: Production, entityId: string): Promise<Entity<T>>;
 
 /** Writes a new or updated entity file, updates vaud.json's entities[] and updatedAt. Does NOT
- *  take a history snapshot itself — callers decide when to snapshot (see below). */
+ *  take a history snapshot itself - callers decide when to snapshot (see below). */
 export function writeEntity<T>(production: Production, entity: Entity<T>, opts?: {
   /** slug hint for a brand-new entity's filename; ignored for updates to an existing file */
   slugHint?: string;
@@ -423,7 +423,7 @@ export function readFileAtSnapshot(
    longer match `vaud.json`'s recorded `hash`.** Not an error. The next command that touches that
    entity re-reads it, recomputes `meta.hash` via `packages/core`'s parser, and updates the
    manifest. `vaud status`-equivalent surfaces "modified outside the studio" as information, not
-   as a blocking conflict — there is no merge step because there is nothing to merge against
+   as a blocking conflict - there is no merge step because there is nothing to merge against
    (single working copy, no concurrent-edit model in v1).
 3. **Two entities produce the same filename slug.** Numeric suffix disambiguation at creation
    time (`aria-stormwind.character.json`, `aria-stormwind-2.character.json`). Slugs are never
@@ -465,7 +465,7 @@ export function readFileAtSnapshot(
    `--production` flag or agent involvement). Stays bare-file: the command's own inputs/outputs
    are explicit file paths and it does not touch history or the manifest, REGARDLESS of the
    file's physical location. A file living inside a production folder does not automatically pull
-   every command touching it into production semantics — only production-discovery-aware commands
+   every command touching it into production semantics - only production-discovery-aware commands
    (the agent loop, explicit `vaud history`/`vaud snapshot` commands) do the upward manifest walk.
 10. **Restoring with `scope.entityIds` naming an id that is not present in the target snapshot at
     all** (e.g. the entity did not exist yet at that point in history). Report it as a no-op for
@@ -480,20 +480,20 @@ export function readFileAtSnapshot(
 ## Test plan
 
 - Fixtures required:
-  - `fixtures/productions/minimal/` — a hand-built production folder: `vaud.json` + one
+  - `fixtures/productions/minimal/` - a hand-built production folder: `vaud.json` + one
     character entity + one lorebook entity, no history yet. Exercises `resolveProduction`,
     `listEntities`, `readEntity`.
-  - `fixtures/productions/with-history/` — the above plus a `.vaud/history/` containing 3
+  - `fixtures/productions/with-history/` - the above plus a `.vaud/history/` containing 3
     linear snapshots (add character, edit character personality, add lorebook), each snapshot's
     `files` map hand-verified against its object-store contents. Exercises `listSnapshots`,
     `getSnapshot`, `readFileAtSnapshot`.
-  - `fixtures/productions/drifted/` — a production whose entity file bytes do not match
+  - `fixtures/productions/drifted/` - a production whose entity file bytes do not match
     `vaud.json`'s recorded `hash` (simulates an out-of-band edit). Exercises edge case 2.
-  - `fixtures/productions/corrupt-missing-manifest/` — `.vaud/history/` present, `vaud.json`
+  - `fixtures/productions/corrupt-missing-manifest/` - `.vaud/history/` present, `vaud.json`
     absent. Exercises edge case 1 (manifest reconstruction from latest snapshot).
-  - `fixtures/productions/schema-version-mismatch/` — `vaud.json` with `schemaVersion` set above
+  - `fixtures/productions/schema-version-mismatch/` - `vaud.json` with `schemaVersion` set above
     the current spec version. Exercises edge case 7.
-- Round-Trip Law applicability: none directly — this is not a format codec. However, entity files
+- Round-Trip Law applicability: none directly - this is not a format codec. However, entity files
   written by `writeEntity` and re-read by `readEntity` must produce a deep-equal `Entity<T>`
   (a narrower, in-package round-trip check, not the cross-format Law from
   escrow-and-roundtrip.md).
@@ -532,53 +532,53 @@ export function readFileAtSnapshot(
 - Does not implement garbage collection / pruning of old snapshots or unreferenced objects.
   Every snapshot is kept forever in M0-M5. A retention/prune feature is a future spec.
 - Does not define the CLI command grammar for snapshots/restore (`vaud snapshot`, `vaud history
-  log`, etc.) — that belongs to a CLI-facing spec (`specs/features/cli-converter.md` or a sibling)
+  log`, etc.) - that belongs to a CLI-facing spec (`specs/features/cli-converter.md` or a sibling)
   that calls the API sketched here.
 - Does not define locking or multi-process coordination beyond the content-addressed,
   write-if-absent property of the object store noted in edge case 6.
 - Does not define encryption or access control on production contents. Productions are plain
   files on the user's own disk; the key vault (`specs/engine/key-vault.md`) is the only component
   in this suite that handles secrets, and production files never contain provider keys.
-- Does not validate or resolve asset file existence as part of manifest sync (edge case 8) —
+- Does not validate or resolve asset file existence as part of manifest sync (edge case 8) -
   that is left to whichever component actually needs the asset bytes.
 
 ## Sources consulted
 
 - `docs\02-ARCHITECTURE.md` lines 33-40 (package
-  layout — no `packages/productions` currently listed, hence OPEN QUESTION 1), lines 62-69
-  ("The agent" — staged edits, "Every commit is a version in the production's history"), lines
-  71-76 ("Productions (project workspaces)" — the entire ground-truth paragraph this spec expands:
+  layout - no `packages/productions` currently listed, hence OPEN QUESTION 1), lines 62-69
+  ("The agent" - staged edits, "Every commit is a version in the production's history"), lines
+  71-76 ("Productions (project workspaces)" - the entire ground-truth paragraph this spec expands:
   "A production is a folder: human-readable JSON/MD files, a `vaud.json` manifest, and a
   `.vaud/history/` of content-addressed snapshots (no git dependency; git-friendly). Library mode
   ... covers loose-file users; `vaud` commands accept bare file paths too.").
 - `docs\the master plan (private planning notes)` line 40 ("v0.1 | The
-  Converter: works with zero AI key" — basis for bare-file operation needing no production),
-  line 55 ("M5 The Test Stage + Productions ... project workspaces with version history" —
+  Converter: works with zero AI key" - basis for bare-file operation needing no production),
+  line 55 ("M5 The Test Stage + Productions ... project workspaces with version history" -
   milestone placement).
 - `specs\formats\canonical-model.md` lines 13-29
   (the `Entity<T>` envelope, `id`/`meta.hash` fields this spec's manifest and object store build
-  on), lines 72-76 ("Open items" — asset handling, "binary assets stored beside the entity in
+  on), lines 72-76 ("Open items" - asset handling, "binary assets stored beside the entity in
   productions; canonical model stores typed references," directly informing the asset-placement
   rules above).
 - `specs\formats\escrow-and-roundtrip.md` (full file)
-  — read for the distinction between the cross-format Round-Trip Law and this spec's narrower
+  - read for the distinction between the cross-format Round-Trip Law and this spec's narrower
   in-package write/read round-trip, referenced in Test Plan.
 - `docs\decisions\ADR-005-canonical-model.md` (full
-  file) — escrow envelope rationale, confirms `Entity.escrow` is part of what gets serialized
+  file) - escrow envelope rationale, confirms `Entity.escrow` is part of what gets serialized
   into entity files (Behavior, "Entity files" rule 4).
 - `docs\decisions\ADR-006-ai-and-agent.md` lines 22-24
-  ("Staged edits with validate-before-commit; the agent never writes user files directly") —
+  ("Staged edits with validate-before-commit; the agent never writes user files directly") -
   confirms the agent-loop `commit` step this spec's `commitSnapshot`/`trigger: "agent-commit"`
   exists to serve.
 - `docs\03-CONVENTIONS.md` lines 18 (kebab-case file
-  naming — applied to entity-type folder names and slugs), lines 22-25 (fixture corpus / no
+  naming - applied to entity-type folder names and slugs), lines 22-25 (fixture corpus / no
   hand-edited fixtures convention, applied to this spec's Test Plan fixture list).
 - `docs\the production bible (private planning notes)` line 63 (this file's
   own brief row: "vaud.json manifest, folder layout, human-readable entity files, .vaud/history
   content-addressed snapshots, restore, library mode, bare-file operation" and ground truth
-  "none (design from architecture doc; git-friendly is a requirement)" — the explicit license to
+  "none (design from architecture doc; git-friendly is a requirement)" - the explicit license to
   design this component fresh rather than port it).
 - Git's object-model (content-addressed blobs keyed by hash, two-character directory sharding) is
   cited by name in the Behavior section as the design's closest public analogue, for an
-  implementing agent's intuition — not sourced from any file in this repo; general prior art
+  implementing agent's intuition - not sourced from any file in this repo; general prior art
   knowledge, not a VAUDEVILLE or Vaudeville Studios ground-truth claim.

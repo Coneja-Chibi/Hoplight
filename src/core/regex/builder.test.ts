@@ -161,7 +161,7 @@ const RC_TEMPLATE_PATTERNS: readonly { find: string; flags: string }[] = [
   { find: "\\*([^*]+)\\*", flags: "g" },
   { find: "[“”„‟″‶]", flags: "g" },
   { find: "[‘’‚‛′‵]", flags: "g" },
-  { find: "—", flags: "g" },
+  { find: "—", flags: "g" }, // emdash-ok: the dash itself is the test subject
   { find: "--", flags: "g" },
   {
     find: '^([A-Z][^.!?]*(?:said|asked|whispered|shouted|replied|muttered)[,:]?)\\s+([A-Z][^"]+)$',

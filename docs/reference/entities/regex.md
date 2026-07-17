@@ -4,8 +4,8 @@ The canonical find/replace-script entity. Source of truth for the types:
 `src/entities/regex/schema.ts`. A `CanonicalRegexSet` is `CanonicalEntity<"regex", RegexSetBody>`,
 stored under `studio/regex/<id>.json` (same hub-spoke shape as lorebook/persona/pack).
 
-**Studio authoring (SHIPPED - the R3 editor):** [REGEX-JEWEL-PLAN.md](../../REGEX-JEWEL-PLAN.md), cross-format
-survey [design/REGEX-FORMATS.md](../../../design/REGEX-FORMATS.md), wireframes
+**Studio authoring (SHIPPED - the R3 editor):** the regex jewel plan (private planning notes), cross-format
+survey the cross-format regex survey (private planning notes), wireframes
 `vs-regex-editor.html` (private design files) + `vs-regex-tryit.html` + `vs-regex-shelf-gallery.html`.
 Editor concept: [concepts/regex-editor.md](../concepts/regex-editor.md); engine concept:
 [concepts/regex-engine.md](../concepts/regex-engine.md).

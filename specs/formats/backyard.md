@@ -44,7 +44,7 @@ round-trip per the Law.
 
 | Source field(s) (first non-empty wins) | Canonical field | Native/escrow/dropped | Notes |
 |---|---|---|---|
-| `aiDisplayName`, `aiName`, `displayName`, `name` | `identity.name` | native | VAUD default `'Unnamed'` if all absent (backyard.ts:111-116). Studio should treat all-absent as a parse warning, not silently synthesize a name — see edge case 1. |
+| `aiDisplayName`, `aiName`, `displayName`, `name` | `identity.name` | native | VAUD default `'Unnamed'` if all absent (backyard.ts:111-116). Studio should treat all-absent as a parse warning, not silently synthesize a name - see edge case 1. |
 | `aiPersona`, `description`, `persona` | `description` | native | Placeholder-converted (see Macro conversion below). VAUD backyard.ts:119-120. |
 | `personality` | `personality` | native | Placeholder-converted. backyard.ts:123-124. |
 | `scenario` | `scenario` | native | Placeholder-converted. backyard.ts:127-128. |
@@ -53,10 +53,10 @@ round-trip per the Law.
 | `systemPrompt`, `system_prompt` | `systemPrompt` | native | Placeholder-converted. backyard.ts:139-140. |
 | `creator` | `identity.creator` | native | backyard.ts:155. |
 | `tags` | `tags` | native | backyard.ts:154, defaults to `[]`. |
-| `version` | `character_version` | native | VAUD stores it as `character_version` with `|| '1.0'` default (backyard.ts:156). canonical-model.md's Character source list names `character_version` explicitly as a field shared with CCv2/v3, so this maps native, not escrow — escrowing it would strand the value in Backyard-only escrow and drop it on a Backyard-to-CCv2/v3 conversion. Do not apply VAUD's `'1.0'` default on parse; leave the canonical field unset if the source omits `version` (inventing a value on parse contradicts the "nothing invented" posture of this suite), and only fall back to `'1.0'` on serialize-to-legacy-JSON when the canonical field is genuinely unset. |
-| — (no source) | `postHistoryInstructions` | dropped on parse, native on serialize-to-legacy is moot | VAUD explicitly sets `post_history_instructions: ''` with comment "Backyard doesn't have this field" (backyard.ts:151). Canonical field stays unset (not empty string) after parse. |
-| — (no source) | `creatorNotes` | n/a | VAUD sets `''` (backyard.ts:152); canonical field stays unset. |
-| — (no source) | `alternateGreetings[]` | n/a | VAUD sets `[]` (backyard.ts:153); canonical field stays empty, not escrowed (there is nothing to escrow — the source format has no concept of alternate greetings). |
+| `version` | `character_version` | native | VAUD stores it as `character_version` with `|| '1.0'` default (backyard.ts:156). canonical-model.md's Character source list names `character_version` explicitly as a field shared with CCv2/v3, so this maps native, not escrow - escrowing it would strand the value in Backyard-only escrow and drop it on a Backyard-to-CCv2/v3 conversion. Do not apply VAUD's `'1.0'` default on parse; leave the canonical field unset if the source omits `version` (inventing a value on parse contradicts the "nothing invented" posture of this suite), and only fall back to `'1.0'` on serialize-to-legacy-JSON when the canonical field is genuinely unset. |
+| - (no source) | `postHistoryInstructions` | dropped on parse, native on serialize-to-legacy is moot | VAUD explicitly sets `post_history_instructions: ''` with comment "Backyard doesn't have this field" (backyard.ts:151). Canonical field stays unset (not empty string) after parse. |
+| - (no source) | `creatorNotes` | n/a | VAUD sets `''` (backyard.ts:152); canonical field stays unset. |
+| - (no source) | `alternateGreetings[]` | n/a | VAUD sets `[]` (backyard.ts:153); canonical field stays empty, not escrowed (there is nothing to escrow - the source format has no concept of alternate greetings). |
 | any other key on the object | escrow `backyard.fields.<key>` | escrow | `BackyardCharacter` is typed with an index signature `[key: string]: unknown` (backyard.ts:54), so any unrecognized key (e.g. Faraday-specific fields not enumerated by VAUD) must be captured, not silently dropped. |
 
 **Serialize (canonical to legacy JSON), from VAUD `serializeToBackyard`
@@ -71,7 +71,7 @@ round-trip per the Law.
 | `firstMessage` | `firstMessage` | Placeholder-converted back. |
 | `exampleDialogue` | `customDialogue` | Placeholder-converted back. |
 | `systemPrompt` | `systemPrompt` | Placeholder-converted back. |
-| `identity.creator` or `options.creatorName` override | `creator` | backyard.ts:206,217: caller-supplied `creatorName` option takes precedence over the character's own creator field in VAUD's signature — Vaudeville Studios should default to the character's creator and treat the option as an explicit override, not silently prefer it. |
+| `identity.creator` or `options.creatorName` override | `creator` | backyard.ts:206,217: caller-supplied `creatorName` option takes precedence over the character's own creator field in VAUD's signature - Vaudeville Studios should default to the character's creator and treat the option as an explicit override, not silently prefer it. |
 | `tags` | `tags` | |
 | `character_version` if set, else `'1.0'` | `version` | Canonical field now maps native (see parse table above), so this is a direct write, not an escrow merge. VAUD's hardcoded `'1.0'` (backyard.ts:219) is the fallback only when the canonical field is unset (e.g. character built fresh in the studio, never carried a `version`). |
 | `postHistoryInstructions`, `creatorNotes`, `alternateGreetings[]`, `depthInjections[]`, embedded lorebook reference | none | Legacy Backyard JSON has no target field for any of these. If the canonical character carries them (e.g. it round-tripped through a CCv2/v3 source first), the serializer reports them under `dropped` per escrow rule 3 (there is no legacy-Backyard extension mechanism to carry them in). |
@@ -89,7 +89,7 @@ object with no `description` is common enough in ad hoc community JSON that it c
 misfire against non-Backyard sources. This detector must run **after** `chara_card_v2`
 /`v3` and RC `rcpersona` detection in the content-detector's priority chain (see
 content-detection.md) so that a CCv2-shaped object with a stray `persona` key never
-gets misclassified. VAUD does not enforce this ordering inside `backyard.ts` itself —
+gets misclassified. VAUD does not enforce this ordering inside `backyard.ts` itself -
 it is the caller's (content-detector's) responsibility, so the Vaudeville Studios
 detector must encode the ordering explicitly rather than relying on this module.
 
@@ -110,7 +110,7 @@ Serialize direction (Tavern-style back to Backyard):
 ```
 
 This conversion is **not a bijection** and is a direct Round-Trip Law risk (see edge
-cases 4-6). `{{char}}` maps back to `{character}`, never to `{char}` — so a source
+cases 4-6). `{{char}}` maps back to `{character}`, never to `{char}` - so a source
 text containing literal `{char}` produces `{{char}}` on parse, which then produces
 `{character}` on serialize, not `{char}`. The single-brace `{char}` variant is
 parse-only in VAUD's implementation; there is no serialize-side inverse. Vaudeville
@@ -123,7 +123,7 @@ raw pre-conversion text for each converted field goes into
 `escrow.backyard.fields.raw.<fieldName>`.
 
 This raw-text-preference scheme is a codec-specific refinement layered on top of
-escrow rule 4, not a direct application of it — rule 4 (escrow-and-roundtrip.md)
+escrow rule 4, not a direct application of it - rule 4 (escrow-and-roundtrip.md)
 says canonical wins outright when a canonical field and an escrowed field would
 write to the same output location; it does not itself define a change-detection
 mechanism. The mechanism this codec needs, and must implement explicitly: on
@@ -149,7 +149,7 @@ once written and this spec updated to match.
 
 Source: ahoylabs/byaf spec v1 (public, https://github.com/ahoylabs/byaf), fetched
 2026-07-02. VAUDEVILLE has **no implementation** of this format (its only Backyard
-codec is the legacy JSON above) — this section is written entirely from the public
+codec is the legacy JSON above) - this section is written entirely from the public
 spec, per the brief's allowance ("note where VAUD lacks an implementation, OPEN
 QUESTIONs acceptable").
 
@@ -218,22 +218,22 @@ importer (`src/byaf.js`, SillyTavern/SillyTavern repo, fetched 2026-07-02):
 
 | Source | Canonical field | Native/escrow/dropped | Notes |
 |---|---|---|---|
-| `character.displayName` (fallback `character.name`) | `identity.name` | native | Spec says `displayName` is "the full name"; `name` is "shorthand/nickname." VAUD's own precedent for the legacy codec prefers display-style names first, so this spec follows the same precedence. OPEN QUESTION: whether `name` should instead map to a canonical nickname field once the canonical Character's identity block gains one (canonical-model.md only lists `full_name`, not nickname, in the RC-derived detail set; CCv3 has a dedicated `nickname` field per chara-card-v3.md's brief — reconcile there). |
-| `character.persona` | `description` | native | Single persona field with no personality/description split; do not fan it out into both canonical fields — leave `personality` unset. |
+| `character.displayName` (fallback `character.name`) | `identity.name` | native | Spec says `displayName` is "the full name"; `name` is "shorthand/nickname." VAUD's own precedent for the legacy codec prefers display-style names first, so this spec follows the same precedence. OPEN QUESTION: whether `name` should instead map to a canonical nickname field once the canonical Character's identity block gains one (canonical-model.md only lists `full_name`, not nickname, in the RC-derived detail set; CCv3 has a dedicated `nickname` field per chara-card-v3.md's brief - reconcile there). |
+| `character.persona` | `description` | native | Single persona field with no personality/description split; do not fan it out into both canonical fields - leave `personality` unset. |
 | `character.isNSFW` | content-rating field (RC surface: canonical-model.md "content rating") | native, with caveat | See edge case 9: the ahoylabs schema is a boolean, coarser than RC's graded content rating. Map `true` to the studio's most restrictive tier and `false` to unrated/general, and record the boolean original in escrow so no information is invented going the other way. |
 | `character.loreItems[]` | referenced canonical `Lorebook` (`LorebookEntry[]`), per canonical-model.md rule 3 (embedded lorebook is a reference, not inline) | native | See Lorebook mapping below. |
 | `character.images[]` | asset references (canonical-model.md "Open items": binary assets stored beside the entity, canonical model stores typed references) | native | `label` maps to the asset's display label; `path` becomes the on-disk asset reference inside the production. |
-| `character.createdAt` / `updatedAt` | `meta.importedAt` is NOT this — these are source timestamps, not import timestamps | escrow `byaf.fields.character.createdAt/updatedAt` | Canonical `meta.importedAt` (canonical-model.md) is set by Vaudeville Studios at parse time; the source's own timestamps are provenance, not the same field, so they escrow. |
+| `character.createdAt` / `updatedAt` | `meta.importedAt` is NOT this - these are source timestamps, not import timestamps | escrow `byaf.fields.character.createdAt/updatedAt` | Canonical `meta.importedAt` (canonical-model.md) is set by Vaudeville Studios at parse time; the source's own timestamps are provenance, not the same field, so they escrow. |
 | `manifest.author.name` | `identity.creator` | native | |
 | `manifest.author.backyardURL` | escrow `byaf.fields.manifest.author.backyardURL` | escrow | ST's importer folds this into `creator_notes` as a convenience (see below); this spec keeps it in escrow instead and lets the studio's UI surface it, since folding provenance into a free-text notes field is a lossy, one-way convention this spec does not want to inherit for round-trip purposes. |
 | `scenarios[0].narrative` | `scenario` | native | Precedent: SillyTavern's `ByafParser.getCharacterCard()` maps `narrative` to the v2 card's `scenario` field. |
 | `scenarios[0].firstMessages[0].text` | `firstMessage` | native | `firstMessages` is capped at 0-1 items per the schema (`maxItems: 1`), so there is at most one first message per scenario. |
 | `scenarios[1..n].firstMessages[0].text` (every scenario after the first) | `alternateGreetings[]` | native | Precedent: the SillyTavern BYAF discussion (SillyTavern/SillyTavern#4691) states "the character now populates its alt greetings from all possible scenario's first messages." A `.byaf` archive with multiple scenario files becomes one canonical Character whose extra scenarios' openings fold into `alternateGreetings`. |
-| `scenarios[0].exampleMessages[]` (`{characterID, text}[]`) | `exampleDialogue` | native, with format note | Canonical `exampleDialogue` is understood elsewhere in this suite as CCv2/v3-style `<START>`-block text (see chara-card-v2.md brief). This codec must join the `characterID`-tagged message list into that convention; see edge case 10 for the exact join rule (OPEN QUESTION on speaker-label formatting, since neither the byaf spec nor the ST importer document a canonical text join format — ST keeps them as separate structured entries internally). |
-| `scenarios[0].formattingInstructions` | `systemPrompt` | native, precedent-based | Precedent: SillyTavern's importer maps `formattingInstructions` to `system_prompt`. An equally defensible reading is `postHistoryInstructions` (it describes desired *output* formatting, which is usually a post-history concern) — this spec follows the ST precedent since it is the only real-world mapping decision on record, but flags the alternative. OPEN QUESTION: confirm against a real Backyard export once one is added to the fixture corpus. |
-| `scenarios[1..n]` (every non-primary scenario, in full) | escrow `byaf.fields.scenarios[]` (whole object) | escrow | Required for the Round-Trip Law — see Behavior note on multi-scenario below. |
+| `scenarios[0].exampleMessages[]` (`{characterID, text}[]`) | `exampleDialogue` | native, with format note | Canonical `exampleDialogue` is understood elsewhere in this suite as CCv2/v3-style `<START>`-block text (see chara-card-v2.md brief). This codec must join the `characterID`-tagged message list into that convention; see edge case 10 for the exact join rule (OPEN QUESTION on speaker-label formatting, since neither the byaf spec nor the ST importer document a canonical text join format - ST keeps them as separate structured entries internally). |
+| `scenarios[0].formattingInstructions` | `systemPrompt` | native, precedent-based | Precedent: SillyTavern's importer maps `formattingInstructions` to `system_prompt`. An equally defensible reading is `postHistoryInstructions` (it describes desired *output* formatting, which is usually a post-history concern) - this spec follows the ST precedent since it is the only real-world mapping decision on record, but flags the alternative. OPEN QUESTION: confirm against a real Backyard export once one is added to the fixture corpus. |
+| `scenarios[1..n]` (every non-primary scenario, in full) | escrow `byaf.fields.scenarios[]` (whole object) | escrow | Required for the Round-Trip Law - see Behavior note on multi-scenario below. |
 | `scenarios[0].messages[]` (chat transcript) | escrow `byaf.fields.scenarios[0].messages` | escrow | Chat history has no canonical Character home; it is conversation data, not card-authoring data. |
-| `scenarios[0].model`, `.promptTemplate`, `.grammar`, `.backgroundImage`, `.title`, `.canDeleteExampleMessages`, `.minP`, `.minPEnabled`, `.temperature`, `.repeatPenalty`, `.repeatLastN`, `.topK`, `.topP` | escrow `byaf.fields.scenarios[0].<field>` | escrow | Sampler/runtime settings have no canonical Character home (canonical `Preset` is a separate content type per canonical-model.md; a future ticket may map these into a companion `Preset` entity, but that is out of scope for this spec — see Non-goals). |
+| `scenarios[0].model`, `.promptTemplate`, `.grammar`, `.backgroundImage`, `.title`, `.canDeleteExampleMessages`, `.minP`, `.minPEnabled`, `.temperature`, `.repeatPenalty`, `.repeatLastN`, `.topK`, `.topP` | escrow `byaf.fields.scenarios[0].<field>` | escrow | Sampler/runtime settings have no canonical Character home (canonical `Preset` is a separate content type per canonical-model.md; a future ticket may map these into a companion `Preset` entity, but that is out of scope for this spec - see Non-goals). |
 | `character.id`, `manifest.schemaVersion`, `character.schemaVersion`, any `$schema` pointers | escrow `byaf.fields.*` | escrow | Preserved for exact archive reconstruction. |
 
 **Lorebook mapping (`loreItems[]` to canonical `LorebookEntry[]`):**
@@ -249,7 +249,7 @@ Precedent, from SillyTavern's `ByafParser.convertCharacterBook()`:
 - No selectiveLogic, secondary keys, position, depth, probability, or budget data
   exists in the source; those canonical `LorebookEntry` fields (st-worldinfo.md,
   rolecall-lorebook.md) stay at their canonical defaults, not escrowed (there is
-  nothing format-specific to preserve — the absence is total, not a dropped value).
+  nothing format-specific to preserve - the absence is total, not a dropped value).
 
 **Multi-scenario handling:** a `.byaf` archive requires exactly one character
 manifest but allows any number >= 1 of scenario files. This codec treats
@@ -267,7 +267,7 @@ schema (`schemaVersion: 1`, `characters`, `scenarios` arrays present). This is
 distinct in kind from every other codec in this suite (which detect from JSON object
 shape or PNG chunk keyword) because the input is a ZIP container, not a bare JSON
 payload or PNG. It belongs in the same detection tier as `charx.md`'s `.charx` ZIP
-detection (both are ZIP-container formats) — see bundle-import.md and
+detection (both are ZIP-container formats) - see bundle-import.md and
 content-detection.md for how ZIP-container detection is ordered relative to
 mixed-content bundle detection (a `.byaf` is not a Vaudeville bundle export and must
 not be misclassified as one).
@@ -281,9 +281,9 @@ this claim is from an AI-generated summary of fetched page text, not a byte-leve
 inspection of an actual file or the parsing source code, and it is not corroborated
 by any VAUDEVILLE source (VAUD's own PNG codec, `library/png-parser.ts`, handles only
 tEXt-chunk keywords per png-embedding.md's brief, and `backyard.ts` in this repo only
-ever consumes/produces a JSON string — it has no PNG-reading code path of its own).
+ever consumes/produces a JSON string - it has no PNG-reading code path of its own).
 If true, this would mean legacy Backyard PNGs are NOT read by Vaudeville Studios'
-tEXt-chunk-based PNG codec at all and need a separate EXIF-reading code path — a
+tEXt-chunk-based PNG codec at all and need a separate EXIF-reading code path - a
 materially different implementation shape from every other PNG-embedded format in
 this suite. Do not implement PNG-embedded Backyard support until this is confirmed
 against a real sample file (add one to the fixture corpus and inspect its bytes
@@ -349,7 +349,7 @@ Notes on this surface, given the dependency rule (`core <- formats <- everything
 02-ARCHITECTURE.md): `parseBackyard`/`serializeBackyard` import only `@vaud/core`
 types. Because `.byaf` bundles a Character, an optional Lorebook, and optional binary
 assets, this codec's result is not a single `Entity<T>` the way a chara_card_v2 JSON
-parse is — it is a small bundle, matching how canonical-model.md already treats an
+parse is - it is a small bundle, matching how canonical-model.md already treats an
 embedded lorebook as "a REFERENCE to a canonical Lorebook entity" rather than an
 inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
 
@@ -366,7 +366,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
 3. Legacy JSON with neither `firstMessage`/`greeting`/`first_mes` present. VAUD
    emits `'No first message found'` (backyard.ts:163-164); preserve.
 4. Legacy JSON field containing literal `{char}` (single brace). Parses to
-   `{{char}}`; naive serialize-back produces `{character}`, not `{char}` — a
+   `{{char}}`; naive serialize-back produces `{character}`, not `{char}` - a
    round-trip failure unless the raw pre-conversion text is escrowed (see Behavior
    A, Macro conversion). Required fixture.
 5. Legacy JSON field containing `{{char}}` literally (already double-braced, e.g. a
@@ -374,7 +374,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
    Trace it through VAUD's `backyardToTavernPlaceholders` regex chain
    (backyard.ts:69-71) in the order it actually runs: the first two replaces
    (`{character}`, `{user}`) do not match. The third, `/\{char\}/gi -> '{{char}}'`,
-   DOES match — it matches the inner `{char}` substring found inside `{{char}}`
+   DOES match - it matches the inner `{char}` substring found inside `{{char}}`
    (the substring at offset 1-6 of `{{char}}` is exactly `{char}`), so the whole
    string mutates to `{{{char}}}` (three opening braces, three closing) at PARSE
    time, not serialize time. This is worse than a serialize-side rewrite: it is a
@@ -383,7 +383,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
    `tavernToBackyardPlaceholders` pass on `{{{char}}}` matches the inner `{{char}}`
    token (its regex is `/\{\{char\}\}/gi`) and produces `{{character}}` (note the
    doubled outer brace is NOT consumed by that regex), not a clean `{character}` and
-   not the original `{{char}}` — a compounding, not merely lossy, transformation.
+   not the original `{{char}}` - a compounding, not merely lossy, transformation.
    Required fixture; the fixture's `expected.json` must encode this exact
    `{{char}}` -> `{{{char}}}` parse-time behavior, not a "left untouched" assumption.
    Document as a known non-bijection unless raw-text escrow (Behavior A) is applied,
@@ -392,9 +392,9 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
    after parse, but serialize-to-origin restores the untouched raw text per the
    recompute-and-compare mechanism in Behavior A, and only editing surfaces that
    read the canonical field directly, not through serialize-to-origin, would see the
-   corrupted form — flag this as a UI-facing concern for whatever surface displays
+   corrupted form - flag this as a UI-facing concern for whatever surface displays
    canonical `description`/etc. text for a round-tripped Backyard character).
-6. Legacy JSON field containing `{User}` mixed case, or `{Character}` — VAUD's
+6. Legacy JSON field containing `{User}` mixed case, or `{Character}` - VAUD's
    regexes are case-insensitive (`/gi` flag, backyard.ts:69-71) so casing is
    normalized away on parse; serialize-back always produces lowercase
    `{character}`/`{user}` (backyard.ts:82-83), which is a second non-bijective path
@@ -417,7 +417,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
     `{characterID, text}` with no explicit format for turning it into the
     `<START>`-block prose convention canonical `exampleDialogue` uses elsewhere in
     this suite. OPEN QUESTION: exact join template (e.g. `{{char}}: text` per line,
-    blank-line-separated turns, or something else) — needs a real fixture to confirm
+    blank-line-separated turns, or something else) - needs a real fixture to confirm
     against how Backyard's own UI renders these back, or against SillyTavern's
     ByafParser output byte-for-byte. Until resolved, implement the join as
     `${characterID}: ${text}` lines separated by newlines (matching the `#{character}:`
@@ -425,12 +425,12 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
     per Behavior A's ST-precedent macro table) and flag it a warning-level assumption
     in the parse report, not a silent default.
 11. `.byaf` archive with zero scenario files. The manifest schema requires
-    `minItems: 1` on `scenarios`, so a conforming archive cannot have zero — but a
+    `minItems: 1` on `scenarios`, so a conforming archive cannot have zero - but a
     hand-edited or corrupted archive might. Treat as a validation failure (edge
     case 8's handling), not a soft fallback to an empty scenario.
 12. `.byaf` `loreItems[]` with an empty `key` or `value` string (schema allows any
     string, including empty). Parse it as a canonical entry with empty
-    keys/content rather than dropping it — dropping would violate "nothing is
+    keys/content rather than dropping it - dropping would violate "nothing is
     dropped, ever, at parse time" (escrow-and-roundtrip.md rule 1). Flag as a
     warning.
 13. `.byaf` `images[]` entries whose declared `path` does not resolve to an actual
@@ -454,40 +454,40 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
 ## Test plan
 
 - Fixtures required:
-  - `fixtures/backyard/legacy-json/minimal.json` — only `aiName` + `aiPersona`,
+  - `fixtures/backyard/legacy-json/minimal.json` - only `aiName` + `aiPersona`,
     exercises the "mostly empty" path and warnings 2/3.
-  - `fixtures/backyard/legacy-json/full-fields.json` — every field VAUD's
+  - `fixtures/backyard/legacy-json/full-fields.json` - every field VAUD's
     `BackyardCharacter` interface names populated, including `persona` (not
     `description`) to exercise the detector's weak fifth clause.
-  - `fixtures/backyard/legacy-json/single-brace-char.json` — exercises edge case 4
+  - `fixtures/backyard/legacy-json/single-brace-char.json` - exercises edge case 4
     (`{char}` literal).
-  - `fixtures/backyard/legacy-json/already-double-braced.json` — exercises edge
+  - `fixtures/backyard/legacy-json/already-double-braced.json` - exercises edge
     case 5.
-  - `fixtures/backyard/legacy-json/mixed-case-placeholders.json` — exercises edge
+  - `fixtures/backyard/legacy-json/mixed-case-placeholders.json` - exercises edge
     case 6.
-  - `fixtures/backyard/legacy-json/unknown-extra-fields.json` — exercises edge
+  - `fixtures/backyard/legacy-json/unknown-extra-fields.json` - exercises edge
     case 7 (escrow completeness).
-  - `fixtures/backyard/legacy-json/no-name.json` — exercises edge case 1.
-  - `fixtures/backyard/byaf/single-scenario-minimal.byaf` — one character, one
+  - `fixtures/backyard/legacy-json/no-name.json` - exercises edge case 1.
+  - `fixtures/backyard/byaf/single-scenario-minimal.byaf` - one character, one
     scenario, no lore items, no images.
-  - `fixtures/backyard/byaf/full-lorebook.byaf` — multiple `loreItems` with
+  - `fixtures/backyard/byaf/full-lorebook.byaf` - multiple `loreItems` with
     comma-separated multi-keyword entries, exercising the Lorebook mapping.
-  - `fixtures/backyard/byaf/multi-scenario.byaf` — 3+ scenarios, exercising
+  - `fixtures/backyard/byaf/multi-scenario.byaf` - 3+ scenarios, exercising
     `alternateGreetings` folding and full-scenario escrow (edge case list item on
     multi-scenario handling).
-  - `fixtures/backyard/byaf/with-images.byaf` — 2+ images, exercising asset
+  - `fixtures/backyard/byaf/with-images.byaf` - 2+ images, exercising asset
     reference mapping and edge case 13 (one entry deliberately pointing at a
     missing path).
-  - `fixtures/backyard/byaf/corrupted-manifest.byaf` — references a
+  - `fixtures/backyard/byaf/corrupted-manifest.byaf` - references a
     nonexistent character path, exercising edge case 8/11.
-  - `fixtures/backyard/byaf/example-messages.byaf` — populated `exampleMessages[]`,
+  - `fixtures/backyard/byaf/example-messages.byaf` - populated `exampleMessages[]`,
     exercising edge case 10's join format (marked provisional pending the OPEN
     QUESTION).
 - Round-Trip Law applicability:
   - Legacy JSON: byte-identity level `canonical-json` is achievable for fields with
     no placeholder content; for any fixture containing placeholder text, byte-identity
     level is `semantic` only, gated on raw-text escrow (Behavior A) actually being
-    implemented — until then, those fixtures are expected to FAIL byte/canonical-json
+    implemented - until then, those fixtures are expected to FAIL byte/canonical-json
     comparison and must be tracked as known failures, not silently excluded from the
     harness.
   - `.byaf`: byte-identity level `semantic` at most. A re-zipped archive will not be
@@ -521,7 +521,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
   support (see the OPEN QUESTION in Behavior). No PNG detection or parsing code
   should be written against this spec's guesses.
 - This spec does not cover Backyard's live import-from-URL/hub flow (fetching a
-  character from `backyard.ai/hub/...`) — only the two on-disk export shapes.
+  character from `backyard.ai/hub/...`) - only the two on-disk export shapes.
 
 ## Sources consulted
 
@@ -547,23 +547,23 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
     fetch-and-summarize; not read as raw bytes directly for this one file, unlike
     the manifest/character schemas which were retrieved verbatim)
 - SillyTavern/SillyTavern GitHub discussion #4691, "Full support for BYAF import.",
-  fetched 2026-07-02 (https://github.com/SillyTavern/SillyTavern/discussions/4691) —
+  fetched 2026-07-02 (https://github.com/SillyTavern/SillyTavern/discussions/4691) -
   source of the multi-scenario / alternate-greetings folding behavior and the
   pointer to the ahoylabs/byaf spec.
 - SillyTavern/SillyTavern `src/byaf.js` (release branch), fetched 2026-07-02
-  (`https://raw.githubusercontent.com/SillyTavern/SillyTavern/release/src/byaf.js`) —
+  (`https://raw.githubusercontent.com/SillyTavern/SillyTavern/release/src/byaf.js`) -
   source of the `replaceMacros()` regex table, the `getCharacterCard()` field
   mapping table, and the `convertCharacterBook()` loreItems-to-character-book
   conversion described above. Retrieved via fetch-and-summarize, not raw bytes;
   treat the exact regex ordering as reported, not independently verified byte-for-
   byte, and re-verify against the actual file before implementing.
-- `https://backyard.ai/docs/feature-guides/import-export` — checked, but the page
+- `https://backyard.ai/docs/feature-guides/import-export` - checked, but the page
   states only "Docs on imports and exports coming soon" as of the fetch date; no
   usable content.
-- `https://backyard.ai/docs/creating-characters/lorebooks` — general lorebook
+- `https://backyard.ai/docs/creating-characters/lorebooks` - general lorebook
   behavior description (keyword/value pairs, 384-token combined budget, case-
   insensitive keywords) used only as corroborating context, not as a field-map
   source (it describes the product UI, not the export JSON shape).
-- GitHub `EliseWindbloom/Convert-BackyardAI-card-to-TavernAI-png-json` — checked as
+- GitHub `EliseWindbloom/Convert-BackyardAI-card-to-TavernAI-png-json` - checked as
   a secondary community source; its field list matches VAUD's legacy-JSON field set
   and added no new information.

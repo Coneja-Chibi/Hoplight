@@ -9,8 +9,8 @@ Test Stage / prompt assembly trace) · **Status:** draft
 
 ## Purpose
 
-Every part of the studio that reports a token count — lorebook budgets, preset/prompt assembly
-traces, the CLI's `inspect`/`convert` reports, the Test Stage's cost line — needs a single, honest
+Every part of the studio that reports a token count - lorebook budgets, preset/prompt assembly
+traces, the CLI's `inspect`/`convert` reports, the Test Stage's cost line - needs a single, honest
 way to turn text into a number. This component defines that contract: a small `TokenCounter`
 interface with zero dependencies in `core`, plus the concrete counting strategy the studio ships
 with (a local BPE approximation, with room for a provider-exact count when a network call is
@@ -36,7 +36,7 @@ is the uncached variant; the other two add an LRU-ish cache, VVS-518). All three
    anywhere in VAUDEVILLE.
 3. Fall back to `Math.ceil(text.length / 4)` (the universal "4 chars ≈ 1 token" heuristic) if
    `encode()` throws (`packages/lorebook/src/tokenizer.ts:38-44`).
-4. Cache counts by exact string match, not by (string, model) pair — because there is only one
+4. Cache counts by exact string match, not by (string, model) pair - because there is only one
    model family (`packages/lorebook/src/tokenizer.ts:23-24,32-37`, `TOKEN_COUNT_CACHE`, max 1000
    entries, FIFO-ish eviction by re-inserting on hit to approximate LRU with a `Map`'s insertion
    order).
@@ -75,8 +75,8 @@ usage. Nothing in VAUDEVILLE calls a provider-side token-counting endpoint (e.g.
    Gemini, Ollama, OpenAI-compatible). Each has its own real tokenizer (Anthropic's is not public;
    OpenAI's is `cl100k_base`/`o200k_base` depending on model; Gemini's is different again). No
    single local library counts all of them exactly.
-3. VAUDEVILLE's own resolution to this problem — one `cl100k_base`-based approximation used
-   everywhere, documented as approximate, overridden by provider-reported usage after the fact — is
+3. VAUDEVILLE's own resolution to this problem - one `cl100k_base`-based approximation used
+   everywhere, documented as approximate, overridden by provider-reported usage after the fact - is
    the proven, ship-tested answer. This spec adopts it as the default strategy and additionally
    defines an opt-in exact path for callers that have a configured provider and want precision (the
    Test Stage cost line, `vaud inspect --exact-tokens`), consistent with the "honest counts, not
@@ -87,7 +87,7 @@ usage. Nothing in VAUDEVILLE calls a provider-side token-counting endpoint (e.g.
 `packages/core` defines the `TokenCounter` interface (canonical-model.md:66-70 already establishes
 this exists in `core`; this spec fills in its shape and the studio's default implementation, which
 lives outside `core` per the "ZERO deps on other packages" rule for `core`, docs/02-ARCHITECTURE.md
-packages table). Canonical entities never store token counts — they are always computed on demand
+packages table). Canonical entities never store token counts - they are always computed on demand
 through a `TokenCounter`.
 
 ### Counting strategies (model family selection)
@@ -98,7 +98,7 @@ through a `TokenCounter`.
 | `provider-exact` | The configured provider's own counting endpoint or local exact tokenizer, when the provider adapter (`packages/ai`) exposes one | Requires a configured BYOK key and network access | Exact for that provider/model | Test Stage cost line, prompt-assembly trace when a model is selected, `vaud inspect --exact-tokens <model>` |
 | `charLength` | `Math.ceil(text.length / 4)` | Always | Coarsest; used only when `approximate` throws | Internal fallback inside `approximate`, never surfaced as a first-class strategy choice |
 
-`provider-exact` is OPEN QUESTION in scope for M0/M1 (no provider adapters exist yet — `packages/ai`
+`provider-exact` is OPEN QUESTION in scope for M0/M1 (no provider adapters exist yet - `packages/ai`
 is an M2 deliverable per the master plan (private planning notes) milestones). This spec defines the interface shape so
 `packages/ai` can implement it later without an interface break; M0/M1 ship `approximate` only.
 
@@ -109,7 +109,7 @@ routing by "model family" in M0/M1 is a no-op: every `model` argument maps to th
 interface still accepts an optional `model` hint so that (a) call sites are already shaped correctly
 for M2's `provider-exact` upgrade, and (b) the report can honestly print which model, if any, the
 count was estimated *for* versus computed with a generic approximation. `TokenCounter.count` never
-throws on an unrecognized model string — it always falls through to the generic approximation and
+throws on an unrecognized model string - it always falls through to the generic approximation and
 records that fact in `TokenCountResult.exact = false`.
 
 ### Caching
@@ -119,7 +119,7 @@ expensive under repeated re-tokenization of unchanged text (profiled at ~27% of 
 fold-device UI that re-renders live token counts during streaming). The studio's counter must
 reproduce this optimization:
 
-- Cache key: the exact source string (not hashed, not truncated) — VAUDEVILLE caches on `text`
+- Cache key: the exact source string (not hashed, not truncated) - VAUDEVILLE caches on `text`
   alone, not `(text, model)`, which is only valid because it has one encoder; this spec's cache key
   is `(text, strategyId)` where `strategyId` is `approximate` for M0/M1 (equivalent to VAUDEVILLE's
   behavior) but leaves room for `provider-exact` results to cache separately per provider/model
@@ -139,14 +139,14 @@ Ported 1:1 from VAUDEVILLE's proven shape (`packages/lorebook/src/tokenizer.ts:5
 off "lorebook entry" to any titled/content-bearing unit so `packages/assembly` and `packages/presets`
 can reuse them:
 
-- `countTextTokens(text, opts?)` — the base primitive.
-- `countUnitTokens(unit: { title?: string; content?: string })` — sums `content` + `title` token
+- `countTextTokens(text, opts?)` - the base primitive.
+- `countUnitTokens(unit: { title?: string; content?: string })` - sums `content` + `title` token
   counts; does NOT count `triggers`/keywords (VAUDEVILLE's comment: triggers are matched against, not
-  injected into the prompt, so they cost nothing at injection time — `packages/lorebook/src/tokenizer.ts:74-76`).
-- `countTotalTokens(units[])` — sums `countUnitTokens` across a list.
-- `estimateTokensLabel(text)` — human string: `"0 tokens"` for 0, exact for <10, else rounded to
+  injected into the prompt, so they cost nothing at injection time - `packages/lorebook/src/tokenizer.ts:74-76`).
+- `countTotalTokens(units[])` - sums `countUnitTokens` across a list.
+- `estimateTokensLabel(text)` - human string: `"0 tokens"` for 0, exact for <10, else rounded to
   nearest 10 with a `~` prefix (`packages/lorebook/src/tokenizer.ts:91-98`, byte-identical logic).
-- `getTokenIds(text)` — raw token ID array, kept for future logit-bias-style use cases even though
+- `getTokenIds(text)` - raw token ID array, kept for future logit-bias-style use cases even though
   no current spec consumes it; VAUDEVILLE exposes it (`packages/lorebook/src/tokenizer.ts:107-115`)
   and nothing else in the extraction map replaces it.
 
@@ -157,7 +157,7 @@ for an assembled message list, not just raw text. Port VAUDEVILLE's `countMessag
 (`apps/rc/src/lib/ai/inference-engine.ts:517-539`) as `countMessagesTokens(messages[], opts?)`:
 per-message overhead of 4 tokens (role + separator bookkeeping) + `count(content)` +
 `count(role)`, plus a flat +3 for the assistant-reply primer. This is itself an approximation of
-OpenAI's chat-format overhead and is documented as such — it is not claimed to be exact for
+OpenAI's chat-format overhead and is documented as such - it is not claimed to be exact for
 Anthropic/Gemini/local models, consistent with the rest of this spec's honesty requirement.
 
 ### Honest reporting
@@ -172,7 +172,7 @@ explicit `~` prefix (reusing `estimateTokensLabel`'s convention) to signal appro
 ## Public API sketch
 
 ```ts
-// packages/core — zero-dependency interface + shared result/option types.
+// packages/core - zero-dependency interface + shared result/option types.
 export type TokenCountBasis =
   | "cl100k_base-approx"
   | "char4-fallback"
@@ -220,12 +220,12 @@ export interface TokenCounter {
   getTokenIds(text: string, opts?: TokenCountOptions): number[];
 }
 
-// packages/core — factory the rest of the engine imports. The concrete encoder implementation
+// packages/core - factory the rest of the engine imports. The concrete encoder implementation
 // (bundled BPE data, cache) lives in a small internal module, NOT in core itself, per core's
 // zero-deps rule; core only defines the shape + a lazy-loaded default.
 export function createDefaultTokenCounter(): TokenCounter;
 
-// packages/ai (M2) — extends the counter with provider-exact counting once an adapter/key exists.
+// packages/ai (M2) - extends the counter with provider-exact counting once an adapter/key exists.
 // Not implemented in M0/M1; documented here so the M2 spec/ticket has a fixed target shape.
 export interface ProviderTokenCounter extends TokenCounter {
   /** True if this provider/model can produce an exact count right now (key configured, network ok). */
@@ -242,12 +242,12 @@ export interface ProviderTokenCounter extends TokenCounter {
    exception to the caller. Matches VAUDEVILLE's `try/catch` around `encode()`
    (`packages/lorebook/src/tokenizer.ts:38-44`).
 3. **`requireExact: true` but no provider configured (M0/M1, or M2 with no key set).** Returns the
-   approximate result anyway with `exact: false` — never throws, never blocks a `vaud convert` run.
+   approximate result anyway with `exact: false` - never throws, never blocks a `vaud convert` run.
    Callers that need to *know* exactness failed check `.exact`, not a thrown error. This is required
    by the "works with zero AI key" invariant.
 4. **Very large input (a whole production's worth of lorebook entries, multi-MB).** No explicit size
    cap in VAUDEVILLE; `encode()` scales with input size. This spec does not add a cap either, but
-   notes it as a potential perf issue for `vaud inspect --exact-tokens` on huge productions —
+   notes it as a potential perf issue for `vaud inspect --exact-tokens` on huge productions -
    OPEN QUESTION: should there be a size threshold above which the CLI warns before running a
    provider-exact count (cost implications if `provider-exact` ever bills tokens for counting)?
 5. **Cache growth under a long-running process (`apps/studio`, `vaud` REPL).** Bounded at the same
@@ -257,13 +257,13 @@ export interface ProviderTokenCounter extends TokenCounter {
 6. **Two different models produce different counts for the same text, both routed through
    `approximate`.** By design in M0/M1: `approximate` ignores the `model` hint entirely for the
    actual counting math (same encoder for everything) but still echoes `model` back in the result
-   for trace purposes. This is intentional and matches VAUDEVILLE precedent, not a bug — the
+   for trace purposes. This is intentional and matches VAUDEVILLE precedent, not a bug - the
    `exact: false` flag is the signal that the number should not be trusted as model-specific.
 7. **`countMessages` with a message whose `content` is empty string.** Still charges the fixed
    4-token per-message overhead (role/separator bookkeeping) even if content is empty, matching
    `inference-engine.ts:524-532`.
 8. **Provider reports usage tokens that disagree with the local estimate (M2+).** Not this spec's
-   concern to reconcile — `packages/ai`/`packages/agent` must prefer the provider's reported
+   concern to reconcile - `packages/ai`/`packages/agent` must prefer the provider's reported
    `usage.input_tokens`/`usage.output_tokens` over any local `TokenCounter` result for
    billing/logging, exactly as VAUDEVILLE does (`inference-engine.ts:1759-1760`: `tokensFromUsage.prompt
    || countMessagesTokens(...)`). This spec's counter is the *fallback*, never the source of truth,
@@ -277,17 +277,17 @@ export interface ProviderTokenCounter extends TokenCounter {
 ## Test plan
 
 - Fixtures required:
-  - `fixtures/token-counting/plain-ascii.txt` — exercises the base `count()` path against a known
+  - `fixtures/token-counting/plain-ascii.txt` - exercises the base `count()` path against a known
     reference count (compute once with the bundled encoder and pin the expected number as a
     regression fixture).
-  - `fixtures/token-counting/empty-string.txt` — exercises edge case 1.
-  - `fixtures/token-counting/unicode-mixed.txt` (emoji + CJK + RTL) — exercises edge case 9,
+  - `fixtures/token-counting/empty-string.txt` - exercises edge case 1.
+  - `fixtures/token-counting/unicode-mixed.txt` (emoji + CJK + RTL) - exercises edge case 9,
     confirms no throw.
-  - `fixtures/token-counting/lorebook-entry-sample.json` — a `{title, content, triggers}` object;
+  - `fixtures/token-counting/lorebook-entry-sample.json` - a `{title, content, triggers}` object;
     confirms `countUnit` sums title+content and ignores `triggers`.
-  - `fixtures/token-counting/chat-messages-sample.json` — an array of `{role, content}` messages;
+  - `fixtures/token-counting/chat-messages-sample.json` - an array of `{role, content}` messages;
     confirms `countMessages` overhead math (4/message + role + content + 3 flat).
-- Round-Trip Law applicability: none — this is not a codec, no parse/serialize round trip applies.
+- Round-Trip Law applicability: none - this is not a codec, no parse/serialize round trip applies.
 - Property/unit tests beyond fixtures:
   - `count(text).count >= 0` for all inputs, including empty and pathological (very long single
     "word" with no whitespace) strings.
@@ -314,17 +314,17 @@ export interface ProviderTokenCounter extends TokenCounter {
   if ever wanted, belongs in a provider adapter that calls the real counting endpoint rather than a
   local re-implementation.
 - Does not persist or share the token-count cache across processes or sessions.
-- Does not compute or store token counts on canonical entities themselves — per canonical-model.md,
+- Does not compute or store token counts on canonical entities themselves - per canonical-model.md,
   token stats are always computed on demand through this interface, never stored as entity fields.
-- Does not handle cost/pricing calculation (dollars per token) — that is a provider-adapter/billing
+- Does not handle cost/pricing calculation (dollars per token) - that is a provider-adapter/billing
   concern layered on top of a token count, not part of this spec.
-- Does not define the UI/CLI rendering of token counts (progress bars, budget meters) — only the
+- Does not define the UI/CLI rendering of token counts (progress bars, budget meters) - only the
   data (`TokenCountResult`, `estimateLabel`) those surfaces consume.
 
 ## Sources consulted
 
 - `<RoleCall>\packages\lorebook\src\tokenizer.ts` (full file, lines 1-116):
-  primary reference — `countTokens`, `TOKEN_COUNT_CACHE`/VVS-518 caching rationale, `countEntryTokens`,
+  primary reference - `countTokens`, `TOKEN_COUNT_CACHE`/VVS-518 caching rationale, `countEntryTokens`,
   `countTotalTokens`, `estimateTokens`, `getTokenIds`, the `gpt-tokenizer`/`cl100k_base`
   approximation-for-all-models documentation in the file header.
 - `<RoleCall>\apps\rc\src\lib\lorebook\tokenizer.ts` (lines 1-119): duplicate
@@ -335,19 +335,19 @@ export interface ProviderTokenCounter extends TokenCounter {
   fallback) is stable across all three copies.
 - `<RoleCall>\apps\rc\src\lib\ai\inference-engine.ts` lines 31, 513-539
   (`countMessagesTokens`, the per-message/role overhead heuristic), and lines 1750-1770, 2505-2515
-  (`tokensFromUsage.prompt || countMessagesTokens(...)` — provider-usage-first pattern that
+  (`tokensFromUsage.prompt || countMessagesTokens(...)` - provider-usage-first pattern that
   justifies this spec's `exact`/`basis` fields and the "local counter is a fallback, not a source of
   truth once a provider is in play" rule).
 - `docs\the master plan (private planning notes)`: "v0.1 | The Converter: works
-  with zero AI key" (locked-decisions table) — the constraint that forces the default counting
+  with zero AI key" (locked-decisions table) - the constraint that forces the default counting
   strategy to be fully offline/local.
 - `docs\02-ARCHITECTURE.md`: `packages/core` "token
   counting interfaces… ZERO deps on other packages" and `packages/ai` provider-adapter description
-  (BYOK Anthropic/OpenRouter/OpenAI/Gemini/Ollama) — basis for the `core` interface / provider-adapter
+  (BYOK Anthropic/OpenRouter/OpenAI/Gemini/Ollama) - basis for the `core` interface / provider-adapter
   split and for `ProviderTokenCounter` being an M2 concern.
 - `specs\formats\canonical-model.md`: `## Token counting`
   section ("`core` defines `TokenCounter` as an interface... implementations live outside core...
-  never stores them") — the authoritative statement this spec fills in.
+  never stores them") - the authoritative statement this spec fills in.
 - `docs\the production bible (private planning notes)` line 61 (this file's own
   brief row): "TokenCounter interface, tokenizer choice per model family, caching, honest
   approximations, counts in reports/UI."
@@ -356,5 +356,5 @@ export interface ProviderTokenCounter extends TokenCounter {
   `tiktoken`... undercounts Claude tokens by ~15-20%"). Cited only as external corroboration that
   local BPE approximations are provider-inexact in practice, and as the shape a future
   `ProviderTokenCounter` implementation for Anthropic would call. No VAUDEVILLE code calls this
-  endpoint today, so it is not treated as ground truth for this codebase's current behavior — it is
+  endpoint today, so it is not treated as ground truth for this codebase's current behavior - it is
   the target for the M2 OPEN QUESTION item on `provider-exact`.

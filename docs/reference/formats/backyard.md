@@ -1,7 +1,7 @@
 # Format: Backyard / Faraday
 
 **Product (live research, 2026-07):** [Backyard AI](https://backyard.ai/) (formerly Faraday.dev, Ahoy
-Labs) is **both** a local-inference story **and** a web/cloud product — not “desktop only.”
+Labs) is **both** a local-inference story **and** a web/cloud product - not “desktop only.”
 
 | Surface | Role |
 | --- | --- |
@@ -13,10 +13,10 @@ Labs) is **both** a local-inference story **and** a web/cloud product — not �
 
 **Formats Vaude cares about** (card forge, not running their chat app):
 
-1. **Legacy flat JSON** (`id: "backyard"`) — single object with `aiName` / `aiPersona` /
+1. **Legacy flat JSON** (`id: "backyard"`) - single object with `aiName` / `aiPersona` /
    `customDialogue` style keys (this document’s original body below). Often from older desktop /
    Faraday-era exports; unit-tested in-repo (no clean public single-file sample found).
-2. **BYAF archive** (`id: "byaf"`) — current portable package: ZIP `.byaf`
+2. **BYAF archive** (`id: "byaf"`) - current portable package: ZIP `.byaf`
    (`manifest.json` + `characters/<id>/character.json` + `scenarios/*.json` + images). Source:
    `byaf.ts`. Spec + tooling: [ahoylabs/byaf](https://github.com/ahoylabs/byaf) (**MIT**). Samples:
    `samples/backyard/{1,2,3}.byaf` (official test archives).

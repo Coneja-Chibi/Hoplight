@@ -35,14 +35,14 @@ is a `UserError`, not silently ignored.
 
 | Flag | Short | Default | Meaning |
 |---|---|---|---|
-| `--help` | `-h` | — | Print help for the current command (or root) and exit 0. Never touches disk or network. |
-| `--version` | — | — | Print `vaud <semver> (<git-sha-short>)` to stdout and exit 0. No short form (reserved to avoid clashing with `-v`/verbose, a common source of CLI confusion). |
-| `--json` | — | `false` | Machine-readable **result** to stdout as a single JSON object; human progress/log lines still go to stderr. See "JSON output contract" below. |
+| `--help` | `-h` | - | Print help for the current command (or root) and exit 0. Never touches disk or network. |
+| `--version` | - | - | Print `vaud <semver> (<git-sha-short>)` to stdout and exit 0. No short form (reserved to avoid clashing with `-v`/verbose, a common source of CLI confusion). |
+| `--json` | - | `false` | Machine-readable **result** to stdout as a single JSON object; human progress/log lines still go to stderr. See "JSON output contract" below. |
 | `--yes` | `-y` | `false` | Pre-answer any confirmation prompt with "yes." Required for destructive operations run non-interactively. |
 | `--quiet` | `-q` | `false` | Suppress informational stderr lines; warnings and errors still print. Does not affect `--json` stdout. |
 | `--verbose` | `-v` | `false` | Print extra stderr diagnostics (file paths touched, timing, the internal `cause` chain on errors). Mutually exclusive with `--quiet` (edge case 13). |
-| `--no-color` | — | `false` | Force plain text, no ANSI color/glyph coloring. Auto-forced true when stdout is not a TTY or `NO_COLOR` env var is set (any value), per the `NO_COLOR` convention. Never affects `--json` output, which is never colorized. |
-| `--config <path>` | — | `~/.vaud/config.json` | Use an explicit config file instead of the default. If the path is given explicitly and does not exist, this is a `UserError` (edge case 8) — unlike the default path, which is allowed to be absent. |
+| `--no-color` | - | `false` | Force plain text, no ANSI color/glyph coloring. Auto-forced true when stdout is not a TTY or `NO_COLOR` env var is set (any value), per the `NO_COLOR` convention. Never affects `--json` output, which is never colorized. |
+| `--config <path>` | - | `~/.vaud/config.json` | Use an explicit config file instead of the default. If the path is given explicitly and does not exist, this is a `UserError` (edge case 8) - unlike the default path, which is allowed to be absent. |
 | `--production <path>`, `-p <path>` | `-p` | resolved (see below) | Target a specific production folder instead of the one auto-detected from `cwd` or the library-mode default. |
 
 Flags follow standard double-dash long-form / single-dash short-form parsing;
@@ -54,7 +54,7 @@ Boolean flags do not take a value; `--json=false` is a `UserError`.
 `vaud help` (and `vaud --help` / `vaud -h` with no other arguments) prints
 commands grouped by function, one line per command, plain-vocabulary summaries
 (per `docs/03-CONVENTIONS.md` line 38-40: "converted 3 files," never "the
-curtain rises on 3 files" — flavor lives in agent personas, never in scriptable
+curtain rises on 3 files" - flavor lives in agent personas, never in scriptable
 command output or its help text):
 
 ```
@@ -81,18 +81,18 @@ Run "vaud" with no command to start an interactive session.
 ```
 
 (Exact command list grows with each milestone; this section documents the
-*shape* of the listing, not the frozen final set — command grammar itself is
+*shape* of the listing, not the frozen final set - command grammar itself is
 `cli-converter.md`'s job and later feature specs' job.)
 
 `vaud <command> --help` prints, in order: one-line summary, a `Usage:` line,
 a flag table (flag, short, description, default), and 1-3 concrete examples
-with a one-line note each — the same register as the CLI-1 wireframe transcript
+with a one-line note each - the same register as the CLI-1 wireframe transcript
 (`wireframes/cli/cli-and-tui.html`, design-intent reference, not ground truth).
 No prose paragraphs, no theatrical framing.
 
 Unknown command (`vaud converrt`) is a `UserError`, exit 1, message names the
-unrecognized token and — if within a small edit-distance threshold of a real
-command name — suggests the closest match ("no command 'converrt'. did you mean
+unrecognized token and - if within a small edit-distance threshold of a real
+command name - suggests the closest match ("no command 'converrt'. did you mean
 'convert'?"). No network lookup, no telemetry of the mistyped command.
 
 ### 3. Error style
@@ -100,7 +100,7 @@ command name — suggests the closest match ("no command 'converrt'. did you mea
 Every internal failure surfaces as one of the typed error classes from
 `docs/03-CONVENTIONS.md` ("Errors" section): `FormatError`, `CodecError`,
 `ProviderError`, plus two CLI-layer classes this spec adds: `UserError` (bad
-input: bad flags, missing files, invalid config) and `InternalError` (a bug —
+input: bad flags, missing files, invalid config) and `InternalError` (a bug -
 anything not anticipated). Every error class carries a `userMessage: string`
 written in plain prose for a human; internal errors additionally carry a
 `cause` that is never shown unless `--verbose`.
@@ -114,7 +114,7 @@ that.
 
 **JSON mode (`--json`):** nothing about the error goes to stderr as prose,
 except the same progress lines that would print during a successful run
-(machine-readable **result**, not machine-readable **logs** — `docs/
+(machine-readable **result**, not machine-readable **logs** - `docs/
 03-CONVENTIONS.md` line 35). The final stdout write is a single JSON object:
 
 ```json
@@ -135,7 +135,7 @@ on `code`, never on `message` text.
 
 **Exit codes** (per `docs/03-CONVENTIONS.md` line 36): `0` success, `1` user
 error (`UserError`, plus `FormatError`/`CodecError`/`ProviderError` instances
-that stem from bad input — a malformed source file is the user's problem, not
+that stem from bad input - a malformed source file is the user's problem, not
 the program's), `2` internal error (`InternalError`, uncaught exceptions,
 assertion failures). `--json` does not change exit codes; a script can check
 the exit code alone without parsing JSON if it only cares about pass/fail.
@@ -156,7 +156,7 @@ Resolution order for a destructive operation:
 1. `--yes`/`-y` present -> proceed without prompting.
 2. Not present, and stdout+stdin are both a TTY -> print a `?`-prefixed prompt
    (house glyph for attention) and block for `y`/`n` (REPL staged edits offer a
-   third option, `e`dit — see edge case 10). Any other input reprompts once,
+   third option, `e`dit - see edge case 10). Any other input reprompts once,
    then treats a second invalid answer as `n`.
 3. Not present, and either stdin or stdout is not a TTY (piped, redirected, or
    `--json` is set) -> **never prompt**. Fail immediately as a `UserError`
@@ -176,14 +176,14 @@ leave the M1 help-only behavior in place.
 
 - If stdin is a TTY (interactive terminal) -> enters the agent REPL. Resolves
   the active production (flag `-p`/`--production`, else nearest `vaud.json`
-  walking up from `cwd`, else library mode — the managed default production;
+  walking up from `cwd`, else library mode - the managed default production;
   see `docs/02-ARCHITECTURE.md` "Productions"), resolves the default persona
   and default model role mapping from config, and prints a one-line banner
   naming production, persona, and model (matches the register of the CLI-2
   "Prompter's Box" wireframe transcript, design-intent reference only:
   `wireframes/cli/cli-and-tui.html`).
 - If no key is configured for the model role the first agent turn needs, the
-  REPL does not refuse to start — it starts, and the key ceremony (scope of
+  REPL does not refuse to start - it starts, and the key ceremony (scope of
   `specs/engine/key-vault.md`) runs inline the moment a turn actually needs a
   model call, never before. This matches ADR-006 item 2 ("the first key ask
   happens at the first AI moment, never at install") and the master plan's
@@ -206,7 +206,7 @@ overridable with `--config <path>` or the `VAUD_CONFIG` environment variable
 exist: every read falls back to built-in defaults in memory. The CLI never
 writes it proactively; it is written only by an explicit `vaud config set ...`
 or by the key ceremony completing (which writes model-role-to-provider/model
-mappings here, never the key itself — see below).
+mappings here, never the key itself - see below).
 
 Proposed schema (no existing implementation to cite; this document is the
 first definition of it, per the M1 brief for this spec):
@@ -233,7 +233,7 @@ Rules:
   `UserError`, not a crash) a config with a `version` newer than the running
   binary understands, and must warn-and-ignore-unknown-keys for a config with
   an *older or equal* version that has fields this build no longer recognizes
-  (forward/backward compatibility across upgrades — edge case 6).
+  (forward/backward compatibility across upgrades - edge case 6).
 - **Never stores API keys or any other secret.** Keys live exclusively in the
   OS keychain or the AES-encrypted file fallback (ADR-006, detailed in
   `specs/engine/key-vault.md`). `modelRoles` entries name a provider and model
@@ -420,33 +420,33 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
 ## Test plan
 
 - Config fixtures (`apps/cli/test/fixtures/config/`):
-  - `valid-full.json` — every field populated, must load byte-for-byte.
-  - `valid-empty.json` — `{"version":1}` alone, must load with all other
+  - `valid-full.json` - every field populated, must load byte-for-byte.
+  - `valid-empty.json` - `{"version":1}` alone, must load with all other
     fields defaulted.
-  - `invalid-json.json` — truncated/malformed JSON, must produce `UserError`
+  - `invalid-json.json` - truncated/malformed JSON, must produce `UserError`
     with the file path in the message, never an uncaught parse exception.
-  - `invalid-schema.json` — valid JSON, bad `color` value, must name the
+  - `invalid-schema.json` - valid JSON, bad `color` value, must name the
     offending key.
-  - `future-version.json` — `{"version":2}`, must produce `UserError` naming
+  - `future-version.json` - `{"version":2}`, must produce `UserError` naming
     a minimum required `vaud` version.
-  - `unknown-keys.json` — `version:1` plus an extra top-level key, must load
+  - `unknown-keys.json` - `version:1` plus an extra top-level key, must load
     and preserve the extra key through a `saveConfig` round trip.
-  - missing file (no fixture, just an absent path) — must load defaults with
+  - missing file (no fixture, just an absent path) - must load defaults with
     no error and no file created.
 - Golden CLI transcripts (`apps/cli/test/golden/`), snapshot-tested against
   captured stdout/stderr/exit-code triples:
-  - `help/root.txt` — `vaud help` output shape (grouping, one-liners).
-  - `help/command.txt` — `vaud convert --help` shape (usage/flags/examples).
-  - `errors/unknown-command.txt` — typo suggestion behavior.
-  - `errors/destructive-no-yes-human.txt` — interactive-but-no-TTY-injected
+  - `help/root.txt` - `vaud help` output shape (grouping, one-liners).
+  - `help/command.txt` - `vaud convert --help` shape (usage/flags/examples).
+  - `errors/unknown-command.txt` - typo suggestion behavior.
+  - `errors/destructive-no-yes-human.txt` - interactive-but-no-TTY-injected
     case, human mode.
-  - `errors/destructive-no-yes-json.json` — same, `--json` mode, asserts the
+  - `errors/destructive-no-yes-json.json` - same, `--json` mode, asserts the
     exact `CONFIRMATION_REQUIRED` envelope.
-  - `repl/banner-m1-no-agent.txt` — bare `vaud` behaves as help on an M1 build
+  - `repl/banner-m1-no-agent.txt` - bare `vaud` behaves as help on an M1 build
     (`agentAvailable: false` injected).
-  - `repl/banner-piped-stdin.txt` — bare `vaud` with injected non-TTY stdin on
+  - `repl/banner-piped-stdin.txt` - bare `vaud` with injected non-TTY stdin on
     an M2 build, asserts help-to-stderr + exit 1.
-  - `updater/notice-suppressed-json.json` — version notice never appears in a
+  - `updater/notice-suppressed-json.json` - version notice never appears in a
     `--json` run even when a newer version is injected as available.
 - Property/unit tests beyond fixtures/golden transcripts:
   - `confirm()` truth table over the 2x2x2 space of `{--yes present/absent} x
@@ -469,61 +469,61 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
   explicitly out of scope for this spec and for M1/M2: no roadmap milestone
   commits to it, and the wireframe itself notes it "should come after CLI-1
   and CLI-2 prove out."
-- Shell completion scripts (bash/zsh/fish/PowerShell) — future ticket, not
+- Shell completion scripts (bash/zsh/fish/PowerShell) - future ticket, not
   designed here.
-- Localized/translated help text and error messages — English only for now.
-- A piped/one-shot batch mode for the agent REPL (`echo "..." | vaud`) — see
+- Localized/translated help text and error messages - English only for now.
+- A piped/one-shot batch mode for the agent REPL (`echo "..." | vaud`) - see
   OPEN QUESTION in edge case 2; not designed, not to be built speculatively.
 - The actual grammar of `convert`/`inspect`/`validate`/`import`/`export` and
-  their flags — that is `specs/features/cli-converter.md`'s job; this spec
+  their flags - that is `specs/features/cli-converter.md`'s job; this spec
   only supplies the global flags and rendering contract those commands sit on
   top of.
 - Agent turn internals, tool registry, spill store, staged-edit envelope
-  mechanics — `specs/engine/agent-loop.md`'s job; this spec only owns REPL
+  mechanics - `specs/engine/agent-loop.md`'s job; this spec only owns REPL
   entry, the banner, and confirmation styling for the commit step.
 - Key storage mechanics (keychain vs encrypted file, the key-ceremony prompt
-  copy) — `specs/engine/key-vault.md`'s job; this spec only specifies that
+  copy) - `specs/engine/key-vault.md`'s job; this spec only specifies that
   `modelRoles` in the config file never holds a secret and that the ceremony
   is triggered lazily from REPL entry.
 
 ## Sources consulted
 
-- `docs/03-CONVENTIONS.md` (this repo) — CLI conventions section: lines 33-40
+- `docs/03-CONVENTIONS.md` (this repo) - CLI conventions section: lines 33-40
   (`--json`, `--yes`, exit codes 0/1/2, plain-first output vocabulary); "Code"
   section lines 14-17 (typed error classes with `userMessage`, house glyphs
   `+ - · ✦`, no emoji, no em dash).
-- the master plan (private planning notes) (this repo) — "The Faces" (CLI-first, every feature
+- the master plan (private planning notes) (this repo) - "The Faces" (CLI-first, every feature
   in CLI before app), "AI is optional" locked decision.
-- `docs/02-ARCHITECTURE.md` (this repo) — "Productions (project workspaces)"
+- `docs/02-ARCHITECTURE.md` (this repo) - "Productions (project workspaces)"
   section (`vaud.json`, `.vaud/history/`, library mode); "Faces" section
   (plain commands + `vaud` bare = agent REPL); "The agent" section (staged
   edits, tiny tool surface, weak-model survival).
-- `docs/decisions/ADR-003-distribution.md` — self-updater etiquette: "at most
+- `docs/decisions/ADR-003-distribution.md` - self-updater etiquette: "at most
   one non-blocking 'new version' notice per day; never auto-install without
   consent."
-- `docs/decisions/ADR-006-ai-and-agent.md` — BYOK, "AI is optional... the
+- `docs/decisions/ADR-006-ai-and-agent.md` - BYOK, "AI is optional... the
   first key ask happens at the first AI moment, never at install," staged
   edits, model-role mapping (interview/treatment/test/audit).
-- `docs/ROADMAP.md` — M1 exit criteria (converter CLI, no agent yet) vs M2
+- `docs/ROADMAP.md` - M1 exit criteria (converter CLI, no agent yet) vs M2
   exit criteria (`vaud` bare REPL ships here), used to derive the M1-vs-M2
   split in "REPL entry."
-- `specs/formats/escrow-and-roundtrip.md` — `ParseReport`/`SerializeReport`
+- `specs/formats/escrow-and-roundtrip.md` - `ParseReport`/`SerializeReport`
   and `--strict` exit-nonzero-on-dropped-fields behavior, referenced for how
   `vaud convert/validate` will plug into this spec's exit-code table (their
   own command grammar is out of scope here).
-- `templates/SPEC-TEMPLATE.md` — structure this document follows.
-- `wireframes/cli/cli-and-tui.html` — design-intent reference only (not listed
+- `templates/SPEC-TEMPLATE.md` - structure this document follows.
+- `wireframes/cli/cli-and-tui.html` - design-intent reference only (not listed
   as ground truth in the production bible (private planning notes) for this file): CLI-1
   ("The Stagehand") transcript register for help/output tone; CLI-2 ("The
   Prompter's Box") transcript for the REPL banner shape and the
   `[y]es/[n]o/[e]dit` staged-edit confirmation; CLI-3 ("The Board Op") noted
   explicitly as out of scope per its own wireframe notes.
-- `wireframes/identity/first-run.html` — design-intent reference only, App-face
+- `wireframes/identity/first-run.html` - design-intent reference only, App-face
   (M6) first-run doors and key ceremony; consulted to confirm the "key ask
   deferred to first AI moment" principle is consistent across faces, not used
   as a source for CLI-specific behavior since it describes the Studio app, not
   `vaud`.
-- NO_COLOR convention (https://no-color.org/) — used for the `NO_COLOR`
+- NO_COLOR convention (https://no-color.org/) - used for the `NO_COLOR`
   env var behavior in "Global flags" and edge case 9; this is a general CLI
   ecosystem convention, not a Vaudeville-specific invention, cited here for
   the reviewer's benefit rather than fetched (no claim of an exact spec text

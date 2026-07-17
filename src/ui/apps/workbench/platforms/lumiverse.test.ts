@@ -17,7 +17,7 @@ test("lumiverse schema paths sit under sillytavern.raw.data.extensions", () => {
   const controls = new Set(lumiverse.fields.map((f) => f.control));
   expect(controls.has("portable-lora")).toBe(true);
   expect(controls.has("raw-extensions")).toBe(true);
-  // expressions live in Manage Sprites only — no main-page stub cards
+  // expressions live in Manage Sprites only - no main-page stub cards
   expect(controls.has("expression-map")).toBe(false);
   expect(controls.has("expression-groups")).toBe(false);
   expect(lumiverse.fields.some((f) => f.path.endsWith(".expressions"))).toBe(false);

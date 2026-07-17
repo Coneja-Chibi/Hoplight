@@ -25,7 +25,7 @@ mismatch in VAUDEVILLE's V3 serializer that a conforming implementation must not
 carry forward as an actual data-loss bug (see edge case 1).
 
 This spec assumes the reader already has chara-card-v2.md / chara-card-v3.md /
-png-embedding.md loaded — it does not re-derive the base spec_version handling, tEXt
+png-embedding.md loaded - it does not re-derive the base spec_version handling, tEXt
 chunk mechanics, or embedded-`character_book` promotion rules; it only adds the
 RoleCall layer on top.
 
@@ -48,7 +48,7 @@ RoleCall layer on top.
   via `embedCharacterData` / `embedDualCharacterData`, which strip any prior
   `chara`/`ccv3` chunks before writing new ones. (VAUD: `formats/png/writer.ts:53-91,
   103-142`.) RC's own PNG exporter writes the flat V2 `data` payload directly into
-  the `chara` chunk with no `{spec,data}` wrapper, for SillyTavern compatibility —
+  the `chara` chunk with no `{spec,data}` wrapper, for SillyTavern compatibility -
   the importer has a dedicated `isFlatV2Data` detector for this shape so RC's own
   exports round-trip instead of silently downgrading to V1. (VAUD: `parse-v2.ts:290-356`.)
 
@@ -62,14 +62,14 @@ this keyword; it writes `chara`/`ccv3` only (VAUD: `formats/png/writer.ts:56`,
 `serialize-v2.ts:233`, `serialize-v3.ts:160`). See specs/formats/personas.md for the
 Persona codec proper.
 
-However, `library/png-parser.ts` — a general-purpose, still-actively-used PNG text
+However, `library/png-parser.ts` - a general-purpose, still-actively-used PNG text
 extractor (imported by `imports/content-detector.ts`, `imports/persona-st.ts`, and
-`app/api/import/bundle/route.ts`) — reads tEXt chunks with **keyword precedence
+`app/api/import/bundle/route.ts`) - reads tEXt chunks with **keyword precedence
 `ccv3` > `chara` > `rcpersona` > `persona`** (VAUD: `png-parser.ts:73-126`). This
 precedence exists so that ONE reader can classify an arbitrary PNG regardless of
 which content type produced it. When neither `ccv3` nor `chara` is present, the
 reader falls through to `rcpersona` (a genuine RoleCall persona chunk) or `persona`
-(a RoleOut-legacy chunk, see section 4) and — critically — **munges the persona
+(a RoleOut-legacy chunk, see section 4) and - critically - **munges the persona
 payload into character-shaped fields** (`name`, `description`, `personality`,
 `scenario: ""`, `first_mes: ""`, ...) so downstream code that expects a
 `ParsedCharacter` shape can consume it as a fallback (VAUD: `png-parser.ts:184-247`).
@@ -83,7 +83,7 @@ conforming `vaud` PNG character reader:
    content as a Character. Silently munging persona fields into character fields
    (as VAUDEVILLE's `png-parser.ts` does) is legacy behavior kept for compatibility
    with old RC import flows and MUST NOT be treated as the canonical mapping for new
-   codec code — the canonical mapping for RoleCall personas lives in personas.md.
+   codec code - the canonical mapping for RoleCall personas lives in personas.md.
 
 ### 3. `CharacterContent` -> canonical `Character` field map
 
@@ -102,18 +102,18 @@ and are NOT repeated here except where RC changes their shape. RC-specific addit
 | `CharacterContent.fandom` | `identity.fandom` | native (`extensions.rolecall.fandom`) | native (`extensions.rolecall.fandom`) | |
 | `CharacterContent.nsfw` (boolean) | `contentRating.nsfw` | native (`extensions.rolecall.nsfw`) | native (`extensions.rolecall.nsfw`) | Legacy binary flag, superseded by `content_rating` three-tier. Both are kept for back-compat. |
 | `CharacterContent.content_rating` (`'all_hours'\|'late_night'\|'after_dark'`) | `contentRating.tier` | native (`extensions.rolecall.content_rating`) | native (`extensions.rolecall.content_rating`) | Three-tier system; VAUD: `content/types.ts:131`. |
-| `Character.manual_rating_override` (packages/types) | `contentRating.manualOverride` | escrow | escrow | Not present in `apps/rc` `CharacterContent`/serializers at all — only in the shared `packages/types` `Character` row shape (`character.ts:167`). Not emitted by `serialize-v2.ts`/`serialize-v3.ts`. Treat as platform-only DB state; escrow it under `rolecall.escrow` if ever exposed to the codec, never invent an extensions field for it. |
-| `CharacterContent.token_count` | `stats.tokenCount` (computed field, see canonical-model.md "Token counting") | native (`extensions.rolecall.token_count`) V2 only | **dropped in VAUDEVILLE's V3 serializer** (absent from `serialize-v3.ts:78-93`) — spec REQUIRES native for both; see edge case 1 | Canonical model computes token counts via `TokenCounter`, never stores them, but the source card value is still round-trip data the codec must preserve if present on import. |
-| `CharacterContent.image_url` / `thumbnail_url` | `presentation.imageUrl` / `presentation.thumbnailUrl` | native (`extensions.rolecall.image_url`, `.thumbnail_url`) | **dropped in VAUDEVILLE's V3 serializer** — spec REQUIRES native; see edge case 1 | V3 has a base-spec `assets[]` array (icon/background/etc.) that is a separate, richer asset mechanism (see sprites row below); `image_url`/`thumbnail_url` are RC's flat DB columns and are additionally round-tripped via the RC extension. |
-| `CharacterContent.creator_notes` | prompt-bearing `creatorNotes` (maps to base V2 `data.creator_notes`, see chara-card-v2.md) | N/A — base field | N/A — base field | Not RC-specific; listed only to disambiguate from the next row. |
-| `CharacterContent.creators_note` (distinct DB column: "note from creator to other users, not injected into prompts") | `presentation.creatorsNote` | native (`extensions.rolecall.creators_note`) | **dropped in VAUDEVILLE's V3 serializer** — spec REQUIRES native; see edge case 1 | Do not confuse with `creator_notes` (prompt-bearing, base V2 field) or with `character.ts`'s doc comment "Note from creator to other users (not injected into prompts)" at `character.ts:125`. |
-| `CharacterContent.accent_color` | `presentation.accentColor` | native (`extensions.rolecall.accent_color`) | **dropped in VAUDEVILLE's V3 serializer** — spec REQUIRES native; see edge case 1 | Single hex/token color for card theming. |
-| `CharacterContent.card_layout` | `presentation.cardLayout` | escrow | escrow | Present on the shared `packages/types` `Character` row (`character.ts:153`) but never read/written by `serialize-v2.ts`/`serialize-v3.ts`/`parse-v2.ts`. OPEN QUESTION: intended target field/location not found in any codec path — escrow under `rolecall.escrow.card_layout` until clarified. |
+| `Character.manual_rating_override` (packages/types) | `contentRating.manualOverride` | escrow | escrow | Not present in `apps/rc` `CharacterContent`/serializers at all - only in the shared `packages/types` `Character` row shape (`character.ts:167`). Not emitted by `serialize-v2.ts`/`serialize-v3.ts`. Treat as platform-only DB state; escrow it under `rolecall.escrow` if ever exposed to the codec, never invent an extensions field for it. |
+| `CharacterContent.token_count` | `stats.tokenCount` (computed field, see canonical-model.md "Token counting") | native (`extensions.rolecall.token_count`) V2 only | **dropped in VAUDEVILLE's V3 serializer** (absent from `serialize-v3.ts:78-93`) - spec REQUIRES native for both; see edge case 1 | Canonical model computes token counts via `TokenCounter`, never stores them, but the source card value is still round-trip data the codec must preserve if present on import. |
+| `CharacterContent.image_url` / `thumbnail_url` | `presentation.imageUrl` / `presentation.thumbnailUrl` | native (`extensions.rolecall.image_url`, `.thumbnail_url`) | **dropped in VAUDEVILLE's V3 serializer** - spec REQUIRES native; see edge case 1 | V3 has a base-spec `assets[]` array (icon/background/etc.) that is a separate, richer asset mechanism (see sprites row below); `image_url`/`thumbnail_url` are RC's flat DB columns and are additionally round-tripped via the RC extension. |
+| `CharacterContent.creator_notes` | prompt-bearing `creatorNotes` (maps to base V2 `data.creator_notes`, see chara-card-v2.md) | N/A - base field | N/A - base field | Not RC-specific; listed only to disambiguate from the next row. |
+| `CharacterContent.creators_note` (distinct DB column: "note from creator to other users, not injected into prompts") | `presentation.creatorsNote` | native (`extensions.rolecall.creators_note`) | **dropped in VAUDEVILLE's V3 serializer** - spec REQUIRES native; see edge case 1 | Do not confuse with `creator_notes` (prompt-bearing, base V2 field) or with `character.ts`'s doc comment "Note from creator to other users (not injected into prompts)" at `character.ts:125`. |
+| `CharacterContent.accent_color` | `presentation.accentColor` | native (`extensions.rolecall.accent_color`) | **dropped in VAUDEVILLE's V3 serializer** - spec REQUIRES native; see edge case 1 | Single hex/token color for card theming. |
+| `CharacterContent.card_layout` | `presentation.cardLayout` | escrow | escrow | Present on the shared `packages/types` `Character` row (`character.ts:153`) but never read/written by `serialize-v2.ts`/`serialize-v3.ts`/`parse-v2.ts`. OPEN QUESTION: intended target field/location not found in any codec path - escrow under `rolecall.escrow.card_layout` until clarified. |
 | `CharacterContent.source_url` | `provenance.sourceUrl` | native (`extensions.rolecall.source_url`) | native (`extensions.rolecall.source_url`) | |
-| `CharacterContent.details` (`CharacterDetails`, JSONB) | `presentation.castingCard` (see details sub-map below) | native (`extensions.rolecall.details`), whole object passed through as-is (VAUD: `serialize-v2.ts:218`) | **dropped in VAUDEVILLE's V3 serializer** — spec REQUIRES native; see edge case 1 | See detailed sub-map in section 4. |
-| `CharacterContent.sprites` (`CharacterSprite[]`, compact `{t,u,l?}`) | `presentation.sprites[]` (`{type,url,label?}`) | escrow (V2 has no `assets` mechanism; RC does not put sprites in V2 extensions) | native — expanded and merged into base-spec `data.assets[]` via `spritesToV3Assets` (VAUD: `serialize-v3.ts:135-145`, `sprites/types.ts:289-306`) | `t:'main'` maps to V3 asset `type:'icon'`; all other sprite types (`expression`,`outfit`,`pose`,`background`) pass through as their own asset `type` string. `name` = sprite `label` or `` `${type}_${index+1}` ``. `ext` derived from the URL's file extension. Round-trip: `v3AssetsToSprites` reverses `icon`->`main`, filters to the 5 known sprite types, drops anything else (VAUD: `sprites/types.ts:311-323`). |
-| `CharacterContent.triggerWarnings` / `Character.triggerWarnings` (packages/types only) | `contentRating.triggerWarnings[]` | OPEN QUESTION — see edge case 6 | OPEN QUESTION — see edge case 6 | canonical-model.md lists "trigger warnings" as part of the RC-native character superset, but no VAUDEVILLE serializer/parser in `formats/character/*` reads or writes them; only `tags: string[]` is exported. Not resolvable from source; flagged, not guessed. |
-| `CharacterContent.chat_count`, `favorite_count`, `download_count`, `rating_average`, `rating_count`, `fork_count`, `forked_from_id`, `original_creator_id`, `forked_at`, `current_version_number`, `version_count`, `status`, `creator_id`, `creatorName`, `isOwner` | (none — platform/social metadata) | dropped | dropped | Never emitted by any `formats/character/*` serializer. These are RoleCall-the-platform bookkeeping (ownership, social counts, moderation status, version lineage inside RC's own DB), not portable card content. A codec that emitted these into a card would leak platform-internal IDs into a file meant to travel between tools. |
+| `CharacterContent.details` (`CharacterDetails`, JSONB) | `presentation.castingCard` (see details sub-map below) | native (`extensions.rolecall.details`), whole object passed through as-is (VAUD: `serialize-v2.ts:218`) | **dropped in VAUDEVILLE's V3 serializer** - spec REQUIRES native; see edge case 1 | See detailed sub-map in section 4. |
+| `CharacterContent.sprites` (`CharacterSprite[]`, compact `{t,u,l?}`) | `presentation.sprites[]` (`{type,url,label?}`) | escrow (V2 has no `assets` mechanism; RC does not put sprites in V2 extensions) | native - expanded and merged into base-spec `data.assets[]` via `spritesToV3Assets` (VAUD: `serialize-v3.ts:135-145`, `sprites/types.ts:289-306`) | `t:'main'` maps to V3 asset `type:'icon'`; all other sprite types (`expression`,`outfit`,`pose`,`background`) pass through as their own asset `type` string. `name` = sprite `label` or `` `${type}_${index+1}` ``. `ext` derived from the URL's file extension. Round-trip: `v3AssetsToSprites` reverses `icon`->`main`, filters to the 5 known sprite types, drops anything else (VAUD: `sprites/types.ts:311-323`). |
+| `CharacterContent.triggerWarnings` / `Character.triggerWarnings` (packages/types only) | `contentRating.triggerWarnings[]` | OPEN QUESTION - see edge case 6 | OPEN QUESTION - see edge case 6 | canonical-model.md lists "trigger warnings" as part of the RC-native character superset, but no VAUDEVILLE serializer/parser in `formats/character/*` reads or writes them; only `tags: string[]` is exported. Not resolvable from source; flagged, not guessed. |
+| `CharacterContent.chat_count`, `favorite_count`, `download_count`, `rating_average`, `rating_count`, `fork_count`, `forked_from_id`, `original_creator_id`, `forked_at`, `current_version_number`, `version_count`, `status`, `creator_id`, `creatorName`, `isOwner` | (none - platform/social metadata) | dropped | dropped | Never emitted by any `formats/character/*` serializer. These are RoleCall-the-platform bookkeeping (ownership, social counts, moderation status, version lineage inside RC's own DB), not portable card content. A codec that emitted these into a card would leak platform-internal IDs into a file meant to travel between tools. |
 | loadout code (`options.loadoutCode`, RC:Creator/Preset/Config string) | `provenance.recommendedLoadout` | native (`extensions.rolecall.loadout`) | native (`extensions.rolecall.loadout`) | Not a `CharacterContent` column; supplied by the exporting caller (e.g. from a linked preset). |
 | recommended content (`RoleCallRecommendations`: presets/lorebooks/regexes/personas) | `provenance.recommendations` | native (`extensions.rolecall.recommendations`) | native (`extensions.rolecall.recommendations`) | Each entry is `{id?, name, note?, priority?}` plus type-specific fields (`loadout_code` for presets; `auto_enable`/`include_in_export` for lorebooks; `auto_enable` for regexes). VAUD: `serialize-v2.ts:57-82`. |
 | tracker preset (`CharacterTrackerPreset`) | `provenance.trackerPreset` | native (`extensions.rolecall.trackerPreset`) | native (`extensions.rolecall.trackerPreset`) | Creator-suggested tracker modules + optional starting state. Normalized on read via `normalizeCharacterTrackerPreset` (VAUD: `parse-v2.ts:259`). |
@@ -136,10 +136,10 @@ and are NOT repeated here except where RC changes their shape. RC-specific addit
 | `title` | `identity.title` | E.g. "The Wandering Blacksmith". |
 | `age` | `identity.age` | Free-text (not a validated integer in source). |
 | `pronouns` | `identity.pronouns` | Free-text. |
-| `fieldOrder` (`string[]`) | `presentation.castingCard.fieldOrder[]` | User-defined display order for bento/casting-card field cards. UI-layout metadata, not prompt content — native but inert to prompt assembly. |
+| `fieldOrder` (`string[]`) | `presentation.castingCard.fieldOrder[]` | User-defined display order for bento/casting-card field cards. UI-layout metadata, not prompt content - native but inert to prompt assembly. |
 | `default_background` (untyped in `content/types.ts`; `CharacterDefaultBackground` in `packages/types/character.ts:31-36`: `{backgroundId, customUrl, overlayOpacity, videoPlaybackRate?}`) | `presentation.defaultBackground` | Creator-curated default chat background. |
-| `prompt_depth_injections` (`Array<{id?, content, depth?, role?, enabled?}>`) | `depthInjections[]` | THE canonical depth-injection array named in the production bible brief. Each entry maps 1:1: `content`->`text`, `depth`->`depth`, `role`->`role` (default `"system"` when absent — OPEN QUESTION: no explicit default observed in source, see edge case 4), `enabled`->`enabled` (default `true` when absent), `id`->`id` (generate a ulid if absent on parse, per canonical-model.md `Entity.id` convention). |
-| `publicDefinitionDisplay` (`PublicDefinitionDisplaySettings`: `{spoilerMode, order, spoilers}`) | `presentation.publicDefinitionDisplay` | Controls spoiler/reveal-order UI on RC's public character page for the 7 fields in `PUBLIC_CHARACTER_DEFINITION_FIELDS` (personality, first-message, scenario, example-dialogue, description, creators-note, system-prompt). RC-only; Plot (the sister app) has no editor for it but preserves it via JSONB merge. Platform-display metadata, not prompt content — native but inert to prompt assembly. VAUD: `packages/types/src/character-display.ts:1-20`. |
+| `prompt_depth_injections` (`Array<{id?, content, depth?, role?, enabled?}>`) | `depthInjections[]` | THE canonical depth-injection array named in the production bible brief. Each entry maps 1:1: `content`->`text`, `depth`->`depth`, `role`->`role` (default `"system"` when absent - OPEN QUESTION: no explicit default observed in source, see edge case 4), `enabled`->`enabled` (default `true` when absent), `id`->`id` (generate a ulid if absent on parse, per canonical-model.md `Entity.id` convention). |
+| `publicDefinitionDisplay` (`PublicDefinitionDisplaySettings`: `{spoilerMode, order, spoilers}`) | `presentation.publicDefinitionDisplay` | Controls spoiler/reveal-order UI on RC's public character page for the 7 fields in `PUBLIC_CHARACTER_DEFINITION_FIELDS` (personality, first-message, scenario, example-dialogue, description, creators-note, system-prompt). RC-only; Plot (the sister app) has no editor for it but preserves it via JSONB merge. Platform-display metadata, not prompt content - native but inert to prompt assembly. VAUD: `packages/types/src/character-display.ts:1-20`. |
 
 ### 5. RoleOut legacy (read-only)
 
@@ -151,8 +151,8 @@ AFTER the V2/V3/rcpersona checks and BEFORE the flat-V1 check) and maps it into
 character-shaped fields: `name`->`name`, `title`->`description`,
 `content`->`personality`, `exportedBy`->`creator_notes`, `source`->`creator`, and
 `tags: ["persona", "roleout"]` (VAUD: `png-parser.ts:225-247`). Nothing in
-VAUDEVILLE writes this shape — `persona-export.ts` writes `rcpersona`/`rolecall_persona`
-instead — so RoleOut is import-only. The Round-Trip Law does not apply to it (there
+VAUDEVILLE writes this shape - `persona-export.ts` writes `rcpersona`/`rolecall_persona`
+instead - so RoleOut is import-only. The Round-Trip Law does not apply to it (there
 is no `serialize(..., "roleout")` to round-trip against); RoleOut fixtures are
 parse-only conformance tests.
 
@@ -269,7 +269,7 @@ export interface RoleCallCharacterCodec {
   /**
    * Fallback reader for PNGs with no ccv3/chara chunk but an rcpersona or
    * (legacy RoleOut) persona chunk. Returns a routing hint rather than a
-   * Character — callers decide whether to import as Persona (preferred) or,
+   * Character - callers decide whether to import as Persona (preferred) or,
    * for RoleOut only, as a degraded Character (legacy compatibility).
    */
   readLegacyPngFallback(pngBuffer: ArrayBuffer): 
@@ -294,7 +294,7 @@ export interface RoleCallRecommendations {
    `creators_note`, `accent_color`, and `details` from `extensions.rolecall`**
    (present in `serialize-v2.ts:105-135`, absent from `serialize-v3.ts:78-93`). This
    is a live Round-Trip Law violation in the reference implementation: import a card
-   with a signature color and casting-card palette, export to V3, reimport — the
+   with a signature color and casting-card palette, export to V3, reimport - the
    palette is gone. This spec REQUIRES the `vaud` V3 serializer to include the full
    `RoleCallCharacterExtension` (matching V2), not VAUDEVILLE's narrower V3 subset.
    Required permanent fixture: `fixtures/rolecall-character/v3-details-roundtrip/`
@@ -311,14 +311,14 @@ export interface RoleCallRecommendations {
 3. **Two independent depth-injection mechanisms with no defined merge order.**
    `extensions.depth_prompt` (single, base-spec/ST convention) and
    `details.prompt_depth_injections[]` (RC-native, plural) can both be present on
-   the same card. VAUDEVILLE's `serialize-v2.ts`/`parse-v2.ts` never merges them —
+   the same card. VAUDEVILLE's `serialize-v2.ts`/`parse-v2.ts` never merges them -
    `depth_prompt` rides as an opaque foreign extension (escrowed, never entering
    `depthInjections[]`) while `details.prompt_depth_injections` becomes the
    canonical `depthInjections[]`. This spec REQUIRES both to feed the same
    canonical `depthInjections[]` array on parse (append `depth_prompt` as one more
    entry, order: `details.prompt_depth_injections` first, then `depth_prompt`), and
    on serialize to write BOTH back out if both were present at parse time
-   (round-trip fidelity — see rule 4, escrow-and-roundtrip.md: canonical wins on
+   (round-trip fidelity - see rule 4, escrow-and-roundtrip.md: canonical wins on
    conflict, so if the canonical `depthInjections[]` was edited, the codec
    re-derives both locations from the edited array using the same append rule, and
    the single-entry `depth_prompt` reconstruction uses the FIRST canonical entry
@@ -333,13 +333,13 @@ export interface RoleCallRecommendations {
    `persona` PNG through the character path fabricates `scenario`, `first_mes`,
    `mes_example` as empty strings and stuffs the persona's actual content into
    `personality`. If a user then exports that "character," they get a normal V2/V3
-   card with an empty scenario/greeting — this is expected legacy behavior, not a
+   card with an empty scenario/greeting - this is expected legacy behavior, not a
    bug to fix, but the CLI report (`vaud import --strict`) MUST warn
    `"legacy-roleout-fallback: imported as degraded character; consider importing as
    a Persona instead"`.
 6. **Trigger warnings: undecided canonical-vs-platform status.** canonical-model.md
    (this suite) lists trigger warnings as part of the RC-native Character superset,
-   but no codec path in VAUDEVILLE reads or writes `triggerWarnings` on a card — only
+   but no codec path in VAUDEVILLE reads or writes `triggerWarnings` on a card - only
    `tags: string[]` crosses the wire. OPEN QUESTION: is `triggerWarnings` meant to be
    card-portable (like tags) or platform-only moderation metadata attached at
    display time? Do not invent a card field for it; treat as dropped until answered.
@@ -370,36 +370,36 @@ export interface RoleCallRecommendations {
 ## Test plan
 
 - Fixtures required (`fixtures/rolecall-character/`):
-  - `v2-full-rolecall-ext/` — V2 JSON with every `extensions.rolecall` field
+  - `v2-full-rolecall-ext/` - V2 JSON with every `extensions.rolecall` field
     populated (tagline, genre, fandom, nsfw, content_rating, token_count, image_url,
     thumbnail_url, source_url, creator_notes/creators_note, accent_color, full
     `details` object with all sub-fields, loadout, alternate_greeting_titles,
     recommendations covering all 4 kinds, trackerPreset, linkedLorebooks,
     linkedRegexScripts). Exercises the whole field map.
-  - `v3-details-roundtrip/` — see edge case 1: V3 card whose `extensions.rolecall`
+  - `v3-details-roundtrip/` - see edge case 1: V3 card whose `extensions.rolecall`
     must preserve `details`/`token_count`/`image_url`/`thumbnail_url`/`creators_note`/
     `accent_color` through a full parse -> serialize -> parse cycle.
-  - `v2-flat-png-selfexport/` — a PNG built the way RC's own exporter builds it
+  - `v2-flat-png-selfexport/` - a PNG built the way RC's own exporter builds it
     (flat `data` in the `chara` chunk, no wrapper) to exercise `isFlatV2Data`.
-  - `v2-dual-character-book-locations/` — a hand-crafted V2 JSON with DIFFERENT
+  - `v2-dual-character-book-locations/` - a hand-crafted V2 JSON with DIFFERENT
     books at both `data.character_book` and `data.extensions.character_book`, to
     pin the "imports as two lorebooks + warning" behavior from edge case 2.
-  - `v2-character-books-plural/` — RC's non-standard `character_books[]` array
+  - `v2-character-books-plural/` - RC's non-standard `character_books[]` array
     (3 books), exercising V3 export's `mergeCharacterBooks` merge-into-one.
-  - `v3-sprites-to-assets/` — a character with all 5 sprite types populated,
+  - `v3-sprites-to-assets/` - a character with all 5 sprite types populated,
     round-tripped through V3 `assets[]`, exercising the `main`<->`icon` remap.
-  - `v3-unknown-asset-type/` — a V3 card with a foreign `assets[].type` (e.g.
+  - `v3-unknown-asset-type/` - a V3 card with a foreign `assets[].type` (e.g.
     `"user_icon"`) to exercise edge case 9's drop-and-report behavior.
-  - `depth-injections-both-mechanisms/` — a card with BOTH `extensions.depth_prompt`
+  - `depth-injections-both-mechanisms/` - a card with BOTH `extensions.depth_prompt`
     and `details.prompt_depth_injections[]` populated, to pin edge case 3's merge
     order and re-derivation rule.
-  - `roleout-legacy-import/` — a PNG with a `persona` tEXt chunk holding
+  - `roleout-legacy-import/` - a PNG with a `persona` tEXt chunk holding
     `{name, title, content, source, exportedBy}`, exercising section 5 and the
     `legacy-roleout-fallback` warning. Parse-only (no round-trip assertion).
-  - `foreign-extensions-passthrough/` — a card with `talkativeness`, `fav`, `world`,
+  - `foreign-extensions-passthrough/` - a card with `talkativeness`, `fav`, `world`,
     and an unrelated third-party namespace key on `extensions`, verifying they
     survive an RC-in -> RC-out round-trip (VAUD: `serialize-v2.ts:164-175`).
-- Round-Trip Law applicability: full — every RC-native fixture above (except
+- Round-Trip Law applicability: full - every RC-native fixture above (except
   `roleout-legacy-import`, which is parse-only per edge case 5's asymmetry) must
   satisfy `serialize(parse(F), sameFormat)` semantic-identity per
   escrow-and-roundtrip.md. Byte-identity level: `semantic` (JSON key order and
@@ -416,15 +416,15 @@ export interface RoleCallRecommendations {
 ## Non-goals
 
 - Re-specifying base chara_card_v2/v3 field semantics, spec_version negotiation, or
-  PNG tEXt chunk mechanics — owned by chara-card-v2.md, chara-card-v3.md, and
+  PNG tEXt chunk mechanics - owned by chara-card-v2.md, chara-card-v3.md, and
   png-embedding.md.
 - Specifying the canonical `LorebookEntry` field map for embedded `character_book`
-  content — owned by rolecall-lorebook.md / st-worldinfo.md.
+  content - owned by rolecall-lorebook.md / st-worldinfo.md.
 - Specifying the RoleCall Persona codec (`rcpersona` keyword, `rolecall_persona`
-  spec, personas table) — owned by personas.md. This spec only documents how the
+  spec, personas table) - owned by personas.md. This spec only documents how the
   character-reading path interacts with persona PNGs as an import fallback.
 - Deciding product policy (sprite host allowlists, content-rating enforcement,
-  moderation status) — those are RoleCall-the-platform concerns, not codec concerns.
+  moderation status) - those are RoleCall-the-platform concerns, not codec concerns.
   The `vaud` codec preserves whatever values are present; it does not validate them
   against RC's product rules.
 - Resolving the OPEN QUESTIONs in this spec (trigger warnings, `card_layout`,
@@ -468,14 +468,14 @@ export interface RoleCallRecommendations {
   ccv3>chara>rcpersona>persona precedence, :148-284 `parseCharacterCard` format
   branching incl. :184-223 rolecall_persona munge and :225-247 RoleOut munge)
 - `<RoleCall>\apps\rc\src\lib\exports\persona-export.ts`
-  (:4 header, :78-79 `rcpersona` tEXt keyword write) — confirms rcpersona is the
+  (:4 header, :78-79 `rcpersona` tEXt keyword write) - confirms rcpersona is the
   Persona codec's keyword, not Character's.
 - `<RoleCall>\apps\rc\src\lib\imports\persona-st.ts`
   (:20-49 `importPersonaFromST` using the shared `library/png-parser.ts` reader,
   RoleOut/ST persona import path)
 - `<RoleCall>\apps\rc\src\lib\imports\content-detector.ts`
   (:15,:70 use of `library/png-parser.ts` `parseCharacterCard` for content-type
-  classification) — cited to show the reader is live/used, not dead code.
+  classification) - cited to show the reader is live/used, not dead code.
 - `<RoleCall>\apps\rc\src\lib\sprites\types.ts` (:16-45
   `SpriteType`/`SpriteCompact`/`Sprite`/`V3Asset`, :65-106 host allow/block lists,
   :250-284 compact/expand conversions, :289-306 `spritesToV3Assets`, :311-323

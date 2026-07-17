@@ -34,7 +34,7 @@ export type LoreFieldKey =
   | "secondaryTriggers"
   | "selectiveLogic"
   | "triggerRiders"
-  /** RC [type:value] insert chips. Full card only — RC is not a Write-for tab. */
+  /** RC [type:value] insert chips. Full card only - RC is not a Write-for tab. */
   | "specialTriggers"
   | "position"
   | "depth"

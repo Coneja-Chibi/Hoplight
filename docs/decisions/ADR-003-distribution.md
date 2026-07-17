@@ -1,4 +1,4 @@
-# ADR-003: Distribution — single executable + self-updater; installer later
+# ADR-003: Distribution - single executable + self-updater; installer later
 
 **Status:** accepted
 

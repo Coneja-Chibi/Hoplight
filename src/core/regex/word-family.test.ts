@@ -34,7 +34,7 @@ describe("analyzeWordFamily", () => {
   test("odd-one-out warning uses a colon, never an em dash", () => {
     const a = analyzeWordFamily(["dash", "dashing"]);
     expect(a.warning).toBeTruthy();
-    expect(a.warning).not.toContain("—");
+    expect(a.warning).not.toContain("—"); // emdash-ok: asserting its absence
     expect(a.warning).toContain(":");
     expect(a.coveringWords).toContain("dashing");
   });

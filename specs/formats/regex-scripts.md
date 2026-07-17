@@ -17,7 +17,7 @@ mapping and its known asymmetry in the VAUDEVILLE reference implementation), the
 RC-native `linkedRegexScripts` embedding used inside presets, and the substitution
 semantics (`{{match}}`, `$&`, `$<name>`, `$N`, `trim_strings`) that both codecs and
 the runtime engine (specs/engine/*) must implement identically. It does not define
-the NL regex *builder* (pattern authoring UI) — see Non-goals.
+the NL regex *builder* (pattern authoring UI) - see Non-goals.
 
 ## Behavior
 
@@ -66,7 +66,7 @@ Canonical field notes:
 - `findPattern` never carries the `/pattern/flags` wrapper; flags always live in the
   separate `flags` field. This matches the parsed (not source-JSON) shape in
   VAUDEVILLE (`import-st-regex.ts:36-45,62-76`).
-- `sortOrder` is authoritative for application order, not array position — the
+- `sortOrder` is authoritative for application order, not array position - the
   runtime engine sorts by it before applying rules
   (`apply-regex.ts:111`: `applicableRules.sort((a, b) => a.sort_order - b.sort_order)`).
   Codecs must preserve `sortOrder`, not just array order, on round-trip.
@@ -76,7 +76,7 @@ Canonical field notes:
 
 ### 2. SillyTavern JSON codec
 
-**Source shape** (`import-st-regex.ts:16-28`, `SillyTavernRegex` interface — this is
+**Source shape** (`import-st-regex.ts:16-28`, `SillyTavernRegex` interface - this is
 the shape ST scripts export as, one object per rule; RC treats "script" and "rule"
 as 1:1 when importing raw ST JSON):
 
@@ -93,7 +93,7 @@ interface SillyTavernRegex {
   disabled?: boolean;
   markdownOnly?: boolean;
   promptOnly?: boolean;
-  // Present on ST/RC exports but NOT read by the parser — escrow (section 4):
+  // Present on ST/RC exports but NOT read by the parser - escrow (section 4):
   // id?: string;
   // substituteRegex?: number;
 }
@@ -112,7 +112,7 @@ detection, `json-parsers.ts:174-212`, `isRegexScript`):
 Detection priority against other content types, in `detectJsonType`
 (`json-parsers.ts:252-268`): `persona > character > lorebook > regex > preset`.
 Regex is checked before preset specifically to avoid a regex document (which can
-carry sampler-adjacent-looking fields) being misdetected as a preset — see
+carry sampler-adjacent-looking fields) being misdetected as a preset - see
 specs/formats/content-detection.md for the full ordering and its rationale.
 
 **Parse: `findRegex` unwrap.** `findRegex` is `/pattern/flags`. The wrapper regex
@@ -122,7 +122,7 @@ MUST use a dot-all-safe character class, not `.`, to unwrap multi-line patterns:
 /^\/([\s\S]+)\/([gimsuvy]*)$/
 ```
 
-(`import-st-regex.ts:72`, fixed under VVS-502 — the original `.+` unwrap silently
+(`import-st-regex.ts:72`, fixed under VVS-502 - the original `.+` unwrap silently
 failed on any `findRegex` containing a newline and stored the raw
 `"/pattern/flags"` string, slashes included, as `findPattern`, corrupting the
 pattern and inflating it toward storage caps.) If `findRegex` does not match the
@@ -138,16 +138,16 @@ numbers map to canonical `RegexPlacement` as follows
 | 0 | MD_DISPLAY | `display_only` |
 | 1 | USER_INPUT | `user_input` |
 | 2 | AI_OUTPUT | `ai_output` |
-| 3 | SLASH_COMMAND | not supported — falls back to `ai_output` |
+| 3 | SLASH_COMMAND | not supported - falls back to `ai_output` |
 | 5 | WORLD_INFO | `lorebook` |
 | 6 | REASONING | `reasoning` |
-| any other number (incl. missing/unknown, e.g. 4) | — | falls back to `ai_output` |
+| any other number (incl. missing/unknown, e.g. 4) | - | falls back to `ai_output` |
 
 If a placement entry is already one of the six canonical strings (re-parsing a
 document that came from RC's own flat export, or from `linkedRegexScripts`), it
 passes through unchanged rather than falling into the numeric map (RC placement
 strings: `user_input`, `ai_output`, `display_only`, `prompt_only`, `lorebook`,
-`reasoning` — `import-st-regex.ts:102-116`).
+`reasoning` - `import-st-regex.ts:102-116`).
 
 If `placement` is missing entirely, default to `["ai_output"]`
 (`import-st-regex.ts:111`, confirmed by `st-placement-map.test.ts:71-78`).
@@ -176,7 +176,7 @@ pinned by `st-format-flags.test.ts`):
 | `disabled` | `enabled` | `enabled = !disabled`; default `enabled = true` |
 | `minDepth` | `minDepth` | `?? null` |
 | `maxDepth` | `maxDepth` | `?? null` |
-| `runOnEdit` | `runOnEdit` | `item.runOnEdit !== false` — i.e. defaults to `true`, only `false` when explicitly set |
+| `runOnEdit` | `runOnEdit` | `item.runOnEdit !== false` - i.e. defaults to `true`, only `false` when explicitly set |
 | `trimStrings` | `trimStrings` | default `[]` |
 | (array index) | `sortOrder` | assigned as the rule's position in the input array |
 | `id` | escrow (`sillytavern`) | not read into canonical; see section 4 |
@@ -191,7 +191,7 @@ unwrap to the inner array before running `parseSillyTavernRegex` on it; the wrap
 key itself (`data`) carries no information beyond "this is an array" and is not
 escrowed.
 
-**Serialize to SillyTavern format — use the CORRECT inverse, not the reference
+**Serialize to SillyTavern format - use the CORRECT inverse, not the reference
 export route.** VAUDEVILLE's live export endpoint
 (`apps/rc/src/app/api/content/regex-scripts/[id]/export/route.ts:8-15`,
 `RC_TO_ST_PLACEMENT`) implements the OLD, pre-VVS-fix shifted-by-one map:
@@ -206,7 +206,7 @@ off-by-one error the import side fixed and pinned a regression test for
 shifted by one... silently routed every imported `[2]` script to `display_only`").
 The export route was never updated to match. Consequence in production: RC → ST
 JSON → RC through the flat `regex_scripts` field is lossy (an `ai_output` rule
-exports as `1` and re-imports as `user_input`) — this is precisely why
+exports as `1` and re-imports as `user_input`) - this is precisely why
 `linkedRegexScripts` (section 3) exists as the lossless RC-to-RC path
 (`preset-regex-roundtrip.test.ts:1-28`).
 
@@ -229,7 +229,7 @@ Additional serialize rules:
   on parse, in reverse).
 - `display_only` may alternatively be expressed as ST placement `2` with
   `markdownOnly: true`; prefer the direct `0` mapping (fewer flags, matches the
-  documented ST enum) — the `markdownOnly` form exists only because it is
+  documented ST enum) - the `markdownOnly` form exists only because it is
   ST's own alternate spelling for the same target and the parser accepts both.
 - `findPattern` + `flags` re-wrap to `` `/${findPattern}/${flags}` ``.
 - `enabled: false` → `disabled: true`; `enabled: true` (or missing) → `disabled`
@@ -239,7 +239,7 @@ Additional serialize rules:
 - Escrowed `sillytavern.fields.id` and `sillytavern.fields.substituteRegex`, if
   present, are re-emitted at their original keys (Round-Trip Law, escrow rule 2).
   If no escrowed `id` exists (canonical-only rule, never parsed from ST), synthesize
-  one: slugify `name` (`name.toLowerCase().replace(/[^a-z0-9]+/g, "-")`) — this
+  one: slugify `name` (`name.toLowerCase().replace(/[^a-z0-9]+/g, "-")`) - this
   matches the reference export's synthesis fallback
   (`route.ts:43`) and keeps output stable/deterministic.
 - Container shape: a script with exactly one rule serializes as a flat object (not
@@ -256,7 +256,7 @@ coexist inside `extensions` on a preset (`import-st-regex.ts:158-195`,
 `pickPresetRegexSource`):
 
 - `extensions.regex_scripts`: flat, ST-compatible array of `SillyTavernRegex`
-  objects — lossy for RC-only placements (`lorebook`, `reasoning`) and metadata
+  objects - lossy for RC-only placements (`lorebook`, `reasoning`) and metadata
   (`trimStrings`, depth bounds), because it round-trips through the ST codec above.
 - `extensions.linkedRegexScripts`: RC-native, lossless array of full scripts:
 
@@ -282,7 +282,7 @@ interface LinkedRegexScript {
 ```
 
 **Source selection rule (mandatory):** when both fields are present on a preset's
-`extensions`, prefer `linkedRegexScripts` — it is the lossless form. Fall back to
+`extensions`, prefer `linkedRegexScripts` - it is the lossless form. Fall back to
 `regex_scripts` only when `linkedRegexScripts` is absent or empty. This is not
 optional: VAUDEVILLE's own preset importer (`src/lib/imports/preset.ts`, per
 `preset-regex-roundtrip.test.ts:121-267`) originally read only the lossy flat form,
@@ -307,7 +307,7 @@ time, unconditionally:
 
 On serialize back to SillyTavern format, escrowed fields merge back into their
 original keys (escrow rule 2). Canonical `RegexRule.id` is a Vaudeville-internal
-identifier (ulid, per canonical-model.md) and is never written to ST's `id` key —
+identifier (ulid, per canonical-model.md) and is never written to ST's `id` key -
 the two are decoupled, not competing for the same output location. ST's `id` round
 trips purely through escrow: parsed into `sillytavern.fields.id`, re-emitted at
 that same key on serialize, and otherwise ignored. Escrow rule 4
@@ -344,13 +344,13 @@ format-support matrix (never hand-edited).
 | `sortOrder` | native | array position on the wire; explicit field on canonical |
 | `trimStrings` | native | |
 
-Foreign-serialize lossiness (not a Round-Trip Law violation — ST-authored
+Foreign-serialize lossiness (not a Round-Trip Law violation - ST-authored
 fixtures parse and re-serialize cleanly; this only affects canonical documents
 that were never sourced from ST): a canonical rule whose `placement` array
 contains BOTH `ai_output` and `prompt_only` cannot survive a canonical → ST
 serialize round trip. Both values collapse to ST number `2`, and the single
 `promptOnly` boolean on the output object cannot distinguish "prompt_only only"
-from "ai_output and prompt_only both apply" — the codec must report this
+from "ai_output and prompt_only both apply" - the codec must report this
 combination as lossy (`escrowed`/`dropped` entry in the `SerializeReport`) rather
 than silently emitting a document that re-imports as a different placement set.
 
@@ -390,7 +390,7 @@ implement identically. Reference: `apply-regex.ts:113-243`.
      way) if `1 <= N <= captureGroupCount` and the group matched; otherwise
      (including out-of-range `N`) emit nothing. `captureGroupCount` is derived
      from the replacer callback's argument list, not assumed from the pattern.
-   - Trimming applies ONLY to matched/captured text substituted via a token —
+   - Trimming applies ONLY to matched/captured text substituted via a token -
      never to literal (non-token) text in `replaceString`, and never to
      surrounding unmatched text in the source string.
    - This is a single left-to-right pass over `replaceString`, not chained
@@ -401,7 +401,7 @@ implement identically. Reference: `apply-regex.ts:113-243`.
 ## Public API sketch
 
 ```ts
-// packages/core — canonical types
+// packages/core - canonical types
 export type RegexPlacement =
   | "user_input" | "ai_output" | "display_only"
   | "prompt_only" | "lorebook" | "reasoning";
@@ -429,7 +429,7 @@ export interface RegexScript {
   rules: RegexRule[];
 }
 
-// packages/formats/sillytavern-regex — codec
+// packages/formats/sillytavern-regex - codec
 import type { Codec, ParseReport, SerializeReport } from "@vaud/core";
 
 export interface SillyTavernRegexCodec extends Codec<RegexScript> {
@@ -440,14 +440,14 @@ export interface SillyTavernRegexCodec extends Codec<RegexScript> {
   capabilities: Record<CanonicalFieldPath, "native" | "escrow" | "dropped">;
 }
 
-// packages/formats/rolecall-regex-embed — the linkedRegexScripts <-> RC-native
+// packages/formats/rolecall-regex-embed - the linkedRegexScripts <-> RC-native
 // embedding used inside presets; consumed by st-preset.md's codec, not
 // standalone-file detectable.
 export function pickRegexSource(
   extensions: Record<string, unknown> | null | undefined,
 ): { source: "linkedRegexScripts" | "regex_scripts" | "none"; scripts: RegexScript[] };
 
-// packages/regexkit (runtime; NOT the codec) — substitution semantics shared
+// packages/regexkit (runtime; NOT the codec) - substitution semantics shared
 // with prompt assembly and the lorebook engine
 export interface ApplyRegexOptions {
   depth?: number;
@@ -481,7 +481,7 @@ export function validateRegexPattern(
 1. `findRegex` has no `/pattern/flags` wrapper (bare pattern string, no slashes):
    use it verbatim as `findPattern`, default `flags` to `"gm"`. Does not error.
 2. `findRegex` wraps a multi-line pattern (contains literal newlines inside the
-   slashes): must unwrap correctly using `[\s\S]+`, not `.+` — regression fixture
+   slashes): must unwrap correctly using `[\s\S]+`, not `.+` - regression fixture
    required (VVS-502).
 3. `placement` array contains a mix of ST numbers and canonical strings in the same
    array (possible if hand-edited): each entry is mapped independently per its own
@@ -491,12 +491,12 @@ export function validateRegexPattern(
 5. `placement` is an unassigned number (e.g. `[4]`, or any number not in
    `{0,1,2,3,5,6}`): falls back to `ai_output`. OPEN QUESTION: whether ST has ever
    assigned meaning to placement `4`; not found in the reference implementation or
-   its comments — treat as unknown/unassigned, do not guess.
+   its comments - treat as unknown/unassigned, do not guess.
 6. Both `promptOnly: true` and `markdownOnly: true` are set on the same rule:
    `promptOnly` wins (checked first in the reference `if/else if` chain); the
    codec must reproduce this precedence, not merge both.
 7. Both `extensions.linkedRegexScripts` and `extensions.regex_scripts` present on
-   an embedding preset: `linkedRegexScripts` wins entirely (not merged) — see
+   an embedding preset: `linkedRegexScripts` wins entirely (not merged) - see
    `preset-regex-roundtrip.test.ts:132-180`.
 8. `sortOrder` values collide or are missing after a hand edit: sort is a stable
    JS array sort on the numeric key; ties keep relative input order (V8 stable
@@ -504,25 +504,25 @@ export function validateRegexPattern(
    concern, not the codec's.
 9. `trimStrings` contains a string that is itself a regex metacharacter (e.g.
    `"*"`, `"("`): trimming is literal substring removal
-   (`split(x).join('')`), never treated as a regex — this must not be
+   (`split(x).join('')`), never treated as a regex - this must not be
    reinterpreted as a nested pattern.
 10. A rule's `findPattern` is an invalid regex (fails `new RegExp(...)` at apply
     time): the engine skips that single rule and continues; on the codec/editor
     side, `validateRegexPattern` surfaces the failure before save, but parse of an
-    already-broken stored pattern must not throw — store it as-is in canonical
+    already-broken stored pattern must not throw - store it as-is in canonical
     `findPattern` and let validation be a separate, non-blocking pass.
 11. Single-rule script exported to SillyTavern JSON round-trips through a flat
     object, not a one-element array; re-parsing that flat object and re-exporting
     must reproduce the flat form again (idempotent, but not literally
-    `[rule]`-shaped) — this asymmetry is why byte-identity level is `semantic`.
+    `[rule]`-shaped) - this asymmetry is why byte-identity level is `semantic`.
 12. A regex document detected via the bare-array structural rule (`isRegexScript`)
     could theoretically collide with another array-of-objects format that happens
     to have a `name` field on every element; detection priority
-    (`persona > character > lorebook > regex > preset`) resolves this — regex
+    (`persona > character > lorebook > regex > preset`) resolves this - regex
     detection only runs after persona/character/lorebook have already rejected the
     document. Full ordering: specs/formats/content-detection.md.
 13. `minDepth`/`maxDepth` are `0`: `0` is a valid, meaningful bound (not treated as
-    falsy/absent) — the depth check is `depth < minDepth` / `depth > maxDepth`,
+    falsy/absent) - the depth check is `depth < minDepth` / `depth > maxDepth`,
     which correctly includes `minDepth: 0`.
 14. Escrowed `sillytavern.fields.id` is absent (canonical-only rule that never came
     from an ST parse) and the script is serialized to ST format: synthesize
@@ -531,27 +531,27 @@ export function validateRegexPattern(
 ## Test plan
 
 - Fixtures required, under `fixtures/regex-scripts/`:
-  - `st-single-rule-flat.json` — bare single-object ST export (not array-wrapped).
+  - `st-single-rule-flat.json` - bare single-object ST export (not array-wrapped).
     Exercises detection + the single-rule flat-object serialize asymmetry.
-  - `st-multi-rule-array.json` — array of 2+ rules, mixed placements.
-  - `st-multiline-findregex.json` — VVS-502 regression: `findRegex` containing an
+  - `st-multi-rule-array.json` - array of 2+ rules, mixed placements.
+  - `st-multiline-findregex.json` - VVS-502 regression: `findRegex` containing an
     embedded newline (`/<think>\nfoo\n</think>/gms`).
-  - `st-placement-full-matrix.json` — one rule per ST placement number
+  - `st-placement-full-matrix.json` - one rule per ST placement number
     `{0,1,2,3,5,6}` plus one with an unassigned number (e.g. `9`), to pin the
     fallback-to-`ai_output` behavior across the whole enum.
-  - `st-prompt-only-and-markdown-only.json` — one rule with `promptOnly: true`,
+  - `st-prompt-only-and-markdown-only.json` - one rule with `promptOnly: true`,
     one with `markdownOnly: true`, one with both set (precedence case).
-  - `st-trim-strings.json` — rule exercising `$&`, `$1`, `$<name>` with
+  - `st-trim-strings.json` - rule exercising `$&`, `$1`, `$<name>` with
     `trimStrings` set, including an out-of-range `$N` reference in
     `replaceString` (must emit nothing for that token, not throw or leak
     `fullString`).
-  - `rc-linked-regex-scripts-preset.json` — a preset `extensions` blob carrying
+  - `rc-linked-regex-scripts-preset.json` - a preset `extensions` blob carrying
     both `regex_scripts` and `linkedRegexScripts` with DIFFERING placements per
     rule (mirrors `preset-regex-roundtrip.test.ts`), to pin the
     `linkedRegexScripts`-wins rule.
-  - `rc-linked-only.json` and `st-flat-only.json` — single-source presets, to pin
+  - `rc-linked-only.json` and `st-flat-only.json` - single-source presets, to pin
     the fallback path when only one embedding is present.
-- Round-Trip Law applicability: full — `serialize(parse(F))` must be semantically
+- Round-Trip Law applicability: full - `serialize(parse(F))` must be semantically
   identical to `F` for every ST fixture, at byte-identity level `semantic` (flat
   vs. array container shape and key order may differ; canonical + escrow must be
   deep-equal on re-parse). State explicitly in the codec's exported
@@ -559,7 +559,7 @@ export function validateRegexPattern(
 - Property/unit tests beyond fixtures:
   - Placement round-trip: every canonical `RegexPlacement` value parses from its
     correct ST number and serializes back to that same number (pins the
-    corrected inverse map from Behavior section 2 — this is the test that would
+    corrected inverse map from Behavior section 2 - this is the test that would
     have caught the reference implementation's export bug).
   - `applyRegexRules` timeout: a deliberately slow pattern against a long input
     stops applying further rules after `timeoutMs` without throwing.
@@ -568,7 +568,7 @@ export function validateRegexPattern(
   - Token-scan replacer: capture-group-count derivation is correct for 0, 1, and
     N named + numbered groups mixed; out-of-range `$N` and unmatched `$<name>`
     both emit empty string, never leak the full input string.
-  - `sortOrder` (not array order) governs application order — a fixture whose
+  - `sortOrder` (not array order) governs application order - a fixture whose
     array order and `sortOrder` values disagree must apply in `sortOrder` order.
 
 ## Non-goals
@@ -608,23 +608,23 @@ export function validateRegexPattern(
   `LinkedRegexScript`/`pickPresetRegexSource`; 203-306
   `importLinkedRegexScripts`; 342-461 `importSTRegexScripts`).
 - `<RoleCall>\apps\rc\src\app\api\content\regex-scripts\[id]\export\route.ts`
-  (lines 8-15 `RC_TO_ST_PLACEMENT` — flagged as a stale/buggy shifted-by-one map,
+  (lines 8-15 `RC_TO_ST_PLACEMENT` - flagged as a stale/buggy shifted-by-one map,
   NOT followed by this spec; lines 22-57 `ruleToSillyTavern`; line 164 flat-vs-array
   container rule).
 - `<RoleCall>\apps\rc\src\lib\regex\__tests__\st-placement-map.test.ts`
-  (full file — documents the shifted-by-one regression and pins the correct
+  (full file - documents the shifted-by-one regression and pins the correct
   0/1/2/3/5/6 map).
 - `<RoleCall>\apps\rc\src\lib\regex\__tests__\import-st-regex-multiline.test.ts`
-  (full file — VVS-502 multi-line `findRegex` unwrap fixture basis).
+  (full file - VVS-502 multi-line `findRegex` unwrap fixture basis).
 - `<RoleCall>\apps\rc\src\lib\regex\__tests__\st-format-flags.test.ts`
-  (full file — `promptOnly`/`markdownOnly` overlay behavior).
+  (full file - `promptOnly`/`markdownOnly` overlay behavior).
 - `<RoleCall>\apps\rc\src\lib\regex\__tests__\preset-regex-roundtrip.test.ts`
-  (full file — `linkedRegexScripts`-wins contract and the RC→ST→RC lossiness
+  (full file - `linkedRegexScripts`-wins contract and the RC→ST→RC lossiness
   this spec's corrected export map is meant to close).
 - `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (lines 174-212 `isRegexScript`; 252-268 `detectJsonType` priority order).
 - `<RoleCall>\apps\rc\src\lib\regex\engine.ts` (lines
-  1-80 — separate ReDoS/complexity-scoring engine, cited only for the Non-goals
+  1-80 - separate ReDoS/complexity-scoring engine, cited only for the Non-goals
   scope boundary and the `createReplacementFunction` naming referenced in
   `apply-regex.ts`'s comments).
 - `docs\the production bible (private planning notes)` (brief

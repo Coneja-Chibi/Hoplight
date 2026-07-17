@@ -3,8 +3,8 @@
 Every spec follows `templates/SPEC-TEMPLATE.md`. Status: `planned` -> `draft`
 (written) -> `reviewed` (survived adversarial review). Hand-written foundations:
 
-- `formats/canonical-model.md` — the canonical superset model (authoritative)
-- `formats/escrow-and-roundtrip.md` — the Round-Trip Law (authoritative)
+- `formats/canonical-model.md` - the canonical superset model (authoritative)
+- `formats/escrow-and-roundtrip.md` - the Round-Trip Law (authoritative)
 
 ## formats/
 

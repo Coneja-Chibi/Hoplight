@@ -3,7 +3,7 @@
  * Path: sillytavern.raw.data.extensions.chub.* (namespaced bag on ST CCv2/v3).
  *
  * Main-page fields are things you actually author here: background, lore refs, CSS, preset.
- * Hub cargo (Stages, path, id) and sprites stay on the twin for export but are HIDE'd — no empty
+ * Hub cargo (Stages, path, id) and sprites stay on the twin for export but are HIDE'd - no empty
  * JSON boxes or provenance dead-ends on the main surface.
  *
  * Plan: docs/CHUB-JEWEL-PLAN.md · Wireframe: design/vs-native-chub.html
@@ -22,7 +22,7 @@ const HIDE = [
   "related_lorebooks",
   "custom_css",
   "preset",
-  // hub cargo / provenance — re-export keeps them; main page does not host empty shells
+  // hub cargo / provenance - re-export keeps them; main page does not host empty shells
   "extensions",
   "full_path",
   "id",

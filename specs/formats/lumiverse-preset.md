@@ -2,7 +2,7 @@
 
 **Package:** `packages/presets` (per `02-ARCHITECTURE.md:16-17`: "presets/ ... Lumiverse
 converter" lives beside the ST preset parse/serialize code, not in `packages/formats/`.
-`formats/` cannot depend on `presets/` — the dependency rule is `core <- formats <-
+`formats/` cannot depend on `presets/` - the dependency rule is `core <- formats <-
 everything`, i.e. `formats` sits below `presets` in the load order, so a codec that
 calls `parsePreset`/`serializePreset` (both in `presets/`) must itself live in
 `presets/`, not `formats/`.) · **Milestone:** M1 · **Status:** draft
@@ -43,7 +43,7 @@ typeof json === "object" && json !== null
 ```
 
 (VAUD: `lumiverse-converter.ts:63-71`, function `isLumiversePreset`.) `schemaVersion`
-is read (currently observed as `2`) but is NOT part of the detection predicate — the
+is read (currently observed as `2`) but is NOT part of the detection predicate - the
 converter does not branch on its value. There is no known Lumiverse preset
 `schemaVersion` other than `2` in the VAUDEVILLE codebase; this codec should still
 record whatever `schemaVersion` value is present into escrow rather than assume `2`.
@@ -71,7 +71,7 @@ The wrapper shape:
 
 (VAUD: `lumiverse-converter.ts:38-57`, interfaces `LumiversePresetInner` and
 `LumiverseWrapper`.) Both the wrapper and `preset` inner object carry an open
-`[key: string]: unknown` index signature — Lumiverse's real-world exports are known
+`[key: string]: unknown` index signature - Lumiverse's real-world exports are known
 to include fields beyond the ones this codec reads.
 
 ### Parse pipeline
@@ -103,12 +103,12 @@ Each `LumiverseBlock` (VAUD: `lumiverse-converter.ts:24-36`):
 | `enabled` | boolean? | Defaults to enabled; only an explicit `false` disables. |
 | `isLocked` | boolean? | Maps to `forbid_overrides`. |
 | `depth` | number? | Injection depth; defaults to `4` when absent. |
-| `position` | string? | Observed values `'pre_history' \| 'post_history'`. **Read but not consumed** by the converter — see Edge case 6. |
+| `position` | string? | Observed values `'pre_history' \| 'post_history'`. **Read but not consumed** by the converter - see Edge case 6. |
 | `injectionTrigger` | string[] \| null? | Passed through as `injection_trigger`; `null`/absent becomes `[]`. |
 
 Three block kinds are handled distinctly:
 
-**1. `marker === "chat_history"`** — becomes the ST structural marker prompt with
+**1. `marker === "chat_history"`** - becomes the ST structural marker prompt with
 reserved identifier `"chatHistory"` (the exact identifier the ST parser and prompt
 builder key on):
 
@@ -122,14 +122,14 @@ builder key on):
 
 (VAUD: `lumiverse-converter.ts:181-198`.)
 
-**2. `marker === "category"`** — becomes a category-header prompt. Content is
+**2. `marker === "category"`** - becomes a category-header prompt. Content is
 forced empty and the name is decorated with `━━━ <name> ━━━` (VAUD:
 `lumiverse-converter.ts:201-213`) so the downstream ST legacy-format category
 detector (`preset-parser.ts:108-114`, requiring 2+ consecutive box-drawing marker
 characters and empty content) recognizes it as a category the same way it would
 recognize a native ST NemoPresetExt category.
 
-**3. Everything else (`marker === '' \| undefined`, i.e. a normal content block)** —
+**3. Everything else (`marker === '' \| undefined`, i.e. a normal content block)** -
 becomes a regular `RawPrompt` with `name`/`content` taken as-is (VAUD:
 `lumiverse-converter.ts:207-223`).
 
@@ -150,9 +150,9 @@ the converter's own synthesized entries (VAUD: `lumiverse-converter.ts:161-168`)
 | `isLocked` | `forbid_overrides` | native | |
 | `depth` | `injection_depth` | native | Defaults to `4` |
 | `injectionTrigger` | `injection_trigger` | native | `null`/absent -> `[]` |
-| `position` (`pre_history`/`post_history`) | — | **dropped at conversion; not read into any RawPrompt field** | See Edge case 6. All converted prompts get `injection_position: 0` (relative/legacy) regardless of `block.position`. |
-| (none — synthesized) | `injection_order` | native | Always hardcoded to `100` for every converted block |
-| (none — synthesized) | `system_prompt` | native | Always `false` for content/history blocks |
+| `position` (`pre_history`/`post_history`) | - | **dropped at conversion; not read into any RawPrompt field** | See Edge case 6. All converted prompts get `injection_position: 0` (relative/legacy) regardless of `block.position`. |
+| (none - synthesized) | `injection_order` | native | Always hardcoded to `100` for every converted block |
+| (none - synthesized) | `system_prompt` | native | Always `false` for content/history blocks |
 
 ### Field map: `LumiversePresetInner` settings -> `RawPreset`
 
@@ -193,13 +193,13 @@ the converter's own synthesized entries (VAUD: `lumiverse-converter.ts:161-168`)
 | `preset.promptBehavior.emptySendNudge` | escrow (`_lumiverse_empty_send_nudge`) | escrow | No RawPreset field corresponds to this |
 | `preset.advancedSettings.customStopStrings` | escrow (`_lumiverse_custom_stop_strings`) | escrow | No RawPreset field corresponds to this |
 | (marker) | `_lumiverse_source: true` | escrow | Marks the RawPreset as Lumiverse-derived, for round-trip/debugging |
-| `wrapper.type`, `wrapper.schemaVersion` | — | **not currently escrowed by the VAUD converter** | OPEN QUESTION below |
-| `preset.id` | — | **not currently escrowed by the VAUD converter** | OPEN QUESTION below |
-| any other key on `wrapper` or `preset.*` (via the open index signatures) | — | **dropped by the VAUD converter today** | OPEN QUESTION below |
+| `wrapper.type`, `wrapper.schemaVersion` | - | **not currently escrowed by the VAUD converter** | OPEN QUESTION below |
+| `preset.id` | - | **not currently escrowed by the VAUD converter** | OPEN QUESTION below |
+| any other key on `wrapper` or `preset.*` (via the open index signatures) | - | **dropped by the VAUD converter today** | OPEN QUESTION below |
 
 All `_lumiverse_*` keys plus `_lumiverse_source` are written directly onto the
 `RawPreset` object as sibling fields (VAUD: `lumiverse-converter.ts:266-272`), not
-into a nested escrow structure — they ride through `RawPreset`'s
+into a nested escrow structure - they ride through `RawPreset`'s
 `[key: string]: unknown` index signature and land in `ParsedPreset.rawSettings` via
 the ST parser's unknown-field passthrough (`preset-parser.ts:421-442`). Any key
 starting with `undefined` value is stripped before the `RawPreset` is returned
@@ -230,11 +230,11 @@ single hidden prompt, `lumiverseVariableDefaults`, placed first in the prompt or
 1. Merge all `promptVariables` maps into one `Map<name, value>`, first-write-wins
    across blocks (later blocks defining the same variable name are ignored).
 2. Drop any `(name, value)` pair where either the name or `String(value)` contains
-   a macro-significant sequence (`"::"`, `"{{"`, `"}}"`) — these would corrupt the
+   a macro-significant sequence (`"::"`, `"{{"`, `"}}"`) - these would corrupt the
    synthesized macro syntax and there is no in-band escape.
 3. For each surviving pair, emit one line:
    `{{if {{hasvar::<name>}}}}{{else}}{{setvar::<name>::<value>}}{{/if}}`
-   — i.e., "if the variable is already set (by mid-chat user action), do nothing;
+   - i.e., "if the variable is already set (by mid-chat user action), do nothing;
    otherwise set the default." This guards against the synthesized defaults
    clobbering a user's later `/setvar` or in-chat variable change on every
    subsequent prompt build.
@@ -260,7 +260,7 @@ conditional blocks, `{{rcounter::name}}` running counters, reasoning-tag emitter
 `{{charGroupFocusedPersonality}}`, `{{groupOthers}}`), Lumiverse platform aliases
 (`{{lumiaDef}}`, `{{lumiaPersonality}}`), and Lumiverse-only platform tokens with
 no Vaudeville equivalent (`{{lumiaCouncilModeActive}}`, `{{spotify_track_name}}`,
-`{{sim_tracker}}`, etc. — the full list is enumerated at
+`{{sim_tracker}}`, etc. - the full list is enumerated at
 `lumiverse-compat.ts:169-189`).
 
 **This codec does NOT translate or rewrite macro text.** Content strings are carried
@@ -375,7 +375,7 @@ export function parseLumiversePreset(
  * DERIVED VIEW: every canonical `Preset` field path the ST codec marks
  * "native" is reachable through this codec too (transitively, via the
  * conversion), except the fields this codec cannot even express as a
- * RawPreset field (promptVariables' per-block ownership, block.position — see
+ * RawPreset field (promptVariables' per-block ownership, block.position - see
  * edge cases 5 and 6, both "escrow" at best). This codec does not redefine
  * st-preset.md's capabilities table; it only notes where its OWN lossy
  * synthesis narrows what st-preset.md would otherwise call "native".
@@ -386,7 +386,7 @@ export const capabilities: Record<string /* canonical Preset field path, per st-
 Canonical identification: a `Preset` entity produced by this codec sets
 `meta.origin.format = "lumiverse-preset"` on the shared `Entity<T>` envelope
 (`canonical-model.md:24`), which is the authoritative way to detect "this preset
-was imported from Lumiverse" — not the `_lumiverse_source` sibling field, which is
+was imported from Lumiverse" - not the `_lumiverse_source` sibling field, which is
 an ST-layer (`RawPreset`/`rawSettings`) implementation detail that predates the
 canonical envelope and is preserved only for round-trip fidelity back through the
 ST codec.
@@ -397,18 +397,18 @@ ST codec.
    check `schemaVersion` at all; any value (or its absence) is accepted as long as
    `type === "lumiverse_preset"` and `preset` is an object. Record whatever value
    is present in escrow. OPEN QUESTION: whether a future Lumiverse schema version
-   changes the block shape enough to need branching — no evidence of a v1 or v3
+   changes the block shape enough to need branching - no evidence of a v1 or v3
    wrapper shape was found in VAUDEVILLE.
 
 2. **Block with non-string `id`.** Silently skipped (not added to `prompts` or
-   `order`) — matches VAUD `lumiverse-converter.ts:179`. No warning is currently
+   `order`) - matches VAUD `lumiverse-converter.ts:179`. No warning is currently
    emitted by VAUD; this spec requires the Vaudeville implementation to record a
    `warnings` entry in the `ParseReport` for each skipped block (stronger than the
    VAUD reference, which is silent) so users see it in `vaud convert` output.
 
 3. **Two blocks with the same `id`.** Unlike the ST preset parser (which
    deduplicates by identifier, `preset-parser.ts:308`, "if (promptMap.has(...))
-   continue"), the Lumiverse converter has no such guard — it pushes every block
+   continue"), the Lumiverse converter has no such guard - it pushes every block
    into `prompts[]` and `order[]` unconditionally (VAUD:
    `lumiverse-converter.ts:178-225` has no `has()` check). A duplicate id therefore
    produces a `RawPreset` with two `RawPrompt` entries sharing one `identifier`,
@@ -422,7 +422,7 @@ ST codec.
    `__lumiverse_block_<id>` per the collision guard (VAUD:
    `lumiverse-converter.ts:161-168`). The prompt survives under the mangled
    identifier; round-tripping back to Lumiverse's own wrapper format (not
-   supported — see Non-goals) would need to reverse this, which is one more reason
+   supported - see Non-goals) would need to reverse this, which is one more reason
    this codec does not attempt Lumiverse-wrapper serialization.
 
 5. **`promptVariables` synthesis is lossy.** The synthesized
@@ -436,7 +436,7 @@ ST codec.
    dropped macro-unsafe pairs.
 
 6. **`block.position` (`pre_history`/`post_history`) is read into the
-   `LumiverseBlock` type but never consulted when building the `RawPrompt`** — every
+   `LumiverseBlock` type but never consulted when building the `RawPrompt`** - every
    converted content/category block gets `injection_position: 0` regardless (VAUD:
    `lumiverse-converter.ts:207-223`, no reference to `block.position` anywhere in
    the `RawPrompt` construction). This looks like a gap in the VAUD reference
@@ -450,7 +450,7 @@ ST codec.
 7. **Non-string `block.name` / `block.content`.** Coerced via `String(...)` (VAUD:
    `lumiverse-converter.ts:204-206`, "Hand-edited imports can carry non-string
    name/content; coerce so the prompt builder's string ops... never throw"). A
-   `null` becomes the string `"null"` — accept this as documented VAUD behavior,
+   `null` becomes the string `"null"` - accept this as documented VAUD behavior,
    do not special-case it further.
 
 8. **`json.preset` present but empty object `{}`.** Valid: `blocks` defaults to
@@ -461,7 +461,7 @@ ST codec.
 
 9. **Macro-unsafe default value AND macro-unsafe name both present in the same
    pair.** Filtered out by the single `isMacroSafe(name) && isMacroSafe(String(value))`
-   check (VAUD: `lumiverse-converter.ts:122-123`) — either condition failing drops
+   check (VAUD: `lumiverse-converter.ts:122-123`) - either condition failing drops
    the pair.
 
 10. **No serialize-back-to-Lumiverse-wrapper path exists.** Attempting to export a
@@ -473,28 +473,28 @@ ST codec.
 ## Test plan
 
 - Fixtures required (`fixtures/lumiverse-preset/`):
-  - `basic-blocks.json` — a handful of `marker: ''` content blocks plus one
+  - `basic-blocks.json` - a handful of `marker: ''` content blocks plus one
     `chat_history` marker block; exercises the core block map.
-  - `with-categories.json` — includes `marker: 'category'` header blocks;
+  - `with-categories.json` - includes `marker: 'category'` header blocks;
     verifies the box-drawing decoration round-trips through the ST legacy
     category detector correctly (i.e. `vaud inspect` shows the same category
     tree as a native ST NemoPresetExt export with categories).
-  - `with-prompt-variables.json` — `promptVariables` on 2+ blocks including one
+  - `with-prompt-variables.json` - `promptVariables` on 2+ blocks including one
     macro-unsafe name/value pair (e.g. a default containing `"::"`); verifies
     synthesis + the dropped-pair warning.
-  - `duplicate-block-ids.json` — two blocks sharing an `id`; verifies edge case 3
+  - `duplicate-block-ids.json` - two blocks sharing an `id`; verifies edge case 3
     (first-wins after the full pipeline) and the warning.
-  - `missing-optional-fields.json` — a minimal wrapper with `preset: {}`; verifies
+  - `missing-optional-fields.json` - a minimal wrapper with `preset: {}`; verifies
     edge case 8.
-  - `reserved-id-collision.json` — a content block with `id: "chatHistory"`;
+  - `reserved-id-collision.json` - a content block with `id: "chatHistory"`;
     verifies the namespacing guard (edge case 4).
-  - `pre-and-post-history-positions.json` — blocks using both `position` values;
+  - `pre-and-post-history-positions.json` - blocks using both `position` values;
     documents the current dead-read behavior (edge case 6) so a future fix to
     that gap is a visible, intentional fixture change, not silent drift.
-  - `real-threadbare-export.json` — a sanitized real-world Lumiverse export (per
+  - `real-threadbare-export.json` - a sanitized real-world Lumiverse export (per
     `escrow-and-roundtrip.md`'s "real files from real tools" rule), provenance
     noted in `notes.md`.
-- Round-Trip Law applicability: **parse-only codec — the harness's default
+- Round-Trip Law applicability: **parse-only codec - the harness's default
   `serialize(parse(F), X)` leg does not apply and must be told so explicitly.**
   This codec exports no `serialize` function for `"lumiverse-preset"` (see
   Non-goals): `serialize(parse(F), "lumiverse-preset")` is undefined behavior, not
@@ -508,12 +508,12 @@ ST codec.
   exported `capabilities`/module metadata marks itself parse-only, or the harness
   keys off "no serialize export found for this format id"). OPEN QUESTION:
   whether the M0/M1 fixture harness already has this parse-only escape hatch, or
-  whether adding it is part of this codec's own ticket — not confirmed against
+  whether adding it is part of this codec's own ticket - not confirmed against
   any harness implementation, since the harness itself is M0 scope and this spec
   only read the harness's *description* in `escrow-and-roundtrip.md`, not its code.
   Separately, once converted, the resulting canonical `Preset` (and its `st-preset`
   escrow bucket) is subject to the FULL Round-Trip Law at `byte`/`canonical-json`/
-  `semantic` level exactly as declared in `st-preset.md` — this codec adds no new
+  `semantic` level exactly as declared in `st-preset.md` - this codec adds no new
   round-trip obligation beyond what that spec already covers for the ST shape.
 - Property/unit tests beyond fixtures:
   - `isLumiversePreset` returns `false` for ST-shaped presets, `chara_card_v2`
@@ -561,7 +561,7 @@ ST codec.
   unavailable-token list :144-196, registration :198-212).
 - the master plan (private planning notes), `docs/02-ARCHITECTURE.md`, the production bible (private planning notes)
   (this file's brief, row `lumiverse-preset.md`), `specs/formats/canonical-model.md`,
-  `specs/formats/escrow-and-roundtrip.md`, `templates/SPEC-TEMPLATE.md` — read per
+  `specs/formats/escrow-and-roundtrip.md`, `templates/SPEC-TEMPLATE.md` - read per
   the global rules.
 - No public/official Lumiverse format documentation was found or searched for;
   the brief scopes this file's ground truth to the VAUDEVILLE source only (unlike
@@ -577,7 +577,7 @@ ST codec.
   the observed 2.
 - OPEN QUESTION: what `injection_position` a `pre_history`/`post_history` block
   `position` value should map to. VAUD's converter reads the field onto the
-  `LumiverseBlock` type but never uses it (dead read) — every converted block gets
+  `LumiverseBlock` type but never uses it (dead read) - every converted block gets
   `injection_position: 0`. This looks like a gap rather than a deliberate choice;
   confirm with Chi whether Vaudeville Studios should fix this (map `pre_history`
   to something like `injection_position: 4` "prepend-top" and `post_history` to
@@ -596,6 +596,6 @@ ST codec.
   new behavior relative to the VAUD reference.
 - OPEN QUESTION: confirm whether any Lumiverse wrapper fields exist beyond the ones
   read by the VAUD converter (the open index signatures on both `LumiverseWrapper`
-  and `LumiversePresetInner` suggest more exist in the wild) — needs a corpus of
+  and `LumiversePresetInner` suggest more exist in the wild) - needs a corpus of
   real Lumiverse exports beyond `ThreadBare` to enumerate exhaustively before the
   escrow bucket can be considered complete.

@@ -2,7 +2,7 @@
 
 **Package:** `packages/formats` · **Milestone:** M1 · **Status:** draft
 **Depends on:** specs/formats/canonical-model.md, specs/formats/escrow-and-roundtrip.md,
-specs/formats/content-detection.md (sibling brief, not yet written — this spec
+specs/formats/content-detection.md (sibling brief, not yet written - this spec
 references its exported detection functions by name; exact module boundaries
 settle when that spec lands) · **VAUDEVILLE reference:**
 apps/rc/src/lib/imports/bulk-import-orchestrator.ts,
@@ -20,7 +20,7 @@ character, a preset's regex scripts) resolve. Bundle export is the inverse:
 produces one ZIP containing every entity in a production, each serialized to
 its native format, plus a manifest. This is the format the CLI/app use for
 whole-library backup and transfer, and the format SillyTavern-style "full
-backup" ZIPs are read through (in degraded, best-effort mode — see Edge
+backup" ZIPs are read through (in degraded, best-effort mode - see Edge
 case 8).
 
 This component sits in `packages/formats` because it re-uses each codec's
@@ -33,18 +33,18 @@ it classifies and dispatches.
 
 1. **Extract.** Open the ZIP. Reject unsafe paths per entry: any path
    segment equal to `.` or `..` or empty, any path containing `\`, `\0`, or
-   starting with `/` is a path-traversal attempt — skip the entry and record
+   starting with `/` is a path-traversal attempt - skip the entry and record
    a failure, do not abort the whole bundle (VAUD:
    bulk-import-orchestrator.ts:323-332). Skip macOS cruft: filenames
    starting with `._`, exactly `.DS_Store`, or any path containing
    `__MACOSX` (VAUD: bulk-import-orchestrator.ts:338).
 
 2. **Zip-bomb guard.** Enforce two ceilings while decompressing. The two
-   ceilings are NOT enforced symmetrically — match the reference exactly:
+   ceilings are NOT enforced symmetrically - match the reference exactly:
    - Per-entry ceiling: 256 MiB decompressed. Checked BEFORE decompression
      ONLY, and ONLY when the ZIP's local/central directory header exposes
      the entry's uncompressed size (`assertEntryFitsInBudget`). When that
-     size is unavailable, the per-entry ceiling is NOT enforced at all —
+     size is unavailable, the per-entry ceiling is NOT enforced at all -
      there is no post-decompression per-entry recheck in the reference
      (VAUD: bulk-import-orchestrator.ts:70-107, esp. the early `return` at
      :94-96 when the size is absent). Consequence to preserve or fix
@@ -61,7 +61,7 @@ it classifies and dispatches.
      backstop that catches unknown-size entries in aggregate.
    - Comparison is strict `>` at both ceilings: exactly 256 MiB / 750 MiB
      passes, one byte over aborts (VAUD: :98, :104). Exceeding either
-     ceiling aborts the ENTIRE bundle import with an error — this is the one
+     ceiling aborts the ENTIRE bundle import with an error - this is the one
      case where a single bad entry fails the whole bundle, not just that
      entry.
 
@@ -78,7 +78,7 @@ it classifies and dispatches.
    - `.png` -> `detectPngType(buffer)`. Checks the raw tEXt/zTXt/iTXt chunk
      keyword bytes (`ccv3\0`, `chara\0`, `persona\0`, in that priority
      order) via a latin1 scan of the whole buffer, matching the literal
-     null-terminated keyword, not a loose substring — this is the fix for
+     null-terminated keyword, not a loose substring - this is the fix for
      the "persona" word appearing inside character prose (VAUD:
      content-detector.ts:32-101, see specs/formats/content-detection.md for
      the full misdetection history). Falls back to a structural PNG parse
@@ -90,7 +90,7 @@ it classifies and dispatches.
      (persona spec/details shape, V1/V2/V3 character shape, preset
      prompts+sampler shape, lorebook entries shape, in that priority
      order). A parse failure or non-object JSON produces `unknown` with
-     `low` confidence and does NOT abort the bundle — only that entry is
+     `low` confidence and does NOT abort the bundle - only that entry is
      recorded as failed (VAUD: content-detector.ts:107-155,
      bulk-import-orchestrator.ts:390, :423-434).
    - `.jsonl` -> `detectJsonLType(text)`. Splits into non-blank lines; if
@@ -104,7 +104,7 @@ it classifies and dispatches.
      empty chat, must not be dropped). Anything else is `unknown`.
    - Any other extension (images that aren't `.png`, `.md`, `.txt`, etc.)
      is not classified at all and is silently skipped (not even recorded
-     as `unknown`) — VAUD only branches on `.png`/`.json`/`.jsonl`
+     as `unknown`) - VAUD only branches on `.png`/`.json`/`.jsonl`
      (bulk-import-orchestrator.ts:364-422).
 
 5. **Grouping.** Classified entries are bucketed by `ContentType`:
@@ -125,7 +125,7 @@ it classifies and dispatches.
       optionally, persona/preset context)
    (VAUD: bulk-import-orchestrator.ts:552-559, 593-685). Note characters
    and personas do NOT depend on each other in the reference implementation
-   despite both being "phase 1/2" — the ordering is a fixed sequence, not a
+   despite both being "phase 1/2" - the ordering is a fixed sequence, not a
    dependency-graph solve; document this as a known simplification (Edge
    case 6).
 
@@ -138,14 +138,14 @@ it classifies and dispatches.
 
 8. **Chats are special-cased.** A classified chat is parsed
    (`parseJSONLChat`) but NOT committed as an importable entity by the
-   bulk pipeline itself — it is staged with `needsCharacterMapping: true`
+   bulk pipeline itself - it is staged with `needsCharacterMapping: true`
    and a warning telling the user to import it separately once character
    matching is resolved (VAUD: bulk-import-orchestrator.ts:653-685). A
    chat with zero parsed messages produces only a warning, no staged
    entry, no failure record.
 
 9. **Result shape.** `success` is `true` iff `failed.length === 0`
-   (VAUD: bulk-import-orchestrator.ts:687) — a bundle with zero failures
+   (VAUD: bulk-import-orchestrator.ts:687) - a bundle with zero failures
    but plenty of warnings (unknown files, chats needing mapping) still
    reports `success: true`. Callers must read `warnings` separately;
    `success` alone does not mean "everything happened."
@@ -167,7 +167,7 @@ Triggered per step 3. When active:
 - `characters/` subfolders and any file nested more than one level under
   `characters/` (e.g. expression images) are skipped as "character
   subfolders/expression images".
-- `chats/*.jsonl` are counted separately as `skippedChatCount` — full ST
+- `chats/*.jsonl` are counted separately as `skippedChatCount` - full ST
   backup chat migration needs the character-matching flow and is out of
   scope for bundle import in M1 (VAUD: bulk-import-orchestrator.ts:200-203,
   294-297).
@@ -191,7 +191,7 @@ Triggered per step 3. When active:
 ### Export: `--all-formats` bundle layout
 
 VAUDEVILLE has no bundle EXPORT implementation to port (only import exists
-today — `bulk-import-orchestrator.ts` has no serialize/zip-write
+today - `bulk-import-orchestrator.ts` has no serialize/zip-write
 counterpart, and no `export --all-formats` command was found in the
 codebase). The export side is new design for this spec, constrained to be
 the losslessly-invertible counterpart of import above:
@@ -336,7 +336,7 @@ LAYERING OPEN QUESTION (`ProductionHandle` placement / write side effects):
 production (assigning entity IDs, persisting files), which is a side-effecting
 workspace operation, not a codec operation. Per docs/02-ARCHITECTURE.md,
 `packages/core` has ZERO deps and holds pure schemas, so a WRITE-CAPABLE
-`ProductionHandle` (filesystem side effects) cannot be a `core` type — only a
+`ProductionHandle` (filesystem side effects) cannot be a `core` type - only a
 `Production` *manifest* schema can. Two admissible resolutions, undecided here
 because the production/CLI boundary is owned by
 specs/features/cli-converter.md (not yet read/written):
@@ -377,18 +377,18 @@ with the dependency rule.
    readme, a cover image): not classified at all, silently absent from
    both `classifications` and any report field. Decide for the port
    whether this silence should become an explicit "skipped: unsupported
-   extension" report entry — VAUD is silent here; OPEN QUESTION whether to
+   extension" report entry - VAUD is silent here; OPEN QUESTION whether to
    change this behavior or preserve it as-is for compatibility.
 6. **Character and persona in the same bundle referencing each other by
    name, no explicit ID link**: the fixed phase order (personas before
-   characters) is NOT a real dependency solve — it is an arbitrary
+   characters) is NOT a real dependency solve - it is an arbitrary
    sequence carried over from the reference implementation. If a future
    canonical relationship needs personas resolved from characters (or vice
    versa) the phase order must become an actual dependency graph. Flag as
    a known limitation, not a spec requirement to fix in M1.
 7. **A chat's `character_name` matches no imported character in this
    bundle or in the target production**: bundle import does not resolve
-   this — chats are staged with `needsCharacterMapping: true` regardless,
+   this - chats are staged with `needsCharacterMapping: true` regardless,
    and matching is deferred entirely to a separate, not-yet-specified
    chat-import flow (out of scope; VAUD: bulk-import-orchestrator.ts:666-677).
 8. **Bundle is a SillyTavern full-app backup, not a Vaudeville bundle**:
@@ -412,7 +412,7 @@ with the dependency rule.
     is `[]`, no failures, `success: true`, `warnings` empty (or the
     ST-backup announcement line alone if that mode triggered on an
     otherwise-empty archive). Not explicitly tested in VAUD; behavior is
-    inferred from the code path, not observed — treat as expected-but-
+    inferred from the code path, not observed - treat as expected-but-
     unverified until a fixture proves it.
 11. **Duplicate filenames across different folders in a nested ZIP**
     (`characters/a.png` and `extra/a.png`): both are classified
@@ -424,24 +424,24 @@ with the dependency rule.
 12. **Bundle export of a production containing an entity type without a
     native serializer yet** (e.g. RegexScript, if bundle export ships
     before regex-scripts.md's codec lands): OPEN QUESTION, not decided by
-    this spec — likely "omit with a warning in the CLI report," but the
+    this spec - likely "omit with a warning in the CLI report," but the
     exact behavior belongs to whichever ships second, this spec or
     regex-scripts.md.
 
 ## Test plan
 
 - Fixtures required (place under `fixtures/bundle-import/`):
-  - `flat-mixed.zip` — one character PNG, one persona JSON, one preset
+  - `flat-mixed.zip` - one character PNG, one persona JSON, one preset
     JSON, one lorebook JSON, no folders. Exercises the base classify+import
     happy path for all four non-chat types in one archive.
-  - `nested-mixed.zip` — same four types, each under its own subfolder
+  - `nested-mixed.zip` - same four types, each under its own subfolder
     plus an unrelated `notes.txt` at the root. Exercises: folder-agnostic
     classification, silent-skip of unrecognized extensions (edge case 5).
-  - `st-hybrid-chat.jsonl` inside `chat-only.zip` — pins the header + line[1]
+  - `st-hybrid-chat.jsonl` inside `chat-only.zip` - pins the header + line[1]
     detection (VAUD test: bulk-import-roundtrip.test.ts:20-42, 101-111).
-  - `st-flat-chat.jsonl` inside `chat-only.zip` — pins the no-header
+  - `st-flat-chat.jsonl` inside `chat-only.zip` - pins the no-header
     detection path (VAUD test: bulk-import-roundtrip.test.ts:44-53, 90-99).
-  - `st-full-backup.zip` — synthesized to match `hasSillyTavernBackupShape`:
+  - `st-full-backup.zip` - synthesized to match `hasSillyTavernBackupShape`:
     top-level `settings.json` (with `power_user.personas` +
     `persona_descriptions` populated for at least 2 personas, one causing
     a filename collision to exercise `safeImportFilename` numbering),
@@ -449,26 +449,26 @@ with the dependency rule.
     with a dummy expression image (must be skipped), and a preset under
     `openai settings/preset.json`. Exercises the entire ST-backup
     allow-list plus persona synthesis plus skipped-root reporting.
-  - `zip-bomb-single-entry.zip` — one entry whose declared uncompressed
+  - `zip-bomb-single-entry.zip` - one entry whose declared uncompressed
     size exceeds 256 MiB. Must abort the whole import.
-  - `zip-bomb-cumulative.zip` — many entries individually under the
+  - `zip-bomb-cumulative.zip` - many entries individually under the
     per-entry ceiling but summing past 750 MiB. Must abort the whole
     import.
-  - `path-traversal.zip` — entries with `../`, a leading `/`, and a
+  - `path-traversal.zip` - entries with `../`, a leading `/`, and a
     backslash-containing path. Each must be skipped with the exact
     `"Unsupported file path"` reason, and other valid entries in the same
     archive must still import.
-  - `malformed-entries.zip` — one valid preset JSON, one JSON with a
+  - `malformed-entries.zip` - one valid preset JSON, one JSON with a
     syntax error, one PNG with no chunk keyword and non-persona structure.
     Pins per-entry failure isolation (VAUD test: bulk-import-roundtrip.
     test.ts:133-149).
-  - `roundtrip-export.zip` — produced by `exportBundle` against a small
+  - `roundtrip-export.zip` - produced by `exportBundle` against a small
     fixture production (2 characters, 1 preset, 1 lorebook, 2 personas),
     then re-imported via `importBundle`, asserting the re-imported set is
     deep-equal (by canonical `data`+`escrow`, per the Round-Trip Law) to
     the originals modulo new ULIDs.
 - Round-Trip Law applicability: bundle import/export is a container, not a
-  codec — the Law applies transitively through each entity's own codec
+  codec - the Law applies transitively through each entity's own codec
   round-trip, not to the ZIP container itself. The `roundtrip-export.zip`
   fixture above is the bundle-level analog: export then import must
   reproduce canonical data + escrow for every entity, ULIDs aside.
@@ -491,7 +491,7 @@ with the dependency rule.
 - Bundle export of chats/scenes is out of scope until a canonical
   chat/scene model exists (see Edge case, Export OPEN QUESTION above).
 - This spec does not define the CLI surface (`vaud import`/`vaud export
-  --all-formats` flags, exit codes, `--strict` interaction) — that is
+  --all-formats` flags, exit codes, `--strict` interaction) - that is
   specs/features/cli-converter.md's job; this spec defines only the
   `packages/formats` library functions the CLI will call.
 - Encrypted or password-protected ZIPs are not supported; no such handling
@@ -518,7 +518,7 @@ with the dependency rule.
   `ProductionHandle` in the API sketch).
 - the production bible (private planning notes), row for `bundle-import.md` (this file's
   brief) and row for `content-detection.md` (sibling brief, not yet
-  written — referenced for terminology only).
+  written - referenced for terminology only).
 - specs/formats/canonical-model.md (v1 content types list, used to scope
   the export OPEN QUESTION on chats).
 - specs/formats/escrow-and-roundtrip.md (Round-Trip Law applicability

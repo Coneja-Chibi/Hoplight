@@ -14,7 +14,7 @@ const HIDE = [
   // body.variants bridge
   "alternate_fields",
   "alternate_avatars",
-  // sprite home is Manage Sprites — no main-page stub boxes
+  // sprite home is Manage Sprites - no main-page stub boxes
   "expressions",
   "expression_groups",
   "lumiverse_image_gen_lora",

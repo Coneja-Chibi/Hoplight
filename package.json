@@ -22,10 +22,12 @@
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
     "scan:colors:check": "bun run scripts/hooks/no-hardcode-colors.ts --check",
     "scan:lines": "bun run scripts/hooks/file-lines.ts --scan",
+    "scan:emdash": "bun run scripts/hooks/prose-guards.ts --emdash",
+    "scan:links": "bun run scripts/hooks/prose-guards.ts --links",
     "lint:ui": "bunx eslint \"src/ui/**/*.tsx\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
-    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run lint:ui && bun run catalog:check && bun run matrix:check",
+    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check",
     "gate": "bun run scripts/hooks/gate.ts --worktree"
   },
   "engines": {

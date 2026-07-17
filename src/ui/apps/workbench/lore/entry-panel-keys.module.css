@@ -411,7 +411,7 @@
   gap: 0.3rem;
 }
 
-/* drawer owns entry-drawer.module.css — do not redefine .details/.label/.field here
+/* drawer owns entry-drawer.module.css - do not redefine .details/.label/.field here
    or they clobber LorebookEditor.module.css form tokens when styles are merged. */
 
 /* the entry's current slot when the lens's wire can't carry it: visible (data never lies

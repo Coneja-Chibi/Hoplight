@@ -3,7 +3,7 @@
  *  - legacy flat JSON (this file): aiName / aiPersona / customDialogue …
  *  - modern .byaf archive: ./byaf.ts
  * Placeholders on legacy cards are single-brace ({character}/{user}); converted to {{char}}/{{user}}
- * for the canonical model (lossy inverse — original keeps unedited text verbatim).
+ * for the canonical model (lossy inverse - original keeps unedited text verbatim).
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody } from "../../entities/character/schema";

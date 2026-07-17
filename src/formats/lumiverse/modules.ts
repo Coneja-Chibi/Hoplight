@@ -295,7 +295,7 @@ function materializeToArchive(
   files: Record<string, Uint8Array>,
 ): string {
   if (!isDataUri(ref)) {
-    // already an archive path or host id — keep if file exists, else keep ref
+    // already an archive path or host id - keep if file exists, else keep ref
     if (files[ref]) return ref;
     return ref;
   }

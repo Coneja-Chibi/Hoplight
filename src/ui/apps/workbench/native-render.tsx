@@ -91,7 +91,7 @@ const anchor = (platform: string): string => `act-native-${platform.toLowerCase(
 
 /**
  * Playbill platform leftovers: one section per platform (RC/ST pattern). Shared character fields are
- * never listed here — only native schema items. Big fields span the two-column grid.
+ * never listed here - only native schema items. Big fields span the two-column grid.
  */
 export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | null {
   if (items.length === 0) return null;

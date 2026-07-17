@@ -34,7 +34,7 @@ const WW: Record<string, EntryFoldId> = {
 };
 
 function scanLabel(scanDepth: number | null): string {
-  return scanDepth === null || scanDepth === undefined ? "—" : String(scanDepth);
+  return scanDepth === null || scanDepth === undefined ? "-" : String(scanDepth);
 }
 
 export function EntryWhenWhere({
@@ -143,7 +143,7 @@ export function EntryWhenWhere({
                         type="number"
                         inputMode="numeric"
                         min={0}
-                        placeholder="—"
+                        placeholder="-"
                         value={entry.scanDepth ?? ""}
                         aria-label="Scan depth (blank inherits the book default)"
                         onFocus={(ev) => ev.currentTarget.select()}

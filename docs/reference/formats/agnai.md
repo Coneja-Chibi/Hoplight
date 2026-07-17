@@ -173,7 +173,7 @@ placement has one canonical home (`sortOrder`) and eviction another (`priority`)
 convert carries `weight` -> `sortOrder` -> ST `order` (the runtime placement axis); Agnai's `priority`
 (eviction) has no ST home and is dropped, since ST has no eviction field. The earlier placement-order
 split that mis-slotted placement into ST `displayIndex` is reconciled (#15, see
-[design/LOREBOOK-FORMATS.md](../../../design/LOREBOOK-FORMATS.md)); Agnai needed no change.
+the lorebook format survey (private planning notes)); Agnai needed no change.
 
 ### selectiveLogic (ST-import residue, interpreted)
 

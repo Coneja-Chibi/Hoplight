@@ -3,7 +3,7 @@
 **Package:** `packages/ai` · **Milestone:** M2 · **Status:** draft
 **Depends on:** none (uses `ulid` id generation convention from `packages/core`, no schema coupling)
 **VAUDEVILLE reference:** none direct. `apps/rc/src/lib/providers/crypto.ts` (RC's provider-config
-encryption) is architecturally different — it is a server-mode/BIP39, browser-`CryptoKey`,
+encryption) is architecturally different - it is a server-mode/BIP39, browser-`CryptoKey`,
 Postgres-backed scheme for a multi-tenant web app, not a local single-user OS-keychain/file
 vault. Read for contrast only; nothing in it is ported. See "Sources consulted" for the
 specific claims taken from it.
@@ -17,8 +17,8 @@ treatment rewrites, Test Stage inference, and bulk audits). It is a `packages/ai
 component, has zero UI, and is consumed by the CLI (`vaud auth ...`), the agent loop,
 and any feature that needs to make a model call. It never runs on a server: everything
 lives on the user's machine, per ADR-006 (local-first, BYOK, no Vaudeville-operated
-proxy). Two storage backends exist — the OS keychain where available, an
-AES-encrypted file with a local secret everywhere else — selected automatically at
+proxy). Two storage backends exist - the OS keychain where available, an
+AES-encrypted file with a local secret everywhere else - selected automatically at
 first use, with an explicit override. The vault's other job is enforcing the
 never-log-keys rule: nothing that touches the vault may let a raw API key reach a log
 line, an error message, an agent trace, or the spill store.
@@ -29,11 +29,11 @@ line, an error message, an agent trace, or the spill store.
 
 Two kinds of state, kept apart because only one of them is secret:
 
-1. **Non-secret vault metadata** — `~/.vaud/vault.json`. Provider config records
-   (id, provider kind, label, base URL, organization id, extra header *names* — never
+1. **Non-secret vault metadata** - `~/.vaud/vault.json`. Provider config records
+   (id, provider kind, label, base URL, organization id, extra header *names* - never
    values that look like tokens) and the model-role mapping table. Plain JSON, safe to
    `cat`, safe to include in a bug report screenshot (labels/base URLs only).
-2. **Secret material** — the API key string (and any `extraHeaders` values, since a
+2. **Secret material** - the API key string (and any `extraHeaders` values, since a
    header can itself carry a bearer token) for each provider config, keyed by the
    provider config's `id`. Lives only in one of the two backends below, never in
    `vault.json`.
@@ -50,7 +50,7 @@ On first vault use (`init()`), the vault probes for OS keychain support in this 
 2. If the binding loads and a trivial write-then-read round-trip on a canary entry
    (`service: "vaud", account: "__vaud_probe__"`) succeeds, backend = `os-keychain`.
 3. Otherwise (binding missing, throws, or the platform has no Secret Service daemon
-   running — common on headless Linux/WSL/containers), backend = `encrypted-file`,
+   running - common on headless Linux/WSL/containers), backend = `encrypted-file`,
    and the vault prints a one-time stderr warning explaining why, on the first CLI
    command of the session (`vaud: no OS keychain available, using encrypted file
    vault at ~/.vaud/vault.enc`).
@@ -58,7 +58,7 @@ On first vault use (`init()`), the vault probes for OS keychain support in this 
 The chosen backend is recorded in `vault.json` (`backend: "os-keychain" |
 "encrypted-file"`) so subsequent runs don't re-probe unless the user forces it
 (`vaud auth backend --use-file` / `--use-keychain`, or config key
-`vault.backend` in `~/.vaud/config.json` — the config file itself is defined by
+`vault.backend` in `~/.vaud/config.json` - the config file itself is defined by
 cli-ux.md, not this spec; not independently verified here, see Sources consulted).
 Forcing
 `os-keychain` when the probe previously failed re-runs the probe and errors clearly
@@ -66,7 +66,7 @@ if it still fails.
 
 OPEN QUESTION: which native keychain binding ships (candidates found during spec
 research: `keyring-node` via napi.rs, positioned as a maintained `keytar`-compatible
-replacement — `keytar` itself is archived/unmaintained). Also open: whether that
+replacement - `keytar` itself is archived/unmaintained). Also open: whether that
 native addon loads correctly inside a `bun build --compile` single-exe (ADR-003's
 distribution model), since native `.node` addons are the traditional pain point for
 single-binary bundlers. This must be resolved with a build spike before the M2
@@ -82,23 +82,23 @@ per-user-session unlock, and (on macOS/Windows) per-application access prompts.
 
 ### Encrypted-file backend
 
-- `~/.vaud/vault.key` — 32 random bytes (`crypto.randomBytes(32)`), generated once on
+- `~/.vaud/vault.key` - 32 random bytes (`crypto.randomBytes(32)`), generated once on
   first fallback-backend use. File permissions restricted to the owner (`chmod 600`
   on POSIX; an ACL granting only the current user on Windows, applied via the same
   primitive the updater already needs for atomic-swap permission handling per
   ADR-003). This file is the "local secret" ADR-006/02-ARCHITECTURE.md refer to. It is
-  never derived from a user-typed passphrase in v1 — see edge case 5 and the open
+  never derived from a user-typed passphrase in v1 - see edge case 5 and the open
   question below on whether a passphrase-unlock mode is added later.
-- `~/.vaud/vault.enc` — one AES-256-GCM–encrypted JSON blob:
+- `~/.vaud/vault.enc` - one AES-256-GCM–encrypted JSON blob:
   `{ providerConfigId: { apiKey: string, extraHeaders?: Record<string,string> } }`,
   encrypted with a fresh random 96-bit IV per write, key = `vault.key` contents
   directly (not passphrase-stretched, since `vault.key` is already high-entropy
-  random bytes, not a passphrase — no KDF needed). Layout on disk:
+  random bytes, not a passphrase - no KDF needed). Layout on disk:
   `{ iv: base64, ciphertext: base64 }` (ciphertext includes the GCM auth tag,
   matching Node's `crypto` module convention of appending `getAuthTag()` output).
 - Writes are atomic: encrypt to `vault.enc.tmp`, `fsync`, rename over `vault.enc`.
   This is the same pattern the updater ADR uses for its self-swap and exists for the
-  same reason — a crash mid-write must never corrupt the previous good state.
+  same reason - a crash mid-write must never corrupt the previous good state.
 
 OPEN QUESTION: whether a v1.1 passphrase-unlock mode (derive the AES key from a
 user passphrase via scrypt/argon2 instead of a random local file) is worth adding for
@@ -111,7 +111,7 @@ A `ProviderConfig` is one saved credential + connection info for one provider
 "slot." A user can have multiple configs for the same provider kind (e.g. two
 OpenRouter keys under different labels, or several OpenAI-compatible local servers).
 Fields: `provider` (one of the ADR-006 launch set: `anthropic`, `openrouter`,
-`openai`, `gemini`, `openai-compatible` — the last one covers Ollama/LM Studio/
+`openai`, `gemini`, `openai-compatible` - the last one covers Ollama/LM Studio/
 koboldcpp per ADR-006 §1, distinguished from the frontier providers only by requiring
 `baseUrl`), `label` (user-chosen display name), `baseUrl` (required for
 `openai-compatible`, optional override for the others), `organizationId` (OpenAI
@@ -125,7 +125,7 @@ Per ADR-006 §4, four roles plus a fallback: `interview`, `treatment`, `test`,
 params? }` tuple at a time. `resolveRole(role)` looks up the role directly; if
 unmapped, it falls back to the `default` role's mapping; if `default` is also
 unmapped, it returns `null` and the caller (CLI or agent loop) is responsible for
-prompting the user to configure a key — this is "the first key ask happens at the
+prompting the user to configure a key - this is "the first key ask happens at the
 first AI moment, never at install" from ADR-006 §2. Nothing in the vault itself
 blocks non-AI commands; `listProviderConfigs()`/`getModelRoleMapping()` work with
 zero configs.
@@ -142,11 +142,11 @@ bug reports or share:
    not just the bearer token). Every other read path (`listProviderConfigs`, any
    `toString`/`toJSON` on a `ProviderConfig`, CLI table output, agent resource reads
    over `vaud://`) returns/serializes provider configs with `apiKey` and
-   `extraHeaders` values omitted entirely — not masked with a partial suffix,
+   `extraHeaders` values omitted entirely - not masked with a partial suffix,
    omitted, because a masked suffix is still key material and this project would
    rather be over-cautious. Consumers of these three functions (provider adapters,
    the agent loop's request-building step) are responsible for never letting the
-   resulting `ProviderSecret` reach a log line, trace segment, or the spill store —
+   resulting `ProviderSecret` reach a log line, trace segment, or the spill store -
    see point 2a.
 2. Provider adapters (provider-adapters.md) receive the resolved key as a function
    parameter at call time and must not embed it in any object that flows into a log
@@ -161,7 +161,7 @@ bug reports or share:
 4. Any error thrown by the vault (`VaultError`) carries `providerConfigId` and
    `label`, never the key, even in `DECRYPT_FAILED` cases where including the
    ciphertext would be harmless but the surrounding code path is exactly the kind of
-   place a stray `console.log(config)` during debugging would leak a key — so the
+   place a stray `console.log(config)` during debugging would leak a key - so the
    convention is enforced at the type level: `ProviderConfig` (safe) and
    `ProviderSecret` (`{ apiKey, extraHeaders? }`, never logged) are distinct types,
    and only `getApiKey`/backend-internal code ever holds a `ProviderSecret`.
@@ -249,7 +249,7 @@ export interface KeyVault {
   // force=false (default): throws VaultError("VALIDATION") naming the affected
   // roles in `affectedRoles` if any ModelRoleMapping references this id, deletes
   // nothing. force=true: deletes and resolves with the affected roles (which are
-  // now dangling — see edge case 7) so the caller can warn the user.
+  // now dangling - see edge case 7) so the caller can warn the user.
   removeProviderConfig(
     id: string,
     opts?: { force?: boolean }
@@ -278,7 +278,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
    warning, no crash.
 2. **Native keychain binding fails to load inside the compiled `vaud` binary**
    (`bun build --compile`, ADR-003). Same fallback as #1. This must be verified as
-   part of the M2 vault ticket, not assumed — see the OPEN QUESTION under Behavior.
+   part of the M2 vault ticket, not assumed - see the OPEN QUESTION under Behavior.
 3. **Both backends have data** (e.g. user copied `~/.vaud/` between machines with
    different keychain availability, or previously forced file mode then got keychain
    working). `os-keychain` wins if the probe succeeds; the vault does not silently
@@ -289,7 +289,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
    raises `VaultError("DECRYPT_FAILED")` with guidance to restore from a backup or
    run `vaud auth wipe` and re-add keys. Never silently proceeds with an empty vault.
 5. **`vault.key` missing but `vault.enc` present** (key file deleted, `.vaud/`
-   partially restored from an old backup). Same `DECRYPT_FAILED` path as #4 — the
+   partially restored from an old backup). Same `DECRYPT_FAILED` path as #4 - the
    vault cannot distinguish "wrong key" from "missing key" and must not try to
    regenerate a key and silently discard the encrypted blob.
 6. **`resolveRole` targets a provider config that no longer exists** (vault.json and
@@ -311,7 +311,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
 10. **Concurrent `vaud` processes** (CLI command + a running agent REPL, or CLI +
     Studio once M6 lands) writing `vault.json`/`vault.enc` at once. All writes are
     atomic (temp file + rename, edge case matches the encrypted-file write path
-    above); last writer wins for `vault.json`. No cross-process locking in v1 — this
+    above); last writer wins for `vault.json`. No cross-process locking in v1 - this
     is a single-user local tool, not a multi-writer database.
 11. **OS keychain per-entry size limits** (Windows Credential Manager traditionally
     caps around 2.5KB per credential blob). If a `ProviderSecret` (key +
@@ -319,7 +319,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
     must detect this and fall back to the encrypted-file backend for that entry
     rather than truncate or silently fail. OPEN QUESTION: exact per-platform
     thresholds and whether the fallback is per-entry (mixed backends) or forces the
-    whole vault to file mode — needs a decision before implementation, default to
+    whole vault to file mode - needs a decision before implementation, default to
     "whole vault" for simplicity unless a real fixture proves the split is needed.
 12. **CI/headless scripting without a keychain session and without wanting to touch
     `~/.vaud` at all** (e.g. running `vaud convert` in CI, which needs no key, is
@@ -331,7 +331,7 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
     config id AND delete `vault.json`/`vault.enc`/`vault.key`, and must not error if
     some of those are already absent (idempotent).
 14. **Role unmapped and no `default` mapping.** `resolveRole` returns `null`
-    (not an error) — this is the expected "no AI configured yet" state ADR-006 §2
+    (not an error) - this is the expected "no AI configured yet" state ADR-006 §2
     describes, and callers turn it into the first-key-ask UX, not a crash.
 
 ## Test plan
@@ -362,57 +362,57 @@ export function redactSecrets<T>(value: T): T; // deep-strips apiKey/extraHeader
   / list / remove / wipe` end to end against the file backend (CI has no real
   keychain) and asserts `--json` output never contains key material. `vaud auth test`
   (the connectivity check) is exercised in provider-adapters.md's test plan, not
-  here, since it is not a vault method — this file only asserts that
+  here, since it is not a vault method - this file only asserts that
   `vault.getSecret()` returns a usable `ProviderSecret` for a config the command
   would pass along.
 - Round-Trip Law: not applicable (no serialize-back-to-source-format concept here).
 
 ## Non-goals
 
-- Not a general-purpose secrets manager for arbitrary user secrets — scoped to
+- Not a general-purpose secrets manager for arbitrary user secrets - scoped to
   provider credentials and role mappings for `packages/ai`.
 - No cloud sync, no Vaudeville-operated key escrow or recovery service (consistent
   with "no Vaudeville-operated inference, no account, no proxy server," ADR-006 §1).
   Losing both `~/.vaud/vault.key` and the OS keychain entries means re-entering keys;
   this is by design, not a bug to fix later.
 - Does not validate that a stored key actually works. There is no
-  `testProviderConfig` method on `KeyVault` — `vaud auth test` (test plan below) is a
+  `testProviderConfig` method on `KeyVault` - `vaud auth test` (test plan below) is a
   CLI-level composition of `vault.getSecret()` plus a minimal request built by
   provider-adapters.md, not a vault capability. The vault's job is storage and
   resolution, not provider health.
 - Does not implement the provider adapters themselves (ChatRequest/ChatResponse,
-  streaming, tool-use fallback) — that is provider-adapters.md. This spec only
+  streaming, tool-use fallback) - that is provider-adapters.md. This spec only
   covers how their credentials are stored and resolved.
 - No multi-user / multi-profile vault in v1 (one `~/.vaud/` per OS user account).
 
 ## Sources consulted
 
-- the master plan (private planning notes) — locked decision "AI = BYOK + local," M2 milestone
+- the master plan (private planning notes) - locked decision "AI = BYOK + local," M2 milestone
   scope ("providers; vault; loop skeleton...").
-- `docs/02-ARCHITECTURE.md:23-25` — `packages/ai` description: "key vault (OS
+- `docs/02-ARCHITECTURE.md:23-25` - `packages/ai` description: "key vault (OS
   keychain + encrypted file)"; `:85-90` Security & privacy invariants: "Keys: OS
   keychain where available, else AES-encrypted file with local secret," "No network
   calls except: model providers the user configured."
-- `docs/decisions/ADR-006-ai-and-agent.md` — full text read; specifically §1 (BYOK
+- `docs/decisions/ADR-006-ai-and-agent.md` - full text read; specifically §1 (BYOK
   provider list, "Keys in the local vault (OS keychain, else encrypted file)"), §2
   (AI optional, first key ask at first AI moment), §4 (model roles: interview,
   treatment, test-stage inference, bulk audits, per-role model mapping, "sane
   single-model default").
-- `the production bible (private planning notes):64` — brief row for this file: "OS keychain vs
+- `the production bible (private planning notes):64` - brief row for this file: "OS keychain vs
   encrypted-file fallback, per-provider configs, model-role mapping
   (interview/treatment/test/audit), never-log-keys rule. Ground truth: ADR-006."
-- `the production bible (private planning notes):73` — cli-ux.md brief mentions "config file
+- `the production bible (private planning notes):73` - cli-ux.md brief mentions "config file
   (~/.vaud/config.json)" as that spec's territory; referenced here by name only,
   not read, since `vault.backend`'s exact key path is cli-ux.md's call to make.
-- `specs/formats/canonical-model.md` — shared entity envelope pattern (id/meta
+- `specs/formats/canonical-model.md` - shared entity envelope pattern (id/meta
   shape) used as the convention for `ProviderConfig.id`/timestamps; confirmed no
   canonical-model coupling is required for the vault (it is not a codec/canonical
   entity).
-- `specs/formats/escrow-and-roundtrip.md` — confirmed as not applicable to this spec
+- `specs/formats/escrow-and-roundtrip.md` - confirmed as not applicable to this spec
   (no source-format round trip involved).
-- `templates/SPEC-TEMPLATE.md` — structure followed section-by-section.
+- `templates/SPEC-TEMPLATE.md` - structure followed section-by-section.
 - `<RoleCall>\apps\rc\src\lib\providers\crypto.ts` (read in
-  full) — used only to confirm that RC's existing provider-key encryption is a
+  full) - used only to confirm that RC's existing provider-key encryption is a
   different problem (server-stored, BIP39/WebCrypto, client-decrypts-per-request,
   multi-tenant web app) and therefore not portable ground truth for a local,
   single-user, OS-keychain-first vault; cited here so the "none direct" reference

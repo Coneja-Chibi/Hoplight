@@ -4,7 +4,7 @@
 **Depends on:** `specs/formats/canonical-model.md`, `specs/formats/escrow-and-roundtrip.md`,
 `specs/formats/content-detection.md`, `specs/formats/bundle-import.md`, and every codec
 spec under `specs/formats/` (each contributes a format id and a capabilities matrix to
-the tables below). **VAUDEVILLE reference:** none — the `vaud` CLI has no VAUDEVILLE
+the tables below). **VAUDEVILLE reference:** none - the `vaud` CLI has no VAUDEVILLE
 predecessor; grammar and report shapes are original to this spec, built on top of the
 codecs `packages/formats` extracts from VAUDEVILLE.
 
@@ -46,7 +46,7 @@ lane; it only pins down the meaning `--json`, `--strict`, `--yes`, `--out-dir`, 
 | Flag | Converter-specific meaning |
 |---|---|
 | `--json` | Emit one machine-readable JSON object to stdout (shapes in "Public API sketch" below); all human-readable logging (progress, warnings) moves to stderr. Mutually exclusive with the plain-text report on stdout. |
-| `--strict` | Exit code 1 if any `dropped` field appears in any report. Per `specs/formats/escrow-and-roundtrip.md` ("Reports"), `--strict` reacts to `dropped` only — `escrowed` fields are the expected, lossless mechanism and never trip `--strict`. This gate is genuinely owned by this spec: no other command family has reports to gate. |
+| `--strict` | Exit code 1 if any `dropped` field appears in any report. Per `specs/formats/escrow-and-roundtrip.md` ("Reports"), `--strict` reacts to `dropped` only - `escrowed` fields are the expected, lossless mechanism and never trip `--strict`. This gate is genuinely owned by this spec: no other command family has reports to gate. |
 | `--yes` | Applied here to the converter's own destructive action: overwriting an existing output file (section 3, naming algorithm step 5). General confirmation-prompt mechanics are `cli-ux.md`'s. |
 | `--out-dir <dir>` | Where output files land. Default: the directory of each input file (per-input, not a single shared default when inputs span directories). |
 | `--quiet` | Suppress the per-file progress lines on stderr; final report still prints. |
@@ -55,7 +55,7 @@ Exit codes (fixed for all five commands, per `03-CONVENTIONS.md`): `0` every req
 operation succeeded; `1` a user-facing problem (bad arguments, detection failure,
 validation failure, a dropped field under `--strict`, a refused overwrite); `2` an
 internal error (uncaught exception, codec bug). When a batch has a mix of successes and
-user-facing failures, exit code is `1` and the report lists the failures individually —
+user-facing failures, exit code is `1` and the report lists the failures individually -
 partial success is not success.
 
 ### 2. Format id registry
@@ -63,7 +63,7 @@ partial success is not success.
 `--to` and `--against` (validate) take one or more **format ids**. A format id is the
 kebab-case basename of the owning codec spec in `specs/formats/`, except where one spec
 covers more than one distinct serialization target (`personas.md`, `regex-scripts.md`):
-those expose one format id per target shape. PNG is not a format id — it is a container
+those expose one format id per target shape. PNG is not a format id - it is a container
 flag (`--embed-png`) layered on top of a card- or persona-shaped target, because
 `png-embedding.md` describes a tEXt-chunk wrapper applicable to more than one canonical
 content type, not a content type of its own.
@@ -92,7 +92,7 @@ here; this spec only consumes its output.
 
 Every codec's `capabilities: Record<CanonicalFieldPath, "native"|"escrow"|"dropped">`
 (defined in `specs/formats/escrow-and-roundtrip.md`, "Capabilities matrix") is what
-`convert`/`export` reports render from — this spec never hand-maintains a duplicate
+`convert`/`export` reports render from - this spec never hand-maintains a duplicate
 list of which fields are lossy per format.
 
 ### 3. `vaud convert`
@@ -102,12 +102,12 @@ vaud convert <input...> --to <format-id...> [--out-dir <dir>] [--strict] [--json
 ```
 
 - `<input...>`: one or more file paths (glob-expanded by the shell or, on Windows,
-  internally — `vaud` must not rely on shell globbing since `cmd.exe`/PowerShell do not
+  internally - `vaud` must not rely on shell globbing since `cmd.exe`/PowerShell do not
   expand globs the way POSIX shells do).
 - `--to <format-id...>`: one or more format ids, consumed greedily until the next flag
   or end of argv (matches the illustrative grammar in
   `wireframes/cli/cli-and-tui.html:36`, e.g. `vaud convert VESPER.png --to charx json
-  backyard` — non-normative wireframe, but this spec adopts its surface grammar).
+  backyard` - non-normative wireframe, but this spec adopts its surface grammar).
   `json` alone as a bare `--to` value is a shorthand alias for `chara-card-v3` when the
   detected content type is Character (the "current preferred JSON shape"); this alias
   is a CLI-level convenience, not a fact about the underlying format, and only exists
@@ -146,7 +146,7 @@ Given input file `dir/NAME.ext` and requested targets `[f1, f2, ...]`:
    `overwrite <path>? [y/N]`; without `--yes` in a non-TTY, fail that target with
    `"refused to overwrite (no --yes)"` and exit 1 for the batch; with `--yes`,
    overwrite unconditionally.
-6. Every input is processed independently — one input's target collisions or
+6. Every input is processed independently - one input's target collisions or
    overwrite refusals do not block another input's outputs.
 
 #### `--embed-png` behavior
@@ -156,7 +156,7 @@ a format id of its own (section 2). When set for target `fi` (a `chara-card-v2`,
 `chara-card-v3`, or `rolecall-character`/`rc-persona` target):
 
 1. The target is first serialized to its normal canonical JSON shape exactly as
-   without `--embed-png` (so its `SerializeReport` — escrowed/dropped/warnings — is
+   without `--embed-png` (so its `SerializeReport` - escrowed/dropped/warnings - is
    identical either way).
 2. That JSON is then written into a PNG tEXt chunk per `specs/formats/png-embedding.md`
    (keyword selection, base64 encoding, chunk placement, and precedence on read are all
@@ -173,7 +173,7 @@ a format id of its own (section 2). When set for target `fi` (a `chara-card-v2`,
    `ccv3`-keyword PNG, not a `chara`-keyword one).
 5. OPEN QUESTION: whether `vaud convert`/`vaud export` should also accept a `--art
    <file>` flag to supply art when no asset reference exists, rather than always
-   failing — not decided by this spec; a plausible future extension, not required for
+   failing - not decided by this spec; a plausible future extension, not required for
    M1.
 
 ### 4. `vaud inspect`
@@ -187,7 +187,7 @@ Parses each input and prints a summary: detected format id + confidence (from
 line (e.g. character name, lorebook entry count), and the full `ParseReport`
 (escrowed field count + list, dropped field count + list, warnings). Writes no files.
 `inspect` never fails on escrow or dropped fields by itself (there is no `--strict`
-gate on `inspect` — it is a read-only report, not a pass/fail check); it exits 1 only
+gate on `inspect` - it is a read-only report, not a pass/fail check); it exits 1 only
 if detection itself fails (Edge case 3) or the file cannot be read/parsed as JSON/PNG
 at all.
 
@@ -218,7 +218,7 @@ vaud import <input> --into <production> [--yes] [--json]
   written into the production's matching subfolder.
 - Directory: every recognized file inside is imported; unrecognized files are skipped
   and listed as warnings, not failures.
-- `.zip`: delegates entirely to `specs/formats/bundle-import.md` — classify every
+- `.zip`: delegates entirely to `specs/formats/bundle-import.md` - classify every
   archive entry, then import in that spec's fixed dependency order. This spec does not
   restate that order or its size/zip-bomb limits; see that spec for both.
 - `--into <production>` names a production folder (`specs/engine/productions-and-history.md`,
@@ -226,7 +226,7 @@ vaud import <input> --into <production> [--yes] [--json]
   it creates if missing and writes recognized-content subfolders into; it does not
   depend on any production manifest schema. OPEN QUESTION: once
   `productions-and-history.md` exists, whether `import` must also write a
-  `.vaud/history` snapshot and/or update `vaud.json` — deferred to that spec.
+  `.vaud/history` snapshot and/or update `vaud.json` - deferred to that spec.
 
 ### 7. `vaud export`
 
@@ -289,7 +289,7 @@ Progress and human-readable warnings still go to stderr as plain lines (not JSON
 ## Public API sketch
 
 ```ts
-// apps/cli/src/commands/*.ts — command handlers. All import from packages/core and
+// apps/cli/src/commands/*.ts - command handlers. All import from packages/core and
 // packages/formats only; never from other apps.
 
 import type { Entity, ContentType } from "@vaud/core";
@@ -433,7 +433,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 2. **`--to` target's content type does not match the input's detected content type**
    (e.g. a Lorebook input with `--to backyard`). That single target fails with
    `content-type-mismatch`; other valid targets for the same input still run.
-3. **`--strict` with only escrowed fields, no dropped fields.** Must NOT fail — per
+3. **`--strict` with only escrowed fields, no dropped fields.** Must NOT fail - per
    `escrow-and-roundtrip.md`, escrow is the lossless mechanism and only `dropped`
    triggers `--strict`.
 4. **Two `--to` targets resolve to the same output filename** (e.g. two formats both
@@ -448,7 +448,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
    section 3 for the full rule and its OPEN QUESTION on a possible future `--art`
    flag.
 7. **Multiple input files with the same basename in different source directories,
-   default `--out-dir` (unset).** No collision — default `--out-dir` is per-input (its
+   default `--out-dir` (unset).** No collision - default `--out-dir` is per-input (its
    own directory), so outputs land beside each source file, never merged into one
    folder implicitly.
 8. **Multiple input files with the same basename, explicit shared `--out-dir`.** A
@@ -462,7 +462,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
    this command does not define or duplicate the numeric thresholds.
 10. **`vaud validate --against` on a format the input cannot losslessly reach** (e.g.
     validating a `chara-card-v3`-only field set against `--against chara-card-v2`).
-    Not an error by itself — the round-trip check reports `ok: false` with the
+    Not an error by itself - the round-trip check reports `ok: false` with the
     `SerializeReport` showing the dropped/escrowed fields; only `--strict` turns that
     into a failing exit code.
 11. **stdin input.** OPEN QUESTION: whether any of the five commands accept `-` as a
@@ -483,7 +483,7 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 ## Test plan
 
 - Fixtures required (reuses the shared fixture corpus under `fixtures/<format>/`, per
-  `03-CONVENTIONS.md`'s "fixture corpus is sacred" rule — no new fixture format, only
+  `03-CONVENTIONS.md`'s "fixture corpus is sacred" rule - no new fixture format, only
   CLI-level tests driving those fixtures through the command layer):
   - `fixtures/chara-card-v3/vesper/` (or equivalent existing character fixture) driven
     through `vaud convert --to charx chara-card-v2 backyard` to exercise naming,
@@ -514,55 +514,55 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 ## Non-goals
 
 - Does not define any codec's field mapping, detection heuristics, or capabilities
-  matrix — those live in each format's own spec under `specs/formats/`.
-- Does not define the agent REPL, bare `vaud` invocation, or `~/.vaud/config.json` —
+  matrix - those live in each format's own spec under `specs/formats/`.
+- Does not define the agent REPL, bare `vaud` invocation, or `~/.vaud/config.json` -
   those are `cli-ux.md`.
-- Does not define production manifest (`vaud.json`) or history snapshot behavior —
+- Does not define production manifest (`vaud.json`) or history snapshot behavior -
   that is `specs/engine/productions-and-history.md` (not yet written); `vaud import`/
   `vaud export` treat a production path as an opaque directory for M1.
 - Does not define `vaud doctor`, `vaud lore test`, or any M2+ command shown in the CLI
-  wireframe — those belong to their own milestone specs (`script-doctor.md`,
+  wireframe - those belong to their own milestone specs (`script-doctor.md`,
   `lorebook-engine.md`, etc.).
 - Does not define the self-updater or release binary packaging (ADR-003, `updater.md`).
 
 ## Sources consulted
 
-- the master plan (private planning notes) — v0.1 "The
+- the master plan (private planning notes) - v0.1 "The
   Converter" scope, `vaud convert/inspect/validate/export` command names, M1 exit
   criteria.
-- `docs/02-ARCHITECTURE.md` — `packages/*`
+- `docs/02-ARCHITECTURE.md` - `packages/*`
   dependency rule (`core <- formats <- everything`), escrow/capabilities mechanism,
   productions concept.
-- `docs/03-CONVENTIONS.md:33-40` — CLI
+- `docs/03-CONVENTIONS.md:33-40` - CLI
   conventions section: `--json`, exit codes 0/1/2, `--yes` for destructive ops, plain-
   first output vocabulary.
-- `the production bible (private planning notes):72` —
+- `the production bible (private planning notes):72` -
   brief row for `cli-converter.md`: five commands, report rendering, `--json` shapes,
   `--strict`, exit codes, multi-target naming; ground truth pointer to escrow spec and
   `03-CONVENTIONS.md`.
-- `specs/formats/canonical-model.md` —
+- `specs/formats/canonical-model.md` -
   `Entity<T>` envelope, `ContentType` set, escrow/capabilities relationship.
-- `specs/formats/escrow-and-roundtrip.md` —
+- `specs/formats/escrow-and-roundtrip.md` -
   Round-Trip Law definition; Escrow envelope shape; `--strict` reacts to `dropped`
   only (quoted in section 1); `ParseReport`/`SerializeReport` field names (escrowed,
   dropped, escrowShadowed, warnings); capabilities matrix mechanism; fixture corpus
   rules (misdetection cases as permanent fixtures).
-  `escrow-and-roundtrip.md` — "Reports" — the exact clause: "`--strict` exits nonzero
+  `escrow-and-roundtrip.md` - "Reports" - the exact clause: "`--strict` exits nonzero
   if `dropped` is nonempty."
-- `templates/SPEC-TEMPLATE.md` — section
+- `templates/SPEC-TEMPLATE.md` - section
   structure followed by this file.
-- `wireframes/cli/cli-and-tui.html:36,49` —
+- `wireframes/cli/cli-and-tui.html:36,49` -
   illustrative (non-normative) CLI grammar examples (`vaud convert VESPER.png --to
   charx json backyard`; `vaud export production/neon-noir --all-formats --zip`) used
   to shape this spec's `--to`/`--all-formats`/`--zip` grammar and output-naming
   examples; this file is a wireframe mockup, not ground truth, and is cited only where
   explicitly noted as such above.
-- `<RoleCall>/apps/rc/src/lib/imports/bulk-import-orchestrator.ts` —
+- `<RoleCall>/apps/rc/src/lib/imports/bulk-import-orchestrator.ts` -
   read for background on mixed-ZIP classify-then-import dependency ordering (personas,
   characters, presets, lorebooks, then chats) and zip-bomb size guards; this file is
   the ground truth for `specs/formats/bundle-import.md`, not for this spec, so
   `vaud import`'s behavior section here delegates to that spec by reference rather
   than restating its details, per this file's own brief (ground truth: escrow spec +
   `03-CONVENTIONS.md` CLI section only).
-- the production bible (private planning notes) global rules and reviewer rules sections — governed
+- the production bible (private planning notes) global rules and reviewer rules sections - governed
   the "never invent format facts" / "cite every claim" constraints applied throughout.

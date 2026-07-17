@@ -121,7 +121,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
                   className={styles.pcNum}
                   type="number"
                   value={cc?.tokenBudget ?? ""}
-                  placeholder="—"
+                  placeholder="-"
                   aria-label="Token cap"
                   onChange={(ev) =>
                     patchCc({

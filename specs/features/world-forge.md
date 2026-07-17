@@ -10,14 +10,14 @@ specs/engine/lorebook-engine.md (unwritten at time of writing; cited by path per
 specs/features/table-read.md (unwritten at time of writing; cited by path per bible,
 event-stream contract reused by the interview spiral)
 **VAUDEVILLE reference:** `apps/rc/src/lib/compendium/computed.ts` (relation-scan
-pattern only, not the type catalog — see Non-goals),
+pattern only, not the type catalog - see Non-goals),
 `packages/lorebook/src/types.ts` (`Lorebook` :342, `LorebookEntry` :216)
 
 ## Purpose
 
 The World Forge is the M7 worldbuilding feature: a user starts from one idea (a
-character, a place, a rumor) and grows a linked world of pins — people, places,
-factions, secrets, events — through an interview that widens ring by ring. Every
+character, a place, a rumor) and grows a linked world of pins - people, places,
+factions, secrets, events - through an interview that widens ring by ring. Every
 pin exports as a lorebook entry and (in the app face) a compendium-style node. A
 standing "continuity desk" pass flags cross-pin contradictions as they're
 introduced, so the world stays consistent without a separate audit step. This spec
@@ -32,17 +32,17 @@ Per `specs/formats/canonical-model.md` (line 11-12): "`World`/compendium arrives
 with M7 and extends Lorebook rather than replacing it." Concretely:
 
 - A **World** is a canonical `Lorebook` (packages/core) with `lorebookType: 'world'`
-  and an additional `worldMeta` block (interview state, continuity state — see
+  and an additional `worldMeta` block (interview state, continuity state - see
   below). It is not a new top-level content type; it reuses the `Lorebook`
   `Entity<T>` envelope (id, escrow, meta) from canonical-model.md.
 - A **WorldPin** is a canonical `LorebookEntry` (packages/core, following the field
   surface adopted from VAUDEVILLE `packages/lorebook/src/types.ts:216`) carrying
   two extra pieces of data inside its existing `metadata?: Record<string, unknown>`
   bag (types.ts:320):
-  - `metadata.entry_type: PinKind` — the discriminator (`"person" | "place" |
+  - `metadata.entry_type: PinKind` - the discriminator (`"person" | "place" |
     "faction" | "secret" | "event"`).
   - `metadata.structured_data: PersonData | PlaceData | FactionData | SecretData
-    | EventData` — the typed payload for that kind.
+    | EventData` - the typed payload for that kind.
 
   This mirrors how VAUDEVILLE's compendium stores typed entries on top of
   `LorebookEntry` (`computed.ts` :17-27, `structuredOf`/`typeOf` helpers), which is
@@ -50,7 +50,7 @@ with M7 and extends Lorebook rather than replacing it." Concretely:
   free-text `content` field on `LorebookEntry` remains the prose the lorebook
   engine injects into prompts; `structured_data` is the machine-readable shadow of
   that prose that the relation graph and continuity engine scan. Writers/agents
-  are responsible for keeping `content` and `structured_data` in agreement — this
+  are responsible for keeping `content` and `structured_data` in agreement - this
   is exactly the kind of drift the continuity desk (section 4) is built to catch
   as a structured-field disagreement, not a hidden dual-source-of-truth problem.
   `title` (types.ts:225) is the pin's display name.
@@ -60,12 +60,12 @@ with M7 and extends Lorebook rather than replacing it." Concretely:
   `structured_data.name` when created through the interview; `title` is kept in
   sync for lorebook-engine trigger display purposes.
 
-#### PinKind field-map (5 pin types — see Non-goals for why only 5)
+#### PinKind field-map (5 pin types - see Non-goals for why only 5)
 
 Each kind's `structured_data` shape and its typed relation edges. Edge names are
 this spec's own design, following the `SCAN_RULES` pattern from `computed.ts`
 (:241-318: `field` / `edgeType` / `shape` / optional `itemKey`) but trimmed and
-renamed to the 5-kind World Forge taxonomy — they are NOT a copy of VAUDEVILLE's
+renamed to the 5-kind World Forge taxonomy - they are NOT a copy of VAUDEVILLE's
 11-type table. Where a VAUDEVILLE field name has an obvious analog it is reused
 for familiarity; this is called out per row.
 
@@ -73,11 +73,11 @@ for familiarity; this is called out per row.
 
 | Field | Shape | Edge type | Target kind | Notes |
 |---|---|---|---|---|
-| `name` | scalar string | — | — | required |
-| `role` | scalar string | — | — | short tagline, e.g. "the broker" (matches corkboard pin subtitle in wireframe) |
-| `description` | scalar string | — | — | prose |
+| `name` | scalar string | - | - | required |
+| `role` | scalar string | - | - | short tagline, e.g. "the broker" (matches corkboard pin subtitle in wireframe) |
+| `description` | scalar string | - | - | prose |
 | `relationships` | array of `{ with: string, kind: string }` | `relationship` | person | analog of computed.ts:243 `relationships`/`with` |
-| `affiliations` | array of string (faction names) | `affiliation` | faction | analog of computed.ts:244 `affiliations`/`org`, simplified to plain names (no per-affiliation role sub-object — OPEN QUESTION below) |
+| `affiliations` | array of string (faction names) | `affiliation` | faction | analog of computed.ts:244 `affiliations`/`org`, simplified to plain names (no per-affiliation role sub-object - OPEN QUESTION below) |
 | `current_location` | scalar string | `current_location` | place | analog of computed.ts:246 `current_state.location`, flattened |
 | `knows_secrets` | array of string (secret names) | `knows_secret` | secret | new: person kind has no VAUDEVILLE analog for secret-knowledge; designed for this spec |
 | `involved_in` | array of string (event names) | `involved_in` | event | new: designed for this spec |
@@ -86,8 +86,8 @@ for familiarity; this is called out per row.
 
 | Field | Shape | Edge type | Target kind | Notes |
 |---|---|---|---|---|
-| `name` | scalar string | — | — | required |
-| `description` | scalar string | — | — | prose |
+| `name` | scalar string | - | - | required |
+| `description` | scalar string | - | - | prose |
 | `parent_location` | scalar string | `parent_location` | place | direct analog, computed.ts:256 |
 | `connected_to` | array of string | `connected_to` | place | direct analog, computed.ts:257 |
 | `controlled_by` | scalar string | `controlled_by` | faction | analog of computed.ts:261 `controlling_faction` |
@@ -97,10 +97,10 @@ for familiarity; this is called out per row.
 
 | Field | Shape | Edge type | Target kind | Notes |
 |---|---|---|---|---|
-| `name` | scalar string | — | — | required |
-| `description` | scalar string | — | — | prose |
+| `name` | scalar string | - | - | required |
+| `description` | scalar string | - | - | prose |
 | `leader` | scalar string | `leader` | person | direct analog, computed.ts:270 |
-| `members` | array of string (person names) | `member` | person | simplified from computed.ts:271 (`array_of_objects`/`name`) to plain names — World Forge pins don't carry per-member role text; the `content` prose can |
+| `members` | array of string (person names) | `member` | person | simplified from computed.ts:271 (`array_of_objects`/`name`) to plain names - World Forge pins don't carry per-member role text; the `content` prose can |
 | `allies` | array of string | `ally` | faction | direct analog, computed.ts:272 |
 | `enemies` | array of string | `enemy` | faction | direct analog, computed.ts:273 |
 | `territory` | array of string (place names) | `territory` | place | direct analog, computed.ts:274 |
@@ -108,33 +108,33 @@ for familiarity; this is called out per row.
 
 **secret** (`SecretData`)
 
-No SCAN_RULES analog exists in `computed.ts` — VAUDEVILLE's compendium has no
+No SCAN_RULES analog exists in `computed.ts` - VAUDEVILLE's compendium has no
 `secret` entry type. This shape is designed fresh for World Forge, driven by the
 wireframe's "3 cards depend on this" callout (`wireframes/magic/world-forge.html`
 line 44-45).
 
 | Field | Shape | Edge type | Target kind | Notes |
 |---|---|---|---|---|
-| `name` | scalar string | — | — | required, short label e.g. "The ledger is a person" |
-| `truth` | scalar string | — | — | the actual fact, prose |
+| `name` | scalar string | - | - | required, short label e.g. "The ledger is a person" |
+| `truth` | scalar string | - | - | the actual fact, prose |
 | `known_by` | array of string (person names) | `known_by` | person | who currently knows |
 | `concerns` | array of string (any pin name, mixed kind) | `concerns` | any | who/what the secret is about; resolution is name-based across all pin kinds, not kind-restricted (see `resolveByName` in API sketch) |
-| `depends_on` | array of string (any pin name, mixed kind) | `depended_on_by` (reverse) | any | pins whose current shape assumes this secret is true; this is the literal "3 cards depend on this" counter — computed as `incoming` edges of type `depended_on_by`, mirroring `computeEntryLinks`'s incoming-link pattern (computed.ts :439-546) |
+| `depends_on` | array of string (any pin name, mixed kind) | `depended_on_by` (reverse) | any | pins whose current shape assumes this secret is true; this is the literal "3 cards depend on this" counter - computed as `incoming` edges of type `depended_on_by`, mirroring `computeEntryLinks`'s incoming-link pattern (computed.ts :439-546) |
 | `revealed_in` | scalar string (event name) | `revealed_in` | event | optional, set once the secret is no longer secret |
 
 **event** (`EventData`)
 
 | Field | Shape | Edge type | Target kind | Notes |
 |---|---|---|---|---|
-| `name` | scalar string | — | — | required |
-| `description` | scalar string | — | — | prose |
+| `name` | scalar string | - | - | required |
+| `description` | scalar string | - | - | prose |
 | `where` | scalar string (place name) | `where` | place | direct analog, computed.ts:279 |
 | `participants` | array of string (person names) | `participant` | person | simplified from computed.ts:280 (`array_of_objects`/`name`) to plain names |
 | `caused_by` | scalar string (faction name) | `caused_by` | faction | new: designed for this spec |
 | `related_secret` | scalar string (secret name) | `related_secret` | secret | new: designed for this spec |
 
 `concerns` and `depends_on` on the `secret` kind are the only fields whose target
-is not restricted to one `PinKind` — every other edge in the table has a single
+is not restricted to one `PinKind` - every other edge in the table has a single
 fixed target kind, same as `computed.ts`'s `SCAN_RULES`.
 
 ### 2. Relation graph and name resolution
@@ -149,10 +149,10 @@ Directly reusing the mechanism in `computed.ts`, not the code:
   kind's field-map rows above (the World Forge analog of `SCAN_RULES`), resolves
   each target name, and produces `{ nodes, edges }`. Unresolved targets produce a
   `dangling: true` edge (direct analog of computed.ts :401-405) instead of being
-  dropped — a dangling edge is a first-class continuity-desk finding (see
+  dropped - a dangling edge is a first-class continuity-desk finding (see
   section 4, deterministic check 1).
 - `computeReciprocalPinLinks(pin, world)`: per-pin outgoing/incoming edge view,
-  direct analog of `computeEntryLinks` (computed.ts :439-546) — outgoing from the
+  direct analog of `computeEntryLinks` (computed.ts :439-546) - outgoing from the
   pin's own fields, incoming by reverse-scanning every other pin's fields for a
   name match. This is what powers the corkboard's "strings" and the secret's
   dependent-card count.
@@ -161,7 +161,7 @@ Directly reusing the mechanism in `computed.ts`, not the code:
 
 Per the wireframe (`wireframes/magic/world-forge.html`, block WF-2, "The
 Interview Spiral"): World Forge grows a world by reusing the Table Read interview
-engine's UI-agnostic event stream (question/chips/answer/field-patch/progress —
+engine's UI-agnostic event stream (question/chips/answer/field-patch/progress -
 contract defined in the Table Read bible brief, the production bible (private planning notes)
 line 76, spec at `specs/features/table-read.md`, not yet written at the time of
 this spec) rather than defining a second interview protocol. World Forge adds:
@@ -193,16 +193,16 @@ with zero AI key:
 
 **Deterministic checks (no AI key required, `packages/lore`):**
 
-1. **Dangling reference** — an edge in `computeWorldGraph` resolves to no pin
+1. **Dangling reference** - an edge in `computeWorldGraph` resolves to no pin
    (direct use of `dangling: true`, computed.ts :401-405 pattern). Example: a
    person's `current_location` names a place that has no `place` pin.
-2. **Orphan pin** — a pin with zero incoming and zero outgoing edges after a full
+2. **Orphan pin** - a pin with zero incoming and zero outgoing edges after a full
    graph computation. Not necessarily wrong, but flagged as a prompt ("did you
    mean to connect this?").
-3. **Reciprocal-relation asymmetry** — pin A's `relationships` names B, but B's
+3. **Reciprocal-relation asymmetry** - pin A's `relationships` names B, but B's
    `relationships` does not name A back. Computed by diffing `computeWorldGraph`
    outgoing edges of type `relationship` against their reverse.
-4. **Structured-field disagreement** — two or more pins assert conflicting values
+4. **Structured-field disagreement** - two or more pins assert conflicting values
    for the same structured relation to a third pin, e.g. two `faction` pins both
    list the same `place` in `territory` with no shared-territory flag, or a
    `place`'s `controlled_by` differs from a `faction`'s own claim over that place.
@@ -210,13 +210,13 @@ with zero AI key:
    free-text `content`/prose. The wireframe's "Lumen Room is dockside in 3 entries
    and uptown in 1" example (WF-3 line 107) is deterministic ONLY if "dockside"/
    "uptown" are captured as a structured field (e.g. `PlaceData.district`, not
-   in this spec's field-map above — see OPEN QUESTION); if the fact lives only in
+   in this spec's field-map above - see OPEN QUESTION); if the fact lives only in
    prose, it is not deterministically detectable and falls to check 5.
 
 **AI-backed checks (`packages/doctor` or `packages/agent`, M2+, needs a
 configured key):**
 
-5. **Prose-level / timeline contradiction** — semantic conflicts across pin
+5. **Prose-level / timeline contradiction** - semantic conflicts across pin
    `content` and referenced Character card fields, e.g. Marlow's card claims
    "never met Vesper" while Vesper's `first_mes` implies a shared history (WF-3
    line 106, Dispute 1). Requires reading natural-language content and is
@@ -274,7 +274,7 @@ treats the linkage as a design point, not a merge:
   export action, not an automatic sync. There is no live binding: editing the
   Character does not mutate the pin or vice versa. Keeping them in sync is a
   continuity-desk concern (a future check, not in the deterministic/AI-backed
-  lists above — see OPEN QUESTION).
+  lists above - see OPEN QUESTION).
 
 ## Public API sketch
 
@@ -345,7 +345,7 @@ export type StructuredData =
   | EventData;
 
 // A WorldPin is a canonical LorebookEntry whose `metadata` carries the World
-// Forge discriminator and payload. No new envelope type — reuses
+// Forge discriminator and payload. No new envelope type - reuses
 // Entity<LorebookEntry> from canonical-model.md.
 export interface WorldPinMetadata {
   entry_type: PinKind;
@@ -457,11 +457,11 @@ export function advanceRing(
    every other edge type (per the field-map tables). Required behavior: kind-scoped
    resolution ties break by exact kind match first; if still ambiguous (rare,
    same-kind duplicate names), `computeWorldGraph` records both matches as
-   separate edges and flags an `orphan-pin`-adjacent finding is NOT raised —
+   separate edges and flags an `orphan-pin`-adjacent finding is NOT raised -
    OPEN QUESTION below covers the duplicate-name case itself.
 2. **A pin references itself** (e.g. a `faction`'s `allies` lists its own name).
    Required behavior: self-referencing edges are dropped silently during graph
-   computation (not surfaced as a finding) — mirrors `computeEntryLinks`'s
+   computation (not surfaced as a finding) - mirrors `computeEntryLinks`'s
    explicit `resolved.id !== entry.id` guard (computed.ts line 485).
 3. **A `secret`'s `concerns` or `depends_on` names a pin that is later deleted.**
    Required behavior: becomes a `dangling-reference` finding on next continuity
@@ -499,24 +499,24 @@ export function advanceRing(
 ## Test plan
 
 - Fixtures required (new corpus under `fixtures/world-forge/`):
-  - `minimal-world/` — one `person`, one `place`, one `relationship` edge and one
+  - `minimal-world/` - one `person`, one `place`, one `relationship` edge and one
     `current_location` edge; exercises the base field-map and `computeWorldGraph`
     happy path.
-  - `five-kinds/` — one pin of each of the 5 kinds with every field-map row
+  - `five-kinds/` - one pin of each of the 5 kinds with every field-map row
     populated at least once; exercises full edge-type coverage and the
     `structured_data` -> `LorebookEntry.metadata` mapping end to end.
-  - `dangling-reference/` — a `person.current_location` naming a place that does
+  - `dangling-reference/` - a `person.current_location` naming a place that does
     not exist; exercises deterministic check 1.
-  - `reciprocal-asymmetry/` — pin A names B in `relationships`, B does not name A
+  - `reciprocal-asymmetry/` - pin A names B in `relationships`, B does not name A
     back; exercises deterministic check 3.
-  - `structured-disagreement/` — two `faction` pins both list the same `place` in
+  - `structured-disagreement/` - two `faction` pins both list the same `place` in
     `territory` without a shared-territory marker; exercises deterministic check 4.
-  - `secret-dependents/` — one `secret` pin named by three other pins'
+  - `secret-dependents/` - one `secret` pin named by three other pins'
     `depends_on`; exercises the "3 cards depend on this" incoming-edge count via
     `computeReciprocalPinLinks`.
-  - `self-reference/` — a `faction` pin listing itself in `allies`; exercises edge
+  - `self-reference/` - a `faction` pin listing itself in `allies`; exercises edge
     case 2 (silent drop, no finding).
-  - `stub-pin-mid-ring/` — a `person` pin created via edge case 4 with only
+  - `stub-pin-mid-ring/` - a `person` pin created via edge case 4 with only
     `name` set; exercises edge case 7 (exemption from self-incompleteness
     findings, non-exemption as a target).
 - Round-Trip Law applicability: World -> RoleCall-lorebook-format -> World is
@@ -570,8 +570,8 @@ export function advanceRing(
   8-33: package layout, `packages/lore`, `packages/interview`; lines 54-69: agent
   loop staged-edit envelope)
 - the production bible (private planning notes) (line
-  80: world-forge.md brief — pin taxonomy, interview spiral, export mapping,
-  continuity desk; line 76: table-read.md brief — event stream contract)
+  80: world-forge.md brief - pin taxonomy, interview spiral, export mapping,
+  continuity desk; line 76: table-read.md brief - event stream contract)
 - `specs/formats/canonical-model.md`
   (lines 7-11: content types, "World/compendium arrives with M7 and extends
   Lorebook rather than replacing it"; lines 52-58: Lorebook/LorebookEntry
@@ -586,7 +586,7 @@ export function advanceRing(
   WF-3 "The Continuity Desk" lines 92-112)
 - `<RoleCall>/apps/rc/src/lib/compendium/computed.ts`
   (structuredOf/typeOf/nameOf helpers :17-38; SCAN_RULES table :241-318;
-  computeCrossReferenceGraph :335-416; computeEntryLinks :439-546) — reused for
+  computeCrossReferenceGraph :335-416; computeEntryLinks :439-546) - reused for
   the relation-scan MECHANISM only, not the 11-type catalog (see Non-goals)
 - `<RoleCall>/packages/lorebook/src/types.ts`
   (`LorebookEntry` :216-331, `metadata` field :320; `Lorebook` :342-393)
@@ -610,7 +610,7 @@ export function advanceRing(
   deterministic or AI-backed check lists in section 4; left for a follow-up spec
   once Character<->World linkage usage is observed.
 - OPEN QUESTION: exact behavior when two pins of the SAME kind share the exact
-  same name (edge case 1's "still ambiguous" branch) — this spec states edges are
+  same name (edge case 1's "still ambiguous" branch) - this spec states edges are
   recorded against both matches but does not define a first-class "duplicate
   name" continuity finding. Should one be added to the deterministic check list?
 - OPEN QUESTION: `packages/core` vs `packages/lore` package boundary for the

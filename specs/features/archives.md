@@ -1,19 +1,19 @@
 # Spec: The Archives (distill-from-logs)
 
-**Package:** `packages/archives` (new — not yet enumerated in `docs/02-ARCHITECTURE.md`'s
+**Package:** `packages/archives` (new - not yet enumerated in `docs/02-ARCHITECTURE.md`'s
 package list; see OPEN QUESTION 1, same situation as `packages/productions` in
 `specs/engine/productions-and-history.md`) · **Milestone:** M7 (the master plan (private planning notes)
-"M7 The Archives + World Forge", `docs/ROADMAP.md` "M7 — The Archives + The World Forge
+"M7 The Archives + World Forge", `docs/ROADMAP.md` "M7 - The Archives + The World Forge
 (v0.6+)") · **Status:** draft
 **Depends on:** `specs/formats/canonical-model.md` (canonical `Character`, `Lorebook`/
 `LorebookEntry`, `Entity<T>` envelope), `specs/formats/escrow-and-roundtrip.md` (escrow
-envelope shape, reused for storing non-canonical distillation metadata — see Behavior),
+envelope shape, reused for storing non-canonical distillation metadata - see Behavior),
 `specs/engine/productions-and-history.md` (production folder layout, entity file I/O,
-history snapshots — distilled outputs land as ordinary entities in a production),
+history snapshots - distilled outputs land as ordinary entities in a production),
 `specs/engine/token-counting.md` (word/scene-size accounting for intake summaries),
 provider adapters (`specs/engine/provider-adapters.md`, not yet written per the bible's
-own package list — semantic clustering and claim extraction require a configured AI
-provider; see Behavior "Deterministic vs. AI-backed") · **VAUDEVILLE reference:** none —
+own package list - semantic clustering and claim extraction require a configured AI
+provider; see Behavior "Deterministic vs. AI-backed") · **VAUDEVILLE reference:** none -
 this feature has no VAUDEVILLE precedent (RC has no log-distillation feature); designed
 fresh from `wireframes/magic/archives.html` (AR-1 "The Intake Desk", AR-2 "The Evidence
 Board") per the ground truth column in the production bible (private planning notes) line 79.
@@ -23,7 +23,7 @@ Board") per the ground truth column in the production bible (private planning no
 The Archives ingests a user's old roleplay logs, fanfiction, or chat exports and
 distills the characters and recurring settings that were already living in them into
 real, playable Vaudeville entities: a canonical `Character` and, where the material
-supports it, a canonical `Lorebook`. Distillation is not summarization — every field
+supports it, a canonical `Lorebook`. Distillation is not summarization - every field
 the Archives writes into a distilled card or lorebook entry carries citations to the
 exact spans of the source material that support it, and a deterministic verification
 pass confirms every citation is real before that claim is allowed to reach the user for
@@ -48,7 +48,7 @@ provider. The deterministic/AI split, stated honestly:
 **Runs with no key configured:**
 - File ingestion, format sniffing, scene segmentation, scene indexing (Behavior below).
 - Citation verification (a span either exists in the indexed source at the claimed
-  offsets and contains the claimed substring, or it does not — a pure string
+  offsets and contains the claimed substring, or it does not - a pure string
   comparison, never an AI judgment call).
 - Evidence-board rendering of already-distilled results (re-displaying prior runs).
 
@@ -58,10 +58,10 @@ provider. The deterministic/AI split, stated honestly:
 - Claim extraction (turning clustered scenes into candidate personality/speech-pattern/
   fact statements).
 - Claim-to-citation proposal (the AI nominates which scenes support a candidate claim;
-  the deterministic verification pass then checks the AI's work — see "Citation
+  the deterministic verification pass then checks the AI's work - see "Citation
   verification").
 - Confidence scoring's semantic component (agreement/contradiction detection across
-  cited scenes — see "Confidence tiers").
+  cited scenes - see "Confidence tiers").
 
 A production with the Archives module installed but no provider configured can still
 ingest and index logs and browse prior distillation runs; it cannot run a new
@@ -71,9 +71,9 @@ configured" rather than silently degrading to a worse, ungrounded distillation.
 ### Ingestion contract
 
 The bible's brief requires `.jsonl`, `.txt`, and `.md` intake (the production bible (private planning notes)
-line 79). Rather than hardcoding any one platform's chat-export schema — no such schema
+line 79). Rather than hardcoding any one platform's chat-export schema - no such schema
 is confirmed against VAUDEVILLE source or a cited public spec in this pass, and inventing
-one would violate the "never invent format facts" rule — this spec defines an abstract
+one would violate the "never invent format facts" rule - this spec defines an abstract
 **source adapter** contract that every concrete ingester implements:
 
 ```
@@ -85,7 +85,7 @@ A `RawScene` is the smallest unit the Archives cites against: for a structured c
 this is one turn/message; for freeform prose (`.md` fic, `.txt` export) this is one
 paragraph or one scene-break-delimited block (delimiter heuristic: two-or-more blank
 lines, a markdown `---`/`***` rule, or a `.txt` file's own line-count-based chunking
-when no structural marker exists — exact chunking heuristics are an implementation
+when no structural marker exists - exact chunking heuristics are an implementation
 detail of the `.txt`/`.md` adapter, not fixed by this spec beyond "must be
 deterministic and reproducible run-to-run on unchanged input").
 
@@ -94,11 +94,11 @@ Three concrete adapters are in scope for M7:
 1. **`.jsonl` chat-log adapter.** Each line is one JSON object representing one
    message/turn. OPEN QUESTION 2: the exact per-line field schema (speaker field name,
    message-text field name, timestamp field name) is not confirmed against any cited
-   source in this pass — VAUDEVILLE has no chat-log distillation feature to extract
+   source in this pass - VAUDEVILLE has no chat-log distillation feature to extract
    from (see VAUDEVILLE reference above), and no public spec for a canonical "RP chat
    jsonl" format was researched here. The adapter must therefore support a small,
    explicit whitelist of known shapes (populated by whichever concrete jsonl exports the
-   implementing ticket confirms against real files — e.g. a SillyTavern chat log export,
+   implementing ticket confirms against real files - e.g. a SillyTavern chat log export,
    if and when its exact field names are confirmed) plus a generic fallback: any JSON
    object with at least one string-valued field is treated as one `RawScene`, using the
    longest string field as the scene's text and any field named `name`/`speaker`/`role`
@@ -111,7 +111,7 @@ Three concrete adapters are in scope for M7:
    job (see Voice clustering).
 3. **`.txt` freeform adapter.** Same paragraph/blank-line splitting as the `.md`
    adapter, minus markdown-aware heading detection. Also the fallback path for "noisy"
-   exports (the wireframe's "discord-export.txt ... noisy, filtered" line, AR-1) —
+   exports (the wireframe's "discord-export.txt ... noisy, filtered" line, AR-1) -
    filtering here means dropping scenes below a minimum-content threshold (e.g. bot
    command lines, timestamps-only lines, reaction-only lines) via a small set of
    deterministic noise heuristics (line is only punctuation/emoji, line matches a
@@ -121,7 +121,7 @@ Three concrete adapters are in scope for M7:
 
 PNG is listed in AR-1's dropzone copy (`.png` alongside `.jsonl .txt .md`) but a PNG in
 this context is card art or an existing character card being fed in as reference
-material, not a log format — it is out of scope for log ingestion and handled by the
+material, not a log format - it is out of scope for log ingestion and handled by the
 existing character/persona codecs if a user drops one in; this spec does not define
 PNG-as-log-source behavior.
 
@@ -143,16 +143,16 @@ SceneRef {
 
 `index` is the human-facing "scene N" number (1-based in UI copy, per AR-2's "scene 88");
 `offset` is the machine-verifiable anchor. Both are stored together because `index` is
-what a citation names in prose and `offset` is what verification checks against — an
+what a citation names in prose and `offset` is what verification checks against - an
 adapter re-run against byte-identical input must reproduce identical offsets (this is
 the "deterministic and reproducible" requirement from Ingestion contract). If the source
 file's bytes change between the original distillation run and a later verification pass
 (edited, re-exported with different line endings, etc.), `sourceHash` mismatches and
 every citation against that file is reported as **unverifiable**, not silently
-re-resolved against new offsets — Edge case 6.
+re-resolved against new offsets - Edge case 6.
 
-An **intake index** — the full set of `SceneRef`s produced by decomposing every file in
-one ingestion batch — is itself an artifact, not recomputed on every operation. See
+An **intake index** - the full set of `SceneRef`s produced by decomposing every file in
+one ingestion batch - is itself an artifact, not recomputed on every operation. See
 "Where distillation output lives" below for where it is stored.
 
 ### Voice clustering
@@ -162,18 +162,18 @@ clusters (AR-1's "Voice 1 · 0.94 confidence · 214 scenes ... VESPER").
 
 1. **Explicit-attribution sources** (a jsonl adapter that resolved a speaker field per
    Ingestion contract item 1): clustering starts from the literal distinct attribution
-   values as a deterministic first pass — no AI needed to know that scenes attributed
+   values as a deterministic first pass - no AI needed to know that scenes attributed
    to the same name are the same voice. AI clustering then only needs to (a) merge
    attribution variants that are the same character under different labels (nicknames,
    typos) and (b) filter out non-character speakers (the human user's own persona voice,
-   OOC/meta lines) — the wireframe's dropzone note "nothing leaves this machine" implies
+   OOC/meta lines) - the wireframe's dropzone note "nothing leaves this machine" implies
    this step, like all AI steps, is a provider call the user has configured, run locally
    or on their chosen BYOK endpoint, never a hosted Vaudeville service.
-2. **Freeform sources** (no structural attribution): clustering is entirely an AI job —
+2. **Freeform sources** (no structural attribution): clustering is entirely an AI job -
    the provider reads scene text and proposes a speaker/actor label per scene, then
    groups scenes sharing a label. This is the lower-confidence path and its output
    confidence tier should reflect that (see Confidence tiers).
-3. **Non-character clusters.** A cluster need not resolve to a person at all — AR-1's
+3. **Non-character clusters.** A cluster need not resolve to a person at all - AR-1's
    third card, "A setting keeps recurring · 'the district' · 88 mentions," is a
    place/faction/recurring-noun cluster, not a voice. These are named `EntityCluster`s
    generically (kind: `"character"` or `"setting"`); a `"setting"` cluster's suggested
@@ -194,7 +194,7 @@ For each `character`-kind cluster the user chooses to distill, the provider prop
 **claims**: short, canonical-field-shaped statements ("keeps a mental ledger of every
 favor", "hates being thanked") each tagged with the canonical field it targets
 (`personality`, `description`/scenario framing, `mes_example` speech-pattern samples,
-etc. — the canonical `Character` fields from `specs/formats/canonical-model.md`
+etc. - the canonical `Character` fields from `specs/formats/canonical-model.md`
 "Character" section) and a list of `SceneRef.index` values the provider asserts support
 it (AR-2: "Personality · 12 citations", each sub-claim tagged `[9 scenes]`, `[6]`,
 `[2 · weak]`).
@@ -206,14 +206,14 @@ Claim {
   targetField: CanonicalCharacterField   // e.g. "personality" | "description" | "mesExample" | ...
   text: string
   citedSceneRefs: string[]                // SceneRef ids (see Public API), AI-PROPOSED, unverified at this point
-  verifiedSceneRefs: string[]             // subset of citedSceneRefs that passed verification — see below
+  verifiedSceneRefs: string[]             // subset of citedSceneRefs that passed verification - see below
   confidenceTier: ConfidenceTier
 }
 ```
 
 A claim's `citedSceneRefs` at proposal time is **untrusted input**, exactly as
 untrusted as any other AI output this project treats adversarially (`docs/01-VISION.md`
-"The Doctor is honest" — the same posture applies here even though the Doctor and the
+"The Doctor is honest" - the same posture applies here even though the Doctor and the
 Archives are different components). The provider can hallucinate a scene reference that
 does not exist, or claim a real scene supports text the scene does not actually contain.
 
@@ -224,9 +224,9 @@ through a deterministic, provider-free verification step:
 
 1. Resolve the `SceneRef` id against the intake index for this batch. If it does not
    exist (hallucinated id, or an id from a different batch), the citation is
-   **invalid** — dropped from `verifiedSceneRefs`, logged.
+   **invalid** - dropped from `verifiedSceneRefs`, logged.
 2. Compare `sourceHash` on the resolved `SceneRef` against the current on-disk source
-   file's hash. Mismatch means the underlying file changed since ingestion — the
+   file's hash. Mismatch means the underlying file changed since ingestion - the
    citation is **unverifiable** (Edge case 6), a distinct outcome from invalid.
 3. This spec does NOT require the verifier to confirm that the claim's prose is
    semantically entailed by the cited scene text (that would itself require an AI
@@ -234,15 +234,15 @@ through a deterministic, provider-free verification step:
    as the minimum bar that keeps this a real check rather than a rubber stamp: the
    provider's claim-extraction step must additionally return, per citation, a short
    **quoted excerpt** it is grounding the claim in (this is what AR-2's receipts panel
-   renders — "scene 88 · our-rp-2024: 'Don't. Thank me and I'll charge interest.'").
+   renders - "scene 88 · our-rp-2024: 'Don't. Thank me and I'll charge interest.'").
    The verifier confirms that excerpt is a **substring of the actual scene text** at the
    claimed `SceneRef` (case-sensitive-off, whitespace-normalized comparison). An excerpt
    that is not found verbatim in the scene fails verification for that citation.
 4. A claim with zero entries surviving in `verifiedSceneRefs` is never shown to the user
-   as a citable claim — it is either discarded before the evidence review step or
+   as a citable claim - it is either discarded before the evidence review step or
    surfaced separately as "proposed but unverifiable," never mixed into the normal
    review flow with a citation count implying it checked out (Edge case 7).
-5. This check only proves the excerpt exists in the source — it is a hallucination
+5. This check only proves the excerpt exists in the source - it is a hallucination
    backstop, not a semantic-accuracy guarantee. A provider could quote a real line
    out of context to support a false characterization; the human review step (Evidence
    review event stream) is what catches that, same as AR-2's "keep / sometimes / cut"
@@ -252,7 +252,7 @@ through a deterministic, provider-free verification step:
 
 A documented, stable formula per claim (mirroring the Script Doctor's health-score
 approach per the production bible (private planning notes) line 75's "health score formula
-(documented, stable)" — the same house standard: heuristic, not fake precision):
+(documented, stable)" - the same house standard: heuristic, not fake precision):
 
 ```
 verifiedCount = claim.verifiedSceneRefs.length
@@ -269,13 +269,13 @@ the `weak` boundary at exactly 1. Reconciled here as: `weak` = 1-2 verified cita
 than a value invented independently. Contradiction detection (a `moderate`/`strong`
 claim whose cited scenes actually disagree with each other, downgrading its tier)
 requires a provider judgment call and is explicitly a second, AI-backed refinement on
-top of the citation-count base tier, not a replacement for it — the count-based tier
+top of the citation-count base tier, not a replacement for it - the count-based tier
 always exists even with no provider available to re-check for the review UI's initial
 render (Deterministic vs. AI-backed).
 
 A cluster's own overall confidence (AR-1's "0.94 confidence") is a distinct, coarser
 score describing clustering quality (how cleanly scenes separated into this voice vs.
-others), not a claim-level tier — it is entirely a provider output with no deterministic
+others), not a claim-level tier - it is entirely a provider output with no deterministic
 verification step, since there is no ground truth to check a clustering decision
 against the way a citation can be checked against source bytes. OPEN QUESTION 3: exact
 formula for the cluster-level confidence score (e.g. scene-count-weighted inter-cluster
@@ -288,26 +288,26 @@ Modeled the same way as the Table Read's living-document protocol
 (the production bible (private planning notes) line 76: "UI-agnostic event stream protocol") so CLI and
 a future Studio surface share one implementation:
 
-- `cluster.proposed` — a new `EntityCluster` is ready for the intake-desk decision
+- `cluster.proposed` - a new `EntityCluster` is ready for the intake-desk decision
   (AR-1: distill / ignore, or for weak clusters, distill / ignore with a visible
   confidence).
-- `cluster.corrected` — user merges, splits, or ignores a cluster.
-- `claim.proposed` — a claim with its tier is ready for review (AR-2).
-- `claim.decided` — user resolves a claim: `"keep"` | `"sometimes"` | `"cut"`. `"sometimes"`
+- `cluster.corrected` - user merges, splits, or ignores a cluster.
+- `claim.proposed` - a claim with its tier is ready for review (AR-2).
+- `claim.decided` - user resolves a claim: `"keep"` | `"sometimes"` | `"cut"`. `"sometimes"`
   (AR-2's third chip) means the claim is kept but rewritten/qualified rather than stated
-  flatly — the exact rewrite is a follow-up AI call scoped to that one claim, or a
+  flatly - the exact rewrite is a follow-up AI call scoped to that one claim, or a
   manual edit; this spec does not mandate which.
-- `batch.acceptAllCited` — the fast path from AR-2's "ACCEPT ALL CITED" button: every
+- `batch.acceptAllCited` - the fast path from AR-2's "ACCEPT ALL CITED" button: every
   claim at `strong` or `moderate` tier is auto-decided `"keep"` in one action; `weak`
   and `unverifiable` claims are left for individual review. This directly answers the
   wireframe's own "For/Against" note (AR-2: "needs a 'trust the strong citations' fast
   path").
-- `distillation.completed` — every in-scope claim has a decision; the distilled
+- `distillation.completed` - every in-scope claim has a decision; the distilled
   `Character`/`Lorebook` entities are ready to write.
 
 This event stream is UI-agnostic per the same house convention as Table Read
 (`specs/features/table-read.md`, not yet written in this pass but named in the bible
-row above it) — the Archives CLI command and a future Studio panel both drive the same
+row above it) - the Archives CLI command and a future Studio panel both drive the same
 state machine; this spec does not fix a transport (stdout JSON lines, an in-process
 event emitter, etc.), only the event vocabulary and ordering constraints (a claim cannot
 receive `claim.decided` before its `claim.proposed`; `distillation.completed` cannot
@@ -315,12 +315,12 @@ fire while any `cluster.proposed` remains undecided).
 
 ### Distill outputs
 
-Distillation produces ordinary canonical entities — **no new entity type**. A
+Distillation produces ordinary canonical entities - **no new entity type**. A
 `character`-kind cluster with decided claims produces a canonical `Character`
 (`specs/formats/canonical-model.md` "Character"): each kept/sometimes claim's `text`
 (post-rewrite for `"sometimes"`) is composed into the claim's `targetField`, multiple
 claims targeting the same field joined into coherent prose (composition, not naive
-string concatenation — an AI pass, since turning five discrete kept claims into one
+string concatenation - an AI pass, since turning five discrete kept claims into one
 readable `personality` paragraph is a generation task, not a mechanical join; this is
 run once at `distillation.completed`, not per-claim). A `setting`-kind cluster produces
 one or more canonical `LorebookEntry` rows in a new or existing canonical `Lorebook`
@@ -330,25 +330,25 @@ claims the same way).
 **Where distillation output lives.** Distilled `Character`/`Lorebook` entities are
 written through `packages/productions`' `writeEntity` (per
 `specs/engine/productions-and-history.md`'s Public API sketch) exactly like any other
-studio-created entity — they land in the current production's `characters/`/`lorebooks/`
+studio-created entity - they land in the current production's `characters/`/`lorebooks/`
 folders as normal entity files, get a normal history snapshot (`trigger: "manual"` or a
-new Archives-specific trigger value — OPEN QUESTION 4: should `SnapshotTrigger` gain an
+new Archives-specific trigger value - OPEN QUESTION 4: should `SnapshotTrigger` gain an
 `"archives-distill"` member, or does the generic `"manual"` trigger suffice since this
 is functionally a manual user action confirming AI-proposed content?), and are
 indistinguishable from a hand-built or Table-Read-built entity once committed.
 
 **Where evidence/citation metadata lives.** This is NOT stored inside the distilled
-`Entity<Character>`'s `data` or `escrow` fields — canonical `Character` (per
+`Entity<Character>`'s `data` or `escrow` fields - canonical `Character` (per
 canonical-model.md) has no citation-shaped field, and escrow per
 `specs/formats/escrow-and-roundtrip.md` is defined as "fields the canonical model has
-no home for, **keyed by the format that owns them**" — citations are not a foreign
+no home for, **keyed by the format that owns them**" - citations are not a foreign
 format's fields, they are Archives-specific provenance about how this entity was
 authored, a different concern entirely. Cramming citations into escrow would also mean
 every future codec serializer has to know to ignore/preserve an "archives" escrow
 namespace it has no business touching. Instead: a **sidecar evidence artifact**, one
 per distillation run, stored under the production's reserved area alongside but
 separate from `.vaud/history/` (per `specs/engine/productions-and-history.md`'s rule
-that `.vaud/` is the only folder that spec reserves — this spec proposes
+that `.vaud/` is the only folder that spec reserves - this spec proposes
 `.vaud/archives/<runId>/` as an Archives-owned subtree of that same reservation, not a
 second top-level reserved folder, to avoid clutter in a user's file-manager view of the
 production root):
@@ -358,11 +358,11 @@ production root):
   intake-index.json     // every SceneRef from every ingested file in this batch
   clusters.json          // EntityCluster[] with correction history
   claims.json             // Claim[] with citations, verification results, tiers, decisions
-  produced.json            // { entityId, entityType }[] — which entities this run produced
+  produced.json            // { entityId, entityType }[] - which entities this run produced
 ```
 
 The intake source files themselves (the original `.jsonl`/`.txt`/`.md` logs) are NOT
-copied into `.vaud/archives/` by this mechanism — they are referenced by path and
+copied into `.vaud/archives/` by this mechanism - they are referenced by path and
 `sourceHash` only, same as productions-and-history.md's asset-reference pattern (edge
 case 8 there: "does not validate or resolve asset existence"). A user who moves or
 deletes their source logs after distillation keeps the distilled entity (it is now a
@@ -501,7 +501,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 3. **The same source file is ingested twice in one batch** (user drags the same file in
    twice, or two files with identical content but different names). `sourceHash` is
    identical; scenes from both get distinct `SceneRef.id`s (id incorporates `sourceFile`
-   path, not just hash) but citation verification treats them as equally valid — no
+   path, not just hash) but citation verification treats them as equally valid - no
    deduplication is performed at ingestion time. OPEN QUESTION 5: should a duplicate-hash
    file be flagged to the user before clustering runs (wasted provider spend on
    redundant content), or is silent double-counting acceptable since it only inflates a
@@ -510,7 +510,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
    claim decided `"cut"`, or the cluster itself decided `"ignore"`). `distill()` produces
    no entity for that cluster; `produced` simply omits it. Not an error.
 5. **Two clusters both claim the same `SceneRef`** (a scene where two characters
-   interact, both voices legitimately cited). Allowed — `sceneRefIds`/`citations` are
+   interact, both voices legitimately cited). Allowed - `sceneRefIds`/`citations` are
    not exclusive across clusters/claims. A `SceneRef` can appear in citations for
    multiple, otherwise-unrelated claims.
 6. **A citation's `SceneRef.sourceHash` no longer matches the current file on disk**
@@ -519,7 +519,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
    "source-hash-mismatch"` and downgrades affected claims' tiers accordingly (a claim
    that drops to zero verified citations becomes `"unverifiable"`, per Confidence
    tiers). This can turn a previously `"strong"` claim in `.vaud/archives/<runId>/` into
-   `"unverifiable"` on `loadRun()` without the claim's own text changing — the review UI
+   `"unverifiable"` on `loadRun()` without the claim's own text changing - the review UI
    must surface this as "source changed since distillation," not silently re-tier
    without explanation.
 7. **A claim's citations are entirely unverifiable at proposal time** (the provider
@@ -534,7 +534,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
    scenes that moved to the new cluster; a merge does not invalidate claims but may
    produce duplicate/overlapping claims across the merged clusters' original claim
    sets. This spec requires `extractClaims` to be re-run for any cluster touched by a
-   `cluster.corrected` event with `decision: "merged" | "split"` — prior claims tied to
+   `cluster.corrected` event with `decision: "merged" | "split"` - prior claims tied to
    the pre-correction cluster id(s) are discarded, not patched in place, to avoid
    claim/cluster bookkeeping drift.
 9. **The user re-runs distillation on the exact same file set** (same batch, re-ingested
@@ -543,7 +543,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
    the same `SceneRef.id`s as the prior run, but clustering/claim-extraction are AI
    calls and are NOT guaranteed deterministic across runs (a re-run may propose
    different cluster boundaries or claim wording even on identical input). This is an
-   accepted property, not a bug this spec fixes — reproducibility is guaranteed for the
+   accepted property, not a bug this spec fixes - reproducibility is guaranteed for the
    deterministic layer (ingestion, verification) only, per Ingestion contract /
    Scene addressing.
 10. **A `"setting"` cluster's recurring noun-phrase is also a character's name** (e.g.
@@ -552,18 +552,18 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
     Voice clustering item 3); no deterministic disambiguation rule is defined here. If
     misclassified, the user's only recourse in-flow is `"ignore"` the wrong-kind cluster
     and, if the correct-kind cluster was not also proposed, there is currently no
-    "reclassify kind" event in the vocabulary — OPEN QUESTION 7: should
+    "reclassify kind" event in the vocabulary - OPEN QUESTION 7: should
     `cluster.corrected` support a `reclassify` decision changing `kind` in place, or is
     ignore-and-manually-recreate sufficient for M7?
 11. **`distill()` is called with a production that has no configured provider** (the
     ingestion/clustering steps ran previously via `loadRun`, e.g. resuming a session, but
     the provider was since removed from the key vault). Composition of kept claims into
     canonical fields fails with a named "no provider configured" error before any
-    `writeEntity` call — a partial write (some fields composed, others not) must never
+    `writeEntity` call - a partial write (some fields composed, others not) must never
     reach the production; `distill()` is all-or-nothing per run.
 12. **A user drops a `.png` character card into the intake desk expecting it to seed
     context** (e.g. "here's the character as they exist today, now distill the rest from
-    logs"). Out of scope per Behavior's "Ingestion contract" closing note — this spec
+    logs"). Out of scope per Behavior's "Ingestion contract" closing note - this spec
     does not define merging a distillation run against a pre-existing `Character`
     entity. OPEN QUESTION 8: is "distill into an existing card, filling only empty
     fields" a real M7 requirement (the wireframe does not show it) or purely an M7+
@@ -573,48 +573,48 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
     case 5's stance on large assets. `ingest()`'s cost is I/O-bound and cheap; the
     expensive, capped-by-provider-context-window step is `clusterVoices`/
     `extractClaims`, which must chunk/batch scenes across multiple provider calls rather
-    than attempting one call over an unbounded scene list — exact batching strategy
+    than attempting one call over an unbounded scene list - exact batching strategy
     (by token budget, via `specs/engine/token-counting.md`) is an implementation detail
     left to the ticket, not fixed here.
 
 ## Test plan
 
 - Fixtures required:
-  - `fixtures/archives/jsonl/generic-fallback.jsonl` — chat-shaped JSON lines using the
+  - `fixtures/archives/jsonl/generic-fallback.jsonl` - chat-shaped JSON lines using the
     generic-fallback field detection from Ingestion contract item 1 (no confirmed named
     platform schema), including one malformed line (edge case 1).
-  - `fixtures/archives/md/multi-scene-fic.md` — a short fic with `---` scene breaks and
+  - `fixtures/archives/md/multi-scene-fic.md` - a short fic with `---` scene breaks and
     at least two recurring character voices plus one recurring setting mention, sized to
     exercise Voice clustering items 2-3 together (mirrors AR-1's "vesper-oneshots.md").
-  - `fixtures/archives/txt/noisy-discord-export.txt` — freeform `.txt` with interleaved
+  - `fixtures/archives/txt/noisy-discord-export.txt` - freeform `.txt` with interleaved
     noise lines (timestamps, reaction-only lines) to exercise the noise-filtering
     heuristics and `filteredCount` reporting (mirrors AR-1's "discord-export.txt ...
     noisy, filtered").
-  - `fixtures/archives/txt/empty-after-filtering.txt` — entirely noise, exercises edge
+  - `fixtures/archives/txt/empty-after-filtering.txt` - entirely noise, exercises edge
     case 2.
-  - `fixtures/archives/verification/hallucinated-scene-ref.json` — a hand-built `Claim[]`
+  - `fixtures/archives/verification/hallucinated-scene-ref.json` - a hand-built `Claim[]`
     fixture (not run through a live provider) where one citation references a
     nonexistent `SceneRef.id` and another quotes an excerpt not present in its cited
     scene's text, run through `verifyCitations` directly to pin the deterministic
     algorithm without needing a provider call in CI.
-  - `fixtures/archives/verification/source-hash-mismatch/` — an `IntakeIndex` fixture
+  - `fixtures/archives/verification/source-hash-mismatch/` - an `IntakeIndex` fixture
     plus a modified copy of the same-named source file, exercising edge case 6's
     re-tiering on `loadRun`.
-  - `fixtures/archives/run/full-evidence-board/` — a complete hand-built
+  - `fixtures/archives/run/full-evidence-board/` - a complete hand-built
     `.vaud/archives/<runId>/` sidecar artifact (all four JSON files) mirroring AR-2's
     Vesper example (12 personality citations, 31 speech-pattern citations, one 2-citation
     weak claim), used to test `loadRun` and confidence-tier rendering end to end without
     live provider calls.
-- Round-Trip Law applicability: none — the Archives is not a format codec and produces
+- Round-Trip Law applicability: none - the Archives is not a format codec and produces
   no round-trip guarantee of its own (per `specs/formats/escrow-and-roundtrip.md`'s Law
   being scoped to `serialize(parse(F), X)` for format `X`; distillation is a one-way,
   lossy-by-design authoring process, not a codec pair). Distilled `Character`/`Lorebook`
   entities, once written, ARE ordinary canonical entities and inherit the Round-Trip
-  Law obligations of whichever codec later serializes them — that is those codecs'
+  Law obligations of whichever codec later serializes them - that is those codecs'
   concern, not this spec's.
 - Property/unit tests beyond fixtures:
   - `ingest()` on a byte-identical file run twice produces byte-identical `SceneRef[]`
-    (offsets, `id`s, `sourceHash`) — the reproducibility guarantee from Scene addressing.
+    (offsets, `id`s, `sourceHash`) - the reproducibility guarantee from Scene addressing.
   - `verifyCitations` never reports `verified: true` for an excerpt that is not an exact
     (whitespace-normalized) substring of its cited scene's `text`.
   - `verifyCitations` is idempotent: running it twice on the same `Claim[]`/`IntakeIndex`
@@ -630,27 +630,27 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 
 ## Non-goals
 
-- Does not create characters from nothing — that is the Table Read
+- Does not create characters from nothing - that is the Table Read
   (`specs/features/table-read.md`, M4). The Archives only distills from material the
   user already has; if a cluster's evidence is too thin to responsibly distill, this
   spec's answer is "flag it weak / let the user cut it," never "have the AI fill the gap
-  from imagination" — that would defeat the citation-grounding purpose entirely.
-- Does not grow a world interactively or run continuity checks across entities — that is
+  from imagination" - that would defeat the citation-grounding purpose entirely.
+- Does not grow a world interactively or run continuity checks across entities - that is
   World Forge (`specs/features/world-forge.md`, M7 sibling). The overlap point: a
   distilled `"setting"` cluster produces a `LorebookEntry`, and World Forge's own export
   mapping (per its bible brief) also targets `LorebookEntry`; this spec's distilled
   lorebook entries are a valid INPUT a user could later hand to World Forge for
   relationship/continuity modeling, but the Archives itself performs no such modeling.
 - Does not merge distillation output into a pre-existing `Character`/`Lorebook` entity
-  (Edge case 12) — always produces new entities in this pass.
+  (Edge case 12) - always produces new entities in this pass.
 - Does not define the exact `.jsonl` chat-log field schema for any specific platform
-  (OPEN QUESTION 2) — ships a generic fallback only until a concrete platform schema is
+  (OPEN QUESTION 2) - ships a generic fallback only until a concrete platform schema is
   confirmed against a real source and added as a named adapter.
-- Does not define the CLI command grammar (`vaud archives ...`) — that belongs to a
+- Does not define the CLI command grammar (`vaud archives ...`) - that belongs to a
   CLI-facing spec that calls the API sketched here, same boundary
   `specs/engine/productions-and-history.md` draws for its own snapshot/restore commands.
 - Does not define encryption, upload, or any network transmission of ingested log
-  content — per `docs/02-ARCHITECTURE.md`'s security invariants, the only network calls
+  content - per `docs/02-ARCHITECTURE.md`'s security invariants, the only network calls
   this feature makes are to the user's own configured AI provider for the AI-backed
   steps named above; source logs are never sent anywhere else, and AR-1's own copy
   ("nothing leaves this machine. Local files, your key.") is a product promise this spec
@@ -667,10 +667,10 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
   persona, line 13-14; "The Doctor is honest" anti-slop stance, line 25-27, applied here
   by analogy to citation trust)
 - `docs/02-ARCHITECTURE.md` lines 6-40
-  (package layout — no `packages/archives` currently listed, hence OPEN QUESTION 1),
-  lines 85-90 (security & privacy invariants — no network calls except configured
+  (package layout - no `packages/archives` currently listed, hence OPEN QUESTION 1),
+  lines 85-90 (security & privacy invariants - no network calls except configured
   providers, applied to Non-goals)
-- `docs/ROADMAP.md` lines 73-80 ("M7 — The
+- `docs/ROADMAP.md` lines 73-80 ("M7 - The
   Archives + The World Forge (v0.6+)" exit criterion: "distill a real character from
   >= 20k words of logs where every field cites real scenes")
 - the production bible (private planning notes) line 79 (this
@@ -681,24 +681,24 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
   table-read.md brief rows, cited for the "documented, stable" health-score-formula
   convention and the UI-agnostic event-stream convention this spec reuses)
 - `specs/formats/canonical-model.md` (full
-  file — `Entity<T>` envelope, `Character`/`Lorebook` field surfaces, escrow's
+  file - `Entity<T>` envelope, `Character`/`Lorebook` field surfaces, escrow's
   "keyed by the format that owns them" definition used to justify NOT storing citations
   in escrow)
 - `specs/formats/escrow-and-roundtrip.md`
-  (full file — Round-Trip Law scope, used in Test plan to state non-applicability)
+  (full file - Round-Trip Law scope, used in Test plan to state non-applicability)
 - `specs/engine/productions-and-history.md`
-  (full file — production folder layout, `.vaud/` reservation rule used to justify
+  (full file - production folder layout, `.vaud/` reservation rule used to justify
   `.vaud/archives/<runId>/` placement, `writeEntity`/`SnapshotTrigger` API reused/
   extended, asset-reference-not-copy pattern reused for source-log references)
 - `wireframes/magic/archives.html` (full
-  file — AR-1 "The Intake Desk" lines 27-57, AR-2 "The Evidence Board" lines 59-92;
-  every quoted UI copy fragment in this spec — "0.94 confidence", "12 citations", "2
-  scenes only", "ACCEPT ALL CITED", "nothing leaves this machine" — is drawn verbatim
+  file - AR-1 "The Intake Desk" lines 27-57, AR-2 "The Evidence Board" lines 59-92;
+  every quoted UI copy fragment in this spec - "0.94 confidence", "12 citations", "2
+  scenes only", "ACCEPT ALL CITED", "nothing leaves this machine" - is drawn verbatim
   from this file)
 - `templates/SPEC-TEMPLATE.md` (structure)
 - VAUDEVILLE `apps/rc/src/lib/imports/sillytavern-backup-client.ts`,
   `apps/rc/src/lib/imports/bulk-import-orchestrator.ts`, and other `jsonl`-matching
-  files found via a repo-wide search — read only to confirm RC has no existing
+  files found via a repo-wide search - read only to confirm RC has no existing
   chat-log/RP-log distillation feature to extract ground truth from (none found; these
   files concern SillyTavern backup/bundle import of cards/lorebooks, not chat
   transcripts), which is why OPEN QUESTION 2 exists rather than an asserted jsonl

@@ -6,19 +6,19 @@
 **Depends on:** `specs/engine/lorebook-engine.md`, `specs/engine/macro-engine.md`,
 `specs/engine/token-counting.md`, `specs/formats/regex-scripts.md`,
 `specs/engine/productions-and-history.md`, `docs/decisions/ADR-006-ai-and-agent.md`
-(model-role mapping). Forward-depends on two specs not yet written in this suite —
-`specs/engine/prompt-assembly.md` and `specs/engine/provider-adapters.md` — both
+(model-role mapping). Forward-depends on two specs not yet written in this suite -
+`specs/engine/prompt-assembly.md` and `specs/engine/provider-adapters.md` - both
 listed in `specs/README.md` under `engine/` but absent from the repo at the time
 of writing (see OPEN QUESTION 1). This spec defines the Test Stage's own session,
 trace-aggregation, and screen-test contract; it treats `prompt-assembly.md`'s and
 `provider-adapters.md`'s exact call signatures as unresolved and flags every place
 that dependency is load-bearing.
 **VAUDEVILLE reference:** `apps/rc/src/lib/ai/prompt-assembly.ts` (header/imports
-only, :1-60 — confirms the shape of inputs a real assembly call needs: character,
+only, :1-60 - confirms the shape of inputs a real assembly call needs: character,
 persona, presets, lorebook engine, chat history, model name/context limit;
 reference reading only, per the production bible (private planning notes)'s "reimplement, don't
 port" instruction for this ground-truth path), `apps/rc/src/lib/prompt-tracking/types.ts`
-(full file — informs the *shape* of an honest assembly trace; not ported field-
+(full file - informs the *shape* of an honest assembly trace; not ported field-
 for-field, see Non-goals)
 
 ## Purpose
@@ -34,7 +34,7 @@ drafts side by side so the creator can pick a winner (`TS-3`, "The Screen
 Test"). It also keeps a running, honest cost line, because every card/preset
 change a creator makes here costs real provider tokens to test. It is a
 feature spec: it does not itself implement assembly, the lorebook engine, the
-macro engine, or provider calls — it defines the **session** that wraps those
+macro engine, or provider calls - it defines the **session** that wraps those
 components across multiple turns, the **trace aggregation** that turns their
 individual outputs into the rigging view, and the **screen-test** orchestration
 that runs two takes without cross-contaminating engine state. Written for an
@@ -56,13 +56,13 @@ work, not to the Test Stage: talking to a character requires calling a
 configured provider. Two sub-modes exist so the feature degrades honestly
 rather than hard-failing with no key configured:
 
-1. **Live turn** (send a message, get a reply) — requires a configured
+1. **Live turn** (send a message, get a reply) - requires a configured
    provider/model (`specs/engine/key-vault.md`). Refuses with a named error
-   ("no model configured for role: test-stage — run `vaud config model
+   ("no model configured for role: test-stage - run `vaud config model
    test-stage <provider/model>`" or equivalent; exact CLI error copy is
    `cli-ux.md`'s concern) if none is set.
 2. **Dry-run assembly preview** (build the prompt, show the rigging trace,
-   do NOT call a provider) — requires no key. This is the same assembly call
+   do NOT call a provider) - requires no key. This is the same assembly call
    a live turn makes, just without the inference step, and exists so a
    creator can inspect what a turn *would* send before spending a token.
    `vaud test-stage --dry-run` (exact flag name is `cli-ux.md`'s concern,
@@ -83,19 +83,19 @@ A `TestSession` is the unit of state that survives across turns within one
 `vaud test-stage` invocation (or one Studio test-chat tab, M6). It is
 deliberately NOT a canonical entity type (`specs/formats/canonical-model.md`'s
 "Content types (v1 surface)" lists `Character, Lorebook, Preset, Persona,
-RegexScript, Production` only — no `Session`/`Chat` type). A session holds:
+RegexScript, Production` only - no `Session`/`Chat` type). A session holds:
 
-1. **Attachment** — the character being tested (by production `Entity.id`,
+1. **Attachment** - the character being tested (by production `Entity.id`,
    or a bare file path in bare-file mode per
    `specs/engine/productions-and-history.md`'s "Bare-file operation"), an
    optional persona, zero or more active lorebooks, and a preset.
 2. **One `LorebookEngine` instance** (`specs/engine/lorebook-engine.md`),
-   constructed once at session start and reused for the session's lifetime —
+   constructed once at session start and reused for the session's lifetime -
    required because the engine owns sticky/cooldown/delay/frequency runtime
    state internally ("callers create one `LorebookEngine` per chat/test
    session and call `process()` once per generation,"
    `specs/engine/lorebook-engine.md` Behavior > Inputs).
-3. **Chat history** — an ordered list of `SessionTurn` (see API sketch),
+3. **Chat history** - an ordered list of `SessionTurn` (see API sketch),
    each carrying its own frozen `RiggingTrace` snapshot from the moment it
    was generated (see "Historical trace immutability," edge case 6).
 4. **Variables state** (`VariablesState` from `specs/engine/lorebook-engine.md`)
@@ -105,7 +105,7 @@ RegexScript, Production` only — no `Session`/`Chat` type). A session holds:
    below); already-generated turns record whatever configuration actually
    produced them.
 6. **A running cost accumulator** (see "The cost line," below).
-7. **A `messageCount`** — the same monotonic counter `TriggerContext.messageCount`
+7. **A `messageCount`** - the same monotonic counter `TriggerContext.messageCount`
    consumes; the session owns advancing it once per completed turn and holds
    it steady across swipe/regenerate calls, per the lorebook engine's
    determinism contract.
@@ -123,7 +123,7 @@ One live turn (`sendMessage`):
 3. Call the (not-yet-specified) `packages/assembly` assembly function with
    the character, persona, preset, the `InjectionResult`, and chat history,
    to produce a provider-ready messages payload plus an assembly-level trace
-   (OPEN QUESTION 1 — this spec cannot fix the exact call signature until
+   (OPEN QUESTION 1 - this spec cannot fix the exact call signature until
    `specs/engine/prompt-assembly.md` exists; it fixes the INPUTS this
    session must supply, drawn from what `prompt-assembly.ts`'s own imports
    confirm are required: character, persona, preset prompts, lorebook
@@ -135,7 +135,7 @@ One live turn (`sendMessage`):
 5. If this is a dry-run preview, stop here and return the trace without
    calling a provider.
 6. Otherwise, call the provider adapter (`specs/engine/provider-adapters.md`,
-   not yet written — OPEN QUESTION 2: exact `ChatRequest`/`ChatResponse`
+   not yet written - OPEN QUESTION 2: exact `ChatRequest`/`ChatResponse`
    shape) with the assembled messages and the session's active model
    config, streaming the reply into the chat pane.
 7. Run the `ai_output` and `display_only` regex placements
@@ -160,25 +160,25 @@ The rigging view is a read-only aggregation of traces already produced by
 steps 2-4 and 7 of the turn lifecycle above, assembled into one
 `RiggingTrace` object per turn:
 
-- `lorebook: ActivationTrace` — verbatim from `InjectionResult.trace`
+- `lorebook: ActivationTrace` - verbatim from `InjectionResult.trace`
   (`specs/engine/lorebook-engine.md`'s `ActivationTrace`/`ActivationTraceEntry`
   shape, including the `stage` taxonomy that powers "why didn't X fire?").
-- `macro: MacroTrace` — the macro engine's expansion/error list for this
+- `macro: MacroTrace` - the macro engine's expansion/error list for this
   turn's assembled text (`specs/engine/macro-engine.md`'s evaluate-stage
   output; exact type name OPEN QUESTION, that spec does not yet publish a
   finalized trace type name in the excerpt read for this spec).
-- `regex: RegexTrace` — one entry per substitution actually applied this
+- `regex: RegexTrace` - one entry per substitution actually applied this
   turn, `{ scriptId, ruleId, placement, matchCount }`
   (`specs/formats/regex-scripts.md` substitution semantics).
 - `tokens: { total: TokenCountResult; bySource: Array<{ source: string;
-  tokens: TokenCountResult }> }` — using `specs/engine/token-counting.md`'s
+  tokens: TokenCountResult }> }` - using `specs/engine/token-counting.md`'s
   `TokenCounter`/`TokenCountResult` (never a bare number; always carries
   `exact`/`basis` so the rigging view can print `~1,502 tok` honestly when
-  not provider-exact, matching the wireframe's `1,502 tok` line — the
+  not provider-exact, matching the wireframe's `1,502 tok` line - the
   wireframe mock does not show the `~` prefix, but this spec requires it
   whenever `exact: false`, since honest-count is a hard requirement of
   `token-counting.md`, not a rendering nicety).
-- `assembly: AssemblyTrace` — whatever `specs/engine/prompt-assembly.md`
+- `assembly: AssemblyTrace` - whatever `specs/engine/prompt-assembly.md`
   eventually defines as its "FULL TRACE object (every segment: source,
   tokens, why-included)" per that spec's brief row in
   the production bible (private planning notes) line 62. OPEN QUESTION 1 again: this spec
@@ -194,7 +194,7 @@ chat (`TS-1`), never the forced default, per the wireframe's own recorded
 objection (`wireframes/magic/test-stage.html:89`, "Against: Intimidating if
 it's the default; should be a toggle from TS-1").
 
-**"Why didn't X fire?"** — a lookup, not a re-run: given an entry title or id
+**"Why didn't X fire?"** - a lookup, not a re-run: given an entry title or id
 and a turn's `RiggingTrace.lorebook.entries`, find the matching
 `ActivationTraceEntry` and print its `stage` (one of the 15 stage values in
 `specs/engine/lorebook-engine.md`'s `ActivationTraceEntry.stage` union) plus
@@ -212,17 +212,17 @@ turn uses. It does not retroactively re-run or re-tag any already-generated
 turn. Every `SessionTurn`'s assistant message carries a `producedBy: {
 provider: string; model: string }` provenance field fixed at generation
 time, so a transcript that mixed models mid-conversation (wireframe `TS-1`'s
-`SWAP MODEL` button, distinct from the separate `RESTART` button — the
+`SWAP MODEL` button, distinct from the separate `RESTART` button - the
 wireframe deliberately offers swap-without-restart) is honestly represented
 rather than silently attributed to whatever model is active when the
 transcript is later viewed. `session.setPreset(presetId)` is the same
 pattern for presets: affects assembly for the next turn only, history
 untouched. Swapping either does not reset `messageCount`, the `LorebookEngine`
-instance, or `VariablesState` — those are conversation-scoped, not
+instance, or `VariablesState` - those are conversation-scoped, not
 model/preset-scoped.
 
 If the new model's context limit is smaller than what the next assembly
-would need, the assembly step (per its own budgeting — OPEN QUESTION 1 again,
+would need, the assembly step (per its own budgeting - OPEN QUESTION 1 again,
 budgeting strategy is `prompt-assembly.md`'s to define) surfaces a warning in
 that turn's trace rather than silently truncating without record. This spec
 does not define the trimming/eviction strategy itself; see OPEN QUESTION 3.
@@ -249,26 +249,26 @@ windows armed, cooldowns started, per-trigger frequency timestamps) from
 Take A do not leak into Take B's evaluation, and vice versa. This is the
 same problem the lorebook engine already solves for same-`messageCount`
 swipes (`specs/engine/lorebook-engine.md`, "Determinism across
-regenerations" — that spec explicitly names this file as the consumer of
+regenerations" - that spec explicitly names this file as the consumer of
 its snapshot/restore contract: "directly observable by callers running
 multiple candidate generations per turn (the Test Stage's A/B screen test,
 `specs/features/test-stage.md`)"). Concretely: `runScreenTest` calls
 `LorebookEngine.process()` twice at the SAME `messageCount`, relying on the
-engine's own per-`messageCount` snapshot/restore, exactly as a swipe would —
+engine's own per-`messageCount` snapshot/restore, exactly as a swipe would -
 a screen test is implemented as two speculative generations, not a special
 engine mode.
 
 **Execution.** Both branches' provider calls run concurrently (not
 sequentially) so a screen test does not double the wall-clock wait on top of
-doubling the token spend. Each branch's success/failure is independent — one
+doubling the token spend. Each branch's success/failure is independent - one
 take can error (rate limit, network) while the other completes; the UI shows
 whatever came back for each, not an all-or-nothing failure (edge case 7).
 
 **Picking a winner.** The creator picks Take A or Take B (wireframe: `pick A`
 / `pick B` chips). The picked take's turn is appended to session history
 exactly as a normal live turn would be (with its own `producedBy` and frozen
-`RiggingTrace`). The unpicked take is discarded by default — not written to
-history, not billed further — unless the creator explicitly requests both be
+`RiggingTrace`). The unpicked take is discarded by default - not written to
+history, not billed further - unless the creator explicitly requests both be
 saved to the transcript for later comparison (OPEN QUESTION 4: no ground
 truth defines a "save both takes" transcript shape; noting the capability
 gap rather than inventing one).
@@ -280,8 +280,8 @@ inherently versioned outside of production history snapshots
 branches are each either (a) two distinct bare character files, or (b) the
 same entity id read at two different history snapshot ids via
 `readFileAtSnapshot` (`specs/engine/productions-and-history.md`'s API
-sketch). OPEN QUESTION 5: this spec does not resolve which of (a) or (b) — or
-both — the CLI/Studio must support; wireframe `TS-3`'s "draft 3 vs draft 4"
+sketch). OPEN QUESTION 5: this spec does not resolve which of (a) or (b) - or
+both - the CLI/Studio must support; wireframe `TS-3`'s "draft 3 vs draft 4"
 label is consistent with either interpretation ("draft 3" could name a
 snapshot or a file).
 
@@ -295,8 +295,8 @@ test-stage.html:120`). Cost accounting rules:
 
 1. **Prefer provider-reported usage.** If the provider adapter returns
    `usage.input_tokens`/`usage.output_tokens` (or equivalent), those numbers
-   are the tokens used for cost math — never the local `TokenCounter`
-   estimate — matching the precedent `specs/engine/token-counting.md`
+   are the tokens used for cost math - never the local `TokenCounter`
+   estimate - matching the precedent `specs/engine/token-counting.md`
    documents from VAUDEVILLE (`inference-engine.ts:1759-1760`:
    `tokensFromUsage.prompt || countMessagesTokens(...)`, "prefer the
    provider's reported token usage when it exists").
@@ -306,18 +306,18 @@ test-stage.html:120`). Cost accounting rules:
    `~`-prefix honesty convention as `token-counting.md`'s `estimateLabel`.
 3. **Price-per-token data source is an OPEN QUESTION (6).** No spec in this
    suite (including `provider-adapters.md`, not yet written) currently
-   defines where per-model $/token pricing comes from — a bundled static
+   defines where per-model $/token pricing comes from - a bundled static
    table shipped with releases, a user-editable table in
    `~/.vaud/config.json`, or a live-fetched catalog. This spec requires only
    that the Test Stage NEVER fabricates a dollar figure for a model whose
    price is unknown: it shows token counts alone plus an explicit
    "pricing unknown for `<model>`" note, and shows "local model, no cost"
    rather than `$0.00` for a recognized zero-cost local/Ollama model (edge
-   case 9) — `$0.00` would misleadingly claim a known-zero price where the
+   case 9) - `$0.00` would misleadingly claim a known-zero price where the
    truth is "not applicable."
 4. **Screen tests must show the projected doubled cost BEFORE running,**
    using local estimates (a screen test has not happened yet, so there is no
-   provider usage to prefer) — this is the wireframe's own stated
+   provider usage to prefer) - this is the wireframe's own stated
    requirement, not an inference.
 5. The accumulator is per-session, resets when a new `TestSession` starts,
    and is never persisted as billing/telemetry data anywhere (`docs/02-
@@ -327,7 +327,7 @@ test-stage.html:120`). Cost accounting rules:
 ## Public API sketch
 
 ```ts
-// packages/assembly — session, trace aggregation, screen-test orchestration.
+// packages/assembly - session, trace aggregation, screen-test orchestration.
 // (Package placement per OPEN QUESTION 1's note: this could equally land in a
 // new packages/session; sketched under packages/assembly here because
 // 02-ARCHITECTURE.md already assigns that package "Prompt assembly for the
@@ -382,7 +382,7 @@ export interface RiggingTrace {
 export interface TurnCost {
   inputTokens: TokenCountResult;
   outputTokens: TokenCountResult;
-  usdEstimate: number | null;              // null when pricing is unknown (OPEN QUESTION 6) — never a fabricated 0
+  usdEstimate: number | null;              // null when pricing is unknown (OPEN QUESTION 6) - never a fabricated 0
   pricingBasis: "provider-usage" | "local-estimate" | "unknown";
 }
 
@@ -416,7 +416,7 @@ export class TestSession {
   explainEntry(turnIndex: number, entryIdOrTitle: string): ActivationTrace["entries"][number] | null;
 }
 
-// Screen test — a pair of speculative generations off the same session state.
+// Screen test - a pair of speculative generations off the same session state.
 
 export type ScreenTestAxis = "model" | "preset" | "draft";
 
@@ -478,7 +478,7 @@ export function pickScreenTestWinner(
    OPEN QUESTION 5; both `characterRef` shapes are sketched in the API above
    so the ticket can pick without an interface break.
 4. **Regenerate/swipe while the rigging view is open.** The trace for that
-   turn is REPLACED, not appended — a swipe produces one new
+   turn is REPLACED, not appended - a swipe produces one new
    `SessionTurn`/`RiggingTrace` pair per the lorebook engine's own
    speculative-generation model; there is no "trace history per swipe"
    concept, only the trace of whichever generation is currently kept at that
@@ -487,14 +487,14 @@ export function pickScreenTestWinner(
    The turn is not appended to history. Cost is charged only for whatever
    usage the provider actually reported for the partial generation; if the
    provider reports nothing for an aborted call, no cost is added
-   (`pricingBasis` stays whatever it already was — never guessed from a
+   (`pricingBasis` stays whatever it already was - never guessed from a
    partial local token count of an incomplete reply).
 6. **Historical trace immutability.** A turn's `RiggingTrace` is frozen at
    generation time and stored on the `SessionTurn` itself. If a referenced
    lorebook entry is later deleted, renamed, or its trigger edited, the OLD
    turn's trace still shows what actually happened at generation time
    (stale `entryId`/`entryTitle` display is expected and correct, not a
-   bug) — the trace is never recomputed retroactively against current
+   bug) - the trace is never recomputed retroactively against current
    entity state.
 7. **Screen test: one branch errors, the other succeeds.** Both
    `ScreenTestTakeResult`s are independent; a failed branch does not block
@@ -503,22 +503,22 @@ export function pickScreenTestWinner(
 8. **Preset swap drops a macro/persona slot the prior preset had.** If the
    new preset's prompt list does not reference the persona (or a macro that
    pulled from it), the persona simply stops being injected for future
-   turns — this is ordinary assembly behavior, not an error condition the
+   turns - this is ordinary assembly behavior, not an error condition the
    Test Stage itself must detect or warn about; cross-reference
    `specs/features/script-doctor.md` for a deterministic "unused persona"
    style check, out of scope here.
 9. **Cost line for a recognized zero-cost local model (Ollama, etc.).**
-   Shows "local model, no cost," never `$0.00` — `$0.00` implies known
+   Shows "local model, no cost," never `$0.00` - `$0.00` implies known
    pricing where the correct claim is "pricing does not apply."
 10. **User cancels an in-flight screen test before either branch completes.**
     Both provider calls are aborted (provider-adapter abort semantics,
     `specs/engine/provider-adapters.md`, not yet written); no
     `SessionTurn` is appended for either branch. Whether the provider itself
     still bills for tokens generated before cancellation is provider-
-    specific and cannot be promised from the studio side — OPEN QUESTION 7.
+    specific and cannot be promised from the studio side - OPEN QUESTION 7.
 11. **Two screen-test branches on `axis: "model"` targeting the SAME
     provider/model by mistake (user error, not a distinct model).** Not
-    rejected — the screen test still runs both branches (now functionally
+    rejected - the screen test still runs both branches (now functionally
     an A/A test); the UI does not need to detect or block this, since a
     creator may deliberately want to see sampling variance between two
     identical-config runs.
@@ -531,57 +531,57 @@ export function pickScreenTestWinner(
 13. **`previewAssembly` called after a model swap but before any live turn
     at the new model.** Assembly still runs against the swapped-in model's
     context limit for budgeting purposes even though no provider call
-    happens — the preview is meant to answer "what would the NEXT live turn
+    happens - the preview is meant to answer "what would the NEXT live turn
     send," which is defined by the currently active model/preset, not the
     last turn's.
 
 ## Test plan
 
 - Fixtures required (new corpus under `fixtures/test-stage/`):
-  - `single-turn-basic.json` — one character, one lorebook, one preset;
+  - `single-turn-basic.json` - one character, one lorebook, one preset;
     scripted single `sendMessage` call with a mocked provider adapter;
     asserts the resulting `SessionTurn.trace` matches a golden
     `RiggingTrace` (lorebook `ActivationTrace` + token totals), and that
     `producedBy` records the configured model.
-  - `swipe-determinism.json` — two consecutive `regenerate()` calls at the
+  - `swipe-determinism.json` - two consecutive `regenerate()` calls at the
     same `messageCount` against a lorebook containing a sticky + a cooldown
     entry; asserts no side-effect bleed between the discarded and kept
     generation (mirrors `specs/engine/lorebook-engine.md`'s
     `swipe-regeneration-determinism.json`, exercised here at the session
     layer instead of the engine layer directly).
-  - `model-swap-provenance.json` — `sendMessage`, `setModel`, `sendMessage`
+  - `model-swap-provenance.json` - `sendMessage`, `setModel`, `sendMessage`
     again; asserts turn 1 and turn 2 carry different `producedBy.model`
     values and that turn 1's trace/tokens are untouched by the swap.
-  - `preset-swap-drops-persona.json` — exercises edge case 8: preset swap to
+  - `preset-swap-drops-persona.json` - exercises edge case 8: preset swap to
     one with no persona slot; asserts the persona is absent from the next
     turn's assembly inputs (not a crash, not an error).
-  - `dry-run-no-key.json` — `previewAssembly` with no provider configured at
+  - `dry-run-no-key.json` - `previewAssembly` with no provider configured at
     all; asserts it succeeds and returns a trace, and that a subsequent
     `sendMessage` call (still no key) rejects with the named
     unconfigured-role error (edge case 1).
-  - `screen-test-model-axis.json` — two mocked provider adapters (different
+  - `screen-test-model-axis.json` - two mocked provider adapters (different
     models) invoked concurrently off one session state with a sticky
     lorebook entry; asserts BOTH branches observe the sticky as freshly
     triggered (isolation requirement) rather than one branch seeing the
     other's side effect.
-  - `screen-test-partial-failure.json` — one mocked branch throws, the other
+  - `screen-test-partial-failure.json` - one mocked branch throws, the other
     succeeds; asserts `ScreenTestResult` reports both statuses independently
     and `pickScreenTestWinner` rejects picking the errored branch (edge
     case 7).
-  - `screen-test-cost-projection.json` — asserts `projectedCost` is computed
+  - `screen-test-cost-projection.json` - asserts `projectedCost` is computed
     and shown before either branch actually runs (rule 4 under "The cost
     line").
-  - `cost-provider-usage-preferred.json` — mocked provider response
+  - `cost-provider-usage-preferred.json` - mocked provider response
     includes `usage`; asserts `TurnCost.pricingBasis === "provider-usage"`
     and the local estimate is NOT what's reported.
-  - `cost-local-model-no-price.json` — mocked local/OpenAI-compatible
+  - `cost-local-model-no-price.json` - mocked local/OpenAI-compatible
     provider with no usage and no known price table entry; asserts
     `usdEstimate === null` and a "pricing unknown" note, never `0`.
-  - `explain-entry-not-evaluated-vs-excluded.json` — exercises edge case 12:
+  - `explain-entry-not-evaluated-vs-excluded.json` - exercises edge case 12:
     one entry never attached to the session (`null` result), one entry
     attached but disabled (`stage: 'excluded_disabled'`), asserting the two
     are distinguishable.
-- Round-Trip Law applicability: none — this is session/runtime logic, not a
+- Round-Trip Law applicability: none - this is session/runtime logic, not a
   codec; no `parse`/`serialize` pair exists for a `TestSession`.
 - Property/unit tests beyond fixtures:
   - `messageCount` never advances during `regenerate()`, always advances by
@@ -594,43 +594,43 @@ export function pickScreenTestWinner(
     both (proves the "does not double the wall-clock wait" requirement).
   - `pickScreenTestWinner` is idempotent-safe against double-invocation
     (calling it twice on the same `ScreenTestResult` either errors or is a
-    documented no-op on the second call — exact behavior TBD at
+    documented no-op on the second call - exact behavior TBD at
     implementation, but must not silently append two turns).
 
 ## Non-goals
 
 - Does not define `packages/assembly`'s own assembly function signature,
-  budgeting algorithm, or its "FULL TRACE object" shape — that is
+  budgeting algorithm, or its "FULL TRACE object" shape - that is
   `specs/engine/prompt-assembly.md`'s job (not yet written, OPEN QUESTION 1).
   This spec only fixes what a session must supply as inputs and consume as
   outputs.
 - Does not define provider adapter internals, streaming protocol, or
-  abort/cancellation semantics — `specs/engine/provider-adapters.md`'s job
+  abort/cancellation semantics - `specs/engine/provider-adapters.md`'s job
   (not yet written, OPEN QUESTION 2).
 - Does not define the `vaud test-stage` CLI flag grammar, help text, or
-  `--json` output shape — `specs/features/cli-converter.md`/`cli-ux.md`'s
+  `--json` output shape - `specs/features/cli-converter.md`/`cli-ux.md`'s
   job; this spec only establishes that the command exists and what
   `TestSession` operations it must expose.
-- Does not define pricing/catalog data (per-model $/token) — OPEN QUESTION 6,
+- Does not define pricing/catalog data (per-model $/token) - OPEN QUESTION 6,
   unresolved by any spec in this suite as of this writing.
 - Does not implement the Script Doctor's audit passes (unused-persona
   detection, slop banks, etc.) even where the rigging trace surfaces data
-  those passes could use — `specs/features/script-doctor.md`'s job.
+  those passes could use - `specs/features/script-doctor.md`'s job.
 - Does not define a canonical, versioned session/transcript file format for
   saving a Test Stage conversation into a production. Sessions are
   in-memory/ephemeral for M5; whether and how a transcript gets written to
   disk (and whether it becomes a new canonical content type) is unscoped
-  here — OPEN QUESTION 8.
-- Does not implement embeddings/semantic retrieval for lorebook matching —
+  here - OPEN QUESTION 8.
+- Does not implement embeddings/semantic retrieval for lorebook matching -
   inherited non-goal from `specs/engine/lorebook-engine.md`; the Test Stage
   passes through whatever `semanticHits` a caller supplies (empty in M5) and
   builds no retrieval layer itself.
 - Does not define the Studio app's (M6) visual layout for the rigging rail
-  or screen-test split view — only the data those views would render.
+  or screen-test split view - only the data those views would render.
 
 ## Sources consulted
 
-- `docs\the master plan (private planning notes)` —
+- `docs\the master plan (private planning notes)` -
   "v0.1 | The Converter: works with zero AI key" (locked decisions table,
   basis for "Why this feature requires AI, unlike the Converter"); "M5 The
   Test Stage + Productions" milestone row; "Every feature must exist in the
@@ -640,43 +640,43 @@ export function pickScreenTestWinner(
   Test Stage: preset + card + persona + lorebook + history -> messages
   payload, with a full trace object"), lines 78-83 (Faces: "every studio
   action maps to an engine call that the CLI can also express"), lines
-  85-90 ("No telemetry of any kind" — basis for the cost line being
+  85-90 ("No telemetry of any kind" - basis for the cost line being
   ephemeral/local-only).
 - `docs\decisions\ADR-006-ai-and-agent.md`
-  (full file) — point 4, "Model roles are user-mappable... test-stage
+  (full file) - point 4, "Model roles are user-mappable... test-stage
   inference... can each point at a different configured model," the basis
   for the `test-stage` model role and for AI being optional elsewhere but
   not here.
 - `specs\engine\lorebook-engine.md`
-  (full file) — `LorebookEngine` session-instance contract ("Inputs"
+  (full file) - `LorebookEngine` session-instance contract ("Inputs"
   section), the full `process()` pipeline, `ActivationTrace`/
   `ActivationTraceEntry` shape (API sketch), and specifically its
   "Determinism across regenerations" section, which names this file
   (`specs/features/test-stage.md`) as the consumer of the snapshot/restore
   contract for the A/B screen test.
 - `specs\engine\macro-engine.md`
-  lines 1-27 — confirms the Test Stage is one of three named callers of the
+  lines 1-27 - confirms the Test Stage is one of three named callers of the
   macro engine and that macro evaluation never runs during codec parse/
   serialize, only at assembly/render time.
 - `specs\engine\token-counting.md`
-  (full file) — `TokenCounter`/`TokenCountResult`/`TokenCountOptions`
+  (full file) - `TokenCounter`/`TokenCountResult`/`TokenCountOptions`
   interface (reused directly in this spec's API sketch), the
   provider-usage-preferred precedent cited in "The cost line" rule 1, and
   the `~`-prefix honesty convention for inexact counts.
 - `specs\formats\regex-scripts.md`
-  lines 1-40 — `RegexPlacement` values (`ai_output`, `display_only`,
+  lines 1-40 - `RegexPlacement` values (`ai_output`, `display_only`,
   `prompt_only`, etc.) used in the turn lifecycle's regex post-pass step and
   `RiggingTrace.regex` shape.
 - `specs\engine\productions-and-history.md`
-  (full file) — "Bare-file operation" (basis for `SessionAttachment`'s
+  (full file) - "Bare-file operation" (basis for `SessionAttachment`'s
   `{ filePath }` alternative to `{ entityId }`), `readFileAtSnapshot` (basis
   for the draft-axis screen test's snapshot-read option, OPEN QUESTION 5),
   and confirmation that no `Session`/`Chat` canonical entity type exists in
   this suite (basis for OPEN QUESTION 8).
 - `specs\formats\canonical-model.md`
-  — "Content types (v1 surface)" list, confirming no session/chat type
+  - "Content types (v1 surface)" list, confirming no session/chat type
   exists at the canonical-model level.
-- `specs\README.md` lines 28-40 —
+- `specs\README.md` lines 28-40 -
   confirms `prompt-assembly.md` and `provider-adapters.md` are listed as
   planned `engine/` specs but were not present as files at the time this
   spec was written (basis for OPEN QUESTION 1 and OPEN QUESTION 2).
@@ -685,7 +685,7 @@ export function pickScreenTestWinner(
   rigging trace rendering, swap model/preset mid-session, A/B screen test,
   cost line," ground truth "prompt-assembly spec").
 - `wireframes\magic\test-stage.html`
-  (full file) — intent source for all three wireframe panels: `TS-1`
+  (full file) - intent source for all three wireframe panels: `TS-1`
   (:27-51, plain chat, `SWAP MODEL`/`RESTART` as distinct controls), `TS-2`
   (:53-91, rigging view layout, the monospace trace block, the "why didn't
   X fire?" chip, the "should be a toggle from TS-1" objection), `TS-3`
@@ -694,19 +694,19 @@ export function pickScreenTestWinner(
   visible cost line" objection this spec's "The cost line" section responds
   to directly).
 - `<RoleCall>\apps\rc\src\lib\ai\prompt-assembly.ts`
-  lines 1-60 (file header + imports only) — reference reading per this
+  lines 1-60 (file header + imports only) - reference reading per this
   file's ground-truth listing in the production bible (private planning notes) line 62
   ("VAUDEVILLE reference (reimplement, don't port)"); used only to confirm
   the INPUT shape a real assembly call needs (character, persona, preset
   prompts, lorebook engine result, chat history, model name/context limit),
   not read in algorithmic detail and not ported.
 - `<RoleCall>\apps\rc\src\lib\prompt-tracking\types.ts`
-  (full file, 883 lines) — read to confirm what a production-grade,
+  (full file, 883 lines) - read to confirm what a production-grade,
   source-attributed prompt trace looks like in practice (`SourceTree`,
   `TrackedMessage`, `PromptDebugData`, `TokenAttribution`). Used only to
   validate that this spec's `RiggingTrace.tokens.bySource` shape and the
   general "trace is an aggregation of sub-component traces" design are
-  consistent with a real, shipped implementation of the same problem — no
+  consistent with a real, shipped implementation of the same problem - no
   field names or types from this file are copied into the API sketch above,
   per the "reimplement, don't port" instruction; VAUDEVILLE's version is
   itself named as informing `prompt-assembly.md` (not this spec) in

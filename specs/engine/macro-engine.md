@@ -34,42 +34,42 @@ Ported from `processMacros` (VAUDEVILLE `processor.ts:687-776`). Stages run in t
 order; every stage is pure except the evaluate stage, which may write to
 `context.localVariables` / `context.globalVariables` / `context.counters`:
 
-1. **Pre-interceptors** — pluggable hooks (`registerMacroInterceptor`, `phase: 'pre'`)
+1. **Pre-interceptors** - pluggable hooks (`registerMacroInterceptor`, `phase: 'pre'`)
    see the raw template before any normalization. Studio equivalent: extension
    point for future features (e.g. Understudy-gated macro families), not exercised
    by M2.
-2. **Hide escaped braces** — `\{\{ ... \}\}` becomes sentinel characters
+2. **Hide escaped braces** - `\{\{ ... \}\}` becomes sentinel characters
    (`\x01`/`\x02`) so escaped braces survive parsing untouched, restored to literal
    `{`/`}` at the end (`processor.ts:245-256`).
-3. **Angle-token rewrite** — legacy `<user>`, `<char>`, `<bot>` (pre-macro-era ST/forum
+3. **Angle-token rewrite** - legacy `<user>`, `<char>`, `<bot>` (pre-macro-era ST/forum
    cards) become `{{user}}` / `{{char}}` (`processor.ts:707-708`).
-4. **Dot-notation preprocessing** — `{{.x}}` -> `{{getvar::x}}`, `{{.x++}}` ->
+4. **Dot-notation preprocessing** - `{{.x}}` -> `{{getvar::x}}`, `{{.x++}}` ->
    `{{incvar::x}}`, `{{.x = y}}` -> `{{setvar::x::y}}`, `{{.x <= y}}` ->
    `{{compare::{{getvar::x}}::<=::y}}`, `{{$x}}` -> `{{getglobalvar::x}}` (never
    `{{$1}}`/`{{$2}}`, reserved for positional macro args) (`processor.ts:97-120`).
-5. **Space-syntax normalization** — `{{roll 1d20}}` -> `{{roll::1d20}}`,
+5. **Space-syntax normalization** - `{{roll 1d20}}` -> `{{roll::1d20}}`,
    `{{setvar x 5}}` -> `{{setvar::x::5}}`, for a fixed macro-name allowlist
    (`processor.ts:126-138`).
-6. **Single-colon normalization** — `{{getvar:x}}` / `{{roll:1d50}}` etc. (tolerant
+6. **Single-colon normalization** - `{{getvar:x}}` / `{{roll:1d50}}` etc. (tolerant
    single-colon dialect from some imported presets) become the canonical `::` form;
    the regex's `(?!:)` guard means canonical `::` content never matches
    (`processor.ts:717-720`).
-7. **Parse** — `parseNodesCached(text)` -> `ASTNode[]`, LRU-cached (256 entries) on
+7. **Parse** - `parseNodesCached(text)` -> `ASTNode[]`, LRU-cached (256 entries) on
    the exact post-preprocessing string (`processor.ts:183-201`).
-8. **Evaluate** — tree-walk the AST against `context`, producing output text plus
+8. **Evaluate** - tree-walk the AST against `context`, producing output text plus
    `expansions`, `errors`, `sideEffects`, `touchedVariables`, `cacheable`.
-9. **Post-process whitespace** — the `{{trim}}` sentinel (`\x04`) collapses its
+9. **Post-process whitespace** - the `{{trim}}` sentinel (`\x04`) collapses its
    surrounding whitespace; 3+ consecutive newlines collapse to 2
    (`processor.ts:668-676`).
-10. **Restore escaped braces** — sentinels from stage 2 become literal `{`/`}`.
-11. **Post-interceptors** — hooks see the final expanded text.
+10. **Restore escaped braces** - sentinels from stage 2 become literal `{`/`}`.
+11. **Post-interceptors** - hooks see the final expanded text.
 
 Four sentinel characters are reserved by the pipeline and must never leak into
 evaluated output: `\x01`/`\x02` (escaped-brace hiding, stage 2), `\x03` (a phase
 orchestrator's placeholder delimiter, used by an outer caller layered on top of this
 engine, not by the engine itself), `\x04` (trim marker, stage 9). If literal
 occurrences of these control characters appear in user input, the pipeline must
-still round-trip correctly around them — the characterization corpus injects them
+still round-trip correctly around them - the characterization corpus injects them
 deliberately as a collision-hazard category.
 
 ### Stage 1: tokenizer/parser (universal, ported in full)
@@ -79,7 +79,7 @@ scan-and-parse function, `parseNodesV2(text): ASTNode[]`, not two literal
 separate passes despite the "two-stage" framing in the extraction brief. Internally
 it interleaves two concerns that the studio port should keep conceptually distinct
 (and MAY split into literal functions `scanMacroTokens` / `parseTokens` as an
-implementation refinement — this is a naming target for the port, not a claim about
+implementation refinement - this is a naming target for the port, not a claim about
 the current VAUDEVILLE code):
 
 - **Lexing concern** (`lexMatchingClose`, `lexSplitArgs` in `tokenizer.ts:76-130`):
@@ -91,7 +91,7 @@ the current VAUDEVILLE code):
 
 This is a **clean-room, from-scratch parser** built to be behaviorally identical to
 an older recursive-descent parser (`parseNodes`, now deleted from VAUDEVILLE and
-replaced by a thin delegation to `parseNodesV2` at `processor.ts:220-222`) — proven
+replaced by a thin delegation to `parseNodesV2` at `processor.ts:220-222`) - proven
 byte-identical via the ~2153-test characterization corpus described below. The
 studio's port has no legacy parser to match against; it should treat `parseNodesV2`
 itself, plus the corpus, as the sole ground truth for correct behavior.
@@ -104,7 +104,7 @@ index of that `}}`'s first `}`. Consequence: `{{{char}}}` has inner content
 `{char` (the leading lone `{` folds into the tag content, to be trimmed/interpreted
 by the classifier); `{{{{char}}}}` has inner content `{{char}}` (an unmatched-looking
 nested pair that is itself just literal text inside the tag, since neither `{{`
-here opens a *new* macro tag from the lexer's point of view — the outer `{{`/`}}`
+here opens a *new* macro tag from the lexer's point of view - the outer `{{`/`}}`
 already consumed the depth budget). Unmatched `{{` (no closing `}}` found before EOF)
 degrades: the rest of the stream from that `{{` becomes one TEXT node.
 
@@ -117,7 +117,7 @@ unmatched `}}` inside the content drives depth negative, and once negative a lat
 This is an intentional quirk to preserve, not a bug to fix.
 
 **Classification cascade.** Each `{{...}}` tag's trimmed inner content is tested
-against seven cases, in this exact order (first match wins) — the order matters
+against seven cases, in this exact order (first match wins) - the order matters
 because forms overlap (e.g. `if::x` could otherwise look like an inline macro named
 `if`):
 
@@ -131,7 +131,7 @@ because forms overlap (e.g. `if::x` could otherwise look like an inline macro na
    error).
 2. **Block-if, colon form.** `{{if::COND}}` qualifies ONLY when `lexSplitArgs`
    on the content after `if::` yields exactly one part (`isColonBlockIfOpen`,
-   `tokenizer.ts:143-145`) — `{{if::a::b}}` (two or more parts) is NOT a block
+   `tokenizer.ts:143-145`) - `{{if::a::b}}` (two or more parts) is NOT a block
    opener, it falls through to case 7 (the inline `if` macro, a ternary-style
    conditional). If the single-arg colon form has no matching `{{/if}}`, it also
    falls through to case 7 rather than becoming literal text (this differs from
@@ -144,7 +144,7 @@ because forms overlap (e.g. `if::x` could otherwise look like an inline macro na
 4. **Block-setvar / block-setglobalvar.** `{{setvar::NAME}}...{{/setvar}}` (or the
    `setglobalvar` pair). Qualifies only when the content after the `setvar::` /
    `setglobalvar::` prefix splits (via `lexSplitArgs`) into exactly one part (the
-   variable name) — `{{setvar::x::5}}` (two parts) is the inline single-shot form,
+   variable name) - `{{setvar::x::5}}` (two parts) is the inline single-shot form,
    not a block. `findBlockTerminator`'s `opensBlock` check applies the same
    single-arg test to every candidate opener it scans past, so a nested inline
    `{{setvar::y::z}}` inside the block body does not desync the depth count. No
@@ -156,7 +156,7 @@ because forms overlap (e.g. `if::x` could otherwise look like an inline macro na
    user editing out an `{{if}}` but leaving its `{{/if}}`) inert instead of erroring.
 6. **Comment.** Trimmed content starting with `//`. Name is fixed as `"//"`; the
    entire remainder after `//` (trimmed) becomes ONE unsplit argument (not run
-   through `lexSplitArgs` — a comment body containing `::` stays one string). The
+   through `lexSplitArgs` - a comment body containing `::` stays one string). The
    comment handler is expected to return empty output.
 7. **Inline macro (fallback).** `lexSplitArgs` splits the raw inner content; part 0
    (trimmed, lowercased) is the macro name; parts 1..n are parsed recursively as
@@ -172,34 +172,34 @@ AST from stage 1, threading an `EvalState` (`expansions`, `errors`, `sideEffects
 
 Node evaluation:
 
-- **text** — appended verbatim.
-- **macro** — args evaluated depth-first (each evaluated arg `.trim()`-ed, matching
+- **text** - appended verbatim.
+- **macro** - args evaluated depth-first (each evaluated arg `.trim()`-ed, matching
   the legacy `parseMacro`'s per-arg trim, EXCEPT for **lazy** macros, whose args are
   handed over as `{ raw, evaluate() }` thunks so the handler controls whether/when/
   how many times each arg is evaluated, without a forced trim). The registry is
   looked up by name; unknown macro -> the tag is reconstructed from its evaluated
   args as literal output text and recorded in `state.errors` (this is the
-  "unevaluated macro passes through as text" behavior — see the evaluation-scope
+  "unevaluated macro passes through as text" behavior - see the evaluation-scope
   contract below). If the handler's return value itself contains `{{...}}` (e.g. a
   variable holding macro text), that value is re-parsed and evaluated recursively
-  (one more `depth+1` tree-walk) — this is how `{{getvar::snippet}}` can expand a
+  (one more `depth+1` tree-walk) - this is how `{{getvar::snippet}}` can expand a
   stored macro-bearing string.
-- **blockIf** — condition subtree evaluated to text, then run through
+- **blockIf** - condition subtree evaluated to text, then run through
   `resolveConditionShorthands` (rewrites bare `.name`/`$name` left over from
   condition text the dot-notation preprocessor doesn't reach, e.g. inside
   `{{if .var <= 25}}`) and `evaluateBlockCondition` (comparison operators
   `=== !== == != >= <= > <` tried first via regex, then `!`-negation, then bare
-  truthiness — `""`, `"false"`, `"0"`, `"null"`, `"undefined"` (case-insensitive,
+  truthiness - `""`, `"false"`, `"0"`, `"null"`, `"undefined"` (case-insensitive,
   trimmed) are falsy, everything else truthy). Only the taken branch
-  (then/else) is evaluated — this is short-circuit, so side-effect macros in the
+  (then/else) is evaluated - this is short-circuit, so side-effect macros in the
   untaken branch never fire.
-- **blockSetvar** — name and content subtrees evaluated and trimmed; a no-op if the
+- **blockSetvar** - name and content subtrees evaluated and trimmed; a no-op if the
   name is empty or `context.readOnly` is set; otherwise writes
   `{ value, createdAt, updatedAt }` into `context.localVariables` or
   `context.globalVariables` and records a `setLocalVar`/`setGlobalVar` side effect.
-- **blockTrim** — content evaluated then `.trim()`-ed directly (distinct from the
+- **blockTrim** - content evaluated then `.trim()`-ed directly (distinct from the
   inline `{{trim}}` macro handler, which likely emits the `\x04` sentinel for
-  post-process-time whitespace collapse against neighboring text — confirm against
+  post-process-time whitespace collapse against neighboring text - confirm against
   the ported `text.ts` handler when porting).
 
 Evaluation depth is capped at `MAX_EVAL_DEPTH = 100`; past that, `evaluateNodes`
@@ -249,7 +249,7 @@ unaffected). `setglobalvar`/`getglobalvar` (and `$name` dot-shorthand) always ta
 ### Preprocessing normalization forms (recap, see pipeline stages 4-6)
 
 Three families of shorthand exist purely as **input normalization** ahead of
-parsing — they rewrite text to canonical `{{macro::arg::arg}}` form before the
+parsing - they rewrite text to canonical `{{macro::arg::arg}}` form before the
 parser ever sees it, so the parser and evaluator never need to know these forms
 exist:
 
@@ -264,7 +264,7 @@ exist:
 ### The evaluation-scope contract (which macros run locally vs pass through)
 
 The architecture doc (`docs/02-ARCHITECTURE.md`) describes `packages/macros` as
-"the macro tokenizer/parser ... + evaluator subset" — the parser is universal, the
+"the macro tokenizer/parser ... + evaluator subset" - the parser is universal, the
 evaluator is not. The studio's `MacroContext` is deliberately smaller than RC's
 (RC's is DB- and Orison-coupled; see "Public API sketch" below), so a macro
 category can end up in one of three buckets:
@@ -286,11 +286,11 @@ category can end up in one of three buckets:
    category macros reading `presetPrompts` (populated by preset-loading during
    assembly, for `{{enabled::id}}`-style toggle introspection). Outside an assembly
    context these fields are simply absent/empty on `MacroContext`, so the macros
-   resolve to their handler's empty/false default rather than erroring — callers
+   resolve to their handler's empty/false default rather than erroring - callers
    that only have a bare character (e.g. `vaud inspect --resolve-macros`, if such a
    flag ever exists) get a best-effort, chat-context-free expansion.
 3. **Not ported / no studio home**: fields that are pure RC product surface with no
-   Vaudeville Studios equivalent — `orisonPreferences`/`orisonPreferenceBlock` (RC's
+   Vaudeville Studios equivalent - `orisonPreferences`/`orisonPreferenceBlock` (RC's
    AI-memory feature), `chatMemories`/`chatSummary` (RC's summarization pipeline),
    `characterAccentColor`/`characterPalette`/`characterGradient` and the persona
    equivalents (RC `details` JSONB presentation fields, out of canonical-model
@@ -298,7 +298,7 @@ category can end up in one of three buckets:
    note only covering `identity`/`presentation` groups, not RC-specific color
    theming), `groupCardMode`/`focusedCharacter*`/`groupMembers` (RC's group-chat
    model). Any macro reading one of these context fields resolves to that macro's
-   own not-present default (usually `''`), same as bucket 2 outside assembly — it
+   own not-present default (usually `''`), same as bucket 2 outside assembly - it
    does not become an "unknown macro" (the macro IS known and registered; only its
    backing context field is absent). This is behaviorally identical to bucket 2 from
    the engine's point of view; the distinction is about product scope, not engine
@@ -335,36 +335,36 @@ characterization corpus.
 
 ### Characterization-test porting plan
 
-VAUDEVILLE's macro parser has no independent "spec test suite" — its correctness
+VAUDEVILLE's macro parser has no independent "spec test suite" - its correctness
 contract IS the characterization corpus:
 
-- `apps/rc/src/lib/macros/__characterization__/corpus.ts` — ~pure data, `CORPUS:
+- `apps/rc/src/lib/macros/__characterization__/corpus.ts` - ~pure data, `CORPUS:
   CorpusEntry[]`, each entry `{ id, category, input, note? }`. Categories: `text`,
   `inline`, `escaped`, `angle`, `dotdollar`, `spaceform`, `singlecolon`, `blockif`,
   `trim`, `setvar`, `orphan`, `comment`, `unknown`, `unterminated`, `whitespace`,
   `lazyvolatile`, `template`. Deliberately includes the raw sentinel characters
   (`\x01\x02\x03\x04`) as a collision-hazard category, and the two documented
   desync/malformed-block edge cases per category.
-- `parser-ast.test.ts` — snapshots each corpus entry's AST shape (via a
+- `parser-ast.test.ts` - snapshots each corpus entry's AST shape (via a
   `__parseForTest` escape hatch) against a golden snapshot
   (`__snapshots__/parser-ast.test.ts.snap`).
-- `duplicate-parsers-agreement.test.ts` — historically diffed the old
+- `duplicate-parsers-agreement.test.ts` - historically diffed the old
   recursive-descent parser against `parseNodesV2`; now that the legacy parser is
   deleted, this file's role in the studio port is moot (it has nothing left to
   diff against) UNLESS the port temporarily keeps two implementations during its
   own bring-up, in which case the same technique (differential test over the full
   corpus) is the right tool.
-- `preprocessing-effects.test.ts` — exercises the six preprocessing stages
+- `preprocessing-effects.test.ts` - exercises the six preprocessing stages
   (dot-notation, space-syntax, single-colon, angle-token, escaped-brace hiding)
   against the corpus.
-- `processor-golden.test.ts` — full-pipeline golden snapshots (`processMacros`
+- `processor-golden.test.ts` - full-pipeline golden snapshots (`processMacros`
   output: text, expansions, errors) against
   `__snapshots__/processor-golden.test.ts.snap`.
 
 **Porting plan for the studio package:**
 
 1. Port `corpus.ts` first, unmodified in content (it is pure data with no import
-   of parser internals — the file's own header enforces this). This is "the
+   of parser internals - the file's own header enforces this). This is "the
    asset" per the extraction map (private planning notes).
 2. Port the parser (`tokenizer.ts` lineage) second, against the corpus, using the
    snapshot files as the oracle. Do NOT hand-transcribe the snapshots; regenerate
@@ -374,12 +374,12 @@ contract IS the characterization corpus:
 3. Port the evaluator + registry + scopes third, re-running `processor-golden`
    equivalents against a studio `MacroContext` built to match whatever fixture
    context VAUDEVILLE's golden tests use (character name, user name, seeded
-   random, fixed clock) — OPEN QUESTION: the exact fixture `MacroContext` values
+   random, fixed clock) - OPEN QUESTION: the exact fixture `MacroContext` values
    the golden snapshots were generated against were not read; re-derive them from
    `processor-golden.test.ts`'s setup when porting, since the snapshot values are
    sensitive to `characterName`/`userName`/`randomSeed`/clock.
 4. **`tokenizer.ts` was UNCOMMITTED in VAUDEVILLE as of 2026-07-02** per
-   the extraction map (private planning notes) — coordinate with Chi before extracting; the file
+   the extraction map (private planning notes) - coordinate with Chi before extracting; the file
    may have moved or changed shape by the time a ticket executes this port.
 
 ## Public API sketch
@@ -412,13 +412,13 @@ export interface MacroContext {
   counters?: Map<string, number>;
 
   // Determinism hooks (bucket 1 macros use these when the caller wants
-  // reproducible output — golden tests, previews)
+  // reproducible output - golden tests, previews)
   randomSeed?: number;
   timezone?: string;
   locale?: string;
 
   // Populated ONLY by the Test Stage / assembly package (bucket 2). Absent
-  // (undefined) outside an assembly run — macros reading these resolve to
+  // (undefined) outside an assembly run - macros reading these resolve to
   // their handler's own empty/false default, they do not error.
   messages?: ChatMessage[];
   messageCount?: number;
@@ -525,7 +525,7 @@ export function effectTypesForTarget(target: ResolvedVariableTarget): { set: 'se
 
 Not sketched: the individual macro handler modules (identity/time/random/text/
 conditional/variables/pronouns/lumiverse-compat/etc). Their per-macro catalog is a
-separate, later document (not this spec) — this spec covers the machinery (parse,
+separate, later document (not this spec) - this spec covers the machinery (parse,
 evaluate, registry, scopes) and the categories, not every macro's exact behavior.
 
 ## Edge cases & failure modes
@@ -535,18 +535,18 @@ evaluate, registry, scopes) and the categories, not every macro's exact behavior
    truncation of preceding text.
 2. **Malformed block-if (space/hash form), no `{{/if}}`.** The `{{if ...}}` /
    `{{#if ...}}` head tag becomes literal TEXT; parsing resumes just past it. The
-   would-be body text is NOT consumed as part of the malformed block — it parses
+   would-be body text is NOT consumed as part of the malformed block - it parses
    normally as whatever it independently is.
 3. **Malformed block-if (colon form), no `{{/if}}`.** Falls through to the inline
    `if` macro classification instead of becoming literal text (differs from case
-   2) — `{{if::cond}}` with no closer is treated as a one-arg inline `if` macro
+   2) - `{{if::cond}}` with no closer is treated as a one-arg inline `if` macro
    call.
 4. **Nested same-type blocks (`{{if}}` inside `{{if}}`, `{{setvar}}` inside
    `{{setvar}}`, `{{trim}}` inside `{{trim}}`).** Depth-tracked; the matching
    terminator is the one that returns block-depth to 0, not the first textual
    occurrence of the closing tag.
 5. **`{{setvar::x::5}}` (two args) nested inside a `{{setvar::y}}...{{/setvar}}`
-   block body.** Must NOT desync the block-terminator scan — `findBlockTerminator`'s
+   block body.** Must NOT desync the block-terminator scan - `findBlockTerminator`'s
    `opensBlock` check specifically distinguishes single-arg (block-opening) from
    multi-arg (inline, non-block) `setvar`/`setglobalvar` occurrences.
 6. **Negative depth in `lexSplitArgs`.** A stray unmatched `}}` inside a tag's
@@ -580,10 +580,10 @@ evaluate, registry, scopes) and the categories, not every macro's exact behavior
     parameter.
 13. **Volatile macro anywhere in the template.** `MacroProcessResult.cacheable`
     becomes `false` for the WHOLE result, even if the volatile macro is inside an
-    untaken (short-circuited) if-branch that never executed — `volatileHit` is
+    untaken (short-circuited) if-branch that never executed - `volatileHit` is
     ratcheted per node actually evaluated, so an untaken branch's volatility never
     matters (it doesn't run), but a taken one poisons the whole run.
-14. **Side effects inside an untaken if-branch.** Never fire — block-if
+14. **Side effects inside an untaken if-branch.** Never fire - block-if
     short-circuits, the untaken branch's AST subtree is never evaluated at all
     (not evaluated-then-discarded).
 15. **`context.readOnly: true`.** All side-effect macros (block-setvar and any
@@ -600,7 +600,7 @@ evaluate, registry, scopes) and the categories, not every macro's exact behavior
     untrimmed source text via `.raw` and an untrimmed `.evaluate()`. A port that
     trims lazy args by default will diverge from macros like `{{sep}}`/`{{raw}}`
     that are whitespace-sensitive by design.
-18. **Comment body containing `::`.** Must NOT be split into multiple args — the
+18. **Comment body containing `::`.** Must NOT be split into multiple args - the
     entire trimmed remainder after `//` is one string argument, unlike every other
     macro form.
 19. **Bare `.var`/`$var` inside a block-if condition string.** The dot-notation
@@ -611,7 +611,7 @@ evaluate, registry, scopes) and the categories, not every macro's exact behavior
     instead of the variable's value.
 20. **`character:` scope namespace fallback.** If neither `context.characterId`
     nor `context.characterName` is set, the character-scope storage key falls back
-    to a literal `"unknown"` namespace segment — multiple characters with no id/name
+    to a literal `"unknown"` namespace segment - multiple characters with no id/name
     set would collide into the same storage key. Acceptable per the reference
     behavior; not treated as a bug to fix in the port.
 21. **`vaud inspect`/`vaud convert` never evaluate macros.** A codec that calls
@@ -667,11 +667,11 @@ plays for codecs.
 
 ## Non-goals
 
-- Lorebook trigger matching / activation (specs/engine/lorebook-engine.md) —
+- Lorebook trigger matching / activation (specs/engine/lorebook-engine.md) -
   the engine only reads `triggeredEntries` as already-computed input, it does not
   compute activation itself.
 - Prompt assembly ordering, budget/token accounting, position/depth injection
-  (specs/engine/prompt-assembly.md) — the engine expands macro text wherever it's
+  (specs/engine/prompt-assembly.md) - the engine expands macro text wherever it's
   invoked; deciding what text to run it over and in what order is assembly's job.
 - Evaluating macros during format conversion. Codecs never call this package.
 - A per-macro behavior catalog (what every one of the ~100 individual macros does).

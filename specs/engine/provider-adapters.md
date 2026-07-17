@@ -4,7 +4,7 @@
 **Depends on:** `packages/core` (canonical types, no other engine package) ·
 **VAUDEVILLE reference:** `apps/rc/src/lib/providers/types.ts`,
 `apps/rc/src/lib/providers/adapters/base.ts`,
-`apps/rc/src/lib/ai/prompted-tool-calls/index.ts` — reference reading for wire
+`apps/rc/src/lib/ai/prompted-tool-calls/index.ts` - reference reading for wire
 facts and lessons learned; this package is a fresh implementation, not a port
 (RC's code is server-side, multi-tenant, and entangled with its own DB/billing
 layer; Vaudeville's adapters run entirely on the user's machine against keys
@@ -16,7 +16,7 @@ the user supplied)
 `ChatRequest` into a real HTTP call against whichever model provider the user
 configured (Anthropic, OpenAI, Gemini, OpenRouter, or any OpenAI-compatible
 endpoint including local runtimes like Ollama/LM Studio/koboldcpp), and turns
-that provider's response — streamed or not — back into a canonical
+that provider's response - streamed or not - back into a canonical
 `ChatResponse`/`ChatStreamEvent` sequence. It is the single point where
 Vaudeville Studios' internal message/tool-call shape meets each provider's
 wire format, including the differences in system-prompt handling, tool-call
@@ -32,7 +32,7 @@ id, model id, decrypted key/base URL, sampler settings). Choosing which
 provider/model to use for a given role (interview vs. treatment vs. test-stage
 vs. audit) is `key-vault.md`'s job; this package receives the resolution as
 input and does not select providers itself. It performs no cross-provider
-fallback, no cost accounting, and no multi-tenant routing — those are the
+fallback, no cost accounting, and no multi-tenant routing - those are the
 concerns of RoleCall's separate `packages/router` (a billed, multi-tenant
 aggregator-routing system) and are explicitly out of scope here (see
 Non-goals).
@@ -54,7 +54,7 @@ fields stripped:
   id), `stream`, `samplers`, `tools`, `toolChoice`, and a `providerConfig`
   (auth + endpoint, resolved by the caller from the vault).
 - `ChatResponse` carries `content`, `toolCalls`, `finishReason`, `usage`
-  (token counts only — no cost fields), and optional `reasoning`.
+  (token counts only - no cost fields), and optional `reasoning`.
 
 Field names are normalized to camelCase; provider wire format is the
 adapter's private concern.
@@ -76,7 +76,7 @@ Two adapter styles, matching what RC's `base.ts` already discovered works:
   build the request body directly in OpenAI's wire shape; a single shared
   `openAICompatibleAdapter` handles all of them, parameterized by
   `providerConfig` (base URL, auth header style, which optional OpenAI
-  fields — `stream_options`, `parallel_tool_calls` — are safe to send).
+  fields - `stream_options`, `parallel_tool_calls` - are safe to send).
 - **Translating adapters** (Anthropic, Gemini): the wire format differs
   enough (Anthropic Messages API, Gemini `generateContent`/`streamGenerateContent`)
   that the adapter translates canonical messages into the provider's native
@@ -92,7 +92,7 @@ These are real provider requirements observed in production
 (`apps/rc/src/lib/providers/adapters/base.ts`), not invented:
 
 - **OpenAI / OpenAI-compatible:** an assistant message whose only content is
-  tool calls MUST have `content: null`, not `""` — several strict
+  tool calls MUST have `content: null`, not `""` - several strict
   OpenAI-compatible servers (DeepSeek, some proxies) 400 or silently return an
   empty body otherwise (`base.ts:507-518`). Tool-result messages carry
   `tool_call_id` and `name`. When the user message includes images, content
@@ -103,7 +103,7 @@ These are real provider requirements observed in production
   to `role:user` and kept inline so it stays adjacent to the turn it
   anchors (`base.ts:544-565`). Tool-result messages become a `user`-role turn
   with a `tool_result` content block referencing the prior `tool_use` block's
-  id — Anthropic rejects tool results sent as plain strings (`base.ts:585-604`).
+  id - Anthropic rejects tool results sent as plain strings (`base.ts:585-604`).
   Consecutive same-role messages must be merged (Anthropic rejects repeated
   roles), and the first message must be `role:user` (synthesize a placeholder
   if not). Assistant turns with tool calls become a content array of an
@@ -112,7 +112,7 @@ These are real provider requirements observed in production
   content block (with its original `signature`) to be the *first* block of an
   assistant turn, or the API rejects the request (`base.ts:684-699`).
   Auth is `x-api-key` + `anthropic-version` header, not Bearer
-  (`anthropic-direct.ts:47-55` — Router uses this same header set for the
+  (`anthropic-direct.ts:47-55` - Router uses this same header set for the
   official direct API).
 - **Gemini:** same contiguous-leading-system rule, mapped to
   `systemInstruction` (`base.ts:771-796`). Tool calls map to `functionCall`
@@ -121,7 +121,7 @@ These are real provider requirements observed in production
   each `functionCall` part and REQUIRE it echoed back verbatim on the next
   request's matching functionCall, or the API 400s with "Function call is
   missing a thought_signature in functionCall parts" (`base.ts:822-830`,
-  `types.ts:352-364`). This signature is opaque — never inspect or mutate it,
+  `types.ts:352-364`). This signature is opaque - never inspect or mutate it,
   only carry it.
 - **OpenRouter:** reasoning round-trips through a `reasoning_details` array
   that must be echoed back **unmodified and in the same order** the model
@@ -155,13 +155,13 @@ Each adapter is responsible for converting its provider's native SSE (or
 chunked JSON) format into this event sequence. OpenAI-compatible providers
 emit `choices[].delta.content` / `.tool_calls` / `.reasoning_content` chunks
 directly; translating adapters (Anthropic, Gemini) run their own SSE parser
-and re-emit the same canonical events — there is no requirement to normalize
+and re-emit the same canonical events - there is no requirement to normalize
 through an intermediate OpenAI-shaped SSE format the way RC's Router does
 (`router/src/types.ts:126-134`); adapters here go straight from native wire to
 canonical events. Usage is emitted as its own event when a provider streams
 it (OpenAI-compatible providers with `stream_options.include_usage`,
 Anthropic's final `message_delta`, Gemini's final chunk); providers that never
-report usage on stream leave the `usage` event out — callers fall back to
+report usage on stream leave the `usage` event out - callers fall back to
 `TokenCounter` estimates (see `token-counting.md`) and must treat the number
 as approximate, never invented as if authoritative.
 
@@ -170,25 +170,25 @@ as approximate, never invented as if authoritative.
 When `ChatRequest.tools` is set and the resolved model's capability profile
 says it supports native tool-calling, the adapter sends tools in the
 provider's native shape and parses native tool-call output into
-`ChatResponse.toolCalls: Array<{id, name, arguments: string}>` — `arguments`
+`ChatResponse.toolCalls: Array<{id, name, arguments: string}>` - `arguments`
 is always a JSON string (matches the OpenAI convention every downstream
 caller expects), even though Anthropic and Gemini return already-parsed
 objects natively; the adapter serializes them. Native tool-schema shapes,
 confirmed against RC's per-provider adapters:
 
 - **OpenAI-compatible:** `tools: [{type:"function", function:{name, description, parameters, strict?}}]`
-  (matches `ProviderRequest.tools` already — pass-through, no translation).
+  (matches `ProviderRequest.tools` already - pass-through, no translation).
 - **Anthropic:** `tools: [{name, description, input_schema}]`, where
   `input_schema` is the OpenAI `function.parameters` JSON schema carried over
   unchanged (`apps/rc/src/lib/providers/adapters/anthropic.ts:184-193`).
   `tool_choice` maps `"required"` to `{type:"any", disable_parallel_tool_use:false}`,
   `"none"` to `{type:"none"}`, `"auto"`/an explicit function name to
-  `{type:"auto"|"tool", ...}` — Anthropic disables parallel tool use by
+  `{type:"auto"|"tool", ...}` - Anthropic disables parallel tool use by
   default under `"any"`/`"tool"` choice, so `disable_parallel_tool_use:false`
   must be sent explicitly to get multiple calls in one response
   (`anthropic.ts:195-220`). Anthropic also requires `max_tokens` on every
   request (adapter defaults to 4096 when the caller didn't set one) and
-  rejects `temperature` and `top_p` set together — the adapter prefers
+  rejects `temperature` and `top_p` set together - the adapter prefers
   `temperature` when both are present (`anthropic.ts:223-239`).
 - **Gemini:** `tools: [{functionDeclarations: [{name, description, parameters}]}]`,
   with `parameters` passed through a Gemini-specific JSON-schema sanitizer
@@ -223,14 +223,14 @@ discipline):
    one reply mean multiple calls in that turn.
 2. The body is a JSON object with a required string `name` and an optional
    object `args` (default `{}` if omitted).
-3. No code-fence wrapping — the literal tags are the only delimiters. A
+3. No code-fence wrapping - the literal tags are the only delimiters. A
    leading ```` ```json ```` /```` ```xml ```` /```` ```tool_call ```` fence or a
    stray `json` prefix is stripped by the parser's pre-clean pass, but the
    renderer's instructions tell the model not to add one.
 4. Arbitrary prose/thinking text may appear between, before, and after
    blocks; only text inside the tags is treated as a call.
 5. The `tools` field is dropped from the outbound request body entirely in
-   prompted mode — the call goes through the regular content/text path, no
+   prompted mode - the call goes through the regular content/text path, no
    provider tool-calling wire feature is engaged.
 6. When the model has no tools available this turn, the renderer emits a
    short "tool calling disabled" note instead of a catalog, so the model
@@ -240,13 +240,13 @@ discipline):
    model from inventing snake_case tool names or claiming a tool exists that
    isn't listed.
 8. Ending the loop: a reply with zero `<tool_call>` blocks is the model's
-   final answer — the fallback protocol does not use a separate "done" marker.
+   final answer - the fallback protocol does not use a separate "done" marker.
 
 **Rendering.** `renderToolCatalog(tools: PromptedTool[]): string` builds the
 instruction block + one `###` entry per tool (name, one-line summary,
 `Args:` list with type/required/enum/description per property), for
 appending to the assembled system prompt. `PromptedTool` is the minimal
-`{name, description, summary?, parameters}` shape — any canonical tool
+`{name, description, summary?, parameters}` shape - any canonical tool
 definition satisfies it structurally.
 
 **Parsing.** `parseToolCallBlocks(content: string, toolsByName: Map<string, PromptedTool>): Promise<ParsedToolCall[]>`:
@@ -271,7 +271,7 @@ definition satisfies it structurally.
    + block index + raw block text) so results are stable to dedup across
    repeated turns.
 
-`parseToolCallBlocks` returns `ParsedToolCall` — the richer prompted-mode
+`parseToolCallBlocks` returns `ParsedToolCall` - the richer prompted-mode
 product, carrying source spans (`startIndex`/`endIndex`/`rawBlock`) needed
 for stripping the block from displayed text and an `args: object` (not yet
 JSON-stringified). This is deliberately a different shape from the native
@@ -279,7 +279,7 @@ JSON-stringified). This is deliberately a different shape from the native
 successfully parsed call with no `parseError`, it normalizes to the
 canonical `ToolCall` via `{id, name, arguments: JSON.stringify(args)}` before
 handing it to the same dispatch path native tool calls use. This package
-never performs that normalization itself — see the agent-loop boundary note
+never performs that normalization itself - see the agent-loop boundary note
 below.
 
 **Streaming display.** `stripToolCallBlocksStreaming(prefix: string, chunk: string): {visible: string; carry: string}` strips `<tool_call>` spans from a live token stream so the UI shows prose only, never the literal call markup, while the *unstripped* accumulated text is what actually gets parsed for dispatch. Callers must feed `carry` from the previous call in as `prefix` on the next chunk to handle a tag boundary split across stream chunks.
@@ -292,7 +292,7 @@ retrying on parse failure are the agent loop's job (`agent-loop.md`).
 
 ### 7. Retries, timeouts, and error classification
 
-No cross-provider fallback (single resolved provider per call — that's a
+No cross-provider fallback (single resolved provider per call - that's a
 router concern, out of scope here). Within a single provider, adapters apply:
 
 - **Retryable** (same-provider, exponential backoff): HTTP 429, 5xx, and
@@ -300,8 +300,8 @@ router concern, out of scope here). Within a single provider, adapters apply:
   Design default: up to 3 attempts, base delay 1s, backoff factor 2, honoring
   a provider's `Retry-After` header when present.
 - **Fail-hard, no retry** (surface to caller immediately): HTTP 401/403
-  (bad or unauthorized key — `provider_misconfigured`), HTTP 400 (malformed
-  request — `input_rejected`), and content-policy refusals (provider-specific
+  (bad or unauthorized key - `provider_misconfigured`), HTTP 400 (malformed
+  request - `input_rejected`), and content-policy refusals (provider-specific
   shape, classified `content_policy_refusal`, not a transport failure).
 - **Timeouts** (design defaults, all configurable): connect/first-byte
   timeout 30s, per-chunk stream idle timeout 60s (a stream that stops
@@ -309,7 +309,7 @@ router concern, out of scope here). Within a single provider, adapters apply:
   call timeout 10 minutes (generous for slow local models / long generations).
 - Every error surfaces as a typed `ProviderError` with a stable `code`. It
   extends RC's non-routing `RouteErrorCode` members (`provider_misconfigured`,
-  `input_rejected`, `content_policy_refusal`, `stream_interrupted` — see
+  `input_rejected`, `content_policy_refusal`, `stream_interrupted` - see
   `packages/router/src/types.ts:150-157`) with three codes this single-key
   context needs that the multi-provider router does not (`rate_limited`,
   `timeout`, `network_error`), plus a `unknown` catch-all. Full vocabulary:
@@ -327,7 +327,7 @@ version-segment-preserving resolution described in §3), optional explicit
 `none`, or a custom header), and capability flags the user or a connection
 test determines (`supportsStreamOptions`, `supportsParallelToolCalls`,
 `isOpenAICompatible` sampler support). This is the single code path for
-Ollama, LM Studio, koboldcpp, vLLM, and any unnamed OpenAI-compatible proxy —
+Ollama, LM Studio, koboldcpp, vLLM, and any unnamed OpenAI-compatible proxy -
 no per-tool special-casing beyond the generic override fields.
 
 ### 9. Model capability profiles
@@ -346,16 +346,16 @@ the eval-harness ticket (ADR-006 pt. 5) which needs the same data.
 
 | Provider | Auth method | Native tool-use | Streaming shape | Reasoning/signature round-trip | Sampler support | Usage in stream |
 |---|---|---|---|---|---|---|
-| Anthropic | `x-api-key` + `anthropic-version` header | Yes (`tools`, `tool_use`/`tool_result` blocks) | Native SSE (Messages API), translated to canonical events | `thinking` block + `signature`, must lead the assistant turn | `temperature` OR `top_p` (mutually exclusive, temperature preferred when both set), `top_k`, `max_tokens` (required — adapter defaults 4096); no frequency/presence penalty; temperature/top_p/top_k all dropped when extended thinking is enabled | Final `message_delta` usage frame |
+| Anthropic | `x-api-key` + `anthropic-version` header | Yes (`tools`, `tool_use`/`tool_result` blocks) | Native SSE (Messages API), translated to canonical events | `thinking` block + `signature`, must lead the assistant turn | `temperature` OR `top_p` (mutually exclusive, temperature preferred when both set), `top_k`, `max_tokens` (required - adapter defaults 4096); no frequency/presence penalty; temperature/top_p/top_k all dropped when extended thinking is enabled | Final `message_delta` usage frame |
 | OpenAI | `Authorization: Bearer` | Yes (`tools`, `tool_calls`) | OpenAI chat-completion-chunk SSE | `reasoning_content` on o-series/reasoning models (same-model gated) | temperature, top_p, frequency_penalty, presence_penalty, max_tokens | Only with `stream_options.include_usage` |
 | Gemini | `?key=` query param (or OAuth for Vertex, out of v1 scope) | Yes (`functionDeclarations`, `functionCall`/`functionResponse`) | Native SSE (`:streamGenerateContent` endpoint variant), translated to canonical events | `thoughtSignature` on functionCall parts; MUST be echoed on the next request's matching call or the API 400s | `temperature`, `top_p`→`topP`, `top_k`→`topK`, `max_tokens`→`maxOutputTokens`, all nested under `generationConfig`; no frequency/presence penalty | Reported on final chunk |
-| OpenRouter | `Authorization: Bearer` | Yes, proxied per underlying model | OpenAI-compatible SSE | `reasoning_details` array — must round-trip verbatim, same order, unmodified | Passthrough of underlying model's supported set | With `include_reasoning`/usage opt-in |
-| OpenAI-compatible (local: Ollama/LM Studio/koboldcpp/vLLM/custom) | Bearer, none, or custom header | Varies — many report no native tool-calling; prompted-XML fallback is the default assumption | OpenAI-compatible SSE (implementation quality varies) | None assumed unless the profile says otherwise | Varies; unknown fields (`stream_options`, `parallel_tool_calls`) can 400 — gated by capability flags | Rare; assume absent unless capability-tested |
+| OpenRouter | `Authorization: Bearer` | Yes, proxied per underlying model | OpenAI-compatible SSE | `reasoning_details` array - must round-trip verbatim, same order, unmodified | Passthrough of underlying model's supported set | With `include_reasoning`/usage opt-in |
+| OpenAI-compatible (local: Ollama/LM Studio/koboldcpp/vLLM/custom) | Bearer, none, or custom header | Varies - many report no native tool-calling; prompted-XML fallback is the default assumption | OpenAI-compatible SSE (implementation quality varies) | None assumed unless the profile says otherwise | Varies; unknown fields (`stream_options`, `parallel_tool_calls`) can 400 - gated by capability flags | Rare; assume absent unless capability-tested |
 
 ## Public API sketch
 
 ```ts
-// packages/ai/src/types.ts — imports only from packages/core.
+// packages/ai/src/types.ts - imports only from packages/core.
 
 export type Role = "system" | "user" | "assistant" | "tool";
 
@@ -517,7 +517,7 @@ export function stripToolCallBlocksStreaming(
 
 1. **No key configured for any provider.** The adapter layer must not be
    invoked; callers check `key-vault.md`'s resolution first. AI is optional
-   (ADR-006 pt. 2) — every non-AI command must work with zero adapters wired.
+   (ADR-006 pt. 2) - every non-AI command must work with zero adapters wired.
 2. **Prompted block with no closing tag.** Parser takes content to end of
    string, still attempts JSON repair, and flags
    `parseError: "missing </tool_call> closing tag"`. Caller may still dispatch
@@ -537,7 +537,7 @@ export function stripToolCallBlocksStreaming(
    `functionCall`.** Provider returns HTTP 400. The adapter must always echo
    the `thoughtSignature` it received on a prior `ChatMessage.toolCalls[]`
    entry back onto the corresponding `functionCall` part when that message is
-   re-sent as history — if the caller fails to preserve the signature across
+   re-sent as history - if the caller fails to preserve the signature across
    turns, that is a caller bug the adapter cannot repair for; adapter tests
    must assert the signature is preserved end-to-end by the translation
    function itself (canonical in, native out, canonical back).
@@ -576,44 +576,44 @@ export function stripToolCallBlocksStreaming(
     args in `max_tokens`) but does not enforce it.
 17. **A provider's model doesn't support the requested reasoning/thinking
     mode.** Adapter omits the reasoning request fields silently rather than
-    erroring — reasoning round-trip is best-effort, gated by capability
+    erroring - reasoning round-trip is best-effort, gated by capability
     profile, never assumed present.
 18. **Prompted mode forced (`forcePromptedTools: true`) on a model that also
     has native tool-calling.** Adapter honors the override and drops `tools`
-    from the native request regardless of capability profile — used by the
+    from the native request regardless of capability profile - used by the
     eval harness to A/B native vs. prompted behavior on the same model.
 
 ## Test plan
 
 - Fixtures required (message-translation unit tests, no live network):
-  - `fixtures/ai/anthropic/leading-system-only.json` — contiguous leading
+  - `fixtures/ai/anthropic/leading-system-only.json` - contiguous leading
     system messages hoist to `system`; a system message after turn 1 does not.
-  - `fixtures/ai/anthropic/tool-use-roundtrip.json` — assistant tool_use +
+  - `fixtures/ai/anthropic/tool-use-roundtrip.json` - assistant tool_use +
     matching tool_result by id; verifies rejection-shape avoidance.
-  - `fixtures/ai/anthropic/thinking-signature-leads.json` — thinking block
+  - `fixtures/ai/anthropic/thinking-signature-leads.json` - thinking block
     with signature must be first content block on the assistant turn.
-  - `fixtures/ai/anthropic/consecutive-role-merge.json` — two adjacent
+  - `fixtures/ai/anthropic/consecutive-role-merge.json` - two adjacent
     user-role entries (from a rewritten mid-chat system message) merge into
     one.
-  - `fixtures/ai/gemini/thought-signature-echo.json` — functionCall with a
+  - `fixtures/ai/gemini/thought-signature-echo.json` - functionCall with a
     thoughtSignature on turn N; the same signature must appear verbatim on
     the request for turn N+1.
-  - `fixtures/ai/gemini/leading-system-only.json` — same rule as Anthropic,
+  - `fixtures/ai/gemini/leading-system-only.json` - same rule as Anthropic,
     targeting `systemInstruction`.
-  - `fixtures/ai/openai/tool-call-content-null.json` — assistant message with
+  - `fixtures/ai/openai/tool-call-content-null.json` - assistant message with
     `toolCalls` and empty string content must serialize with `content: null`.
-  - `fixtures/ai/openrouter/reasoning-details-verbatim.json` — array order
+  - `fixtures/ai/openrouter/reasoning-details-verbatim.json` - array order
     and contents preserved unmodified across a round-trip.
   - `fixtures/ai/prompted/single-block.txt`,
     `multi-block-with-prose.txt`,
     `unclosed-block.txt`,
     `malformed-json-recoverable.txt` (trailing comma / smart quotes),
     `unknown-tool-name.txt`,
-    `code-fenced-block.txt` — one fixture per parser edge case in §6/Edge
+    `code-fenced-block.txt` - one fixture per parser edge case in §6/Edge
     cases 2-5.
-  - `fixtures/ai/local-openai-compatible/custom-version-segment.json` — base
+  - `fixtures/ai/local-openai-compatible/custom-version-segment.json` - base
     URL `.../api/coding/paas/v4` must not be downgraded to `/v1`.
-- Round-Trip Law applicability: **not applicable in the codec sense** —
+- Round-Trip Law applicability: **not applicable in the codec sense** -
   adapters are not format codecs and there is no `parse -> serialize` pair
   over a fixture file. The equivalent correctness invariant is
   **signature/reasoning round-trip**: translate canonical → native → canonical
@@ -640,7 +640,7 @@ export function stripToolCallBlocksStreaming(
   an already-resolved `ProviderConfig`; there is no attempt chain, no health
   probing, no "try OpenRouter if Anthropic fails." That is RC's
   `packages/router`'s job and does not belong in a single-key BYOK tool.
-- **No cost accounting.** `ChatResponse.usage` carries token counts only —
+- **No cost accounting.** `ChatResponse.usage` carries token counts only -
   no `cost_cents`, no pricing tables, no billing boundary. Vaudeville Studios
   has no operator-side inference to bill for.
 - **No key storage or model-role resolution.** Owned by `key-vault.md`. This
@@ -656,49 +656,49 @@ export function stripToolCallBlocksStreaming(
   `TokenCounter` (owned by `token-counting.md`); this package never
   implements a tokenizer itself.
 - **No multi-tenant health probing, no telemetry.** Consistent with the
-  privacy invariants in `02-ARCHITECTURE.md` — no network calls beyond the
+  privacy invariants in `02-ARCHITECTURE.md` - no network calls beyond the
   provider the user configured.
 
 ## Sources consulted
 
-- the master plan (private planning notes) — locked decisions (BYOK, "agent must survive weak
+- the master plan (private planning notes) - locked decisions (BYOK, "agent must survive weak
   models"), milestone M2 scope.
-- `docs/02-ARCHITECTURE.md:22-26,54-69` — `packages/ai` package description;
+- `docs/02-ARCHITECTURE.md:22-26,54-69` - `packages/ai` package description;
   Orison-derived agent lessons (tiny tool surface, resource verbs, spill
   store, staged edits, model capability profiles, eval harness).
-- `docs/decisions/ADR-006-ai-and-agent.md` — BYOK provider list, AI-optional
+- `docs/decisions/ADR-006-ai-and-agent.md` - BYOK provider list, AI-optional
   requirement, weak-model design constraints, model-role mapping, eval
   harness timing.
-- `specs/formats/canonical-model.md` — shared entity envelope pattern,
+- `specs/formats/canonical-model.md` - shared entity envelope pattern,
   `TokenCounter` interface location (owned by core, implementations outside).
-- `specs/formats/escrow-and-roundtrip.md` — Round-Trip Law definition, used
+- `specs/formats/escrow-and-roundtrip.md` - Round-Trip Law definition, used
   above to explain why it does not apply to this package in the codec sense.
-- `templates/SPEC-TEMPLATE.md` — section structure.
+- `templates/SPEC-TEMPLATE.md` - section structure.
 - VAUDEVILLE `apps/rc/src/lib/providers/types.ts` (lines 1-24 BYOK type
   header, 340-458 `ChatMessage`/`ProviderRequest`, 460-522
   `ProviderResponse`/`ProviderStreamChunk`, 528-578 `ProviderAdapter`
-  interface) — canonical request/response shape source.
+  interface) - canonical request/response shape source.
 - VAUDEVILLE `apps/rc/src/lib/providers/adapters/base.ts` (lines 25-73
   OpenAI-compatible URL helpers, 107-149 auth header building, 196-303
   `buildUrl` version-segment preservation, 308-334 sampler filtering,
   460-542 `toOpenAIMessages`, 544-733 `toAnthropicMessages`, 751-880
-  `toGoogleMessages`) — provider-specific wire translation rules, all cited
+  `toGoogleMessages`) - provider-specific wire translation rules, all cited
   inline above.
 - VAUDEVILLE `apps/rc/src/lib/ai/prompted-tool-calls/index.ts` (lines 1-30
   module header/mechanism description, 84-122 `renderToolCatalog`, 200-229
   `findToolCallSpans`, 246-374 `parseToolCallBlocks`, 397-486
-  `stripToolCallBlocksStreaming`) — prompted-XML grammar, source of the exact
+  `stripToolCallBlocksStreaming`) - prompted-XML grammar, source of the exact
   wire format and parser behavior in §6.
 - VAUDEVILLE `packages/router/src/types.ts` (lines 62-135 `ProviderAdapter`
-  translation-adapter escape hatches, 150-168 `RouteErrorCode`) — contrasting
+  translation-adapter escape hatches, 150-168 `RouteErrorCode`) - contrasting
   analog for the translating-adapter pattern and error taxonomy; explicitly
   NOT the model for this package's scope (multi-tenant billing router, see
   Non-goals).
 - VAUDEVILLE `packages/router/src/providers/anthropic-direct.ts` (lines
-  16-64) — confirms Anthropic direct-API auth header set
+  16-64) - confirms Anthropic direct-API auth header set
   (`x-api-key`/`anthropic-version`) and bare-model-name mapping independent
   of RC's BYOK layer.
-- VAUDEVILLE `apps/rc/src/lib/ai/streaming/base.ts` (lines 1-116) — an older,
+- VAUDEVILLE `apps/rc/src/lib/ai/streaming/base.ts` (lines 1-116) - an older,
   simpler `LLMProvider` interface and error taxonomy (`AuthenticationError`,
   `RateLimitError`, `ModelNotFoundError`), read for error-classification
   precedent; superseded in RC by the adapters under `lib/providers/`, cited
@@ -707,7 +707,7 @@ export function stripToolCallBlocksStreaming(
 ## Open questions
 
 - OPEN QUESTION: exact source/format of the model capability-profile table
-  (native tool-use, reasoning support, context window) — bundled static list,
+  (native tool-use, reasoning support, context window) - bundled static list,
   fetched-and-cached from a models endpoint, or fully user-editable. Deferred
   to the M2 eval-harness ticket, which needs the same data for its model
   matrix (ADR-006 pt. 5).

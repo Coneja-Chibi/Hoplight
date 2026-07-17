@@ -154,7 +154,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
                   className={styles.pcNum}
                   type="number"
                   value={entry.displayIndex ?? ""}
-                  placeholder="—"
+                  placeholder="-"
                   aria-label="List display index (blank follows order)"
                   onChange={(ev) => {
                     const v = ev.target.value;

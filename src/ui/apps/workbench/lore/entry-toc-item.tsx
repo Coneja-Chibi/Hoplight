@@ -63,7 +63,7 @@ export function EntryTocItem({
   };
 
   const scanTxt =
-    entry.scanDepth === null || entry.scanDepth === undefined ? "—" : String(entry.scanDepth);
+    entry.scanDepth === null || entry.scanDepth === undefined ? "-" : String(entry.scanDepth);
 
   return (
     <div className={styles.eiCard}>

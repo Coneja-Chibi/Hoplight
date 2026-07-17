@@ -1,7 +1,7 @@
 /**
  * PlaybillView - the "acts" presenter: portrait + sealed rail on the left, FIELD_MODULES grouped into
  * acts in the center, The Bill jump-nav on the right. Platform leftovers (native schema) render as
- * their own section + nav entries — same items as bento, different wrapping (RC/ST pattern).
+ * their own section + nav entries - same items as bento, different wrapping (RC/ST pattern).
  * Pure layout; no state; no second ownership path for body fields.
  */
 import type { JSX, ReactNode } from "react";

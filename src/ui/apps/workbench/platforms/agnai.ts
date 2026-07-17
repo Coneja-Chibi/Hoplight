@@ -27,7 +27,7 @@ const agnai: NativeSchema = {
       label: "Other Agnai data",
       control: "raw-extensions",
       hide: [
-        // shared body fields (FIELD_MODULES + format adapter) — not re-edited here
+        // shared body fields (FIELD_MODULES + format adapter) - not re-edited here
         "persona",
         "voice",
         "voiceDisabled",

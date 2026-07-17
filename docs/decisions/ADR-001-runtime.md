@@ -1,4 +1,4 @@
-# ADR-001: Runtime — Bun + TypeScript, Node-compatible core
+# ADR-001: Runtime - Bun + TypeScript, Node-compatible core
 
 **Status:** accepted
 

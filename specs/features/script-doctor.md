@@ -9,7 +9,7 @@
 cards for health/slop today). `apps/rc/src/lib/post-gen-actions/slopism-sets.ts` and
 `apps/rc/anti-slop-banks/**/*.md` are cited below as **informative precedent only**
 for the slop-bank file-shape design (that system screens live chat *generations*,
-not authored card fields — this spec adapts the shape, does not port the code).
+not authored card fields - this spec adapts the shape, does not port the code).
 
 ## Purpose
 
@@ -40,7 +40,7 @@ any, per canonical-model.md rule 3: "An embedded lorebook is a REFERENCE... not 
 inline blob") and any Persona referenced by the current session, because
 contradiction and speaks-for-user checks need `{{user}}`/`{{char}}` context that
 spans more than the character fields alone. Preset examination is narrower (token
-waste and macro lint only — a preset has no "personality," so slop/contradiction
+waste and macro lint only - a preset has no "personality," so slop/contradiction
 passes are skipped; see Non-goals).
 
 Fields examined, per entity, listed with their canonical path (`specs/formats/canonical-model.md`
@@ -57,10 +57,10 @@ Each pass is a pure function `(examinable: ExaminableEntity, config: DoctorConfi
 Finding[]`. Passes run independently and in parallel (no pass depends on another
 pass's output); a `Finding`'s `id` is stable and content-addressed (hash of
 `passId + fieldPath + span`) so re-running the Doctor on an unchanged file produces
-byte-identical finding IDs — this is what makes the health score reproducible and
+byte-identical finding IDs - this is what makes the health score reproducible and
 what lets `vaud doctor --json` be diffed across runs in CI.
 
-1. **Format errors** (`passId: "format"`). Not a new check — surfaces the codec's
+1. **Format errors** (`passId: "format"`). Not a new check - surfaces the codec's
    own `ParseReport` (`specs/formats/escrow-and-roundtrip.md`, "Reports") as
    findings: nonempty `dropped` -> `severity: high`; nonempty `warnings` -> `severity:
    medium`; a zod validation failure on the canonical shape itself -> `severity:
@@ -81,23 +81,23 @@ what lets `vaud doctor --json` be diffed across runs in CI.
      normalized token n-grams, `n=8`) appearing in two of `description`/
      `personality`/`scenario`. Flags the second occurrence as reclaimable.
    - **Filler-phrase density.** Hits against the `wordbank`-kind slop banks (see
-     "Slop banks," below) that are specifically tagged `family: "filler"` — e.g.
+     "Slop banks," below) that are specifically tagged `family: "filler"` - e.g.
      stock hedges ("in a way", "sort of", "you could say") that cost tokens without
      adding information. This sub-check is bank-driven, not a separate hardcoded
      list, so it shares the same bank file format as the slop pass.
    - **Run-on sentence density.** Sentences (split on `.!?` outside quotes/macros)
      exceeding 60 words with no coordinating structure (crude heuristic: word count
      threshold + comma count > 4 in one sentence) are flagged `severity: low` with a
-     "consider splitting" note — this sub-check never *proposes* a split (that
+     "consider splitting" note - this sub-check never *proposes* a split (that
      requires prose judgment, deferred to AI treatment); it only flags.
    - **Unresolved macro tokens outside a macro-consuming context.** A literal
      `{{...}}` string inside a field the engine never macro-expands at parse time
-     (this never fires false-positive on legitimate macros — see "Depends on:
-     macro-engine.md" — this sub-check only flags macros with unknown names per the
+     (this never fires false-positive on legitimate macros - see "Depends on:
+     macro-engine.md" - this sub-check only flags macros with unknown names per the
      macro engine's registry, i.e. genuine typos like `{{personaltiy}}`).
 
 3. **Contradiction candidates** (`passId: "contradiction"`). Deterministic tier finds
-   *candidates only* — pattern-extracted structured values that disagree — and never
+   *candidates only* - pattern-extracted structured values that disagree - and never
    claims to resolve which value is correct (that judgment call is AI-treatment-tier
    or human-only). Extractors:
    - **Stated age.** Regex `\b(\d{1,3})\s*(?:years?[\s-]old|y\/?o\b)|(?:age[d]?[:\s]+)(\d{1,3})\b`
@@ -106,7 +106,7 @@ what lets `vaud doctor --json` be diffed across runs in CI.
      one `contradiction` finding per distinct pair, `severity: high`.
    - **Stated name.** Compares `identity.name` (canonical field, native across all
      codecs) against capitalized-noun-phrase mentions in `firstMessage` that are
-     immediately followed by an appositive pattern (`, the`, `, a`, `is called`) —
+     immediately followed by an appositive pattern (`, the`, `, a`, `is called`) -
      narrow on purpose to avoid false positives from ordinary prose naming other
      characters. Divergence -> `severity: medium`.
    - **Pronoun/gender consistency.** Tallies third-person pronoun usage
@@ -115,24 +115,24 @@ what lets `vaud doctor --json` be diffed across runs in CI.
      only sentences containing `{{char}}` or the character's stated name are tallied).
      A field whose dominant pronoun set disagrees with the entity's majority set
      (>= 70% threshold) is flagged `severity: medium`. This is a statistical
-     heuristic, not a claim about the character's actual gender identity — a card
+     heuristic, not a claim about the character's actual gender identity - a card
      that intentionally mixes pronouns (nonbinary character, in-fiction reason) will
      false-positive; see Edge case 6.
    - **Numeric self-contradiction elsewhere** (height, date/year, count of siblings,
-     etc.) is explicitly OUT of scope for the deterministic tier — free-text numeric
+     etc.) is explicitly OUT of scope for the deterministic tier - free-text numeric
      extraction beyond age is high false-positive risk without a language model. AI
      treatment's context pass covers this instead (see "AI treatment planner").
 
 4. **Slop banks** (`passId: "slop"`). Scans every examined field's raw text against
    every *active* `SlopBank` (see "Slop bank file format," below) using the bank's
    compiled matcher (case-insensitive substring for `wordbank`/`phrase` entries,
-   compiled regex for `pattern` entries — same trigger-matching primitives as
+   compiled regex for `pattern` entries - same trigger-matching primitives as
    `specs/engine/lorebook-engine.md`'s plain-keyword/regex trigger matching, reused
    for consistency rather than reinvented). Each hit is one `Finding` with
    `passId: "slop"`, `bankId`, `matchedText`, `span`, `severity` derived from the
    bank's declared `severity` (see file format). A bank whose `scope` is
    `"turn-history"` (VAUDEVILLE precedent: needs prior conversation turns) never
-   fires in the Doctor — a card has no turn history — and is skipped at load time
+   fires in the Doctor - a card has no turn history - and is skipped at load time
    with a `warnings` entry, not silently ignored (mirrors the caller obligation
    VAUDEVILLE documents at `slopism-sets.ts:38-44` for `scope: 'turn-history'` banks
    under `contextMessages <= 1`).
@@ -140,7 +140,7 @@ what lets `vaud doctor --json` be diffed across runs in CI.
 5. **Speaks-for-user detection** (`passId: "speaks-for-user"`). Scans
    `firstMessage`, `alternateGreetings[]`, and `exampleDialogue` for sentences whose
    grammatical subject is the `{{user}}` macro token (or its legacy alias
-   `<user>`/`{{User}}` normalized identically) followed by an action or speech verb —
+   `<user>`/`{{User}}` normalized identically) followed by an action or speech verb -
    i.e. the card is putting words or deeds in the user's mouth before the user has
    said anything, a well-known roleplay-card antipattern. Heuristic (regex over
    macro-normalized text, not a full parser):
@@ -156,7 +156,7 @@ what lets `vaud doctor --json` be diffed across runs in CI.
 6. **W++ relics** (`passId: "wpp-relic"`). W++ is a pre-JSON-era character-format
    convention: `[Character("Name"){ Attribute("value1" + "value2") Attribute2(...) }]`
    (confirmed via community documentation, "W++ For Dummies," rentry.co/WPP_For_Dummies,
-   accessed 2026-07 — see Sources consulted). Detection regex:
+   accessed 2026-07 - see Sources consulted). Detection regex:
    `\[\s*[A-Za-z][\w\s]*\(\s*"[^"]*"\s*\)\s*\{` for the opening bracket, plus
    `[A-Za-z][\w]*\(\s*"[^"]*"(?:\s*\+\s*"[^"]*")*\s*\)` for inner attribute clauses.
    A card written entirely in W++ style (multiple attribute clauses, opening bracket
@@ -171,23 +171,23 @@ what lets `vaud doctor --json` be diffed across runs in CI.
 7. **Macro lint** (`passId: "macro-lint"`). Delegates to `packages/macros`'s
    non-evaluating lint entry point (`specs/engine/macro-engine.md`, "the Script
    Doctor's macro lint pass," explicitly named there as a consumer). Runs the
-   tokenizer/parser stage only (never the evaluate stage — this pass makes zero
+   tokenizer/parser stage only (never the evaluate stage - this pass makes zero
    claims about runtime macro *behavior*, only syntax): orphan terminators (a
    `{{/if}}` with no matching `{{#if}}`), unknown macro names against the registry,
    and unbalanced `{{`/`}}` nesting. Findings carry `severity: medium` (orphan/
    unbalanced -> broken output at assembly time) or `severity: low` (unknown name ->
    likely a typo, degrades to literal text at assembly time per macro-engine.md's
-   documented pass-through-unknown behavior — OPEN QUESTION below confirms that
+   documented pass-through-unknown behavior - OPEN QUESTION below confirms that
    fallback is what macro-engine.md actually specifies before this pass ships).
 
 8. **Lorebook dead-config** (`passId: "lorebook-dead-config"`, Character/Lorebook
    examinations only). Reuses `specs/engine/lorebook-engine.md` Edge case 3 verbatim:
    an entry with `delayUntilRecursion > 0` whose owning book (and the entry itself)
-   both have recursion disabled can never fire — that spec explicitly names this
+   both have recursion disabled can never fire - that spec explicitly names this
    pass as the intended consumer ("`vaud validate` / the Script Doctor should flag
    this combination as a warning"). `severity: medium`. Additional dead-config
    checks in the same family: an entry with `enabled: false` left in a shipped card
-   (informational, `severity: low` — often intentional), an entry with empty
+   (informational, `severity: low` - often intentional), an entry with empty
    `triggers` and `constant: false` and no active sticky window possible (per
    lorebook-engine.md Edge case 15, permanently unreachable except by semantic hit
    or a future manual toggle) -> `severity: medium`.
@@ -231,15 +231,15 @@ Field-map table (source shape -> this spec's `SlopBank` type -> notes):
 | `label` | `label` | unchanged |
 | `kind` | `kind` | unchanged, same six values |
 | `pattern` (recognition prose) | `pattern` | for `kind: pattern` banks, holds the compiled-regex source; for prose-kind banks, unchanged recognition text |
-| `examples` | body `## Banned vocabulary` list | moved from a frontmatter array to a Markdown list in the body, matching the `anti-slop-banks/**/*.md` files' actual on-disk shape (frontmatter carries metadata, the body carries the list) rather than the in-repo TS `SlopismBank` interface's flattened array — this spec follows the file convention, not the generated-TS convention, since `packages/doctor` loads `.md` files directly (no codegen step; see Non-goals) |
+| `examples` | body `## Banned vocabulary` list | moved from a frontmatter array to a Markdown list in the body, matching the `anti-slop-banks/**/*.md` files' actual on-disk shape (frontmatter carries metadata, the body carries the list) rather than the in-repo TS `SlopismBank` interface's flattened array - this spec follows the file convention, not the generated-TS convention, since `packages/doctor` loads `.md` files directly (no codegen step; see Non-goals) |
 | `replace` | `replace` | unchanged |
 | `why` | `why` | unchanged, optional |
 | `scope` | `scope` | unchanged four values; `turn-history` banks load but never fire (see pass 4) |
 | `conflictsWith` | `conflictsWith` | unchanged, optional array of bank IDs |
 | `family` | `family` | unchanged, optional |
 | `extends` | `extends` | unchanged, optional |
-| (none — new) | `severity` | new field this spec introduces; VAUDEVILLE's system has no scoring concept |
-| (none — new) | `id` | VAUDEVILLE keys banks by their `Record<string, SlopismBank>` key in a generated TS file; this spec uses an explicit frontmatter `id` since banks are loaded from loose `.md` files with no codegen step |
+| (none - new) | `severity` | new field this spec introduces; VAUDEVILLE's system has no scoring concept |
+| (none - new) | `id` | VAUDEVILLE keys banks by their `Record<string, SlopismBank>` key in a generated TS file; this spec uses an explicit frontmatter `id` since banks are loaded from loose `.md` files with no codegen step |
 
 ### Health score formula
 
@@ -255,7 +255,7 @@ at 0, never exceeds 100.
 | `low` | 1 |
 
 `score = max(0, 100 - sum(deduction(f.severity) for f in findings))`. Deductions are
-NOT diminishing-returns/logarithmic — this is a deliberate simplicity choice so the
+NOT diminishing-returns/logarithmic - this is a deliberate simplicity choice so the
 formula is auditable in one line and so "fixing N findings raises the score by a
 predictable amount" holds exactly, matching docs/01-VISION.md's "proves what it did
 in plain terms." `Token Waste` findings additionally report a separate
@@ -276,7 +276,7 @@ labels: "critical / stable / clean"):
 OPEN QUESTION: the wireframe's mock numbers (health 61 = amber/"stable-adjacent" in
 the single-card view, health 89 = "discharged clean" in the ward view) are
 consistent with these bands but were not designed against an explicit formula by the
-wireframe author — the specific deduction weights above are this spec's proposal,
+wireframe author - the specific deduction weights above are this spec's proposal,
 not extracted from any prior source, and should be tuned against the fixture corpus
 (see Test plan) before M3 locks them.
 
@@ -285,7 +285,7 @@ not extracted from any prior source, and should be tuned against the fixture cor
 Gated behind a configured provider (`specs/engine/key-vault.md`); with no key
 configured, `vaud doctor` runs the deterministic tier only and prints
 `AI treatment unavailable: no provider configured. Run 'vaud vault set' or pass
---ai-treat=false explicitly.` — never silently degrades without saying so, per the
+--ai-treat=false explicitly.` - never silently degrades without saying so, per the
 same honesty requirement as token-counting.md's `exact`/`basis` fields.
 
 The planner takes the full deterministic `Finding[]` list plus the entity's full text
@@ -294,15 +294,15 @@ each targeting either exactly one `Finding` (a slop-bank hit's suggested rewrite
 speaks-for-user rewrite, a contradiction candidate's proposed resolution with the
 model's reasoning for which value it kept) or a field-wide `Treatment` with no single
 source `Finding` (a token-diet rewrite of an entire field, which is what the
-wireframe's SD-2 "Before & After" view represents — several findings addressed in
+wireframe's SD-2 "Before & After" view represents - several findings addressed in
 one full-field rewrite rather than N separate single-line fixes). Every `Treatment`
 carries: the finding ID(s) it addresses (or `null` for field-wide), the field path,
 a unified diff (`before`/`after` strings), and an estimated `tokensDelta`.
 
 The planner does not call the model once per finding (that would be slow and
-expensive on a card with a dozen findings) — it batches all findings for one field
+expensive on a card with a dozen findings) - it batches all findings for one field
 into a single provider call per field, using the persona voice hook
-(`specs/features/personas-system.md`, not yet written at time of this spec — cited
+(`specs/features/personas-system.md`, not yet written at time of this spec - cited
 here as the intended hook point per docs/02-ARCHITECTURE.md's persona-loader
 description) so the *tone* of `why`/`replace` guidance surfaced to the user matches
 the user's chosen working-style persona (terse vs. detail-hound, etc.), while the
@@ -319,26 +319,26 @@ yet written at time of this spec; cited here as the intended mechanism, not
 duplicated). The Doctor-specific lifecycle, matching `wireframes/magic/script-doctor.html`
 SD-1's "Fix 1 of 11... APPLY / SKIP / EDIT" flow:
 
-1. `draft` — the `TreatmentPlan` is generated (deterministic pass results are
+1. `draft` - the `TreatmentPlan` is generated (deterministic pass results are
    immediate; AI-tier treatments require the provider round-trip described above).
-2. `validate` — each `Treatment`'s `after` text is re-run through the same
+2. `validate` - each `Treatment`'s `after` text is re-run through the same
    deterministic passes that flagged it (does the proposed fix actually clear the
    finding it targets, and does it not introduce a NEW finding of equal or higher
    severity?). A treatment that fails its own validation is marked
-   `validationFailed` and is not offered for APPLY (only SKIP/EDIT) — the Doctor
+   `validationFailed` and is not offered for APPLY (only SKIP/EDIT) - the Doctor
    never proposes a fix it can't verify against its own rules.
 3. Per-treatment human decision, presented one at a time in finding-severity order
    (highest first, matching the wireframe's "Fix 1 of 11" numbering) or, for SD-2's
    full-card mode, as one accept/reject for the whole field-wide rewrite:
-   - `APPLY` — commit this treatment's diff into a staged working copy (not the
+   - `APPLY` - commit this treatment's diff into a staged working copy (not the
      source file yet).
-   - `SKIP` — discard this treatment; the underlying `Finding` remains open in the
+   - `SKIP` - discard this treatment; the underlying `Finding` remains open in the
      final report.
-   - `EDIT` — the human hand-edits the proposed `after` text before it is staged;
+   - `EDIT` - the human hand-edits the proposed `after` text before it is staged;
      the edited text is re-validated (step 2) before it can be applied.
-4. `commit` — once the human ends the session (or hits `APPLY ALL SAFE`, which
+4. `commit` - once the human ends the session (or hits `APPLY ALL SAFE`, which
    auto-applies only treatments whose target findings are `severity: low`/`medium`
-   AND passed validation with zero new findings introduced — never auto-applies a
+   AND passed validation with zero new findings introduced - never auto-applies a
    `high`/`critical` treatment or one that introduced any new finding, regardless of
    severity), the staged working copy is serialized back through the entity's codec
    and written to disk as one new Production history snapshot
@@ -347,7 +347,7 @@ SD-1's "Fix 1 of 11... APPLY / SKIP / EDIT" flow:
 
 ### Batch ward report
 
-`vaud doctor <folder> --batch` runs the deterministic tier (only — AI treatment is
+`vaud doctor <folder> --batch` runs the deterministic tier (only - AI treatment is
 never auto-run in batch mode; see Non-goals) over every Character/Lorebook/Preset
 file found, in parallel, and produces a `WardReport`: counts by band
 (`admitted`=total, `critical`, `stable`, `clean` per the score bands table), then a
@@ -533,10 +533,10 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 1. **A card with zero findings.** `score: 100`, `band: 'clean'`, `findings: []`.
    `vaud doctor` still prints a success line ("discharged clean," matching the
    wireframe's `+ VESPER.png ... health 89 · discharged clean` phrasing pattern for
-   the batch view) rather than no output — a clean result is itself information.
+   the batch view) rather than no output - a clean result is itself information.
 2. **A field is empty** (e.g. `alternateGreetings: []`, `systemPrompt: ""`). No
    findings generated for that field by any pass (nothing to scan); this is distinct
-   from a "missing required field" check, which this spec does NOT define — required-
+   from a "missing required field" check, which this spec does NOT define - required-
    ness is a codec/validation concern (`vaud validate`, out of this spec's scope, see
    Non-goals) not a Doctor health concern.
 3. **Two slop banks with overlapping `entries` both hit the same span of text.**
@@ -552,12 +552,12 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
    card** (e.g. one bank bans a phrase another bank's `replace` guidance recommends).
    Both findings surface normally; the AI treatment tier's per-field batched call
    receives both `replace` guidances and must reconcile the conflict in its rewrite
-   (documented tension, not resolved deterministically) — the deterministic tier
+   (documented tension, not resolved deterministically) - the deterministic tier
    does not suppress either finding, it is not equipped to arbitrate.
 5. **A malformed slop-bank Markdown file** (missing required frontmatter, a `kind:
    pattern` bank with no compilable regex in its body). `loadSlopBanks` skips the
    file, adds a `warnings` entry naming the file and the reason, and continues
-   loading the rest — one bad user-authored bank file must never crash `vaud doctor`
+   loading the rest - one bad user-authored bank file must never crash `vaud doctor`
    for every other file in the search path.
 6. **Pronoun-consistency false positive on an intentionally mixed-pronoun
    character** (nonbinary character switching pronouns in-fiction, or a
@@ -577,7 +577,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
    entirely (a preset has no personality/greeting fields to examine) and do not
    appear in the report's `warnings` (this is expected scoping, not a load failure).
 9. **AI treatment planner call fails or times out mid-plan** (provider adapter
-   error — `specs/engine/key-vault.md`/provider-adapters territory). The deterministic
+   error - `specs/engine/key-vault.md`/provider-adapters territory). The deterministic
    `DoctorReport` that was already computed is unaffected and still returned/printed;
    only the `TreatmentPlan` step fails, surfaced as a typed `ProviderError` with
    `userMessage` (docs/03-CONVENTIONS.md error-class rule), never silently downgrading
@@ -591,7 +591,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 11. **Batch ward round on a folder containing a file that fails to parse at all**
     (corrupt PNG, invalid JSON). That file gets a `WardReportLine` with `score: 0`,
     `band: 'critical'`, and its sole finding is the `format`-pass `severity: critical`
-    parse failure (edge case 1 of this pass, described in pass 1 above) — it is
+    parse failure (edge case 1 of this pass, described in pass 1 above) - it is
     still `admitted` to the ward, not silently excluded from the count.
 12. **A `Treatment`'s `EDIT`-submitted human replacement text fails re-validation**
     (step 2 of the staged-approval lifecycle). The treatment stays in `edited` status
@@ -603,41 +603,41 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 ## Test plan
 
 - Fixtures required, under `fixtures/script-doctor/`:
-  - `clean-card.json` — zero findings across all passes, asserts `score: 100`.
-  - `age-contradiction.json` — two distinct stated ages, asserts exactly one
+  - `clean-card.json` - zero findings across all passes, asserts `score: 100`.
+  - `age-contradiction.json` - two distinct stated ages, asserts exactly one
     `contradiction` finding with both spans in `relatedFindingIds`-equivalent linkage.
-  - `pronoun-drift.json` and `pronoun-intentional-mixed.json` — the heuristic firing
+  - `pronoun-drift.json` and `pronoun-intentional-mixed.json` - the heuristic firing
     correctly and firing on the accepted-false-positive case (edge case 6), asserting
     the finding still appears (regression guard against someone "fixing" the false
     positive by silently suppressing it, which would violate edge case 6's stated
     contract).
-  - `wpp-relic-full-block.json` and `wpp-relic-single-quote.json` — density-based
+  - `wpp-relic-full-block.json` and `wpp-relic-single-quote.json` - density-based
     severity scaling (pass 6), `high` vs `low`.
   - `speaks-for-user-greeting.json` and `speaks-for-user-scenario-false-positive-guard.json`
-    — confirms the pass fires on greeting/example-dialogue and does NOT fire on
+    - confirms the pass fires on greeting/example-dialogue and does NOT fire on
     ordinary `scenario` prose describing typical user behavior.
-  - `slop-bank-hit-single.json` and `slop-bank-hit-overlapping-banks.json` — basic
+  - `slop-bank-hit-single.json` and `slop-bank-hit-overlapping-banks.json` - basic
     hit plus edge case 3 (two banks, one span, both findings kept, score summed).
-  - `macro-lint-orphan-terminator.json`, `macro-lint-unknown-macro.json` — delegates
+  - `macro-lint-orphan-terminator.json`, `macro-lint-unknown-macro.json` - delegates
     correctly to `packages/macros`'s lint entry point without invoking evaluation.
-  - `lorebook-dead-config-delay-recursion.json` — the exact scenario from
+  - `lorebook-dead-config-delay-recursion.json` - the exact scenario from
     `specs/engine/lorebook-engine.md` Edge case 3, cross-checked byte-for-byte
     against that spec's described combination.
   - `token-waste-cross-field-duplication.json`, `token-waste-whitespace.json`,
-    `token-waste-runon-sentence.json` — one fixture per sub-check.
-  - `preset-scope-gating.json` — a `Preset` examination, asserts only the three
+    `token-waste-runon-sentence.json` - one fixture per sub-check.
+  - `preset-scope-gating.json` - a `Preset` examination, asserts only the three
     applicable passes ran (edge case 8).
-  - `malformed-slop-bank.md` (loader-side fixture, not entity-side) — asserts
+  - `malformed-slop-bank.md` (loader-side fixture, not entity-side) - asserts
     `loadSlopBanks` skips-and-warns rather than throwing (edge case 5).
   - `corrupt-file-in-ward-round/` (a folder fixture with one valid + one corrupt
-    file) — asserts `runWardRound` still admits the corrupt file at `score: 0`
+    file) - asserts `runWardRound` still admits the corrupt file at `score: 0`
     (edge case 11).
 - Round-Trip Law applicability: none directly (the Doctor never serializes on its
-  own — `applyTreatments` returns an in-memory entity that the caller serializes
+  own - `applyTreatments` returns an in-memory entity that the caller serializes
   through the entity's own codec, which IS subject to the Round-Trip Law, but that
   law is the codec spec's responsibility, not this one's). A property test SHOULD
   assert that `applyTreatments` followed by the entity's codec `serialize()` produces
-  a file that still round-trips per the target codec's own Round-Trip Law fixtures —
+  a file that still round-trips per the target codec's own Round-Trip Law fixtures -
   cross-referenced here, owned there.
 - Property/unit tests beyond fixtures:
   - Health score formula: `score` is a pure function of `findings` (same input,
@@ -649,18 +649,18 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
     `validationFailed` one, property-checked over randomly generated
     `TreatmentPlan`s with mixed severities/statuses.
   - `renderWardReportMarkdown` output is stable (same `WardReport` input -> byte-
-    identical Markdown across two calls) — required for the "diffable document"
+    identical Markdown across two calls) - required for the "diffable document"
     claim under "Batch ward report."
   - `loadSlopBanks` on the full starter-bank corpus (once ported/adapted from
     VAUDEVILLE's `anti-slop-banks/`, see Non-goals on porting scope) never produces
-    a `warnings` entry — the shipped banks must always parse cleanly.
+    a `warnings` entry - the shipped banks must always parse cleanly.
 
 ## Non-goals
 
 - Does not run any pass on chat-generated text (a model's actual roleplay output).
   The Doctor examines *authored* card/lorebook/preset content only. VAUDEVILLE's
   anti-slop system (which this spec's bank format borrows from) screens live
-  generations during chat — that is explicitly out of scope; the Test Stage
+  generations during chat - that is explicitly out of scope; the Test Stage
   (`specs/features/test-stage.md`) is where generated text would eventually be
   evaluated, if ever, and that is a separate future decision, not part of M3.
 - Does not port VAUDEVILLE's `apps/rc/anti-slop-banks/` corpus or its codegen
@@ -670,21 +670,21 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
   patterns like "shivers down her spine" are genre-agnostic prose slop, not
   proprietary to VAUDEVILLE) but the file format, loader, and matcher are
   independent implementations.
-- Does not implement `vaud validate` (schema/required-field validation) — that is
+- Does not implement `vaud validate` (schema/required-field validation) - that is
   a codec-layer concern (escrow-and-roundtrip.md's `ParseReport`/`SerializeReport`,
   surfaced through `specs/features/cli-converter.md`) that the Doctor's `format`
   pass *reads from* but does not itself compute.
   - Does not resolve contradiction candidates automatically in the deterministic
-  tier — resolution (deciding which of two conflicting values is correct) always
+  tier - resolution (deciding which of two conflicting values is correct) always
   requires either AI treatment judgment or a human decision.
-- Does not auto-run AI treatment in batch/ward-round mode — batch mode is
+- Does not auto-run AI treatment in batch/ward-round mode - batch mode is
   deterministic-tier only, by design (running an AI treatment pass unattended
   across dozens of files with no per-fix approval would violate the "fix-by-fix
   staged approval" principle this spec exists to uphold). A future `--batch-ai`
   mode that stages plans for every file without auto-applying anything is a
   plausible M3+ extension but is not specified here.
 - Does not define the terminal/TUI or app-face rendering beyond the plain-text and
-  Markdown shapes described above — actual pixel/layout design is the wireframe's
+  Markdown shapes described above - actual pixel/layout design is the wireframe's
   and, later, the Studio's concern.
 - Does not implement embeddings-based or fully semantic contradiction/slop
   detection. Every deterministic-tier pass in this spec is regex/heuristic-based by
@@ -698,7 +698,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 - `docs\01-VISION.md` pillar 3 ("The
   Doctor is honest... Deterministic checks... run free and offline. AI treatment is
   optional, staged, and approved fix-by-fix. The tool proves what it did in plain
-  terms.") — the section this spec is a direct implementation of.
+  terms.") - the section this spec is a direct implementation of.
 - `docs\02-ARCHITECTURE.md`
   (`packages/doctor` description; staged-edit envelope description under "The
   agent"; dependency rule `core <- formats <- everything`).
@@ -711,9 +711,9 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
   (shared envelope shape; "An embedded lorebook is a REFERENCE" rule 3; prompt-
   bearing field list, "Design rules" 1).
 - `specs\formats\escrow-and-roundtrip.md`
-  ("Reports" section — `ParseReport`/`SerializeReport` shape the `format` pass reads).
+  ("Reports" section - `ParseReport`/`SerializeReport` shape the `format` pass reads).
 - `specs\engine\token-counting.md` (full
-  file — `TokenCounter` interface, "works with zero AI key" precedent this spec's
+  file - `TokenCounter` interface, "works with zero AI key" precedent this spec's
   deterministic tier follows).
 - `specs\engine\lorebook-engine.md`
   Edge case 3 (dead-config `delayUntilRecursion` combination, explicitly names this
@@ -722,24 +722,24 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
   16-27 (explicitly names "the Script Doctor's macro lint pass" as a consumer,
   non-evaluating).
 - `wireframes\magic\script-doctor.html`
-  (full file — SD-1 "Examination Room" fix-by-fix flow and tile layout, SD-2
+  (full file - SD-1 "Examination Room" fix-by-fix flow and tile layout, SD-2
   "Before & After" full-card diff mode, SD-3 "Waiting Room" batch ward-round report
   shape and phrasing, all directly cited above).
 - `templates\SPEC-TEMPLATE.md` (section
   structure followed).
 - `<RoleCall>\apps\rc\src\lib\post-gen-actions\slopism-sets.ts`
   lines 1-120 (`SlopismBank`/`SlopismKind`/`SlopismScope` shape, `normalizeEntry`,
-  `entryDedupeForms`) — cited as informative precedent for the slop-bank file
+  `entryDedupeForms`) - cited as informative precedent for the slop-bank file
   format only, per the file-format field-map table above; this is a live-chat
   post-generation screening system, not a card auditor, so it is adapted, not
   ported.
 - `<RoleCall>\apps\rc\anti-slop-banks\genre\academia.md`
   lines 1-60 (concrete on-disk bank file shape: YAML frontmatter + Markdown body
-  list — confirms banks are authored as loose `.md` files with a codegen step in
+  list - confirms banks are authored as loose `.md` files with a codegen step in
   VAUDEVILLE, which this spec's loader replaces with direct `.md` loading, no
   codegen; see Non-goals).
 - W++ character-format syntax: "W++ For Dummies," https://rentry.co/WPP_For_Dummies
-  (accessed via web search, 2026-07) — confirms the
+  (accessed via web search, 2026-07) - confirms the
   `[Character("Name"){ Attribute("value1" + "value2") ... }]` bracket/quote/plus
   syntax cited in pass 6. No VAUDEVILLE source implements or documents W++ handling,
   so this is verified against the public community reference per
@@ -750,7 +750,7 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 
 OPEN QUESTION: the health-score deduction weights (25/8/3/1 per severity) and the
 band thresholds (0-49/50-79/80-100) are this spec's proposal, not derived from any
-existing VAUDEVILLE or wireframe-documented formula — the wireframe shows example
+existing VAUDEVILLE or wireframe-documented formula - the wireframe shows example
 numbers (61, 89, 31, 44, 68) consistent with these bands but was not built against
 an explicit formula. Needs tuning against the real fixture corpus before M3 locks
 the constants; treat the numbers in this spec as a starting point, not a final
@@ -759,7 +759,7 @@ answer.
 OPEN QUESTION: whether `packages/doctor`'s slop-bank starter corpus should be
 authored fresh for M3 or whether a licensing/content review of adapting phrase
 lists from VAUDEVILLE's `anti-slop-banks/` corpus (Chi owns both codebases, per
-ADR-004) is acceptable reuse versus fresh authorship — this spec assumes fresh
+ADR-004) is acceptable reuse versus fresh authorship - this spec assumes fresh
 authorship (see Non-goals) but the actual decision belongs to whoever scopes the
 M3 slop-bank-corpus ticket.
 

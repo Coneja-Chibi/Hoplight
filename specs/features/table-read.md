@@ -4,12 +4,12 @@
 **Depends on:** `specs/formats/canonical-model.md` (Character/Lorebook/Persona entity
 shapes, `Entity<T>` envelope), `specs/formats/escrow-and-roundtrip.md` (deliverables are
 written as normal canonical entities and therefore inherit escrow/report semantics on
-first serialize), `specs/engine/key-vault.md` (`resolveRole('interview')` — the model
+first serialize), `specs/engine/key-vault.md` (`resolveRole('interview')` - the model
 role this engine calls), `specs/engine/productions-and-history.md` (`writeEntity` /
-`commitSnapshot` — where finished deliverables land), `specs/features/personas-system.md`
-(NOT YET WRITTEN at time of this spec — the six house interviewer voices and the
+`commitSnapshot` - where finished deliverables land), `specs/features/personas-system.md`
+(NOT YET WRITTEN at time of this spec - the six house interviewer voices and the
 persona-loading contract this engine calls through the persona voice hook; see OPEN
-QUESTION 1) · **VAUDEVILLE reference:** none — the Table Read has no VAUDEVILLE
+QUESTION 1) · **VAUDEVILLE reference:** none - the Table Read has no VAUDEVILLE
 precedent; it is a wholly new component designed fresh from `docs/01-VISION.md` pillar 2,
 the master plan (private planning notes)/`docs/ROADMAP.md` M4 scope, and `wireframes/magic/table-read.html`
 (intent only, not a literal UI spec), per the ground-truth column in
@@ -20,14 +20,14 @@ the production bible (private planning notes) line 76.
 The Table Read is the interview engine that creates a character (and optionally a
 starter lorebook, alternate greetings, and a persona for the user) by conversation
 instead of form-filling. It is `packages/interview`: a UI-agnostic event-stream engine
-with zero rendering code — the CLI's interactive prompt and, later, the Studio app
+with zero rendering code - the CLI's interactive prompt and, later, the Studio app
 (`apps/studio`, M6) both drive the exact same engine through the exact same event
 protocol, per `docs/02-ARCHITECTURE.md`'s dependency rule ("the studio is forbidden from
 having private engine capabilities"). It asks questions (as freeform text, quick-pick
 chips, or both), reads the user's energy to decide whether to shorten or deepen the
 interview, assembles a canonical `Character` (and sibling entities) live as answers
 arrive, and hands the caller a finished deliverable bundle at the end. It requires an AI
-key (`ModelRole: "interview"`, `specs/engine/key-vault.md`) — this is the "first AI
+key (`ModelRole: "interview"`, `specs/engine/key-vault.md`) - this is the "first AI
 moment" `docs/decisions/ADR-006-ai-and-agent.md` §2 describes; everything upstream of
 it (the Converter, inspect/validate) works with zero keys, but the Table Read cannot,
 because generating adaptive questions and drafting prose fields is exactly what the
@@ -40,18 +40,18 @@ rendering surface.
 
 ### Vocabulary
 
-- **Session** — one Table Read run, from `startSession()` to a terminal state
+- **Session** - one Table Read run, from `startSession()` to a terminal state
   (`completed`, `abandoned`, or `errored`). One session produces at most one deliverable
   bundle.
-- **Turn** — one question-answer round. A turn may consume more than one interview
+- **Turn** - one question-answer round. A turn may consume more than one interview
   "slot" if the user's answer front-loads multiple fields at once (see Adaptive depth).
-- **Field target** — a canonical field path the engine is trying to fill, expressed as
+- **Field target** - a canonical field path the engine is trying to fill, expressed as
   a dotted path into the entity being assembled (e.g. `character.data.personality`,
   `character.data.alternateGreetings[1]`, `lorebook.entries[0].content`). Field targets
   are how the engine tracks completion; they are not necessarily 1:1 with questions
   (one question can target several fields, one field can take several questions to
   fill satisfactorily).
-- **Living document** — the in-progress `Character` (+ sibling entities) the session is
+- **Living document** - the in-progress `Character` (+ sibling entities) the session is
   assembling. It exists only in engine memory until the session completes or the caller
   explicitly persists a draft (see "Crash/resume," edge case 8). The wireframe's
   "Living Card" (`wireframes/magic/table-read.html` lines 40-76) is a rendering of this
@@ -65,14 +65,14 @@ Selected in session settings before `startSession()` (or defaulted); source: wir
 
 | Tempo | Question budget | Chip policy | Adaptive depth | Typical use |
 |---|---|---|---|---|
-| `cold-read` | ~5 questions, hard ceiling 8 | chips + freeform | shorten-only (never deepens past the ceiling) | "I just want to try this thing" — fastest path to a playable card |
+| `cold-read` | ~5 questions, hard ceiling 8 | chips + freeform | shorten-only (never deepens past the ceiling) | "I just want to try this thing" - fastest path to a playable card |
 | `deep-dive` | ~12-20 questions, adaptive | chips + freeform | full (shortens AND deepens) | the full interview: contradiction hunting, voice calibration, example-dialogue rehearsal |
-| `rapid-fire` | fixed wall-clock budget (default 90s), chip count target ~30 | chips-only (freeform disabled) | none — timer-driven, not signal-driven | a timed lightning round; explicitly opts out of adaptive depth in exchange for a hard time box |
+| `rapid-fire` | fixed wall-clock budget (default 90s), chip count target ~30 | chips-only (freeform disabled) | none - timer-driven, not signal-driven | a timed lightning round; explicitly opts out of adaptive depth in exchange for a hard time box |
 
 Rules:
 
 1. `cold-read`'s adaptive depth only ever shortens (skips a planned question whose
-   field target is already satisfied) — it never inserts a follow-up beyond the stated
+   field target is already satisfied) - it never inserts a follow-up beyond the stated
    ceiling, because Cold Read's promise (`docs/ROADMAP.md` line 53: "Cold Read produces
    a playable card in under 5 minutes in the terminal") is a hard latency budget, not a
    quality ceiling. A contradiction detected during Cold Read is recorded on the
@@ -81,7 +81,7 @@ Rules:
 2. `rapid-fire` uses a wall-clock `progress` signal (`phase: 'gathering'`,
    `percentComplete` computed from elapsed time / budget), not a question-count signal,
    because the mode's defining property is the timer, not the count. `chips`-only means
-   `AnswerEvent.freeform` is never accepted in this tempo — a `submitAnswer()` call with
+   `AnswerEvent.freeform` is never accepted in this tempo - a `submitAnswer()` call with
    `kind: 'freeform'` during `rapid-fire` is rejected (edge case 6).
 3. `deep-dive` is the only tempo where the "fixed count" settings-surface override
    (see Settings surface, below) is meaningful; `cold-read` and `rapid-fire` have their
@@ -97,7 +97,7 @@ bar, so I'll stop asking about setting" / "3, but she hates that she does it" ->
 "That self-loathing generosity is the best thing she has") is the behavioral target
 these heuristics are built to reproduce.
 
-After every `AnswerEvent` (except in `rapid-fire`, which skips this step entirely — see
+After every `AnswerEvent` (except in `rapid-fire`, which skips this step entirely - see
 above), the engine makes one `ModelRole: "interview"` call to score the answer against
 the **not-yet-satisfied** field targets in the session's plan. The scoring call returns
 an `AnswerSignal`:
@@ -125,7 +125,7 @@ Decision rules, applied in this order after every scored answer:
    logged to session notes instead.
 2. **Deflection -> re-ask, do not deepen or shorten.** If `isDeflection` is true, the
    engine re-poses the same question once (optionally rephrased by the persona voice
-   hook — see below) rather than treating the deflection as an answer to score against
+   hook - see below) rather than treating the deflection as an answer to score against
    field targets. A second consecutive deflection on the same field target causes the
    engine to mark that field target `skipped: 'user-deflected'` and move on (a session
    must always terminate; it cannot loop forever on one question).
@@ -133,7 +133,7 @@ Decision rules, applied in this order after every scored answer:
    `incidentalCoverage` that still has a planned question in the queue, remove that
    planned question and mark the field target `filled: 'incidental'` with the covering
    answer's text as its provisional value (subject to the same field-patch flow as a
-   directly-asked answer — see Field patches, below). This is the mechanism behind the
+   directly-asked answer - see Field patches, below). This is the mechanism behind the
    wireframe's "skips granted: setting (you fed it plenty)" note.
 4. **Low specificity on a load-bearing field -> deepen.** Field targets are tagged
    `weight: 'load-bearing' | 'supporting'` in the question plan (load-bearing:
@@ -141,7 +141,7 @@ Decision rules, applied in this order after every scored answer:
    `creatorNotes`, cosmetic/identity fields). If `specificity < 0.4` on a load-bearing
    field target in `deep-dive`, insert one follow-up question for that same field
    before advancing the plan. A field target is deepened at most once per session
-   (no infinite deepening loop) — if the follow-up answer is also low-specificity, the
+   (no infinite deepening loop) - if the follow-up answer is also low-specificity, the
    engine accepts it, marks the field target `filled: 'accepted-vague'`, and surfaces
    that flag in the deliverable's session notes for the user (or a later Script Doctor
    pass) to revisit.
@@ -156,7 +156,7 @@ buffer, default 2 extra questions) is exhausted, and the engine moves to wrap-up
 prompt rather than individual questions).
 
 OPEN QUESTION 2: the exact `specificity < 0.4` and buffer-of-2 constants above are this
-spec's proposed defaults, not measured from any existing product — `docs/ROADMAP.md`'s
+spec's proposed defaults, not measured from any existing product - `docs/ROADMAP.md`'s
 M4 exit criterion ("Deep Dive produces a card that beats a hand-written baseline in a
 blind vibe-check by Chi") is a taste judgment, not a numeric target, so these constants
 should be treated as tunable and revisited once real sessions exist to calibrate
@@ -165,15 +165,15 @@ against, not treated as load-bearing spec facts.
 ### The event stream protocol
 
 The engine exposes one duplex channel: it emits a stream of `TableReadEvent`s, and the
-caller feeds answers back in via `submitAnswer()` (a method call, not a stream event —
+caller feeds answers back in via `submitAnswer()` (a method call, not a stream event -
 but every accepted answer is echoed back into the outgoing stream as an `AnswerEvent`
-immediately after validation, so a UI — or a recorder building the "cold-read
-transcript" fixtures below — can treat the single outgoing stream as the complete,
+immediately after validation, so a UI - or a recorder building the "cold-read
+transcript" fixtures below - can treat the single outgoing stream as the complete,
 replayable transcript of the session without needing to separately log its own calls
 into the engine). This satisfies `docs/ROADMAP.md` line 48's "question -> chips ->
 answer -> field-patch events" and the production bible (private planning notes) line 76's "progress"
 event, plus two lifecycle bookends and an error channel needed for any real UI to
-function (session-started/session-ended/error — infrastructure, not a deviation from
+function (session-started/session-ended/error - infrastructure, not a deviation from
 the five named event kinds).
 
 Every event carries `sessionId` and a monotonic `seq` (per-session, starting at 0) so a
@@ -192,27 +192,27 @@ type TableReadEvent =
   | ErrorEvent;
 ```
 
-1. **`SessionStartedEvent`** — emitted once, first event in every session. Carries the
+1. **`SessionStartedEvent`** - emitted once, first event in every session. Carries the
    resolved `TableReadSettings` (after defaults applied) so the UI never has to
    separately re-fetch what it asked for.
-2. **`QuestionEvent`** — one per question actually asked (post-adaptive-depth
-   filtering — a question that was skipped by rule 3 above never gets a `QuestionEvent`
+2. **`QuestionEvent`** - one per question actually asked (post-adaptive-depth
+   filtering - a question that was skipped by rule 3 above never gets a `QuestionEvent`
    at all, it goes straight to a `FieldPatchEvent` with `source: 'incidental'`).
    Carries the interviewer's rendered question text (already passed through the
-   persona voice hook — see below), the field target(s) it's aimed at, and whether
+   persona voice hook - see below), the field target(s) it's aimed at, and whether
    freeform is accepted for this question (`allowFreeform`, always `false` in
    `rapid-fire`).
-3. **`ChipsEvent`** — emitted immediately after a `QuestionEvent` that has quick-pick
+3. **`ChipsEvent`** - emitted immediately after a `QuestionEvent` that has quick-pick
    options, never standalone. Zero or more chips plus, when `allowFreeform` is true on
    the paired question, an implicit "write my own" affordance the UI renders itself
-   (the engine does not emit a chip object for "write my own" — it's implied by
+   (the engine does not emit a chip object for "write my own" - it's implied by
    `allowFreeform`, not a `ChipSpec`). A question with `allowFreeform: false` and zero
    chips is a contract violation the engine must never produce (edge case 9).
-4. **`AnswerEvent`** — emitted once per accepted `submitAnswer()` call (the echo
+4. **`AnswerEvent`** - emitted once per accepted `submitAnswer()` call (the echo
    described above), after validation but before any field-patch/adaptive-depth
    processing, so a listener sees "here is what was accepted" before "here is what it
    changed."
-5. **`FieldPatchEvent`** — one or more per answer, as the living document updates.
+5. **`FieldPatchEvent`** - one or more per answer, as the living document updates.
    Streaming AI-drafted fields (e.g. example dialogue being composed token-by-token,
    per the wireframe's "Example Dialogue · writing now" live block) emit a sequence of
    `status: 'writing'` patches with growing partial `value`, terminated by exactly one
@@ -221,27 +221,27 @@ type TableReadEvent =
    patch. A field target that is about to be asked about but has no content yet may
    optionally get a `status: 'queued'` patch when the plan is built or re-planned, so a
    UI can render the wireframe's "Scenario · queued" placeholder before the question
-   for it is even reached — this is optional (engines MAY emit it), never required for
+   for it is even reached - this is optional (engines MAY emit it), never required for
    correctness, since `queued` carries no value and changes nothing about the living
    document.
-6. **`ProgressEvent`** — emitted after every turn (question answered and its
+6. **`ProgressEvent`** - emitted after every turn (question answered and its
    field-patches settled) and at phase transitions. `phase` moves
    `'gathering' -> 'assembling' -> 'reviewing' -> 'done'` monotonically (never
    backward). `'assembling'` covers any post-interview AI passes the settings surface
    requested (e.g. drafting alternate greetings not directly asked about turn-by-turn);
    `'reviewing'` is reserved for a future confirm-before-write step (see OPEN QUESTION
    3) and MAY be skipped straight to `'done'` in M4's first cut.
-7. **`DeliverableReadyEvent`** — emitted once, when the deliverable bundle (see below)
+7. **`DeliverableReadyEvent`** - emitted once, when the deliverable bundle (see below)
    has been fully assembled and validated against the canonical schema (zod parse of
    every produced entity succeeds). Carries the bundle manifest (entity kinds produced
-   + their in-memory `Entity<T>` payloads) but does NOT itself write anything to disk —
+   + their in-memory `Entity<T>` payloads) but does NOT itself write anything to disk -
    persistence is the caller's job via `packages/productions`' `writeEntity`/
    `commitSnapshot` (see "Deliverable bundles").
-8. **`SessionEndedEvent`** — always the last event of a session. `reason`:
+8. **`SessionEndedEvent`** - always the last event of a session. `reason`:
    `'completed'` (a `DeliverableReadyEvent` preceded it), `'abandoned'` (caller called
    `abandonSession()`), or `'errored'` (an unrecoverable error occurred; an `ErrorEvent`
    with `fatal: true` immediately precedes it).
-9. **`ErrorEvent`** — non-fatal errors (a single model call failed and was retried,
+9. **`ErrorEvent`** - non-fatal errors (a single model call failed and was retried,
    a chip's referenced value failed validation) are informational and do not end the
    session; fatal errors (the model role has no key configured, the provider is
    unreachable after retries) set `fatal: true` and are always immediately followed by
@@ -350,31 +350,31 @@ interface TableReadSettings {
     card: true;                                        // always true; a session with no card is not a Table Read
     starterLorebook: boolean;                           // default: false
     alternateGreetings: number;                          // count to draft, default: 0
-    personaForUser: boolean;                             // default: false — see "Persona for you", edge case 11
+    personaForUser: boolean;                             // default: false - see "Persona for you", edge case 11
   };
-  targetFormat: "universal" | "chara-card-v3" | "rolecall-native"; // default: "universal" — see below
+  targetFormat: "universal" | "chara-card-v3" | "rolecall-native"; // default: "universal" - see below
   voiceCalibration: { rehearseSampleLines: number } | { skip: true }; // default: { rehearseSampleLines: 2 }
   production?: { root: string } | { library: true };   // where the finished bundle is written; default: library mode
 }
 ```
 
-`targetFormat` does not change which canonical fields the engine fills — the living
-document is always a full canonical `Character` regardless of target — it changes
+`targetFormat` does not change which canonical fields the engine fills - the living
+document is always a full canonical `Character` regardless of target - it changes
 **which optional format-specific field targets get asked about at all**. `"universal"`
 (the wireframe's default-selected chip) asks only format-neutral questions (the
 prompt-bearing fields listed in `specs/formats/canonical-model.md` "Design rules" #1)
 plus common identity/presentation fields; `"rolecall-native"` additionally asks about
-RC-only fields (tagline, palette, prompt-depth injections — see
+RC-only fields (tagline, palette, prompt-depth injections - see
 `specs/formats/canonical-model.md` "RoleCall native" bullet) that a universal/ST-v3
 target would never surface, since asking about a field the target format can't express
 wastes the user's time. `"chara-card-v3"` asks about V3-only fields (nickname,
 multilingual notes, `group_only_greetings`) but not RC-native ones. Regardless of
-`targetFormat`, the produced entity is always the full canonical model — `targetFormat`
+`targetFormat`, the produced entity is always the full canonical model - `targetFormat`
 only affects the **question plan**, not the deliverable's shape; a later `vaud export`
 against a different target format is always possible and loses nothing that was
 actually asked about (any RC-native field the user never got asked about because
 `targetFormat` was `"universal"` simply stays empty/default, it is not escrowed or
-blocked — that is a codec-serialize-time concern, not this engine's).
+blocked - that is a codec-serialize-time concern, not this engine's).
 
 "Voice calibration" (wireframe: "Rehearse 2 sample lines with me") runs after the main
 interview, during `phase: 'assembling'`: the engine proposes N candidate lines of
@@ -382,7 +382,7 @@ dialogue for the character (drafted from the assembled living document) and asks
 user to pick/edit one, feeding the accepted line back in as a steer on
 `exampleDialogue`/`firstMessage` drafting before those fields are finalized. This is
 modeled as ordinary `question`/`chips`/`answer`/`field-patch` events like any other
-turn — it is not a separate protocol.
+turn - it is not a separate protocol.
 
 ### Deliverable bundles
 
@@ -406,7 +406,7 @@ interface DeliverableBundle {
 ```
 
 Every produced entity is a normal `Entity<T>` per `specs/formats/canonical-model.md`
-("Shared envelope") — `id` freshly assigned (ulid), `escrow: {}` (nothing to escrow yet;
+("Shared envelope") - `id` freshly assigned (ulid), `escrow: {}` (nothing to escrow yet;
 the entity was never parsed from a foreign format), `meta.origin: { format: "vaud-table-read" }`.
 The character's embedded lorebook reference (canonical rule: "An embedded lorebook is a
 REFERENCE to a canonical Lorebook entity, not an inline blob," `canonical-model.md` line
@@ -416,13 +416,13 @@ Persistence is caller-driven, not engine-driven: on receiving `DeliverableReadyE
 the caller (CLI command or Studio) calls `packages/productions`'
 `writeEntity(production, entity)` for each entity in the bundle, then
 `commitSnapshot(production, "manual", "Table Read: <character name>")` once. The engine
-itself never touches the filesystem or imports `packages/productions` — this keeps
+itself never touches the filesystem or imports `packages/productions` - this keeps
 `packages/interview` UI-agnostic AND production-agnostic, consistent with the
-dependency rule in `docs/02-ARCHITECTURE.md` ("`core <- formats <- everything`" — an
+dependency rule in `docs/02-ARCHITECTURE.md` ("`core <- formats <- everything`" - an
 engine package does not reach sideways into another engine package's storage concerns).
 
 `sessionNotes` is not written into any entity's escrow (escrow is reserved for
-source-format fields per `escrow-and-roundtrip.md` rule 1 — session notes are not a
+source-format fields per `escrow-and-roundtrip.md` rule 1 - session notes are not a
 source-format field, they're this engine's own bookkeeping) and is not part of the
 canonical `Character` schema either. It is returned to the caller alongside the bundle
 for the caller to surface (e.g. hand off to `specs/features/script-doctor.md`'s
@@ -430,33 +430,33 @@ contradiction pass as a head start) or discard.
 
 ### Field patches and the living document
 
-The living document is not exposed as a queryable object on the public API — callers
+The living document is not exposed as a queryable object on the public API - callers
 reconstruct it by folding the `field-patch` stream (this is deliberate: it forces every
 consumer, including a future Studio app, to render from the same event log rather than
 polling an ad hoc "get current state" method that could drift from what was actually
 streamed). A reference fold function is provided for convenience:
 
-`foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>` — applies patches in
+`foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>` - applies patches in
 `seq` order; `op: 'set'` replaces the field target's value outright (used for the final
 `status: 'done'` patch of a streaming sequence, and for any single-shot patch);
 `op: 'append'` concatenates onto the field target's current string value (used only for
-`status: 'writing'` intermediate patches on streamed fields — a `'writing'` patch is
+`status: 'writing'` intermediate patches on streamed fields - a `'writing'` patch is
 always `op: 'append'`, a `'done'` patch is always `op: 'set'` with the complete final
 value, so a fold can also just wait for `'done'` patches and ignore `'writing'` ones
 entirely if it only needs final state, not live streaming); `op: 'delete'` clears the
 field target back to canonical-default/unset (used when an answer retracts something,
 e.g. the user edits a previously-accepted field via the wireframe's "every field is
-click-to-edit; the interview reroutes" affordance — see edge case 4).
+click-to-edit; the interview reroutes" affordance - see edge case 4).
 
 ### Persona voice hook
 
-The Table Read's questions are voiced by an **interviewer persona** — the wireframe
+The Table Read's questions are voiced by an **interviewer persona** - the wireframe
 shows "Understudy," "Prompter," "Props Master" as selectable interviewer personas
 (`wireframes/magic/table-read.html` line 131), which are the same "house personas"
 the production bible (private planning notes) line 78 assigns to `specs/features/personas-system.md`
 ("the six house personas fully written (Understudy, Prompter, Props Master, Director,
 Stage Mother + BYO)"). This spec does NOT define persona file format, the persona
-roster, or how a persona's voice/working-style/proactivity dials are authored — that is
+roster, or how a persona's voice/working-style/proactivity dials are authored - that is
 `personas-system.md`'s job, and it is not yet written (OPEN QUESTION 1). What this spec
 defines is the **hook contract** the Table Read calls through to render neutral
 question content into that persona's voice:
@@ -472,7 +472,7 @@ interface InterviewerVoiceHook {
   personaId: string;
   /** Renders one question's final text (and any chip label wording) in this persona's voice. */
   renderQuestion(spec: QuestionSpec): Promise<{ text: string; transitionNote?: string }>;
-  /** Renders a single re-ask (deflection handling, rule 2) — may rephrase, must preserve the field target. */
+  /** Renders a single re-ask (deflection handling, rule 2) - may rephrase, must preserve the field target. */
   renderReask(spec: QuestionSpec, previousText: string): Promise<{ text: string }>;
 }
 ```
@@ -484,12 +484,12 @@ exists); `packages/interview` has no compile-time dependency on
 so the two packages can be built and tested independently and `packages/interview`
 never needs to know the persona file format. If no hook is supplied, the engine falls
 back to emitting `neutralPrompt` verbatim as `QuestionEvent.text` with no
-`transitionNote` (a "no persona" degraded mode — useful for engine-level testing without
+`transitionNote` (a "no persona" degraded mode - useful for engine-level testing without
 `personas-system` wired up, and named explicitly here so implementers don't treat it as
 an error path).
 
 `renderQuestion`/`renderReask` are themselves `ModelRole: "interview"` calls (voicing
-is generative, per the wireframe's example transition commentary) — they run as part of
+is generative, per the wireframe's example transition commentary) - they run as part of
 the same interview model budget as the adaptive-depth scoring call, not a separate
 role.
 
@@ -562,7 +562,7 @@ export class TableReadSession {
 }
 
 /** Starts a new session. Resolves once SessionStartedEvent has been emitted (not once
- *  the session completes — callers drive it forward via submitAnswer as events arrive). */
+ *  the session completes - callers drive it forward via submitAnswer as events arrive). */
 export function startSession(
   settings: Partial<TableReadSettings>,
   options?: TableReadEngineOptions
@@ -575,17 +575,17 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
 
 1. **No AI key configured (`resolveRole('interview')` returns `null`).**
    `startSession()` rejects before emitting `SessionStartedEvent` at all (there is no
-   partial session to abandon) with a typed error naming this the "first AI moment" —
+   partial session to abandon) with a typed error naming this the "first AI moment" -
    the caller (CLI) is responsible for the first-key-ask UX per
    `docs/decisions/ADR-006-ai-and-agent.md` §2; the engine itself does not prompt for
    a key (`packages/interview` has no UI).
 2. **The model call backing adaptive-depth scoring or persona voicing fails
    transiently (network error, rate limit).** One retry with backoff; on continued
    failure, emit a non-fatal `ErrorEvent` and fall back to rule 5 (advance normally, no
-   shorten/deepen) for that turn rather than blocking the session — a scoring failure
+   shorten/deepen) for that turn rather than blocking the session - a scoring failure
    degrades the interview's smartness, it must never stall it.
 3. **The model call backing question/chip generation itself fails (not just
-   scoring).** This is more serious — there is no question to ask. Retry once; on
+   scoring).** This is more serious - there is no question to ask. Retry once; on
    continued failure, emit a fatal `ErrorEvent` and end the session with
    `reason: 'errored'`. `currentDraft()` remains available on the (now-ended) session
    object so the caller can offer "save what we have" rather than losing the partial
@@ -601,7 +601,7 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
 5. **`depthMode: { fixedCount: N }` where N is smaller than the number of load-bearing
    field targets alone.** The engine still asks about every load-bearing field at least
    once (load-bearing fields are never skipped by a fixed-count budget, only supporting
-   ones are) — `fixedCount` is a target for the TOTAL question count, honored on a
+   ones are) - `fixedCount` is a target for the TOTAL question count, honored on a
    best-effort basis by trimming supporting-field questions first, then by combining
    remaining supporting fields into the wrap-up "anything else?" prompt described under
    Adaptive depth; it is never honored by dropping a load-bearing field silently.
@@ -610,21 +610,21 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
    the currently open question remains open, no `AnswerEvent`/field-patch is emitted.
 7. **`submitAnswer()` called with a `questionId` that does not match the currently
    open question** (stale UI, double-submit, answering out of order). Rejected the same
-   way as edge case 6 — the engine only ever has one open question per session (no
+   way as edge case 6 - the engine only ever has one open question per session (no
    concurrent questions in v1; see Non-goals).
 8. **Process crash / app close mid-session.** `packages/interview` has no built-in
-   persistence (Non-goals) — an in-progress session's state lives only in engine memory
+   persistence (Non-goals) - an in-progress session's state lives only in engine memory
    and `on()` listeners. A caller that wants crash recovery must itself persist
    `currentDraft()` (and enough settings/turn state to reconstruct a fresh session
    continuing from there) via `packages/productions`, e.g. as a WIP entity file; this
    engine does not do that automatically. OPEN QUESTION 3: whether M4 needs a
    first-class "resume a Table Read session" capability (would require the engine to
    expose/accept a serializable session-state snapshot, not just field-patches) or
-   whether M4 ships "crash = start over" and resumability is deferred — the roadmap's
+   whether M4 ships "crash = start over" and resumability is deferred - the roadmap's
    M4 exit criterion doesn't mention resume, so this spec treats it as out of scope for
    the first cut, flagged here rather than silently assumed.
 9. **A `QuestionEvent` with `allowFreeform: false` and a paired `ChipsEvent` carrying
-   zero chips.** A contract violation the engine must never produce — every question
+   zero chips.** A contract violation the engine must never produce - every question
    must offer at least one way to answer it. If a question-planning step would produce
    this (e.g. an AI-generated chip set came back empty), the engine falls back to
    `allowFreeform: true` for that question rather than emitting a dead-end question,
@@ -634,7 +634,7 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
 10. **`deliverables.starterLorebook: false` but the interview naturally surfaces
     lorebook-shaped content** (the user volunteers backstory that reads like a lore
     entry, e.g. "she runs a bar called The Ledger"). The engine does not create a
-    lorebook entity when the setting is off, regardless of content shape — that
+    lorebook entity when the setting is off, regardless of content shape - that
     content stays in the `Character`'s prose fields (description/scenario) only. This
     keeps deliverable composition purely settings-driven, not content-inferred, so the
     bundle a session produces is always predictable from its settings alone.
@@ -642,7 +642,7 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
     representing the USER's roleplay persona (per `specs/formats/canonical-model.md`'s
     `Persona` content type), asked about via a short separate mini-plan appended after
     the character interview proper (distinct field targets, namespaced
-    `persona.data.*` rather than `character.data.*`) — this is NOT the same concept as
+    `persona.data.*` rather than `character.data.*`) - this is NOT the same concept as
     the "interviewer persona" (`interviewerPersonaId`) that voices the questions; the
     two uses of the word "persona" in this feature must not be conflated by an
     implementer (see Non-goals).
@@ -651,7 +651,7 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
     which should not exist by construction, but a malformed AI-generated chip set
     could produce one). The engine rejects the chip pick as if it were edge case 6
     (non-fatal error, question stays open) rather than committing an empty field-patch
-    — mirrors the general principle that a `field-patch` must always carry meaningful
+    - mirrors the general principle that a `field-patch` must always carry meaningful
     content or be `status: 'queued'`/an explicit `op: 'delete'`, never an accidental
     empty `'done'` patch.
 13. **Two subscribers call `submitAnswer()` for the same open question concurrently**
@@ -659,7 +659,7 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
     rejects the second with edge case 7's "questionId does not match the currently
     open question" error the instant the first is accepted (the open question changes
     synchronously the moment the first `submitAnswer` is accepted, before any async
-    model work for the resulting field-patches begins) — no duplicate `AnswerEvent`s
+    model work for the resulting field-patches begins) - no duplicate `AnswerEvent`s
     for one question.
 
 ## Test plan
@@ -667,55 +667,55 @@ export function foldFieldPatches(patches: FieldPatchEvent[]): Partial<Character>
 Fixtures required (new corpus under `fixtures/table-read/`, each a scripted transcript:
 settings + a scripted sequence of scored mock-model responses (chip generation, answer
 scoring, voicing) + the expected exact event sequence, since the model calls themselves
-must be mocked/deterministic for a reproducible test — no live provider calls in CI,
+must be mocked/deterministic for a reproducible test - no live provider calls in CI,
 consistent with `docs/03-CONVENTIONS.md`'s "Deterministic tests only: no network, no
 clock, no randomness without a seed"):
 
-- `cold-read-five-questions.json` — happy path, no contradictions, no deflections,
+- `cold-read-five-questions.json` - happy path, no contradictions, no deflections,
   asserts exactly the ceiling-respecting question count and a `DeliverableReadyEvent`
   with a fully-populated `Character`.
-- `cold-read-ceiling-with-incidental-coverage.json` — an early rich answer triggers
+- `cold-read-ceiling-with-incidental-coverage.json` - an early rich answer triggers
   rule 3 (shorten), asserting the skipped question never emits a `QuestionEvent` and
   its field target's patch has `source: 'incidental'`.
-- `deep-dive-contradiction-deepens.json` — a later answer's mock `AnswerSignal` sets
+- `deep-dive-contradiction-deepens.json` - a later answer's mock `AnswerSignal` sets
   `contradiction`, asserting exactly one inserted follow-up `QuestionEvent` targeting
   the conflicting field target, and that the follow-up counts against the fixed-count
   budget if one is set (edge case 5's best-effort trimming order).
-- `deep-dive-low-specificity-deepens-once.json` — a load-bearing field scored below the
+- `deep-dive-low-specificity-deepens-once.json` - a load-bearing field scored below the
   0.4 threshold twice in a row; asserts exactly one follow-up (never a second), and
   that the field target ends `filled: 'accepted-vague'` with the flag surfaced in
   `sessionNotes.acceptedVagueFields`.
-- `deep-dive-deflection-then-skip.json` — two consecutive `isDeflection: true` scores
+- `deep-dive-deflection-then-skip.json` - two consecutive `isDeflection: true` scores
   on the same field target; asserts one re-ask (`renderReask` called), then
   `skipped: 'user-deflected'` and `sessionNotes.userDeflectedFields` populated, no
   infinite loop.
-- `rapid-fire-timer-driven-progress.json` — asserts `ProgressEvent.estimatedTotalTurns`
+- `rapid-fire-timer-driven-progress.json` - asserts `ProgressEvent.estimatedTotalTurns`
   is `null` and `percentComplete` is computed from a mocked clock, not question count;
   asserts a `submitAnswer(kind:'freeform')` call is rejected (edge case 6).
-- `settings-target-format-universal-vs-rolecall-native.json` — same mock answer bank,
+- `settings-target-format-universal-vs-rolecall-native.json` - same mock answer bank,
   two sessions differing only in `targetFormat`; asserts the `rolecall-native` session
   asks strictly more (RC-only) questions and the `universal` session's resulting
   `Character` still validates against the full canonical schema with RC-native fields
   left at default.
-- `deliverable-bundle-full.json` — all four `deliverables` flags on; asserts
+- `deliverable-bundle-full.json` - all four `deliverables` flags on; asserts
   `DeliverableBundle` contains `character`, `starterLorebook`, `personaForUser`, the
   right count of alternate greetings, and that `character.data.characterBook`
   references `starterLorebook.id` (canonical-model.md's "embedded lorebook is a
   reference" rule).
-- `field-edit-reopens-downstream-contradiction.json` — exercises `editField()` and edge
+- `field-edit-reopens-downstream-contradiction.json` - exercises `editField()` and edge
   case 4's re-check.
-- `no-voice-hook-degraded-mode.json` — constructs a session with no `voiceHook`,
+- `no-voice-hook-degraded-mode.json` - constructs a session with no `voiceHook`,
   asserts `QuestionEvent.text === neutralPrompt` verbatim and no `transitionNote`.
-- `question-with-no-freeform-and-empty-chips-falls-back.json` — exercises edge case 9's
+- `question-with-no-freeform-and-empty-chips-falls-back.json` - exercises edge case 9's
   forced fallback to `allowFreeform: true`.
-- `stale-questionid-rejected.json`, `freeform-during-chips-only-rejected.json` —
+- `stale-questionid-rejected.json`, `freeform-during-chips-only-rejected.json` -
   exercise edge cases 6/7 directly.
-- `model-call-transient-failure-degrades-gracefully.json` — mocked scoring call throws
+- `model-call-transient-failure-degrades-gracefully.json` - mocked scoring call throws
   once then the session continues per rule 5 (edge case 2); a companion
   `model-call-question-generation-fails-fatally.json` for edge case 3's
   `reason: 'errored'` path.
 
-Round-Trip Law applicability: none directly — `packages/interview` is not a format
+Round-Trip Law applicability: none directly - `packages/interview` is not a format
 codec and produces fresh entities rather than parsing existing files. However, every
 fixture's produced `Character`/`Lorebook`/`Persona` entities must independently pass
 `packages/core`'s zod validation (a produced entity that fails canonical schema
@@ -740,46 +740,46 @@ Property/unit tests beyond fixtures:
 ## Non-goals
 
 - Does not define the interviewer persona roster, persona file format, or the persona
-  loader — `specs/features/personas-system.md`'s job; this spec only fixes the
+  loader - `specs/features/personas-system.md`'s job; this spec only fixes the
   `InterviewerVoiceHook` call contract (see OPEN QUESTION 1).
 - Does not define the CLI or Studio rendering of the event stream (chat bubbles, the
   "Dark Room" full-screen reveal-at-end variant, the settings booth's actual widgets)
-  — those are UI concerns downstream of this UI-agnostic engine; the wireframe's three
+  - those are UI concerns downstream of this UI-agnostic engine; the wireframe's three
   mockups (Living Card / Dark Room / Settings Booth,
   `wireframes/magic/table-read.html`) are intent references for what a UI built on
   this protocol COULD look like, not additional protocol requirements. Notably, the
-  Dark Room variant ("reveal at the end") requires no protocol change at all — it is
+  Dark Room variant ("reveal at the end") requires no protocol change at all - it is
   achievable by a UI that simply chooses not to render `field-patch` events live and
   only renders the final `DeliverableReadyEvent`; the engine does not need a
   "dark room mode" setting.
 - Does not implement `packages/ai`'s provider adapters, streaming transport, or the
-  key vault — consumes `ModelRole: "interview"` via `specs/engine/key-vault.md`'s
+  key vault - consumes `ModelRole: "interview"` via `specs/engine/key-vault.md`'s
   `resolveRole()` and whatever `specs/engine/provider-adapters.md` (not yet written)
   defines for making the actual model call; this spec treats "make a scored/voiced
   model call" as a capability it depends on, not one it implements.
 - Does not persist sessions or implement resume-after-crash (OPEN QUESTION 3) in this
   cut.
-- Does not implement the Script Doctor's contradiction/slop passes — `sessionNotes`
+- Does not implement the Script Doctor's contradiction/slop passes - `sessionNotes`
   is a head start handed to `specs/features/script-doctor.md`, not an overlapping
   implementation of it. The Table Read's own contradiction detection (rule 1) is
   narrowly scoped to conflicts introduced WITHIN one interview session, not a general
   audit of the finished card.
 - Does not support multiple concurrent open questions in one session (edge case 7);
   the protocol is strictly one-question-at-a-time.
-- Does not define `vaud table-read` CLI grammar (flags, `--json` shape, exit codes) —
+- Does not define `vaud table-read` CLI grammar (flags, `--json` shape, exit codes) -
   a future CLI-facing spec's concern, analogous to how `cli-converter.md` covers
   `vaud convert` separately from the codec specs it calls.
 
 ## Sources consulted
 
-- `docs\the master plan (private planning notes)` (full file) —
+- `docs\the master plan (private planning notes)` (full file) -
   pillar/milestone framing, "M4 The Table Read (v0.3)" line 53, "packages/interview"
   reference via the layer description, locked decisions table (AI/BYOK row).
-- `docs\01-VISION.md` (full file) —
+- `docs\01-VISION.md` (full file) -
   pillar 2 ("The interview is the editor," lines 22-24: adaptive depth, quick-pick
   chips, artifact assembling visibly), taste bar (line 45-48, M4 exit criterion's
   qualitative bar).
-- `docs\ROADMAP.md` lines 46-55 ("M4 — The
+- `docs\ROADMAP.md` lines 46-55 ("M4 - The
   Table Read (v0.3)": event stream shape "question -> chips -> answer -> field-patch
   events," three tempos named, adaptive depth, settings, persona voices, deliverable
   bundles, and the two exit criteria quoted verbatim in this spec's Purpose/tempos
@@ -788,51 +788,51 @@ Property/unit tests beyond fixtures:
   (`packages/interview` package description: "question planner, modes/depth, chip
   generation, living-document event stream. UI-agnostic"), lines 42-43 (dependency
   rule quoted in "Deliverable bundles"), lines 78-83 (Faces: CLI-first, Studio
-  forbidden from private engine capabilities — basis for this spec's UI-agnosticism
+  forbidden from private engine capabilities - basis for this spec's UI-agnosticism
   requirement).
 - `docs\decisions\ADR-006-ai-and-agent.md`
-  (full file) — §1 (BYOK provider list), §2 ("AI is optional... first key ask happens
-  at the first AI moment" — basis for edge case 1), §4 (model roles: "Interview,
+  (full file) - §1 (BYOK provider list), §2 ("AI is optional... first key ask happens
+  at the first AI moment" - basis for edge case 1), §4 (model roles: "Interview,
   treatment rewrites, test-stage inference, and bulk audits can each point at a
-  different configured model" — basis for `ModelRole: "interview"` usage throughout).
-- `docs\03-CONVENTIONS.md` (full file) —
+  different configured model" - basis for `ModelRole: "interview"` usage throughout).
+- `docs\03-CONVENTIONS.md` (full file) -
   "Deterministic tests only: no network, no clock, no randomness without a seed" (Test
   plan's mocked-model-call requirement), no-emoji/no-em-dash house style, CLI output
   vocabulary note ("Flavor lives in the agent personas, not in scriptable command
-  output" — informs why the persona voice hook is opt-in/hookable rather than baked
+  output" - informs why the persona voice hook is opt-in/hookable rather than baked
   into the engine's own event text).
 - `docs\the production bible (private planning notes)` line 76
   (this file's own brief row, quoted in full at the top of this document) and the
   global rules section (lines 7-25).
 - `specs\formats\canonical-model.md` (full
-  file) — `Entity<T>` envelope (lines 13-29, used for `DeliverableBundle`'s entity
+  file) - `Entity<T>` envelope (lines 13-29, used for `DeliverableBundle`'s entity
   shape), Character design rules (lines 42-50, used for `targetFormat`'s
   universal-vs-native question-plan distinction and the "embedded lorebook is a
   reference" rule cited in the deliverable-bundle test fixture), Lorebook/Persona
   content-type listing (line 9).
 - `specs\formats\escrow-and-roundtrip.md`
-  (full file) — confirmed `sessionNotes` is not an escrow concept (rule 1 is about
+  (full file) - confirmed `sessionNotes` is not an escrow concept (rule 1 is about
   source-format fields; a Table Read session has no source format) and that produced
   entities carry empty escrow at creation time.
 - `specs\engine\key-vault.md` (full file)
-  — `ModelRole` type (line 196) and `resolveRole()` contract (lines 264, 331-333) used
+  - `ModelRole` type (line 196) and `resolveRole()` contract (lines 264, 331-333) used
   directly in this spec's `TableReadEngineOptions.modelRole` and edge case 1.
 - `specs\engine\productions-and-history.md`
-  (full file) — `writeEntity`/`commitSnapshot` API (lines 324-350) used in "Deliverable
+  (full file) - `writeEntity`/`commitSnapshot` API (lines 324-350) used in "Deliverable
   bundles" to define the caller-driven persistence boundary; confirmed this engine
   must not import `packages/productions` directly (dependency-rule cross-check against
   `02-ARCHITECTURE.md` line 42).
 - `specs\engine\lorebook-engine.md` (full
-  file) — read as a style/rigor precedent for a fresh-design, non-codec engine spec in
+  file) - read as a style/rigor precedent for a fresh-design, non-codec engine spec in
   this same suite (event/trace object shapes, edge-case numbering density, fixture
   naming conventions); no factual claims taken from it for this spec's actual content.
 - `specs\engine\productions-and-history.md`
-  — also read in full as a second style precedent for a "no VAUDEVILLE reference,
+  - also read in full as a second style precedent for a "no VAUDEVILLE reference,
   design fresh from the architecture doc" spec (same category as this one).
 - `templates\SPEC-TEMPLATE.md` (full file)
-  — structure followed section-by-section.
+  - structure followed section-by-section.
 - `wireframes\magic\table-read.html` (full
-  file) — primary intent source per the brief's ground-truth column: three tempos
+  file) - primary intent source per the brief's ground-truth column: three tempos
   gallery (lines 27-36), "TR-1 The Living Card" mock (lines 40-76, source of the
   worked adaptive-depth example quoted in this spec and the field-patch
   queued/writing/done status model), "TR-2 The Dark Room" mock (lines 78-107, cited in
@@ -842,7 +842,7 @@ Property/unit tests beyond fixtures:
   deliverables, target format, voice calibration).
 - Confirmed via `Glob`/`Grep` that `specs/features/personas-system.md`,
   `specs/engine/agent-loop.md`, and `specs/engine/provider-adapters.md` do not yet
-  exist in this repo at spec-writing time (checked directory listings directly) —
+  exist in this repo at spec-writing time (checked directory listings directly) -
   basis for OPEN QUESTION 1 and the Non-goals note on provider-adapter dependence
   being forward-referenced rather than grounded in an existing file.
 

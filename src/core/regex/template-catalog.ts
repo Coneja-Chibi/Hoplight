@@ -114,11 +114,11 @@ export const TEMPLATE_CATALOG: readonly RegexTemplateEntry[] = [
     category: "formatting",
     name: "Em dash to double hyphen",
     does: "rewrites em dashes as -- for plain-text targets",
-    find: "—",
+    find: "—", // emdash-ok: the recipe normalizes this exact character
     flags: "g",
     replace: "--",
     phases: ["output"],
-    before: "She paused—thinking carefully—before answering.",
+    before: "She paused—thinking carefully—before answering.", // emdash-ok: engine-computed example
     after: "She paused--thinking carefully--before answering.",
   },
   {
@@ -128,10 +128,10 @@ export const TEMPLATE_CATALOG: readonly RegexTemplateEntry[] = [
     does: "rewrites -- as a proper em dash",
     find: "--",
     flags: "g",
-    replace: "—",
+    replace: "—", // emdash-ok: writes the character back on purpose
     phases: ["output"],
     before: "She paused--thinking carefully--before answering.",
-    after: "She paused—thinking carefully—before answering.",
+    after: "She paused—thinking carefully—before answering.", // emdash-ok: engine-computed example
   },
   {
     id: "exclamation-to-period",

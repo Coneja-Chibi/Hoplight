@@ -31,15 +31,15 @@ guess must never cause data loss, only a routing failure the user can override.
 VAUDEVILLE's `content-detector.ts` implements three independent detection
 functions plus a dispatcher, and this package ports the same shape:
 
-1. `detectPngType(buffer)` — PNG files. Fast tEXt-chunk keyword scan, falling back
+1. `detectPngType(buffer)` - PNG files. Fast tEXt-chunk keyword scan, falling back
    to a structural check on the fully parsed character-card JSON.
-2. `detectJsonTypeEnhanced(data)` — parsed JSON objects. Delegates the structural
+2. `detectJsonTypeEnhanced(data)` - parsed JSON objects. Delegates the structural
    decision to `detectJsonType(data)` (from `json-parsers.ts`) and wraps it with a
    confidence/reason envelope.
-3. `detectJsonLType(text)` — JSONL chat exports. Line-based structural check,
+3. `detectJsonLType(text)` - JSONL chat exports. Line-based structural check,
    including SillyTavern's two-line "hybrid" chat export shape (metadata header +
    message lines).
-4. `detectFileType(file)` — the dispatcher. Branches purely on file extension
+4. `detectFileType(file)` - the dispatcher. Branches purely on file extension
    (`.png` / `.json` / `.jsonl`) and calls the matching detector above. Extensions
    not in that set return `unknown` immediately; content is never sniffed without
    an extension hint in the ported model (see Non-goals).
@@ -66,22 +66,22 @@ let a `'chat'`/`'unknown'` value silently type-check against a canonical field, 
 this module names its own union `DetectedType`. It does not import core's
 `ContentType`.
 
-(VAUDEVILLE's `ContentType` union does not include `'regex'` — `apps/rc/src/lib/imports/content-detector.ts:18`
+(VAUDEVILLE's `ContentType` union does not include `'regex'` - `apps/rc/src/lib/imports/content-detector.ts:18`
 only has `'character' | 'persona' | 'preset' | 'lorebook' | 'chat' | 'unknown'`, even
 though `json-parsers.ts`'s `LibraryItemType` union does include `'regex'`
 (`json-parsers.ts:252`) and `detectJsonType` can return it. This package's
-`ContentType` MUST include `'regex'` — dropping it silently downgrades any detected
+`ContentType` MUST include `'regex'` - dropping it silently downgrades any detected
 regex-script JSON to `'unknown'` through `detectJsonTypeEnhanced`'s missing branch.
 This is a bug in the VAUDEVILLE reference, not a fact to reproduce; see Edge case 1.)
 
-### `detectPngType` — the fast latin1 chunk scan
+### `detectPngType` - the fast latin1 chunk scan
 
 Source: `apps/rc/src/lib/imports/content-detector.ts:32-102`.
 
 1. Decode the entire PNG buffer as a `latin1` string (`Buffer.from(buffer).toString('latin1')`).
    latin1 is a 1-byte-per-char decode with no multi-byte collation and no decode
    errors on arbitrary binary, so this is safe to run over a full image blob purely
-   to substring-search it — it is not used to recover text content, only to locate
+   to substring-search it - it is not used to recover text content, only to locate
    byte sequences.
 2. Test, in this exact order, for the literal substrings (the trailing sequence is
    a literal backslash-u-zero-zero-zero-zero escape in the source, i.e. an actual
@@ -116,14 +116,14 @@ one); V3 must win because it is the more complete/current representation
 (`png-parser.ts:11,58,73` documents the same precedence for the actual data read,
 not just detection: "ccv3 takes precedence if both exist"). Checking `chara` before
 `persona` prevents a card whose *content* happens to contain the word "persona" in
-its description text from being misrouted — see Edge case 2 / historical bug.
+its description text from being misrouted - see Edge case 2 / historical bug.
 
-### `detectJsonTypeEnhanced` / `detectJsonType` — structural JSON detection
+### `detectJsonTypeEnhanced` / `detectJsonType` - structural JSON detection
 
 Source: `content-detector.ts:107-155` wraps `json-parsers.ts:261` (`detectJsonType`).
 
 `detectJsonTypeEnhanced(data)`:
-1. If `data` is not a non-array object, return `{ type: 'unknown', confidence: 'low', reason: 'Invalid JSON structure (not an object)' }` immediately — this rejects bare arrays and primitives before the structural checks run.
+1. If `data` is not a non-array object, return `{ type: 'unknown', confidence: 'low', reason: 'Invalid JSON structure (not an object)' }` immediately - this rejects bare arrays and primitives before the structural checks run.
 2. Otherwise call `detectJsonType(data)` and wrap its result in a `DetectionResult` with `confidence: 'high'` for every recognized type and `confidence: 'low'` for `'unknown'`. The reason strings are fixed per type (see field table below) and do not vary with which sub-check matched.
 
 `detectJsonType(data)` (`json-parsers.ts:261-268`) tries five structural
@@ -149,7 +149,7 @@ The order is deliberate and documented in the source comment
   that false positive.
 - `character` is checked before `lorebook` to avoid V1 character JSON (flat
   `{ name, description, ... }` with no `entries` key) ever reaching the lorebook
-  check — this is defensive; a V1 character has no `entries` field so it would not
+  check - this is defensive; a V1 character has no `entries` field so it would not
   match `isLorebook` anyway, but the ordering keeps the guarantee explicit as the
   predicates evolve.
 - `regex` is checked before `preset` because a SillyTavern regex-script wrapper
@@ -168,13 +168,13 @@ Each predicate, from `json-parsers.ts`:
 | `isPreset` | `Array.isArray(obj.prompts)` OR any of `temperature`/`top_p`/`top_k`/`frequency_penalty`/`presence_penalty` is a number | `json-parsers.ts:93-108` |
 
 Note `isLorebook` (used directly by `detectJsonType`) is a structural presence
-check only — it does not require any entry to have content. `parseLorebook`
+check only - it does not require any entry to have content. `parseLorebook`
 (also in `json-parsers.ts:134-165`, not part of detection) applies the stricter
 "at least one entry has content" rule at parse time, which can reject a file that
 detection already classified as `lorebook`. Detection and parse validity are
 different questions; see Edge case 5.
 
-### `detectJsonLType` — JSONL chat detection
+### `detectJsonLType` - JSONL chat detection
 
 Source: `content-detector.ts:160-222`.
 
@@ -191,21 +191,21 @@ Source: `content-detector.ts:160-222`.
 5. If the message line did not qualify but line 0 WAS a hybrid header (i.e. a
    header with no messages after it, or whose second line doesn't look like a
    message), it is still classified `chat` at `confidence: 'medium'`,
-   reason `'JSONL contains ST chat metadata header with no messages'` — this is a
+   reason `'JSONL contains ST chat metadata header with no messages'` - this is a
    legal degenerate export (an empty chat) and must not be dropped from bulk
    imports.
 6. Otherwise `unknown`/`low`/`'JSONL does not match chat export format'`.
 7. Any JSON parse exception on line 0 (or line 1, when read) is caught and
    returned as `unknown`/`low`/`'Failed to parse JSONL: <message>'`.
 
-### `detectFileType` — the dispatcher
+### `detectFileType` - the dispatcher
 
 Source: `content-detector.ts:227-251`.
 
 Branches on the lowercased filename's extension only, in this order:
 `.png` -> `detectPngType` (reads the file as `ArrayBuffer`); `.json` ->
 `JSON.parse` the file text then `detectJsonTypeEnhanced` (a JSON parse error here
-is NOT caught inside `detectFileType` in the VAUDEVILLE source — it throws to the
+is NOT caught inside `detectFileType` in the VAUDEVILLE source - it throws to the
 caller; see Edge case 3); `.jsonl` -> `detectJsonLType` on the raw text. Any other
 extension (including no extension, `.charx`, `.zip`) returns
 `{ type: 'unknown', confidence: 'low', reason: 'Unsupported file extension: <ext>' }`
@@ -217,7 +217,7 @@ Two independent priority orders exist and must not be conflated:
 
 1. **Extension routing** (`detectFileType`): `.png` / `.json` / `.jsonl` are the
    only recognized extensions; there is no content-sniffing fallback for
-   unrecognized or missing extensions (see Non-goals — `.charx` is a zip and is out
+   unrecognized or missing extensions (see Non-goals - `.charx` is a zip and is out
    of scope for this file-level dispatcher; `bundle-import.md` owns zip
    classification).
 2. **Structural priority within JSON** (`detectJsonType`): `persona` >
@@ -248,12 +248,12 @@ past misdetection/parsing bug becomes a permanent fixture").
    requiring the trailing NUL keyword terminator, AND checking `chara`/`ccv3`
    before `persona`. **Fixture needed:** a character-card PNG (`chara` or `ccv3`
    keyword) whose `description` or `personality` field contains the literal word
-   "persona" — must detect as `character`, `high` confidence.
+   "persona" - must detect as `character`, `high` confidence.
 2. **Ordering bug (persona before chara).** Same source comment,
    `content-detector.ts:39`: independent of the substring bug, checking `persona`
    before `chara` at all is wrong once a card can carry both a `persona`-adjacent
    *and* a `chara` keyword-bearing chunk (or once the substring bug above is in
-   play) — V3/V2 character detection must win. **Fixture needed:** covered by the
+   play) - V3/V2 character detection must win. **Fixture needed:** covered by the
    ccv3-before-chara-before-persona ordering test already implied above; add one
    PNG with both a `chara` and a `persona`-adjacent chunk if such a real export
    exists, else a synthetic fixture with `notes.md` stating it's synthetic per
@@ -327,7 +327,7 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
 1. **`ContentType` must include `'regex'`.** VAUDEVILLE's `content-detector.ts`
    `ContentType` union (`:18`) omits `'regex'` even though `detectJsonType` can
    return it (via `isRegexScript`), and `detectJsonTypeEnhanced` (`:107-155`) has
-   no `if (type === 'regex')` branch — a regex-script JSON silently falls through
+   no `if (type === 'regex')` branch - a regex-script JSON silently falls through
    every `if` to the final `unknown`/`low` return. This package's port MUST add
    the `regex` branch and the union member. Required behavior: a regex-script
    JSON detects as `{ type: 'regex', confidence: 'high', reason: '...' }`.
@@ -337,7 +337,7 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
    chunk. This is not flagged as a bug in the source and the outcome is actually
    correct (both keywords are persona-family), but it means the fast-scan branch
    never actually distinguishes RC-native (`rcpersona`) from RoleOut-legacy
-   (`persona`) at the detection layer — that distinction is only made later, at
+   (`persona`) at the detection layer - that distinction is only made later, at
    parse time, by the codec (see `personas.md`, `png-embedding.md`). Required
    behavior: preserve this coincidental match; do not "fix" it into an exact
    per-keyword check without confirming with `personas.md`'s parse-time handling
@@ -345,9 +345,9 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
    branch.
 3. **`detectFileType` does not catch `JSON.parse` failures for `.json` files.**
    In the VAUDEVILLE source, `JSON.parse(text)` inside the `.json` branch of
-   `detectFileType` (`content-detector.ts:237`) is unguarded — a malformed JSON
+   `detectFileType` (`content-detector.ts:237`) is unguarded - a malformed JSON
    file throws out of `detectFileType` itself rather than returning
-   `{ type: 'unknown', ... }`. Required behavior for the port: OPEN QUESTION —
+   `{ type: 'unknown', ... }`. Required behavior for the port: OPEN QUESTION -
    decide whether `detectFileType` should catch this and downgrade to
    `unknown`/`low`/`'Invalid JSON: <message>'` (matching the JSONL detector's own
    internal try/catch pattern), or whether callers (CLI, bundle importer) are
@@ -357,25 +357,25 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
 4. **PNG structural fallback only recognizes the RoleOut `title`+`content` shape,
    not the RC-native `rolecall_persona` shape.** If an `rcpersona`-keyword PNG
    somehow fails the fast scan (it should not, per Edge case 2, but a chunk
-   encoding oddity — e.g. a `zTXt`/`iTXt` chunk instead of `tEXt`, which the fast
-   latin1 scan does not decompress — is possible) and falls through to the
+   encoding oddity - e.g. a `zTXt`/`iTXt` chunk instead of `tEXt`, which the fast
+   latin1 scan does not decompress - is possible) and falls through to the
    structural check, `parseCharacterCard`'s `rawJson` for an `rolecall_persona`
    payload is `{ spec: 'rolecall_persona', data: {...} }`, which has neither a
    top-level `title` nor a top-level `content` key. It falls through to the
    generic `character`/`medium` branch instead of `persona`. Required behavior:
-   OPEN QUESTION — should the structural fallback also test
+   OPEN QUESTION - should the structural fallback also test
    `rawJson.spec === 'rolecall_persona'`? This is a real gap in the VAUDEVILLE
    source (not documented as intentional); flag for the reviewer rather than
    silently fixing, since the PNG codec's own zTXt/iTXt support is unconfirmed
    (`png-embedding.md` should state whether compressed text chunks are read at
-   all — if they are never read, this edge case cannot occur in practice and the
+   all - if they are never read, this edge case cannot occur in practice and the
    gap is moot).
 5. **Detection says `lorebook`; parsing can still reject it.** `isLorebook`
    (used by `detectJsonType`) only checks that `entries` exists and is an object;
    `parseLorebook` additionally requires at least one entry with a `content`
    field. A JSON file with `{ entries: {} }` or `{ entries: { "0": {} } }`
    (no content anywhere) detects as `lorebook`/`high` but fails to parse.
-   Required behavior: this is by design — detection answers "which codec should
+   Required behavior: this is by design - detection answers "which codec should
    try this file," parsing answers "is it valid." The CLI/report layer must
    surface the parse failure distinctly from a detection failure (`cli-converter.md`).
 6. **Empty/whitespace-only `.jsonl` file.** Returns `unknown`/`low`/`'Empty JSONL
@@ -383,7 +383,7 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
 7. **JSONL hybrid header with a non-message second line.** If line 0 is a hybrid
    header and line 1 exists but does not look like a message (fails the
    `mes`/`message`/`content` + `name`/`role`/`is_user` test), the result is
-   `unknown`/`low`, NOT the degenerate `chat`/`medium` case — the degenerate case
+   `unknown`/`low`, NOT the degenerate `chat`/`medium` case - the degenerate case
    only fires when there IS no line 1 (`lines.length > 1` gates which line is
    tested; when false, line 0 itself, the header, is re-tested against the
    message predicate and fails, but `isHybridHeader` is still true so step 5's
@@ -391,11 +391,11 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
    "header with no messages" path is reached only through the `isHybridHeader &&
    !qualifiesAsChat` fallthrough, not through a separate line-count check standing
    alone. Fixture required to pin this down: a two-line JSONL where line 0 is a
-   valid header and line 1 is JSON but not message-shaped (e.g. `{}`) — expected
+   valid header and line 1 is JSON but not message-shaped (e.g. `{}`) - expected
    result per current source logic: `unknown`/`low` (line 1 was tested and
    failed; `isHybridHeader` remains true but line 1 existing means step 5's
    "if (isHybridHeader)" branch is unreachable only when messageLine already
-   returned true — re-trace against source before asserting; OPEN QUESTION for the
+   returned true - re-trace against source before asserting; OPEN QUESTION for the
    reviewer to verify against `content-detector.ts:184-208` directly, this spec
    author traced it by hand and flags residual uncertainty).
 8. **`.charx` files.** Not handled by `detectFileType` at all in VAUDEVILLE (no
@@ -406,7 +406,7 @@ export function detectFileType(file: DetectableFile): Promise<DetectionResult>;
 9. **Case sensitivity.** `detectFileType` lowercases the filename before the
    extension check (`name.toLowerCase()`), so `CARD.PNG` and `card.png` both
    route correctly. PNG keyword matching (`ccv3`, `chara`, `persona`) is
-   case-sensitive and matches the literal lowercase keywords only — the PNG tEXt
+   case-sensitive and matches the literal lowercase keywords only - the PNG tEXt
    keyword spec itself does not mandate lowercase, but every known exporter
    (SillyTavern, RoleCall) writes these lowercase; a keyword like `Chara` would
    fall through to the structural fallback. OPEN QUESTION: has any real exporter
@@ -427,19 +427,19 @@ Fixtures live under `fixtures/detection/` (new corpus subtree; distinct from
 per-codec `fixtures/<format>/` since detection fixtures test the triage step, not
 round-trip parse/serialize).
 
-- `fixtures/detection/png/ccv3-and-chara-both-present.png` — dual-chunk card;
+- `fixtures/detection/png/ccv3-and-chara-both-present.png` - dual-chunk card;
   expect `character`/`high` via ccv3 branch (Behavior, PNG step 2).
 - `fixtures/detection/png/chara-only.png`, `ccv3-only.png`, `persona-only.png`,
-  `rcpersona-only.png` — one keyword each; expect `character`/`high`,
+  `rcpersona-only.png` - one keyword each; expect `character`/`high`,
   `character`/`high`, `persona`/`high`, `persona`/`high` respectively (rcpersona
   via the coincidental substring match, Edge case 2).
-- `fixtures/detection/png/misdetect-persona-substring.png` — Regression case 1:
+- `fixtures/detection/png/misdetect-persona-substring.png` - Regression case 1:
   a `chara`-keyword card whose `description` field contains the literal word
   "persona"; expect `character`/`high`.
-- `fixtures/detection/png/roleout-legacy-no-keyword.png` — a card with a
+- `fixtures/detection/png/roleout-legacy-no-keyword.png` - a card with a
   non-standard/unrecognized chunk keyword carrying RoleOut `{title, content}`
   JSON; expect `persona`/`medium` via structural fallback.
-- `fixtures/detection/png/corrupt-not-a-png.png` — a `.png`-named file that
+- `fixtures/detection/png/corrupt-not-a-png.png` - a `.png`-named file that
   isn't a valid PNG signature; expect `unknown`/`low`, reason starts with
   `'Failed to parse PNG:'`.
 - `fixtures/detection/json/persona-native.json`, `persona-loose.json`,
@@ -449,7 +449,7 @@ round-trip parse/serialize).
   `preset-prompts.json`, `preset-samplers-only.json`, `unknown-bare-array.json`
   (top-level array; expect `unknown`/`low` via the `Array.isArray` guard),
   `unknown-empty-object.json`.
-- `fixtures/detection/json/ambiguous-persona-vs-v1-character.json` — the
+- `fixtures/detection/json/ambiguous-persona-vs-v1-character.json` - the
   specific collision `isPersona`'s ordering exists to prevent (Behavior,
   structural priority section); expect `persona`/`high`.
 - `fixtures/detection/jsonl/chat-plain.jsonl`, `chat-hybrid-header.jsonl`,
@@ -458,9 +458,9 @@ round-trip parse/serialize).
   `malformed.jsonl` (invalid JSON on line 0; expect `unknown`/`low`, reason
   starts with `'Failed to parse JSONL:'`).
 - `fixtures/detection/dispatch/unsupported-extension.charx`,
-  `unsupported-extension.zip`, `no-extension` — all expect
+  `unsupported-extension.zip`, `no-extension` - all expect
   `unknown`/`low`/`'Unsupported file extension: ...'` (or the appropriate
-  message for a file with no extension at all — OPEN QUESTION: what does
+  message for a file with no extension at all - OPEN QUESTION: what does
   `name.split('.').pop()` return for a file with no dot, and does the message
   read sensibly? Verify against the ported `detectFileType` implementation
   directly since VAUDEVILLE's `.split('.').pop()` on `"README"` returns
@@ -484,7 +484,7 @@ Property/unit tests beyond fixtures:
 
 ## Non-goals
 
-- Does not classify `.charx` (zip) files — that is `charx.md`'s and
+- Does not classify `.charx` (zip) files - that is `charx.md`'s and
   `bundle-import.md`'s job (zip-first classification, then per-entry detection
   using this module's JSON/PNG detectors on the extracted members).
 - Does not classify Backyard `.json` exports as a distinct detected type; Backyard
@@ -494,13 +494,13 @@ Property/unit tests beyond fixtures:
   dedicated predicate; if so, that predicate is an addition to this spec's
   priority chain, not a silent behavior change.
 - Does not validate content beyond the structural shape needed to distinguish
-  types — full validation is the codec's job at parse time (Edge case 5).
+  types - full validation is the codec's job at parse time (Edge case 5).
 - Does not content-sniff files with no recognized extension. There is no magic-byte
   fallback for extensionless or wrongly-extensioned files; `detectFileType` trusts
   the extension for dispatch, and only the PNG branch additionally verifies the
   actual PNG signature once dispatched.
 - Does not resolve which codec version (V2 vs V3, ST vs Agnai world info variant)
-  applies — that finer-grained version detection lives in each codec's own spec
+  applies - that finer-grained version detection lives in each codec's own spec
   (`chara-card-v3.md`, `st-worldinfo.md`).
 - Does not attempt to detect mime type from HTTP headers or similar transport-level
   metadata; input is always a named file/buffer.
@@ -508,30 +508,30 @@ Property/unit tests beyond fixtures:
 ## Sources consulted
 
 - `<RoleCall>\apps\rc\src\lib\imports\content-detector.ts`
-  (full file, 252 lines) — `detectPngType` :32-102, `detectJsonTypeEnhanced` :107-155,
+  (full file, 252 lines) - `detectPngType` :32-102, `detectJsonTypeEnhanced` :107-155,
   `detectJsonLType` :160-222, `detectFileType` :227-251, misdetection comment :38-44,
   hybrid-header comment :171-175, `ContentType` union :18.
 - `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
-  (full file, 295 lines) — `isPersona` :221-246, `isCharacter` :60-84, `isLorebook`
+  (full file, 295 lines) - `isPersona` :221-246, `isCharacter` :60-84, `isLorebook`
   :117-129, `parseLorebook` :134-165, `isRegexScript` :174-212, `isPreset` :93-108,
   `detectJsonType` :261-268 and its priority-order comment :256-260,
   `LibraryItemType` union :252.
-- `<RoleCall>\apps\rc\src\lib\library\png-parser.ts` —
+- `<RoleCall>\apps\rc\src\lib\library\png-parser.ts` -
   `readCharacterData` chunk-priority comment :10-12, :57-58, :73-126;
   `parseCharacterCard` V2/V3 branch :174-182, RC-native persona branch :184-223,
   RoleOut legacy branch :225-247.
 - `<RoleCall>\apps\plot\src\lib\imports\content-detector.ts`
-  (full file, 219 lines) — cited only to document that it retains the unfixed
+  (full file, 219 lines) - cited only to document that it retains the unfixed
   substring/ordering bug (:37-62) that `apps/rc`'s version fixed; not used as
   ground truth for behavior.
-- `docs\the extraction map (private planning notes):44-45` —
+- `docs\the extraction map (private planning notes):44-45` -
   confirms the two ground-truth files and line anchors for this spec's brief.
-- `docs\the production bible (private planning notes):52` —
+- `docs\the production bible (private planning notes):52` -
   the brief this spec was written against.
 - `specs\formats\canonical-model.md`,
-  `escrow-and-roundtrip.md` — shared conventions (Entity envelope, escrow rules,
+  `escrow-and-roundtrip.md` - shared conventions (Entity envelope, escrow rules,
   fixture corpus rules) referenced above.
-- `templates\SPEC-TEMPLATE.md` — structure followed.
+- `templates\SPEC-TEMPLATE.md` - structure followed.
 
 ## OPEN QUESTIONs (collected)
 

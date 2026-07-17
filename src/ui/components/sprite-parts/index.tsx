@@ -47,7 +47,7 @@ export function SpriteParts({
             value={s.gender || ""}
             onChange={(e) => commit({ ...s, gender: e.target.value })}
           >
-            <option value="">—</option>
+            <option value="">-</option>
             <option value="female">female</option>
             <option value="male">male</option>
             <option value="other">other</option>

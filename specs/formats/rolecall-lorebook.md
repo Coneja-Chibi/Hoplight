@@ -78,22 +78,22 @@ legacy shape is a detection fallback the codec should still accept for read
 `"1.0.0"` (`format-detection.ts:214-217`). The parser does NOT hard-fail on
 an unsupported version: it downgrades to an advisory warning and continues
 parsing structurally (`parser.ts:680-693`, deliberately changed from a hard
-rejection — the comment there explains this also unblocked compendium
+rejection - the comment there explains this also unblocked compendium
 exports that share the underlying entry shape under a different marker).
 `getRoleCallMigration(fromVersion)` is a stub that always returns `null`
-today (`format-detection.ts:226-231`) — there is no migration function for
+today (`format-detection.ts:226-231`) - there is no migration function for
 any prior version because `1.0.0` is the only version that has ever existed.
 Vaudeville's codec should mirror this: parse leniently on any `schemaVersion`
 string, warn (not error) when it isn't exactly `"1.0.0"`, and always write
 `"1.0.0"` on serialize.
 
-### Field map — `RoleCallLorebookV1` -> canonical `Lorebook`
+### Field map - `RoleCallLorebookV1` -> canonical `Lorebook`
 
 | Source field | Canonical field | Native/Escrow/Dropped | Notes |
 |---|---|---|---|
 | `lorebook.name` | `Lorebook.name` | native | |
 | `lorebook.description` | `Lorebook.description` | native | `string \| null` both sides |
-| `lorebook.settings.lorebookType` | `Lorebook.lorebookType` | native | free string in schema; canonical narrows to `LorebookType` union (`types.ts:337`); unrecognized values pass through as string (codec does not validate against the union at parse time, only at DB save time in VAUD — Vaudeville codec should preserve the raw string rather than coerce) |
+| `lorebook.settings.lorebookType` | `Lorebook.lorebookType` | native | free string in schema; canonical narrows to `LorebookType` union (`types.ts:337`); unrecognized values pass through as string (codec does not validate against the union at parse time, only at DB save time in VAUD - Vaudeville codec should preserve the raw string rather than coerce) |
 | `lorebook.settings.globalCaseSensitive` | `Lorebook.globalCaseSensitive` | native | |
 | `lorebook.settings.globalMatchWholeWords` | `Lorebook.globalMatchWholeWords` | native | |
 | `lorebook.settings.globalScanDepth` | `Lorebook.globalScanDepth` | native | |
@@ -106,11 +106,11 @@ string, warn (not error) when it isn't exactly `"1.0.0"`, and always write
 | `lorebook.metadata.tags` | `Lorebook.tags` | native | defaults to `[]` |
 | `lorebook.entries[]` | `LorebookEntry[]` | native | see entry table below |
 | `lorebook.categories[]` | `LorebookCategory[]` (attached to `LorebookWithEntries.categories`) | native | optional; only present if the source lorebook had DB-backed categories |
-| `lorebook.tree` | OPEN QUESTION | escrow | `LorebookTreeV1` (`tree_data`, `build_mode`, `granularity`, `version`, `built_at`) is a precomputed navigation/summary structure over entries (`lorebook_trees` table). Canonical model has no defined home for it yet (not listed in canonical-model.md's Lorebook section). Vaudeville codec should escrow it verbatim under `escrow['rolecall'].fields.tree` until a canonical field is designed — do not drop it, the RC round-trip law requires re-embedding it on RoleCall-format serialize. |
+| `lorebook.tree` | OPEN QUESTION | escrow | `LorebookTreeV1` (`tree_data`, `build_mode`, `granularity`, `version`, `built_at`) is a precomputed navigation/summary structure over entries (`lorebook_trees` table). Canonical model has no defined home for it yet (not listed in canonical-model.md's Lorebook section). Vaudeville codec should escrow it verbatim under `escrow['rolecall'].fields.tree` until a canonical field is designed - do not drop it, the RC round-trip law requires re-embedding it on RoleCall-format serialize. |
 | `exportDate` | `Entity.meta.importedAt`? | escrow | `exportDate` is when the *source* system exported, not when Vaudeville imported. Store as `escrow['rolecall'].fields.exportDate`; `meta.importedAt` is set fresh by Vaudeville's own parse per canonical-model.md. |
 | `schemaVersion` | `Entity.meta.origin.version` | native (via meta) | also duplicated into `escrow['rolecall'].version` per the Escrow envelope shape (escrow-and-roundtrip.md) |
 
-### Field map — `RoleCallEntryV1` -> canonical `LorebookEntry`
+### Field map - `RoleCallEntryV1` -> canonical `LorebookEntry`
 
 | Source field | Canonical field | Native/Escrow/Dropped | Notes |
 |---|---|---|---|
@@ -127,7 +127,7 @@ string, warn (not error) when it isn't exactly `"1.0.0"`, and always write
 | `matching.caseSensitive` | `LorebookEntry.caseSensitive` | native | `boolean \| null`; null = inherit lorebook global |
 | `matching.matchWholeWords` | `LorebookEntry.matchWholeWords` | native | same null-inherit semantics |
 | `matching.scanDepth` | `LorebookEntry.scanDepth` | native | same null-inherit semantics |
-| `injection.position` | `LorebookEntry.position` | native | `InjectionPosition` union includes RC extensions `append`, `append_bottom`, `prepend_top` not present in ST at all (`types.ts:182-191`) — see canonical-model note below |
+| `injection.position` | `LorebookEntry.position` | native | `InjectionPosition` union includes RC extensions `append`, `append_bottom`, `prepend_top` not present in ST at all (`types.ts:182-191`) - see canonical-model note below |
 | `injection.depth` | `LorebookEntry.depth` | native | only meaningful when `position` is `'depth'` or `'append'` |
 | `injection.role` | `LorebookEntry.role` | native | `'system' \| 'user' \| 'assistant'` |
 | `priority.sortOrder` | `LorebookEntry.sortOrder` | native | display/edit order |
@@ -142,17 +142,17 @@ string, warn (not error) when it isn't exactly `"1.0.0"`, and always write
 | `advanced.useMemo` | `LorebookEntry.useMemo` | native | |
 | `advanced.excludeRecursion` | `LorebookEntry.excludeRecursion` | native | |
 | `advanced.preventRecursion` | `LorebookEntry.preventRecursion` | native | |
-| `advanced.delayUntilRecursion` | `LorebookEntry.delayUntilRecursion` | native | numeric depth, not boolean, in RC native (contrast ST's boolean flag — see st-worldinfo.md) |
+| `advanced.delayUntilRecursion` | `LorebookEntry.delayUntilRecursion` | native | numeric depth, not boolean, in RC native (contrast ST's boolean flag - see st-worldinfo.md) |
 | `advanced.ignoreBudget` | `LorebookEntry.ignoreBudget` | native | |
 | `characterFilter` | `LorebookEntry.characterFilter` | native | `{ isExclude, names[], tags[] } \| null` |
 | `scanSources.characterDescription` | `LorebookEntry.scanCharacterDescription` | native | |
 | `scanSources.characterPersonality` | `LorebookEntry.scanCharacterPersonality` | native | |
 | `scanSources.userPersona` | `LorebookEntry.scanUserPersona` | native | |
 | `scanSources.scenario` | `LorebookEntry.scanScenario` | native | |
-| (none — no `scanSources.preset` in schema) | `LorebookEntry.scanPreset` | dropped on read, defaulted `false` | canonical `LorebookEntry.scanPreset` exists (`types.ts:302`) but `RoleCallEntryV1.scanSources` has no `preset` key (`schemas.ts:270-282`); parser hardcodes `false` on import (`parser.ts:769`, comment: "Default - RC schema doesn't have this yet"). Serializer likewise never emits it. Vaudeville codec: escrow the live canonical value under `escrow['rolecall'].fields['entries.<id>.scanPreset']` so a value set inside Vaudeville isn't silently lost if round-tripped through this codec, since the wire schema has no slot for it. |
-| `sideEffects` | `LorebookEntry.sideEffects` | native | `EntrySideEffects \| null`; optional field for backward compat with pre-side-effects exports (`schemas.ts:289`) — absent means `null`, not omit-and-inherit |
+| (none - no `scanSources.preset` in schema) | `LorebookEntry.scanPreset` | dropped on read, defaulted `false` | canonical `LorebookEntry.scanPreset` exists (`types.ts:302`) but `RoleCallEntryV1.scanSources` has no `preset` key (`schemas.ts:270-282`); parser hardcodes `false` on import (`parser.ts:769`, comment: "Default - RC schema doesn't have this yet"). Serializer likewise never emits it. Vaudeville codec: escrow the live canonical value under `escrow['rolecall'].fields['entries.<id>.scanPreset']` so a value set inside Vaudeville isn't silently lost if round-tripped through this codec, since the wire schema has no slot for it. |
+| `sideEffects` | `LorebookEntry.sideEffects` | native | `EntrySideEffects \| null`; optional field for backward compat with pre-side-effects exports (`schemas.ts:289`) - absent means `null`, not omit-and-inherit |
 | `metadata` | `LorebookEntry.metadata` | native | the compendium signal (`entry_type` + `structured_data`); optional, added after the base schema (`schemas.ts:291-297`); absent maps to `undefined` on the canonical side (`parser.ts:776`), not `null` |
-| `unsupportedFields` | `LorebookEntry.unsupportedFields` | escrow (RC's own escrow precedent) | this is itself RC's pre-Vaudeville escrow mechanism for ST-only fields RC doesn't model yet (`groupOverride`, `useGroupScoring`, `automationId`, `vectorized`, `matchCharacterDepthPrompt`, `matchCreatorNotes`, `generationTriggers`, `outletName`, plus an open index signature). Vaudeville's codec should fold this into the standard `Escrow` envelope under `escrow['st'].fields` (not `escrow['rolecall']`) since these are ST-origin fields carried through RC, not RC-origin fields — see Edge case 5. |
+| `unsupportedFields` | `LorebookEntry.unsupportedFields` | escrow (RC's own escrow precedent) | this is itself RC's pre-Vaudeville escrow mechanism for ST-only fields RC doesn't model yet (`groupOverride`, `useGroupScoring`, `automationId`, `vectorized`, `matchCharacterDepthPrompt`, `matchCreatorNotes`, `generationTriggers`, `outletName`, plus an open index signature). Vaudeville's codec should fold this into the standard `Escrow` envelope under `escrow['st'].fields` (not `escrow['rolecall']`) since these are ST-origin fields carried through RC, not RC-origin fields - see Edge case 5. |
 | (not on entry; derived from `LorebookEntry.boostIds`/`boostAmount` in canonical) | n/a | dropped on both read and write | `RoleCallEntryV1` has no `boostIds`/`boostAmount` fields at all. Canonical `LorebookEntry` has them (`types.ts:291-292`, "Cross-entry boosting"). Parser hardcodes `boostIds: []`, `boostAmount: 0` on import (`parser.ts:758-759`); serializer never emits them. If a Vaudeville-created entry has non-default boost values and round-trips through RoleCallExportV1, they are lost on write and reset to defaults on the next read. Flag as `dropped` in the capabilities matrix and surface a `SerializeReport` warning when non-default values would be discarded. |
 | (not on entry; canonical `allowRecursion`) | n/a | dropped on both read and write | Same pattern as boosting: canonical has `allowRecursion: boolean` (`types.ts:285`); RC's own export schema has no field for it. Parser hardcodes `false` (`parser.ts:751`). Flag `dropped`. |
 
@@ -168,14 +168,14 @@ parse time, `parser.ts:841`; timestamps are not part of the export). Category
 `LorebookTreeV1` is a snapshot of a separate `lorebook_trees` DB table
 (precomputed compendium/navigation summary), embedded only when the exporter
 explicitly passes a `tree` argument to `serializeToRoleCallV1` (it is not
-derived from `entries` by the codec itself — VAUD's caller fetches it
+derived from `entries` by the codec itself - VAUD's caller fetches it
 separately). See the escrow note in the field-map table above.
 
 ### Serialization order and defaults
 
 `serializeToRoleCallV1` (`serializer.ts:560-614`) always writes
 `schemaVersion: "1.0.0"` and a fresh `exportDate` (`new Date().toISOString()`
-at serialize time — NOT the original import's `exportDate`, which is why that
+at serialize time - NOT the original import's `exportDate`, which is why that
 field is escrow-only, not a canonical round-trip target). `categories` and
 `tree` keys are omitted entirely from the JSON when empty/absent (conditional
 spread, `serializer.ts:594-606`), not written as empty array / null.
@@ -188,7 +188,7 @@ Both this codec and `st-worldinfo.md` target the same canonical
 all RoleCall features" (`serializer.ts:554-556`). Concretely, per VAUD's own
 `validateForRoleCallExport`, this holds because it literally reuses the same
 base structural validation as ST export (`validation.ts:240-242`) with no
-additional RC-specific rejection — the format itself is what avoids loss, not
+additional RC-specific rejection - the format itself is what avoids loss, not
 extra validation. When Vaudeville's canonical model round-trips a lorebook
 `ST -> canonical -> RoleCallExportV1 -> canonical -> ST`, the middle
 RoleCallExportV1 hop should be lossless relative to the canonical model
@@ -334,12 +334,12 @@ export function serializeRoleCallLorebookV1(
    `schemas.ts:90`). Canonical `LorebookEntry.categoryId` is preserved as-is
    (a dangling reference); no resolution/repair happens in the codec itself
    (VAUD's ST *serializer* resolves `categoryId` -> `groupName` via a lookup
-   map only when serializing to ST, `serializer.ts:372-386,384-387` — that
+   map only when serializing to ST, `serializer.ts:372-386,384-387` - that
    resolution is ST-codec behavior, not something this codec does on parse).
 5. **`unsupportedFields` on an entry.** These are ST-origin fields RC
    couldn't model, riding through RC export as an escape hatch
    (`schemas.ts:299-313`). On parse, fold them into `escrow['st'].fields`
-   keyed by field name, not `escrow['rolecall']` — they did not originate in
+   keyed by field name, not `escrow['rolecall']` - they did not originate in
    RoleCall's own format, RoleCall is just the carrier. On serialize back to
    RoleCallExportV1, re-emit the object verbatim under `unsupportedFields`
    only if it has at least one key (mirrors the conditional spread at
@@ -363,13 +363,13 @@ export function serializeRoleCallLorebookV1(
    `detect()` (return null / low confidence) and let a future
    `rolecall-lorebook-legacy` codec (OPEN QUESTION: is one planned, or does
    detection just fall through to failure) own it. Do not silently
-   misparse a legacy file as v1 — the shapes are structurally incompatible
+   misparse a legacy file as v1 - the shapes are structurally incompatible
    (flat entry fields vs the nested `triggers`/`matching`/`injection`/etc.
    groups).
 9. **Trigger discriminated union ambiguity.** `triggers.mode: "advanced"` is
    derived by the serializer from `entry.triggers.some(t => 'probability' in
    t)` (`serializer.ts:481`), not stored independently from the per-trigger
-   shape — an entry can theoretically have `mode: "simple"` in the wire JSON
+   shape - an entry can theoretically have `mode: "simple"` in the wire JSON
    while one of its `primary` triggers still carries a `probability` field
    (hand-edited file, or a bug in an upstream exporter). On parse, canonical
    `triggerMode` should be taken from the wire `triggers.mode` field
@@ -380,11 +380,11 @@ export function serializeRoleCallLorebookV1(
 10. **`isRegex` trigger with `flags` on read producing a JS regex that fails
     to compile.** Out of scope for this codec's parse step (the codec is not
     responsible for validating that `keyword`+`flags` form a syntactically
-    valid regex) — that is the lorebook engine's concern at match time
+    valid regex) - that is the lorebook engine's concern at match time
     (see `specs/engine/lorebook-engine.md`). The codec's job is to preserve
     `{ keyword, isRegex, flags }` verbatim.
 11. **`lorebook.name` empty string.** Wire schema requires `name: string`
-    (not optional, not nullable) — an empty string is syntactically valid
+    (not optional, not nullable) - an empty string is syntactically valid
     JSON but semantically odd. VAUD source has no explicit guard against
     this in the RC parser; treat as a parse warning (empty name), not a
     parse error, consistent with the "advisory over rejection" pattern seen
@@ -394,7 +394,7 @@ export function serializeRoleCallLorebookV1(
     a hypothetical future codec, or set directly via the Vaudeville CLI).**
     These have zero representation in `RoleCallEntryV1`. Serialize must
     silently DROP them and the `SerializeReport` must list them under
-    `dropped`, per escrow-and-roundtrip.md's reporting contract — do not
+    `dropped`, per escrow-and-roundtrip.md's reporting contract - do not
     invent wire fields for them (that would break real RoleCall's own
     importer on a foreign field it doesn't expect... actually RoleCall's own
     parser reads `RoleCallEntryV1` with a fixed shape and would ignore
@@ -404,25 +404,25 @@ export function serializeRoleCallLorebookV1(
 ## Test plan
 
 - Fixtures required (`fixtures/rolecall-lorebook/`):
-  - `minimal.json` — smallest valid `RoleCallExportV1`: one entry, no
+  - `minimal.json` - smallest valid `RoleCallExportV1`: one entry, no
     categories, no tree, no sideEffects/metadata (exercises optional-field
     defaults, edge cases 3, 6, 7).
-  - `full-featured.json` — every field populated: categories present with
+  - `full-featured.json` - every field populated: categories present with
     entries referencing them, tree embedded, sideEffects with multiple
     effect types, metadata with `entry_type`/`structured_data`, mixed
     simple/advanced triggers, all nine `InjectionPosition` values across
     different entries, `unsupportedFields` populated with several ST-origin
     keys (exercises the full field map + edge cases 4, 5).
-  - `unfamiliar-version.json` — `schemaVersion: "1.0.1"` (or similar), valid
+  - `unfamiliar-version.json` - `schemaVersion: "1.0.1"` (or similar), valid
     structure otherwise (edge case 1).
-  - `legacy-unversioned.json` — no `schemaVersion`, flat `entries` array with
+  - `legacy-unversioned.json` - no `schemaVersion`, flat `entries` array with
     `comment` fields, structurally the pre-schema shape (edge case 8, must
     be REJECTED or routed away by `detect()`, not misparsed).
-  - `dangling-category-ref.json` — entry with `categoryId` pointing to a
+  - `dangling-category-ref.json` - entry with `categoryId` pointing to a
     category id absent from `categories[]` (edge case 4).
-  - `mode-mismatch.json` — `triggers.mode: "simple"` with a `primary`
+  - `mode-mismatch.json` - `triggers.mode: "simple"` with a `primary`
     trigger that has a `probability` field anyway (edge case 9).
-  - `nonstandard-boosting.json` — canonical-side-only fixture (built via
+  - `nonstandard-boosting.json` - canonical-side-only fixture (built via
     `packages/core` directly, not a wire JSON file) with non-default
     `boostIds`/`boostAmount`/`allowRecursion`, serialized through this codec
     to confirm the `SerializeReport.dropped` list names them (edge case 12).
@@ -468,15 +468,15 @@ export function serializeRoleCallLorebookV1(
 
 ## Sources consulted
 
-- `<RoleCall>\packages\lorebook\src\schemas.ts` (whole file, 352 lines) — `RoleCallExportV1` :28, `RoleCallLorebookV1` :42, `RoleCallCategoryV1` :102, `LorebookTreeV1` :119, `RoleCallEntryV1` :139-314, `ExportOptions`/`ExportResult` :323-352.
-- `<RoleCall>\packages\lorebook\src\types.ts` — `LorebookCategory` :10, `Trigger`/`SimpleTrigger`/`AdvancedTrigger` :27-89, `SelectiveLogic` :108, `CharacterFilter` :120, `EntrySideEffect(s)` :138-153, `InjectionPosition` :182-191, `MessageRole` :193, `EntryOrigin` :210, `LorebookEntry` :216-331, `Lorebook` :342-393, `LorebookWithEntries` :399-402.
-- `<RoleCall>\packages\lorebook\src\format-detection.ts` (whole file, 232 lines) — `detectLorebookFormat` :44-148, `detectRoleCallFeatures` :154-184, `isRoleCallVersionSupported` :214-217, `getRoleCallMigration` :226-231.
-- `<RoleCall>\packages\lorebook\src\serializer.ts` (whole file, 628 lines) — ST position/role/selectiveLogic mappers :112-156, `serializeEntry` (ST) :217-348, `serializeToST` :362-407, `serializeEntryToRoleCallV1` :471-551, `serializeToRoleCallV1` :560-614, `serializeToRoleCallJSON` :624-627.
-- `<RoleCall>\packages\lorebook\src\parser.ts` — `parseRoleCallV1` :676-866, `normalizeTriggers` :875-891, `parseRoleCallInternal` header :893-899, `parseLorebook` dispatcher :1223+.
-- `<RoleCall>\packages\lorebook\src\validation.ts` — `validateForRoleCallExport` :240-242 (delegates to base `validateLorebook`).
-- `<RoleCall>\packages\lorebook\src\diff-engine.ts` — `EntryState`/`LorebookState`/`ChangeType` :18-90 (versioning hooks context; this codec's field set is the same one the diff engine tracks per-entry for changelog generation, confirming which fields are considered "the entry" for versioning purposes).
-- `<RoleCall>\apps\rc\src\lib\lorebook\compendium-parser.ts` — `compendium-` schema marker detection :83-84, version check :169-171 (cited only to scope the Non-goal / Edge case 2 boundary, not analyzed in full).
+- `<RoleCall>\packages\lorebook\src\schemas.ts` (whole file, 352 lines) - `RoleCallExportV1` :28, `RoleCallLorebookV1` :42, `RoleCallCategoryV1` :102, `LorebookTreeV1` :119, `RoleCallEntryV1` :139-314, `ExportOptions`/`ExportResult` :323-352.
+- `<RoleCall>\packages\lorebook\src\types.ts` - `LorebookCategory` :10, `Trigger`/`SimpleTrigger`/`AdvancedTrigger` :27-89, `SelectiveLogic` :108, `CharacterFilter` :120, `EntrySideEffect(s)` :138-153, `InjectionPosition` :182-191, `MessageRole` :193, `EntryOrigin` :210, `LorebookEntry` :216-331, `Lorebook` :342-393, `LorebookWithEntries` :399-402.
+- `<RoleCall>\packages\lorebook\src\format-detection.ts` (whole file, 232 lines) - `detectLorebookFormat` :44-148, `detectRoleCallFeatures` :154-184, `isRoleCallVersionSupported` :214-217, `getRoleCallMigration` :226-231.
+- `<RoleCall>\packages\lorebook\src\serializer.ts` (whole file, 628 lines) - ST position/role/selectiveLogic mappers :112-156, `serializeEntry` (ST) :217-348, `serializeToST` :362-407, `serializeEntryToRoleCallV1` :471-551, `serializeToRoleCallV1` :560-614, `serializeToRoleCallJSON` :624-627.
+- `<RoleCall>\packages\lorebook\src\parser.ts` - `parseRoleCallV1` :676-866, `normalizeTriggers` :875-891, `parseRoleCallInternal` header :893-899, `parseLorebook` dispatcher :1223+.
+- `<RoleCall>\packages\lorebook\src\validation.ts` - `validateForRoleCallExport` :240-242 (delegates to base `validateLorebook`).
+- `<RoleCall>\packages\lorebook\src\diff-engine.ts` - `EntryState`/`LorebookState`/`ChangeType` :18-90 (versioning hooks context; this codec's field set is the same one the diff engine tracks per-entry for changelog generation, confirming which fields are considered "the entry" for versioning purposes).
+- `<RoleCall>\apps\rc\src\lib\lorebook\compendium-parser.ts` - `compendium-` schema marker detection :83-84, version check :169-171 (cited only to scope the Non-goal / Edge case 2 boundary, not analyzed in full).
 - `docs\the extraction map (private planning notes)` :16-25 (extraction inventory for `packages/lore`, confirms `schemas.ts`/`parser.ts`/`serializer.ts`/`diff-engine.ts` are the intended source set).
-- `specs\formats\canonical-model.md` — Lorebook/LorebookEntry canonical baseline decision (:52-58), Escrow envelope shape.
-- `specs\formats\escrow-and-roundtrip.md` — Round-Trip Law, Escrow envelope, capabilities matrix, reporting contract.
-- `docs\the production bible (private planning notes)` :47 — this file's brief.
+- `specs\formats\canonical-model.md` - Lorebook/LorebookEntry canonical baseline decision (:52-58), Escrow envelope shape.
+- `specs\formats\escrow-and-roundtrip.md` - Round-Trip Law, Escrow envelope, capabilities matrix, reporting contract.
+- `docs\the production bible (private planning notes)` :47 - this file's brief.

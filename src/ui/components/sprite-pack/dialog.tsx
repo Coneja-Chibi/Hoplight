@@ -310,12 +310,12 @@ export function SpritePackDialog({
                   ],
                 });
                 setDraft(next);
-                setFlash("Pasted image as “pasted” — rename the label.");
+                setFlash("Pasted image as “pasted” - rename the label.");
                 return;
               }
               setFlash("Clipboard has no image.");
             } catch {
-              setFlash("Clipboard paste blocked — drop a file instead.");
+              setFlash("Clipboard paste blocked - drop a file instead.");
             }
           }}
         >

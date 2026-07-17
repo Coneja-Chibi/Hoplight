@@ -41,7 +41,7 @@ export function ExpressionStage({ pack, profile }: ExpressionStageProps): JSX.El
           {face?.ref ? (
             <img src={face.ref} alt={face.label} />
           ) : (
-            <span>{hitLabel || "—"}</span>
+            <span>{hitLabel || "-"}</span>
           )}
           {face ? <span>{face.label}</span> : null}
         </div>

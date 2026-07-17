@@ -62,7 +62,7 @@ honesty · no empty native lore boxes. See plan §4.
 
 ---
 
-## M0 — Foundation
+## M0 - Foundation
 
 Repo scaffold (Bun workspace, CI, lint, LICENSE + CLA bot), fixture corpus seeded
 (>= 40 real files across formats), `packages/core` canonical schemas, escrow envelope,
@@ -79,7 +79,7 @@ deliberately-added AGPL dependency.
 
 ---
 
-## M1 — The Converter (v0.1, first public release)
+## M1 - The Converter (v0.1, first public release)
 
 All codecs (V2/V3 JSON+PNG, charx, Backyard, ST worldbook, RC lorebook, ST preset,
 Lumiverse preset, personas, regex scripts), content-type detection,
@@ -100,10 +100,10 @@ GitHub multi-OS Releases + `vaud upgrade` remain packaging polish (not jewel blo
 
 ---
 
-## M2 — The Brain
+## M2 - The Brain
 
 `packages/ai` (providers, streaming, weak-model tool fallback, key vault) built ON the
-Vercel AI SDK (not a forked agent base — docs/07), `packages/agent` (loop, resource
+Vercel AI SDK (not a forked agent base - docs/07), `packages/agent` (loop, resource
 tools over `vaud://`, spill store, staged edits, personas) implementing the ADR-006
 constraints as our own code, `vaud` bare REPL, agent eval harness with golden tasks.
 
@@ -115,7 +115,7 @@ tokens-per-task for both.
 
 ---
 
-## M3 — The Script Doctor (v0.2)
+## M3 - The Script Doctor (v0.2)
 
 Deterministic passes (format errors, token waste, contradiction candidates, slop
 banks, speaks-for-user, W++ relics), health score, AI treatment planner with
@@ -128,7 +128,7 @@ individually; deterministic pass runs with no key configured.
 
 ---
 
-## M4 — The Table Read (v0.3)
+## M4 - The Table Read (v0.3)
 
 Interview engine as a UI-agnostic event stream (question -> chips -> answer ->
 field-patch events), three tempos (Cold Read / Deep Dive / Rapid Fire), adaptive
@@ -143,7 +143,7 @@ by the owner.
 
 ---
 
-## M5 — The Test Stage + Productions (v0.4)
+## M5 - The Test Stage + Productions (v0.4)
 
 `packages/assembly` (prompt assembly with full trace), test chat in CLI with
 lorebook activation readout ("rigging view"), productions (workspace folders,
@@ -155,11 +155,11 @@ Full production workspaces + assembly package still open.
 **Exit:** edit a card field, replay the same test line, watch the output change;
 `vaud history restore` recovers a deleted lorebook entry.
 
-**Status:** **PARTIAL** — sealed Test Bench exists for behavior cards; full M5 productions **open**.
+**Status:** **PARTIAL** - sealed Test Bench exists for behavior cards; full M5 productions **open**.
 
 ---
 
-## M6 — The Studio (v0.5)
+## M6 - The Studio (v0.5)
 
 The desktop app face: Tauri shell over the engine. **Originally blocked on visual-direction
 re-exploration; code has run ahead.**
@@ -170,11 +170,11 @@ Press, Settings, **CSS Workshop**. Character Fields + Risu Workshop + platform n
 **Exit (revised):** studio is the daily driver for forge + convert; formal Tauri/packaging polish
 and public v0.5 packaging still TBD.
 
-**Status:** **AHEAD OF PLAN** — treat as **in progress / usable**, not formal DONE until packaging exit.
+**Status:** **AHEAD OF PLAN** - treat as **in progress / usable**, not formal DONE until packaging exit.
 
 ---
 
-## M7 — The Archives + The World Forge (v0.6+)
+## M7 - The Archives + The World Forge (v0.6+)
 
 Distill-from-logs with per-claim citations and evidence review; world forge
 (interview-grown worlds, corkboard data model, continuity desk as a standing
@@ -191,13 +191,13 @@ cites real scenes; continuity desk catches a planted cross-file contradiction.
 
 M0 + M1 jewels are closed. Character cards closed. Pick next:
 
-1. **Content types** — full Lorebook / Regex editors (unlocks link-outs)
-2. **Sprites / media milestone** — Manage Sprites (Lumi + Chub stubs)
+1. **Content types** - full Lorebook / Regex editors (unlocks link-outs)
+2. **Sprites / media milestone** - Manage Sprites (Lumi + Chub stubs)
 3. **NovelAI lorebook** adapter
-4. **M3 Script Doctor** — deterministic audits, no key
-5. **M2 Brain** — agent loop
-6. **Packaging polish** — multi-OS GitHub Releases + `vaud upgrade` (optional M1+)
-7. **M6 packaging** — formal studio release when ready
+4. **M3 Script Doctor** - deterministic audits, no key
+5. **M2 Brain** - agent loop
+6. **Packaging polish** - multi-OS GitHub Releases + `vaud upgrade` (optional M1+)
+7. **M6 packaging** - formal studio release when ready
 
 Do **not** reopen C.AI/Crushon native bags.
 

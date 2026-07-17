@@ -28,7 +28,7 @@ interface Entity<T> {
 }
 ```
 
-## Character (canonical superset — sources it must cover)
+## Character (canonical superset - sources it must cover)
 
 - chara_card_v2 / v3 (public specs): name, description, personality, scenario,
   first_mes, mes_example, creator_notes, system_prompt, post_history_instructions,
@@ -61,7 +61,7 @@ envelope.
 
 Two-layer, as in presets-core: `RawPreset` stays codec-side; canonical `Preset` is
 the parsed shape (`prompts[]`, `promptOrder`, `samplers`, `systemPrompts`,
-`templates`, `behavior`, `apiOptions`) — see extraction map.
+`templates`, `behavior`, `apiOptions`) - see extraction map.
 
 ## Token counting
 

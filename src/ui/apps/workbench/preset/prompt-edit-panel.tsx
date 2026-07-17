@@ -165,7 +165,7 @@ export function PromptEditPanel({
               {stops.map((stop) => (
                 <option key={stop} value={stop}>
                   {PRESET_PLACEMENT_LABELS[stop]?.label ?? stop}
-                  {PRESET_PLACEMENT_LABELS[stop]?.hint ? ` — ${PRESET_PLACEMENT_LABELS[stop]!.hint}` : ""}
+                  {PRESET_PLACEMENT_LABELS[stop]?.hint ? ` - ${PRESET_PLACEMENT_LABELS[stop]!.hint}` : ""}
                 </option>
               ))}
               {!stops.includes(block.placement) && (
