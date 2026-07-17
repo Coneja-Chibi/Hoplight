@@ -212,8 +212,15 @@ function cardToBody(c: AgnaiCard): CharacterBody {
 
 /** Overlay canonical edits onto an Agnai card (mutates + returns). Only defined values are written. */
 function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
+  // Write when set; when canonical has cleared a field, delete it from the twin rather than leave the
+  // stale value. The character editor clears a text field by dropping the key (writePath treats "" as
+  // empty and deletes), so the canonical value goes undefined, not "". Every field routed through set
+  // is one the importer reads back via str/strList, so undefined here means "absent", never "unmapped".
+  // The string/array guard keeps that honest: only delete what the twin held as a value import could
+  // round-trip, so a malformed non-string the importer dropped is preserved, not silently stripped.
   const set = <K extends keyof AgnaiCard>(k: K, v: AgnaiCard[K] | undefined): void => {
     if (v !== undefined) base[k] = v;
+    else if (typeof base[k] === "string" || Array.isArray(base[k])) delete base[k];
   };
   set("name", b.identity.name);
   set("description", b.identity.description);
@@ -232,9 +239,11 @@ function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
   if (depth) base.insert = { depth: depth.depth, prompt: depth.text };
   base.persona = toAgnaiPersona(b);
 
-  // Authored config blocks pulled out of original: write only when set (absence leaves the twin alone).
   set("culture", b.identity.culture);
   set("visualType", b.media.visualKind);
+  // The authored config blocks below are richer shapes (avatar/sprite/voice/imageSettings/json) whose
+  // clear-paths are not yet modeled: they still write only when set and leave the twin alone otherwise.
+  // This is the same clear-doesn't-clear shape as the scalars above, not yet closed for these fields.
   const face = portraitToAvatar(b.media.portrait);
   if (face !== undefined) base.avatar = face;
   if (b.media.sprite) base.sprite = spriteToWire(b.media.sprite);

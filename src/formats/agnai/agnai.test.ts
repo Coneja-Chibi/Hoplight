@@ -61,6 +61,18 @@ test("round-trip is lossless: a wpp card deep-equals through canonical + back", 
   expect(JSON.parse(out.text!)).toEqual(original);
 });
 
+test("clearing a scalar field removes it from the card, not reverts to the twin", () => {
+  const ent = adapter.toCanonical(asInput(wppCard()));
+  expect(ent.body.persona.appearance).toBe("tall, ink-stained fingers"); // precondition
+  // The character editor clears a text field by dropping the key (writePath + isEmptyValue), so the
+  // canonical value becomes undefined. The cleared field must leave the exported card, not persist.
+  ent.body.persona.appearance = undefined;
+  const out = JSON.parse(adapter.fromCanonical(ent).text!) as Record<string, unknown>;
+  expect("appearance" in out).toBe(false);
+  expect(out.name).toBe("Vera"); // siblings and unmapped fields untouched
+  expect((out.extensions as Record<string, unknown>).foo).toBe("bar");
+});
+
 test("a text-persona card round-trips through personality", () => {
   const card = { ...wppCard(), persona: { kind: "text", attributes: { text: ["curious and dry"] } } };
   const ent = adapter.toCanonical(asInput(card));
