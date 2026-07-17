@@ -1,0 +1,16 @@
+# Line-ending law: this is a Bun/LF repo. Checkouts are byte-deterministic on every OS; git never
+# rewrites endings behind our back (a CRLF smudge on a fresh worktree broke the NovelAI escrow
+# byte-for-byte fixture test - escrow fidelity depends on exact bytes).
+* text=auto eol=lf
+
+# Escrow/round-trip fixtures are sacred bytes: no conversion of any kind, ever.
+src/formats/**/fixtures/** -text
+samples/** -text
+fixtures/** -text
+
+# Binary assets.
+*.png binary
+*.ico binary
+*.charx binary
+*.byaf binary
+*.woff2 binary
