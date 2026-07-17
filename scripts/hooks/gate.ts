@@ -1,11 +1,11 @@
 /**
  * The green + discipline gate: the imperative shell around lib.ts. Gathers the changed files (staged
  * for a commit, or the whole working tree for a "declaring done" check), runs the pure detectors, and
- * runs the test suite. Any violation exits 2 (the Claude Code + git blocking contract); a clean pass
+ * runs the test suite. Any violation exits 2 (the editor + git blocking contract); a clean pass
  * exits 0; an infrastructure failure (no git, unreadable file) exits 1 so a broken gate never locks
  * the repo - it fails closed on a real violation, open on its own breakage.
  *
- * Modes: --staged (git pre-commit, staged diff) | --worktree (Claude Code Stop, uncommitted changes).
+ * Modes: --staged (git pre-commit, staged diff) | --worktree (editor Stop hook, uncommitted changes).
  * Run: bun run scripts/hooks/gate.ts --staged
  */
 import { readFileSync, statSync } from "node:fs";
