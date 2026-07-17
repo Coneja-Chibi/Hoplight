@@ -57,6 +57,7 @@ written back on encode.
 | `persona.voice` | `voice` (discriminated on `service`) + `voiceDisabled` (see below) |
 | `persona.imagePrompt` | `imageSettings.{prefix,suffix,negative,template}` - the authored AFFIXES only |
 | `media.sprite` / `media.visualKind` | `sprite` (flat FullSprite -> `{parts, gender, colors}`) / `visualType` |
+| `media.portrait` | `avatar` (face image: data URI or URL; not the sprite recipe) |
 | `settings.responseSchema` | `json` (ResponseSchema, carried verbatim-editable) |
 
 The de-escrowed authored blocks (voice, sprite, culture, image affixes, json) map both ways: `service` ->

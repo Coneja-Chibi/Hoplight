@@ -1,0 +1,382 @@
+{
+  "lorebookVersion": 4,
+  "entries": [
+    {
+      "text": "Description of how she glanced at her love and smiles:\nThe mahogany-haired adolescent girl glanced fleetingly at her rugged paramour, a crystalline sparkle in her eyes as she gazed happily upon his countenance. It was filled with an expression as enigmatic as shadows in the night. She pondered thoughtfully whether it would behoove her to request that she continue to follow him on his noble mission.\nDescription of Saphira being angry:\nSaphira’s muscled sides expanded and contracted as the great bellows of her lungs forced air through her scaled nostrils. Eragon thought of the raging inferno that she could now summon at will and send roaring out of her maw. It was an awesome sight when flames hot enough to melt metal rushed past her tongue and ivory teeth without harming them.\nDescription of how I watch the tide:\nAn alder leaf, loosened by wind, is drifting out with the tide. As it drifts, it bumps into the slender leg of a great blue heron staring intently through the rippled surface, then drifts on. The heron raises one leg out of the water and replaces it, a single step. As I watch, I, too, am drawn into the spread of silence. Slowly a bank of cloud approaches, slipping its bulged and billowing texture over the earth, folding the heron and the alder trees and my gazing body into the depths of a vast breathing being, enfolding us all within a common flesh, a common story now bursting with rain.\nDescription of Humans being animals:\nFor much of their history and all of prehistory, humans did not see themselves as being any different from the other animals among which they lived. Hunter-gatherers saw their prey as equals, if not superiors, and animals were worshipped as divinities in many traditional cultures. The humanist sense of a gulf between ourselves and other animals is an aberration. Feeble as it is today, the feeling of sharing a common destiny with other living things is embedded in the human psyche. Those who struggle to conserve what is left of the natural environment are moved by the love of living things, biophilia, the frail bond of feeling that ties humankind to the Earth.\nDescription of how, feeling at peace, I walked toward the beach:\nI waited another couple of minutes, then started on a walk toward the highway and the beach. The air was peculiar, the way it just hung, motionless, drifting off the water, and the only sound was the faint hiss of little breakers running over rock jetties. There weren’t any cars on Highway 90, and only one streetlamp burned about 150 yards down the road. I stood on the corner in front of the condos and looked up at our place, the dark bedroom where Cheryl was sleeping, then walked out into the middle of the empty highway and crossed to the beach side where the sand was gritty under my shoes, then came back, looking all around, soaking up everything. With the lights out things seemed to have lost their power. It was like nothing was holding anything, the resistance was gone, that little pressure that’s always against you, obliging you, keeping you in place.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659821125080,
+      "displayName": "General Descriptor",
+      "id": "846e259f-e55a-446f-908d-e695dd668c14",
+      "keys": [
+        "/Description(?!.*(\\bfeel\\b|\\bfeels\\b|felt|touch|smell|scent|see|view|look|sight|hear|sound|noise|taste|tasting)).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "The General Descriptor is based on \"Summaries, Sentiments, and Scenes\" by Magenta.Darkstar:\nhttps://cdn.discordapp.com/attachments/868472982471843870/974675068372271174/Sentiments_Summaries_and_Scenes_Beta.png\nThe General Descriptor entry in here is just a very slight edit to the Summaries entry. Most work for that entry has already been done by Magenta.Darkstar.\n\nResearch on using \"Description of thing:\" comes from placebomancer\nhttps://naidb.miraheze.org/wiki/Directing_the_Narrative",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659821183357,
+      "displayName": "*Credits*",
+      "id": "b8bbd1d9-3dc3-49e6-8505-bc5b620a0cbb",
+      "keys": [],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": 0,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "Description of how the sand felt on my feet:\nMy feet sank into the warm, wet sand. It oozed up between my toes with an almost tickly sensation. I felt it glide further up my foot as it sank deeper and deeper into the thick, watery muck.\nDescription of how Adelais felt lying down on the grass:\nAdelais laid down in the plush green grass. The velvety softness embraced her. A gentle breeze wafted across her skin, sending shivers through her body.\nDescription of how the sun felt while I am crawling on the ground:\nThe intense heat of the sun baked my skin, searing several layers deep and evaporating any perspiration that soaked my clothing as I crawled along the rough, parched ground. I desperately searched for moisture, but the arid, cracked ground had none to give.\nDescription of Cerball touching the wall:\nHe ran his hand across the dark, concrete wall. It was cold as ice. When he came to the middle of the room, he felt a thick, slimy substance actively oozing down the wall.\nDescription of how I felt after climbing the stairs:\nMy legs ached after climbing so many flights of stairs, and I could feel the flush in my face. I couldn’t wait to get out of my sticky, sweaty clothes and let the cool, soothing water wash over me in the shower.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659720954234,
+      "displayName": "Tactile Descriptor",
+      "id": "16047e8c-71f0-407e-b5b3-25385d31f02c",
+      "keys": [
+        "/Description.*(\\bfeel\\b|\\bfeels\\b|felt|touch).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "Description of the smell of peanut butter:\nThe smell of peanut butter is rich, smoky, surprisingly deep. The scent stacks in clear layers: at the top floats a note of honeyed sweetness. A heavy swirl of oil forms the grounding base note. In the fat middle, it’s all sticky, particulate peanuts: a smell that matches the taste with uncanny fidelity.\nDescription of how the flower shop smelled:\nThe flower shop was heavy with the drowsy scent of velvet-petaled roses and Provencal freesias in the middle of winter, the damp-earth spring fragrance of just-watered azaleas and cyclamen all mixed up with the headachey smell of bitter chocolate.\nDescription of Xandra awakening to the smell of the beast:\nA smell shivered Xandra awake. It was a scent as old as the world. It was a hundred aromas of a thousand places. It was the tang of pine needles. It was the muscular rot of mushrooms. It was the spice of oak. Meaty and redolent of soil and bark and herb. It was bats and husks and burrows and moss. It was solid and alive – so alive! And it was close.\nDescription of me smelling the occultist:\nThere was an odor about the occultist which I could not help but be aware of. It was a mélange of bay rum, wet ashes and tabac gris, tinctured with a dash of some elusive, elegant perfume.\nDescription of me taking in the scent of the hotel lobby:\nI take in the scent of the hotel itself – the mélange of ladies’ fine perfumes, the dark musk of the leather armchairs, the tangy zing of lemon polish that’s used twice daily on the gleaming marble floors.\nDescription of the smell of ginger:\nThe scent combines the spreading deep heat of cinnamon with a bright citrus burst. It smells of sunshine, the tropics, the somnolent pleasure of lazing on a beach.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659724398948,
+      "displayName": "Smell Descriptor",
+      "id": "f0c15281-1f88-409f-8d3c-65d0ea0f684d",
+      "keys": [
+        "/Description.*(smell|scent).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "Description of what the blue house looked like:\nThe entrance of the house was bright azure, with dangling evil eye beads and horseshoes nailed up. The checkered tablecloths were navy and white, the curtains a vivid sapphire, the tiles on the walls adorned with patterns in aquamarine, and even the wide, languid ceiling fans were of a similar hue.\nDescription of Cherise seeing the man:\nCherise noticed how the man was tall and sturdy, and even in this relaxed environment, his pose held power. The way his shirt stretched taut around his shoulders when he shifted, snagged and held my attention—she couldn’t help but stare. Did he pick that shirt on purpose? He had to know the thin fabric clung close to his body, showing off every rippling muscle underneath…\nDescription of Oni looking at the bead:\nOni examined the bead, which was carefully wrapped in tissue paper within a clear polythene bag. Its orange color bordered on brown; it was approximately a centimeter long and half a centimeter wide, with neatly cut, faceted corners and a polished and shiny surface. Apart from a few scars on one side, and some dirt still stuck in the hole bored through it, the bead was in perfect condition.\nDescription of what the man in the empty street looked like:\nThe man in the run-down brown leather jacket leaned against the pole; the strands of his greasy hair matted on the left side of his head, his long hawk nose smeared with black grease. The strings of his beard stood pointed and his eyes cast downwards. With a droopy back and a visible limp in his right leg, he struggled to stand.\nDescription of what the grandmother looked like:\nHer mouth bowed forward and her brow sloped back, and her skull shone pink and speckled within a mere haze of hair, which hovered about her head like the remembered shape of an altered thing. She looked as if the nimbus of humanity were fading away and she were turning monkey. Tendrils grew from her eyebrows and coarse white hairs sprouted on her lip and chin. When she put on an old dress the bosom hung empty and the hem swept the floor. Old hats fell down over her eyes. Sometimes she put her hand over her mouth and laughed, her eyes closed and her shoulder shaking.\nDescription of me looking at my guitar:\nI take a look at my guitar. It is nothing fancy, just a Madeira folk guitar, all scuffed and scratched and fingerprinted. At the top is a bramble of copper-wound strings, each one hooked through the eye of a silver tuning key. The strings are stretched down a long, slim neck, its frets tarnished, the wood worn by years of fingers pressing chords and picking notes. The body of the Madeira is shaped like an enormous yellow pear, one that was slightly damaged in shipping. The blond wood has been chipped and gouged to gray, particularly where the pick guard fell off years ago.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659728407127,
+      "displayName": "Sight Descriptor",
+      "id": "b5048432-a32e-4e89-8884-08f0b20c2397",
+      "keys": [
+        "/Description.*(see|view|look|sight).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "Description of the sounds while I walked through the forest:\nAs I walked through the wintery woods, my teeth chattered and the leaves crunched under my feet.\nDescription of the sounds of the weather:\nThe pitter-patter of rain and whispering breeze had progressed into a gushing downpour and howling wind.\nDescription of the noises as John is waking up:\nThe rooster crowed at early dawn, a sign that it was time to start the day. John woke up, listening to the quiet murmurs of his children in the kitchen below; the clang of pots and pans signaled that breakfast was almost ready.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659820016091,
+      "displayName": "Auditory Descriptor",
+      "id": "e5ce8005-5ba4-40e6-9de1-2d14439a1d57",
+      "keys": [
+        "/Description.*(hear|sound|noise).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    },
+    {
+      "text": "Description of Joe tasting the apple:\nJoe plucked an apple right from the tree and crunched into it, the tart juices filling his mouth and running down his chin.\nDescription of me tasting the candy:\nThe candy melted in my mouth and swirls of bittersweet chocolate and slightly sweet but salty caramel blended together on my tongue.\nDescription of what summer vacation tastes lie for Carrie:\nThe salty, sweet flavor of saltwater taffy was Carrie’s very favorite thing about going to the beach for summer vacation.\nDescription of what the toothpaste tastes like:\nThe taste of toothpaste was as bitter as gall.\nDescription of me tasting the pit stop:\nI tasted the acrid flavor of high octane fuel as my pit crew filled the tank.",
+      "contextConfig": {
+        "prefix": "",
+        "suffix": "\n",
+        "tokenBudget": 2048,
+        "reservedTokens": 0,
+        "budgetPriority": 5,
+        "trimDirection": "trimBottom",
+        "insertionType": "newline",
+        "maximumTrimType": "sentence",
+        "insertionPosition": -1
+      },
+      "lastUpdatedAt": 1659821105025,
+      "displayName": "Taste Descriptor",
+      "id": "34c5a75c-c8de-467f-a6df-62818591ddeb",
+      "keys": [
+        "/Description.*(taste|tasting).*:/"
+      ],
+      "searchRange": 2000,
+      "enabled": true,
+      "forceActivation": false,
+      "keyRelative": false,
+      "nonStoryActivatable": false,
+      "category": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "loreBiasGroups": [
+        {
+          "phrases": [
+            {
+              "sequences": [],
+              "sequence": "Description",
+              "type": 2
+            }
+          ],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": -0.5,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "orderByKeyLocations": false
+  },
+  "categories": [
+    {
+      "name": "Prose Enhancer",
+      "id": "d1ed5e9d-e710-4747-8474-d0a3a5578dbf",
+      "enabled": true,
+      "createSubcontext": false,
+      "subcontextSettings": {
+        "text": "",
+        "contextConfig": {
+          "prefix": "",
+          "suffix": "\n",
+          "tokenBudget": 2048,
+          "reservedTokens": 0,
+          "budgetPriority": 400,
+          "trimDirection": "trimBottom",
+          "insertionType": "newline",
+          "maximumTrimType": "sentence",
+          "insertionPosition": -1
+        },
+        "lastUpdatedAt": 1652887914802,
+        "displayName": "New Lorebook Entry",
+        "id": "2916dc55-2729-4e0b-954f-c393fb84f5a1",
+        "keys": [],
+        "searchRange": 1000,
+        "enabled": true,
+        "forceActivation": false,
+        "keyRelative": false,
+        "nonStoryActivatable": false,
+        "category": "",
+        "loreBiasGroups": [
+          {
+            "phrases": [],
+            "ensureSequenceFinish": false,
+            "generateOnce": true,
+            "bias": 0,
+            "enabled": true,
+            "whenInactive": false
+          }
+        ]
+      },
+      "useCategoryDefaults": true,
+      "categoryDefaults": {
+        "text": "",
+        "contextConfig": {
+          "prefix": "",
+          "suffix": "\n",
+          "tokenBudget": 2048,
+          "reservedTokens": 0,
+          "budgetPriority": 5,
+          "trimDirection": "trimBottom",
+          "insertionType": "newline",
+          "maximumTrimType": "sentence",
+          "insertionPosition": -1
+        },
+        "lastUpdatedAt": 1665877484187,
+        "displayName": "New Lorebook Entry",
+        "id": "476f7a48-339a-4cd6-8290-f5182440b70a",
+        "keys": [],
+        "searchRange": 2000,
+        "enabled": true,
+        "forceActivation": false,
+        "keyRelative": false,
+        "nonStoryActivatable": false,
+        "category": "",
+        "loreBiasGroups": [
+          {
+            "phrases": [],
+            "ensureSequenceFinish": false,
+            "generateOnce": true,
+            "bias": 0,
+            "enabled": true,
+            "whenInactive": false
+          }
+        ]
+      },
+      "categoryBiasGroups": [
+        {
+          "phrases": [],
+          "ensureSequenceFinish": false,
+          "generateOnce": true,
+          "bias": 0,
+          "enabled": true,
+          "whenInactive": false
+        }
+      ],
+      "open": true
+    }
+  ]
+}

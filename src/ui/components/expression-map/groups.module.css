@@ -1,0 +1,53 @@
+/**
+ * ExpressionGroups styles. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.group {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  padding: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.head {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.name {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-input, var(--input));
+  color: var(--stage-ink, var(--text));
+  padding: 0.3rem 0.45rem;
+}
+.rm {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-card, var(--card));
+  color: var(--stage-mute, var(--muted));
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+}
+.add {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: transparent;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  align-self: flex-start;
+}

@@ -1,8 +1,10 @@
 /**
  * BentoView - the masonry presenter: three fixed columns (face + sealed rail | everything you write |
  * presentation + meta), one card per field-group. The LAYOUT is data here (each column's ordered cards,
- * named by their module ids through the injected `bcard`); native platform cards are bin-packed into the
- * columns + a full-span row by the shell. Pure layout, no state. Lifted from Editor.tsx.
+ * named by their module ids through the injected `bcard`). Twin native cards append to middle/right
+ * only (columns[0] stays empty so the sticky left face is never buried). All three columns sticky:
+ * when one runs out of content the other keeps scrolling (no independent column scrollbars).
+ * Same FIELD_MODULES as playbill; different arrangement only. Pure layout, no state.
  */
 import type { JSX, ReactNode } from "react";
 
@@ -35,7 +37,7 @@ export function BentoView({ bcard, leftCard, sealedCard, macroCard, columns, spa
           {bcard("Personality", ["personality"])}
           {bcard("Appearance", ["appearance"])}
           {bcard("Scenario", ["scenario"])}
-          {bcard("Persona · Structured", ["structuredKind", "structuredAttributes"])}
+          {bcard("Persona · Structured", ["structuredPersona"])}
           {bcard("System Prompt", ["systemPrompt"])}
           {bcard("Post-History", ["postHistoryInstructions"])}
           {bcard("Prefill", ["prefill"])}
@@ -54,8 +56,10 @@ export function BentoView({ bcard, leftCard, sealedCard, macroCard, columns, spa
           {bcard("Spotlight Definitions", ["spotlight"])}
           {bcard("Discovery", ["genre", "fandom", "contentWarnings"])}
           {bcard("Voice", ["voice"])}
-          {bcard("Image Prompt", ["imagePrompt", "imagePromptRows"])}
-          {bcard("Media", ["visualKind", "mediaLinks"])}
+          {bcard("Image Prompt", ["imagePrompt"])}
+          {bcard("Sprite", ["visualKind", "sprite"])}
+          {bcard("Response Schema", ["responseSchema"])}
+          {bcard("Media", ["mediaLinks"])}
           {bcard("Settings", ["talkativeness", "risuSettings"])}
           {bcard("Bias", ["bias"])}
           {bcard("Attribution", ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"])}

@@ -17,7 +17,7 @@ const NOT_SURE: SetupOption = {
 };
 
 const CSS = `
-.apron{border-top:3px dashed var(--stage-faint);background:#0c0b10;padding:.75rem .95rem .9rem}
+.apron{border-top:3px dashed var(--stage-faint);background:var(--stage-well);padding:.75rem .95rem .9rem}
 .apron-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.55rem}
 .apron-head .ap-k{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.2em;
   text-transform:uppercase;color:var(--stage-dim)}
@@ -27,7 +27,7 @@ const CSS = `
   font-family:var(--font-mono);font-size:.53rem;letter-spacing:.05em;color:var(--stage-dim);
   text-transform:uppercase;text-align:center;line-height:1.2}
 .plate .pl-mk{font-size:.44rem;color:var(--stage-faint)}
-.plate.landed{border:3px solid var(--accent);background:#141019;color:var(--stage-paper)}
+.plate.landed{border:3px solid var(--accent);background:var(--stage-row);color:var(--stage-paper)}
 .plate.landed .pl-mk{color:var(--accent);font-weight:500}
 .ap-note{font-family:var(--font-mono);font-size:.59rem;letter-spacing:.02em;
   color:var(--stage-dim);margin:.6rem 2px 0;line-height:1.5}

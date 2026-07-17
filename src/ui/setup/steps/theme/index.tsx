@@ -25,17 +25,17 @@ const CSS = `
 .mock .mbody span:nth-child(1){width:60%;opacity:.75}
 .mock .mbody span:nth-child(2){width:90%}
 .mock .mbody span:nth-child(3){width:80%}
-.mock.light{color:var(--stage-well);background:#faf8f3} /* hardcode-ok: literal theme-preview swatch, depicts both themes at once so it cannot flip */
-.mock.dark{color:var(--stage-paper);background:#141019} /* hardcode-ok: literal theme-preview swatch */
+.mock.light{color:var(--stage-well);background:var(--paper)} /* hardcode-ok: literal theme-preview swatch, depicts both themes at once so it cannot flip */
+.mock.dark{color:var(--stage-paper);background:var(--stage-row)} /* hardcode-ok: literal theme-preview swatch */
 .thumb-name{font-family:var(--font-big);font-weight:600;font-size:1rem}
 .backwall{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1rem;padding:1.75rem 1.5rem 1.25rem;text-align:center}
 .wall-note{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.24em;
   text-transform:uppercase;color:var(--stage-faint)}
 .preview{width:min(12.25rem,90%);border:3px solid var(--pv-line);background:var(--pv-bg);
-  box-shadow:5px 6px 0 0 rgba(0,0,0,.5)}
-.preview.dark{--pv-bg:#141019;--pv-line:var(--stage-black);--pv-top:var(--stage-sunken);--pv-dim:#3a3646;--pv-lit:#6f6a7d} /* hardcode-ok: literal theme-preview swatches */
-.preview.light{--pv-bg:#faf8f3;--pv-line:var(--stage-well);--pv-top:#efeadd;--pv-dim:#cec6b2;--pv-lit:#8a8272} /* hardcode-ok: literal theme-preview swatches */
+  box-shadow:5px 6px 0 0 var(--shadow-ink)}
+.preview.dark{--pv-bg:var(--stage-row);--pv-line:var(--stage-black);--pv-top:var(--stage-sunken);--pv-dim:#3a3646;--pv-lit:#6f6a7d} /* hardcode-ok: literal theme-preview swatches */
+.preview.light{--pv-bg:var(--paper);--pv-line:var(--stage-well);--pv-top:#efeadd;--pv-dim:#cec6b2;--pv-lit:#8a8272} /* hardcode-ok: literal theme-preview swatches */
 .pv-top{height:16px;background:var(--pv-top);border-bottom:2px solid var(--pv-line);
   display:flex;align-items:center;gap:4px;padding:0 6px}
 .pv-top i{width:6px;height:6px;background:var(--pv-dim);display:block}

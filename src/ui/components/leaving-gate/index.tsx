@@ -11,6 +11,7 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { ExternalLink } from "../../_shared/external-url";
+import { apiFetch } from "../../_shared/api-fetch";
 import { subscribeExternal } from "../../_shared/link-gate";
 import { platformFor, platformMark } from "../../_shared/platform-registry";
 import { readableInk } from "../../_shared/color-math";
@@ -63,7 +64,7 @@ export function LeavingGate(): JSX.Element | null {
     setBusy(true);
     setFailed(false);
     try {
-      const res = await fetch("/api/open", {
+      const res = await apiFetch("/api/open", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ url: target.url }),

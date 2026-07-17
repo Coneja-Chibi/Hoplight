@@ -1,0 +1,242 @@
+/**
+ * Editor composites styles - split from Editor.module.css (last-wins cascade).
+ */
+
+.spoilRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--stage-seam);
+  padding: 0.4rem 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--stage-soft);
+}
+
+.spoil {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  background: transparent;
+  border: 2px solid var(--stage-seam);
+  color: var(--stage-mute);
+  padding: 0.14rem 0.4rem;
+  cursor: pointer;
+}
+
+.spoilOn {
+  background: var(--stage-danger-bg);
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+}
+
+.tagbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.tagsheet {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-danger-bg);
+  border: 3px solid var(--stage-black);
+  color: var(--stage-danger-hot);
+  padding: 0.55rem;
+  text-align: center;
+  cursor: pointer;
+}
+
+.autotag {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  background: var(--stage-row);
+  border: 3px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  color: var(--a, var(--accent));
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+}
+
+.autotag:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.rating {
+  border: 2px solid var(--stage-seam);
+  padding: 0.55rem;
+  margin-top: 0.7rem;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--stage-mute);
+}
+
+.ratingRow b {
+  font-family: var(--font-big);
+  font-size: 0.625rem;
+  color: var(--stage-paper);
+}
+
+.ratingRow i {
+  font-style: normal;
+  font-size: 0.5625rem;
+  color: var(--stage-line);
+}
+
+.bgPreview {
+  height: 5.5rem;
+  border: 2px solid var(--stage-seam);
+  background-size: cover;
+  background-position: center;
+  margin-bottom: 0.5rem;
+}
+
+.bgempty {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  color: var(--stage-danger-hot);
+  border: 2px solid var(--stage-danger-edge);
+  background: var(--stage-danger-deep);
+  padding: 0.5rem 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.bgrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--stage-soft);
+  border-bottom: 1px solid var(--stage-seam);
+  padding: 0.45rem 0.2rem;
+}
+
+.ud {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.ud button {
+  border: 2px solid var(--stage-seam);
+  background: transparent;
+  color: var(--stage-mute);
+  font-size: 0.6rem;
+  padding: 0 0.3rem;
+  cursor: pointer;
+}
+
+.spoilRow span:nth-child(2) {
+  margin-right: auto;
+}
+
+.toggle {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 2px solid var(--seam);
+  padding: 0.2rem 0.75rem;
+  cursor: pointer;
+}
+
+.toggleOn {
+  color: var(--stamp-fg);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.numrange {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.numrange input[type="range"] {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--seam);
+  cursor: ew-resize;
+}
+
+.numrange input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  cursor: ew-resize;
+}
+
+.numrange input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 0;
+  border: none;
+  background: var(--ink);
+  cursor: ew-resize;
+}
+
+.numval {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text);
+  min-width: 3.2em;
+  text-align: right;
+}
+
+.kvrow {
+  display: grid;
+  grid-template-columns: minmax(0, 6rem) minmax(0, 1fr) auto;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.structured {
+  border: 2px solid var(--seam);
+  padding: 0.6rem;
+}
+
+.subrow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.subcell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.subk {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}

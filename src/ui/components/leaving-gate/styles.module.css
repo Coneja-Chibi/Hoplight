@@ -9,15 +9,15 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: rgba(10, 10, 11, 0.94);
+  background: var(--scrim);
 }
 .card {
   width: 100%;
   max-width: 34rem;
   background: var(--stage-panel);
   border: 3px solid var(--stage-black);
-  border-top: 6px solid var(--rose, #e11d48);
-  box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.55);
+  border-top: 6px solid var(--rose);
+  box-shadow: 10px 10px 0 var(--shadow-ink);
   padding: 1.6rem 1.5rem;
   display: flex;
   flex-direction: column;
@@ -29,13 +29,13 @@
   font-size: 1.15rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: #f2eee5;
+  color: var(--stage-paper);
 }
 .lede {
   margin: 0;
   font-size: 0.8125rem;
   line-height: 1.5;
-  color: #a7a2b3;
+  color: var(--stage-mute);
 }
 /* the recognized-site badge: a colored monogram tile + the site name. Recognition is LOCAL only
    (platform-registry), so this never fetches a favicon or thumbnail from the destination. */
@@ -56,7 +56,7 @@
   font-weight: 800;
   font-size: 1.15rem;
   border: 3px solid var(--stage-black);
-  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.5);
+  box-shadow: 3px 3px 0 var(--shadow-ink);
 }
 .globe {
   background: var(--stage-seam);
@@ -70,7 +70,7 @@
   font-weight: 800;
   font-size: 1.15rem;
   letter-spacing: 0.01em;
-  color: #f2eee5;
+  color: var(--stage-paper);
   word-break: break-word;
 }
 .url {
@@ -79,15 +79,15 @@
   color: var(--stage-mute);
   word-break: break-all;
   padding: 0.5rem 0.6rem;
-  background: #131218;
+  background: var(--stage-2);
   border: 2px solid var(--stage-seam);
 }
 .warn {
   font-size: 0.75rem;
   line-height: 1.45;
-  color: #fbbf24;
-  border: 2px solid #7a5a12;
-  background: rgba(251, 191, 36, 0.08);
+  color: var(--stage-warn);
+  border: 2px solid var(--stage-warn-ink);
+  background: color-mix(in srgb, var(--stage-warn) 8%, transparent);
   padding: 0.5rem 0.6rem;
 }
 .row {
@@ -106,8 +106,8 @@
   padding: 0.5rem 0.9rem;
 }
 .go {
-  color: #faf8f3;
-  background: var(--rose, #e11d48);
+  color: var(--paper);
+  background: var(--rose);
 }
 .back:disabled,
 .go:disabled {

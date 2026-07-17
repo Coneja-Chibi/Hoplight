@@ -24,7 +24,7 @@ export interface SwatchChoice {
 
 /** The authored house palette (locked vs-setup-hybrid). Entity accents may widen later. */
 export const HOUSE_PALETTE: SwatchChoice[] = [
-  { id: "rose", label: "rose", hex: "#e11d48" }, // hardcode-ok: authored palette swatch color, not chrome
+  { id: "rose", label: "rose", hex: "var(--rose)" }, // hardcode-ok: authored palette swatch color, not chrome
   { id: "amber", label: "amber", hex: "#f59e0b" }, // hardcode-ok: authored palette swatch color, not chrome
   { id: "emerald", label: "emerald", hex: "#10b981" }, // hardcode-ok: authored palette swatch color, not chrome
   { id: "violet", label: "violet", hex: "#8b5cf6" }, // hardcode-ok: authored palette swatch color, not chrome
@@ -44,7 +44,7 @@ export interface SwatchRowProps {
 
 export function SwatchRow({ palette, value, onChange, allowCustom }: SwatchRowProps): JSX.Element {
   const [open, setOpen] = useState(false);
-  const current = value ?? palette[0]?.hex ?? "#e11d48"; // hardcode-ok: default palette color, not chrome
+  const current = value ?? palette[0]?.hex ?? "var(--rose)"; // hardcode-ok: default palette color, not chrome
   const isCustom = !palette.some((c) => eq(c.hex, current));
 
   return (

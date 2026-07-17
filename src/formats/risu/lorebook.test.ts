@@ -33,10 +33,14 @@ function nativeEnvelope() {
   };
 }
 
-test("risu-lorebook detects only its own envelope", () => {
+test("risu-lorebook detects native envelope and soft-accepts character_book extracts", () => {
   expect(risuLorebook.detect(asText(nativeEnvelope()))).toBe(1);
   expect(risuLorebook.detect(asText({ entries: { "0": { key: ["x"], content: "y" } } }))).toBe(0); // ST worldbook
   expect(risuLorebook.detect(asText({ type: "risu", ver: 1 }))).toBe(0); // no data array
+  // card-extracted character_book (entries array + keys)
+  expect(
+    risuLorebook.detect(asText({ entries: [{ keys: ["x"], content: "y", name: "n" }], scan_depth: 4 })),
+  ).toBe(0.75);
 });
 
 test("risu-lorebook maps native fields to the canonical entry", () => {

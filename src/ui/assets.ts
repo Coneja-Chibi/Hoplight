@@ -23,4 +23,6 @@ export interface PackagedAssets {
    * every other bundle marks these external and resolves them through the page's import map so
    * exactly ONE React instance exists (two copies = null-dispatcher hook crashes) */
   vendor: Record<string, string>;
+  /** browser-bundled sealed Lua worker (optional; dev serves live from src/sandbox/lua/worker.ts) */
+  sandboxWorkerJs?: string;
 }

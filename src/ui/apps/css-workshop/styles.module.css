@@ -1,0 +1,124 @@
+/**
+ * CSS Workshop app room - full-canvas shell around the shared component.
+ * Tokens only.
+ */
+.room {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 100%;
+  padding: clamp(0.7rem, 1.8vw, 1.2rem);
+  box-sizing: border-box;
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.title {
+  font-family: var(--font-big, var(--font-display), sans-serif);
+  font-weight: 900;
+  font-size: clamp(1.2rem, 1rem + 1.2vw, 1.65rem);
+  letter-spacing: -0.02em;
+  color: var(--stage-soft, var(--text));
+  margin: 0;
+}
+.lede {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--stage-mute, var(--muted));
+  margin: 0;
+  max-width: 40rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+.modeToggle {
+  display: inline-flex;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--stage-well, var(--paper));
+}
+.modeBtn {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.65rem;
+  border: none;
+  border-right: 2px solid var(--stage-black, var(--edge));
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+}
+.modeBtn:last-child {
+  border-right: none;
+}
+.modeOn {
+  background: var(--accent, var(--rose));
+  color: var(--stage-white);
+}
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.6rem;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--stage-panel, var(--panel));
+  color: var(--stage-soft, var(--text-soft));
+  cursor: pointer;
+}
+.btnPrimary {
+  background: var(--accent, var(--rose));
+  color: var(--stage-white);
+  border-color: var(--stage-black, var(--edge));
+}
+.btnGhost {
+  background: transparent;
+  border-style: dashed;
+  color: var(--stage-mute, var(--muted));
+}
+.stage {
+  flex: 1;
+  min-height: 0;
+  background: var(--stage-panel, var(--panel));
+  border: 3px solid var(--stage-black, var(--edge));
+  box-shadow: 4px 4px 0 0 var(--stage-black, var(--edge));
+  padding: 0.7rem 0.85rem;
+  overflow: auto;
+}
+.flash {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--stage-mute, var(--muted));
+}
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}

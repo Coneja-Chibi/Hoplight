@@ -1,0 +1,259 @@
+/**
+ * Editor quiz styles - split from Editor.module.css (last-wins cascade).
+ */
+
+.quiz {
+  display: grid;
+  grid-template-columns: minmax(0, var(--ql, 42%)) 14px minmax(0, 1fr);
+  align-items: start;
+  padding: clamp(1.1rem, 3vw, 2rem) clamp(0.9rem, 2vw, 1.6rem);
+  background-color: var(--paper);
+  background-image: radial-gradient(var(--tooth) 0.5px, transparent 0.6px), radial-gradient(var(--tooth) 0.5px, transparent 0.6px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 2px 3px;
+}
+
+.qcol { min-width: 0; }
+
+.splitter {
+  align-self: stretch;
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.splitter::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 6px;
+  width: 2px;
+  background: var(--ghost);
+}
+
+.splitter:hover::before {
+  background: var(--rose);
+  width: 3px;
+}
+
+.qcard {
+  position: relative;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 9px 9px 0 0 var(--ink);
+  padding: clamp(1.3rem, 3vw, 1.9rem);
+}
+
+.qcard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translate(7px, 7px);
+  background: var(--paper-2);
+  border: 3px solid var(--edge);
+  z-index: -1;
+}
+
+.qframe {
+  position: absolute;
+  inset: 9px;
+  border: 1px solid var(--ghost);
+  pointer-events: none;
+}
+
+.qtop {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 0.9rem;
+  border-bottom: 1.5px solid var(--ghost);
+}
+
+.qstep {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 2px solid var(--ghost);
+  padding: 0.2rem 0.45rem;
+}
+
+.qprog {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.qdots {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.qdots i {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  display: block;
+}
+
+.qdotDone {
+  background: var(--edge);
+}
+
+.qdotNow {
+  background: var(--rose);
+  border-color: var(--rose);
+}
+
+.qbig {
+  position: relative;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 1.2rem + 1.8vw, 2.05rem);
+  line-height: 1.03;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 1.2rem 0 0.35rem;
+  text-wrap: balance;
+}
+
+.qreq {
+  color: var(--rose);
+}
+
+.qsay {
+  position: relative;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.02rem, 1rem + 0.2vw, 1.12rem);
+  color: var(--text-soft);
+  margin: 0 0 1.2rem;
+}
+
+.qmiss {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: -0.6rem 0 1.2rem;
+}
+
+.qanswer {
+  position: relative;
+}
+
+.qcontrols {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-top: 1.5rem;
+}
+
+.qskip {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.qskip:disabled {
+  opacity: 0.35;
+  cursor: default;
+  text-decoration: none;
+}
+
+.qnext {
+  font-family: var(--font-big);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--stage-paper);
+  background: var(--rose);
+  padding: 0.65rem 1.3rem;
+}
+
+.qnext:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.stagecol {
+  align-self: start;
+  min-width: 0;
+}
+
+.stagecap {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin: 0 0 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stagecap::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: var(--ghost);
+}
+
+.stagecap em {
+  font-style: normal;
+  color: var(--a, var(--accent));
+}
+
+.stage {
+  position: relative;
+  background: var(--q-stage);
+  border: 3px solid var(--edge);
+  box-shadow: 9px 9px 0 0 var(--ink);
+  padding: clamp(1.1rem, 2.5vw, 1.6rem);
+}
+
+.dossier {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+}
+
+.floor {
+  height: 2px;
+  background: var(--rose);
+  margin: 1rem 0.5rem 0;
+}
+
+.taking {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 0.7rem 0.5rem 0;
+}

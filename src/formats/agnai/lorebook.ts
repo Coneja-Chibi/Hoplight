@@ -30,7 +30,11 @@ import type {
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
-import { triggerToKeyword } from "../_shared/character-book";
+import {
+  characterBookToLorebook,
+  isStandaloneCharacterBook,
+  triggerToKeyword,
+} from "../_shared/character-book";
 import { parseSelectiveLogic, selectiveLogicToNumber } from "../_shared/lore-enums";
 
 /** One Agnai memory entry. `entry` is the content; `keywords` is a plain array; two ordering axes. */
@@ -298,22 +302,40 @@ const agnaiLorebook: LorebookAdapter = {
   outputExtensions: ["json"],
   kind: "lorebook",
 
-  // 1.0 when the `kind: "memory"` marker is present (unambiguous); 0.9 for the marker-shaped fallback.
+  // 1.0 when the `kind: "memory"` marker is present (unambiguous); 0.9 for native MemoryBook shape;
+  // 0.7 for CCv3/Chub character_book (re-exported as a real MemoryBook).
   detect(input: AdapterInput): number {
     const book = readBook(input);
-    if (!book) return 0;
-    return book.kind === "memory" ? 1 : 0.9;
+    if (book) return book.kind === "memory" ? 1 : 0.9;
+    const obj = readJsonObject(input);
+    if (isStandaloneCharacterBook(obj)) return 0.7;
+    return 0;
   },
 
   toCanonical(input: AdapterInput): CanonicalLorebook {
     const book = readBook(input);
-    if (!book) throw new Error("agnai-lorebook: not an Agnai memory book");
-    return memoryBookToCanonical(book);
+    if (book) return memoryBookToCanonical(book);
+    // Chub-style character_book downloads: map through shared CCv3 dialect, then export as MemoryBook.
+    const obj = readJsonObject(input);
+    if (!isStandaloneCharacterBook(obj)) {
+      throw new Error("agnai-lorebook: not an Agnai memory book");
+    }
+    const body = characterBookToLorebook(obj);
+    return {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "lorebook",
+      id: canonicalId(body.name),
+      body,
+      // no MemoryBook twin - fromCanonical writes a clean Agnai memory book from body
+      original: {},
+    };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
     const raw = entity.original?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
     const out = canonicalToMemoryBook(entity.body, raw);
+    // Ensure kind marker so re-detect is unambiguous
+    if (out.kind == null) out.kind = "memory";
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 };

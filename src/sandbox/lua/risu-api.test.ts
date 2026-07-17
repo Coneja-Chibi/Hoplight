@@ -6,10 +6,10 @@
  * functions in isolation.
  */
 import { describe, expect, test } from "bun:test";
-import { createRisuApi, type RisuState } from "./risu-api";
+import { createRisuApi, emptyRisuState, type RisuState } from "./risu-api";
 import { runLua } from "./run";
 
-const freshState = (): RisuState => ({ chatVars: {}, log: [] });
+const freshState = (): RisuState => emptyRisuState();
 
 describe("createRisuApi: card-facing shims over plain state", () => {
   test("setChatVar/getChatVar round-trip and log accumulate through real Lua", async () => {
@@ -72,4 +72,81 @@ describe("createRisuApi: card-facing shims over plain state", () => {
       value: true,
     });
   });
+
+  test("Risu two-arg form getChatVar(id, key) / setChatVar(id, key, value)", async () => {
+    const state = freshState();
+    const { globals } = createRisuApi(state);
+    const res = await runLua(
+      `setChatVar("chat1", "v_campus_id", "kmu")
+       return getChatVar("chat1", "v_campus_id")`,
+      { capabilities: globals },
+    );
+    expect(res).toEqual({ ok: true, value: "kmu" });
+    expect(state.chatVars.v_campus_id).toBe("kmu");
+  });
+
+  test("async shim returns the function so handlers stay callable", async () => {
+    const state = freshState();
+    const { globals } = createRisuApi(state);
+    const res = await runLua(
+      `local f = async(function(x) return x + 1 end)
+       return f(2)`,
+      { capabilities: globals },
+    );
+    expect(res).toEqual({ ok: true, value: 3 });
+  });
+
+  test("chat transcript: add, read length, full JSON", async () => {
+    const state = freshState();
+    state.meta.name = "Cherry";
+    const { globals } = createRisuApi(state);
+    const res = await runLua(
+      `
+      addChat("char", "hello")
+      addChat("user", "hi")
+      return getChatLength() .. ":" .. getChatMain(0) .. ":" .. getName()
+      `,
+      { capabilities: globals },
+    );
+    expect(res).toEqual({ ok: true, value: "2:hello:Cherry" });
+    expect(state.chat).toHaveLength(2);
+    const full = await runLua("return getFullChatMain()", { capabilities: globals });
+    expect(full.ok).toBe(true);
+    if (full.ok) {
+      expect(JSON.parse(String(full.value))).toEqual([
+        { role: "char", data: "hello" },
+        { role: "user", data: "hi" },
+      ]);
+    }
+  });
+
+  test("meta get/set and last-message helpers", async () => {
+    const state = freshState();
+    state.chat = [
+      { role: "char", data: "first" },
+      { role: "user", data: "second" },
+      { role: "char", data: "third" },
+    ];
+    const { globals } = createRisuApi(state);
+    const res = await runLua(
+      `
+      setName("N")
+      setDescription("D")
+      return getName() .. "|" .. getDescription() .. "|" .. getCharacterLastMessage() .. "|" .. getUserLastMessage()
+      `,
+      { capabilities: globals },
+    );
+    expect(res).toEqual({ ok: true, value: "N|D|third|second" });
+  });
+
+  test("power APIs stay empty (deny network/LLM)", async () => {
+    const state = freshState();
+    const { globals } = createRisuApi(state);
+    const res = await runLua(
+      `return (request("x") == "") and (generateImage("y") == "") and (LLMMain("z") == "")`,
+      { capabilities: globals },
+    );
+    expect(res).toEqual({ ok: true, value: true });
+  });
 });
+

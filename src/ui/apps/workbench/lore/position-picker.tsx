@@ -76,59 +76,59 @@ export function PositionPicker({
 
   return (
     <div className={styles.placeRail} role="group" aria-label="Injection position">
-      <div className={styles.placeHead}>
-        <div className={styles.placeTitles}>
-          <b>Placement</b>
-          <span>where it lands</span>
-        </div>
-        {showDepth && (
-          <span
-            className={
-              depthOn ? styles.placeDepthCap : `${styles.placeDepthCap} ${styles.placeDepthSleep}`
-            }
-          >
-            <span className={styles.placeAt} aria-hidden="true">
-              @
-            </span>
-            <input
-              className={styles.placeDepthNum}
-              type="number"
-              min={0}
-              value={depth}
-              aria-label="Injection depth"
-              disabled={!depthOn}
-              onFocus={() => {
-                if (!depthOn) onPatch({ position: "depth" });
-              }}
-              onChange={(ev) =>
-                onPatch({
-                  position: depthOn ? position : "depth",
-                  depth: Number(ev.target.value) || 0,
-                })
+      {(showDepth || showRole) && (
+        <div className={styles.placeHead}>
+          {showDepth && (
+            <span
+              className={
+                depthOn ? styles.placeDepthCap : `${styles.placeDepthCap} ${styles.placeDepthSleep}`
               }
-            />
-            {showRole && depthOn && (
-              <select
-                className={styles.placeRole}
-                value={role}
-                aria-label="Injected message role"
+            >
+              <span className={styles.placeAt} aria-hidden="true">
+                @
+              </span>
+              <input
+                className={styles.placeDepthNum}
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={depth}
+                aria-label="Injection depth"
+                disabled={!depthOn}
+                onFocus={(ev) => {
+                  ev.currentTarget.select();
+                  if (!depthOn) onPatch({ position: "depth" });
+                }}
                 onChange={(ev) =>
                   onPatch({
-                    position: isDepthLikePosition(position) ? position : "depth",
-                    role: ev.target.value as MessageRole,
+                    position: depthOn ? position : "depth",
+                    depth: Number(ev.target.value) || 0,
                   })
                 }
-              >
-                {ROLES.map((r) => (
-                  <option key={r} value={r}>
-                    {ROLE_SHORT[r]}
-                  </option>
-                ))}
-              </select>
-            )}
-          </span>
-        )}
-      </div>
+              />
+              {showRole && depthOn && (
+                <select
+                  className={styles.placeRole}
+                  value={role}
+                  aria-label="Injected message role"
+                  onChange={(ev) =>
+                    onPatch({
+                      position: isDepthLikePosition(position) ? position : "depth",
+                      role: ev.target.value as MessageRole,
+                    })
+                  }
+                >
+                  {ROLES.map((r) => (
+                    <option key={r} value={r}>
+                      {ROLE_SHORT[r]}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </span>
+          )}
+        </div>
+      )}
       {/* Equal-width stop cells: no absolute labels (they smush past ~5 stops) */}
       <div className={styles.placeStops} style={{ ["--n" as string]: String(stops.length) }}>
         <div className={styles.placeLine} aria-hidden="true">

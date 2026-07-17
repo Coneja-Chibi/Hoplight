@@ -19,6 +19,11 @@ export interface Asset {
 export interface AssetManagerProps {
   assets: Asset[];
   onChange(next: Asset[]): void;
+  /**
+   * When set, the Expression pack group becomes a handoff to Manage Sprites
+   * instead of a second emotion editor.
+   */
+  onOpenSprites?: () => void;
 }
 
 const AUDIO_EXT = new Set(["mp3", "mp4", "wav", "ogg", "webm", "m4a"]);
@@ -82,7 +87,7 @@ function AssetTile({ asset, onEdit, onRemove }: { asset: Asset; onEdit(next: Ass
   );
 }
 
-export function AssetManager({ assets, onChange }: AssetManagerProps): JSX.Element {
+export function AssetManager({ assets, onChange, onOpenSprites }: AssetManagerProps): JSX.Element {
   const list = Array.isArray(assets) ? assets : [];
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -102,6 +107,21 @@ export function AssetManager({ assets, onChange }: AssetManagerProps): JSX.Eleme
   return (
     <div className={styles.wrap}>
       {GROUPS.map((g) => {
+        if (g.id === "emotion" && onOpenSprites) {
+          const n = list.filter((a) => groupOf(a) === "emotion").length;
+          return (
+            <div className={styles.group} key={g.id}>
+              <div className={styles.ghead}>{g.label}</div>
+              <p className={styles.handoff}>
+                Expression faces are edited in Manage Sprites (one pack for every host).
+                {n > 0 ? ` ${n} on this card.` : ""}
+              </p>
+              <button type="button" className={styles.handoffBtn} onClick={onOpenSprites}>
+                Open Manage Sprites
+              </button>
+            </div>
+          );
+        }
         const inGroup = list.map((a, i) => ({ a, i })).filter(({ a }) => groupOf(a) === g.id);
         return (
           <div className={styles.group} key={g.id}>

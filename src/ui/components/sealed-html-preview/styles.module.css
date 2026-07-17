@@ -1,0 +1,9 @@
+.frame {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  max-height: 28rem;
+  border: 2px solid var(--line);
+  background: var(--bg);
+  box-sizing: border-box;
+}

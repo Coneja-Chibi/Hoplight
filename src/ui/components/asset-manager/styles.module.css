@@ -19,6 +19,26 @@
   color: var(--stage-mute, var(--muted));
   margin-bottom: 0.45rem;
 }
+.handoff {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-soft, var(--text-soft, var(--muted)));
+  margin: 0 0 0.45rem;
+  line-height: 1.4;
+}
+.handoffBtn {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--rose);
+  color: var(--stage-white);
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 0 var(--stage-black, var(--edge));
+}
 .tiles {
   display: flex;
   flex-wrap: wrap;

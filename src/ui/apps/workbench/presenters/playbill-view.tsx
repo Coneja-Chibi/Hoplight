@@ -1,8 +1,8 @@
 /**
- * PlaybillView - the "acts" presenter: portrait + sealed rail on the left, the fields grouped into acts
- * in the center, and The Bill jump-nav on the right. Pure layout over the one FIELD_MODULES registry
- * (via the injected controlFor + lens verdicts); it owns no state, so the shell passes everything in.
- * Native platform fields render as their own section + nav entries. Lifted from Editor.tsx.
+ * PlaybillView - the "acts" presenter: portrait + sealed rail on the left, FIELD_MODULES grouped into
+ * acts in the center, The Bill jump-nav on the right. Platform leftovers (native schema) render as
+ * their own section + nav entries — same items as bento, different wrapping (RC/ST pattern).
+ * Pure layout; no state; no second ownership path for body fields.
  */
 import type { JSX, ReactNode } from "react";
 import type { FieldModule } from "../fields";
@@ -23,6 +23,7 @@ export interface PlaybillViewProps {
   lensHides(m: FieldModule): boolean;
   lensDims(m: FieldModule): boolean;
   wideKinds: ReadonlySet<string>;
+  panelKinds: ReadonlySet<string>;
   controlFor(m: FieldModule): JSX.Element;
   nativeItems: NativeFieldItem[];
   nativeSection(items: NativeFieldItem[]): JSX.Element | null;
@@ -38,12 +39,90 @@ export function PlaybillView({
   lensHides,
   lensDims,
   wideKinds,
+  panelKinds,
   controlFor,
   nativeItems,
   nativeSection,
   nativeNav,
   styles,
 }: PlaybillViewProps): JSX.Element {
+  const renderModule = (m: FieldModule): JSX.Element => {
+    const wide = wideKinds.has(m.kind) || panelKinds.has(m.kind);
+    const panel = panelKinds.has(m.kind);
+    const dim = lensDims(m) ? ` ${styles.dimlens}` : "";
+    if (panel) {
+      return (
+        <div
+          key={m.id}
+          className={`${styles.pbPanel}${wide ? ` ${styles.span2}` : ""}${dim}`}
+        >
+          <div className={styles.pbPanelHead}>
+            <span className={styles.pbPanelTitle}>{m.sheetLabel}</span>
+            {m.helper ? <span className={styles.pbPanelHelp}>{m.helper}</span> : null}
+          </div>
+          <div className={styles.pbPanelBody}>{controlFor(m)}</div>
+        </div>
+      );
+    }
+    return (
+      <div
+        key={m.id}
+        className={`${styles.pbfield}${wide ? ` ${styles.span2}` : ""}${dim}`}
+      >
+        <span className={styles.blabel}>
+          {m.sheetLabel}
+          {m.required && <span className={styles.qreq}> *</span>}
+        </span>
+        {controlFor(m)}
+      </div>
+    );
+  };
+
+  /** visualKind + sprite share one panel so they stop fighting as two bare fields */
+  const renderActModules = (mods: FieldModule[]): JSX.Element[] => {
+    const out: JSX.Element[] = [];
+    const byId = new Map(mods.map((m) => [m.id, m]));
+    const seen = new Set<string>();
+    for (const m of mods) {
+      if (seen.has(m.id)) continue;
+      if (m.id === "visualKind" || m.id === "sprite") {
+        if (seen.has("visualKind") || seen.has("sprite")) continue;
+        const kind = byId.get("visualKind");
+        const sprite = byId.get("sprite");
+        if (kind) seen.add("visualKind");
+        if (sprite) seen.add("sprite");
+        out.push(
+          <div key="visual-sprite" className={`${styles.pbPanel} ${styles.span2}`}>
+            <div className={styles.pbPanelHead}>
+              <span className={styles.pbPanelTitle}>Visual</span>
+              <span className={styles.pbPanelHelp}>
+                Portrait vs layered sprite, then the sprite recipe when you use one.
+              </span>
+            </div>
+            <div className={styles.pbPanelBody}>
+              {kind ? (
+                <div className={styles.pbSub}>
+                  <span className={styles.pbSubLabel}>{kind.sheetLabel}</span>
+                  {controlFor(kind)}
+                </div>
+              ) : null}
+              {sprite ? (
+                <div className={styles.pbSub}>
+                  <span className={styles.pbSubLabel}>{sprite.sheetLabel}</span>
+                  {controlFor(sprite)}
+                </div>
+              ) : null}
+            </div>
+          </div>,
+        );
+        continue;
+      }
+      seen.add(m.id);
+      out.push(renderModule(m));
+    }
+    return out;
+  };
+
   return (
     <div className={styles.playbill}>
       <div className={styles.pbLeft}>
@@ -64,20 +143,7 @@ export function PlaybillView({
                 </span>
                 <span className={styles.abar} />
               </div>
-              <div className={styles.pbfields}>
-                {mods.map((m) => (
-                  <div
-                    key={m.id}
-                    className={`${styles.pbfield}${wideKinds.has(m.kind) ? ` ${styles.span2}` : ""}${lensDims(m) ? ` ${styles.dimlens}` : ""}`}
-                  >
-                    <span className={styles.blabel}>
-                      {m.sheetLabel}
-                      {m.required && <span className={styles.qreq}> *</span>}
-                    </span>
-                    {controlFor(m)}
-                  </div>
-                ))}
-              </div>
+              <div className={styles.pbfields}>{renderActModules(mods)}</div>
             </section>
           );
         })}

@@ -1,215 +1,421 @@
 /**
- * CLEAN-ROOM RPack table derivation (one-off tool, NOT shipped). Reconstructs the fixed 256-byte
- * substitution table from a real .charx module's own bytes + PUBLIC facts, never from Risu source:
- *   1. Anchor the pretty-printed-JSON skeleton ({ \n space " :).
- *   2. AUTO-CRIB: match key-tokens + long content words against a dictionary by length/substring, keeping
- *      only globally-consistent letter assignments (constraint propagation). Language-agnostic - schema
- *      keys + Lua keywords are English on every card whatever the content language.
- *   3. Structural cribs (comma / brackets / braces) from the now-known skeleton.
- *   4. Complete the bijection for content bytes (any language) by UTF-8 position-class + frequency.
- *   5. VERIFY: JSON.parse the decoded module; emit the table to src/formats/risu/rpack/table.ts.
- * Run: bun scripts/rpack-derive.ts "<path.charx>"
+ * One-off RPack table derivation (not shipped). Rebuilds the 256-byte decode map from real
+ * .charx module bytes using public structure facts + known-plaintext cribs (JSON keys, Lua).
+ * Run: bun scripts/rpack-derive.ts <a.charx> [b.charx ...]
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { unzipSync } from "fflate";
 
-/** Language-independent cribs: Risu schema keys + Lua keywords + long identifiers seen in real modules. */
-const KEY_CRIBS = [
-  "module", "name", "description", "id", "type", "comment", "content", "key", "secondkey", "mode",
-  "insertorder", "alwaysActive", "selective", "activationPercent", "role", "conditions", "effect", "code",
-  "trigger", "lorebook", "regex", "in", "out", "flag", "ableFlag", "extentions", "risu_case_sensitive",
-  "loreCache", "folder", "namespace", "priority", "position", "useRegex", "lowLevelAccess", "assets",
-];
-/** long words that appear in VALUES (the Lua code + descriptions) - matched as substrings to fill letters. */
-const WORD_CRIBS = [
-  "triggerlua", "function", "local", "return", "Constants", "Startup", "Runtime", "Assets", "Prompts",
-  "Achievements", "Calendar", "Romance", "Campus", "Social", "Settings", "Reports", "Visibility", "Tables",
-  "description", "Module for", "start", "English", "University", "Korea", "Women", "Student", "Female",
-  "Name", "Male", "Board", "Feed", "Counsel", "Init", "then", "else", "elseif", "true", "false", "nil",
+/** Schema keys + Lua / host API strings that appear as plaintext in real modules. */
+const MUST_STRINGS = [
+  // JSON skeleton / schema
+  '"name"', '"description"', '"id"', '"type"', '"comment"', '"content"', '"key"',
+  '"secondkey"', '"mode"', '"insertorder"', '"alwaysActive"', '"selective"',
+  '"trigger"', '"lorebook"', '"regex"', '"assets"', '"conditions"', '"effect"',
+  '"triggerlua"', '"code"', '"lowLevelAccess"', '"ableFlag"', '"extentions"',
+  '"risu_case_sensitive"', '"namespace"', '"true"', '"false"', '"null"',
+  // Lua keywords / patterns (space-padded where unique)
+  "function ", "function\n", "local ", "return ", " then", " else", "elseif",
+  "end\n", "end)", "nil", "true", "false", "and ", " not ", " or ",
+  "while ", "for ", "do\n", "break", "until ", "repeat",
+  "tostring", "tonumber", "pcall", "pairs", "ipairs", "require",
+  "getChatVar", "setChatVar", "getvar", "setvar",
+  "string.", "table.", "math.",
+  // high-value identifiers seen on complex cards
+  "TRIGGER", "ACTIVE_TRIGGER", "KWU", "Constants", "Startup", "Runtime",
+  "Campus", "Assets", "Prompts", "Tables", "Settings",
+  "setCampusContext", "getCampusId", "getCampusName",
+  // comment banners (must be dashes, not stars)
+  "-- ===", "--=", "-- ",
+  // common ops contexts
+  " == ", " ~= ", " <= ", " >= ", " + ", " - ", " * ", " / ", " < ", " > ",
+  " = ",
 ];
 
-const path = process.argv[2] ?? "";
-const files = unzipSync(new Uint8Array(readFileSync(path)));
-const m = files["module.risum"]!;
-const mainLen = m[2]! | (m[3]! << 8) | (m[4]! << 16) | (m[5]! << 24);
-const main = m.slice(6, 6 + mainLen);
+const paths = process.argv.slice(2).filter(Boolean);
+if (paths.length === 0) {
+  console.error("usage: bun scripts/rpack-derive.ts <path.charx> [more.charx ...]");
+  process.exit(1);
+}
 
-const decode = new Array<number>(256).fill(-1);
-const usedPlain = new Set<number>();
-const put = (cipher: number, plain: number): boolean => {
-  if (decode[cipher] !== -1 || usedPlain.has(plain)) return false;
-  decode[cipher] = plain;
-  usedPlain.add(plain);
+function extractMain(charxPath: string): Uint8Array {
+  const files = unzipSync(new Uint8Array(readFileSync(charxPath)));
+  const m = files["module.risum"];
+  if (!m) throw new Error(`rpack-derive: no module.risum in ${charxPath}`);
+  if (m[0] !== 111 || m[1] !== 0) throw new Error(`rpack-derive: bad magic/version in ${charxPath}`);
+  const mainLen = m[2]! | (m[3]! << 8) | (m[4]! << 16) | (m[5]! << 24);
+  if (mainLen <= 0 || 6 + mainLen > m.length) throw new Error(`rpack-derive: bad mainLen in ${charxPath}`);
+  return m.slice(6, 6 + mainLen);
+}
+
+const mains = paths.map((p) => {
+  const main = extractMain(p);
+  console.log(`loaded ${p.split(/[/\\]/).pop()}: main ${main.length} bytes`);
+  return main;
+});
+
+type Map256 = Int16Array; // -1 unmapped
+
+const empty = (): Map256 => {
+  const a = new Int16Array(256);
+  a.fill(-1);
+  return a;
+};
+
+const usedPlains = (d: Map256): Set<number> => {
+  const s = new Set<number>();
+  for (let i = 0; i < 256; i++) if (d[i]! >= 0) s.add(d[i]!);
+  return s;
+};
+
+const put = (d: Map256, cipher: number, plain: number): boolean => {
+  if (d[cipher] === plain) return false;
+  if (d[cipher] >= 0 && d[cipher] !== plain) return false;
+  const used = usedPlains(d);
+  if (d[cipher] < 0 && used.has(plain)) return false;
+  d[cipher] = plain;
   return true;
 };
 
-// 1. anchors
-put(main[0]!, 0x7b); put(main[1]!, 0x0a); put(main[2]!, 0x20); put(main[4]!, 0x22);
-const Q = main[4]!;
-let k = 5; while (main[k] !== Q) k++;
-put(main[k + 1]!, 0x3a); // :
-const COLON = decode.indexOf(0x3a);
-
-// consistency check: does `word` fit cipher `token` without contradicting decided/local mappings?
-const consistent = (word: string, token: number[]): Map<number, number> | null => {
-  const local = new Map<number, number>();
-  for (let i = 0; i < token.length; i++) {
-    const cipher = token[i]!, plain = word.charCodeAt(i);
-    if (decode[cipher] !== -1 && decode[cipher] !== plain) return null;
-    if (decode[cipher] === -1 && usedPlain.has(plain)) return null;
-    const prev = local.get(cipher);
-    if (prev !== undefined && prev !== plain) return null;
-    for (const [c, p] of local) if (p === plain && c !== cipher) return null;
-    local.set(cipher, plain);
-  }
-  return local;
+/** Force-put only if free or already equal; returns false on hard conflict. */
+const force = (d: Map256, cipher: number, plain: number): boolean => {
+  if (d[cipher] === plain) return true;
+  if (d[cipher] >= 0 && d[cipher] !== plain) return false;
+  if (usedPlains(d).has(plain) && d[cipher] !== plain) return false;
+  d[cipher] = plain;
+  return true;
 };
 
-// 2a. key-token cribs (bytes between "..." right before a colon)
-const keyTokens = new Map<string, number[]>();
-for (let i = 0; i < main.length - 1; i++) {
-  if (main[i] !== Q) continue;
-  let j = i + 1; const seq: number[] = [];
-  while (j < main.length && main[j] !== Q && seq.length < 48) { seq.push(main[j]!); j++; }
-  if (main[j] === Q && main[j + 1] === COLON) keyTokens.set(seq.join(","), seq);
-  i = j - 1;
+/** Anchor pretty-JSON skeleton (universal on every Risu module main block). */
+function anchor(main: Uint8Array, d: Map256): void {
+  // { \n two-spaces "
+  force(d, main[0]!, 0x7b);
+  force(d, main[1]!, 0x0a);
+  force(d, main[2]!, 0x20);
+  force(d, main[4]!, 0x22);
+  const Q = main[4]!;
+  let k = 5;
+  while (k < main.length && main[k] !== Q) k++;
+  if (k + 1 < main.length) force(d, main[k + 1]!, 0x3a); // :
 }
-const byLen = new Map<number, number[][]>();
-for (const t of keyTokens.values()) { const a = byLen.get(t.length) ?? []; a.push(t); byLen.set(t.length, a); }
-const applyUnambiguous = (): boolean => {
-  let any = false;
-  for (const word of KEY_CRIBS) {
-    const cands = (byLen.get(word.length) ?? []).map((t) => consistent(word, t)).filter((x): x is Map<number, number> => x !== null);
-    if (cands.length !== 1) continue;
-    for (const [c, p] of cands[0]!) if (put(c, p)) any = true;
+
+/**
+ * Try to place `word` at every offset; keep only cipher->plain edges that are consistent
+ * across ALL successful placements (and with current map). Apply unambiguous edges.
+ */
+function cribWord(main: Uint8Array, d: Map256, word: string): number {
+  const wlen = word.length;
+  if (wlen === 0) return 0;
+  const edgeVotes = new Map<string, number>(); // "c->p" -> count
+  let hits = 0;
+  const limit = main.length; // full scan - musts are short
+
+  outer: for (let i = 0; i + wlen <= limit; i++) {
+    const local = new Map<number, number>();
+    for (let k = 0; k < wlen; k++) {
+      const c = main[i + k]!;
+      const p = word.charCodeAt(k);
+      if (d[c]! >= 0 && d[c] !== p) continue outer;
+      const prev = local.get(c);
+      if (prev !== undefined && prev !== p) continue outer;
+      // plain already claimed by another cipher in this placement
+      for (const [oc, op] of local) if (op === p && oc !== c) continue outer;
+      if (d[c]! < 0) {
+        // plain already used by a different mapped cipher
+        for (let x = 0; x < 256; x++) {
+          if (d[x] === p && x !== c) continue outer;
+        }
+      }
+      local.set(c, p);
+    }
+    hits++;
+    for (const [c, p] of local) {
+      const key = `${c}->${p}`;
+      edgeVotes.set(key, (edgeVotes.get(key) ?? 0) + 1);
+    }
+    if (hits > 2000) break; // enough signal
   }
-  return any;
-};
-while (applyUnambiguous()) { /* fixpoint */ }
+  if (hits === 0) return 0;
 
-// 2b. substring word cribs (find the word's byte-pattern anywhere it fits uniquely)
-const findWord = (word: string): void => {
-  const hits: number[] = [];
-  for (let i = 0; i + word.length <= main.length; i++) {
-    const tok = [...main.slice(i, i + word.length)];
-    if (consistent(word, tok) !== null && /* looks placed: preceded by non-letter cipher */ true) hits.push(i);
+  // An edge is trusted if it appears in every hit (or all hits we counted)
+  let applied = 0;
+  for (const [key, n] of edgeVotes) {
+    if (n < hits) continue; // must be in every placement
+    const [cs, ps] = key.split("->");
+    const c = Number(cs);
+    const p = Number(ps);
+    if (put(d, c, p)) applied++;
   }
-  // only accept if every hit yields the SAME assignment (unambiguous)
-  const maps = hits.map((i) => consistent(word, [...main.slice(i, i + word.length)])).filter((x): x is Map<number, number> => x !== null);
-  if (maps.length === 0) return;
-  const merged = new Map<number, number>();
-  for (const mp of maps) for (const [c, p] of mp) { if (merged.has(c) && merged.get(c) !== p) return; merged.set(c, p); }
-  for (const [c, p] of merged) put(c, p);
-};
-for (const w of WORD_CRIBS) findWord(w);
-while (applyUnambiguous()) { /* re-run key cribs with new letters */ }
-
-// 3. structural cribs from the now-known skeleton.
-const NL = decode.indexOf(0x0a), SP = decode.indexOf(0x20);
-const freq = new Array(256).fill(0); for (const b of main) freq[b]++;
-const postColonSpace = new Set<number>(); // bytes seen right after ": "
-{
-  const c = decode.indexOf(0x3a);
-  for (let i = 0; i < main.length - 2; i++) if (main[i] === c && main[i + 1] === SP) postColonSpace.add(main[i + 2]!);
+  return applied;
 }
-const modalWhere = (test: (i: number) => boolean, pick: (i: number) => number): number => {
-  const cnt = new Map<number, number>();
-  for (let i = 1; i < main.length - 2; i++) if (test(i)) cnt.set(pick(i), (cnt.get(pick(i)) ?? 0) + 1);
-  let best = -1, bn = 0; for (const [c, n] of cnt) if (decode[c] === -1 && n > bn) { bn = n; best = c; }
-  return best;
-};
-// comma: known byte, then X, then \n  (end of an inline value line)
-put(modalWhere((i) => decode[main[i - 1]!] !== -1 && main[i + 1] === NL, (i) => main[i]!), 0x2c);
-// backslash: X then `n`, inside content (the \n escape in the Lua code) - X is the modal predecessor of n
-const nC = decode.indexOf(0x6e);
-put(modalWhere((i) => main[i + 1] === nC && decode[main[i]!] === -1, (i) => main[i]!), 0x5c);
-// closers } and ] sit at the start of a dedented line: [NL][SP...][X] where X precedes , or \n.
-const COL = decode.indexOf(0x3a);
-// collect the two modal line-openers, then assign } to the one whose count matches { and ] matches [.
-const openerCnt = new Map<number, number>();
-for (let i = 2; i < main.length - 1; i++) {
-  if (main[i - 1] === SP && main[i - 2] === SP && decode[main[i]!] === -1 && (main[i + 1] === NL || decode[main[i + 1]!] === 0x2c)) {
-    openerCnt.set(main[i]!, (openerCnt.get(main[i]!) ?? 0) + 1);
+
+/** Cross-main: only keep mappings present and equal on every main that defined them. */
+function mergeMaps(maps: Map256[]): Map256 {
+  const out = empty();
+  for (let c = 0; c < 256; c++) {
+    let plain = -1;
+    let conflict = false;
+    for (const m of maps) {
+      const p = m[c]!;
+      if (p < 0) continue;
+      if (plain < 0) plain = p;
+      else if (plain !== p) conflict = true;
+    }
+    if (!conflict && plain >= 0) {
+      // resolve plain collisions: first cipher wins
+      if (![...usedPlains(out)].includes(plain) || out[c] === plain) {
+        if (!usedPlains(out).has(plain)) out[c] = plain;
+      }
+    } else if (conflict) {
+      console.log(`  drop conflict cipher ${c}`);
+    }
+  }
+  return out;
+}
+
+/** Lua comment dash: modal doubled unmapped-or-dashlike after newline in decoded-ish scan. */
+function cribCommentDash(main: Uint8Array, d: Map256): void {
+  // Count doubled cipher pairs that appear after \n (comment banners `-- ===`)
+  const nl = [...d].findIndex((p) => p === 0x0a);
+  if (nl < 0) return;
+  const counts = new Map<number, number>();
+  for (let i = 0; i < main.length - 3; i++) {
+    if (main[i] !== nl) continue;
+    // optional spaces then XX XX
+    let j = i + 1;
+    const sp = [...d].findIndex((p) => p === 0x20);
+    while (sp >= 0 && j < main.length && main[j] === sp) j++;
+    if (j + 1 >= main.length) continue;
+    if (main[j] === main[j + 1]) {
+      const c = main[j]!;
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+  }
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  if (ranked[0] && ranked[0][1] >= 5) {
+    if (force(d, ranked[0][0], 0x2d)) {
+      console.log(`  comment dash: cipher ${ranked[0][0]} -> '-' (n=${ranked[0][1]})`);
+    }
   }
 }
-const openers = [...openerCnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map((e) => e[0]);
-const countCipherOf = (plain: number): number => { const c = decode.indexOf(plain); let n = 0; for (const b of main) if (b === c) n++; return n; };
-const nOpenBrace = countCipherOf(0x7b), nOpenBrack = decode.indexOf(0x5b) >= 0 ? (() => { let n = 0; const c = decode.indexOf(0x5b); for (const b of main) if (b === c) n++; return n; })() : 0;
-if (openers.length >= 1) {
-  // the closer whose frequency is closest to #{ is }; the other is ]
-  const [o1, o2] = openers;
-  const f1 = openerCnt.get(o1!) ?? 0, f2 = openerCnt.get(o2 ?? -1) ?? 0;
-  const braceCloser = Math.abs(f1 - nOpenBrace) <= Math.abs(f2 - nOpenBrace) ? o1! : (o2 ?? o1!);
-  const brackCloser = braceCloser === o1 ? (o2 ?? o1!) : o1!;
-  put(braceCloser, 0x7d); if (brackCloser !== braceCloser) put(brackCloser, 0x5d);
-  void nOpenBrack;
+
+/** Digits: bytes that appear outside JSON strings (quote-aware) map to 0-9 by frequency. */
+function cribDigits(main: Uint8Array, d: Map256): void {
+  const q = [...d].findIndex((p) => p === 0x22);
+  const bs = [...d].findIndex((p) => p === 0x5c);
+  if (q < 0) return;
+  const outside = new Map<number, number>();
+  let inStr = false;
+  for (let i = 0; i < main.length; i++) {
+    const c = main[i]!;
+    if (c === q && !(i > 0 && main[i - 1] === bs)) {
+      inStr = !inStr;
+      continue;
+    }
+    if (!inStr && d[c]! < 0) outside.set(c, (outside.get(c) ?? 0) + 1);
+  }
+  // only assign digit 0-9; leave . - e + for later cribs
+  const glyphs = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39];
+  const ranked = [...outside.entries()].sort((a, b) => b[1] - a[1]);
+  for (let i = 0; i < ranked.length && i < glyphs.length; i++) {
+    put(d, ranked[i]![0], glyphs[i]!);
+  }
 }
-// open bracket [: an empty array "[]" puts [ immediately before a known ] -> [COL][SP][X][closeBracket].
-const closeBrackC = decode.indexOf(0x5d);
-if (closeBrackC >= 0) put(modalWhere((i) => main[i - 2] === COL && main[i - 1] === SP && main[i + 1] === closeBrackC, (i) => main[i]!), 0x5b);
-// quote-aware classification: scan tracking in/out of strings (toggle on unescaped "). Any unmapped byte
-// that appears OUTSIDE a string sits in a number/bool/null context and must decode to a numeric glyph, or
-// JSON.parse chokes. Bytes only ever INSIDE strings are content (Korean/any language) - safe placeholder.
-const qC = decode.indexOf(0x22), bsC = decode.indexOf(0x5c);
-const outsideFreq = new Map<number, number>();
-let inStr = false;
-for (let i = 0; i < main.length; i++) {
-  const c = main[i]!;
-  if (c === qC && !(i > 0 && main[i - 1] === bsC)) { inStr = !inStr; continue; }
-  if (!inStr && decode[c] === -1) outsideFreq.set(c, (outsideFreq.get(c) ?? 0) + 1);
+
+/** Structural punctuation from known skeleton. */
+function cribStructural(main: Uint8Array, d: Map256): void {
+  const nl = [...d].findIndex((p) => p === 0x0a);
+  const sp = [...d].findIndex((p) => p === 0x20);
+  if (nl < 0 || sp < 0) return;
+
+  const modal = (pred: (i: number) => boolean): number => {
+    const cnt = new Map<number, number>();
+    for (let i = 1; i < main.length - 1; i++) {
+      if (!pred(i)) continue;
+      const c = main[i]!;
+      if (d[c]! >= 0) continue;
+      cnt.set(c, (cnt.get(c) ?? 0) + 1);
+    }
+    let best = -1;
+    let bn = 0;
+    for (const [c, n] of cnt) if (n > bn) {
+      bn = n;
+      best = c;
+    }
+    return best;
+  };
+
+  // comma before newline
+  const comma = modal((i) => d[main[i - 1]!]! >= 0 && main[i + 1] === nl);
+  if (comma >= 0) put(d, comma, 0x2c);
+
+  // closers } ] at dedented lines
+  const openerCnt = new Map<number, number>();
+  for (let i = 2; i < main.length - 1; i++) {
+    if (main[i - 1] === sp && main[i - 2] === sp && d[main[i]!]! < 0) {
+      const next = main[i + 1]!;
+      if (next === nl || d[next]! === 0x2c) {
+        openerCnt.set(main[i]!, (openerCnt.get(main[i]!) ?? 0) + 1);
+      }
+    }
+  }
+  const openers = [...openerCnt.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2);
+  if (openers[0]) put(d, openers[0][0], 0x7d);
+  if (openers[1]) put(d, openers[1][0], 0x5d);
+
+  // [ before ]
+  const closeBr = [...d].findIndex((p) => p === 0x5d);
+  const col = [...d].findIndex((p) => p === 0x3a);
+  if (closeBr >= 0 && col >= 0) {
+    const ob = modal((i) => main[i - 2] === col && main[i - 1] === sp && main[i + 1] === closeBr);
+    if (ob >= 0) put(d, ob, 0x5b);
+  }
+
+  // backslash before known 'n'
+  const nC = [...d].findIndex((p) => p === 0x6e);
+  if (nC >= 0) {
+    const bs = modal((i) => main[i + 1] === nC && d[main[i]!]! < 0);
+    if (bs >= 0) put(d, bs, 0x5c);
+  }
+
+  // ( after letter
+  const isLower = (c: number): boolean => {
+    const p = d[c]!;
+    return p >= 0x61 && p <= 0x7a;
+  };
+  const lp = modal((i) => isLower(main[i - 1]!) && d[main[i]!]! < 0);
+  if (lp >= 0) put(d, lp, 0x28);
+  const cm = [...d].findIndex((p) => p === 0x2c);
+  const rp = modal(
+    (i) => (main[i + 1] === cm || main[i + 1] === nl) && d[main[i]!]! < 0 && d[main[i - 1]!]! >= 0,
+  );
+  if (rp >= 0) put(d, rp, 0x29);
+
+  // . between letters
+  const dot = modal((i) => isLower(main[i - 1]!) && d[main[i]!]! < 0 && isLower(main[i + 1]!));
+  if (dot >= 0) put(d, dot, 0x2e);
+
+  // = space-flanked modal (assignment)
+  const eq = modal((i) => main[i - 1] === sp && main[i + 1] === sp && d[main[i]!]! < 0);
+  if (eq >= 0) put(d, eq, 0x3d);
 }
-const numericGlyphs = [0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x2e, 0x2d, 0x65, 0x2b]; // 0-9 . - e +
-const outC = [...outsideFreq.entries()].sort((a, b) => b[1] - a[1]).map((e) => e[0]);
-for (let d = 0; d < outC.length && d < numericGlyphs.length; d++) put(outC[d]!, numericGlyphs[d]!);
 
-// 3b. Lua-only symbols (never appear in JSON structure, so schema/structural cribs miss them). Cribbed
-// from ubiquitous Lua patterns inside the code string. Getting these exact is what makes the engine RUN.
-const spC = decode.indexOf(0x20);
-// `=` : the modal unmapped byte flanked by spaces (Lua ` = ` assignment is everywhere)
-put(modalWhere((i) => main[i - 1] === spC && main[i + 1] === spC && decode[main[i]!] === -1, (i) => main[i]!), 0x3d);
-// `(` : the modal unmapped byte that immediately FOLLOWS a letter (a call / definition `name(`)
-put(modalWhere((i) => decode[main[i - 1]!]! >= 0x61 && decode[main[i - 1]!]! <= 0x7a && decode[main[i]!] === -1, (i) => main[i]!), 0x28);
-// `)` : the modal unmapped byte that PRECEDES a known-comma/newline and follows content (call close)
-const cmC2 = decode.indexOf(0x2c);
-put(modalWhere((i) => (main[i + 1] === cmC2 || main[i + 1] === NL) && decode[main[i]!] === -1 && decode[main[i - 1]!] !== -1, (i) => main[i]!), 0x29);
-const isLower = (c: number): boolean => decode[c]! >= 0x61 && decode[c]! <= 0x7a;
-// `.` : field access `obj.field` - the modal unmapped byte between two letters
-put(modalWhere((i) => isLower(main[i - 1]!) && decode[main[i]!] === -1 && isLower(main[i + 1]!), (i) => main[i]!), 0x2e);
-// `-` : Lua comment `--` - the modal unmapped byte that appears doubled (with `.` now known, doubled
-// unknown is overwhelmingly the comment dash, not `..` concat)
-put(modalWhere((i) => main[i] === main[i + 1] && decode[main[i]!] === -1, (i) => main[i]!), 0x2d);
-// NOTE: the arithmetic/comparison operators (+ - * / < > << >> % ^ etc.) are all space-flanked and
-// frequency-ambiguous from a SINGLE card, so they are NOT cribbed here - a confident-wrong operator would
-// silently break the running engine. They resolve cleanly by cross-validating a SECOND .risum sample (the
-// table is fixed, so two cards disambiguate), or from known-plaintext. Left as placeholder until then.
-
-// 4. complete the bijection for remaining APPEARING bytes with JSON-SAFE plain bytes, so JSON.parse works
-// even before the exact content table is known (content decodes to safe placeholder glyphs, refined later).
-const DANGER = new Set([0x22, 0x5c]); // " and \ would break strings
-const remainingCipher = [...new Set(main)].filter((c) => decode[c] === -1).sort((a, b) => freq[b] - freq[a]);
-const remainingPlain: number[] = [];
-for (let p = 0x21; p < 0x7f; p++) if (!usedPlain.has(p) && !DANGER.has(p)) remainingPlain.push(p); // safe printable ASCII
-for (let p = 0xa1; p <= 0xff; p++) if (!usedPlain.has(p)) remainingPlain.push(p); // latin-1 high (single-byte, JSON-safe)
-for (let i = 0; i < remainingCipher.length; i++) if (remainingPlain[i] !== undefined) put(remainingCipher[i]!, remainingPlain[i]!);
-
-// decode + verify
-const out = new Uint8Array(main.length);
-for (let i = 0; i < main.length; i++) out[i] = decode[main[i]!]! >= 0 ? decode[main[i]!]! : 0x3f;
-const text = new TextDecoder("utf-8", { fatal: false }).decode(out);
-let parsed = false, moduleShape = "";
-try { const obj = JSON.parse(text) as Record<string, unknown>; parsed = true; const mod = (obj.module ?? obj) as Record<string, unknown>; moduleShape = Object.keys(mod).join(", "); } catch (e) { moduleShape = "JSON.parse failed: " + (e as Error).message.slice(0, 80); }
-
-const letters = decode.filter((p) => p >= 0x41 && p <= 0x7a).length;
-console.log("magic/version ok:", m[0] === 111 && m[1] === 0);
-console.log("mappings:", usedPlain.size, "| ascii letters:", letters, "| JSON.parse:", parsed);
-console.log("module top-level keys:", moduleShape);
-console.log("=== decoded head ===");
-console.log(text.slice(0, 700));
-
-// emit the table for the shipped codec (only if it parsed - otherwise it is not trustworthy yet)
-if (parsed) {
-  const arr = decode.map((v) => (v < 0 ? 0 : v));
-  const body = `/**\n * RPack substitution table - the fixed 256-byte permutation Risu uses for .risum, reconstructed\n * CLEAN-ROOM from a real card's bytes + public JSON facts (scripts/rpack-derive.ts), never from Risu\n * source. DECODE[cipher] = plain; ENCODE is its inverse. Functional data, not copyrightable expression.\n */\nexport const DECODE: readonly number[] = [${arr.join(",")}];\nexport const ENCODE: readonly number[] = (() => { const e = new Array(256).fill(0); DECODE.forEach((p, c) => (e[p] = c)); return e; })();\n`;
-  writeFileSync("src/formats/risu/rpack/table.ts", body);
-  console.log("\n[emitted] src/formats/risu/rpack/table.ts");
+function deriveOne(main: Uint8Array): Map256 {
+  const d = empty();
+  anchor(main, d);
+  // iterate cribs to fixpoint
+  for (let round = 0; round < 12; round++) {
+    let gained = 0;
+    for (const w of MUST_STRINGS) gained += cribWord(main, d, w);
+    cribStructural(main, d);
+    cribCommentDash(main, d);
+    if (round === 2) cribDigits(main, d);
+    const n = [...d].filter((p) => p >= 0).length;
+    console.log(`  round ${round}: +${gained} edges, mapped ${n}`);
+    if (gained === 0 && round > 3) break;
+  }
+  return d;
 }
+
+function completeBijection(d: Map256, mains: Uint8Array[]): void {
+  const appearing = new Set<number>();
+  for (const main of mains) for (const b of main) appearing.add(b);
+
+  // Prefer leaving appearing unmapped as last resort with SAFE placeholders only if needed for parse
+  const DANGER = new Set([0x22, 0x5c]);
+  const used = usedPlains(d);
+  const need = [...appearing].filter((c) => d[c]! < 0).sort((a, b) => a - b);
+  const freePlain: number[] = [];
+  for (let p = 0x21; p < 0x7f; p++) if (!used.has(p) && !DANGER.has(p)) freePlain.push(p);
+  for (let p = 0xa1; p <= 0xff; p++) if (!used.has(p)) freePlain.push(p);
+  for (let p = 1; p < 0x20; p++) if (!used.has(p) && p !== 0x0a && p !== 0x0d && p !== 0x09) freePlain.push(p);
+
+  let fi = 0;
+  for (const c of need) {
+    const p = freePlain[fi++];
+    if (p === undefined) break;
+    d[c] = p;
+  }
+
+  // fill never-seen ciphers for full permutation (encode inverse)
+  const used2 = usedPlains(d);
+  const rest: number[] = [];
+  for (let p = 0; p < 256; p++) if (!used2.has(p)) rest.push(p);
+  let ri = 0;
+  for (let c = 0; c < 256; c++) {
+    if (d[c]! >= 0) continue;
+    d[c] = rest[ri++] ?? 0;
+  }
+}
+
+function decodeText(main: Uint8Array, d: Map256): string {
+  const out = new Uint8Array(main.length);
+  for (let i = 0; i < main.length; i++) {
+    const p = d[main[i]!]!;
+    out[i] = p >= 0 ? p : 0x3f;
+  }
+  return new TextDecoder("utf-8", { fatal: false }).decode(out);
+}
+
+// --- drive ---
+const per = mains.map((main, i) => {
+  console.log(`derive sample ${i}`);
+  return deriveOne(main);
+});
+let d = mergeMaps(per);
+console.log(`merged mapped: ${[...d].filter((p) => p >= 0).length}`);
+
+// joint crib rounds on shared map across all mains
+for (let round = 0; round < 8; round++) {
+  let gained = 0;
+  for (const main of mains) {
+    for (const w of MUST_STRINGS) gained += cribWord(main, d, w);
+    cribStructural(main, d);
+    cribCommentDash(main, d);
+  }
+  console.log(`joint round ${round}: +${gained}, mapped ${[...d].filter((p) => p >= 0).length}`);
+  if (gained === 0) break;
+}
+
+completeBijection(d, mains);
+
+// quality gates
+let allOk = true;
+for (let i = 0; i < mains.length; i++) {
+  const text = decodeText(mains[i]!, d);
+  try {
+    JSON.parse(text);
+    console.log(`\nOK parse sample ${i}`);
+  } catch (e) {
+    allOk = false;
+    console.log(`\nFAIL parse sample ${i}: ${(e as Error).message.slice(0, 100)}`);
+    console.log(text.slice(0, 300));
+    continue;
+  }
+  const stars = (text.match(/^\s*\*\*/gm) || []).length;
+  const dashes = (text.match(/^\s*--/gm) || []).length;
+  const trigPipe = (text.match(/TRI\|\|/g) || []).length;
+  const trigger = (text.match(/TRIGGER/g) || []).length;
+  const getChat = (text.match(/getChatVar/g) || []).length;
+  console.log(`  -- comments: ${dashes}  ** comments: ${stars}`);
+  console.log(`  TRIGGER: ${trigger}  TRI||: ${trigPipe}  getChatVar: ${getChat}`);
+  const idx = text.indexOf("function ");
+  if (idx >= 0) console.log(`  function head: ${JSON.stringify(text.slice(idx, idx + 120))}`);
+}
+
+if (!allOk) {
+  console.error("not emitting (JSON.parse failed)");
+  process.exit(1);
+}
+
+const arr = [...d];
+const body =
+  `/**\n` +
+  ` * RPack substitution table for .risum: DECODE[cipher] = plain, ENCODE is the inverse.\n` +
+  ` * Emitted by scripts/rpack-derive.ts from real module bytes + public cribs.\n` +
+  ` */\n` +
+  `export const DECODE: readonly number[] = [${arr.join(",")}];\n` +
+  `export const ENCODE: readonly number[] = (() => { const e = new Array(256).fill(0); DECODE.forEach((p, c) => { e[p] = c; }); return e; })();\n`;
+
+writeFileSync("src/formats/risu/rpack/table.ts", body);
+console.log("\n[emitted] src/formats/risu/rpack/table.ts");

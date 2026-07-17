@@ -12,6 +12,7 @@ const OPTIONS: SetupOption[] = [
   { id: "character", title: "Characters", sub: "The people you create.", isDefault: true },
   { id: "lorebook", title: "Lorebooks", sub: "The world facts they remember." },
   { id: "persona", title: "Personas", sub: "Who you are when you talk to them." },
+  { id: "pack", title: "Sprite packs", sub: "Reusable face packs you open like folders." },
   { id: "preset", title: "Presets", sub: "Saved settings that shape the writing." },
 ];
 
@@ -24,7 +25,7 @@ const CSS = `
 .troupe{display:flex;gap:.6rem;align-items:flex-end;justify-content:center;flex-wrap:wrap;
   margin-top:-3.6rem;position:relative;z-index:2;min-height:9.4rem}
 .dcard{width:6.5rem;background:var(--stage-deck);border:3px solid var(--stage-black);
-  box-shadow:5px 6px 0 0 rgba(0,0,0,.55);position:relative}
+  box-shadow:5px 6px 0 0 var(--shadow-ink);position:relative}
 .dcard .cov{aspect-ratio:3/4;background:var(--stage-row);border-bottom:3px solid var(--stage-black);
   display:flex;align-items:flex-end;padding:7px;position:relative}
 .dcard .cov b{font-family:var(--font-big);font-weight:900;font-size:clamp(2rem,2rem+1vw,2.75rem);

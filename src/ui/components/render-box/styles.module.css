@@ -28,7 +28,7 @@
 /* rendered output: sanitized HTML, given readable prose defaults */
 .out {
   min-width: 0;
-  color: #d7d3ca;
+  color: var(--stage-soft);
   font-size: 0.8125rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -50,8 +50,8 @@
 .out :global(h1) { font-size: 1rem; }
 .out :global(h2) { font-size: 0.9rem; }
 .out :global(h3) { font-size: 0.8125rem; }
-.out :global(strong) { color: #f2eee5; }
-.out :global(em) { color: #cbc6d6; }
+.out :global(strong) { color: var(--stage-paper); }
+.out :global(em) { color: var(--stage-soft); }
 .out :global(ul),
 .out :global(ol) {
   margin: 0 0 0.6rem;
@@ -61,7 +61,7 @@
   margin: 0.15rem 0;
 }
 .out :global(a) {
-  color: var(--link, #ff8f7a);
+  color: var(--link);
   text-decoration: underline;
   overflow-wrap: anywhere;
 }
@@ -69,7 +69,7 @@
   margin: 0 0 0.6rem;
   padding-left: 0.7rem;
   border-left: 3px solid var(--stage-seam);
-  color: #a7a2b3;
+  color: var(--stage-mute);
 }
 .out :global(code) {
   font-family: var(--font-mono);
@@ -79,7 +79,7 @@
   padding: 0.05rem 0.25rem;
 }
 .out :global(pre) {
-  background: #131218;
+  background: var(--stage-2);
   border: 2px solid var(--stage-seam);
   padding: 0.6rem;
   overflow-x: auto;
@@ -106,7 +106,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 1.45;
-  color: #a7a2b3;
+  color: var(--stage-mute);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -118,7 +118,7 @@
   overflow-wrap: anywhere;
 }
 .plain :global(a) {
-  color: var(--link, #ff8f7a);
+  color: var(--link);
   text-decoration: underline;
   overflow-wrap: anywhere;
 }

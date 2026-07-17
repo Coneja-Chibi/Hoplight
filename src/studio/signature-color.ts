@@ -31,21 +31,36 @@ export function decodePngPixels(bytes: Uint8Array): Pixels | null {
     const colorType = ihdr.data[9]!;
     const interlace = ihdr.data[12]!;
     if (bitDepth !== 8 || (colorType !== 2 && colorType !== 6) || interlace !== 0) return null;
-    if (width === 0 || height === 0 || width * height > 64_000_000) return null; // decompression cap
+    // Hard pixel and decoded-byte ceilings before inflate (fail closed; no 256 MiB RGBA alloc).
+    const MAX_PIXELS = 16_000_000;
+    const MAX_DECODED = 48 * 1024 * 1024;
+    const MAX_IDAT = 32 * 1024 * 1024;
+    if (width === 0 || height === 0 || width > 16384 || height > 16384) return null;
+    if (width * height > MAX_PIXELS) return null;
+
+    const bpp = colorType === 6 ? 4 : 3;
+    const stride = width * bpp;
+    const expectedRaw = (stride + 1) * height;
+    if (expectedRaw > MAX_DECODED || !Number.isFinite(expectedRaw) || expectedRaw <= 0) return null;
 
     const idat = chunks.filter((c) => c.name === "IDAT");
     if (idat.length === 0) return null;
-    const compressed = new Uint8Array(idat.reduce((n, c) => n + c.data.length, 0));
+    const idatTotal = idat.reduce((n, c) => n + c.data.length, 0);
+    if (idatTotal === 0 || idatTotal > MAX_IDAT) return null;
+    const compressed = new Uint8Array(idatTotal);
     let at = 0;
     for (const c of idat) {
       compressed.set(c.data, at);
       at += c.data.length;
     }
-    const raw = unzlibSync(compressed);
-
-    const bpp = colorType === 6 ? 4 : 3;
-    const stride = width * bpp;
-    if (raw.length < (stride + 1) * height) return null;
+    // Cap inflate output to expected scanlines + 1 sentinel byte so overflow cannot look valid.
+    let raw: Uint8Array;
+    try {
+      raw = unzlibSync(compressed, { out: new Uint8Array(expectedRaw + 1) });
+    } catch {
+      return null;
+    }
+    if (raw.length !== expectedRaw) return null;
 
     // unfilter scanlines (PNG filters 0-4), then normalize to RGBA
     const out = new Uint8Array(width * height * 4);

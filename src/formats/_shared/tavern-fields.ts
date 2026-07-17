@@ -86,6 +86,24 @@ const readDepthPrompt = (ext: Record<string, unknown>): DepthInjection[] | undef
   return [{ text, depth, ...(isRole(o.role) ? { role: o.role } : {}), origin: "depth_prompt" }];
 };
 
+/** Structural equality for decoded twin vs canonical values (no functions in this shape). */
+const same = (a: unknown, b: unknown): boolean => {
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== typeof b) return false;
+  if (Array.isArray(a) || Array.isArray(b)) {
+    if (!Array.isArray(a) || !Array.isArray(b) || a.length !== b.length) return false;
+    return a.every((v, i) => same(v, b[i]));
+  }
+  if (typeof a === "object") {
+    const ao = a as Record<string, unknown>;
+    const bo = b as Record<string, unknown>;
+    const keys = new Set([...Object.keys(ao), ...Object.keys(bo)]);
+    for (const k of keys) if (!same(ao[k], bo[k])) return false;
+    return true;
+  }
+  return false;
+};
+
 /** V2/V3 `data` -> canonical CharacterBody. */
 export function dataToBody(d: TavernData): CharacterBody {
   const ext = (d.extensions ?? {}) as Record<string, unknown>;
@@ -127,52 +145,149 @@ export function dataToBody(d: TavernData): CharacterBody {
 
 /**
  * Overlay canonical edits onto a `data` object (mutates + returns it).
- * Only defined values are written, so a `data` built from original keeps every
- * unmapped field (extensions, character_book, assets, ...) untouched -> lossless.
+ *
+ * Three-state vs the twin's decoded representable values (dataToBody):
+ * 1. canonical equals decoded twin: leave raw bytes/shape untouched;
+ * 2. canonical has a defined changed value: write it;
+ * 3. twin had a representable value and canonical is now absent: clear its exact wire home.
+ *
+ * When BOTH decoded twin and canonical are absent, raw is left alone. That protects values the
+ * reader deliberately cannot represent (e.g. RoleCall object-form `source`) and unknown keys.
  */
 export function applyBodyToData(base: TavernData, b: CharacterBody): TavernData {
-  const set = <K extends keyof TavernData>(k: K, v: TavernData[K] | undefined): void => {
-    if (v !== undefined) base[k] = v;
-  };
-  set("name", b.identity.name);
-  set("nickname", b.identity.nickname);
-  set("description", b.identity.description);
-  set("personality", b.persona.personality);
-  set("scenario", b.persona.scenario);
-  set("first_mes", b.greetings.firstMessage);
-  set("mes_example", b.examples.exampleMessages);
-  set("system_prompt", b.prompts.systemPrompt);
-  set("post_history_instructions", b.prompts.postHistoryInstructions);
-  set("creator_notes", b.attribution.creatorNotes);
-  set("creator_notes_multilingual", b.attribution.creatorNotesMultilingual);
-  // Empty source = nothing decoded, not "clear the field": RoleCall emits nonstandard source OBJECTS
-  // ([{name}]) that toStrings cannot decode, so writing the empty result back would destroy the twin's
-  // value. The provenance is already first-class on attribution.creator; the object form rides the twin.
-  set("source", b.attribution.source?.length ? b.attribution.source : undefined);
-  set("creation_date", b.attribution.createdAt);
-  set("modification_date", b.attribution.updatedAt);
-  set("group_only_greetings", fromGreetings(b.greetings.groupOnlyGreetings));
-  set("tags", b.discovery.tags);
-  set("creator", b.attribution.creator);
-  set("character_version", b.identity.characterVersion);
-  set("alternate_greetings", fromGreetings(b.greetings.alternateGreetings));
+  const twin = dataToBody(base);
 
-  // Authored `extensions` fields pulled out to real canonical slots re-emit into extensions. Overlay onto
-  // the twin only when the canonical value DIFFERS from what the twin already carries: an unedited field
-  // stays byte-identical, an edited one wins. Skipping the write would silently drop the user's edit while
-  // the round-trip test still passed - the exact trap this guards against.
+  /** Text slot: clear with "". Both-absent leaves raw. */
+  const setText = (
+    key: keyof TavernData,
+    canon: string | undefined,
+    twinVal: string | undefined,
+  ): void => {
+    if (canon === undefined) {
+      if (twinVal !== undefined) (base as Record<string, unknown>)[key as string] = "";
+      return;
+    }
+    if (canon !== twinVal) (base as Record<string, unknown>)[key as string] = canon;
+  };
+
+  /** List/greeting/tag slot: clear with []. Both-absent leaves raw. */
+  const setList = (
+    key: keyof TavernData,
+    canon: unknown[] | undefined,
+    twinVal: unknown[] | undefined,
+  ): void => {
+    if (canon === undefined) {
+      if (twinVal !== undefined) (base as Record<string, unknown>)[key as string] = [];
+      return;
+    }
+    if (!same(canon, twinVal)) (base as Record<string, unknown>)[key as string] = canon;
+  };
+
+  /** Optional numeric/date: clear by key deletion. */
+  const setOptNum = (
+    key: keyof TavernData,
+    canon: number | undefined,
+    twinVal: number | undefined,
+  ): void => {
+    if (canon === undefined) {
+      if (twinVal !== undefined) delete (base as Record<string, unknown>)[key as string];
+      return;
+    }
+    if (canon !== twinVal) (base as Record<string, unknown>)[key as string] = canon;
+  };
+
+  /** Optional object: clear by key deletion. */
+  const setOptObj = (key: keyof TavernData, canon: unknown, twinVal: unknown): void => {
+    if (canon === undefined) {
+      if (twinVal !== undefined) delete (base as Record<string, unknown>)[key as string];
+      return;
+    }
+    if (!same(canon, twinVal)) (base as Record<string, unknown>)[key as string] = canon;
+  };
+
+  // name is always a string on the body (required); write only when it actually changed
+  if (b.identity.name !== twin.identity.name) base.name = b.identity.name;
+
+  setText("nickname", b.identity.nickname, twin.identity.nickname);
+  setText("description", b.identity.description, twin.identity.description);
+  setText("personality", b.persona.personality, twin.persona.personality);
+  setText("scenario", b.persona.scenario, twin.persona.scenario);
+  setText("first_mes", b.greetings.firstMessage, twin.greetings.firstMessage);
+  setText("mes_example", b.examples.exampleMessages, twin.examples.exampleMessages);
+  setText("system_prompt", b.prompts.systemPrompt, twin.prompts.systemPrompt);
+  setText(
+    "post_history_instructions",
+    b.prompts.postHistoryInstructions,
+    twin.prompts.postHistoryInstructions,
+  );
+  setText("creator_notes", b.attribution.creatorNotes, twin.attribution.creatorNotes);
+  setText("creator", b.attribution.creator, twin.attribution.creator);
+  setText("character_version", b.identity.characterVersion, twin.identity.characterVersion);
+
+  setOptObj(
+    "creator_notes_multilingual",
+    b.attribution.creatorNotesMultilingual,
+    twin.attribution.creatorNotesMultilingual,
+  );
+
+  // source: only act when the reader could represent it as string[]. Object-form RoleCall sources
+  // decode to undefined; clearing would destroy that non-representable raw if we wrote [] blindly.
+  const canonSrc = b.attribution.source?.length ? b.attribution.source : undefined;
+  const twinSrc = twin.attribution.source?.length ? twin.attribution.source : undefined;
+  if (canonSrc === undefined) {
+    if (twinSrc !== undefined) base.source = [];
+  } else if (!same(canonSrc, twinSrc)) {
+    base.source = canonSrc;
+  }
+
+  setOptNum("creation_date", b.attribution.createdAt, twin.attribution.createdAt);
+  setOptNum("modification_date", b.attribution.updatedAt, twin.attribution.updatedAt);
+
+  setList(
+    "group_only_greetings",
+    fromGreetings(b.greetings.groupOnlyGreetings),
+    fromGreetings(twin.greetings.groupOnlyGreetings),
+  );
+  setList("tags", b.discovery.tags, twin.discovery.tags);
+  setList(
+    "alternate_greetings",
+    fromGreetings(b.greetings.alternateGreetings),
+    fromGreetings(twin.greetings.alternateGreetings),
+  );
+
+  // First-class extension keys: write when changed; delete the exact key on clear; keep siblings.
   const twinExt = base.extensions as Record<string, unknown> | undefined;
   const writeExt = (k: string, v: unknown): void => {
     base.extensions = { ...(base.extensions ?? {}), [k]: v };
   };
+  const deleteExt = (k: string): void => {
+    if (twinExt === undefined || !(k in twinExt)) return;
+    const next = { ...(base.extensions ?? {}) };
+    delete next[k];
+    base.extensions = next;
+  };
 
   const talk = b.settings?.talkativeness;
-  if (talk !== undefined && numParse(twinExt?.talkativeness) !== talk) writeExt("talkativeness", talk);
+  const twinTalk = twin.settings?.talkativeness;
+  if (talk === undefined) {
+    if (twinTalk !== undefined) deleteExt("talkativeness");
+  } else if (numParse(twinExt?.talkativeness) !== talk) {
+    writeExt("talkativeness", talk);
+  }
 
-  if (b.worldName !== undefined && twinExt?.world !== b.worldName) writeExt("world", b.worldName);
+  if (b.worldName === undefined) {
+    if (twin.worldName !== undefined) deleteExt("world");
+  } else if (twinExt?.world !== b.worldName) {
+    writeExt("world", b.worldName);
+  }
 
   const inj = b.prompts.depthInjections?.find((x) => x.origin === "depth_prompt");
-  if (inj) {
+  const twinInj = twin.prompts.depthInjections?.find((x) => x.origin === "depth_prompt");
+  if (!inj) {
+    // Only delete when the twin actually had a representable authored injection. An empty ST
+    // default {prompt:"",depth,role} is not representable as an injection - leave it alone.
+    if (twinInj) deleteExt("depth_prompt");
+  } else {
     const cur = twinExt?.depth_prompt as Record<string, unknown> | undefined;
     if (!cur || cur.prompt !== inj.text || cur.depth !== inj.depth || cur.role !== inj.role) {
       const next = { prompt: inj.text, depth: inj.depth, ...(inj.role ? { role: inj.role } : {}) };

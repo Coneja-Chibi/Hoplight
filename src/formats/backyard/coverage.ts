@@ -1,34 +1,30 @@
 /**
- * Backyard AI (Faraday) coverage - the lens's ground truth for the Backyard tab. Audited from the
- * BYAF v1 archive shape (scenario.json + character.json). Backyard is a local desktop app; its
- * sampling block, prompt template, GBNF grammar, model id, and per-image labels are platform/preset
- * state and ride original (a future Preset entity), not portable character content.
+ * Legacy Backyard flat-JSON coverage - only paths the legacy adapter maps.
+ * BYAF media/alts/rating live on the separate `byaf` adapter (byaf-coverage.ts).
+ * Inflating this list lied to the lens the same way inflated Pyg coverage did.
  */
 import type { CoverageDecl } from "../../core/coverage";
 
 const coverage: CoverageDecl = {
   carries: [
     "identity.name",
-    "identity.fullName",
+    "identity.nickname",
+    "identity.description",
+    "identity.characterVersion",
     "persona.personality",
     "persona.scenario",
     "prompts.systemPrompt",
     "greetings.firstMessage",
     "examples.exampleMessages",
-    "discovery.rating",
     "attribution.creator",
-    "attribution.sourceUrl",
-    "attribution.createdAt",
-    "attribution.updatedAt",
-    "media.portrait",
-    "media.assets",
-    "presentation.background",
-    "knowledgeRefs",
+    "discovery.tags",
   ],
   notes: {
-    "discovery.rating": "from the byaf isNSFW boolean, folded into the 3-value rating",
-    "media.assets": "byaf labeled images[]; the label survives, sampler/model state rides original",
-    "knowledgeRefs": "byaf loreItems become a linked lorebook via the bundle layer",
+    "identity.nickname": "aiName when it differs from aiDisplayName / name",
+    "identity.description": "aiPersona (aliases: description, persona)",
+    "examples.exampleMessages": "customDialogue (aliases: examples, mes_example)",
+    placeholders:
+      "Wire uses single-brace {character}/{user}; unedited fields re-emit raw; edits re-encode lossily",
   },
 };
 

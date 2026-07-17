@@ -51,11 +51,33 @@ function findPortraitSource(entity: AnyEntity): { b64: string; mime: string } | 
       return media;
     }
   }
-  const body = entity.body as { media?: { portrait?: { ref?: unknown; mime?: unknown } } } | undefined;
+  const body = entity.body as {
+    media?: { portrait?: { ref?: unknown; mime?: unknown } };
+    pack?: { items?: { ref?: unknown }[]; defaultLabel?: unknown };
+  } | undefined;
   const ref = body?.media?.portrait?.ref;
   if (typeof ref === "string") {
     const m = DATA_URI.exec(ref);
     if (m && isSafeImageMime(m[1])) return { mime: m[1]!.toLowerCase(), b64: m[2]! };
+  }
+  // library pack entity: first / default face as shelf cover
+  if (entity.kind === "pack" && body?.pack) {
+    const items = Array.isArray(body.pack.items) ? body.pack.items : [];
+    const def =
+      typeof body.pack.defaultLabel === "string" ? body.pack.defaultLabel.toLowerCase() : "";
+    const ordered = def
+      ? [
+          ...items.filter(
+            (it) => typeof it?.ref === "string" && String((it as { label?: string }).label ?? "").toLowerCase() === def,
+          ),
+          ...items,
+        ]
+      : items;
+    for (const it of ordered) {
+      if (typeof it?.ref !== "string") continue;
+      const m = DATA_URI.exec(it.ref);
+      if (m && isSafeImageMime(m[1])) return { mime: m[1]!.toLowerCase(), b64: m[2]! };
+    }
   }
   return null;
 }

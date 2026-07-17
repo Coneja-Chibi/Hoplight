@@ -31,7 +31,12 @@ import type {
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
-import { keywordToTrigger, triggerToKeyword } from "../_shared/character-book";
+import {
+  characterBookToLorebook,
+  isStandaloneCharacterBook,
+  keywordToTrigger,
+  triggerToKeyword,
+} from "../_shared/character-book";
 
 /** One Risu-native lore entry. Comma-joined key strings; ST extras live under `extentions` (sic). */
 interface LoreBook {
@@ -289,21 +294,38 @@ const risuLorebook: LorebookAdapter = {
   outputExtensions: ["json"],
   kind: "lorebook",
 
-  // 1.0: the `{ type: "risu", ver, data }` envelope is unambiguous - no other format claims it.
+  // 1.0: the `{ type: "risu", ver, data }` envelope is unambiguous.
+  // 0.75: standalone CCv3/character_book extract (card.character_book saved alone).
   detect(input: AdapterInput): number {
-    return readExport(input) ? 1 : 0;
+    if (readExport(input)) return 1;
+    if (isStandaloneCharacterBook(readJsonObject(input))) return 0.75;
+    return 0;
   },
 
   toCanonical(input: AdapterInput): CanonicalLorebook {
     const raw = readExport(input);
-    if (!raw) throw new Error("risu-lorebook: not a Risu lorebook export");
-    const body = bookToCanonical(raw.data as LoreBook[]);
+    if (raw) {
+      const body = bookToCanonical(raw.data as LoreBook[]);
+      return {
+        schemaVersion: CANONICAL_SCHEMA_VERSION,
+        kind: "lorebook",
+        id: canonicalId(body.name),
+        body,
+        original: { "risu-lorebook": { raw } },
+      };
+    }
+    const cbook = readJsonObject(input);
+    if (!isStandaloneCharacterBook(cbook)) {
+      throw new Error("risu-lorebook: not a Risu lorebook export");
+    }
+    // Card-extracted character_book: same field map as embedded .charx path.
+    const body = characterBookToLorebook(cbook);
     return {
       schemaVersion: CANONICAL_SCHEMA_VERSION,
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      original: { "risu-lorebook": { raw } },
+      original: {},
     };
   },
 

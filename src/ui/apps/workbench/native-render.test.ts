@@ -13,16 +13,18 @@ test("nativeItemsFor gathers a targeted platform's native fields, tagged with it
   expect(items.every((i) => i.platform === "RoleCall")).toBe(true);
 });
 
-test("nativeBentoParts distributes small cards across columns and full-spans the big ones", () => {
+test("nativeBentoParts packs into middle+right only; left (portrait) stays empty; no full-span", () => {
   const items = nativeItemsFor(["rolecall"], read, noop, noop);
   const parts = nativeBentoParts(items);
   expect(parts.columns.length).toBe(3);
-  const smalls = items.filter((i) => !i.big).length;
-  const bigs = items.filter((i) => i.big).length;
-  expect(parts.columns.flat().length).toBe(smalls); // every small card is placed exactly once
-  expect(parts.spanRow === null).toBe(bigs === 0); // the span row exists iff there are big cards
-  // with 2+ small cards they are not all dumped into one column (weighted bin-pack may leave one empty)
-  if (smalls >= 2) expect(parts.columns.filter((c) => c.length > 0).length).toBeGreaterThan(1);
+  expect(parts.columns[0]).toEqual([]); // sticky face column never gets twin fields
+  expect(parts.columns.flat().length).toBe(items.length); // every card placed once in content cols
+  expect(parts.spanRow).toBeNull();
+  // with 2+ cards they balance across middle and right
+  if (items.length >= 2) {
+    expect(parts.columns[1]!.length + parts.columns[2]!.length).toBe(items.length);
+    expect(parts.columns[1]!.length > 0 || parts.columns[2]!.length > 0).toBe(true);
+  }
 });
 
 test("both layouts derive from the SAME items: the playbill gets one native section per platform", () => {

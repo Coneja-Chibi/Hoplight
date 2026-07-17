@@ -22,6 +22,11 @@ import type {
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
 import {
+  characterBookToLorebook,
+  isStandaloneCharacterBook,
+  type CharacterBook,
+} from "../_shared/character-book";
+import {
   parseSelectiveLogic,
   selectiveLogicToNumber,
   parseRole,
@@ -288,33 +293,59 @@ function bookToWire(body: LorebookBody, rawBook: StBook | undefined): StBook {
   };
 }
 
+/** Chub / card-extracted character_book JSON (entries array), not ST's keyed object map. */
+function readCharacterBook(input: AdapterInput): CharacterBook | null {
+  const obj = readJsonObject(input);
+  return isStandaloneCharacterBook(obj) ? obj : null;
+}
+
 const sillytavernLorebook: LorebookAdapter = {
   id: "sillytavern-lorebook",
   label: "SillyTavern world info (worldbook json)",
   outputExtensions: ["json"],
   kind: "lorebook",
 
-  // 0.9, not 1.0: the generic ST worldbook reader, mirroring the ST character adapter's posture.
+  // 0.9 native object-map worldbook; 0.85 for CCv3/Chub character_book files (still portable as ST).
   detect(input: AdapterInput): number {
-    return readBook(input) ? 0.9 : 0;
+    if (readBook(input)) return 0.9;
+    if (readCharacterBook(input)) return 0.85;
+    return 0;
   },
 
   toCanonical(input: AdapterInput): CanonicalLorebook {
     const book = readBook(input);
-    if (!book) throw new Error("sillytavern-lorebook: not a recognizable world info book");
-    const body = bookToCanonical(book);
+    if (book) {
+      const body = bookToCanonical(book);
+      return {
+        schemaVersion: CANONICAL_SCHEMA_VERSION,
+        kind: "lorebook",
+        id: canonicalId(body.name),
+        body,
+        original: { "sillytavern-lorebook": { raw: book } },
+      };
+    }
+    // Chub standalone lorebooks + card extracts: array character_book, re-export as ST object map.
+    const cbook = readCharacterBook(input);
+    if (!cbook) throw new Error("sillytavern-lorebook: not a recognizable world info book");
+    const body = characterBookToLorebook(cbook);
     return {
       schemaVersion: CANONICAL_SCHEMA_VERSION,
       kind: "lorebook",
       id: canonicalId(body.name),
       body,
-      original: { "sillytavern-lorebook": { raw: book } },
+      // no ST twin - fromCanonical writes a clean keyed worldbook from body alone
+      original: { "sillytavern-lorebook": { raw: { source: "character_book", name: body.name } } },
     };
   },
 
   fromCanonical(entity: CanonicalLorebook): AdapterOutput {
     const rawBook = entity.original?.["sillytavern-lorebook"]?.raw as StBook | undefined;
-    const out = bookToWire(entity.body, rawBook);
+    // character_book imports stash a marker object without keyed `entries` - treat as no twin
+    const twin =
+      rawBook && rawBook.entries && typeof rawBook.entries === "object" && !Array.isArray(rawBook.entries)
+        ? rawBook
+        : undefined;
+    const out = bookToWire(entity.body, twin);
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 };

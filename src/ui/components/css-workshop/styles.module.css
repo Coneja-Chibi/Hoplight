@@ -1,0 +1,342 @@
+/**
+ * CssWorkshop - assisted CSS editor. Tokens only.
+ */
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.banner {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--stage-mute, var(--muted));
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  padding: 0.4rem 0.55rem;
+  line-height: 1.35;
+}
+.banner strong {
+  color: var(--stage-soft, var(--text-soft));
+  font-weight: 700;
+}
+.modeToggle {
+  display: inline-flex;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--stage-well, var(--paper));
+}
+.modeBtn {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.6rem;
+  border: none;
+  border-right: 2px solid var(--stage-black, var(--edge));
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+}
+.modeBtn:last-child {
+  border-right: none;
+}
+.modeOn {
+  background: var(--stage-panel, var(--panel));
+  color: var(--stage-soft, var(--text-soft));
+}
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.tab {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.55rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+}
+.tabOn {
+  border-color: var(--stage-black, var(--edge));
+  background: var(--stage-panel, var(--panel));
+  color: var(--stage-soft, var(--text-soft));
+}
+.packRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+.packLabel {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.sel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  padding: 0.3rem 0.4rem;
+  max-width: 100%;
+}
+.recipe {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-panel, var(--panel));
+  padding: 0.45rem 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.recipeHead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.recipeTitle {
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--stage-soft, var(--text));
+}
+.useBtn {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.45rem;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--stage-well, var(--paper));
+  color: var(--stage-soft, var(--text-soft));
+  cursor: pointer;
+}
+.blurb {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--stage-mute, var(--muted));
+  margin: 0;
+}
+.previewBlock {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+}
+.frame {
+  display: block;
+  width: 100%;
+  min-height: 10rem;
+  max-height: 16rem;
+  border: 0;
+  background: #0c0b10;
+  box-sizing: border-box;
+}
+.assist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.ruleList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 8rem;
+  overflow: auto;
+}
+.ruleBtn {
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.3rem 0.4rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+  word-break: break-word;
+}
+.ruleBtnOn {
+  border-color: var(--stage-black, var(--edge));
+  color: var(--stage-soft, var(--text-soft));
+  background: var(--stage-panel, var(--panel));
+}
+.knobGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.45rem;
+}
+.knob {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.knobLabel {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+.input {
+  flex: 1;
+  min-width: 6rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: var(--stage-well, var(--field, var(--paper)));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text-soft));
+  padding: 0.3rem 0.4rem;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--stage-mute, var(--muted));
+}
+.hint {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--stage-mute, var(--muted));
+  margin: 0;
+}
+.english {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--stage-soft, var(--text-soft));
+  background: var(--stage-well, var(--paper));
+  border: 2px solid var(--stage-seam, var(--seam));
+  padding: 0.35rem 0.45rem;
+  word-break: break-word;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.mini {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.4rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  color: var(--stage-soft, var(--text-soft));
+  cursor: pointer;
+}
+.sourceHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+.sourceLabel {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  padding: 0.22rem 0.4rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+}
+.chip:hover {
+  color: var(--stage-soft, var(--text-soft));
+  border-color: var(--stage-black, var(--edge));
+}
+
+/* advanced: code + breakdown */
+.advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.advGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(12rem, 0.95fr);
+  gap: 0.65rem;
+  align-items: start;
+}
+@media (max-width: 48rem) {
+  .advGrid {
+    grid-template-columns: 1fr;
+  }
+}
+.advCode {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.advBreak {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  max-height: 28rem;
+  overflow: auto;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  padding: 0.45rem 0.5rem;
+}
+.advKnobs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-top: 2px solid var(--stage-seam, var(--seam));
+  padding-top: 0.45rem;
+  margin-top: 0.2rem;
+}
+.freeformBlock {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--stage-mute, var(--muted));
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 6rem;
+  overflow: auto;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  padding: 0.35rem 0.4rem;
+}
+.fileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.importFlash {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--stage-mute, var(--muted));
+}

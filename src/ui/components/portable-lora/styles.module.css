@@ -1,0 +1,75 @@
+/**
+ * PortableLora styles. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.warn {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  line-height: 1.45;
+  color: var(--stage-danger, var(--danger));
+  border: 2px solid var(--stage-danger, var(--danger));
+  padding: 0.4rem 0.5rem;
+  background: var(--stage-well, var(--paper));
+}
+.lbl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.input {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-transform: none;
+  letter-spacing: 0;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-input, var(--input));
+  color: var(--stage-ink, var(--text));
+  padding: 0.35rem 0.45rem;
+}
+.ta {
+  min-height: 2.8rem;
+  resize: vertical;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: 0;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-input, var(--input));
+  color: var(--stage-ink, var(--text));
+  padding: 0.35rem 0.45rem;
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  flex: none;
+}
+.clear {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-card, var(--card));
+  color: var(--stage-mute, var(--muted));
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}

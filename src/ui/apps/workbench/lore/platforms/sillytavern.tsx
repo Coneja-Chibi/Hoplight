@@ -82,7 +82,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
                   aria-checked={entry.vectorized === true}
                   aria-label="Vectorized (RAG)"
                   onClick={() =>
-                    onPatch({ vectorized: entry.vectorized === true ? undefined : true })
+                    onPatch({ vectorized: entry.vectorized === true ? false : true })
                   }
                 />
               </div>
@@ -106,7 +106,8 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
                     aria-label="Group override"
                     onClick={() =>
                       onPatch({
-                        groupOverride: entry.groupOverride === true ? undefined : true,
+                        // explicit false clears the ST wire flag (undefined leaves a twin on)
+                        groupOverride: entry.groupOverride === true ? false : true,
                       })
                     }
                   />
@@ -128,7 +129,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
                     aria-label="Group scoring"
                     onClick={() =>
                       onPatch({
-                        useGroupScoring: entry.useGroupScoring === true ? undefined : true,
+                        useGroupScoring: entry.useGroupScoring === true ? false : true,
                       })
                     }
                   />

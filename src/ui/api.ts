@@ -1,38 +1,50 @@
 /**
- * The local API client - the one door to the engine (extracted verbatim from the old boot.ts).
- * Every fetch the shell or an app makes to the loopback server funnels through this object, whose
- * shape is pinned by AppContext["api"] (app-contract.ts).
+ * The local API client - the one door to the engine.
+ * Every fetch funnels through apiFetch (session token + non-2xx rejection).
  */
-import type { AppContext, InspectResult } from "./app-contract";
+import type { AppContext, InspectResult, SaveBundleResult } from "./app-contract";
+import { apiFetchJson, INSPECT_BODY_MAX_BYTES } from "./_shared/api-fetch";
+
+export { ApiHttpError as ApiError } from "./_shared/api-fetch";
 
 export const api: AppContext["api"] = {
   listEntities: async (kind) =>
-    (await fetch(`/api/studio/list${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`)).json(),
-  getEntity: async (id) => (await fetch(`/api/studio/get?${id}`)).json(),
-  saveEntity: async (entity) =>
-    (
-      await fetch("/api/studio/save", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(entity),
-      })
-    ).json(),
-  inspectFile: async (file): Promise<InspectResult> =>
-    (
-      await fetch("/api/inspect", {
-        method: "POST",
-        headers: { "x-filename": file.name },
-        body: await file.arrayBuffer(),
-      })
-    ).json(),
+    apiFetchJson(`/api/studio/list${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`, {
+      requireToken: false,
+    }),
+  getEntity: async (id) =>
+    apiFetchJson(`/api/studio/get?${id}`, { requireToken: false }),
+  saveEntity: async (entity, opts) =>
+    apiFetchJson("/api/studio/save", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(opts?.overwrite ? { entity, overwrite: true } : entity),
+    }),
+  saveBundle: async (payload): Promise<SaveBundleResult> =>
+    apiFetchJson("/api/studio/save-bundle", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
+  inspectFile: async (file): Promise<InspectResult> => {
+    if (file.size > INSPECT_BODY_MAX_BYTES) {
+      throw new Error("file too large to inspect");
+    }
+    return apiFetchJson("/api/inspect", {
+      method: "POST",
+      headers: {
+        "content-type": "application/octet-stream",
+        "x-filename": file.name,
+      },
+      body: await file.arrayBuffer(),
+    });
+  },
   exportEntity: async (entity, targetId) =>
-    (
-      await fetch("/api/export", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ entity, targetId }),
-      })
-    ).json(),
-  formats: async () => (await fetch("/api/formats")).json(),
-  coverage: async () => (await fetch("/api/coverage")).json(),
+    apiFetchJson("/api/export", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ entity, targetId }),
+    }),
+  formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
+  coverage: async () => apiFetchJson("/api/coverage", { requireToken: false }),
 };

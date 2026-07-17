@@ -1,9 +1,14 @@
 import { describe, expect, test } from "bun:test";
 import {
+  biasPhraseLine,
+  emptyBiasGroup,
   filterFromInputs,
   filterMode,
   parseCsv,
   patchContextConfig,
+  phrasesFromLines,
+  removeBiasGroup,
+  replaceBiasGroup,
   rowsFromSideEffects,
   sideEffectsFromRows,
 } from "./entry-extras";
@@ -62,6 +67,22 @@ describe("side-effect rows mapping", () => {
     const se = sideEffectsFromRows([{ type: "addvar", variable: "gold", amount: 10, scope: "local" }], false, true)!;
     const rows = rowsFromSideEffects(se);
     expect(sideEffectsFromRows(rows, se.onlyOnFirstTrigger, se.clearOnDeactivate)).toEqual(se);
+  });
+});
+
+describe("NAI phrase bias helpers", () => {
+  test("phrasesFromLines and biasPhraseLine round-trip", () => {
+    const phrases = phrasesFromLines("alpha\nbeta\n", []);
+    expect(phrases.map(biasPhraseLine)).toEqual(["alpha", "beta"]);
+    expect(phrases[0]!.type).toBe(2);
+  });
+
+  test("replace/remove bias groups", () => {
+    const g0 = emptyBiasGroup();
+    const g1 = { ...emptyBiasGroup(), bias: 0.2 };
+    expect(replaceBiasGroup([g0], 0, g1)[0]!.bias).toBe(0.2);
+    expect(removeBiasGroup([g0, g1], 0)).toEqual([g1]);
+    expect(removeBiasGroup([g0], 0)).toBeUndefined();
   });
 });
 

@@ -105,7 +105,29 @@ export function characterFields(body: unknown): InspectField[] {
   return out;
 }
 
-/** Dispatch the readable fields for an entity kind. Character today; other kinds as they are wired. */
+function packFields(body: unknown): InspectField[] {
+  const b = rec(body);
+  const out: InspectField[] = [];
+  const add = (k: string, v: string | null, format: InspectField["format"] = "plain"): void => {
+    if (v) out.push({ k, v, format });
+  };
+  add("name", str(b.name));
+  add("brief", str(b.brief));
+  const pack = rec(b.pack);
+  const items = Array.isArray(pack.items) ? pack.items : [];
+  add("faces", items.length > 0 ? String(items.length) : null);
+  add("default", str(pack.defaultLabel));
+  const labels = items
+    .map((it) => str(rec(it).label))
+    .filter((x): x is string => Boolean(x))
+    .join(", ");
+  add("labels", labels || null);
+  return out;
+}
+
+/** Dispatch the readable fields for an entity kind. Character + pack; others as wired. */
 export function fieldsFor(kind: string, body: unknown): InspectField[] {
-  return kind === "character" ? characterFields(body) : [];
+  if (kind === "character") return characterFields(body);
+  if (kind === "pack") return packFields(body);
+  return [];
 }

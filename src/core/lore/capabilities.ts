@@ -56,6 +56,7 @@ export type LoreFieldKey =
   | "sideEffects"
   | "contextConfig"
   | "naiActivation"
+  | "phraseBias"
   | "scanSources"
   | "vectorized"
   | "automationId"
@@ -93,6 +94,7 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
   sideEffects: "show",
   contextConfig: "show",
   naiActivation: "show",
+  phraseBias: "show",
   scanSources: "show",
   vectorized: "show",
   automationId: "show",
@@ -142,6 +144,7 @@ const PROFILE_EMPHASIS: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey,
   novelai: {
     contextConfig: "emphasize",
     naiActivation: "emphasize",
+    phraseBias: "emphasize",
     categoryId: "emphasize",
     scanDepth: "emphasize",
     comment: "demote",

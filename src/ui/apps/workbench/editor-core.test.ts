@@ -115,8 +115,13 @@ import {
   EDITOR_CARDS,
   lensVerdict,
   readPath,
+  reconcileAfterSave,
+  saveOutcomeStatus,
   STEP_ORDER,
   writePath,
+  writeOverridePath,
+  inheritOverridePath,
+  hasOverridePath,
 } from "./editor-core";
 
 const PLATFORMS = [
@@ -180,4 +185,91 @@ test("EDITOR_CARDS registry is well-formed: unique ids, known steps, non-empty p
     expect((STEP_ORDER as readonly string[]).includes(c.step)).toBe(true);
     expect(c.paths.length).toBeGreaterThan(0);
   }
+});
+
+test("writeOverridePath keeps blanks; inheritOverridePath deletes; hasOverridePath is presence", () => {
+  const blank = writeOverridePath({}, "identity.description", "");
+  expect(readPath(blank, "identity.description")).toBe("");
+  expect(hasOverridePath(blank, "identity.description")).toBe(true);
+  const emptyArr = writeOverridePath({}, "discovery.tags", []);
+  expect(readPath(emptyArr, "discovery.tags")).toEqual([]);
+  const inherited = inheritOverridePath(blank, "identity.description");
+  expect(hasOverridePath(inherited, "identity.description")).toBe(false);
+});
+
+// ===== async save reconciliation (ASYNC-001 / plan 015) =====
+
+test("reconcileAfterSave: no concurrent edit adopts accepted and is clean", () => {
+  const submitted = { identity: { name: "Ada", description: "tall" } };
+  const live = structuredClone(submitted);
+  const r = reconcileAfterSave({ live, submitted });
+  expect(r.dirty).toBe(false);
+  expect(deepEq(r.current, submitted)).toBe(true);
+  expect(deepEq(r.baseline, submitted)).toBe(true);
+  // ownership: baseline is not an alias of live or submitted
+  expect(r.baseline).not.toBe(live);
+  expect(r.baseline).not.toBe(submitted);
+  expect(r.current).not.toBe(live);
+  expect(r.current).not.toBe(submitted);
+});
+
+test("reconcileAfterSave: nested canonical edit during save is retained and dirty", () => {
+  const submitted = { identity: { name: "Ada", description: "tall" }, tags: ["a"] };
+  const live = { identity: { name: "Ada", description: "taller" }, tags: ["a"] };
+  const r = reconcileAfterSave({ live, submitted });
+  expect(r.dirty).toBe(true);
+  expect(r.current).toBe(live);
+  expect(deepEq(r.current, live)).toBe(true);
+  expect(deepEq(r.baseline, submitted)).toBe(true);
+  // mutating baseline must not touch live
+  (r.baseline as { identity: { description: string } }).identity.description = "mutated";
+  expect(live.identity.description).toBe("taller");
+});
+
+test("reconcileAfterSave: blank and deletion during save are retained", () => {
+  const submitted = { identity: { name: "Ada", description: "keep" }, persona: { personality: "wry" } };
+  const liveBlank = { identity: { name: "Ada", description: "" }, persona: { personality: "wry" } };
+  const blank = reconcileAfterSave({ live: liveBlank, submitted });
+  expect(blank.dirty).toBe(true);
+  expect(blank.current).toBe(liveBlank);
+
+  const liveDelete = { identity: { name: "Ada" }, persona: { personality: "wry" } };
+  const deleted = reconcileAfterSave({ live: liveDelete, submitted });
+  expect(deleted.dirty).toBe(true);
+  expect(deleted.current).toBe(liveDelete);
+  expect("description" in (deleted.current as { identity: object }).identity).toBe(false);
+});
+
+test("reconcileAfterSave: array reorder during save is retained", () => {
+  const submitted = { discovery: { tags: ["a", "b", "c"] } };
+  const live = { discovery: { tags: ["c", "a", "b"] } };
+  const r = reconcileAfterSave({ live, submitted });
+  expect(r.dirty).toBe(true);
+  expect(r.current).toBe(live);
+  expect(deepEq(r.baseline, submitted)).toBe(true);
+});
+
+test("reconcileAfterSave: accepted override becomes baseline when live matches submitted", () => {
+  const submitted = { identity: { name: "Ada" } };
+  const live = { identity: { name: "Ada" } };
+  const accepted = { identity: { name: "Ada" }, schemaVersion: 1 };
+  const r = reconcileAfterSave({ live, submitted, accepted });
+  expect(r.dirty).toBe(false);
+  expect(deepEq(r.current, accepted)).toBe(true);
+  expect(deepEq(r.baseline, accepted)).toBe(true);
+});
+
+test("reconcileAfterSave: order domain uses the same helper", () => {
+  const submitted = ["description", "personality", "scenario"];
+  const live = ["personality", "description", "scenario"];
+  const r = reconcileAfterSave({ live, submitted });
+  expect(r.dirty).toBe(true);
+  expect(r.current).toEqual(live);
+  expect(r.baseline).toEqual(submitted);
+  expect(r.baseline).not.toBe(submitted);
+});
+
+test("saveOutcomeStatus distinguishes clean vs still-dirty success", () => {
+  expect(saveOutcomeStatus("Ada", false)).toBe("Ada saved");
+  expect(saveOutcomeStatus("Ada", true)).toBe("Ada saved; newer changes not yet saved");
 });

@@ -8,6 +8,8 @@ re-attached independently of the card.
 This is the concrete implementation of the bundle idea from [../architecture.md](../architecture.md).
 Source: `src/formats/_shared/character-book.ts`; orchestration in `src/convert.ts`.
 
+Studio jewel (author + attach extracted books): [LOREBOOK-BUILD-PLAN.md](../../LOREBOOK-BUILD-PLAN.md).
+
 ## A different dialect from the worldbook file
 
 The embedded `character_book` is **not** the same wire shape as a standalone SillyTavern world info file.

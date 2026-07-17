@@ -4,13 +4,14 @@
 .card {
   background: var(--stage-panel);
   border: 3px solid var(--stage-black);
-  border-top: 3px solid var(--a, var(--accent, #ff3b1f));
+  border-top: 3px solid var(--a, var(--accent));
   display: flex;
   flex-direction: column;
   min-width: 0;
 }
 .off {
-  opacity: 0.35;
+  opacity: 0.42;
+  filter: grayscale(0.5);
 }
 .head {
   display: flex;
@@ -22,7 +23,7 @@
 .mark {
   display: flex;
   flex: none;
-  color: var(--a, var(--accent, #ff3b1f));
+  color: var(--a, var(--accent));
 }
 .mark :global(svg) {
   display: block;
@@ -58,15 +59,15 @@
   background: var(--stage-seam);
 }
 .full {
-  background: #5ad07a;
+  background: var(--stage-ok);
 }
 .carry {
   font-family: var(--font-mono);
   font-size: 0.5rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--rose, #e11d48);
-  border: 2px solid var(--rose, #e11d48);
+  color: var(--rose);
+  border: 2px solid var(--rose);
   padding: 0.1rem 0.35rem;
   margin-left: 0.35rem;
 }

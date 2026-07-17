@@ -1,0 +1,226 @@
+/**
+ * Placement stop-rail styles (PositionPicker).
+ */
+
+.placeRail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.placeHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.placeTitles {
+  flex: none;
+}
+
+.placeTitles b {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.placeTitles span {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  margin-top: 0.08rem;
+}
+
+.placeStops {
+  min-width: 0;
+  overflow-x: auto;
+  padding: 0.15rem 0 0.1rem;
+}
+
+.placeLine {
+  position: relative;
+  height: 2px;
+  background: var(--stage-seam);
+  margin: 0 calc(100% / var(--n, 2) / 2);
+}
+
+.placeFill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--a, var(--stage-macro));
+  pointer-events: none;
+}
+
+.placeThumb {
+  position: absolute;
+  top: 50%;
+  width: 0.72rem;
+  height: 0.72rem;
+  background: var(--a, var(--stage-macro));
+  border: 2px solid var(--stage-black);
+  box-shadow: 1px 1px 0 0 var(--stage-black);
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.placeStopRow {
+  display: grid;
+  grid-template-columns: repeat(var(--n, 2), minmax(3.1rem, 1fr));
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  min-width: calc(var(--n, 2) * 3.1rem);
+}
+
+.placeStop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  border: 0;
+  background: transparent;
+  padding: 0.15rem 0.1rem;
+  cursor: pointer;
+  min-width: 0;
+  color: var(--stage-text-dim);
+}
+
+.placeStop:hover {
+  color: var(--stage-card);
+}
+
+.placeStopOn {
+  color: var(--a, var(--stage-macro));
+}
+
+.placeDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-line, var(--stage-seam));
+  flex: none;
+}
+
+.placeDotOn {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-row));
+}
+
+.placeStopLbl {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeLblForeign {
+  color: var(--stage-warn);
+}
+
+.placeDepthCap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  border: 1px solid var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
+  padding: 0.14rem 0.36rem;
+  flex: none;
+}
+
+.placeDepthSleep {
+  opacity: 0.4;
+  border-color: var(--stage-seam);
+  background: var(--stage-sunken);
+}
+
+.placeAt {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  color: var(--a, var(--stage-macro));
+}
+
+.placeDepthSleep .placeAt {
+  color: var(--stage-kicker, var(--stage-mute));
+}
+
+.placeDepthNum {
+  width: 2rem;
+  border: 0;
+  background: none;
+  color: var(--stage-card);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.placeDepthNum::-webkit-outer-spin-button,
+.placeDepthNum::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.placeDepthNum:disabled {
+  color: var(--stage-mute);
+  cursor: not-allowed;
+}
+
+.placeRole {
+  border: 0;
+  background: none;
+  color: var(--stage-soft);
+  font-family: var(--font-mono);
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  padding: 0;
+}
+
+.placeFloor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.placeFloorLine {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--stage-soft);
+}
+
+.placeForeign {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-warn);
+  border: 1px solid var(--stage-warn);
+  padding: 0.08rem 0.28rem;
+}

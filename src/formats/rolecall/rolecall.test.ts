@@ -121,7 +121,8 @@ test("canonical model bridges RoleCall -> SillyTavern (rolecall layer drops, sta
   const ent = adapter.toCanonical(asText(makeRcCard()));
   const st = sillytavern.fromCanonical(ent);
   const card = JSON.parse(st.text!);
-  expect(card.spec).toBe("chara_card_v2");
+  // Portable media forces a CCv3 envelope (V2 has no assets[] contract).
+  expect(card.spec).toBe("chara_card_v3");
   expect(card.data.name).toBe("Vera");
   expect(card.data.first_mes).toBe("You again.");
   expect(card.data.scenario).toBe("at a crossroads inn");
@@ -129,6 +130,19 @@ test("canonical model bridges RoleCall -> SillyTavern (rolecall layer drops, sta
   expect(card.data.alternate_greetings).toEqual(["Oh. It's you.", "Lost again?"]);
   // no RC extension leaks into the ST card
   expect(card.data.extensions?.rolecall).toBeUndefined();
+  // representable media projects into ST assets with emotion (not RC expression)
+  expect(card.data.assets).toContainEqual({
+    type: "icon",
+    name: "main",
+    uri: "https://cdn/main.png",
+    ext: "png",
+  });
+  expect(card.data.assets).toContainEqual({
+    type: "emotion",
+    name: "happy",
+    uri: "https://cdn/happy.png",
+    ext: "png",
+  });
 });
 
 // -- Real-corpus wiring-bug regressions (samples/rolecall/vera-casting-card.v3.json). The in-suite
@@ -203,4 +217,167 @@ test("de-original edit: mutating the new RC slots reaches their exact wire homes
   // untouched neighbors survive
   expect(rc.details.full_name).toBe("Veranika Sandoval");
   expect(rc.details.pronouns).toBe("she/her");
+});
+
+// --- Clear intent: mapped tavern fields cleared must not resurrect from the twin ---
+
+test("clear export: cleared description/scenario/tags do not resurrect from twin", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  delete (ent.body.identity as { description?: string }).description;
+  delete (ent.body.persona as { scenario?: string }).scenario;
+  delete (ent.body.persona as { personality?: string }).personality;
+  delete (ent.body.greetings as { firstMessage?: string }).firstMessage;
+  delete (ent.body.discovery as { tags?: string[] }).tags;
+  delete (ent.body.greetings as { alternateGreetings?: unknown }).alternateGreetings;
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  expect(out.data.description).toBe("");
+  expect(out.data.scenario).toBe("");
+  expect(out.data.personality).toBe("");
+  expect(out.data.first_mes).toBe("");
+  expect(out.data.tags).toEqual([]);
+  expect(out.data.alternate_greetings).toEqual([]);
+  // RC extension residue still rides
+  expect(out.data.extensions.rolecall).toBeDefined();
+});
+
+// --- Plan 010: presentation write-back (gradient, palette, background, fieldOrder) ---
+
+test("presentation edit: gradient/palette/fieldOrder/background reach exact wire homes", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  ent.body.presentation!.gradientColors = ["#111111", "#222222"];
+  ent.body.presentation!.palette = [{ label: "Ink", name: "ink", hex: "#000001" }];
+  ent.body.presentation!.fieldOrder = ["description", "personality"];
+  ent.body.presentation!.background = {
+    ref: "https://cdn/new-bg.png",
+    overlayOpacity: 0.3,
+    videoPlaybackRate: 1.5,
+  };
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  const d = out.data.extensions.rolecall.details;
+  expect(d.gradient_colors).toEqual(["#111111", "#222222"]);
+  expect(d.colors).toEqual([{ label: "Ink", name: "ink", hex: "#000001" }]);
+  expect(d.fieldOrder).toEqual(["description", "personality"]);
+  expect(d.default_background.customUrl).toBe("https://cdn/new-bg.png");
+  expect(d.default_background.overlayOpacity).toBe(0.3);
+  expect(d.default_background.videoPlaybackRate).toBe(1.5);
+  // signatureColor still works; neighbors survive
+  expect(d.signature_color).toBe("#7a5c3a");
+  expect(d.full_name).toBe("Veranika Sandoval");
+});
+
+test("presentation clear: each of the four fields removes only its wire home", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  delete ent.body.presentation!.gradientColors;
+  delete ent.body.presentation!.palette;
+  delete ent.body.presentation!.fieldOrder;
+  delete ent.body.presentation!.background;
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  const d = out.data.extensions.rolecall.details;
+  expect("gradient_colors" in d).toBe(false);
+  expect("colors" in d).toBe(false);
+  expect("fieldOrder" in d).toBe(false);
+  expect("default_background" in d).toBe(false);
+  // signature and identity residue remain
+  expect(d.signature_color).toBe("#7a5c3a");
+  expect(d.full_name).toBe("Veranika Sandoval");
+});
+
+test("presentation from-scratch: each field independently creates details without extra defaults", () => {
+  const base = {
+    schemaVersion: 1 as const,
+    kind: "character" as const,
+    id: "solo",
+    body: {
+      identity: { name: "Solo" },
+      persona: {},
+      prompts: {},
+      greetings: {},
+      examples: {},
+      media: {},
+      attribution: {},
+      discovery: {},
+      presentation: { gradientColors: ["#abcabc"] },
+    },
+  };
+  const out = JSON.parse(adapter.fromCanonical(base as never).text ?? "");
+  const d = out.data.extensions.rolecall.details;
+  expect(d.gradient_colors).toEqual(["#abcabc"]);
+  expect(d.colors).toBeUndefined();
+  expect(d.fieldOrder).toBeUndefined();
+  expect(d.default_background).toBeUndefined();
+});
+
+test("presentation background: ID twin keeps backgroundId home; URL twin keeps customUrl", () => {
+  const idCard = makeRcCard();
+  (idCard.data.extensions.rolecall.details as { default_background: unknown }).default_background = {
+    backgroundId: "rc-bg-42",
+    customUrl: null,
+    overlayOpacity: 0.4,
+  };
+  const entId = adapter.toCanonical(asText(idCard));
+  expect(entId.body.presentation?.background?.ref).toBe("rc-bg-42");
+  entId.body.presentation!.background = { ref: "rc-bg-99", overlayOpacity: 0.8 };
+  const outId = JSON.parse(adapter.fromCanonical(entId).text ?? "");
+  expect(outId.data.extensions.rolecall.details.default_background).toEqual({
+    backgroundId: "rc-bg-99",
+    customUrl: null,
+    overlayOpacity: 0.8,
+  });
+
+  const entUrl = adapter.toCanonical(asText(makeRcCard()));
+  entUrl.body.presentation!.background = { ref: "https://cdn/other.mp4", overlayOpacity: 0.1, videoPlaybackRate: 2 };
+  const outUrl = JSON.parse(adapter.fromCanonical(entUrl).text ?? "");
+  const bg = outUrl.data.extensions.rolecall.details.default_background;
+  expect(bg.customUrl).toBe("https://cdn/other.mp4");
+  expect(bg.backgroundId).toBeNull();
+  expect(bg.overlayOpacity).toBe(0.1);
+  expect(bg.videoPlaybackRate).toBe(2);
+});
+
+test("presentation palette unknown siblings survive hex edit; editing one field leaves neighbors", () => {
+  const card = makeRcCard();
+  (card.data.extensions.rolecall.details.colors as Array<Record<string, unknown>>)[0] = {
+    label: "Ink",
+    name: "ink",
+    hex: "#1a1410",
+    extra: "keep-me",
+  };
+  const ent = adapter.toCanonical(asText(card));
+  ent.body.presentation!.palette = [{ label: "Ink", name: "ink", hex: "#ffffff" }];
+  // only touch palette; gradient stays as imported
+  const out = JSON.parse(adapter.fromCanonical(ent).text ?? "");
+  const d = out.data.extensions.rolecall.details;
+  expect(d.colors).toEqual([{ label: "Ink", name: "ink", hex: "#ffffff", extra: "keep-me" }]);
+  expect(d.gradient_colors).toEqual(["#3a2e1f", "#7a5c3a"]);
+  expect(d.fieldOrder).toEqual(["personality", "scenario"]);
+});
+
+test("presentation unedited real card still deep-equals (signature already written)", () => {
+  const ent = adapter.toCanonical({ text: realCard });
+  expect(JSON.parse(adapter.fromCanonical(ent).text ?? "")).toEqual(JSON.parse(realCard));
+});
+
+test("from-scratch emotion media writes type expression on RoleCall", () => {
+  const ent = adapter.toCanonical(asText(makeRcCard()));
+  // force new media set
+  ent.body.media = {
+    portrait: {
+      role: "portrait",
+      label: "main",
+      ref: "https://cdn/face.png",
+      mime: "image/png",
+      primary: true,
+    },
+    assets: [
+      { role: "emotion", label: "calm", ref: "https://cdn/calm.png", mime: "image/png" },
+    ],
+  };
+  const out = JSON.parse(adapter.fromCanonical(ent).text!);
+  expect(out.data.assets.find((a: { name: string }) => a.name === "main")?.type).toBe("icon");
+  expect(out.data.assets.find((a: { name: string }) => a.name === "calm")).toEqual({
+    type: "expression",
+    name: "calm",
+    uri: "https://cdn/calm.png",
+    ext: "png",
+  });
 });

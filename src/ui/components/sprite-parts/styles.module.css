@@ -1,0 +1,68 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.85rem;
+  align-items: flex-end;
+}
+.lbl {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.sel,
+.input {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  background: var(--stage-well, var(--field));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text));
+  padding: 0.28rem 0.4rem;
+}
+.parts {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: 0.4rem;
+}
+.part {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-panel, var(--panel));
+  padding: 0.35rem;
+}
+.color {
+  width: 2.4rem;
+  height: 1.6rem;
+  border: 2px solid var(--stage-black, var(--edge));
+  padding: 0;
+  background: none;
+  cursor: pointer;
+}
+.add {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: none;
+  color: var(--stage-mute, var(--muted));
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.rm {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  border: none;
+  background: none;
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+  float: right;
+}

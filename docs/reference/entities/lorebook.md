@@ -3,6 +3,11 @@
 The canonical lorebook (world info) superset. Source of truth for the types:
 `src/entities/lorebook/schema.ts`. A `CanonicalLorebook` is `CanonicalEntity<"lorebook", LorebookBody>`.
 
+**Studio authoring (planned jewel):** [LOREBOOK-BUILD-PLAN.md](../../LOREBOOK-BUILD-PLAN.md),
+research [LOREBOOK-RESEARCH.md](../../LOREBOOK-RESEARCH.md), wireframes
+`design/vs-lorebook-surfaces.html` + `design/vs-lorebook-components.html`.
+UI: one RC-shaped editor; single Write for profile (no multi-select host lens).
+
 A lorebook is a set of **entries**, each a chunk of text that gets injected into the prompt when its
 **triggers** match the recent conversation. Different apps call this world info, lorebook, character
 book, or memory; the mechanics are the same.

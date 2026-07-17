@@ -1,19 +1,21 @@
 /**
- * LoreEntryToc - health pip, fire-mode select, slide enable, chrom expand, drag reorder.
- * Match overrides live on the page Keys card, not here.
+ * LoreEntryToc - list rows + focused EntryItem card (VAUDEVILLE port).
+ * Match overrides also live on the page Keys card; Advanced holds memo/recursion/budget.
  */
-import { useState, type JSX } from "react";
-import type { LorebookEntry } from "../../../../entities/lorebook/schema";
+import { useState, type DragEvent, type JSX } from "react";
+import type { LorebookCategory, LorebookEntry } from "../../../../entities/lorebook/schema";
 import { estimateEntryTokens, fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { entryFireMode, fireModePatch } from "./entry-fire-mode";
 import { LoreBulkBar } from "./bulk-bar";
 import { ModeSelect } from "./entry-toc-mode";
+import { EntryTocItem } from "./entry-toc-item";
 
 export interface EntryTocProps {
   entries: readonly LorebookEntry[];
   focusedId: string | null;
   writeFor: LoreWriteForProfile;
   styles: Readonly<Record<string, string>>;
+  categories?: readonly LorebookCategory[];
   onSelect: (id: string) => void;
   onAdd: () => void;
   onPatch: (id: string, patch: Partial<LorebookEntry>) => void;
@@ -51,108 +53,12 @@ function healthTitle(health: "problem" | "worth-a-look" | undefined, enabled: bo
   return "Healthy";
 }
 
-function FinePrint({
-  entry,
-  writeFor,
-  styles,
-  onPatch,
-  onDuplicate,
-  onDelete,
-  onOpenBeside,
-}: {
-  entry: LorebookEntry;
-  writeFor: LoreWriteForProfile;
-  styles: Readonly<Record<string, string>>;
-  onPatch: (patch: Partial<LorebookEntry>) => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-  onOpenBeside?: () => void;
-}): JSX.Element {
-  const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
-  return (
-    <div className={styles.texp}>
-      <div className={styles.texpPanel}>
-        <div className={styles.chromGrid}>
-          {show("sortOrder") && (
-            <label className={styles.chromTile}>
-              <span className={styles.chromLab}>Order</span>
-              <input
-                className={styles.chromIn}
-                type="number"
-                value={entry.sortOrder}
-                aria-label="Insertion order"
-                onChange={(ev) => onPatch({ sortOrder: Number(ev.target.value) || 0 })}
-              />
-            </label>
-          )}
-          {show("priority") && (
-            <label className={styles.chromTile}>
-              <span className={styles.chromLab}>Priority</span>
-              <input
-                className={styles.chromIn}
-                type="number"
-                value={entry.priority}
-                aria-label="Budget priority"
-                onChange={(ev) => onPatch({ priority: Number(ev.target.value) || 0 })}
-              />
-            </label>
-          )}
-          {show("scanDepth") && (
-            <label className={styles.chromTile}>
-              <span className={styles.chromLab}>Scan</span>
-              <input
-                className={styles.chromIn}
-                type="number"
-                min={0}
-                placeholder="—"
-                value={entry.scanDepth ?? ""}
-                aria-label="Scan depth (blank inherits the book default)"
-                onChange={(ev) => {
-                  const v = ev.target.value;
-                  onPatch({ scanDepth: v === "" ? null : Number(v) || 0 });
-                }}
-              />
-            </label>
-          )}
-          <div className={styles.chromTile}>
-            <span className={styles.chromLab}>Keep</span>
-            <button
-              type="button"
-              className={
-                entry.ignoreBudget
-                  ? styles.texpSwitch
-                  : `${styles.texpSwitch} ${styles.texpSwitchOff}`
-              }
-              role="switch"
-              aria-checked={entry.ignoreBudget}
-              aria-label="Always keep: skip the token budget"
-              onClick={() => onPatch({ ignoreBudget: !entry.ignoreBudget })}
-            />
-          </div>
-        </div>
-        <div className={styles.texpFoot} role="group" aria-label="Entry actions">
-          <button type="button" className={styles.texpAct} onClick={onDuplicate}>
-            Copy
-          </button>
-          {onOpenBeside && (
-            <button type="button" className={styles.texpAct} onClick={onOpenBeside}>
-              Beside
-            </button>
-          )}
-          <button type="button" className={styles.texpActDanger} onClick={onDelete}>
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function LoreEntryToc({
   entries,
   focusedId,
   writeFor,
   styles,
+  categories = [],
   onSelect,
   onAdd,
   onPatch,
@@ -199,6 +105,60 @@ export function LoreEntryToc({
 
   const row = (e: LorebookEntry): JSX.Element => {
     const focused = e.id === focusedId;
+    const tokens = estimateEntryTokens(e);
+    const isPicked = picked?.has(e.id) ?? false;
+    const health = healthByEntry?.get(e.id);
+    const mode = entryFireMode(e);
+    const canMode = fieldVisible(writeFor, "constant");
+
+    const dragHandlers = {
+      draggable: canDrag,
+      onDragStart: (ev: DragEvent) => {
+        if (!canDrag) {
+          ev.preventDefault();
+          return;
+        }
+        setDragId(e.id);
+        ev.dataTransfer.effectAllowed = "move";
+        ev.dataTransfer.setData("text/plain", e.id);
+      },
+      onDragEnd: () => {
+        setDragId(null);
+        setOverId(null);
+      },
+      onDragOver: (ev: DragEvent) => {
+        if (!dragId || dragId === e.id) return;
+        ev.preventDefault();
+        ev.dataTransfer.dropEffect = "move";
+        setOverId(e.id);
+      },
+      onDragLeave: () => {
+        if (overId === e.id) setOverId(null);
+      },
+      onDrop: (ev: DragEvent) => {
+        ev.preventDefault();
+        dropOn(e.id);
+      },
+    };
+
+    if (focused && !selectMode) {
+      return (
+        <div key={e.id} {...dragHandlers}>
+          <EntryTocItem
+            entry={e}
+            writeFor={writeFor}
+            styles={styles}
+            categories={categories}
+            onPatch={(patch) => onPatch(e.id, patch)}
+            onOpen={() => onSelect(e.id)}
+            onDuplicate={() => onDuplicate(e.id)}
+            onDelete={() => onDelete(e.id)}
+            onOpenBeside={onOpenBeside ? () => onOpenBeside(e.id) : undefined}
+          />
+        </div>
+      );
+    }
+
     const cls = [
       styles.trow,
       focused ? styles.trowOn : "",
@@ -207,43 +167,9 @@ export function LoreEntryToc({
     ]
       .filter(Boolean)
       .join(" ");
-    const tokens = estimateEntryTokens(e);
-    const isPicked = picked?.has(e.id) ?? false;
-    const health = healthByEntry?.get(e.id);
-    const mode = entryFireMode(e);
-    const canMode = fieldVisible(writeFor, "constant");
 
     return (
-      <div
-        key={e.id}
-        draggable={canDrag}
-        onDragStart={(ev) => {
-          if (!canDrag) {
-            ev.preventDefault();
-            return;
-          }
-          setDragId(e.id);
-          ev.dataTransfer.effectAllowed = "move";
-          ev.dataTransfer.setData("text/plain", e.id);
-        }}
-        onDragEnd={() => {
-          setDragId(null);
-          setOverId(null);
-        }}
-        onDragOver={(ev) => {
-          if (!dragId || dragId === e.id) return;
-          ev.preventDefault();
-          ev.dataTransfer.dropEffect = "move";
-          setOverId(e.id);
-        }}
-        onDragLeave={() => {
-          if (overId === e.id) setOverId(null);
-        }}
-        onDrop={(ev) => {
-          ev.preventDefault();
-          dropOn(e.id);
-        }}
-      >
+      <div key={e.id} {...dragHandlers}>
         <div
           role="button"
           tabIndex={0}
@@ -303,17 +229,6 @@ export function LoreEntryToc({
             )}
           </div>
         </div>
-        {focused && !selectMode && (
-          <FinePrint
-            entry={e}
-            writeFor={writeFor}
-            styles={styles}
-            onPatch={(patch) => onPatch(e.id, patch)}
-            onDuplicate={() => onDuplicate(e.id)}
-            onDelete={() => onDelete(e.id)}
-            onOpenBeside={onOpenBeside ? () => onOpenBeside(e.id) : undefined}
-          />
-        )}
       </div>
     );
   };

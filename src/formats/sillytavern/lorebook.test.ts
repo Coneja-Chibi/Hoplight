@@ -108,6 +108,34 @@ test("detect: an ST worldbook scores 0.9; RC lorebook, character cards, and junk
   expect(codec.detect({ text: "not json" })).toBe(0);
 });
 
+test("detect: CCv3/Chub character_book (entries array + keys) scores 0.85 and imports", () => {
+  const chub = {
+    name: "Chub Sample",
+    entries: [
+      {
+        keys: ["skyport"],
+        content: "Floating docks.",
+        name: "Skyports",
+        insertion_order: 10,
+        enabled: true,
+      },
+    ],
+    scan_depth: 4,
+    token_budget: 1000,
+  };
+  expect(codec.detect(asText(chub))).toBe(0.85);
+  const ent = codec.toCanonical(asText(chub));
+  expect(ent.body.name).toBe("Chub Sample");
+  expect(ent.body.entries).toHaveLength(1);
+  expect(ent.body.entries[0]!.title).toBe("Skyports");
+  expect(ent.body.entries[0]!.triggers.map((t) => t.keyword)).toEqual(["skyport"]);
+  // re-export as ST object-map worldbook
+  const back = JSON.parse(codec.fromCanonical(ent).text ?? "");
+  expect(Array.isArray(back.entries)).toBe(false);
+  expect(back.entries["0"].key).toEqual(["skyport"]);
+  expect(back.entries["0"].content).toBe("Floating docks.");
+});
+
 test("toCanonical decodes ST int enums, inline regex, and match* scan sources", () => {
   const ent = codec.toCanonical(asText(makeStWorldbook()));
   expect(ent.kind).toBe("lorebook");

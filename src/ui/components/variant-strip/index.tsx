@@ -13,6 +13,8 @@ export interface VariantStripProps {
   activeId: string | null;
   /** the base portrait, for the Base tile background */
   artUrl: string | null;
+  /** per-variant own art (only when that variant overrides media.portrait) */
+  variantArt?: Readonly<Record<string, string | null>>;
   onSelect(id: string | null): void;
   onAdd(): void;
   onRemove(id: string): void;
@@ -20,7 +22,17 @@ export interface VariantStripProps {
   onMode(id: string, mirrorBase: boolean): void;
 }
 
-export function VariantStrip({ variants, activeId, artUrl, onSelect, onAdd, onRemove, onRename, onMode }: VariantStripProps): JSX.Element {
+export function VariantStrip({
+  variants,
+  activeId,
+  artUrl,
+  variantArt = {},
+  onSelect,
+  onAdd,
+  onRemove,
+  onRename,
+  onMode,
+}: VariantStripProps): JSX.Element {
   const active = activeId ? variants.find((v) => v.id === activeId) ?? null : null;
   return (
     <div className={styles.wrap}>
@@ -34,17 +46,25 @@ export function VariantStrip({ variants, activeId, artUrl, onSelect, onAdd, onRe
         >
           <i>Base</i>
         </button>
-        {variants.map((v) => (
-          <button
-            type="button"
-            key={v.id}
-            className={`${styles.thumb}${activeId === v.id ? ` ${styles.on}` : ""}`}
-            onClick={() => onSelect(v.id)}
-            title={v.label || "Variant"}
-          >
-            <i>{v.label || "Variant"}</i>
-          </button>
-        ))}
+        {variants.map((v) => {
+          const own = variantArt[v.id] ?? null;
+          return (
+            <button
+              type="button"
+              key={v.id}
+              className={`${styles.thumb}${activeId === v.id ? ` ${styles.on}` : ""}`}
+              style={own ? { backgroundImage: `url("${own}")` } : undefined}
+              onClick={() => onSelect(v.id)}
+              title={
+                own
+                  ? `${v.label || "Variant"} · own art`
+                  : `${v.label || "Variant"} · inherits base art (change art while this variant is selected)`
+              }
+            >
+              <i>{v.label || "Variant"}</i>
+            </button>
+          );
+        })}
         <button type="button" className={styles.add} onClick={onAdd} title="Add a variant">
           +
         </button>

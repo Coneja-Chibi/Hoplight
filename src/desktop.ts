@@ -15,11 +15,14 @@ const PORT = 8321;
 
 registerPackagedFormats();
 const studioDir = join(homedir(), "Documents", "Vaude Studio");
-const { url, stop } = startUi(PORT, studioDir, PACKAGED_ASSETS);
-console.log(`Vaude. is up at ${url} (studio: ${studioDir})`);
+const { url: uiUrl, stop } = startUi(PORT, studioDir, PACKAGED_ASSETS);
+console.log(`Vaude. is up at ${uiUrl} (studio: ${studioDir})`);
 
-const windowWorker = new Worker(new URL("./desktop-window.ts", import.meta.url));
-windowWorker.postMessage({ url });
+const windowWorker = new Worker(join(import.meta.dir, "desktop-window.ts"));
+windowWorker.addEventListener("error", (e) => {
+  console.error("desktop: window worker error:", (e as ErrorEvent).message ?? e);
+});
+windowWorker.postMessage({ url: uiUrl, title: "Vaude." });
 windowWorker.onmessage = () => {
   stop();
   process.exit(0);

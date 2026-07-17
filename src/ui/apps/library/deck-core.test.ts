@@ -41,3 +41,29 @@ describe("clampSize", () => {
     expect(clampSize(undefined)).toBe(SIZE_RANGE.fallback);
   });
 });
+
+
+import { bundlePayloadFromInspect } from "./deck-core";
+import type { InspectResult } from "../../app-contract";
+
+describe("bundlePayloadFromInspect", () => {
+  test("returns null for failed inspect", () => {
+    expect(bundlePayloadFromInspect({ ok: false, error: "nope" })).toBeNull();
+  });
+  test("primary only when no related", () => {
+    const r: InspectResult = { ok: true, entity: { id: "c", kind: "character" } };
+    expect(bundlePayloadFromInspect(r)).toEqual({ entity: r.entity });
+  });
+  test("includes lorebooks when present", () => {
+    const books = [{ id: "b", kind: "lorebook" }];
+    const r: InspectResult = {
+      ok: true,
+      entity: { id: "c", kind: "character" },
+      related: { lorebooks: books },
+    };
+    expect(bundlePayloadFromInspect(r)).toEqual({
+      entity: r.entity,
+      related: { lorebooks: books },
+    });
+  });
+});

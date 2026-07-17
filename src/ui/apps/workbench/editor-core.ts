@@ -229,6 +229,56 @@ export function writePath(body: Record<string, unknown>, dotPath: string, value:
   return out;
 }
 
+/**
+ * Override-tree write: keep present "" and [] as intentional blanks. Does not auto-delete on empty;
+ * use inheritOverridePath to drop a key and resume base inheritance. Base-body writePath is unchanged.
+ */
+export function writeOverridePath(
+  body: Record<string, unknown>,
+  dotPath: string,
+  value: unknown,
+): Record<string, unknown> {
+  const keys = dotPath.split(".");
+  const out: Record<string, unknown> = { ...body };
+  let host: Record<string, unknown> = out;
+  for (const key of keys.slice(0, -1)) {
+    const next = host[key];
+    const clone: Record<string, unknown> =
+      next !== null && typeof next === "object" && !Array.isArray(next) ? { ...(next as Record<string, unknown>) } : {};
+    host[key] = clone;
+    host = clone;
+  }
+  host[keys[keys.length - 1]!] = value;
+  return out;
+}
+
+/** Delete a leaf on an override tree so the base value is inherited again. */
+export function inheritOverridePath(body: Record<string, unknown>, dotPath: string): Record<string, unknown> {
+  const keys = dotPath.split(".");
+  const out: Record<string, unknown> = { ...body };
+  let host: Record<string, unknown> = out;
+  for (const key of keys.slice(0, -1)) {
+    const next = host[key];
+    if (next === null || typeof next !== "object" || Array.isArray(next)) return out;
+    const clone = { ...(next as Record<string, unknown>) };
+    host[key] = clone;
+    host = clone;
+  }
+  delete host[keys[keys.length - 1]!];
+  return out;
+}
+
+/** True when every segment of the dot path is a PRESENT key ("" and [] count as overrides). */
+export function hasOverridePath(overrides: unknown, dotPath: string): boolean {
+  let cur: unknown = overrides;
+  for (const key of dotPath.split(".")) {
+    if (cur === null || typeof cur !== "object" || Array.isArray(cur)) return false;
+    if (!Object.prototype.hasOwnProperty.call(cur, key)) return false;
+    cur = (cur as Record<string, unknown>)[key];
+  }
+  return true;
+}
+
 /** JSON-shape structural equality (drafts and baselines are parsed JSON; functions never appear). */
 export function deepEq(a: unknown, b: unknown): boolean {
   if (a === b) return true;
@@ -244,6 +294,56 @@ export function deepEq(a: unknown, b: unknown): boolean {
     return ka.every((k) => deepEq((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]));
   }
   return false;
+}
+
+// ====================================================================================================
+// Async save reconciliation: snapshot was submitted; live may have advanced during the await.
+// ====================================================================================================
+
+/** One domain after three-way reconcile (live vs submitted vs accepted baseline). */
+export interface ReconciledDomain<T> {
+  /** Value that should remain in the form (newer edit kept, else accepted). */
+  current: T;
+  /** What storage accepted; becomes the new baseline. Always a fresh clone. */
+  baseline: T;
+  /** True when current still differs from the accepted baseline. */
+  dirty: boolean;
+}
+
+/**
+ * Three-way reconcile after an async save succeeds.
+ * 1. If live still equals the submitted snapshot, adopt the accepted/persisted value.
+ * 2. If live differs, retain live (a newer local edit) and do not overwrite it.
+ * 3. Baseline is always a clone of the accepted snapshot (defaults to submitted).
+ */
+export function reconcileAfterSave<T>(args: {
+  live: T;
+  submitted: T;
+  /** Persisted representation when known; defaults to the submitted snapshot. */
+  accepted?: T;
+}): ReconciledDomain<T> {
+  const accepted = args.accepted !== undefined ? args.accepted : args.submitted;
+  const baseline = structuredClone(accepted) as T;
+  if (deepEq(args.live, args.submitted)) {
+    return {
+      current: structuredClone(accepted) as T,
+      baseline,
+      dirty: false,
+    };
+  }
+  // Newer local edit: keep the live reference (form owns it); isolate the baseline clone.
+  return {
+    current: args.live,
+    baseline,
+    dirty: !deepEq(args.live, accepted),
+  };
+}
+
+/** Status bar copy after a successful save: clean vs newer pending edits. */
+export function saveOutcomeStatus(name: string, stillDirty: boolean): string {
+  return stillDirty
+    ? `${name} saved; newer changes not yet saved`
+    : `${name} saved`;
 }
 
 /** The completion chips (RC's checklist, transcribed): real facts about the draft, no vibes. */

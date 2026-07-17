@@ -24,9 +24,9 @@ const CSS = `
 /* name + meta tag scale with the size dial (--card-w); name stays the larger of the two at every size */
 .dv-gcard .nm{font-family:var(--font-big);font-weight:800;font-size:clamp(.72rem,calc(var(--card-w) * .094),1.6rem);color:var(--stage-card);line-height:1}
 .dv-gcard .fmt{display:inline-block;font-family:var(--font-mono);font-size:clamp(.38rem,calc(var(--card-w) * .036),.62rem);letter-spacing:.06em;
-  text-transform:uppercase;color:#b3aec0;border:2px solid #4a4656;font-weight:700;padding:.28em .55em;margin-top:.4em}
-.dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45);transform:translate(2px,2px);opacity:.72}
-.dv-gcard.cast:hover{transform:translate(2px,2px);box-shadow:inset 5px 5px 0 0 rgba(0,0,0,.45)}
+  text-transform:uppercase;color:var(--stage-text-dim);border:2px solid var(--stage-line);font-weight:700;padding:.28em .55em;margin-top:.4em}
+.dv-gcard.cast{border-color:var(--a);box-shadow:inset 5px 5px 0 0 var(--shadow-ink);transform:translate(2px,2px);opacity:.72}
+.dv-gcard.cast:hover{transform:translate(2px,2px);box-shadow:inset 5px 5px 0 0 var(--shadow-ink)}
 .dv-gcard .tick{position:absolute;top:0;right:0;z-index:1;background:var(--a);color:var(--stage-ink);font-family:var(--font-mono);
   font-size:.5625rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-left:3px solid var(--stage-black);border-bottom:3px solid var(--stage-black)}
 /* STAGED: outlined in accent, a filled corner check - distinct from the pressed-open "cast" state */

@@ -140,3 +140,55 @@ test("de-original edit: mutating voice/culture/affixes reaches the wire, sampler
   expect(out.imageSettings.steps).toBe(30); // sampler knobs untouched (original-side of the merge)
   expect(out.imageSettings.cfg).toBe(7);
 });
+
+// -- Avatar (face) <-> media.portrait --
+
+test("avatar data URI maps to media.portrait with mime", () => {
+  const data = "data:image/png;base64,iVBORw0KGgo=";
+  const card = { ...wppCard(), avatar: data };
+  const ent = adapter.toCanonical(asInput(card));
+  expect(ent.body.media.portrait).toEqual({
+    role: "portrait",
+    ref: data,
+    mime: "image/png",
+    primary: true,
+  });
+});
+
+test("avatar https URL maps to portrait; mime from extension when present", () => {
+  const url = "https://cdn.example.com/faces/vera.webp";
+  const ent = adapter.toCanonical(asInput({ ...wppCard(), avatar: url }));
+  expect(ent.body.media.portrait).toEqual({
+    role: "portrait",
+    ref: url,
+    mime: "image/webp",
+    primary: true,
+  });
+});
+
+test("avatar round-trips unedited", () => {
+  const card = { ...wppCard(), avatar: "data:image/jpeg;base64,/9j/4AAQ=" };
+  const out = JSON.parse(adapter.fromCanonical(adapter.toCanonical(asInput(card))).text!);
+  expect(out).toEqual(card);
+});
+
+test("editing portrait updates avatar on the wire", () => {
+  const card = { ...wppCard(), avatar: "data:image/png;base64,OLD" };
+  const ent = adapter.toCanonical(asInput(card));
+  ent.body.media.portrait = {
+    role: "portrait",
+    ref: "data:image/png;base64,NEW",
+    mime: "image/png",
+    primary: true,
+  };
+  const out = JSON.parse(adapter.fromCanonical(ent).text!);
+  expect(out.avatar).toBe("data:image/png;base64,NEW");
+});
+
+test("absent avatar leaves portrait undefined and does not invent avatar on export", () => {
+  const card = wppCard();
+  const ent = adapter.toCanonical(asInput(card));
+  expect(ent.body.media.portrait).toBeUndefined();
+  const out = JSON.parse(adapter.fromCanonical(ent).text!);
+  expect(out.avatar).toBeUndefined();
+});

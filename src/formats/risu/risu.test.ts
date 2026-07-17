@@ -167,7 +167,7 @@ test("an edit to the canonical body is reflected in the rebuilt card.json", () =
 // the real cherry card (samples/risu/cherry.card.json, sliced from the 23.7MB cherry.charx; see
 // samples/risu/SOURCES.md). The codec previously mapped ZERO risuai fields. --
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const cherryCharx = (): Uint8Array =>
@@ -216,6 +216,15 @@ test("de-original edit: mutating toggles/bias/license/rows reaches the risuai wi
   expect(r.triggerscript.length).toBe(9);
 });
 
+test("module toggles write Risu wire key `toggles` (not DB name customModuleToggle)", () => {
+  const ent = adapter.toCanonical({ bytes: cherryCharx() });
+  ent.body.behavior = { ...(ent.body.behavior ?? {}), moduleToggles: "modA:on" };
+  const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  const r = out.data.extensions.risuai;
+  expect(r.toggles).toBe("modA:on");
+  expect(r.customModuleToggle).toBeUndefined();
+});
+
 // -- Behavior de-original: scripts are first-class editable DATA (never executed, never blind-copied). --
 
 test("behavior read: cherry scripts land in first-class editable slots", () => {
@@ -256,4 +265,99 @@ test("SECURITY: behavior never blind-copies cross-format (Risu -> ST card carrie
   expect(stOut).not.toContain("virtualscript");
   expect(stOut).not.toContain("backgroundHTML");
   expect(stOut).not.toContain("lowLevelAccess");
+});
+
+const KWU_CHARX = "C:/Users/chiev/Downloads/한국여자대학교 V1.0.charx";
+
+test.skipIf(!existsSync(KWU_CHARX))("real .charx: unedited module package is byte-identical on export", () => {
+  const inBytes = new Uint8Array(readFileSync(KWU_CHARX));
+  const ent = adapter.toCanonical({ bytes: inBytes });
+  const inMod = unzipSync(inBytes)["module.risum"]!;
+  const outMod = unzipSync(adapter.fromCanonical(ent).bytes!)["module.risum"]!;
+  expect(Array.from(outMod)).toEqual(Array.from(inMod));
+});
+
+// SAFE-BLOCK: edited module re-export is refused until RPACK_EDITED_EXPORT_VERIFIED (plan 008).
+// Local card still proves the gate fires at the adapter boundary (skipped if sample absent).
+test.skipIf(!existsSync(KWU_CHARX))("real .charx: module Lua edit is blocked at export (safe-block)", () => {
+  const inBytes = new Uint8Array(readFileSync(KWU_CHARX));
+  const ent = adapter.toCanonical({ bytes: inBytes });
+  const opened = (ent.original?.risu?.unmapped as { module?: { module: { trigger?: Array<{ effect?: Array<{ type?: string; code?: string }> }> } } })?.module;
+  expect(opened?.module).toBeTruthy();
+  const effects = opened!.module.trigger?.[0]?.effect ?? [];
+  const lua = effects.find((e) => e?.type === "triggerlua");
+  expect(lua?.code).toBeTruthy();
+  lua!.code = `${lua!.code}\n-- VAUD_ADAPTER_JEWEL\n`;
+  expect(() => adapter.fromCanonical(ent)).toThrow(/edited module\.risum|RPACK|not independently verified/i);
+});
+
+// --- Clear intent: mapped tavern fields cleared must not resurrect from the twin ---
+
+test("clear export: cleared description/tags/alts do not resurrect from twin", () => {
+  const ent = adapter.toCanonical({ bytes: makeCharx(makeCard()) });
+  delete (ent.body.identity as { description?: string }).description;
+  delete (ent.body.persona as { personality?: string }).personality;
+  delete (ent.body.greetings as { firstMessage?: string }).firstMessage;
+  delete (ent.body.discovery as { tags?: string[] }).tags;
+  delete (ent.body.greetings as { alternateGreetings?: unknown }).alternateGreetings;
+  const rebuilt = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  expect(rebuilt.data.description).toBe("");
+  expect(rebuilt.data.personality).toBe("");
+  expect(rebuilt.data.first_mes).toBe("");
+  expect(rebuilt.data.tags).toEqual([]);
+  expect(rebuilt.data.alternate_greetings).toEqual([]);
+  // Risu scripting residue still rides the twin
+  expect(rebuilt.data.extensions.risuai.triggerscript[0].code).toBe("log('never runs in vaud')");
+});
+
+test("cross-format data-URI portrait projects into Risu CCv3 assets", () => {
+  // ST-origin entity with no risu twin: from-scratch Risu write
+  const stEnt = stAdapter.toCanonical({
+    text: JSON.stringify({
+      spec: "chara_card_v3",
+      spec_version: "3.0",
+      data: {
+        name: "Pix",
+        description: "d",
+        personality: "",
+        scenario: "",
+        first_mes: "hi",
+        mes_example: "",
+        creator_notes: "",
+        system_prompt: "",
+        post_history_instructions: "",
+        alternate_greetings: [],
+        tags: [],
+        creator: "",
+        character_version: "1.0",
+        extensions: {},
+        assets: [
+          { type: "icon", name: "main", uri: "data:image/png;base64,QQ", ext: "png" },
+          { type: "emotion", name: "grin", uri: "https://cdn/grin.png", ext: "png" },
+        ],
+      },
+    }),
+  });
+  const out = adapter.fromCanonical(stEnt);
+  const card = JSON.parse(strFromU8(unzipSync(out.bytes!)["card.json"]!));
+  expect(card.data.assets).toContainEqual({
+    type: "icon",
+    name: "main",
+    uri: "data:image/png;base64,QQ",
+    ext: "png",
+  });
+  expect(card.data.assets).toContainEqual({
+    type: "emotion",
+    name: "grin",
+    uri: "https://cdn/grin.png",
+    ext: "png",
+  });
+  const again = adapter.toCanonical({ bytes: out.bytes! });
+  expect(again.body.media.portrait?.ref).toBe("data:image/png;base64,QQ");
+  expect(again.body.media.assets).toContainEqual({
+    role: "emotion",
+    label: "grin",
+    ref: "https://cdn/grin.png",
+    mime: "image/png",
+  });
 });

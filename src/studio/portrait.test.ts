@@ -44,4 +44,25 @@ describe("portraitBytes", () => {
     expect(hasPortrait({ schemaVersion: "1", kind: "character", id: "x", body: {} } as AnyEntity)).toBe(false);
     expect(portraitBytes(withPortraitRef("data:image/png;base64,%%%not-b64"))).toBeNull();
   });
+
+  test("library pack entity uses default/first face as cover", () => {
+    const pack = {
+      schemaVersion: "1",
+      kind: "pack",
+      id: "emo",
+      body: {
+        name: "Emotions",
+        pack: {
+          defaultLabel: "happy",
+          items: [
+            { id: "1", label: "sad", ref: `data:image/png;base64,${PNG_B64}` },
+            { id: "2", label: "happy", ref: `data:image/webp;base64,${PNG_B64}` },
+          ],
+        },
+      },
+    } as AnyEntity;
+    expect(hasPortrait(pack)).toBe(true);
+    expect(portraitBytes(pack)?.mime).toBe("image/webp");
+  });
 });
+

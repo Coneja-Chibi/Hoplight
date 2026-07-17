@@ -15,9 +15,10 @@
  * (schema-is-editor): the per-entry `contextConfig` assembly dials, `keyRelative`/`nonStoryActivatable`,
  * the entry `category` ref + flat `categories` (id/name/enabled). Original-of-raw carries only what the
  * doctrine allows: version/bookkeeping (`lorebookVersion`, v6 `id`/`lastUpdatedAt`), UI state (category
- * `open`), the rich subcontext machinery riding each category twin, `settings`, and `loreBiasGroups`/
- * `advancedConditions` (bias pending its own reconciled shape; advancedConditions ungrounded - empty in
- * every real sample). A same-format round-trip stays byte-identical; only edited fields re-encode.
+ * `open`), the rich subcontext machinery riding each category twin, `settings`, and
+ * `advancedConditions` (ungrounded - empty in every real sample). Per-entry `loreBiasGroups` are
+ * first-class (`loreBiasGroups` on the entry). A same-format round-trip stays byte-identical; only
+ * edited fields re-encode.
  * `userScripts`-style payloads, if present, are carried opaque and NEVER executed.
  */
 import type { LorebookAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
@@ -27,6 +28,8 @@ import type {
   LorebookCategory,
   LorebookEntry,
   EntryContextConfig,
+  LoreBiasGroup,
+  LoreBiasPhrase,
   Trigger,
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
@@ -60,6 +63,7 @@ interface NaiEntry {
   nonStoryActivatable?: boolean;
   category?: string;
   id?: string;
+  loreBiasGroups?: unknown;
   [k: string]: unknown;
 }
 
@@ -91,6 +95,70 @@ const presentBool = (v: unknown): boolean | undefined => (typeof v === "boolean"
  * undefined so deep-equality diffs against a twin's re-decode are stable. `budgetPriority` is excluded:
  * it is the placement axis and lives in `sortOrder` alone.
  */
+/** Read NAI loreBiasGroups into canonical LoreBiasGroup[] (null/empty -> undefined). */
+function readBiasGroups(raw: unknown): LoreBiasGroup[] | undefined {
+  if (!Array.isArray(raw) || raw.length === 0) return undefined;
+  const out: LoreBiasGroup[] = [];
+  for (const row of raw) {
+    if (!row || typeof row !== "object") continue;
+    const g = row as Record<string, unknown>;
+    const phrasesRaw = Array.isArray(g.phrases) ? g.phrases : [];
+    const phrases: LoreBiasPhrase[] = [];
+    for (const p of phrasesRaw) {
+      if (!p || typeof p !== "object") continue;
+      const pr = p as Record<string, unknown>;
+      const phrase: LoreBiasPhrase = {};
+      if (typeof pr.sequence === "string") phrase.sequence = pr.sequence;
+      if (Array.isArray(pr.sequences)) {
+        phrase.sequences = pr.sequences.filter((s): s is string => typeof s === "string");
+      }
+      if (typeof pr.type === "number" && Number.isFinite(pr.type)) phrase.type = pr.type;
+      phrases.push(phrase);
+    }
+    const bias = typeof g.bias === "number" && Number.isFinite(g.bias) ? g.bias : 0;
+    out.push({
+      enabled: g.enabled !== false,
+      bias,
+      phrases,
+      ...(typeof g.whenInactive === "boolean"
+        ? { whenInactive: g.whenInactive }
+        : typeof g.when_inactive === "boolean"
+          ? { whenInactive: g.when_inactive }
+          : {}),
+      ...(typeof g.generateOnce === "boolean"
+        ? { generateOnce: g.generateOnce }
+        : typeof g.generate_once === "boolean"
+          ? { generateOnce: g.generate_once }
+          : {}),
+      ...(typeof g.ensureSequenceFinish === "boolean"
+        ? { ensureSequenceFinish: g.ensureSequenceFinish }
+        : typeof g.ensure_sequence_finish === "boolean"
+          ? { ensureSequenceFinish: g.ensure_sequence_finish }
+          : {}),
+    });
+  }
+  return out.length > 0 ? out : undefined;
+}
+
+/** Canonical bias groups -> wire loreBiasGroups (camelCase NAI export shape). */
+function writeBiasGroups(groups: LoreBiasGroup[] | undefined): unknown[] | undefined {
+  if (!groups || groups.length === 0) return undefined;
+  return groups.map((g) => ({
+    enabled: g.enabled,
+    bias: g.bias,
+    phrases: g.phrases.map((p) => {
+      const row: Record<string, unknown> = {};
+      if (p.sequence !== undefined) row.sequence = p.sequence;
+      if (p.sequences !== undefined) row.sequences = p.sequences;
+      if (p.type !== undefined) row.type = p.type;
+      return row;
+    }),
+    whenInactive: g.whenInactive === true,
+    generateOnce: g.generateOnce === true,
+    ensureSequenceFinish: g.ensureSequenceFinish === true,
+  }));
+}
+
 function readContextConfig(cc: NaiContextConfig | undefined): EntryContextConfig | undefined {
   if (!cc || typeof cc !== "object") return undefined;
   const out: EntryContextConfig = {};
@@ -194,6 +262,7 @@ function entryToCanonical(entry: NaiEntry, index: number): LorebookEntry {
     keyRelative: presentBool(entry.keyRelative),
     nonStoryActivatable: presentBool(entry.nonStoryActivatable),
     contextConfig: readContextConfig(entry.contextConfig),
+    loreBiasGroups: readBiasGroups(entry.loreBiasGroups),
 
     sideEffects: null,
   };
@@ -284,6 +353,11 @@ function entryToWire(e: LorebookEntry, twin: NaiEntry | undefined, index: number
     base.nonStoryActivatable = e.nonStoryActivatable;
   }
   if (changed("categoryId")) base.category = e.categoryId ?? "";
+  if (changed("loreBiasGroups")) {
+    const wire = writeBiasGroups(e.loreBiasGroups);
+    if (wire) base.loreBiasGroups = wire;
+    else delete base.loreBiasGroups;
+  }
   // NAI v3/v4 entries have NO `id` (identified by array position); v6 uuids ride the twin clone. So a
   // cross-format (no-twin) entry gets no synthetic id - emitting one would pollute the native file.
   return base;

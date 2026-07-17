@@ -1,5 +1,5 @@
 /**
- * RpgStats styles: a stacked stat block (enabled row + attribute/health/pool groups). Tokens only.
+ * RpgStats styles: enabled row + attributes + hit points. Tokens only.
  */
 .wrap {
   display: flex;

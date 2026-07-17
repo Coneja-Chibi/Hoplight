@@ -9,8 +9,7 @@
  * effects is a host concern above this layer. Tolerant reader throughout: bad rows are skipped or noted,
  * never thrown.
  *
- * Facts (macro names, condition/effect shapes) come from the documented Risu card format; every
- * mechanism here is written from scratch (clean-room, no AGPL implementation copied).
+ * Macro names and condition/effect shapes follow the documented Risu card format.
  */
 import type { TriggerScript } from "../../entities/character/schema";
 import { classifyCondition, classifyEffect } from "../../entities/character/behavior";

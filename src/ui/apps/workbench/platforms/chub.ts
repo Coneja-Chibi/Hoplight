@@ -1,45 +1,70 @@
 /**
- * Chub (Chub.ai / CharacterHub / Venus) native schema. VERIFIED against the live Chub API
- * (definition.extensions.chub), which is what Chub writes into an exported CCv2 card's
- * data.extensions.chub - so it rides the imported SillyTavern original at
- * `sillytavern.raw.data.extensions.chub.*`. See docs/reference/platform-native-fields.md.
+ * Chub (Chub.ai / CharacterHub / Venus) native schema.
+ * Path: sillytavern.raw.data.extensions.chub.* (namespaced bag on ST CCv2/v3).
  *
- * Chub's own editor: background is an owner-only image, related_lorebooks is a reference selector,
- * expression packs are sprite sets, custom_css is a raw CSS box (Chub injects it into the page - so we
- * FLAG it read-only and never apply it), and id/full_path/preset/Stage-extensions are server-owned refs.
+ * Main-page fields are things you actually author here: background, lore refs, CSS, preset.
+ * Hub cargo (Stages, path, id) and sprites stay on the twin for export but are HIDE'd — no empty
+ * JSON boxes or provenance dead-ends on the main surface.
+ *
+ * Plan: docs/CHUB-JEWEL-PLAN.md · Wireframe: design/vs-native-chub.html
  */
 import type { NativeSchema } from "../../../components/native-card";
 
 const CHUB = "sillytavern.raw.data.extensions.chub";
 
+/**
+ * Listed elsewhere or not a main-card concern. Still on the twin; catch-all does not re-list them.
+ */
+const HIDE = [
+  "background_image",
+  "expressions",
+  "alt_expressions",
+  "related_lorebooks",
+  "custom_css",
+  "preset",
+  // hub cargo / provenance — re-export keeps them; main page does not host empty shells
+  "extensions",
+  "full_path",
+  "id",
+] as const;
+
 const chub: NativeSchema = {
   key: "chub",
   label: "Chub",
   fields: [
-    { path: `${CHUB}.background_image`, label: "Chat background", control: "url", help: "Image shown behind the chat (a Chub CDN URL or your own)." },
-    { path: `${CHUB}.expressions`, label: "Expression pack", control: "asset-manager", help: "Named emotion sprites. Populated shape varies by card; drop images to fill." },
-    { path: `${CHUB}.alt_expressions`, label: "Alternate expressions", control: "asset-manager", help: "Secondary expression sprite sets." },
+    {
+      path: `${CHUB}.background_image`,
+      label: "Chat background",
+      control: "url",
+      help: "Image URL behind chat (Chub CDN or your own).",
+    },
     {
       path: `${CHUB}.related_lorebooks`,
       label: "Related lorebooks",
-      control: "read-only",
-      help: "Lorebooks Chub attaches by reference (edited in the Lorebook library, not on the card).",
+      control: "json",
+      help:
+        "JSON array of Chub lore refs: [{id, path, version, commit_ref?}]. " +
+        "Not full books on the card. Full lore library later. Invalid JSON keeps the prior value.",
     },
     {
       path: `${CHUB}.custom_css`,
       label: "Custom CSS",
-      control: "read-only",
-      help: "Chub page styling. Kept exactly as saved and NEVER applied (executable/styling payload).",
+      control: "css-workshop",
+      cssPack: "chub-card",
+      help:
+        "Chub page styling as plain CSS. Sealed preview only in Vaude; never applied to the app.",
     },
-    { path: `${CHUB}.preset`, label: "Bound preset", control: "read-only", help: "A generation preset the creator attached (a reference, not editable here)." },
-    { path: `${CHUB}.extensions`, label: "Chub Stages", control: "read-only", help: "References to Chub Stages (code projects). Shown, never run." },
-    { path: `${CHUB}.full_path`, label: "Chub path", control: "read-only", help: "creator/slug identity on Chub." },
-    { path: `${CHUB}.id`, label: "Chub id", control: "read-only" },
+    {
+      path: `${CHUB}.preset`,
+      label: "Bound preset",
+      control: "text",
+      help: "Hub/catalog generation preset ref. Full preset entity is a later content type.",
+    },
     {
       path: CHUB,
       label: "Other Chub data",
       control: "raw-extensions",
-      hide: ["background_image", "expressions", "alt_expressions", "related_lorebooks", "custom_css", "preset", "extensions", "full_path", "id"],
+      hide: HIDE,
     },
   ],
 };

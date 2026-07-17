@@ -23,3 +23,10 @@
 - `extensions.depth_prompt` present at ext level (already wired via the shared Tavern mapper).
 
 Empty-but-present in this card (still authored slots elsewhere): `backgroundHTML`, `virtualscript`, `additionalText`, `vits`.
+
+## RPack / module.risum fixtures
+
+No redistributable independent ciphertext+plaintext pair is committed yet. Edited RPack export is
+therefore **safe-blocked** in product code (`RPACK_EDITED_EXPORT_VERIFIED = false`). When a licensed
+fixture lands under `samples/risu/rpack/`, record source, permission, generation method, and SHA-256
+here and flip the gate only after hermetic both-direction tests pass.

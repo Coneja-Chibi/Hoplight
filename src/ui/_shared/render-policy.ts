@@ -1,9 +1,10 @@
 /**
  * Render policy - the PURE, DOM-free half of the markup renderer. Everything here is deterministic
- * string logic (format union, input cap, link-scheme allowlist) so it can be unit-tested directly
- * without a DOM. The DOM-dependent half (marked + DOMPurify) lives in render-markup.ts and depends on
- * this; keeping the policy pure means the security-critical decisions (which URL schemes survive, how
- * big an input we will parse) are provable in `bun test`, not buried inside the sanitizer call.
+ * string logic (format union, input cap, link-scheme allowlist, inline-style allowlist) so it can be
+ * unit-tested directly without a DOM. The DOM-dependent half (marked + DOMPurify) lives in
+ * render-markup.ts and depends on this; keeping the policy pure means the security-critical decisions
+ * (which URL schemes survive, how big an input we will parse, which style props survive) are
+ * provable in `bun test`, not buried inside the sanitizer call.
  */
 
 /** how a field's stored content should be interpreted when rendered */
@@ -76,3 +77,59 @@ export const isSafeHref = (href: string): boolean => {
   if (h.startsWith("#") || h.startsWith("/")) return true;
   return SAFE_SCHEME.test(h);
 };
+
+/**
+ * Creator-note presentation properties that may survive on a style attribute. Anything else is dropped.
+ * This is not a full CSS parser; sealed CSP is the load-bearing egress barrier for previews.
+ */
+export const ALLOWED_INLINE_STYLE_PROPS: ReadonlySet<string> = new Set([
+  "text-align",
+  "color",
+  "background-color",
+  "font-weight",
+  "font-style",
+  "text-decoration",
+]);
+
+/**
+ * Values that can reintroduce network/fetch or script-like behavior. Case-insensitive; also rejects
+ * custom-property indirection (var()) so a hostile card cannot smuggle a url() through a variable.
+ */
+const UNSAFE_STYLE_VALUE =
+  /url\s*\(|image-set\s*\(|@import|expression\s*\(|behavior\b|-moz-binding|var\s*\(|\\/i;
+
+/** Whether a single CSS property value is safe to keep on an allowed presentation property. */
+export const isSafeStyleValue = (value: string): boolean => {
+  const v = value.trim();
+  if (v === "") return false;
+  return !UNSAFE_STYLE_VALUE.test(v);
+};
+
+/**
+ * Narrow an inline style attribute to the small creator-note presentation set. Drops unknown
+ * properties and any value that looks like it could fetch, import, or bind. Returns "" when nothing
+ * survives (caller should remove the attribute). Pure, no DOM.
+ */
+export const sanitizeInlineStyle = (raw: string): string => {
+  if (!raw) return "";
+  const kept: string[] = [];
+  for (const part of raw.split(";")) {
+    const colon = part.indexOf(":");
+    if (colon <= 0) continue;
+    const prop = part.slice(0, colon).trim().toLowerCase();
+    const value = part.slice(colon + 1).trim();
+    if (!ALLOWED_INLINE_STYLE_PROPS.has(prop)) continue;
+    if (!isSafeStyleValue(value)) continue;
+    kept.push(`${prop}: ${value}`);
+  }
+  return kept.join("; ");
+};
+
+/** Attribute names that auto-fetch remote resources; stripped from any surviving element. */
+export const FETCH_ATTRS: readonly string[] = [
+  "src",
+  "srcset",
+  "poster",
+  "ping",
+  "xlink:href",
+];

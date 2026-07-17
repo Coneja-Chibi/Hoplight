@@ -1,4 +1,5 @@
 import type { CanonicalEntity } from "../../core/canonical";
+import type { CharacterRegexScript } from "../regex/schema";
 
 /**
  * CanonicalCharacter - the character entity schema. Seeded from RoleCall + SillyTavern + Risu,
@@ -110,10 +111,16 @@ export interface Prompts {
   additionalText?: string;
 }
 
-/** A greeting with an optional creator-given title (RoleCall alternate_greeting_titles, Backyard scenarios). */
+/**
+ * A greeting with an optional creator-given title (RoleCall alternate_greeting_titles, Backyard scenarios).
+ * `id` is optional stable editing/provenance identity (e.g. BYAF scenario path). Not portable content:
+ * other format writers must ignore it and emit only text/title.
+ */
 export interface Greeting {
   text: string;
   title?: string;
+  /** stable editing identity (format-local provenance); not user-facing content */
+  id?: string;
 }
 
 export interface Greetings {
@@ -189,6 +196,11 @@ export interface Media {
   sprite?: Sprite;
   /** which visual mode the creator chose: "avatar" | "sprite" (open; Agnai visualType) */
   visualKind?: string;
+  /**
+   * Preferred expression-pack label for this body (or variant override).
+   * Display binds the portrait stage to that pack face when present; not a second asset store.
+   */
+  faceLabel?: string;
 }
 
 /** A named color swatch in a card's palette (RoleCall casting-card colors[]). */
@@ -260,20 +272,12 @@ export interface CharacterSettings {
 
 /**
  * A declarative find/replace script (Risu customScripts; ST/Lumiverse standalone regex files are the
- * file-level cousins that will extract to the regex entity). Data, not code: applying one is a regex
- * replace, never an eval.
+ * file-level cousins the regex entity now models in full - src/entities/regex/schema.ts). Data, not
+ * code: applying one is a regex replace, never an eval. Re-exported from the regex entity
+ * (`CharacterRegexScript`) so there is one definition of the card-embedded shape - see that type's
+ * doc comment for why it stays a narrow twin of `RegexRule` rather than the full entity shape.
  */
-export interface RegexScript {
-  label?: string;
-  find: string;
-  replace: string;
-  /** pipeline phase, open union: "edittrans" | "editoutput" | "editdisplay" | ... */
-  phase: string;
-  /** custom regex flags (Risu `flag`) */
-  flags?: string;
-  /** whether the custom flags apply (Risu `ableFlag`) */
-  useFlags?: boolean;
-}
+export type RegexScript = CharacterRegexScript;
 
 /** A trigger state-machine script (Risu triggerscript): condition/effect rows, verbatim-editable. */
 export interface TriggerScript {

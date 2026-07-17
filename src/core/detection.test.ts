@@ -6,6 +6,8 @@
 import { test, expect, beforeAll } from "bun:test";
 import { registry, loadFormats, CANONICAL_SCHEMA_VERSION } from "./index";
 import { zipSync, strToU8 } from "fflate";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 beforeAll(async () => {
   await loadFormats();
@@ -13,6 +15,8 @@ beforeAll(async () => {
 
 const asText = (o: unknown) => ({ text: JSON.stringify(o) });
 const asCharx = (card: unknown) => ({ bytes: zipSync({ "card.json": strToU8(JSON.stringify(card)) }) });
+const asByafSample = (): Uint8Array =>
+  new Uint8Array(readFileSync(join(import.meta.dir, "../../samples/backyard/1.byaf")));
 
 interface Case {
   label: string;
@@ -40,6 +44,27 @@ const CASES: Case[] = [
     label: "native Agnai card -> agnai",
     expected: "agnai",
     input: asText({ kind: "character", persona: { kind: "text", attributes: { text: [""] } }, greeting: "hi" }),
+  },
+  {
+    label: "Pygmalion flat JSON -> pygmalion (not ST v1)",
+    expected: "pygmalion",
+    input: asText({
+      char_name: "Mira",
+      char_persona: "quiet cartographer",
+      char_greeting: "hi",
+      world_scenario: "port city",
+      example_dialogue: "{{user}}: a\n{{char}}: b",
+    }),
+  },
+  {
+    label: "Backyard legacy flat JSON -> backyard",
+    expected: "backyard",
+    input: asText({ aiName: "A", aiPersona: "x", customDialogue: "hi" }),
+  },
+  {
+    label: "Backyard .byaf archive -> byaf",
+    expected: "byaf",
+    input: { bytes: asByafSample() },
   },
   {
     label: "legacy Backyard flat card -> backyard (does NOT collide with agnai's persona clause)",

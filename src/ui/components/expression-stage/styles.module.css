@@ -1,0 +1,87 @@
+.wrap {
+  border: 2px solid var(--seam);
+  background: var(--stage-well, var(--paper));
+  padding: 0.55rem 0.65rem;
+  margin-bottom: 0.75rem;
+}
+.seal {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ok);
+  border: 2px solid var(--ok);
+  display: inline-block;
+  padding: 0.12rem 0.3rem;
+  margin-bottom: 0.4rem;
+}
+.row {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 0.6rem;
+  align-items: start;
+}
+.face {
+  aspect-ratio: 2/3;
+  border: 3px solid var(--edge);
+  background: var(--panel);
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.face span {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  background: var(--edge);
+  color: var(--face);
+  width: 100%;
+  text-align: center;
+  padding: 0.15rem;
+}
+.moods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+.mood {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  text-transform: uppercase;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+}
+.moodOn {
+  background: var(--rose);
+  color: var(--stage-white);
+  border-color: var(--rose);
+}
+.ta {
+  width: 100%;
+  min-height: 2.8rem;
+  background: var(--panel);
+  border: 2px solid var(--seam);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 0.35rem 0.45rem;
+  resize: vertical;
+}
+.hit {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+.hit b {
+  color: var(--rose);
+}

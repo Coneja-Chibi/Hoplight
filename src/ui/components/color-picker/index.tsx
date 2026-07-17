@@ -22,13 +22,16 @@ export interface ColorPickerProps {
 }
 
 export function ColorPicker({ value, onChange }: ColorPickerProps): JSX.Element {
-  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(value ?? "#e11d48"));
+  const [hsv, setHsv] = useState<Hsv>(() => hexToHsv(value ?? "var(--rose)"));
   const [hexDraft, setHexDraft] = useState(() => hsvToHex(hsv));
   const hexFocused = useRef(false);
+  // Live HSV for external reconcile without listing hsv as a useEffect dep (avoids self-echo loops).
+  const hsvRef = useRef(hsv);
+  hsvRef.current = hsv;
 
   useEffect(() => {
     const norm = normalizeHex(value ?? "");
-    if (!norm || norm === hsvToHex(hsv)) return; // our own echo; keep the in-progress hue/saturation
+    if (!norm || norm === hsvToHex(hsvRef.current)) return; // our own echo; keep in-progress hue/sat
     setHsv(hexToHsv(norm));
     if (!hexFocused.current) setHexDraft(norm);
   }, [value]);

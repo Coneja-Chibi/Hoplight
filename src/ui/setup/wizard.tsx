@@ -99,7 +99,7 @@ const CSS = `
 .vsetup .orn.tl{left:14px;top:14px}.vsetup .orn.tr{right:14px;top:14px}
 .vsetup .orn.bl{left:14px;bottom:14px}.vsetup .orn.br{right:14px;bottom:14px}
 .vsetup .stage{position:relative;background:var(--stage);border:3px solid var(--stage-black);
-  box-shadow:inset 9px 9px 0 0 rgba(0,0,0,.72);
+  box-shadow:inset 9px 9px 0 0 var(--shadow-ink-deep);
   min-height:25rem;overflow:hidden;display:flex;flex-direction:column}
 .vsetup .final-card{text-align:center}
 .vsetup .final-card .q{font-size:clamp(2.1rem,1.4rem+2.8vw,2.75rem);margin-top:1.25rem}
@@ -139,7 +139,7 @@ function Lockup(): JSX.Element {
     <span className="lock">
       <svg viewBox="0 0 100 100" aria-label="Vaude">
         {BEAM_POLYGONS.map((points) => (
-          <polygon key={points} points={points} fill="#e11d48" /> // hardcode-ok: locked brand mark, always rose, not a themed surface
+          <polygon key={points} points={points} fill="var(--rose)" /> // hardcode-ok: locked brand mark, always rose, not a themed surface
         ))}
       </svg>
       <span className="txt">aude</span>

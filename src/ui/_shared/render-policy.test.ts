@@ -1,10 +1,19 @@
 /**
  * Render-policy tests - the policy is pure, so these pin the security-relevant decisions directly:
- * which link schemes survive and where the parse cap bites. The DOM sanitizer battery lives in
- * render-markup.test.ts (it needs a DOM); this file guards the half that decides what is even allowed.
+ * which link schemes survive, where the parse cap bites, and which inline styles may remain. The DOM
+ * sanitizer battery lives in render-markup.test.ts (it needs a DOM); this file guards the half that
+ * decides what is even allowed.
  */
 import { describe, expect, test } from "bun:test";
-import { capInput, isSafeHref, linkifyEscaped, RENDER_INPUT_CAP } from "./render-policy";
+import {
+  ALLOWED_INLINE_STYLE_PROPS,
+  capInput,
+  isSafeHref,
+  isSafeStyleValue,
+  linkifyEscaped,
+  RENDER_INPUT_CAP,
+  sanitizeInlineStyle,
+} from "./render-policy";
 
 describe("isSafeHref", () => {
   test("keeps http, https, and mailto", () => {
@@ -62,5 +71,31 @@ describe("capInput", () => {
   test("truncates content above the cap to exactly the cap length", () => {
     const s = "a".repeat(RENDER_INPUT_CAP + 500);
     expect(capInput(s).length).toBe(RENDER_INPUT_CAP);
+  });
+});
+
+describe("sanitizeInlineStyle", () => {
+  test("keeps the small presentation allowlist", () => {
+    expect(ALLOWED_INLINE_STYLE_PROPS.has("text-align")).toBe(true);
+    const out = sanitizeInlineStyle("text-align: center; color: #c00; font-weight: bold");
+    expect(out).toContain("text-align: center");
+    expect(out).toContain("color: #c00");
+    expect(out).toContain("font-weight: bold");
+  });
+
+  test("drops remote url() and image-set", () => {
+    expect(sanitizeInlineStyle("background: url(https://evil.test/x.png)")).toBe("");
+    expect(sanitizeInlineStyle("background-image: image-set(url(https://evil.test/x.png) 1x)")).toBe("");
+    expect(isSafeStyleValue("url(https://evil.test/x.png)")).toBe(false);
+  });
+
+  test("drops custom-property indirection and case-varied URL forms", () => {
+    expect(isSafeStyleValue("var(--x)")).toBe(false);
+    expect(isSafeStyleValue(" URL( 'https://evil.test/d.png' ) ")).toBe(false);
+    expect(sanitizeInlineStyle("--x:url(https://evil.test/c.png); background: var(--x)")).toBe("");
+  });
+
+  test("drops unknown properties even with safe values", () => {
+    expect(sanitizeInlineStyle("position: absolute; display: none")).toBe("");
   });
 });

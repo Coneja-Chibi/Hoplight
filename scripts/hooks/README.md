@@ -10,7 +10,7 @@ and effortless and becomes a deliberate, recorded act.
 
 | Gate | Fires on | Blocks when | Cleared by |
 | --- | --- | --- | --- |
-| green | pre-commit, Stop | `bun test` is red | fix the suite |
+| green | pre-commit, Stop | `bun run test` is red | fix the supported suite |
 | core-purity | pre-commit, Stop | a changed `*-core.ts` reaches for effects (`document`, `fetch`, `Bun.`, ...) | move the effect to the shell |
 | core-sibling | pre-commit, Stop | a changed `*-core.ts` has no `*-core.test.ts` | add the sibling test |
 | branch-test | commit-msg | a new branch is added to the shell (`boot.ts` / an app `index.ts`) with no test touched | touch a test **or** add a `Verified: <how>` line to the commit message |
@@ -28,9 +28,10 @@ and effortless and becomes a deliberate, recorded act.
 ## Layout (drop-in)
 
 - `lib.ts` - the pure detectors (no fs, no git, no process). Unit-tested in `lib.test.ts`, which the
-  main `bun test` suite runs, so the guardrails cannot rot silently. This is why the logic lives here
+  supported `bun run test` suite runs, so the guardrails cannot rot silently. This is why the logic lives here
   in `scripts/hooks/` and not under `.claude/` (bun skips dot-directories).
 - `gate.ts` - green + core-purity + core-sibling. `--staged` (pre-commit) or `--worktree` (Stop).
+  Green means `bun run test` (active roots only). Parked `src/macros` is `test:macros`, not a release gate.
 - `branch-note.ts` - the branch-test gate (commit-msg).
 - `guard-bash.ts` - the no-verify blocker (Claude Code PreToolUse).
 

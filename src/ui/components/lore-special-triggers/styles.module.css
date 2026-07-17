@@ -1,0 +1,103 @@
+/* RC-style + Condition dropdown (progressive disclosure, not a chip wall). */
+
+.wrap {
+  position: relative;
+  flex: none;
+}
+
+.trigger {
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--a, var(--stage-macro));
+  background: var(--stage-row, var(--face));
+  color: var(--stage-soft, var(--text));
+  padding: 0.28rem 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.triggerOn {
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 22%, var(--stage-row, var(--face)));
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 0.25rem);
+  left: 0;
+  z-index: 40;
+  min-width: 16rem;
+  max-width: min(22rem, 90vw);
+  max-height: min(22rem, 60dvh);
+  overflow: auto;
+  border: 2px solid var(--stage-black, var(--edge));
+  background: var(--stage-panel, var(--panel));
+  box-shadow: 6px 6px 0 0 var(--stage-black, var(--edge));
+  padding: 0.35rem 0;
+}
+
+.section {
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--text-dim));
+  padding: 0.4rem 0.65rem 0.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.note {
+  margin: 0;
+  padding: 0.1rem 0.65rem 0.35rem;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  color: var(--stage-mute, var(--text-dim));
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft, var(--text));
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.item:hover {
+  background: var(--stage-row, var(--face));
+}
+
+.itemLabel {
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.itemKey {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--stage-mute, var(--text-dim));
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-warn, var(--accent));
+  color: var(--stage-warn, var(--accent));
+  padding: 0.05rem 0.25rem;
+}

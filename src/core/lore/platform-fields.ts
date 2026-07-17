@@ -126,6 +126,7 @@ export const PLATFORM_OWNED_EXTRAS: Record<LoreWriteForProfile, readonly LoreFie
     "categoryId",
     "contextConfig",
     "naiActivation",
+    "phraseBias",
     "matchOverrides", // searchRange maps to scanDepth; match overrides still useful as scanDepth UI
   ],
 };

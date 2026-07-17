@@ -1,0 +1,36 @@
+/**
+ * TrackerCardColors styles. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+.help {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--stage-soft, var(--text-soft));
+}
+.colorBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.cssIn {
+  width: 100%;
+  border: 1px solid var(--stage-seam, var(--seam));
+  background: var(--stage-input, var(--input));
+  color: var(--stage-ink, var(--text));
+  border-radius: 0.35rem;
+  padding: 0.3rem 0.45rem;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+}

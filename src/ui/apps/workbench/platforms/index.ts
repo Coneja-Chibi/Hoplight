@@ -10,9 +10,18 @@ import sillytavern from "./sillytavern";
 import rolecall from "./rolecall";
 import marinara from "./marinara";
 import chub from "./chub";
+import agnai from "./agnai";
+import lumiverse from "./lumiverse";
 
 /** every declared platform schema, in lens/build order */
-export const NATIVE_SCHEMAS: readonly NativeSchema[] = [sillytavern, rolecall, marinara, chub];
+export const NATIVE_SCHEMAS: readonly NativeSchema[] = [
+  sillytavern,
+  rolecall,
+  marinara,
+  chub,
+  agnai,
+  lumiverse,
+];
 
 /** the native schema for an original key, or undefined when that platform has none declared yet */
 export const nativeSchemaFor = (key: string): NativeSchema | undefined =>

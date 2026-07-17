@@ -54,7 +54,7 @@
   color: var(--muted);
 }
 .sw.custom {
-  background: conic-gradient(from 0deg, #e11d48, #f59e0b, #10b981, #3b82f6, #8b5cf6, #e11d48); /* hardcode-ok: fixed rainbow spectrum swatch icon, not a themed surface */
+  background: conic-gradient(from 0deg, var(--rose), #f59e0b, #10b981, #3b82f6, #8b5cf6, var(--rose)); /* hardcode-ok: fixed rainbow spectrum swatch icon, not a themed surface */
 }
 .sw.custom.empty::before {
   content: "+";
@@ -67,7 +67,7 @@
   font-weight: 900;
   font-size: 1.4rem;
   color: var(--stage-white);
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 3px var(--shadow-ink);
 }
 .panel {
   padding-top: 0.2rem;

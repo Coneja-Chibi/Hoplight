@@ -1,0 +1,354 @@
+/**
+ * Editor fields styles.
+ */
+
+.card {
+  background: var(--stage-row);
+  border: 3px solid var(--stage-black);
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-seam);
+}
+
+.dot.full {
+  background: var(--a);
+}
+
+.mv {
+  margin-left: auto;
+  display: flex;
+  gap: 0.25rem;
+}
+
+.ar {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--stage-mute);
+  background: transparent;
+  border: 2px solid var(--stage-seam);
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+}
+
+.ar:hover {
+  color: var(--stage-paper);
+  border-color: var(--stage-mute);
+}
+
+.in:focus {
+  outline: none;
+  border-color: var(--a);
+}
+
+.cnt {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: var(--text-dim, var(--stage-text-dim)); /* readability floor: the old dim was ~2:1, invisible on the card */
+  align-self: flex-end;
+}
+
+.idGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.field.span2 {
+  grid-column: 1 / -1;
+}
+
+.in {
+  width: 100%;
+  background: var(--stage-well);
+  border: 2px solid var(--stage-seam);
+  color: var(--stage-soft);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 0.4rem 0.55rem;
+}
+
+.chips {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam);
+  color: var(--stage-mute);
+  padding: 0.22rem 0.5rem;
+}
+
+.chipOk {
+  color: var(--a, var(--accent));
+  border-color: var(--a, var(--accent));
+}
+
+.seg {
+  display: flex;
+  border: 3px solid var(--stage-black);
+}
+
+.seg button {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-row);
+  border: none;
+  border-left: 3px solid var(--stage-black);
+  color: var(--stage-mute);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.seg button:first-child {
+  border-left: none;
+}
+
+.seg button.on {
+  background: var(--stage-paper);
+  color: var(--stage-well);
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 0;
+}
+
+.stickyCol {
+  position: sticky;
+  top: 0.9rem;
+  align-self: start;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  border: 2px solid var(--stage-line);
+  color: var(--stage-soft);
+  background: transparent;
+  padding: 0.16rem 0.45rem;
+  cursor: pointer;
+}
+
+.tagIco {
+  display: inline-flex;
+  flex: none;
+  opacity: 0.85;
+}
+
+.tag i {
+  font-style: normal;
+  color: currentColor;
+  opacity: 0.55;
+}
+
+.tag:hover {
+  border-color: currentColor; /* the category color set inline; hover brings it to full strength */
+}
+
+.tagIn {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  background: var(--stage-well);
+  border: 2px dashed var(--stage-seam);
+  color: var(--stage-soft);
+  padding: 0.2rem 0.45rem;
+  width: 8rem;
+}
+
+.greetRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  border: 2px solid var(--stage-seam);
+  padding: 0.5rem;
+}
+
+.greetHead {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--stage-row);
+  border: 2px solid var(--stage-seam);
+  color: var(--stage-mute);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.add:hover {
+  color: var(--stage-paper);
+  border-color: var(--stage-mute);
+}
+
+.opts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.opt {
+  position: relative;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 5px 5px 0 0 var(--ink);
+  padding: 0.8rem 0.95rem;
+  transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, border-color 0.1s ease-out;
+}
+
+.opt:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 0 var(--ink);
+}
+
+.opt:active {
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 0 var(--ink);
+}
+
+.optOn {
+  transform: translate(4px, 4px);
+  box-shadow: 1px 1px 0 0 var(--rose);
+  border-color: var(--rose);
+}
+
+.optOn .rank {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+
+.optBody {
+  min-width: 0;
+}
+
+.optMark {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: var(--rose);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+}
+
+.optTitle {
+  display: block;
+  font-family: var(--font-big);
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.optSub {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.k {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--stage-line);
+  margin: 0.55rem 0 0.2rem;
+}
+
+.ta {
+  min-height: 4.6rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.ta.mono {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+.btnrow {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.6rem;
+}
+
+.pill {
+  background: var(--stage-black);
+  border: 2px solid var(--stage-seam);
+  color: var(--stage-paper);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  padding: 0.15rem 0.5rem;
+}
+
+/* narrow pane: the checklist chips fold away (their count survives in the strip's frac); this
+   rule lives here because .chip's hash is owned by THIS module - a .chip written in another
+   module targets a different generated class (the merge rule) */
+@container (max-width: 34rem) {
+  .chip {
+    display: none;
+  }
+}

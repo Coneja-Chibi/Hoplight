@@ -1,0 +1,126 @@
+/**
+ * StructuredPersona - kind chips + attribute chip rows. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.kinds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.kind {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--field, var(--paper)));
+  color: var(--stage-mute, var(--muted));
+  padding: 0.28rem 0.5rem;
+  cursor: pointer;
+}
+.kindOn {
+  border-color: var(--rose);
+  color: var(--stage-soft, var(--text));
+  box-shadow: 2px 2px 0 0 var(--stage-black, var(--edge));
+}
+.attr {
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-panel, var(--panel));
+  padding: 0.5rem 0.55rem;
+}
+.top {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+.key {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--stage-well, var(--field));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-var, var(--text));
+  padding: 0.25rem 0.4rem;
+  width: 7.5rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--field));
+  color: var(--stage-soft, var(--text));
+  padding: 0.14rem 0.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.chipX {
+  border: none;
+  background: none;
+  color: var(--stage-mute, var(--muted));
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0;
+  line-height: 1;
+}
+.chipInput {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: transparent;
+  color: var(--stage-soft, var(--text));
+  padding: 0.14rem 0.35rem;
+  min-width: 5rem;
+}
+.rm {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--field));
+  color: var(--stage-mute, var(--muted));
+  padding: 0.1rem 0.3rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+.add {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px dashed var(--stage-seam, var(--seam));
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+  align-self: flex-start;
+}
+.ta {
+  width: 100%;
+  min-height: 4rem;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  background: var(--stage-well, var(--field));
+  border: 2px solid var(--stage-seam, var(--seam));
+  color: var(--stage-soft, var(--text));
+  padding: 0.4rem 0.5rem;
+  resize: vertical;
+}
+.hint {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  color: var(--stage-mute, var(--muted));
+  line-height: 1.35;
+}

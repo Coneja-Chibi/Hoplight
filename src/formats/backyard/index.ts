@@ -1,15 +1,15 @@
 /**
- * Backyard.ai (formerly Faraday) legacy character adapter. This is the flat-JSON shape (aiName,
- * aiPersona, customDialogue, ...), NOT a Tavern superset and NOT the newer .byaf archive (a separate,
- * larger multi-file format deferred to its own adapter). Field map + placeholder rules from
- * specs/formats/backyard.md. Backyard placeholders are single-brace ({character}/{user}); we convert
- * to Tavern {{char}}/{{user}} for the canonical model. That conversion is NOT a bijection, so
- * round-trip safety comes from keeping the whole raw card and re-emitting unedited fields verbatim.
+ * Backyard.ai (formerly Faraday) format family:
+ *  - legacy flat JSON (this file): aiName / aiPersona / customDialogue …
+ *  - modern .byaf archive: ./byaf.ts
+ * Placeholders on legacy cards are single-brace ({character}/{user}); converted to {{char}}/{{user}}
+ * for the canonical model (lossy inverse — original keeps unedited text verbatim).
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import coverage from "./coverage";
+import { byafAdapter } from "./byaf";
 
 type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -92,6 +92,8 @@ const adapter: CharacterAdapter = {
   outputExtensions: ["json"],
   kind: "character",
   coverage,
+  // Legacy flat JSON only. Modern product surface is .byaf (id `byaf`) on the lens strip.
+  lens: false,
 
   // Strong, Backyard-unique keys score high; the bare-persona heuristic is weak and must not fire on
   // an Agnai card (kind: "character"). Both stay below the Tavern/RC/Agnai adapters on a shared input.
@@ -153,4 +155,9 @@ const adapter: CharacterAdapter = {
   },
 };
 
-export default adapter;
+/** Legacy flat-JSON adapter (named for tests + direct importers). */
+export { adapter as characterAdapter, adapter as legacyAdapter };
+export { byafAdapter };
+
+/** Folders-as-schema: legacy JSON + modern .byaf archive. */
+export default [adapter, byafAdapter];

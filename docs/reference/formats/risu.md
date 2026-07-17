@@ -141,8 +141,27 @@ The forge can view and edit all of it. The security line, in order of enforcemen
    deny-by-absence permission manifest (an ungranted capability's method does not exist in the sandbox).
 
 The escrow flags remain for gating: `hasExecutableContent` (any script payload or `module.risum`
-present) and `privileged` on `escrow.risu.unmapped`. `module.risum` itself stays raw escrow bytes
-(a proprietary binary bundle, not editable schema until a parser is grounded).
+present) and `privileged` on `escrow.risu.unmapped`.
+
+### `module.risum` (RPack) - opened, not opaque
+
+A `.risum` is Risu's RPack container: magic `111`, version `0`, UInt32LE length-prefixed main JSON
+block (byte-substituted pretty JSON), optional marker-`1` asset blocks, terminator `0`. vaud
+reimplements this clean-room in `src/formats/risu/rpack/` (`table` + `codec` + `container` +
+`module` + public `decodeRisum`/`encodeRisum`). On import:
+
+- `unmapped.moduleRisum` = raw base64 of the blob (lossless re-export floor).
+- `unmapped.module` = structured open view when decode succeeds (`openRisumModule`): name/id counts,
+  full `module` object (trigger/regex/lorebook arrays), and a `scripts[]` index of triggerlua/cjs
+  bodies (code stays a string - sealed cargo until the sandbox runs it).
+
+Export: if the structured module is **unedited**, the original `moduleRisum` bytes are re-emitted
+byte-for-byte. Edited module re-export is **safe-blocked** (`RPACK_EDITED_EXPORT_VERIFIED === false`):
+`encodeRisumSmart` throws `RpackEditedExportBlockedError` rather than re-RPack through a table that
+lacks independent ciphertext/plaintext fixtures. When verification is enabled later, it will
+re-stringify the Risu envelope (`{ module, type: "risuModule" }`), RPack-encode it, and keep
+asset blocks from the original package. Hermetic tests cover table permutation, unedited identity,
+and the safe-block refusal; machine-local complex cards are exploratory only.
 
 ## The embedded character_book
 

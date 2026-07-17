@@ -82,6 +82,12 @@ for (const [name, spec] of Object.entries(VENDOR_SPECS)) {
   vendor[name] = await bundleBrowser(join(uiDir, spec.entry), spec.external);
 }
 
+// Wasmoon has guarded Node-only dynamic imports. They are unreachable in a browser worker, but Bun must
+// leave them external while producing the browser bundle.
+const sandboxWorkerJs = await bundleBrowser(join(root, "src", "sandbox", "lua", "worker.ts"), [
+  "module", "url", "fs", "path", "child_process", "crypto",
+]);
+
 const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
   tokensCss: await Bun.file(join(uiDir, "theme", "tokens.css")).text(),
@@ -92,6 +98,7 @@ const assets = {
   apps,
   manifests,
   setupSteps,
+  sandboxWorkerJs,
 };
 await Bun.write(
   join(genDir, "packaged-assets.ts"),

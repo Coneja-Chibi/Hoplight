@@ -3,260 +3,114 @@
  * lives here: HTTP plumbing, app discovery (folders-as-schema, mirroring the format loader), and
  * the studio store. Loopback only; stateless except the studio folder the user owns.
  *
- * Security posture: uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
- * included); scripts in entities are data; nothing is ever evaluated server-side; app bundles are
- * built from the local src tree only.
+ * Security posture: per-launch session token + Host/Origin checks; capped request bodies; uploads
+ * parse through the same fail-closed adapters as the CLI (zip-bomb caps included); scripts in
+ * entities are data; nothing is ever evaluated server-side; app bundles are built from the local
+ * src tree only.
+ *
+ * Security helpers: server-security.ts. Discover/bundle/dev-watch: server-static.ts.
  */
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { watch as watchFs } from "node:fs";
 import { registry } from "../core";
-import type { AdapterInput, FormatAdapter } from "../core";
+import { saveBundle } from "../studio/bundle";
 import type { CanonicalEntity } from "../core/canonical";
+import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import { StudioStore } from "../studio/store";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
-import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
 import { safeExternalUrl } from "./_shared/external-url";
 import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
 import type { PackagedAssets } from "./assets";
+import { startSandboxHost } from "./sandbox-host";
+import {
+  type UiSecurityContext,
+  createSecurityContext,
+  json,
+  err,
+  htmlSecurityHeaders,
+  injectSessionMeta,
+  injectSandboxOriginMeta,
+  readBodyCapped,
+  readJsonCapped,
+  checkApiRequest,
+  contentTypeIs,
+  studioErr,
+  openInBrowser,
+} from "./server-security";
+import {
+  REACT_EXTERNALS,
+  discoverApps,
+  discoverSetupSteps,
+  discoverTours,
+  withCssInjected,
+  bundleModule,
+  bundleVendor,
+  startDevWatch,
+  appManifests,
+  createDevReloadResponse,
+  staticFile,
+} from "./server-static";
+import { formatMeta, handleInspect, handleExport } from "./server-engine";
+
+// Re-export security surface for tests and sandbox-host.
+export {
+  INSPECT_BODY_MAX,
+  JSON_BODY_MAX,
+  type UiSecurityContext,
+  createSecurityContext,
+  htmlSecurityHeaders,
+  injectSessionMeta,
+  injectSandboxOriginMeta,
+  readBodyCapped,
+  checkApiRequest,
+} from "./server-security";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
-const json = (v: unknown, status = 200): Response =>
-  new Response(JSON.stringify(v), { status, headers: { "content-type": "application/json" } });
-const err = (message: string, status = 400): Response => json({ error: message }, status);
-
-/**
- * Hand a validated http(s) URL to the OS default browser. Spawns with an argv ARRAY (never a shell
- * string) so a crafted URL cannot inject a command; the caller has already scheme-validated via
- * safeExternalUrl. The launcher itself is not a boundary (it would open file:// too) - the allowlist
- * that ran before this is. Fire-and-forget; a failed launch is not worth crashing the request.
- */
-const openInBrowser = (href: string): void => {
-  const argv =
-    process.platform === "win32"
-      ? ["rundll32", "url.dll,FileProtocolHandler", href]
-      : process.platform === "darwin"
-        ? ["open", href]
-        : ["xdg-open", href];
-  try {
-    Bun.spawn(argv, { stdout: "ignore", stderr: "ignore", stdin: "ignore" });
-  } catch {
-    // a missing launcher on an exotic OS is a degraded experience, not a server fault
-  }
-};
-
-// -- drop-in module discovery (apps AND setup steps share one mechanism) ----------------------------
-
-interface DiscoveredModule {
-  id: string;
-  entrypoint: string;
-}
-
-/** Folders-as-schema scan: <baseDir>/<id>/index.{ts,tsx}, _-prefixed skipped (templates/shared).
- * .tsx is the dev-mode twin of scripts/build-desktop.ts's widened glob (ADR-008 conversion): apps
- * and setup steps convert to React one folder at a time, and the dev server must keep finding both
- * shapes mid-conversion, or every converted folder 404s until the whole run lands. */
-async function discoverModules(baseRel: string): Promise<DiscoveredModule[]> {
-  const baseDir = fileURLToPath(new URL(baseRel, import.meta.url));
-  const glob = new Bun.Glob("*/index.{ts,tsx}");
-  const found: DiscoveredModule[] = [];
-  for await (const rel of glob.scan({ cwd: baseDir })) {
-    const id = rel.split(/[\\/]/)[0]!;
-    if (id.startsWith("_")) continue;
-    found.push({ id, entrypoint: join(baseDir, rel) });
-  }
-  return found.sort((a, b) => a.id.localeCompare(b.id));
-}
-
-const discoverApps = (): Promise<DiscoveredModule[]> => discoverModules("./apps/");
-const discoverSetupSteps = (): Promise<DiscoveredModule[]> => discoverModules("./setup/steps/");
-// tours ride the SAME drop-in mechanism: src/ui/tours/<appId>/index.tsx (the shared _-prefixed infra
-// files - tour-contract, tour-core - are not <id>/index folders, so the glob never sees them)
-const discoverTours = (): Promise<DiscoveredModule[]> => discoverModules("./tours/");
-
-/** The react family stays OUT of every app/boot bundle; the page's import map resolves these to
- * the single /vendor copies (one React per page - two copies crash hooks with a null dispatcher). */
-const REACT_EXTERNALS = ["react", "react/jsx-runtime", "react-dom/client", "react-dom"];
-
-/** name -> entry stub + externals; mirrored in scripts/build-desktop.ts for the packaged bake. */
-const VENDOR_SPECS: Record<string, { entry: string; external: string[] }> = {
-  "react-family": { entry: "./vendor/react-family.ts", external: [] },
-  "react-dom-client": { entry: "./vendor/react-dom-client.ts", external: ["react"] },
-};
-
-/** Bundle one module for the browser, fresh every request (dev serves live edits; ~20ms a build).
- * The packaged exe never calls this - its bundles are baked. */
-/** CSS Modules emit SEPARATE css artifacts; the stylesheet rides inside the module's JS as a
- * head-injected <style> (mirrors scripts/build-desktop.ts - the unstyled-interiors bug). */
-async function withCssInjected(outputs: Bun.BuildArtifact[]): Promise<string> {
-  let js = "";
-  let css = "";
-  for (const out of outputs) {
-    if (out.path.endsWith(".css")) css += await out.text();
-    else js += await out.text();
-  }
-  if (!css) return js;
-  const inject =
-    `{const s=document.createElement("style");s.dataset.vaudeModuleCss="1";` +
-    `s.textContent=${JSON.stringify(css)};document.head.append(s);}\n`;
-  return inject + js; // statements before import declarations are legal ESM (imports hoist)
-}
-
-async function bundleModule(mod: DiscoveredModule): Promise<string> {
-  const built = await Bun.build({
-    entrypoints: [mod.entrypoint],
-    target: "browser",
-    format: "esm",
-    external: REACT_EXTERNALS,
-  });
-  if (!built.success || built.outputs.length === 0) {
-    throw new Error(`ui: module "${mod.id}" failed to bundle: ${built.logs.map((l) => l.message).join("; ")}`);
-  }
-  return withCssInjected(built.outputs);
-}
-
-/** Dev-serve a shared vendor bundle (packaged mode reads the baked copy instead). */
-async function bundleVendor(name: string): Promise<string | null> {
-  const spec = VENDOR_SPECS[name];
-  if (!spec) return null; // deny by absence: only the three known vendor names exist
-  const built = await Bun.build({
-    entrypoints: [fileURLToPath(new URL(spec.entry, import.meta.url))],
-    target: "browser",
-    format: "esm",
-    external: spec.external,
-  });
-  if (!built.success || built.outputs.length === 0) return null;
-  return built.outputs[0]!.text();
-}
-
-// -- dev live-reload (dev server only; the packaged exe has no source tree to watch) ----------------
-
-const devClients = new Set<ReadableStreamDefaultController<Uint8Array>>();
-let watching = false;
-const SSE = new TextEncoder();
-
-/** Watch src/ui and nudge every connected page to reload (debounced; editors fire in bursts). */
-function startDevWatch(): void {
-  if (watching) return;
-  watching = true;
-  const uiDir = fileURLToPath(new URL("./", import.meta.url));
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  watchFs(uiDir, { recursive: true }, () => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => {
-      for (const client of devClients) {
-        try {
-          client.enqueue(SSE.encode("data: reload\n\n"));
-        } catch {
-          devClients.delete(client);
-        }
-      }
-    }, 120);
-  });
-}
-
-/** Manifests come from the modules themselves (server imports them once; they are DOM-free at top level). */
-async function appManifests(apps: DiscoveredModule[]): Promise<unknown[]> {
-  const manifests: unknown[] = [];
-  for (const app of apps) {
-    const mod = (await import(app.entrypoint)) as { default?: { manifest?: unknown } };
-    if (mod.default?.manifest) manifests.push(mod.default.manifest);
-  }
-  return manifests;
-}
-
-// -- engine plumbing --------------------------------------------------------------------------------
-
-function toAdapterInput(bytes: Uint8Array, filename: string): AdapterInput {
-  const input: AdapterInput = { bytes, filename };
-  const ext = filename.toLowerCase().split(".").pop() ?? "";
-  if (ext === "json" || ext === "txt" || ext === "lorebook") {
-    try {
-      input.text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    } catch {
-      /* binary */
-    }
-  }
-  return input;
-}
-
-const formatMeta = (a: FormatAdapter): Record<string, unknown> => ({
-  id: a.id,
-  label: a.label,
-  kind: a.kind,
-  outputExtensions: a.outputExtensions,
-  friendly: friendlyFormat(a.id),
-  native: a.native ?? false,
-  generic: a.generic ?? false,
-});
-
-async function handleInspect(req: Request): Promise<Response> {
-  const filename = req.headers.get("x-filename") ?? "upload";
-  const bytes = new Uint8Array(await req.arrayBuffer());
-  if (bytes.length === 0) return err("empty upload");
-  const input = toAdapterInput(bytes, filename);
-  const adapter = registry.detect(input);
-  if (!adapter) return json({ ok: false, error: UNKNOWN_FILE_MESSAGE }, 200);
-  try {
-    const entity = adapter.toCanonical(input) as AnyEntity;
-    return json({
-      ok: true,
-      receipt: buildReceipt(entity, adapter.id),
-      entity,
-      formatId: adapter.id,
-      kind: entity.kind,
-    });
-  } catch {
-    return json(
-      { ok: false, error: `This looks like a ${friendlyFormat(adapter.id)} file, but it is damaged and we could not read it safely.` },
-      200,
-    );
-  }
-}
-
-async function handleExport(req: Request): Promise<Response> {
-  const body = (await req.json().catch(() => null)) as { entity?: AnyEntity; targetId?: string } | null;
-  if (!body?.entity || typeof body.targetId !== "string") return err("expected { entity, targetId }");
-  const target = registry.get(body.targetId);
-  if (!target) return err(`unknown format "${body.targetId}"`);
-  if (body.entity.kind !== target.kind) {
-    return err(`cannot write a ${body.entity.kind} as ${target.id} (a ${target.kind} format)`);
-  }
-  try {
-    const out = (target.fromCanonical as (e: AnyEntity) => { bytes?: Uint8Array; text?: string; suggestedExtension: string })(
-      body.entity,
-    );
-    return json({
-      suggestedExtension: out.suggestedExtension,
-      text: out.text,
-      bytesB64: out.bytes ? Buffer.from(out.bytes).toString("base64") : undefined,
-    });
-  } catch (e) {
-    return err(`${target.id}: ${e instanceof Error ? e.message : String(e)}`, 422);
-  }
-}
-
 // -- the route table --------------------------------------------------------------------------------
-
-const staticFile = (rel: string, type: string): Response =>
-  new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
 
 export function createHandler(
   store: StudioStore,
   settings: SettingsStore,
   packaged?: PackagedAssets,
+  sec?: UiSecurityContext,
+  /**
+   * Live sandbox origin for HTML meta injection (ADR-009). Mutable so startUi can fill it after
+   * both listeners bind. String form also accepted for tests.
+   */
+  sandboxOrigin?: string | { current: string },
 ): (req: Request) => Promise<Response> {
-  const text = (body: string, type: string): Response =>
-    new Response(body, { headers: { "content-type": type } });
+  const security = sec ?? createSecurityContext();
+
+  const text = (body: string, type: string, extra?: Record<string, string>): Response =>
+    new Response(body, { headers: { "content-type": type, ...extra } });
+
+  const resolveSandboxOrigin = (): string => {
+    if (!sandboxOrigin) return "";
+    if (typeof sandboxOrigin === "string") return sandboxOrigin;
+    return sandboxOrigin.current;
+  };
+
+  const htmlResponse = (rawHtml: string): Response => {
+    let html = injectSessionMeta(rawHtml, security.token);
+    const sb = resolveSandboxOrigin();
+    if (sb) html = injectSandboxOriginMeta(html, sb);
+    return new Response(html, {
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        ...htmlSecurityHeaders(sb),
+      },
+    });
+  };
 
   return async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
     const p = url.pathname;
 
     if (p === "/" || p === "/index.html") {
-      return packaged ? text(packaged.indexHtml, "text/html; charset=utf-8") : staticFile("./index.html", "text/html; charset=utf-8");
+      if (packaged) return htmlResponse(packaged.indexHtml);
+      const file = Bun.file(fileURLToPath(new URL("./index.html", import.meta.url)));
+      return htmlResponse(await file.text());
     }
     if (p === "/tokens.css") {
       return packaged ? text(packaged.tokensCss, "text/css; charset=utf-8") : staticFile("./theme/tokens.css", "text/css; charset=utf-8");
@@ -278,8 +132,9 @@ export function createHandler(
           short_name: "Vaude.",
           icons: [{ src: "/icon-256.png", sizes: "256x256", type: "image/png" }],
           display: "standalone",
-          background_color: "#faf8f3",
-          theme_color: "#e11d48",
+          // hardcode-ok: the web-manifest spec takes literal colors, CSS vars cannot reach it
+          background_color: "#faf8f3", // hardcode-ok (paper, tokens.css --paper)
+          theme_color: "#e11d48", // hardcode-ok (house rose, tokens.css --host-rc)
         }),
         "application/manifest+json",
       );
@@ -306,6 +161,40 @@ export function createHandler(
       }
       const code = await bundleVendor(name);
       return code !== null ? text(code, "text/javascript") : err("no such vendor bundle", 404);
+    }
+
+    // Sealed Lua Stage (browser): wasmoon glue.wasm + worker bundle. Never evaluate card code here.
+    if (p === "/sandbox/glue.wasm") {
+      const wasmPath = fileURLToPath(new URL("../../node_modules/wasmoon/dist/glue.wasm", import.meta.url));
+      return new Response(Bun.file(wasmPath), {
+        headers: {
+          "content-type": "application/wasm",
+          "cache-control": "public, max-age=86400",
+        },
+      });
+    }
+    if (p === "/sandbox/worker.js") {
+      if (packaged?.sandboxWorkerJs) {
+        return text(packaged.sandboxWorkerJs, "text/javascript; charset=utf-8");
+      }
+      const entry = fileURLToPath(new URL("../sandbox/lua/worker.ts", import.meta.url));
+      const built = await Bun.build({
+        entrypoints: [entry],
+        target: "browser",
+        format: "esm",
+      });
+      if (!built.success || built.outputs.length === 0) {
+        return err(`sandbox worker bundle failed: ${built.logs.map((l) => l.message).join("; ")}`, 500);
+      }
+      return new Response(await built.outputs[0]!.text(), {
+        headers: { "content-type": "text/javascript; charset=utf-8" },
+      });
+    }
+
+    // All /api/* routes: Host for every method; Origin+token for POST.
+    if (p.startsWith("/api/")) {
+      const denied = checkApiRequest(req, security);
+      if (denied) return denied;
     }
 
     if (p === "/api/apps") {
@@ -353,96 +242,211 @@ export function createHandler(
     // dev live-reload stream (404 in the packaged exe; the client goes quiet on error)
     if (p === "/dev/reload") {
       if (packaged) return err("not found", 404);
-      let ctrl: ReadableStreamDefaultController<Uint8Array>;
-      const stream = new ReadableStream<Uint8Array>({
-        start(c) {
-          ctrl = c;
-          devClients.add(c);
-          c.enqueue(SSE.encode("data: hello\n\n"));
-        },
-        cancel() {
-          devClients.delete(ctrl);
-        },
-      });
-      return new Response(stream, {
-        headers: { "content-type": "text/event-stream", "cache-control": "no-cache" },
-      });
+      return createDevReloadResponse();
     }
 
     if (p === "/api/settings") {
-      if (req.method === "POST") {
-        return json(await settings.save(await req.json().catch(() => null))); // parse is fail-closed
+      try {
+        if (req.method === "POST") {
+          if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+          const parsed = await readJsonCapped(req);
+          if (!parsed.ok) return parsed.response;
+          const body = parsed.value;
+          if (body === null || typeof body !== "object" || Array.isArray(body)) {
+            return err("invalid settings payload", 400);
+          }
+          return json(await settings.save(body));
+        }
+        return json(await settings.read());
+      } catch (e) {
+        return studioErr(e);
       }
-      return json(await settings.read());
     }
 
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by
     // absence - an undeclared platform simply is not lensable yet, and the UI says so honestly)
     if (p === "/api/coverage") {
+      // Full list (export honesty needs every format's carries). Strip filters lens === false.
       const adapters = registry
         .all()
         .filter((a) => a.kind === "character" && a.coverage && !a.native)
-        .map((a) => ({ id: a.id, label: a.label, carries: a.coverage!.carries, notes: a.coverage!.notes }));
-      // plus the extension-map platforms (Lumiverse, Marinara, Chub, ...) that ride the generic CCv2/v3
-      // wire and carry canonical fields without shipping their own adapter - lensable all the same.
-      const extras = EXTENSION_PLATFORMS.map((e) => ({ id: e.id, label: e.label, carries: e.carries, notes: e.notes }));
+        .map((a) => ({
+          id: a.id,
+          label: a.label,
+          carries: a.coverage!.carries,
+          notes: a.coverage!.notes,
+          lens: a.lens !== false,
+        }));
+      // Extension-map only when no character adapter already owns that id (no dual Lumiverse tabs).
+      const adapterIds = new Set(adapters.map((a) => a.id));
+      const extras = EXTENSION_PLATFORMS.filter((e) => !adapterIds.has(e.id)).map((e) => ({
+        id: e.id,
+        label: e.label,
+        carries: e.carries,
+        notes: e.notes,
+        lens: true,
+      }));
       return json([...adapters, ...extras]);
     }
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
-    if (p === "/api/export" && req.method === "POST") return handleExport(req);
+    if (p === "/api/export" && req.method === "POST") {
+      if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+      const parsed = await readJsonCapped(req);
+      if (!parsed.ok) return parsed.response;
+      return handleExport(store, parsed.value);
+    }
 
-    if (p === "/api/studio/list") return json(await store.list(url.searchParams.get("kind") ?? undefined));
+    if (p === "/api/studio/list") {
+      try {
+        return json(await store.list(url.searchParams.get("kind") ?? undefined));
+      } catch (e) {
+        return studioErr(e);
+      }
+    }
     if (p === "/api/studio/portrait") {
-      const entity = await store.read(url.searchParams.get("kind") ?? "", url.searchParams.get("id") ?? "");
-      const art = entity ? portraitBytes(entity) : null;
-      return art
-        ? // cast: TS's BodyInit lib type predates Uint8Array<ArrayBufferLike>; Bun accepts it fine.
-          // Headers harden the untrusted-bytes serve: no sniffing, no execution, inline image only.
-          new Response(art.bytes as unknown as BodyInit, {
-            headers: {
-              "content-type": art.mime,
-              "cache-control": "no-cache",
-              "content-disposition": "inline; filename=portrait",
-              "x-content-type-options": "nosniff",
-              "content-security-policy": "default-src 'none'; sandbox",
-            },
-          })
-        : err("no portrait", 404);
+      try {
+        const entity = await store.read(
+          url.searchParams.get("kind") ?? "",
+          url.searchParams.get("id") ?? "",
+        );
+        const art = entity ? portraitBytes(entity) : null;
+        return art
+          ? // cast: TS's BodyInit lib type predates Uint8Array<ArrayBufferLike>; Bun accepts it fine.
+            // Headers harden the untrusted-bytes serve: no sniffing, no execution, inline image only.
+            new Response(art.bytes as unknown as BodyInit, {
+              headers: {
+                "content-type": art.mime,
+                "cache-control": "no-cache",
+                "content-disposition": "inline; filename=portrait",
+                "x-content-type-options": "nosniff",
+                "content-security-policy": "default-src 'none'; sandbox",
+              },
+            })
+          : err("no portrait", 404);
+      } catch (e) {
+        return studioErr(e);
+      }
     }
     if (p === "/api/studio/get") {
-      const kind = url.searchParams.get("kind") ?? "";
-      const id = url.searchParams.get("id") ?? "";
-      const entity = await store.read(kind, id);
-      return entity ? json(entity) : err("not found", 404);
+      try {
+        const kind = url.searchParams.get("kind") ?? "";
+        const id = url.searchParams.get("id") ?? "";
+        const entity = await store.read(kind, id);
+        return entity ? json(entity) : err("not found", 404);
+      } catch (e) {
+        return studioErr(e);
+      }
     }
     // the leaving-gate's enforcement boundary: open a link in the OS browser. POST-only (so embedded
     // content cannot GET-trigger it) and re-validated here - the client gate is UX, this is the gate.
     // Only http/https survive safeExternalUrl; the NORMALIZED href is what we spawn, never the raw body.
     if (p === "/api/open" && req.method === "POST") {
-      const body = (await req.json().catch(() => null)) as { url?: unknown } | null;
+      if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+      const parsed = await readJsonCapped(req, 64 * 1024);
+      if (!parsed.ok) return parsed.response;
+      const body = parsed.value as { url?: unknown } | null;
       const raw = typeof body?.url === "string" ? body.url : "";
       const href = safeExternalUrl(raw);
       if (href === null) return err("refused: only http and https links open externally", 400);
       openInBrowser(href);
-      return new Response(null, { status: 204 });
+      return new Response(null, {
+        status: 204,
+        headers: { "cache-control": "no-store", "x-content-type-options": "nosniff" },
+      });
     }
 
+    if (p === "/api/studio/save-bundle" && req.method === "POST") {
+      try {
+        if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+        const parsed = await readJsonCapped(req);
+        if (!parsed.ok) return parsed.response;
+        const raw = parsed.value as {
+          entity?: AnyEntity;
+          related?: { lorebooks?: CanonicalLorebook[] };
+          overwrite?: boolean;
+        } | null;
+        if (!raw?.entity || typeof raw.entity !== "object") {
+          return err("expected { entity, related? }");
+        }
+        const result = await saveBundle(store, {
+          entity: raw.entity,
+          lorebooks: raw.related?.lorebooks,
+          overwrite: raw.overwrite === true,
+        });
+        return json(result, result.ok ? 200 : result.partial ? 207 : 422);
+      } catch (e) {
+        return studioErr(e);
+      }
+    }
     if (p === "/api/studio/save" && req.method === "POST") {
-      const entity = (await req.json().catch(() => null)) as AnyEntity | null;
-      if (!entity) return err("expected a canonical entity");
-      return json(await store.save(entity));
+      try {
+        if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+        const parsed = await readJsonCapped(req);
+        if (!parsed.ok) return parsed.response;
+        const raw = parsed.value as
+          | AnyEntity
+          | { entity?: AnyEntity; overwrite?: boolean }
+          | null;
+        if (!raw || typeof raw !== "object") return err("expected a canonical entity");
+        // Editor re-saves wrap { entity, overwrite: true }; import posts the entity bare (keep-both).
+        const wrapped = "entity" in raw && raw.entity && typeof raw.entity === "object";
+        const entity = (wrapped ? raw.entity : raw) as AnyEntity;
+        const overwrite = wrapped ? raw.overwrite === true : false;
+        if (typeof entity.kind !== "string") return err("expected a canonical entity");
+        return json(await store.save(entity, { overwrite }));
+      } catch (e) {
+        return studioErr(e);
+      }
     }
 
+    if (p.startsWith("/api/")) return err("not found", 404);
     return err("not found", 404);
   };
 }
 
 /** Boot the visual app. Loopback only: a local forge, never an exposed service. */
-export function startUi(port: number, studioDir: string, packaged?: PackagedAssets): { url: string; stop: () => void } {
+export function startUi(
+  port: number,
+  studioDir: string,
+  packaged?: PackagedAssets,
+): { url: string; sandboxUrl: string | null; stop: () => void } {
   const store = new StudioStore(studioDir);
   const settings = new SettingsStore(studioDir);
+  const sec = createSecurityContext();
   if (!packaged) startDevWatch(); // dev: edits to src/ui reload every open page
-  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: createHandler(store, settings, packaged) });
-  return { url: `http://127.0.0.1:${server.port}`, stop: () => server.stop() };
+
+  // Filled after the sandbox listener binds; HTML injection reads this live.
+  const sandboxOriginRef = { current: "" };
+  const handler = createHandler(store, settings, packaged, sec, sandboxOriginRef);
+  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: handler });
+  const host = `127.0.0.1:${server.port}`;
+  sec.expectedHost = host;
+  sec.expectedOrigin = `http://${host}`;
+
+  let sandboxUrl: string | null = null;
+  let stopSandbox: (() => void) | null = null;
+  try {
+    const sandbox = startSandboxHost({
+      allowOrigin: sec.expectedOrigin,
+      packaged,
+    });
+    sandboxUrl = sandbox.origin;
+    sandboxOriginRef.current = sandbox.origin;
+    stopSandbox = sandbox.stop;
+  } catch (e) {
+    console.warn(
+      "server: sandbox host failed to start; falling back to same-origin worker:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+
+  return {
+    url: `http://${host}`,
+    sandboxUrl,
+    stop: () => {
+      server.stop(true);
+      stopSandbox?.();
+    },
+  };
 }

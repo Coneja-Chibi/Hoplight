@@ -10,7 +10,16 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 import type { CharacterBody, CharacterVariant } from "../../../entities/character/schema";
 import { applyVariant } from "../../../entities/character/variant";
 import { writePath } from "./editor-core";
-import { addVariant, removeVariant, setVariantField, setVariantLabel, setVariantMode, variantsOf } from "./variants";
+import {
+  addVariant,
+  inheritVariantField,
+  removeVariant,
+  setVariantField,
+  setVariantLabel,
+  setVariantMode,
+  variantHasOverride,
+  variantsOf,
+} from "./variants";
 
 type Body = Record<string, unknown>;
 const asBody = (b: Body): CharacterBody => b as unknown as CharacterBody;
@@ -23,8 +32,12 @@ export interface VariantsApi {
   activeId: string | null;
   active: CharacterVariant | null;
   select(id: string | null): void;
-  /** variant-aware field write: base, or the active variant's overrides */
+  /** variant-aware field write: base, or the active variant's overrides (blanks kept as overrides) */
   setField(path: string, value: unknown): void;
+  /** drop the active variant's override at path so the base value is inherited again */
+  inheritField(path: string): void;
+  /** true when the active variant has a present override at path */
+  hasOverride(path: string): boolean;
   add(): void;
   remove(id: string): void;
   rename(id: string, label: string): void;
@@ -42,6 +55,14 @@ export function useVariants(baseDraft: Body, setBaseDraft: Dispatch<SetStateActi
     else setBaseDraft((d) => writePath(d, path, value));
   };
 
+  const inheritField = (path: string): void => {
+    if (!active) return;
+    setBaseDraft((d) => asRec(inheritVariantField(asBody(d), active.id, path)));
+  };
+
+  const hasOverride = (path: string): boolean =>
+    activeId !== null && variantHasOverride(baseDraft, activeId, path);
+
   const add = (): void => {
     const id = crypto.randomUUID();
     setBaseDraft((d) => asRec(addVariant(asBody(d), id, `Variant ${variantsOf(d).length + 1}`)));
@@ -54,5 +75,18 @@ export function useVariants(baseDraft: Body, setBaseDraft: Dispatch<SetStateActi
   const rename = (id: string, label: string): void => setBaseDraft((d) => asRec(setVariantLabel(asBody(d), id, label)));
   const setMode = (id: string, mirrorBase: boolean): void => setBaseDraft((d) => asRec(setVariantMode(asBody(d), id, mirrorBase)));
 
-  return { draft, variants, activeId, active, select: setActiveId, setField, add, remove, rename, setMode };
+  return {
+    draft,
+    variants,
+    activeId,
+    active,
+    select: setActiveId,
+    setField,
+    inheritField,
+    hasOverride,
+    add,
+    remove,
+    rename,
+    setMode,
+  };
 }

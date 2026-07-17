@@ -1,0 +1,43 @@
+# Release gate: typecheck, tests, license, lines, colors, lint, catalog, matrix
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bun run typecheck
+      - name: License audit
+        run: bun run license:audit
+      - name: Unit + smoke tests
+        run: bun run test
+      - name: Line caps
+        run: bun run scan:lines
+      - name: Hardcoded colors
+        run: bun run scan:colors:check
+      - name: UI lint
+        run: bun run lint:ui
+      - name: Component catalog
+        run: bun run catalog:check
+      - name: Format matrix
+        run: bun run matrix:check

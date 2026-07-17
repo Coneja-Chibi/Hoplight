@@ -1,0 +1,60 @@
+/**
+ * ExpressionMap styles. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.4;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.lbl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.sel {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-input, var(--input));
+  color: var(--stage-ink, var(--text));
+  padding: 0.3rem 0.4rem;
+  max-width: 14rem;
+}
+.gtitle {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  border-bottom: 1px solid var(--stage-seam, var(--seam));
+  padding-bottom: 0.2rem;
+}

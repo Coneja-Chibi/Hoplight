@@ -1,6 +1,6 @@
 import { test, expect } from "bun:test";
 import { unzipSync, strFromU8 } from "fflate";
-import { convertFile } from "./convert";
+import { convertFile, emitBundle, inspectBundle, rewriteKnowledgeRefs } from "./convert";
 import { characterAdapter as stCharacter } from "./formats/sillytavern/index";
 import { characterAdapter as rcCharacter } from "./formats/rolecall/index";
 import { characterAdapter as risuCharacter } from "./formats/risu/index";
@@ -100,4 +100,36 @@ test("cross-format: an ST card with a book converts to a Risu .charx with the bo
 test("convertFile refuses a cross-kind conversion", () => {
   const card = { spec: "chara_card_v3", spec_version: "3.0", data: { name: "Bob", description: "x" } };
   expect(() => convertFile(stCharacter, rcLorebook, asText(card))).toThrow(/different entity kinds/);
+});
+
+
+test("inspectBundle extracts book and sets knowledgeRefs without emitting", () => {
+  const card = makeCardWithBook();
+  const bundle = inspectBundle(stCharacter, asText(card));
+  expect(bundle.lorebooks).toHaveLength(1);
+  expect(bundle.entity.body.knowledgeRefs).toEqual([bundle.lorebooks[0]!.id]);
+  expect(bundle.lorebooks[0]!.body.name).toBe("Aetheria Lore");
+});
+
+test("inspectBundle with no book leaves knowledgeRefs unset", () => {
+  const bare = { spec: "chara_card_v3", spec_version: "3.0", data: { name: "Bob", description: "x" } };
+  const bundle = inspectBundle(stCharacter, asText(bare));
+  expect(bundle.lorebooks).toHaveLength(0);
+  expect(bundle.entity.body.knowledgeRefs).toBeUndefined();
+});
+
+test("rewriteKnowledgeRefs maps keep-both renames", () => {
+  const card = makeCardWithBook();
+  const { entity } = inspectBundle(stCharacter, asText(card));
+  const oldId = entity.body.knowledgeRefs![0]!;
+  rewriteKnowledgeRefs(entity, new Map([[oldId, `${oldId}-2`]]));
+  expect(entity.body.knowledgeRefs).toEqual([`${oldId}-2`]);
+});
+
+test("emitBundle re-embeds resolved lorebooks into ST", () => {
+  const card = makeCardWithBook();
+  const { entity, lorebooks } = inspectBundle(stCharacter, asText(card));
+  const out = emitBundle(stCharacter, entity, lorebooks);
+  const back = JSON.parse(out.text ?? "");
+  expect(back.data.character_book).toEqual(card.data.character_book);
 });

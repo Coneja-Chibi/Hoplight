@@ -1,10 +1,7 @@
 {
-  "src/ui/apps/workbench/Editor.module.css": 1560,
   "src/macros/processor.test.ts": 1226,
-  "src/ui/apps/workbench/Editor.tsx": 600,
   "src/macros/processor.ts": 946,
   "src/macros/handlers/variables.ts": 854,
-  "src/macros/hooks.ts": 577,
   "src/macros/phase1-macros.test.ts": 549,
   "src/macros/handlers/time.ts": 526,
   "src/macros/__characterization__/parser-ast.test.ts": 507

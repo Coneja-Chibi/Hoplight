@@ -37,8 +37,8 @@ test("agnai-lorebook detects the memory marker, not sibling shapes", () => {
   expect(agnaiLorebook.detect(asText({ entries: { "0": { key: ["x"], content: "y" } } }))).toBe(0);
   // Risu native envelope: no top-level entries array
   expect(agnaiLorebook.detect(asText({ type: "risu", ver: 1, data: [] }))).toBe(0);
-  // CCv3 character_book entries carry `content`/`keys`, not `entry`/`keywords`
-  expect(agnaiLorebook.detect(asText({ entries: [{ content: "y", keys: ["x"] }] }))).toBe(0);
+  // CCv3/Chub character_book (`keys`/`content`) is accepted as a soft import (re-emits MemoryBook)
+  expect(agnaiLorebook.detect(asText({ entries: [{ content: "y", keys: ["x"] }] }))).toBe(0.7);
 });
 
 test("agnai-lorebook maps native fields, with weight->sortOrder and priority->priority", () => {

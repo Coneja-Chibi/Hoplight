@@ -74,9 +74,16 @@ test("tags each field with a render format: prose markdown, notes html, facts pl
   expect(fmt["creator"]).toBe("plain");
 });
 
-test("fieldsFor dispatches character and defers unknown kinds", () => {
+test("fieldsFor dispatches character and pack; defers unknown kinds", () => {
   const body = { identity: { tagline: "x" } };
   expect(fieldsFor("character", body).length).toBe(1);
   expect(fieldsFor("lorebook", body)).toEqual([]);
   expect(fieldsFor("preset", body)).toEqual([]);
+  const packFields = fieldsFor("pack", {
+    name: "Faces",
+    pack: { items: [{ label: "happy", ref: "h" }], defaultLabel: "happy" },
+  });
+  expect(packFields.some((f) => f.k === "name" && f.v === "Faces")).toBe(true);
+  expect(packFields.some((f) => f.k === "faces" && f.v === "1")).toBe(true);
 });
+

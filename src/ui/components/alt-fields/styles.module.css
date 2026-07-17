@@ -1,0 +1,23 @@
+/**
+ * AltFields styles. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.gtitle {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+  border-bottom: 1px solid var(--stage-seam, var(--seam));
+  padding-bottom: 0.2rem;
+}

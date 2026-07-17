@@ -134,6 +134,28 @@
   display: none;
 }
 
+/* Collapsed-card chevron (same grammar as When & where bands) */
+.bfold > .bchead::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-right: 1.5px solid var(--stage-text-dim);
+  border-bottom: 1.5px solid var(--stage-text-dim);
+  transform: rotate(-45deg);
+  flex: none;
+  margin-top: -0.05rem;
+  opacity: 0.7;
+}
+
+.bfold[open] > .bchead::before {
+  transform: rotate(45deg);
+  margin-top: -0.15rem;
+}
+
+.bfold > .bchead:hover b {
+  color: var(--a, var(--stage-macro));
+}
+
 .bchead b {
   font-family: var(--font-mono);
   font-weight: 700;

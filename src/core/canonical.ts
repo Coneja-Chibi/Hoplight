@@ -12,13 +12,27 @@ export type FormatId = string;
 
 export const CANONICAL_SCHEMA_VERSION = "1" as const;
 
+const WIN_RESERVED = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i;
+const STUDIO_ID_MAX = 120;
+
 /**
- * Derive a stable canonical id from a display name. One owner for the policy so every
- * adapter mints ids the same way (slug the name, fall back to "character" when empty).
+ * Derive a stable storage-safe id from a display name. One owner for the policy so every
+ * adapter mints ids the same way. Always passes studio path-policy (letters/numbers + ._-).
+ * Fall back to "character" when empty after sanitization.
  */
 export function canonicalId(name: unknown): string {
-  const slug = typeof name === "string" ? name.toLowerCase().trim().replace(/\s+/g, "-") : "";
-  return slug || "character";
+  const raw = typeof name === "string" ? name.normalize("NFKC").toLowerCase().trim() : "";
+  // Keep letters/numbers; turn other runs into single hyphens.
+  let slug = raw
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (slug.length > STUDIO_ID_MAX) {
+    slug = Array.from(slug).slice(0, STUDIO_ID_MAX).join("").replace(/-+$/g, "");
+  }
+  if (!slug) return "character";
+  if (WIN_RESERVED.test(slug)) return `${slug}-id`;
+  return slug;
 }
 
 /** What we preserve from a source format so a round-trip loses nothing. */

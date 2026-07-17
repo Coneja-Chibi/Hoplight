@@ -20,13 +20,23 @@ export const strArr = (x: unknown): string[] => (Array.isArray(x) ? x.filter((s)
 export interface Greeting {
   text: string;
   title?: string;
+  /** stable editing identity; preserved through retitle/reorder */
+  id?: string;
 }
 
-/** the greetings at a path as {text,title} rows (tolerant; non-arrays -> []) */
+/** the greetings at a path as {text,title,id?} rows (tolerant; non-arrays -> []) */
 export const greetingsOf = (draft: unknown, path: string): Greeting[] => {
   const raw = readPath(draft, path);
   if (!Array.isArray(raw)) return [];
-  return raw.map((g) => ({ text: str(rec(g).text), title: str(rec(g).title) || undefined }));
+  return raw.map((g) => {
+    const row = rec(g);
+    const id = str(row.id);
+    return {
+      text: str(row.text),
+      title: str(row.title) || undefined,
+      ...(id !== "" ? { id } : {}),
+    };
+  });
 };
 
 /** honest rough size: prose chars / 4, labeled "~tokens" (a real tokenizer is macro-layer work) */

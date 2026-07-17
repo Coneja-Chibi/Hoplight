@@ -1,0 +1,224 @@
+/**
+ * Editor portrait/palette styles.
+ */
+
+.flagDot {
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-seam);
+}
+
+.flag.on {
+  color: var(--stage-soft);
+}
+
+.flag.on .flagDot {
+  background: var(--a);
+}
+
+.hint {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: var(--text-dim, var(--stage-text-dim)); /* readability floor: the old dim was ~2:1, invisible on the card */
+  letter-spacing: 0.05em;
+}
+
+.gradBar {
+  height: 2.4rem;
+  border: 3px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  margin: 0.1rem 0 0.5rem;
+}
+
+.palRow {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.palSwatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.palSwatch i {
+  font-style: normal;
+}
+
+.pplate {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border: 3px solid var(--a, var(--accent));
+  background: var(--q-stage-deck);
+  overflow: hidden;
+}
+
+.pimg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pname {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.flag {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-ok-bg);
+  border: 3px solid var(--stage-black);
+  color: var(--stage-ok);
+  padding: 0.4rem 0.7rem;
+}
+
+.lcard {
+  background: var(--stage-panel);
+  border: 3px solid var(--stage-black);
+  border-top: 3px solid var(--a, var(--accent)); /* hardcode-ok: last-resort default brand accent, not a theme surface color */
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.portrait {
+  aspect-ratio: 2/3;
+  border: 2px dashed var(--stage-line);
+  margin: 0.6rem;
+  background: linear-gradient(160deg, var(--stage-danger-bg), #160b1e 65%); /* hardcode-ok: gradient stop residue */
+  display: flex;
+  align-items: flex-end;
+  padding: 0;
+  overflow: hidden;
+}
+
+.portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.portrait b {
+  font-family: var(--font-big);
+  font-size: 2.4rem;
+  color: var(--stage-ink);
+  opacity: 0.55;
+  line-height: 0.8;
+  padding: 0.6rem;
+}
+
+.lmeta {
+  padding: 1.2rem 0.6rem 0.2rem;
+}
+
+.lmeta b {
+  font-family: var(--font-big);
+  font-size: 1rem;
+  color: var(--stage-paper);
+}
+
+.lsub {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: var(--stage-mute);
+  margin-top: 0.2rem;
+}
+
+.stampBtn {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-row);
+  border: 3px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  color: var(--stage-paper);
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+}
+
+.stampBtn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.palGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.1rem 0 0.4rem;
+}
+
+.palTile {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: var(--stage-well);
+  border: 2px solid var(--stage-seam);
+  padding: 0.25rem 0.4rem 0.25rem 0.25rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  color: var(--stage-soft);
+}
+
+.palTileOn {
+  border-color: var(--a, var(--accent, var(--stage-paper)));
+}
+
+.palChip {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  border: 2px solid var(--stage-black);
+}
+
+.palName {
+  white-space: nowrap;
+}
+
+.palAdd {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 2px dashed var(--stage-seam);
+  color: var(--stage-mute);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.palAdd:hover {
+  border-color: var(--stage-mute);
+  color: var(--stage-soft);
+}
+
+.palEdit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}

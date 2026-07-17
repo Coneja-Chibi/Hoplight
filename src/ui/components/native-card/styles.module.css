@@ -61,6 +61,11 @@
   font-size: 0.82rem;
   padding: 0.35rem 0.5rem;
 }
+.colorStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
 .readonly {
   font-family: var(--font-mono);
   font-size: 0.72rem;

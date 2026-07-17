@@ -1,15 +1,24 @@
-﻿/**
+/**
  * LoreEntryPage - one entry, the whole stage. Masthead with pager and on/off, then dossier
- * cards: Keys; one open When & where island (timing/chance + placement, not separate folds);
- * The passage; creator note + platform extras. Profile lens hides off-target controls; data stays.
+ * cards (Keys, When & where, passage, note, platforms). Each card is collapsible; open state
+ * is persisted in prefs so it survives entry and session switches.
  */
-import type { JSX } from "react";
+import { useState, type JSX, type SyntheticEvent } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { TriggerEditor } from "./trigger-editor";
 import { cardsForLens } from "./platforms/registry";
 import { entryFireMode } from "./entry-fire-mode";
 import { EntryWhenWhere } from "./entry-when-where";
+import {
+  foldIsOpen,
+  loadEntryFolds,
+  saveEntryFolds,
+  withFold,
+  type EntryFoldId,
+  type FoldMap,
+  type FoldPrefs,
+} from "./entry-fold-prefs";
 
 export type { EntryFireMode } from "./entry-fire-mode";
 export { entryFireMode, fireModePatch } from "./entry-fire-mode";
@@ -25,6 +34,7 @@ export interface EntryPageProps {
   onPrev: () => void;
   onNext: () => void;
   tokenEstimate: number;
+  prefs: FoldPrefs;
 }
 
 const LOGIC_LABELS: readonly [SelectiveLogic, string][] = [
@@ -50,14 +60,29 @@ export function LoreEntryPage({
   onPrev,
   onNext,
   tokenEstimate,
+  prefs,
 }: EntryPageProps): JSX.Element {
+  const [folds, setFolds] = useState<FoldMap>(() => loadEntryFolds(prefs));
+  const onFoldToggle = (id: EntryFoldId | string, open: boolean): void => {
+    setFolds((prev) => {
+      const next = withFold(prev, id as EntryFoldId, open);
+      saveEntryFolds(prefs, next);
+      return next;
+    });
+  };
+  const onDetails =
+    (id: EntryFoldId | string) =>
+    (ev: SyntheticEvent<HTMLDetailsElement>): void => {
+      onFoldToggle(id, ev.currentTarget.open);
+    };
+
   const show = (key: Parameters<typeof fieldVisible>[1]): boolean => fieldVisible(writeFor, key);
   const advanced = show("triggerRiders") && entry.triggerMode === "advanced";
   const simpleMode = !advanced;
+  const fire = entryFireMode(entry);
 
   return (
-    <div className={styles.page} aria-label={`Entry Â· ${entry.title || "(untitled)"}`}>
-      {/* ---- masthead: the entry owns the stage ---- */}
+    <div className={styles.page} aria-label={`Entry · ${entry.title || "(untitled)"}`}>
       <div className={styles.pager}>
         <span className={styles.pageNo}>
           Entry {index + 1} of {count}
@@ -98,13 +123,26 @@ export function LoreEntryPage({
         />
       )}
 
-      {/* ---- Keys ---- */}
       {show("triggers") && (
-        <section className={styles.bcard} aria-label="Keys">
-          <div className={styles.bchead}>
+        <details
+          className={styles.bfold}
+          open={foldIsOpen(folds, "keys")}
+          onToggle={onDetails("keys")}
+          aria-label="Keys"
+        >
+          <summary className={styles.bchead}>
             <b>Keys</b>
+            <i>
+              {fire === "always" ? "always on" : fire === "meaning" ? "by meaning" : "keywords"}
+            </i>
             {show("triggerRiders") && (
-              <span className={styles.keysMode} role="group" aria-label="Trigger editor mode">
+              <span
+                className={styles.keysMode}
+                role="group"
+                aria-label="Trigger editor mode"
+                onClick={(ev) => ev.stopPropagation()}
+                onKeyDown={(ev) => ev.stopPropagation()}
+              >
                 <button
                   type="button"
                   className={simpleMode ? `${styles.modeTab} ${styles.modeOn}` : styles.modeTab}
@@ -123,11 +161,11 @@ export function LoreEntryPage({
                 </button>
               </span>
             )}
-          </div>
+          </summary>
           <div className={styles.bcbody}>
-            {entryFireMode(entry) !== "keyed" ? (
+            {fire !== "keyed" ? (
               <p className={styles.sleepNote}>
-                {entryFireMode(entry) === "always"
+                {fire === "always"
                   ? "Always on - keys are kept but not needed for this entry to fire."
                   : "By meaning - keys are kept but this entry fires on similarity, not exact words."}
               </p>
@@ -224,18 +262,33 @@ export function LoreEntryPage({
               </div>
             )}
           </div>
-        </section>
+        </details>
       )}
 
-      <EntryWhenWhere entry={entry} writeFor={writeFor} styles={styles} onPatch={onPatch} />
+      <EntryWhenWhere
+        entry={entry}
+        writeFor={writeFor}
+        styles={styles}
+        onPatch={onPatch}
+        folds={folds}
+        onFoldToggle={onFoldToggle}
+      />
 
-      {/* ---- The passage ---- */}
       {show("content") && (
-        <section className={styles.bcard} aria-label="The passage">
-          <div className={styles.bchead}>
+        <details
+          className={styles.bfold}
+          open={foldIsOpen(folds, "passage")}
+          onToggle={onDetails("passage")}
+          aria-label="The passage"
+        >
+          <summary className={styles.bchead}>
             <b>The passage</b>
             <i>what the model learns</i>
-            <span className={styles.bcheadActs}>
+            <span
+              className={styles.bcheadActs}
+              onClick={(ev) => ev.stopPropagation()}
+              onKeyDown={(ev) => ev.stopPropagation()}
+            >
               <button
                 type="button"
                 className={styles.macro}
@@ -253,7 +306,7 @@ export function LoreEntryPage({
                 {"{{char}}"}
               </button>
             </span>
-          </div>
+          </summary>
           <div className={styles.bcbody}>
             <textarea
               className={styles.passageTa}
@@ -262,15 +315,18 @@ export function LoreEntryPage({
               onChange={(ev) => onPatch({ content: ev.target.value })}
             />
             <span className={styles.countRight}>
-              {entry.content.length} chars Â· ~{tokenEstimate} tokens
+              {entry.content.length} chars · ~{tokenEstimate} tokens
             </span>
           </div>
-        </section>
+        </details>
       )}
 
-      {/* ---- Creator note: yours, never the model's ---- */}
       {show("comment") && (
-        <details className={styles.bfold}>
+        <details
+          className={styles.bfold}
+          open={foldIsOpen(folds, "creatorNote")}
+          onToggle={onDetails("creatorNote")}
+        >
           <summary className={styles.bchead}>
             <b>Creator note</b>
             <i>never sent to the model</i>
@@ -286,7 +342,6 @@ export function LoreEntryPage({
         </details>
       )}
 
-      {/* ---- Platform cards: one host, one file; minor host color on rail/dot/on-state ---- */}
       {cardsForLens(writeFor).map((card) => {
         const host =
           card.id === "sillytavern"
@@ -298,10 +353,13 @@ export function LoreEntryPage({
                 : card.id === "risu"
                   ? styles.pcHostRisu
                   : "";
+        const foldId = `platform.${card.id}`;
         return (
           <details
             key={card.id}
             className={[styles.bfold, styles.pcHost, host, styles.pcShell].filter(Boolean).join(" ")}
+            open={foldIsOpen(folds, foldId)}
+            onToggle={onDetails(foldId)}
           >
             <summary className={styles.bchead}>
               <span className={styles.pcHostDot} aria-hidden="true" />

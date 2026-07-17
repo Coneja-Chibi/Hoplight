@@ -1,0 +1,150 @@
+.sheet {
+  max-width: 36rem;
+  max-height: min(90dvh, 42rem);
+  overflow: auto;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.7rem;
+}
+.title {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1.05rem;
+  margin: 0;
+}
+.closeX {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  font-weight: 900;
+  cursor: pointer;
+  color: var(--text);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+.table th {
+  text-align: left;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 2px solid var(--edge);
+  padding: 0.3rem 0.35rem;
+}
+.table td {
+  border-bottom: 2px solid var(--seam);
+  padding: 0.4rem 0.35rem;
+  vertical-align: middle;
+}
+.kind {
+  font-size: 0.48rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 2px solid var(--edge);
+  padding: 0.12rem 0.28rem;
+  white-space: nowrap;
+}
+.name {
+  width: 100%;
+  min-width: 5rem;
+  background: var(--panel);
+  border: 2px solid var(--seam);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 0.28rem 0.35rem;
+}
+.ops {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.ops button {
+  font-family: var(--font-mono);
+  font-size: 0.48rem;
+  text-transform: uppercase;
+  border: 2px solid var(--seam);
+  background: var(--panel);
+  color: var(--muted);
+  padding: 0.25rem 0.35rem;
+  cursor: pointer;
+}
+.ops button:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+}
+.addRow {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.65rem;
+  align-items: center;
+}
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+}
+.btnPri {
+  background: var(--rose);
+  color: var(--stage-white);
+  border-color: var(--rose);
+  box-shadow: 3px 3px 0 0 var(--edge);
+}
+.macro {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+  border: 2px dashed var(--seam);
+  background: var(--stage-well, var(--paper));
+  padding: 0.5rem 0.6rem;
+  margin-top: 0.65rem;
+  line-height: 1.55;
+}
+.macro code {
+  color: var(--ok);
+  margin-right: 0.5rem;
+}
+.empty {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  border: 2px dashed var(--seam);
+  padding: 0.85rem;
+  text-align: center;
+}
+.foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  padding-top: 0.7rem;
+  border-top: 2px solid var(--seam);
+}
+.hint {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  color: var(--muted);
+}
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  clip: rect(0, 0, 0, 0);
+}

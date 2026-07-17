@@ -1,15 +1,14 @@
 /**
  * Hardened wasmoon (PUC-Lua 5.4) engine - the Lua layer of the card sandbox. Standard libraries are
  * OPT-IN: we open none by default and load only the pure/safe set (base, table, string, math, coroutine,
- * utf8), never io / os / debug / package, so a card cannot reach the host filesystem, shell, or the
- * package loader. The base library still ships load / loadfile / dofile (bytecode + file reach), so those
- * are stripped too - source strings only, never untrusted bytecode. Host capabilities are injected as Lua
- * globals; anything not injected simply does not exist in the card's world (deny-by-absence).
+ * utf8), never io / os / debug / package. Bytecode/file loaders are stripped. Host capabilities are
+ * injected as Lua globals; anything not injected does not exist (deny-by-absence).
  *
- * Grounded in design/SANDBOX-RESEARCH-2026-07.md (wasmoon 1.16.0, pinned; vendoring is a later step).
- * This is the in-VM tier only; a Worker backstop against blocked host calls is a later phase.
+ * Browser: pass wasmUri (or rely on default /sandbox/glue.wasm when a document exists) so the factory
+ * can fetch glue.wasm from the UI server. Bun/Node: default factory resolution is fine.
  */
 import { LuaFactory, LuaLibraries, type LuaEngine } from "wasmoon";
+import { resolveLuaRunLimits } from "./limits";
 
 /** the pure standard libraries a card may use - deliberately no io / os / debug / package. */
 export const SAFE_LIBS: readonly LuaLibraries[] = [
@@ -28,34 +27,60 @@ const STRIPPED_GLOBALS: readonly string[] = ["load", "loadfile", "dofile", "load
 export type Capability = (...args: unknown[]) => unknown;
 
 export interface HardenedLuaOptions {
-  /** wall-clock cap in ms; a pure-Lua infinite loop aborts with LuaTimeoutError past this. */
+  /** wall-clock cap in ms; clamped to release max. A pure-Lua infinite loop aborts with LuaTimeoutError. */
   timeoutMs?: number;
-  /** hard ceiling on VM memory in bytes; allocation past it fails INSIDE the VM, never the host. */
+  /** hard ceiling on VM memory in bytes; clamped to release max. */
   memoryMaxBytes?: number;
   /** host functions exposed as Lua globals. Absent names do not exist in the card (deny-by-absence). */
   capabilities?: Record<string, Capability>;
+  /**
+   * Where to fetch glue.wasm. Browser default: "/sandbox/glue.wasm" (served by the UI server).
+   * Bun/Node: omit to use wasmoon's built-in resolution.
+   */
+  wasmUri?: string;
 }
 
-const DEFAULT_TIMEOUT_MS = 1000;
-const DEFAULT_MEMORY_MAX = 64 * 1024 * 1024; // 64 MiB
+const isBrowser = (): boolean =>
+  typeof globalThis !== "undefined" &&
+  typeof (globalThis as { document?: unknown }).document !== "undefined";
+
+/** Prefer the worker/window origin so a distinct sandbox host serves glue.wasm (ADR-009). */
+const defaultWasmUri = (): string | undefined => {
+  try {
+    const loc = (globalThis as { location?: { origin?: string } }).location;
+    if (loc?.origin && /^https?:\/\//.test(loc.origin)) {
+      return `${loc.origin}/sandbox/glue.wasm`;
+    }
+  } catch {
+    /* ignore */
+  }
+  if (isBrowser()) return "/sandbox/glue.wasm";
+  return undefined;
+};
 
 /**
  * Build a FRESH hardened Lua engine (a fresh instance per run - wasmoon's async :await memory bugs
  * cluster on singleton reuse). The caller MUST close it; runLua() does so in a finally.
+ * timeout/memory are clamped through resolveLuaRunLimits so callers cannot exceed release ceilings.
  */
 export async function createHardenedLua(opts: HardenedLuaOptions = {}): Promise<LuaEngine> {
-  const factory = new LuaFactory();
+  const limits = resolveLuaRunLimits({
+    timeoutMs: opts.timeoutMs,
+    memoryMaxBytes: opts.memoryMaxBytes,
+  });
+  const wasmUri = opts.wasmUri ?? defaultWasmUri();
+  const factory = wasmUri !== undefined ? new LuaFactory(wasmUri) : new LuaFactory();
   const engine = await factory.createEngine({
     openStandardLibs: false, // deny-by-absence: only SAFE_LIBS below are opened
     injectObjects: false,
-    functionTimeout: opts.timeoutMs ?? DEFAULT_TIMEOUT_MS,
+    functionTimeout: limits.timeoutMs,
     traceAllocations: true, // required for setMemoryMax (the VM memory ceiling / DoS cap)
   });
   for (const lib of SAFE_LIBS) engine.global.loadLibrary(lib);
   // strip the host-reaching / bytecode-loading base globals the base lib brought in
   engine.global.set("__strip", STRIPPED_GLOBALS);
   engine.doStringSync("for _, n in ipairs(__strip) do _G[n] = nil end __strip = nil");
-  engine.global.setMemoryMax(opts.memoryMaxBytes ?? DEFAULT_MEMORY_MAX);
+  engine.global.setMemoryMax(limits.memoryMaxBytes);
   for (const [name, fn] of Object.entries(opts.capabilities ?? {})) engine.global.set(name, fn);
   return engine;
 }

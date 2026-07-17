@@ -22,7 +22,7 @@ export const TAG_CATEGORY_STYLE: Record<TagCategory, { color: string; icon: JSX.
   theme: { color: "#f472b6", icon: tglyph(<path d="M7 4h10v16l-5-4-5 4z" />) }, // hardcode-ok: tag-category identity color, not theming
   setting: { color: "#34d399", icon: tglyph(<><path d="M12 21s-6-5-6-10a6 6 0 0 1 12 0c0 5-6 10-6 10z" /><circle cx="12" cy="11" r="2" /></>) }, // hardcode-ok: tag-category identity color, not theming
   pov: { color: "#38bdf8", icon: tglyph(<><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" /><circle cx="12" cy="12" r="2.5" /></>) }, // hardcode-ok: tag-category identity color, not theming
-  mood: { color: "#fbbf24", icon: tglyph(<><circle cx="12" cy="12" r="9" /><path d="M8.5 14a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>) }, // hardcode-ok: tag-category identity color, not theming
+  mood: { color: "var(--stage-warn)", icon: tglyph(<><circle cx="12" cy="12" r="9" /><path d="M8.5 14a4 4 0 0 0 7 0M9 10h.01M15 10h.01" /></>) }, // hardcode-ok: tag-category identity color, not theming
   kink: { color: "#f87171", icon: tglyph(<path d="M12 3s5 5 5 9a5 5 0 0 1-10 0c0-2 1-3.2 2-4 .4 2 3 1.6 3-5z" />) }, // hardcode-ok: tag-category identity color, not theming
   warning: { color: "#fb923c", icon: tglyph(<><path d="M12 4l9 16H3z" /><path d="M12 10v4M12 17h.01" /></>) }, // hardcode-ok: tag-category identity color, not theming
   meta: { color: "#94a3b8", icon: tglyph(<path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16" />) }, // hardcode-ok: tag-category identity color, not theming

@@ -1,6 +1,7 @@
 import { test, expect } from "bun:test";
-import adapter from "./index";
+import { characterAdapter as adapter } from "./index";
 import { characterAdapter as sillytavern } from "../sillytavern/index";
+import coverage from "./coverage";
 
 /** A legacy Backyard/Faraday flat card with single-brace placeholders in the prompt fields. */
 function makeBackyardCard() {
@@ -124,4 +125,23 @@ test("canonical model bridges Backyard -> SillyTavern with Tavern placeholders i
   expect(card.data.name).toBe("Vera");
   expect(card.data.description).toBe("{{char}} is a wandering cartographer who greets {{user}} warmly.");
   expect(card.data.first_mes).toBe("You again, {{user}}.");
+});
+
+/** Lens honesty: legacy must not claim BYAF-only paths (media, alts, rating, knowledgeRefs). */
+test("legacy coverage is lean: no media / alts / rating / knowledgeRefs", () => {
+  const forbidden = [
+    "media.portrait",
+    "media.assets",
+    "presentation.background",
+    "greetings.alternateGreetings",
+    "discovery.rating",
+    "knowledgeRefs",
+    "identity.fullName",
+  ];
+  for (const p of forbidden) {
+    expect(coverage.carries.includes(p)).toBe(false);
+  }
+  expect(coverage.carries).toContain("identity.name");
+  expect(coverage.carries).toContain("identity.nickname");
+  expect(coverage.carries).toContain("discovery.tags");
 });

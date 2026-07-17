@@ -8,6 +8,8 @@ import type {
   EntryContextConfig,
   EntrySideEffect,
   EntrySideEffects,
+  LoreBiasGroup,
+  LoreBiasPhrase,
   SideEffectType,
 } from "../../../../entities/lorebook/schema";
 
@@ -84,4 +86,53 @@ export function patchContextConfig(
     if (v === undefined || v === "") delete merged[k];
   }
   return Object.keys(merged).length > 0 ? (merged as EntryContextConfig) : undefined;
+}
+
+/** Empty group shell for the NAI phrase-bias editor. */
+export const emptyBiasGroup = (): LoreBiasGroup => ({
+  enabled: true,
+  bias: -0.5,
+  phrases: [{ sequence: "", type: 2 }],
+  whenInactive: false,
+  generateOnce: true,
+  ensureSequenceFinish: false,
+});
+
+/** One phrase line for the editor: prefer `sequence`, else first of `sequences`. */
+export const biasPhraseLine = (p: LoreBiasPhrase): string => {
+  if (typeof p.sequence === "string" && p.sequence) return p.sequence;
+  if (Array.isArray(p.sequences) && p.sequences[0]) return p.sequences[0];
+  return "";
+};
+
+/** Textarea lines -> phrases (keeps type from the first existing phrase when possible). */
+export function phrasesFromLines(
+  text: string,
+  prev: readonly LoreBiasPhrase[],
+): LoreBiasPhrase[] {
+  const type = prev[0]?.type ?? 2;
+  const lines = text
+    .split("\n")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (lines.length === 0) return [{ sequence: "", type }];
+  return lines.map((sequence) => ({ sequence, type }));
+}
+
+export function replaceBiasGroup(
+  groups: readonly LoreBiasGroup[] | undefined,
+  index: number,
+  next: LoreBiasGroup,
+): LoreBiasGroup[] {
+  const list = [...(groups ?? [])];
+  list[index] = next;
+  return list;
+}
+
+export function removeBiasGroup(
+  groups: readonly LoreBiasGroup[] | undefined,
+  index: number,
+): LoreBiasGroup[] | undefined {
+  const list = (groups ?? []).filter((_, i) => i !== index);
+  return list.length > 0 ? list : undefined;
 }

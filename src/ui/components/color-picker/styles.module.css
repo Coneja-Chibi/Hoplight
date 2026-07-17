@@ -11,8 +11,8 @@
   position: relative;
   width: 100%;
   aspect-ratio: 3/2;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 4px 4px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 4px 4px 0 0 var(--ink);
   cursor: crosshair;
   touch-action: none;
 }
@@ -20,8 +20,8 @@
   position: relative;
   width: 100%;
   height: 1rem;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
   cursor: ew-resize;
   touch-action: none;
   background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); /* hardcode-ok: literal hue spectrum, not theming */
@@ -46,8 +46,8 @@
   width: 1.6rem;
   height: 1.6rem;
   flex: none;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 2px 2px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 2px 2px 0 0 var(--ink);
 }
 .hex {
   flex: 1;
@@ -57,14 +57,14 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink, #111);
-  background: var(--paper, #fff);
-  border: 3px solid var(--ink, #000);
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid var(--ink);
   padding: 0.4rem 0.55rem;
 }
 .hex:focus {
   outline: none;
-  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  box-shadow: 3px 3px 0 0 var(--ink);
 }
 @media (prefers-reduced-motion: reduce) {
   .sv,

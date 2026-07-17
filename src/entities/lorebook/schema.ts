@@ -110,6 +110,31 @@ export interface EntryContextConfig {
   insertionPosition?: number;
 }
 
+/**
+ * One phrase inside a NovelAI loreBiasGroups row. Wire uses `sequence` and/or `sequences` plus a
+ * numeric `type` (NAI's phrase-type enum). Authored content - first-class so the editor can edit bias.
+ */
+export interface LoreBiasPhrase {
+  sequence?: string;
+  sequences?: string[];
+  /** NAI phrase type (int on wire; open enum) */
+  type?: number;
+}
+
+/**
+ * NovelAI phrase-bias group: signed bias applied when the entry is active (or when inactive if
+ * `whenInactive`). Ported from real v3/v6 exports (loreBiasGroups).
+ */
+export interface LoreBiasGroup {
+  enabled: boolean;
+  /** signed strength (e.g. -0.5, 0.2) */
+  bias: number;
+  phrases: LoreBiasPhrase[];
+  whenInactive?: boolean;
+  generateOnce?: boolean;
+  ensureSequenceFinish?: boolean;
+}
+
 export interface LorebookEntry {
   /** stable entry id, preserved across round-trips (categories reference it) */
   id: string;
@@ -202,6 +227,8 @@ export interface LorebookEntry {
   nonStoryActivatable?: boolean;
   /** NovelAI authored per-entry assembly config (prefix/suffix/trim/budget dials) */
   contextConfig?: EntryContextConfig;
+  /** NovelAI phrase bias groups (loreBiasGroups on wire) */
+  loreBiasGroups?: LoreBiasGroup[];
   /**
    * Creator's manual display order in the editor list - a DISTINCT authored axis from `sortOrder`
    * (placement in the assembled prompt). Real ST cards prove they diverge (Seraphina: sortOrder all 100,

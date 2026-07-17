@@ -1,0 +1,123 @@
+/**
+ * AvatarCrop visual cropper. Tokens only.
+ */
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.help {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--stage-soft, var(--text-soft));
+}
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--stage-mute, var(--muted));
+  word-break: break-all;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.btn {
+  border: 1px solid var(--stage-seam, var(--seam));
+  background: var(--stage-card, var(--card));
+  color: var(--stage-ink, var(--text));
+  border-radius: 0.35rem;
+  padding: 0.28rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--stage-accent, var(--primary));
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+.canvas {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--stage-black) 50%, transparent);
+  user-select: none;
+  touch-action: none;
+}
+.img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+.sel {
+  position: absolute;
+  box-shadow: 0 0 0 9999px color-mix(in srgb, var(--stage-black) 55%, transparent);
+  outline: 2px solid var(--stage-paper);
+  cursor: move;
+  touch-action: none;
+}
+.handle {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  padding: 0;
+  margin: 0;
+  border: 2px solid var(--stage-paper);
+  background: var(--stage-accent, var(--primary));
+  border-radius: 0.1rem;
+  touch-action: none;
+}
+.tl {
+  left: -0.4rem;
+  top: -0.4rem;
+  cursor: nwse-resize;
+}
+.tr {
+  right: -0.4rem;
+  top: -0.4rem;
+  cursor: nesw-resize;
+}
+.bl {
+  left: -0.4rem;
+  bottom: -0.4rem;
+  cursor: nesw-resize;
+}
+.br {
+  right: -0.4rem;
+  bottom: -0.4rem;
+  cursor: nwse-resize;
+}
+.previewCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+}
+.k {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute, var(--muted));
+}
+.preview {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--stage-seam, var(--seam));
+  background: var(--stage-well, var(--paper));
+  position: relative;
+}

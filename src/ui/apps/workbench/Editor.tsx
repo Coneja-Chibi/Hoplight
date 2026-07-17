@@ -1,51 +1,26 @@
 /**
- * The character editor pane - vs-editor-2 TRANSCRIBED 1:1 (the locked wireframe): tab strip
- * (platform tabs + completion chips right), header row (close square + NAME + version chip left;
- * Grid|Steps + save state right), then the THREE-column bento: the portrait card (dashed frame,
- * variants strip, name + token/edited meta, Change Image / Manage Sprites stamps), the prompts
- * center, the utilities right. Lens verdicts come from /api/coverage data via editor-core
- * lensVerdict - this file names zero platforms. Wired-shut affordances (tagsheet, auto-tag, AI
- * wand/convert, image/sprite management) render exactly where the wireframe drew them, disabled
- * with their milestone named.
- *
- * One instance stays mounted per open piece (hidden, not unmounted): its React state IS the
- * unsaved draft. The draft is the WHOLE body (writePath immutable ops), so saving round-trips
- * every untouched field - the no-data-loss law, pinned in editor-core tests.
+ * Character editor shell: draft/save/lens state and presenter choice.
+ * Field bodies and layouts live in presenters/; controls in controls/.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-contract";
-import { BentoCard } from "../../components/bento-card";
-import { PlatformTabs, type OffTarget } from "../../components/platform-tabs";
-import { categorizeTag, type TagCategory } from "../../../core/tag-taxonomy";
-import {
-  completionOf,
-  deepEq,
-  EDITOR_CARDS,
-  KNOWN_FIELD_ORDER,
-  lensVerdict,
-  macroInventory,
-  readPath,
-  reconcileOrder,
-  writePath,
-  type LensVerdict,
-} from "./editor-core";
-import { FIELD_MODULES, type FieldModule } from "./fields";
+import type { OffTarget } from "../../components/platform-tabs";
+import { completionOf, deepEq, EDITOR_CARDS, lensVerdict, readPath, reconcileOrder, writePath } from "./editor-core";
 import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { StubEditor, type Stub } from "../../components/native-card";
-import { nativeItemsFor, nativeBentoParts, nativePlaybillSection, nativePlaybillNav } from "./native-render";
 import { useVariants } from "./use-variants";
-import { PortraitCard } from "./controls/portrait-card";
-import { parseScale, rec, str, strArr, tokenEstimate } from "./editor-derive";
-import { PlaybillView } from "./presenters/playbill-view";
-import { BentoView } from "./presenters/bento-view";
-import { FlowView } from "./presenters/flow-view";
-import { WorkshopView } from "./presenters/workshop-view";
-import { EditorModeBar } from "./presenters/editor-modebar";
-import { GradientControl, PaletteControl } from "./controls/color-controls";
-import { makeControlFor } from "./controls/field-control";
-import styles from "./Editor.module.css";
+import type { NamedAssetsValue, SpritePackValue } from "../../../core/media";
+import { bodyWithFaceOnly, bodyWithPack, originalWithNamedBag, originalWithPack } from "./media/session";
+import { parseScale, rec, str, strArr } from "./editor-derive";
+import { migrateLensTargets } from "../../../formats/_shared/extension-platforms";
+import { EditorTabstrip, EditorHeader } from "./presenters/editor-chrome";
+import { EditorDialogs } from "./presenters/editor-dialogs";
+import { buildEditorBodyViews } from "./presenters/editor-body-views";
+import { EditorLeftCard, mediaBundle, resolveArtUrl } from "./presenters/editor-left";
+import { runEditorSave } from "./editor-save";
+import styles from "./editor-styles";
 
 const PREF_TARGETS = "editor.targets";
 const PREF_OFF_TARGET = "editor.offTarget";
@@ -106,6 +81,12 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   };
   const [flowIndex, setFlowIndex] = useState(0); // how many questions the guided flow has revealed
   const [workshop, setWorkshop] = useState(false); // the behavior/scripts workspace, beside the field editor
+  const [exportOpen, setExportOpen] = useState(false);
+  const [spritesOpen, setSpritesOpen] = useState(false);
+  const [spritesFocusLabel, setSpritesFocusLabel] = useState<string | null>(null);
+  const [namedOpen, setNamedOpen] = useState(false);
+  const [stripLabel, setStripLabel] = useState<string | null>(null);
+  const [packCatalog, setPackCatalog] = useState<{ id: string; name: string }[]>([]);
   const activeCardRef = useRef<HTMLDivElement>(null);
 
   // drag-resizable split between the question card and the stage (the user sets the balance)
@@ -156,10 +137,20 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     };
   }, [piece.id, piece.kind, piece.hasPortrait]);
   const [coverage, setCoverage] = useState<CoverageInfo[]>([]);
-  const [targets, setTargets] = useState<string[]>(() => strArr(ctx.prefs.get(PREF_TARGETS)));
-  const [offTarget, setOffTarget] = useState<OffTarget>(() =>
-    ctx.prefs.get(PREF_OFF_TARGET) === "hide" ? "hide" : "dim",
-  );
+  // Fold retired thin-host tabs (characterai/crushon/janitor) into Default once.
+  const [targets, setTargets] = useState<string[]>(() => {
+    const raw = strArr(ctx.prefs.get(PREF_TARGETS));
+    const next = migrateLensTargets(raw);
+    if (JSON.stringify(next) !== JSON.stringify(raw)) ctx.prefs.set(PREF_TARGETS, next);
+    return next;
+  });
+  // Default hide: lean platforms (Pyg, etc.) must not leave a wall of empty off-target shells.
+  // Dim remains available for "show me what will not travel" honesty.
+  const [offTarget, setOffTarget] = useState<OffTarget>(() => {
+    const v = ctx.prefs.get(PREF_OFF_TARGET);
+    if (v === "dim") return "dim";
+    return "hide";
+  });
   // editor-wide content scale, remembered APP-WIDE (prefs, same as targets): sizes the grid/quiz
   // content up or down. Persists across characters, presenters, and fullscreen; 1 = default.
   const [editorScale, setEditorScaleState] = useState<number>(() => parseScale(ctx.prefs.get(PREF_EDITOR_SCALE)));
@@ -220,29 +211,23 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   const doneCount = chips.filter(([, ok]) => ok).length;
 
   const doSave = useCallback(async (): Promise<void> => {
-    if (saving || !dirty) return;
-    const name = str(readPath(baseDraft, "identity.name")).trim();
-    if (!name) {
-      ctx.setStatus("a name is required before saving");
-      return;
-    }
-    setSaving(true);
-    try {
-      let newBody = baseDraft;
-      if (init.hadOrder || JSON.stringify(order) !== JSON.stringify(KNOWN_FIELD_ORDER)) {
-        newBody = writePath(newBody, "presentation.fieldOrder", [...order]);
-      }
-      await ctx.api.saveEntity({ ...init.ent, body: newBody, original: originalDraft });
-      setBaseline(structuredClone(newBody));
-      setBaseDraft(newBody);
-      setNativeBaseline(structuredClone(originalDraft));
-      orderBaselineRef.current = [...order];
-      ctx.setStatus(`${name} saved`);
-    } catch (e) {
-      ctx.setStatus(`save failed: ${e instanceof Error ? e.message : String(e)}`);
-    } finally {
-      setSaving(false);
-    }
+    await runEditorSave({
+      saving,
+      dirty,
+      baseDraft,
+      originalDraft,
+      order,
+      initEnt: init.ent,
+      hadOrder: init.hadOrder,
+      setSaving,
+      setBaseline,
+      setNativeBaseline,
+      setBaseDraft,
+      setOriginalDraft,
+      orderBaselineRef,
+      saveEntity: (entity, opts) => ctx.api.saveEntity(entity, opts),
+      setStatus: (msg) => ctx.setStatus(msg),
+    });
   }, [ctx, dirty, baseDraft, originalDraft, init.ent, init.hadOrder, order, saving]);
 
   // the shell tab wears THE dirty dot (row-3's "saved locally" pill is dead - one indicator, one
@@ -291,226 +276,134 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     ctx.prefs.set(PREF_OFF_TARGET, m);
   };
 
-  // -- left column: the portrait card (wireframe 1:1) ------------------------------------------------
+  const { mediaCaps, spritePack, spriteCount, namedBag, namedCount } = mediaBundle(
+    baseDraft,
+    originalDraft,
+    targets,
+  );
+  const artUrl = resolveArtUrl({
+    stripLabel,
+    spritePack,
+    draft,
+    varyActiveId: vary.activeId,
+    piece,
+  });
 
-  const artUrl = piece.hasPortrait
-    ? `/api/studio/portrait?kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`
-    : null;
-  const updatedAt = ((): string | null => {
-    const t = readPath(draft, "attribution.updatedAt");
-    return typeof t === "number" && Number.isFinite(t) ? new Date(t * 1000).toLocaleDateString() : null;
+  const applySpritePack = (pack: SpritePackValue, groups?: Record<string, SpritePackValue>): void => {
+    setBaseDraft((d) => bodyWithPack(d, pack));
+    setOriginalDraft((o) => originalWithPack(o, pack, groups));
+    setStripLabel(null);
+  };
+
+  const applyFaceOnly = (pack: SpritePackValue, wantLabel?: string | null): void => {
+    const { body, pack: empty } = bodyWithFaceOnly(baseDraft, pack, wantLabel);
+    setBaseDraft(body);
+    setOriginalDraft((o) => originalWithPack(o, empty));
+    setStripLabel(null);
+  };
+
+  const applyNamed = (value: NamedAssetsValue): void => {
+    setOriginalDraft((o) => originalWithNamedBag(o, value));
+  };
+
+  useEffect(() => {
+    if (!spritesOpen) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [chars, packs] = await Promise.all([
+          ctx.api.listEntities("character"),
+          ctx.api.listEntities("pack"),
+        ]);
+        if (cancelled) return;
+        const rows: { id: string; name: string }[] = [];
+        for (const p of packs) {
+          rows.push({ id: `pack:${p.id}`, name: `Pack · ${p.name || p.id}` });
+        }
+        for (const c of chars) {
+          if (c.id === piece.id) continue;
+          rows.push({ id: `character:${c.id}`, name: `Char · ${c.name || c.id}` });
+        }
+        rows.sort((a, b) => a.name.localeCompare(b.name));
+        setPackCatalog(rows);
+      } catch {
+        if (!cancelled) setPackCatalog([]);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [spritesOpen, ctx.api, piece.id]);
+
+  const knowledgeRefs = ((): string[] => {
+    const raw = readPath(baseDraft, "knowledgeRefs");
+    return Array.isArray(raw) ? raw.filter((x): x is string => typeof x === "string") : [];
   })();
 
   const leftCard = (
-    <PortraitCard
+    <EditorLeftCard
       artUrl={artUrl}
-      name={text("identity.name") || piece.name}
-      tokens={tokenEstimate(draft)}
-      updatedAt={updatedAt}
-      sourceVariant={piece.sourceVariant}
+      draft={draft}
+      piece={piece}
       vary={vary}
       styles={styles}
-    />
-  );
-
-  // -- field controls --------------------------------------------------------------------------------
-
-  // Signature color: one concept, two storage shapes. One color is a solid signature
-  // (presentation.signatureColor); two or three blend into a gradient (presentation.gradientColors).
-  // The editor works one unified list; the setter routes it to the shape that matches the count, so a
-  // solid and a blend never both hold a value.
-  const sigSolid = str(readPath(draft, "presentation.signatureColor"));
-  const gradRaw = strArr(readPath(draft, "presentation.gradientColors"));
-  const gradient = gradRaw.length > 0 ? gradRaw : sigSolid ? [sigSolid] : [];
-  const setGradient = (rows: string[]): void => {
-    const clean = rows.filter(Boolean).slice(0, 3);
-    if (clean.length >= 2) {
-      setField("presentation.gradientColors", clean);
-      setField("presentation.signatureColor", "");
-    } else if (clean.length === 1) {
-      setField("presentation.signatureColor", clean[0]!);
-      setField("presentation.gradientColors", []);
-    } else {
-      setField("presentation.signatureColor", "");
-      setField("presentation.gradientColors", []);
-    }
-  };
-  const gradientBody = <GradientControl value={gradient} onChange={setGradient} styles={styles} />;
-
-  const palette = ((): { label?: string; name?: string; hex: string }[] => {
-    const raw = readPath(draft, "presentation.palette");
-    if (!Array.isArray(raw)) return [];
-    return raw.map((s) => rec(s)).filter((s) => typeof s.hex === "string") as { label?: string; name?: string; hex: string }[];
-  })();
-  const setPalette = (rows: { label?: string; name?: string; hex: string }[]): void =>
-    setField("presentation.palette", rows.filter((r) => r.hex));
-  const paletteBody = <PaletteControl value={palette} onChange={setPalette} styles={styles} />;
-
-  // the field-rendering engine (controlFor + the composite bodies + renderSub) lives in field-control;
-  // it threads draft/setField/styles + the gradient/palette/portrait bodies built above.
-  const { controlFor, proseBody } = makeControlFor({ draft, setField, styles, gradientBody, paletteBody, leftCard });
-
-  // The guided quiz: one question per bright card (your setup's language), the character taking shape
-  // on the stage beside it. Pure view over the draft; Skip/Next only move the cursor. The portrait is
-  // the stage, not a question, so it drops out of the walked list.
-  const walkable = FIELD_MODULES.filter((m) => m.kind !== "portrait");
-  // the platform lens drives the walk: with targets selected, HIDE drops questions no selected
-  // platform carries (fewer questions), DIM keeps them (marked below). Empty selection = ask all.
-  const moduleVerdict = (m: FieldModule): LensVerdict => lensVerdict([m.path], targets, coverage);
-  const hidByLens = targets.length > 0 && offTarget === "hide";
-  const lensWalk = hidByLens ? walkable.filter((m) => !moduleVerdict(m).off) : walkable;
-  // per-field lens for the bento/playbill layouts: a field no selected platform carries HIDES under
-  // the hide treatment and DIMS (stays visible, honest) under dim. Empty selection = the full card.
-  const lensHides = (m: FieldModule): boolean => hidByLens && moduleVerdict(m).off;
-  const lensDims = (m: FieldModule): boolean => targets.length > 0 && offTarget === "dim" && moduleVerdict(m).off;
-  // never strand the walk empty (a near-empty platform under HIDE) - fall back to the full list.
-  const flowModules = lensWalk.length > 0 ? lensWalk : walkable;
-  const entityAccent =
-    str(readPath(draft, "presentation.signatureColor")) ||
-    strArr(readPath(draft, "presentation.gradientColors"))[0] ||
-    artAccent ||
-    undefined;
-
-  const flowView = (
-    <FlowView
-      flowModules={flowModules}
-      flowIndex={flowIndex}
-      setFlowIndex={setFlowIndex}
-      moduleVerdict={moduleVerdict}
-      controlFor={controlFor}
-      proseBody={proseBody}
-      draft={draft}
       setField={setField}
-      text={text}
-      platformLabel={platformLabel}
-      saving={saving}
-      doSave={doSave}
-      quizRef={quizRef}
-      activeCardRef={activeCardRef}
-      splitPct={splitPct}
-      onSplitDown={onSplitDown}
-      artUrl={artUrl}
-      piece={piece}
-      styles={styles}
+      mediaCaps={mediaCaps}
+      spriteCount={spriteCount}
+      namedCount={namedCount}
+      spritePack={spritePack}
+      stripLabel={stripLabel}
+      setStripLabel={setStripLabel}
+      setSpritesOpen={setSpritesOpen}
+      setSpritesFocusLabel={setSpritesFocusLabel}
+      setNamedOpen={setNamedOpen}
+      ctx={ctx}
+      knowledgeRefs={knowledgeRefs}
+      onKnowledgeRefsChange={(next) => setField("knowledgeRefs", next.length ? next : "")}
     />
   );
 
-  // Grid presenter: ONE bento per field (not per section) so the boxes pack naturally as a masonry -
-  // a short field is a short box, a big prose field is a tall box, and they flow to fill the width
-  // instead of a few giant section columns. Reads FIELD_MODULES in registry order (section-grouped),
-  // so related fields stay adjacent. controlFor is the shared renderer with the quiz.
-  // ===== BENTO layout, transcribed 1:1 from design/vs-editor-2.html. Fixed 3 columns: the face +
-  // sealed rail | everything you write | presentation + meta. Fields render from FIELD_MODULES via
-  // controlFor - the LAYOUT is data (a column's ordered cards, each naming its module ids), so a
-  // second layout (playbill) and drag-drop are just different data over the same registry.
-  const moduleById = new Map(FIELD_MODULES.map((m) => [m.id, m]));
-  const bcard = (title: string, ids: readonly string[]): JSX.Element | null => {
-    const mods = ids
-      .map((id) => moduleById.get(id))
-      .filter((m): m is FieldModule => m !== undefined && !lensHides(m));
-    if (mods.length === 0) return null; // all fields hidden by the lens -> drop the whole card
-    return (
-      <BentoCard key={title} title={title}>
-        {mods.map((m) => (
-          <div key={m.id} className={`${styles.bfield}${lensDims(m) ? ` ${styles.dimlens}` : ""}`}>
-            <span className={styles.blabel}>
-              {m.sheetLabel}
-              {m.required && <span className={styles.qreq}> *</span>}
-            </span>
-            {controlFor(m)}
-          </div>
-        ))}
-      </BentoCard>
-    );
-  };
-
-  // macro inventory: scan the prose the way the wireframe does - every {{macro}} with a count.
-  const macroCounts = macroInventory(draft);
-  const macroCard = (
-    <BentoCard key="macros" title="Variables · Macro Inventory">
-      {macroCounts.length === 0 ? (
-        <div className={styles.blabel}>No macros detected yet</div>
-      ) : (
-        macroCounts.map(([name, n]) => (
-          <div key={name} className={styles.mrow}>
-            <span className={styles.mname}>{name}</span>
-            <span className={styles.mcnt}>{`× ${n}`}</span>
-          </div>
-        ))
-      )}
-    </BentoCard>
-  );
-
-  // sealed cargo: the FOREIGN-format twin(s) kept for lossless round-trip, shown honestly. Vaude's own
-  // internal keys (vaud-studio bookkeeping, vaud-json passthrough) are not sealed cargo - exclude them.
-  const originalFormats = Object.keys(rec(init.ent.original)).filter((k) => k !== "vaud-studio" && k !== "vaud-json");
-  const sealedCard =
-    originalFormats.length === 0 ? null : (
-      <BentoCard key="sealed" title="Sealed Cargo">
-        <div className={styles.sealed}>
-          {`The original ${originalFormats.map((k) => platformLabel(k)).join(" and ")} card is kept here whole and re-emitted byte-for-byte when you export back to that format. Read-only.`}
-        </div>
-      </BentoCard>
-    );
-
-  // native fields are LENS-DRIVEN: a platform's fields appear ONLY when you TARGET it in the lens (even
-  // empty, ready to fill), NOT merely because the card carries that platform's data - the Sealed Cargo
-  // already preserves that; target the platform to edit it. ONE shared definition feeds BOTH layouts.
-  const nativeKeys = targets.filter((k) => k !== "vaud-studio" && k !== "vaud-json");
-  const nativeItems = nativeItemsFor(nativeKeys, (p) => readPath(originalDraft, p), setNative, setNativeStub);
-  const nb = nativeBentoParts(nativeItems);
-
-  const bentoView = (
-    <BentoView
-      bcard={bcard}
-      leftCard={leftCard}
-      sealedCard={sealedCard}
-      macroCard={macroCard}
-      columns={nb.columns}
-      spanRow={nb.spanRow}
-      styles={styles}
-    />
-  );
-
-  // ===== PLAYBILL layout, transcribed from design/vs-editor-v2.html, with the Bill and the character
-  // image SWAPPED (owner's call): portrait LEFT, the Acts form center, the act nav (The Bill) RIGHT.
-  // Same FIELD_MODULES, arranged as vertical "acts" (field-group sections) with a jump nav - the
-  // second layout over the one registry, proving the modularity.
-  const ACTS: ReadonlyArray<{ id: string; no: string; title: string; ids: readonly string[] }> = [
-    { id: "identity", no: "Act I", title: "Identity", ids: ["name", "tagline", "fullName", "title", "age", "pronouns", "nickname", "culture", "characterVersion", "tags", "rating"] },
-    { id: "persona", no: "Act II", title: "Persona", ids: ["personality", "scenario", "appearance", "structuredKind", "structuredAttributes", "voice", "imagePrompt", "imagePromptRows"] },
-    { id: "prompts", no: "Act III", title: "Prompts", ids: ["systemPrompt", "postHistoryInstructions", "prefill", "additionalText", "depthInjections"] },
-    { id: "greetings", no: "Act IV", title: "Greetings", ids: ["firstMes", "alternateGreetings", "groupOnlyGreetings"] },
-    { id: "examples", no: "Act V", title: "Examples", ids: ["mesExample"] },
-    { id: "discovery", no: "Act VI", title: "Discovery", ids: ["genre", "fandom", "contentWarnings"] },
-    { id: "attribution", no: "Act VII", title: "Attribution", ids: ["creator", "creatorNotes", "publicNote", "originalCreator", "source", "sourceUrl", "license", "creatorNotesMultilingual"] },
-    { id: "presentation", no: "Act VIII", title: "Presentation", ids: ["gradient", "palette", "background", "spotlight", "mediaLinks", "visualKind"] },
-    { id: "settings", no: "Act IX", title: "Settings", ids: ["talkativeness", "risuSettings", "bias"] },
-  ];
-  const WIDE_KINDS = new Set(["prose", "greetings", "list", "keyvalue", "list-subeditor", "structured-subeditor", "spotlight", "background", "palette", "gradient", "asset-gallery", "tags", "rating"]);
-  const actModules = (ids: readonly string[]): FieldModule[] =>
-    ids.map((id) => moduleById.get(id)).filter((m): m is FieldModule => m !== undefined);
-  const playbillView = (
-    <PlaybillView
-      leftCard={leftCard}
-      sealedCard={sealedCard}
-      acts={ACTS}
-      actModules={actModules}
-      lensHides={lensHides}
-      lensDims={lensDims}
-      wideKinds={WIDE_KINDS}
-      controlFor={controlFor}
-      nativeItems={nativeItems}
-      nativeSection={nativePlaybillSection}
-      nativeNav={nativePlaybillNav}
-      styles={styles}
-    />
-  );
-
-  // the behavior/scripts workspace, offered beside the fields only for cards that carry behavior (Risu
-  // selected, or the card already has scripts). Its console runs the data-format triggers for real.
-  const hasBehavior = targets.includes("risu") || Object.keys(rec(readPath(draft, "behavior"))).length > 0;
-  const workshopView = <WorkshopView draft={draft} setField={setField} />;
+  const bodyViews = buildEditorBodyViews({
+    draft,
+    setField,
+    styles,
+    leftCard,
+    vary,
+    coverage,
+    targets,
+    offTarget,
+    artAccent,
+    flowIndex,
+    setFlowIndex,
+    saving,
+    doSave,
+    quizRef,
+    activeCardRef,
+    splitPct,
+    onSplitDown,
+    artUrl,
+    piece,
+    originalDraft,
+    setNative,
+    setNativeStub,
+    mediaSprites: mediaCaps.sprites,
+    setSpritesOpen,
+    initOriginalKeys: Object.keys(rec(init.ent.original)),
+    platformLabel,
+    ctx,
+    text,
+  });
+  const {
+    lensActive,
+    lensVisibleCount,
+    lensTotalCount,
+    flowView,
+    bentoView,
+    playbillView,
+    workshopView,
+    hasBehavior,
+    entityAccent,
+  } = bodyViews;
 
   // the editor-wide scale uses zoom (not transform) so the editor REFLOWS as it shrinks - the bento
   // grid is column-WIDTH based, so smaller = more, narrower bento columns that fill the freed space
@@ -526,72 +419,77 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
           {nativeStub.view}
         </StubEditor>
       )}
-      {/* row 1: platform lens tabs + off-target + completion chips (vs-editor-2 tabstrip) */}
-      <div className={styles.tabstrip} data-tour="lens">
-        <PlatformTabs
-          platforms={coverage.map((c) => ({ id: c.id, label: platformLabel(c.id) }))}
-          selected={targets}
-          onToggle={toggleTarget}
-          onClear={() => {
-            setTargets([]);
-            ctx.prefs.set(PREF_TARGETS, []);
-          }}
-          offTarget={offTarget}
-          onOffTarget={pickOffTarget}
-        />
-        <span className={styles.done}>
-          <span className={styles.frac}>{`${doneCount}/${chips.length}`}</span>
-          {chips.map(([label, ok]) => (
-            <span key={label} className={`${styles.chip}${ok ? ` ${styles.chipOk}` : ""}`}>
-              {label}
-            </span>
-          ))}
-        </span>
-      </div>
-
-      {/* row 2: back + name + version | scale + Grid/Steps + saved status (vs-editor-2 header) */}
-      <div className={styles.hdr}>
-        <button type="button" className={styles.back} aria-label="Close" title="Close" onClick={() => ctx.workbench.remove(piece.id, piece.kind)}>
-          &#8592;
-        </button>
-        <b>{(text("identity.name") || piece.name).toUpperCase()}</b>
-        {/* the version badge is a short label (V2, v1, 2024-final); a URL or a long string is not a
-            version, so keep it out of the badge rather than blow out the header */}
-        {text("identity.characterVersion") !== "" && text("identity.characterVersion").length <= 16 && (
-          <span className={styles.vchip}>{text("identity.characterVersion")}</span>
-        )}
-        <span className={styles.hdrRight}>
-          <span className={styles.escale} title="Scale the editor">
-            <button type="button" className={styles.escaleStep} onClick={() => stepScale(-1)} disabled={editorScale <= SCALE_MIN} aria-label="Scale editor down" title="Smaller">
-              &#8722;
-            </button>
-            <button type="button" className={styles.escalePct} onClick={() => setEditorScale(1)} title="Reset to 100%">
-              {`${Math.round(editorScale * 100)}%`}
-            </button>
-            <button type="button" className={styles.escaleStep} onClick={() => stepScale(1)} disabled={editorScale >= SCALE_MAX} aria-label="Scale editor up" title="Bigger">
-              &#43;
-            </button>
-          </span>
-          {/* layout + mode are onboarding-taught preferences; Fields | Workshop shows for behavior cards */}
-          <EditorModeBar
-            onboarded={onboarded}
-            mode={mode}
-            setMode={setMode}
-            editorLayout={editorLayout}
-            setEditorLayout={setEditorLayout}
-            hasBehavior={hasBehavior}
-            workshop={workshop}
-            setWorkshop={setWorkshop}
-            styles={styles}
-          />
-          <button type="button" className={styles.save} data-tour="save" disabled={saving || !dirty} onClick={() => void doSave()} title="Save · ctrl+s">
-            {saving ? "Saving…" : dirty ? "Save" : "● Saved locally"}
-          </button>
-          {topRight}
-        </span>
-      </div>
+      <EditorTabstrip
+        coverage={coverage}
+        targets={targets}
+        platformLabel={platformLabel}
+        toggleTarget={toggleTarget}
+        clearTargets={() => {
+          setTargets([]);
+          ctx.prefs.set(PREF_TARGETS, []);
+        }}
+        offTarget={offTarget}
+        pickOffTarget={pickOffTarget}
+        lensActive={lensActive}
+        lensVisibleCount={lensVisibleCount}
+        lensTotalCount={lensTotalCount}
+        doneCount={doneCount}
+        chips={chips}
+        styles={styles}
+      />
+      <EditorHeader
+        name={text("identity.name") || piece.name}
+        version={text("identity.characterVersion")}
+        onClose={() => ctx.workbench.remove(piece.id, piece.kind)}
+        editorScale={editorScale}
+        stepScale={stepScale}
+        setEditorScale={setEditorScale}
+        scaleMin={SCALE_MIN}
+        scaleMax={SCALE_MAX}
+        onboarded={onboarded}
+        mode={mode}
+        setMode={setMode}
+        editorLayout={editorLayout}
+        setEditorLayout={setEditorLayout}
+        hasBehavior={hasBehavior}
+        workshop={workshop}
+        setWorkshop={setWorkshop}
+        saving={saving}
+        dirty={dirty}
+        doSave={doSave}
+        openExport={() => setExportOpen(true)}
+        topRight={topRight}
+        styles={styles}
+      />
 
       {workshop && hasBehavior ? workshopView : mode === "grid" ? (editorLayout === "playbill" ? playbillView : bentoView) : flowView}
+
+      <EditorDialogs
+        exportOpen={exportOpen}
+        setExportOpen={setExportOpen}
+        spritesOpen={spritesOpen}
+        setSpritesOpen={setSpritesOpen}
+        setSpritesFocusLabel={setSpritesFocusLabel}
+        spritesFocusLabel={spritesFocusLabel}
+        namedOpen={namedOpen}
+        setNamedOpen={setNamedOpen}
+        ctx={ctx}
+        piece={piece}
+        initEnt={init.ent}
+        baseDraft={baseDraft}
+        originalDraft={originalDraft}
+        name={text("identity.name") || piece.name}
+        mediaSprites={mediaCaps.sprites}
+        mediaSpriteGroups={mediaCaps.spriteGroups}
+        mediaNamedAssets={mediaCaps.namedAssets}
+        spritePack={spritePack}
+        namedBag={namedBag}
+        targets={targets}
+        packCatalog={packCatalog}
+        applyFaceOnly={applyFaceOnly}
+        applySpritePack={applySpritePack}
+        applyNamed={applyNamed}
+      />
     </div>
   );
 }

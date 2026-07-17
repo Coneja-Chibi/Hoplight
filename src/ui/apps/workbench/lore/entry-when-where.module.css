@@ -3,108 +3,170 @@
  */
 
 .wwGrid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 0;
+  display: flex;
+  flex-direction: column;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   min-width: 0;
 }
 
-/* Shared cell surface inside the panel */
-.wwGroup,
-.wwTurns,
-.wwRec,
-.wwChance,
-.wwPlace {
+/* One collapsible instrument band */
+.wwFold {
+  border-top: 1px solid var(--stage-seam);
   background: transparent;
-  border: 0;
   min-width: 0;
 }
 
-/* Top row */
-.wwGroup {
-  grid-column: span 5;
-  padding: 0.35rem 0.45rem 0.4rem;
-  border-right: 1px solid var(--stage-seam);
+.wwGrid > :first-child {
+  border-top: 0;
 }
 
-.wwTurns {
-  grid-column: span 4;
-  padding: 0.35rem 0.45rem 0.4rem;
-  border-right: 1px solid var(--stage-seam);
-}
-
-.wwRec {
-  grid-column: span 3;
-  padding: 0.35rem 0.45rem 0.4rem;
-}
-
-/* Full-width bands */
-.wwChance {
-  grid-column: span 12;
-  padding: 0.35rem 0.55rem 0.4rem;
-  border-top: 1px solid var(--stage-seam);
-}
-
-.wwPlace {
-  grid-column: span 12;
-  padding: 0.35rem 0.5rem 0.45rem;
-  border-top: 1px solid var(--stage-seam);
-}
-
-@media (max-width: 48rem) {
-  .wwChance,
-  .wwTurns,
-  .wwRec,
-  .wwGroup,
-  .wwPlace {
-    grid-column: span 12;
-    border-right: 0;
-    border-top: 1px solid var(--stage-seam);
-  }
-
-  .wwGroup {
-    border-top: 0;
-  }
-}
-
-.wwTileH {
+.wwFoldH {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.28rem;
+  gap: 0.4rem;
+  padding: 0.38rem 0.5rem;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
 }
 
-.wwTileH b {
+.wwFoldH::-webkit-details-marker {
+  display: none;
+}
+
+.wwFoldH::before {
+  content: "";
+  width: 0.35rem;
+  height: 0.35rem;
+  border-right: 1.5px solid var(--stage-text-dim);
+  border-bottom: 1.5px solid var(--stage-text-dim);
+  transform: rotate(-45deg);
+  flex: none;
+  margin-top: -0.05rem;
+  opacity: 0.7;
+}
+
+.wwFold[open] > .wwFoldH::before {
+  transform: rotate(45deg);
+  margin-top: -0.15rem;
+}
+
+.wwFoldH b {
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.64rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-card);
+  flex: none;
 }
 
-.wwTileH span {
+.wwFoldH em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.62rem;
+  color: var(--stage-soft);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wwFoldH span {
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  flex: none;
+}
+
+.wwFoldH:hover b {
+  color: var(--a, var(--stage-macro));
+}
+
+.wwFoldBody {
+  padding: 0 0.5rem 0.45rem;
+}
+
+/* Three equal dials (Order/Priority/Scan and Sticky/Cool/Delay share this) */
+.wwTri {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  min-height: 2.35rem;
+}
+
+.wwDial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.12rem;
+  padding: 0.28rem 0.35rem 0.32rem;
+  min-width: 0;
+  border-right: 1px solid var(--stage-seam);
+}
+
+.wwDial:last-child {
+  border-right: 0;
+}
+
+.wwDial span {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
 }
 
-/* Shared inset control surface */
-.wwInset {
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-sunken);
+.wwDial input {
+  width: 100%;
+  max-width: 4.5rem;
+  border: 0;
+  background: none;
+  color: var(--stage-card);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 0;
+  line-height: 1.1;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.wwDial input::-webkit-outer-spin-button,
+.wwDial input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.wwDial input:focus {
+  outline: none;
+  color: var(--stage-card);
+  box-shadow: 0 1px 0 0 var(--a, var(--stage-macro));
+}
+
+.wwCtrl {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.35rem;
 }
 
 .wwChanceRow {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  min-height: 2.35rem;
 }
 
 .wwPct {
@@ -125,49 +187,14 @@
   cursor: pointer;
 }
 
-.wwMini {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.22rem;
-}
-
-.wwMiniCell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.06rem;
-  border: 1px solid var(--stage-seam);
-  background: var(--stage-sunken);
-  padding: 0.14rem 0.22rem 0.16rem;
-  min-width: 0;
-}
-
-.wwMiniCell span {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.55rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--stage-text-dim);
-}
-
-.wwMiniCell input {
-  width: 100%;
-  border: 0;
-  background: none;
-  color: var(--stage-card);
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.82rem;
-  text-align: center;
-  padding: 0;
-  line-height: 1.15;
-}
-
 .wwSeg {
   display: flex;
+  flex: 1;
+  min-width: 0;
   border: 1px solid var(--stage-seam);
-  width: 100%;
   background: var(--stage-sunken);
+  min-height: 2.35rem;
+  align-items: stretch;
 }
 
 .wwSegBtn {
@@ -180,7 +207,7 @@
   border: 0;
   background: transparent;
   color: var(--stage-mute);
-  padding: 0.32rem 0.15rem;
+  padding: 0.35rem 0.2rem;
   cursor: pointer;
 }
 
@@ -194,267 +221,63 @@
 }
 
 .wwRecLevel {
-  width: 100%;
-  margin-top: 0.22rem;
+  width: 2.6rem;
+  flex: none;
   border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: 0.72rem;
+  font-weight: 700;
   text-align: center;
-  padding: 0.14rem;
+  padding: 0.35rem 0.15rem;
+  min-height: 2.35rem;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 
-.wwGroupRow {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
+.wwRecLevel::-webkit-outer-spin-button,
+.wwRecLevel::-webkit-inner-spin-button,
+.wwWeight::-webkit-outer-spin-button,
+.wwWeight::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .wwGroupIn {
   flex: 1;
   min-width: 0;
+  min-height: 2.35rem;
   border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
-  padding: 0.22rem 0.32rem;
+  font-size: 0.72rem;
+  padding: 0.35rem 0.4rem;
 }
 
 .wwW {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.44rem;
+  font-size: 0.48rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));
+  flex: none;
 }
 
 .wwWeight {
-  width: 2.4rem;
+  width: 2.6rem;
+  flex: none;
+  min-height: 2.35rem;
   border: 1px solid var(--stage-seam);
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.64rem;
-  text-align: center;
-  padding: 0.22rem 0.15rem;
-}
-
-/* ---- placement rail: equal-width stop cells (no absolute label smash) ---- */
-
-.placeRail {
-  display: flex;
-  flex-direction: column;
-  gap: 0.45rem;
-  min-width: 0;
-}
-
-.placeHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.placeTitles {
-  flex: none;
-}
-
-.placeTitles b {
-  display: block;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.64rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--stage-card);
-}
-
-.placeTitles span {
-  display: block;
-  font-family: var(--font-mono);
-  font-weight: 500;
-  font-size: 0.55rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--stage-text-dim);
-  margin-top: 0.08rem;
-}
-
-.placeStops {
-  min-width: 0;
-  overflow-x: auto;
-  padding: 0.15rem 0 0.1rem;
-}
-
-.placeLine {
-  position: relative;
-  height: 2px;
-  background: var(--stage-seam);
-  margin: 0 calc(100% / var(--n, 2) / 2);
-}
-
-.placeFill {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background: var(--a, var(--stage-macro));
-  pointer-events: none;
-}
-
-.placeThumb {
-  position: absolute;
-  top: 50%;
-  width: 0.72rem;
-  height: 0.72rem;
-  background: var(--a, var(--stage-macro));
-  border: 2px solid var(--stage-black);
-  box-shadow: 1px 1px 0 0 var(--stage-black);
-  transform: translate(-50%, -50%);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.placeStopRow {
-  display: grid;
-  grid-template-columns: repeat(var(--n, 2), minmax(3.1rem, 1fr));
-  gap: 0.15rem;
-  margin-top: 0.35rem;
-  min-width: calc(var(--n, 2) * 3.1rem);
-}
-
-.placeStop {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.28rem;
-  border: 0;
-  background: transparent;
-  padding: 0.15rem 0.1rem;
-  cursor: pointer;
-  min-width: 0;
-  color: var(--stage-text-dim);
-}
-
-.placeStop:hover {
-  color: var(--stage-card);
-}
-
-.placeStopOn {
-  color: var(--a, var(--stage-macro));
-}
-
-.placeDot {
-  width: 0.4rem;
-  height: 0.4rem;
-  background: var(--stage-row);
-  border: 1px solid var(--stage-line, var(--stage-seam));
-  flex: none;
-}
-
-.placeDotOn {
-  border-color: var(--a, var(--stage-macro));
-  background: color-mix(in srgb, var(--a, var(--stage-macro)) 55%, var(--stage-row));
-}
-
-.placeStopLbl {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.54rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  text-align: center;
-  line-height: 1.2;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.placeLblForeign {
-  color: var(--stage-warn);
-}
-
-.placeDepthCap {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.22rem;
-  border: 1px solid var(--a, var(--stage-macro));
-  background: color-mix(in srgb, var(--a, var(--stage-macro)) 12%, var(--stage-sunken));
-  padding: 0.14rem 0.36rem;
-  flex: none;
-}
-
-.placeDepthSleep {
-  opacity: 0.4;
-  border-color: var(--stage-seam);
-  background: var(--stage-sunken);
-}
-
-.placeAt {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.52rem;
-  letter-spacing: 0.06em;
-  color: var(--a, var(--stage-macro));
-}
-
-.placeDepthSleep .placeAt {
-  color: var(--stage-kicker, var(--stage-mute));
-}
-
-.placeDepthNum {
-  width: 2rem;
-  border: 0;
-  background: none;
-  color: var(--stage-card);
-  font-family: var(--font-mono);
   font-weight: 700;
   font-size: 0.72rem;
   text-align: center;
-  padding: 0;
-}
-
-.placeDepthNum:disabled {
-  color: var(--stage-mute);
-  cursor: not-allowed;
-}
-
-.placeRole {
-  border: 0;
-  background: none;
-  color: var(--stage-soft);
-  font-family: var(--font-mono);
-  font-size: 0.52rem;
-  text-transform: uppercase;
-  padding: 0;
-}
-
-.placeFloor {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.placeFloorLine {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.6rem;
-  letter-spacing: 0.04em;
-  color: var(--stage-soft);
-}
-
-.placeForeign {
-  font-family: var(--font-mono);
-  font-size: 0.48rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--stage-warn);
-  border: 1px solid var(--stage-warn);
-  padding: 0.08rem 0.28rem;
+  padding: 0.35rem 0.15rem;
+  -moz-appearance: textfield;
+  appearance: textfield;
 }

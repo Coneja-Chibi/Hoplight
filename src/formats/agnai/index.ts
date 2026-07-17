@@ -11,6 +11,7 @@ import type {
   CanonicalCharacter,
   CharacterBody,
   ImagePrompt,
+  MediaAsset,
   Persona,
   Sprite,
   Voice,
@@ -49,6 +50,8 @@ interface AgnaiCard extends Record<string, unknown> {
   creator?: string;
   characterVersion?: string;
   tags?: string[];
+  /** Face image (data URI or URL) - maps to media.portrait, not sprite. */
+  avatar?: string;
   /** Agnai's native embedded lorebook (a MemoryBook); present in native downloads that have lore. */
   characterBook?: unknown;
 }
@@ -122,6 +125,37 @@ function readImagePrompt(v: unknown): ImagePrompt | undefined {
   return Object.keys(out).length > 0 ? out : undefined;
 }
 
+/** Guess mime from a data URI or a path-ish URL; undefined when unknown. */
+function mimeFromRef(ref: string): string | undefined {
+  if (ref.startsWith("data:")) {
+    const m = /^data:([^;,]+)/.exec(ref);
+    return m?.[1];
+  }
+  const path = ref.split("?")[0] ?? ref;
+  const ext = path.includes(".") ? path.slice(path.lastIndexOf(".") + 1).toLowerCase() : "";
+  if (ext === "png") return "image/png";
+  if (ext === "jpg" || ext === "jpeg") return "image/jpeg";
+  if (ext === "gif") return "image/gif";
+  if (ext === "webp") return "image/webp";
+  return undefined;
+}
+
+/** Agnai `avatar` string (data URI or URL) -> canonical media.portrait. */
+function readAvatar(avatar: unknown): MediaAsset | undefined {
+  if (typeof avatar !== "string" || avatar.trim() === "") return undefined;
+  const ref = avatar.trim();
+  const mime = mimeFromRef(ref);
+  const out: MediaAsset = { role: "portrait", ref, primary: true };
+  if (mime !== undefined) out.mime = mime;
+  return out;
+}
+
+/** Canonical portrait -> Agnai avatar string. Absence leaves the twin alone. */
+function portraitToAvatar(p: MediaAsset | undefined): string | undefined {
+  if (!p || typeof p.ref !== "string" || p.ref.trim() === "") return undefined;
+  return p.ref;
+}
+
 /** Agnai persona -> canonical persona (structured for attribute kinds; plain text for "text"). */
 function toStructured(p: AgnaiPersona): Pick<Persona, "personality" | "structured"> {
   if (p.kind === "text") {
@@ -166,6 +200,7 @@ function cardToBody(c: AgnaiCard): CharacterBody {
     },
     examples: { exampleMessages: str(c.sampleChat) },
     media: {
+      portrait: readAvatar(c.avatar),
       sprite: readSprite(c.sprite),
       visualKind: str(c.visualType),
     },
@@ -200,6 +235,8 @@ function applyBodyToCard(base: AgnaiCard, b: CharacterBody): AgnaiCard {
   // Authored config blocks pulled out of original: write only when set (absence leaves the twin alone).
   set("culture", b.identity.culture);
   set("visualType", b.media.visualKind);
+  const face = portraitToAvatar(b.media.portrait);
+  if (face !== undefined) base.avatar = face;
   if (b.media.sprite) base.sprite = spriteToWire(b.media.sprite);
   const v = voiceToWire(b.persona.voice);
   if (v) {

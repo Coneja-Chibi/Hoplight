@@ -20,8 +20,9 @@ function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
   const active = sections.find((s) => s.id === activeId) ?? sections[0];
 
   useEffect(() => {
-    if (active) ctx.setStatus(active.label.toLowerCase());
-  }, [ctx, active?.id]);
+    const section = sections.find((s) => s.id === activeId) ?? sections[0];
+    if (section) ctx.setStatus(section.label.toLowerCase());
+  }, [ctx, activeId, sections]);
 
   if (!active) return null;
   const ActiveSection = active.Component;

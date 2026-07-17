@@ -195,3 +195,105 @@ test("real Seraphina.png: unedited round-trip leaves the extensions bag byte-ide
   // pulling depth_prompt/world/talkativeness out to canonical must NOT perturb the twin when unedited
   expect(back.data.extensions).toEqual(origExt);
 });
+
+// --- Clear intent: mapped fields cleared on the body must not resurrect from the twin ---
+
+test("clear export: scalar and list fields write empty, not the twin original", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
+  delete (c.body.identity as { description?: string }).description;
+  delete (c.body.persona as { personality?: string }).personality;
+  delete (c.body.persona as { scenario?: string }).scenario;
+  delete (c.body.greetings as { firstMessage?: string }).firstMessage;
+  delete (c.body.discovery as { tags?: string[] }).tags;
+  delete (c.body.greetings as { alternateGreetings?: unknown }).alternateGreetings;
+  c.body.settings = undefined;
+  c.body.worldName = undefined;
+  c.body.prompts.depthInjections = undefined;
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  expect(back.data.description).toBe("");
+  expect(back.data.personality).toBe("");
+  expect(back.data.scenario).toBe("");
+  expect(back.data.first_mes).toBe("");
+  expect(back.data.tags).toEqual([]);
+  expect(back.data.alternate_greetings).toEqual([]);
+  expect("talkativeness" in (back.data.extensions ?? {})).toBe(false);
+  expect("depth_prompt" in (back.data.extensions ?? {})).toBe(false);
+});
+
+// --- Plan 011: canonical media ? CCv3 assets write-back ---
+
+test("from-scratch media emits V3 envelope with assets", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v1card) });
+  c.body.media = {
+    portrait: {
+      role: "portrait",
+      label: "main",
+      ref: "data:image/png;base64,QQ",
+      mime: "image/png",
+      primary: true,
+    },
+    assets: [
+      { role: "emotion", label: "wink", ref: "https://cdn/wink.webp", mime: "image/webp" },
+    ],
+  };
+  // strip ST twin so this is a true from-scratch target path
+  delete c.original;
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  expect(back.spec).toBe("chara_card_v3");
+  expect(back.data.assets).toEqual([
+    { type: "icon", name: "main", uri: "data:image/png;base64,QQ", ext: "png" },
+    { type: "emotion", name: "wink", uri: "https://cdn/wink.webp", ext: "webp" },
+  ]);
+});
+
+test("unedited V2 twin with empty media stays V2", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v2card) });
+  expect(c.body.media.portrait).toBeUndefined();
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  expect(back.spec).toBe("chara_card_v2");
+  expect(back.data.assets).toBeUndefined();
+});
+
+test("edit portrait on V3 preserves unknown asset row keys", () => {
+  const card = structuredClone(v3card);
+  // CCv3 asset rows are an open wire shape; preserve extension keys beyond this fixture's base row.
+  (card.data as unknown as { assets: Array<Record<string, unknown>> }).assets = [
+    { type: "icon", uri: "ccdefault:", name: "main", ext: "png", custom: 9 },
+    { type: "background", uri: "https://cdn/bg.png", name: "stage", ext: "png", keep: true },
+  ];
+  const c = adapter.toCanonical({ text: JSON.stringify(card) });
+  c.body.media.portrait = {
+    role: "portrait",
+    label: "main",
+    ref: "https://cdn/new-face.png",
+    mime: "image/png",
+    primary: true,
+  };
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  expect(back.data.assets.find((a: { name: string }) => a.name === "main")).toEqual({
+    type: "icon",
+    uri: "https://cdn/new-face.png",
+    name: "main",
+    ext: "png",
+    custom: 9,
+  });
+  expect(back.data.assets.find((a: { name: string }) => a.name === "stage").keep).toBe(true);
+});
+
+test("unresolved private media ref is not written into ST assets", () => {
+  const c = adapter.toCanonical({ text: JSON.stringify(v1card) });
+  delete c.original;
+  c.body.media = {
+    portrait: {
+      role: "portrait",
+      label: "main",
+      ref: "embeded://assets/main.png",
+      mime: "image/png",
+      primary: true,
+    },
+  };
+  const back = JSON.parse(adapter.fromCanonical(c).text ?? "");
+  // no portable assets -> V2 envelope, no broken private ref
+  expect(back.spec).toBe("chara_card_v2");
+  expect(back.data.assets).toBeUndefined();
+});

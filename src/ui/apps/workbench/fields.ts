@@ -33,8 +33,14 @@ export type FieldKind =
   | "number" // a number (optionally a 0..1 range) with min/max/step
   | "keyvalue" // Record<string, string> rows (locale->text, attribute maps)
   | "list-subeditor" // a repeating list of small objects (bias, depthInjections)
-  | "structured-subeditor" // one fixed nested object (voice, sprite, settings.risu)
-  | "asset-gallery"; // a repeating list of MediaAsset (emotion/outfit/pose packs) with thumbs + upload
+  | "structured-subeditor" // one fixed nested object (settings.risu, etc.)
+  | "asset-gallery" // a repeating list of MediaAsset (emotion/outfit/pose packs) with thumbs + upload
+  // rich composite editors (one surface per concept; never also listed under native)
+  | "voice-setup"
+  | "structured-persona"
+  | "image-prompt"
+  | "sprite-parts"
+  | "response-schema";
 
 /**
  * One control inside a composite (a structured-subeditor's object, or a list-subeditor's row). A
@@ -230,40 +236,14 @@ export const FIELD_MODULES: FieldModule[] = [
       { key: "utilityBot", kind: "toggle", label: "Utility bot" },
       { key: "lorePlus", kind: "toggle", label: "Lore+" },
     ] },
-  { id: "structuredKind", path: "persona.structured.kind", kind: "select", step: "finalize",
-    question: "A structured persona format?", helper: "How the persona map is written, on platforms that use one. Optional.", sheetLabel: "Persona format",
-    options: [
-      { value: "text", label: "Plain text" }, { value: "attributes", label: "Attributes" },
-      { value: "wpp", label: "W++" }, { value: "sbf", label: "SBF" }, { value: "boostyle", label: "Boostyle" },
-    ] },
-  { id: "structuredAttributes", path: "persona.structured.attributes", kind: "keyvalue", step: "finalize",
-    question: "Persona attributes?", helper: "Named traits with comma-separated values (W++/attribute maps). Optional.", sheetLabel: "Attributes",
-    keyValue: { keyLabel: "Trait", valueLabel: "values, comma separated", valueList: true } },
-  { id: "imagePrompt", path: "persona.imagePrompt", kind: "structured-subeditor", step: "finalize",
-    question: "Image-generation prompts?", helper: "Affixes and instructions for image gen, where supported. Optional.", sheetLabel: "Image prompt",
-    subFields: [
-      { key: "prompt", kind: "prose", label: "Prompt" },
-      { key: "prefix", kind: "text", label: "Prefix" },
-      { key: "suffix", kind: "text", label: "Suffix" },
-      { key: "negative", kind: "prose", label: "Negative" },
-      { key: "template", kind: "text", label: "Template" },
-      { key: "instructions", kind: "prose", label: "Instructions" },
-      { key: "emotionInstructions", kind: "prose", label: "Emotion instructions" },
-    ] },
-  { id: "imagePromptRows", path: "persona.imagePrompt.rows", kind: "list-subeditor", step: "finalize", addLabel: "+ add a row",
-    question: "Image prompt label/value rows?", helper: "Extra structured affixes as label + value. Optional.", sheetLabel: "Image prompt rows",
-    subFields: [
-      { key: "label", kind: "text", label: "Label" },
-      { key: "value", kind: "text", label: "Value" },
-    ] },
-  { id: "voice", path: "persona.voice", kind: "structured-subeditor", step: "finalize",
-    question: "A voice for them?", helper: "Text-to-speech settings, where a platform supports it. Optional.", sheetLabel: "Voice",
-    subFields: [
-      { key: "provider", kind: "select", label: "Provider",
-        options: [{ value: "", label: "None" }, { value: "elevenlabs", label: "ElevenLabs" }, { value: "openai", label: "OpenAI" }, { value: "webspeech", label: "Web Speech" }] },
-      { key: "voiceId", kind: "text", label: "Voice ID", placeholder: "provider voice id" },
-      { key: "rate", kind: "number", label: "Rate", number: { step: 0.1 } },
-      { key: "pitch", kind: "number", label: "Pitch", number: { step: 0.1 } },
-      { key: "disabled", kind: "toggle", label: "Disabled" },
-    ] },
+  { id: "structuredPersona", path: "persona.structured", kind: "structured-persona", step: "finalize",
+    question: "A structured persona map?", helper: "W++ / attributes / boostyle on platforms that use them. Plain text uses the personality field. Optional.", sheetLabel: "Structured persona" },
+  { id: "imagePrompt", path: "persona.imagePrompt", kind: "image-prompt", step: "finalize",
+    question: "Image-generation prompts?", helper: "Affixes, full prompt text, and labeled rows for image gen. Optional.", sheetLabel: "Image prompt" },
+  { id: "voice", path: "persona.voice", kind: "voice-setup", step: "finalize",
+    question: "A voice for them?", helper: "Text-to-speech selection and extras, where a platform supports it. Optional.", sheetLabel: "Voice" },
+  { id: "sprite", path: "media.sprite", kind: "sprite-parts", step: "finalize",
+    question: "A layered sprite recipe?", helper: "Part keys, colors, gender. Also sets visual kind. Optional.", sheetLabel: "Sprite" },
+  { id: "responseSchema", path: "settings.responseSchema", kind: "response-schema", step: "finalize",
+    question: "A structured response schema?", helper: "Named output fields and prompt slots (Agnai json). Data only, never run here. Optional.", sheetLabel: "Response schema" },
 ];

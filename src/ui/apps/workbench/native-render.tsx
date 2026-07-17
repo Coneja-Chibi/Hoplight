@@ -1,17 +1,19 @@
 /**
- * Native-field rendering, shared by BOTH editor layouts. It turns the selected platforms' native fields
- * into renderable items (via the leaf native-card controls) and offers each layout the wrapping it
- * wants: bento gets per-field cards bin-packed across the three columns with the big ones full-span at
- * the bottom; playbill gets a native section per platform. One definition, both layouts - so a native
- * field can never again show in one layout and vanish in the other. The editor owns the single stub
- * modal state and passes read/write/openStub; this module is otherwise a pure view.
+ * Native-field rendering for twin (original-bound) fields. Bento and playbill share the same item list
+ * (nativeItemsFor); each layout wraps differently. Bento bin-packs into the *content* columns only
+ * (middle + right) so the sticky portrait column stays face + sealed cargo. Playbill placement of
+ * platform-hosted *body* modules lives in PlaybillView, not here.
  */
 import type { JSX } from "react";
-import { nativeFieldItems, type NativeFieldItem } from "../../components/native-card";
+import {
+  nativeFieldItems,
+  type NativeFieldContext,
+  type NativeFieldItem,
+  type Stub,
+} from "../../components/native-card";
 import { BentoCard } from "../../components/bento-card";
 import { MonoTag } from "../../components/mono-tag";
 import { nativeSchemaFor } from "./platforms";
-import type { Stub } from "../../components/native-card";
 import styles from "./native-render.module.css";
 
 /** Gather the native items for the selected/present platform keys, deduped, order = key order. */
@@ -20,6 +22,7 @@ export function nativeItemsFor(
   read: (p: string) => unknown,
   write: (p: string, v: unknown) => void,
   openStub: (s: Stub) => void,
+  ctx?: NativeFieldContext,
 ): NativeFieldItem[] {
   const seen = new Set<string>();
   const out: NativeFieldItem[] = [];
@@ -28,7 +31,7 @@ export function nativeItemsFor(
     seen.add(key);
     const schema = nativeSchemaFor(key);
     if (!schema) continue;
-    out.push(...nativeFieldItems(schema, read, write, openStub));
+    out.push(...nativeFieldItems(schema, read, write, openStub, ctx));
   }
   return out;
 }
@@ -41,31 +44,35 @@ const card = (item: NativeFieldItem): JSX.Element => (
 );
 
 export interface NativeBentoParts {
-  /** cards to append to each of the three bento columns */
+  /**
+   * Cards to append to each bento column.
+   * Index 0 (portrait / sticky left) is always empty - twin fields never sit under the image.
+   * Indices 1 and 2 are middle and right content columns.
+   */
   columns: [JSX.Element[], JSX.Element[], JSX.Element[]];
-  /** the full-span row of big cards, placed under the grid; null when there are none */
+  /** reserved; twin fields no longer full-span under the portrait grid */
   spanRow: JSX.Element | null;
 }
 
 /**
- * Bin-pack the small native cards across the three bento columns (seeded so the short left column fills
- * first, then it balances by size); the big cards (weight >= 4: trackers, recommendations, assets) go
- * full-span in a row beneath the grid where they have room to breathe.
+ * Bin-pack native twin cards into middle + right only. Left column stays free for the sticky face.
+ * Big cards (trackers, assets, …) pack the same way as small ones - never a page-wide span under col 0.
  */
 export function nativeBentoParts(items: NativeFieldItem[]): NativeBentoParts {
-  const cols = [
-    { weight: 10, nodes: [] as JSX.Element[] },
-    { weight: 12, nodes: [] as JSX.Element[] },
-    { weight: 12, nodes: [] as JSX.Element[] },
+  // only content columns participate; balance by running weight
+  const content = [
+    { weight: 0, nodes: [] as JSX.Element[] },
+    { weight: 0, nodes: [] as JSX.Element[] },
   ];
-  for (const item of items.filter((i) => !i.big)) {
-    const shortest = cols.reduce((a, b) => (b.weight < a.weight ? b : a));
+  for (const item of items) {
+    const shortest = content[0]!.weight <= content[1]!.weight ? content[0]! : content[1]!;
     shortest.nodes.push(card(item));
     shortest.weight += item.weight;
   }
-  const big = items.filter((i) => i.big);
-  const spanRow = big.length === 0 ? null : <div className={styles.span}>{big.map(card)}</div>;
-  return { columns: [cols[0]!.nodes, cols[1]!.nodes, cols[2]!.nodes], spanRow };
+  return {
+    columns: [[], content[0]!.nodes, content[1]!.nodes],
+    spanRow: null,
+  };
 }
 
 /** items grouped by platform, in first-seen order */
@@ -83,9 +90,8 @@ const byPlatform = (items: NativeFieldItem[]): [string, NativeFieldItem[]][] => 
 const anchor = (platform: string): string => `act-native-${platform.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
 /**
- * The playbill native section: one act per platform, its fields rendered as BARE labeled fields (label
- * + control), matching the acts form - NOT bento cards (that is the grid layout's shape). Big fields
- * span the two-column grid. The act break header already names the platform, so fields drop the pill.
+ * Playbill platform leftovers: one section per platform (RC/ST pattern). Shared character fields are
+ * never listed here — only native schema items. Big fields span the two-column grid.
  */
 export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | null {
   if (items.length === 0) return null;
@@ -96,7 +102,7 @@ export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | n
           <div className={styles.break}>
             <span className={styles.bar} />
             <span className={styles.mid}>
-              <span className={styles.no}>Native</span>
+              <span className={styles.no}>Platform</span>
               <span className={styles.nm}>{platform}</span>
             </span>
             <span className={styles.bar} />
@@ -115,12 +121,12 @@ export function nativePlaybillSection(items: NativeFieldItem[]): JSX.Element | n
   );
 }
 
-/** Bill-nav entries for the playbill native sections (one per platform). */
+/** Bill-nav entries for playbill platform leftover sections (one per platform). */
 export function nativePlaybillNav(items: NativeFieldItem[]): JSX.Element[] {
   return byPlatform(items).map(([platform, group]) => (
     <li key={platform}>
       <a href={`#${anchor(platform)}`}>
-        <span className={styles.tno}>Native</span>
+        <span className={styles.tno}>Platform</span>
         <span className={styles.tnm}>{platform}</span>
         <span className={styles.tct}>{group.length}</span>
       </a>

@@ -20,14 +20,31 @@ test("tolerant readers coerce anything to their type", () => {
   expect(strArr("nope")).toEqual([]);
 });
 
-test("greetingsOf reads {text,title} rows and tolerates junk", () => {
-  const body = { greetings: { alt: [{ text: "hi", title: "T" }, { text: "yo" }, 5] } };
+test("greetingsOf reads {text,title,id} rows and tolerates junk", () => {
+  const body = {
+    greetings: {
+      alt: [
+        { text: "hi", title: "T", id: "byaf:scenarios/scenario2.json" },
+        { text: "yo" },
+        5,
+      ],
+    },
+  };
   expect(greetingsOf(body, "greetings.alt")).toEqual([
-    { text: "hi", title: "T" },
+    { text: "hi", title: "T", id: "byaf:scenarios/scenario2.json" },
     { text: "yo", title: undefined },
     { text: "", title: undefined },
   ]);
   expect(greetingsOf(body, "greetings.missing")).toEqual([]);
+});
+
+test("greetingsOf preserves id through retitle-shaped objects (no regeneration)", () => {
+  const id = "byaf:scenarios/scenario2.json";
+  const body = { greetings: { alt: [{ text: "hi", title: "Old", id }] } };
+  const rows = greetingsOf(body, "greetings.alt");
+  const retitled = rows.map((g) => (g.id === id ? { ...g, title: "New" } : g));
+  expect(retitled[0]!.id).toBe(id);
+  expect(retitled[0]!.title).toBe("New");
 });
 
 test("tokenEstimate is chars/4 across the prose fields", () => {

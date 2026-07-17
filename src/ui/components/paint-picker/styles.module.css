@@ -9,20 +9,20 @@
 }
 .modes {
   display: flex;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
 }
 .modes button {
   flex: 1;
   border: none;
-  border-left: 3px solid var(--ink, #000);
-  background: var(--paper, #fff);
+  border-left: 3px solid var(--ink);
+  background: var(--paper);
   font-family: var(--font-mono), monospace;
   font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink, #111);
+  color: var(--ink);
   padding: 0.42rem;
   cursor: pointer;
 }
@@ -30,8 +30,8 @@
   border-left: none;
 }
 .modes button.on {
-  background: var(--ink, #111);
-  color: var(--paper, #fff);
+  background: var(--ink);
+  color: var(--paper);
 }
 .grad {
   display: flex;
@@ -42,8 +42,8 @@
   position: relative;
   width: 100%;
   height: 1.5rem;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 3px 3px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 3px 3px 0 0 var(--ink);
   cursor: copy;
   touch-action: none;
   margin-top: 0.5rem;
@@ -54,15 +54,15 @@
   width: 14px;
   height: 2rem;
   transform: translate(-50%, -50%);
-  border: 3px solid var(--ink, #000);
+  border: 3px solid var(--ink);
   cursor: grab;
   touch-action: none;
-  box-shadow: 0 0 0 2px var(--paper, #fff);
+  box-shadow: 0 0 0 2px var(--paper);
 }
 .stop.sel {
   box-shadow:
-    0 0 0 2px var(--paper, #fff),
-    0 0 0 5px var(--ink, #000);
+    0 0 0 2px var(--paper),
+    0 0 0 5px var(--ink);
   z-index: 2;
 }
 .row {
@@ -74,23 +74,23 @@
   width: 1.7rem;
   height: 1.7rem;
   flex: none;
-  border: 3px solid var(--ink, #000);
-  box-shadow: 2px 2px 0 0 var(--ink, #000);
+  border: 3px solid var(--ink);
+  box-shadow: 2px 2px 0 0 var(--ink);
 }
 .seg {
   display: flex;
-  border: 3px solid var(--ink, #000);
+  border: 3px solid var(--ink);
 }
 .seg button {
   border: none;
-  border-left: 3px solid var(--ink, #000);
-  background: var(--paper, #fff);
+  border-left: 3px solid var(--ink);
+  background: var(--paper);
   font-family: var(--font-mono), monospace;
   font-size: 0.5625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--ink, #111);
+  color: var(--ink);
   padding: 0.32rem 0.55rem;
   cursor: pointer;
 }
@@ -98,8 +98,8 @@
   border-left: none;
 }
 .seg button.on {
-  background: var(--ink, #111);
-  color: var(--paper, #fff);
+  background: var(--ink);
+  color: var(--paper);
 }
 .rm {
   margin-left: auto;
@@ -108,9 +108,9 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: var(--paper, #fff);
-  border: 3px solid var(--ink, #000);
-  color: var(--ink, #111);
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  color: var(--ink);
   padding: 0.32rem 0.55rem;
   cursor: pointer;
 }
@@ -131,7 +131,7 @@
   font-family: var(--font-mono), monospace;
   font-size: 0.625rem;
   font-weight: 700;
-  color: var(--ink, #111);
+  color: var(--ink);
   min-width: 2.6rem;
   text-align: right;
 }

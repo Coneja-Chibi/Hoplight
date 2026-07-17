@@ -1,0 +1,135 @@
+/**
+ * Export dialog sheet extras (InkDialog owns overlay/sheet chrome).
+ */
+.sheet {
+  max-width: 28rem;
+}
+.title {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1rem;
+  margin: 0 0 0.35rem;
+  letter-spacing: 0.02em;
+}
+.sub {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  margin: 0 0 0.9rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.85rem;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.22rem 0.4rem;
+}
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+  max-height: 12rem;
+  overflow: auto;
+}
+.opt {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  text-align: left;
+  width: 100%;
+  background: var(--panel);
+  border: 2px solid var(--edge);
+  color: var(--text);
+  padding: 0.55rem 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+.opt:hover {
+  border-color: var(--rose);
+}
+.optOn {
+  border-color: var(--rose);
+  box-shadow: 2px 2px 0 0 var(--edge);
+}
+.opt b {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.opt span {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--muted);
+}
+.honesty {
+  border: 2px solid var(--edge);
+  background: var(--panel);
+  padding: 0.55rem 0.65rem;
+  margin: 0 0 1rem;
+}
+.honesty h4 {
+  font-family: var(--font-mono);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+.line {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  line-height: 1.45;
+  margin: 0.25rem 0;
+  color: var(--text);
+}
+.lineKeep {
+  color: var(--muted);
+}
+.lineWarn {
+  color: var(--accent);
+}
+.lineDrop {
+  color: var(--rose);
+}
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--panel);
+  border: 2px solid var(--edge);
+  color: var(--text);
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+.btnPrimary {
+  background: var(--text);
+  color: var(--face);
+  border-color: var(--edge);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.err {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  color: var(--rose);
+  margin: 0 0 0.6rem;
+}

@@ -6,9 +6,8 @@
 - Downloaded: 2026-07-04
 - Format: ZIP container. `manifest.json` + `characters/test123/character.json` + `scenarios/scenarioN.json`
   + `characters/.../images/*` (+ a scenario background image in 2.byaf). schemaVersion 1 throughout.
-- NOTE: vaud has NO byaf adapter yet (src/formats/backyard/index.ts is legacy flat-JSON only). These
-  samples are the forward-looking corpus for the byaf slice; today 100% of their content would escrow
-  because no byaf codec exists to map any of it.
+- Adapter: `src/formats/backyard/byaf.ts` (`id: "byaf"`). Authored character/scenario fields map to body;
+  sampling, chat `messages`, grammar, loreItems stay on original (lore content type later).
 
 ### Which escrowed / unmapped fields each archive exercises
 - 1.byaf  - minimal: 1 char, 1 scenario, 1 loreItem, 1 image (avatar). Baseline.

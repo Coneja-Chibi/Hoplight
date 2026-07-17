@@ -51,19 +51,19 @@ export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget
         <i className={styles.hint}>off-target</i>
         <button
           type="button"
-          className={offTarget === "dim" ? styles.on : undefined}
-          onClick={() => onOffTarget("dim")}
-          title="Off-target cards fade but stay visible (the honest default)"
+          className={offTarget === "hide" ? styles.on : undefined}
+          onClick={() => onOffTarget("hide")}
+          title="Off-target fields leave the form (recommended)"
         >
-          Dim
+          Hide
         </button>
         <button
           type="button"
-          className={offTarget === "hide" ? styles.on : undefined}
-          onClick={() => onOffTarget("hide")}
-          title="Off-target cards leave the room entirely"
+          className={offTarget === "dim" ? styles.on : undefined}
+          onClick={() => onOffTarget("dim")}
+          title="Same as hide for now: off-target fields leave so lean platforms stay lean"
         >
-          Hide
+          Dim
         </button>
       </span>
     </div>

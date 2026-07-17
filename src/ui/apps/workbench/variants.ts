@@ -4,7 +4,13 @@
  * a specific variant's overrides. Used by the portrait card's variant strip via use-variants.
  */
 import type { CharacterBody, CharacterVariant } from "../../../entities/character/schema";
-import { readPath, writePath } from "./editor-core";
+import {
+  hasOverridePath,
+  inheritOverridePath,
+  readPath,
+  writeOverridePath,
+  writePath,
+} from "./editor-core";
 
 const rec = (v: unknown): Record<string, unknown> =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
@@ -28,12 +34,29 @@ export function removeVariant(body: CharacterBody, id: string): CharacterBody {
   return asBody(writePath(bodyRec(body), "variants", variantsOf(body).filter((v) => v.id !== id)));
 }
 
-/** write a field (deep dot path) into ONE variant's overrides; an empty value clears the override */
+/**
+ * Write a field (deep dot path) into ONE variant's overrides. Present empty values ("" / []) are
+ * intentional blank overrides and survive; use inheritVariantField to resume base inheritance.
+ */
 export function setVariantField(body: CharacterBody, id: string, path: string, value: unknown): CharacterBody {
   const list = variantsOf(body).map((v) =>
-    v.id === id ? { ...v, overrides: writePath(rec(v.overrides), path, value) } : v,
+    v.id === id ? { ...v, overrides: writeOverridePath(rec(v.overrides), path, value) } : v,
   );
   return asBody(writePath(bodyRec(body), "variants", list));
+}
+
+/** Remove an override key so the field inherits from the base again. */
+export function inheritVariantField(body: CharacterBody, id: string, path: string): CharacterBody {
+  const list = variantsOf(body).map((v) =>
+    v.id === id ? { ...v, overrides: inheritOverridePath(rec(v.overrides), path) } : v,
+  );
+  return asBody(writePath(bodyRec(body), "variants", list));
+}
+
+/** True when the named variant has a present override at path (including blank "" / []). */
+export function variantHasOverride(body: unknown, id: string, path: string): boolean {
+  const v = variantsOf(body).find((x) => x.id === id);
+  return v ? hasOverridePath(v.overrides, path) : false;
 }
 
 /** retitle a variant */

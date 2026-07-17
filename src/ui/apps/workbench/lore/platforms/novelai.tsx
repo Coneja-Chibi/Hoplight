@@ -1,10 +1,11 @@
 /**
- * NovelAI lore long tail: activation, context wrap, budget, trim/join policy.
+ * NovelAI lore long tail: activation, phrase bias, context wrap, budget, trim/join policy.
  * Layout: design/vs-lore-platform-extras.html pass 3.2. Codec: formats/novelai/lorebook.ts.
  */
 import type { JSX } from "react";
 import { patchContextConfig } from "../entry-extras";
 import type { LorePlatformCard, LorePlatformCardProps } from "./card-contract";
+import { NovelAiBiasBlock } from "./novelai-bias";
 
 const openOptions = (known: readonly string[], current: string | undefined): string[] =>
   current && !known.includes(current) ? [...known, current] : [...known];
@@ -14,7 +15,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
   const patchCc = (patch: Parameters<typeof patchContextConfig>[1]): void =>
     onPatch({ contextConfig: patchContextConfig(cc, patch) });
 
-  const any = show("naiActivation") || show("contextConfig");
+  const any = show("naiActivation") || show("contextConfig") || show("phraseBias");
   if (!any) return null;
 
   return (
@@ -70,6 +71,10 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
             </div>
           </div>
         </div>
+      )}
+
+      {show("phraseBias") && (
+        <NovelAiBiasBlock entry={entry} styles={styles} onPatch={onPatch} />
       )}
 
       {show("contextConfig") && (

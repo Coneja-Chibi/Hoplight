@@ -259,8 +259,29 @@ export function characterBookToLorebook(book: CharacterBook): LorebookBody {
 // -- extraction: a raw CCv2/v3 card -> its embedded canonical lorebook (if any) --------------------
 
 /** True if `v` is a character_book shape (an object with an `entries` array). */
-const isCharacterBook = (v: unknown): v is CharacterBook =>
+export const isCharacterBook = (v: unknown): v is CharacterBook =>
   !!v && typeof v === "object" && Array.isArray((v as { entries?: unknown }).entries);
+
+/**
+ * Standalone CCv3/Chub-style book: entries is an array of objects with `keys` (not Agnai's
+ * `keywords`/`entry` MemoryBook, and not ST's keyed object map). Used so ST/Agnai/Risu standalone
+ * codecs can accept Chub lorebook downloads and card-extracted books.
+ */
+export function isStandaloneCharacterBook(v: unknown): v is CharacterBook {
+  if (!isCharacterBook(v)) return false;
+  const first = v.entries[0] as Record<string, unknown> | undefined;
+  if (!first || typeof first !== "object") {
+    // empty book: still a character_book if it has the usual book-level fields
+    return "scan_depth" in v || "token_budget" in v || "name" in v || v.entries.length === 0;
+  }
+  // Agnai MemoryBook entries use `entry` + `keywords`; CCv3 uses `keys` (+ usually `content`)
+  if (Array.isArray(first.keywords) && typeof first.entry === "string") return false;
+  return (
+    Array.isArray(first.keys) ||
+    typeof first.content === "string" ||
+    typeof first.name === "string"
+  );
+}
 
 /**
  * Locate an embedded character_book on a raw card. Honors the CCv3 slot (`data.character_book`),

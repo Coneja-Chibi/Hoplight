@@ -27,8 +27,7 @@ const coverage: CoverageDecl = {
     "examples.exampleMessages",
     "discovery.tags",
     "attribution.creator",
-    "attribution.createdAt",
-    "attribution.updatedAt",
+    // createdAt/updatedAt ride original only (adapter does not map them to body)
     "media.portrait",
     "media.sprite",
     "media.visualKind",
