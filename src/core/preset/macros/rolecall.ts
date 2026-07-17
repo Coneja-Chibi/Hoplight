@@ -1,27 +1,15 @@
 /**
- * The preset macro reference (PRESET-JEWEL-PLAN.md P4) - the capability layer the RC editor lacks:
- * vaud shows the macros the SELECTED Write-for platform supports, not one fixed set. The catalog is
- * transcribed 1-1 from RC's MacroReferenceDropdown (apps/rc/.../MacroReferenceDropdown.tsx) - RC's
- * own engine macros, the port source. Per-lens VISIBILITY (`MACRO_GROUPS_BY_PROFILE`) is a MODELED
- * capability map (RC/Vaude = the full set; SillyTavern = the ST-standard groups, minus RC's engine-
- * only Runtime/Roleplay; Marinara = its variable/game subset) - verify each against the platform's
- * real macro support before calling it locked.
+ * RoleCall's macro reference. Transcribed 1-1 from RC's own MacroReferenceDropdown
+ * (apps/rc/src/components/presets/editor/MacroReferenceDropdown.tsx) - RC's engine, RC's grouping.
+ * RC is a sibling product, so its prose carries over as-is.
+ *
+ * This is RC's dialect ONLY. Its separators and meanings are NOT portable: {{roll::NdM}} and
+ * {{random::min::max}} (a real range here) both differ from SillyTavern's and Marinara's forms.
+ * Never reuse this catalog for another lens - see ./sillytavern.ts and ./marinara.ts.
  */
-import type { PresetWriteForProfile } from "./capabilities";
+import type { MacroGroup } from "./types";
 
-export interface MacroEntry {
-  macro: string;
-  description: string;
-  example?: string;
-}
-
-export interface MacroGroup {
-  name: string;
-  description: string;
-  macros: MacroEntry[];
-}
-
-export const MACRO_GROUPS: MacroGroup[] = [
+export const ROLECALL_MACRO_GROUPS: MacroGroup[] = [
   {
     name: "Identity",
     description: "Character, user, and persona names",
@@ -210,36 +198,3 @@ export const MACRO_GROUPS: MacroGroup[] = [
   },
 ];
 
-/**
- * Which macro GROUPS each Write-for lens exposes (MODELED - verify per platform). Full/RoleCall get
- * the whole engine; SillyTavern drops RC's engine-only Runtime & Stats + Roleplay & Game; Marinara
- * gets its variable/game subset (it drives stats + choices through variables).
- */
-const ST_GROUPS = [
-  "Identity",
-  "Character Card",
-  "Chat Context",
-  "Time & Date",
-  "Variables",
-  "Advanced Syntax",
-  "Random & Dice",
-  "Text Processing",
-  "Conditionals",
-  "Pronouns",
-  "Lorebook",
-];
-const MARINARA_GROUPS = ["Identity", "Character Card", "Variables", "Conditionals", "Roleplay & Game", "Text Processing"];
-
-export const MACRO_GROUPS_BY_PROFILE: Record<PresetWriteForProfile, readonly string[] | "all"> = {
-  full: "all",
-  rolecall: "all",
-  sillytavern: ST_GROUPS,
-  marinara: MARINARA_GROUPS,
-};
-
-/** The macro groups the selected lens exposes, in canonical order. */
-export function macroGroupsForProfile(profile: PresetWriteForProfile): MacroGroup[] {
-  const allowed = MACRO_GROUPS_BY_PROFILE[profile] ?? "all";
-  if (allowed === "all") return MACRO_GROUPS;
-  return MACRO_GROUPS.filter((g) => allowed.includes(g.name));
-}
