@@ -216,6 +216,20 @@ test("de-original edit: mutating toggles/bias/license/rows reaches the risuai wi
   expect(r.triggerscript.length).toBe(9);
 });
 
+test("de-original clear: removing the license deletes it from the wire, not reverts to the twin", () => {
+  const card = makeCard();
+  (card.data.extensions.risuai as Record<string, unknown>).license = "MIT";
+  const ent = adapter.toCanonical({ bytes: makeCharx(card) });
+  expect(ent.body.attribution.license).toBe("MIT"); // precondition: imported carrying it
+  // The character editor clears a text field by DELETING the key (writePath + isEmptyValue), so the
+  // canonical value becomes undefined, not "". A codec that only writes on `!== undefined` leaks the
+  // stale twin value straight back out. Clearing must reach the wire as a deletion.
+  ent.body.attribution.license = undefined;
+  const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
+  expect(out.data.extensions.risuai.license).toBeUndefined();
+  expect(out.data.extensions.risuai.triggerscript.length).toBe(1); // siblings untouched
+});
+
 test("module toggles write Risu wire key `toggles` (not DB name customModuleToggle)", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
   ent.body.behavior = { ...(ent.body.behavior ?? {}), moduleToggles: "modA:on" };

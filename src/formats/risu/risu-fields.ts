@@ -170,18 +170,20 @@ export function applyBodyToRisu(data: TavernData, body: CharacterBody): void {
   applyRisuToBody(data, decoded);
 
   const writes: Rec = {};
-  if (body.attribution.license !== undefined && body.attribution.license !== decoded.attribution.license) {
-    writes.license = body.attribution.license;
-  }
+  // Twin-diff a scalar: write it when the canonical value changed, and mark its wire key for deletion
+  // when the twin carried it but canonical has since cleared it. The character editor clears a text
+  // field by DROPPING the key (writePath treats "" as empty and deletes), so the canonical value goes
+  // undefined, not "". A set-only mapping would leak the stale twin value straight back out.
+  const deletes: string[] = [];
+  const scalar = (wireKey: string, val: string | undefined, dec: string | undefined): void => {
+    if (val !== undefined && val !== dec) writes[wireKey] = val;
+    else if (val === undefined && dec !== undefined) deletes.push(wireKey);
+  };
+  scalar("license", body.attribution.license, decoded.attribution.license);
   if (body.bias !== undefined && !deepEq(body.bias, decoded.bias)) {
     writes.bias = body.bias.map((b) => [b.phrase, b.weight]);
   }
-  if (
-    body.prompts.additionalText !== undefined &&
-    body.prompts.additionalText !== decoded.prompts.additionalText
-  ) {
-    writes.additionalText = body.prompts.additionalText;
-  }
+  scalar("additionalText", body.prompts.additionalText, decoded.prompts.additionalText);
   const t = body.settings?.risu;
   if (t && !deepEq(t, decoded.settings?.risu)) {
     if (t.viewScreen !== undefined) writes.viewScreen = t.viewScreen;
@@ -214,15 +216,12 @@ export function applyBodyToRisu(data: TavernData, body: CharacterBody): void {
     if (beh.triggerScripts && !deepEq(beh.triggerScripts, d?.triggerScripts)) {
       writes.triggerscript = triggerScriptsToWire(beh.triggerScripts);
     }
-    const s = (key: string, val: string | undefined, dec: string | undefined): void => {
-      if (val !== undefined && val !== dec) writes[key] = val;
-    };
-    s("virtualscript", beh.virtualScript, d?.virtualScript);
-    s("backgroundHTML", beh.backgroundHTML, d?.backgroundHTML);
-    s("backgroundCSS", beh.backgroundCSS, d?.backgroundCSS);
-    s("defaultVariables", beh.defaultVariables, d?.defaultVariables);
+    scalar("virtualscript", beh.virtualScript, d?.virtualScript);
+    scalar("backgroundHTML", beh.backgroundHTML, d?.backgroundHTML);
+    scalar("backgroundCSS", beh.backgroundCSS, d?.backgroundCSS);
+    scalar("defaultVariables", beh.defaultVariables, d?.defaultVariables);
     // Write the producer wire key `toggles` (not the DB-only name customModuleToggle).
-    s("toggles", beh.moduleToggles, d?.moduleToggles);
+    scalar("toggles", beh.moduleToggles, d?.moduleToggles);
     if (beh.prebuiltAsset && !deepEq(beh.prebuiltAsset, d?.prebuiltAsset)) {
       if (beh.prebuiltAsset.command !== undefined) writes.prebuiltAssetCommand = beh.prebuiltAsset.command;
       if (beh.prebuiltAsset.exclude !== undefined) writes.prebuiltAssetExclude = beh.prebuiltAsset.exclude;
@@ -233,8 +232,10 @@ export function applyBodyToRisu(data: TavernData, body: CharacterBody): void {
     }
   }
 
-  if (Object.keys(writes).length === 0) return;
+  if (Object.keys(writes).length === 0 && deletes.length === 0) return;
   if (!isRec(data.extensions)) data.extensions = {};
   const ext = data.extensions as Rec;
-  ext.risuai = { ...(isRec(ext.risuai) ? ext.risuai : {}), ...writes };
+  const risuai = { ...(isRec(ext.risuai) ? ext.risuai : {}), ...writes };
+  for (const key of deletes) delete risuai[key];
+  ext.risuai = risuai;
 }
