@@ -1019,9 +1019,9 @@ Hop + limelight. The V is the maker's mark, the tapered H is the app's.
 <details>
 <summary>**How much of this code did an AI write?** 🤖</summary>
 
-Most of it. The split: design, architecture, review, and acceptance are human; drafting is AI.
-Everything merges through the same gates regardless of who typed it: ~1,950 tests, the round-trip
-law, and the CI guards. Bugs get fixed the same way too.
+Roughly 60/30. The 60 is AI writing code. The 30 is me: drafting, planning, project management,
+design, and testing. Everything merges through the same gates regardless of who typed it: ~1,950
+tests, the round-trip law, and the CI guards. Bugs get fixed the same way too.
 
 </details>
 
