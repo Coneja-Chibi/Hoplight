@@ -898,18 +898,22 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 ## ❓ FAQ
 
 <details>
-<summary>**Is it safe to run?** 🛡️</summary>
+<summary>**What's been done to keep this thing safe?** 🛡️</summary>
 
-Yes, and here is exactly why:
+Safety decisions that are built in, not bolted on:
 
-- It never asks for administrator rights, installs no drivers, and touches no system settings;
-  it's a normal user program you can delete like any other
-- It writes only inside your studio folder, with path containment enforced in code and tests
-- The server binds to 127.0.0.1 only; nothing on your network or the internet can reach it
-- Release downloads ship with SHA-256 checksums so you can verify the file you got
+- **No privileges.** It never asks for administrator rights, installs no drivers, and touches no
+  system settings; it's a normal user program you can delete like any other
+- **Contained writes.** It writes only inside your studio folder, with path containment enforced
+  in code and covered by tests
+- **Loopback only.** The server binds to 127.0.0.1; nothing on your network or the internet can
+  reach it
+- **No script execution.** Anything executable that arrives inside a card is carried as sealed
+  data, never run
+- **Verifiable downloads.** Releases ship with SHA-256 checksums
 - One honest caveat: unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper show a
-  warning the first time. That's about a missing paid certificate, not about what the program does;
-  the code is right here to read.
+  warning the first time. That's about a missing paid certificate, not about what the program
+  does; the code is right here to read.
 
 
 </details>
