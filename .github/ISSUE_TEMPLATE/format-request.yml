@@ -1,0 +1,31 @@
+name: Platform / format request
+description: A platform or file format Hoplight should speak
+title: "[format] "
+labels: ["format-request"]
+body:
+  - type: input
+    id: platform
+    attributes:
+      label: Platform name
+      placeholder: e.g. Wyvern
+    validations:
+      required: true
+  - type: textarea
+    id: samples
+    attributes:
+      label: Sample files
+      description: Real files exported from the platform (strip anything private). The round-trip
+        suite runs on real samples; without them an adapter can't be proven honest.
+    validations:
+      required: true
+  - type: textarea
+    id: docs
+    attributes:
+      label: Format documentation
+      description: Links to any spec, schema, or source code for the format, if they exist.
+  - type: textarea
+    id: notes
+    attributes:
+      label: What matters most?
+      description: Which content types you care about (characters, lorebooks, presets, regex) and
+        anything odd about how the platform stores them.

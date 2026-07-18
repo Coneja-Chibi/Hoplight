@@ -1,0 +1,54 @@
+name: Bug report
+description: Something broke, misread a file, or lied to you
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, and what went wrong?
+      placeholder: I imported a charx and the greeting came out empty.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the studio
+        2. Drag cherry.charx into the Library
+        3. Open her on the Workbench
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: receipt
+    attributes:
+      label: What did Hoplight say?
+      description: The import receipt, export report, or error text, word for word if you can.
+  - type: input
+    id: format
+    attributes:
+      label: File format involved
+      placeholder: SillyTavern PNG / Risu charx / RoleCall JSON / ...
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS and Bun version
+      placeholder: Windows 11, Bun 1.3.5
+    validations:
+      required: true
+  - type: textarea
+    id: sample
+    attributes:
+      label: Sample file
+      description: If you can share a file that triggers it (strip anything private), drag it in
+        here. A reproducing sample is the fastest path to a fix.
