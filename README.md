@@ -29,8 +29,8 @@ Same-format round trips are byte-honest; cross-format conversions tell you exact
 what stayed home. It runs entirely on your machine: no accounts, no telemetry, no cloud. Your
 studio is a folder of plain JSON files you can version, back up, and grep.
 
-Hoplight is the flagship of **Vaudeville Studios**; the searchlight wordmark is the house mark,
-and `vaud` is the CLI underneath.
+Hoplight is a **Vaudeville Studios** production; the searchlight wordmark is the house mark. The
+app, its native format, and the CLI all answer to the same name.
 
 ## The studio
 
