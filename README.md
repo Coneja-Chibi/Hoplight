@@ -768,6 +768,18 @@ bun run dev
 
 Loopback only. The first run walks you through four questions (theme, first deck, publish targets, accent), and every one of them can change later.
 
+### Two ways to run it 🖥️⌨️
+
+Hoplight is one engine with two faces. Run either, or both at the same time:
+
+| | What it is | How to run it |
+|---|---|---|
+| 🖥️ **The Studio** | The visual app. It runs on your machine and uses your **browser as its window**; nothing about it is a website, and nothing goes online. | `bun run dev`, then open the address it prints (127.0.0.1) |
+| ⌨️ **The CLI** | Terminal commands for converting, inspecting, and batch work. No window at all. | `bun run vaud <command>` from the repo folder |
+
+They share the same engine and the same studio folder, so a card you convert in the terminal shows
+up in the Library, and a card you edit in the Studio converts the same way from the CLI.
+
 ---
 
 ### Step 3: Bring your work 📦
@@ -885,7 +897,25 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 
 ## ❓ FAQ
 
-**Is my content private?** 🔒
+<details>
+<summary>**Is it safe to run?** 🛡️</summary>
+
+Yes, and here is exactly why:
+
+- It never asks for administrator rights, installs no drivers, and touches no system settings;
+  it's a normal user program you can delete like any other
+- It writes only inside your studio folder, with path containment enforced in code and tests
+- The server binds to 127.0.0.1 only; nothing on your network or the internet can reach it
+- Release downloads ship with SHA-256 checksums so you can verify the file you got
+- One honest caveat: unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper show a
+  warning the first time. That's about a missing paid certificate, not about what the program does;
+  the code is right here to read.
+
+
+</details>
+<details>
+<summary>**Is my content private?** 🔒</summary>
+
 Yes:
 
 - Loopback-only local server
@@ -893,21 +923,37 @@ Yes:
 - No accounts
 - Your studio folder is JSON you can read yourself
 
-**Can a conversion damage my cards?** 🛡️
+
+</details>
+<details>
+<summary>**Can a conversion damage my cards?** 🛡️</summary>
+
 No:
 
 - The original is escrowed inside the saved piece
 - Same-format round trips are lossless
 - Cross-format conversions report what mapped and what didn't
 
-**Do I need an API key?** 🔑
+
+</details>
+<details>
+<summary>**Do I need an API key?** 🔑</summary>
+
 No. Nothing here calls an AI. Planned AI features will be BYOK and opt-in, and their deterministic
 parts will work keyless.
 
-**Will it run scripts embedded in cards?** 🚫
+
+</details>
+<details>
+<summary>**Will it run scripts embedded in cards?** 🚫</summary>
+
 No. Carried as data, exported faithfully, never executed.
 
-**Which platforms?** 📡
+
+</details>
+<details>
+<summary>**Which platforms?** 📡</summary>
+
 
 - SillyTavern (V2/V3 JSON, PNG, charx)
 - RisuAI
@@ -923,18 +969,32 @@ No. Carried as data, exported faithfully, never executed.
 
 Per-field detail: [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md).
 
-**A platform I use isn't supported. Can it be?** 🎟️
+
+</details>
+<details>
+<summary>**A platform I use isn't supported. Can it be?** 🎟️</summary>
+
 Formats are drop-in adapter folders, so:
 
 - Open an issue with sample files, or add the folder yourself
 - The round-trip suite will tell you whether your adapter is honest
 
-**Why AGPL?** ⚖️
+
+</details>
+<details>
+<summary>**Why AGPL?** ⚖️</summary>
+
 So nobody closes this up and sells it back to the community it came from.
 [LICENSING.md](LICENSING.md) has the plain-terms version.
 
-**What does the name mean?** 🐰
+
+</details>
+<details>
+<summary>**What does the name mean?** 🐰</summary>
+
 Hop + limelight. The V is the maker's mark, the tapered H is the app's.
+
+</details>
 
 ---
 
