@@ -1,22 +1,22 @@
 <div align="center">
 
-<img src="docs/media/vaudeville-v.png" alt="Vaudeville Studios" width="72">
+<img src="docs/media/vaudeville-v.png" alt="" width="72">
 
-<sub>· VAUDEVILLE STUDIOS PRESENTS ·</sub>
+<sub>· A CONEJA-CHIBI PRODUCTION ·</sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/media/hoplight-wordmark-dark.png">
   <img src="docs/media/hoplight-wordmark-light.png" alt="Hoplight" width="460">
 </picture>
 
-<h3>Your AI-roleplay characters, out of everyone else's basement. 🐰</h3>
+<h3>The local-first studio for AI-roleplay content. 🐰</h3>
 
 <p>
-  <img alt="Status" src="https://img.shields.io/badge/status-active_development-e11d48">
+  <img alt="Status" src="https://img.shields.io/badge/status-active_development-F20D3F">
   <img alt="License" src="https://img.shields.io/badge/license-AGPL--3.0-0a0a0b">
   <img alt="Runtime" src="https://img.shields.io/badge/runtime-Bun_1.3+-f9f1e1">
   <img alt="Tests" src="https://img.shields.io/badge/tests-~1950_passing-2f7d4f">
-  <img alt="Local" src="https://img.shields.io/badge/cloud-none._ever.-e11d48">
+  <img alt="Local" src="https://img.shields.io/badge/cloud-local_only-F20D3F">
 </p>
 
 <p>
@@ -30,29 +30,25 @@
 
 ---
 
-## 🎪 What is this, actually?
+## 🎪 What is this?
 
-If you make or collect AI-roleplay characters, you know the problem: **every platform invented its
-own format, and none of them talk to each other.** Your best character is a SillyTavern PNG. Your
-friend uses RisuAI. That lorebook you spent a weekend on is welded inside a card you can't open
-anywhere. The platform hosting your library could change its rules, or just vanish, tomorrow.
-Your work is scattered across other people's apps, in other people's formats, on other people's
-servers.
+Every AI-roleplay platform has its own card format, and they don't talk to each other. A character
+made for SillyTavern doesn't open in RisuAI. A lorebook embedded in a card can't be edited outside
+the app that made it. If a platform shuts down or changes its rules, the work you keep there goes
+with it.
 
-Hoplight is a **local-first studio** that ends that. It reads every major card format into one
-canonical model, gives you real editors for all of it (characters, lorebooks, personas, presets,
-regex sets, sprites), and prints back to whichever platform you're publishing to today. Your whole
-library becomes a folder of plain JSON on your own disk: yours to keep, version, back up, and grep.
+Hoplight fixes this locally. It reads every major card format into one canonical model, gives you
+full editors for characters, lorebooks, personas, presets, regex sets, and sprites, and exports
+back to whichever platform you need. Your library lives as plain JSON files in a folder on your
+own disk, so you can version it, back it up, and search it like anything else you own.
 
 **Who it's for:**
 
-- 🎭 **Botmakers** who publish to more than one platform and are tired of maintaining five copies
-  of the same character by hand
-- 📦 **Collectors** with hundreds of cards across formats who want one library, one search, one
-  place
-- ✍️ **Writers** who want a real editor for the craft (lorebook keys, activation rules, token
-  budgets, per-platform field honesty) instead of a webform in someone's app
-- 🚪 **Anyone leaving a platform** with their library under their arm
+- Botmakers who publish to more than one platform and don't want to maintain separate copies by
+  hand
+- Collectors with large libraries spread across formats
+- Writers who want a real editor for lorebook keys, activation rules, and token budgets
+- Anyone leaving a platform who wants to take their library with them
 
 ## 🖥️ The studio
 
@@ -60,92 +56,85 @@ library becomes a folder of plain JSON on your own disk: yours to keep, version,
   <tr>
     <td width="50%">
       <img src="docs/media/shot-library.png" alt="The Library: deck chips with live counts, card grid with cover art">
-      <p align="center"><sub><b>The Library</b> · every piece you own, browsable by kind, art forward</sub></p>
+      <p align="center"><sub><b>The Library</b> · every piece you own, browsable by kind</sub></p>
     </td>
     <td width="50%">
       <img src="docs/media/shot-casting.png" alt="The Workbench: guided casting flow beside a live proof card">
-      <p align="center"><sub><b>The Workbench</b> · a guided casting interview builds the card while the proof sheet takes shape</sub></p>
+      <p align="center"><sub><b>The Workbench</b> · a guided interview builds the card; the proof sheet fills in as you answer</sub></p>
     </td>
   </tr>
   <tr>
     <td width="50%">
       <img src="docs/media/shot-lorebook.png" alt="The lorebook binder: table of contents, per-entry keys, activation rules">
-      <p align="center"><sub><b>The binder</b> · lorebooks as a real editor: keys, activation rules, budgets, health checks</sub></p>
+      <p align="center"><sub><b>The binder</b> · lorebook editing with keys, activation rules, budgets, and health checks</sub></p>
     </td>
     <td width="50%">
       <img src="docs/media/shot-press.png" alt="The Press: staged kit with a linked lorebook riding, readiness lines, one target platform">
-      <p align="center"><sub><b>The Press</b> · batch export: a character travels as a kit with his linked books, every card states its readiness</sub></p>
+      <p align="center"><sub><b>The Press</b> · batch export; a character brings its linked lorebooks, and every card shows its readiness for the target platform</sub></p>
     </td>
   </tr>
 </table>
 
 <details>
-<summary>🎬 First run: the setup wizard</summary>
+<summary>First run: the setup wizard</summary>
 <br>
 <img src="docs/media/shot-setup.png" alt="First-run wizard: theme, first deck, publish targets, accent, with a live stage preview">
-<p><sub>Four questions, a stage that lights up as you answer, and everything can change later.</sub></p>
+<p><sub>Four questions. Everything can change later.</sub></p>
 </details>
 
-## ⚙️ What it does that others don't
+## ⚙️ What makes it different
 
-- **Converts honestly.** One canonical model in the middle, an adapter per platform. What a
-  platform can't carry is *reported*, never silently dropped, and your original file rides along
-  in escrow, so a same-format round trip loses nothing. The conversion report tells you what
-  moved and what stayed home, in sentences.
-- **Edits with a lens.** Tell the editor which platform you're writing for and it dims every
-  field that platform won't carry. You stop guessing which of your work survives the export.
-- **Thinks in kits.** A character owns his linked lorebooks. Import a card and its embedded book
-  becomes a real, editable piece; print the character and the book rides along. (A kit is also a
-  baby rabbit. This is not a coincidence.)
-- **Executes nothing.** Cards can carry scripts. Hoplight treats them as sealed data: inspected,
-  reported, carried faithfully, never run. There's a full sandbox design written for the day that
-  changes, and until it ships, the law is the law.
-- **Stays on your machine.** The studio is a loopback-only local server. No accounts, no
-  telemetry, no phone-home, no cloud. Ever.
+- **Honest conversion.** One canonical model in the middle, one adapter per platform. Anything a
+  platform can't carry is reported instead of silently dropped, and the original file is kept in
+  escrow inside the saved piece, so a same-format round trip is lossless.
+- **A per-platform lens.** Tell the editor which platform you're writing for and it dims the
+  fields that platform won't carry. You always know which work survives the export.
+- **Linked pieces stay linked.** Import a card and its embedded lorebook becomes a separate,
+  editable piece that stays attached to the character. Export the character and the book comes
+  along.
+- **No script execution.** Cards can carry scripts and macros. Hoplight inspects and preserves
+  them but never runs them.
+- **Fully local.** The studio is a loopback-only local server. No accounts, no telemetry, no
+  outbound calls.
 
 ## ❓ FAQ
 
 **Is my content private?**
-Completely. Everything runs on your machine, the studio only listens on localhost, and nothing in
-this codebase makes an outbound network call. Your studio folder is plain JSON files you can read
-yourself.
+Yes. Everything runs on your machine, the server only listens on localhost, and nothing in the
+codebase makes an outbound network call. Your studio folder is readable JSON.
 
 **Can a conversion damage my cards?**
-The original file is kept in escrow inside the saved piece, so converting never destroys anything.
-Same-format round trips are byte-honest; cross-format conversions produce a plain-words report of
-exactly what mapped and what didn't. Around 1,950 tests, including a round-trip law suite, hold
-that line in CI.
+The original file is kept in escrow inside the saved piece, so nothing is destroyed by converting.
+Same-format round trips are lossless, and cross-format conversions produce a report of what mapped
+and what didn't. A round-trip test suite enforces this in CI.
 
 **Do I need an API key?**
-No. Hoplight does its job with zero AI calls. Planned AI features (the Script Doctor's treatment
-planner, the Table Read interview) will be strictly bring-your-own-key and opt-in; the
-deterministic parts will always work with no key at all.
+No. Nothing here calls an AI. Planned AI features (the Script Doctor's treatment planner, the
+Table Read) will be bring-your-own-key and opt-in, and their deterministic parts will work without
+a key.
 
-**Will it run the scripts embedded in cards?**
-No. Scripts, macros, and Lua blobs are carried as sealed data and printed back faithfully, but
-never executed. That's a safety stance, not a missing feature.
+**Will it run scripts embedded in cards?**
+No. Scripts are carried as data and exported faithfully, but never executed.
 
 **Which platforms?**
 SillyTavern (V2/V3 JSON, PNG, charx), RisuAI, RoleCall, Backyard (.byaf and legacy), Agnai,
-Pygmalion, Lumiverse, Marinara, Chub, NovelAI lorebooks, and portable Default CCv3 for everything
-else. Per-field honesty for each lives in [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md).
+Pygmalion, Lumiverse, Marinara, Chub, NovelAI lorebooks, and portable CCv3 for everything else.
+Per-field detail is in [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md).
 
 **A platform I use isn't supported. Can it be?**
-Formats are drop-in adapter folders; the filesystem is the schema. Open an issue with sample
-files, or add the folder yourself; the round-trip suite will tell you when it's honest.
+Formats are drop-in adapter folders. Open an issue with sample files, or add the folder yourself;
+the round-trip suite will tell you whether it's honest.
 
 **CLI or app?**
-Both, same engine. The studio is the daily driver; the CLI (`vaud`, being renamed) does convert,
-inspect, validate, and label for scripts and batch work, with `--json` for machines.
+Both, over the same engine. The studio is the main experience; the CLI covers convert, inspect,
+validate, and label for scripts and batch work, with `--json` output.
 
 **Why AGPL?**
-Because the freedom should travel with the code: nobody gets to take this, close it up, and sell
-it back to the community it came from. Plain-words version in [LICENSING.md](LICENSING.md).
+So the code stays free: nobody can close it up and resell it. Plain-terms explanation in
+[LICENSING.md](LICENSING.md).
 
-**What's with the name?**
-Hop × limelight. Hoplight is the stagehand rabbit who lights your way around the studio, and
-Vaudeville Studios is the production house she works for. The crossed searchlights in the wordmark
-are her doing.
+**What does the name mean?**
+Hop and limelight. The crossed-searchlight V is the maker's mark; the tapered H is the app's.
 
 ## 🚀 Quick start
 
@@ -180,54 +169,45 @@ bun run dev
 
 ## 🗺️ Where it is, where it goes
 
-Ground truth with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.md). The deeper
-plans (per-jewel build docs, ticket decks through M3) live in the production notes.
+Milestones with exit criteria: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ### ✅ Shipped
 
-The foundation: canonical schemas, escrow envelope, PNG codec, and the round-trip law enforced in
-CI. The converter CLI. The character forge, closed against nine-plus platforms with native field
-editors and a per-platform honesty lens. The media pipeline (portraits, sprite packs). The full
-lorebook binder. Regex and persona editors. The Risu Workshop with its sealed test bench. The
-Press with kit-grouped batch export.
+Canonical schemas, the escrow envelope, the PNG codec, and a round-trip law enforced in CI. The
+converter CLI. Character editing closed against nine-plus platforms with native field editors and
+the per-platform lens. Portraits and sprite packs. The lorebook binder. Regex and persona editors.
+The Risu Workshop with a sealed test bench. The Press.
 
 ### 🔨 In the shop
 
-- 🃏 **The preset editor** · the last content type; the hybrid editor design is locked and the
-  build plan is phased
-- 🖨️ **The Press ledger** · run history, saved print jobs, re-print, and "edited since" staleness
-  flags
-- 🐰 **Hoplight herself** · the stagehand rabbit takes over the tours, empty states, and loading
-  beats; mark candidates drawn, one gets picked
-- 📚 **Reference pages** for the four newest platform adapters
-- 📦 **Desktop packaging** · the studio already runs as the daily driver; formal releases remain
+- **The preset editor** · the last content type; design locked, build plan phased
+- **The Press ledger** · run history, saved print jobs, re-print, staleness flags
+- **Hoplight the mascot** · takes over the tours, empty states, and loading screens
+- **Reference pages** for the four newest platform adapters
+- **Desktop packaging** · the studio already runs daily; formal releases remain
 
 ### 🗺️ Next
 
-- 🩺 **The Script Doctor** · deterministic card audits (format errors, token waste,
-  contradictions, slop banks) with a health score; runs with no API key; ticket deck already cut
-- 🔐 **The capability sandbox** · a three-layer design for someday running card scripts safely;
-  until it ships, scripts stay sealed data by law
-- 🧠 **The Brain** · provider layer and an agent loop over your studio; bring your own key, local
-  models included
+- **The Script Doctor** · deterministic card audits (format errors, token waste, contradictions)
+  with a health score; no API key required
+- **The capability sandbox** · a three-layer design for running card scripts safely; until it
+  ships, scripts stay data
+- **The Brain** · provider layer and an agent loop over your studio; BYOK, local models included
 
 ### 🎭 The long game
 
-- 🎤 **The Table Read** · an interview engine that grows a card from a conversation, from a
-  five-minute Cold Read to a Deep Dive
-- 🎬 **Productions** · workspace folders with content-addressed history: edit a field, replay the
-  same test line, watch the output change
-- 🗃️ **The Archives + the World Forge** · distill characters from real chat logs with per-claim
-  citations; interview-grown worlds with a standing continuity desk
-- 🏢 **The Company** · the dock already holds its seat
+- **The Table Read** · an interview engine that grows a card from a conversation
+- **Productions** · workspace folders with content-addressed history and replayable test lines
+- **The Archives + the World Forge** · distill characters from chat logs with citations;
+  interview-grown worlds with a continuity desk
+- **The Company** · a reserved seat in the dock
 
 ## 🔧 Under the hood
 
-Bun + TypeScript, strict. A pure engine core with side effects pushed to the edges; the CLI and
-the studio are two thin shells over the same engine. Apps, format adapters, settings sections, and
-deck views are all drop-in folders: the filesystem is the schema. CI runs ~1,950 tests plus a
-color-token guard, a file-size cap, prose gates, and a license audit that fails the build if a
-restricted dependency sneaks in.
+Bun + TypeScript, strict. A pure engine core with side effects at the edges; the CLI and the
+studio are thin shells over the same engine. Apps, format adapters, settings sections, and deck
+views are drop-in folders. CI runs ~1,950 tests plus a color-token guard, a file-size cap, prose
+gates, and a license audit that fails the build on restricted dependencies.
 
 | Read order | |
 | --- | --- |
@@ -239,10 +219,5 @@ restricted dependency sneaks in.
 
 ## 📜 License
 
-[AGPL-3.0-or-later](LICENSE). Use it, change it, share it; the freedom travels with the code.
-Dependencies stay permissive, enforced by `bun run license:audit`.
-
-<div align="center">
-<br>
-<sub>🎭 a Coneja-Chibi production 🎭</sub>
-</div>
+[AGPL-3.0-or-later](LICENSE). Plain-terms version in [LICENSING.md](LICENSING.md). Dependencies
+stay permissive, enforced by `bun run license:audit`.
