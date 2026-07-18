@@ -923,7 +923,7 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
   with no doors. Even `calc::` expressions go through a hand-written numeric parser, not eval.
 - **Zero outbound calls.** There is no network client code targeting anything but 127.0.0.1 in
   the codebase; grep it.
-- **CI holds the line.** ~1,950 tests including path-containment, server-security, and round-trip
+- **Tested.** ~1,950 tests including path-containment, server-security, and round-trip
   suites run on every commit.
 - Unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper warn on first run. That's
   a missing paid certificate, not behavior; verify the SHA-256 checksums shipped with releases.
