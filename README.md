@@ -40,14 +40,18 @@ sprites all live in one local studio with real editors, instead of being scatter
 apps happen to read their formats. When you want to publish somewhere, you export to that
 platform's format; the piece you keep working on is always your own copy.
 
-Right now that's hard to do. Every platform has its own card format, cards drift apart when you
-maintain a copy per platform, and an embedded lorebook can only be edited inside the app that made
-it.
-
 **Hoplight flips the relationship.** Your studio is the master copy; the platforms become publish
 targets.
 
 > *"The platforms stop being where your work lives. They become where your work performs."* 🎭🐰
+
+---
+
+## 🧠 Why This is Better (The Format Problem)
+
+Every platform has its own card format, and cards drift apart the moment you maintain a copy per
+platform. The lorebook you spent a weekend on is welded inside a PNG only one app can open. And
+the platform hosting your library sets the rules for your own work.
 
 | Elsewhere | In Hoplight |
 |---|---|
@@ -81,6 +85,26 @@ and every export of the character carries the current version.
 A platform editor stores your work in that platform's folder, in that platform's format, on that
 platform's terms. Hoplight stores plain JSON in a folder you own. If a platform dies tomorrow,
 you lose a publish target, not your work.
+
+---
+
+## ⚙️ How It Actually Works
+
+```
+SillyTavern ──┐                ┌── RisuAI
+Backyard ─────┤                ├── RoleCall
+Agnai ────────┤   canonical    ├── Chub
+Pygmalion ────┤     model      ├── Lumiverse
+NovelAI ──────┤                ├── Marinara
+CCv3 ─────────┘                └── ...your studio, as JSON
+```
+
+- **Hub and spoke.** N platforms cost N adapters, not N². Adding a platform is dropping a folder
+  in; the round-trip suite tells you whether your adapter is honest.
+- **Escrow.** The original file rides inside the saved piece. Same-format round trips are
+  byte-honest, and CI enforces it on every commit.
+- **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects, reports,
+  and preserves them. It runs none of them.
 
 ---
 
@@ -130,10 +154,10 @@ deck takes the floor.
 
 | View | How it works | Best for |
 |---|---|---|
-| **Grid** *(default)* | Art-forward cards in a fluid grid that reflows with the art dial | Browsing with your eyes |
-| **Show** | One piece at a time: hero art, the card's own tagline and description, prev/next and a thumb rail | Deciding if a card is any good |
-| **List** | Dense rows, no art ceremony | Big libraries, fast scanning |
-| **Shelf** | Spine-first browsing | Shelf people |
+| 🖼️ **Grid** *(default)* | Art-forward cards in a fluid grid that reflows with the art dial | Browsing with your eyes |
+| 🎬 **Show** | One piece at a time: hero art, the card's own tagline and description, prev/next and a thumb rail | Deciding if a card is any good |
+| 📄 **List** | Dense rows, no art ceremony | Big libraries, fast scanning |
+| 📚 **Shelf** | Spine-first browsing | Shelf people |
 
 The view toolbar builds itself from drop-in view modules; adding a fifth view is adding a folder.
 Your view choice and art size persist per user.
@@ -172,9 +196,9 @@ Every piece answers a right-click with the same menu grammar, extended per kind:
 
 | Action | What it does |
 |---|---|
-| **Send to the Workbench** | Opens the piece in its editor |
-| **Open beside** | Pins it into a split next to the active piece |
-| **Stage for the Press** | Adds it to the batch-export queue |
+| 🛠️ **Send to the Workbench** | Opens the piece in its editor |
+| 🪟 **Open beside** | Pins it into a split next to the active piece |
+| 🖨️ **Stage for the Press** | Adds it to the batch-export queue |
 
 Apps register their own providers into the same system, so the menu grows with the studio instead
 of fragmenting per room.
@@ -183,10 +207,10 @@ of fragmenting per room.
 
 | Deck | Operations |
 |---|---|
-| **Lorebooks** | Merge books, split a book, attach to a character |
-| **Regex sets** | Duplicate, enable/disable, combine sets |
-| **Characters** | Travel with their linked lorebooks; kits are first-class |
-| **Personas** | The structured persona editor, same chassis as characters |
+| 📖 **Lorebooks** | Merge books, split a book, attach to a character |
+| 🧪 **Regex sets** | Duplicate, enable/disable, combine sets |
+| 🎭 **Characters** | Travel with their linked lorebooks; kits are first-class |
+| 👤 **Personas** | The structured persona editor, same chassis as characters |
 
 ---
 
@@ -221,14 +245,14 @@ that platform won't carry is dimmed or hidden, your choice:
 
 | Off-target mode | Behavior |
 |---|---|
-| **Dim** | Fields the target won't carry are grayed but editable |
-| **Hide** | They're gone until you switch back to the full card |
+| 🌫️ **Dim** | Fields the target won't carry are grayed but editable |
+| 🙈 **Hide** | They're gone until you switch back to the full card |
 
 | Tab | What it edits |
 |---|---|
-| **Hoplight** | The full canonical card, everything at once |
-| **SillyTavern / RoleCall / RisuAI / Lumiverse / Backyard / Agnai / Marinara / Chub** | That platform's view of the card, plus its native field bags |
-| **Default** | Portable CCv3 for thin hosts |
+| 🐰 **Hoplight** | The full canonical card, everything at once |
+| 📡 **SillyTavern / RoleCall / RisuAI / Lumiverse / Backyard / Agnai / Marinara / Chub** | That platform's view of the card, plus its native field bags |
+| 📦 **Default** | Portable CCv3 for thin hosts |
 
 The lens runs on per-platform **coverage declarations**, the same ground truth the Press uses for
 readiness. The editor itself knows zero platforms; it just reads the claims.
@@ -262,9 +286,9 @@ When another room sends a piece to the Workbench, the follow prompt asks once:
 
 | Follow mode | Behavior |
 |---|---|
-| **Ask** *(default)* | "1 item was sent to the Workbench. Follow?" |
-| **Always** | Jump to the Workbench every time |
-| **Never** | Pieces open quietly in the background |
+| ❓ **Ask** *(default)* | "1 item was sent to the Workbench. Follow?" |
+| 🏃 **Always** | Jump to the Workbench every time |
+| 🤫 **Never** | Pieces open quietly in the background |
 
 ### 🧪 **The Regex Bench** *(patterns with a test stage)*
 
@@ -290,10 +314,10 @@ The header keeps the honest tally: `2 entries · ~20 / 2048 tok`.
 
 | Control | What it does |
 |---|---|
-| **Simple mode** | Primary keywords; entry fires when one appears |
-| **Advanced mode** | Primary + secondary key groups with AND/OR logic between them |
-| **By meaning** | The entry fires on similarity instead of exact words; your keys are kept either way |
-| **Matching** | Whole-words and case sensitivity as tri-states that inherit from the book's defaults |
+| 🎯 **Simple mode** | Primary keywords; entry fires when one appears |
+| 🧩 **Advanced mode** | Primary + secondary key groups with AND/OR logic between them |
+| 🧠 **By meaning** | The entry fires on similarity instead of exact words; your keys are kept either way |
+| 🔤 **Matching** | Whole-words and case sensitivity as tri-states that inherit from the book's defaults |
 
 ### ⏱️ **When and Where** *(activation, in one readable line)*
 
@@ -309,13 +333,13 @@ Underneath it, the full control set:
 
 | Rule | Meaning |
 |---|---|
-| **Chance** | Probability the entry injects when triggered |
-| **Sticky** | Stays active for N messages once fired |
-| **Cooldown** | Won't re-fire for N messages after |
-| **Delay** | Waits N messages into the chat before it's eligible |
-| **Position + depth + role** | Where in the prompt it lands, and as whom |
-| **Recursion controls** | Whether other entries' text can wake it, and whether it can wake others |
-| **Groups + weights** | Mutually-exclusive entry groups with weighted selection |
+| 🎲 **Chance** | Probability the entry injects when triggered |
+| 📌 **Sticky** | Stays active for N messages once fired |
+| 🧊 **Cooldown** | Won't re-fire for N messages after |
+| ⏳ **Delay** | Waits N messages into the chat before it's eligible |
+| 📍 **Position + depth + role** | Where in the prompt it lands, and as whom |
+| 🔄 **Recursion controls** | Whether other entries' text can wake it, and whether it can wake others |
+| ⚖️ **Groups + weights** | Mutually-exclusive entry groups with weighted selection |
 
 ### 💰 **Budgets** *(tokens, honestly estimated)*
 
@@ -357,10 +381,10 @@ never staged.
 
 | Kit behavior | What happens |
 |---|---|
-| **Riders** | Linked books appear under their character, marked "rides with" |
-| **Drop from this run** | Excludes a rider from one run without unlinking anything |
-| **Ride again** | Puts it back |
-| **No doubling** | A staged book already riding a kit isn't printed twice |
+| 🧳 **Riders** | Linked books appear under their character, marked "rides with" |
+| 🪂 **Drop from this run** | Excludes a rider from one run without unlinking anything |
+| 🔁 **Ride again** | Puts it back |
+| 🚫 **No doubling** | A staged book already riding a kit isn't printed twice |
 
 ### ✅ **Readiness** *(before you print, not after)*
 
@@ -384,9 +408,9 @@ extension or as `.txt` / `.md`; binary formats don't pretend they can.
 
 | Row result | What it means |
 |---|---|
-| **Printed** | In the zip, with what it carries listed |
-| **Skipped** | Declared before the run even starts ("this platform has no persona format") |
-| **Failed** | The actual error, on the row that failed |
+| ✅ **Printed** | In the zip, with what it carries listed |
+| ⏭️ **Skipped** | Declared before the run even starts ("this platform has no persona format") |
+| ❌ **Failed** | The actual error, on the row that failed |
 
 Platforms that read CCv3 with their own extension bags (Marinara, Chub) print characters as a
 CCv3 card, their native file, and the row says so. Everything that printed lands in one zip,
@@ -394,40 +418,69 @@ named for the platform.
 
 ---
 
-## 🎨 The CSS Workshop
+## 🎨 The Small Rooms
 
-Restyle the studio itself. Every color in the app is a token; the workshop edits them live against
-real components, and the same CI guard that keeps hardcoded colors out of the codebase keeps your
-theme portable.
+### 🖌️ **The CSS Workshop** *(restyle the studio itself)*
 
----
+Every color in the app is a token; the workshop edits them live against real components, and the
+same CI guard that keeps hardcoded colors out of the codebase keeps your theme portable.
 
-## ⚙️ Settings
+### ⚙️ **Settings** *(drop-in, like everything else)*
 
-Drop-in sections, like everything else: **Appearance** (theme, house accent), **Studio** (home
-app, first deck, publish targets from the live format registry), **Workbench** (follow behavior).
-Every control is call-and-response against the running studio; theme and accent repaint
-instantly.
+Sections are drop-in folders: **Appearance** (theme, house accent), **Studio** (home app, first
+deck, publish targets from the live format registry), **Workbench** (follow behavior). Every
+control is call-and-response against the running studio; theme and accent repaint instantly.
 
 ---
 
-## ⚙️ How It Actually Works
+## 🚀 Installation & Setup
 
-```
-SillyTavern ──┐                ┌── RisuAI
-Backyard ─────┤                ├── RoleCall
-Agnai ────────┤   canonical    ├── Chub
-Pygmalion ────┤     model      ├── Lumiverse
-NovelAI ──────┤                ├── Marinara
-CCv3 ─────────┘                └── ...your studio, as JSON
+### Prerequisites
+
+- **[Bun](https://bun.sh) 1.3+** (the only dependency you install yourself)
+- Some cards. You have cards.
+
+### Step 1: Install 📥
+
+```bash
+git clone https://github.com/Coneja-Chibi/vaudeville-studios
+cd vaudeville-studios
+bun install
 ```
 
-- **Hub and spoke.** N platforms cost N adapters, not N². Adding a platform is dropping a folder
-  in; the round-trip suite tells you whether your adapter is honest.
-- **Escrow.** The original file rides inside the saved piece. Same-format round trips are
-  byte-honest, and CI enforces it on every commit.
-- **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects, reports,
-  and preserves them. It runs none of them.
+### Step 2: Open the studio 🎬
+
+```bash
+bun run dev
+```
+
+Loopback only. The first run walks you through four questions (theme, first deck, publish
+targets, accent) and everything can change later.
+
+### Step 3: Bring your work 📦
+
+Drag any card, book, or archive into the Library and read the receipt. Try the samples first if
+you want a dry run:
+
+```bash
+bun run vaud formats                                          # what can we open?
+bun run vaud inspect samples/sillytavern/Seraphina.png        # peek at a card
+bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
+```
+
+### The CLI
+
+| Command | Purpose |
+| --- | --- |
+| `vaud convert <in> <out> [--to id]` | Convert between formats |
+| `vaud inspect <file>` | Plain-words summary of any file |
+| `vaud validate <file>` | Detect + parse; exit 0 if openable |
+| `vaud label <file>` | Guess format and likely origin |
+| `vaud formats` | List every adapter |
+| `vaud ui [port] [studioDir]` | The visual studio (loopback only) |
+
+`--json` on inspect/validate/formats/convert for machine output. The current CLI covers the
+essentials; the full CLI/TUI is a work in progress.
 
 ---
 
@@ -500,65 +553,12 @@ Per-field detail: [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md).
 Formats are drop-in adapter folders. Open an issue with sample files, or add the folder yourself.
 The round-trip suite will tell you whether your adapter is honest.
 
-**CLI or app?**
-Both, same engine. The studio is the daily driver; the CLI does convert, inspect, validate, and
-label for scripts and batch work, with `--json` output. A real terminal face (TUI) is in
-progress.
-
 **Why AGPL?**
 So nobody closes this up and sells it back to the community it came from.
 [LICENSING.md](LICENSING.md) has the plain-terms version.
 
 **What does the name mean?**
 Hop + limelight. The V is the maker's mark, the tapered H is the app's.
-
----
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-
-- **[Bun](https://bun.sh) 1.3+** (the only dependency you install yourself)
-- Some cards. You have cards.
-
-### Step 1: Install 📥
-
-```bash
-git clone https://github.com/Coneja-Chibi/vaudeville-studios
-cd vaudeville-studios
-bun install
-```
-
-### Step 2: Open the studio 🎬
-
-```bash
-bun run dev
-```
-
-Loopback only. The first run walks you through four questions (theme, first deck, publish
-targets, accent) and everything can change later.
-
-### Step 3: Bring your work 📦
-
-Drag any card, book, or archive into the Library and read the receipt. Try the samples first if
-you want a dry run:
-
-```bash
-bun run vaud formats                                          # what can we open?
-bun run vaud inspect samples/sillytavern/Seraphina.png        # peek at a card
-bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
-```
-
-| Command | Purpose |
-| --- | --- |
-| `vaud convert <in> <out> [--to id]` | Convert between formats |
-| `vaud inspect <file>` | Plain-words summary of any file |
-| `vaud validate <file>` | Detect + parse; exit 0 if openable |
-| `vaud label <file>` | Guess format and likely origin |
-| `vaud formats` | List every adapter |
-| `vaud ui [port] [studioDir]` | The visual studio (loopback only) |
-
-The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
 ---
 
@@ -760,10 +760,12 @@ license audit       : build fails on restricted dependencies
 
 - **🥕 BunnyMo**: BunnyMo lorebooks are SillyTavern lorebooks; they import, edit, and re-export
   like any other book.
-- **Every platform listed above**: Hoplight reads and writes their formats; it replaces none of
+- **📡 Every platform listed above**: Hoplight reads and writes their formats; it replaces none of
   them. They're where your work performs.
-- **Your files**: the studio folder is plain JSON. Scripts, git, rsync, and grep all work on it,
-  because it's just files.
+- **📁 Your files**: the studio folder is plain JSON. Scripts, git, rsync, and grep all work on
+  it, because it's just files.
+
+---
 
 ---
 
