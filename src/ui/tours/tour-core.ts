@@ -59,3 +59,24 @@ export const prevIndex = (index: number): number => Math.max(0, index - 1);
 /** A validity check a shell can use before mounting: a real tour has at least one step. */
 export const isRunnable = (tour: Tour | null | undefined): tour is Tour =>
   !!tour && Array.isArray(tour.steps) && tour.steps.length > 0;
+
+/**
+ * Which tour ids to try for the current view, most specific first. On the Workbench with a piece
+ * open, the piece's KIND owns the "?" (`workbench-lorebook`, `workbench-regex`, ...) and the plain
+ * workbench tour is the fallback, so a kind without its own walkthrough still gets guidance (the
+ * character editor IS the base workbench tour). Everywhere else, the app's own id. Each id carries
+ * its own seen-flag, so first-opening a lorebook can auto-offer its walkthrough even though the
+ * workbench tour was seen long ago.
+ */
+export function tourIdCandidates(
+  activeAppId: string,
+  benchAppId: string | undefined,
+  activePieceKind: string | null,
+): string[] {
+  if (!activeAppId) return [];
+  if (benchAppId !== undefined && activeAppId === benchAppId && activePieceKind !== null) {
+    const kind = activePieceKind === "character" ? null : activePieceKind;
+    return kind ? [`${activeAppId}-${kind}`, activeAppId] : [activeAppId];
+  }
+  return [activeAppId];
+}

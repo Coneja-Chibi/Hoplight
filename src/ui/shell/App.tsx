@@ -26,8 +26,9 @@ import { Menu } from "./Menu";
 import { LeavingGate } from "../components/leaving-gate";
 import { TourGuide } from "../components/tour-guide";
 import type { Tour } from "../tours/tour-contract";
-import { hasSeenTour, isRunnable, seenTourKeys, tourSeenKey } from "../tours/tour-core";
+import { hasSeenTour, isRunnable, seenTourKeys, tourIdCandidates, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
+import { paneKeyOf } from "./store-core";
 
 type Phase = "loading" | "setup" | "ready" | "boot-error";
 
@@ -151,7 +152,14 @@ export function App(): JSX.Element | null {
     };
   }, [manifests]);
 
-  // -- load the active app's tour (if any) and auto-launch it once, on first visit ------------------
+  // -- load the view's tour (if any) and auto-launch it once, on first visit ------------------------
+  // On the Workbench, the "?" serves the ACTIVE PIECE'S KIND (workbench-lorebook, workbench-regex,
+  // ...), falling back to the base workbench tour; each kind carries its own seen-flag via its
+  // manifest.appId, so first-opening a lorebook can auto-offer its walkthrough.
+  const activePieceKind = useShellStore((s) => {
+    const p = s.openPieces.find((pp) => paneKeyOf(pp) === s.activeKey);
+    return p?.kind ?? null;
+  });
   useEffect(() => {
     if (!activeAppId) {
       setTour(null);
@@ -160,25 +168,33 @@ export function App(): JSX.Element | null {
     }
     let cancelled = false;
     void (async () => {
-      let t = toursRef.current.get(activeAppId);
-      if (t === undefined) {
-        try {
-          const mod = (await import(`/tours/${activeAppId}.js`)) as { default: Tour };
-          t = isRunnable(mod.default) ? mod.default : null;
-        } catch {
-          t = null; // no tour for this app (a 404) - the common case, not an error
+      const benchId = useShellStore.getState().benchApp()?.id;
+      let t: Tour | null = null;
+      for (const id of tourIdCandidates(activeAppId, benchId, activePieceKind)) {
+        let cachedTour = toursRef.current.get(id);
+        if (cachedTour === undefined) {
+          try {
+            const mod = (await import(`/tours/${id}.js`)) as { default: Tour };
+            cachedTour = isRunnable(mod.default) ? mod.default : null;
+          } catch {
+            cachedTour = null; // no tour under this id (a 404) - the common case, not an error
+          }
+          toursRef.current.set(id, cachedTour);
         }
-        toursRef.current.set(activeAppId, t);
+        if (cachedTour) {
+          t = cachedTour;
+          break;
+        }
       }
       if (cancelled) return;
       setTour(t);
-      const seen = hasSeenTour(useShellStore.getState().settings[tourSeenKey(activeAppId)]);
+      const seen = t ? hasSeenTour(useShellStore.getState().settings[tourSeenKey(t.manifest.appId)]) : true;
       setTourOpen(!!t && !seen); // first visit with an unseen tour opens it; otherwise it waits on ?
     })();
     return () => {
       cancelled = true;
     };
-  }, [activeAppId]);
+  }, [activeAppId, activePieceKind]);
 
   // -- shell-owned context-menu providers (identical in every room), registered once -----------------
   useEffect(() => {

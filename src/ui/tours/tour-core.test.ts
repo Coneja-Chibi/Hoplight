@@ -4,7 +4,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { Tour } from "./tour-contract";
-import { hasSeenTour, isRunnable, nextIndex, positionAt, prevIndex, seenTourKeys, tourSeenKey } from "./tour-core";
+import { hasSeenTour, isRunnable, nextIndex, positionAt, prevIndex, seenTourKeys, tourIdCandidates, tourSeenKey } from "./tour-core";
 
 const tour = (n: number): Tour => ({
   manifest: { appId: "workbench", title: "Getting started" },
@@ -86,5 +86,31 @@ describe("isRunnable", () => {
     expect(isRunnable(tour(0))).toBe(false);
     expect(isRunnable(null)).toBe(false);
     expect(isRunnable(undefined)).toBe(false);
+  });
+});
+
+describe("tourIdCandidates: the ? serves the active piece's kind on the bench", () => {
+  test("bench + lorebook open tries the kind tour, then the base workbench tour", () => {
+    expect(tourIdCandidates("workbench", "workbench", "lorebook")).toEqual([
+      "workbench-lorebook",
+      "workbench",
+    ]);
+  });
+
+  test("bench + character collapses to the base tour (the character editor IS that tour)", () => {
+    expect(tourIdCandidates("workbench", "workbench", "character")).toEqual(["workbench"]);
+  });
+
+  test("bench with nothing open serves the base tour", () => {
+    expect(tourIdCandidates("workbench", "workbench", null)).toEqual(["workbench"]);
+  });
+
+  test("other apps serve their own id regardless of open pieces", () => {
+    expect(tourIdCandidates("library", "workbench", "lorebook")).toEqual(["library"]);
+    expect(tourIdCandidates("press", undefined, null)).toEqual(["press"]);
+  });
+
+  test("no active app yields nothing", () => {
+    expect(tourIdCandidates("", "workbench", "lorebook")).toEqual([]);
   });
 });
