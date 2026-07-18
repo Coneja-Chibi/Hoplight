@@ -13,6 +13,7 @@ import {
   createHandler,
   createSecurityContext,
   injectSessionMeta,
+  inlineScriptHashes,
   readBodyCapped,
   INSPECT_BODY_MAX,
 } from "./server";
@@ -255,7 +256,11 @@ describe("createHandler security", () => {
     expect(html).toContain('name="vaude-session"');
     expect(html).toContain(sec.token);
     const csp = res.headers.get("content-security-policy") ?? "";
-    expect(csp).toContain("sha256-oS0890KthXKlLAElsrB9TPYaFk7T+qY9JZeMwO31GOw=");
+    // The hash is COMPUTED from the served html, never pinned by hand: a hand pin rotted the moment
+    // the import map changed, and a rotted hash took the whole app down (React resolves through it).
+    const hashes = inlineScriptHashes(html);
+    expect(hashes).toContain("sha256-");
+    expect(csp).toContain(`script-src 'self' ${hashes};`);
     expect(csp).not.toContain("unsafe-inline'; style-src");
   });
 

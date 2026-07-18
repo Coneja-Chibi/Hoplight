@@ -2,7 +2,7 @@
  * UI server security: session token, Host/Origin gates, body caps, HTML CSP injection.
  * Extracted from server.ts (behavior-preserving).
  */
-import { randomBytes, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import {
   isStudioNotFoundError,
   isStudioReadError,
@@ -69,16 +69,30 @@ const HTML_SECURITY_HEADERS_BASE: Record<string, string> = {
   "referrer-policy": "no-referrer",
 };
 
+/**
+ * The sha256 CSP source for every inline <script> in the served HTML. Computed from the real
+ * markup, never hand-baked: a pinned hash rots the moment the import map changes, and a rotted
+ * hash does not degrade - it takes the whole app down (the import map is how React resolves).
+ */
+export function inlineScriptHashes(html: string): string {
+  const hashes: string[] = [];
+  for (const m of html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
+    const digest = createHash("sha256").update(m[1]!, "utf8").digest("base64");
+    hashes.push(`'sha256-${digest}'`);
+  }
+  return hashes.join(" ");
+}
+
 /** Build HTML CSP; when sandboxOrigin is set, worker-src may load the distinct-origin module worker. */
-export function htmlSecurityHeaders(sandboxOrigin = ""): Record<string, string> {
+export function htmlSecurityHeaders(sandboxOrigin = "", scriptHashes = ""): Record<string, string> {
   const workerExtra =
     sandboxOrigin && sandboxOrigin.startsWith("http://127.0.0.1:") ? ` ${sandboxOrigin}` : "";
+  const inline = scriptHashes ? ` ${scriptHashes}` : "";
   return {
     ...HTML_SECURITY_HEADERS_BASE,
     "content-security-policy":
-      // The sole inline script is the static import map in index.html. A hash keeps executable
-      // inline JavaScript blocked while allowing WebView2 to resolve the React vendor modules.
-      "default-src 'self'; script-src 'self' 'sha256-oS0890KthXKlLAElsrB9TPYaFk7T+qY9JZeMwO31GOw='; style-src 'self' 'unsafe-inline'; " +
+      // Inline scripts stay blocked except the exact hashes of what we serve (the import map).
+      `default-src 'self'; script-src 'self'${inline}; style-src 'self' 'unsafe-inline'; ` +
       "img-src 'self' data: blob:; connect-src 'self'; " +
       `worker-src 'self' blob:${workerExtra}; ` +
       "font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",

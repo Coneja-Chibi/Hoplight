@@ -1,6 +1,7 @@
 /**
- * AttachLoreDialog - multi-select library lorebooks to attach as knowledgeRefs.
- * Multi-select books is OK; Write for stays single-select.
+ * AttachLoreDialog - multi-select library lorebooks to attach as knowledgeRefs, on the InkDialog
+ * seed with the letterpress row/stamp grammar. (Doctrine note, not user copy: attaching many books
+ * is fine; each book's own Write-for stays single-select.)
  */
 import { useMemo, useState, type JSX } from "react";
 import type { StudioEntitySummary } from "../../app-contract";
@@ -36,27 +37,28 @@ export function AttachLoreDialog({
   const selected = [...picked];
 
   return (
-    <InkDialog onDismiss={onDismiss} ariaLabel="Attach lorebooks">
+    <InkDialog onDismiss={onDismiss} ariaLabel="Attach lorebooks" sheetClassName={styles.sheet}>
       <div className={styles.body}>
+        <span className={styles.kick}>library · lorebooks</span>
         <h2 className={styles.h}>Attach lorebooks</h2>
         <p className={styles.p}>
-          Pick one or more library books. Order on the character is the Knowledge rail; Write for stays
-          single-select on each book.
+          Pick the books this character should know. You can reorder or detach them any time on the
+          Knowledge rail.
         </p>
         {available.length === 0 ? (
-          <p className={styles.empty}>No more lorebooks in the library to attach.</p>
+          <p className={styles.empty}>Every lorebook in your Library is already attached.</p>
         ) : (
           <ul className={styles.list}>
             {available.map((b) => (
               <li key={b.id}>
-                <label className={styles.row}>
+                <label className={`${styles.row}${picked.has(b.id) ? ` ${styles.rowOn}` : ""}`}>
                   <input
                     type="checkbox"
+                    className={styles.check}
                     checked={picked.has(b.id)}
                     onChange={() => toggle(b.id)}
                   />
-                  <span className={styles.name}>{b.name || b.id}</span>
-                  <span className={styles.id}>{b.id}</span>
+                  <span className={styles.name}>{b.name || "Untitled lorebook"}</span>
                 </label>
               </li>
             ))}
@@ -72,7 +74,7 @@ export function AttachLoreDialog({
             disabled={selected.length === 0}
             onClick={() => onConfirm(selected)}
           >
-            Attach {selected.length > 0 ? `(${selected.length})` : ""}
+            {selected.length > 1 ? `Attach ${selected.length} books` : "Attach"}
           </button>
         </div>
       </div>

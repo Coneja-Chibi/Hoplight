@@ -28,6 +28,7 @@ import {
   json,
   err,
   htmlSecurityHeaders,
+  inlineScriptHashes,
   injectSessionMeta,
   injectSandboxOriginMeta,
   readBodyCapped,
@@ -59,6 +60,7 @@ export {
   type UiSecurityContext,
   createSecurityContext,
   htmlSecurityHeaders,
+  inlineScriptHashes,
   injectSessionMeta,
   injectSandboxOriginMeta,
   readBodyCapped,
@@ -98,7 +100,8 @@ export function createHandler(
     return new Response(html, {
       headers: {
         "content-type": "text/html; charset=utf-8",
-        ...htmlSecurityHeaders(sb),
+        // hashes computed from the html actually served, so an import-map edit can never rot the CSP
+        ...htmlSecurityHeaders(sb, inlineScriptHashes(html)),
       },
     });
   };

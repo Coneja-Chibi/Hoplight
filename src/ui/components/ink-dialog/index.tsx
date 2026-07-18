@@ -4,6 +4,7 @@
  * shadow). The shell's follow dialog (boot.ts's askFollow) is the reference instance this replaces.
  */
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { JSX, MouseEvent, ReactNode } from "react";
 import styles from "./styles.module.css";
 
@@ -31,7 +32,9 @@ export function InkDialog({ children, onDismiss, ariaLabel, sheetClassName }: In
   const onOverlayClick = (e: MouseEvent<HTMLDivElement>): void => {
     if (e.target === e.currentTarget) onDismiss();
   };
-  return (
+  // Portal to the body: rendered inline, the fixed overlay is trapped inside whatever stacking
+  // context its ancestor editor card creates, and page chrome paints THROUGH the modal.
+  return createPortal(
     <div className={styles.overlay} onClick={onOverlayClick}>
       <div
         className={sheetClassName ? `${styles.sheet} ${sheetClassName}` : styles.sheet}
@@ -41,6 +44,7 @@ export function InkDialog({ children, onDismiss, ariaLabel, sheetClassName }: In
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

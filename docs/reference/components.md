@@ -13,7 +13,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | AltFields | src/ui/components/alt-fields/index.tsx | ({ value, onChange }: AltFieldsProps) |  | .wrap .section .gtitle |
 | App | src/ui/shell/App.tsx | () |  |  |
 | AssetManager | src/ui/components/asset-manager/index.tsx | ({ assets, onChange, onOpenSprites }: AssetManagerProps) |  | .wrap .group .ghead .handoff .handoffBtn .tiles .tile .preview ... |
-| AttachLoreDialog | src/ui/components/attach-lore-dialog/index.tsx | ({ books, alreadyLinked, onConfirm, onDismiss, }: AttachLoreDialogProps) |  | .body .h .p .empty .list .row .name .id ... |
+| AttachLoreDialog | src/ui/components/attach-lore-dialog/index.tsx | ({ books, alreadyLinked, onConfirm, onDismiss, }: AttachLoreDialogProps) |  | .sheet .body .kick .h .p .empty .list .row ... |
 | AttachPanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ packCatalog, attachId, attachBusy, onAttachId, onAttach, }: { packCatalog: readonly PackCatalogEntry[]; attachId: ... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | AvatarCrop | src/ui/components/avatar-crop/index.tsx | ({ value, onChange, imageSrc }: AvatarCropProps) |  | .wrap .help .meta .actions .btn .row .canvas .img ... |
 | BenchImport | src/ui/apps/workbench/regex/bench-import.tsx | ({ ctx, sample, existingRules, onImportPicked, }: BenchImportProps) |  |  |

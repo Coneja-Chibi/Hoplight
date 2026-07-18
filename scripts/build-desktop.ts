@@ -128,7 +128,7 @@ const REQUIRED_VENDOR_EXPORTS: Record<string, string[]> = {
     "createElement", "useState", "useEffect", "Fragment", "jsx", "jsxs", "jsxDEV",
     "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
   ],
-  "react-dom-client": ["createRoot"],
+  "react-dom-client": ["createRoot", "createPortal"],
 };
 const importMapMatch = /<script type="importmap">\s*([\s\S]*?)<\/script>/.exec(assets.indexHtml);
 if (!importMapMatch) throw new Error("smoke: index.html carries no import map");
