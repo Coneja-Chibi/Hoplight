@@ -50,7 +50,7 @@ test("M1: formats registry has core character adapters", () => {
 });
 
 test("M1: ST v3 sample detect + same-format convert", () => {
-  const input = readJson("samples/sillytavern/v3-full.json");
+  const input = readJson("samples/sillytavern/characters/v3-full.json");
   const src = registry.detect(input)!;
   expect(src.id).toBe("sillytavern");
   const { out } = convertFile(src, needCharacter("sillytavern"), input);
@@ -61,14 +61,14 @@ test("M1: ST v3 sample detect + same-format convert", () => {
 });
 
 test("M1: ST → RoleCall → name survives", () => {
-  const input = readJson("samples/sillytavern/v3-full.json");
+  const input = readJson("samples/sillytavern/characters/v3-full.json");
   const { out } = convertFile(needCharacter("sillytavern"), needCharacter("rolecall"), input);
   const ent = needCharacter("rolecall").toCanonical({ text: out.text });
   expect(ent.body.identity.name.length).toBeGreaterThan(0);
 });
 
 test("M1: ST → Risu charx → card.json name", () => {
-  const input = readJson("samples/sillytavern/v3-full.json");
+  const input = readJson("samples/sillytavern/characters/v3-full.json");
   const { out } = convertFile(needCharacter("sillytavern"), needCharacter("risu"), input);
   expect(out.bytes).toBeDefined();
   const card = JSON.parse(strFromU8(unzipSync(out.bytes!)["card.json"]!));
@@ -76,7 +76,7 @@ test("M1: ST → Risu charx → card.json name", () => {
 });
 
 test("M1: Agnai sample → ST → re-open name", () => {
-  const input = readJson("samples/agnai/robot.native.json");
+  const input = readJson("samples/agnai/characters/robot.native.json");
   expect(registry.detect(input)?.id).toBe("agnai");
   const { out } = convertFile(needCharacter("agnai"), needCharacter("sillytavern"), input);
   const ent = needCharacter("sillytavern").toCanonical({ text: out.text });
@@ -84,7 +84,7 @@ test("M1: Agnai sample → ST → re-open name", () => {
 });
 
 test("M1: Pygmalion classic → ST", () => {
-  const input = readJson("samples/pygmalion/classic.native.json");
+  const input = readJson("samples/pygmalion/characters/classic.native.json");
   expect(registry.detect(input)?.id).toBe("pygmalion");
   const { out } = convertFile(needCharacter("pygmalion"), needCharacter("sillytavern"), input);
   const ent = needCharacter("sillytavern").toCanonical({ text: out.text });
@@ -92,7 +92,7 @@ test("M1: Pygmalion classic → ST", () => {
 });
 
 test("M1: Chub fixture rides ST and keeps extensions.chub on same-format RT", () => {
-  const input = readJson("samples/chub/rich.extensions.card.json");
+  const input = readJson("samples/chub/characters/rich.extensions.card.json");
   expect(registry.detect(input)?.id).toBe("sillytavern");
   const { out } = convertFile(needCharacter("sillytavern"), needCharacter("sillytavern"), input);
   const wire = JSON.parse(out.text!);
@@ -100,23 +100,23 @@ test("M1: Chub fixture rides ST and keeps extensions.chub on same-format RT", ()
 });
 
 test("M1: Lumiverse fixture detects lumiverse", () => {
-  const input = readJson("samples/lumiverse/rich.extensions.card.json");
+  const input = readJson("samples/lumiverse/characters/rich.extensions.card.json");
   expect(registry.detect(input)?.id).toBe("lumiverse");
 });
 
 test("M1: Backyard byaf sample detects byaf", () => {
-  const input = readBytes("samples/backyard/1.byaf");
+  const input = readBytes("samples/backyard/characters/1.byaf");
   expect(registry.detect(input)?.id).toBe("byaf");
 });
 
 test("M1: RoleCall character sample detects rolecall", () => {
-  const input = readJson("samples/rolecall/vera-casting-card.v3.json");
+  const input = readJson("samples/rolecall/characters/vera-casting-card.v3.json");
   expect(registry.detect(input)?.id).toBe("rolecall");
 });
 
 
 test("M1: Agnai portrait data-URI ? ST assets reopen with same ref", () => {
-  const input = readJson("samples/agnai/robot.native.json");
+  const input = readJson("samples/agnai/characters/robot.native.json");
   const src = needCharacter("agnai");
   const ent = src.toCanonical(input);
   // ensure a representable portrait for the conversion proof

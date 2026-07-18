@@ -16,7 +16,7 @@ beforeAll(async () => {
 const asText = (o: unknown) => ({ text: JSON.stringify(o) });
 const asCharx = (card: unknown) => ({ bytes: zipSync({ "card.json": strToU8(JSON.stringify(card)) }) });
 const asByafSample = (): Uint8Array =>
-  new Uint8Array(readFileSync(join(import.meta.dir, "../../samples/backyard/1.byaf")));
+  new Uint8Array(readFileSync(join(import.meta.dir, "../../samples/backyard/characters/1.byaf")));
 
 interface Case {
   label: string;

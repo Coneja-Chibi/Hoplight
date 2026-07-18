@@ -8,7 +8,7 @@ import { zipSync, unzipSync, strToU8, strFromU8 } from "fflate";
 import { characterAdapter as adapter } from "./index";
 import { isDataUri } from "./modules";
 
-const samplePath = join(import.meta.dir, "../../../samples/lumiverse/rich.extensions.card.json");
+const samplePath = join(import.meta.dir, "../../../samples/lumiverse/characters/rich.extensions.card.json");
 
 // minimal valid 1x1 png
 const PNG = new Uint8Array([

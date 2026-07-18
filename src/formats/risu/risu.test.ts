@@ -164,7 +164,7 @@ test("an edit to the canonical body is reflected in the rebuilt card.json", () =
 });
 
 // -- De-original (real sample): the authored risuai scalar surface is first-class, edit-tested against
-// the real cherry card (samples/risu/cherry.card.json, sliced from the 23.7MB cherry.charx; see
+// the real cherry card (samples/risu/characters/cherry.card.json, sliced from the 23.7MB cherry.charx; see
 // samples/risu/SOURCES.md). The codec previously mapped ZERO risuai fields. --
 
 import { existsSync, readFileSync } from "node:fs";
@@ -173,7 +173,7 @@ import { join } from "node:path";
 const cherryCharx = (): Uint8Array =>
   zipSync({
     "card.json": strToU8(
-      readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8"),
+      readFileSync(join(import.meta.dir, "../../../samples/risu/characters/cherry.card.json"), "utf8"),
     ),
   });
 
@@ -193,7 +193,7 @@ test("de-original read: real cherry risuai scalars land in first-class canonical
 test("de-original round-trip: unedited cherry card.json re-emits data-identical", () => {
   const ent = adapter.toCanonical({ bytes: cherryCharx() });
   const out = JSON.parse(strFromU8(unzipSync(adapter.fromCanonical(ent).bytes!)["card.json"]!));
-  const orig = JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8"));
+  const orig = JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/characters/cherry.card.json"), "utf8"));
   expect(out).toEqual(orig);
 });
 
@@ -267,7 +267,7 @@ test("behavior edit: mutating a regex script and a trigger label reaches the ris
   expect(r.customScripts[0].in).toBe("선생님"); // unedited neighbor field survives
   expect(r.customScripts.length).toBe(8);
   expect(r.triggerscript[0].comment).toBe("renamed-trigger");
-  expect(r.triggerscript[0].effect).toEqual(JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/cherry.card.json"), "utf8")).data.extensions.risuai.triggerscript[0].effect);
+  expect(r.triggerscript[0].effect).toEqual(JSON.parse(readFileSync(join(import.meta.dir, "../../../samples/risu/characters/cherry.card.json"), "utf8")).data.extensions.risuai.triggerscript[0].effect);
   expect(r.triggerscript.length).toBe(9);
 });
 

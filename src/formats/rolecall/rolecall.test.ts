@@ -145,7 +145,7 @@ test("canonical model bridges RoleCall -> SillyTavern (rolecall layer drops, sta
   });
 });
 
-// -- Real-corpus wiring-bug regressions (samples/rolecall/vera-casting-card.v3.json). The in-suite
+// -- Real-corpus wiring-bug regressions (samples/rolecall/characters/vera-casting-card.v3.json). The in-suite
 // fixture had LIED about the asset type (used "emotion" where real RC emits "expression"), which is
 // exactly how the role misrouting hid. These tests run on the real serializer shapes. --
 
@@ -153,7 +153,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const realCard = readFileSync(
-  join(import.meta.dir, "../../../samples/rolecall/vera-casting-card.v3.json"),
+  join(import.meta.dir, "../../../samples/rolecall/characters/vera-casting-card.v3.json"),
   "utf8",
 );
 

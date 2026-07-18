@@ -118,7 +118,7 @@ const HELP = `${BANNER}
   Example
     vaud convert vera.png vera.charx --to risu
     vaud convert card.json out.charx --to lumiverse --yes
-    vaud validate samples/sillytavern/v3-full.json
+    vaud validate samples/sillytavern/characters/v3-full.json
 
   Status
     Converter jewel (M1): open/inspect/validate/convert across discovered adapters.

@@ -142,7 +142,7 @@ test("de-original edit: renaming a category reaches the wire, subcontext residue
 // Real corpus: a first-party v6 lorebook (see samples/novelai/SOURCES.md) - proves the de-original against
 // a genuine export with a real category and the richer v6 entry surface.
 const v6Text = await Bun.file(
-  new URL("../../../samples/novelai/nai-v6-crystal-dragon.lorebook.json", import.meta.url),
+  new URL("../../../samples/novelai/lorebooks/nai-v6-crystal-dragon.lorebook.json", import.meta.url),
 ).text();
 
 test("real v6 sample: reads categories + entry refs + contextConfig, edits reach the wire", () => {

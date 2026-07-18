@@ -1,6 +1,6 @@
 /**
  * Backyard Archive Format (.byaf) - ZIP: manifest.json, characters/<id>/character.json,
- * scenarios/<n>.json, and images. Spec: ahoylabs/byaf (MIT). Samples: samples/backyard/1-3.byaf.
+ * scenarios/<n>.json, and images. Spec: ahoylabs/byaf (MIT). Samples: samples/backyard/characters/1-3.byaf.
  * Authored character content maps to body; sampling, chat transcript, grammar stay on original.
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";

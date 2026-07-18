@@ -172,10 +172,10 @@ test("detects and round-trips a bare V1 flat card, staying flat on the way out",
   expect(JSON.parse(adapter.fromCanonical(c).text ?? "")).toEqual(v1card);
 });
 
-// Real corpus: the official SillyTavern default card (samples/sillytavern/Seraphina.png). Proves the
+// Real corpus: the official SillyTavern default card (samples/sillytavern/characters/Seraphina.png). Proves the
 // de-original against a genuine export, not a hand-built fixture. See samples/sillytavern/SOURCES.md.
 const seraphinaPng = new Uint8Array(
-  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
+  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/characters/Seraphina.png")),
 );
 
 test("real Seraphina.png: authored extensions de-original to first-class slots", () => {

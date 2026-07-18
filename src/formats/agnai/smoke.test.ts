@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { characterAdapter as adapter } from "./index";
 
-const samplePath = join(import.meta.dir, "../../../samples/agnai/robot.native.json");
+const samplePath = join(import.meta.dir, "../../../samples/agnai/characters/robot.native.json");
 
 test("smoke: robot sample open → edit name + culture → export → re-open", () => {
   const raw = readFileSync(samplePath, "utf8");

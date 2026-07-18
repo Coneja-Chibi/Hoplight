@@ -9,7 +9,7 @@ import { byafAdapter as adapter } from "./byaf";
 import { characterAdapter as sillytavern } from "../sillytavern/index";
 
 const sample = (n: 1 | 2 | 3): Uint8Array =>
-  new Uint8Array(readFileSync(join(import.meta.dir, `../../../samples/backyard/${n}.byaf`)));
+  new Uint8Array(readFileSync(join(import.meta.dir, `../../../samples/backyard/characters/${n}.byaf`)));
 
 test("detect: samples score 1; non-zip and random zip score 0", () => {
   expect(adapter.detect({ bytes: sample(1) })).toBe(1);

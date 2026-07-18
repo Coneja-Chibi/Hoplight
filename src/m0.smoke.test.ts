@@ -57,7 +57,7 @@ test("M0: V2 PNG chara chunk open + name survives", () => {
 });
 
 test("M0: real Seraphina.png extensions bag unedited round-trip", () => {
-  const path = join(import.meta.dir, "../samples/sillytavern/Seraphina.png");
+  const path = join(import.meta.dir, "../samples/sillytavern/characters/Seraphina.png");
   const bytes = new Uint8Array(readFileSync(path));
   const ent = st.toCanonical({ bytes, filename: "Seraphina.png" });
   expect(ent.body.identity.name.length).toBeGreaterThan(0);

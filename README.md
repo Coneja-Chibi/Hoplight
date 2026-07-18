@@ -788,8 +788,8 @@ Drag any card, book, or archive into the Library and read the receipt. Want a dr
 
 ```bash
 bun run vaud formats                                          # what can we open?
-bun run vaud inspect samples/sillytavern/Seraphina.png        # peek at a card
-bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
+bun run vaud inspect samples/sillytavern/characters/Seraphina.png        # peek at a card
+bun run vaud convert samples/sillytavern/characters/v3-full.json out.charx --to risu
 ```
 
 **Optional power moves:**

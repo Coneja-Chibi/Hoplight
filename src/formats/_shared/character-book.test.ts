@@ -269,7 +269,7 @@ test("an edited lorebook entry re-embeds the change while raw-only residue survi
 // wire. Twin PRESENT (extract the book so its original twin exists), else a dropped edit hides behind it. --
 
 const seraphinaPng = new Uint8Array(
-  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/Seraphina.png")),
+  readFileSync(join(import.meta.dir, "../../../samples/sillytavern/characters/Seraphina.png")),
 );
 
 /** Extract Seraphina's character + its embedded book (with the book's original twin) for de-original tests. */

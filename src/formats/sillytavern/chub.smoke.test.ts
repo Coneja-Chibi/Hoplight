@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { characterAdapter as adapter } from "./index";
 
-const samplePath = join(import.meta.dir, "../../../samples/chub/rich.extensions.card.json");
+const samplePath = join(import.meta.dir, "../../../samples/chub/characters/rich.extensions.card.json");
 
 type ChubBag = {
   id?: number;

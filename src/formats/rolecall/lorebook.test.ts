@@ -193,7 +193,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const realBook = readFileSync(
-  join(import.meta.dir, "../../../samples/rolecall/aetheria-lorebook.v1.json"),
+  join(import.meta.dir, "../../../samples/rolecall/lorebooks/aetheria-lorebook.v1.json"),
   "utf8",
 );
 
