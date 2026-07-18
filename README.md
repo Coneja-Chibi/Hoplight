@@ -900,8 +900,6 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 <details>
 <summary>**What's been done to keep this thing safe?** 🛡️</summary>
 
-Safety decisions that are built in, not bolted on:
-
 - **No privileges.** It never asks for administrator rights, installs no drivers, and touches no
   system settings; it's a normal user program you can delete like any other
 - **Contained writes.** It writes only inside your studio folder, with path containment enforced
