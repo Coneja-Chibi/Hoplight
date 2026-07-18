@@ -22,7 +22,7 @@
 <p>
   <a href="#-faq">FAQ</a> ·
   <a href="docs/FORMAT-SUPPORT.md">Format matrix</a> ·
-  <a href="docs/ROADMAP.md">Roadmap</a> ·
+  <a href="#%EF%B8%8F-the-roadmap">Roadmap</a> ·
   <a href="LICENSING.md">License, in plain words</a>
 </p>
 
@@ -34,9 +34,9 @@
 
 > **Your characters are yours. Not SillyTavern's, not Risu's, not whatever site happens to host them this year. Yours.**
 
-Everything else in this repo follows from that sentence. One canonical model in the middle, an
-honest adapter per platform, and your whole library as plain JSON on your own disk. No accounts,
-no telemetry, no cloud, no exceptions.
+Everything in this repo follows from that sentence. One canonical model in the middle, an honest
+adapter per platform, and your whole library as plain JSON on your own disk. No accounts, no
+telemetry, no cloud, no exceptions.
 
 ---
 
@@ -61,36 +61,84 @@ back to whichever platform you're publishing to today.
 | Guessing which fields a platform reads | An editor lens that dims what the target won't carry |
 | Cards with scripts you just... trust? | Scripts carried as data, never executed |
 
-## 🖥️ The Studio
+---
 
-<table>
-  <tr>
-    <td width="50%">
-      <img src="docs/media/shot-library.png" alt="The Library">
-      <p align="center"><sub><b>The Library</b></sub></p>
-    </td>
-    <td width="50%">
-      <img src="docs/media/shot-casting.png" alt="The Workbench">
-      <p align="center"><sub><b>The Workbench</b></sub></p>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%">
-      <img src="docs/media/shot-lorebook.png" alt="The lorebook binder">
-      <p align="center"><sub><b>The binder</b></sub></p>
-    </td>
-    <td width="50%">
-      <img src="docs/media/shot-press.png" alt="The Press">
-      <p align="center"><sub><b>The Press</b></sub></p>
-    </td>
-  </tr>
-</table>
+## 🎞️ One Card, Start to Finish
+
+```
+You drop Seraphina.png into the studio
+ ↓
+🔍 Detection figures out what it is (ST card? Risu? Backyard archive? lorebook?)
+ ↓
+🧾 You get a receipt in actual sentences:
+   "Seraphina. A character card, made for SillyTavern.
+    We kept her portrait, her greeting, and the lorebook that came embedded."
+ ↓
+🗄️ The ORIGINAL file is stored inside the saved piece (escrow),
+   so nothing you imported can ever be lost by editing it
+ ↓
+📚 The embedded lorebook becomes its own editable piece, still linked to her
+ ↓
+✍️ You edit with the lens set to "RisuAI":
+   fields Risu won't carry are dimmed, so you know before you export
+ ↓
+🖨️ You stage her for the Press → her linked book rides along automatically
+ ↓
+📦 One zip: seraphina.charx, her lorebook, and an honest per-file result line
+```
+
+That's the whole loop. Import honestly, edit with your eyes open, export with receipts.
+
+---
+
+## 🖥️ The Rooms
+
+### 📚 The Library *(everything you own, one room)*
+
+<img src="docs/media/shot-library.png" alt="The Library">
+
+Every piece in your studio, split into decks by kind with live counts: characters, lorebooks,
+personas, sprite packs, presets, regex sets. Three views (grid, showcase, list), a continuous
+art-size dial, cover art pulled from the cards themselves, and multi-select staging to send a
+whole batch to an editor at once. Import is drag-and-drop anywhere.
+
+### 🎬 The Workbench *(the casting office)*
+
+<img src="docs/media/shot-casting.png" alt="The Workbench">
+
+Characters are built through a guided interview: one question at a time, with a proof sheet
+filling in beside it so you always see the card taking shape, token estimate included. The
+platform tabs across the top are the lens: pick who you're writing for and the editor dims what
+that platform won't carry. Rich platforms (Risu, Chub, Lumi, Agnai...) get native field editors
+for their platform-specific bags.
+
+### 📖 The Binder *(lorebooks as a real editor)*
+
+<img src="docs/media/shot-lorebook.png" alt="The binder">
+
+Lorebooks stop being a wall of JSON. Table of contents with drag-reorder, per-entry keys with
+simple and advanced trigger modes, activation rules in plain words ("80% chance · sticks for 3
+messages · cooldown 2"), token budgets with honest estimates, always-on pins, and health checks
+that tell you when an entry can never fire.
+
+### 🖨️ The Press *(batch export that tells the truth)*
+
+<img src="docs/media/shot-press.png" alt="The Press">
+
+Stage pieces from the Library, pick one target platform, pull the lever. A character travels as a
+**kit**: his linked lorebooks ride along automatically, droppable per run. Every card shows a
+readiness line against the target ("9 of 23 filled - empty: nickname, personality, ...") with a
+jump straight to the editor. Skips are declared before the run, failures name their error, and
+everything that printed lands in one zip.
 
 <details>
-<summary>First run: the setup wizard</summary>
+<summary>🎬 Bonus room: the first-run wizard</summary>
 <br>
 <img src="docs/media/shot-setup.png" alt="First-run wizard">
+<p><sub>Four questions, a stage that lights up as you answer.</sub></p>
 </details>
+
+---
 
 ## ⚙️ How It Actually Works
 
@@ -103,17 +151,12 @@ NovelAI ──────┤                ├── Marinara
 CCv3 ─────────┘                └── ...your studio, as JSON
 ```
 
-- **Hub and spoke.** N platforms cost N adapters, not N². Every format maps in and out of one
-  canonical model, and adding a platform is dropping a folder in.
-- **Escrow.** The original file rides inside the saved piece. Converting never destroys anything,
-  and a same-format round trip is byte-honest. A round-trip test suite enforces this in CI, on
-  every commit.
-- **The lens.** Pick the platform you're writing for; the editor dims every field that platform
-  won't carry. No more guessing which half of your work survives the export.
-- **Kits.** A character owns its linked lorebooks. Import a card and the embedded book becomes a
-  real piece; export the character and the book comes along.
-- **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects them,
-  reports them, preserves them, and runs none of them.
+- **Hub and spoke.** N platforms cost N adapters, not N². Adding a platform is dropping a folder
+  in; the round-trip suite tells you whether your adapter is honest.
+- **Escrow.** The original file rides inside the saved piece. Same-format round trips are
+  byte-honest, and CI enforces it on every commit.
+- **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects, reports,
+  and preserves them. It runs none of them.
 
 ## ❓ FAQ
 
@@ -176,7 +219,7 @@ bun run dev                                                   # the studio, loca
 | `vaud formats` | List every adapter |
 | `vaud ui [port] [studioDir]` | The visual studio (loopback only) |
 
-## 🗺️ Roadmap
+## 🗺️ The Roadmap
 
 The real one, with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.md).
 
@@ -195,14 +238,30 @@ The real one, with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.m
 
 Near-term, between milestones: the Press ledger (run history, saved jobs, staleness flags), the
 Hoplight mascot landing in tours and empty states, reference pages for the newest four adapters,
-and the capability sandbox design when scripts finally earn the right to run.
+and the capability sandbox design for the day scripts earn the right to run.
 
-## 🔧 Under the Hood
+## 🏗️ Architecture (For the Curious)
 
 Bun + TypeScript, strict. Pure engine core, side effects at the edges; the CLI and studio are thin
-shells over the same engine. Apps, format adapters, settings sections, and deck views are all
-drop-in folders. CI runs ~1,950 tests plus a color-token guard, a file-size cap, prose gates, and
-a license audit that fails the build on restricted dependencies.
+shells over one engine. The filesystem is the schema: apps, format adapters, settings sections,
+and deck views are all drop-in folders that register by existing.
+
+```
+src/
+  core/         : canonical model, detection, coverage, lore/regex/macro engines
+  entities/     : per-kind schemas (character, lorebook, persona, preset, ...)
+  formats/      : one folder per platform - drop one in, the studio gains a format
+  studio/       : local-first storage; one entity = one JSON file, atomic writes
+  sandbox/      : the sealed-script analysis layer (inspect, never execute)
+  ui/
+    shell/      : dock, tabs, staging, context menus - the theater itself
+    apps/       : drop-in rooms (library, workbench, press, css-workshop, ...)
+    components/ : shared controls, extracted exactly once
+  cli.ts        : the same engine, argv-shaped
+```
+
+CI runs ~1,950 tests plus a color-token guard, a file-size cap, prose gates, and a license audit
+that fails the build on restricted dependencies.
 
 | Read order | |
 | --- | --- |
@@ -216,3 +275,13 @@ a license audit that fails the build on restricted dependencies.
 
 [AGPL-3.0-or-later](LICENSE). Plain-terms version: [LICENSING.md](LICENSING.md). Dependencies stay
 permissive, enforced by `bun run license:audit`.
+
+---
+
+<div align="center">
+
+*Hoplight: because your characters shouldn't need a passport.* 🐰
+
+*Built with stubbornness, Bun, and roughly 1,950 tests standing between you and data loss.*
+
+</div>
