@@ -27,25 +27,19 @@
 
 > **You should be able to create, edit, and interact with all your work in an app linked to no platform, and port it out when you choose. A storage vault, a creator's lab, or both.**
 
-Think about where your work actually lives right now. Your best character is a PNG buried in one app's folder. The lorebook you spent a weekend on is welded inside it, editable nowhere. The moment you want to post it somewhere else, you either keep a second copy that quietly drifts out of sync, or you hand the master to someone else's server and play by their rules. Work you made, on terms you never wrote.
-
-Hoplight says no. One canonical model sits in the middle, an honest adapter speaks each platform's dialect on the way in and out, and your whole library stays plain JSON on your own disk. No accounts, no telemetry, no cloud. Everything in this repo follows from that one sentence up top.
-
-That's the philosophy. You keep the master; the platforms get a performance. 🎭
+One canonical model in the middle, an honest adapter per platform, and your whole library as plain
+JSON on your own disk. No accounts, no telemetry, no cloud. Everything in this repo follows from
+that sentence.
 
 ---
 
 ## 🎪 What is Hoplight?
 
-You made the character. You wrote every line of the lorebook. You drew the portrait, tuned the greeting, argued with yourself about the personality for a week. It is *your* work. So why does it live inside a file only one app can open, in a folder that app owns, on terms you never agreed to? 💀
-
 Hoplight is a home base for AI-roleplay work. Characters, lorebooks, personas, presets, regex sets, and sprites all live in one local studio with real editors, instead of being scattered across whatever apps happen to read their formats. It is a building with rooms: a **Library** where your work comes in and waits, a **Workbench** where it gets cast and edited, a **Binder** for your lorebooks, and a **Press** that ships it out. One studio. Yours.
 
 **Hoplight flips the relationship.** Your studio is the master copy; the platforms become publish targets. When you want to post somewhere, you export to that platform's format, and the piece you keep working on is always your own copy, in your own folder, in plain JSON you can read yourself.
 
-> *"The platforms stop being where your work lives. They become where your work performs."* 🎭🐰
-
-**The result?** You stop maintaining a separate, drifting copy of the same character in every app you post to. You keep one master, in a studio linked to no platform, and you send it out to perform wherever you like. The cast lives at home. The show goes on anywhere.
+**The result?** One master instead of a copy per app. You keep it in a studio linked to no platform, and send it out to perform wherever you like.
 
 ---
 
@@ -53,7 +47,7 @@ Hoplight is a home base for AI-roleplay work. Characters, lorebooks, personas, p
 
 Let's talk about **formats**. Every platform invented its own. SillyTavern packs cards into PNG, JSON, and charx. Backyard has its .byaf archives. Risu, Agnai, Lumiverse, Marinara, Chub, and NovelAI each speak their own dialect of the same family, and none of them speak it quite the same way.
 
-That would be fine if you only ever used one. Nobody uses only one. So you keep a copy on each platform, and the copies drift the instant you touch one of them. The lorebook you spent a weekend on ends up welded inside a PNG only one app can open. And the platform hosting your library quietly sets the rules for work you made yourself.
+That would be fine if you only ever used one. Nobody uses only one. So you keep a copy on each platform, and the copies drift the instant you touch one of them. The lorebook you spent a weekend on ends up welded inside a PNG only one app can open.
 
 **Hoplight solves the format problem differently.** One canonical piece sits in the middle, and an honest adapter maps it to and from each platform. Nothing lives in a dialect; everything lives in the middle and gets translated at the door.
 
@@ -66,7 +60,7 @@ That would be fine if you only ever used one. Nobody uses only one. So you keep 
 | Guessing which fields a platform reads | An editor lens that dims what the target won't carry 🔍 |
 | Embedded scripts run on trust | Scripts carried as data, never executed 🔒 |
 
-**Your work stops being a hostage to its format.** The original file you imported is escrowed inside every saved piece, so nothing you brought in can ever be lost by editing it, and a same-format round trip comes back byte-for-byte identical. The platforms read their dialects. You keep the source of truth. 🎯
+**Your work is no longer tied to any single format.** The original file you imported is escrowed inside every saved piece, so nothing you brought in can ever be lost by editing it, and a same-format round trip comes back byte-for-byte identical. The platforms read their dialects. You keep the source of truth. 🎯
 
 ---
 
@@ -76,7 +70,7 @@ They do. And they are built for chatting, not authoring. A platform's editor exi
 
 ### 1. 🏠 **Platform editors edit one platform's view**
 
-SillyTavern's editor shows you SillyTavern's fields. Risu's editor shows you Risu's. Neither one can tell you what the *other* platform will do to your card, because neither one knows the other exists. So every cross-post is a guess, and you find out what got mangled after you already posted it.
+SillyTavern's editor shows you SillyTavern's fields. Risu's editor shows you Risu's. Neither one can tell you what the *other* platform will do to your card, because that isn't their job. So every cross-post is a guess.
 
 **Hoplight's lens shows you every platform's view of the same piece, before you export.** Pick who you are writing for from the tabs across the editor, and every field that platform will not carry is dimmed or hidden, your choice. The lens runs on per-platform coverage declarations, the same ground truth the Press uses when it tells you a card is ready; the editor itself knows zero platforms, it just reads the claims. You write once, and you *see* how every platform will read it before a single one does. 🔍
 
@@ -88,7 +82,7 @@ On the platforms, a character and its lorebook are one welded file you cannot ed
 
 ### 3. 🗃️ **Your library outlives any platform**
 
-A platform editor stores your work in that platform's folder, in that platform's format, on that platform's terms. When the platform changes its pricing, its rules, or its whole business model, your library is standing on their floor.
+A platform editor stores your work in that platform's folder, in that platform's format. That's the right call for the platform, and it also means your library's fate is tied to one app's.
 
 **Hoplight stores plain JSON in a folder you own.** One piece, one file, readable in any text editor, greppable, versionable with git, backed up with rsync, because it is just files. The original you imported is escrowed inside every saved piece, so a conversion can never damage what you started with. If a platform dies tomorrow, you lose a publish target, not your work. 🗄️
 
@@ -286,13 +280,16 @@ Here's the problem every botmaker knows in their bones: you write a gorgeous car
 | 🌫️ **Dim** | Fields the target won't carry go gray, but stay editable |
 | 🙈 **Hide** | They're gone until you switch back to the full card |
 
-And the tabs themselves:
+<details>
+<summary><b>And the tabs themselves</b></summary>
 
 | Tab | What it edits |
 |---|---|
 | 🐰 **Hoplight** | The full canonical card, everything at once |
 | 📡 **SillyTavern / RoleCall / RisuAI / Lumiverse / Backyard / Agnai / Marinara / Chub** | That platform's view of the card, plus its native field bags |
 | 📦 **Default** | Portable CCv3 for the thin hosts |
+
+</details>
 
 **The clever part:** the editor itself knows nothing about any platform. Not one. The Lens runs entirely on per-platform **coverage declarations**, the same ground truth the Press reads when it tells you what a card will carry. The editor just reads the claims.
 
@@ -380,7 +377,10 @@ An entry can carry a dozen activation rules. Chance, sticky, cooldown, delay, re
 · CANNOT BE WOKEN BY RECURSION · GROUP "PLACES"
 ```
 
-That line is generated straight from the rules themselves, so it can't drift out of sync with what the entry actually does. Change a rule, the sentence rewrites. Underneath it, the full control set:
+That line is generated straight from the rules themselves, so it can't drift out of sync with what the entry actually does. Change a rule, the sentence rewrites.
+
+<details>
+<summary><b>The full control set</b></summary>
 
 | Rule | Meaning |
 |---|---|
@@ -391,6 +391,8 @@ That line is generated straight from the rules themselves, so it can't drift out
 | 📍 **Position + depth + role** | Where in the prompt it lands, and as whom |
 | 🔄 **Recursion controls** | Whether other entries' text can wake it, and whether it can wake others |
 | ⚖️ **Groups + weights** | Mutually-exclusive entry groups with weighted selection |
+
+</details>
 
 > *"Every activation rule the entry carries, written as one sentence you can read out loud. No settings maze."*
 
