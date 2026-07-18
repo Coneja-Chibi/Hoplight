@@ -21,6 +21,8 @@
     "docs:fields:check": "bun run scripts/docs-fields.ts --check",
     "docs:index": "bun run scripts/docs-index.ts",
     "docs:index:check": "bun run scripts/docs-index.ts --check",
+    "docs:figures": "bun run scripts/docs-figures.ts",
+    "docs:figures:check": "bun run scripts/docs-figures.ts --check",
     "license:audit": "bun run scripts/license-audit.ts",
     "build:cli": "bun build --compile src/cli.ts --outfile dist/vaud",
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
@@ -31,7 +33,7 @@
     "lint:ui": "bunx eslint \"src/ui/**/*.tsx\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
-    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check",
+    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:figures:check",
     "gate": "bun run scripts/hooks/gate.ts --worktree"
   },
   "engines": {

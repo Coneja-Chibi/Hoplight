@@ -1,0 +1,622 @@
+[
+  {
+    "file": "add-a-format.js",
+    "figid": "steps",
+    "type": "flow",
+    "title": "six steps, one folder, zero core edits",
+    "caption": "Copy the template folder, fill in the three verbs and a coverage file, stop. The loader globs src/formats/*/index.ts on every run (loader.ts:20-37) and registers whatever a folder default-exports, so nothing outside the new folder changes.",
+    "svg": "docs/generated/figures/add-a-format__steps.svg",
+    "w": 1138,
+    "h": 172
+  },
+  {
+    "file": "agnai-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "An Agnai character comes in through the Library, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original card is kept, so an export back to Agnai returns everything. An export to a different app carries the shared character and leaves Agnai's own extras behind where the other app has no slot for them.",
+    "svg": "docs/generated/figures/agnai-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "agnai.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "two codecs, one folder",
+    "caption": "The Agnai folder default-exports two adapters (src/formats/agnai/index.ts:363): the character reader and its native memory-book lorebook codec. Both are specific, self-identifying JSON shapes, so neither needs to yield to a more generic reader the way SillyTavern yields to RoleCall.",
+    "svg": "docs/generated/figures/agnai__codecs.svg",
+    "w": 810,
+    "h": 166
+  },
+  {
+    "file": "archives.js",
+    "figid": "pipeline",
+    "type": "flow",
+    "title": "one archive, from bytes to files",
+    "caption": "unzipBounded rejects an oversized upload before fflate ever runs, then bounds every entry fflate is willing to inflate. The one gap: fflate has already fully inflated a filter-accepted entry into memory by the time the post-inflate recheck can catch a lying declared size, so that step is a backstop against a dishonest header, not a ceiling on the transient allocation.",
+    "svg": "docs/generated/figures/archives__pipeline.svg",
+    "w": 1138,
+    "h": 172
+  },
+  {
+    "file": "archives.js",
+    "figid": "assurance",
+    "type": "matrix",
+    "title": "enforced where, proven where",
+    "caption": "Decompression bounds are enforced and unit-tested at the shared core, then wired identically into both .charx and .byaf. Path-traversal safety is real for exactly one write path: a BYAF greeting id resolving to a re-packed scenario file. The other two places an untrusted entry name can reach a re-exported archive, a BYAF image row and a Risu asset filename, carry no traversal check and no test.",
+    "svg": "docs/generated/figures/archives__assurance.svg",
+    "w": 510,
+    "h": 404
+  },
+  {
+    "file": "backyard-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "A Backyard card comes in through the Library as a flat JSON export or a .byaf archive, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original file is kept, so an export back to the same shape returns everything. Moving a card to the other Backyard shape, or to a different app entirely, carries only the fields both sides can hold.",
+    "svg": "docs/generated/figures/backyard-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "backyard.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "two codecs, one folder",
+    "caption": "The Backyard folder default-exports two adapters (src/formats/backyard/index.ts). Neither is a Tavern superset, and neither shares a wire shape with the other: one is a flat JSON object, the other a ZIP archive.",
+    "svg": "docs/generated/figures/backyard__codecs.svg",
+    "w": 810,
+    "h": 166
+  },
+  {
+    "file": "backyard.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "two unrelated detect() paths",
+    "caption": "The legacy adapter reads only text and scores in two tiers; the BYAF adapter reads only bytes and is binary: a schema-shaped manifest inside a ZIP, or nothing.",
+    "svg": "docs/generated/figures/backyard__detect.svg",
+    "w": 762,
+    "h": 172
+  },
+  {
+    "file": "bundles.js",
+    "figid": "lifecycle",
+    "type": "flow",
+    "title": "extract on import, re-embed on export",
+    "caption": "One knowledgeRefs link carries a lorebook across the boundary in both directions. Extract picks the adapter's own extractLorebook override when present, else the shared CCv2/v3 extractor. Resolve differs by caller: the CLI's convertFile feeds extraction straight into re-embedding in one in-memory pass; the Studio persists the lorebook and the character as two separate entities and resolves the ref back from the store at export time.",
+    "svg": "docs/generated/figures/bundles__lifecycle.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "canonical-model.js",
+    "figid": "gate",
+    "type": "funnel",
+    "title": "the superset gate: what earns a canonical slot",
+    "caption": "Illustrative, not measured. Start from every field every real format can hold: in-memory state, platform baggage, and wire content. One rule narrows it, a real wire format must serialize the field, so DB/platform baggage and in-memory-only residue drop out. The survivors are the canonical body. A field only one format serializes still passes, and everything that drops out is not lost, it rides escrow (original) so round-trips stay lossless.",
+    "svg": "docs/generated/figures/canonical-model__gate.svg",
+    "w": 590,
+    "h": 194
+  },
+  {
+    "file": "character-book.js",
+    "figid": "pipeline",
+    "type": "flow",
+    "title": "extract on import, re-embed on export",
+    "caption": "An embedded character_book is never treated as inline card content. Import pulls it out into its own canonical lorebook and links it by id; export resolves that link back into the target format's own book slot. The two halves are separate functions, not one round-trip step, so the extracted lorebook can be viewed and edited on its own between them.",
+    "svg": "docs/generated/figures/character-book__pipeline.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "character.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "CharacterBody, grouped",
+    "caption": "CharacterBody unions what every real character format expresses. Eight sub-objects are always present; eight further fields are optional (three more sub-objects plus five scalars or reference lists). Nested named shapes are shown under the field that holds them; plain scalar fields are summarized in each group's note. Three optional sub-objects and five standalone fields sit beside the eight required groups. Kinds: body, always-present group, optional field, leaf field, nested shape.",
+    "svg": "docs/generated/figures/character__composition.svg",
+    "w": 660,
+    "h": 996
+  },
+  {
+    "file": "chub.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "one wire, two names",
+    "caption": "A Chub card is a SillyTavern-shaped Character Card v2/v3 with an extensions.chub block riding inside it. Hoplight reads that block on the Library, edits it as its own set of cards on the Workbench, and on the Press an export back to Chub or SillyTavern keeps it whole. An export to a different app carries the shared character and leaves the Chub block behind.",
+    "svg": "docs/generated/figures/chub__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "cli.js",
+    "figid": "convert",
+    "type": "flow",
+    "title": "the convert pipeline",
+    "caption": "vaud convert runs six checked steps before a byte is written: a bad output path, an unresolvable target, or an adapter that lies about its own output all fail closed before publishAtomic ever opens a file (cli.ts:299-389, cli-io.ts:112-239).",
+    "svg": "docs/generated/figures/cli__convert.svg",
+    "w": 1138,
+    "h": 172
+  },
+  {
+    "file": "converting.js",
+    "figid": "pipeline",
+    "type": "flow",
+    "title": "one file in, another out",
+    "caption": "A convert never goes app to app directly. Your file is read into one shared model in the middle, then written back out in the shape the target app understands. Whatever the target cannot express is left behind on purpose, and one app's private scripts are never copied into another.",
+    "svg": "docs/generated/figures/converting__pipeline.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "detection.js",
+    "figid": "pass",
+    "type": "funnel",
+    "title": "one registry pass, many adapters, one winner",
+    "caption": "Illustrative, not measured: registry.detect() scores every registered adapter against the same input, discards the ones that return 0 (most of them, since a detector returns 0 on another entity kind), keeps only scores that clear the 0.5 threshold, then returns the single highest, or undefined when none clear (src/core/registry.ts:30-41). The final drop from two survivors to one is the specific-outranks-generic gradient: on a plain CCv3 card, sillytavern (0.9) survives and rolecall (0) does not, but on a card carrying an extensions.rolecall block both clear and rolecall (1.0) wins. Counts show the shape; the real registry holds every adapter the loader found.",
+    "svg": "docs/generated/figures/detection__pass.svg",
+    "w": 590,
+    "h": 234
+  },
+  {
+    "file": "editing.js",
+    "figid": "views",
+    "type": "matrix",
+    "title": "one draft, three views",
+    "caption": "Grid and Steps read the same draft; Bento and Playbill are two layouts inside Grid. Switching between them never changes a field's value, only how much of the card you see at once, and Save writes the same draft no matter which one is on screen.",
+    "svg": "docs/generated/figures/editing__views.svg",
+    "w": 510,
+    "h": 200
+  },
+  {
+    "file": "escrow-and-roundtrip.js",
+    "figid": "roundtrip",
+    "type": "flow",
+    "title": "why a same-format round-trip loses nothing",
+    "caption": "On import the whole source payload is kept verbatim as a twin in the entity's original field. Edits land on the canonical body, never on the twin. On export the adapter overlays the body onto a clone of that twin: changed fields re-encode, and every field the canonical model does not express comes straight back from the twin, so nothing is silently dropped.",
+    "svg": "docs/generated/figures/escrow-and-roundtrip__roundtrip.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "exporting.js",
+    "figid": "honesty",
+    "type": "flow",
+    "title": "what one export decides before it hands you a file",
+    "caption": "Every export runs the same pass: what the target format claims to carry, what your card actually has on it, and how the two line up. Nothing here inspects wire bytes; it reasons from the format's declared coverage and the card's own fields, so the same honest check works even for a format nobody has hand-written caveats for yet.",
+    "svg": "docs/generated/figures/exporting__honesty.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "faq.js",
+    "figid": "support",
+    "type": "matrix",
+    "title": "one card, nine apps",
+    "caption": "What each app's adapter actually reads and writes today. A blank cell isn't a bug, that app never had that piece to begin with, RisuAI has no persona file, Marinara only ever shipped regex and personas. Chub cards are the SillyTavern row: Chub has no wire shape of its own, it rides SillyTavern's Character Card v2/v3 with one extra block along for the ride. Hoplight's own native JSON isn't in this table, it's the local storage format every kind is already saved as, not a convert destination.",
+    "svg": "docs/generated/figures/faq__support.svg",
+    "w": 810,
+    "h": 404
+  },
+  {
+    "file": "getting-started.js",
+    "figid": "boot",
+    "type": "flow",
+    "title": "what bun run dev does with your settings",
+    "caption": "This is the first-run path only. The wizard and the Library's two doors are a once-only branch: once setup is complete, every later boot skips both and opens straight into the Workbench, or wherever you last were.",
+    "svg": "docs/generated/figures/getting-started__boot.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "importing.js",
+    "figid": "intake",
+    "type": "flow",
+    "title": "one drop, one receipt, one deck",
+    "caption": "Every file, whether you dragged it onto the shelves or clicked Import, is read on its own and handed back as a receipt before anything is written. Nothing lands in the studio until you say so, and a file that fails to read never blocks the ones that worked.",
+    "svg": "docs/generated/figures/importing__intake.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "library.js",
+    "figid": "views",
+    "type": "matrix",
+    "title": "one browse room, five views",
+    "caption": "Grid, Show, and List read the same deck the same way everywhere. Shelf and Sets add deck-specific handles, an on/off switch and merge for Lorebooks, rule counts and a slow-rule flag for Regex sets, that a plain portrait card never carries.",
+    "svg": "docs/generated/figures/library__views.svg",
+    "w": 510,
+    "h": 268
+  },
+  {
+    "file": "lorebook.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "LorebookBody, grouped",
+    "caption": "LorebookBody is book-level settings plus a list of LorebookEntry (the triggerable content) and an optional list of LorebookCategory (folders). LorebookEntry is one flat interface in the schema, not sub-grouped there; the clusters shown under entries are this page's own concern-grouping for readability, not separate TypeScript shapes. Named types nested under a cluster (Trigger, CharacterFilter, EntrySideEffects, EntryContextConfig, LoreBiasGroup) are real TypeScript shapes with their own generated table. Kinds: root, group (a cluster of related fields), optional field, shape (a separately named type), leaf field.",
+    "svg": "docs/generated/figures/lorebook__composition.svg",
+    "w": 660,
+    "h": 756
+  },
+  {
+    "file": "lorebooks.js",
+    "figid": "activation",
+    "type": "flow",
+    "title": "how an entry gets from chat to prompt",
+    "caption": "The same matcher runs for Try a line, Rehearsal, and the real chat. A key hitting the scan window is only the first gate: chance, cooldown, sticky, and delay all still have to clear, recursion can wake an entry a second time from another entry's text, and the book's budget can still cut a fired entry if the book is full. What survives lands at the position you set.",
+    "svg": "docs/generated/figures/lorebooks__activation.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "lumiverse-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a Lumiverse card, from drop to export",
+    "caption": "A Lumiverse card, or its archive of expression images and alternate faces, comes in through the Library, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original card and archive are kept, so an export back to Lumiverse returns everything. An export to a different app carries the shared character and leaves Lumiverse's private extras behind.",
+    "svg": "docs/generated/figures/lumiverse-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "lumiverse.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "three codecs, one folder",
+    "caption": "The Lumiverse folder default-exports three adapters (src/formats/lumiverse/index.ts:265). The character adapter reads PNG, JSON, or the modules ZIP and writes .json or .charx; the other two are single-shape codecs.",
+    "svg": "docs/generated/figures/lumiverse__codecs.svg",
+    "w": 810,
+    "h": 200
+  },
+  {
+    "file": "lumiverse.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the character detect() path",
+    "caption": "detect() branches on container first, then on a Lumiverse fingerprint in extensions (index.ts:82-113). A modules ZIP scores 1; a bare charx cedes to Risu on module.risum but claims 0.96 with a fingerprinted card.json; PNG and plain JSON both need the fingerprint to score 0.95. A real modules ZIP also scores 1 on the Risu adapter, an unresolved tie broken by registration order, not content.",
+    "svg": "docs/generated/figures/lumiverse__detect.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "marinara-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a regex script or persona, from drop to export",
+    "caption": "A Marinara-Engine dump, a regex script array or a persona object, comes in through the Library, gets edited on the Workbench, and goes back out through the Press. The whole original file is kept, so an export back to Marinara-Engine returns everything; an export to a different app carries only the shared fields and leaves Marinara's own theming, stat bars, and timestamps behind.",
+    "svg": "docs/generated/figures/marinara-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "marinara.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "two codecs, one folder",
+    "caption": "The Marinara folder default-exports two adapters (index.ts:98): marinara-regex reads a bare MarinaraRegexScript API dump array, marinara-persona reads a Marinara persona object. Both score 0.95, which is what lets marinara-regex outbid SillyTavern's 0.9 bid on the same findRegex/replaceString wire shape; see Detection.",
+    "svg": "docs/generated/figures/marinara__codecs.svg",
+    "w": 810,
+    "h": 166
+  },
+  {
+    "file": "marinara.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the regex detect() gate sequence",
+    "caption": "readMarinaraRows runs four gates in order and returns null on the first failure (index.ts:50-59). Only a file that clears all four scores 0.95, which is what lets it outbid SillyTavern's 0.9 bid on the same findRegex/replaceString wire shape.",
+    "svg": "docs/generated/figures/marinara__detect.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "novelai-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a lorebook, from drop to export",
+    "caption": "A NovelAI lorebook comes in through the Library as a standalone piece, no character attached. It gets edited on the Workbench, where a 'Writing for: NovelAI' lens surfaces NovelAI's own dials, then goes back out through the Press. Nothing is lost on the way in: the whole original lorebook is kept, so an export back to NovelAI returns everything. An export to a different app carries the shared entries and leaves NovelAI's private assembly dials behind.",
+    "svg": "docs/generated/figures/novelai-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "novelai.js",
+    "figid": "cross-format",
+    "type": "flow",
+    "title": "a canonical entry becomes a fresh NAI entry (no twin)",
+    "caption": "Cross-format import (SillyTavern, Risu, CCv3) carries no NovelAI twin to overlay, so each entry is rebuilt onto a valid v3 shell (lorebook.ts:319-333). The contextConfig defaults are lifted verbatim from a real NAI blank-entry export, not invented.",
+    "svg": "docs/generated/figures/novelai__cross-format.svg",
+    "w": 762,
+    "h": 172
+  },
+  {
+    "file": "pack.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "PackBody, grouped",
+    "caption": "PackBody stays flat: a name, an optional shelf brief, the pack itself, and an optional multi-character groups map. pack and each entry of groups are a SpritePackValue, the same label-to-image hub shape a character's media.assets (role emotion) project through. SpritePackValue and SpritePackItem live in core/media/pack.ts, not in this entity's schema file, so they are described in prose on the page rather than generated into a field table. Kinds: root, required group, optional field, nested shape.",
+    "svg": "docs/generated/figures/pack__composition.svg",
+    "w": 660,
+    "h": 336
+  },
+  {
+    "file": "persona.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "PersonaBody, grouped",
+    "caption": "PersonaBody is flatter than CharacterBody: two fields are required, name and content, and eleven further fields are optional. Six of the optional fields nest a named shape (sections, identity, presentation, chatInjection, attribution, media); the rest are scalars or reference lists. Kinds: body, optional field with a nested shape, plain field, nested shape.",
+    "svg": "docs/generated/figures/persona__composition.svg",
+    "w": 660,
+    "h": 696
+  },
+  {
+    "file": "personas.js",
+    "figid": "compile",
+    "type": "flow",
+    "title": "what actually reaches the model",
+    "caption": "Brief never joins this pipeline, it is the shelf blurb only. Identity always leads, then sections in whatever order you've set (Identity Text only wakes up once every section is empty), compiled into one block and injected at the stop you pick.",
+    "svg": "docs/generated/figures/personas__compile.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "platforms-readme.js",
+    "figid": "coverage",
+    "type": "matrix",
+    "title": "ten platforms, four kinds of piece",
+    "caption": "Every column is a deck in the Library. \"No\" means that platform never shipped a file of that shape, not that Hoplight is missing an adapter. Marinara's character cards are SillyTavern-shaped underneath, so they read \"No\" here and go through the SillyTavern page instead.",
+    "svg": "docs/generated/figures/platforms-readme__coverage.svg",
+    "w": 810,
+    "h": 438
+  },
+  {
+    "file": "preset.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "PresetBody, grouped",
+    "caption": "PresetBody has two required fields: name and the ordered prompt-block manuscript. Eleven further fields are optional: two more collections plus seven settings sub-objects. Nested named shapes are shown under the field that holds them; plain scalar fields are summarized in each group's note. Kinds: body, required field, optional field, nested shape.",
+    "svg": "docs/generated/figures/preset__composition.svg",
+    "w": 660,
+    "h": 516
+  },
+  {
+    "file": "pygmalion-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "A Pygmalion card comes in through the Library as plain JSON or a PNG carrier, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original card, tool bookkeeping included, is kept, so an export back to Pygmalion returns everything, picture included when the card arrived as a PNG. An export to a different app carries the five character fields and leaves Pygmalion's own tool stamp behind.",
+    "svg": "docs/generated/figures/pygmalion-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "pygmalion.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "detect(): reject known shapes, then look for the classic signal",
+    "caption": "isPygmalionCard rejects CCv2/v3, vaud-json, Agnai, and Backyard shapes before it ever looks for a positive signal (index.ts:26-29), then requires either two of the three classic fields or char_name plus char_persona (index.ts:31-38). A hit scores 1, no headroom reserved for a more-specific sibling the way SillyTavern's 0.9 does.",
+    "svg": "docs/generated/figures/pygmalion__detect.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "regex-safety.js",
+    "figid": "pipeline",
+    "type": "flow",
+    "title": "a card-authored pattern, before it is ever allowed to compile",
+    "caption": "Every stage up to the gate is analysis over the pattern STRING: nothing here compiles or runs the pattern (ast-types.ts:13-14). A 'dangerous' verdict stops the pattern at the gate with a culprit span and never reaches a real RegExp compile. This runs on EVERY execution of EVERY enabled rule, not just once at save time (apply.ts:214).",
+    "svg": "docs/generated/figures/regex-safety__pipeline.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "regex.js",
+    "figid": "chain",
+    "type": "flow",
+    "title": "one rule feeds the next",
+    "caption": "Rules run top to bottom, in the order they're listed, and each one works on the text as the rule before it left it, not the original. That's why two rules can compete for the same text: whichever runs first wins, and the full check is what catches the one that never gets a turn.",
+    "svg": "docs/generated/figures/regex__chain.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "regex.js",
+    "figid": "composition",
+    "type": "tree",
+    "title": "RegexSetBody, grouped",
+    "caption": "RegexSetBody is a name, an optional description, a set-level enabled switch, and the ordered rules list. Almost all of the entity's surface lives inside RegexRule, whose 20 flat fields read as three concerns: identity and content, placement, and vaud-engine-only controls with no wire home on any platform. Kinds: body, field group, nested shape, leaf field.",
+    "svg": "docs/generated/figures/regex__composition.svg",
+    "w": 660,
+    "h": 276
+  },
+  {
+    "file": "risu-format.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "three codecs, one folder",
+    "caption": "The Risu folder default-exports three adapters (src/formats/risu/index.ts:191). Each detects its own wire shape and maps to its own entity kind; risu-regex has two file homes with two different scores.",
+    "svg": "docs/generated/figures/risu-format__codecs.svg",
+    "w": 810,
+    "h": 200
+  },
+  {
+    "file": "risu-format.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the character detect() path",
+    "caption": "detect() takes the first branch that fails and returns 0, otherwise 1.0 (index.ts:87-95). It does not inspect the card spec or version, only whether card.json exists inside a zip.",
+    "svg": "docs/generated/figures/risu-format__detect.svg",
+    "w": 574,
+    "h": 172
+  },
+  {
+    "file": "risu.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "A RisuAI .charx comes in through the Library, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original archive is kept, so an export back to RisuAI returns everything. An export to a different app carries the shared character and leaves RisuAI's package scripts behind.",
+    "svg": "docs/generated/figures/risu__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "rolecall-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "A RoleCall card comes in through the Library, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original card is kept, so an export back to RoleCall returns everything, including the casting card and presentation layer. An export to a different app carries the shared character and leaves RoleCall's own casting and presentation layer behind.",
+    "svg": "docs/generated/figures/rolecall-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "rolecall.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "four codecs, one folder",
+    "caption": "The RoleCall folder default-exports four adapters (src/formats/rolecall/index.ts:405). Character and persona share the exact same CCv2/V3 wire shape; the literal extensions.rolecall.type === \"persona\" discriminator is what keeps them from tying at 1.0 on the same card (index.ts:344-356, persona.ts:48-62).",
+    "svg": "docs/generated/figures/rolecall__codecs.svg",
+    "w": 810,
+    "h": 234
+  },
+  {
+    "file": "rolecall.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the character detect() path",
+    "caption": "detect() must clear every gate before it returns 1, else 0 (index.ts:348-356). A card whose extensions.rolecall.type is the literal \"persona\" is the RoleCall persona-export shape reused for a character card; the character adapter steps aside and toCanonical throws pointing at rolecall-persona (index.ts:355,366), so the two adapters never tie at 1.0 on the same file.",
+    "svg": "docs/generated/figures/rolecall__detect.svg",
+    "w": 762,
+    "h": 172
+  },
+  {
+    "file": "safe-rendering.js",
+    "figid": "boundaries",
+    "type": "matrix",
+    "title": "two surfaces, enforced where, proven where",
+    "caption": "Prose fields and the card backdrop preview run different DOMPurify configs because they sit behind different boundaries: prose fields have only the ambient app CSP, the backdrop preview adds a sandboxed srcdoc iframe with its own scoped CSP. Every row is verified at the string or jsdom level; none is verified against a live browser or the packaged WebView2 host.",
+    "svg": "docs/generated/figures/safe-rendering__boundaries.svg",
+    "w": 510,
+    "h": 234
+  },
+  {
+    "file": "script-sandbox.js",
+    "figid": "lifecycle",
+    "type": "flow",
+    "title": "one run, control by control",
+    "caption": "A card script is inert data until the operator puts it on the Test Bench; nothing on import runs it. When it does run, each stage below enforces its own ceiling independently, so a message that lies about its budget is re-clamped at the next stage rather than trusted. The worker is on a distinct loopback origin (ADR-009), and the per-launch API token never crosses the wire.",
+    "svg": "docs/generated/figures/script-sandbox__lifecycle.svg",
+    "w": 1138,
+    "h": 172
+  },
+  {
+    "file": "script-sandbox.js",
+    "figid": "assurance",
+    "type": "matrix",
+    "title": "enforced where, proven where",
+    "caption": "The honest posture: the resource, protocol, token-absence, and handler-allowlist layers are enforced and unit-tested. Distinct-origin isolation is implemented and tested at the Bun HTTP/handler layer only. The packaged WebView2 host is not yet measured, so Plan 017 is BLOCKED and full isolation is not claimed.",
+    "svg": "docs/generated/figures/script-sandbox__assurance.svg",
+    "w": 510,
+    "h": 404
+  },
+  {
+    "file": "secrets-and-keys.js",
+    "figid": "defenses",
+    "type": "matrix",
+    "title": "each layer, and where it is proven",
+    "caption": "The loopback server layers are shipping code with automated Bun tests. The two highlighted rows are the honest gaps: the key vault is a draft M2 spec with no code yet, and packaged WebView2 origin isolation is unmeasured (Plan 017 BLOCKED). Nothing here is claimed fully isolated.",
+    "svg": "docs/generated/figures/secrets-and-keys__defenses.svg",
+    "w": 510,
+    "h": 370
+  },
+  {
+    "file": "security-overview.js",
+    "figid": "routes",
+    "type": "matrix",
+    "title": "each untrusted input, its own gate",
+    "caption": "vaud does not funnel every input through one pipeline. Each kind of untrusted content meets the gate built for it. Import and conversion never execute a card's scripts; the only code that runs is Lua, sandboxed, and only when the user opens the Test Bench.",
+    "svg": "docs/generated/figures/security-overview__routes.svg",
+    "w": 660,
+    "h": 268
+  },
+  {
+    "file": "security-overview.js",
+    "figid": "status",
+    "type": "matrix",
+    "title": "defense layers and their honest status",
+    "caption": "What each layer enforces, whether it has a code-layer suite, and whether it is proven in the packaged Windows host. Two rows are not fully green on purpose: distinct-origin isolation is proven only at the HTTP layer (packaged WebView2 probe BLOCKED, ADR-009), and the key vault is a draft spec with no implementation in the tree.",
+    "svg": "docs/generated/figures/security-overview__status.svg",
+    "w": 660,
+    "h": 404
+  },
+  {
+    "file": "sillytavern-format.js",
+    "figid": "codecs",
+    "type": "matrix",
+    "title": "four codecs, one folder",
+    "caption": "The SillyTavern folder default-exports four adapters (src/formats/sillytavern/index.ts). Each detects its own wire shape and maps to its own entity kind. The character reader scores 0.9 so a more specific reader (RoleCall, 1.0) wins the same card.",
+    "svg": "docs/generated/figures/sillytavern-format__codecs.svg",
+    "w": 810,
+    "h": 234
+  },
+  {
+    "file": "sillytavern-format.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the character detect() path",
+    "caption": "detect() takes the first branch that matches and returns 0.9, else 0 (index.ts:87-92). A PNG with an embedded chara/ccv3 chunk wins on bytes; otherwise the JSON must be a recognizable card shape. The flat/v1 branch is gated by a real character field so a worldbook cannot pass as a character.",
+    "svg": "docs/generated/figures/sillytavern-format__detect.svg",
+    "w": 762,
+    "h": 172
+  },
+  {
+    "file": "sillytavern-guide.js",
+    "figid": "journey",
+    "type": "flow",
+    "title": "a card, from drop to export",
+    "caption": "A SillyTavern card comes in through the Library, gets edited on the Workbench, and goes back out through the Press. Nothing is lost on the way in: the whole original card is kept, so an export back to SillyTavern returns everything. An export to a different app carries the shared character and leaves SillyTavern's private extras behind.",
+    "svg": "docs/generated/figures/sillytavern-guide__journey.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "troubleshooting.js",
+    "figid": "causes",
+    "type": "tree",
+    "title": "why an import didn't land the way you expected",
+    "caption": "Every import problem sorts into one of three shapes: the file never read at all, it read but you got more (or less) than one piece, or it read clean and something inside it looks different than you assumed. The receipt already names which one you're in; this is that same split, laid out.",
+    "svg": "docs/generated/figures/troubleshooting__causes.svg",
+    "w": 660,
+    "h": 396
+  },
+  {
+    "file": "untrusted-content.js",
+    "figid": "door",
+    "type": "flow",
+    "title": "past the door, not onto the stage",
+    "caption": "Every import runs the same shape: bytes go through one tolerant parse into a known type, authored scripts land as inert data on the canonical body, and the raw source stays sealed in escrow under its own format id. Nothing in this path evaluates a script. The only way a script body runs at all is an operator opening the Test Bench and pressing run, a separate, resource-capped surface documented on its own page.",
+    "svg": "docs/generated/figures/untrusted-content__door.svg",
+    "w": 1138,
+    "h": 172
+  },
+  {
+    "file": "user-security.js",
+    "figid": "card-cage",
+    "type": "flow",
+    "title": "how far a card's script gets",
+    "caption": "A downloaded card is read, not run. Regex and macros are treated as data. The only thing that executes a card's Lua is the Risu Test Bench, which you open on purpose, and it runs inside a WebAssembly VM, inside a web worker, on a separate loopback origin that serves two files and refuses every /api path. That last boundary is proven in the automated tests at the HTTP layer; it is not yet measured inside the packaged Windows app (ADR-009).",
+    "svg": "docs/generated/figures/user-security__card-cage.svg",
+    "w": 950,
+    "h": 172
+  },
+  {
+    "file": "vaud-json.js",
+    "figid": "detect",
+    "type": "flow",
+    "title": "the detect() to registry path",
+    "caption": "detect() scores 1.0 / 0.1 / 0 (index.ts:28-36), but registry.detect() only ever returns the highest score, and only when it clears DETECT_THRESHOLD 0.5 (registry.ts:10,30-41). 0.1 never clears 0.5, so that branch cannot currently win a file through the registry.",
+    "svg": "docs/generated/figures/vaud-json__detect.svg",
+    "w": 762,
+    "h": 172
+  }
+]
