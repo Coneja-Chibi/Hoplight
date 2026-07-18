@@ -167,6 +167,13 @@ export class StudioStore {
     if (typeof entity.id !== "string" || !entity.id) {
       throw new StudioValidationError("invalid entity id");
     }
+    // Fail closed on what read() would refuse: without this, save writes a file that list/read
+    // then treat as corrupt forever - the piece exists on disk but never appears in the studio.
+    if (entity.schemaVersion !== CANONICAL_SCHEMA_VERSION) {
+      throw new StudioValidationError(
+        `entity schemaVersion must be "${CANONICAL_SCHEMA_VERSION}"`,
+      );
+    }
     let id = assertSafeStudioId(entity.id);
     const kindDir = resolveStudioPath(this.dir, kind);
     await mkdir(kindDir, { recursive: true });

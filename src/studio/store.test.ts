@@ -74,6 +74,18 @@ describe("StudioStore containment", () => {
     await expect(store.read("character", "bad")).rejects.toThrow();
   });
 
+  test("rejects an entity whose schemaVersion read() would refuse (no invisible files)", async () => {
+    // Without this gate, save() writes a file that read()/list() then treat as corrupt forever:
+    // the piece exists on disk but never appears in the studio again.
+    const { schemaVersion: _v, ...bare } = ent("ghost");
+    await expect(store.save(bare as never)).rejects.toBeInstanceOf(StudioValidationError);
+    await expect(store.save({ ...ent("ghost"), schemaVersion: "0" } as never)).rejects.toBeInstanceOf(
+      StudioValidationError,
+    );
+    const list = await store.list("character");
+    expect(list.some((e) => e.id === "ghost")).toBe(false);
+  });
+
   test("overwrite preserves importedAt", async () => {
     const s1 = await store.save(ent("keep"));
     const first = s1.importedAt;
