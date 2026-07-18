@@ -35,7 +35,6 @@ The whole design is three pieces:
 - an honest adapter per platform
 - your whole library as plain JSON on your own disk
 
-No accounts, no telemetry, no cloud. Everything in this repo follows from that sentence.
 
 ---
 
@@ -268,6 +267,9 @@ That is the whole loop.
 
 ## 📚 The Library
 
+<details>
+<summary><i>Decks, the four views, the art dial, import receipts, staging, shelf ops</i></summary>
+
 <img src="docs/media/shot-library.png" alt="The Library">
 
 **Everything you own, one room.** The Library:
@@ -367,9 +369,14 @@ Apps register their own providers into the very same menu, so it grows richer as
 | 🎭 **Characters** | Travel with their linked lorebooks; kits are first-class |
 | 👤 **Personas** | The structured persona editor, same chassis as characters |
 
+</details>
+
 ---
 
 ## 🎬 The Workbench
+
+<details>
+<summary><i>The casting interview, the lens, native bags, media, tabs and splits, the regex bench</i></summary>
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
@@ -499,9 +506,14 @@ And when another room sends a piece over to be edited, the Workbench asks once h
 
 > *"A regex you haven't watched run on real text is a bug you haven't met yet."* 🧪
 
+</details>
+
 ---
 
 ## 📖 The Binder
+
+<details>
+<summary><i>The table of contents, keys, activation rules, budgets, health, write-for</i></summary>
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
@@ -603,9 +615,14 @@ It's the **same coverage ground truth** the character Lens and the Press readine
 
 > **Write-For is a lens, not a fork: the book stays one book, you're only ever changing what you look at it through.**
 
+</details>
+
 ---
 
 ## 🖨️ The Press
+
+<details>
+<summary><i>Staging, kits, readiness, filenames and flavor, the run</i></summary>
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
@@ -683,9 +700,14 @@ Platforms that read CCv3 with their own extension bags (Marinara, Chub) print ch
 
 > **The Press never fails silently, and it never lies by omission.** Every row is printed, skipped, or failed, and it tells you which one and why. 📮
 
+</details>
+
 ---
 
 ## 🎨 The Small Rooms
+
+<details>
+<summary><i>The CSS Workshop and Settings</i></summary>
 
 **Not every room needs a marquee.** Two small ones keep the studio yours.
 
@@ -712,6 +734,8 @@ Platforms that read CCv3 with their own extension bags (Marinara, Chub) print ch
 | 🚪 **Workbench** | Follow behavior |
 
 **Every control is call-and-response against the running studio.** Change the theme or the accent and the whole app repaints instantly, no reload.
+
+</details>
 
 ---
 
@@ -812,7 +836,9 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 
 ---
 
-### "It won't open my file!" 😤
+<details>
+<summary><b>"It won't open my file!" 😤</b></summary>
+
 
 - Run `bun run vaud inspect <file>`. It names what the file is, or tells you plainly that it can't
   be read. No stack trace, a sentence.
@@ -821,7 +847,11 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 
 ---
 
-### "My export is missing fields!" 🧐
+
+</details>
+<details>
+<summary><b>"My export is missing fields!" 🧐</b></summary>
+
 
 - Check the lens first. Set the editor to the target platform and read what's dimmed; dimmed
   fields are the ones that platform simply cannot carry.
@@ -830,16 +860,26 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 
 ---
 
-### "Where is my studio folder?" 📁
+
+</details>
+<details>
+<summary><b>"Where is my studio folder?" 📁</b></summary>
+
 
 - Default: `Documents/Vaude Studio`, one JSON file per piece.
 - Point the studio at any folder you like: `bun run vaud ui 8321 path/to/studio`.
 
 ---
 
-### "The port is taken!" 🔌
+
+</details>
+<details>
+<summary><b>"The port is taken!" 🔌</b></summary>
+
 
 - `bun run vaud ui <port>` takes any port you hand it; either way the studio binds loopback only.
+
+</details>
 
 ---
 
