@@ -1,0 +1,239 @@
+/**
+ * The Press (Job Sheet, vs-press option 1, transcribed): studio tray left, the work order right.
+ * Stage tokens; letterpress borders and offset shadows; mono kickers.
+ */
+.room {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  align-items: start;
+  min-height: 100%;
+}
+
+.kick {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--stage-dim);
+}
+
+.tray {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  padding: 0.7rem;
+  position: sticky;
+  top: 0.5rem;
+  max-height: calc(100dvh - 6.5rem);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.grp {
+  margin-bottom: 0.75rem;
+}
+
+.grpHead {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-bottom: 1px solid var(--stage-seam);
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+  cursor: pointer;
+}
+
+.grpHead input {
+  accent-color: var(--a);
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: 0;
+}
+
+.pickRow {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  font-size: 0.88rem;
+  padding: 0.14rem 0;
+  cursor: pointer;
+  color: var(--stage-soft);
+}
+
+.pickRow input {
+  accent-color: var(--a);
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: 0;
+  flex: none;
+}
+
+.pickName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-row);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  padding: 0.9rem;
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  border-bottom: 2px solid var(--stage-seam);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.sheetHead .kick {
+  margin-right: auto;
+}
+
+.targets {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.tchip {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-black);
+  padding: 0.26rem 0.5rem;
+  cursor: pointer;
+  color: var(--stage-soft);
+  background: var(--stage-sunken);
+}
+
+.tchipOn {
+  background: var(--a);
+  color: var(--stage-ink);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+}
+
+.jrow {
+  display: grid;
+  grid-template-columns: 1.05rem minmax(0, 1fr) auto auto;
+  gap: 0.6rem;
+  align-items: center;
+  border: 2px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.4rem 0.55rem;
+  margin: 0.4rem 0;
+  font-size: 0.9rem;
+  color: var(--stage-soft);
+}
+
+.jkind {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--stage-dim);
+  text-transform: uppercase;
+}
+
+.jfile {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  color: var(--stage-dim);
+}
+
+.dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border: 1px solid var(--stage-black);
+  background: var(--stage-faint);
+}
+
+.dotOk {
+  background: var(--stage-ok);
+}
+
+.dotWarn {
+  background: var(--stage-warn);
+}
+
+.dotFail {
+  background: var(--stage-danger-edge);
+}
+
+.jnote {
+  grid-column: 2 / -1;
+  font-size: 0.76rem;
+  font-family: var(--font-mono);
+  color: var(--stage-warn);
+}
+
+.jnoteFail {
+  color: var(--stage-danger-text);
+}
+
+.jinfo {
+  grid-column: 2 / -1;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  color: var(--stage-dim);
+}
+
+.empty {
+  color: var(--stage-mute);
+  font-size: 0.92rem;
+  padding: 1.2rem 0.4rem;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+  border-top: 1px dashed var(--stage-line);
+  padding-top: 0.8rem;
+}
+
+.sum {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--stage-mute);
+  margin-right: auto;
+}
+
+.stamp {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-paper);
+  background: var(--stage-panel);
+  border: 2px solid var(--stage-black);
+  box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.stamp:active {
+  box-shadow: none;
+  transform: translate(2px, 2px);
+}
+
+.stamp:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.stampRun {
+  background: var(--a);
+  color: var(--stage-ink);
+  font-size: 0.74rem;
+  padding: 0.5rem 1.1rem;
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+}

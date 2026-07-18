@@ -1,6 +1,6 @@
 /**
- * The Press wayfinding tour - honest about the placeholder (lit-vs-ghost law: never tour a fake
- * feature) and points at where exporting actually lives today (each editor's Export button).
+ * The Press tour - the Job Sheet room (vs-press option 1). Copy matches the built room: the studio
+ * tray, one target platform per run, honest per-row results, the single zip.
  */
 import type { Tour } from "../tour-contract";
 
@@ -9,13 +9,28 @@ const pressTour: Tour = {
   steps: [
     {
       id: "welcome",
-      title: "The Press is not built yet",
-      body: "This room will become the export desk: batch conversions, whole-studio printing, publish runs. It is honestly empty today, not hiding anything.",
+      title: "This is the Press",
+      body: "The export desk for whole runs. One piece at a time still lives on each editor's Export button; this room prints batches.",
     },
     {
-      id: "today",
-      title: "Exporting works right now",
-      body: "Open any piece on the Workbench and press its Export button: pick a platform, see what travels and what cannot, and save the file. The Press will collect those flows here later.",
+      id: "tray",
+      title: "The studio tray",
+      body: "Everything you own, by kind, with counts. Tick single pieces or a whole group at once; the job sheet fills as you pick.",
+    },
+    {
+      id: "target",
+      title: "One platform per run",
+      body: "Pick where this run is going. A piece the platform cannot print shows as skipped up front, before you run, never as a surprise after.",
+    },
+    {
+      id: "run",
+      title: "Run the press",
+      body: "Each row prints its honest result as it lands: printed with what it carries, skipped with the reason, or failed with the error. Nothing is summarized away.",
+    },
+    {
+      id: "done",
+      title: "One bundle out",
+      body: "Everything that printed lands in a single zip, named for the platform. The ? replays this any time.",
     },
   ],
 };
