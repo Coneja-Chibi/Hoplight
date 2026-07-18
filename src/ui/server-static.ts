@@ -104,7 +104,11 @@ export function startDevWatch(): void {
   watching = true;
   const uiDir = fileURLToPath(new URL("./", import.meta.url));
   let timer: ReturnType<typeof setTimeout> | null = null;
-  watchFs(uiDir, { recursive: true }, () => {
+  watchFs(uiDir, { recursive: true }, (_type, filename) => {
+    // Only real source files reload the page; editor lockfiles, swap files, and Windows watcher
+    // noise do not. A null filename (Windows sometimes omits it) is allowed through - losing a
+    // legitimate reload is worse than an extra one.
+    if (filename !== null && !/\.(ts|tsx|css|html)$/i.test(String(filename))) return;
     if (timer) clearTimeout(timer);
     timer = setTimeout(() => {
       for (const client of devClients) {
@@ -114,7 +118,9 @@ export function startDevWatch(): void {
           devClients.delete(client);
         }
       }
-    }, 120);
+      // 600ms trailing quiet: an edit BURST (agent or human saving several files) folds into ONE
+      // reload instead of a flashing storm; 120ms fired between keystroke-spaced saves.
+    }, 600);
   });
 }
 

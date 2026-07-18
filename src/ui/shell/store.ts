@@ -279,6 +279,13 @@ export const useShellStore = create<ShellState>((set, get) => ({
     const m = get().manifests.find((a) => a.id === id);
     if (!m || m.comingSoon || m.id === get().activeAppId) return;
     set({ activeAppId: m.id, statusNote: "" });
+    // Session-scoped memory of where you are: a dev reload (or any full reload) lands you back on
+    // THIS app instead of dumping you on home - the "spits me out on the workbench" complaint.
+    try {
+      sessionStorage.setItem("vaude.session.activeApp", m.id);
+    } catch {
+      // storage unavailable (privacy mode) - reloads fall back to home, which is survivable
+    }
   },
 
   goHome() {

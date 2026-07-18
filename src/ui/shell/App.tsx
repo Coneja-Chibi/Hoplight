@@ -56,7 +56,16 @@ export function App(): JSX.Element | null {
 
     const state = useShellStore.getState();
     const landing = freshFromSetup ? state.firstLandingApp() : undefined;
-    const first = landing ?? state.homeApp();
+    // A reload (dev live-reload included) returns to the app you were ON, not home: without this,
+    // every source save while the studio is open dumped the user back on the workbench.
+    let remembered: AppManifestEntry | undefined;
+    try {
+      const id = sessionStorage.getItem("vaude.session.activeApp");
+      remembered = id ? manifestList.find((m) => m.id === id && !m.comingSoon) : undefined;
+    } catch {
+      remembered = undefined;
+    }
+    const first = landing ?? remembered ?? state.homeApp();
     if (first) state.mountApp(first.id);
     setPhase("ready");
   }
