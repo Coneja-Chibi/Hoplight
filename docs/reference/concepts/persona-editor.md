@@ -30,9 +30,8 @@ THE FAMILY LANDMINE, enforced by compiler test: `brief` never enters the injecte
 
 ## Reuse law on this surface
 
-Every element on this page was walked against the component catalog (2026-07-12); verdicts +
-fixes in the persona audit (private planning notes). Anything new on this surface MUST come from
-docs/reference/components.md first.
+Every element on this page was walked against the component catalog (2026-07-12). Anything new on
+this surface MUST come from docs/reference/components.md first.
 
 ## The shelf
 

@@ -1,23 +1,47 @@
-# Format: Agnai
+﻿---
+id: reference/formats/agnai
+title: Agnai format
+audience: dev
+summary: How the Agnai adapter family detects, maps, and round-trips its native character JSON and memory-book lorebooks, including the embedded characterBook, through the canonical model.
+tags: [format, agnai, character, lorebook, persona, memory-book]
+related: [reference/architecture, reference/entities/character, reference/entities/lorebook]
+---
+
+# Agnai format
 
 Agnai (Agnaistic) is a browser/self-hosted AI roleplay app with its own native JSON character shape. It
-is **not** Tavern-lineage: instead of a flat description block, its persona is *structured* (a `kind` plus
-an attribute map), which is exactly what the canonical [`persona.structured`](../entities/character.md#persona)
-field exists to preserve. The Agnai folder ships **two** adapters (its `index.ts` default-exports the
-array `[character, lorebook]`): the character adapter below and the native **memory book** lorebook codec.
+is not Tavern-lineage: instead of a flat description block, its persona is structured, a `kind` plus an
+attribute map, which is exactly what the canonical [`persona.structured`](../entities/character.md#persona-and-voice)
+field exists to preserve. Every adapter here reads and writes `.json`.
 
-- Character: `id: "agnai"`, kind `character`, container JSON, writes `.json`.
-- Label: `Agnai (Agnaistic) character (.json)`.
-- Lorebook: `id: "agnai-lorebook"`, kind `lorebook`, container JSON, writes `.json` (see
-  [Native memory book](#native-memory-book-agnai-lorebook)).
-- Source: `src/formats/agnai/index.ts` (character), `src/formats/agnai/lorebook.ts` (memory book). The
-  Agnai schema was read from Agnai's own source (`common/types/library.ts`, `common/adapters.ts`,
-  `common/types/memory.ts`, `common/memory.ts`; AGPL-3.0) as interop facts only. No Agnai code is copied.
+The format is one folder, `src/formats/agnai/`, whose `index.ts` default-exports two codecs
+(`index.ts:363`):
+
+- `agnai`, kind `character`, reads and writes JSON.
+- `agnai-lorebook`, kind `lorebook`, reads and writes JSON. This is Agnai's standalone memory book; the
+  same MemoryBook shape also comes embedded inside a character as `characterBook`, see
+  [Escrow and round-trip](#escrow-and-round-trip).
+
+This page documents both codecs in full. The Agnai schema was read from Agnai's own source
+(`common/types/library.ts`, `common/adapters.ts`, `common/types/memory.ts`, `common/memory.ts`,
+`common/types/texttospeech-schema.ts`, `common/types/sprite.ts`, `common/types/image-schema.ts`;
+AGPL-3.0) as interop facts only, no Agnai code is copied (`index.ts:1-7`, `samples/agnai/SOURCES.md`).
+For the canonical field meanings this format maps onto, see
+[entities/character.md](../entities/character.md) and [entities/lorebook.md](../entities/lorebook.md). For
+the hub-and-spoke, escrow, and detection model, see [architecture.md](../architecture.md). For the whole
+matrix of formats, see [FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md).
+
+@fig codecs
 
 ## Detection
 
-`detect()` returns `1.0` for a recognizable Agnai card, `0` otherwise. It parses the input as JSON and
-requires **all** of:
+The registry runs every adapter's `detect()` and keeps the single highest score above `0.5`, so more
+specific formats outrank generic ones (`architecture.md`, "Detection and the registry").
+
+### Character
+
+`detect()` parses the input as JSON and returns `1.0` only when all five hold, `0` otherwise
+(`index.ts:312-329`):
 
 - `kind === "character"`,
 - `persona` is a non-null object,
@@ -26,211 +50,209 @@ requires **all** of:
 - `body` is `undefined`.
 
 The last two clauses are the firewall against vaud's own native wrapper: a `vaud-json` entity carries
-`schemaVersion` and `body`, so requiring both to be absent stops Agnai from fighting `vaud-json` on the
-same file. Any parse failure returns `0`. Agnai scores `1.0` (not `0.9`) because it is a specific,
-self-identifying shape, not a generic reader.
+`schemaVersion` and `body`, so requiring both absent stops Agnai from fighting `vaud-json` on the same
+file (`index.ts:317-324`). A parse failure or missing text returns `0` (`index.ts:313-314,326-327`).
+Agnai scores `1.0`, not `0.9`, because it is a specific, self-identifying shape: no other adapter claims
+a superset of it the way RoleCall claims a superset of a SillyTavern card.
+
+### Lorebook
+
+`agnai-lorebook` reads the input as a memory book via `coerceMemoryBook` and scores (`lorebook.ts:305-313`):
+
+- `1.0` when the unambiguous `kind: "memory"` marker is present (`lorebook.ts:285,309`).
+- `0.9` for a kind-less book whose `entries` is an array and whose first entry still carries the native
+  `entry` + `keywords` shape (`lorebook.ts:286-290,309`). This is what distinguishes a native Agnai book
+  from a bare CCv3 `character_book`, whose entries use `content`/`keys` instead.
+- `0.7` for a standalone CCv3/Chub-style `character_book` (`isStandaloneCharacterBook`, entries carry
+  `keys` and/or `content`), re-exported as a real MemoryBook (`lorebook.ts:310-311`,
+  `_shared/character-book.ts:270-284`).
+- `0` otherwise, including a SillyTavern worldbook (`entries` is a keyed object, not an array) and a Risu
+  native envelope (no top-level `entries` array).
 
 ## Field map
 
-Decode (`toCanonical`) via `cardToBody`, encode (`fromCanonical`) via `applyBodyToCard`. Only string
-values survive decode (a tolerant `str()` returns `undefined` for non-strings); only defined values are
-written back on encode.
+Decode (`toCanonical`) via `cardToBody` / `bookToCanonical`, encode (`fromCanonical`) via
+`applyBodyToCard` / `canonicalToMemoryBook`. Only string values survive character decode (a tolerant
+`str()`/`strList()` returns `undefined` for the wrong type); only defined values are written back on
+encode.
 
-| Canonical | Agnai wire |
-| --- | --- |
-| `identity.name` | `name` (defaults to `""` if absent) |
-| `identity.description` | `description` |
-| `identity.characterVersion` | `characterVersion` |
-| `persona.scenario` | `scenario` |
-| [`persona.appearance`](../entities/character.md#persona) | `appearance` |
-| `persona.personality` + `persona.structured` | `persona` (see below) |
-| `prompts.systemPrompt` | `systemPrompt` |
-| `prompts.postHistoryInstructions` | `postHistoryInstructions` |
-| [`prompts.prefill`](../entities/character.md#prompts) | `prefill` |
-| `prompts.depthInjections[0]` | `insert` (`{ depth, prompt }`) |
-| `greetings.firstMessage` | `greeting` |
-| `greetings.alternateGreetings` | `alternateGreetings` (string array) |
-| `examples.exampleMessages` | `sampleChat` |
-| `attribution.creator` | `creator` |
-| `discovery.tags` | `tags` |
-| `identity.culture` | `culture` |
-| `persona.voice` | `voice` (discriminated on `service`) + `voiceDisabled` (see below) |
-| `persona.imagePrompt` | `imageSettings.{prefix,suffix,negative,template}` - the authored AFFIXES only |
-| `media.sprite` / `media.visualKind` | `sprite` (flat FullSprite -> `{parts, gender, colors}`) / `visualType` |
-| `media.portrait` | `avatar` (face image: data URI or URL; not the sprite recipe) |
-| `settings.responseSchema` | `json` (ResponseSchema, carried verbatim-editable) |
+### Character
 
-The de-escrowed authored blocks (voice, sprite, culture, image affixes, json) map both ways: `service` ->
-`Voice.provider`, provider-specific extras (stability, similarityBoost, ...) ride `Voice.extras` so the
-rebuild is lossless; `imageSettings` sampler/provider knobs (steps, cfg, seed, provider objects) are NOT
-authored prompt content and stay on the escrow twin - the affix write merges over the twin's block so
-those knobs survive an edit untouched.
+| Source field | Canonical path | Notes |
+| --- | --- | --- |
+| `name` | `identity.name` | Defaults to `""` when absent. `index.ts:178` |
+| `description` | `identity.description` | `index.ts:179` |
+| `characterVersion` | `identity.characterVersion` | `index.ts:180` |
+| `culture` | `identity.culture` | Agnai-only; drives default language/voice selection. `index.ts:181` |
+| `persona` | `persona.personality` + `persona.structured` | See the persona notes below the table. `index.ts:175,183-187` |
+| `scenario` | `persona.scenario` | `index.ts:185` |
+| `appearance` | [`persona.appearance`](../entities/character.md#persona-and-voice) | Agnai-only free-text physical description, kept out of `description` so it can drive image generation. `index.ts:186` |
+| `voice` + `voiceDisabled` | `persona.voice` | Discriminated on `service` -> `Voice.provider`; `voiceId`/`rate`/`pitch` are first-classed, everything else rides `Voice.extras`. `index.ts:70-80,188` |
+| `imageSettings.{prefix,suffix,negative,template}` | `persona.imagePrompt` | The authored affixes only; sampler/provider knobs stay on the escrow twin. `index.ts:118-126,189` |
+| `systemPrompt` | `prompts.systemPrompt` | `index.ts:192` |
+| `postHistoryInstructions` | `prompts.postHistoryInstructions` | `index.ts:193` |
+| `prefill` | [`prompts.prefill`](../entities/character.md#prompts-and-injections) | Agnai's assistant-response prefill, prepended to the model reply, common with Claude. `index.ts:194` |
+| `insert` | `prompts.depthInjections[0]` | `{ depth, prompt }`. Agnai's one fixed-depth slot; a canonical entity with multiple depth injections keeps only the first on export. `index.ts:195,238-240` |
+| `greeting` | `greetings.firstMessage` | `index.ts:198` |
+| `alternateGreetings` | `greetings.alternateGreetings[].text` | Bare strings wrapped as `{ text }`; on encode only `.text` is written, so a greeting `title` from another format is dropped. `index.ts:199,231` |
+| `sampleChat` | `examples.exampleMessages` | `index.ts:201` |
+| `avatar` | `media.portrait` | Face image (data URI or URL, not the sprite recipe). Mime is guessed from the data URI or file extension, `undefined` when unknown. `index.ts:128-151,203` |
+| `sprite` | `media.sprite` | Agnai's `FullSprite` is flat (part keys plus `eyeColor`/`bodyColor`/`hairColor`/`gender` at one level); it decodes to `{ parts, ...specials }`. `index.ts:92-107,204` |
+| `visualType` | `media.visualKind` | Which visual mode the creator chose, `"avatar"` or `"sprite"`. `index.ts:205` |
+| `creator` | `attribution.creator` | `index.ts:207` |
+| `tags` | `discovery.tags` | `index.ts:208` |
+| `json` | `settings.responseSchema` | Agnai's structured-output `ResponseSchema`, carried verbatim-editable. `index.ts:209` |
+| whole card | `original.agnai.raw` | Kept verbatim so the round-trip is lossless. `index.ts:342` |
 
-Notes on the non-obvious mappings:
-
-- **`appearance`** is a first-class Agnai field kept out of `description`, specifically so it can drive
-  image generation. Only Agnai produces canonical `persona.appearance`; other formats fold physical
-  description into `description`.
-- **`prefill`** is Agnai's assistant-response prefill (prepended to the model reply, common with Claude).
-- **`insert`** is Agnai's single fixed-depth injection `{ depth, prompt }`. It decodes to one
-  `DepthInjection` (`{ text: prompt, depth }`) and re-encodes only from `depthInjections[0]`. Agnai has
-  exactly one injection slot, so a canonical entity with **multiple** depth injections keeps only the
-  first on export. The Agnai `insert` carries no role/origin/enabled, so those `DepthInjection` fields
-  stay `undefined` on decode.
-- **`alternateGreetings`** are plain strings both ways. Each decodes to a `Greeting` `{ text }`; on encode
-  only `.text` is written, so any canonical greeting `title` (from another format) is dropped.
-
-## Structured persona
-
-This is the Agnai-specific core. Agnai's `persona` is `{ kind, attributes }`, where `kind` is one of
-`boostyle | wpp | sbf | attributes | text` and `attributes` is a `Record<string, string[]>`. It maps to
-the canonical [`persona.structured`](../entities/character.md#persona) discriminated union.
-
-Decode (`toStructured`):
+Agnai's `persona` is `{ kind, attributes }`, where `kind` is one of `boostyle | wpp | sbf | attributes |
+text` and `attributes` is `Record<string, string[]>` (`index.ts:29,31-34`). It decodes via `toStructured`
+(`index.ts:159-165`):
 
 | Agnai `persona.kind` | Canonical result |
 | --- | --- |
-| `"text"` | `structured = { kind: "text" }`, and `persona.personality = attributes.text[0]` |
-| `boostyle` / `wpp` / `sbf` / `attributes` | `structured = { kind, attributes: attributes ?? {} }`; `personality` is left unset |
+| `"text"` | `structured = { kind: "text" }`; `persona.personality = attributes.text[0]` |
+| `boostyle` / `wpp` / `sbf` / `attributes` | `structured = { kind, attributes: attributes ?? {} }`; `personality` stays unset |
 
-So a plain-text persona lands in the human-readable `personality` field (with `structured` recording that
-it *was* text), while W++ / square-bracket / boostyle attribute maps are preserved intact in
-`structured.attributes`. The union is designed so illegal states are unrepresentable: `{ kind: "text" }`
-carries no attributes, and every attribute-map kind requires its attributes.
+A plain-text persona lands in the human-readable `personality` field, with `structured` recording that it
+was text; a W++/square-bracket/boostyle attribute map is preserved intact in `structured.attributes`. The
+union is designed so illegal states are unrepresentable: `{ kind: "text" }` carries no attributes, and
+every attribute-map kind requires its attributes.
 
-Encode (`toAgnaiPersona`):
+Encode via `toAgnaiPersona` goes the other way (`index.ts:168-172`): if `structured` is present and its
+`kind` is not `"text"`, it emits `{ kind, attributes }` verbatim; otherwise it emits a text persona,
+`{ kind: "text", attributes: { text: [personality ?? ""] } }`. `applyBodyToCard` calls this
+unconditionally, so `persona` is always rebuilt from canonical rather than overlaid onto the twin
+(`index.ts:241`); see [Escrow and round-trip](#escrow-and-round-trip) for the one place that costs.
 
-- If `structured` exists and its `kind` is not `"text"`, emit `{ kind, attributes }` verbatim.
-- Otherwise emit a text persona: `{ kind: "text", attributes: { text: [personality ?? ""] } }`.
+### Lorebook
 
-Attribute-map kinds therefore round-trip exactly. A text persona re-wraps `personality` back into
-`attributes.text`.
+Agnai's `MemoryEntry` uses field names that differ from CCv3: the content is `entry` (not `content`), the
+keywords are a plain array `keywords` (not a CSV string), and the two ordering axes are both explicit,
+`weight` for placement and `priority` for eviction (`lorebook.ts:1-22,41-59`).
+
+| Source field | Canonical path | Notes |
+| --- | --- | --- |
+| `name` | `title` | Falls back to `Entry N` when absent. `lorebook.ts:101` |
+| `entry` | `content` | `lorebook.ts:102` |
+| `comment` | `comment` | Agnai's own distinct note field, separate from `name` (unlike ST/Risu, where title and comment coincide). `lorebook.ts:103` |
+| `enabled` | `enabled` | Defaults `true`. `lorebook.ts:105` |
+| `constant` | `constant` | `lorebook.ts:106` |
+| `keywords` | `triggers` | Plain strings, always `isRegex: false`; Agnai has no regex-key feature. `lorebook.ts:81-82,109` |
+| `secondaryKeys` | `secondaryTriggers` | Plain strings. `lorebook.ts:97,110` |
+| `selectiveLogic` | `selectiveLogic` | ST-import residue on the ST numeric convention (shared `lore-enums` decoder); absent defaults to `and_any`. `lorebook.ts:112`, `_shared/lore-enums.ts:16-17` |
+| `position` | `position` | `before_char` maps to `world`, `after_char` maps to `character`, the ST-parity floor. `lorebook.ts:85,118` |
+| `weight` | `sortOrder` | The placement axis. `lorebook.ts:122` |
+| `priority` | `priority` | The eviction axis. `lorebook.ts:123` |
+| `probability` + `useProbability` | `probability` | `useProbability !== false` gates it; clamped `0..100`, defaults to `100`. `lorebook.ts:92-96` |
+| `excludeRecursion` | `excludeRecursion` | `lorebook.ts:136` |
+| `scanDepth` | `globalScanDepth` | Book-level. `lorebook.ts:164` |
+| `tokenBudget` | `tokenBudget` | Book-level. `lorebook.ts:166` |
+| `recursiveScanning` | `globalRecursion` | Book-level. `lorebook.ts:165` |
+
+`lorebookType` is a hardcoded `"other"` on import, since Agnai memory books are general library entities,
+not character-scoped by default (`lorebook.ts:158`). `caseSensitive`, `matchWholeWords`, and `scanDepth`
+are per-entry `null` (Agnai has no per-entry flags for them; scan depth is book-level) (`lorebook.ts:114-116`).
+
+The `weight`/`priority` split is grounded in Agnai's own round-trip code: the codec's header comment
+records that Agnai's `memoryEntryToNative` (`common/memory.ts`, not in this repo, cited as an interop
+fact) maps CCv3 `insertion_order` to `weight` and CCv3 `priority` to `priority`, so `weight` to
+`sortOrder` and `priority` to `priority` matches Agnai's own convention (`lorebook.ts:11-15`). That local
+mapping (`weight` to `sortOrder`, `priority` to `priority`) is verified in this repo; the claim about
+Agnai's own `memoryEntryToNative` is asserted by the comment, not independently checkable here.
 
 ## Escrow and round-trip
 
-The whole original card rides in `escrow.agnai.raw`. On export, `fromCanonical` deep-clones that raw card
-(or a minimal `baseCard()` when there is no escrow, e.g. a cross-format import) and overlays the canonical
-body onto it with `applyBodyToCard`, then serializes with `JSON.stringify(card, null, 2)` (2-space
-indent). Any raw Agnai key with no canonical slot survives verbatim through the clone.
+The escrow envelope is the canonical wrapper's `original` field, a `Record<FormatId, OriginalEntry>` keyed
+by format id (`canonical.ts:39-51,80`). The architecture calls this concept escrow; the wrapper field is
+named `original`. The character adapter stores its twin at `original.agnai`, the lorebook codec at its own
+key, `original["agnai-lorebook"]`.
 
-Round-trip caveat worth calling out honestly: `applyBodyToCard` **always rebuilds** `persona` from the
-canonical body via `toAgnaiPersona`, rather than preserving the cloned raw persona. For attribute-map
-kinds this is exact. But for a **text** persona whose `attributes.text` had more than one element, decode
-keeps only `attributes.text[0]` (as `personality`), and encode re-emits `{ text: [personality] }`. So a
-multi-element text array collapses to its first element even on an Agnai to Agnai round-trip. This is the
-one place the persona rebuild is lossy; single-element text personas and all attribute-map personas are
-faithful.
-
-Everything else (name, description, scenario, appearance, prompts, greetings, examples, creator, tags)
-overlays cleanly and, for an unedited card, re-projects to the same values it was decoded from.
-
-## Native memory book (`agnai-lorebook`)
-
-Agnai's lorebook is the **memory book**: a standalone `.json` its Memory editor downloads. The download
-(`web/pages/Memory/Memory.tsx` `encodeBook`) strips the DB-only `_id`/`userId` and emits:
-
-```json
-{ "kind": "memory", "name": "...", "description": "...", "entries": [ ... ],
-  "scanDepth": 0, "tokenBudget": 0, "recursiveScanning": false }
+```
+original.agnai = { raw: <the entire parsed card, verbatim> }
 ```
 
-`scanDepth`/`tokenBudget`/`recursiveScanning` are optional and omitted when unset. Each entry is a
-`MemoryEntry` whose native field names differ from CCv3: the content is `entry` (not `content`), the
-keywords are a plain **array** `keywords` (not a CSV string), and, uniquely, the two ordering axes are
-**both explicit**: `weight` is placement ("highest renders at the bottom") and `priority` is eviction
-("lowest is discarded first").
+On export, `fromCanonical` deep-clones that raw card, or builds a minimal `baseCard()` when there is no
+twin, for example a cross-format import, and overlays the canonical body onto it with `applyBodyToCard`,
+then serializes with `JSON.stringify(card, null, 2)` (`index.ts:353-359,280-289`). Any raw key with no
+canonical slot, `extensions`, `_id`, `userId`, survives verbatim through the clone.
 
-### Detection
+The character overlay does not diff against the decoded twin the way the lorebook and SillyTavern
+codecs do: `set()` unconditionally writes the current canonical value whenever it is defined, and deletes
+a key only when canonical is undefined and the twin held a string or array (`index.ts:213-224`). For a
+well-formed twin this produces the same output as a diff would; a malformed non-string value the importer
+skipped is left untouched rather than stripped, because the delete branch only fires on a string or array
+(`index.ts:221-224`).
 
-`detect()` reads JSON and requires `entries` to be an **array** (ST worldbooks use a keyed object; RC
-nests entries under `lorebook`). It returns `1.0` when the unambiguous `kind: "memory"` marker is present,
-and `0.9` for a kind-less book whose first entry still carries the native `entry` + `keywords` shape (this
-distinguishes it from a bare CCv3 `character_book`, whose entries use `content`/`keys`). Otherwise `0`.
+`persona` is the exception: `applyBodyToCard` always rebuilds it from the canonical body via
+`toAgnaiPersona`, never preserving the cloned raw persona (`index.ts:241`). For attribute-map kinds this
+is exact. For a text persona whose `attributes.text` had more than one element, decode keeps only
+`attributes.text[0]` as `personality` (`index.ts:162`), and encode re-emits `{ text: [personality] }`
+(`index.ts:171`). A multi-element text array therefore collapses to its first element even on an Agnai to
+Agnai round-trip; single-element text personas and all attribute-map personas are faithful.
 
-### Field map
+The lorebook entry overlay, `entryToWire`, is a real three-state diff: with a twin present it clones the
+twin and rewrites only the fields whose canonical value changed from the twin's own decode, so an
+untouched entry re-emits byte-for-byte, including Agnai-only residue such as `selectiveLogic`
+(`lorebook.ts:184-236`). Entries are matched to their twin by `id` (`canonicalToMemoryBook`, a `Map`
+keyed by `id`, `lorebook.ts:238-247`). Optional book fields, `scanDepth`, `tokenBudget`,
+`recursiveScanning`, preserve the twin's presence or absence rather than always emitting a default
+(`lorebook.ts:248-256`), and `_id`/`userId` are never reintroduced. With no twin, `canonicalToMemoryBook`
+starts from a clean `{ kind: "memory" }` object instead of a clone, so the book is written from the
+canonical body alone (`lorebook.ts:243`).
 
-| Canonical `LorebookEntry` | Agnai `MemoryEntry` | Notes |
-| --- | --- | --- |
-| `title` | `name` | falls back to `Entry N` if absent |
-| `content` | `entry` | Agnai's content field |
-| `comment` | `comment` | Agnai has a **distinct** note field, separate from the label (unlike ST/Risu, where they are the same) |
-| `enabled` | `enabled` | defaults `true` |
-| `constant` | `constant` | |
-| `triggers` | `keywords` | **plain** strings, always `isRegex: false` (Agnai has no regex-key feature) |
-| `secondaryTriggers` | `secondaryKeys` | plain strings |
-| `sortOrder` | `weight` | **placement** axis |
-| `priority` | `priority` | **eviction** axis |
-| `position` | `position` | `before_char` <-> `world`, `after_char` <-> `character` (the ST-parity floor) |
-| `probability` | `probability` + `useProbability` | entry-level chance; emitted only when `< 100` |
-| `excludeRecursion` | `excludeRecursion` | emitted only when `true` |
+Agnai's native character export also carries the character's lore inline as `characterBook`, a
+MemoryBook, not a CCv3 `character_book` (`index.ts:1-7,55-56`). The character adapter implements the
+optional `extractLorebook` hook (`src/core/adapter.ts:75`), reading
+`card.characterBook` through the same `memoryBookToCanonical` the standalone `agnai-lorebook` codec uses
+(`index.ts:346-351`, `lorebook.ts:267-276`), so a given MemoryBook canonicalizes identically whether it
+arrives standalone or embedded, container-invariance by construction. `fromCanonical` re-embeds any linked
+lorebook via `applyLorebook` / `canonicalToMemoryBook`, twin-overlaying its own `original["agnai-lorebook"]`
+so a same-format round-trip with a book stays byte-identical; a foreign lorebook with no Agnai twin
+full-encodes into a clean MemoryBook (`index.ts:291-303`). No book present means no `characterBook` key is
+written, never an empty one (`index.ts:299-300`). The bundle layer's `inspectBundle` calls this override
+instead of the shared CCv3 extractor used by Tavern-lineage formats (`convert.ts:44-49`).
 
-The `weight`/`priority` split is grounded in Agnai's own round-trip code: `memoryEntryToNative`
-(`common/memory.ts`) maps CCv3 `insertion_order` -> `weight` and CCv3 `priority` -> `priority`, so
-`weight` -> `sortOrder` and `priority` -> `priority` matches Agnai's own convention exactly.
+## Quirks
 
-Agnai carries **both** axes explicitly, so it is the format that shows the reconciled model cleanly:
-placement has one canonical home (`sortOrder`) and eviction another (`priority`). An Agnai to SillyTavern
-convert carries `weight` -> `sortOrder` -> ST `order` (the runtime placement axis); Agnai's `priority`
-(eviction) has no ST home and is dropped, since ST has no eviction field. The earlier placement-order
-split that mis-slotted placement into ST `displayIndex` is reconciled (#15, see
-the lorebook format survey (private planning notes)); Agnai needed no change.
-
-### selectiveLogic (ST-import residue, interpreted)
-
-`selectiveLogic` is a `number` on the `MemoryEntry` type. Agnai's own editor never authors it; it appears
-as SillyTavern-import residue and uses the ST numeric convention (0 and_any, 1 not_all, 2 not_any,
-3 and_all - the shared `lore-enums` decoder). vaud maps it to the canonical enum both ways: an edit writes
-the number back, an unedited twin re-emits byte-for-byte, and a fresh cross-format encode omits it (Agnai
-never authors it). An earlier codec version hardcoded canonical `and_any`, silently rewriting an imported
-book's secondary-key logic on cross-format export - fixed with regression tests.
-
-Verified against Agnai's runtime matcher (`buildMemoryPrompt` -> `findMatchWithLowestAge`,
-`common/memory.ts`): match-time scanning iterates **only** `entry.keywords`. `secondaryKeys`, `selective`,
-`constant`, `position`, `probability`, and `useProbability` are storage/interop fields Agnai never
-consults when injecting memory. vaud still preserves and re-emits them for interop fidelity: because
-Agnai's own ST importers set `secondaryKeys` and `selective` together, a fresh/cross-format encode emits
-that pair (or neither), so the output is a well-formed Agnai book rather than one Agnai would never write.
-An unedited twin is left byte-for-byte untouched.
-
-### Escrow and round-trip
-
-The whole source book rides in `escrow["agnai-lorebook"].raw`. On export, `bookToWire` clones that twin
-and overlays only the fields whose canonical value **changed** (an index/`id`-keyed per-entry diff, the
-same escrow-of-raw twin strategy the Risu and ST lorebook codecs use), so an unedited book re-emits
-byte-identical (verified live: Agnai -> Agnai is deep-equal, `selectiveLogic` residue and all). Optional
-book fields preserve the twin's presence/absence, and `_id`/`userId` are never injected. With no twin
-(cross-format import) a clean `{ kind: "memory", ... }` book is written from the canonical body alone.
-
-### Embedded book (`characterBook`)
-
-Agnai's native character download (`charToJson` for the `native` target = the full character minus its
-top-level `_id`) carries the character's lore inline as `characterBook`, a **MemoryBook** (validated by
-Agnai's `validBook`, **not** a CCv3 `character_book`). vaud's character adapter extracts and re-embeds it
-so Agnai character conversions carry their lore both ways:
-
-- **Extract**: the character adapter implements the optional `extractLorebook` hook (`src/core/adapter.ts`),
-  reading `card.characterBook` and mapping it through the **same** `memoryBookToCanonical` the standalone
-  `agnai-lorebook` codec uses. So a given MemoryBook canonicalizes identically whether it arrives as a
-  standalone file or embedded here (container-invariance by construction, tested). The bundle layer
-  (`src/convert.ts`) calls this override instead of the shared CCv3 extractor.
-- **Re-embed**: `fromCanonical` writes any linked lorebook back into `card.characterBook` via
-  `canonicalToMemoryBook`. A single book twin-overlays its own `agnai-lorebook` escrow, so a same-format
-  round-trip re-emits byte-identical (verified live: Agnai -> Agnai with a book is deep-equal). A foreign
-  lorebook (cross-format, no Agnai twin) full-encodes into a clean MemoryBook. No book present means no
-  `characterBook` is written - never an empty one.
-
-Agnai's `native` import passes `characterBook` through verbatim (`jsonToCharacter`: `if (format ===
-'agnai') return json`), so vaud emits a minimal `{ kind: "memory", ... }` book with no `_id`/`userId`
-sentinels. Agnai's **Tavern/CCv2** export path instead lowers the book to CCv3 `data.character_book`
-(`nativeToCharacterBook`), which vaud's shared CCv3 extractor already handles when such a card is read.
+- Two-state character overlay, three-state lorebook overlay. `applyBodyToCard`'s `set()` helper always
+  writes the current canonical value and deletes only on a cleared string/array; it does not compare
+  against the decoded twin. `entryToWire` on the lorebook side does compare, and only rewrites a changed
+  field. Same observable result on well-formed input, different mechanism. `index.ts:213-224`,
+  `lorebook.ts:184-236`.
+- Persona is always rebuilt, never twin-preserved. A multi-element text persona (`attributes.text` with
+  more than one string) collapses to its first element on any round-trip, including Agnai to Agnai,
+  because `toStructured` only reads `attributes.text[0]` and `toAgnaiPersona` only writes one. `index.ts:162,171,241`.
+- Detection's firewall is the absence of `schemaVersion`/`body`, not their presence. This is what keeps a
+  `vaud-json` entity from being misread as an Agnai card on the same file. `index.ts:317-324`.
+- `imageSettings` affixes reconcile per key, not as a whole block. `prefix`/`suffix`/`negative`/`template`
+  are canonical's to write or clear; every other key on the twin's `imageSettings`, sampler steps, cfg,
+  provider objects, survives an edit untouched because the merge starts from a clone of the twin.
+  `index.ts:261-274`.
+- `insert` is a single fixed-depth slot. Only `depthInjections[0]` re-encodes; the Agnai wire carries no
+  role, origin, or enabled flag for it, so those `DepthInjection` fields stay `undefined` on decode.
+  `index.ts:195,238-240`.
+- The embedded `characterBook` is Agnai-native, not a CCv3 `character_book`. It is read and written by the
+  character adapter's own `extractLorebook`/`applyLorebook`, using the same MemoryBook mapper as the
+  standalone `agnai-lorebook` codec, not the shared `_shared/character-book.ts` mapper that Tavern-lineage
+  formats use for their embedded books. `index.ts:55-56,291-303,346-351`.
+- `selectiveLogic` is ST-import residue, not an Agnai-authored field. It appears only on entries an Agnai
+  user imported from SillyTavern and uses the shared ST numeric convention (`0` and_any ... `3` and_all);
+  a fresh cross-format encode never emits it, since Agnai's own editor never authors it. `lorebook.ts:112,221-225`,
+  `_shared/lore-enums.ts:16-20`.
 
 ## Source of truth
 
 | Concern | File |
 | --- | --- |
-| Character adapter (incl. `extractLorebook`) | `src/formats/agnai/index.ts` |
+| Character adapter (detect, toCanonical, fromCanonical, extractLorebook) | `src/formats/agnai/index.ts` |
 | Memory book (lorebook) adapter + shared mappers | `src/formats/agnai/lorebook.ts` |
-| Bundle extract/re-embed wiring | `src/convert.ts`, `src/core/adapter.ts` (`extractLorebook`) |
+| Coverage declaration | `src/formats/agnai/coverage.ts` |
+| Shared CCv3/Chub `character_book` mapper (the `agnai-lorebook` soft-import path) | `src/formats/_shared/character-book.ts` |
+| Shared ST-numeric `selectiveLogic` decoder | `src/formats/_shared/lore-enums.ts` |
+| Bundle extract/re-embed wiring | `src/convert.ts` (`inspectBundle`, `emitBundle`), `src/core/adapter.ts` (`extractLorebook`, `EmitContext`) |
 | Canonical character schema | `src/entities/character/schema.ts` |
 | Canonical lorebook schema | `src/entities/lorebook/schema.ts` |
-| Interop reference | Agnai `common/types/library.ts`, `common/adapters.ts`, `common/types/memory.ts`, `common/memory.ts` (facts only) |
+| Canonical wrapper, escrow (`original`), id policy | `src/core/canonical.ts` |
+| Samples | `samples/agnai/` (native character export + `SOURCES.md`) |
+| Fixtures | `samples/lorebooks/agnai/` |
+| Interop reference (facts only, no code copied) | Agnai `common/types/library.ts`, `common/adapters.ts`, `common/types/memory.ts`, `common/memory.ts`, `web/pages/Memory` (`encodeBook`), `common/types/texttospeech-schema.ts`, `common/types/sprite.ts`, `common/types/image-schema.ts` (AGPL-3.0) |

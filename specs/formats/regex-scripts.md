@@ -576,7 +576,7 @@ export function validateRegexPattern(
 - The NL regex trigger *builder* (pattern authoring assistant: word-family
   analysis, phrase-pattern building, `describeRegex`/`diagnoseRegex`,
   `buildTriggerRegex`, visual builder state) is a separate engine
-  (`packages/regexkit` per the extraction map (private planning notes), extracted from
+  (`packages/regexkit`, extracted from
   VAUDEVILLE `packages/lorebook/src/regex-utils.ts` and
   `apps/rc/src/lib/regex/builder-core.ts`) with its own spec. This spec covers
   only the stored `RegexScript`/`RegexRule` data shape and its two codecs.
@@ -627,12 +627,8 @@ export function validateRegexPattern(
   1-80 - separate ReDoS/complexity-scoring engine, cited only for the Non-goals
   scope boundary and the `createReplacementFunction` naming referenced in
   `apply-regex.ts`'s comments).
-- `docs\the production bible (private planning notes)` (brief
-  row for `regex-scripts.md`, line 51).
-- `docs\the extraction map (private planning notes)` (lines
-  27-33, `packages/regexkit` scope, cited for the Non-goals boundary).
 - `specs\formats\canonical-model.md`,
-  `escrow-and-roundtrip.md`, `docs\the master plan (private planning notes)`, `docs\02-ARCHITECTURE.md`
+  `escrow-and-roundtrip.md`, `docs\02-ARCHITECTURE.md`
   (structure and conventions).
 
 OPEN QUESTION: whether SillyTavern's `regex_placement` enum has ever assigned a
@@ -644,5 +640,5 @@ case 5); not verified against ST's own source or public docs.
 OPEN QUESTION: whether real-world SillyTavern exports ever set `substituteRegex`
 to a value other than `0`, and what that field controls. It is round-tripped
 opaquely via escrow in this spec and never interpreted, so the answer does not
-change the codec's behavior, but an implementing agent writing fixture notes
+change the codec's behavior, but anyone writing fixture notes
 should know this is unresolved rather than assume `0` is the only valid value.

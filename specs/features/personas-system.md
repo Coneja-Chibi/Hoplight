@@ -14,7 +14,7 @@ implementation of one personality, including `buildSystemPrompt`),
 pattern: `getActivePersonality`, `listPersonalities`, unknown-id fallback),
 `apps/rc/src/lib/ai/btw/personalities/catalogue-personalities.ts` (dial-vocabulary
 sample across 20+ personalities, used only to confirm the knob set is stable, not
-to source any of the six house voices below) - reference reading only; this is a
+to source any of the six house voices below); this is a
 conceptual lift of the *shape* of RC's `/btw` personality framework into a
 hand-authored file format, not a code port. RoleCall's framework is TypeScript
 object literals compiled into a Next.js server; Vaudeville Studios' framework is
@@ -98,8 +98,8 @@ commands - proposes an approach, then does the work once the user nods.
 
 Design rationale for choosing frontmatter+Markdown over a pure JSON/TS shape
 (RC's `RCAgentPersonality` is a TS object literal, not a file format a
-non-programmer community author could write): the bible's brief requires an
-**open format** the community can extend (roster card 6, "Bring Your Own -
+non-programmer community author could write): an
+**open format** the community can extend is required (roster card 6, "Bring Your Own -
 personas are just files in the open format"). Markdown with YAML frontmatter is
 the format the fixture corpus and productions-and-history.md already commit to
 for human-readable entity files (docs/02-ARCHITECTURE.md's "human-readable
@@ -119,7 +119,7 @@ sample lines without touching a schema.
 | `voice.formality` | `"casual" \| "neutral" \| "formal"` | yes | `RCAgentVoice.formality` (types.ts:39) | contraction/phrasing register |
 | `voice.humor` | `"minimal" \| "occasional" \| "frequent"` | yes | `RCAgentVoice.humor` (types.ts:41) | joke/aside frequency |
 | `voice.confidence` | `"tentative" \| "balanced" \| "decisive"` | yes | `RCAgentVoice.confidence` (types.ts:43) | hedging vs. asserting |
-| `philosophy.initiative` | `"reactive" \| "balanced" \| "proactive"` | yes | `RCAgentPhilosophy.initiative` (types.ts:54) | THE proactivity dial - see Edge case 5 on why this is the only dial the bible's "proactivity dials" plural maps onto natively |
+| `philosophy.initiative` | `"reactive" \| "balanced" \| "proactive"` | yes | `RCAgentPhilosophy.initiative` (types.ts:54) | THE proactivity dial - see Edge case 5 on why this is the only dial that maps onto the plural "proactivity dials" concept natively |
 | `philosophy.accuracy` | `"strict" \| "balanced" \| "flexible"` | yes | `RCAgentPhilosophy.accuracy` (types.ts:56) | how much the persona speculates when unsure |
 | `philosophy.teaching` | `"demonstrate" \| "explain" \| "guide"` | yes | `RCAgentPhilosophy.teaching` (types.ts:58) | show-by-doing vs. explain vs. point-at-docs |
 | `philosophy.coreBeliefs` | string[] | yes, min 1 | `RCAgentPhilosophy.coreBeliefs` (types.ts:52) | rendered as a bulleted "core beliefs" block in the system prompt |
@@ -127,7 +127,7 @@ sample lines without touching a schema.
 | `rules.refuseGently` | string | no | `RCAgentRules.refuseGently` (types.ts:85) | falls back to a neutral built-in refusal template if absent; MUST contain the literal token `{{reason}}` if present, validated at load time |
 | `rules.neverClaim` | string[] | no | `RCAgentRules.neverClaim` (types.ts:72) | Vaudeville Studios has no product-specific hallucination surface the way RC's `orison_search`-gated claims do; this field exists for community personas that want their own guardrails but is not populated by any house persona |
 | body `## Working style` heading | prose block | yes | `RCAgentPersonality.workingFramework` (types.ts:144, freeform string) | rendered near-verbatim into the system prompt block; NOT parsed into structured fields - a persona author writes prose, not a chain-of-thought scaffold with `<stage_N>` tags like RC's internal-only framework (RC's tags are explicitly marked never-user-facing; this spec keeps the analogous prose but does not require the tag machinery, since Vaudeville Studios' agent-loop.md defines its own always-on tool surface and state machine independent of any persona) |
-| body `## Sample lines` heading | bullet list | yes, min 2 | none in RC (new field, bible-mandated) | 2-6 example lines showing the voice in miniature; rendered as a labeled block so the model has concrete calibration text, not just adjective knobs |
+| body `## Sample lines` heading | bullet list | yes, min 2 | none in RC (new field, required for house personas) | 2-6 example lines showing the voice in miniature; rendered as a labeled block so the model has concrete calibration text, not just adjective knobs |
 
 Fields present in RC's `RCAgentPersonality` that this spec deliberately does
 NOT carry into `AgentPersona`:
@@ -502,7 +502,7 @@ and never lets a rough draft sit uncelebrated just because it isn't done.
   part done. Everything from here is polish."
 ```
 
-Dial-diversity check (per the advisor guidance that a dial not visibly
+Dial-diversity check (a dial not visibly
 differing anywhere isn't earning its slot): `register` (terse/balanced x3/
 elaborate x2), `tone` (warm/professional/earnest/deadpan/playful - all five
 enum values used, one per persona), `humor` (minimal x2/occasional x2/
@@ -650,7 +650,7 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
    non-fatal issue recorded. Chosen because a refusal template that can't
    be filled in produces a broken sentence at runtime, which is worse than
    falling back.
-5. **The bible's brief says "proactivity dials" (plural) but this format
+5. **The term "proactivity dials" is plural, but this format
    has exactly one dial (`philosophy.initiative`) that maps directly to
    proactivity.** `initiative` is the load-bearing dial; `accuracy` and
    `teaching` also shift proactive-feeling behavior (a `flexible`-accuracy,
@@ -686,7 +686,7 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
    field map (`workingStyle` required, `sampleLines` min 2) - this is a
    fatal validation error for the file, same handling as Edge case 1,
    because a persona with dials but no prose voice is not "fully written"
-   per the bible's own requirement for the house six, and holding user/
+   for the house six, and holding user/
    community personas to the same bar keeps the format's guarantee uniform
    (every loaded persona renders a complete block, never a partial one).
 10. **AI disabled entirely (no provider key configured, ADR-006 §2).**
@@ -733,8 +733,8 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
   - `resolvePersona` with an unknown id falls back to the default persona,
     matching `getActivePersonality`'s documented fallback behavior
     (index.ts:92-97) - this is the one behavior this spec ports as an exact
-    functional match to VAUD, not just a conceptual echo, since the bible
-    brief's "loading/selection" line is precisely this function.
+    functional match to VAUD, not just a conceptual echo, since
+    loading/selection fallback behavior is precisely this function.
   - Dial-to-instruction-sentence lookup (Behavior > Rendering, step 3) is a
     total function over every enum value in every `voice.*` field - no dial
     value can produce an empty or missing sentence.
@@ -772,15 +772,10 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
 
 ## Sources consulted
 
-- the master plan (private planning notes) -
-  M2 milestone scope ("persona system foundations"), layer definitions.
 - `docs/02-ARCHITECTURE.md:26-29`
   (`packages/agent` includes "persona loader"), `:73` (human-readable
   JSON/MD files for productions, informing the frontmatter+Markdown format
   choice).
-- `the production bible (private planning notes):78`
-  - this file's brief row; `:50` (personas.md's brief, confirming the
-  distinct-concept boundary and cross-referenced here).
 - `docs/decisions/ADR-006-ai-and-
   agent.md` - AI-optional stance (§2), BYOK/no-account/no-server stance
   extended to the Bring Your Own persona concept.
@@ -816,7 +811,7 @@ export function listPersonas(opts: { productionRoot?: string | null }): AgentPer
   source of this spec's loader/resolver function shapes.
 - VAUDEVILLE `apps/rc/src/lib/ai/btw/personalities/catalogue-personalities.ts`
   (grep pass over `id:`/`register:`/`tone:`/`initiative:`/`teaching:`/
-  `accuracy:` lines across ~20 personalities) - reference reading only, used
+  `accuracy:` lines across ~20 personalities) - consulted for reference, used
   to confirm the dial vocabulary in types.ts is exercised consistently
   across many personalities rather than being the-stage-manager.ts-specific;
   no house persona in this spec copies any catalogue personality's specific

@@ -22,7 +22,7 @@ agent REPL (M2) versus prints help (M1), and the shape and location of the user
 config file. Every subcommand spec (`cli-converter.md`, `script-doctor.md`,
 `table-read.md`, etc.) builds its own command surface on top of this contract
 instead of inventing its own flag names, error rendering, or confirmation
-behavior. An implementing agent building any `vaud` subcommand reads this spec
+behavior. Anyone building any `vaud` subcommand reads this spec
 first for anything that is not specific to that command's own grammar.
 
 ## Behavior
@@ -186,8 +186,8 @@ leave the M1 help-only behavior in place.
   REPL does not refuse to start - it starts, and the key ceremony (scope of
   `specs/engine/key-vault.md`) runs inline the moment a turn actually needs a
   model call, never before. This matches ADR-006 item 2 ("the first key ask
-  happens at the first AI moment, never at install") and the master plan's
-  "the brain is optional."
+  happens at the first AI moment, never at install") and the locked decision
+  that "the brain is optional."
 - If stdin is not a TTY (piped or redirected) -> does not silently start an
   interactive loop that can never receive input. Prints the root help to
   stderr and exits 1. Whether piped stdin should instead be read as a single
@@ -209,7 +209,7 @@ or by the key ceremony completing (which writes model-role-to-provider/model
 mappings here, never the key itself - see below).
 
 Proposed schema (no existing implementation to cite; this document is the
-first definition of it, per the M1 brief for this spec):
+first definition of it):
 
 ```json
 {
@@ -492,8 +492,6 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
   (`--json`, `--yes`, exit codes 0/1/2, plain-first output vocabulary); "Code"
   section lines 14-17 (typed error classes with `userMessage`, house glyphs
   `+ - · ✦`, no emoji, no em dash).
-- the master plan (private planning notes) (this repo) - "The Faces" (CLI-first, every feature
-  in CLI before app), "AI is optional" locked decision.
 - `docs/02-ARCHITECTURE.md` (this repo) - "Productions (project workspaces)"
   section (`vaud.json`, `.vaud/history/`, library mode); "Faces" section
   (plain commands + `vaud` bare = agent REPL); "The agent" section (staged
@@ -512,8 +510,8 @@ export function shouldEnterRepl(argv: string[], stdin: { isTTY: boolean }, agent
   `vaud convert/validate` will plug into this spec's exit-code table (their
   own command grammar is out of scope here).
 - `templates/SPEC-TEMPLATE.md` - structure this document follows.
-- `wireframes/cli/cli-and-tui.html` - design-intent reference only (not listed
-  as ground truth in the production bible (private planning notes) for this file): CLI-1
+- `wireframes/cli/cli-and-tui.html` - design-intent reference only (not ground
+  truth for this file): CLI-1
   ("The Stagehand") transcript register for help/output tone; CLI-2 ("The
   Prompter's Box") transcript for the REPL banner shape and the
   `[y]es/[n]o/[e]dit` staged-edit confirmation; CLI-3 ("The Board Op") noted

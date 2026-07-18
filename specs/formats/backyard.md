@@ -25,7 +25,7 @@ product, and they are not interchangeable:
    `loreItems` and multiple images), and one or more scenario files (samplers, chat
    history, multiple greetings).
 
-An implementing agent must not assume these are the same shape. Detection must
+The codec must not assume these are the same shape. Detection must
 distinguish them (see Behavior: Detection) and the codec must expose both a
 `parseLegacyJSON` path and a `parseByaf` path behind one `Codec` surface.
 
@@ -118,7 +118,7 @@ Studios' codec must either (a) escrow the pre-conversion raw text alongside the
 converted canonical text so serialize-to-origin can replay the original bytes
 verbatim, or (b) accept and document the lossy behavior as a named exception to the
 Law for this one input class. Given the Law's "no codec merges without fixture-backed
-round-trip proof" rule (the master plan (private planning notes)), option (a) is required, not optional:
+round-trip proof" rule, option (a) is required, not optional:
 raw pre-conversion text for each converted field goes into
 `escrow.backyard.fields.raw.<fieldName>`.
 
@@ -150,8 +150,7 @@ once written and this spec updated to match.
 Source: ahoylabs/byaf spec v1 (public, https://github.com/ahoylabs/byaf), fetched
 2026-07-02. VAUDEVILLE has **no implementation** of this format (its only Backyard
 codec is the legacy JSON above) - this section is written entirely from the public
-spec, per the brief's allowance ("note where VAUD lacks an implementation, OPEN
-QUESTIONs acceptable").
+spec; OPEN QUESTIONs are acceptable where VAUD lacks an implementation.
 
 **Archive layout:**
 ```
@@ -218,7 +217,7 @@ importer (`src/byaf.js`, SillyTavern/SillyTavern repo, fetched 2026-07-02):
 
 | Source | Canonical field | Native/escrow/dropped | Notes |
 |---|---|---|---|
-| `character.displayName` (fallback `character.name`) | `identity.name` | native | Spec says `displayName` is "the full name"; `name` is "shorthand/nickname." VAUD's own precedent for the legacy codec prefers display-style names first, so this spec follows the same precedence. OPEN QUESTION: whether `name` should instead map to a canonical nickname field once the canonical Character's identity block gains one (canonical-model.md only lists `full_name`, not nickname, in the RC-derived detail set; CCv3 has a dedicated `nickname` field per chara-card-v3.md's brief - reconcile there). |
+| `character.displayName` (fallback `character.name`) | `identity.name` | native | Spec says `displayName` is "the full name"; `name` is "shorthand/nickname." VAUD's own precedent for the legacy codec prefers display-style names first, so this spec follows the same precedence. OPEN QUESTION: whether `name` should instead map to a canonical nickname field once the canonical Character's identity block gains one (canonical-model.md only lists `full_name`, not nickname, in the RC-derived detail set; CCv3 has a dedicated `nickname` field per chara-card-v3.md - reconcile there). |
 | `character.persona` | `description` | native | Single persona field with no personality/description split; do not fan it out into both canonical fields - leave `personality` unset. |
 | `character.isNSFW` | content-rating field (RC surface: canonical-model.md "content rating") | native, with caveat | See edge case 9: the ahoylabs schema is a boolean, coarser than RC's graded content rating. Map `true` to the studio's most restrictive tier and `false` to unrated/general, and record the boolean original in escrow so no information is invented going the other way. |
 | `character.loreItems[]` | referenced canonical `Lorebook` (`LorebookEntry[]`), per canonical-model.md rule 3 (embedded lorebook is a reference, not inline) | native | See Lorebook mapping below. |
@@ -229,7 +228,7 @@ importer (`src/byaf.js`, SillyTavern/SillyTavern repo, fetched 2026-07-02):
 | `scenarios[0].narrative` | `scenario` | native | Precedent: SillyTavern's `ByafParser.getCharacterCard()` maps `narrative` to the v2 card's `scenario` field. |
 | `scenarios[0].firstMessages[0].text` | `firstMessage` | native | `firstMessages` is capped at 0-1 items per the schema (`maxItems: 1`), so there is at most one first message per scenario. |
 | `scenarios[1..n].firstMessages[0].text` (every scenario after the first) | `alternateGreetings[]` | native | Precedent: the SillyTavern BYAF discussion (SillyTavern/SillyTavern#4691) states "the character now populates its alt greetings from all possible scenario's first messages." A `.byaf` archive with multiple scenario files becomes one canonical Character whose extra scenarios' openings fold into `alternateGreetings`. |
-| `scenarios[0].exampleMessages[]` (`{characterID, text}[]`) | `exampleDialogue` | native, with format note | Canonical `exampleDialogue` is understood elsewhere in this suite as CCv2/v3-style `<START>`-block text (see chara-card-v2.md brief). This codec must join the `characterID`-tagged message list into that convention; see edge case 10 for the exact join rule (OPEN QUESTION on speaker-label formatting, since neither the byaf spec nor the ST importer document a canonical text join format - ST keeps them as separate structured entries internally). |
+| `scenarios[0].exampleMessages[]` (`{characterID, text}[]`) | `exampleDialogue` | native, with format note | Canonical `exampleDialogue` is understood elsewhere in this suite as CCv2/v3-style `<START>`-block text (see chara-card-v2.md). This codec must join the `characterID`-tagged message list into that convention; see edge case 10 for the exact join rule (OPEN QUESTION on speaker-label formatting, since neither the byaf spec nor the ST importer document a canonical text join format - ST keeps them as separate structured entries internally). |
 | `scenarios[0].formattingInstructions` | `systemPrompt` | native, precedent-based | Precedent: SillyTavern's importer maps `formattingInstructions` to `system_prompt`. An equally defensible reading is `postHistoryInstructions` (it describes desired *output* formatting, which is usually a post-history concern) - this spec follows the ST precedent since it is the only real-world mapping decision on record, but flags the alternative. OPEN QUESTION: confirm against a real Backyard export once one is added to the fixture corpus. |
 | `scenarios[1..n]` (every non-primary scenario, in full) | escrow `byaf.fields.scenarios[]` (whole object) | escrow | Required for the Round-Trip Law - see Behavior note on multi-scenario below. |
 | `scenarios[0].messages[]` (chat transcript) | escrow `byaf.fields.scenarios[0].messages` | escrow | Chat history has no canonical Character home; it is conversation data, not card-authoring data. |
@@ -275,12 +274,12 @@ not be misclassified as one).
 **Legacy PNG embedding for Backyard/Faraday:**
 
 OPEN QUESTION: this spec cannot state with confidence how the older Backyard/Faraday
-character-in-PNG format embeds its payload. A WebFetch summary of the ahoylabs/byaf
+character-in-PNG format embeds its payload. A summary of the ahoylabs/byaf
 README states the "legacy character PNG format embedded data via EXIF metadata," but
-this claim is from an AI-generated summary of fetched page text, not a byte-level
+this claim is from a summarized source, not a byte-level
 inspection of an actual file or the parsing source code, and it is not corroborated
 by any VAUDEVILLE source (VAUD's own PNG codec, `library/png-parser.ts`, handles only
-tEXt-chunk keywords per png-embedding.md's brief, and `backyard.ts` in this repo only
+tEXt-chunk keywords per png-embedding.md, and `backyard.ts` in this repo only
 ever consumes/produces a JSON string - it has no PNG-reading code path of its own).
 If true, this would mean legacy Backyard PNGs are NOT read by Vaudeville Studios'
 tEXt-chunk-based PNG codec at all and need a separate EXIF-reading code path - a
@@ -408,7 +407,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
    manifest is the archive's only entry point.
 9. `.byaf` `character.isNSFW: true` mapping into a graded content-rating field
    (canonical-model.md's RC content-rating surface has more than two tiers per
-   `rolecall-character.md`'s brief). Do not invent an intermediate tier; map `true`
+   `rolecall-character.md`). Do not invent an intermediate tier; map `true`
    to the single most-restrictive tier the canonical model defines and record the
    source boolean in escrow so serialize-to-`.byaf` can recover the exact original
    value regardless of what a user later picks in a graded UI (escrow rule 4:
@@ -528,9 +527,7 @@ inline blob. The legacy-JSON variant never populates `lorebook` or `assets`.
 - VAUDEVILLE `apps/rc/src/lib/formats/character/backyard.ts` (full file, all line
   refs above point here); confirmed byte-identical against
   `apps/plot/src/lib/formats/character/backyard.ts` by direct read.
-- `vaudeville-studios/the master plan (private planning notes)`
 - `vaudeville-studios/docs/02-ARCHITECTURE.md`
-- `vaudeville-studios/the production bible (private planning notes)` (this file's brief row)
 - `vaudeville-studios/specs/formats/canonical-model.md`
 - `vaudeville-studios/specs/formats/escrow-and-roundtrip.md`
 - `vaudeville-studios/templates/SPEC-TEMPLATE.md`

@@ -1,0 +1,1155 @@
+{
+  "kind": "character",
+  "source": "src/entities/character/schema.ts",
+  "shapes": [
+    {
+      "name": "Identity",
+      "doc": "CanonicalCharacter - the character entity schema. Seeded from RoleCall + SillyTavern + Risu, widened by the format deep-dive (see design/FORMATS-LANDSCAPE.md). Only fields a real now-tier format actually produces are first-classed here; everything else rides in original. This folder IS the character entity. Drop a sibling folder in src/entities/ to add a new content type (lorebook, preset, persona, regex) the same way.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "nickname",
+          "optional": true,
+          "type": "string",
+          "meaning": "{{char}} override that does NOT change the canonical name (Risu/Backyard aiName, CCv3 nickname)",
+          "producers": [
+            "CCv3",
+            "Risu",
+            "Backyard"
+          ]
+        },
+        {
+          "name": "tagline",
+          "optional": true,
+          "type": "string",
+          "meaning": "short one-liner / creator comment",
+          "producers": []
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "string",
+          "meaning": "the main character description / persona block (CCv2/v3 `description`)",
+          "producers": [
+            "CCv2/v3"
+          ]
+        },
+        {
+          "name": "characterVersion",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "fullName",
+          "optional": true,
+          "type": "string",
+          "meaning": "full/formal name distinct from the display name (RC details.full_name)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": "string",
+          "meaning": "honorific / role title (RC details.title)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "age",
+          "optional": true,
+          "type": "string",
+          "meaning": "free TEXT in every producer (\"23\", \"ageless\", \"300+ years\"), never an int (RC details.age)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "pronouns",
+          "optional": true,
+          "type": "string",
+          "meaning": "RC details.pronouns",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "culture",
+          "optional": true,
+          "type": "string",
+          "meaning": "Agnai culture: drives default language/voice selection",
+          "producers": [
+            "Agnai"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Voice",
+      "doc": "Per-character voice/TTS selection - the authored SELECTION/config, never the model bytes (those are assets/original). Producers: Agnai `voice`+`voiceDisabled` (rich), Risu `vits` (narrow: only the vits config actually serializes to .charx; Risu's other TTS fields are app-local and never hit the wire).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "provider",
+          "optional": false,
+          "type": "string",
+          "meaning": "open union: \"elevenlabs\" | \"webspeechsynthesis\" | \"novel\" | \"agnaistic\" | \"vits\" | ...",
+          "producers": []
+        },
+        {
+          "name": "voiceId",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "rate",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "pitch",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "disabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "creator turned voice off without discarding the config (Agnai voiceDisabled)",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "extras",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "provider-specific extras (stability, similarityBoost, model seed, vits config...) - authored, open",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "ImagePrompt",
+      "doc": "Authored image-generation prompt hints: the text a creator writes to steer image gen for this character. Two real producers (Agnai imageSettings affixes; Risu sdData rows + newGenData), so the shape covers both: shared affix fields plus open labeled rows. Sampler/provider knobs are NOT here (platform config, original).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "prompt",
+          "optional": true,
+          "type": "string",
+          "meaning": "full base prompt (Risu newGenData.prompt)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "prefix",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "suffix",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "negative",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "template",
+          "optional": true,
+          "type": "string",
+          "meaning": "prompt template (Agnai imageSettings.template)",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "instructions",
+          "optional": true,
+          "type": "string",
+          "meaning": "freeform instruction text (Risu newGenData.instructions)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "emotionInstructions",
+          "optional": true,
+          "type": "string",
+          "meaning": "emotion-pack generation instructions (Risu newGenData.emotionInstructions)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "rows",
+          "optional": true,
+          "type": "{ label: string; value: string }[]",
+          "meaning": "labeled prompt rows (Risu sdData: [[\"always\",\"solo, 1girl\"], ...])",
+          "producers": [
+            "Risu"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Persona",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "personality",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scenario",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "appearance",
+          "optional": true,
+          "type": "string",
+          "meaning": "Agnai-only free-text physical description (image-gen); other formats fold it into description",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "voice",
+          "optional": true,
+          "type": "Voice",
+          "meaning": "per-character voice/TTS selection (Agnai voice, Risu vits)",
+          "producers": [
+            "Risu",
+            "Agnai"
+          ]
+        },
+        {
+          "name": "imagePrompt",
+          "optional": true,
+          "type": "ImagePrompt",
+          "meaning": "authored image-gen prompt hints (Agnai imageSettings affixes, Risu sdData/newGenData)",
+          "producers": [
+            "Risu",
+            "Agnai"
+          ]
+        },
+        {
+          "name": "structured",
+          "optional": true,
+          "type": "| { kind: \"text\" } | { kind: \"attributes\" | \"wpp\" | \"sbf\" | \"boostyle\"; attributes: Record<string, string[]> }",
+          "meaning": "structured persona encoding (Agnai persona.kind + attributes); preserves W++/attribute maps. Discriminated so illegal states are unrepresentable: plain \"text\" carries no attributes; every attribute-map kind requires its attributes.",
+          "producers": [
+            "Agnai"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DepthInjection",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "text",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "depth",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "role",
+          "optional": true,
+          "type": "\"system\" | \"user\" | \"assistant\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "origin",
+          "optional": true,
+          "type": "\"depth_prompt\" | \"rolecall_details\" | \"worldinfo\"",
+          "meaning": "which source mechanism produced this, so it re-emits to its original home on export",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "creator toggle; undefined = enabled",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Prompts",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "systemPrompt",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "postHistoryInstructions",
+          "optional": true,
+          "type": "string",
+          "meaning": "the \"jailbreak\" / post-history slot in SillyTavern",
+          "producers": [
+            "SillyTavern"
+          ]
+        },
+        {
+          "name": "depthInjections",
+          "optional": true,
+          "type": "DepthInjection[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "prefill",
+          "optional": true,
+          "type": "string",
+          "meaning": "assistant-response prefill, prepended to the model reply (Agnai; common with Claude)",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "additionalText",
+          "optional": true,
+          "type": "string",
+          "meaning": "authored plain-append prompt text (Risu additionalText) - a simple append, not a depth injection",
+          "producers": [
+            "Risu"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Greeting",
+      "doc": "A greeting with an optional creator-given title (RoleCall alternate_greeting_titles, Backyard scenarios). `id` is optional stable editing/provenance identity (e.g. BYAF scenario path). Not portable content: other format writers must ignore it and emit only text/title.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "text",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "title",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "id",
+          "optional": true,
+          "type": "string",
+          "meaning": "stable editing identity (format-local provenance); not user-facing content",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Greetings",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "firstMessage",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "alternateGreetings",
+          "optional": true,
+          "type": "Greeting[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "groupOnlyGreetings",
+          "optional": true,
+          "type": "Greeting[]",
+          "meaning": "CCv3 group-chat-only greetings, distinct from alternateGreetings",
+          "producers": [
+            "CCv3"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Examples",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "exampleMessages",
+          "optional": true,
+          "type": "string",
+          "meaning": "mes_example",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Attribution",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "creator",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "originalCreator",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "source",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "sourceUrl",
+          "optional": true,
+          "type": "string",
+          "meaning": "canonical/origin URL for the card (RoleCall source_url)",
+          "producers": [
+            "RoleCall"
+          ]
+        },
+        {
+          "name": "license",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "creatorNotes",
+          "optional": true,
+          "type": "string",
+          "meaning": "single-language creator notes about the card (CCv2/v3 `creator_notes`)",
+          "producers": [
+            "CCv2/v3"
+          ]
+        },
+        {
+          "name": "creatorNotesMultilingual",
+          "optional": true,
+          "type": "Record<string, string>",
+          "meaning": "localized creator notes, map<ISO 639-1, text> (CCv3 prefers this over single-language notes)",
+          "producers": [
+            "CCv3"
+          ]
+        },
+        {
+          "name": "publicNote",
+          "optional": true,
+          "type": "string",
+          "meaning": "public \"from the creator\" note shown on the card page (RC creators_note; DISTINCT from creatorNotes)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "createdAt",
+          "optional": true,
+          "type": "number",
+          "meaning": "unix seconds",
+          "producers": []
+        },
+        {
+          "name": "updatedAt",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Discovery",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "tags",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "genre",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "fandom",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "rating",
+          "optional": true,
+          "type": "ContentRating",
+          "meaning": "explicit content rating; keep out of free-text tags",
+          "producers": []
+        },
+        {
+          "name": "contentWarnings",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "optional trigger/content warnings, card-portable",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "MediaAsset",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "role",
+          "optional": false,
+          "type": "\"portrait\" | \"emotion\" | \"outfit\" | \"pose\" | \"background\" | \"other\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "meaning": "human label for an expression/outfit/pose variant (RoleCall sprite label)",
+          "producers": [
+            "RoleCall"
+          ]
+        },
+        {
+          "name": "primary",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "the primary asset of its role (e.g. the \"main\" portrait among many)",
+          "producers": []
+        },
+        {
+          "name": "ref",
+          "optional": false,
+          "type": "string",
+          "meaning": "reference into the entity's asset store, or a data URI",
+          "producers": []
+        },
+        {
+          "name": "mime",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Sprite",
+      "doc": "Agnai builder-authored composite avatar: named part selections + palette. Open keys so new part slots do not require a schema change; the rendered images are assets, this is the authored RECIPE.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "parts",
+          "optional": false,
+          "type": "Record<string, string>",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "gender",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "eyeColor",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "bodyColor",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "hairColor",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "portrait",
+          "optional": true,
+          "type": "MediaAsset",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "assets",
+          "optional": true,
+          "type": "MediaAsset[]",
+          "meaning": "extra images / expression + outfit + pose packs (Risu .charx, RoleCall sprites)",
+          "producers": [
+            "RoleCall",
+            "Risu"
+          ]
+        },
+        {
+          "name": "sprite",
+          "optional": true,
+          "type": "Sprite",
+          "meaning": "Agnai composite-avatar recipe (visualType \"sprite\")",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "visualKind",
+          "optional": true,
+          "type": "string",
+          "meaning": "which visual mode the creator chose: \"avatar\" | \"sprite\" (open; Agnai visualType)",
+          "producers": [
+            "Agnai"
+          ]
+        },
+        {
+          "name": "faceLabel",
+          "optional": true,
+          "type": "string",
+          "meaning": "Preferred expression-pack label for this body (or variant override). Display binds the portrait stage to that pack face when present; not a second asset store.",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Swatch",
+      "doc": "A named color swatch in a card's palette (RoleCall casting-card colors[]).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "name",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "hex",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Background",
+      "doc": "A creator-curated background, optionally a video with playback controls (RoleCall default_background).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "ref",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "overlayOpacity",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "videoPlaybackRate",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "Presentation",
+      "doc": "The casting-card presentation layer: a creator's visual identity for the character (RoleCall signature palette, curated background, field order, definition spoilers). Optional; formats without a presentation concept simply omit it.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "signatureColor",
+          "optional": true,
+          "type": "string",
+          "meaning": "the character's signature color when it is a single solid (RC details.signature_color, Risu theme color). A signature that is a blend rides in gradientColors instead - one concept, two storage shapes. Account-level accent color is deliberately not modeled here: it belongs to the user's account, not the card.",
+          "producers": [
+            "RC",
+            "Risu"
+          ]
+        },
+        {
+          "name": "gradientColors",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "the character's signature when it is a blend of 2-3 colors (RC details.gradient_colors)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "palette",
+          "optional": true,
+          "type": "Swatch[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "background",
+          "optional": true,
+          "type": "Background",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "fieldOrder",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "creator-chosen display order of definition fields (bento layout)",
+          "producers": []
+        },
+        {
+          "name": "spoilers",
+          "optional": true,
+          "type": "{ mode?: string; order?: string[]; fields?: Record<string, boolean> }",
+          "meaning": "spoiler / reveal-order config over the public definition fields. `fields` is the authored per-field boolean map (RC publicDefinitionDisplay.spoilers) - previously collapsed to mode/order and LOST.",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "mediaLinks",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "creator-supplied external reference links on the casting card (RC details.media_links)",
+          "producers": [
+            "RC"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CharacterSettings",
+      "doc": "Creator-authored behavior dials (SillyTavern's \"Advanced Definitions\"): inline settings a creator tunes on the character itself. Distinct from `behaviorRefs`, which LINKS to regex/script entities; these are values, not references. An editable section in the forge.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "talkativeness",
+          "optional": true,
+          "type": "number",
+          "meaning": "group-chat turn-frequency weight, 0..1 (SillyTavern `extensions.talkativeness`)",
+          "producers": [
+            "SillyTavern"
+          ]
+        },
+        {
+          "name": "risu",
+          "optional": true,
+          "type": "{ /** side-screen mode: \"none\" | \"emotion\" | \"imggen\" (open) */ viewScreen?: string; largePortrait?: boolean; inlayViewScreen?: boolean; utilityBot?: boolean; lorePlus?: boolean; }",
+          "meaning": "Risu authored display/behavior toggles (single-platform but creator-set, so first-class per the schema-is-editor doctrine). Grouped so the origin is obvious and other formats never emit them.",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "responseSchema",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "Agnai structured-output config (`json` ResponseSchema): authored response-shaping the creator built in Agnai's schema editor. Carried verbatim-editable; likely migrates to the Preset entity later.",
+          "producers": [
+            "Agnai"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TriggerScript",
+      "doc": "A trigger state-machine script (Risu triggerscript): condition/effect rows, verbatim-editable.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "event",
+          "optional": false,
+          "type": "string",
+          "meaning": "the triggering event (Risu `type`: \"output\", \"input\", \"start\", ...)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "conditions",
+          "optional": false,
+          "type": "unknown[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "effects",
+          "optional": false,
+          "type": "unknown[]",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "CharacterBehavior",
+      "doc": "AUTHORED BEHAVIOR content - the card's scripts, first-class and editable (schema-is-editor), with a hard security line: the converter/editor NEVER executes any of this. No eval, no require, no DOM injection. Execution happens ONLY inside the capability sandbox (design/SANDBOX-SPEC.md: isolated WASM/VM engines + narrow host bridge + structural deny-by-absence permission manifest), a later milestone. Behavior never blind-copies cross-format: it re-emits only on its own format's wire.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "regexScripts",
+          "optional": true,
+          "type": "RegexScript[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "triggerScripts",
+          "optional": true,
+          "type": "TriggerScript[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "virtualScript",
+          "optional": true,
+          "type": "string",
+          "meaning": "JS virtual-script payload, verbatim-editable text (Risu virtualscript)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "backgroundHTML",
+          "optional": true,
+          "type": "string",
+          "meaning": "custom background markup/styles, verbatim-editable text (Risu backgroundHTML/backgroundCSS)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "backgroundCSS",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "defaultVariables",
+          "optional": true,
+          "type": "string",
+          "meaning": "script-engine seed values (Risu defaultVariables), verbatim-editable",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "prebuiltAsset",
+          "optional": true,
+          "type": "{ command?: string; exclude?: string[]; style?: string }",
+          "meaning": "prebuilt-asset generation config (Risu prebuiltAssetCommand/Exclude/Style)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "moduleToggles",
+          "optional": true,
+          "type": "string",
+          "meaning": "module toggle config string (Risu customModuleToggle)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "privileged",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "the card REQUESTED the privileged low-level script API (Risu lowLevelAccess). A warning marker for the UI and a sandbox gating input - never an execution trigger.",
+          "producers": [
+            "Risu"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CharacterBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "identity",
+          "optional": false,
+          "type": "Identity",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "persona",
+          "optional": false,
+          "type": "Persona",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "prompts",
+          "optional": false,
+          "type": "Prompts",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "greetings",
+          "optional": false,
+          "type": "Greetings",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "examples",
+          "optional": false,
+          "type": "Examples",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "media",
+          "optional": false,
+          "type": "Media",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "attribution",
+          "optional": false,
+          "type": "Attribution",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "discovery",
+          "optional": false,
+          "type": "Discovery",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "presentation",
+          "optional": true,
+          "type": "Presentation",
+          "meaning": "creator's visual identity for the card, when the source format carries one",
+          "producers": []
+        },
+        {
+          "name": "settings",
+          "optional": true,
+          "type": "CharacterSettings",
+          "meaning": "authored inline behavior dials (talkativeness, ...)",
+          "producers": []
+        },
+        {
+          "name": "bias",
+          "optional": true,
+          "type": "{ phrase: string; weight: number }[]",
+          "meaning": "Character-level phrase/logit bias (Risu `bias` [phrase, weight] pairs). NOTE: a DIFFERENT axis than NovelAI's entry/category-level loreBiasGroups (rich groups, modeled on the lorebook side when its reconciled shape lands) - two homes because they are genuinely two concepts.",
+          "producers": [
+            "Risu",
+            "NovelAI"
+          ]
+        },
+        {
+          "name": "worldName",
+          "optional": true,
+          "type": "string",
+          "meaning": "authored external worldbook link by NAME (SillyTavern `extensions.world`): the creator's intent to auto-load the worldbook called X. Distinct from knowledgeRefs, which links embedded books by canonical id.",
+          "producers": [
+            "SillyTavern"
+          ]
+        },
+        {
+          "name": "knowledgeRefs",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "linked canonical lorebook id(s), ordered; embedded on export where a format requires it",
+          "producers": []
+        },
+        {
+          "name": "behavior",
+          "optional": true,
+          "type": "CharacterBehavior",
+          "meaning": "authored script/behavior content carried ON the card (Risu); see CharacterBehavior's security line",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "behaviorRefs",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "linked canonical regex/script entity id(s) - for STANDALONE behavior files (ST/Lumiverse regex)",
+          "producers": [
+            "ST",
+            "Lumiverse"
+          ]
+        },
+        {
+          "name": "variants",
+          "optional": true,
+          "type": "CharacterVariant[]",
+          "meaning": "alternate versions of this character (copied from RoleCall's variant mechanic): each OVERRIDES a subset of fields; the editor shows the base with the active one merged in. See ./variant.ts.",
+          "producers": [
+            "RoleCall"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CharacterVariant",
+      "doc": "A character variant - an alternate version that can override ANY field of the base (inspired by RoleCall's variant mechanic, generalized). `overrides` is a deep partial of the body; applyVariant (./variant.ts) deep-merges it onto the base, so a variant may change one field or the whole persona. A field is overridden when the key is PRESENT in `overrides` (set it to \"\" to clear); absent keys inherit from the base.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "mirrorBase",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "RC's two modes. true/undefined (mirror, default): deep-overlay the overrides, unset fields inherit from the base. false (full override): each section the variant defines REPLACES the base's whole section (base fields in it drop), untouched sections still inherit, and the character keeps a name (base name falls through when the override omits it).",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "overrides",
+          "optional": false,
+          "type": "DeepPartial<Omit<CharacterBody, \"variants\">>",
+          "meaning": "the fields this variant changes - any subset of the canonical body, deep-merged onto the base",
+          "producers": []
+        }
+      ]
+    }
+  ]
+}

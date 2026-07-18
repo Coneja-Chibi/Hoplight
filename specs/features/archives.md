@@ -2,21 +2,20 @@
 
 **Package:** `packages/archives` (new - not yet enumerated in `docs/02-ARCHITECTURE.md`'s
 package list; see OPEN QUESTION 1, same situation as `packages/productions` in
-`specs/engine/productions-and-history.md`) · **Milestone:** M7 (the master plan (private planning notes)
-"M7 The Archives + World Forge", `docs/ROADMAP.md` "M7 - The Archives + The World Forge
-(v0.6+)") · **Status:** draft
+`specs/engine/productions-and-history.md`) · **Milestone:** M7 (`docs/ROADMAP.md` "M7 - The
+Archives + The World Forge (v0.6+)") · **Status:** draft
 **Depends on:** `specs/formats/canonical-model.md` (canonical `Character`, `Lorebook`/
 `LorebookEntry`, `Entity<T>` envelope), `specs/formats/escrow-and-roundtrip.md` (escrow
 envelope shape, reused for storing non-canonical distillation metadata - see Behavior),
 `specs/engine/productions-and-history.md` (production folder layout, entity file I/O,
 history snapshots - distilled outputs land as ordinary entities in a production),
 `specs/engine/token-counting.md` (word/scene-size accounting for intake summaries),
-provider adapters (`specs/engine/provider-adapters.md`, not yet written per the bible's
-own package list - semantic clustering and claim extraction require a configured AI
+provider adapters (`specs/engine/provider-adapters.md`, not yet written -
+semantic clustering and claim extraction require a configured AI
 provider; see Behavior "Deterministic vs. AI-backed") · **VAUDEVILLE reference:** none -
 this feature has no VAUDEVILLE precedent (RC has no log-distillation feature); designed
 fresh from `wireframes/magic/archives.html` (AR-1 "The Intake Desk", AR-2 "The Evidence
-Board") per the ground truth column in the production bible (private planning notes) line 79.
+Board").
 
 ## Purpose
 
@@ -34,15 +33,14 @@ an AI-authored artifact never present invented material as if it came from the u
 own history. This spec defines: the log-ingestion contract, scene addressing, voice
 clustering, claim extraction with per-claim citations, the citation verification
 algorithm, confidence tiers, the evidence review event stream, and how distilled output
-lands in a production. It is written for an implementing agent with no other context on
+lands in a production. This spec is self-contained, assuming no other context on
 this component.
 
 ## Behavior
 
 ### Deterministic vs. AI-backed
 
-Unlike the M1 Converter (the master plan (private planning notes): "v0.1 | The Converter: works with
-zero AI key"), the Archives' headline function genuinely requires a configured AI
+Unlike the M1 Converter (v0.1, which works with zero AI key), the Archives' headline function genuinely requires a configured AI
 provider. The deterministic/AI split, stated honestly:
 
 **Runs with no key configured:**
@@ -70,8 +68,7 @@ configured" rather than silently degrading to a worse, ungrounded distillation.
 
 ### Ingestion contract
 
-The bible's brief requires `.jsonl`, `.txt`, and `.md` intake (the production bible (private planning notes)
-line 79). Rather than hardcoding any one platform's chat-export schema - no such schema
+This spec requires `.jsonl`, `.txt`, and `.md` intake. Rather than hardcoding any one platform's chat-export schema - no such schema
 is confirmed against VAUDEVILLE source or a cited public spec in this pass, and inventing
 one would violate the "never invent format facts" rule - this spec defines an abstract
 **source adapter** contract that every concrete ingester implements:
@@ -251,8 +248,7 @@ through a deterministic, provider-free verification step:
 ### Confidence tiers
 
 A documented, stable formula per claim (mirroring the Script Doctor's health-score
-approach per the production bible (private planning notes) line 75's "health score formula
-(documented, stable)" - the same house standard: heuristic, not fake precision):
+approach - the same house standard: heuristic, not fake precision):
 
 ```
 verifiedCount = claim.verifiedSceneRefs.length
@@ -285,7 +281,7 @@ code once decided, per the same "documented, stable" requirement as the claim ti
 ### Evidence review event stream
 
 Modeled the same way as the Table Read's living-document protocol
-(the production bible (private planning notes) line 76: "UI-agnostic event stream protocol") so CLI and
+(a UI-agnostic event stream protocol) so CLI and
 a future Studio surface share one implementation:
 
 - `cluster.proposed` - a new `EntityCluster` is ready for the intake-desk decision
@@ -306,8 +302,7 @@ a future Studio surface share one implementation:
   `Character`/`Lorebook` entities are ready to write.
 
 This event stream is UI-agnostic per the same house convention as Table Read
-(`specs/features/table-read.md`, not yet written in this pass but named in the bible
-row above it) - the Archives CLI command and a future Studio panel both drive the same
+(`specs/features/table-read.md`, not yet written in this pass) - the Archives CLI command and a future Studio panel both drive the same
 state machine; this spec does not fix a transport (stdout JSON lines, an in-process
 event emitter, etc.), only the event vocabulary and ordering constraints (a claim cannot
 receive `claim.decided` before its `claim.proposed`; `distillation.completed` cannot
@@ -638,7 +633,7 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 - Does not grow a world interactively or run continuity checks across entities - that is
   World Forge (`specs/features/world-forge.md`, M7 sibling). The overlap point: a
   distilled `"setting"` cluster produces a `LorebookEntry`, and World Forge's own export
-  mapping (per its bible brief) also targets `LorebookEntry`; this spec's distilled
+  mapping also targets `LorebookEntry`; this spec's distilled
   lorebook entries are a valid INPUT a user could later hand to World Forge for
   relationship/continuity modeling, but the Archives itself performs no such modeling.
 - Does not merge distillation output into a pre-existing `Character`/`Lorebook` entity
@@ -661,8 +656,6 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 
 ## Sources consulted
 
-- the master plan (private planning notes) (pillar/milestone
-  framing, "M7 The Archives + World Forge" line 59-60)
 - `docs/01-VISION.md` (the "archivist"
   persona, line 13-14; "The Doctor is honest" anti-slop stance, line 25-27, applied here
   by analogy to citation trust)
@@ -673,13 +666,6 @@ export type ProviderRef = unknown; // OPEN QUESTION: exact shape pending provide
 - `docs/ROADMAP.md` lines 73-80 ("M7 - The
   Archives + The World Forge (v0.6+)" exit criterion: "distill a real character from
   >= 20k words of logs where every field cites real scenes")
-- the production bible (private planning notes) line 79 (this
-  file's own brief row: "Log ingestion (jsonl/txt/md), voice clustering, claim
-  extraction with per-claim scene citations, confidence tiers, evidence review flow,
-  distill outputs (card + lorebook)" and ground truth
-  "wireframes/magic/archives.html for intent"), lines 75-76 (script-doctor.md and
-  table-read.md brief rows, cited for the "documented, stable" health-score-formula
-  convention and the UI-agnostic event-stream convention this spec reuses)
 - `specs/formats/canonical-model.md` (full
   file - `Entity<T>` envelope, `Character`/`Lorebook` field surfaces, escrow's
   "keyed by the format that owns them" definition used to justify NOT storing citations

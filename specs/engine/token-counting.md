@@ -67,10 +67,9 @@ usage. Nothing in VAUDEVILLE calls a provider-side token-counting endpoint (e.g.
 
 ### Why the studio does not do model-exact counting by default
 
-1. **The Converter (v0.1) has zero AI key configured** (the master plan (private planning notes): "v0.1 | The
-   Converter: works with zero AI key"). Any counting strategy that requires calling a provider's
-   `count_tokens` endpoint is unavailable in the CLI's core codec/report path. The default counter
-   must be fully local and offline.
+1. **The Converter (v0.1) has zero AI key configured.** Any counting strategy that requires calling
+   a provider's `count_tokens` endpoint is unavailable in the CLI's core codec/report path. The
+   default counter must be fully local and offline.
 2. Multiple model families are supported (`docs/02-ARCHITECTURE.md`: Anthropic, OpenRouter, OpenAI,
    Gemini, Ollama, OpenAI-compatible). Each has its own real tokenizer (Anthropic's is not public;
    OpenAI's is `cl100k_base`/`o200k_base` depending on model; Gemini's is different again). No
@@ -99,7 +98,7 @@ through a `TokenCounter`.
 | `charLength` | `Math.ceil(text.length / 4)` | Always | Coarsest; used only when `approximate` throws | Internal fallback inside `approximate`, never surfaced as a first-class strategy choice |
 
 `provider-exact` is OPEN QUESTION in scope for M0/M1 (no provider adapters exist yet - `packages/ai`
-is an M2 deliverable per the master plan (private planning notes) milestones). This spec defines the interface shape so
+is an M2 deliverable). This spec defines the interface shape so
 `packages/ai` can implement it later without an interface break; M0/M1 ship `approximate` only.
 
 ### Model-family routing inside `approximate`
@@ -147,8 +146,7 @@ can reuse them:
 - `estimateTokensLabel(text)` - human string: `"0 tokens"` for 0, exact for <10, else rounded to
   nearest 10 with a `~` prefix (`packages/lorebook/src/tokenizer.ts:91-98`, byte-identical logic).
 - `getTokenIds(text)` - raw token ID array, kept for future logit-bias-style use cases even though
-  no current spec consumes it; VAUDEVILLE exposes it (`packages/lorebook/src/tokenizer.ts:107-115`)
-  and nothing else in the extraction map replaces it.
+  no current spec consumes it; VAUDEVILLE exposes it (`packages/lorebook/src/tokenizer.ts:107-115`).
 
 ### Chat-message overhead estimate
 
@@ -338,9 +336,6 @@ export interface ProviderTokenCounter extends TokenCounter {
   (`tokensFromUsage.prompt || countMessagesTokens(...)` - provider-usage-first pattern that
   justifies this spec's `exact`/`basis` fields and the "local counter is a fallback, not a source of
   truth once a provider is in play" rule).
-- `docs\the master plan (private planning notes)`: "v0.1 | The Converter: works
-  with zero AI key" (locked-decisions table) - the constraint that forces the default counting
-  strategy to be fully offline/local.
 - `docs\02-ARCHITECTURE.md`: `packages/core` "token
   counting interfaces… ZERO deps on other packages" and `packages/ai` provider-adapter description
   (BYOK Anthropic/OpenRouter/OpenAI/Gemini/Ollama) - basis for the `core` interface / provider-adapter
@@ -348,9 +343,6 @@ export interface ProviderTokenCounter extends TokenCounter {
 - `specs\formats\canonical-model.md`: `## Token counting`
   section ("`core` defines `TokenCounter` as an interface... implementations live outside core...
   never stores them") - the authoritative statement this spec fills in.
-- `docs\the production bible (private planning notes)` line 61 (this file's own
-  brief row): "TokenCounter interface, tokenizer choice per model family, caching, honest
-  approximations, counts in reports/UI."
 - Anthropic's public API documentation: confirms a real
   provider-exact endpoint exists (`POST /v1/messages/count_tokens`, model-specific, "Do not use
   `tiktoken`... undercounts Claude tokens by ~15-20%"). Cited only as external corroboration that

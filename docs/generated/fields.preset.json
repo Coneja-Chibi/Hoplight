@@ -1,0 +1,859 @@
+{
+  "kind": "preset",
+  "source": "src/entities/preset/schema.ts",
+  "shapes": [
+    {
+      "name": "PresetPrompt",
+      "doc": "One prompt block - the row in the manuscript.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "Stable block id = the VERBATIM source identifier (ST `identifier`, Marinara section `identifier`). NEVER a fresh vaud-minted id: prompt-order refs, marker resolution, and `isDefault` all key off it, and re-minting would break every round-trip. This field is EXEMPT from the UUID regeneration the other entities apply.",
+          "producers": [
+            "ST",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "content",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "role",
+          "optional": false,
+          "type": "PromptRole",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "systemPrompt",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "ST `system_prompt`: rendered as a system-role prompt-manager entry.",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "marker",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "structural placeholder (chat history / world info / examples) with no content of its own.",
+          "producers": []
+        },
+        {
+          "name": "markerSlot",
+          "optional": true,
+          "type": "string",
+          "meaning": "When `marker`, the ST-compatible slot identity (chatHistory, worldInfoBefore, worldInfoAfter, dialogueExamples, personaDescription). RC surfaces these as its named marker slots.",
+          "producers": [
+            "RC",
+            "ST"
+          ]
+        },
+        {
+          "name": "placement",
+          "optional": false,
+          "type": "PromptPlacement",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "injectionDepth",
+          "optional": false,
+          "type": "number",
+          "meaning": "message depth for in_chat/append placements (0 = most recent; ST `injection_depth`, def 4).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "injectionOrder",
+          "optional": false,
+          "type": "number",
+          "meaning": "relative-order weight; lower appears first (ST `injection_order`, default 100).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "forbidOverrides",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "ST `forbid_overrides`: a character may not override this prompt.",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "injectionTrigger",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "generation types that trigger this injection (\"normal\", \"continue\", \"impersonate\", ...).",
+          "producers": []
+        },
+        {
+          "name": "isDefault",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "true iff a built-in ST default identifier (not a user-authored prompt).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "groupId",
+          "optional": true,
+          "type": "string",
+          "meaning": "id of the containing group (PresetGroup.id); absent = top-level / uncategorized.",
+          "producers": []
+        },
+        {
+          "name": "wrapInXml",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Marinara: wrap this block's content in an XML tag on build.",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "xmlTagName",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "extras",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "per-platform leftovers with no first-class home; sealed, round-trips untouched.",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetGroup",
+      "doc": "A category / folder of blocks. Canonical because Marinara `groups` and RC categories are first-class and the editor authors them. ST has no real groups - it encodes them as divider PROMPTS; the ST codec bridges by DERIVING a divider identifier deterministically from this `id` for vaud-authored groups and ESCROWING the original divider identifier only for imported ST presets. That keeps the Round-Trip Law under EDITS (add/rename/move a group), not just import - a user-added group must never gain an escrow entry it lacked (PRESET-JEWEL-PLAN.md).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "stable canonical id; the ST codec derives its divider identifier from this deterministically.",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "content",
+          "optional": true,
+          "type": "string",
+          "meaning": "nemo-wiki dividers may carry content; legacy ST + Marinara groups do not.",
+          "producers": [
+            "ST",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "parentGroupId",
+          "optional": true,
+          "type": "string",
+          "meaning": "parent group id for nesting (Marinara `parentGroupId` / RC subcategories); absent = top.",
+          "producers": [
+            "RC",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "order",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "extras",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetSamplers",
+      "doc": "Sampler + context settings. ALL optional: absent stays absent (the Round-Trip Law forbids emitting a value the source never had); the build engine applies defaults at compile time, never stored. Field surface = presets-core `SamplerSettings`.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "temperature",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "topP",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "topK",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "topA",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "minP",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "frequencyPenalty",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "presencePenalty",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "repetitionPenalty",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "maxContext",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "maxTokens",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "promptPostProcessing",
+          "optional": true,
+          "type": "\"none\" | \"merge\" | \"semi\" | \"strict\" | \"single\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "contextMode",
+          "optional": true,
+          "type": "\"tokens\" | \"messages\"",
+          "meaning": "how the window is bounded; default \"tokens\" when absent.",
+          "producers": []
+        },
+        {
+          "name": "maxMessages",
+          "optional": true,
+          "type": "number",
+          "meaning": "message-count budget when contextMode = \"messages\".",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetSystemPrompts",
+      "doc": "The always-on utility prompts (presets-core `SystemPrompts`); all optional.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "impersonation",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "newChat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "newGroupChat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "newExampleChat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "continueNudge",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "groupNudge",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "assistantPrefill",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "assistantImpersonation",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetTemplates",
+      "doc": "Handlebars-ish format strings for card fields (presets-core `TemplateFormats`).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "worldInfoFormat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scenarioFormat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "personalityFormat",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetBehavior",
+      "doc": "Message-assembly behavior flags (presets-core `BehaviorSettings`).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "wrapInQuotes",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "namesBehavior",
+          "optional": true,
+          "type": "number",
+          "meaning": "ST `names_behavior`: how char names prefix messages (numeric enum, kept verbatim).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "sendIfEmpty",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "continuePrefill",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "continuePostfix",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetApiOptions",
+      "doc": "Provider/API request options (presets-core `APIOptions`).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "streamResponses",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "claudeUseSystemPrompt",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "useMakerSuiteSystemPrompt",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "squashSystemMessages",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "functionCalling",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "showThoughts",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "reasoningEffort",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enableWebSearch",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "requestImages",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetMedia",
+      "doc": "Image/video inlining (presets-core `MediaSettings`).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "imageInlining",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "inlineImageQuality",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "videoInlining",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetGeneration",
+      "doc": "Generation-shape settings (presets-core `GenerationSettings`).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "seed",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "completions",
+          "optional": true,
+          "type": "number",
+          "meaning": "number of completions to request (presets-core `n`).",
+          "producers": []
+        },
+        {
+          "name": "maxContextUnlocked",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "biasPreset",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetChoiceOption",
+      "doc": "One option in a walkthrough choice. Carries BOTH source effects first-class (verified against Marinara `choiceBlock` + RC `ChoiceGroup`): `value` SETS the choice's variable (Marinara); `enablesPrompts` gates blocks on while selected (RC `option.prompts`); `set` writes scoped state (RC `option.set`). A source that uses only one effect leaves the others empty.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "meaning": "Marinara: the string injected into the choice's variable when this option is selected.",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "enablesPrompts",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "RC: block ids (PresetPrompt.id) enabled while this option is selected.",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "set",
+          "optional": true,
+          "type": "Record<string, string>",
+          "meaning": "RC: scoped state writes applied while selected (scope:key -> value).",
+          "producers": [
+            "RC"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PresetChoice",
+      "doc": "A CHOICES-walkthrough entry - the novel construct (Marinara `choiceBlock` + RC `ChoiceGroup` unified). Authored NOW; RUN later: vaud presents these questions and captures answers at setup time once a run surface exists (the north-star, PRESET-JEWEL-PLAN.md). An answer feeds `{{getvar::key}}` and/or gates blocks via the options above.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "key",
+          "optional": true,
+          "type": "string",
+          "meaning": "variable this choice sets (Marinara `variableName`); `{{getvar::key}}` reads it.",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "type": "string",
+          "meaning": "the question/title shown to the user (Marinara `question` / RC `label`).",
+          "producers": [
+            "RC",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "readme",
+          "optional": true,
+          "type": "string",
+          "meaning": "long-form prose behind a \"read more\" (RC `readme`).",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "type",
+          "optional": false,
+          "type": "PresetChoiceType",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "options",
+          "optional": false,
+          "type": "PresetChoiceOption[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "default",
+          "optional": true,
+          "type": "string | string[] | boolean",
+          "meaning": "one: option id; many: option ids; toggle: boolean; input: string.",
+          "producers": []
+        },
+        {
+          "name": "min",
+          "optional": true,
+          "type": "number",
+          "meaning": "many: fewest options that must stay selected.",
+          "producers": []
+        },
+        {
+          "name": "placeholder",
+          "optional": true,
+          "type": "string",
+          "meaning": "input: empty-field hint.",
+          "producers": []
+        },
+        {
+          "name": "suggestions",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "input: tappable example answers.",
+          "producers": []
+        },
+        {
+          "name": "separator",
+          "optional": true,
+          "type": "string",
+          "meaning": "many: how selected values join when injected (Marinara `separator`).",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "randomPick",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Marinara: pick an option at random instead of asking.",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "sortOrder",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "extras",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PresetBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Set-level on/off (the Library shelf switch; the lorebook/regex `enabled?` precedent). Absent = on; always read as `enabled !== false`. An off preset skips export the way an off set does.",
+          "producers": []
+        },
+        {
+          "name": "prompts",
+          "optional": false,
+          "type": "PresetPrompt[]",
+          "meaning": "the ordered real prompt blocks (divider rows are never blocks; `groups` model structure).",
+          "producers": []
+        },
+        {
+          "name": "groups",
+          "optional": true,
+          "type": "PresetGroup[]",
+          "meaning": "categories / folders; canonical because Marinara + RC author them (see PresetGroup).",
+          "producers": [
+            "RC",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "samplers",
+          "optional": true,
+          "type": "PresetSamplers",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "systemPrompts",
+          "optional": true,
+          "type": "PresetSystemPrompts",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "templates",
+          "optional": true,
+          "type": "PresetTemplates",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "behavior",
+          "optional": true,
+          "type": "PresetBehavior",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "apiOptions",
+          "optional": true,
+          "type": "PresetApiOptions",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "media",
+          "optional": true,
+          "type": "PresetMedia",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "generation",
+          "optional": true,
+          "type": "PresetGeneration",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "choices",
+          "optional": true,
+          "type": "PresetChoice[]",
+          "meaning": "the CHOICES walkthrough (novel; authored now, run later).",
+          "producers": []
+        }
+      ]
+    }
+  ]
+}

@@ -40,7 +40,7 @@ spec states "future minor versions for the same spec MUST be non-breaking"), it 
 carried in `meta.origin.version`. `data` is a required object.
 
 Source: public chara_card_v2 spec (github.com/malfoyslastname/character-card-spec-v2,
-fetched via web research, section "Character Card V2 JSON Schema"); confirmed against
+section "Character Card V2 JSON Schema"); confirmed against
 `apps/rc/src/lib/formats/character/serialize-v2.ts:23-27` (`CharacterCardV2` interface)
 and `parse-v2.ts:112-121` (`isV2Card`, which additionally requires `data.name` to be a
 string, VAUDEVILLE is stricter than the bare public spec here, and this codec adopts
@@ -505,8 +505,8 @@ export const charaCardV2Codec: {
   (full file read; key lines: 19-58 `CharacterBookEntry`/`CharacterBook`, 262-270
   `parseRegexKeyword`, 318-422 `toCharacterBook`, 459-558 `fromCharacterBook`,
   564-598 `mergeCharacterBooks`).
-- Public chara_card_v2 spec: github.com/malfoyslastname/character-card-spec-v2,
-  fetched via WebFetch during this session (2026-07-02); confirmed top-level shape
+- Public chara_card_v2 spec: github.com/malfoyslastname/character-card-spec-v2
+  (accessed 2026-07-02); confirmed top-level shape
   (`spec`/`spec_version`/`data`), the nine `data`-level scalar fields plus
   `alternate_greetings`/`tags`/`creator`/`character_version`/`character_book`/
   `extensions`, the `character_book` sub-object shape (`name`, `description`,
@@ -515,8 +515,7 @@ export const charaCardV2Codec: {
   `case_sensitive`, `name`, `priority`, `id`, `comment`, `selective`,
   `secondary_keys`, `constant`, `position`), the V1-compatibility note, and the
   `extensions` namespacing convention.
-- `docs\the master plan (private planning notes)`,
-  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (brief row for this file),
-  `specs\formats\canonical-model.md`, `specs\formats\escrow-and-roundtrip.md`,
+- `docs\02-ARCHITECTURE.md`, `specs\formats\canonical-model.md`,
+  `specs\formats\escrow-and-roundtrip.md`,
   `templates\SPEC-TEMPLATE.md`, read in full for conventions and the canonical
   model / escrow rules this spec must conform to.

@@ -76,7 +76,7 @@ deliberately as a collision-hazard category.
 
 The reference implementation (`tokenizer.ts`) is a single fused
 scan-and-parse function, `parseNodesV2(text): ASTNode[]`, not two literal
-separate passes despite the "two-stage" framing in the extraction brief. Internally
+separate passes. Internally
 it interleaves two concerns that the studio port should keep conceptually distinct
 (and MAY split into literal functions `scanMacroTokens` / `parseTokens` as an
 implementation refinement - this is a naming target for the port, not a claim about
@@ -329,7 +329,7 @@ without becoming a registered macro), even if M2 ships no interceptors itself.
 ephemeral, per-assembly maps threaded through `MacroContext` for macros that define
 and later reference named template snippets within one assembly run. OPEN QUESTION:
 the exact handler semantics for `template`/`override` were not read as part of this
-spec (they live in handler files not enumerated in the brief's ground-truth list);
+spec (they live in handler files not enumerated here);
 port them from whichever handler module registers them, verified against the
 characterization corpus.
 
@@ -364,8 +364,8 @@ contract IS the characterization corpus:
 **Porting plan for the studio package:**
 
 1. Port `corpus.ts` first, unmodified in content (it is pure data with no import
-   of parser internals - the file's own header enforces this). This is "the
-   asset" per the extraction map (private planning notes).
+   of parser internals - the file's own header enforces this). It is the
+   load-bearing asset: port it before the parser.
 2. Port the parser (`tokenizer.ts` lineage) second, against the corpus, using the
    snapshot files as the oracle. Do NOT hand-transcribe the snapshots; regenerate
    them from the ported parser and diff against VAUDEVILLE's committed snapshots
@@ -378,8 +378,7 @@ contract IS the characterization corpus:
    the golden snapshots were generated against were not read; re-derive them from
    `processor-golden.test.ts`'s setup when porting, since the snapshot values are
    sensitive to `characterName`/`userName`/`randomSeed`/clock.
-4. **`tokenizer.ts` was UNCOMMITTED in VAUDEVILLE as of 2026-07-02** per
-   the extraction map (private planning notes) - coordinate with Chi before extracting; the file
+4. **`tokenizer.ts` was UNCOMMITTED in VAUDEVILLE as of 2026-07-02** - the file
    may have moved or changed shape by the time a ticket executes this port.
 
 ## Public API sketch
@@ -728,16 +727,10 @@ plays for codecs.
   directory listing: confirms the five test files
   (`parser-ast.test.ts`, `duplicate-parsers-agreement.test.ts`,
   `preprocessing-effects.test.ts`, `processor-golden.test.ts`) plus
-  `__snapshots__/` exist as described in the extraction map.
-- the master plan (private planning notes) (this repo): three-layer shape, "Engine" as the moat,
-  extraction sourcing.
+  `__snapshots__/` exist.
 - `docs/02-ARCHITECTURE.md` (this repo, lines 18, 22): `packages/macros`
   description ("tokenizer/parser ... + evaluator subset"), dependency rule
   (`core <- formats <- everything`).
-- the extraction map (private planning notes) (this repo, lines 48-55): `packages/macros` source
-  file list, tokenizer.ts UNCOMMITTED-as-of-2026-07-02 warning, characterization
-  corpus called out as "THE asset; port before the parser."
-- the production bible (private planning notes) (this repo, line 60): this spec's brief.
 - `specs/formats/canonical-model.md` (this repo): "Identity/presentation metadata
   is grouped, not flat" design rule, used to justify excluding RC's
   palette/gradient context fields from the studio `MacroContext`.

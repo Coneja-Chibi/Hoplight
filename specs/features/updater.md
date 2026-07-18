@@ -500,8 +500,8 @@ codec specs.
 - Code-signing certificates / notarization / SmartScreen reputation: ADR-003
   explicitly defers buying a cert; this spec's job is checksum+signature integrity,
   not OS trust-chain reputation. The "More info -> Run anyway" SmartScreen
-  documentation is a separate M1 ticket (see the production bible (private planning notes) M1 ticket
-  list: "SmartScreen docs"), not part of the updater's runtime behavior.
+  documentation is a separate M1 ticket ("SmartScreen docs"), not part of the
+  updater's runtime behavior.
 - Automatic/silent updates without user consent: explicitly forbidden by ADR-003
   ("never auto-install without consent").
 - Downgrading to an older version as an implicit flow: see edge case 5; explicit
@@ -513,7 +513,6 @@ codec specs.
 
 ## Sources consulted
 
-- `the master plan (private planning notes):36`: distribution/self-updater locked decision.
 - `docs/02-ARCHITECTURE.md:87-90`: network-call and telemetry invariants.
 - `docs/decisions/ADR-003-distribution.md:1-34`: full distribution decision: single
   executables via `bun build --compile`, GitHub Releases, `vaud upgrade` mechanism,
@@ -523,11 +522,6 @@ codec specs.
 - `docs/03-CONVENTIONS.md:33-40`: CLI conventions: `--json` stdout/stderr
   separation, exit codes (0/1/2), destructive-op confirmation (`--yes`), plain
   output vocabulary, typed error classes with `userMessage`.
-- `the production bible (private planning notes):74,93`: this file's brief (release channel, version
-  check etiquette 1/day non-blocking, SHA-256 + minisign verify, atomic self-swap
-  Windows rename dance, rollback on failed verify) and the M1 ticket-list line
-  confirming "release CI (3-OS binaries + checksums); updater" are sibling M1
-  tickets this spec's asset-naming assumptions depend on.
 - `templates/SPEC-TEMPLATE.md`: structure followed for this document.
 - Minisign file format and verification steps: Frank Denis, "Minisign" project page,
   https://jedisct1.github.io/minisign/ (public key file format: untrusted comment +
@@ -536,17 +530,16 @@ codec specs.
   line, base64(global_signature); `Ed` vs `ED` (prehashed, BLAKE2b-512) algorithm
   identifiers).
 - Minisign signature/public-key structure corroboration (untrusted vs trusted
-  comment semantics, Ed25519 algorithm, `<filename>.minisig` convention): search
-  result summaries of https://github.com/jedisct1/minisign and
-  https://www.mankier.com/1/minisign, retrieved via web search July 2026.
+  comment semantics, Ed25519 algorithm, `<filename>.minisig` convention): public
+  documentation at https://github.com/jedisct1/minisign and
+  https://www.mankier.com/1/minisign (2026-07).
 - GitHub REST API for Releases (`/repos/{owner}/{repo}/releases`,
   `/repos/{owner}/{repo}/releases/latest`) and the standard unauthenticated rate
   limit (60 requests/hour/IP): general public GitHub REST API documentation,
-  known/stable behavior, not independently re-fetched in this session: flagged
-  here rather than cited to a specific URL because it was not re-verified via
-  WebFetch this session. OPEN QUESTION: confirm the exact current rate limit figure
+  known/stable behavior. Flagged
+  here rather than cited to a specific URL because it was not re-verified
+  against the live source. OPEN QUESTION: confirm the exact current rate limit figure
   against https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api
   before the implementing ticket ships, in case GitHub has changed it.
 - `semver.org` precedence rules (section 11) for version comparison and
-  prerelease ordering: standard, well-known specification, not re-fetched this
-  session.
+  prerelease ordering: standard, well-known specification.

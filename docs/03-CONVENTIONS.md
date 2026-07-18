@@ -1,6 +1,6 @@
 # Conventions
 
-Binding for all code and docs in the product repo. Implementing agents: deviations
+Binding for all code and docs in the product repo. Deviations
 fail review.
 
 ## Code

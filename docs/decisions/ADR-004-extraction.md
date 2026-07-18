@@ -12,9 +12,9 @@ work here is the author relicensing their own code, which a copyright holder may
 
 ## Decision
 
-Port the format/engine layers from RoleCall into this project and evolve them freely here. The
-detailed file-level extraction map lives in the project's private planning notes, not in this repo,
-because it documents the internal layout of a closed product.
+Port the format/engine layers from RoleCall into this project and evolve them freely here. A
+detailed file-level map of that port is not kept in this repo, because it documents the internal
+layout of a closed product.
 
 What was ported, in broad strokes: preset parse/serialize, the lorebook engine (types, validation,
 detection, parser/serializer, diff), character-card format codecs (PNG chunk read/write among them),

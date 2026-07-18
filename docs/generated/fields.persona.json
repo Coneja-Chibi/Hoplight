@@ -1,0 +1,320 @@
+{
+  "kind": "persona",
+  "source": "src/entities/persona/schema.ts",
+  "shapes": [
+    {
+      "name": "PersonaSections",
+      "doc": "CanonicalPersona - the USER-identity entity: the counterpart to a character (same prompt-injection machinery, opposite voice - this is {{user}}, first person). Built from specs/formats/personas.md, whose field maps are pinned by RoleCall's own persona-roundtrip tests. Four real source shapes feed it: RC native `rcpersona`, RC's production V2-card-with-side-channel export, foreign V2/V3 cards imported AS personas, and legacy RoleOut PNGs. The load-bearing distinction of the whole family: `brief` (short library-card summary, NEVER injected) vs `content` (the full first-person text injected as {{user}}). Every source has some short/long split (RC description/content; card creator_notes/description; RoleOut title/content) and swapping them is the exact production bug RC's round-trip suite was written to pin. This folder IS the persona entity (folders-as-schema): drop a sibling in src/entities/ for a new content type the same way. Structured alternative source for `content`; compile order is fixed (see sectionOrder default).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "appearance",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "body",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "personality",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "quirks",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "history",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PersonaPronounSet",
+      "doc": "Lumiverse's structured pronoun triplet (subjective/objective/possessive) - real DATA the engine can conjugate with, unlike the free-text `pronouns` display string (which stays, for RC/ST round-trip). Additive (P0, PERSONA-JEWEL-PLAN.md); absent everywhere else.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "subjective",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "objective",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "possessive",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PersonaIdentity",
+      "doc": "Authored identity attributes (RC casting-card details).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "tagline",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "age",
+          "optional": true,
+          "type": "string",
+          "meaning": "free TEXT (\"23\", \"ageless\"), never an int",
+          "producers": []
+        },
+        {
+          "name": "height",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "pronouns",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "pronounSet",
+          "optional": true,
+          "type": "PersonaPronounSet",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PersonaPresentation",
+      "doc": "The persona's visual identity (RC theming).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "signatureColor",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "colors",
+          "optional": true,
+          "type": "Swatch[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "imageUrl",
+          "optional": true,
+          "type": "string",
+          "meaning": "external image URL (JSON export) - PNG exports carry the image as the file body instead",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PersonaChatInjection",
+      "doc": "Prompt-positioning fields. Two real dialects share this slot (P0, PERSONA-JEWEL-PLAN.md): SillyTavern's five stops (prompt / author-note top+bottom / in-chat at depth+role / none) and RoleCall's four (world / character / scene / depth, PersonaPanel.tsx InjectionPosition), plus RC's optional wrapper text (`injection_prefix`). OPEN union: which stops a Write-for lens can carry lives in core/persona/platform-fields.ts (`injectionsForProfile`), never a UI literal.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "position",
+          "optional": false,
+          "type": "| \"prompt\" | \"author_note_top\" | \"author_note_bottom\" | \"in_chat\" | \"none\" | \"world\" | \"character\" | \"scene\" | \"depth\" | (string & {})",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "depth",
+          "optional": true,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "role",
+          "optional": true,
+          "type": "\"system\" | \"user\" | \"assistant\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "wrapper",
+          "optional": true,
+          "type": "string",
+          "meaning": "RC's custom wrapper text prepended to the injected block (injection_prefix).",
+          "producers": [
+            "RC"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PersonaAttribution",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "creator",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "version",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "createdAt",
+          "optional": true,
+          "type": "string",
+          "meaning": "ISO 8601 (the rcpersona wire carries strings, not unix seconds)",
+          "producers": []
+        },
+        {
+          "name": "source",
+          "optional": true,
+          "type": "string",
+          "meaning": "origin platform tag (\"rolecall\", \"sillytavern\", \"custom\", ...)",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "PersonaBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "brief",
+          "optional": true,
+          "type": "string",
+          "meaning": "short user-facing summary (library card blurb) - NEVER the injected text",
+          "producers": []
+        },
+        {
+          "name": "content",
+          "optional": false,
+          "type": "string",
+          "meaning": "the full first-person text injected as {{user}}'s voice",
+          "producers": []
+        },
+        {
+          "name": "sections",
+          "optional": true,
+          "type": "PersonaSections",
+          "meaning": "structured alternative source for `content`. Canonical keeps BOTH (unlike the source formats' \"content wins, sections ignored\" read rule) so the editor can offer structured editing even when the source was flat; compiling sections into content happens in codecs at serialize time.",
+          "producers": []
+        },
+        {
+          "name": "sectionOrder",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "creator-chosen display order of sections",
+          "producers": []
+        },
+        {
+          "name": "traits",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "personality-descriptor traits (RC details.traits / card tags)",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "identity",
+          "optional": true,
+          "type": "PersonaIdentity",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "presentation",
+          "optional": true,
+          "type": "PersonaPresentation",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "knowledgeRefs",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "linked canonical lorebook id(s), ordered - same reference-not-inline rule as CharacterBody",
+          "producers": []
+        },
+        {
+          "name": "rating",
+          "optional": true,
+          "type": "ContentRating",
+          "meaning": "reuses the canonical graded rating (RC all_hours -> \"all-ages\", after_dark -> \"explicit\")",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "chatInjection",
+          "optional": true,
+          "type": "PersonaChatInjection",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "attribution",
+          "optional": true,
+          "type": "PersonaAttribution",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "media",
+          "optional": true,
+          "type": "{ portrait?: MediaAsset }",
+          "meaning": "Same slot as CharacterBody: the studio portrait resolver reads media.portrait (a data-URI MediaAsset from in-editor upload). Studio-side; codecs map explicit fields only, so this never leaks into a foreign wire.",
+          "producers": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,816 @@
+{
+  "kind": "lorebook",
+  "source": "src/entities/lorebook/schema.ts",
+  "shapes": [
+    {
+      "name": "Trigger",
+      "doc": "CanonicalLorebook - the world-info / knowledge-base entity. Adopts the RoleCall LorebookEntry as the canonical baseline (it is a practical superset of SillyTavern World Info, Risu, Agnai, Chub, Lumiverse, and NovelAI's portable surface). Field map + cross-format coverage in design/LOREBOOK-FORMATS.md and specs/formats/rolecall-lorebook.md. Only PORTABLE format content is first-classed here. RC's DB/platform baggage (creator, stats, publishing status, fork lineage, versioning, timestamps, token counts, per-session runtime state) is NOT part of the canonical body - it rides in original or on the Entity wrapper, exactly as the character body strips its DB fields. A character references lorebooks by id via CharacterBody.knowledgeRefs (ordered); a format that must embed the book resolves those on export. The wire gate still holds: a field earns a first-class slot only if some real WIRE format SERIALIZES it. RC in-memory-only fields with no serializer producer (allowRecursion, boostIds, boostAmount, scanPreset, probabilityMode - verified absent from packages/lorebook serializeEntryToRoleCallV1 + the ST serializer) ride original: first-classing a field nothing serializes is dead surface. But under the schema-is-editor doctrine, an AUTHORED field a real format DOES serialize gets a slot even if only one format produces it (single-platform is not a reason to original). So ST's extra scan sources (matchCharacterDepthPrompt, matchCreatorNotes), the vectorized/group-override/group-scoring toggles, the automation binding, and the distinct displayIndex axis are first-classed below - they are ST wire fields a creator sets, not in-memory residue. A keyword/regex trigger. \"Advanced\" triggers carry their own `probability` (overriding the entry fallback); \"simple\" triggers omit it and use the entry-level probability. `frequency` is config (min messages between activations); per-session runtime counters are not part of portable content.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "keyword",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "isRegex",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "flags",
+          "optional": true,
+          "type": "string",
+          "meaning": "regex flags: g, i, m, s, u, y",
+          "producers": []
+        },
+        {
+          "name": "frequency",
+          "optional": true,
+          "type": "number",
+          "meaning": "min messages that must pass before this trigger can re-activate its entry",
+          "producers": []
+        },
+        {
+          "name": "probability",
+          "optional": true,
+          "type": "number",
+          "meaning": "advanced mode only: per-trigger activation chance 0-100, overrides the entry fallback",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "CharacterFilter",
+      "doc": "Whitelist (isExclude:false) or blacklist (isExclude:true) an entry to specific characters.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "names",
+          "optional": false,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "tags",
+          "optional": false,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "isExclude",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "EntrySideEffect",
+      "doc": "A variable mutation performed when an entry activates (declarative data, never executed by vaud).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "type",
+          "optional": false,
+          "type": "SideEffectType",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "variable",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "value",
+          "optional": true,
+          "type": "string",
+          "meaning": "for setvar",
+          "producers": []
+        },
+        {
+          "name": "amount",
+          "optional": true,
+          "type": "number",
+          "meaning": "for addvar/incvar/decvar",
+          "producers": []
+        },
+        {
+          "name": "scope",
+          "optional": false,
+          "type": "\"local\" | \"global\"",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "EntrySideEffects",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "effects",
+          "optional": false,
+          "type": "EntrySideEffect[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "onlyOnFirstTrigger",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "clearOnDeactivate",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "EntryContextConfig",
+      "doc": "NovelAI per-entry context-assembly config: authored prompt-shaping dials a creator sets in the NAI lorebook UI (prefix/suffix are authored TEXT, e.g. \"[ Mal: \" / \" ]\\n\"). All optional; formats without an assembly layer omit the whole block. NAI's `budgetPriority` is deliberately NOT here - it is the placement axis and lives in `sortOrder` (one home per axis, see the sortOrder/priority split below).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "prefix",
+          "optional": true,
+          "type": "string",
+          "meaning": "text prepended to the entry when inserted",
+          "producers": []
+        },
+        {
+          "name": "suffix",
+          "optional": true,
+          "type": "string",
+          "meaning": "text appended to the entry when inserted",
+          "producers": []
+        },
+        {
+          "name": "tokenBudget",
+          "optional": true,
+          "type": "number",
+          "meaning": "per-entry token budget cap",
+          "producers": []
+        },
+        {
+          "name": "reservedTokens",
+          "optional": true,
+          "type": "number",
+          "meaning": "tokens reserved so the entry is not trimmed away",
+          "producers": []
+        },
+        {
+          "name": "trimDirection",
+          "optional": true,
+          "type": "string",
+          "meaning": "trim strategy: \"doNotTrim\" | \"trimBottom\" | \"trimTop\" (open: NAI may add values)",
+          "producers": []
+        },
+        {
+          "name": "insertionType",
+          "optional": true,
+          "type": "string",
+          "meaning": "join strategy: \"newline\" | \"space\" | \"token\"",
+          "producers": []
+        },
+        {
+          "name": "maximumTrimType",
+          "optional": true,
+          "type": "string",
+          "meaning": "trim granularity: \"sentence\" | \"newline\" | \"token\"",
+          "producers": []
+        },
+        {
+          "name": "insertionPosition",
+          "optional": true,
+          "type": "number",
+          "meaning": "signed offset within the target context section (NOT canonical depth - a different axis)",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "LoreBiasPhrase",
+      "doc": "One phrase inside a NovelAI loreBiasGroups row. Wire uses `sequence` and/or `sequences` plus a numeric `type` (NAI's phrase-type enum). Authored content - first-class so the editor can edit bias.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "sequence",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "sequences",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "type",
+          "optional": true,
+          "type": "number",
+          "meaning": "NAI phrase type (int on wire; open enum)",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "LoreBiasGroup",
+      "doc": "NovelAI phrase-bias group: signed bias applied when the entry is active (or when inactive if `whenInactive`). Ported from real v3/v6 exports (loreBiasGroups).",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "enabled",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "bias",
+          "optional": false,
+          "type": "number",
+          "meaning": "signed strength (e.g. -0.5, 0.2)",
+          "producers": []
+        },
+        {
+          "name": "phrases",
+          "optional": false,
+          "type": "LoreBiasPhrase[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "whenInactive",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "generateOnce",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "ensureSequenceFinish",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "LorebookEntry",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "stable entry id, preserved across round-trips (categories reference it)",
+          "producers": []
+        },
+        {
+          "name": "title",
+          "optional": false,
+          "type": "string",
+          "meaning": "entry label (maps to ST `comment`)",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "content",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "comment",
+          "optional": true,
+          "type": "string | null",
+          "meaning": "internal creator note; distinct from title, has no ST home (RC-only)",
+          "producers": [
+            "RC",
+            "ST"
+          ]
+        },
+        {
+          "name": "enabled",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "constant",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "always inject regardless of keyword match",
+          "producers": []
+        },
+        {
+          "name": "triggerMode",
+          "optional": false,
+          "type": "\"simple\" | \"advanced\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "triggers",
+          "optional": false,
+          "type": "Trigger[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "secondaryTriggers",
+          "optional": false,
+          "type": "Trigger[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "selectiveLogic",
+          "optional": false,
+          "type": "SelectiveLogic",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "caseSensitive",
+          "optional": false,
+          "type": "boolean | null",
+          "meaning": "null = inherit the lorebook global",
+          "producers": []
+        },
+        {
+          "name": "matchWholeWords",
+          "optional": false,
+          "type": "boolean | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanDepth",
+          "optional": false,
+          "type": "number | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "position",
+          "optional": false,
+          "type": "InjectionPosition",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "depth",
+          "optional": false,
+          "type": "number",
+          "meaning": "used when position is \"depth\" or \"append\"",
+          "producers": []
+        },
+        {
+          "name": "role",
+          "optional": false,
+          "type": "MessageRole",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "sortOrder",
+          "optional": false,
+          "type": "number",
+          "meaning": "Placement / insertion order: where the entry lands relative to its siblings in the assembled prompt. The universal ordering axis - ST `order`, Risu `insertorder`, CCv3 `insertion_order`, Agnai `weight`, RC `sortOrder`. (ST's cosmetic `displayIndex` is a distinct display axis with only one source format, so it rides original, not a canonical slot.)",
+          "producers": [
+            "CCv3",
+            "RC",
+            "ST",
+            "Risu",
+            "Agnai"
+          ]
+        },
+        {
+          "name": "priority",
+          "optional": false,
+          "type": "number",
+          "meaning": "Eviction / budget priority: which entries survive when the token budget is exceeded (higher survives). A separate axis from placement - CCv3 `priority`, Agnai `priority`, RC `priority`. Formats with no eviction field (ST, Risu) default this to 100.",
+          "producers": [
+            "CCv3",
+            "RC",
+            "ST",
+            "Risu",
+            "Agnai"
+          ]
+        },
+        {
+          "name": "sticky",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "cooldown",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "delay",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "groupName",
+          "optional": false,
+          "type": "string | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "categoryId",
+          "optional": false,
+          "type": "string | null",
+          "meaning": "references a LorebookCategory.id",
+          "producers": []
+        },
+        {
+          "name": "groupWeight",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "probability",
+          "optional": false,
+          "type": "number",
+          "meaning": "entry-level activation chance 0-100 (fallback for simple triggers)",
+          "producers": []
+        },
+        {
+          "name": "useMemo",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "excludeRecursion",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "will NOT be found during recursion (direct matches only)",
+          "producers": []
+        },
+        {
+          "name": "preventRecursion",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "this entry's content will NOT trigger other entries",
+          "producers": []
+        },
+        {
+          "name": "delayUntilRecursion",
+          "optional": false,
+          "type": "number",
+          "meaning": "only activate at recursion level N (0 = first pass)",
+          "producers": []
+        },
+        {
+          "name": "characterFilter",
+          "optional": false,
+          "type": "CharacterFilter | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanCharacterDescription",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanCharacterPersonality",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanUserPersona",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanScenario",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "scanCharacterDepthPrompt",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "extra ST worldinfo scan sources (undefined = not produced by this format / off)",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "scanCreatorNotes",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "ignoreBudget",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "bypass token budget - always inject",
+          "producers": []
+        },
+        {
+          "name": "vectorized",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Authored ST-lineage entry toggles that only some formats carry (optional: undefined = the format has no such field, distinct from an explicit false a producer set). First-classed per the schema-is-editor doctrine, not original. `vectorized` is the RAG toggle (the SETTING, not the vectors, which stay original); `groupOverride`/`useGroupScoring` extend the groupName/groupWeight mutual-exclusion axis; `automationId` binds an entry to a Quick-Reply automation by id (the id only, the automation set stays original).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "groupOverride",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "useGroupScoring",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "automationId",
+          "optional": true,
+          "type": "string | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "keyRelative",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "NovelAI: keys match relative to the entry's own insertion point, not the story tail",
+          "producers": [
+            "NovelAI"
+          ]
+        },
+        {
+          "name": "nonStoryActivatable",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "NovelAI: entry can activate outside story text (e.g. from a UI action)",
+          "producers": [
+            "NovelAI"
+          ]
+        },
+        {
+          "name": "contextConfig",
+          "optional": true,
+          "type": "EntryContextConfig",
+          "meaning": "NovelAI authored per-entry assembly config (prefix/suffix/trim/budget dials)",
+          "producers": [
+            "NovelAI"
+          ]
+        },
+        {
+          "name": "loreBiasGroups",
+          "optional": true,
+          "type": "LoreBiasGroup[]",
+          "meaning": "NovelAI phrase bias groups (loreBiasGroups on wire)",
+          "producers": [
+            "NovelAI"
+          ]
+        },
+        {
+          "name": "displayIndex",
+          "optional": true,
+          "type": "number | null",
+          "meaning": "Creator's manual display order in the editor list - a DISTINCT authored axis from `sortOrder` (placement in the assembled prompt). Real ST cards prove they diverge (Seraphina: sortOrder all 100, displayIndex 0-3), so it is NOT regenerable from sortOrder. null/undefined = follow sortOrder.",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "sideEffects",
+          "optional": false,
+          "type": "EntrySideEffects | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "metadata",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "extensible bag for format-specific data with no first-class home",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "LorebookCategory",
+      "doc": "A folder grouping entries within a lorebook.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "sortOrder",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "LorebookBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "string | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "lorebookType",
+          "optional": true,
+          "type": "LorebookType | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "genre",
+          "optional": true,
+          "type": "string | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "fandom",
+          "optional": true,
+          "type": "string | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "tags",
+          "optional": false,
+          "type": "string[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Book-level on/off for the shelf + Press export filter. Default true when absent (older books). RC can round-trip it; other formats ignore (deny by absence).",
+          "producers": [
+            "RC"
+          ]
+        },
+        {
+          "name": "globalCaseSensitive",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "global matching defaults; entries with null matching options inherit these",
+          "producers": []
+        },
+        {
+          "name": "globalMatchWholeWords",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "globalScanDepth",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "globalRecursion",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "tokenBudget",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "budgetMode",
+          "optional": false,
+          "type": "\"token\" | \"entry\"",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "entryBudget",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "entries",
+          "optional": false,
+          "type": "LorebookEntry[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "categories",
+          "optional": true,
+          "type": "LorebookCategory[]",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    }
+  ]
+}

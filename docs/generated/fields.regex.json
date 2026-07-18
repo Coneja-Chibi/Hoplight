@@ -1,0 +1,291 @@
+{
+  "kind": "regex",
+  "source": "src/entities/regex/schema.ts",
+  "shapes": [
+    {
+      "name": "RegexRuleCondition",
+      "doc": "Deterministic rule chaining (vaud-engine-only, R2X): run the carrying rule only when the rule named by `ruleId` DID (`matched: true`) or DID NOT (`matched: false`) apply earlier in the same pass. One pass, sortOrder order: a condition naming a rule that has not run yet (or does not exist) skips the carrying rule with an honest trace reason - never forward-resolves.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "ruleId",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "matched",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "RegexRule",
+      "doc": "One find/replace rule. `find`/`flags` are stored SEPARATELY (the Risu/RC/Lumi encoding); the SillyTavern codec folds/unfolds its single `/pattern/flags` wire string on import/export (the lorebook `keywordToTrigger` precedent). `flags` is stored VERBATIM, including Risu extension tokens observed live (e.g. \"gu<cbs>\") - never stripped except at compile time inside the engine (core/regex/apply.ts), never here.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "id",
+          "optional": false,
+          "type": "string",
+          "meaning": "stable rule id, preserved across round-trips",
+          "producers": []
+        },
+        {
+          "name": "label",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "note",
+          "optional": true,
+          "type": "string",
+          "meaning": "internal creator note; distinct from label (Lumiverse `description`)",
+          "producers": [
+            "Lumiverse"
+          ]
+        },
+        {
+          "name": "find",
+          "optional": false,
+          "type": "string",
+          "meaning": "bare pattern, NO delimiters",
+          "producers": []
+        },
+        {
+          "name": "flags",
+          "optional": false,
+          "type": "string",
+          "meaning": "verbatim flags string; default \"g\"; may carry non-JS extension tokens",
+          "producers": []
+        },
+        {
+          "name": "useFlags",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Risu `ableFlag`: whether the custom flags string applies",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "replace",
+          "optional": false,
+          "type": "string",
+          "meaning": "verbatim; may carry $1/{{match}}/CBS/HTML - render only through SealedHtmlPreview",
+          "producers": []
+        },
+        {
+          "name": "trimStrings",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "ST/RC/Lumi: fragments stripped from the match before replace",
+          "producers": [
+            "RC",
+            "ST"
+          ]
+        },
+        {
+          "name": "phases",
+          "optional": false,
+          "type": "RegexPhase[]",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "targets",
+          "optional": true,
+          "type": "RegexTargetChannel[]",
+          "meaning": "Lumiverse's placement x target matrix; absent = platform default",
+          "producers": [
+            "Lumiverse"
+          ]
+        },
+        {
+          "name": "substituteFind",
+          "optional": true,
+          "type": "RegexSubstitution",
+          "meaning": "find-side macro substitution mode; absent = \"none\"",
+          "producers": []
+        },
+        {
+          "name": "minDepth",
+          "optional": true,
+          "type": "number | null",
+          "meaning": "ST/RC/Lumi/Marinara depth window (message depth, 0 = most recent - exact counting per platform is an R1 residual, see REGEX-FORMATS.md)",
+          "producers": [
+            "RC",
+            "ST",
+            "Marinara"
+          ]
+        },
+        {
+          "name": "maxDepth",
+          "optional": true,
+          "type": "number | null",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "runOnEdit",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "ST/RC/Lumi: re-apply this rule when a message is edited",
+          "producers": [
+            "RC",
+            "ST"
+          ]
+        },
+        {
+          "name": "characterIds",
+          "optional": true,
+          "type": "string[]",
+          "meaning": "Marinara `targetCharacterIds`: limit to specific recipient characters; empty/absent = all",
+          "producers": [
+            "Marinara"
+          ]
+        },
+        {
+          "name": "firstMatchOnly",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Vaud-engine-only (R2X, no wire home anywhere - travel lint marks these three under every platform lens; export keeps the data canonical-side and emits nothing): replace only the FIRST match even under a global flag.",
+          "producers": []
+        },
+        {
+          "name": "condition",
+          "optional": true,
+          "type": "RegexRuleCondition",
+          "meaning": "Vaud-engine-only: run only when another rule in this set did (or did not) apply this pass.",
+          "producers": []
+        },
+        {
+          "name": "overlay",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Vaud-engine-only: display-channel rule that returns match spans + replacement as an OVERLAY instead of mutating text (ST names this \"Overlay strategy\" and implements it nowhere).",
+          "producers": [
+            "ST"
+          ]
+        },
+        {
+          "name": "enabled",
+          "optional": false,
+          "type": "boolean",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "sortOrder",
+          "optional": false,
+          "type": "number",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "extras",
+          "optional": true,
+          "type": "Record<string, unknown>",
+          "meaning": "Per-platform leftovers with no first-class home (Lumi telemetry/scope/script_id, ST id/uuid, ...). Sealed, round-trips untouched - the lossless-escrow doctrine.",
+          "producers": [
+            "ST"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RegexSetBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "description",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "enabled",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "Set-level on/off (the Library shelf's enable switch; the lorebook `enabled?` precedent). Absent = on; always read as `enabled !== false`. An off set skips export the way an off lorebook does. Additive and optional so the risu character codec and the in-flight set editor stay compatible.",
+          "producers": []
+        },
+        {
+          "name": "rules",
+          "optional": false,
+          "type": "RegexRule[]",
+          "meaning": "",
+          "producers": []
+        }
+      ]
+    },
+    {
+      "name": "CharacterRegexScript",
+      "doc": "Narrow character-card view of a regex rule: the Risu `customScripts` legacy shape (singular `phase`, no id/enabled/sortOrder - the card wire has none of those). `entities/character/schema.ts` re-exports this as its `RegexScript` so there is one definition, not two independently-maintained shapes (REGEX-JEWEL-PLAN.md R0). It is intentionally NOT `RegexRule` itself: `RegexRule.phases` is an array and requires `id`/`enabled`/`sortOrder`, which would silently change `CharacterBehavior.regexScripts`'s wire contract and break the risu codec's round-trip tests (`src/formats/risu/risu.test.ts`, out of this phase's scope) - reality over a literal full alias. `RegexRule` is what the standalone regex entity (and its editor) uses; this stays the small card-embedded twin until a real migration replaces `customScripts` with regex-entity refs.",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "label",
+          "optional": true,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "find",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "replace",
+          "optional": false,
+          "type": "string",
+          "meaning": "",
+          "producers": []
+        },
+        {
+          "name": "phase",
+          "optional": false,
+          "type": "string",
+          "meaning": "pipeline phase, open union: \"edittrans\" | \"editoutput\" | \"editdisplay\" | ...",
+          "producers": []
+        },
+        {
+          "name": "flags",
+          "optional": true,
+          "type": "string",
+          "meaning": "custom regex flags (Risu `flag`)",
+          "producers": [
+            "Risu"
+          ]
+        },
+        {
+          "name": "useFlags",
+          "optional": true,
+          "type": "boolean",
+          "meaning": "whether the custom flags apply (Risu `ableFlag`)",
+          "producers": [
+            "Risu"
+          ]
+        }
+      ]
+    }
+  ]
+}

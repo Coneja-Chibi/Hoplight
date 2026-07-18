@@ -559,14 +559,12 @@ ST codec.
   header rationale for empty-string platform tokens :1-11, `rcounter` :24-43,
   reasoning tags :45-68, group-card macros :70-142, platform aliases and
   unavailable-token list :144-196, registration :198-212).
-- the master plan (private planning notes), `docs/02-ARCHITECTURE.md`, the production bible (private planning notes)
-  (this file's brief, row `lumiverse-preset.md`), `specs/formats/canonical-model.md`,
-  `specs/formats/escrow-and-roundtrip.md`, `templates/SPEC-TEMPLATE.md` - read per
-  the global rules.
+- `docs/02-ARCHITECTURE.md`, `specs/formats/canonical-model.md`,
+  `specs/formats/escrow-and-roundtrip.md`, `templates/SPEC-TEMPLATE.md`.
 - No public/official Lumiverse format documentation was found or searched for;
-  the brief scopes this file's ground truth to the VAUDEVILLE source only (unlike
+  this file's ground truth is scoped to the VAUDEVILLE source only (unlike
   chara_card_v2/v3/charx/Backyard, Lumiverse is not listed as a web-research
-  target in the production bible). All Lumiverse-specific facts in this spec
+  target). All Lumiverse-specific facts in this spec
   trace to the VAUD files above, not to any external spec.
 
 ## Open questions
@@ -579,12 +577,12 @@ ST codec.
   `position` value should map to. VAUD's converter reads the field onto the
   `LumiverseBlock` type but never uses it (dead read) - every converted block gets
   `injection_position: 0`. This looks like a gap rather than a deliberate choice;
-  confirm with Chi whether Vaudeville Studios should fix this (map `pre_history`
+  should this be fixed (map `pre_history`
   to something like `injection_position: 4` "prepend-top" and `post_history` to
   `injection_position: 3` "append-bottom", matching the position enum semantics
-  documented in `st-preset.md`/`types.ts:11`) or preserve VAUD's current
-  behavior for parity with existing Lumiverse-derived presets already in the wild
-  via RC.
+  documented in `st-preset.md`/`types.ts:11`), or should VAUD's current
+  behavior be preserved for parity with existing Lumiverse-derived presets already in the wild
+  via RC?
 - OPEN QUESTION: should this codec's own escrow bucket (wrapper `type`,
   `schemaVersion`, `preset.id`, raw `promptVariables`, raw `block.position` per
   block) be added as new behavior beyond what VAUD's converter does today (which

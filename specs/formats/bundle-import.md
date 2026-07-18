@@ -2,7 +2,7 @@
 
 **Package:** `packages/formats` · **Milestone:** M1 · **Status:** draft
 **Depends on:** specs/formats/canonical-model.md, specs/formats/escrow-and-roundtrip.md,
-specs/formats/content-detection.md (sibling brief, not yet written - this spec
+specs/formats/content-detection.md (companion spec, not yet written - this spec
 references its exported detection functions by name; exact module boundaries
 settle when that spec lands) · **VAUDEVILLE reference:**
 apps/rc/src/lib/imports/bulk-import-orchestrator.ts,
@@ -512,13 +512,9 @@ with the dependency rule.
   (lines 1-150 read; pins hybrid/flat chat detection, preset/lorebook
   classification, and per-entry failure isolation with exact expected
   shapes).
-- the master plan (private planning notes) (product shape, package layout intent).
 - docs/02-ARCHITECTURE.md (packages/formats role, dependency rule
   `core <- formats <- everything`, productions model referenced for
   `ProductionHandle` in the API sketch).
-- the production bible (private planning notes), row for `bundle-import.md` (this file's
-  brief) and row for `content-detection.md` (sibling brief, not yet
-  written - referenced for terminology only).
 - specs/formats/canonical-model.md (v1 content types list, used to scope
   the export OPEN QUESTION on chats).
 - specs/formats/escrow-and-roundtrip.md (Round-Trip Law applicability

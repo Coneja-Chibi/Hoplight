@@ -57,7 +57,6 @@ runtime.
 ## Chub (HIGH - verified vs live Chub API; re-audit 2026-07-09 for jewel)
 
 Root: `sillytavern.raw.data.extensions.chub` (**namespaced**; not bare extensions).
-Wireframe: `vs-native-chub.html` (private design files) · Plan: the chub plan (private planning notes).
 
 - id (number), full_path (string) -> read-only hub identity
 - custom_css (string CSS) -> CssWorkshop (editable plain CSS; sealed preview only; NEVER apply in Vaude chrome)

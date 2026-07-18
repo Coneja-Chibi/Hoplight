@@ -5,9 +5,7 @@ live in a real install, not when its tickets close.
 
 > **Status 2026-07-09:** **M0 Foundation jewel DONE.** **M1 Converter jewel DONE (v0.1).**
 > Character-card forge **CLOSED**. **Media jewel largely landed.** **Lorebook studio jewel planned**
-> (next content-type bar). Plans: the M0 foundation plan (private planning notes),
-> the M1 converter plan (private planning notes), the native-fields plan (private planning notes),
-> the media build plan (private planning notes), the lorebook build plan (private planning notes).
+> (next content-type bar).
 >
 > **Risu Workshop jewel:** DONE. Studio app usable (M6 ahead of formal packaging).
 
@@ -36,11 +34,8 @@ Closed against the quality bar:
 thin hosts use Default CCv3; dropped hosts named honestly.
 
 **Still not this workstream (historical note):** full lore/regex content-type editors were listed
-here while the character forge closed. **Media jewel has since landed** (see
-the media build plan (private planning notes)). **Lorebook studio authoring is the next content-type
-jewel** (codecs already exist; editor + attach are the gap). Plan:
-the lorebook build plan (private planning notes). Wireframes:
-`vs-lorebook-surfaces.html` (private design files), `vs-lorebook-components.html` (private design files).
+here while the character forge closed. **Media jewel has since landed.** **Lorebook studio authoring
+is the next content-type jewel** (codecs already exist; editor + attach are the gap).
 
 ---
 
@@ -75,7 +70,7 @@ evolved past pure packages/*). Treat **effectively green** when tsc + bun test +
 round-trips byte-losslessly; CI blocks a deliberately-broken round-trip; CI blocks a
 deliberately-added AGPL dependency.
 
-**Status:** **JEWEL DONE** (2026-07-09). See the M0 foundation plan (private planning notes).
+**Status:** **JEWEL DONE** (2026-07-09).
 
 ---
 
@@ -95,7 +90,7 @@ with zero data loss on same-format round-trips; binaries run on win/mac/linux;
 a stranger can go from GitHub page to converted card in under 3 minutes.
 
 **Status:** **JEWEL DONE** (2026-07-09) for convert/inspect/validate/formats + multi-platform smoke +
-matrix + CLI compile script. See the M1 converter plan (private planning notes).
+matrix + CLI compile script.
 GitHub multi-OS Releases + `vaud upgrade` remain packaging polish (not jewel blockers).
 
 ---
@@ -201,4 +196,4 @@ M0 + M1 jewels are closed. Character cards closed. Pick next:
 
 Do **not** reopen C.AI/Crushon native bags.
 
-Ground truth: this file + the master plan (private planning notes) + the native-fields plan (private planning notes) + M0/M1 jewel docs.
+Ground truth: this file + M0/M1 jewel docs.

@@ -479,9 +479,8 @@ Property/unit tests beyond fixtures:
 - `<RoleCall>\apps\rc\src\lib\library\json-parsers.ts`
   (lines 1-120; app-level `LorebookEntry`/`isLorebook` shape, confirms the
   same field set is used at the UI layer)
-- `docs\the master plan (private planning notes)`,
-  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (project
-  conventions, dependency rules, this file's brief)
+- `docs\02-ARCHITECTURE.md` (project
+  conventions, dependency rules)
 - `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md` (shared envelope, escrow rules,
   Round-Trip Law definition)
@@ -500,11 +499,11 @@ input and no runtime guard was found.
 
 OPEN QUESTION 3: Is there a canonical public ST World Info JSON schema
 document (versioned) this suite should also cite directly, beyond the
-VAUDEVILLE implementation? The production bible's ground-truth row for this
-file lists only VAUDEVILLE paths (no public-spec citation instruction, unlike
-the chara-card/charx/backyard rows), so this spec treats VAUDEVILLE's
+VAUDEVILLE implementation? Only VAUDEVILLE paths are treated as
+ground truth for this file (no public-spec citation is required for this format, unlike
+chara-card/charx/backyard), so this spec treats VAUDEVILLE's
 implementation as authoritative and does not cite an external ST spec
-document. If Chi wants a public cross-check added, name the source.
+document. A public cross-check may be added if a canonical source is identified.
 
 OPEN QUESTION 4: The exact confidence threshold and tie-breaking between "ST
 with low confidence (0.3 fallback)" and "Agnai" when an object has `entries`

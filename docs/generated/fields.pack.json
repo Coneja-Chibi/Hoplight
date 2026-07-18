@@ -1,0 +1,41 @@
+{
+  "kind": "pack",
+  "source": "src/entities/pack/schema.ts",
+  "shapes": [
+    {
+      "name": "PackBody",
+      "doc": "",
+      "kind": "interface",
+      "fields": [
+        {
+          "name": "name",
+          "optional": false,
+          "type": "string",
+          "meaning": "Library / tab name",
+          "producers": []
+        },
+        {
+          "name": "brief",
+          "optional": true,
+          "type": "string",
+          "meaning": "Short blurb on the shelf card (never host wire)",
+          "producers": []
+        },
+        {
+          "name": "pack",
+          "optional": false,
+          "type": "SpritePackValue",
+          "meaning": "The emotion pack (label -> image). Hub shape shared with character media.",
+          "producers": []
+        },
+        {
+          "name": "groups",
+          "optional": true,
+          "type": "Record<string, SpritePackValue>",
+          "meaning": "Optional multi-character groups (Lumi-style); flat pack is the default group.",
+          "producers": []
+        }
+      ]
+    }
+  ]
+}

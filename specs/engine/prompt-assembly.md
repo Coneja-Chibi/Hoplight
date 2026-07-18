@@ -7,7 +7,7 @@ spec treats its public surface as the `packages/macros` sketch in `docs/02-ARCHI
 and cross-references VAUDEVILLE's macro processor directly where needed), `specs/engine/token-counting.md`,
 `specs/formats/st-preset.md`, `specs/formats/regex-scripts.md`, `specs/formats/canonical-model.md`
 ("Character" and "Persona" sections)
-**VAUDEVILLE reference:** reimplement, do not port -
+**VAUDEVILLE reference:** consulted for reference; no code ported -
 `apps/rc/src/lib/ai/prompt-assembly.ts` (full file, 3991 lines),
 `apps/rc/src/lib/ai/preset-loader.ts`,
 `apps/rc/src/lib/ai/lorebook-position-injection.ts`,
@@ -298,8 +298,8 @@ already-seedable subsystems, not a new source of nondeterminism.
 ### The trace object
 
 `packages/assembly` builds an `AssemblyTrace` incrementally across all twelve stages -
-this is the "FULL TRACE object (every segment: source, tokens, why-included)" the brief
-requires, and the data source for the Test Stage's rigging view. It generalizes
+this is the FULL TRACE object (every segment: source, tokens, why-included), and the
+data source for the Test Stage's rigging view. It generalizes
 VAUDEVILLE's `PromptDebugData`/`PromptAssembler` (`apps/rc/src/lib/prompt-tracking/types.ts`,
 full types file read; `apps/rc/src/lib/prompt-tracking/` assembler implementation NOT
 read in this pass - only its consumed shape at `prompt-assembly.ts:3649-3697`) into a
@@ -625,8 +625,7 @@ Property/unit tests beyond fixtures:
 - `<RoleCall>\apps\rc\src\lib\ai\context-budget.ts` (lines
   1-40 read: `BudgetReport`, `ContextBudgetManager` interfaces; `trimHistoryToFit`/
   `reserveRequired`/`reserveImportant` signatures only - internal trimming algorithm body
-  not read in this pass, treated as reference-only per the "reimplement, don't port"
-  instruction).
+  not read in this pass, consulted for reference only, not ported).
 - `<RoleCall>\apps\rc\src\lib\regex\apply-regex.ts` (lines 1-60
   read): `RegexPlacement` union and its documenting comment (six placements, which three
   are "pipeline edges" vs. "storage-layer" placements), `RegexRule`/`RegexScript` shapes.
@@ -636,12 +635,9 @@ Property/unit tests beyond fixtures:
   `MacroExpansionDebug` :605-634; `SourceNodeDebug` :639-667; `LorebookEntryDebug`
   :670-699 - this is the reference shape `AssemblyTrace` generalizes off DB IDs onto
   canonical entity IDs.
-- `docs\the master plan (private planning notes)`,
-  `docs\02-ARCHITECTURE.md` (`packages/assembly` description: "Prompt assembly for the
+- `docs\02-ARCHITECTURE.md` (`packages/assembly` description: "Prompt assembly for the
   Test Stage: preset + card + persona + lorebook + history -> messages payload, with a
-  full trace object"), `docs\the extraction map (private planning notes)` (:57-61, "reference only -
-  reimplement, do not port" instruction and the specific RC-entanglement list),
-  `docs\the production bible (private planning notes)` (brief row for this file, line 62).
+  full trace object").
 - `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `specs\formats\st-preset.md` (canonical
   `Preset.prompts[]` field shape: `identifier`, `injectionPosition` 0-4 enum,

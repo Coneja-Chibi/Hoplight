@@ -4,8 +4,8 @@
 **Depends on:** `packages/core` (canonical types, no other engine package) ·
 **VAUDEVILLE reference:** `apps/rc/src/lib/providers/types.ts`,
 `apps/rc/src/lib/providers/adapters/base.ts`,
-`apps/rc/src/lib/ai/prompted-tool-calls/index.ts` - reference reading for wire
-facts and lessons learned; this package is a fresh implementation, not a port
+`apps/rc/src/lib/ai/prompted-tool-calls/index.ts` - consulted for reference, for
+wire facts and lessons learned; this package is a fresh implementation, not a port
 (RC's code is server-side, multi-tenant, and entangled with its own DB/billing
 layer; Vaudeville's adapters run entirely on the user's machine against keys
 the user supplied)
@@ -661,8 +661,6 @@ export function stripToolCallBlocksStreaming(
 
 ## Sources consulted
 
-- the master plan (private planning notes) - locked decisions (BYOK, "agent must survive weak
-  models"), milestone M2 scope.
 - `docs/02-ARCHITECTURE.md:22-26,54-69` - `packages/ai` package description;
   Orison-derived agent lessons (tiny tool surface, resource verbs, spill
   store, staged edits, model capability profiles, eval harness).

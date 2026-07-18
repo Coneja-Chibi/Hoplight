@@ -61,7 +61,7 @@ envelope.
 
 Two-layer, as in presets-core: `RawPreset` stays codec-side; canonical `Preset` is
 the parsed shape (`prompts[]`, `promptOrder`, `samplers`, `systemPrompts`,
-`templates`, `behavior`, `apiOptions`) - see extraction map.
+`templates`, `behavior`, `apiOptions`).
 
 ## Token counting
 

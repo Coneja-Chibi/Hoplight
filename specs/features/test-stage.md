@@ -16,8 +16,7 @@ that dependency is load-bearing.
 **VAUDEVILLE reference:** `apps/rc/src/lib/ai/prompt-assembly.ts` (header/imports
 only, :1-60 - confirms the shape of inputs a real assembly call needs: character,
 persona, presets, lorebook engine, chat history, model name/context limit;
-reference reading only, per the production bible (private planning notes)'s "reimplement, don't
-port" instruction for this ground-truth path), `apps/rc/src/lib/prompt-tracking/types.ts`
+consulted for reference only, not ported), `apps/rc/src/lib/prompt-tracking/types.ts`
 (full file - informs the *shape* of an honest assembly trace; not ported field-
 for-field, see Non-goals)
 
@@ -37,10 +36,9 @@ feature spec: it does not itself implement assembly, the lorebook engine, the
 macro engine, or provider calls - it defines the **session** that wraps those
 components across multiple turns, the **trace aggregation** that turns their
 individual outputs into the rigging view, and the **screen-test** orchestration
-that runs two takes without cross-contaminating engine state. Written for an
-implementing agent with no other context on this component; per
-the master plan (private planning notes) ("Every feature must exist in the CLI before it
-exists in the app"), the primary interface here is `vaud test-stage`, a
+that runs two takes without cross-contaminating engine state. Following the
+principle that every feature must exist in the CLI before it exists in the
+app, the primary interface here is `vaud test-stage`, a
 terminal chat loop; the Studio app (M6) is expected to render the identical
 `TestSession`/`RiggingTrace`/`ScreenTestResult` objects with no new engine
 capability, per `docs/02-ARCHITECTURE.md`'s "every studio action maps to an
@@ -50,7 +48,7 @@ engine call that the CLI can also express."
 
 ### Why this feature requires AI, unlike the Converter
 
-the master plan (private planning notes)'s "v0.1 | The Converter: works with zero AI key" and
+The "v0.1 | The Converter: works with zero AI key" milestone and
 ADR-006's "AI is optional" apply to convert/inspect/validate/Doctor-deterministic
 work, not to the Test Stage: talking to a character requires calling a
 configured provider. Two sub-modes exist so the feature degrades honestly
@@ -180,8 +178,7 @@ steps 2-4 and 7 of the turn lifecycle above, assembled into one
   `token-counting.md`, not a rendering nicety).
 - `assembly: AssemblyTrace` - whatever `specs/engine/prompt-assembly.md`
   eventually defines as its "FULL TRACE object (every segment: source,
-  tokens, why-included)" per that spec's brief row in
-  the production bible (private planning notes) line 62. OPEN QUESTION 1 again: this spec
+  tokens, why-included)". OPEN QUESTION 1 again: this spec
   treats `assembly` as an opaque pass-through field until that spec exists.
 
 Rendering is UI-agnostic: `RiggingTrace` is plain data, no terminal-escape
@@ -630,11 +627,6 @@ export function pickScreenTestWinner(
 
 ## Sources consulted
 
-- `docs\the master plan (private planning notes)` -
-  "v0.1 | The Converter: works with zero AI key" (locked decisions table,
-  basis for "Why this feature requires AI, unlike the Converter"); "M5 The
-  Test Stage + Productions" milestone row; "Every feature must exist in the
-  CLI before it exists in the app."
 - `docs\02-ARCHITECTURE.md`
   lines 21-22 (`packages/assembly` description: "Prompt assembly for the
   Test Stage: preset + card + persona + lorebook + history -> messages
@@ -680,10 +672,6 @@ export function pickScreenTestWinner(
   confirms `prompt-assembly.md` and `provider-adapters.md` are listed as
   planned `engine/` specs but were not present as files at the time this
   spec was written (basis for OPEN QUESTION 1 and OPEN QUESTION 2).
-- `docs\the production bible (private planning notes)`
-  line 77 (this file's own brief row: "Session model over assembly package,
-  rigging trace rendering, swap model/preset mid-session, A/B screen test,
-  cost line," ground truth "prompt-assembly spec").
 - `wireframes\magic\test-stage.html`
   (full file) - intent source for all three wireframe panels: `TS-1`
   (:27-51, plain chat, `SWAP MODEL`/`RESTART` as distinct controls), `TS-2`
@@ -694,12 +682,10 @@ export function pickScreenTestWinner(
   visible cost line" objection this spec's "The cost line" section responds
   to directly).
 - `<RoleCall>\apps\rc\src\lib\ai\prompt-assembly.ts`
-  lines 1-60 (file header + imports only) - reference reading per this
-  file's ground-truth listing in the production bible (private planning notes) line 62
-  ("VAUDEVILLE reference (reimplement, don't port)"); used only to confirm
-  the INPUT shape a real assembly call needs (character, persona, preset
-  prompts, lorebook engine result, chat history, model name/context limit),
-  not read in algorithmic detail and not ported.
+  lines 1-60 (file header + imports only) - consulted for reference only;
+  used only to confirm the INPUT shape a real assembly call needs (character,
+  persona, preset prompts, lorebook engine result, chat history, model
+  name/context limit), not read in algorithmic detail and not ported.
 - `<RoleCall>\apps\rc\src\lib\prompt-tracking\types.ts`
   (full file, 883 lines) - read to confirm what a production-grade,
   source-attributed prompt trace looks like in practice (`SourceTree`,
@@ -707,10 +693,9 @@ export function pickScreenTestWinner(
   validate that this spec's `RiggingTrace.tokens.bySource` shape and the
   general "trace is an aggregation of sub-component traces" design are
   consistent with a real, shipped implementation of the same problem - no
-  field names or types from this file are copied into the API sketch above,
-  per the "reimplement, don't port" instruction; VAUDEVILLE's version is
-  itself named as informing `prompt-assembly.md` (not this spec) in
-  the production bible (private planning notes) line 62's ground-truth column.
+  field names or types from this file are copied into the API sketch above;
+  VAUDEVILLE's version is itself named as informing `prompt-assembly.md`
+  (not this spec).
 
 OPEN QUESTION 1: `specs/engine/prompt-assembly.md` does not exist yet in this
 repo (confirmed via `specs/README.md` and a directory listing at spec-writing

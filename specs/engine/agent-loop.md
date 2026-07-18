@@ -11,8 +11,8 @@ provider credentials are resolved before a `ChatRequest` reaches the loop and ne
 handles key material itself)
 **VAUDEVILLE reference:** `apps/rc/src/lib/ai/btw/` (loop.ts, spill.ts, registry.ts,
 tool-approval.ts, tool-contract.ts, tools/meta-tools.ts, tools/domains.ts,
-tools/creator-draft-tools.ts, context/eviction.ts): reference reading only, conceptual
-lessons from RoleCall's Orison program. Nothing is ported; VAUDEVILLE is a Next.js/
+tools/creator-draft-tools.ts, context/eviction.ts): consulted for reference, conceptual
+lessons from RoleCall's Orison program; no code ported. VAUDEVILLE is a Next.js/
 Supabase server product with a browser client, a per-thread Postgres-backed spill
 table, and a panel UI with confirm modals. Vaudeville Studios is a local CLI/desktop
 tool with no server, no Postgres, no browser. Every mechanism below is reconceived for
@@ -356,16 +356,17 @@ The loop branches on it:
   the loop may dispatch multiple calls returned in one response before calling the
   model again.
 - **Prompted-XML fallback**: the model's tool grammar is rendered into the system
-  prompt as text (VAUD's `renderToolCatalog`, `prompted-tools.ts`, referenced only;
-  exact grammar is provider-adapters.md's job, OPEN QUESTION until that spec exists);
+  prompt as text (VAUD's `renderToolCatalog`, `prompted-tools.ts`, consulted for
+  reference; exact grammar is provider-adapters.md's job, OPEN QUESTION until that
+  spec exists);
   the loop parses one tool-call block per response and dispatches exactly one tool per
   iteration in this mode (ADR-006 §3, "one tool call per turn on weak models").
   Multiple tool-call blocks in a single prompted-mode response are dispatched in the
   order they appear but only the first is executed before the model is re-prompted.
   OPEN QUESTION: whether later blocks in the same response are discarded or queued for
-  the next iteration; VAUD's `parseToolCallBlocks` (`loop.ts:58`) is referenced
-  reading only and this spec does not assume its exact queuing behavior without
-  reading its body, which is out of scope for this file's brief.
+  the next iteration; VAUD's `parseToolCallBlocks` (`loop.ts:58`) was consulted for
+  reference only and this spec does not assume its exact queuing behavior without
+  reading its body.
 
 Loop guards:
 
@@ -569,7 +570,7 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
    return `NO_PRODUCTION`. The loop does not silently fall back to a bare-file
    guess; the caller (CLI) is responsible for prompting the user to `vaud init` or
    pass an explicit file path, per the bare-file operation note in
-   productions-and-history.md's brief (not yet written).
+   productions-and-history.md (not yet written).
 2. **Model calls a tool name that was never revealed.** The registry returns a
    "no exact tool named X" tool-result error (mirrors `tool-contract.ts:28-40`)
    rather than executing nothing silently, and nudges the model toward
@@ -712,8 +713,6 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
 
 ## Sources consulted
 
-- the master plan (private planning notes): layer
-  definitions (Engine/Faces/Brain), M2 milestone scope.
 - `docs/02-ARCHITECTURE.md:26-30,54-70,
   78-83,85-91`: package layout (`packages/agent`), the agent bullet list (tiny
   tool surface, resource model, spill store, staged edits, model capability
@@ -730,9 +729,7 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
   roundtrip.md`: Round-Trip Law definition, used in Test plan's cross-reference.
 - `templates/SPEC-TEMPLATE.md`:
   section shape followed here.
-- `the production bible (private planning notes):66`:
-  this file's brief.
-- VAUDEVILLE (reference reading only, no code ported, conceptual lessons only):
+- VAUDEVILLE (consulted for reference; no code ported, conceptual lessons only):
   - `apps/rc/src/lib/ai/btw/spill.ts:1-22,43-76`: spill store rationale, inline
     caps (`INLINE_CHAR_CAP = 4096`, `INLINE_TOKEN_CAP = 1024`), upsert-on-
     `(thread_id, name)` pattern, TTL/sweep note.
@@ -754,7 +751,6 @@ export function listOpenDrafts(productionRoot: string): DraftEnvelope[];
     dismissed`, `dismiss_reason`), `CREATOR_DRAFT_TYPES` list.
   - Directory listing of `apps/rc/src/lib/ai/btw/**/*.ts` (141 files): used only
     to confirm which files exist and their apparent purpose from filenames; bodies
-    not read beyond the files cited above, per the brief's "reference reading
-    ONLY" instruction.
+    not read beyond the files cited above.
 - No web sources: this file is a conceptual/design spec, not a public-format codec
-  spec, so the brief's web-research allowance does not apply here.
+  spec.

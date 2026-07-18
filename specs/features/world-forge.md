@@ -4,10 +4,10 @@
 `packages/lore` (relation graph, continuity engine) · **Milestone:** M7
 **Status:** draft
 **Depends on:** specs/formats/canonical-model.md, specs/formats/escrow-and-roundtrip.md,
-specs/formats/st-worldinfo.md (unwritten at time of writing; cited by path per bible),
-specs/formats/rolecall-lorebook.md (unwritten at time of writing; cited by path per bible),
-specs/engine/lorebook-engine.md (unwritten at time of writing; cited by path per bible),
-specs/features/table-read.md (unwritten at time of writing; cited by path per bible,
+specs/formats/st-worldinfo.md (unwritten at time of writing),
+specs/formats/rolecall-lorebook.md (unwritten at time of writing),
+specs/engine/lorebook-engine.md (unwritten at time of writing),
+specs/features/table-read.md (unwritten at time of writing,
 event-stream contract reused by the interview spiral)
 **VAUDEVILLE reference:** `apps/rc/src/lib/compendium/computed.ts` (relation-scan
 pattern only, not the type catalog - see Non-goals),
@@ -161,10 +161,9 @@ Directly reusing the mechanism in `computed.ts`, not the code:
 
 Per the wireframe (`wireframes/magic/world-forge.html`, block WF-2, "The
 Interview Spiral"): World Forge grows a world by reusing the Table Read interview
-engine's UI-agnostic event stream (question/chips/answer/field-patch/progress -
-contract defined in the Table Read bible brief, the production bible (private planning notes)
-line 76, spec at `specs/features/table-read.md`, not yet written at the time of
-this spec) rather than defining a second interview protocol. World Forge adds:
+engine's UI-agnostic event stream (question/chips/answer/field-patch/progress),
+with the contract defined at `specs/features/table-read.md` (not yet written at
+the time of this spec) rather than defining a second interview protocol. World Forge adds:
 
 - **Ring expansion.** Each answer that introduces or references a new pin name
   queues a follow-up question ring for that pin (mirrors WF-2: "each answer spawns
@@ -234,8 +233,8 @@ wireframe's stated UX law.
 
 A World pin's export target is the same codec surface as any `Lorebook`/
 `LorebookEntry` (see `specs/formats/rolecall-lorebook.md` and
-`specs/formats/st-worldinfo.md`, both unwritten at time of writing but named in
-the production bible as the sibling codec specs). Byte-identity level for this
+`specs/formats/st-worldinfo.md`, both unwritten at time of writing but planned
+as the sibling codec specs). Byte-identity level for this
 mapping: **semantic** (per escrow-and-roundtrip.md's three-tier definition), since
 `structured_data`/`entry_type` are RC-native constructs with no ST equivalent.
 
@@ -494,7 +493,7 @@ export function advanceRing(
    Required behavior: `runAiContinuityChecks` returns `[]` and the caller (CLI or
    agent loop) surfaces a plain-language notice that deep contradiction checks
    are unavailable without a key; deterministic findings are unaffected and still
-   reported (M1 "works with zero AI key" invariant, the master plan (private planning notes) line 40).
+   reported (M1 "works with zero AI key" invariant).
 
 ## Test plan
 
@@ -539,7 +538,7 @@ export function advanceRing(
 ## Non-goals
 
 - The World Forge pin taxonomy is fixed at 5 kinds (person/place/faction/secret/
-  event) per the production bible brief. It deliberately does NOT cover
+  event). It deliberately does NOT cover
   VAUDEVILLE compendium's fuller 11-type taxonomy (item, plot, threat,
   worldbuilding, summary, creature, power) or its calendar/renown/quest dossier
   systems (`apps/rc/src/components/compendium/dossiers/*`). Those remain
@@ -556,22 +555,16 @@ export function advanceRing(
 - This spec does not define the CLI command grammar for World Forge
   (`vaud world ...` or similar); that belongs in a `specs/features/cli-*.md`-style
   spec once M7 CLI surface is planned, per 03-CONVENTIONS.md CLI section and the
-  master-plan rule that every feature exists in the CLI before the app.
+  rule that every feature exists in the CLI before the app.
 - This spec does not define the app-face (Studio) corkboard rendering (WF-1);
   that is a Studio (M6+) UI concern layered over `computeWorldGraph`, not part of
   the engine behavior specified here.
 
 ## Sources consulted
 
-- the master plan (private planning notes) (line 40:
-  "v0.1: The Converter: works with zero AI key"; line 59-60: M7 milestone
-  description)
 - `docs/02-ARCHITECTURE.md` (lines
   8-33: package layout, `packages/lore`, `packages/interview`; lines 54-69: agent
   loop staged-edit envelope)
-- the production bible (private planning notes) (line
-  80: world-forge.md brief - pin taxonomy, interview spiral, export mapping,
-  continuity desk; line 76: table-read.md brief - event stream contract)
 - `specs/formats/canonical-model.md`
   (lines 7-11: content types, "World/compendium arrives with M7 and extends
   Lorebook rather than replacing it"; lines 52-58: Lorebook/LorebookEntry

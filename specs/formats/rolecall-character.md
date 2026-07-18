@@ -138,7 +138,7 @@ and are NOT repeated here except where RC changes their shape. RC-specific addit
 | `pronouns` | `identity.pronouns` | Free-text. |
 | `fieldOrder` (`string[]`) | `presentation.castingCard.fieldOrder[]` | User-defined display order for bento/casting-card field cards. UI-layout metadata, not prompt content - native but inert to prompt assembly. |
 | `default_background` (untyped in `content/types.ts`; `CharacterDefaultBackground` in `packages/types/character.ts:31-36`: `{backgroundId, customUrl, overlayOpacity, videoPlaybackRate?}`) | `presentation.defaultBackground` | Creator-curated default chat background. |
-| `prompt_depth_injections` (`Array<{id?, content, depth?, role?, enabled?}>`) | `depthInjections[]` | THE canonical depth-injection array named in the production bible brief. Each entry maps 1:1: `content`->`text`, `depth`->`depth`, `role`->`role` (default `"system"` when absent - OPEN QUESTION: no explicit default observed in source, see edge case 4), `enabled`->`enabled` (default `true` when absent), `id`->`id` (generate a ulid if absent on parse, per canonical-model.md `Entity.id` convention). |
+| `prompt_depth_injections` (`Array<{id?, content, depth?, role?, enabled?}>`) | `depthInjections[]` | THE canonical depth-injection array. Each entry maps 1:1: `content`->`text`, `depth`->`depth`, `role`->`role` (default `"system"` when absent - OPEN QUESTION: no explicit default observed in source, see edge case 4), `enabled`->`enabled` (default `true` when absent), `id`->`id` (generate a ulid if absent on parse, per canonical-model.md `Entity.id` convention). |
 | `publicDefinitionDisplay` (`PublicDefinitionDisplaySettings`: `{spoilerMode, order, spoilers}`) | `presentation.publicDefinitionDisplay` | Controls spoiler/reveal-order UI on RC's public character page for the 7 fields in `PUBLIC_CHARACTER_DEFINITION_FIELDS` (personality, first-message, scenario, example-dialogue, description, creators-note, system-prompt). RC-only; Plot (the sister app) has no editor for it but preserves it via JSONB merge. Platform-display metadata, not prompt content - native but inert to prompt assembly. VAUD: `packages/types/src/character-display.ts:1-20`. |
 
 ### 5. RoleOut legacy (read-only)
@@ -480,8 +480,7 @@ export interface RoleCallRecommendations {
   `SpriteType`/`SpriteCompact`/`Sprite`/`V3Asset`, :65-106 host allow/block lists,
   :250-284 compact/expand conversions, :289-306 `spritesToV3Assets`, :311-323
   `v3AssetsToSprites`)
-- `docs\the master plan (private planning notes)`,
-  `02-ARCHITECTURE.md`, the production bible (private planning notes) (brief row for this file, line 45)
+- `02-ARCHITECTURE.md`
 - `specs\formats\canonical-model.md`
   (Character superset rules, escrow envelope shape, Lorebook-reference rule)
 - `specs\formats\escrow-and-roundtrip.md`

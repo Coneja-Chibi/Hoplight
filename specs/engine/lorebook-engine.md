@@ -748,13 +748,8 @@ Property/unit tests beyond fixtures:
   (full file: sticky/cooldown/delay counters, snapshot/restore :107-126)
 - `<RoleCall>\packages\lorebook\src\triggers\special.ts`
   (confirmed near-identical to `apps/rc` copy, first 60 lines diffed; used to
-  confirm `packages/lorebook` is the dependency-clean extraction target per
-  `the extraction map (private planning notes):16-31`)
-- `docs\the extraction map (private planning notes)`
-  (:16-31, packages/lore extraction source list)
-- `docs\the master plan (private planning notes)`,
-  `docs\02-ARCHITECTURE.md`, `docs\the production bible (private planning notes)` (brief row for this
-  file, line 59), `specs\formats\canonical-model.md`,
+  confirm `packages/lorebook` is the dependency-clean extraction target)
+- `docs\02-ARCHITECTURE.md`, `specs\formats\canonical-model.md`,
   `specs\formats\escrow-and-roundtrip.md`, `templates\SPEC-TEMPLATE.md`
 
 OPEN QUESTION: whether the `activeContents`-seeding gap described in

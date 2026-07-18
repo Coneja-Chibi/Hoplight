@@ -12,7 +12,7 @@ codecs `packages/formats` extracts from VAUDEVILLE.
 
 Defines the five M1 CLI commands that make `vaud` "The Converter": `vaud convert`,
 `vaud inspect`, `vaud validate`, `vaud import`, `vaud export`. These are the first
-commands to exist (master plan: "v0.1 The Converter: works with zero AI key") and the
+commands to exist (v0.1 "The Converter": works with zero AI key) and the
 proof that every codec in `packages/formats` is real. This spec fixes the exact
 argument grammar, the plain-text report rendering, the `--json` machine output shapes,
 `--strict` semantics, exit codes, and the algorithm for naming files when one input is
@@ -86,8 +86,7 @@ content type, not a content type of its own.
 
 `--embed-png` is valid only on character and persona targets and requires source art
 bytes (see Edge case 6). The exact keyword-precedence rule used when *reading* a PNG
-(`ccv3` > `chara` > `rcpersona` > `persona`, per the production bible (private planning notes)'s
-`png-embedding.md` brief) is authoritative in `specs/formats/png-embedding.md`, not
+(`ccv3` > `chara` > `rcpersona` > `persona`) is authoritative in `specs/formats/png-embedding.md`, not
 here; this spec only consumes its output.
 
 Every codec's `capabilities: Record<CanonicalFieldPath, "native"|"escrow"|"dropped">`
@@ -527,19 +526,12 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
 
 ## Sources consulted
 
-- the master plan (private planning notes) - v0.1 "The
-  Converter" scope, `vaud convert/inspect/validate/export` command names, M1 exit
-  criteria.
 - `docs/02-ARCHITECTURE.md` - `packages/*`
   dependency rule (`core <- formats <- everything`), escrow/capabilities mechanism,
   productions concept.
 - `docs/03-CONVENTIONS.md:33-40` - CLI
   conventions section: `--json`, exit codes 0/1/2, `--yes` for destructive ops, plain-
   first output vocabulary.
-- `the production bible (private planning notes):72` -
-  brief row for `cli-converter.md`: five commands, report rendering, `--json` shapes,
-  `--strict`, exit codes, multi-target naming; ground truth pointer to escrow spec and
-  `03-CONVENTIONS.md`.
 - `specs/formats/canonical-model.md` -
   `Entity<T>` envelope, `ContentType` set, escrow/capabilities relationship.
 - `specs/formats/escrow-and-roundtrip.md` -
@@ -562,7 +554,5 @@ export function exportCommand(args: ExportArgs): Promise<CommandOutcome<ExportJs
   characters, presets, lorebooks, then chats) and zip-bomb size guards; this file is
   the ground truth for `specs/formats/bundle-import.md`, not for this spec, so
   `vaud import`'s behavior section here delegates to that spec by reference rather
-  than restating its details, per this file's own brief (ground truth: escrow spec +
-  `03-CONVENTIONS.md` CLI section only).
-- the production bible (private planning notes) global rules and reviewer rules sections - governed
-  the "never invent format facts" / "cite every claim" constraints applied throughout.
+  than restating its details; this spec's own ground truth is the escrow spec and
+  `03-CONVENTIONS.md`'s CLI section only.

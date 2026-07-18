@@ -31,16 +31,18 @@ touches no other format and no core code.**
 ```ts
 interface CanonicalEntity<Kind, Body> {
   schemaVersion: "1";
-  kind: Kind;          // "character" | "lorebook"
+  kind: Kind;          // "character" | "lorebook" | "persona" | "regex"
   id: string;          // stable slug derived from the name
   body: Body;          // the actual content, in the superset shape
   profiles?: ...;      // sparse per-app overrides (author once, differ per app)
-  escrow?: ...;        // lossless carry of source-format specifics
+  original?: ...;      // lossless carry of source-format specifics (the escrow envelope)
 }
 ```
 
-Two kinds exist today: `CanonicalCharacter` and `CanonicalLorebook`. Their `Body` shapes are documented
-in [entities/character.md](entities/character.md) and [entities/lorebook.md](entities/lorebook.md).
+Four adapter-backed kinds exist today: `character`, `lorebook`, `persona`, and `regex`. Their `Body`
+shapes are documented under [entities/](entities/), starting with
+[entities/character.md](entities/character.md) and [entities/lorebook.md](entities/lorebook.md). The
+canonical schemas also define `preset` and `pack` entities.
 
 ### The superset rule
 
@@ -52,14 +54,15 @@ lorebook schema, for example, drops five RoleCall in-memory-only fields to escro
 
 ## Escrow: lossless round-trips, contained cross-format loss
 
-Each entity carries an **escrow envelope** keyed by source format:
+Each entity carries an **escrow envelope**, stored in its `original` field (`src/core/canonical.ts`),
+keyed by source format:
 
 ```ts
-escrow["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... } }
+original["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... } }
 ```
 
 - **Same-format round-trip is lossless.** Export re-projects the canonical body onto a clone of the
-  escrowed `raw`, so any field the canonical model does not express (app-specific extensions, scripts,
+  original `raw`, so any field the canonical model does not express (app-specific extensions, scripts,
   layout, ids) survives byte-for-byte. Edited fields re-encode; untouched fields come straight from the
   twin.
 - **Cross-format conversion is contained-loss by design.** Only the canonical body crosses. One app's
@@ -97,7 +100,8 @@ interface LorebookAdapter extends AdapterBase {
   fromCanonical(entity): AdapterOutput;
 }
 
-type FormatAdapter = CharacterAdapter | LorebookAdapter;
+// PersonaAdapter and RegexAdapter follow the same shape for kind "persona" and "regex".
+type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter | RegexAdapter;
 ```
 
 The registry stores the union heterogeneously. A converter narrows on `kind` before it ever hands an

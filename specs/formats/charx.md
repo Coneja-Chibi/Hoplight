@@ -364,8 +364,6 @@ export const charxCodec: Codec<Character> = {
   and "Open items" (typed asset references).
 - `specs/formats/escrow-and-roundtrip.md`, Round-Trip Law, escrow envelope shape,
   byte-identity levels, capabilities matrix contract, fixture corpus rules.
-- `the production bible (private planning notes):43`, this file's brief row (charx.md), confirming
-  scope and that VAUD-lacks-implementation OPEN QUESTIONs are pre-approved.
 - `docs/02-ARCHITECTURE.md:11-13`, `packages/formats` codec module boundary and
   the `Codec` interface shape (detect/parse/serialize/capabilities) this spec's API
   sketch conforms to.

@@ -7,7 +7,7 @@ specs/formats/rolecall-character.md, specs/formats/st-worldinfo.md, specs/format
 specs/formats/personas.md, specs/formats/regex-scripts.md
 **VAUDEVILLE reference:** `apps/rc/src/lib/imports/content-detector.ts`,
 `apps/rc/src/lib/library/json-parsers.ts`, `apps/rc/src/lib/library/png-parser.ts`
-(all read-only reference; see the extraction map (private planning notes))
+(all read-only reference)
 
 ## Purpose
 
@@ -524,10 +524,6 @@ Property/unit tests beyond fixtures:
   (full file, 219 lines) - cited only to document that it retains the unfixed
   substring/ordering bug (:37-62) that `apps/rc`'s version fixed; not used as
   ground truth for behavior.
-- `docs\the extraction map (private planning notes):44-45` -
-  confirms the two ground-truth files and line anchors for this spec's brief.
-- `docs\the production bible (private planning notes):52` -
-  the brief this spec was written against.
 - `specs\formats\canonical-model.md`,
   `escrow-and-roundtrip.md` - shared conventions (Entity envelope, escrow rules,
   fixture corpus rules) referenced above.

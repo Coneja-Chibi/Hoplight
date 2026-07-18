@@ -221,8 +221,8 @@ The public spec defines `{{random:A,B,C}}`, `{{pick:A,B,C}}`, `{{roll:N}}`,
 `{{// A}}`, `{{hidden_key:A}}`, `{{comment:A}}`, `{{reverse:A}}` as part of
 the V3 "curly braced syntax" contract, plus `{{char}}` resolving to
 `nickname` (falling back to `name`) rather than always `name`. These are
-**not** this codec's concern to evaluate: per the production bible (private planning notes)'s
-macro-engine brief, macro evaluation lives in `specs/engine/macro-engine.md`.
+**not** this codec's concern to evaluate: macro evaluation lives in
+`specs/engine/macro-engine.md`.
 This codec's only obligation is to preserve macro text verbatim inside
 `description`/`personality`/etc. (it already does, since those are plain
 string fields) and to note in that spec's "which macros the studio evaluates"
@@ -484,15 +484,15 @@ Property/unit tests beyond fixtures:
   vs. `specs/engine/lorebook-engine.md` (activation layer). Recommend the
   latter spec's author confirm the split proposed in "Decorators" above.
 - OPEN QUESTION 7 (downgraded to a citation note, not a fact gap): the
-  decorator catalog and grammar in this spec were confirmed via a second,
-  targeted WebFetch of `SPEC_V3.md` asking for verbatim quotes (not a
+  decorator catalog and grammar in this spec were confirmed against a second,
+  targeted read of `SPEC_V3.md` requesting verbatim quotes (not a
   paraphrase), which confirmed the `@@`-prefix/newline-terminated grammar,
   the absence of any escape mechanism for a non-decorator `@@` line, the
   `@@@` triple-at fallback-chain rule, and the 20-item decorator list used
-  above. Both fetches went through WebFetch's summarizing intermediate model
-  rather than returning raw bytes to this agent directly, so a byte-exact
-  quote from the source file was never seen firsthand. Residual risk is low
-  (two independent fetches agree) but an implementing agent with direct
+  above. Both reads came through a summarizing layer rather than raw source
+  bytes, so a byte-exact
+  quote from the source file was not verified byte-for-byte against the raw
+  source. Residual risk is low, but anyone with direct
   `curl`/browser access to
   `https://raw.githubusercontent.com/kwaroran/character-card-spec-v3/main/SPEC_V3.md`
   should do one final byte-level diff against this spec's decorator list
@@ -525,8 +525,8 @@ Property/unit tests beyond fixtures:
   `https://github.com/kwaroran/character-card-spec-v3`, specification file
   fetched from
   `https://raw.githubusercontent.com/kwaroran/character-card-spec-v3/main/SPEC_V3.md`
-  (accessed 2026-07-02 via WebFetch; content summarized by an intermediate
-  model: see OPEN QUESTION 7 for the verification caveat this creates).
+  (accessed 2026-07-02; content came through a summarizing layer: see OPEN
+  QUESTION 7 for the verification caveat this creates).
   Covers root fields, V2-inherited/modified/added data fields, Lorebook and
   LoreEntry shape, decorator catalog, CBS macro tokens, V2 backward-
   compatibility guidance.
@@ -536,4 +536,3 @@ Property/unit tests beyond fixtures:
   escrow envelope rules, capabilities matrix, fixture corpus rules.
 - `docs/02-ARCHITECTURE.md` (this repo, lines 1-44): `packages/formats`
   package location and dependency rule.
-- the production bible (private planning notes) (this repo, line 41): brief for this file.

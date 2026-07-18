@@ -18,9 +18,8 @@ AI-roleplay content play badly: wasted tokens, internal contradictions, cliche/"
 prose, dialogue and action written as if the user already said or did it, and legacy
 format relics left over from a card's editing history. It runs two tiers. The
 **deterministic tier** is free, fully offline, requires no AI key, and produces the
-same findings on the same input every time (the master plan (private planning notes)'s "sink #2, agent
-slop" antidote and docs/01-VISION.md pillar 3: "Deterministic checks... run free and
-offline"). The **AI treatment tier** is optional, requires a configured BYOK provider
+same findings on the same input every time (docs/01-VISION.md pillar 3: "Deterministic
+checks... run free and offline"). The **AI treatment tier** is optional, requires a configured BYOK provider
 (`specs/engine/key-vault.md`), and turns findings that need judgment or rewriting
 (slop-bank hits need actual prose replaced; contradiction *candidates* need a human-
 or-model decision about which value is true) into a staged, fix-by-fix approval flow
@@ -693,8 +692,6 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 
 ## Sources consulted
 
-- `docs\the master plan (private planning notes)` (milestones
-  table, "M3 The Script Doctor (v0.2)"; "sink #2, agent slop" antidote paragraph).
 - `docs\01-VISION.md` pillar 3 ("The
   Doctor is honest... Deterministic checks... run free and offline. AI treatment is
   optional, staged, and approved fix-by-fix. The tool proves what it did in plain
@@ -705,8 +702,6 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
 - `docs\03-CONVENTIONS.md` (typed error
   classes with `userMessage`; "Output vocabulary is plain first"; no-emoji/no-em-dash
   rule).
-- `docs\the production bible (private planning notes)` line 75
-  (this file's brief row).
 - `specs\formats\canonical-model.md`
   (shared envelope shape; "An embedded lorebook is a REFERENCE" rule 3; prompt-
   bearing field list, "Design rules" 1).
@@ -739,14 +734,13 @@ export function renderWardReportMarkdown(report: WardReport, lines: Record<strin
   VAUDEVILLE, which this spec's loader replaces with direct `.md` loading, no
   codegen; see Non-goals).
 - W++ character-format syntax: "W++ For Dummies," https://rentry.co/WPP_For_Dummies
-  (accessed via web search, 2026-07) - confirms the
+  (accessed 2026-07) - confirms the
   `[Character("Name"){ Attribute("value1" + "value2") ... }]` bracket/quote/plus
   syntax cited in pass 6. No VAUDEVILLE source implements or documents W++ handling,
-  so this is verified against the public community reference per
-  the production bible (private planning notes)'s "web research... for public formats" allowance
-  (the allowance names chara_card_v2/v3/charx/Backyard explicitly; W++ is treated
-  under the same spirit since it is likewise a public community format, not a
-  VAUDEVILLE-internal one).
+  so this is verified against the public community reference; web research is
+  permitted for public formats (chara_card_v2/v3/charx/Backyard are treated the
+  same way), and W++ is treated under the same spirit since it is likewise a
+  public community format, not a VAUDEVILLE-internal one.
 
 OPEN QUESTION: the health-score deduction weights (25/8/3/1 per severity) and the
 band thresholds (0-49/50-79/80-100) are this spec's proposal, not derived from any
