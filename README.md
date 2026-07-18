@@ -729,8 +729,8 @@ Platforms that read CCv3 with their own extension bags (Marinara, Chub) print ch
 ### Step 1: Install 📥
 
 ```bash
-git clone https://github.com/Coneja-Chibi/vaudeville-studios
-cd vaudeville-studios
+git clone https://github.com/Coneja-Chibi/Hoplight
+cd Hoplight
 bun install
 ```
 
