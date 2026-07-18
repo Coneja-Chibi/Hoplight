@@ -15,15 +15,6 @@
   <img alt="Status" src="https://img.shields.io/badge/Status-Active_Development-F20D3F">
   <img alt="License" src="https://img.shields.io/badge/License-AGPL--3.0-0a0a0b">
   <img alt="Runtime" src="https://img.shields.io/badge/Runtime-Bun_1.3+-f9f1e1">
-  <img alt="Tests" src="https://img.shields.io/badge/Tests-~1950_passing-2f7d4f">
-  <img alt="Local" src="https://img.shields.io/badge/Cloud-none-F20D3F">
-</p>
-
-<p>
-  <a href="#-faq">FAQ</a> ·
-  <a href="docs/FORMAT-SUPPORT.md">Format matrix</a> ·
-  <a href="#%EF%B8%8F-the-roadmap">Roadmap</a> ·
-  <a href="LICENSING.md">License, in plain words</a>
 </p>
 
 </div>
@@ -97,28 +88,95 @@ That's the whole loop. Import honestly, edit with your eyes open, export with re
 
 <img src="docs/media/shot-library.png" alt="The Library">
 
-Your whole studio in decks by kind, with cover art and live counts.
+Every piece in your studio, split into decks by kind with live counts, cover art pulled from the
+cards themselves, and a continuous art-size dial.
+
+| View | What you get |
+|---|---|
+| **Grid** | Art-forward cards in a fluid grid; the default |
+| **Show** | One piece at a time: hero art, its own tagline, prev/next |
+| **List** | Dense rows when you have hundreds of pieces |
+| **Shelf** | The fourth view; browse by spine |
+
+**Import is drag-and-drop anywhere.** Every import produces a receipt in sentences: what the file
+is, what was kept, and whether a lorebook came embedded. No stack traces, ever.
+
+**Multi-select is staging.** Tap pieces into a staging set (it survives deck switches), then send
+the whole batch to the Workbench in one action. Right-click any piece for the one-shot menu:
+send, open beside, stage for the Press.
+
+**Each deck has its own shelf operations.** Lorebooks can be merged and split; regex sets can be
+duplicated, toggled, and combined; characters carry their linked books with them.
 
 ### 🎬 The Workbench *(the casting office)*
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
-Characters built through a guided interview, with a proof sheet filling in beside it. The platform
-tabs are the lens.
+Characters are built through a **casting interview**: one question at a time with a progress
+count, while the proof sheet beside it fills in live, token estimate included. Answer what you
+want, jump around, watch the card take shape.
+
+**The platform tabs are the lens.** Pick who you're writing for and the editor dims every field
+that platform won't carry, with Hide and Dim modes for off-target fields:
+
+| Tab | What it edits |
+|---|---|
+| Hoplight | The full canonical card, everything |
+| SillyTavern, RoleCall, RisuAI, Lumiverse, Backyard, Agnai, Marinara, Chub | That platform's view of the card, plus its native field bags |
+| Default | Portable CCv3 for thin hosts |
+
+**A readiness strip** tracks the card at a glance: portrait, name, core prompts, greeting, tags,
+lens check. **Rich platforms get native editors** for their platform-specific fields, so a Risu
+card's extras are edited as real controls, not a JSON blob. Open pieces live in the shell's tab
+strip, so they survive switching rooms, and any two pieces can sit side by side in a split.
 
 ### 📖 The Binder *(lorebooks as a real editor)*
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
-Keys, activation rules in plain words, token budgets, and health checks that catch entries that
-can never fire.
+A lorebook stops being a wall of JSON: a table of contents with drag-reorder and search, an
+always-on section for pinned entries, and one page per entry.
+
+| Entry controls | What they do |
+|---|---|
+| **Keys** | Simple or advanced trigger modes, primary + secondary keys, AND/OR logic |
+| **By meaning** | An entry can fire on similarity instead of exact words; keys are kept either way |
+| **Matching** | Whole-words and case tri-states that inherit from book defaults |
+| **When & where** | Chance, sticky, cooldown, delay, insertion position and depth, recursion controls, groups, all in one plain-words line |
+| **Budgets** | Token budget with honest per-entry estimates, always marked as estimates |
+
+**Health checks run as you edit**: an entry with no keys and no always-on flag can never fire, and
+the binder says so instead of letting you ship a dead entry. **Write-for** works here too: pick
+the host platform and the binder shows what its wire actually carries.
 
 ### 🖨️ The Press *(batch export that tells the truth)*
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
-Stage pieces, pick a platform, pull the lever. Characters bring their linked lorebooks; every card
-shows its readiness before you print.
+Stage pieces from anywhere (right-click, or the rail in the room), pick one target platform, pull
+the lever.
+
+| The Press | Behavior |
+|---|---|
+| **Kits** | A character travels with his linked lorebooks automatically, even ones you never staged; drop a rider from one run without unlinking anything |
+| **Readiness** | Every card shows what the target will carry: "9 of 23 filled - empty: nickname, personality, ..." with a jump to the editor |
+| **Lorebook checks** | A book whose entries can never fire says so in red before you print it |
+| **Filenames + flavor** | Name every file, and text formats can print as .json, .txt, or .md |
+| **Honest results** | Skips declared before the run, failures name their error, one zip for everything that printed |
+
+Platforms that read CCv3 with their own extension bags (Marinara, Chub) print characters as a CCv3
+card, their native file, and the row says so.
+
+### 🎨 The CSS Workshop *(restyle the studio itself)*
+
+Live theme editing against real components: every color in the app is a token, and the workshop
+edits them while you watch. The same guard that keeps hardcoded colors out of the codebase keeps
+your theme portable.
+
+### ⚙️ Settings *(drop-in, like everything else)*
+
+Sections are drop-in folders: Appearance (theme + accent), Studio (home app, first deck, publish
+targets), Workbench (follow behavior). Every control is live against the running studio.
 
 ---
 
