@@ -1025,6 +1025,14 @@ tests, the round-trip law, and the CI guards. Bugs get fixed the same way too.
 
 </details>
 
+<details>
+<summary>**I use AI, but I want to contribute! Can I?** 🤝</summary>
+
+Yes, of course! Just say which model you used when you put in your PR: different models have
+different failure types and vulnerabilities I look out for when inspecting their code.
+
+</details>
+
 ---
 
 ## 🗺️ The Roadmap
