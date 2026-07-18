@@ -107,10 +107,14 @@ export function App(): JSX.Element | null {
       setActiveComponent(() => cached.Component);
       return;
     }
+    // The old app must leave the canvas NOW: dev bundles an uncached app on demand (seconds), and
+    // keeping the previous component rendered while the dock highlights the new one reads as "it
+    // forced me back to the workbench". Null renders the loading canvas until the module lands.
+    setActiveComponent(null);
     let cancelled = false;
     void (async () => {
       // A failed chunk load (stale hash, network blip) must say so: unguarded, the dock highlights
-      // the new app while the canvas silently keeps rendering the previous one.
+      // the new app while the canvas sits empty.
       try {
         const mod = (await import(`/apps/${activeAppId}.js`)) as { default: VaudeApp };
         modulesRef.current.set(activeAppId, mod.default);
@@ -125,6 +129,27 @@ export function App(): JSX.Element | null {
       cancelled = true;
     };
   }, [activeAppId]);
+
+  // -- idle-prefetch the whole roster so a FIRST click on any app is instant, not a dev-bundle wait --
+  const manifests = useShellStore((s) => s.manifests);
+  useEffect(() => {
+    if (manifests.length === 0) return;
+    let cancelled = false;
+    void (async () => {
+      for (const m of manifests) {
+        if (cancelled || m.comingSoon || modulesRef.current.has(m.id)) continue;
+        try {
+          const mod = (await import(`/apps/${m.id}.js`)) as { default: VaudeApp };
+          modulesRef.current.set(m.id, mod.default);
+        } catch {
+          // prefetch is best-effort; the on-demand path above still owns the honest failure story
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [manifests]);
 
   // -- load the active app's tour (if any) and auto-launch it once, on first visit ------------------
   useEffect(() => {
@@ -306,7 +331,13 @@ export function App(): JSX.Element | null {
       <Dock />
       <div id="main">
         <TabStrip />
-        <main id="canvas">{ActiveComponent && <ActiveComponent ctx={ctx} />}</main>
+        <main id="canvas">
+          {ActiveComponent ? (
+            <ActiveComponent ctx={ctx} />
+          ) : activeAppId ? (
+            <div id="canvasLoading">setting the stage…</div>
+          ) : null}
+        </main>
       </div>
       <StatusBar />
       <FollowDialog />
