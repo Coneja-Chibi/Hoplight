@@ -1,0 +1,4257 @@
+{
+  "generated": "2026-07-18",
+  "count": 81,
+  "docs": [
+    {
+      "id": "01-VISION",
+      "path": "docs/01-VISION.md",
+      "title": "Vision",
+      "audience": "dev",
+      "summary": "Simple for simple folk, an absolute unit for power users. Concretely, four people:",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Who it's for",
+          "slug": "who-its-for",
+          "level": 2
+        },
+        {
+          "text": "The five pillars",
+          "slug": "the-five-pillars",
+          "level": 2
+        },
+        {
+          "text": "What we are not",
+          "slug": "what-we-are-not",
+          "level": 2
+        },
+        {
+          "text": "The taste bar",
+          "slug": "the-taste-bar",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "02-ARCHITECTURE",
+      "path": "docs/02-ARCHITECTURE.md",
+      "title": "Architecture",
+      "audience": "dev",
+      "summary": "vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Product repo layout (the future `vaudeville-studios` code repo)",
+          "slug": "product-repo-layout-the-future-vaudeville-studios-code-repo",
+          "level": 2
+        },
+        {
+          "text": "The canonical model + escrow (ADR-005, spec: specs/formats/canonical-model.md)",
+          "slug": "the-canonical-model-escrow-adr-005-spec-specsformatscanonical-modelmd",
+          "level": 2
+        },
+        {
+          "text": "The agent (lessons imported from RoleCall's Orison work)",
+          "slug": "the-agent-lessons-imported-from-rolecalls-orison-work",
+          "level": 2
+        },
+        {
+          "text": "Productions (project workspaces)",
+          "slug": "productions-project-workspaces",
+          "level": 2
+        },
+        {
+          "text": "Faces",
+          "slug": "faces",
+          "level": 2
+        },
+        {
+          "text": "Security & privacy invariants",
+          "slug": "security-privacy-invariants",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "03-CONVENTIONS",
+      "path": "docs/03-CONVENTIONS.md",
+      "title": "Conventions",
+      "audience": "dev",
+      "summary": "Binding for all code and docs in the product repo. Deviations fail review.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Code",
+          "slug": "code",
+          "level": 2
+        },
+        {
+          "text": "Testing law",
+          "slug": "testing-law",
+          "level": 2
+        },
+        {
+          "text": "CLI conventions",
+          "slug": "cli-conventions",
+          "level": 2
+        },
+        {
+          "text": "Git & repo",
+          "slug": "git-repo",
+          "level": 2
+        },
+        {
+          "text": "Docs",
+          "slug": "docs",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "FORMAT-SUPPORT",
+      "path": "docs/FORMAT-SUPPORT.md",
+      "title": "Format support matrix",
+      "audience": "dev",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-12.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "How to use",
+          "slug": "how-to-use",
+          "level": 2
+        },
+        {
+          "text": "Characters (9)",
+          "slug": "characters-9",
+          "level": 2
+        },
+        {
+          "text": "Lorebooks (5)",
+          "slug": "lorebooks-5",
+          "level": 2
+        },
+        {
+          "text": "Personas (4)",
+          "slug": "personas-4",
+          "level": 2
+        },
+        {
+          "text": "Regex script sets (5)",
+          "slug": "regex-script-sets-5",
+          "level": 2
+        },
+        {
+          "text": "Notes",
+          "slug": "notes",
+          "level": 2
+        },
+        {
+          "text": "Samples",
+          "slug": "samples",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "README",
+      "path": "docs/README.md",
+      "title": "Documentation",
+      "audience": "dev",
+      "summary": "Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.",
+      "tags": [
+        "docs",
+        "index",
+        "guide",
+        "reference",
+        "map"
+      ],
+      "related": [
+        "guide/getting-started",
+        "reference/README",
+        "reference/architecture",
+        "ROADMAP"
+      ],
+      "anchors": [
+        {
+          "text": "Guide",
+          "slug": "guide",
+          "level": 2
+        },
+        {
+          "text": "Reference",
+          "slug": "reference",
+          "level": 2
+        },
+        {
+          "text": "Decisions and planning",
+          "slug": "decisions-and-planning",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "ROADMAP",
+      "path": "docs/ROADMAP.md",
+      "title": "Roadmap",
+      "audience": "dev",
+      "summary": "Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Character-card forge (workstream, not a numbered M)",
+          "slug": "character-card-forge-workstream-not-a-numbered-m",
+          "level": 2
+        },
+        {
+          "text": "Studio content types (after character forge)",
+          "slug": "studio-content-types-after-character-forge",
+          "level": 2
+        },
+        {
+          "text": "M0 - Foundation",
+          "slug": "m0---foundation",
+          "level": 2
+        },
+        {
+          "text": "M1 - The Converter (v0.1, first public release)",
+          "slug": "m1---the-converter-v01-first-public-release",
+          "level": 2
+        },
+        {
+          "text": "M2 - The Brain",
+          "slug": "m2---the-brain",
+          "level": 2
+        },
+        {
+          "text": "M3 - The Script Doctor (v0.2)",
+          "slug": "m3---the-script-doctor-v02",
+          "level": 2
+        },
+        {
+          "text": "M4 - The Table Read (v0.3)",
+          "slug": "m4---the-table-read-v03",
+          "level": 2
+        },
+        {
+          "text": "M5 - The Test Stage + Productions (v0.4)",
+          "slug": "m5---the-test-stage-productions-v04",
+          "level": 2
+        },
+        {
+          "text": "M6 - The Studio (v0.5)",
+          "slug": "m6---the-studio-v05",
+          "level": 2
+        },
+        {
+          "text": "M7 - The Archives + The World Forge (v0.6+)",
+          "slug": "m7---the-archives-the-world-forge-v06",
+          "level": 2
+        },
+        {
+          "text": "What now (recommended order)",
+          "slug": "what-now-recommended-order",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-001-runtime",
+      "path": "docs/decisions/ADR-001-runtime.md",
+      "title": "ADR-001: Runtime - Bun + TypeScript, Node-compatible core",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Why",
+          "slug": "why",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-002-license",
+      "path": "docs/decisions/ADR-002-license.md",
+      "title": "ADR-002: License, AGPL-3.0-or-later",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Why AGPL fits",
+          "slug": "why-agpl-fits",
+          "level": 2
+        },
+        {
+          "text": "Rejected alternatives",
+          "slug": "rejected-alternatives",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-003-distribution",
+      "path": "docs/decisions/ADR-003-distribution.md",
+      "title": "ADR-003: Distribution - single executable + self-updater; installer later",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Why",
+          "slug": "why",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-004-extraction",
+      "path": "docs/decisions/ADR-004-extraction.md",
+      "title": "ADR-004: Code reuse, extract and adapt from RoleCall",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Rules that governed the port",
+          "slug": "rules-that-governed-the-port",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-005-canonical-model",
+      "path": "docs/decisions/ADR-005-canonical-model.md",
+      "title": "ADR-005: Canonical superset model + escrow envelope",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Why not \"just use chara_card_v3 internally\"",
+          "slug": "why-not-just-use-chara_card_v3-internally",
+          "level": 2
+        },
+        {
+          "text": "Precedents in the author's own earlier code",
+          "slug": "precedents-in-the-authors-own-earlier-code",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-006-ai-and-agent",
+      "path": "docs/decisions/ADR-006-ai-and-agent.md",
+      "title": "ADR-006: AI - BYOK + local, and an agent built for weak models",
+      "audience": "dev",
+      "summary": "**Status:** accepted",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Why",
+          "slug": "why",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-007-renderer-policy",
+      "path": "docs/decisions/ADR-007-renderer-policy.md",
+      "title": "ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)",
+      "audience": "dev",
+      "summary": "**Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-008-react-ui",
+      "path": "docs/decisions/ADR-008-react-ui.md",
+      "title": "ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)",
+      "audience": "dev",
+      "summary": "**Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's \"decide per chat surface later.\" ADR-007's engine rule is carried forward unchanged and hardened here.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-009-sandbox-origin",
+      "path": "docs/decisions/ADR-009-sandbox-origin.md",
+      "title": "ADR-009: Distinct origin for Lua sandbox execution",
+      "audience": "dev",
+      "summary": "**Status:** accepted in design; packaged-host proof BLOCKED · 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Packaged-host acceptance",
+          "slug": "packaged-host-acceptance",
+          "level": 2
+        },
+        {
+          "text": "Threat model (in scope)",
+          "slug": "threat-model-in-scope",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Rejected alternatives",
+          "slug": "rejected-alternatives",
+          "level": 3
+        },
+        {
+          "text": "Origin / alias notes",
+          "slug": "origin-alias-notes",
+          "level": 3
+        },
+        {
+          "text": "Measured results (this environment)",
+          "slug": "measured-results-this-environment",
+          "level": 2
+        },
+        {
+          "text": "Rollback / packaging",
+          "slug": "rollback-packaging",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2
+        },
+        {
+          "text": "STOP / honesty",
+          "slug": "stop-honesty",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/README",
+      "path": "docs/guide/README.md",
+      "title": "User guide",
+      "audience": "user",
+      "summary": "A map of Hoplight's rooms and links to every guide page, setup, importing, browsing, editing, personas, lorebooks, regex sets, converting, exporting, and platform notes.",
+      "tags": [
+        "guide",
+        "index",
+        "rooms",
+        "dock",
+        "platforms"
+      ],
+      "related": [
+        "guide/getting-started",
+        "reference/ui",
+        "reference/architecture",
+        "reference/formats/README"
+      ],
+      "anchors": [
+        {
+          "text": "The rooms",
+          "slug": "the-rooms",
+          "level": 2
+        },
+        {
+          "text": "The pages",
+          "slug": "the-pages",
+          "level": 2
+        },
+        {
+          "text": "Platform notes",
+          "slug": "platform-notes",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/converting",
+      "path": "docs/guide/converting.md",
+      "title": "Convert a card",
+      "audience": "user",
+      "summary": "Take a card you have in one app's format and ship it out in another, and see plainly what crosses and what stays behind.",
+      "tags": [
+        "convert",
+        "import",
+        "export",
+        "drops",
+        "escrow"
+      ],
+      "related": [
+        "guide/importing",
+        "guide/exporting",
+        "guide/platforms/sillytavern",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "What survives and what drops",
+          "slug": "what-survives-and-what-drops",
+          "level": 2
+        },
+        {
+          "text": "Converting many at once",
+          "slug": "converting-many-at-once",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/editing",
+      "path": "docs/guide/editing.md",
+      "title": "Edit a piece",
+      "audience": "user",
+      "summary": "Open a piece on the Workbench, change it through the Grid or Steps view, and save your draft explicitly before you close the tab.",
+      "tags": [
+        "edit",
+        "workbench",
+        "draft",
+        "save",
+        "lens"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/architecture",
+        "reference/ui"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "The editor panels",
+          "slug": "the-editor-panels",
+          "level": 2
+        },
+        {
+          "text": "Saving, and what happens if you don't",
+          "slug": "saving-and-what-happens-if-you-dont",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/exporting",
+      "path": "docs/guide/exporting.md",
+      "title": "Export a piece",
+      "audience": "user",
+      "summary": "Send a piece out of Vaudeville Studios through the character editor's Export button, or a staged batch through the Press, and see exactly what travels before anything downloads.",
+      "tags": [
+        "export",
+        "press",
+        "staging",
+        "honesty",
+        "download"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "guide/platforms/sillytavern",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "Reading the honesty view",
+          "slug": "reading-the-honesty-view",
+          "level": 2
+        },
+        {
+          "text": "Staging for the Press",
+          "slug": "staging-for-the-press",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/faq",
+      "path": "docs/guide/faq.md",
+      "title": "Frequently asked questions",
+      "audience": "user",
+      "summary": "Straight answers on where your files live, what a convert actually keeps or drops, which apps Hoplight reads and writes, and whether converting or editing a card can damage it.",
+      "tags": [
+        "faq",
+        "privacy",
+        "convert",
+        "formats"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "guide/exporting",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "Is my content private?",
+          "slug": "is-my-content-private",
+          "level": 2
+        },
+        {
+          "text": "What converts, and what stays behind?",
+          "slug": "what-converts-and-what-stays-behind",
+          "level": 2
+        },
+        {
+          "text": "Which apps are supported?",
+          "slug": "which-apps-are-supported",
+          "level": 2
+        },
+        {
+          "text": "Can a convert damage my card?",
+          "slug": "can-a-convert-damage-my-card",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/getting-started",
+      "path": "docs/guide/getting-started.md",
+      "title": "Get started",
+      "audience": "user",
+      "summary": "Install Hoplight, get through the four-question setup wizard, learn the rooms the Dock puts in front of you, and bring your first file into the Library.",
+      "tags": [
+        "install",
+        "setup",
+        "wizard",
+        "dock",
+        "import"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/ui"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "The first-run wizard",
+          "slug": "the-first-run-wizard",
+          "level": 2
+        },
+        {
+          "text": "The Dock",
+          "slug": "the-dock",
+          "level": 2
+        },
+        {
+          "text": "Bringing in your first file",
+          "slug": "bringing-in-your-first-file",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/importing",
+      "path": "docs/guide/importing.md",
+      "title": "Import a file",
+      "audience": "user",
+      "summary": "Bring a card, lorebook, persona, or regex set into the Library by dropping it on the shelves or clicking Import, and see exactly what the receipt keeps before anything is written.",
+      "tags": [
+        "import",
+        "library",
+        "drops",
+        "receipt",
+        "escrow"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/exporting",
+        "guide/platforms/sillytavern",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "What gets kept",
+          "slug": "what-gets-kept",
+          "level": 2
+        },
+        {
+          "text": "Importing many at once",
+          "slug": "importing-many-at-once",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/library",
+      "path": "docs/guide/library.md",
+      "title": "Browse the Library",
+      "audience": "user",
+      "summary": "Filter pieces by kind on the Library's deck chips, switch between Grid, Show, List, and the deck-specific views, and stage one piece or many for a single send to the Workbench.",
+      "tags": [
+        "library",
+        "browse",
+        "decks",
+        "staging",
+        "views"
+      ],
+      "related": [
+        "guide/importing",
+        "guide/converting",
+        "guide/editing",
+        "reference/ui"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "The decks and their views",
+          "slug": "the-decks-and-their-views",
+          "level": 2
+        },
+        {
+          "text": "Staging and sending",
+          "slug": "staging-and-sending",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/lorebooks",
+      "path": "docs/guide/lorebooks.md",
+      "title": "Build a lorebook",
+      "audience": "user",
+      "summary": "Add entries to a lorebook, give each one the keywords that trigger it, and decide where it lands in the assembled prompt.",
+      "tags": [
+        "lorebook",
+        "entries",
+        "keywords",
+        "triggers",
+        "position"
+      ],
+      "related": [
+        "guide/converting",
+        "reference/entities/lorebook",
+        "reference/concepts/character-book",
+        "guide/importing"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "Keywords and triggers",
+          "slug": "keywords-and-triggers",
+          "level": 2
+        },
+        {
+          "text": "Where it lands",
+          "slug": "where-it-lands",
+          "level": 2
+        },
+        {
+          "text": "Building the book",
+          "slug": "building-the-book",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/personas",
+      "path": "docs/guide/personas.md",
+      "title": "Create and manage personas",
+      "audience": "user",
+      "summary": "Build a persona on the Workbench from identity and sections or flat text, set where it injects and what it links to, and know the few places it behaves differently from a character.",
+      "tags": [
+        "persona",
+        "identity",
+        "sections",
+        "injection",
+        "lorebook"
+      ],
+      "related": [
+        "guide/editing",
+        "guide/converting",
+        "reference/entities/persona",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "What actually reaches the model",
+          "slug": "what-actually-reaches-the-model",
+          "level": 2
+        },
+        {
+          "text": "Where it's injected, and what travels with it",
+          "slug": "where-its-injected-and-what-travels-with-it",
+          "level": 2
+        },
+        {
+          "text": "Converting and exporting a persona",
+          "slug": "converting-and-exporting-a-persona",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/README",
+      "path": "docs/guide/platforms/README.md",
+      "title": "Platforms",
+      "audience": "user",
+      "summary": "A short map of every platform Hoplight reads and writes today, what each one hands over, and which guide page to open first.",
+      "tags": [
+        "platforms",
+        "index",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/importing",
+        "guide/converting",
+        "guide/exporting",
+        "reference/formats/README"
+      ],
+      "anchors": [
+        {
+          "text": "The platforms",
+          "slug": "the-platforms",
+          "level": 2
+        },
+        {
+          "text": "If your platform isn't listed",
+          "slug": "if-your-platform-isnt-listed",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/agnai",
+      "path": "docs/guide/platforms/agnai.md",
+      "title": "Agnai",
+      "audience": "user",
+      "summary": "Bringing Agnai character JSON and memory books into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "agnai",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/agnai"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/backyard",
+      "path": "docs/guide/platforms/backyard.md",
+      "title": "Backyard",
+      "audience": "user",
+      "summary": "Bringing Backyard.ai's two character card shapes, the older flat JSON export and the modern .byaf archive, into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "backyard",
+        "byaf",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/backyard"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/chub",
+      "path": "docs/guide/platforms/chub.md",
+      "title": "Chub",
+      "audience": "user",
+      "summary": "Bringing Chub character cards and lorebooks into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "chub",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/lumiverse",
+      "path": "docs/guide/platforms/lumiverse.md",
+      "title": "Lumiverse",
+      "audience": "user",
+      "summary": "Bringing Lumiverse character cards, expression archives, personas, and regex scripts into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "lumiverse",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/lumiverse"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/marinara",
+      "path": "docs/guide/platforms/marinara.md",
+      "title": "Marinara",
+      "audience": "user",
+      "summary": "Bringing Marinara-Engine regex scripts and personas into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "marinara",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/marinara"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/novelai",
+      "path": "docs/guide/platforms/novelai.md",
+      "title": "NovelAI",
+      "audience": "user",
+      "summary": "Bringing NovelAI lorebooks into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "novelai",
+        "lorebook",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/novelai"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/pygmalion",
+      "path": "docs/guide/platforms/pygmalion.md",
+      "title": "Pygmalion",
+      "audience": "user",
+      "summary": "Bringing Pygmalion's classic flat character JSON into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "pygmalion",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/pygmalion"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/risu",
+      "path": "docs/guide/platforms/risu.md",
+      "title": "RisuAI",
+      "audience": "user",
+      "summary": "Bringing RisuAI .charx cards, lorebooks, and regex scripts into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "risu",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/risu"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/rolecall",
+      "path": "docs/guide/platforms/rolecall.md",
+      "title": "RoleCall",
+      "audience": "user",
+      "summary": "Bringing RoleCall character cards and lorebooks into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "rolecall",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/rolecall"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/platforms/sillytavern",
+      "path": "docs/guide/platforms/sillytavern.md",
+      "title": "SillyTavern",
+      "audience": "user",
+      "summary": "Bringing SillyTavern character cards and worldbooks into Hoplight and back out.",
+      "tags": [
+        "platform",
+        "sillytavern",
+        "import",
+        "export",
+        "convert"
+      ],
+      "related": [
+        "guide/converting",
+        "guide/importing",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "What Hoplight reads",
+          "slug": "what-hoplight-reads",
+          "level": 2
+        },
+        {
+          "text": "What comes across cleanly",
+          "slug": "what-comes-across-cleanly",
+          "level": 2
+        },
+        {
+          "text": "What changes when you convert to another app",
+          "slug": "what-changes-when-you-convert-to-another-app",
+          "level": 2
+        },
+        {
+          "text": "Editing on the Workbench",
+          "slug": "editing-on-the-workbench",
+          "level": 2
+        },
+        {
+          "text": "Exporting back out",
+          "slug": "exporting-back-out",
+          "level": 2
+        },
+        {
+          "text": "Common questions",
+          "slug": "common-questions",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/regex",
+      "path": "docs/guide/regex.md",
+      "title": "Edit a regex set",
+      "audience": "user",
+      "summary": "Write find-and-replace rules into a set, choose where and in what order each one runs, and check what a rule actually does before you save it.",
+      "tags": [
+        "regex",
+        "rules",
+        "find-replace",
+        "order",
+        "workbench"
+      ],
+      "related": [
+        "guide/editing",
+        "guide/library",
+        "reference/concepts/regex-editor",
+        "guide/converting"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "Three ways to write a rule",
+          "slug": "three-ways-to-write-a-rule",
+          "level": 2
+        },
+        {
+          "text": "Order, and how to check it",
+          "slug": "order-and-how-to-check-it",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/security",
+      "path": "docs/guide/security.md",
+      "title": "Security and privacy",
+      "audience": "user",
+      "summary": "What keeps your content and your keys on your machine, why a downloaded card cannot run code on its own, and the few places where a protection is partial and we say so.",
+      "tags": [
+        "security",
+        "privacy",
+        "sandbox",
+        "api-keys",
+        "local-first"
+      ],
+      "related": [
+        "guide/getting-started",
+        "guide/importing",
+        "guide/regex",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "Your content stays on your machine",
+          "slug": "your-content-stays-on-your-machine",
+          "level": 2
+        },
+        {
+          "text": "A card cannot run itself",
+          "slug": "a-card-cannot-run-itself",
+          "level": 2
+        },
+        {
+          "text": "Other files stay bounded",
+          "slug": "other-files-stay-bounded",
+          "level": 2
+        },
+        {
+          "text": "Converting never copies one app's code into another",
+          "slug": "converting-never-copies-one-apps-code-into-another",
+          "level": 2
+        },
+        {
+          "text": "About API keys",
+          "slug": "about-api-keys",
+          "level": 2
+        },
+        {
+          "text": "What we do not claim",
+          "slug": "what-we-do-not-claim",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "guide/troubleshooting",
+      "path": "docs/guide/troubleshooting.md",
+      "title": "Troubleshoot common problems",
+      "audience": "user",
+      "summary": "Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.",
+      "tags": [
+        "troubleshooting",
+        "import",
+        "convert",
+        "export",
+        "receipt",
+        "honesty"
+      ],
+      "related": [
+        "guide/importing",
+        "guide/converting",
+        "guide/exporting",
+        "guide/faq"
+      ],
+      "anchors": [
+        {
+          "text": "The short version",
+          "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "A card would not import",
+          "slug": "a-card-would-not-import",
+          "level": 2
+        },
+        {
+          "text": "A convert dropped something",
+          "slug": "a-convert-dropped-something",
+          "level": 2
+        },
+        {
+          "text": "An export looks wrong",
+          "slug": "an-export-looks-wrong",
+          "level": 2
+        },
+        {
+          "text": "Tips",
+          "slug": "tips",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/README",
+      "path": "docs/reference/README.md",
+      "title": "vaud documentation",
+      "audience": "dev",
+      "summary": "This is the reference documentation for **vaud**, the Vaudeville Studios converter for AI-roleplay content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "The contract",
+          "slug": "the-contract",
+          "level": 2
+        },
+        {
+          "text": "Map",
+          "slug": "map",
+          "level": 2
+        },
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/architecture",
+      "path": "docs/reference/architecture.md",
+      "title": "Architecture",
+      "audience": "dev",
+      "summary": "The whole engine: the hub-and-spoke canonical model, escrow, the adapter contract, detection, folders-as-schema, bundles, and the CLI.",
+      "tags": [
+        "architecture",
+        "canonical",
+        "escrow",
+        "adapter",
+        "detection",
+        "engine"
+      ],
+      "related": [
+        "reference/entities/character",
+        "reference/formats/sillytavern",
+        "reference/concepts/canonical-model"
+      ],
+      "anchors": [
+        {
+          "text": "The one idea: hub and spoke",
+          "slug": "the-one-idea-hub-and-spoke",
+          "level": 2
+        },
+        {
+          "text": "The canonical entity",
+          "slug": "the-canonical-entity",
+          "level": 2
+        },
+        {
+          "text": "The superset rule",
+          "slug": "the-superset-rule",
+          "level": 3
+        },
+        {
+          "text": "Escrow: lossless round-trips, contained cross-format loss",
+          "slug": "escrow-lossless-round-trips-contained-cross-format-loss",
+          "level": 2
+        },
+        {
+          "text": "The adapter contract",
+          "slug": "the-adapter-contract",
+          "level": 2
+        },
+        {
+          "text": "Detection and the registry",
+          "slug": "detection-and-the-registry",
+          "level": 2
+        },
+        {
+          "text": "Folders-as-schema (the moddability promise)",
+          "slug": "folders-as-schema-the-moddability-promise",
+          "level": 2
+        },
+        {
+          "text": "Bundles: a card plus its lorebook",
+          "slug": "bundles-a-card-plus-its-lorebook",
+          "level": 2
+        },
+        {
+          "text": "Layering",
+          "slug": "layering",
+          "level": 2
+        },
+        {
+          "text": "The CLI",
+          "slug": "the-cli",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/cli",
+      "path": "docs/reference/cli.md",
+      "title": "CLI reference",
+      "audience": "dev",
+      "summary": "Every vaud command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.",
+      "tags": [
+        "cli",
+        "reference"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/ui"
+      ],
+      "anchors": [
+        {
+          "text": "Invocation",
+          "slug": "invocation",
+          "level": 2
+        },
+        {
+          "text": "Commands",
+          "slug": "commands",
+          "level": 2
+        },
+        {
+          "text": "Global flags",
+          "slug": "global-flags",
+          "level": 2
+        },
+        {
+          "text": "`vaud convert <in> <out>`",
+          "slug": "vaud-convert-in-out",
+          "level": 2
+        },
+        {
+          "text": "`vaud inspect <file>`",
+          "slug": "vaud-inspect-file",
+          "level": 2
+        },
+        {
+          "text": "`vaud validate <file>`",
+          "slug": "vaud-validate-file",
+          "level": 2
+        },
+        {
+          "text": "`vaud label <file>`",
+          "slug": "vaud-label-file",
+          "level": 2
+        },
+        {
+          "text": "`vaud formats`",
+          "slug": "vaud-formats",
+          "level": 2
+        },
+        {
+          "text": "`vaud ui [port] [studioDir]`",
+          "slug": "vaud-ui-port-studiodir",
+          "level": 2
+        },
+        {
+          "text": "`vaud version`",
+          "slug": "vaud-version",
+          "level": 2
+        },
+        {
+          "text": "`vaud help`",
+          "slug": "vaud-help",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/components",
+      "path": "docs/reference/components.md",
+      "title": "Component catalog",
+      "audience": "dev",
+      "summary": "Auto-generated by `scripts/hooks/component-catalog.ts` from exported UI entries under replacing). Do not hand-edit: regenerate with `bun run scripts/hooks/component-catalog.ts`. A pre-commit gate (`--check`) fails the commit when this file ",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Components (React, `.tsx`)",
+          "slug": "components-react-tsx",
+          "level": 2
+        },
+        {
+          "text": "Legacy widgets (`src/ui/_shared`, vanilla)",
+          "slug": "legacy-widgets-srcui_shared-vanilla",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/bundles",
+      "path": "docs/reference/concepts/bundles.md",
+      "title": "Bundles",
+      "audience": "dev",
+      "summary": "How a character card's embedded lorebook splits into two linked canonical entities, a CanonicalCharacter and a CanonicalLorebook joined by knowledgeRefs, extracted on import and re-embedded on export.",
+      "tags": [
+        "concept",
+        "bundle",
+        "character",
+        "lorebook",
+        "knowledgeRefs",
+        "character_book"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook",
+        "reference/concepts/character-book",
+        "reference/concepts/canonical-model",
+        "reference/formats/sillytavern",
+        "reference/formats/agnai"
+      ],
+      "anchors": [
+        {
+          "text": "knowledgeRefs: the join field",
+          "slug": "knowledgerefs-the-join-field",
+          "level": 2
+        },
+        {
+          "text": "Import: extract at the boundary",
+          "slug": "import-extract-at-the-boundary",
+          "level": 2
+        },
+        {
+          "text": "Export: re-embed at the boundary",
+          "slug": "export-re-embed-at-the-boundary",
+          "level": 2
+        },
+        {
+          "text": "Two call sites, two lifetimes",
+          "slug": "two-call-sites-two-lifetimes",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/canonical-model",
+      "path": "docs/reference/concepts/canonical-model.md",
+      "title": "The canonical superset model",
+      "audience": "dev",
+      "summary": "The one hub every format converts through, a versioned entity wrapper whose body is the union of what real formats express, governed by the superset rule that a field earns a canonical slot only when a real wire format serializes it.",
+      "tags": [
+        "concept",
+        "canonical",
+        "superset",
+        "escrow",
+        "profiles"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook",
+        "reference/formats/sillytavern",
+        "reference/concepts/character-book"
+      ],
+      "anchors": [
+        {
+          "text": "The wrapper",
+          "slug": "the-wrapper",
+          "level": 2
+        },
+        {
+          "text": "The superset rule",
+          "slug": "the-superset-rule",
+          "level": 2
+        },
+        {
+          "text": "Escrow: what the rule leaves out",
+          "slug": "escrow-what-the-rule-leaves-out",
+          "level": 2
+        },
+        {
+          "text": "Profiles: one superset, many apps",
+          "slug": "profiles-one-superset-many-apps",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/character-book",
+      "path": "docs/reference/concepts/character-book.md",
+      "title": "The embedded character_book",
+      "audience": "dev",
+      "summary": "A card's embedded character_book is extracted into a standalone linked lorebook on import and re-embedded into the target format's book slot on export.",
+      "tags": [
+        "concept",
+        "character-book",
+        "lorebook",
+        "bundle",
+        "escrow"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/lorebook",
+        "reference/entities/character",
+        "reference/formats/sillytavern",
+        "reference/formats/agnai"
+      ],
+      "anchors": [
+        {
+          "text": "A different dialect from the worldbook file",
+          "slug": "a-different-dialect-from-the-worldbook-file",
+          "level": 2
+        },
+        {
+          "text": "Position is dual-encoded, not degraded",
+          "slug": "position-is-dual-encoded-not-degraded",
+          "level": 3
+        },
+        {
+          "text": "Import: extract at the boundary",
+          "slug": "import-extract-at-the-boundary",
+          "level": 2
+        },
+        {
+          "text": "Non-CCv3 dialects override the extractor",
+          "slug": "non-ccv3-dialects-override-the-extractor",
+          "level": 3
+        },
+        {
+          "text": "Export: inline at the boundary",
+          "slug": "export-inline-at-the-boundary",
+          "level": 2
+        },
+        {
+          "text": "Quirks preserved faithfully",
+          "slug": "quirks-preserved-faithfully",
+          "level": 3
+        },
+        {
+          "text": "End to end",
+          "slug": "end-to-end",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/detection",
+      "path": "docs/reference/concepts/detection.md",
+      "title": "Detection and the registry",
+      "audience": "dev",
+      "summary": "How vaud sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.",
+      "tags": [
+        "concept",
+        "detection",
+        "registry",
+        "adapter",
+        "confidence",
+        "cross-kind"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/formats/sillytavern",
+        "reference/entities/character",
+        "reference/entities/lorebook"
+      ],
+      "anchors": [
+        {
+          "text": "Content, not extension",
+          "slug": "content-not-extension",
+          "level": 2
+        },
+        {
+          "text": "The registry pass",
+          "slug": "the-registry-pass",
+          "level": 2
+        },
+        {
+          "text": "Confidence scores",
+          "slug": "confidence-scores",
+          "level": 2
+        },
+        {
+          "text": "Not detection: the origin labeler",
+          "slug": "not-detection-the-origin-labeler",
+          "level": 2
+        },
+        {
+          "text": "The cross-kind firewall",
+          "slug": "the-cross-kind-firewall",
+          "level": 2
+        },
+        {
+          "text": "Adding a format never edits detection",
+          "slug": "adding-a-format-never-edits-detection",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/escrow-and-roundtrip",
+      "path": "docs/reference/concepts/escrow-and-roundtrip.md",
+      "title": "Escrow and round-trip",
+      "audience": "dev",
+      "summary": "How the escrow envelope, the canonical original field, makes a same-format round-trip lossless and keeps a cross-format conversion to contained loss by design.",
+      "tags": [
+        "concept",
+        "escrow",
+        "round-trip",
+        "lossless",
+        "canonical",
+        "original"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "The escrow envelope",
+          "slug": "the-escrow-envelope",
+          "level": 2
+        },
+        {
+          "text": "A same-format round-trip loses nothing",
+          "slug": "a-same-format-round-trip-loses-nothing",
+          "level": 2
+        },
+        {
+          "text": "A cross-format conversion is contained loss by design",
+          "slug": "a-cross-format-conversion-is-contained-loss-by-design",
+          "level": 2
+        },
+        {
+          "text": "Per-kind coverage of the same idea",
+          "slug": "per-kind-coverage-of-the-same-idea",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/persona-editor",
+      "path": "docs/reference/concepts/persona-editor.md",
+      "title": "Concept: the persona editor",
+      "audience": "dev",
+      "summary": "The {{user}} sheet, wearing the CHARACTER editor's chassis on purpose (the kinship ruling, 2026-07-12): the same `.bento` three-column grid, `BentoCard` tiles, and `.lcard`/`.portrait` face plate from `editor-styles`. Source: `src/ui/apps/w",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Reuse law on this surface",
+          "slug": "reuse-law-on-this-surface",
+          "level": 2
+        },
+        {
+          "text": "The shelf",
+          "slug": "the-shelf",
+          "level": 2
+        },
+        {
+          "text": "The wires",
+          "slug": "the-wires",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/regex-editor",
+      "path": "docs/reference/concepts/regex-editor.md",
+      "title": "Concept: the regex editor",
+      "audience": "dev",
+      "summary": "The Workbench surface for authoring a regex set. Source: `src/ui/apps/workbench/regex/` (one concept per file: `set-editor` chassis, `rule-toc`, `rule-page`, `phase-picker`, `fine-print`, ops in `session.ts`). Built by transcription from th",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Three authoring modes, one rule",
+          "slug": "three-authoring-modes-one-rule",
+          "level": 2
+        },
+        {
+          "text": "Platform honesty in the frame",
+          "slug": "platform-honesty-in-the-frame",
+          "level": 2
+        },
+        {
+          "text": "The full check (health)",
+          "slug": "the-full-check-health",
+          "level": 2
+        },
+        {
+          "text": "The recipe gallery",
+          "slug": "the-recipe-gallery",
+          "level": 2
+        },
+        {
+          "text": "The test bench",
+          "slug": "the-test-bench",
+          "level": 2
+        },
+        {
+          "text": "Fluid grammar",
+          "slug": "fluid-grammar",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/regex-engine",
+      "path": "docs/reference/concepts/regex-engine.md",
+      "title": "Concept: the regex engine",
+      "audience": "dev",
+      "summary": "How vaud actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects). The entity it operates on is [entities/regex.md](../entities/regex.md); per-platform field/phase truth lives in `src/core/regex/capabilities.ts`",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "The pipeline (`apply.ts`)",
+          "slug": "the-pipeline-applyts",
+          "level": 2
+        },
+        {
+          "text": "The AST layer (`ast/`)",
+          "slug": "the-ast-layer-ast",
+          "level": 2
+        },
+        {
+          "text": "Travel honesty (`travel-lint.ts`)",
+          "slug": "travel-honesty-travel-lintts",
+          "level": 2
+        },
+        {
+          "text": "The builder (`builder.ts` + `word-boundary.ts` / `word-family.ts`)",
+          "slug": "the-builder-builderts-word-boundaryts-word-familyts",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/safe-rendering",
+      "path": "docs/reference/concepts/safe-rendering.md",
+      "title": "Concept: safe content rendering (the render toggle)",
+      "audience": "dev",
+      "summary": "Character fields carry authored markup: descriptions and greetings are Markdown, creator notes arrive as HTML, and short facts (version, creator, license) are plain text. The editor and the read-only inspector render that markup so a field ",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "The pipeline (sanitize last)",
+          "slug": "the-pipeline-sanitize-last",
+          "level": 2
+        },
+        {
+          "text": "Hardening",
+          "slug": "hardening",
+          "level": 2
+        },
+        {
+          "text": "The leaving-gate (external links)",
+          "slug": "the-leaving-gate-external-links",
+          "level": 2
+        },
+        {
+          "text": "The RenderBox component",
+          "slug": "the-renderbox-component",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/concepts/tag-taxonomy",
+      "path": "docs/reference/concepts/tag-taxonomy.md",
+      "title": "Concept: the tag taxonomy",
+      "audience": "dev",
+      "summary": "Character tags arrive as free strings from every source format (`discovery.tags` is `string[]`); no format carries a category on the wire. The editor still colors each tag chip by KIND, so a pure classifier decides which category a tag stri",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Categories",
+          "slug": "categories",
+          "level": 2
+        },
+        {
+          "text": "Deliberately a seed, not the full taxonomy",
+          "slug": "deliberately-a-seed-not-the-full-taxonomy",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/README",
+      "path": "docs/reference/entities/README.md",
+      "title": "Entities",
+      "audience": "dev",
+      "summary": "Index of the six canonical entity kinds, character, lorebook, pack, persona, preset, and regex, linking each one's field reference and the shapes they share.",
+      "tags": [
+        "entity",
+        "index",
+        "canonical"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/concepts/canonical-model",
+        "reference/formats/README"
+      ],
+      "anchors": [
+        {
+          "text": "Generated field tables",
+          "slug": "generated-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Reference pages",
+          "slug": "reference-pages",
+          "level": 2
+        },
+        {
+          "text": "Cross-cutting",
+          "slug": "cross-cutting",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/character",
+      "path": "docs/reference/entities/character.md",
+      "title": "Character entity",
+      "audience": "dev",
+      "summary": "The canonical superset entity for a roleplay character: every CharacterBody field, its type, the formats that produce it, and its meaning.",
+      "tags": [
+        "entity",
+        "character",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "Identity",
+          "slug": "identity",
+          "level": 2
+        },
+        {
+          "text": "Persona and voice",
+          "slug": "persona-and-voice",
+          "level": 2
+        },
+        {
+          "text": "Voice",
+          "slug": "voice",
+          "level": 3
+        },
+        {
+          "text": "ImagePrompt",
+          "slug": "imageprompt",
+          "level": 3
+        },
+        {
+          "text": "Prompts and injections",
+          "slug": "prompts-and-injections",
+          "level": 2
+        },
+        {
+          "text": "DepthInjection",
+          "slug": "depthinjection",
+          "level": 3
+        },
+        {
+          "text": "Greetings and examples",
+          "slug": "greetings-and-examples",
+          "level": 2
+        },
+        {
+          "text": "Greeting",
+          "slug": "greeting",
+          "level": 3
+        },
+        {
+          "text": "Examples",
+          "slug": "examples",
+          "level": 3
+        },
+        {
+          "text": "Media",
+          "slug": "media",
+          "level": 2
+        },
+        {
+          "text": "MediaAsset",
+          "slug": "mediaasset",
+          "level": 3
+        },
+        {
+          "text": "Sprite",
+          "slug": "sprite",
+          "level": 3
+        },
+        {
+          "text": "Presentation",
+          "slug": "presentation",
+          "level": 2
+        },
+        {
+          "text": "Swatch",
+          "slug": "swatch",
+          "level": 3
+        },
+        {
+          "text": "Background",
+          "slug": "background",
+          "level": 3
+        },
+        {
+          "text": "Settings and behavior",
+          "slug": "settings-and-behavior",
+          "level": 2
+        },
+        {
+          "text": "CharacterBehavior",
+          "slug": "characterbehavior",
+          "level": 3
+        },
+        {
+          "text": "TriggerScript",
+          "slug": "triggerscript",
+          "level": 3
+        },
+        {
+          "text": "Attribution and discovery",
+          "slug": "attribution-and-discovery",
+          "level": 2
+        },
+        {
+          "text": "Discovery",
+          "slug": "discovery",
+          "level": 3
+        },
+        {
+          "text": "Composition and variants",
+          "slug": "composition-and-variants",
+          "level": 2
+        },
+        {
+          "text": "CharacterVariant",
+          "slug": "charactervariant",
+          "level": 3
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/lorebook",
+      "path": "docs/reference/entities/lorebook.md",
+      "title": "Lorebook entity",
+      "audience": "dev",
+      "summary": "The canonical superset entity for a lorebook (world info): every LorebookBody and LorebookEntry field, its type, the formats that produce it, and its meaning.",
+      "tags": [
+        "entity",
+        "lorebook",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/formats/rolecall",
+        "reference/formats/novelai",
+        "reference/concepts/character-book"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "Book settings",
+          "slug": "book-settings",
+          "level": 2
+        },
+        {
+          "text": "LorebookCategory",
+          "slug": "lorebookcategory",
+          "level": 3
+        },
+        {
+          "text": "Entries",
+          "slug": "entries",
+          "level": 2
+        },
+        {
+          "text": "Identity and content",
+          "slug": "identity-and-content",
+          "level": 3
+        },
+        {
+          "text": "Triggers and matching",
+          "slug": "triggers-and-matching",
+          "level": 3
+        },
+        {
+          "text": "Trigger",
+          "slug": "trigger",
+          "level": 3
+        },
+        {
+          "text": "Injection and placement",
+          "slug": "injection-and-placement",
+          "level": 3
+        },
+        {
+          "text": "Ordering, timing, and grouping",
+          "slug": "ordering-timing-and-grouping",
+          "level": 3
+        },
+        {
+          "text": "Recursion and budget",
+          "slug": "recursion-and-budget",
+          "level": 3
+        },
+        {
+          "text": "Scan sources",
+          "slug": "scan-sources",
+          "level": 3
+        },
+        {
+          "text": "Filters and side effects",
+          "slug": "filters-and-side-effects",
+          "level": 3
+        },
+        {
+          "text": "CharacterFilter",
+          "slug": "characterfilter",
+          "level": 3
+        },
+        {
+          "text": "EntrySideEffect",
+          "slug": "entrysideeffect",
+          "level": 3
+        },
+        {
+          "text": "EntrySideEffects",
+          "slug": "entrysideeffects",
+          "level": 3
+        },
+        {
+          "text": "ST-lineage toggles",
+          "slug": "st-lineage-toggles",
+          "level": 3
+        },
+        {
+          "text": "NovelAI extensions",
+          "slug": "novelai-extensions",
+          "level": 3
+        },
+        {
+          "text": "EntryContextConfig",
+          "slug": "entrycontextconfig",
+          "level": 3
+        },
+        {
+          "text": "LoreBiasPhrase",
+          "slug": "lorebiasphrase",
+          "level": 3
+        },
+        {
+          "text": "LoreBiasGroup",
+          "slug": "lorebiasgroup",
+          "level": 3
+        },
+        {
+          "text": "Metadata",
+          "slug": "metadata",
+          "level": 3
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/pack",
+      "path": "docs/reference/entities/pack.md",
+      "title": "Pack entity",
+      "audience": "dev",
+      "summary": "The canonical studio entity for a reusable expression/sprite pack: every PackBody field, its type, and its meaning.",
+      "tags": [
+        "entity",
+        "pack",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field table",
+          "slug": "how-to-read-the-field-table",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "Pack body",
+          "slug": "pack-body",
+          "level": 2
+        },
+        {
+          "text": "The sprite pack hub shape",
+          "slug": "the-sprite-pack-hub-shape",
+          "level": 2
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/persona",
+      "path": "docs/reference/entities/persona.md",
+      "title": "Persona entity",
+      "audience": "dev",
+      "summary": "The canonical superset entity for a user persona: every PersonaBody field, its type, the formats that produce it, and its meaning.",
+      "tags": [
+        "entity",
+        "persona",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/formats/rolecall",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "Core content",
+          "slug": "core-content",
+          "level": 2
+        },
+        {
+          "text": "Sections",
+          "slug": "sections",
+          "level": 3
+        },
+        {
+          "text": "Identity",
+          "slug": "identity",
+          "level": 2
+        },
+        {
+          "text": "Pronoun set",
+          "slug": "pronoun-set",
+          "level": 3
+        },
+        {
+          "text": "Presentation",
+          "slug": "presentation",
+          "level": 2
+        },
+        {
+          "text": "Knowledge, rating, and chat injection",
+          "slug": "knowledge-rating-and-chat-injection",
+          "level": 2
+        },
+        {
+          "text": "Attribution",
+          "slug": "attribution",
+          "level": 2
+        },
+        {
+          "text": "Media",
+          "slug": "media",
+          "level": 2
+        },
+        {
+          "text": "PersonaBody",
+          "slug": "personabody",
+          "level": 2
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/preset",
+      "path": "docs/reference/entities/preset.md",
+      "title": "Preset entity",
+      "audience": "dev",
+      "summary": "The canonical superset entity for a chat-completion prompt-manager preset: every PresetBody field, its type, the formats that produce it, and its meaning.",
+      "tags": [
+        "entity",
+        "preset",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "Prompt blocks and groups",
+          "slug": "prompt-blocks-and-groups",
+          "level": 2
+        },
+        {
+          "text": "Groups",
+          "slug": "groups",
+          "level": 3
+        },
+        {
+          "text": "Sampler and generation settings",
+          "slug": "sampler-and-generation-settings",
+          "level": 2
+        },
+        {
+          "text": "Generation",
+          "slug": "generation",
+          "level": 3
+        },
+        {
+          "text": "System prompts, templates, and behavior",
+          "slug": "system-prompts-templates-and-behavior",
+          "level": 2
+        },
+        {
+          "text": "Templates",
+          "slug": "templates",
+          "level": 3
+        },
+        {
+          "text": "Behavior",
+          "slug": "behavior",
+          "level": 3
+        },
+        {
+          "text": "API and media options",
+          "slug": "api-and-media-options",
+          "level": 2
+        },
+        {
+          "text": "Media",
+          "slug": "media",
+          "level": 3
+        },
+        {
+          "text": "Choices walkthrough",
+          "slug": "choices-walkthrough",
+          "level": 2
+        },
+        {
+          "text": "Options",
+          "slug": "options",
+          "level": 3
+        },
+        {
+          "text": "Full composition",
+          "slug": "full-composition",
+          "level": 2
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/entities/regex",
+      "path": "docs/reference/entities/regex.md",
+      "title": "Regex entity",
+      "audience": "dev",
+      "summary": "The canonical find/replace-script entity for a portable regex set: every RegexRule field, its type, the platforms that produce it, and its meaning.",
+      "tags": [
+        "entity",
+        "regex",
+        "canonical",
+        "fields"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/concepts/regex-engine",
+        "reference/concepts/regex-editor"
+      ],
+      "anchors": [
+        {
+          "text": "How to read the field tables",
+          "slug": "how-to-read-the-field-tables",
+          "level": 2
+        },
+        {
+          "text": "Composition",
+          "slug": "composition",
+          "level": 2
+        },
+        {
+          "text": "The set",
+          "slug": "the-set",
+          "level": 2
+        },
+        {
+          "text": "The rule",
+          "slug": "the-rule",
+          "level": 2
+        },
+        {
+          "text": "Rule chaining",
+          "slug": "rule-chaining",
+          "level": 3
+        },
+        {
+          "text": "The character-card twin",
+          "slug": "the-character-card-twin",
+          "level": 2
+        },
+        {
+          "text": "What rides escrow, not a field",
+          "slug": "what-rides-escrow-not-a-field",
+          "level": 2
+        },
+        {
+          "text": "See also",
+          "slug": "see-also",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/extending/add-a-format",
+      "path": "docs/reference/extending/add-a-format.md",
+      "title": "Add a format adapter",
+      "audience": "dev",
+      "summary": "Every format converts through one canonical superset model, never format to format directly; adding a format is one adapter, and it touches no other format and no core code (`architecture.md`, \"The one idea: hub and spoke\"). This page is th",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "The contract",
+          "slug": "the-contract",
+          "level": 2
+        },
+        {
+          "text": "Steps",
+          "slug": "steps",
+          "level": 2
+        },
+        {
+          "text": "Declaring coverage",
+          "slug": "declaring-coverage",
+          "level": 2
+        },
+        {
+          "text": "Testing",
+          "slug": "testing",
+          "level": 2
+        },
+        {
+          "text": "Non-negotiables",
+          "slug": "non-negotiables",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/README",
+      "path": "docs/reference/formats/README.md",
+      "title": "Formats",
+      "audience": "dev",
+      "summary": "Every format vaud reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one reference page here.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Coverage matrix",
+          "slug": "coverage-matrix",
+          "level": 2
+        },
+        {
+          "text": "Reference pages",
+          "slug": "reference-pages",
+          "level": 2
+        },
+        {
+          "text": "Cross-cutting",
+          "slug": "cross-cutting",
+          "level": 2
+        },
+        {
+          "text": "Not yet built (planned)",
+          "slug": "not-yet-built-planned",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/agnai",
+      "path": "docs/reference/formats/agnai.md",
+      "title": "Agnai format",
+      "audience": "dev",
+      "summary": "How the Agnai adapter family detects, maps, and round-trips its native character JSON and memory-book lorebooks, including the embedded characterBook, through the canonical model.",
+      "tags": [
+        "format",
+        "agnai",
+        "character",
+        "lorebook",
+        "persona",
+        "memory-book"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/backyard",
+      "path": "docs/reference/formats/backyard.md",
+      "title": "Backyard format",
+      "audience": "dev",
+      "summary": "How the Backyard.ai (Faraday) adapter family detects, maps, and round-trips legacy flat-JSON cards and modern .byaf archives through the canonical model.",
+      "tags": [
+        "format",
+        "backyard",
+        "byaf",
+        "faraday",
+        "character"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Legacy JSON",
+          "slug": "legacy-json",
+          "level": 3
+        },
+        {
+          "text": "BYAF",
+          "slug": "byaf",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Legacy JSON",
+          "slug": "legacy-json",
+          "level": 3
+        },
+        {
+          "text": "BYAF",
+          "slug": "byaf",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/lumiverse",
+      "path": "docs/reference/formats/lumiverse.md",
+      "title": "Lumiverse format",
+      "audience": "dev",
+      "summary": "How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.",
+      "tags": [
+        "format",
+        "lumiverse",
+        "character",
+        "regex",
+        "persona",
+        "ccv3",
+        "charx"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/regex",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Regex",
+          "slug": "regex",
+          "level": 3
+        },
+        {
+          "text": "Persona",
+          "slug": "persona",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Modules sidecar",
+          "slug": "modules-sidecar",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/marinara",
+      "path": "docs/reference/formats/marinara.md",
+      "title": "Marinara format",
+      "audience": "dev",
+      "summary": "How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.",
+      "tags": [
+        "format",
+        "marinara",
+        "regex",
+        "persona"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/regex"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Regex",
+          "slug": "regex",
+          "level": 3
+        },
+        {
+          "text": "Persona",
+          "slug": "persona",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Regex",
+          "slug": "regex",
+          "level": 3
+        },
+        {
+          "text": "Persona",
+          "slug": "persona",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/novelai",
+      "path": "docs/reference/formats/novelai.md",
+      "title": "NovelAI format",
+      "audience": "dev",
+      "summary": "How the NovelAI lorebook adapter detects, maps, and round-trips native lorebook exports through the canonical model.",
+      "tags": [
+        "format",
+        "novelai",
+        "lorebook"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/lorebook"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Enums are strings on the wire",
+          "slug": "enums-are-strings-on-the-wire",
+          "level": 3
+        },
+        {
+          "text": "The `searchRange` unit caveat",
+          "slug": "the-searchrange-unit-caveat",
+          "level": 3
+        },
+        {
+          "text": "The `contextConfig` assembly block",
+          "slug": "the-contextconfig-assembly-block",
+          "level": 3
+        },
+        {
+          "text": "Phrase bias (`loreBiasGroups`)",
+          "slug": "phrase-bias-lorebiasgroups",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Cross-format into NovelAI (no twin)",
+          "slug": "cross-format-into-novelai-no-twin",
+          "level": 3
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/pygmalion",
+      "path": "docs/reference/formats/pygmalion.md",
+      "title": "Pygmalion format",
+      "audience": "dev",
+      "summary": "How the Pygmalion adapter detects, maps, and round-trips the classic flat five-field character JSON and its PNG chara chunk through the canonical model.",
+      "tags": [
+        "format",
+        "pygmalion",
+        "character",
+        "flat-json",
+        "legacy",
+        "png"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/risu",
+      "path": "docs/reference/formats/risu.md",
+      "title": "RisuAI format",
+      "audience": "dev",
+      "summary": "How the RisuAI adapter family detects, maps, and round-trips .charx character cards, a native lorebook export, and regex script sets through the canonical model.",
+      "tags": [
+        "format",
+        "risu",
+        "character",
+        "lorebook",
+        "regex",
+        "charx"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/rolecall",
+      "path": "docs/reference/formats/rolecall.md",
+      "title": "RoleCall format",
+      "audience": "dev",
+      "summary": "How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.",
+      "tags": [
+        "format",
+        "rolecall",
+        "character",
+        "lorebook",
+        "persona",
+        "regex",
+        "ccv2",
+        "ccv3"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "reference/entities/lorebook",
+        "reference/entities/regex",
+        "reference/formats/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/sillytavern",
+      "path": "docs/reference/formats/sillytavern.md",
+      "title": "SillyTavern format",
+      "audience": "dev",
+      "summary": "How the SillyTavern adapter family detects, maps, and round-trips Character Card V1/V2/V3 cards and world info books through the canonical model.",
+      "tags": [
+        "format",
+        "sillytavern",
+        "character",
+        "lorebook",
+        "ccv2",
+        "ccv3"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character",
+        "guide/platforms/sillytavern"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Character",
+          "slug": "character",
+          "level": 3
+        },
+        {
+          "text": "Lorebook",
+          "slug": "lorebook",
+          "level": 3
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/formats/vaud-json",
+      "path": "docs/reference/formats/vaud-json.md",
+      "title": "vaud-json format",
+      "audience": "dev",
+      "summary": "How the vaud-json adapter serializes the canonical character entity straight to plain JSON with no wire translation, and why it always wins detection on its own files.",
+      "tags": [
+        "format",
+        "vaud-json",
+        "character",
+        "canonical",
+        "native"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/entities/character"
+      ],
+      "anchors": [
+        {
+          "text": "Detection",
+          "slug": "detection",
+          "level": 2
+        },
+        {
+          "text": "Field map",
+          "slug": "field-map",
+          "level": 2
+        },
+        {
+          "text": "Escrow and round-trip",
+          "slug": "escrow-and-round-trip",
+          "level": 2
+        },
+        {
+          "text": "Quirks",
+          "slug": "quirks",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/platform-native-fields",
+      "path": "docs/reference/platform-native-fields.md",
+      "title": "Platform native fields (verified research)",
+      "audience": "dev",
+      "summary": "Source of truth for building each platform's native-field schema (platforms/<key>.ts). Fields verified against each platform's REAL format (their own source/types/API), 2026-07-07, via the platform-format-research workflow. Confidence + ope",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Storage reality (how each reaches entity.original)",
+          "slug": "storage-reality-how-each-reaches-entityoriginal",
+          "level": 2
+        },
+        {
+          "text": "Marinara (HIGH - re-audited 2026-07-09 vs Marinara-Engine clone)",
+          "slug": "marinara-high---re-audited-2026-07-09-vs-marinara-engine-clone",
+          "level": 2
+        },
+        {
+          "text": "Chub (HIGH - verified vs live Chub API; re-audit 2026-07-09 for jewel)",
+          "slug": "chub-high---verified-vs-live-chub-api-re-audit-2026-07-09-for-jewel",
+          "level": 2
+        },
+        {
+          "text": "Lumiverse (MEDIUM - traced from app source; expressions KEY still unverified; LoRA verified against source)",
+          "slug": "lumiverse-medium---traced-from-app-source-expressions-key-still-unverified-lora-verified-against-source",
+          "level": 2
+        },
+        {
+          "text": "Character LoRA (FIRST-CLASS - was wrongly buried as catch-all)",
+          "slug": "character-lora-first-class---was-wrongly-buried-as-catch-all",
+          "level": 3
+        },
+        {
+          "text": "Character.AI - DROPPED",
+          "slug": "characterai---dropped",
+          "level": 2
+        },
+        {
+          "text": "Crushon - SKIPPED",
+          "slug": "crushon---skipped",
+          "level": 2
+        },
+        {
+          "text": "Janitor (MEDIUM - thin optional; not a bag jewel)",
+          "slug": "janitor-medium---thin-optional-not-a-bag-jewel",
+          "level": 2
+        },
+        {
+          "text": "Pygmalion (HIGH - classic flat; **adapter landed** `formats/pygmalion/`)",
+          "slug": "pygmalion-high---classic-flat-adapter-landed-formatspygmalion",
+          "level": 2
+        },
+        {
+          "text": "Default CCv3 (interop shape)",
+          "slug": "default-ccv3-interop-shape",
+          "level": 2
+        },
+        {
+          "text": "New components this research calls for",
+          "slug": "new-components-this-research-calls-for",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/README",
+      "path": "docs/reference/security/README.md",
+      "title": "Security threat model and defense layers",
+      "audience": "dev",
+      "summary": "The assets vaud protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.",
+      "tags": [
+        "security",
+        "threat-model",
+        "sandbox",
+        "redos",
+        "sanitization",
+        "byok",
+        "loopback"
+      ],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Threat model",
+          "slug": "threat-model",
+          "level": 2
+        },
+        {
+          "text": "The layers",
+          "slug": "the-layers",
+          "level": 2
+        },
+        {
+          "text": "1. Parse, not execute",
+          "slug": "1-parse-not-execute",
+          "level": 3
+        },
+        {
+          "text": "2. Decompression caps on archives",
+          "slug": "2-decompression-caps-on-archives",
+          "level": 3
+        },
+        {
+          "text": "3. ReDoS-guarded regex",
+          "slug": "3-redos-guarded-regex",
+          "level": 3
+        },
+        {
+          "text": "4. Sanitized rendering",
+          "slug": "4-sanitized-rendering",
+          "level": 3
+        },
+        {
+          "text": "5. The Lua sandbox and its resource budgets",
+          "slug": "5-the-lua-sandbox-and-its-resource-budgets",
+          "level": 3
+        },
+        {
+          "text": "6. Distinct-origin sandbox isolation (packaged-host proof BLOCKED)",
+          "slug": "6-distinct-origin-sandbox-isolation-packaged-host-proof-blocked",
+          "level": 3
+        },
+        {
+          "text": "7. Loopback-only, token-gated local server",
+          "slug": "7-loopback-only-token-gated-local-server",
+          "level": 3
+        },
+        {
+          "text": "8. BYOK key vault (designed, not yet built)",
+          "slug": "8-byok-key-vault-designed-not-yet-built",
+          "level": 3
+        },
+        {
+          "text": "Status at a glance",
+          "slug": "status-at-a-glance",
+          "level": 2
+        },
+        {
+          "text": "What this document does not claim",
+          "slug": "what-this-document-does-not-claim",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/archives",
+      "path": "docs/reference/security/archives.md",
+      "title": "Safe archive handling: .charx and .byaf",
+      "audience": "dev",
+      "summary": "How vaud bounds a .charx or .byaf ZIP before and after inflation to resist a zip bomb, and where entry names are (and are not yet) checked for path traversal before they can become a filesystem write or a re-exported archive path.",
+      "tags": [
+        "security",
+        "archive",
+        "zip",
+        "zip-bomb",
+        "path-traversal",
+        "charx",
+        "byaf",
+        "fflate"
+      ],
+      "related": [
+        "reference/formats/risu",
+        "reference/formats/backyard",
+        "reference/formats/lumiverse",
+        "reference/security/script-sandbox",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "Decompression limits against a zip bomb",
+          "slug": "decompression-limits-against-a-zip-bomb",
+          "level": 2
+        },
+        {
+          "text": "The shared bound",
+          "slug": "the-shared-bound",
+          "level": 3
+        },
+        {
+          "text": "Reject before any unzip call",
+          "slug": "reject-before-any-unzip-call",
+          "level": 3
+        },
+        {
+          "text": "Pre-inflate, per entry",
+          "slug": "pre-inflate-per-entry",
+          "level": 3
+        },
+        {
+          "text": "Post-inflate, as a backstop",
+          "slug": "post-inflate-as-a-backstop",
+          "level": 3
+        },
+        {
+          "text": "Fail closed on any read error",
+          "slug": "fail-closed-on-any-read-error",
+          "level": 3
+        },
+        {
+          "text": "Detection is bounded too",
+          "slug": "detection-is-bounded-too",
+          "level": 3
+        },
+        {
+          "text": "The module.risum aside",
+          "slug": "the-modulerisum-aside",
+          "level": 3
+        },
+        {
+          "text": "Path-traversal safety on entry names",
+          "slug": "path-traversal-safety-on-entry-names",
+          "level": 2
+        },
+        {
+          "text": "fflate does not sanitize names",
+          "slug": "fflate-does-not-sanitize-names",
+          "level": 3
+        },
+        {
+          "text": "Ingestion never turns a name into a filesystem write",
+          "slug": "ingestion-never-turns-a-name-into-a-filesystem-write",
+          "level": 3
+        },
+        {
+          "text": "The one place a name becomes a fresh write, and it is checked",
+          "slug": "the-one-place-a-name-becomes-a-fresh-write-and-it-is-checked",
+          "level": 3
+        },
+        {
+          "text": "Two places that are not checked the same way",
+          "slug": "two-places-that-are-not-checked-the-same-way",
+          "level": 3
+        },
+        {
+          "text": "What is not yet proven",
+          "slug": "what-is-not-yet-proven",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/regex-safety",
+      "path": "docs/reference/security/regex-safety.md",
+      "title": "ReDoS defense in the regex engine",
+      "audience": "dev",
+      "summary": "Vaud parses every card-authored find pattern into an AST, screens it for catastrophic-backtracking shapes before it is ever compiled, refuses the dangerous ones with an exact culprit span, and surfaces the rejection reason as plain text in two places, with the coverage gaps in that screen documented here.",
+      "tags": [
+        "security",
+        "regex",
+        "redos",
+        "validation",
+        "ast",
+        "catastrophic-backtracking"
+      ],
+      "related": [
+        "reference/concepts/regex-engine",
+        "reference/concepts/regex-editor",
+        "reference/entities/regex"
+      ],
+      "anchors": [
+        {
+          "text": "The AST layer never executes anything",
+          "slug": "the-ast-layer-never-executes-anything",
+          "level": 2
+        },
+        {
+          "text": "The screen: three structural culprits",
+          "slug": "the-screen-three-structural-culprits",
+          "level": 2
+        },
+        {
+          "text": "The gate: `validateRule`",
+          "slug": "the-gate-validaterule",
+          "level": 2
+        },
+        {
+          "text": "Enforced on every run, not just at save",
+          "slug": "enforced-on-every-run-not-just-at-save",
+          "level": 2
+        },
+        {
+          "text": "What the user actually sees when a pattern is rejected",
+          "slug": "what-the-user-actually-sees-when-a-pattern-is-rejected",
+          "level": 2
+        },
+        {
+          "text": "Guided mode's hit/miss chips are a separate feature, not a rejection report",
+          "slug": "guided-modes-hitmiss-chips-are-a-separate-feature-not-a-rejection-report",
+          "level": 2
+        },
+        {
+          "text": "Known gaps",
+          "slug": "known-gaps",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/safe-rendering",
+      "path": "docs/reference/security/safe-rendering.md",
+      "title": "Safe rendering: sanitizing card HTML and CSS",
+      "audience": "dev",
+      "summary": "Specifies exactly what DOMPurify allows and strips on the two surfaces that render card-authored HTML and CSS, the sealed iframe and scoped CSP the riskier surface adds on top, and what is proven only at the string level versus what is not measured at all.",
+      "tags": [
+        "security",
+        "dompurify",
+        "xss",
+        "sanitization",
+        "csp",
+        "iframe-sandbox",
+        "html",
+        "css"
+      ],
+      "related": [
+        "reference/concepts/safe-rendering"
+      ],
+      "anchors": [
+        {
+          "text": "Where card HTML and CSS enter the app",
+          "slug": "where-card-html-and-css-enter-the-app",
+          "level": 2
+        },
+        {
+          "text": "Two rendering surfaces, two boundaries",
+          "slug": "two-rendering-surfaces-two-boundaries",
+          "level": 2
+        },
+        {
+          "text": "What DOMPurify allows and strips",
+          "slug": "what-dompurify-allows-and-strips",
+          "level": 2
+        },
+        {
+          "text": "CSS: `sanitizeBackdropCss` is defense in depth, not a parser",
+          "slug": "css-sanitizebackdropcss-is-defense-in-depth-not-a-parser",
+          "level": 2
+        },
+        {
+          "text": "The iframe sandbox and the scoped CSP",
+          "slug": "the-iframe-sandbox-and-the-scoped-csp",
+          "level": 2
+        },
+        {
+          "text": "The ambient app CSP covers the prose-field surface too",
+          "slug": "the-ambient-app-csp-covers-the-prose-field-surface-too",
+          "level": 2
+        },
+        {
+          "text": "What is tested, and what is not",
+          "slug": "what-is-tested-and-what-is-not",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/script-sandbox",
+      "path": "docs/reference/security/script-sandbox.md",
+      "title": "The Lua script sandbox",
+      "audience": "dev",
+      "summary": "How vaud runs an untrusted card script in a terminable worker on a distinct loopback origin, behind a versioned value-only wire protocol and resource budgets that clamp downward only, with an honest account of what is enforced versus what is not yet measured.",
+      "tags": [
+        "security",
+        "sandbox",
+        "lua",
+        "worker",
+        "isolation",
+        "protocol",
+        "resource-limits",
+        "adr-009"
+      ],
+      "related": [
+        "reference/concepts/safe-rendering",
+        "reference/entities/character",
+        "reference/formats/risu",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "Scripts are data until you stage them",
+          "slug": "scripts-are-data-until-you-stage-them",
+          "level": 2
+        },
+        {
+          "text": "Worker isolation (the kill switch)",
+          "slug": "worker-isolation-the-kill-switch",
+          "level": 2
+        },
+        {
+          "text": "The distinct sandbox origin (ADR-009)",
+          "slug": "the-distinct-sandbox-origin-adr-009",
+          "level": 2
+        },
+        {
+          "text": "The wire protocol (versioned, value only)",
+          "slug": "the-wire-protocol-versioned-value-only",
+          "level": 2
+        },
+        {
+          "text": "Resource budgets (clamped, never upward)",
+          "slug": "resource-budgets-clamped-never-upward",
+          "level": 2
+        },
+        {
+          "text": "Lua engine hardening (deny by absence)",
+          "slug": "lua-engine-hardening-deny-by-absence",
+          "level": 2
+        },
+        {
+          "text": "The privileged flag (a warning, not a trigger)",
+          "slug": "the-privileged-flag-a-warning-not-a-trigger",
+          "level": 2
+        },
+        {
+          "text": "What is not yet proven",
+          "slug": "what-is-not-yet-proven",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/security/secrets-and-keys",
+      "path": "docs/reference/security/secrets-and-keys.md",
+      "title": "Secrets and keys",
+      "audience": "dev",
+      "summary": "How Vaudeville Studios is designed to hold BYOK provider keys, keep them out of logs and exports, and how the shipping loopback server gates its API with a per-launch bearer plus Host and Origin checks.",
+      "tags": [
+        "security",
+        "byok",
+        "keys",
+        "vault",
+        "loopback",
+        "csp"
+      ],
+      "related": [
+        "reference/architecture",
+        "reference/concepts/safe-rendering",
+        "reference/cli"
+      ],
+      "anchors": [
+        {
+          "text": "Where keys live (the vault, spec only)",
+          "slug": "where-keys-live-the-vault-spec-only",
+          "level": 2
+        },
+        {
+          "text": "Two kinds of state, kept apart",
+          "slug": "two-kinds-of-state-kept-apart",
+          "level": 3
+        },
+        {
+          "text": "Two backends, chosen at first use",
+          "slug": "two-backends-chosen-at-first-use",
+          "level": 3
+        },
+        {
+          "text": "Never logged",
+          "slug": "never-logged",
+          "level": 3
+        },
+        {
+          "text": "Never in an export",
+          "slug": "never-in-an-export",
+          "level": 3
+        },
+        {
+          "text": "Not yet decided",
+          "slug": "not-yet-decided",
+          "level": 3
+        },
+        {
+          "text": "The loopback server (shipping)",
+          "slug": "the-loopback-server-shipping",
+          "level": 2
+        },
+        {
+          "text": "The per-launch bearer",
+          "slug": "the-per-launch-bearer",
+          "level": 3
+        },
+        {
+          "text": "The /api/* gate",
+          "slug": "the-api-gate",
+          "level": 3
+        },
+        {
+          "text": "What the gate does not do",
+          "slug": "what-the-gate-does-not-do",
+          "level": 3
+        },
+        {
+          "text": "Body caps",
+          "slug": "body-caps",
+          "level": 3
+        },
+        {
+          "text": "The sandbox origin (shipping code, packaged proof BLOCKED)",
+          "slug": "the-sandbox-origin-shipping-code-packaged-proof-blocked",
+          "level": 2
+        },
+        {
+          "text": "What is proven, and what is not",
+          "slug": "what-is-proven-and-what-is-not",
+          "level": 3
+        }
+      ]
+    },
+    {
+      "id": "reference/security/untrusted-content",
+      "path": "docs/reference/security/untrusted-content.md",
+      "title": "Cards and files as untrusted input",
+      "audience": "dev",
+      "summary": "Cards, PNGs, and zip containers are parsed once into the canonical model without ever executing a card-authored script, and a cross-format conversion carries only the portable body, so one app's scripts and payloads never reach another app's file.",
+      "tags": [
+        "security",
+        "untrusted-input",
+        "parsing",
+        "escrow",
+        "behavior-scripts",
+        "cross-format"
+      ],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Parsed once, into a known type",
+          "slug": "parsed-once-into-a-known-type",
+          "level": 2
+        },
+        {
+          "text": "Two script surfaces, neither runs on import",
+          "slug": "two-script-surfaces-neither-runs-on-import",
+          "level": 2
+        },
+        {
+          "text": "Escrow never blind-copies scripts across formats",
+          "slug": "escrow-never-blind-copies-scripts-across-formats",
+          "level": 2
+        },
+        {
+          "text": "What this page does not claim",
+          "slug": "what-this-page-does-not-claim",
+          "level": 2
+        },
+        {
+          "text": "Source of truth",
+          "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/ui",
+      "path": "docs/reference/ui.md",
+      "title": "The visual app (vaud ui)",
+      "audience": "dev",
+      "summary": "uses. One engine, two shells - no format logic exists in the UI layer.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Hyper-modularity (the build's spine)",
+          "slug": "hyper-modularity-the-builds-spine",
+          "level": 2
+        },
+        {
+          "text": "First-run setup (the wizard)",
+          "slug": "first-run-setup-the-wizard",
+          "level": 2
+        },
+        {
+          "text": "The right-click system",
+          "slug": "the-right-click-system",
+          "level": 2
+        },
+        {
+          "text": "Dev live-reload",
+          "slug": "dev-live-reload",
+          "level": 2
+        },
+        {
+          "text": "The card-type chip",
+          "slug": "the-card-type-chip",
+          "level": 2
+        },
+        {
+          "text": "The studio store",
+          "slug": "the-studio-store",
+          "level": 2
+        },
+        {
+          "text": "The receipt",
+          "slug": "the-receipt",
+          "level": 2
+        },
+        {
+          "text": "Endpoints",
+          "slug": "endpoints",
+          "level": 2
+        },
+        {
+          "text": "The Library room (the shelves - deep browse)",
+          "slug": "the-library-room-the-shelves---deep-browse",
+          "level": 2
+        },
+        {
+          "text": "The Workbench room (home by default - the IDE)",
+          "slug": "the-workbench-room-home-by-default---the-ide",
+          "level": 2
+        },
+        {
+          "text": "The Press room (batch export - the staged set prints)",
+          "slug": "the-press-room-batch-export---the-staged-set-prints",
+          "level": 2
+        },
+        {
+          "text": "Settings (drop-in sections)",
+          "slug": "settings-drop-in-sections",
+          "level": 2
+        },
+        {
+          "text": "Shared components (`src/ui/_shared/` and `src/ui/components/`)",
+          "slug": "shared-components-srcui_shared-and-srcuicomponents",
+          "level": 2
+        },
+        {
+          "text": "Security",
+          "slug": "security",
+          "level": 2
+        }
+      ]
+    }
+  ]
+}

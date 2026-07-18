@@ -1,3 +1,12 @@
+---
+id: reference/architecture
+title: Architecture
+audience: dev
+summary: The whole engine: the hub-and-spoke canonical model, escrow, the adapter contract, detection, folders-as-schema, bundles, and the CLI.
+tags: [architecture, canonical, escrow, adapter, detection, engine]
+related: [reference/entities/character, reference/formats/sillytavern, reference/concepts/canonical-model]
+---
+
 # Architecture
 
 vaud converts AI-roleplay content between formats without losing information. This page explains the

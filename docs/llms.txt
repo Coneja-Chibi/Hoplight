@@ -1,0 +1,96 @@
+# Hoplight documentation
+
+> Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
+
+## Decisions
+
+- [ADR-001: Runtime - Bun + TypeScript, Node-compatible core](docs/decisions/ADR-001-runtime.md): **Status:** accepted
+- [ADR-002: License, AGPL-3.0-or-later](docs/decisions/ADR-002-license.md): **Status:** accepted
+- [ADR-003: Distribution - single executable + self-updater; installer later](docs/decisions/ADR-003-distribution.md): **Status:** accepted
+- [ADR-004: Code reuse, extract and adapt from RoleCall](docs/decisions/ADR-004-extraction.md): **Status:** accepted
+- [ADR-005: Canonical superset model + escrow envelope](docs/decisions/ADR-005-canonical-model.md): **Status:** accepted
+- [ADR-006: AI - BYOK + local, and an agent built for weak models](docs/decisions/ADR-006-ai-and-agent.md): **Status:** accepted
+- [ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)](docs/decisions/ADR-007-renderer-policy.md): **Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces
+- [ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
+- [ADR-009: Distinct origin for Lua sandbox execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED · 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
+
+## Guide
+
+- [Convert a card](docs/guide/converting.md): Take a card you have in one app's format and ship it out in another, and see plainly what crosses and what stays behind.
+- [Edit a piece](docs/guide/editing.md): Open a piece on the Workbench, change it through the Grid or Steps view, and save your draft explicitly before you close the tab.
+- [Export a piece](docs/guide/exporting.md): Send a piece out of Vaudeville Studios through the character editor's Export button, or a staged batch through the Press, and see exactly what travels before anything downloads.
+- [Frequently asked questions](docs/guide/faq.md): Straight answers on where your files live, what a convert actually keeps or drops, which apps Hoplight reads and writes, and whether converting or editing a card can damage it.
+- [Get started](docs/guide/getting-started.md): Install Hoplight, get through the four-question setup wizard, learn the rooms the Dock puts in front of you, and bring your first file into the Library.
+- [Import a file](docs/guide/importing.md): Bring a card, lorebook, persona, or regex set into the Library by dropping it on the shelves or clicking Import, and see exactly what the receipt keeps before anything is written.
+- [Browse the Library](docs/guide/library.md): Filter pieces by kind on the Library's deck chips, switch between Grid, Show, List, and the deck-specific views, and stage one piece or many for a single send to the Workbench.
+- [Build a lorebook](docs/guide/lorebooks.md): Add entries to a lorebook, give each one the keywords that trigger it, and decide where it lands in the assembled prompt.
+- [Create and manage personas](docs/guide/personas.md): Build a persona on the Workbench from identity and sections or flat text, set where it injects and what it links to, and know the few places it behaves differently from a character.
+- [Agnai](docs/guide/platforms/agnai.md): Bringing Agnai character JSON and memory books into Hoplight and back out.
+- [Backyard](docs/guide/platforms/backyard.md): Bringing Backyard.ai's two character card shapes, the older flat JSON export and the modern .byaf archive, into Hoplight and back out.
+- [Chub](docs/guide/platforms/chub.md): Bringing Chub character cards and lorebooks into Hoplight and back out.
+- [Lumiverse](docs/guide/platforms/lumiverse.md): Bringing Lumiverse character cards, expression archives, personas, and regex scripts into Hoplight and back out.
+- [Marinara](docs/guide/platforms/marinara.md): Bringing Marinara-Engine regex scripts and personas into Hoplight and back out.
+- [NovelAI](docs/guide/platforms/novelai.md): Bringing NovelAI lorebooks into Hoplight and back out.
+- [Pygmalion](docs/guide/platforms/pygmalion.md): Bringing Pygmalion's classic flat character JSON into Hoplight and back out.
+- [Platforms](docs/guide/platforms/README.md): A short map of every platform Hoplight reads and writes today, what each one hands over, and which guide page to open first.
+- [RisuAI](docs/guide/platforms/risu.md): Bringing RisuAI .charx cards, lorebooks, and regex scripts into Hoplight and back out.
+- [RoleCall](docs/guide/platforms/rolecall.md): Bringing RoleCall character cards and lorebooks into Hoplight and back out.
+- [SillyTavern](docs/guide/platforms/sillytavern.md): Bringing SillyTavern character cards and worldbooks into Hoplight and back out.
+- [User guide](docs/guide/README.md): A map of Hoplight's rooms and links to every guide page, setup, importing, browsing, editing, personas, lorebooks, regex sets, converting, exporting, and platform notes.
+- [Edit a regex set](docs/guide/regex.md): Write find-and-replace rules into a set, choose where and in what order each one runs, and check what a rule actually does before you save it.
+- [Security and privacy](docs/guide/security.md): What keeps your content and your keys on your machine, why a downloaded card cannot run code on its own, and the few places where a protection is partial and we say so.
+- [Troubleshoot common problems](docs/guide/troubleshooting.md): Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.
+
+## Reference
+
+- [Architecture](docs/reference/architecture.md): The whole engine: the hub-and-spoke canonical model, escrow, the adapter contract, detection, folders-as-schema, bundles, and the CLI.
+- [CLI reference](docs/reference/cli.md): Every vaud command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.
+- [Component catalog](docs/reference/components.md): Auto-generated by `scripts/hooks/component-catalog.ts` from exported UI entries under replacing). Do not hand-edit: regenerate with `bun run scripts/hooks/component-catalog.ts`. A pre-commit gate (`--check`) fails the commit when this file 
+- [Bundles](docs/reference/concepts/bundles.md): How a character card's embedded lorebook splits into two linked canonical entities, a CanonicalCharacter and a CanonicalLorebook joined by knowledgeRefs, extracted on import and re-embedded on export.
+- [The canonical superset model](docs/reference/concepts/canonical-model.md): The one hub every format converts through, a versioned entity wrapper whose body is the union of what real formats express, governed by the superset rule that a field earns a canonical slot only when a real wire format serializes it.
+- [The embedded character_book](docs/reference/concepts/character-book.md): A card's embedded character_book is extracted into a standalone linked lorebook on import and re-embedded into the target format's book slot on export.
+- [Detection and the registry](docs/reference/concepts/detection.md): How vaud sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.
+- [Escrow and round-trip](docs/reference/concepts/escrow-and-roundtrip.md): How the escrow envelope, the canonical original field, makes a same-format round-trip lossless and keeps a cross-format conversion to contained loss by design.
+- [Concept: the persona editor](docs/reference/concepts/persona-editor.md): The {{user}} sheet, wearing the CHARACTER editor's chassis on purpose (the kinship ruling, 2026-07-12): the same `.bento` three-column grid, `BentoCard` tiles, and `.lcard`/`.portrait` face plate from `editor-styles`. Source: `src/ui/apps/w
+- [Concept: the regex editor](docs/reference/concepts/regex-editor.md): The Workbench surface for authoring a regex set. Source: `src/ui/apps/workbench/regex/` (one concept per file: `set-editor` chassis, `rule-toc`, `rule-page`, `phase-picker`, `fine-print`, ops in `session.ts`). Built by transcription from th
+- [Concept: the regex engine](docs/reference/concepts/regex-engine.md): How vaud actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects). The entity it operates on is [entities/regex.md](../entities/regex.md); per-platform field/phase truth lives in `src/core/regex/capabilities.ts`
+- [Concept: safe content rendering (the render toggle)](docs/reference/concepts/safe-rendering.md): Character fields carry authored markup: descriptions and greetings are Markdown, creator notes arrive as HTML, and short facts (version, creator, license) are plain text. The editor and the read-only inspector render that markup so a field 
+- [Concept: the tag taxonomy](docs/reference/concepts/tag-taxonomy.md): Character tags arrive as free strings from every source format (`discovery.tags` is `string[]`); no format carries a category on the wire. The editor still colors each tag chip by KIND, so a pure classifier decides which category a tag stri
+- [Character entity](docs/reference/entities/character.md): The canonical superset entity for a roleplay character: every CharacterBody field, its type, the formats that produce it, and its meaning.
+- [Lorebook entity](docs/reference/entities/lorebook.md): The canonical superset entity for a lorebook (world info): every LorebookBody and LorebookEntry field, its type, the formats that produce it, and its meaning.
+- [Pack entity](docs/reference/entities/pack.md): The canonical studio entity for a reusable expression/sprite pack: every PackBody field, its type, and its meaning.
+- [Persona entity](docs/reference/entities/persona.md): The canonical superset entity for a user persona: every PersonaBody field, its type, the formats that produce it, and its meaning.
+- [Preset entity](docs/reference/entities/preset.md): The canonical superset entity for a chat-completion prompt-manager preset: every PresetBody field, its type, the formats that produce it, and its meaning.
+- [Entities](docs/reference/entities/README.md): Index of the six canonical entity kinds, character, lorebook, pack, persona, preset, and regex, linking each one's field reference and the shapes they share.
+- [Regex entity](docs/reference/entities/regex.md): The canonical find/replace-script entity for a portable regex set: every RegexRule field, its type, the platforms that produce it, and its meaning.
+- [Add a format adapter](docs/reference/extending/add-a-format.md): Every format converts through one canonical superset model, never format to format directly; adding a format is one adapter, and it touches no other format and no core code (`architecture.md`, "The one idea: hub and spoke"). This page is th
+- [Agnai format](docs/reference/formats/agnai.md): How the Agnai adapter family detects, maps, and round-trips its native character JSON and memory-book lorebooks, including the embedded characterBook, through the canonical model.
+- [Backyard format](docs/reference/formats/backyard.md): How the Backyard.ai (Faraday) adapter family detects, maps, and round-trips legacy flat-JSON cards and modern .byaf archives through the canonical model.
+- [Lumiverse format](docs/reference/formats/lumiverse.md): How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.
+- [Marinara format](docs/reference/formats/marinara.md): How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.
+- [NovelAI format](docs/reference/formats/novelai.md): How the NovelAI lorebook adapter detects, maps, and round-trips native lorebook exports through the canonical model.
+- [Pygmalion format](docs/reference/formats/pygmalion.md): How the Pygmalion adapter detects, maps, and round-trips the classic flat five-field character JSON and its PNG chara chunk through the canonical model.
+- [Formats](docs/reference/formats/README.md): Every format vaud reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one reference page here.
+- [RisuAI format](docs/reference/formats/risu.md): How the RisuAI adapter family detects, maps, and round-trips .charx character cards, a native lorebook export, and regex script sets through the canonical model.
+- [RoleCall format](docs/reference/formats/rolecall.md): How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.
+- [SillyTavern format](docs/reference/formats/sillytavern.md): How the SillyTavern adapter family detects, maps, and round-trips Character Card V1/V2/V3 cards and world info books through the canonical model.
+- [vaud-json format](docs/reference/formats/vaud-json.md): How the vaud-json adapter serializes the canonical character entity straight to plain JSON with no wire translation, and why it always wins detection on its own files.
+- [Platform native fields (verified research)](docs/reference/platform-native-fields.md): Source of truth for building each platform's native-field schema (platforms/<key>.ts). Fields verified against each platform's REAL format (their own source/types/API), 2026-07-07, via the platform-format-research workflow. Confidence + ope
+- [vaud documentation](docs/reference/README.md): This is the reference documentation for **vaud**, the Vaudeville Studios converter for AI-roleplay content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by
+- [Safe archive handling: .charx and .byaf](docs/reference/security/archives.md): How vaud bounds a .charx or .byaf ZIP before and after inflation to resist a zip bomb, and where entry names are (and are not yet) checked for path traversal before they can become a filesystem write or a re-exported archive path.
+- [Security threat model and defense layers](docs/reference/security/README.md): The assets vaud protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.
+- [ReDoS defense in the regex engine](docs/reference/security/regex-safety.md): Vaud parses every card-authored find pattern into an AST, screens it for catastrophic-backtracking shapes before it is ever compiled, refuses the dangerous ones with an exact culprit span, and surfaces the rejection reason as plain text in two places, with the coverage gaps in that screen documented here.
+- [Safe rendering: sanitizing card HTML and CSS](docs/reference/security/safe-rendering.md): Specifies exactly what DOMPurify allows and strips on the two surfaces that render card-authored HTML and CSS, the sealed iframe and scoped CSP the riskier surface adds on top, and what is proven only at the string level versus what is not measured at all.
+- [The Lua script sandbox](docs/reference/security/script-sandbox.md): How vaud runs an untrusted card script in a terminable worker on a distinct loopback origin, behind a versioned value-only wire protocol and resource budgets that clamp downward only, with an honest account of what is enforced versus what is not yet measured.
+- [Secrets and keys](docs/reference/security/secrets-and-keys.md): How Vaudeville Studios is designed to hold BYOK provider keys, keep them out of logs and exports, and how the shipping loopback server gates its API with a per-launch bearer plus Host and Origin checks.
+- [Cards and files as untrusted input](docs/reference/security/untrusted-content.md): Cards, PNGs, and zip containers are parsed once into the canonical model without ever executing a card-authored script, and a cross-format conversion carries only the portable body, so one app's scripts and payloads never reach another app's file.
+- [The visual app (vaud ui)](docs/reference/ui.md): uses. One engine, two shells - no format logic exists in the UI layer.
+
+## Top level
+
+- [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
+- [Architecture](docs/02-ARCHITECTURE.md): vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.
+- [Conventions](docs/03-CONVENTIONS.md): Binding for all code and docs in the product repo. Deviations fail review.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-12.
+- [Documentation](docs/README.md): Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
+- [Roadmap](docs/ROADMAP.md): Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.
