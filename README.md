@@ -32,34 +32,34 @@
 
 ### 💡 The Core Thesis
 
-> **Your characters are yours. Not SillyTavern's, not Risu's, not whatever site happens to host them this year. Yours.**
+> **You should be able to create, edit, and interact with all your work in an app linked to no platform, and port it out when you choose. A storage vault, a creator's lab, or both.**
 
 Everything in this repo follows from that sentence. One canonical model in the middle, an honest
 adapter per platform, and your whole library as plain JSON on your own disk. No accounts, no
-telemetry, no cloud, no exceptions.
+telemetry, no cloud.
 
 ---
 
-## 🎪 What the Hell is Hoplight?
+## 🎪 What is Hoplight?
 
-You made a character for SillyTavern. Your friend uses RisuAI. Someone on Chub wants it too. So
-now you're maintaining three copies of the same character by hand, they've already drifted apart,
-and the lorebook you spent a weekend on is welded inside a PNG you can't open anywhere. 💀
+A home base for AI-roleplay work. Characters, lorebooks, personas, presets, regex sets, and
+sprites all live in one local studio with real editors, instead of being scattered across whatever
+apps happen to read their formats. When you want to publish somewhere, you export to that
+platform's format; the piece you keep working on is always your own copy.
 
-That's not a workflow. That's hostage negotiation with file formats.
+Right now that's hard to do. Every platform has its own card format, cards drift apart when you
+maintain a copy per platform, and an embedded lorebook can only be edited inside the app that made
+it. Hoplight reads all of those formats into one canonical model and prints back out to any of
+them, so the platforms become publish targets instead of the place your work lives.
 
-**Hoplight ends it.** It reads every major card format into one canonical model, gives you real
-editors for all of it (characters, lorebooks, personas, presets, regex sets, sprites), and prints
-back to whichever platform you're publishing to today.
-
-| Without Hoplight | With Hoplight |
+| Elsewhere | In Hoplight |
 |---|---|
-| Five copies of one character, all drifting | One piece, printed to any platform |
-| Lorebook welded inside a card | A real editor, and the book stays linked to its character |
-| "Did the export keep my greeting?" 🤞 | A report that names exactly what moved and what didn't |
+| One copy of the character per platform | One piece, exported to any platform |
+| Embedded lorebook, editable nowhere | A real editor, and the book stays linked to its character |
+| Exports silently drop what doesn't fit | A report that names exactly what moved and what didn't |
 | Your library on someone else's server | A folder of JSON on your own disk |
 | Guessing which fields a platform reads | An editor lens that dims what the target won't carry |
-| Cards with scripts you just... trust? | Scripts carried as data, never executed |
+| Embedded scripts run on trust | Scripts carried as data, never executed |
 
 ---
 
@@ -97,46 +97,28 @@ That's the whole loop. Import honestly, edit with your eyes open, export with re
 
 <img src="docs/media/shot-library.png" alt="The Library">
 
-Every piece in your studio, split into decks by kind with live counts: characters, lorebooks,
-personas, sprite packs, presets, regex sets. Three views (grid, showcase, list), a continuous
-art-size dial, cover art pulled from the cards themselves, and multi-select staging to send a
-whole batch to an editor at once. Import is drag-and-drop anywhere.
+Your whole studio in decks by kind, with cover art and live counts.
 
 ### 🎬 The Workbench *(the casting office)*
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
-Characters are built through a guided interview: one question at a time, with a proof sheet
-filling in beside it so you always see the card taking shape, token estimate included. The
-platform tabs across the top are the lens: pick who you're writing for and the editor dims what
-that platform won't carry. Rich platforms (Risu, Chub, Lumi, Agnai...) get native field editors
-for their platform-specific bags.
+Characters built through a guided interview, with a proof sheet filling in beside it. The platform
+tabs are the lens.
 
 ### 📖 The Binder *(lorebooks as a real editor)*
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
-Lorebooks stop being a wall of JSON. Table of contents with drag-reorder, per-entry keys with
-simple and advanced trigger modes, activation rules in plain words ("80% chance · sticks for 3
-messages · cooldown 2"), token budgets with honest estimates, always-on pins, and health checks
-that tell you when an entry can never fire.
+Keys, activation rules in plain words, token budgets, and health checks that catch entries that
+can never fire.
 
 ### 🖨️ The Press *(batch export that tells the truth)*
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
-Stage pieces from the Library, pick one target platform, pull the lever. A character travels as a
-**kit**: his linked lorebooks ride along automatically, droppable per run. Every card shows a
-readiness line against the target ("9 of 23 filled - empty: nickname, personality, ...") with a
-jump straight to the editor. Skips are declared before the run, failures name their error, and
-everything that printed lands in one zip.
-
-<details>
-<summary>🎬 Bonus room: the first-run wizard</summary>
-<br>
-<img src="docs/media/shot-setup.png" alt="First-run wizard">
-<p><sub>Four questions, a stage that lights up as you answer.</sub></p>
-</details>
+Stage pieces, pick a platform, pull the lever. Characters bring their linked lorebooks; every card
+shows its readiness before you print.
 
 ---
 
