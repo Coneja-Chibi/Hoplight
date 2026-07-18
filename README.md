@@ -2,10 +2,13 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/media/vaude-wordmark-dark.png">
-  <img src="docs/media/vaude-wordmark-light.png" alt="Vaudeville Studios" width="380">
+  <img src="docs/media/vaude-wordmark-light.png" alt="Vaudeville Studios" width="150">
 </picture>
 
-<h1>Hoplight 🐰</h1>
+<sub>· presents ·</sub>
+
+# Hoplight 🐰
+
 <h3>Your AI-roleplay characters, out of everyone else's basement.</h3>
 
 <p>
