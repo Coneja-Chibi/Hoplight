@@ -1,15 +1,15 @@
 <div align="center">
 
+<img src="docs/media/vaudeville-v.png" alt="Vaudeville Studios" width="72">
+
+<sub>· VAUDEVILLE STUDIOS PRESENTS ·</sub>
+
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/media/vaude-wordmark-dark.png">
-  <img src="docs/media/vaude-wordmark-light.png" alt="Vaudeville Studios" width="150">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/hoplight-wordmark-dark.png">
+  <img src="docs/media/hoplight-wordmark-light.png" alt="Hoplight" width="460">
 </picture>
 
-<sub>· presents ·</sub>
-
-# Hoplight 🐰
-
-<h3>Your AI-roleplay characters, out of everyone else's basement.</h3>
+<h3>Your AI-roleplay characters, out of everyone else's basement. 🐰</h3>
 
 <p>
   <img alt="Status" src="https://img.shields.io/badge/status-active_development-e11d48">
