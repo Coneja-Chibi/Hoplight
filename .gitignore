@@ -12,3 +12,8 @@ bun.lockb
 samples/**/*.charx
 design/_serve.cjs
 *.bun-build
+
+# Agent-tooling state: never ships
+.agents/
+.claude/
+CLAUDE.md
