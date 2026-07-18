@@ -123,25 +123,46 @@ The full auto-generated support table with per-field honesty lives in
 
 ## Where it is, where it goes
 
-Ground truth with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.md).
+Ground truth with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.md). The deeper
+plans (per-jewel build docs, ticket decks through M3) live in the production notes.
 
-**Shipped.** The foundation (canonical schemas, escrow envelope, PNG codec, round-trip law in CI);
-the converter CLI; the character forge closed against nine-plus platforms with native field
-editors; the media pipeline (portraits, sprite packs); the full lorebook binder; regex
-and persona editors; the Risu Workshop with its sealed test bench; the Press.
+### ✅ Shipped
 
-**In progress.** The preset editor (the last content type); formal desktop packaging of the studio
-that already runs as a daily driver.
+The foundation: canonical schemas, escrow envelope, PNG codec, and the round-trip law enforced in
+CI. The converter CLI. The character forge, closed against nine-plus platforms with native field
+editors and a per-platform honesty lens. The media pipeline (portraits, sprite packs). The full
+lorebook binder. Regex and persona editors. The Risu Workshop with its sealed test bench. The
+Press with kit-grouped batch export.
 
-**Planned, in order of intent.**
+### 🔨 In the shop
 
-| Milestone | What it is |
-| --- | --- |
-| The Script Doctor | Deterministic card audits (format errors, token waste, contradictions) with a health score; works with no API key |
-| The Brain | Provider layer + agent loop over your studio, BYOK, local models included |
-| The Table Read | An interview engine that grows a card from a conversation: three tempos, from five-minute Cold Read to Deep Dive |
-| Productions | Workspace folders with content-addressed history: edit a field, replay the same test line, watch the output change |
-| The Archives + World Forge | Distill characters from chat logs with per-claim citations; interview-grown worlds with a continuity desk |
+- 🃏 **The preset editor** · the last content type; the hybrid editor design is locked and the
+  build plan is phased
+- 🖨️ **The Press ledger** · run history, saved print jobs, re-print, and "edited since" staleness
+  flags
+- 🐰 **Hoplight herself** · the stagehand rabbit takes over the tours, empty states, and loading
+  beats; mark candidates drawn, one gets picked
+- 📚 **Reference pages** for the four newest platform adapters
+- 📦 **Desktop packaging** · the studio already runs as the daily driver; formal releases remain
+
+### 🗺️ Next
+
+- 🩺 **The Script Doctor** · deterministic card audits (format errors, token waste,
+  contradictions, slop banks) with a health score; runs with no API key; ticket deck already cut
+- 🔐 **The capability sandbox** · a three-layer design for someday running card scripts safely;
+  until it ships, scripts stay sealed data by law
+- 🧠 **The Brain** · provider layer and an agent loop over your studio; bring your own key, local
+  models included
+
+### 🎭 The long game
+
+- 🎤 **The Table Read** · an interview engine that grows a card from a conversation, from a
+  five-minute Cold Read to a Deep Dive
+- 🎬 **Productions** · workspace folders with content-addressed history: edit a field, replay the
+  same test line, watch the output change
+- 🗃️ **The Archives + the World Forge** · distill characters from real chat logs with per-claim
+  citations; interview-grown worlds with a standing continuity desk
+- 🏢 **The Company** · the dock already holds its seat
 
 ## Under the hood
 
