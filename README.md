@@ -112,7 +112,7 @@ That's the whole loop. Import honestly, edit with your eyes open, export with re
 
 ---
 
-# 📚 The Library
+## 📚 The Library
 
 <img src="docs/media/shot-library.png" alt="The Library">
 
@@ -190,7 +190,7 @@ of fragmenting per room.
 
 ---
 
-# 🎬 The Workbench
+## 🎬 The Workbench
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
@@ -274,7 +274,7 @@ Sets can be imported from platform script formats and combined.
 
 ---
 
-# 📖 The Binder
+## 📖 The Binder
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
@@ -337,7 +337,7 @@ can't say. Same coverage ground truth as everywhere else.
 
 ---
 
-# 🖨️ The Press
+## 🖨️ The Press
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
@@ -394,13 +394,15 @@ named for the platform.
 
 ---
 
-# 🎨 The CSS Workshop
+## 🎨 The CSS Workshop
 
 Restyle the studio itself. Every color in the app is a token; the workshop edits them live against
 real components, and the same CI guard that keeps hardcoded colors out of the codebase keeps your
 theme portable.
 
-# ⚙️ Settings
+---
+
+## ⚙️ Settings
 
 Drop-in sections, like everything else: **Appearance** (theme, house accent), **Studio** (home
 app, first deck, publish targets from the live format registry), **Workbench** (follow behavior).
@@ -427,6 +429,8 @@ CCv3 ─────────┘                └── ...your studio, as 
 - **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects, reports,
   and preserves them. It runs none of them.
 
+---
+
 ## ⚙️ Settings Reference
 
 | Setting | Default | What it does |
@@ -440,6 +444,8 @@ CCv3 ─────────┘                └── ...your studio, as 
 
 Settings sections are drop-in folders; each app can also keep its own per-user preferences
 (Library view and art size, Workbench view, dock state) namespaced by app id.
+
+---
 
 ## 🔧 Common Issues
 
@@ -465,6 +471,8 @@ Settings sections are drop-in folders; each app can also keep its own per-user p
 ### "The port is taken!" 🔌
 
 - `bun run vaud ui <port>` takes any port; the studio binds loopback only either way
+
+---
 
 ## ❓ FAQ
 
@@ -503,6 +511,8 @@ So nobody closes this up and sells it back to the community it came from.
 
 **What does the name mean?**
 Hop + limelight. The V is the maker's mark, the tapered H is the app's.
+
+---
 
 ## 🚀 Installation & Setup
 
@@ -550,6 +560,8 @@ bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
 
 The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
+---
+
 ## 🗺️ The Roadmap
 
 Full version with exit criteria: [docs/ROADMAP.md](docs/ROADMAP.md).
@@ -570,6 +582,8 @@ Full version with exit criteria: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 Near-term: the Press ledger, the mascot landing in tours and empty states, reference pages for the
 newest four adapters, the capability sandbox design.
+
+---
 
 ## 🏗️ Architecture (For the Curious)
 
@@ -739,6 +753,8 @@ license audit       : build fails on restricted dependencies
 | [docs/03-CONVENTIONS.md](docs/03-CONVENTIONS.md) | Code style and the rules the hooks enforce |
 | [docs/reference/](docs/reference/README.md) | Per-format, per-entity, per-surface reference |
 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | Why the consequential choices went the way they did |
+
+---
 
 ## 🤝 Compatibility
 
