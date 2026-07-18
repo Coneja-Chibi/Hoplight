@@ -5,6 +5,7 @@
   <img src="docs/media/vaude-wordmark-light.png" alt="Vaude." width="380">
 </picture>
 
+<h1>Hoplight</h1>
 <h3>The local-first studio for AI-roleplay content.</h3>
 
 <p>Characters, lorebooks, personas, presets, regex, sprites.<br>
@@ -22,11 +23,14 @@ One canonical model, an adapter per platform, nothing leaves your machine.</p>
 ---
 
 Every AI-roleplay platform invented its own card format, and they all disagree about what a
-character even is. Vaude reads them all into one canonical model, lets you edit with full knowledge
-of what each platform will and will not carry, and prints back to any of them. Same-format round
-trips are byte-honest; cross-format conversions tell you exactly what moved and what stayed home.
-It runs entirely on your machine: no accounts, no telemetry, no cloud. Your studio is a folder of
-plain JSON files you can version, back up, and grep.
+character even is. Hoplight reads them all into one canonical model, lets you edit with full
+knowledge of what each platform will and will not carry, and prints back to any of them.
+Same-format round trips are byte-honest; cross-format conversions tell you exactly what moved and
+what stayed home. It runs entirely on your machine: no accounts, no telemetry, no cloud. Your
+studio is a folder of plain JSON files you can version, back up, and grep.
+
+Hoplight is the flagship of **Vaudeville Studios**; the searchlight wordmark is the house mark,
+and `vaud` is the CLI underneath.
 
 ## The studio
 
@@ -69,7 +73,7 @@ plain JSON files you can version, back up, and grep.
   platform will not carry. No guessing which fields survive the export.
 - **Kits, not files.** A character owns his linked lorebooks. Import a card and its embedded book
   becomes a real, editable piece; print the character and the book rides along.
-- **Executes nothing.** Cards can carry scripts. Vaude treats them as sealed data: inspected,
+- **Executes nothing.** Cards can carry scripts. Hoplight treats them as sealed data: inspected,
   reported, carried faithfully, never run.
 - **Plain-words receipts.** Every import tells you what it read and what it kept in sentences,
   not stack traces.
