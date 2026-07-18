@@ -105,3 +105,16 @@ export function foldSummary(rows: readonly RunRow[]): string {
   if (waiting > 0) bits.push(`${waiting} waiting`);
   return bits.length > 0 ? bits.join(" · ") : `${rows.length} on the sheet`;
 }
+
+/** The user-pickable output flavor: the format's normal extension, or plain-text wrappers. */
+export type FileFlavor = "normal" | "txt" | "md";
+
+/** Flavor picking is offered only for text wire formats; a .charx as .md would be a lie. */
+export const flavorChoosable = (normalExt: string): boolean => {
+  const e = normalExt.replace(/^\./, "").toLowerCase();
+  return e === "json" || e === "txt" || e === "md";
+};
+
+/** The extension a row actually prints with. */
+export const flavorExtension = (normalExt: string, flavor: FileFlavor): string =>
+  flavor === "normal" ? normalExt : flavor;

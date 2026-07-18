@@ -11,11 +11,14 @@ import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contra
 import { mediaExportSummary } from "../../components/export-dialog/honesty";
 import { triggerDownload } from "../../components/export-dialog/download";
 import {
+  flavorChoosable,
+  flavorExtension,
   foldSummary,
   groupPlatforms,
   mintFilename,
   payloadBytes,
   planRun,
+  type FileFlavor,
   type PressPlatform,
   type RunRow,
 } from "./press-core";
@@ -49,6 +52,9 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
   const [rows, setRows] = useState<RunRow[] | null>(null);
   const [running, setRunning] = useState(false);
   const [zip, setZip] = useState<{ blob: Blob; filename: string } | null>(null);
+  // per-row output choices, keyed kind:id - the file's base name and its flavor (normal/txt/md)
+  const [fileNames, setFileNames] = useState<Record<string, string>>({});
+  const [flavors, setFlavors] = useState<Record<string, FileFlavor>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -134,7 +140,13 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
         const payload = out as { suggestedExtension: string; text?: string; bytesB64?: string };
         const bytes = payloadBytes(payload);
         if (!bytes) throw new Error("empty export payload");
-        const filename = mintFilename(row.name, payload.suggestedExtension, taken);
+        const rowKey = `${row.kind}:${row.id}`;
+        const flavor = flavorChoosable(payload.suggestedExtension) ? (flavors[rowKey] ?? "normal") : "normal";
+        const filename = mintFilename(
+          fileNames[rowKey]?.trim() || row.name,
+          flavorExtension(payload.suggestedExtension, flavor),
+          taken,
+        );
         files[filename] = bytes;
         // the same media-summary voice as the editor's Export dialog: neutral facts, not warnings
         const body = isRec(entity) ? entity.body : undefined;
@@ -242,6 +254,31 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
                 </span>
               )}
               {r.info && <span className={styles.jinfo}>{r.info}</span>}
+              {r.status === "wait" && !running && r.targetId && (
+                <span className={styles.fileEdit}>
+                  <input
+                    className={styles.fileIn}
+                    value={fileNames[`${r.kind}:${r.id}`] ?? r.name}
+                    aria-label={`filename for ${r.name}`}
+                    onChange={(e) =>
+                      setFileNames((prev) => ({ ...prev, [`${r.kind}:${r.id}`]: e.target.value }))
+                    }
+                  />
+                  {flavorChoosable(
+                    platform?.byKind[r.kind]?.outputExtensions[0] ?? "",
+                  ) &&
+                    (["normal", "txt", "md"] as const).map((f) => (
+                      <button
+                        key={f}
+                        type="button"
+                        className={`${styles.flavor}${(flavors[`${r.kind}:${r.id}`] ?? "normal") === f ? ` ${styles.flavorOn}` : ""}`}
+                        onClick={() => setFlavors((prev) => ({ ...prev, [`${r.kind}:${r.id}`]: f }))}
+                      >
+                        {f === "normal" ? `.${(platform?.byKind[r.kind]?.outputExtensions[0] ?? "json").replace(/^\./, "")}` : `.${f}`}
+                      </button>
+                    ))}
+                </span>
+              )}
             </div>
           ))
         )}

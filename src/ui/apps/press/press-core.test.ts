@@ -4,6 +4,8 @@
 import { describe, expect, test } from "bun:test";
 import type { FormatInfo, StudioEntitySummary } from "../../app-contract";
 import {
+  flavorChoosable,
+  flavorExtension,
   foldSummary,
   groupPlatforms,
   mintFilename,
@@ -83,5 +85,16 @@ describe("foldSummary", () => {
       "2 printed · 1 with notes · 1 failed · 1 skipped",
     );
     expect(foldSummary([row("wait"), row("wait")])).toBe("2 waiting");
+  });
+});
+
+describe("file flavor", () => {
+  test("only text wire formats offer flavors; the flavor swaps the extension", () => {
+    expect(flavorChoosable("json")).toBe(true);
+    expect(flavorChoosable(".charx")).toBe(false);
+    expect(flavorChoosable("byaf")).toBe(false);
+    expect(flavorExtension("json", "normal")).toBe("json");
+    expect(flavorExtension("json", "md")).toBe("md");
+    expect(flavorExtension("json", "txt")).toBe("txt");
   });
 });
