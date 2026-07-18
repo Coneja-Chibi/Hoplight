@@ -14,15 +14,37 @@ writing any code.
 | 5 | [docs/reference/components.md](docs/reference/components.md) | **Before building ANY UI control.** If a control exists, you reuse it |
 | 6 | [docs/reference/ui.md](docs/reference/ui.md) | Every studio surface, documented truthfully |
 | 7 | [docs/reference/architecture.md](docs/reference/architecture.md) | The reference map of the source tree |
-| 8 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | ADR-001 through ADR-009; do not relitigate a decided ADR |
+| 8 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | ADR-001 through ADR-009: the consequential choices and their reasoning. If you disagree with one, raise it in an issue rather than coding around it |
+
+## 2. Specs: which ones govern your work
+
+The `specs/` tree is the detailed contract for each area. Match your task to its specs before
+starting; they answer most design questions so you don't have to guess.
+
+| If you're touching... | Read these specs |
+| --- | --- |
+| Any format adapter | [specs/formats/canonical-model.md](specs/formats/canonical-model.md), [specs/formats/content-detection.md](specs/formats/content-detection.md), plus the format's own spec below |
+| SillyTavern / CCv2 / CCv3 cards | [specs/formats/chara-card-v2.md](specs/formats/chara-card-v2.md), [specs/formats/chara-card-v3.md](specs/formats/chara-card-v3.md), [specs/formats/png-embedding.md](specs/formats/png-embedding.md), [specs/formats/charx.md](specs/formats/charx.md) |
+| Lorebooks / world info | [specs/formats/st-worldinfo.md](specs/formats/st-worldinfo.md), [specs/formats/rolecall-lorebook.md](specs/formats/rolecall-lorebook.md), [specs/engine/lorebook-engine.md](specs/engine/lorebook-engine.md) |
+| Presets | [specs/formats/st-preset.md](specs/formats/st-preset.md), [specs/formats/lumiverse-preset.md](specs/formats/lumiverse-preset.md) |
+| Personas | [specs/formats/personas.md](specs/formats/personas.md), [specs/features/personas-system.md](specs/features/personas-system.md) |
+| Regex sets | [specs/formats/regex-scripts.md](specs/formats/regex-scripts.md) |
+| RoleCall | [specs/formats/rolecall-character.md](specs/formats/rolecall-character.md), [specs/formats/rolecall-lorebook.md](specs/formats/rolecall-lorebook.md) |
+| Backyard | [specs/formats/backyard.md](specs/formats/backyard.md) |
+| Import of multi-piece files | [specs/formats/bundle-import.md](specs/formats/bundle-import.md) |
+| Macros | [specs/engine/macro-engine.md](specs/engine/macro-engine.md) |
+| Token estimates | [specs/engine/token-counting.md](specs/engine/token-counting.md) |
+| Prompt assembly | [specs/engine/prompt-assembly.md](specs/engine/prompt-assembly.md) |
+| Future-milestone features (Script Doctor, Table Read, the agent, productions...) | The matching file under [specs/features/](specs/features/) and [specs/engine/](specs/engine/); these are design contracts even though the code doesn't exist yet |
 
 Working on a format adapter? Also read [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md), the
-relevant page under [docs/reference/formats/](docs/reference/formats/README.md), and
+relevant page under [docs/reference/formats/](docs/reference/formats/README.md), and start from
 `src/formats/_template/`.
 
-## 2. Hard rules
+## 3. The load-bearing rules
 
-Violating any of these gets the work rejected, no matter how good it otherwise is.
+These are the decisions the whole codebase leans on. Work that breaks one gets sent back for
+rework, so it's cheaper to know them up front.
 
 1. **Hub and spoke only.** Every format maps to and from the canonical model
    (`src/core/canonical.ts`). Never write a format-to-format conversion.
@@ -43,17 +65,15 @@ Violating any of these gets the work rejected, no matter how good it otherwise i
    is a bug.
 8. **Fail closed.** Untrusted input is parsed once into a known type; anything unreadable is
    rejected at the boundary. Detectors return empty on bad input instead of throwing.
-9. **No em dashes in prose.** Docs, UI copy, commit messages, comments. The prose gate blocks
-   them. No emojis in app UI copy either (README is the exception).
-10. **Docs move with the code.** A change to any surface updates its page under
-    `docs/reference/` in the same commit, truth-based, never aspirational.
-11. **Commits carry proof.** Every commit needs a test or a `Verified:` line describing how the
-    change was actually checked. The hook enforces this. Never bypass hooks (`--no-verify` is
-    forbidden).
-12. **UI collapse is container-based.** Panels adapt via `@container` queries on the pane they
+9. **Docs move with the code.** A change to any surface updates its page under
+   `docs/reference/` in the same commit, truth-based, never aspirational.
+10. **Commits carry proof.** Every commit needs a test or a `Verified:` line describing how the
+    change was actually checked; a pre-commit hook checks for it, so it's easier to write it than
+    to fight it. Please don't bypass hooks.
+11. **UI collapse is container-based.** Panels adapt via `@container` queries on the pane they
     live in, never viewport media queries.
 
-## 3. Gates: run before you claim anything is done
+## 4. Gates: run before you claim anything is done
 
 ```bash
 bun run verify:ci     # the whole wall: everything below, in order
@@ -74,9 +94,10 @@ Or individually while iterating:
 | `bun run matrix:check` | docs/FORMAT-SUPPORT.md matches the live format registry |
 | `bun run license:audit` | no copyleft/restricted dependencies |
 
-A red gate is a stop sign, not a suggestion. Fix the cause; never weaken the gate.
+If a gate goes red, fix the cause rather than the gate; each one exists because the thing it
+checks has actually bitten this codebase before.
 
-## 4. Verification standard
+## 5. Verification standard
 
 - Red test first, then green: a bug fix starts with a test that fails without it.
 - UI work gets verified live in the running studio (`bun run dev`, loopback), not by reading the
@@ -84,7 +105,7 @@ A red gate is a stop sign, not a suggestion. Fix the cause; never weaken the gat
 - Claims about behavior are labeled honestly: code-read, unit-proven, or live-proven. Only the
   last one counts as done for user-facing behavior.
 
-## 5. Repo layout, thirty seconds
+## 6. Repo layout, thirty seconds
 
 ```
 src/core        engine: canonical model, detection, coverage, lore/regex/macro
@@ -100,7 +121,7 @@ specs/          engine and feature specs for planned milestones
 samples/        real platform files the tests chew on
 ```
 
-## 6. Security posture
+## 7. Security posture
 
 Read [SECURITY.md](SECURITY.md). If your change touches the server, paths, parsing, archives, or
 anything sandbox-adjacent, the relevant tests (`src/ui/server.test.ts`, `src/studio/path-policy.test.ts`,
