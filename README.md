@@ -11,6 +11,8 @@
 
 *Every platform invented its own card format. Hoplight speaks all of them.* 🐰
 
+*From the maker of [BunnyMo](https://github.com/Coneja-Chibi/BunnyMo), [TunnelVision](https://github.com/Coneja-Chibi/TunnelVision), and [VectHare](https://github.com/Coneja-Chibi/VectHare).* 🐇
+
 <p>
   <img alt="Status" src="https://img.shields.io/badge/Status-Active_Development-F20D3F">
   <img alt="License" src="https://img.shields.io/badge/License-AGPL--3.0-0a0a0b">
@@ -40,8 +42,12 @@ platform's format; the piece you keep working on is always your own copy.
 
 Right now that's hard to do. Every platform has its own card format, cards drift apart when you
 maintain a copy per platform, and an embedded lorebook can only be edited inside the app that made
-it. Hoplight reads all of those formats into one canonical model and prints back out to any of
-them, so the platforms become publish targets instead of the place your work lives.
+it.
+
+**Hoplight flips the relationship.** Your studio is the master copy; the platforms become publish
+targets.
+
+> *"The platforms stop being where your work lives. They become where your work performs."* 🎭🐰
 
 | Elsewhere | In Hoplight |
 |---|---|
@@ -733,6 +739,15 @@ license audit       : build fails on restricted dependencies
 | [docs/03-CONVENTIONS.md](docs/03-CONVENTIONS.md) | Code style and the rules the hooks enforce |
 | [docs/reference/](docs/reference/README.md) | Per-format, per-entity, per-surface reference |
 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | Why the consequential choices went the way they did |
+
+## 🤝 Compatibility
+
+- **🥕 BunnyMo**: BunnyMo lorebooks are SillyTavern lorebooks; they import, edit, and re-export
+  like any other book.
+- **Every platform listed above**: Hoplight reads and writes their formats; it replaces none of
+  them. They're where your work performs.
+- **Your files**: the studio folder is plain JSON. Scripts, git, rsync, and grep all work on it,
+  because it's just files.
 
 ---
 
