@@ -54,6 +54,30 @@ them, so the platforms become publish targets instead of the place your work liv
 
 ---
 
+## 🆚 "But the Platforms Have Editors Already?"
+
+They do. And they're built for chatting, not authoring. Three reasons a standalone studio wins:
+
+### 1. 🏠 **Platform editors edit one platform's view**
+
+SillyTavern's editor shows you SillyTavern's fields. Risu's shows Risu's. Neither can tell you
+what the OTHER platform will do to your card, so every cross-post is a guess. Hoplight's lens
+shows you every platform's view of the same piece, before you export.
+
+### 2. 🔗 **Your pieces stay linked**
+
+On the platforms, a character and its lorebook are one welded file, or two unrelated ones.
+Hoplight keeps them as separate, editable pieces that know about each other: edit the book once,
+and every export of the character carries the current version.
+
+### 3. 🗃️ **Your library outlives any platform**
+
+A platform editor stores your work in that platform's folder, in that platform's format, on that
+platform's terms. Hoplight stores plain JSON in a folder you own. If a platform dies tomorrow,
+you lose a publish target, not your work.
+
+---
+
 ## 🎞️ One Card, Start to Finish
 
 ```
@@ -82,101 +106,300 @@ That's the whole loop. Import honestly, edit with your eyes open, export with re
 
 ---
 
-## 🖥️ The Rooms
-
-### 📚 The Library *(everything you own, one room)*
+# 📚 The Library
 
 <img src="docs/media/shot-library.png" alt="The Library">
 
-Every piece in your studio, split into decks by kind with live counts, cover art pulled from the
-cards themselves, and a continuous art-size dial.
+Everything you own, one room. The Library is where pieces enter the studio and where you find them
+again.
 
-| View | What you get |
+### 🃏 **Decks** *(one shelf per content type)*
+
+The Library splits your studio into decks: **Characters, Lorebooks, Personas, Sprite packs,
+Presets, Regex sets**. Each deck chip carries a live count, so "Lorebooks 5" means five books,
+right now, including the ones that arrived embedded inside character cards. Click a chip, that
+deck takes the floor.
+
+### 👁️ **The Four Views** *(pick how you browse)*
+
+| View | How it works | Best for |
+|---|---|---|
+| **Grid** *(default)* | Art-forward cards in a fluid grid that reflows with the art dial | Browsing with your eyes |
+| **Show** | One piece at a time: hero art, the card's own tagline and description, prev/next and a thumb rail | Deciding if a card is any good |
+| **List** | Dense rows, no art ceremony | Big libraries, fast scanning |
+| **Shelf** | Spine-first browsing | Shelf people |
+
+The view toolbar builds itself from drop-in view modules; adding a fifth view is adding a folder.
+Your view choice and art size persist per user.
+
+### 🎚️ **The Art Dial** *(continuous, not steps)*
+
+A slider, not a S/M/L toggle. Drag it and the whole grid repaints live from 4rem to 36rem cards;
+release and it's saved. Covers come from the cards themselves: the PNG art a card was shipped
+with, or the portrait stored in the piece.
+
+### 📥 **Import** *(receipts in sentences)*
+
+Drag a file anywhere in the Library, or use the Import button. Every import produces a receipt in
+plain words:
+
+```
+Seraphina
+A character card, made for SillyTavern.
+We kept her portrait and her greeting.
+A lorebook came embedded; it is now its own piece, linked to her.
+```
+
+Lines only appear when they're true. If a card carries scripts, the receipt says so (they're kept
+as sealed data). If the file can't be read at all, you get a warm plain-words no, not a stack
+trace.
+
+### 🎯 **Multi-Select Staging** *(send batches, not singles)*
+
+Tapping pieces toggles them into a staging set that survives deck switches; a bar shows the live
+count and one Send commits the whole batch to the Workbench. The follow prompt fires once for the
+batch, not once per piece. Pieces already open just get a quiet "on the workbench" annotation.
+
+### 🖱️ **The Right-Click System** *(one menu, everywhere)*
+
+Every piece answers a right-click with the same menu grammar, extended per kind:
+
+| Action | What it does |
 |---|---|
-| **Grid** | Art-forward cards in a fluid grid; the default |
-| **Show** | One piece at a time: hero art, its own tagline, prev/next |
-| **List** | Dense rows when you have hundreds of pieces |
-| **Shelf** | The fourth view; browse by spine |
+| **Send to the Workbench** | Opens the piece in its editor |
+| **Open beside** | Pins it into a split next to the active piece |
+| **Stage for the Press** | Adds it to the batch-export queue |
 
-**Import is drag-and-drop anywhere.** Every import produces a receipt in sentences: what the file
-is, what was kept, and whether a lorebook came embedded. No stack traces, ever.
+Apps register their own providers into the same system, so the menu grows with the studio instead
+of fragmenting per room.
 
-**Multi-select is staging.** Tap pieces into a staging set (it survives deck switches), then send
-the whole batch to the Workbench in one action. Right-click any piece for the one-shot menu:
-send, open beside, stage for the Press.
+### 🧰 **Shelf Operations** *(each deck has its own verbs)*
 
-**Each deck has its own shelf operations.** Lorebooks can be merged and split; regex sets can be
-duplicated, toggled, and combined; characters carry their linked books with them.
+| Deck | Operations |
+|---|---|
+| **Lorebooks** | Merge books, split a book, attach to a character |
+| **Regex sets** | Duplicate, enable/disable, combine sets |
+| **Characters** | Travel with their linked lorebooks; kits are first-class |
+| **Personas** | The structured persona editor, same chassis as characters |
 
-### 🎬 The Workbench *(the casting office)*
+---
+
+# 🎬 The Workbench
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
-Characters are built through a **casting interview**: one question at a time with a progress
-count, while the proof sheet beside it fills in live, token estimate included. Answer what you
-want, jump around, watch the card take shape.
+The casting office. Where characters get made and everything gets edited.
 
-**The platform tabs are the lens.** Pick who you're writing for and the editor dims every field
-that platform won't carry, with Hide and Dim modes for off-target fields:
+### 🎤 **The Casting Interview** *(a card grows out of a conversation with yourself)*
+
+Characters are built through a guided interview: one question at a time ("What do we call them?"),
+with a progress count, skippable and revisitable. Beside it, the **proof sheet** fills in live:
+portrait, name, answered fields, and an honest token estimate.
+
+```
+CASTING · 1 of 49
+"What do we call them?"
+The name people see first. You can change it anytime.
+
+YOUR CHARACTER · taking shape
+~909 tokens · 7 of 49 answered
+```
+
+No forty-field form staring at you. The card takes shape while you answer, and the count never
+lies about how much of it exists yet.
+
+### 🔍 **The Lens** *(write for a platform, see what it carries)*
+
+The tabs across the top of the editor are platforms. Pick who you're writing for, and every field
+that platform won't carry is dimmed or hidden, your choice:
+
+| Off-target mode | Behavior |
+|---|---|
+| **Dim** | Fields the target won't carry are grayed but editable |
+| **Hide** | They're gone until you switch back to the full card |
 
 | Tab | What it edits |
 |---|---|
-| Hoplight | The full canonical card, everything |
-| SillyTavern, RoleCall, RisuAI, Lumiverse, Backyard, Agnai, Marinara, Chub | That platform's view of the card, plus its native field bags |
-| Default | Portable CCv3 for thin hosts |
+| **Hoplight** | The full canonical card, everything at once |
+| **SillyTavern / RoleCall / RisuAI / Lumiverse / Backyard / Agnai / Marinara / Chub** | That platform's view of the card, plus its native field bags |
+| **Default** | Portable CCv3 for thin hosts |
 
-**A readiness strip** tracks the card at a glance: portrait, name, core prompts, greeting, tags,
-lens check. **Rich platforms get native editors** for their platform-specific fields, so a Risu
-card's extras are edited as real controls, not a JSON blob. Open pieces live in the shell's tab
-strip, so they survive switching rooms, and any two pieces can sit side by side in a split.
+The lens runs on per-platform **coverage declarations**, the same ground truth the Press uses for
+readiness. The editor itself knows zero platforms; it just reads the claims.
 
-### 📖 The Binder *(lorebooks as a real editor)*
+### 🧭 **The Readiness Strip** *(what's done, at a glance)*
+
+A persistent strip tracks the card: **Portrait · Name · Core Prompts · Greeting · Tags · Lens
+Check**, with a count like `2/6`. It's a checklist, not a nag; it tells you what a stranger
+opening this card would find missing.
+
+### 🎒 **Native Field Bags** *(rich platforms get real editors)*
+
+Platforms with their own extra fields (Risu, Chub, Lumiverse, Agnai, Marinara...) get **native
+editors** for those fields: real controls, grouped the way that platform groups them, not a raw
+JSON blob labeled "extensions." What Hoplight can't map into the canonical model rides in the
+card's native bag and prints back out untouched.
+
+### 🖼️ **Media** *(portraits, sprites, expressions)*
+
+Portrait management with cropping, sprite packs as first-class pieces you open like folders, and
+art surfaces that show the piece's carried media honestly: what's embedded, what's referenced,
+what will actually export.
+
+### 🪟 **Tabs, Splits, and Follow** *(open pieces belong to the shell)*
+
+Open pieces live in the shell's tab strip, not inside one room, so they survive switching apps.
+Any two pieces can sit side by side in a split; a lorebook can even open beside itself on two
+different entries. Unsaved changes wear a dirty dot on the tab.
+
+When another room sends a piece to the Workbench, the follow prompt asks once:
+
+| Follow mode | Behavior |
+|---|---|
+| **Ask** *(default)* | "1 item was sent to the Workbench. Follow?" |
+| **Always** | Jump to the Workbench every time |
+| **Never** | Pieces open quietly in the background |
+
+### 🧪 **The Regex Bench** *(patterns with a test stage)*
+
+Regex sets get their own editor: per-rule pages, a natural-language rule builder, and a bench
+where you paste real text and watch what each rule matches and rewrites before you trust it.
+Sets can be imported from platform script formats and combined.
+
+---
+
+# 📖 The Binder
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
-A lorebook stops being a wall of JSON: a table of contents with drag-reorder and search, an
-always-on section for pinned entries, and one page per entry.
+Lorebooks as a real editor. A book stops being a wall of JSON the moment it opens.
 
-| Entry controls | What they do |
+### 📑 **The Table of Contents** *(the book at a glance)*
+
+Search across entries, drag rows to reorder, and an **Always On** section for pinned entries that
+inject unconditionally. Each row shows its enabled state, trigger mode, and position at a glance.
+The header keeps the honest tally: `2 entries · ~20 / 2048 tok`.
+
+### 🔑 **Keys and Trigger Modes** *(when does an entry fire?)*
+
+| Control | What it does |
 |---|---|
-| **Keys** | Simple or advanced trigger modes, primary + secondary keys, AND/OR logic |
-| **By meaning** | An entry can fire on similarity instead of exact words; keys are kept either way |
-| **Matching** | Whole-words and case tri-states that inherit from book defaults |
-| **When & where** | Chance, sticky, cooldown, delay, insertion position and depth, recursion controls, groups, all in one plain-words line |
-| **Budgets** | Token budget with honest per-entry estimates, always marked as estimates |
+| **Simple mode** | Primary keywords; entry fires when one appears |
+| **Advanced mode** | Primary + secondary key groups with AND/OR logic between them |
+| **By meaning** | The entry fires on similarity instead of exact words; your keys are kept either way |
+| **Matching** | Whole-words and case sensitivity as tri-states that inherit from the book's defaults |
 
-**Health checks run as you edit**: an entry with no keys and no always-on flag can never fire, and
-the binder says so instead of letting you ship a dead entry. **Write-for** works here too: pick
-the host platform and the binder shows what its wire actually carries.
+### ⏱️ **When and Where** *(activation, in one readable line)*
 
-### 🖨️ The Press *(batch export that tells the truth)*
+Every activation rule an entry carries is written as one plain-words line instead of a settings
+maze:
+
+```
+80% CHANCE · STICKS FOR 3 MESSAGES · COOLDOWN 2 MESSAGES · WAITS 1 MESSAGE FIRST
+· CANNOT BE WOKEN BY RECURSION · GROUP "PLACES"
+```
+
+Underneath it, the full control set:
+
+| Rule | Meaning |
+|---|---|
+| **Chance** | Probability the entry injects when triggered |
+| **Sticky** | Stays active for N messages once fired |
+| **Cooldown** | Won't re-fire for N messages after |
+| **Delay** | Waits N messages into the chat before it's eligible |
+| **Position + depth + role** | Where in the prompt it lands, and as whom |
+| **Recursion controls** | Whether other entries' text can wake it, and whether it can wake others |
+| **Groups + weights** | Mutually-exclusive entry groups with weighted selection |
+
+### 💰 **Budgets** *(tokens, honestly estimated)*
+
+Book-level token budget, per-entry estimates, always marked as estimates (`~12 tokens`), never
+passed off as exact. Priority decides what gets evicted when the budget runs out; order decides
+where survivors land.
+
+### 🩺 **Health** *(dead entries get called out)*
+
+An entry with no keys, no always-on flag, and no by-meaning mode can never fire. The binder says
+so while you're editing it, and the Press says it again in red before you print a book full of
+entries that will never do anything.
+
+### 🔭 **Write-For** *(the lens, for books)*
+
+Pick the host platform and the binder shows what its wire actually carries: which activation
+rules survive on SillyTavern, which collapse on a simpler host, what NovelAI's lorebook can and
+can't say. Same coverage ground truth as everywhere else.
+
+---
+
+# 🖨️ The Press
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
-Stage pieces from anywhere (right-click, or the rail in the room), pick one target platform, pull
-the lever.
+Batch export that tells the truth. Stage pieces, pick a platform, pull the lever.
 
-| The Press | Behavior |
+### 🎭 **The Staging Grammar** *(the queue is the room)*
+
+You don't browse your studio inside the Press. You **stage** pieces for it, from anywhere:
+right-click any piece, or click a stamp on the Press's own rail of unstaged pieces. The queue is
+shell state, so it survives switching rooms. The status bar keeps the count:
+`staged for the Press · 2 in the queue`.
+
+### 🎁 **Kits** *(characters travel with their luggage)*
+
+A staged character is a **kit**: his linked lorebooks ride along automatically, even books you
+never staged.
+
+| Kit behavior | What happens |
 |---|---|
-| **Kits** | A character travels with his linked lorebooks automatically, even ones you never staged; drop a rider from one run without unlinking anything |
-| **Readiness** | Every card shows what the target will carry: "9 of 23 filled - empty: nickname, personality, ..." with a jump to the editor |
-| **Lorebook checks** | A book whose entries can never fire says so in red before you print it |
-| **Filenames + flavor** | Name every file, and text formats can print as .json, .txt, or .md |
-| **Honest results** | Skips declared before the run, failures name their error, one zip for everything that printed |
+| **Riders** | Linked books appear under their character, marked "rides with" |
+| **Drop from this run** | Excludes a rider from one run without unlinking anything |
+| **Ride again** | Puts it back |
+| **No doubling** | A staged book already riding a kit isn't printed twice |
 
-Platforms that read CCv3 with their own extension bags (Marinara, Chub) print characters as a CCv3
-card, their native file, and the row says so.
+### ✅ **Readiness** *(before you print, not after)*
 
-### 🎨 The CSS Workshop *(restyle the studio itself)*
+Every staged card shows what the target platform will actually carry, using the same coverage
+claims as the editor lens:
 
-Live theme editing against real components: every color in the app is a token, and the workshop
-edits them while you watch. The same guard that keeps hardcoded colors out of the codebase keeps
-your theme portable.
+```
+Seraphina    9 of 23 filled - empty: nickname, personality, scenario, +11 more
+             · open in the editor
+```
 
-### ⚙️ Settings *(drop-in, like everything else)*
+Lorebooks get the fire check: a book whose entries can never fire says so in red, with a jump
+straight to the binder.
 
-Sections are drop-in folders: Appearance (theme + accent), Studio (home app, first deck, publish
-targets), Workbench (follow behavior). Every control is live against the running studio.
+### 🖋️ **Filenames and Flavor** *(you name the files)*
+
+Every row gets an editable filename before the run. Text-based formats can print as their normal
+extension or as `.txt` / `.md`; binary formats don't pretend they can.
+
+### 🧾 **The Run** *(honest, row by row)*
+
+| Row result | What it means |
+|---|---|
+| **Printed** | In the zip, with what it carries listed |
+| **Skipped** | Declared before the run even starts ("this platform has no persona format") |
+| **Failed** | The actual error, on the row that failed |
+
+Platforms that read CCv3 with their own extension bags (Marinara, Chub) print characters as a
+CCv3 card, their native file, and the row says so. Everything that printed lands in one zip,
+named for the platform.
+
+---
+
+# 🎨 The CSS Workshop
+
+Restyle the studio itself. Every color in the app is a token; the workshop edits them live against
+real components, and the same CI guard that keeps hardcoded colors out of the codebase keeps your
+theme portable.
+
+# ⚙️ Settings
+
+Drop-in sections, like everything else: **Appearance** (theme, house accent), **Studio** (home
+app, first deck, publish targets from the live format registry), **Workbench** (follow behavior).
+Every control is call-and-response against the running studio; theme and accent repaint
+instantly.
 
 ---
 
@@ -197,6 +420,45 @@ CCv3 ─────────┘                └── ...your studio, as 
   byte-honest, and CI enforces it on every commit.
 - **Sealed scripts.** Cards can carry Lua, macros, regex payloads. Hoplight inspects, reports,
   and preserves them. It runs none of them.
+
+## ⚙️ Settings Reference
+
+| Setting | Default | What it does |
+|---|---|---|
+| 🎨 Theme | Dark | Light or dark workspace; flip any time |
+| 🌹 Accent | Rose | One accent color for the workspace, from the house palette or a custom pick |
+| 🏠 Home app | The Workbench | Which room the studio opens on |
+| 🃏 First deck | Characters | Which deck the Library leads with |
+| 📡 Publish targets | Not set | The platforms you actually publish to, from the live format registry |
+| 🚪 Follow behavior | Ask | What happens when a piece is sent to the Workbench: ask, always follow, never |
+
+Settings sections are drop-in folders; each app can also keep its own per-user preferences
+(Library view and art size, Workbench view, dock state) namespaced by app id.
+
+## 🔧 Common Issues
+
+### "It won't open my file!" 😤
+
+- Run `bun run vaud inspect <file>`; it names what the file is, or says plainly that it can't be
+  read
+- `bun run vaud validate <file>` exits 0 if the file is openable at all; use it in scripts
+- If it's a real format we don't read yet, open an issue with a sample file
+
+### "My export is missing fields!" 🧐
+
+- Check the lens first: set the editor to the target platform and look at what's dimmed; dimmed
+  fields are the ones that platform cannot carry
+- The per-field truth for every platform lives in [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md)
+- Nothing is silently dropped: the export report lists what stayed home
+
+### "Where is my studio folder?" 📁
+
+- Default: `Documents/Vaude Studio`, one JSON file per piece
+- Run the studio against any folder with `bun run vaud ui 8321 path/to/studio`
+
+### "The port is taken!" 🔌
+
+- `bun run vaud ui <port>` takes any port; the studio binds loopback only either way
 
 ## ❓ FAQ
 
@@ -226,7 +488,8 @@ The round-trip suite will tell you whether your adapter is honest.
 
 **CLI or app?**
 Both, same engine. The studio is the daily driver; the CLI does convert, inspect, validate, and
-label for scripts and batch work, with `--json` output.
+label for scripts and batch work, with `--json` output. A real terminal face (TUI) is in
+progress.
 
 **Why AGPL?**
 So nobody closes this up and sells it back to the community it came from.
@@ -235,19 +498,39 @@ So nobody closes this up and sells it back to the community it came from.
 **What does the name mean?**
 Hop + limelight. The V is the maker's mark, the tapered H is the app's.
 
-## 🚀 Quick Start
+## 🚀 Installation & Setup
 
-Requires [Bun](https://bun.sh) 1.3+.
+### Prerequisites
+
+- **[Bun](https://bun.sh) 1.3+** (the only dependency you install yourself)
+- Some cards. You have cards.
+
+### Step 1: Install 📥
 
 ```bash
 git clone https://github.com/Coneja-Chibi/vaudeville-studios
 cd vaudeville-studios
 bun install
+```
 
+### Step 2: Open the studio 🎬
+
+```bash
+bun run dev
+```
+
+Loopback only. The first run walks you through four questions (theme, first deck, publish
+targets, accent) and everything can change later.
+
+### Step 3: Bring your work 📦
+
+Drag any card, book, or archive into the Library and read the receipt. Try the samples first if
+you want a dry run:
+
+```bash
 bun run vaud formats                                          # what can we open?
 bun run vaud inspect samples/sillytavern/Seraphina.png        # peek at a card
 bun run vaud convert samples/sillytavern/v3-full.json out.charx --to risu
-bun run dev                                                   # the studio, local only
 ```
 
 | Command | Purpose |
@@ -258,6 +541,8 @@ bun run dev                                                   # the studio, loca
 | `vaud label <file>` | Guess format and likely origin |
 | `vaud formats` | List every adapter |
 | `vaud ui [port] [studioDir]` | The visual studio (loopback only) |
+
+The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
 ## 🗺️ The Roadmap
 
