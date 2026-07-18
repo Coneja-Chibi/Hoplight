@@ -76,8 +76,11 @@ what the engine already knows - no new format logic.
 bundled step · `GET|POST /api/settings` (POST replaces the whole document; parse is fail-closed) ·
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
 canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
-`GET /api/studio/list|get` · `GET /api/studio/portrait?kind&id` (the entity's art: the escrowed
-PNG carrier, else a data-URI `body.media.portrait`; 404 when none) · `POST /api/studio/save`.
+`GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
+truth) · `GET /api/studio/list|get` · `GET /api/studio/portrait?kind&id` (the entity's art: the
+escrowed PNG carrier, else a data-URI `body.media.portrait`; 404 when none) ·
+`POST /api/studio/save` · `POST /api/studio/save-bundle` (character + related lorebooks; keep-both
+renames rewrite `knowledgeRefs`).
 
 ## The Library room (the shelves - deep browse)
 Empty studio = the locked first-run doors; populated = the browse room: deck chips with LIVE
@@ -179,6 +182,28 @@ tagline/description/personality; the writable editor replaces the pane's body ne
 - The app dock collapses to marks-only via the strip at its foot (persisted as `shell.dockSlim`);
   it is the same visual language as the locked narrow-screen mode, just user-driven. Tiles carry
   hover titles so the slim dock stays discoverable.
+
+## The Press room (batch export - the staged set prints)
+The staging grammar applied to export: the Library browses, pieces get STAGED for the Press
+(right-click "Stage for the Press", or the room's own left rail of unstaged-piece stamps), and the
+room works only its staged queue - no studio browser inside. The queue is shell-store state
+(`pressQueue` + `ctx.press`), so it survives app switches.
+- **Kits** (`press/press-kits.ts`, pure + tested): a staged character travels as a kit - his
+  `body.knowledgeRefs` lorebooks ride along automatically (resolved against the whole studio, even
+  when never staged), droppable per run ("drop from this run" / "ride again"); staged books already
+  riding a kit are not doubled as solos. Everything else rides solo.
+- **Readiness on every card** (`press/readiness-core.ts`, pure + tested): characters are read
+  against the run target's coverage claims (`/api/coverage` carries - the same ground truth as the
+  editor lens): "8 of 23 filled - empty: nickname, personality, +12 more" with an
+  open-in-the-editor fix link. Lorebooks get the can-it-ever-fire check (`lorebookKeyGap`: entries
+  with no triggers and not constant). No claims = an honest nothing, never fake green.
+- **One target per run** (`press/press-core.ts`: `groupPlatforms` folds extension-map hosts -
+  Marinara/Chub print characters as a CCv3 card, their native character file), per-card filename +
+  flavor (.json/.txt/.md only where the wire format is text), skip rows declared before the run,
+  per-row honest results (printed with carries / skipped with the reason / failed with the error),
+  one zip out.
+- Deferred, stated: delivery ledger + saved jobs, drag reorder, rehearse-bytes drawer, offer-rail
+  readiness dots.
 
 ## Settings (drop-in sections)
 Settings is built from section modules: one file in `src/ui/apps/settings/sections/` exporting a
