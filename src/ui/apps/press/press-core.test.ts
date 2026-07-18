@@ -98,3 +98,30 @@ describe("file flavor", () => {
     expect(flavorExtension("json", "txt")).toBe("txt");
   });
 });
+
+describe("extension-map hosts print characters as the card itself", () => {
+  const roster = [
+    fmt({ id: "marinara-regex", friendly: "Marinara", kind: "regex" }),
+    fmt({ id: "sillytavern", friendly: "SillyTavern", kind: "character" }),
+    fmt({ id: "novelai-lorebook", friendly: "NovelAI", kind: "lorebook" }),
+  ];
+
+  test("Marinara gains the CCv3 card as its character format, marked as such", () => {
+    const mari = groupPlatforms(roster).find((p) => p.friendly === "Marinara")!;
+    expect(mari.byKind.character?.id).toBe("sillytavern");
+    expect(mari.borrowed?.character).toContain("CCv3");
+  });
+
+  test("the planned row says what it prints as; true no-format hosts still skip", () => {
+    const platforms = groupPlatforms(roster);
+    const mari = platforms.find((p) => p.friendly === "Marinara")!;
+    const nai = platforms.find((p) => p.friendly === "NovelAI")!;
+    const char = piece({ kind: "character", name: "Adrian" });
+    expect(planRun([char], mari)[0]).toMatchObject({
+      status: "wait",
+      targetId: "sillytavern",
+      info: "prints as a CCv3 card, its native character file",
+    });
+    expect(planRun([char], nai)[0]).toMatchObject({ status: "skip" });
+  });
+});

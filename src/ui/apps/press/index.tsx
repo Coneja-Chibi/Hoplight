@@ -152,11 +152,12 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
         const body = isRec(entity) ? entity.body : undefined;
         const original = isRec(entity) ? entity.original : undefined;
         const chips = row.kind === "character" ? mediaExportSummary(body, original).chips : [];
+        const carries = chips.length > 0 ? `carries: ${chips.join(" · ")}` : undefined;
         plan[i] = {
           ...row,
           status: "ok",
           filename,
-          info: chips.length > 0 ? `carries: ${chips.join(" · ")}` : undefined,
+          info: [row.info, carries].filter(Boolean).join(" · ") || undefined,
         };
       } catch (e) {
         plan[i] = { ...row, status: "fail", note: e instanceof Error ? e.message : String(e) };

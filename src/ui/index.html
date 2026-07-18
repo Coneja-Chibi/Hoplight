@@ -14,6 +14,8 @@
    status bar. CSS transcribed from the locked artifact, colors swapped to tokens. Apps own their
    canvases; everything here is chrome. Furniture appears only when real state drives it. */
 *{box-sizing:border-box}
+/* scrollbars are chrome too: thin ink rails everywhere, never the raw platform bar */
+*{scrollbar-width:thin;scrollbar-color:var(--edge) transparent}
 html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:var(--text);
   font-family:var(--font-body);font-size:var(--text-body)}
 #shell{height:100dvh;display:grid;grid-template-columns:auto minmax(0,1fr);

@@ -4,12 +4,15 @@
  * shapes; the room (index.tsx) owns fetching, running, and the zip download edge.
  */
 import type { FormatInfo, StudioEntitySummary } from "../../app-contract";
+import { EXTENSION_PLATFORMS } from "../../../formats/_shared/extension-platforms";
 
 /** One target platform chip: a friendly name and its adapter per piece kind. */
 export interface PressPlatform {
   friendly: string;
   /** kind -> the adapter that prints that kind on this platform */
   byKind: Record<string, FormatInfo>;
+  /** kinds served by a neighbor format the platform reads natively (kind -> what it prints as) */
+  borrowed?: Record<string, string>;
 }
 
 /**
@@ -24,6 +27,18 @@ export function groupPlatforms(formats: readonly FormatInfo[]): PressPlatform[] 
     const entry = byFriendly.get(f.friendly) ?? { friendly: f.friendly, byKind: {} };
     if (entry.byKind[f.kind] === undefined) entry.byKind[f.kind] = f;
     byFriendly.set(f.friendly, entry);
+  }
+  // Extension-map hosts (Marinara, Chub) DO have a character format: the CCv3 card itself, with
+  // their fields riding the extensions bag. The generic Tavern card adapter prints it; the row says
+  // so. Sourced from EXTENSION_PLATFORMS, never hand-listed here.
+  const card = formats.find((f) => f.id === "sillytavern" && f.kind === "character");
+  if (card) {
+    for (const host of EXTENSION_PLATFORMS) {
+      const entry = byFriendly.get(host.label);
+      if (!entry || entry.byKind.character !== undefined) continue;
+      entry.byKind.character = card;
+      entry.borrowed = { ...(entry.borrowed ?? {}), character: "a CCv3 card, its native character file" };
+    }
   }
   return [...byFriendly.values()].sort((a, b) => a.friendly.localeCompare(b.friendly));
 }
@@ -61,7 +76,15 @@ export function planRun(picked: readonly StudioEntitySummary[], platform: PressP
         note: `${platform.friendly} has no ${p.kind} format`,
       };
     }
-    return { id: p.id, kind: p.kind, name: p.name, status: "wait", targetId: adapter.id };
+    const borrowed = platform.borrowed?.[p.kind];
+    return {
+      id: p.id,
+      kind: p.kind,
+      name: p.name,
+      status: "wait",
+      targetId: adapter.id,
+      ...(borrowed ? { info: `prints as ${borrowed}` } : {}),
+    };
   });
 }
 
