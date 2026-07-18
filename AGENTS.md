@@ -41,16 +41,16 @@ Working on a format adapter? Also read [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPP
 relevant page under [docs/reference/formats/](docs/reference/formats/README.md), and start from
 `src/formats/_template/`.
 
-## 3. The load-bearing rules
+## 3. Project rules
 
-These are the decisions the whole codebase leans on. Work that breaks one gets sent back for
-rework, so it's cheaper to know them up front.
+These apply to every change. Work that breaks one will be sent back, so read them before
+starting.
 
 1. **Hub and spoke only.** Every format maps to and from the canonical model
    (`src/core/canonical.ts`). Never write a format-to-format conversion.
-2. **Escrow is sacred.** The original imported file rides inside the saved piece. Nothing you
-   write may drop, rewrite, or "clean up" escrowed originals. Same-format round trips stay
-   byte-honest; CI has a suite that checks.
+2. **Never modify escrowed originals.** The original imported file is stored inside the saved
+   piece. Code must not drop, rewrite, or reformat it. Same-format round trips stay
+   byte-identical; CI has a suite that checks this.
 3. **Scripts never execute.** Lua, macros, regex payloads, anything executable inside a card is
    sealed data. The single exception (the test bench) runs in the wasmoon VM on the isolated
    sandbox origin per [ADR-009](docs/decisions/ADR-009-sandbox-origin.md); do not add a second
@@ -68,8 +68,7 @@ rework, so it's cheaper to know them up front.
 9. **Docs move with the code.** A change to any surface updates its page under
    `docs/reference/` in the same commit, truth-based, never aspirational.
 10. **Commits carry proof.** Every commit needs a test or a `Verified:` line describing how the
-    change was actually checked; a pre-commit hook checks for it, so it's easier to write it than
-    to fight it. Please don't bypass hooks.
+    change was checked; a pre-commit hook looks for it. Don't bypass hooks.
 11. **UI collapse is container-based.** Panels adapt via `@container` queries on the pane they
     live in, never viewport media queries.
 
@@ -94,8 +93,7 @@ Or individually while iterating:
 | `bun run matrix:check` | docs/FORMAT-SUPPORT.md matches the live format registry |
 | `bun run license:audit` | no copyleft/restricted dependencies |
 
-If a gate goes red, fix the cause rather than the gate; each one exists because the thing it
-checks has actually bitten this codebase before.
+If a gate fails, fix the cause. Don't modify the gate.
 
 ## 5. Verification standard
 
@@ -105,7 +103,7 @@ checks has actually bitten this codebase before.
 - Claims about behavior are labeled honestly: code-read, unit-proven, or live-proven. Only the
   last one counts as done for user-facing behavior.
 
-## 6. Repo layout, thirty seconds
+## 6. Repo layout
 
 ```
 src/core        engine: canonical model, detection, coverage, lore/regex/macro
