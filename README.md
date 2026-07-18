@@ -900,18 +900,36 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 <details>
 <summary>**What's been done to keep this thing safe?** 🛡️</summary>
 
-- **No privileges.** It never asks for administrator rights, installs no drivers, and touches no
-  system settings; it's a normal user program you can delete like any other
-- **Contained writes.** It writes only inside your studio folder, with path containment enforced
-  in code and covered by tests
-- **Loopback only.** The server binds to 127.0.0.1; nothing on your network or the internet can
-  reach it
-- **No script execution.** Anything executable that arrives inside a card is carried as sealed
-  data, never run
-- **Verifiable downloads.** Releases ship with SHA-256 checksums
-- One honest caveat: unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper show a
-  warning the first time. That's about a missing paid certificate, not about what the program
-  does; the code is right here to read.
+- **Loopback bind + per-launch session token.** The server binds 127.0.0.1 only. Every mutating
+  request requires a token minted at launch and injected into the served page; GETs are read-only.
+- **Fetch-metadata checks.** Cross-site requests are refused on Origin and Sec-Fetch-Site, so a
+  malicious page in your browser can't ride your session into the local API.
+- **CSP with per-response script hashes.** The shell serves a Content-Security-Policy whose
+  script hashes are computed per response; no external hosts, no unhashed inline script.
+- **Path containment.** Entity ids are validated against a safe-id policy and resolved strictly
+  inside the studio root; traversal attempts throw before any filesystem call. Covered by tests.
+- **Atomic writes.** Exclusive-create for new pieces, atomic replace for saves; a crash can't
+  leave a half-written file.
+- **Fail-closed parsing.** Request bodies are size-capped, JSON is parsed fail-closed, and saves
+  are schema-validated; anything the store couldn't re-read is rejected at the door.
+- **Bounded decompression.** Zip and PNG reading is size-capped; archive bombs die at the cap.
+- **No execution of card payloads.** Lua, macros, and regex scripts embedded in cards get static
+  analysis and honest reporting, never evaluation.
+- **The one exception is caged three deep.** The opt-in Risu test bench runs card triggers in
+  real PUC-Lua 5.4, but inside a WebAssembly VM (wasmoon) with hard timeouts, inside a web
+  worker, on a **separate sandbox origin** whose server allowlists exactly two files
+  (`worker.js`, `glue.wasm`), 404s every `/api/*` path, carries no session token, and pins its
+  own CSP (`base-uri 'none'`, `frame-ancestors 'none'`). Escaping the VM lands you in a room
+  with no doors. Even `calc::` expressions go through a hand-written numeric parser, not eval.
+- **Zero outbound calls.** There is no network client code targeting anything but 127.0.0.1 in
+  the codebase; grep it.
+- **CI holds the line.** ~1,950 tests including path-containment, server-security, and round-trip
+  suites run on every commit.
+- Unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper warn on first run. That's
+  a missing paid certificate, not behavior; verify the SHA-256 checksums shipped with releases.
+
+**Found a hole?** Report it privately first: **chibiconeja@gmail.com** (also in
+[SECURITY.md](SECURITY.md)). You'll get a reply, a fix, and credit if you want it.
 
 
 </details>
