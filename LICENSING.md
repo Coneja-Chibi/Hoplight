@@ -1,3 +1,17 @@
+﻿<div align="center">
+
+<img src="docs/media/vaudeville-v.png" alt="" width="56">
+
+<sub>· A CONEJA-CHIBI PRODUCTION ·</sub>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/media/hoplight-wordmark-dark.png">
+  <img src="docs/media/hoplight-wordmark-light.png" alt="Hoplight" width="320">
+</picture>
+
+</div>
+
+---
 # Licensing
 
 Vaudeville Studios is free software under the **GNU AGPL-3.0-or-later**. The full text is in
