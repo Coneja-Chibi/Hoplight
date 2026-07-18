@@ -203,24 +203,24 @@ bun run dev                                                   # the studio, loca
 
 ## 🗺️ The Roadmap
 
-The real one, with exit criteria per milestone: [docs/ROADMAP.md](docs/ROADMAP.md).
+Full version with exit criteria: [docs/ROADMAP.md](docs/ROADMAP.md).
 
-| Milestone | What it is | Status |
+| | What it is | Status |
 | --- | --- | --- |
-| M0 · Foundation | Canonical schemas, escrow, PNG codec, round-trip law in CI | ✅ Done |
-| M1 · The Converter | CLI convert/inspect/validate, detection, format matrix | ✅ Done |
-| Character forge | 9+ platforms, native field editors, the lens | ✅ Closed |
-| Content types | Lorebooks, regex, personas, media editors | ✅ Done · presets in build 🔨 |
-| M6 · The Studio | The desktop app | 🔨 Runs daily; packaging left |
-| M3 · The Script Doctor | Deterministic card audits + health score, no key needed | 🎫 Ticket deck cut |
-| M2 · The Brain | Provider layer + agent loop, BYOK, local models | 🕐 Not started |
-| M4 · The Table Read | Interview engine that grows a card from a conversation | 🕐 Not started |
-| M5 · Productions | Workspaces, content-addressed history, test stage | 🌗 Test bench live; rest open |
-| M7 · Archives + World Forge | Distill from chat logs with citations; grown worlds | 🕐 Not started |
+| Engine + converter | Canonical model, escrow, round-trip law in CI, convert/inspect/validate | ✅ Done |
+| Character editing | 9+ platforms, native field editors, the lens | ✅ Done |
+| Content types | Lorebook, regex, persona, media editors; preset editor in build | ✅ · 🔨 |
+| The studio app | Already the daily driver; desktop packaging left | 🔨 |
+| CLI / TUI | A real terminal face for the engine, beyond today's basic commands | 🚧 WIP |
+| Slop detection | Programmatic slop detector + deterministic card audits with a health score, no API key | 🎫 Planned, tickets cut |
+| The agent | An agent loop over your studio: BYOK + local models, staged edits it can never commit alone, eval harness before features (ADR-006) | 🕐 Planned |
+| Prompt evolution | GEPA-style reflective optimization of prompts and cards against evals | 🕐 Planned |
+| Interview engine | Grows a card from a conversation instead of a form | 🕐 Planned |
+| Productions | Workspaces, content-addressed history, test stage | 🌗 Test bench live |
+| Log distillation + worlds | Characters distilled from real chat logs with citations; grown worlds | 🕐 Planned |
 
-Near-term, between milestones: the Press ledger (run history, saved jobs, staleness flags), the
-Hoplight mascot landing in tours and empty states, reference pages for the newest four adapters,
-and the capability sandbox design for the day scripts earn the right to run.
+Near-term: the Press ledger, the mascot landing in tours and empty states, reference pages for the
+newest four adapters, the capability sandbox design.
 
 ## 🏗️ Architecture (For the Curious)
 
@@ -253,17 +253,10 @@ that fails the build on restricted dependencies.
 | [docs/reference/](docs/reference/README.md) | Per-format, per-entity, per-surface reference |
 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | Why the consequential choices went the way they did |
 
-## 📜 License
-
-[AGPL-3.0-or-later](LICENSE). Plain-terms version: [LICENSING.md](LICENSING.md). Dependencies stay
-permissive, enforced by `bun run license:audit`.
-
 ---
 
 <div align="center">
 
-*Hoplight: because your characters shouldn't need a passport.* 🐰
-
-*Built with stubbornness, Bun, and roughly 1,950 tests standing between you and data loss.*
+*Your favorite rabbit's favorite ~~rabb~~ perfectly normal woman.* 🐰💋✨
 
 </div>
