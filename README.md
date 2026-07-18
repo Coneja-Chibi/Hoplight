@@ -27,15 +27,30 @@
 
 > **You should be able to create, edit, and interact with all your work in an app linked to no platform, and port it out when you choose. A storage vault, a creator's lab, or both.**
 
-One canonical model in the middle, an honest adapter per platform, and your whole library as plain
-JSON on your own disk. No accounts, no telemetry, no cloud. Everything in this repo follows from
-that sentence.
+The whole design is three pieces:
+
+- one canonical model in the middle
+- an honest adapter per platform
+- your whole library as plain JSON on your own disk
+
+No accounts, no telemetry, no cloud. Everything in this repo follows from that sentence.
 
 ---
 
 ## 🎪 What is Hoplight?
 
-Hoplight is a home base for AI-roleplay work. Characters, lorebooks, personas, presets, regex sets, and sprites all live in one local studio with real editors, instead of being scattered across whatever apps happen to read their formats. It is a building with rooms: a **Library** where your work comes in and waits, a **Workbench** where it gets cast and edited, a **Binder** for your lorebooks, and a **Press** that ships it out. One studio. Yours.
+**Hoplight is a home base for AI-roleplay work.** Characters, lorebooks, personas, presets, regex
+sets, and sprites all live in one local studio with real editors, instead of being scattered across
+whatever apps happen to read their formats.
+
+It is a building with rooms:
+
+- a **Library** where your work comes in and waits
+- a **Workbench** where it gets cast and edited
+- a **Binder** for your lorebooks
+- a **Press** that ships it out
+
+One studio. Yours.
 
 **Hoplight flips the relationship.** Your studio is the master copy; the platforms become publish targets. When you want to post somewhere, you export to that platform's format, and the piece you keep working on is always your own copy, in your own folder, in plain JSON you can read yourself.
 
@@ -45,9 +60,15 @@ Hoplight is a home base for AI-roleplay work. Characters, lorebooks, personas, p
 
 ## 🧠 Why This is Better (The Format Problem)
 
-Let's talk about **formats**. Every platform invented its own. SillyTavern packs cards into PNG, JSON, and charx. Backyard has its .byaf archives. Risu, Agnai, Lumiverse, Marinara, Chub, and NovelAI each speak their own dialect of the same family, and none of them speak it quite the same way.
+**Let's talk about formats.** Every platform invented its own:
 
-That would be fine if you only ever used one. Nobody uses only one. So you keep a copy on each platform, and the copies drift the instant you touch one of them. The lorebook you spent a weekend on ends up welded inside a PNG only one app can open.
+- SillyTavern packs cards into PNG, JSON, and charx
+- Backyard has its .byaf archives
+- Risu, Agnai, Lumiverse, Marinara, Chub, and NovelAI each speak their own dialect of the same family
+
+None of them speak it quite the same way.
+
+That would be fine if you only ever used one. **Nobody uses only one.** So you keep a copy on each platform, and the copies drift the instant you touch one of them. The lorebook you spent a weekend on ends up welded inside a PNG only one app can open.
 
 **Hoplight solves the format problem differently.** One canonical piece sits in the middle, and an honest adapter maps it to and from each platform. Nothing lives in a dialect; everything lives in the middle and gets translated at the door.
 
@@ -60,37 +81,58 @@ That would be fine if you only ever used one. Nobody uses only one. So you keep 
 | Guessing which fields a platform reads | An editor lens that dims what the target won't carry 🔍 |
 | Embedded scripts run on trust | Scripts carried as data, never executed 🔒 |
 
-**Your work is no longer tied to any single format.** The original file you imported is escrowed inside every saved piece, so nothing you brought in can ever be lost by editing it, and a same-format round trip comes back byte-for-byte identical. The platforms read their dialects. You keep the source of truth. 🎯
+> **Your work is no longer tied to any single format.** The original file is escrowed inside every saved piece, nothing you brought in can be lost by editing it, and a same-format round trip comes back byte-for-byte identical. The platforms read their dialects. You keep the source of truth. 🎯
 
 ---
 
 ## 🆚 "But the Platforms Have Editors Already?"
 
-They do. And they are built for chatting, not authoring. A platform's editor exists to get a card into that platform and running, not to be the place you actually make your work. Three reasons a standalone studio wins:
+**They do. And they are built for chatting, not authoring.** A platform's editor exists to get a
+card into that platform and running, not to be the place you actually make your work.
+
+Three reasons a standalone studio wins:
 
 ### 1. 🏠 **Platform editors edit one platform's view**
 
 SillyTavern's editor shows you SillyTavern's fields. Risu's editor shows you Risu's. Neither one can tell you what the *other* platform will do to your card, because that isn't their job. So every cross-post is a guess.
 
-**Hoplight's lens shows you every platform's view of the same piece, before you export.** Pick who you are writing for from the tabs across the editor, and every field that platform will not carry is dimmed or hidden, your choice. The lens runs on per-platform coverage declarations, the same ground truth the Press uses when it tells you a card is ready; the editor itself knows zero platforms, it just reads the claims. You write once, and you *see* how every platform will read it before a single one does. 🔍
+**Hoplight's lens shows you every platform's view of the same piece, before you export.**
+
+- Pick who you are writing for from the tabs across the editor, and every field that platform will not carry is dimmed or hidden, your choice.
+- The lens runs on per-platform coverage declarations, the same ground truth the Press uses when it tells you a card is ready. The editor itself knows zero platforms; it just reads the claims.
+- You write once, and you *see* how every platform will read it before a single one does. 🔍
 
 ### 2. 🔗 **Your pieces stay linked**
 
 On the platforms, a character and its lorebook are one welded file you cannot edit apart, or two unrelated files that have never heard of each other. Change the book and you are hand-syncing it into every character that used it.
 
-**Hoplight keeps them as separate, editable pieces that know about each other.** Edit the book once, and every export of the character carries the current version. Stage that character for the Press and its linked lorebooks ride along as a kit, even books you never staged, and a book already riding a kit is never printed twice. The character travels with its luggage. 🎁
+**Hoplight keeps them as separate, editable pieces that know about each other.**
+
+- Edit the book once, and every export of the character carries the current version.
+- Stage that character for the Press and its linked lorebooks ride along as a kit, even books you never staged, and a book already riding a kit is never printed twice.
+- The character travels with its luggage. 🎁
 
 ### 3. 🗃️ **Your library outlives any platform**
 
 A platform editor stores your work in that platform's folder, in that platform's format. That's the right call for the platform, and it also means your library's fate is tied to one app's.
 
-**Hoplight stores plain JSON in a folder you own.** One piece, one file, readable in any text editor, greppable, versionable with git, backed up with rsync, because it is just files. The original you imported is escrowed inside every saved piece, so a conversion can never damage what you started with. If a platform dies tomorrow, you lose a publish target, not your work. 🗄️
+**Hoplight stores plain JSON in a folder you own.**
+
+- One piece, one file, readable in any text editor, greppable, versionable with git, backed up with rsync, because it is just files.
+- The original you imported is escrowed inside every saved piece, so a conversion can never damage what you started with.
+- If a platform dies tomorrow, you lose a publish target, not your work. 🗄️
 
 ---
 
 ## ⚙️ How It Actually Works
 
-Under all the rooms is one idea, wearing no costume: a single canonical model in the middle, and an honest adapter per platform hanging off it. Every format you drop in gets read into that one shape. Every format you export gets written back out of it. The studio is the master copy; the platforms are doors.
+**Under all the rooms is one idea, wearing no costume:** a single canonical model in the middle, and
+an honest adapter per platform hanging off it.
+
+- Every format you drop in gets read into that one shape.
+- Every format you export gets written back out of it.
+
+The studio is the master copy; the platforms are doors.
 
 ```
 SillyTavern ──┐                ┌── RisuAI
@@ -103,13 +145,30 @@ CCv3 ─────────┘                └── ...your studio, as 
 
 ### 🎡 **Hub and Spoke** *(N adapters, not N²)*
 
-Every platform speaks to the canonical model in the middle, never directly to each other. That is the whole trick. Wire ten platforms to convert straight into each other and you are on the hook for roughly a hundred conversions to build and keep honest (N²). Route them all through one canonical shape and you owe ten adapters, one per platform (N). Adding a platform is dropping a folder into `src/formats/`, and the CLI, the editor, the export dialog, and the Press all gain the format with zero central registration. You do not have to take a new adapter's word for it, either: the round-trip suite chews on real fixture files and tells you whether your adapter is honest.
+**Every platform speaks to the canonical model in the middle, never directly to each other.** That
+is the whole trick. Here is the math:
+
+| Wiring | What you owe |
+|---|---|
+| Ten platforms wired straight into each other | Roughly a hundred conversions to build and keep honest (N²) |
+| All routed through one canonical shape | Ten adapters, one per platform (N) |
+
+Adding a platform is dropping a folder into `src/formats/`, and the CLI, the editor, the export
+dialog, and the Press all gain the format with zero central registration.
+
+You do not have to take a new adapter's word for it, either: the round-trip suite chews on real
+fixture files and tells you whether your adapter is honest.
 
 *Ten platforms, ten adapters. Not a hundred. The math is the whole reason this stays maintainable.* 🐰
 
 ### 🗄️ **Escrow** *(the original rides along)*
 
-When you import a file, Hoplight does not throw the original away and keep only the parts it understood. The original file rides inside the saved piece. So a same-format round trip, SillyTavern in and SillyTavern out, comes back byte-honest, faithful right down to the fields the canonical model never even bothered to name. Anything a platform carries that has no home in the canonical shape rides in escrow instead of getting dropped, and prints back out untouched. CI enforces this on every commit: a deliberately broken round trip fails the build.
+**When you import a file, Hoplight does not throw the original away and keep only the parts it
+understood.** The original file rides inside the saved piece.
+
+- A same-format round trip, SillyTavern in and SillyTavern out, comes back byte-honest, faithful right down to the fields the canonical model never even bothered to name.
+- Anything a platform carries that has no home in the canonical shape rides in escrow instead of getting dropped, and prints back out untouched.
+- CI enforces this on every commit: a deliberately broken round trip fails the build.
 
 > **Nothing you import can be lost by editing it.** The file you dropped in is still in there, whole, no matter how much you rewrite around it.
 
@@ -117,7 +176,14 @@ When you import a file, Hoplight does not throw the original away and keep only 
 
 ### 🔒 **Sealed Scripts** *(carried as data, never performed)*
 
-Cards in the wild carry code: Lua trigger scripts, macro payloads, regex rewrite rules. Hoplight treats every one of them as data, not as a program. It inspects them, reports what it found in plain words, and preserves them faithfully through export. It runs none of them. The only place a carried script is ever executed is the sealed room, a hardened, card-local analysis stage with a hard kill switch, never as trusted code touching your files.
+**Cards in the wild carry code:** Lua trigger scripts, macro payloads, regex rewrite rules. Hoplight
+treats every one of them as data, not as a program.
+
+- It inspects them, reports what it found in plain words, and preserves them faithfully through export.
+- It runs none of them.
+
+The only place a carried script is ever executed is the sealed room: a hardened, card-local analysis
+stage with a hard kill switch, never as trusted code touching your files.
 
 *A card can smuggle a script past the door. It never gets to perform on your stage.* 🎭
 
@@ -151,7 +217,13 @@ You drop Seraphina.png onto the Library floor
 📦 One zip drops: seraphina.charx, her lorebook, and an honest per-file result line
 ```
 
-**And nothing got mangled to get here.** The same-format round trip stayed byte-honest, the embedded book became a real piece instead of staying welded inside a PNG only one app can open, and any script the card carried rode through as sealed data. That is the whole loop.
+**And nothing got mangled to get here:**
+
+- The same-format round trip stayed byte-honest.
+- The embedded book became a real piece instead of staying welded inside a PNG only one app can open.
+- Any script the card carried rode through as sealed data.
+
+That is the whole loop.
 
 > **Honest in, honest out, and your original still whole at every step.**
 
@@ -161,13 +233,20 @@ You drop Seraphina.png onto the Library floor
 
 <img src="docs/media/shot-library.png" alt="The Library">
 
-Everything you own, one room. The Library is the front of house: where pieces enter the studio, and where you find them again when you need them. Whatever you dropped in last weekend is here, sorted, counted, and one click from the stage.
+**Everything you own, one room.** The Library is the front of house:
+- where pieces enter the studio,
+- and where you find them again when you need them.
+
+Whatever you dropped in last weekend is here, sorted, counted, and one click from the stage.
 
 > *"The platforms are where your work performs. The Library is where it lives between shows."* 🎭🐰
 
 ### 🃏 **Decks** *(one shelf per content type)*
 
-The Library splits your studio into decks, one per kind of thing you make: **Characters, Lorebooks, Personas, Sprite packs, Presets, Regex sets**. Each deck chip carries a live count pulled straight off your disk, so "Lorebooks 5" means five books right now, this second, including the ones that arrived embedded inside character cards and stepped out on their own. Click a chip and that deck takes the floor; the room repaints around it.
+The Library splits your studio into decks, one per kind of thing you make: **Characters, Lorebooks, Personas, Sprite packs, Presets, Regex sets**.
+
+- Each deck chip carries a live count pulled straight off your disk, so "Lorebooks 5" means five books right now, this second, including the ones that arrived embedded inside character cards and stepped out on their own.
+- Click a chip and that deck takes the floor; the room repaints around it.
 
 *Six decks, one room. The count never lies, because it is just how many files are actually sitting in the folder.* 🗂️
 
@@ -182,13 +261,17 @@ One deck, four ways to look at it. Every view reads the same pieces off the same
 | 📄 **List** | Dense rows, no art ceremony | Big libraries, fast scanning |
 | 📚 **Shelf** | Spine-first browsing | Shelf people |
 
-The view toolbar builds itself from drop-in view modules, so adding a fifth way to browse is adding a folder, not touching the Library. Your view choice and your art size persist per user, so the room opens the way you left it.
+**Drop-in, and it remembers you.**
+- The view toolbar builds itself from drop-in view modules, so adding a fifth way to browse is adding a folder, not touching the Library.
+- Your view choice and your art size persist per user, so the room opens the way you left it.
 
 *Same cast, four different stagings. Grid for the eyes, List for the hunt, Show to audition one, Shelf for the spine.* 👀
 
 ### 🎚️ **The Art Dial** *(continuous, not steps)*
 
-Not an S/M/L toggle. A real slider. Drag it and the whole grid repaints live, cards growing from 4rem thumbnails to 36rem near-posters and every size in between; let go and the size is saved. The covers are the cards' own: the PNG art a card shipped with, or the portrait stored inside the piece.
+**Not an S/M/L toggle. A real slider.**
+- Drag it and the whole grid repaints live, cards growing from 4rem thumbnails to 36rem near-posters and every size in between; let go and the size is saved.
+- The covers are the cards' own: the PNG art a card shipped with, or the portrait stored inside the piece.
 
 *Zoom the entire room with one thumb, from contact sheet to poster wall and back.* 🔎
 
@@ -203,19 +286,24 @@ We kept her portrait and her greeting.
 A lorebook came embedded; it is now its own piece, linked to her.
 ```
 
-Every line is load-bearing and only appears when it is true. If a card carries scripts, the receipt says so, and notes they are kept as sealed data. If the file cannot be read at all, you get a warm plain-words no, not a stack trace and not a silent shrug.
+**Every line is load-bearing and only appears when it is true.**
+- If a card carries scripts, the receipt says so, and notes they are kept as sealed data.
+- If the file cannot be read at all, you get a warm plain-words no, not a stack trace and not a silent shrug.
 
 *No schema dumps, no "success (0 warnings)". Just a straight answer about what walked in the door.* 🧾
 
 ### 🎯 **Multi-Select Staging** *(send batches, not singles)*
 
-Tap pieces and they toggle into a staging set that survives switching decks, so you can grab a character here, two lorebooks there, and a persona from a third deck without ever losing the pile. A bar keeps the live count, and one Send commits the whole batch to the Workbench at once. The follow prompt fires once for the batch, not once per piece, and anything already open just picks up a quiet "on the workbench" note instead of a second copy.
+**Tap pieces and they toggle into a staging set that survives switching decks,** so you can grab a character here, two lorebooks there, and a persona from a third deck without ever losing the pile.
+
+- A bar keeps the live count, and one Send commits the whole batch to the Workbench at once.
+- The follow prompt fires once for the batch, not once per piece, and anything already open just picks up a quiet "on the workbench" note instead of a second copy.
 
 *Gather the whole cast across three decks, then send them all backstage in one gesture.* 🎯
 
 ### 🖱️ **The Right-Click System** *(one menu, everywhere)*
 
-Every piece in the studio answers a right-click with the same menu grammar, so the gesture you learn in the Library works in every room of the building. The core verbs:
+**Every piece in the studio answers a right-click with the same menu grammar,** so the gesture you learn in the Library works in every room of the building. The core verbs:
 
 | Action | What it does |
 |---|---|
@@ -229,7 +317,7 @@ Apps register their own providers into the very same menu, so it grows richer as
 
 ### 🧰 **Shelf Operations** *(each deck has its own verbs)*
 
-Beyond the shared menu, each deck brings operations that only make sense for its own kind of thing. A book can be merged; a regex set can be toggled; a character walks in with its whole entourage.
+**Beyond the shared menu, each deck brings operations that only make sense for its own kind of thing.** A book can be merged; a regex set can be toggled; a character walks in with its whole entourage.
 
 | Deck | Operations |
 |---|---|
@@ -246,15 +334,18 @@ Beyond the shared menu, each deck brings operations that only make sense for its
 
 <img src="docs/media/shot-casting.png" alt="The Workbench">
 
-The casting office. This is where characters get cast, and where every other piece in your studio, book, persona, regex set, gets edited. One room, real editors, and nobody from a platform leaning over your shoulder telling you which fields you're allowed to fill in.
+**The casting office.** This is where characters get cast, and where every other piece in your studio, book, persona, regex set, gets edited. One room, real editors, and nobody from a platform leaning over your shoulder telling you which fields you're allowed to fill in.
 
 > *"Platform editors put you in one platform's dressing room. The Workbench hands you the whole theater."* 🎭🐰
 
 ### 🎤 **The Casting Interview** *(a card grows out of a conversation, not a form)*
 
-Most editors open with a wall. Forty empty fields, a blinking cursor, and the quiet suggestion that you should already know what belongs in "Post-History Instructions." The Workbench opens with a question instead.
+**Most editors open with a wall.** Forty empty fields, a blinking cursor, and the quiet suggestion that you should already know what belongs in "Post-History Instructions." The Workbench opens with a question instead.
 
-**How it works:** the Casting Interview walks the card out of you one question at a time. "What do we call them?" Answer it, get the next one. Skip the ones you don't care about, circle back later, the interview doesn't mind. A running count tells you where you are in the run, and beside the questions the **proof sheet** assembles the card live: the portrait, the name, every field you've answered, and an honest token estimate that ticks up as you type.
+**How it works:** the Casting Interview walks the card out of you one question at a time.
+- "What do we call them?" Answer it, get the next one.
+- Skip the ones you don't care about, circle back later, the interview doesn't mind.
+- A running count tells you where you are in the run, and beside the questions the **proof sheet** assembles the card live: the portrait, the name, every field you've answered, and an honest token estimate that ticks up as you type.
 
 ```
 CASTING · 1 of 49
@@ -265,13 +356,15 @@ YOUR CHARACTER · taking shape
 ~909 tokens · 7 of 49 answered
 ```
 
-No forty-field form staring you down. The card takes shape while you talk, and that count never lies about how much of it actually exists yet.
+No forty-field form staring you down.
+
+> **The card takes shape while you talk, and the count never lies about how much of it actually exists yet.**
 
 *No blank forms. Just a conversation that happens to leave a character behind.* 🎬
 
 ### 🔍 **The Lens** *(write for one platform, see exactly what it carries)*
 
-Here's the problem every botmaker knows in their bones: you write a gorgeous card in one app's editor, export it to another, and half of it quietly evaporates because the target's wire never carried those fields. You find out *after* you've published. The Lens kills that surprise dead.
+**Here's the problem every botmaker knows in their bones:** you write a gorgeous card in one app's editor, export it to another, and half of it quietly evaporates because the target's wire never carried those fields. You find out *after* you've published. The Lens kills that surprise dead.
 
 **The tabs across the top of the editor are platforms.** Click one and you're now writing *for* that platform. Every field it won't carry gets dimmed or hidden, your call:
 
@@ -297,31 +390,47 @@ Here's the problem every botmaker knows in their bones: you write a gorgeous car
 
 ### 🧭 **The Readiness Strip** *(what's done, at a glance)*
 
-A thin strip rides along with the card the whole time you're working, keeping score:
+**A thin strip rides along with the card the whole time you're working, keeping score:**
 
 ```
 Portrait · Name · Core Prompts · Greeting · Tags · Lens Check          2/6
 ```
 
-It's a checklist, not a nag. Nothing blinks red, nothing blocks you. It just answers the one question you can't answer for yourself once you've been staring at a card for an hour: what would a total stranger opening this card find missing?
+**It's a checklist, not a nag.** Nothing blinks red, nothing blocks you. It just answers the one question you can't answer for yourself once you've been staring at a card for an hour: what would a total stranger opening this card find missing?
 
 ### 🎒 **Native Field Bags** *(rich platforms get real controls, not a JSON dump)*
 
-Some platforms carry fields nobody else has. Risu, Chub, Lumiverse, Agnai, Marinara, they all bolt their own extras onto the card. Most tools that even bother to keep those fields dump them into a raw JSON blob labeled "extensions" and wish you luck.
+**Some platforms carry fields nobody else has.** Risu, Chub, Lumiverse, Agnai, Marinara, they all bolt their own extras onto the card. Most tools that even bother to keep those fields dump them into a raw JSON blob labeled "extensions" and wish you luck.
 
-Hoplight gives every one of them a **real editor**: actual controls, grouped the way that platform groups them, sitting right in that platform's tab. And the stuff Hoplight genuinely can't map into its canonical model? It doesn't guess and it doesn't drop it. It rides along in the card's **native bag** and prints back out untouched.
+Hoplight gives every one of them a **real editor**: actual controls, grouped the way that platform groups them, sitting right in that platform's tab.
+
+> **What Hoplight genuinely can't map into its canonical model, it doesn't guess and doesn't drop; it rides in the card's native bag and prints back out untouched.**
 
 *Your Risu fields are Risu controls. Not a text area full of curly braces.*
 
 ### 🖼️ **Media** *(portraits, sprites, expressions)*
 
-Portrait management with cropping. Sprite packs that are first-class pieces you open like folders instead of ZIPs you pray about. And every art surface is honest about what the piece is actually carrying: what's **embedded** in the file, what's merely **referenced**, and what will **actually export** when you print it. No "wait, where did the portrait go" surprises at the Press.
+**Portrait management with cropping.** Sprite packs are first-class pieces you open like folders instead of ZIPs you pray about. And every art surface is honest about what the piece is actually carrying:
+- what's **embedded** in the file,
+- what's merely **referenced**,
+- and what will **actually export** when you print it.
+
+No "wait, where did the portrait go" surprises at the Press.
 
 ### 🪟 **Tabs, Splits, and Follow** *(open pieces belong to the whole theater, not one room)*
 
-Every piece you open lives in the shell's tab strip, not buried inside one room. Wander over to the Library, duck into the Press, come back, your tabs are exactly where you left them. Unsaved work wears a **dirty dot** on its tab, so you always know what's still owed a save.
+**Every piece you open lives in the shell's tab strip, not buried inside one room.**
+- Wander over to the Library, duck into the Press, come back, your tabs are exactly where you left them.
+- Unsaved work wears a **dirty dot** on its tab, so you always know what's still owed a save.
 
-**Anything can sit beside anything.** Pin a second piece into a split and edit two things at once: a character next to its lorebook, two different characters, or the same lorebook open beside itself on two different entries. When the stage gets too narrow for two readable panes, the split stacks vertically instead of squeezing.
+**Anything can sit beside anything.** Pin a second piece into a split and edit two things at once:
+- a character next to its lorebook,
+- two different characters,
+- or the same lorebook open beside itself on two different entries.
+
+When the stage gets too narrow for two readable panes, the split stacks vertically instead of squeezing.
+
+> **Open pieces belong to the whole theater, not one room, and anything can sit beside anything.**
 
 And when another room sends a piece over to be edited, the Workbench asks once how pushy it should be:
 
@@ -333,7 +442,11 @@ And when another room sends a piece over to be edited, the Workbench asks once h
 
 ### 🧪 **The Regex Bench** *(patterns with a test stage)*
 
-Regex is where good intentions go to silently break. So regex sets get their own editor, with a stage to rehearse on before anything goes live. Each rule gets its own page. A **natural-language rule builder** lets you describe what you want instead of hand-crafting the incantation. And the **bench** is the whole point: paste in real text and watch, rule by rule, exactly what matches and what it rewrites, before you trust any of it in a chat. Bring sets in from platform script formats, combine them, and test the combination on the same stage.
+**Regex is where good intentions go to silently break.** So regex sets get their own editor, with a stage to rehearse on before anything goes live.
+- Each rule gets its own page.
+- A **natural-language rule builder** lets you describe what you want instead of hand-crafting the incantation.
+- And the **bench** is the whole point: paste in real text and watch, rule by rule, exactly what matches and what it rewrites, before you trust any of it in a chat.
+- Bring sets in from platform script formats, combine them, and test the combination on the same stage.
 
 > *"A regex you haven't watched run on real text is a bug you haven't met yet."* 🧪
 
@@ -343,13 +456,18 @@ Regex is where good intentions go to silently break. So regex sets get their own
 
 <img src="docs/media/shot-lorebook.png" alt="The binder">
 
-Lorebooks, edited like something a person actually made. A book stops being a wall of JSON the second it opens: one entry owns the screen, the rest wait in the wings, and every setting that used to be a cryptic checkbox gets written out in plain words.
+**Lorebooks, edited like something a person actually made.** A book stops being a wall of JSON the second it opens:
+- one entry owns the screen, the rest wait in the wings,
+- and every setting that used to be a cryptic checkbox gets written out in plain words.
 
 ### 📑 **The Table of Contents** *(the whole book at a glance)*
 
-Down the left side, the whole book laid out as a running order. Search across every entry, drag rows to reorder them, and pin the entries that should *always* fire into a dedicated **Always On** section, no keys, no conditions, they inject every single time.
+**Down the left side, the whole book laid out as a running order.**
+- Search across every entry.
+- Drag rows to reorder them.
+- Pin the entries that should *always* fire into a dedicated **Always On** section, no keys, no conditions, they inject every single time.
 
-Every row tells you its state without a click: enabled or off, which trigger mode it's running, where it lands. And the header keeps the honest tally the whole time:
+**Every row tells you its state without a click:** enabled or off, which trigger mode it's running, where it lands. And the header keeps the honest tally the whole time:
 
 ```
 2 entries · ~20 / 2048 tok
@@ -357,7 +475,7 @@ Every row tells you its state without a click: enabled or off, which trigger mod
 
 ### 🔑 **Keys and Trigger Modes** *(when does an entry fire?)*
 
-Every entry answers one question: when should you show up? The Binder gives you four ways to answer it.
+**Every entry answers one question: when should you show up?** The Binder gives you four ways to answer it.
 
 | Control | What it does |
 |---|---|
@@ -370,14 +488,14 @@ Every entry answers one question: when should you show up? The Binder gives you 
 
 ### ⏱️ **When and Where** *(activation, in one readable line)*
 
-An entry can carry a dozen activation rules. Chance, sticky, cooldown, delay, recursion locks, group membership. On most platforms that's a settings maze you navigate one checkbox at a time. The Binder reads the whole mess back to you as one plain sentence:
+**An entry can carry a dozen activation rules:** chance, sticky, cooldown, delay, recursion locks, group membership. On most platforms that's a settings maze you navigate one checkbox at a time. The Binder reads the whole mess back to you as one plain sentence:
 
 ```
 80% CHANCE · STICKS FOR 3 MESSAGES · COOLDOWN 2 MESSAGES · WAITS 1 MESSAGE FIRST
 · CANNOT BE WOKEN BY RECURSION · GROUP "PLACES"
 ```
 
-That line is generated straight from the rules themselves, so it can't drift out of sync with what the entry actually does. Change a rule, the sentence rewrites.
+**That line is generated straight from the rules themselves,** so it can't drift out of sync with what the entry actually does. Change a rule, the sentence rewrites.
 
 <details>
 <summary><b>The full control set</b></summary>
@@ -398,23 +516,31 @@ That line is generated straight from the rules themselves, so it can't drift out
 
 ### 💰 **Budgets** *(tokens, honestly estimated)*
 
-A lorebook that overruns its token budget has to start evicting entries, and if you can't see the math, you can't guess which ones. The Binder shows you the math up front: a book-level budget, a per-entry estimate on everything, and every number wearing a `~` because it's an **estimate and says so** (`~12 tokens`), never a fake-precise count dressed up as gospel.
+**A lorebook that overruns its token budget has to start evicting entries, and if you can't see the math, you can't guess which ones.** The Binder shows you the math up front:
+- a book-level budget,
+- a per-entry estimate on everything,
+- and every number wearing a `~` because it's an **estimate and says so** (`~12 tokens`), never a fake-precise count dressed up as gospel.
 
-When the budget runs out, **priority** decides who gets evicted and **order** decides where the survivors land. You set both. Nothing is left to a chance you didn't choose.
+> **When the budget runs out, priority decides who gets evicted and order decides where the survivors land. You set both, and nothing is left to a chance you didn't choose.**
 
 ### 🩺 **Health** *(dead entries get called out)*
 
-Here's a fun one: an entry with no keys, no Always-On flag, and no By-Meaning mode **can never fire.** It's dead. It will sit in your book forever doing precisely nothing, and most tools will let you ship a hundred of them without a word.
+**Here's a fun one:** an entry with no keys, no Always-On flag, and no By-Meaning mode **can never fire.** It's dead. It will sit in your book forever doing precisely nothing, and most tools will let you ship a hundred of them without a word.
 
-The Binder calls it out the moment you create the condition, right there while you're editing. And if you somehow get it all the way to export, the **Press says it again in red** before it prints a book full of entries that will never do a thing.
+> **The Binder calls it out the moment you create the condition, right there while you're editing, and if you get it all the way to export, the Press says it again in red before it prints a book full of entries that will never do a thing.**
 
 *A lorebook full of entries that can't fire is just a very organized text file. Hoplight tells you.* 🩺
 
 ### 🔭 **Write-For** *(the Lens, for books)*
 
-The same Lens that keeps your characters honest works on books too. Pick the host platform and the Binder shows you what that platform's wire *actually* carries: which of those activation rules survive on SillyTavern, which quietly collapse on a simpler host, what NovelAI's lorebook can and can't even express.
+**The same Lens that keeps your characters honest works on books too.** Pick the host platform and the Binder shows you what that platform's wire *actually* carries:
+- which of those activation rules survive on SillyTavern,
+- which quietly collapse on a simpler host,
+- what NovelAI's lorebook can and can't even express.
 
-It's the **same coverage ground truth** the character Lens and the Press readiness lines run on. One set of claims about every platform, read everywhere. And Write-For is a lens, not a fork: the book stays one book, you're only ever changing what you look at it *through*.
+It's the **same coverage ground truth** the character Lens and the Press readiness lines run on. One set of claims about every platform, read everywhere.
+
+> **Write-For is a lens, not a fork: the book stays one book, you're only ever changing what you look at it through.**
 
 ---
 
@@ -422,13 +548,23 @@ It's the **same coverage ground truth** the character Lens and the Press readine
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
-This is the print shop. You don't browse your studio in here; you **stage** what's ready, pick one platform, name the files, and pull the lever. What comes out is a single zip, with an honest result line on every row that went into it.
+**This is the print shop.** You don't browse your studio in here. You:
+- **stage** what's ready,
+- pick one platform,
+- name the files,
+- and pull the lever.
+
+What comes out is a single zip, with an honest result line on every row that went into it.
 
 > *"Every export dialog you've ever used dropped fields and never told you. The Press hands you the receipt instead."* 🖨️🐰
 
 ### 🎭 **The Staging Grammar** *(the queue is the room)*
 
-**How it works:** you never browse the library from inside the Press. You stage pieces for it from anywhere. Right-click any piece and choose "Stage for the Press", or walk the Press's own left rail of unstaged pieces and click a stamp. The queue is shell state, not something trapped in this one room, so it survives you wandering off to the Library and back. The status bar keeps the running count:
+**How it works:** you never browse the library from inside the Press. You stage pieces for it from anywhere.
+- Right-click any piece and choose "Stage for the Press", or walk the Press's own left rail of unstaged pieces and click a stamp.
+- The queue is shell state, not something trapped in this one room, so it survives you wandering off to the Library and back.
+
+The status bar keeps the running count:
 
 ```
 staged for the Press · 2 in the queue
@@ -438,7 +574,7 @@ staged for the Press · 2 in the queue
 
 ### 🎁 **Kits** *(a character travels with its luggage)*
 
-A staged character isn't just a character. It's a **kit**. Every lorebook linked to him climbs into the trunk automatically, even books you never staged yourself.
+**A staged character isn't just a character. It's a kit.** Every lorebook linked to him climbs into the trunk automatically, even books you never staged yourself.
 
 | Kit behavior | What happens |
 |---|---|
@@ -451,7 +587,7 @@ A staged character isn't just a character. It's a **kit**. Every lorebook linked
 
 ### ✅ **Readiness** *(the bad news comes before the run, not after)*
 
-Every staged card shows, up front, exactly what the target platform will actually carry, read straight off the same coverage claims that drive the editor lens. Nothing waits until after the zip is already written to surprise you:
+**Every staged card shows, up front, exactly what the target platform will actually carry,** read straight off the same coverage claims that drive the editor lens. Nothing waits until after the zip is already written to surprise you:
 
 ```
 Seraphina    9 of 23 filled - empty: nickname, personality, scenario, +11 more
@@ -464,11 +600,11 @@ Lorebooks get the fire check: a book whose entries can never fire says so in red
 
 ### 🖋️ **Filenames and Flavor** *(you name the files)*
 
-Every row gets an editable filename before the run. Text-based formats will print under their normal extension or dress down to `.txt` / `.md` if that's what you want to hand out; binary formats don't pretend they can be text.
+**Every row gets an editable filename before the run.** Text-based formats will print under their normal extension or dress down to `.txt` / `.md` if that's what you want to hand out; binary formats don't pretend they can be text.
 
 ### 🧾 **The Run** *(honest, row by row)*
 
-Pull the lever and every row reports for itself:
+**Pull the lever and every row reports for itself:**
 
 | Row result | What it means |
 |---|---|
@@ -484,17 +620,19 @@ Platforms that read CCv3 with their own extension bags (Marinara, Chub) print ch
 
 ## 🎨 The Small Rooms
 
-Not every room needs a marquee. Two small ones keep the studio yours.
+**Not every room needs a marquee.** Two small ones keep the studio yours.
 
 ### 🖌️ **The CSS Workshop** *(restyle the studio itself)*
 
-Every color in the app is a token, not a hardcoded hex buried somewhere in a component. The Workshop edits those tokens live, against the real components they paint, so you're watching the change land on an actual button and an actual card, not on a swatch floating in a vacuum. And the same CI guard that blocks hardcoded colors from ever getting into the codebase is exactly what keeps the theme you build portable.
+**Every color in the app is a token, not a hardcoded hex buried somewhere in a component.**
+- The Workshop edits those tokens live, against the real components they paint, so you're watching the change land on an actual button and an actual card, not on a swatch floating in a vacuum.
+- And the same CI guard that blocks hardcoded colors from ever getting into the codebase is exactly what keeps the theme you build portable.
 
 *Repaint the entire studio without touching a line of source.* 🎨
 
 ### ⚙️ **Settings** *(drop-in, like everything else)*
 
-Sections aren't one monolith; they're drop-in folders, the same doctrine as everything else in the studio:
+**Sections aren't one monolith; they're drop-in folders, the same doctrine as everything else in the studio:**
 
 | Section | What it holds |
 |---|---|
@@ -502,9 +640,13 @@ Sections aren't one monolith; they're drop-in folders, the same doctrine as ever
 | 🏠 **Studio** | Home app, first deck, publish targets from the live format registry |
 | 🚪 **Workbench** | Follow behavior |
 
-Every control is call-and-response against the running studio. Change the theme or the accent and the whole app repaints instantly, no reload.
+**Every control is call-and-response against the running studio.** Change the theme or the accent and the whole app repaints instantly, no reload.
 
 ---
+
+I've read the chunk, confirmed boundaries, and validated my approach with the advisor. Applying the 3-parallel-facts test to the FAQ (bullet "Is my content private?", "Can a conversion damage my cards?", "Which platforms?", and "A platform isn't supported"; leave single-fact answers as prose), plus targeted breaks in Settings Reference, Roadmap, and the Architecture intro. Everything else stays byte-identical, collapsibles untouched.
+
+Here is the reformatted chunk:
 
 ## 🚀 Installation & Setup
 
@@ -579,9 +721,10 @@ one-way door.
 | 📡 **Publish targets** | Not set | The platforms you actually publish to, pulled from the live format registry |
 | 🚪 **Follow behavior** | Ask | What happens when a piece is sent to the Workbench: ask, always follow, or never |
 
-Settings sections are drop-in folders, and each app keeps its own per-user preferences on top of
-these: the Library remembers its view and art size, the Workbench remembers its view and dock
-state, all namespaced by app id.
+**Settings sections are drop-in folders,** and each app keeps its own per-user preferences on top of these, all namespaced by app id:
+
+- the Library remembers its view and art size
+- the Workbench remembers its view and dock state
 
 *Nothing you set here is load-bearing. Change your mind on stage, mid-run, whenever.* 🎭
 
@@ -620,12 +763,19 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 ## ❓ FAQ
 
 **Is my content private?** 🔒
-Yes. Loopback-only local server, zero outbound calls in the codebase, no accounts. Your studio
-folder is JSON you can read yourself.
+Yes:
+
+- Loopback-only local server
+- Zero outbound calls in the codebase
+- No accounts
+- Your studio folder is JSON you can read yourself
 
 **Can a conversion damage my cards?** 🛡️
-No. The original is escrowed inside the saved piece, same-format round trips are lossless, and
-cross-format conversions report what mapped and what didn't.
+No:
+
+- The original is escrowed inside the saved piece
+- Same-format round trips are lossless
+- Cross-format conversions report what mapped and what didn't
 
 **Do I need an API key?** 🔑
 No. Nothing here calls an AI. Planned AI features will be BYOK and opt-in, and their deterministic
@@ -635,13 +785,26 @@ parts will work keyless.
 No. Carried as data, exported faithfully, never executed.
 
 **Which platforms?** 📡
-SillyTavern (V2/V3 JSON, PNG, charx), RisuAI, RoleCall, Backyard (.byaf + legacy), Agnai,
-Pygmalion, Lumiverse, Marinara, Chub, NovelAI lorebooks, portable CCv3 for everything else.
+
+- SillyTavern (V2/V3 JSON, PNG, charx)
+- RisuAI
+- RoleCall
+- Backyard (.byaf + legacy)
+- Agnai
+- Pygmalion
+- Lumiverse
+- Marinara
+- Chub
+- NovelAI lorebooks
+- Portable CCv3 for everything else
+
 Per-field detail: [docs/FORMAT-SUPPORT.md](docs/FORMAT-SUPPORT.md).
 
 **A platform I use isn't supported. Can it be?** 🎟️
-Formats are drop-in adapter folders. Open an issue with sample files, or add the folder yourself.
-The round-trip suite will tell you whether your adapter is honest.
+Formats are drop-in adapter folders, so:
+
+- Open an issue with sample files, or add the folder yourself
+- The round-trip suite will tell you whether your adapter is honest
 
 **Why AGPL?** ⚖️
 So nobody closes this up and sells it back to the community it came from.
@@ -672,15 +835,21 @@ Full version with exit criteria: [docs/ROADMAP.md](docs/ROADMAP.md).
 | Productions | Workspaces, content-addressed history, test stage | 🌗 Test bench live |
 | Log distillation + worlds | Characters distilled from real chat logs with citations; grown worlds | 🕐 Planned |
 
-Near-term: the Press ledger, the mascot landing in tours and empty states, reference pages for the
-newest four adapters, the capability sandbox design.
+**Near-term:**
+
+- the Press ledger
+- the mascot landing in tours and empty states
+- reference pages for the newest four adapters
+- the capability sandbox design
 
 ---
 
 ## 🏗️ Architecture (For the Curious)
 
-Bun + TypeScript, strict. Pure engine core, side effects at the edges; the CLI and studio are thin
-shells over one engine. The filesystem is the schema: apps, format adapters, settings sections,
+**Bun + TypeScript, strict.** Pure engine core, side effects at the edges; the CLI and studio are thin
+shells over one engine.
+
+The filesystem is the schema: apps, format adapters, settings sections,
 and deck views are all drop-in folders that register by existing.
 
 ```
