@@ -1,6 +1,6 @@
 /**
- * The Press tour - the Job Sheet room (vs-press option 1). Copy matches the built room: the studio
- * tray, one target platform per run, honest per-row results, the single zip.
+ * The Press tour - the staging-grammar room (vs-press-room-1). Copy matches the built room: stage
+ * from the Library or the left rail, kits with riders, readiness lines, one target, the single zip.
  */
 import type { Tour } from "../tour-contract";
 
@@ -10,22 +10,27 @@ const pressTour: Tour = {
     {
       id: "welcome",
       title: "This is the Press",
-      body: "The export desk for whole runs. One piece at a time still lives on each editor's Export button; this room prints batches.",
+      body: "The print room for whole runs. One piece at a time still lives on each editor's Export button; this room prints the staged set.",
     },
     {
-      id: "tray",
-      title: "The studio tray",
-      body: "Everything you own, by kind, with counts. Tick single pieces or a whole group at once; the job sheet fills as you pick.",
+      id: "stage",
+      title: "Stage your pieces",
+      body: "Right-click any piece in the Library and choose Stage for the Press, or click a stamp on the left rail. The queue survives app switches.",
     },
     {
-      id: "target",
-      title: "One platform per run",
-      body: "Pick where this run is going. A piece the platform cannot print shows as skipped up front, before you run, never as a surprise after.",
+      id: "kits",
+      title: "Characters travel as kits",
+      body: "A staged character brings his linked lorebooks along as riders. Drop a rider from one run without unlinking anything; it rides again next time.",
+    },
+    {
+      id: "readiness",
+      title: "Every card tells the truth",
+      body: "Each staged piece shows how much of it the target platform will actually carry, and names what is empty. A lorebook whose entries have no keywords says so in red.",
     },
     {
       id: "run",
-      title: "Run the press",
-      body: "Each row prints its honest result as it lands: printed with what it carries, skipped with the reason, or failed with the error. Nothing is summarized away.",
+      title: "One platform, one lever",
+      body: "Pick where this run is going, then run the press. Each card prints its honest result: printed with what it carries, skipped with the reason, or failed with the error.",
     },
     {
       id: "done",

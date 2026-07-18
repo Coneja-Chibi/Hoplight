@@ -3,7 +3,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { CoverageInfo } from "../../app-contract";
-import { isFilled, pathName, readBodyPath, readiness, readinessLine } from "./readiness-core";
+import { isFilled, lorebookKeyGap, pathName, readBodyPath, readiness, readinessLine } from "./readiness-core";
 
 const cov = (carries: string[]): CoverageInfo => ({ id: "x", label: "X", carries });
 
@@ -61,5 +61,20 @@ describe("readinessLine", () => {
 
   test("pathName splits camelCase into words", () => {
     expect(pathName("prompts.postHistoryInstructions")).toBe("post history instructions");
+  });
+});
+
+describe("lorebookKeyGap", () => {
+  test("counts entries that can never fire; constant entries are fine keyless", () => {
+    const body = {
+      entries: [
+        { triggers: [{ keyword: "x" }] },
+        { triggers: [], constant: true },
+        { triggers: [] },
+        { triggers: [] },
+      ],
+    };
+    expect(lorebookKeyGap(body)).toEqual({ total: 4, keyless: 2 });
+    expect(lorebookKeyGap({})).toEqual({ total: 0, keyless: 0 });
   });
 });

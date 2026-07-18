@@ -1,14 +1,33 @@
 /**
- * The Press (Job Sheet, vs-press option 1, transcribed): studio tray left, the work order right.
- * Stage tokens; letterpress borders and offset shadows; mono kickers.
+ * The Press (vs-press-room-1, transcribed): left sticky offer rail (unstaged library pieces as
+ * stamps), center kit proof cards over the staged queue, bookkeeping foot. Stage tokens;
+ * letterpress borders and offset shadows; mono kickers. Collapses by PANE width via @container.
  */
-.room {
+/* the pane container: @container below resolves against THIS, so the room collapses by the
+   pane it lives in (a half-width split), never the viewport */
+.roomHost {
+  container-type: inline-size;
+  min-height: 100%;
+}
+
+.room2 {
   display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-columns: 15rem minmax(0, 1fr);
   gap: 1rem;
   padding: 1rem;
   align-items: start;
   min-height: 100%;
+}
+
+@container (max-width: 52rem) {
+  .room2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rail {
+    position: static;
+    max-height: 14rem;
+  }
 }
 
 .kick {
@@ -19,7 +38,8 @@
   color: var(--stage-dim);
 }
 
-.tray {
+/* ---- the offer rail: the library's quick face inside the room ---- */
+.rail {
   border: 2px solid var(--stage-black);
   background: var(--stage-row);
   box-shadow: 4px 4px 0 0 var(--stage-black);
@@ -31,73 +51,140 @@
   scrollbar-width: thin;
 }
 
-.grp {
-  margin-bottom: 0.75rem;
-}
-
-.grpHead {
+.offerList {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  border-bottom: 1px solid var(--stage-seam);
-  padding-bottom: 0.25rem;
-  margin-bottom: 0.35rem;
-  cursor: pointer;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
 }
 
-/* the letterpress pick mark: a hard-bordered stamp that presses flat and fills accent when on -
-   native checkboxes read as uncooked form controls next to the house grammar */
-.grpHead input,
-.pickRow input {
-  appearance: none;
-  width: 0.9rem;
-  height: 0.9rem;
-  margin: 0;
-  flex: none;
-  border: 2px solid var(--stage-black);
+.offer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--stage-soft);
   background: var(--stage-sunken);
+  border: 2px solid var(--stage-black);
   box-shadow: 2px 2px 0 0 var(--stage-black);
+  padding: 0.35rem 0.5rem;
   cursor: pointer;
 }
 
-.grpHead input:checked,
-.pickRow input:checked {
-  background: var(--accent);
+.offer:hover {
+  color: var(--stage-paper);
+  background: var(--stage-row);
+}
+
+.offer:active {
   box-shadow: none;
   transform: translate(2px, 2px);
 }
 
-.pickRow {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  font-size: 0.88rem;
-  padding: 0.22rem 0.3rem;
-  cursor: pointer;
-  color: var(--stage-soft);
-}
-
-.pickRow:hover {
-  background: var(--stage-row);
-}
-
-.pickRow:has(input:checked) .pickName {
-  color: var(--stage-paper);
-}
-
-.pickName {
+.offerName {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sheet {
+/* ---- kits: a marquee'd group of proof cards ---- */
+.kit {
   border: 2px solid var(--stage-black);
   background: var(--stage-row);
   box-shadow: 4px 4px 0 0 var(--stage-black);
-  padding: 0.9rem;
+  margin-bottom: 0.9rem;
 }
 
+.kitMarq {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 2px solid var(--stage-seam);
+  padding: 0.45rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-paper);
+}
+
+.kitMarq i {
+  font-style: normal;
+  color: var(--stage-dim);
+  margin-right: auto;
+}
+
+.unstage {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+}
+
+.unstage:hover {
+  color: var(--stage-danger-text);
+}
+
+/* ---- the proof card: one piece's row inside a kit ---- */
+.kcard {
+  display: grid;
+  grid-template-columns: 1.05rem minmax(0, 1fr) auto auto;
+  gap: 0.45rem 0.6rem;
+  align-items: center;
+  border: 2px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  background: var(--stage-sunken);
+  padding: 0.5rem 0.65rem;
+  margin: 0.6rem 0.85rem 0.7rem 0.7rem;
+  font-size: 0.9rem;
+  color: var(--stage-soft);
+}
+
+.kcardDropped {
+  opacity: 0.5;
+}
+
+.kname {
+  color: var(--stage-paper);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.riderDrop {
+  font-family: var(--font-mono);
+  font-size: 0.56rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-dim);
+  background: none;
+  border: 1px dashed var(--stage-line);
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+
+.riderDrop:hover {
+  color: var(--stage-paper);
+}
+
+.fixLink {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---- the queue head: count left, target chips right ---- */
 .sheetHead {
   display: flex;
   align-items: center;
@@ -105,7 +192,7 @@
   flex-wrap: wrap;
   border-bottom: 2px solid var(--stage-seam);
   padding-bottom: 0.6rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.8rem;
 }
 
 .sheetHead .kick {
@@ -136,21 +223,7 @@
   box-shadow: 2px 2px 0 0 var(--stage-black);
 }
 
-.jrow {
-  display: grid;
-  grid-template-columns: 1.05rem minmax(0, 1fr) auto auto;
-  gap: 0.6rem;
-  align-items: center;
-  border: 2px solid var(--stage-black);
-  box-shadow: 3px 3px 0 0 var(--stage-black);
-  background: var(--stage-sunken);
-  padding: 0.45rem 0.6rem;
-  margin: 0.55rem 0.25rem 0.55rem 0;
-  font-size: 0.9rem;
-  color: var(--stage-soft);
-}
-
-/* pre-run controls on a waiting row: the file's base name and its flavor */
+/* pre-run controls on a waiting card: the file's base name and its flavor */
 .fileEdit {
   grid-column: 2 / -1;
   display: flex;
@@ -194,6 +267,7 @@
 }
 
 .jfile {
+  grid-column: 2 / -1;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   color: var(--stage-dim);
@@ -246,6 +320,7 @@
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  flex-wrap: wrap;
   margin-top: 0.8rem;
   border-top: 1px dashed var(--stage-line);
   padding-top: 0.8rem;

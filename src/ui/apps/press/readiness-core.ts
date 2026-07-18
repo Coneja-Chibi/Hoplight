@@ -72,3 +72,16 @@ export function readinessLine(r: Readiness, maxNamed = 3): string {
   const more = r.emptyNames.length - maxNamed;
   return `${r.filled.length} of ${total} filled - empty: ${named}${more > 0 ? `, +${more} more` : ""}`;
 }
+
+/** The lorebook red-case from the locked wire: entries that can never fire (no keys, not constant). */
+export function lorebookKeyGap(body: unknown): { total: number; keyless: number } {
+  const b = isRec(body) ? body : {};
+  const entries = Array.isArray(b.entries) ? b.entries : [];
+  let keyless = 0;
+  for (const e of entries) {
+    if (!isRec(e)) continue;
+    const triggers = Array.isArray(e.triggers) ? e.triggers : [];
+    if (triggers.length === 0 && e.constant !== true) keyless++;
+  }
+  return { total: entries.length, keyless };
+}
