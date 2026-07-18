@@ -1019,18 +1019,9 @@ Hop + limelight. The V is the maker's mark, the tapered H is the app's.
 <details>
 <summary>**How much of this code did an AI write?** 🤖</summary>
 
-A lot of it. Here's how that actually works:
-
-- Every decision is human: the canonical model, the escrow rule, the sealed-script law, what each
-  room is and how it behaves, what shipped, and what got rejected until it was right.
-- The AI types fast and gets told no a lot. Nothing lands on Mainstage without review against the
-  same bar everything else meets.
-- The quality gates don't know who typed. ~1,950 tests, the round-trip law, path containment, and
-  the style guards run on every commit; they pass or the commit doesn't land.
-- The code is open. If a line is wrong, it's wrong in public, and it gets fixed like any other
-  bug.
-
-If that changes how you feel about the code, the code is right here to read.
+Most of it. The split: design, architecture, review, and acceptance are human; drafting is AI.
+Everything merges through the same gates regardless of who typed it: ~1,950 tests, the round-trip
+law, and the CI guards. Bugs get fixed the same way too.
 
 </details>
 
