@@ -109,6 +109,15 @@ export interface AppContext {
     /** subscribe to changes; returns an unsubscribe (call it in the app's cleanup) */
     onChange(cb: () => void): () => void;
   };
+  /** The Press's staged queue (staging grammar: the Library stages, the Press works the set). Same
+   * one-door rule as workbench: apps never import shell modules. */
+  press: {
+    queue(): StudioEntitySummary[];
+    stage(batch: StudioEntitySummary[]): void;
+    unstage(id: string, kind: string): void;
+    clear(): void;
+    onChange(cb: () => void): () => void;
+  };
 }
 
 /** The module an app folder default-exports. Component renders the app's whole surface; the shell

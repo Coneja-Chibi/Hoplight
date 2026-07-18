@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   besideKeys,
   bumpRecents,
@@ -8,6 +8,8 @@ import {
   paneKeyOf,
   parseRecents,
   removeKeys,
+  stagePressBatch,
+  unstagePressPiece,
 } from "./store-core";
 
 test("keyOf composes kind:id", () => {
@@ -111,5 +113,24 @@ test("paneKey: focusEntry distinguishes two views of the same entity", () => {
   ).toEqual({
     activeKey: "lorebook:b1@e1",
     splitKey: "lorebook:b1@e2",
+  });
+});
+
+describe("press queue ops", () => {
+  const p = (id: string, kind = "character") => ({ id, kind, name: id });
+
+  test("staging dedupes by kind:id and preserves order", () => {
+    const q = stagePressBatch([p("a")], [p("b"), p("a"), p("b")]);
+    expect(q.map((x) => x.id)).toEqual(["a", "b"]);
+  });
+
+  test("same id under different kinds are different pieces", () => {
+    const q = stagePressBatch([], [p("x", "character"), p("x", "lorebook")]);
+    expect(q).toHaveLength(2);
+  });
+
+  test("unstaging drops exactly the named piece", () => {
+    const q = unstagePressPiece([p("a"), p("b")], "a", "character");
+    expect(q.map((x) => x.id)).toEqual(["b"]);
   });
 });

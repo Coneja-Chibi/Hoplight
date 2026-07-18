@@ -219,11 +219,13 @@ export function App(): JSX.Element | null {
         } else if (wb.activeKey && key !== wb.activeKey) {
           items.push({ label: "Open beside", onPick: () => wb.openBeside(e) });
         }
+        items.push({ label: "Stage for the Press", onPick: () => wb.stageForPress([e]) });
         items.push({ label: "Remove from the Workbench", onPick: () => wb.removePiece(e.id, e.kind) });
         return items;
       }
       const items = [{ label: "Send to the Workbench", onPick: () => wb.sendMany([e]) }];
       if (wb.activeKey) items.push({ label: "Open beside", onPick: () => wb.openBeside(e) });
+      items.push({ label: "Stage for the Press", onPick: () => wb.stageForPress([e]) });
       return items;
     });
 
@@ -308,6 +310,16 @@ export function App(): JSX.Element | null {
               state.splitKey !== prev.splitKey
             )
               cb();
+          }),
+      },
+      press: {
+        queue: () => [...useShellStore.getState().pressQueue],
+        stage: (batch) => useShellStore.getState().stageForPress(batch),
+        unstage: (id, kind) => useShellStore.getState().unstagePress(id, kind),
+        clear: () => useShellStore.getState().clearPress(),
+        onChange: (cb) =>
+          useShellStore.subscribe((state, prev) => {
+            if (state.pressQueue !== prev.pressQueue) cb();
           }),
       },
     }),

@@ -80,3 +80,26 @@ export function bumpRecents(
     .slice(0, cap);
   return Object.fromEntries(kept);
 }
+
+/** A minimal piece identity for press-queue ops (the queue stores full summaries; ops key on these). */
+export interface PieceRef {
+  id: string;
+  kind: string;
+}
+
+/** Merge a staged batch into the press queue, deduped by kind:id, existing order preserved. */
+export function stagePressBatch<T extends PieceRef>(queue: readonly T[], batch: readonly T[]): T[] {
+  const have = new Set(queue.map((p) => `${p.kind}:${p.id}`));
+  const fresh = batch.filter((p) => {
+    const k = `${p.kind}:${p.id}`;
+    if (have.has(k)) return false;
+    have.add(k);
+    return true;
+  });
+  return fresh.length === 0 ? [...queue] : [...queue, ...fresh];
+}
+
+/** Drop one piece from the press queue. */
+export function unstagePressPiece<T extends PieceRef>(queue: readonly T[], id: string, kind: string): T[] {
+  return queue.filter((p) => !(p.id === id && p.kind === kind));
+}
