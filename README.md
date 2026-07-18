@@ -235,15 +235,153 @@ src/
   formats/      : one folder per platform - drop one in, the studio gains a format
   studio/       : local-first storage; one entity = one JSON file, atomic writes
   sandbox/      : the sealed-script analysis layer (inspect, never execute)
-  ui/
-    shell/      : dock, tabs, staging, context menus - the theater itself
-    apps/       : drop-in rooms (library, workbench, press, css-workshop, ...)
-    components/ : shared controls, extracted exactly once
+  ui/           : the local server + the React studio
   cli.ts        : the same engine, argv-shaped
 ```
 
-CI runs ~1,950 tests plus a color-token guard, a file-size cap, prose gates, and a license audit
-that fails the build on restricted dependencies.
+<details>
+<summary><b>src/core</b> · the engine</summary>
+
+```
+canonical.ts     : the canonical entity envelope every format maps into
+                   (schemaVersion, kind, id, body, original escrow)
+adapter.ts       : the contract a format adapter implements (read/write/detect)
+registry.ts      : the live roster of loaded formats
+loader.ts        : loads format folders into the registry
+detection.ts     : "what is this file?" - sniffs bytes/shape into a format id
+coverage.ts      : per-platform claims of which canonical paths a wire carries;
+                   ground truth for the editor lens AND the Press readiness lines
+archive.ts       : bounded zip/archive reading (size-capped, no zip bombs)
+tag-taxonomy.ts  : the shared tag vocabulary
+lore/            : lorebook engine - activation, budgets, eviction, empty-book factory
+media/           : portraits, sprite packs, export summaries
+persona/ preset/ regex/ : per-type engines shared by editors and codecs
+```
+</details>
+
+<details>
+<summary><b>src/entities</b> · what a piece IS</summary>
+
+```
+character/ lorebook/ pack/ persona/ preset/ regex/
+```
+
+One folder per content type, holding its canonical schema. Codecs map platform wires into these
+shapes and back; editors edit exactly these shapes. Nothing else in the codebase defines what a
+character is.
+</details>
+
+<details>
+<summary><b>src/formats</b> · one folder per platform</summary>
+
+```
+sillytavern/  risu/  rolecall/  backyard/  agnai/
+pygmalion/    lumiverse/  marinara/  novelai/  vaud-json/
+_template/    : copy this to start a new adapter
+_shared/      : logic shared by more than one codec, extracted exactly once
+_fixtures/    : real files the round-trip suite chews on
+```
+
+Each folder default-exports its adapter: detect, read to canonical, write from canonical, plus a
+coverage declaration. Drop a folder in and the CLI, the studio, the export dialog, and the Press
+all gain the format with zero central registration. `vaud-json` is the studio's own storage format.
+</details>
+
+<details>
+<summary><b>src/studio</b> · local-first storage</summary>
+
+```
+store.ts           : one entity = one JSON file under <studio>/<kind>/<id>.json;
+                     keep-both id minting, fail-closed schema validation
+atomic-file.ts     : exclusive/atomic-replace writes - no half-written pieces
+path-policy.ts     : path containment; ids can never escape the studio folder
+bundle.ts          : character + related lorebooks saved as one operation
+portrait.ts        : extracts displayable art from carried card files
+settings.ts        : the per-studio settings document, parsed fail-closed
+signature-color.ts : pulls an accent color from a card's PNG art
+```
+</details>
+
+<details>
+<summary><b>src/sandbox</b> · sealed scripts</summary>
+
+```
+lua/       : analysis of Lua blobs cards carry (bounded, never executed as user code)
+triggers/  : the Risu Workshop test bench - sealed trigger evaluation on a card-local stage
+```
+
+The rule everywhere else is simpler: scripts are data. This folder is where they get inspected.
+</details>
+
+<details>
+<summary><b>src/ui</b> · the server and the shell</summary>
+
+```
+server.ts          : the loopback HTTP server - session token, fail-closed parsing
+server-security.ts : origin/fetch-metadata checks, CSP with per-response script hashes
+server-engine.ts   : the API's engine calls (inspect, convert, coverage, studio)
+server-static.ts   : static serving + dev live-reload watcher
+api.ts             : the client's one door to the API
+app-contract.ts    : the AppContext handed to every app - IO, workbench, press,
+                     menus, prefs; apps never import the engine directly
+receipt.ts         : plain-words import receipts, rendered server-side
+boot.ts            : client boot - discovers apps, mounts the shell
+shell/
+  App.tsx          : the frame - canvas, app switching, follow dialogs
+  Dock.tsx         : the app dock (manifest-driven, collapsible)
+  TabStrip.tsx     : open pieces; the workbench's tabs live in the shell
+  store.ts         : shell state - open pieces, press queue, theme, status
+  menus.ts         : THE right-click system; apps register providers
+  error-boundary.tsx, StatusBar.tsx, FollowDialog.tsx, Menu.tsx
+setup/             : the first-run wizard steps (drop-in folder per step)
+tours/             : the ? tours, one folder per app
+theme/tokens.css   : every color in the app; the guard blocks hardcoded ones
+```
+</details>
+
+<details>
+<summary><b>src/ui/apps</b> · the rooms (drop-in folders)</summary>
+
+```
+library/      : browse room - decks by kind, grid/showcase/list views, import,
+                multi-select staging, shelf ops per content type
+workbench/    : the editors - guided character interview, native platform bags,
+                the lorebook binder (lore/), regex bench (regex/), persona and
+                preset editors, the platform lens
+press/        : batch export - the staged queue, kits (character + linked books),
+                readiness lines from coverage, one zip per run
+settings/     : drop-in sections (appearance, studio, workbench)
+css-workshop/ : live theme editing on real components
+company/      : reserved seat (the agent, later)
+```
+
+An app is a folder default-exporting a manifest + component. The dock builds itself from
+whatever folders exist.
+</details>
+
+<details>
+<summary><b>src/ui/components</b> · shared controls</summary>
+
+Fifty-plus extracted-once controls, from structural (bento-card, ink-dialog, bottom-sheet,
+platform-tabs, lens-rail) to content-specific (sprite-pack, expression-map, native-card,
+knowledge-rail, ticket-window) to inputs (paint-picker, swatch-row, toggle-switch, slider,
+code-editor). The catalog with usage rules lives in
+[docs/reference/components.md](docs/reference/components.md) and a CI check keeps it current.
+</details>
+
+<details>
+<summary><b>Gates</b> · what CI actually enforces</summary>
+
+```
+~1,950 tests        : engine, codecs, round-trip law, store, server, UI cores
+color-token guard   : no hardcoded colors outside theme/tokens.css
+file-size cap       : 500 lines per file; split, not grandfather
+prose gates         : no em dashes, no dead doc links
+component catalog   : docs/reference/components.md must match the folders
+format matrix       : docs/FORMAT-SUPPORT.md regenerates from the live registry
+license audit       : build fails on restricted dependencies
+```
+</details>
 
 | Read order | |
 | --- | --- |
