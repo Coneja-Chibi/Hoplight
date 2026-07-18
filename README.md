@@ -60,13 +60,20 @@ One studio. Yours.
 
 ## 🧠 Why This is Better (The Format Problem)
 
-**Let's talk about formats.** Every platform invented its own:
+**Let's talk about formats.** Every platform invented its own, and they differ in kind, not just
+in spelling:
 
-- SillyTavern packs cards into PNG, JSON, and charx
-- Backyard has its .byaf archives
-- Risu, Agnai, Lumiverse, Marinara, Chub, and NovelAI each speak their own dialect of the same family
+- **SillyTavern** wraps the same card three different ways: raw JSON, a PNG with the card buried
+  in a text chunk, and charx, a zip that carries assets alongside it
+- **RisuAI** reads CCv3 but layers its own modules and container format on top
+- **RoleCall** and **Agnai** run their own native card schemas, with fields the CCv3 spec has no
+  slot for
+- **Lumiverse, Marinara, and Chub** stay CCv3-compatible by packing their platform features into
+  the card's extensions field, each in its own shape
+- **NovelAI** isn't comparable at all: its lorebook format shares no ancestry with card formats
 
-None of them speak it quite the same way.
+"Compatible" is doing a lot of work in that list. A card that opens on two platforms still doesn't
+mean the same thing on both.
 
 That would be fine if you only ever used one. **Nobody uses only one.** So you keep a copy on each platform, and the copies drift the instant you touch one of them. The lorebook you spent a weekend on ends up welded inside a PNG only one app can open.
 
