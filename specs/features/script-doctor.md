@@ -752,8 +752,8 @@ answer.
 
 OPEN QUESTION: whether `packages/doctor`'s slop-bank starter corpus should be
 authored fresh for M3 or whether a licensing/content review of adapting phrase
-lists from VAUDEVILLE's `anti-slop-banks/` corpus (Chi owns both codebases, per
-ADR-004) is acceptable reuse versus fresh authorship - this spec assumes fresh
+lists from VAUDEVILLE's `anti-slop-banks/` corpus (Chi owns both codebases, so
+reusing his own work is his to license) is acceptable reuse versus fresh authorship - this spec assumes fresh
 authorship (see Non-goals) but the actual decision belongs to whoever scopes the
 M3 slop-bank-corpus ticket.
 
