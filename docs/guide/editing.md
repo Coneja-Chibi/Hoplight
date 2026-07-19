@@ -19,7 +19,7 @@ Editing happens on the Workbench. A piece opens there as its own tab, already fi
 4. **Save it.** Click Save, or press ctrl+s. A dot on the tab means something is unsaved; the button reads Save until there is nothing left to save.
 5. **Close the tab when you're done.** Closing never asks you to confirm, so save first.
 
-![The Workbench](../../media/shot-workbench.png)
+![The Workbench](../media/shot-workbench.png)
 
 ## The editor panels
 
@@ -33,7 +33,7 @@ The body itself is a set of cards. A portrait card sits on the left, with links 
 
 Other kinds keep it simpler. A pack is a name, a brief, and a sprite grid. A lorebook opens its own binder, one entry filling the screen at a time, with a table of contents down the left and that entry's keys, timing, and placement on the right. Regex sets, personas, and presets are closer to a single form. All of them save the same way.
 
-![Editing a lorebook](../../media/shot-lorebook.png)
+![Editing a lorebook](../media/shot-lorebook.png)
 
 ## Saving, and what happens if you don't
 

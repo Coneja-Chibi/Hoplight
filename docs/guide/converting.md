@@ -19,7 +19,7 @@ Converting takes a card you have in one app's format and writes it back out in a
 4. **Pick the target format.** In the Press, click the platform you are converting to. It is one target per run.
 5. **Export.** Click run the press, then download the bundle. Your converted file lands in a single zip named for the platform.
 
-![Converting](../../media/shot-convert.png)
+![Converting](../media/shot-convert.png)
 
 ## What survives and what drops
 
@@ -35,7 +35,7 @@ A concrete case. Say your card carries trigger scripts and regex, and you conver
 
 You never have to guess what will happen. Every export shows you first. From an editor on the Workbench, the Export button opens the honesty view: pick a platform and it lists what will and will not travel, line by line, before you commit.
 
-![What will drop](../../media/shot-export-honesty.png)
+![What will drop](../media/shot-export-honesty.png)
 
 ## Converting many at once
 

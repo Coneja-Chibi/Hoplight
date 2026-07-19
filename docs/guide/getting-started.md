@@ -28,7 +28,7 @@ Getting started is four things: install Hoplight, run the first-run wizard once,
 4. **Land on the Library's two doors.** A brand-new studio opens here exactly once. Drag a file onto the primary door, or click it to browse for one.
 5. **Check the receipt, then click Import.** Uncheck anything you do not want kept. Import only writes the pieces still checked.
 
-![The Library](../../media/shot-library.png)
+![The Library](../media/shot-library.png)
 
 ## The first-run wizard
 
@@ -56,7 +56,7 @@ The Dock is the column of app tiles down the side of the studio. Four rooms are 
 
 Below a divider sits a dimmed tile marked "installs later," that's The Company, not open yet. Settings is pinned into the Dock's foot, below the tray, always reachable. The whole Dock can collapse to marks-only with the toggle at its bottom edge, and it does that on its own whenever you have a piece open for editing.
 
-![The Dock](../../media/shot-dock.png)
+![The Dock](../media/shot-dock.png)
 
 ## Bringing in your first file
 
@@ -66,7 +66,7 @@ Every file you bring in gets read before anything is written. You see one of two
 
 An honest note: the empty studio's second door, "Click here to start fresh," is there but isn't wired to anything yet beyond a status-bar line. Bringing in a file is the working path; lean on that for now.
 
-![Dropping a file into the Library](../../media/shot-import-drop.png)
+![Dropping a file into the Library](../media/shot-import-drop.png)
 
 ## Tips
 

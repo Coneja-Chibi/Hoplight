@@ -19,7 +19,7 @@ Exporting writes a piece out in a specific platform's shape and hands you a file
 4. **Read the lines.** Each one states a fact plainly, or opens with Note: for a partial, or Dropped: for something that will not travel at all.
 5. **Click Export, or Export anyway.** The button relabels itself the moment anything on the card deserves a second look. Either way, one file downloads immediately, no zip.
 
-![The Workbench](../../media/shot-workbench.png)
+![The Workbench](../media/shot-workbench.png)
 
 ## Reading the honesty view
 
@@ -35,7 +35,7 @@ A concrete case. Export a card with an expression pack and a linked lorebook to 
 
 You never have to guess which case you are in. Chips above the list already show what media rides on the card, a portrait, an expression pack, named assets, before you have even picked a platform.
 
-![What will drop](../../media/shot-export-honesty.png)
+![What will drop](../media/shot-export-honesty.png)
 
 ## Staging for the Press
 

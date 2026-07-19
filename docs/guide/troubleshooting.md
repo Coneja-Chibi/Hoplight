@@ -19,7 +19,7 @@ Most of what looks broken in Vaude already told you what happened, in plain word
 4. **Check the format matrix if one specific field is the question.** `docs/FORMAT-SUPPORT.md` is generated straight from the live adapters: what each platform reads and writes, kind by kind.
 5. **If none of that explains it, the file may be a format Vaude doesn't know yet, not a broken one.** `vaud formats` lists everything currently supported.
 
-![Dropping a file into the Library](../../media/shot-import-drop.png)
+![Dropping a file into the Library](../media/shot-import-drop.png)
 
 ## A card would not import
 
@@ -46,7 +46,7 @@ Every convert reads a file into one shared canonical model, then writes it back 
 
 ## An export looks wrong
 
-![What will drop](../../media/shot-export-honesty.png)
+![What will drop](../media/shot-export-honesty.png)
 
 The single-piece Export button and the Press read the same coverage claims the Workbench lens does. If one of them says a field carries, the other agrees.
 

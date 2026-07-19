@@ -27,7 +27,7 @@ and placing them in the assembled prompt.
    richer position your target host supports.
 5. **Save.** Click Save, or press ctrl+s.
 
-![Lorebook](../../media/shot-lorebook.png)
+![Lorebook](../media/shot-lorebook.png)
 
 ## Keywords and triggers
 

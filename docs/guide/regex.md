@@ -19,7 +19,7 @@ A regex set is a list of find-and-replace rules that run on your chat text where
 4. **Pick where it runs.** Under Where it runs, turn on the pipeline stages this rule should act on: user input, model output, display, and so on.
 5. **Try it, then save.** Quick try, beside the rule, runs it alone on a sample line. Open the full test bench to watch the whole set run as a chain. Then Save (or Ctrl/Cmd+S).
 
-![Regex editor](../../media/shot-regex.png)
+![Regex editor](../media/shot-regex.png)
 
 ## Three ways to write a rule
 

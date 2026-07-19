@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-18",
-  "count": 81,
+  "generated": "2026-07-19",
+  "count": 80,
   "docs": [
     {
       "id": "01-VISION",
@@ -115,7 +115,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-12.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-19.",
       "tags": [],
       "related": [],
       "anchors": [
@@ -130,8 +130,8 @@
           "level": 2
         },
         {
-          "text": "Lorebooks (5)",
-          "slug": "lorebooks-5",
+          "text": "Lorebooks (6)",
+          "slug": "lorebooks-6",
           "level": 2
         },
         {
@@ -343,32 +343,6 @@
         {
           "text": "Consequences",
           "slug": "consequences",
-          "level": 2
-        }
-      ]
-    },
-    {
-      "id": "decisions/ADR-004-extraction",
-      "path": "docs/decisions/ADR-004-extraction.md",
-      "title": "ADR-004: Code reuse, extract and adapt from RoleCall",
-      "audience": "dev",
-      "summary": "**Status:** accepted",
-      "tags": [],
-      "related": [],
-      "anchors": [
-        {
-          "text": "Context",
-          "slug": "context",
-          "level": 2
-        },
-        {
-          "text": "Decision",
-          "slug": "decision",
-          "level": 2
-        },
-        {
-          "text": "Rules that governed the port",
-          "slug": "rules-that-governed-the-port",
           "level": 2
         }
       ]
@@ -2987,20 +2961,9 @@
       "path": "docs/reference/formats/agnai.md",
       "title": "Agnai format",
       "audience": "dev",
-      "summary": "How the Agnai adapter family detects, maps, and round-trips its native character JSON and memory-book lorebooks, including the embedded characterBook, through the canonical model.",
-      "tags": [
-        "format",
-        "agnai",
-        "character",
-        "lorebook",
-        "persona",
-        "memory-book"
-      ],
-      "related": [
-        "reference/architecture",
-        "reference/entities/character",
-        "reference/entities/lorebook"
-      ],
+      "summary": "Agnai (Agnaistic) is a browser/self-hosted AI roleplay app with its own native JSON character shape. It is not Tavern-lineage: instead of a flat description block, its persona is structured, a `kind` plus an",
+      "tags": [],
+      "related": [],
       "anchors": [
         {
           "text": "Detection",

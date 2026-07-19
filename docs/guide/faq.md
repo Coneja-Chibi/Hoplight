@@ -36,7 +36,7 @@ Every convert goes through one shared model in the middle: your file is read int
 
 You do not have to guess which case you are in. The Export button on a character's editor opens the honesty view first: pick a platform and it lists what keeps, what carries with a note, and what drops, line by line, before anything downloads. Staging a batch for the Press shows a readiness line instead, how many of the target's fields are actually filled in.
 
-![What will drop](../../media/shot-export-honesty.png)
+![What will drop](../media/shot-export-honesty.png)
 
 See [Convert a card](converting.md) for the full walkthrough, including how a staged character's linked lorebooks ride along as a kit.
 
@@ -69,7 +69,7 @@ No. The worst a convert does is leave something out, and it tells you so before 
 
 Your original file, sitting untouched in the Library, is the actual safety net underneath all of this. If a convert somewhere ever surprised you, the source you started from is still exactly where you left it.
 
-![Importing a card](../../media/shot-import-drop.png)
+![Importing a card](../media/shot-import-drop.png)
 
 ## Tips
 

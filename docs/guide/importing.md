@@ -18,7 +18,7 @@ Importing reads a file made in another app and turns it into a piece in your Lib
 3. **Uncheck anything you do not want, then click Import on the receipt.** Every file that read cleanly starts checked. That button carries a live count, Import 3, not the plain Import you clicked in step one, so you always know how many you are about to write. Use Select all to reset the batch, or Add more files to read another round into the same overlay first.
 4. **Find it on its deck.** A saved piece lands on the deck that matches its kind: character, lorebook, persona, or regex set. Open it on the Workbench when you want to edit it, or leave it on the shelf until you do.
 
-![Import from the chrome](../../media/shot-library.png)
+![Import from the chrome](../media/shot-library.png)
 
 > On a brand-new, empty studio the drop zone is also a button. Click it and a real file browser opens, the only place in the app that happens outside an active import.
 
@@ -36,7 +36,7 @@ Every import is read into the same shared model the rest of the studio uses, so 
 
 **Importing never overwrites.** Drop the same file twice and you get two pieces, not one refreshed, the second lands with -2 tacked onto its id. If you meant to update a piece you already have, open it on the Workbench and save from there; that path overwrites on purpose, importing never does.
 
-![Reading and checking files](../../media/shot-import-drop.png)
+![Reading and checking files](../media/shot-import-drop.png)
 
 ## Importing many at once
 

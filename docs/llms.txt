@@ -7,7 +7,6 @@
 - [ADR-001: Runtime - Bun + TypeScript, Node-compatible core](docs/decisions/ADR-001-runtime.md): **Status:** accepted
 - [ADR-002: License, AGPL-3.0-or-later](docs/decisions/ADR-002-license.md): **Status:** accepted
 - [ADR-003: Distribution - single executable + self-updater; installer later](docs/decisions/ADR-003-distribution.md): **Status:** accepted
-- [ADR-004: Code reuse, extract and adapt from RoleCall](docs/decisions/ADR-004-extraction.md): **Status:** accepted
 - [ADR-005: Canonical superset model + escrow envelope](docs/decisions/ADR-005-canonical-model.md): **Status:** accepted
 - [ADR-006: AI - BYOK + local, and an agent built for weak models](docs/decisions/ADR-006-ai-and-agent.md): **Status:** accepted
 - [ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)](docs/decisions/ADR-007-renderer-policy.md): **Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces
@@ -64,7 +63,7 @@
 - [Entities](docs/reference/entities/README.md): Index of the six canonical entity kinds, character, lorebook, pack, persona, preset, and regex, linking each one's field reference and the shapes they share.
 - [Regex entity](docs/reference/entities/regex.md): The canonical find/replace-script entity for a portable regex set: every RegexRule field, its type, the platforms that produce it, and its meaning.
 - [Add a format adapter](docs/reference/extending/add-a-format.md): Every format converts through one canonical superset model, never format to format directly; adding a format is one adapter, and it touches no other format and no core code (`architecture.md`, "The one idea: hub and spoke"). This page is th
-- [Agnai format](docs/reference/formats/agnai.md): How the Agnai adapter family detects, maps, and round-trips its native character JSON and memory-book lorebooks, including the embedded characterBook, through the canonical model.
+- [Agnai format](docs/reference/formats/agnai.md): Agnai (Agnaistic) is a browser/self-hosted AI roleplay app with its own native JSON character shape. It is not Tavern-lineage: instead of a flat description block, its persona is structured, a `kind` plus an
 - [Backyard format](docs/reference/formats/backyard.md): How the Backyard.ai (Faraday) adapter family detects, maps, and round-trips legacy flat-JSON cards and modern .byaf archives through the canonical model.
 - [Lumiverse format](docs/reference/formats/lumiverse.md): How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.
 - [Marinara format](docs/reference/formats/marinara.md): How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.
@@ -91,6 +90,6 @@
 - [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
 - [Architecture](docs/02-ARCHITECTURE.md): vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.
 - [Conventions](docs/03-CONVENTIONS.md): Binding for all code and docs in the product repo. Deviations fail review.
-- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-12.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-19.
 - [Documentation](docs/README.md): Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
 - [Roadmap](docs/ROADMAP.md): Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.

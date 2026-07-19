@@ -20,7 +20,7 @@ A persona is your side of the fiction, the identity a target app shows the model
 5. **Save it.** Ctrl+s or the Save button, the same as any other piece, as described in Edit a piece.
 6. **Star it as default if you want the shelf to flag it, then stage it for the Press when you're ready to ship it as a file.**
 
-![The persona editor](../../media/shot-persona.png)
+![The persona editor](../media/shot-persona.png)
 
 ## What actually reaches the model
 
@@ -50,7 +50,7 @@ A persona's own editor carries no Export button, unlike a character's. To get on
 
 SillyTavern is the one to know about going in, too. ST keeps every persona you've made in a single Personas backup file, not one file each. Import that backup and Vaud reads its default persona (or the first, if none is marked default) as the one editable piece; every other persona in the file is kept whole and sealed inside it, not shown as a piece of its own in your Library. Export back to SillyTavern from that same piece and the sealed ones re-emit untouched alongside your edit. There is currently no way to pull one of the sealed personas out on its own.
 
-![Staging on the Press](../../media/shot-press.png)
+![Staging on the Press](../media/shot-press.png)
 
 ## Tips
 

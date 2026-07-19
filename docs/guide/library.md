@@ -18,7 +18,7 @@ The Library is the shelves: every piece in your studio, sorted onto six decks by
 3. **Stage what you want.** Click a piece (in Show, click its Stage for the Workbench button) to add it to the tray, accent ring, corner check. Click it again to drop it. Switch decks and the tray stays full, so a persona and two characters can travel together.
 4. **Send it to the Workbench.** The send bar's button reads Send it to the Workbench for one piece, or Send all 3 to the Workbench for a batch. Right-click a single piece instead to send it without staging first, or to stage it for the Press.
 
-![The Library](../../media/shot-library.png)
+![The Library](../media/shot-library.png)
 
 ## The decks and their views
 
