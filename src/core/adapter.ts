@@ -1,6 +1,7 @@
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalPersona } from "../entities/persona/schema";
+import type { CanonicalPreset } from "../entities/preset/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CoverageDecl } from "./coverage";
 import type { FormatId } from "./canonical";
@@ -96,6 +97,13 @@ export interface RegexAdapter extends AdapterBase {
   fromCanonical(entity: CanonicalRegexSet): AdapterOutput;
 }
 
+/** An adapter that reads and writes standalone chat presets (prompt/sampler configurations). */
+export interface PresetAdapter extends AdapterBase {
+  kind: "preset";
+  toCanonical(input: AdapterInput): CanonicalPreset;
+  fromCanonical(entity: CanonicalPreset): AdapterOutput;
+}
+
 /**
  * The contract every format plugin implements, discriminated by `kind`. Adding a format = adding one
  * of these; adding an entity KIND = adding a member here plus a sibling entities/<kind>/ folder. Core
@@ -103,4 +111,9 @@ export interface RegexAdapter extends AdapterBase {
  * union heterogeneously; a converter narrows on `kind` (guard src.kind === target.kind) before it
  * hands an entity to fromCanonical, so no unsafe cross-kind call is representable.
  */
-export type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter | RegexAdapter;
+export type FormatAdapter =
+  | CharacterAdapter
+  | LorebookAdapter
+  | PersonaAdapter
+  | RegexAdapter
+  | PresetAdapter;

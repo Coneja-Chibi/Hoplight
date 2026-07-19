@@ -1,6 +1,6 @@
 /**
  * Marinara-Engine format family: regex scripts, persona, the native lorebook envelope
- * (lorebook.ts), and the prompt-preset codec (preset.ts, named export). The character-side
+ * (lorebook.ts), and the prompt-preset codec (preset.ts). The character-side
  * Marinara dialect stays where it lives (the generic extensions bag via
  * `_shared/extension-platforms.ts`).
  *
@@ -96,14 +96,7 @@ const regexAdapter: RegexAdapter = {
 
 export { regexAdapter };
 
-/**
- * The prompt-preset codec (kind "preset") is a NAMED export, not part of the loader-discovered
- * default array below. The registry's `FormatAdapter` union (src/core/adapter.ts) has no preset
- * member yet, so the generated static registrar (src/generated/packaged-formats.ts) cannot accept a
- * preset-kind object; the preset layer imports this directly. Add a `PresetAdapter` member to that
- * union to make it loader-discoverable.
- */
 export { marinaraPreset };
 
-/** Folders-as-schema: the Marinara family codecs (regex scripts + persona + native lorebook). */
-export default [regexAdapter, personaAdapter, marinaraLorebook];
+/** Folders-as-schema: the Marinara family codecs (regex + persona + lorebook + preset). */
+export default [regexAdapter, personaAdapter, marinaraLorebook, marinaraPreset];

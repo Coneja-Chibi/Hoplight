@@ -33,6 +33,7 @@ const FRIENDLY: Record<string, string> = {
   "lumiverse-regex": "Lumiverse",
   "marinara-regex": "Marinara",
   "marinara-lorebook": "Marinara",
+  "marinara-preset": "Marinara",
   "sillytavern-persona": "SillyTavern",
   "lumiverse-persona": "Lumiverse",
   "marinara-persona": "Marinara",

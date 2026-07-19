@@ -264,6 +264,12 @@ async function main(argv: string[]): Promise<number> {
       const b = ent.body;
       console.log(`    name     ${b.name || "(unnamed)"}`);
       console.log(`    rules    ${b.rules.length}\n`);
+    } else if (ent.kind === "preset") {
+      const b = ent.body;
+      console.log(`    name     ${b.name || "(unnamed)"}`);
+      console.log(`    prompts  ${b.prompts.length}`);
+      console.log(`    groups   ${b.groups?.length ?? 0}`);
+      console.log(`    choices  ${b.choices?.length ?? 0}\n`);
     } else {
       const b = ent.body;
       console.log(`    name     ${b.identity.name || "(unnamed)"}`);
