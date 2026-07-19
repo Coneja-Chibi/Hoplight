@@ -28,6 +28,11 @@ const asBool = (v: unknown, fallback: boolean): boolean =>
  * Heal a partially-decoded or raw-ish book into a safe LorebookBody.
  * Idempotent on a clean body (no notes).
  */
+/**
+ * Tolerant reader for FOREIGN or damaged lorebook payloads (naked JSON, hand-edited files). It
+ * rebuilds the body by enumeration, so it must never run on an adapter-produced canonical body -
+ * every canonical field outside its list would silently reset to defaults.
+ */
 export function healBook(raw: unknown): HealResult {
   const healed: HealNote[] = [];
   const base = emptyLorebookBody("Untitled lorebook");

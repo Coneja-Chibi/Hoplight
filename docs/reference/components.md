@@ -57,6 +57,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | FinePrint | src/ui/apps/workbench/regex/fine-print.tsx | ({ rule, rules, writeFor, styles, onPatch }: FinePrintProps) |  |  |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
+| FolderInspector | src/ui/apps/workbench/lore/folder-inspector.tsx | ({ category, categories, edges, collapsed, styles, onRename, onMove, onToggleEnabled, onClone, onToggleCollapse, onDe... |  |  |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GalleryPane | src/ui/apps/workbench/regex/gallery-pane.tsx | ({ onPick, onStartBlank, onClose }: GalleryPaneProps) |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
@@ -88,6 +89,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | LoreWorkshopDialog | src/ui/apps/library/lore-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: LoreWorkshopDialogProps) |  |  |
 | MacroAssist | src/ui/apps/workbench/workshop/macros/chips.tsx | ({ value, onInsert, vars }: MacroAssistProps) |  |  |
 | MacroReference | src/ui/apps/workbench/preset/macro-reference.tsx | ({ groups }: MacroReferenceProps) |  |  |
+| MarinaraFolderToc | src/ui/apps/workbench/lore/folder-toc.tsx | ({ entries, categories, edges, focusedId, selectedFolderId, collapsed, writeFor, styles, bookName, onSelectEntry, onS... |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MobileEditorHead | src/ui/components/mobile-editor-head/index.tsx | ({ name, sub, dirty, saving, onBack, onSave, menu }: MobileEditorHeadProps) | Back / name / save / kebab at 2.2rem touch targets; the kebab holds the long tail. | .head .back .name .save .kebabWrap .kebab .menu |

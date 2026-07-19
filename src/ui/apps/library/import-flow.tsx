@@ -4,7 +4,6 @@
  */
 import { useEffect, useState, type JSX } from "react";
 import type { InspectResult } from "../../app-contract";
-import { healBook } from "../../../core/lore";
 
 export interface ReadFile {
   filename: string;
@@ -168,59 +167,29 @@ export function pickFiles(onFiles: (files: File[]) => void): void {
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Attach heal notes onto original.vaud-studio.unmapped.healNotes for Health on first open. */
-function withHealNotes(entity: unknown, notes: { path: string; message: string }[]): unknown {
-  if (!isRec(entity) || notes.length === 0) return entity;
-  const original = isRec(entity.original) ? { ...entity.original } : {};
-  const studio = isRec(original["vaud-studio"])
-    ? { ...(original["vaud-studio"] as Record<string, unknown>) }
-    : {};
-  const unmapped = isRec(studio.unmapped)
-    ? { ...(studio.unmapped as Record<string, unknown>) }
-    : {};
-  unmapped.healNotes = notes;
-  studio.unmapped = unmapped;
-  original["vaud-studio"] = studio;
-  return { ...entity, original };
-}
-
-/** Annotate a successful inspect with heal notes when the entity is a lorebook. */
+/**
+ * Annotate a successful inspect with an entry count. Every ok result here comes from a real format
+ * adapter (server-engine handleInspect), so the body is already canonical and MUST pass through
+ * untouched: healBook is a tolerant reader for foreign payloads that rebuilds by enumeration, and
+ * running it on a canonical body silently reset every field outside its list (categories,
+ * positions, selective logic, filters). Heal belongs to paths that ingest naked JSON, not this one.
+ */
 export function annotateRead(filename: string, result: InspectResult): ReadFile {
   if (!result.ok || !result.entity) return { filename, result };
-  const entity = result.entity as { kind?: string; body?: unknown; original?: unknown };
+  const entity = result.entity as { kind?: string; body?: unknown };
+  const countOf = (v: unknown): number | undefined =>
+    isRec(v) && Array.isArray(v.entries) ? v.entries.length : undefined;
   if (entity.kind !== "lorebook") {
     // related lorebooks on a character bundle
     const related = result.related?.lorebooks;
     if (Array.isArray(related) && related.length > 0) {
-      const notes: string[] = [];
-      let entries = 0;
-      const healedRelated = related.map((lb) => {
-        const h = healBook((lb as { body?: unknown }).body ?? lb);
-        notes.push(...h.healed.map((n) => n.message));
-        entries += h.book.entries.length;
-        return withHealNotes(lb, h.healed);
-      });
-      return {
-        filename,
-        result: {
-          ...result,
-          related: { lorebooks: healedRelated },
-        },
-        healNotes: notes.length ? notes : undefined,
-        entryCount: entries || undefined,
-      };
+      const entries = related.reduce<number>(
+        (n, lb) => n + (countOf(isRec(lb) ? lb.body : undefined) ?? 0),
+        0,
+      );
+      return { filename, result, entryCount: entries || undefined };
     }
     return { filename, result };
   }
-  const h = healBook(entity.body);
-  const patched = withHealNotes(
-    { ...entity, body: h.book },
-    h.healed,
-  );
-  return {
-    filename,
-    result: { ...result, entity: patched },
-    healNotes: h.healed.map((n) => n.message),
-    entryCount: h.book.entries.length,
-  };
+  return { filename, result, entryCount: countOf(entity.body) };
 }

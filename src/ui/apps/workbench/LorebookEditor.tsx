@@ -2,7 +2,7 @@
  * LorebookEditor - the binder (vs-lorebook-binder-2, 1:1): header with the book's spine chip and
  * the Writing-for select, a quiet searchable table of contents, ONE entry owning the page as
  * dossier cards, and the fine-print rail. Book rules live behind a dialog. Pure session ops;
- * save via Studio API overwrite.
+ * save via Studio API overwrite. Marinara lens swaps in the folder forest (useMarinaraFolders).
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
@@ -41,6 +41,9 @@ import {
 } from "./lore/session";
 import { LoreEntryPage } from "./lore/entry-page";
 import { LoreEntryToc } from "./lore/entry-toc";
+import { MarinaraFolderToc } from "./lore/folder-toc";
+import { FolderInspector } from "./lore/folder-inspector";
+import { useMarinaraFolders } from "./lore/use-marinara-folders";
 import { LoreBookSettings } from "./lore/book-settings";
 import { CardsView } from "./lore/cards-view";
 import { WebView } from "./lore/web-view";
@@ -99,17 +102,16 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   const [writeFor, setWriteForState] = useState<LoreWriteForProfile>(() =>
     parseWriteFor(ctx.prefs.get(WRITE_FOR_PREF)),
   );
-  // Session baseline for Changes: body as it arrived this sitting (does not move on save).
   const [importBaseline] = useState(() => structuredClone(initBody));
+  const folders = useMarinaraFolders({ entity, session, setSession, writeFor, styles });
 
-  // Open-beside / deep-link: piece.params.focusEntry lands on that entry once.
   useEffect(() => {
     const focus = piece.params?.focusEntry;
     if (!focus) return;
     setSession((s) => (s.body.entries.some((e) => e.id === focus) ? selectEntry(s, focus) : s));
   }, [piece.params?.focusEntry, piece.id]);
 
-  const dirty = sessionDirty(session, baseline);
+  const dirty = sessionDirty(session, baseline) || folders.edgesDirty;
   const entry = focusedEntry(session);
   const summary = loreSummary(session.body);
   const health = loreHealth(session.body);
@@ -155,18 +157,20 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     const submitted = structuredClone(session.body);
     setSaving(true);
     try {
+      const baseOriginal: Record<string, unknown> =
+        isRec(entity) && isRec(entity.original) ? entity.original : {};
+      // cast at the escrow edge: original is an opaque raw-payload bag by contract
+      const original = folders.originalForSave(baseOriginal, submitted.categories ?? []) as CanonicalLorebook["original"];
       const payload: CanonicalLorebook = {
         schemaVersion: CANONICAL_SCHEMA_VERSION,
         kind: "lorebook",
         id: piece.id,
         body: submitted,
-        original:
-          isRec(entity) && isRec(entity.original)
-            ? (entity.original as CanonicalLorebook["original"])
-            : {},
+        original,
       };
       await ctx.api.saveEntity(payload, { overwrite: true });
       setBaseline(structuredClone(submitted));
+      folders.markEdgesSaved();
       setSession((live) => {
         const r = reconcileLoreAfterSave({ live: live.body, submitted });
         return { body: r.current, openIds: live.openIds, focusedId: live.focusedId };
@@ -177,7 +181,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     } finally {
       setSaving(false);
     }
-  }, [saving, dirty, session.body, ctx, piece.id, entity]);
+  }, [saving, dirty, session.body, ctx, piece.id, entity, folders]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -186,7 +190,6 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         void doSave();
         return;
       }
-      // Undo bulk / Fix All only when not typing in a field
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         const t = e.target as HTMLElement | null;
         const tag = t?.tagName?.toLowerCase();
@@ -284,7 +287,6 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
       className={styles.root}
       style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
     >
-      {/* ---- header: spine chip + writing-for + save ---- */}
       <EditorEhead
         mark={monogram}
         name={session.body.name || "Untitled lorebook"}
@@ -335,7 +337,6 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         </select>
       </EditorEhead>
 
-      {/* ---- mobile contents bar: the TOC leaves the flow below 34rem (vs-mobile-editors) ---- */}
       <div className={styles.mBar}>
         <button type="button" className={styles.mContents} onClick={() => setTocOpen(true)}>
           &#9776; Contents
@@ -351,10 +352,11 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         </button>
       </div>
 
-      {/* ---- toc | page | rail ---- */}
       <div className={styles.cols}>
         <div className={styles.tocCol}>
-          <LoreEntryToc {...tocProps} />
+          {folders.folderLens
+            ? <MarinaraFolderToc {...folders.folderProps} />
+            : <LoreEntryToc {...tocProps} />}
         </div>
 
         <main className={styles.pageCol}>
@@ -378,6 +380,8 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
               }}
               onFallbackCards={() => setView("cards")}
             />
+          ) : folders.folderLens && folders.inspectorProps ? (
+            <FolderInspector {...folders.inspectorProps} />
           ) : !entry ? (
             <div className={styles.empty}>The book is empty. Add an entry from the contents.</div>
           ) : (
@@ -409,22 +413,34 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         />
       </div>
 
-      {/* ---- mobile contents sheet: same TOC, docked to the pane bottom ---- */}
       {tocOpen && (
         <div className={styles.mGate}>
           <BottomSheet title="Contents" onDismiss={() => setTocOpen(false)}>
-            <LoreEntryToc
-              {...tocProps}
-              onSelect={(id) => {
-                tocProps.onSelect(id);
-                setTocOpen(false);
-              }}
-            />
+            {folders.folderLens ? (
+              <MarinaraFolderToc
+                {...folders.folderProps}
+                onSelectEntry={(id) => {
+                  folders.folderProps.onSelectEntry(id);
+                  setTocOpen(false);
+                }}
+                onSelectFolder={(id) => {
+                  folders.folderProps.onSelectFolder(id);
+                  setTocOpen(false);
+                }}
+              />
+            ) : (
+              <LoreEntryToc
+                {...tocProps}
+                onSelect={(id) => {
+                  tocProps.onSelect(id);
+                  setTocOpen(false);
+                }}
+              />
+            )}
           </BottomSheet>
         </div>
       )}
 
-      {/* ---- book rules: the book-level form behind its own sheet ---- */}
       {rulesOpen && (
         <InkDialog onDismiss={() => setRulesOpen(false)} ariaLabel="Book rules">
           <div className={styles.rulesSheet}>

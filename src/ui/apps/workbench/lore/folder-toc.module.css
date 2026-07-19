@@ -1,0 +1,367 @@
+/**
+ * Marinara folder-tree binder TOC + folder inspector (locked wireframe vs-lore-mari-folders, 1:1).
+ * Folder header rows, the compounding indent rail, drop affordances, and the inspector card. Entry
+ * rows inside folders reuse the shared trow/tSlide/tpip classes from entry-toc.module.css.
+ */
+
+/* ---- the ungrouped root band ---- */
+.mfRootLab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  padding: 0.4rem 0.25rem 0.2rem;
+}
+
+.mfRootLab::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--stage-faint);
+}
+
+/* ---- folder header row ---- */
+.mfFolder {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.34rem 0.3rem 0.34rem 0.34rem;
+  background: var(--stage-row);
+  border: 1px solid var(--stage-seam);
+  margin: 0.25rem 0 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.mfFolderSel {
+  border-color: var(--a, var(--stage-macro));
+  box-shadow: 0 0 0 1px var(--a, var(--stage-macro));
+}
+
+.mfFolderNest {
+  border-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 10%, var(--stage-row));
+}
+
+.mfChev {
+  width: 0.9rem;
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--stage-mute);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.mfChevClosed {
+  color: var(--a, var(--stage-macro));
+}
+
+.mfDragHandle {
+  width: 0.95rem;
+  flex: none;
+  cursor: grab;
+  color: var(--stage-text-dim);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: -0.08em;
+  user-select: none;
+  line-height: 1;
+}
+
+.mfName {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.mfCount {
+  flex: none;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.54rem;
+  color: var(--stage-text-dim);
+  border: 1px solid var(--stage-seam);
+  padding: 0.05rem 0.3rem;
+}
+
+/* folder enable switch (the texpSwitch idiom at row scale) */
+.mfSw {
+  width: 1.55rem;
+  height: 0.82rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mfSw::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.42rem;
+  height: 0.42rem;
+  background: var(--stage-ink);
+}
+
+.mfSwOff {
+  background: var(--stage-faint);
+}
+
+.mfSwOff::after {
+  left: 2px;
+  right: auto;
+}
+
+/* ---- folder body: the compounding indent rail ---- */
+.mfBody {
+  border-left: 1px solid var(--stage-seam);
+  margin-left: 0.62rem;
+  padding-left: 0.4rem;
+}
+
+.mfBodyTarget {
+  border-left-color: var(--a, var(--stage-macro));
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 7%, transparent);
+}
+
+/* gated-folder caption (proposed view D, approved with the lock) */
+.mfGateNote {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.56rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--stage-warn);
+  padding: 0.2rem 0.3rem 0.3rem;
+}
+
+.mfDim {
+  opacity: 0.5;
+}
+
+/* ---- drop affordances ---- */
+.mfInsert {
+  height: 0;
+  border-top: 2px solid var(--a, var(--stage-macro));
+  margin: 0.05rem 0.3rem;
+}
+
+.mfDropStrip {
+  margin: 0.4rem 0.1rem 0;
+  border: 2px dashed var(--stage-seam);
+  color: var(--stage-text-dim);
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 0.62rem;
+  padding: 0.42rem 0.5rem;
+  text-align: center;
+}
+
+.mfDropStripLive {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+  background: color-mix(in srgb, var(--a, var(--stage-macro)) 6%, transparent);
+}
+
+.mfAddRow {
+  display: flex;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+}
+
+.mfAdd {
+  flex: 1;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 2px dashed var(--stage-seam);
+  background: none;
+  color: var(--stage-mute);
+  padding: 0.4rem;
+  cursor: pointer;
+}
+
+.mfAdd:hover {
+  border-color: var(--stage-line, var(--stage-seam));
+  color: var(--stage-card);
+}
+
+/* ---- folder inspector card (page column) ---- */
+.mfCard {
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel, var(--stage-row));
+  max-width: 27rem;
+  margin: 1rem auto;
+}
+
+.mfCardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 2px solid var(--stage-seam);
+}
+
+.mfCardHead b {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+}
+
+.mfCardHead i {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+  margin-left: auto;
+}
+
+.mfCardBody {
+  padding: 0.65rem 0.7rem 0.75rem;
+}
+
+.mfK {
+  display: block;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+  margin: 0.6rem 0 0.22rem;
+}
+
+.mfK:first-child {
+  margin-top: 0;
+}
+
+.mfIn,
+.mfSel {
+  width: 100%;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-card);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 0.36rem 0.45rem;
+}
+
+.mfSel {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+}
+
+.mfRuleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  margin-top: 0.55rem;
+  border-top: 1px solid var(--stage-faint);
+}
+
+.mfSubhint {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.58rem;
+  line-height: 1.45;
+  color: var(--stage-text-dim);
+  margin: 0.15rem 0 0;
+}
+
+.mfActRow {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 0.55rem;
+}
+
+.mfAct {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-soft);
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.mfAct:hover {
+  border-color: var(--stage-line, var(--stage-seam));
+  color: var(--stage-card);
+}
+
+.mfDanger {
+  margin-top: 0.55rem;
+  border: 1px solid var(--stage-danger-edge);
+  background: color-mix(in srgb, var(--stage-danger-edge) 7%, transparent);
+  padding: 0.5rem 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.mfDbtn {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.56rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 2px solid var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+  background: transparent;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+}
+
+.mfDangerHint {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.58rem;
+  line-height: 1.45;
+  color: var(--stage-text-dim);
+  margin: 0;
+  flex: 1;
+  min-width: 9rem;
+}
