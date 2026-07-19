@@ -1,8 +1,8 @@
 /**
- * Marinara-Engine format family. Today it ships exactly one codec: the regex-script adapter. The
- * character-side Marinara dialect stays where it lives (the generic extensions bag via
- * `_shared/extension-platforms.ts`); this folder exists because the regex ENTITY needed a
- * registry-visible file home (folders-as-schema: the loader only discovers `formats/<x>/index.ts`).
+ * Marinara-Engine format family: regex scripts, persona, the native lorebook envelope
+ * (lorebook.ts), and the prompt-preset codec (preset.ts, named export). The character-side
+ * Marinara dialect stays where it lives (the generic extensions bag via
+ * `_shared/extension-platforms.ts`).
  *
  * File home: a bare JSON array of `MarinaraRegexScript` rows - the shape Marinara-Engine's own API
  * serves (`GET /regex-scripts` in `packages/server/src/routes/regex-scripts.routes.ts` returns
@@ -33,6 +33,8 @@ import {
   rulesToMarinaraScripts,
 } from "../_shared/marinara-regex";
 import personaAdapter from "./persona";
+import marinaraPreset from "./preset";
+import marinaraLorebook from "./lorebook";
 
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
@@ -94,5 +96,14 @@ const regexAdapter: RegexAdapter = {
 
 export { regexAdapter };
 
-/** Folders-as-schema: the Marinara family codecs (regex scripts + persona). */
-export default [regexAdapter, personaAdapter];
+/**
+ * The prompt-preset codec (kind "preset") is a NAMED export, not part of the loader-discovered
+ * default array below. The registry's `FormatAdapter` union (src/core/adapter.ts) has no preset
+ * member yet, so the generated static registrar (src/generated/packaged-formats.ts) cannot accept a
+ * preset-kind object; the preset layer imports this directly. Add a `PresetAdapter` member to that
+ * union to make it loader-discoverable.
+ */
+export { marinaraPreset };
+
+/** Folders-as-schema: the Marinara family codecs (regex scripts + persona + native lorebook). */
+export default [regexAdapter, personaAdapter, marinaraLorebook];

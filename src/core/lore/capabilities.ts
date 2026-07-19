@@ -13,6 +13,7 @@ export type LoreWriteForProfile =
   | "full"
   | "sillytavern"
   | "chub"
+  | "marinara"
   | "lumiverse"
   | "agnai"
   | "risu"
@@ -120,6 +121,13 @@ const PROFILE_EMPHASIS: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey,
     priority: "emphasize",
     secondaryTriggers: "emphasize",
   },
+  marinara: {
+    sticky: "emphasize",
+    cooldown: "emphasize",
+    scanSources: "emphasize",
+    categoryId: "emphasize",
+    characterFilter: "emphasize",
+  },
   lumiverse: {
     priority: "emphasize",
     secondaryTriggers: "emphasize",
@@ -157,6 +165,7 @@ export const LORE_WRITE_FOR_LABELS: Record<LoreWriteForProfile, string> = {
   full: "Vaude",
   sillytavern: "SillyTavern",
   chub: "Chub",
+  marinara: "Marinara",
   lumiverse: "Lumiverse",
   agnai: "Agnai",
   risu: "Risu",
@@ -167,6 +176,7 @@ export const LORE_WRITE_FOR_PROFILES: readonly LoreWriteForProfile[] = [
   "full",
   "sillytavern",
   "chub",
+  "marinara",
   "lumiverse",
   "agnai",
   "risu",

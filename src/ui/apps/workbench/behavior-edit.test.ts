@@ -20,7 +20,7 @@ import {
 import type { CharacterBody } from "../../../entities/character/schema";
 
 const cherry = (): TavernData => {
-  const raw = readFileSync(join(import.meta.dir, "../../../../samples/risu/cherry.card.json"), "utf8");
+  const raw = readFileSync(join(import.meta.dir, "../../../../samples/risu/characters/cherry.card.json"), "utf8");
   return (JSON.parse(raw) as { data: TavernData }).data;
 };
 

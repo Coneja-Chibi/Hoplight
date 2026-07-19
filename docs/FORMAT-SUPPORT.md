@@ -2,7 +2,7 @@
 
 Auto-generated from live adapters (`bun run scripts/format-matrix.ts`).
 Canonical schema version: **1**.
-Generated: 2026-07-12.
+Generated: 2026-07-19.
 
 ## How to use
 
@@ -30,7 +30,7 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `byaf` | character | .byaf | Backyard archive (.byaf) |
 | `agnai` | character | .json | Agnai (Agnaistic) character (.json) |
 
-## Lorebooks (5)
+## Lorebooks (6)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
@@ -38,6 +38,7 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `rolecall-lorebook` | lorebook | .json | RoleCall lorebook (v1 export json) |
 | `risu-lorebook` | lorebook | .json | RisuAI lorebook (native export json) |
 | `novelai-lorebook` | lorebook | .lorebook | NovelAI lorebook (native export .lorebook / json) |
+| `marinara-lorebook` | lorebook | .json | Marinara-Engine lorebook (native .marinara.json export) |
 | `agnai-lorebook` | lorebook | .json | Agnai memory book (json) |
 
 ## Personas (4)
@@ -78,4 +79,5 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `samples/pygmalion/` | classic flat |
 | `samples/lumiverse/` | ST + Lumi extensions |
 | `samples/chub/` | ST + extensions.chub |
+| `samples/marinara/` | native lorebook envelope + prompt preset |
 | `samples/novelai/` | lorebook |

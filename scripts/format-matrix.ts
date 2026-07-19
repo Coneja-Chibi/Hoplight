@@ -86,6 +86,7 @@ ${r.length ? r.map(row).join("\n") : "| (none) | | | |"}
 | \`samples/pygmalion/\` | classic flat |
 | \`samples/lumiverse/\` | ST + Lumi extensions |
 | \`samples/chub/\` | ST + extensions.chub |
+| \`samples/marinara/\` | native lorebook envelope + prompt preset |
 | \`samples/novelai/\` | lorebook |
 `;
 }

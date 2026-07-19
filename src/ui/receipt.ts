@@ -32,6 +32,7 @@ const FRIENDLY: Record<string, string> = {
   "rolecall-regex": "RoleCall",
   "lumiverse-regex": "Lumiverse",
   "marinara-regex": "Marinara",
+  "marinara-lorebook": "Marinara",
   "sillytavern-persona": "SillyTavern",
   "lumiverse-persona": "Lumiverse",
   "marinara-persona": "Marinara",

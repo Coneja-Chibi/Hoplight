@@ -21,8 +21,9 @@ here rotted once (it was missing three shipped adapters); it does not get a seco
 | Agnai | [agnai.md](agnai.md) | character, memory book |
 | NovelAI | [novelai.md](novelai.md) | `.lorebook` |
 | Vaudeville native | [vaud-json.md](vaud-json.md) | the canonical wrapper |
+| Marinara Engine | [marinara.md](marinara.md) | native lorebook envelope, prompt preset, persona, regex; characters as CCv3 + extension fields |
 
-Adapters without a dedicated page yet (pygmalion, lumiverse, marinara, chub) are documented by their
+Adapters without a dedicated page yet (pygmalion, lumiverse, chub) are documented by their
 source folders under `src/formats/` and appear in the generated matrix.
 
 Detection scores are the confidence each adapter's `detect()` returns for its own format. Higher

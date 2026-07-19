@@ -182,6 +182,7 @@ export function knowledgeHonestyLines(targetId: string, body: unknown): HonestyL
     targetId === "rolecall" ||
     targetId === "risu" ||
     targetId === "chub" ||
+    targetId === "marinara" ||
     targetId === "lumiverse"
   ) {
     return [
@@ -271,6 +272,7 @@ const PACK_CARRIERS = new Set([
   "risu",
   "lumiverse",
   "chub",
+  "marinara",
   "byaf",
 ]);
 

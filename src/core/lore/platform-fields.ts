@@ -9,6 +9,8 @@
  * - chub / lumiverse: the CCv3 character_book floor via _shared/character-book.ts - SEPARATE
  *   lenses (a platform is never smushed into another's tab); their owned lists duplicate on
  *   purpose, that is the auditable-alignment doctrine
+ * - marinara: the NATIVE Marinara Engine lorebook wire (lorebook.schema.ts entry shape, exported
+ *   as the { type: "marinara_lorebook" } envelope) via formats/marinara/lorebook.ts
  * - agnai: agnai/lorebook.ts
  * - risu: risu/lorebook.ts
  * - novelai: novelai/lorebook.ts
@@ -94,6 +96,26 @@ export const PLATFORM_OWNED_EXTRAS: Record<LoreWriteForProfile, readonly LoreFie
     "probability",
     "matchOverrides",
   ],
+  marinara: [
+    "comment", // entry.description (knowledge-router summary)
+    "secondaryTriggers", // secondaryKeys
+    "selectiveLogic",
+    "position",
+    "depth",
+    "role",
+    "probability",
+    "sticky",
+    "cooldown",
+    "delay",
+    "groupName", // group
+    "groupTuning", // groupWeight
+    "categoryId", // folderId -> native folders
+    "recursion", // prevent/exclude recursion flags
+    "delayUntilRecursion",
+    "characterFilter", // character + character-tag filters
+    "scanSources", // additionalMatchingSources
+    "matchOverrides", // matchWholeWords / caseSensitive
+  ],
   lumiverse: [
     "secondaryTriggers",
     "selectiveLogic",
@@ -150,6 +172,8 @@ export const LORE_ALL_POSITIONS: readonly InjectionPosition[] = [
  * - sillytavern: sillytavern/lorebook.ts parsePosition (numeric 0-4: before/after char,
  *   before/after example, @depth); the rest collapse lossily on export
  * - chub / lumiverse / agnai: before_char/after_char floor (character-book wire)
+ * - marinara: native position 0/1/2 = before/after character defs + at depth per the engine's
+ *   injector (world / character / depth); its UI labels say chat, the injector wins
  * - risu: risu/lorebook.ts - native lore has no position slot (character floor)
  * - novelai: novelai/lorebook.ts - placement rides contextConfig, not a slot (character floor)
  */
@@ -157,6 +181,7 @@ export const LORE_POSITIONS_BY_PROFILE: Record<LoreWriteForProfile, readonly Inj
   full: LORE_ALL_POSITIONS,
   sillytavern: ["world", "character", "depth", "before_example", "after_example"],
   chub: ["world", "character"],
+  marinara: ["world", "character", "depth"],
   lumiverse: ["world", "character"],
   agnai: ["world", "character"],
   risu: ["character"],

@@ -86,6 +86,20 @@ const ORIGIN_RULES: readonly OriginRule[] = [
     test: (c) => isRecord(c.ext.chub),
   },
   {
+    // Marinara Engine writes its fields flat on extensions (shared/types/character.ts in the
+    // engine): rpgStats/nameColor/dialogueColor/boxColor/trackerCardColors are unique to it;
+    // backstory alone is too generic to fingerprint on.
+    origin: "Marinara Engine",
+    weight: 0.9,
+    signal: "marinara-extension-fields",
+    test: (c) =>
+      isRecord(c.ext.rpgStats) ||
+      typeof c.ext.nameColor === "string" ||
+      typeof c.ext.dialogueColor === "string" ||
+      typeof c.ext.boxColor === "string" ||
+      typeof c.ext.trackerCardColors === "string",
+  },
+  {
     origin: "Agnai",
     weight: 0.9,
     signal: "agnai-native-persona",
