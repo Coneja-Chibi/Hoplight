@@ -1,3 +1,4 @@
+/** Character provenance helpers for preserving creator and source attribution across formats. */
 import type { AdapterInput } from "../../core/adapter";
 
 /**

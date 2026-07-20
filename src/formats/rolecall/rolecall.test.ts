@@ -1,3 +1,4 @@
+/** Regression coverage for the rolecall.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { characterAdapter as adapter } from "./index";
 import { characterAdapter as sillytavern } from "../sillytavern/index";

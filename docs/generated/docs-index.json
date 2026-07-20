@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-19",
+  "generated": "2026-07-20",
   "count": 80,
   "docs": [
     {
@@ -115,7 +115,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-19.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-20.",
       "tags": [],
       "related": [],
       "anchors": [
@@ -454,9 +454,9 @@
     {
       "id": "decisions/ADR-009-sandbox-origin",
       "path": "docs/decisions/ADR-009-sandbox-origin.md",
-      "title": "ADR-009: Distinct origin for Lua sandbox execution",
+      "title": "ADR-009: Distinct origin for test-bench execution",
       "audience": "dev",
-      "summary": "**Status:** accepted in design; packaged-host proof BLOCKED · 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)",
+      "summary": "**Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)",
       "tags": [],
       "related": [],
       "anchors": [

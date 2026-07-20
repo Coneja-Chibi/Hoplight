@@ -1,3 +1,4 @@
+/** Regression coverage for the store-core.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import {
   besideKeys,

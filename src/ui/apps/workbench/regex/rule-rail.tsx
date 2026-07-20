@@ -8,10 +8,11 @@
  * matched input, then the result is shown plainly below - not the output-side marks the wireframe
  * draws (those would need re-running the replacement in the UI, duplicating the engine).
  */
-import { useMemo, useState, type JSX, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type JSX, type ReactNode } from "react";
 import type { RegexRule } from "../../../../entities/regex/schema";
-import { applyRules, validateRule } from "../../../../core/regex";
-import type { RegexFinding, TraceMatch } from "../../../../core/regex";
+import { validateRule } from "../../../../core/regex";
+import type { RegexFinding, RuleTrace, TraceMatch } from "../../../../core/regex";
+import { runRegexSandboxed } from "./run-in-worker";
 
 export interface RuleRailProps {
   rule: RegexRule;
@@ -55,12 +56,17 @@ function highlight(
 
 export function RuleRail({ rule, styles, onOpenBench, findings, onOpenHealth }: RuleRailProps): JSX.Element {
   const [sample, setSample] = useState(DEFAULT_SAMPLE);
+  const [preview, setPreview] = useState<RuleTrace | null>(null);
   const hasPattern = rule.find.trim() !== "";
 
   // Preview one rule in isolation: force it on, run in its first phase, drop the cross-rule condition
   // and the display-only overlay so the quick try shows the concrete replacement.
-  const preview = useMemo(() => {
-    if (!hasPattern) return null;
+  useEffect(() => {
+    if (!hasPattern) {
+      setPreview(null);
+      return;
+    }
+    const controller = new AbortController();
     const phase = rule.phases[0] ?? "input";
     const solo: RegexRule = {
       ...rule,
@@ -69,7 +75,21 @@ export function RuleRail({ rule, styles, onOpenBench, findings, onOpenHealth }: 
       condition: undefined,
       overlay: false,
     };
-    return applyRules(sample, [solo], { phase }).traces[0] ?? null;
+    void runRegexSandboxed(sample, [solo], { phase, signal: controller.signal }).then((run) => {
+      if (run.ok) setPreview(run.result.traces[0] ?? null);
+      else if (run.reason !== "cancelled") {
+        setPreview({
+          ruleId: rule.id,
+          applied: false,
+          matchCount: 0,
+          elapsedMs: 0,
+          error: run.error,
+          before: sample,
+          after: sample,
+        });
+      }
+    });
+    return () => controller.abort();
   }, [rule, sample, hasPattern]);
 
   const health = useMemo(() => validateRule(rule), [rule]);

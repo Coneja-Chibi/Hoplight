@@ -1,3 +1,4 @@
+/** Regression coverage for the trigger-edit.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { patchTriggerAt } from "./trigger-edit";
 import type { Trigger } from "../../../../entities/lorebook/schema";

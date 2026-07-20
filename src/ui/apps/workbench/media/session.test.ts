@@ -1,3 +1,4 @@
+/** Regression coverage for the session.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { bodyWithFaceOnly, bodyWithPack, originalWithPack, packFromBodyDraft } from "./session";
 

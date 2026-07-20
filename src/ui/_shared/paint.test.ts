@@ -1,3 +1,4 @@
+/** Regression coverage for the paint.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { gradientPaint, normalizePaint, paintToCss, solidPaint } from "./paint";
 

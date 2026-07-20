@@ -5,3 +5,11 @@ export * from "./archive";
 export * as registry from "./registry";
 /** The one impure edge: filesystem-driven format discovery (kept out of the pure registry). */
 export { loadFormats } from "./loader";
+export {
+  buildParseReport,
+  buildSerializeReport,
+  lossReport,
+  type LossReport,
+  type ParseReport,
+  type SerializeReport,
+} from "./reports";

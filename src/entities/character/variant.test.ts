@@ -1,3 +1,4 @@
+/** Regression coverage for the variant.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { applyVariant } from "./variant";
 import type { CharacterBody } from "./schema";

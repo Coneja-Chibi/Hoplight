@@ -1,3 +1,4 @@
+/** Regression coverage for the recents-core.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { rankRecents } from "./recents-core";
 import type { StudioEntitySummary } from "../../app-contract";

@@ -2,13 +2,13 @@
  * UI server engine plumbing: inspect/export over the same adapters as the CLI.
  * Extracted from server.ts (behavior-preserving).
  */
-import { registry } from "../core";
-import type { AdapterInput, CharacterAdapter, FormatAdapter } from "../core";
+import { buildParseReport, buildSerializeReport, registry } from "../core";
+import type { AdapterInput, AdapterOutput, CharacterAdapter, FormatAdapter } from "../core";
 import { emitBundle, inspectBundle } from "../convert";
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import { filterEnabledBooks } from "../core/lore";
-import type { CanonicalEntity } from "../core/canonical";
+import { parseCanonicalEntity, safeParseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
 import { StudioStore } from "../studio/store";
 import { isStudioReadError } from "../studio/errors";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
@@ -20,7 +20,7 @@ import {
   INSPECT_BODY_MAX,
 } from "./server-security";
 
-type AnyEntity = CanonicalEntity<string, unknown>;
+type AnyEntity = ParsedCanonicalEntity;
 
 function toAdapterInput(bytes: Uint8Array, filename: string): AdapterInput {
   const input: AdapterInput = { bytes, filename };
@@ -67,15 +67,18 @@ export async function handleInspect(req: Request): Promise<Response> {
         related: lorebooks.length > 0 ? { lorebooks } : undefined,
         formatId: adapter.id,
         kind: entity.kind,
+        parseReport: buildParseReport(entity, adapter.id),
       });
     }
-    const entity = adapter.toCanonical(input) as AnyEntity;
+    const entity = parseCanonicalEntity(adapter.toCanonical(input));
+    if (entity.kind !== adapter.kind) throw new Error("adapter returned the wrong entity kind");
     return json({
       ok: true,
       receipt: buildReceipt(entity, adapter.id),
       entity,
       formatId: adapter.id,
       kind: entity.kind,
+      parseReport: buildParseReport(entity, adapter.id),
     });
   } catch {
     return json(
@@ -124,35 +127,40 @@ async function resolveLorebooksFromStore(
 }
 
 export async function handleExport(store: StudioStore, body: unknown): Promise<Response> {
-  const b = body as { entity?: AnyEntity; targetId?: string } | null;
+  const b = body as { entity?: unknown; targetId?: unknown } | null;
   if (!b?.entity || typeof b.targetId !== "string") return err("expected { entity, targetId }");
+  const parsed = safeParseCanonicalEntity(b.entity);
+  if (!parsed.ok) return err(`invalid canonical entity: ${parsed.issues[0] ?? "invalid shape"}`, 400);
+  const entity = parsed.entity;
   const target = registry.get(b.targetId);
   if (!target) return err(`unknown format "${b.targetId}"`);
-  if (b.entity.kind !== target.kind) {
-    return err(`cannot write a ${b.entity.kind} as ${target.id} (a ${target.kind} format)`);
+  if (entity.kind !== target.kind) {
+    return err(`cannot write a ${entity.kind} as ${target.id} (a ${target.kind} format)`);
   }
   try {
-    let out: { bytes?: Uint8Array; text?: string; suggestedExtension: string };
-    if (target.kind === "character" && b.entity.kind === "character") {
-      const resolved = await resolveLorebooksFromStore(store, b.entity);
+    let out: AdapterOutput;
+    if (target.kind === "character" && entity.kind === "character") {
+      const resolved = await resolveLorebooksFromStore(store, entity);
       if (!resolved.ok) {
         return err(
           `missing lorebook refs: ${resolved.missing.join(", ")}`,
           422,
         );
       }
-      out = emitBundle(target as CharacterAdapter, b.entity as CanonicalCharacter, resolved.lorebooks);
+      out = emitBundle(target as CharacterAdapter, entity as CanonicalCharacter, resolved.lorebooks);
     } else {
       out = (target.fromCanonical as (e: AnyEntity) => {
         bytes?: Uint8Array;
         text?: string;
         suggestedExtension: string;
-      })(b.entity);
+      })(entity);
     }
+    const report = out.report ?? buildSerializeReport(entity, target);
     return json({
       suggestedExtension: out.suggestedExtension,
       text: out.text,
       bytesB64: out.bytes ? Buffer.from(out.bytes).toString("base64") : undefined,
+      report,
     });
   } catch (e) {
     return err(`${target.id}: ${e instanceof Error ? e.message : String(e)}`, 422);

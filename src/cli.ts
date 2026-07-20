@@ -307,13 +307,13 @@ async function main(argv: string[]): Promise<number> {
     const flags = parseConvertFlags(convertArgs);
     if (!flags.ok) {
       console.log(`\n  ${flags.error}`);
-      console.log(`  Usage: vaud convert <in> <out> [--to <format>] [--yes]\n`);
+      console.log(`  Usage: vaud convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
       return 1;
     }
     const inPath = flags.rest[0];
     const outPath = flags.rest[1];
     if (!inPath || !outPath || flags.rest.length !== 2) {
-      console.log(`\n  Usage: vaud convert <in> <out> [--to <format>] [--yes]\n`);
+      console.log(`\n  Usage: vaud convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
       return 1;
     }
 
@@ -358,6 +358,18 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
+    const report = out.report;
+    if (!report) {
+      console.log("\n  convert: target did not produce a serialize report\n");
+      return 1;
+    }
+    if (flags.strict && report.dropped.length > 0) {
+      console.log(`\n  strict export refused: ${report.dropped.length} field(s) would be dropped`);
+      for (const field of report.dropped) console.log(`  - ${field}`);
+      console.log("");
+      return 1;
+    }
+
     try {
       await writeOutput(outPath, out);
     } catch (e) {
@@ -377,6 +389,7 @@ async function main(argv: string[]): Promise<number> {
           lorebooks: lorebooks.length,
           bytes: out.bytes?.length ?? 0,
           textChars: out.text?.length ?? 0,
+          report,
         }),
       );
       return 0;
@@ -387,9 +400,12 @@ async function main(argv: string[]): Promise<number> {
       const total = lorebooks.reduce((n, l) => n + l.body.entries.length, 0);
       console.log(`  + embedded lorebook carried across (${total} entr${total === 1 ? "y" : "ies"})`);
     }
-    if (src.id !== target.adapter!.id) {
-      console.log(`  note: cross-format keeps what the target can express; same-format aims lossless`);
-    }
+    console.log(
+      `  report: ${report.escrowed.length} escrowed, ${report.dropped.length} dropped, ` +
+        `${report.escrowShadowed.length} shadowed, ${report.warnings.length} warning(s)`,
+    );
+    for (const field of report.dropped) console.log(`  - dropped: ${field}`);
+    for (const warning of report.warnings) console.log(`  - warning: ${warning}`);
     console.log("");
     return 0;
   }

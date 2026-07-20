@@ -5,6 +5,7 @@
  */
 import type { FormatInfo, StudioEntitySummary } from "../../app-contract";
 import { EXTENSION_PLATFORMS } from "../../../formats/_shared/extension-platforms";
+import { sanitizeDownloadBase } from "../../_shared/download-name";
 
 /** One target platform chip: a friendly name and its adapter per piece kind. */
 export interface PressPlatform {
@@ -88,14 +89,10 @@ export function planRun(picked: readonly StudioEntitySummary[], platform: PressP
   });
 }
 
-/** Sanitize a piece name into a zip-safe base (same discipline as the single-export download). */
-const safeBase = (name: string): string =>
-  (name.trim() || "piece").replace(/[-<>:"/\|?* ]/g, "_").slice(0, 80);
-
 /** Mint a unique filename inside the run's zip; collisions count up (adrian.json, adrian-2.json). */
 export function mintFilename(name: string, extension: string, taken: Set<string>): string {
   const ext = extension.replace(/^\./, "") || "bin";
-  const base = safeBase(name);
+  const base = sanitizeDownloadBase(name, "piece");
   let candidate = `${base}.${ext}`;
   for (let n = 2; taken.has(candidate); n++) candidate = `${base}-${n}.${ext}`;
   taken.add(candidate);

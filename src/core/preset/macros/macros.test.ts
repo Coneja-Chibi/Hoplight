@@ -3,7 +3,8 @@
  * RoleCall's list filtered by group name, which showed SillyTavern 55/91 macros it cannot run and
  * hid 48 it can. The regressions below pin the findings so that cannot come back.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import {
   macroGroupsForProfile,
@@ -39,26 +40,33 @@ describe("catalog integrity", () => {
   }
 });
 
-/**
- * Source-pin: hand-transcribing the RoleCall catalog quietly dropped 66 of its 174 macros, so this
- * re-parses the upstream source and demands an exact match.
- *
- * The path comes from an env var, never a literal: upstream lives outside this repo (and is not
- * public), so a hardcoded path would both leak a local filesystem and make the test a permanent
- * skip for everyone else. Set VAUD_RC_MACRO_SRC to the upstream dropdown to arm it; unset, it skips.
- */
-const RC_SRC = process.env.VAUD_RC_MACRO_SRC ?? "";
-describe("pinned to the upstream RoleCall source", () => {
-  test.skipIf(!RC_SRC || !existsSync(RC_SRC))("carries every group and macro upstream ships, none abridged", () => {
-    const src = readFileSync(RC_SRC, "utf8");
-    const body = src.slice(src.indexOf("const MACRO_GROUPS"), src.indexOf("interface MacroReferenceDropdownProps"));
-    const marks = [...body.matchAll(/name:\s*"([^"]+)",\s*\n\s*icon:/g)].map((m) => ({ name: m[1]!, at: m.index! }));
-    const realCounts = marks.map((g, i) => {
-      const seg = body.slice(g.at, i + 1 < marks.length ? marks[i + 1]!.at : body.length);
-      return { name: g.name, count: (seg.match(/\{ macro:/g) ?? []).length };
-    });
-    expect(ROLECALL_MACRO_GROUPS.map((g) => g.name)).toEqual(realCounts.map((g) => g.name));
-    expect(ROLECALL_MACRO_GROUPS.map((g) => g.macros.length)).toEqual(realCounts.map((g) => g.count));
+interface CatalogPin {
+  provenance: string;
+  capturedAt: string;
+  groups: Array<{ name: string; tokens: string[] }>;
+}
+
+const pin = (name: string): CatalogPin => JSON.parse(
+  readFileSync(join(import.meta.dir, "_fixtures", `${name}.json`), "utf8"),
+) as CatalogPin;
+
+describe("pinned to reviewed upstream snapshots", () => {
+  test("RoleCall carries every reviewed group and token, none abridged", () => {
+    const source = pin("rolecall-source-pin");
+    expect(source.provenance).toContain("RoleCall");
+    expect(ROLECALL_MACRO_GROUPS.map((group) => ({
+      name: group.name,
+      tokens: group.macros.map((macro) => macro.macro),
+    }))).toEqual(source.groups);
+  });
+
+  test("SillyTavern carries every reviewed token", () => {
+    const source = pin("sillytavern-source-pin");
+    expect(source.provenance).toContain("SillyTavern");
+    expect(SILLYTAVERN_MACRO_GROUPS.map((group) => ({
+      name: group.name,
+      tokens: group.macros.map((macro) => macro.macro),
+    }))).toEqual(source.groups);
   });
 });
 
@@ -160,29 +168,5 @@ describe("regression: real macros the old filtered catalog hid", () => {
       "{{trimStart}}", "{{uppercase}}...{{/uppercase}}", "{{NAME}}"]) {
       expect(has(MARINARA_MACRO_GROUPS, t)).toBe(true);
     }
-  });
-});
-
-/**
- * Source-pinning: when the real SillyTavern install is present, assert every token we advertise is
- * one ST's own reference lists. Skipped where ST isn't installed, so CI stays green.
- */
-// Path via env var, not a literal: a local SillyTavern checkout is not in this repo, and hardcoding
-// one leaks a filesystem and makes the pin a permanent skip elsewhere. Point
-// VAUD_ST_MACRO_HELP at SillyTavern's public/scripts/templates/macros.html to arm it.
-const ST_HELP = process.env.VAUD_ST_MACRO_HELP ?? "";
-const bareName = (tok: string): string => tok.replace(/^\{\{/, "").split(/[:\s}\\]/)[0]!.toLowerCase();
-
-describe("pinned to the real SillyTavern install", () => {
-  test.skipIf(!existsSync(ST_HELP))("every ST token we show exists in ST's own macro reference", () => {
-    const html = readFileSync(ST_HELP, "utf8");
-    const real = new Set(
-      [...html.matchAll(/<tt>(.*?)<\/tt>/g)]
-        .map((m) => m[1]!.replace(/&lcub;/g, "{").replace(/&rcub;/g, "}").replace(/<[^>]*>/g, "").trim())
-        .filter((t) => t.startsWith("{{"))
-        .map(bareName)
-        .filter(Boolean),
-    );
-    expect(tokens(SILLYTAVERN_MACRO_GROUPS).filter((t) => !real.has(bareName(t)))).toEqual([]);
   });
 });

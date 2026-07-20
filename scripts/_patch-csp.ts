@@ -1,3 +1,4 @@
+/** One-time maintenance patch for the packaged UI content-security-policy wiring. */
 const p = new URL("../src/ui/server.ts", import.meta.url);
 let t = await Bun.file(p).text();
 

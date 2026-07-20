@@ -16,8 +16,12 @@ import type {
   FormatAdapter,
 } from "./core";
 import { primaryOriginalRaw } from "./core";
+import { buildSerializeReport } from "./core";
+import type { CanonicalEntity } from "./core/canonical";
 import type { CanonicalCharacter } from "./entities/character/schema";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
+import type { CanonicalPersona } from "./entities/persona/schema";
+import { parseCanonicalEntity } from "./entities/runtime-schema";
 
 import { extractCharacterBook } from "./formats/_shared/character-book";
 
@@ -41,7 +45,9 @@ export function inspectBundle(
   source: CharacterAdapter,
   input: AdapterInput,
 ): InspectBundleResult {
-  const entity = source.toCanonical(input);
+  const parsed = parseCanonicalEntity(source.toCanonical(input));
+  if (parsed.kind !== "character") throw new Error("convert: character adapter returned the wrong entity kind");
+  const entity = parsed as CanonicalCharacter;
   // A format whose embedded book is not a CCv2/v3 character_book (Agnai's native MemoryBook) extracts
   // via its own adapter override; every CCv3-lineage card uses the shared extractor.
   const lorebook = source.extractLorebook
@@ -69,7 +75,17 @@ export function emitBundle(
           ...(requestedExtension ? { requestedExtension } : {}),
         }
       : undefined;
-  return target.fromCanonical(entity, ctx);
+  const out = target.fromCanonical(entity, ctx);
+  return { ...out, report: out.report ?? buildSerializeReport(entity, target) };
+}
+
+/** Attach the required serialize report to a non-character adapter output. */
+function reportedOutput(
+  target: FormatAdapter,
+  entity: CanonicalEntity<string, unknown>,
+  out: AdapterOutput,
+): AdapterOutput {
+  return { ...out, report: out.report ?? buildSerializeReport(entity, target) };
 }
 
 /**
@@ -106,10 +122,16 @@ export function convertFile(
     return { out, lorebooks };
   }
   if (src.kind === "lorebook" && target.kind === "lorebook") {
-    return { out: target.fromCanonical(src.toCanonical(input)), lorebooks: [] };
+    const parsed = parseCanonicalEntity(src.toCanonical(input));
+    if (parsed.kind !== "lorebook") throw new Error("convert: lorebook adapter returned the wrong entity kind");
+    const entity = parsed as CanonicalLorebook;
+    return { out: reportedOutput(target, entity, target.fromCanonical(entity)), lorebooks: [] };
   }
   if (src.kind === "persona" && target.kind === "persona") {
-    return { out: target.fromCanonical(src.toCanonical(input)), lorebooks: [] };
+    const parsed = parseCanonicalEntity(src.toCanonical(input));
+    if (parsed.kind !== "persona") throw new Error("convert: persona adapter returned the wrong entity kind");
+    const entity = parsed as CanonicalPersona;
+    return { out: reportedOutput(target, entity, target.fromCanonical(entity)), lorebooks: [] };
   }
   throw new Error(`convert: cannot convert a ${src.kind} to a ${target.kind} (different entity kinds)`);
 }

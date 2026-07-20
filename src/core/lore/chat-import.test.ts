@@ -1,3 +1,4 @@
+/** Regression coverage for the chat-import.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { parseChatJsonl } from "./chat-import";
 import { readFileSync } from "fs";

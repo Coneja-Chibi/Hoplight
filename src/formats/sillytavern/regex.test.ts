@@ -1,3 +1,4 @@
+/** Regression coverage for the regex.test behavior owned beside this file. */
 import { test, expect, describe } from "bun:test";
 import { readFileSync } from "fs";
 import { join } from "path";

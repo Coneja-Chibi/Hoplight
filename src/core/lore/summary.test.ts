@@ -1,3 +1,4 @@
+/** Regression coverage for the summary.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { emptyLorebookBody } from "./empty-book";
 import { estimateBookTokens, estimateEntryTokens, loreSummary } from "./summary";

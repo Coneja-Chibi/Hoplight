@@ -1,3 +1,4 @@
+/** Regression coverage for the registry.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { cardsForLens, LORE_PLATFORM_CARDS } from "./registry";
 import { cardVisible } from "./card-contract";

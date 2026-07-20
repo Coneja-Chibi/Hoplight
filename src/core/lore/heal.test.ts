@@ -1,3 +1,4 @@
+/** Regression coverage for the heal.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { healBook } from "./heal";
 

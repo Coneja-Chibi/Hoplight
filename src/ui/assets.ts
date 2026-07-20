@@ -25,4 +25,6 @@ export interface PackagedAssets {
   vendor: Record<string, string>;
   /** browser-bundled sealed Lua worker (optional; dev serves live from src/sandbox/lua/worker.ts) */
   sandboxWorkerJs?: string;
+  /** browser-bundled regex worker, served only by the sandbox authority */
+  regexWorkerJs?: string;
 }

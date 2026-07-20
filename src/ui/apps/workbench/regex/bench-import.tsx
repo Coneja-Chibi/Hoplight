@@ -11,10 +11,11 @@
  * are not registered adapters; wiring them to detection is a separate server-side task (they need to be
  * added to their format index arrays). The bare-array case the task verifies is fully covered here.
  */
-import { useMemo, useRef, useState, type DragEvent, type JSX } from "react";
+import { useEffect, useRef, useState, type DragEvent, type JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { RegexRule } from "../../../../entities/regex/schema";
-import { perRuleEffect, phaseLabel, stageRules } from "./bench-core";
+import { phaseLabel, stageRules, type RuleEffect } from "./bench-core";
+import { runRegexSandboxed } from "./run-in-worker";
 import styles from "./bench-import.module.css";
 
 export interface BenchImportProps {
@@ -73,6 +74,7 @@ export function BenchImport({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [effects, setEffects] = useState<Map<string, RuleEffect>>(() => new Map());
   const inputRef = useRef<HTMLInputElement>(null);
 
   const takeFile = async (file: File): Promise<void> => {
@@ -118,9 +120,31 @@ export function BenchImport({
     });
   };
 
-  const effects = useMemo(() => {
-    if (!detected) return new Map<string, ReturnType<typeof perRuleEffect>>();
-    return new Map(detected.rules.map((r) => [r.id, perRuleEffect(sample, r)]));
+  useEffect(() => {
+    const controller = new AbortController();
+    if (!detected) {
+      setEffects(new Map());
+      return () => controller.abort();
+    }
+    void (async () => {
+      const next = new Map<string, RuleEffect>();
+      for (const rule of detected.rules) {
+        const phase = rule.phases[0] ?? "input";
+        const solo = { ...rule, enabled: true, phases: [phase], condition: undefined, overlay: false };
+        const run = await runRegexSandboxed(sample, [solo], { phase, signal: controller.signal });
+        if (!run.ok) {
+          if (run.reason === "cancelled") return;
+          next.set(rule.id, { before: sample, after: sample, matched: false, error: run.error });
+          continue;
+        }
+        const trace = run.result.traces[0];
+        next.set(rule.id, trace
+          ? { before: trace.before, after: trace.after, matched: trace.matchCount > 0, error: trace.error }
+          : { before: sample, after: sample, matched: false });
+      }
+      if (!controller.signal.aborted) setEffects(next);
+    })();
+    return () => controller.abort();
   }, [detected, sample]);
 
   const pickedCount = picked.size;

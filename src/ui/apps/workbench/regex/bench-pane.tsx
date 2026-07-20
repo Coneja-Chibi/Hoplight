@@ -13,11 +13,12 @@
 import { useEffect, useMemo, useRef, useState, type JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { RegexRule } from "../../../../entities/regex/schema";
-import { applyRules } from "../../../../core/regex";
+import type { RegexRunResult } from "../../../../core/regex";
 import { escapeRegexChars } from "../../../../core/regex/replace-ops";
 import { InkDialog } from "../../../components/ink-dialog";
 import { BenchImport } from "./bench-import";
 import { CHAIN_PHASES, captureLane, diffTokens, phaseLabel, skipReasonText } from "./bench-core";
+import { runRegexSandboxed } from "./run-in-worker";
 import styles from "./bench-pane.module.css";
 
 export interface BenchPaneProps {
@@ -65,6 +66,8 @@ export function BenchPane({
   const [escOpen, setEscOpen] = useState(false);
   const [escInput, setEscInput] = useState("");
   const [copied, setCopied] = useState(false);
+  const [result, setResult] = useState<RegexRunResult>({ text: sample, traces: [], overlays: [] });
+  const [runError, setRunError] = useState<string | null>(null);
 
   // Short debounce: the sample runs "on every keystroke", but through one settled value, not a storm.
   useEffect(() => {
@@ -74,10 +77,19 @@ export function BenchPane({
 
   const currentPhaseLabel = phaseLabel(phase);
 
-  const result = useMemo(
-    () => applyRules(debounced, [...rules], { phase }),
-    [debounced, rules, phase],
-  );
+  useEffect(() => {
+    const controller = new AbortController();
+    void runRegexSandboxed(debounced, rules, { phase, signal: controller.signal }).then((run) => {
+      if (run.ok) {
+        setResult(run.result);
+        setRunError(null);
+      } else if (run.reason !== "cancelled") {
+        setResult({ text: debounced, traces: [], overlays: [] });
+        setRunError(run.error);
+      }
+    });
+    return () => controller.abort();
+  }, [debounced, rules, phase]);
   const overlayById = useMemo(
     () => new Map(result.overlays.map((o) => [o.ruleId, o])),
     [result.overlays],
@@ -185,6 +197,8 @@ export function BenchPane({
 
             {rules.length === 0 ? (
               <p className={styles.emptyChain}>This set has no rules yet. Add one to see the chain.</p>
+            ) : runError ? (
+              <p className={styles.emptyChain}>{runError}</p>
             ) : (
               result.traces.map((trace, i) => {
                 const label = labelFor(trace.ruleId, i);

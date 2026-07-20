@@ -1,6 +1,8 @@
 /**
  * Pure helpers to turn an ExportResult into a browser download (imperative edge is the caller).
  */
+import { sanitizeDownloadBase } from "../../_shared/download-name";
+
 export interface ExportPayload {
   suggestedExtension: string;
   text?: string;
@@ -10,7 +12,7 @@ export interface ExportPayload {
 /** Build a Blob + filename for a successful export payload. */
 export function exportBlob(payload: ExportPayload, baseName: string): { blob: Blob; filename: string } {
   const ext = payload.suggestedExtension.replace(/^\./, "") || "bin";
-  const safe = (baseName.trim() || "card").replace(/[<>:"/\\|?*\u0000-\u001f]/g, "_").slice(0, 80);
+  const safe = sanitizeDownloadBase(baseName, "card");
   const filename = `${safe}.${ext}`;
   if (typeof payload.text === "string") {
     return { blob: new Blob([payload.text], { type: "application/octet-stream" }), filename };

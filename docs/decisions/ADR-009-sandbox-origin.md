@@ -1,13 +1,14 @@
-# ADR-009: Distinct origin for Lua sandbox execution
+# ADR-009: Distinct origin for test-bench execution
 
-**Status:** accepted in design; packaged-host proof BLOCKED · 2026-07-09
-**Context owners:** `src/sandbox/lua/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries
+**Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09
+**Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries
 **Audit IDs:** SANDBOX-001 (Plan 017)
 
 ## Context
 
 The Risu Test Bench runs untrusted Lua inside a dedicated Worker with Plan 016 resource
-ceilings (timeout, heap, host-state, wire size). Plan 005 authenticates the loopback API
+ceilings (timeout, heap, host-state, wire size). Regex previews also run in a dedicated,
+terminable Worker with a 750 ms wall-clock ceiling. Plan 005 authenticates the loopback API
 with a per-launch bearer (`X-Vaude-Token` / `meta[name=vaude-session]`).
 
 Historically the worker module was served from the **same** loopback origin as the UI and
@@ -23,7 +24,7 @@ This is defense-in-depth architecture, not evidence of a current same-origin exp
 
 Before a public Windows release, perform this short check against the freshly built
 `dist/Vaude.exe` (not the development server): open the Workshop Test Bench and run
-`return 42`. It must return `42` without a worker-load error. Record the build version
+`return 42`, then run a Regex Bench preview. Both must finish without a worker-load error. Record the build version
 and result in the release notes. The automated suite already proves the distinct loopback
 authority, its allowlist/CSP/CORS behavior, API denial, token absence, and protocol; this
 acceptance check specifically covers the installed WebView2 runtime.
@@ -48,17 +49,20 @@ access, auto-running scripts on import.
    gated as in Plan 005.
 2. A **sandbox-only** server binds `127.0.0.1` on an **ephemeral** port. It serves only:
    - `GET /sandbox/worker.js` (module worker bundle)
+   - `GET /sandbox/regex-worker.js` (regex execution worker bundle)
    - `GET /sandbox/glue.wasm` (wasmoon glue)
    - CORS preflight for the UI origin (module workers load cross-origin)
 3. Sandbox host **must not** expose `/api`, studio paths, index HTML with the session token,
    arbitrary static files, or source maps containing secrets.
 4. UI HTML injects `meta[name="vaude-sandbox-origin"]` with the sandbox origin (public, not a
    secret). The API token stays only in `meta[name="vaude-session"]` and trusted `apiFetch`.
-5. Browser UI loads the worker from the sandbox origin when the meta is present; Bun tests keep
-   the module-relative `worker.ts` path (no document).
-6. Wire protocol is a **versioned value-only** tagged union (`src/sandbox/lua/protocol.ts`):
+5. Browser UI loads both workers from the sandbox origin when the meta is present; Bun tests keep
+   module-relative worker paths (no document).
+6. The Lua wire protocol is a **versioned value-only** tagged union (`src/sandbox/lua/protocol.ts`):
    JSON-like primitives only, allowlisted keys, Plan 016 size budgets before accept, no token
    fields, no functions/handles/ports except the Worker message channel itself.
+7. The regex worker also accepts values only and rejects oversized input, more than 500 rules,
+   malformed rule rows, and malformed run options before calling the core engine.
 
 ### Rejected alternatives
 
@@ -81,7 +85,7 @@ access, auto-running scripts on import.
 
 | Check | Result |
 | --- | --- |
-| Unit: sandbox handler allowlist | Automated: only worker + wasm; `/api/*` and traversal return 404 |
+| Unit: sandbox handler allowlist | Automated: only the two workers + wasm; `/api/*` and traversal return 404 |
 | Unit: value protocol reject cases | Automated: wrong version, unknown type, secret keys, oversized |
 | Unit: worker run without token in messages | Automated via protocol encode/parse |
 | Packaged asset build | Automated by `bun run scripts/build-desktop.ts` |
@@ -92,8 +96,8 @@ access, auto-running scripts on import.
 ## Rollback / packaging
 
 - `startUi` starts both listeners; `stop()` tears both down.
-- Packaged exe: same dual-listen path; sandbox still serves packaged `sandboxWorkerJs` + wasm.
-- If sandbox listen fails, UI can fall back to same-origin `/sandbox/worker.js` on the primary
+- Packaged exe: same dual-listen path; sandbox serves both packaged worker bundles + wasm.
+- If sandbox listen fails, UI can fall back to the matching same-origin worker path on the primary
   server (degraded; not claimed isolated). Prefer fail-visible logs over silent false isolation.
 - Re-run the origin probe when WebView, bundler, server, or packaging dependencies change.
 

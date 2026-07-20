@@ -55,7 +55,7 @@ the run in flight is dropped as `stale / spoofed generation` (`run-in-worker.ts:
 The worker bundle and its wasm glue are served from a second loopback listener bound to an ephemeral
 port, which yields a distinct origin from the UI and `/api/*`
 (`docs/decisions/ADR-009-sandbox-origin.md:43-62`). That sandbox-only server serves only
-`GET /sandbox/worker.js` and `GET /sandbox/glue.wasm`, and must not expose `/api`, studio paths,
+`GET /sandbox/worker.js`, `GET /sandbox/regex-worker.js`, and `GET /sandbox/glue.wasm`, and must not expose `/api`, studio paths,
 index HTML carrying the session token, or source maps (`ADR-009:49-56`). The sandbox origin is
 published to the UI as `meta[name="vaude-sandbox-origin"]`; the per-launch API token stays only in
 `meta[name="vaude-session"]` and the trusted `apiFetch` path (`ADR-009:56`).

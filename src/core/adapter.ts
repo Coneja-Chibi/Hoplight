@@ -1,3 +1,4 @@
+/** Shared format-adapter contracts that connect drop-in codecs to the canonical model. */
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalPersona } from "../entities/persona/schema";
@@ -5,6 +6,7 @@ import type { CanonicalPreset } from "../entities/preset/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CoverageDecl } from "./coverage";
 import type { FormatId } from "./canonical";
+import type { SerializeReport } from "./reports";
 
 /** Raw input handed to an adapter. Binary formats use bytes; text/json use text. */
 export interface AdapterInput {
@@ -18,6 +20,8 @@ export interface AdapterOutput {
   bytes?: Uint8Array;
   text?: string;
   suggestedExtension: string;
+  /** Named field-loss accounting attached by the conversion/export boundary. */
+  report?: SerializeReport;
 }
 
 /**

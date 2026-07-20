@@ -1,3 +1,4 @@
+/** Canonical preset entity shape shared by adapters, storage, and editors. */
 import type { CanonicalEntity } from "../../core/canonical";
 
 /**

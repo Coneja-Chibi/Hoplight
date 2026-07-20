@@ -61,7 +61,7 @@ const intBetween = (rng: () => number, lo: number, hi: number): number => lo + M
 
 // --- (b) equivalence + fixpoint -------------------------------------------
 
-const PROBES = ["", "a", "abc", "A1b2", "cat dog", "😀x", "  ", "aaaa", "2024-01-02", "hi world!", "()[]{}", "café", "aaab"];
+const PROBES = ["", "a", "abc", "A1b2", "cat dog", "😀x", "  ", "aaaa", "2024-01-02", "hi world!", "()[]{}", "café", "aaab"]; // emoji-ok: Unicode parser fixture data
 
 const matchInfo = (re: RegExp, s: string): (string | undefined)[] | null => {
   const m = s.match(re);
@@ -116,7 +116,7 @@ function assertRoundTrips(p: string): void {
 // --- pattern generators ----------------------------------------------------
 
 const ANCHORS = ["^", "$", "\\b", "\\B"];
-const LITERALS = ["a", "b", "z", "G", "0", "9", " ", "é", "😀"];
+const LITERALS = ["a", "b", "z", "G", "0", "9", " ", "é", "😀"]; // emoji-ok: Unicode parser fixture data
 const ESCAPED = ["\\.", "\\*", "\\+", "\\?", "\\(", "\\)", "\\[", "\\]", "\\{", "\\}", "\\|", "\\^", "\\$", "\\\\", "\\/", "\\n", "\\t", "\\r", "\\f", "\\v", "\\cA", "\\x41", "\\u0041", "\\u{1F600}"];
 const CLASS_ESCAPES = ["\\d", "\\D", "\\w", "\\W", "\\s", "\\S"];
 const PROPS = ["\\p{L}", "\\p{Letter}", "\\p{Nd}", "\\P{L}", "\\p{Script=Greek}", "\\p{White_Space}"];

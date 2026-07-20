@@ -1,3 +1,4 @@
+/** Regression coverage for the persona.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import adapter, { unfoldDescription, compileSections } from "./persona";
 import { characterAdapter as rcCharacter } from "./index";

@@ -1,3 +1,4 @@
+/** Regression coverage for the lorebook.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import risuLorebook from "./lorebook";
 import { extractCharacterBook } from "../_shared/character-book";

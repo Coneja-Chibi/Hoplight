@@ -1,3 +1,4 @@
+/** Regression coverage for the catalog-lib.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { cssClassNames, extractCatalogEntries } from "./catalog-lib";
 

@@ -13,7 +13,16 @@ const ent = (id: string, kind = "character") => ({
   schemaVersion: CANONICAL_SCHEMA_VERSION,
   kind,
   id,
-  body: { identity: { name: id } },
+  body: {
+    identity: { name: id },
+    persona: {},
+    prompts: {},
+    greetings: {},
+    examples: {},
+    media: {},
+    attribution: {},
+    discovery: {},
+  },
 });
 
 describe("StudioStore containment", () => {
@@ -84,6 +93,15 @@ describe("StudioStore containment", () => {
     );
     const list = await store.list("character");
     expect(list.some((e) => e.id === "ghost")).toBe(false);
+  });
+
+  test("rejects malformed nested canonical data before writing", async () => {
+    const malformed = {
+      ...ent("wrong-shape"),
+      body: { ...ent("wrong-shape").body, identity: { name: 42 } },
+    };
+    await expect(store.save(malformed)).rejects.toBeInstanceOf(StudioValidationError);
+    expect(await store.read("character", "wrong-shape")).toBeNull();
   });
 
   test("overwrite preserves importedAt", async () => {

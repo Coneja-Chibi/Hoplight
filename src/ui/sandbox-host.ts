@@ -27,7 +27,7 @@ const nosniff = { "x-content-type-options": "nosniff" as const };
 const WASMOON_BROWSER_EXTERNALS = ["module", "url", "fs", "path", "child_process", "crypto"];
 
 /** Paths the sandbox authority is allowed to serve. Everything else fails closed. */
-export const SANDBOX_ALLOWLIST = ["/sandbox/worker.js", "/sandbox/glue.wasm"] as const;
+export const SANDBOX_ALLOWLIST = ["/sandbox/worker.js", "/sandbox/regex-worker.js", "/sandbox/glue.wasm"] as const;
 
 export function isSandboxAllowlistedPath(pathname: string): boolean {
   return (SANDBOX_ALLOWLIST as readonly string[]).includes(pathname);
@@ -74,6 +74,30 @@ async function buildWorkerJs(packaged?: PackagedAssets): Promise<Response | null
     format: "esm",
     external: WASMOON_BROWSER_EXTERNALS,
   });
+  if (!built.success || built.outputs.length === 0) return null;
+  return new Response(await built.outputs[0]!.text(), {
+    headers: {
+      "content-type": "text/javascript; charset=utf-8",
+      "cache-control": "no-store",
+      "content-security-policy": SANDBOX_CSP,
+      ...nosniff,
+    },
+  });
+}
+
+async function buildRegexWorkerJs(packaged?: PackagedAssets): Promise<Response | null> {
+  if (packaged?.regexWorkerJs) {
+    return new Response(packaged.regexWorkerJs, {
+      headers: {
+        "content-type": "text/javascript; charset=utf-8",
+        "cache-control": "no-store",
+        "content-security-policy": SANDBOX_CSP,
+        ...nosniff,
+      },
+    });
+  }
+  const entry = fileURLToPath(new URL("../sandbox/regex/worker.ts", import.meta.url));
+  const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm" });
   if (!built.success || built.outputs.length === 0) return null;
   return new Response(await built.outputs[0]!.text(), {
     headers: {
@@ -147,6 +171,16 @@ export function createSandboxHandler(
         return new Response(null, { status: 200, headers });
       }
       return new Response(body.body, { status: 200, headers });
+    }
+
+    if (p === "/sandbox/regex-worker.js") {
+      const body = await buildRegexWorkerJs(opts.packaged);
+      if (!body) return deny();
+      const headers = new Headers(body.headers);
+      for (const [k, v] of Object.entries(corsHeaders(acao))) headers.set(k, v);
+      return req.method === "HEAD"
+        ? new Response(null, { status: 200, headers })
+        : new Response(body.body, { status: 200, headers });
     }
 
     if (p === "/sandbox/glue.wasm") {

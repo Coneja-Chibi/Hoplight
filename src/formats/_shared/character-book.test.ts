@@ -1,3 +1,4 @@
+/** Regression coverage for the character-book.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";

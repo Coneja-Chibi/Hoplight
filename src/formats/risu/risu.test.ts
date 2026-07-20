@@ -1,7 +1,9 @@
+/** Regression coverage for the risu.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { unzipSync, zipSync, strToU8, strFromU8 } from "fflate";
 import { characterAdapter as adapter } from "./index";
 import { characterAdapter as stAdapter } from "../sillytavern/index";
+import { encodeRisum, serializeModuleJson, textToModulePlain, type RisuModule } from "./rpack";
 
 /** A minimal but realistic CCv3 card with a Risu-specific extensions block (scripts, opaque). */
 function makeCard() {
@@ -53,6 +55,21 @@ function makeCharx(card: unknown): Uint8Array {
     "module.risum": new Uint8Array([1, 1, 2, 3, 5, 8, 13]),
   };
   return zipSync(files);
+}
+
+/** A valid, hermetic .risum entry for adapter-level escrow and safe-block tests. */
+function makeModuleCharx(): Uint8Array {
+  const module: RisuModule = {
+    name: "Hermetic module",
+    trigger: [{ effect: [{ type: "triggerlua", code: "return 42" }] }],
+    extras: {},
+  };
+  const modulePlain = textToModulePlain(serializeModuleJson(module));
+  const risum = encodeRisum({ module, modulePlain, assets: [] });
+  return zipSync({
+    "card.json": strToU8(JSON.stringify(makeCard())),
+    "module.risum": risum,
+  });
 }
 
 test("detect recognizes a .charx (zip with card.json)", () => {
@@ -167,7 +184,7 @@ test("an edit to the canonical body is reflected in the rebuilt card.json", () =
 // the real cherry card (samples/risu/characters/cherry.card.json, sliced from the 23.7MB cherry.charx; see
 // samples/risu/SOURCES.md). The codec previously mapped ZERO risuai fields. --
 
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 const cherryCharx = (): Uint8Array =>
@@ -281,10 +298,8 @@ test("SECURITY: behavior never blind-copies cross-format (Risu -> ST card carrie
   expect(stOut).not.toContain("lowLevelAccess");
 });
 
-const KWU_CHARX = "<downloads>/한국여자대학교 V1.0.charx";
-
-test.skipIf(!existsSync(KWU_CHARX))("real .charx: unedited module package is byte-identical on export", () => {
-  const inBytes = new Uint8Array(readFileSync(KWU_CHARX));
+test("hermetic .charx: unedited module package is byte-identical on export", () => {
+  const inBytes = makeModuleCharx();
   const ent = adapter.toCanonical({ bytes: inBytes });
   const inMod = unzipSync(inBytes)["module.risum"]!;
   const outMod = unzipSync(adapter.fromCanonical(ent).bytes!)["module.risum"]!;
@@ -293,8 +308,8 @@ test.skipIf(!existsSync(KWU_CHARX))("real .charx: unedited module package is byt
 
 // SAFE-BLOCK: edited module re-export is refused until RPACK_EDITED_EXPORT_VERIFIED (plan 008).
 // Local card still proves the gate fires at the adapter boundary (skipped if sample absent).
-test.skipIf(!existsSync(KWU_CHARX))("real .charx: module Lua edit is blocked at export (safe-block)", () => {
-  const inBytes = new Uint8Array(readFileSync(KWU_CHARX));
+test("hermetic .charx: module Lua edit is blocked at export (safe-block)", () => {
+  const inBytes = makeModuleCharx();
   const ent = adapter.toCanonical({ bytes: inBytes });
   const opened = (ent.original?.risu?.unmapped as { module?: { module: { trigger?: Array<{ effect?: Array<{ type?: string; code?: string }> }> } } })?.module;
   expect(opened?.module).toBeTruthy();

@@ -1,3 +1,4 @@
+/** Regression coverage for the native-render.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { nativeItemsFor, nativeBentoParts, nativePlaybillNav } from "./native-render";
 

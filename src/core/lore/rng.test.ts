@@ -1,3 +1,4 @@
+/** Regression coverage for the rng.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { cryptoUnit, freshSeed, mulberry32 } from "./rng";
 

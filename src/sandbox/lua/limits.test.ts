@@ -21,8 +21,8 @@ describe("utf8Bytes", () => {
   test("counts multibyte Unicode by UTF-8, not code units", () => {
     // "é" is U+00E9 -> 2 bytes; emoji is 4 bytes
     expect(utf8Bytes("é")).toBe(2);
-    expect(utf8Bytes("🙂")).toBe(4);
-    expect("🙂".length).toBe(2); // JS code units differ
+    expect(utf8Bytes("🙂")).toBe(4); // emoji-ok: UTF-8 budget fixture data
+    expect("🙂".length).toBe(2); // emoji-ok: JS code units differ
   });
 });
 
@@ -61,8 +61,8 @@ describe("assertSourceWithinBudget", () => {
 
   test("counts UTF-8 for multibyte source", () => {
     // three smileys = 12 bytes
-    expect(() => assertSourceWithinBudget("🙂🙂🙂", 11)).toThrow(LuaResourceLimitError);
-    expect(() => assertSourceWithinBudget("🙂🙂🙂", 12)).not.toThrow();
+    expect(() => assertSourceWithinBudget("🙂🙂🙂", 11)).toThrow(LuaResourceLimitError); // emoji-ok: UTF-8 boundary fixture
+    expect(() => assertSourceWithinBudget("🙂🙂🙂", 12)).not.toThrow(); // emoji-ok: UTF-8 boundary fixture
   });
 });
 

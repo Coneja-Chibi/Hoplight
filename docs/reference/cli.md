@@ -27,7 +27,7 @@ publish. This page documents every command and flag exactly as the code implemen
 
 | Command | Does |
 | --- | --- |
-| `vaud convert <in> <out> [--to <format>] [--yes \| -y]` | Convert a file from one format to another. |
+| `vaud convert <in> <out> [--to <format>] [--yes \| -y] [--strict]` | Convert a file and print its loss report. |
 | `vaud inspect <file>` | Show what is inside a file: format, kind, key fields. |
 | `vaud validate <file>` | Detect and parse a file against its format and the canonical schema. |
 | `vaud label <file>` | Guess a card's format spec and its likely origin app. |
@@ -47,19 +47,20 @@ publish. This page documents every command and flag exactly as the code implemen
 | `--json` | `version`, `formats`, `validate`, `convert` | Emit one JSON object to stdout instead of the human-readable form. `inspect`, `label`, `ui`, and `help` do not read this flag; they always print the human-readable form (see [Quirks](#quirks)). |
 | `--to <format>` | `convert` only | Force the output adapter id, bypassing extension resolution. |
 | `--yes`, `-y` | `convert` only | Allow replacing an existing output file. Never overwrites the input. |
+| `--strict` | `convert` only | Refuse before writing when the serialize report names any dropped field. |
 
 ## `vaud convert <in> <out>`
 
 ```
-vaud convert <in> <out> [--to <format>] [--yes | -y] [--json]
+vaud convert <in> <out> [--to <format>] [--yes | -y] [--strict] [--json]
 vaud convert vera.png vera.charx --to risu
 vaud convert card.json out.charx --to lumiverse --yes
 ```
 
 Flags may appear anywhere after `convert`, in any order: `parseConvertFlags` (`cli-io.ts:17-45`) scans the
-whole tail and pulls `--yes`/`-y` and `--to <value>` out wherever it finds them, leaving exactly two
-positional tokens as `<in>` and `<out>`. A repeated `--yes`/`-y` or `--to` is an error (`duplicate --yes` /
-`duplicate --to`), a `--to` with no value or a value starting with `-` is an error (`--to requires a format
+whole tail and pulls `--yes`/`-y`, `--strict`, and `--to <value>` out wherever it finds them, leaving exactly two
+positional tokens as `<in>` and `<out>`. A repeated boolean flag or `--to` is an error (`duplicate --yes`,
+`duplicate --strict`, or `duplicate --to`), a `--to` with no value or a value starting with `-` is an error (`--to requires a format
 id`), and any other token starting with `-` is an error (`unknown flag: <token>`). Exactly two positional
 tokens are required; more or fewer print the usage line and exit 1.
 
@@ -87,22 +88,23 @@ Six checked steps run before a byte is written (`cli.ts:299-389`):
    directory, fsyncs it, then renames it over the destination. A failure at any point removes the temp file
    and leaves the prior destination untouched.
 
+Before container agreement, `--strict` refuses the conversion if its structured serialize report names
+one or more dropped paths. The refusal lists those paths and occurs before the destination is written.
+
 Only the success report honors `--json`; every failure above (guard, detect, resolve, convert,
 container-agreement, write) prints the same plain-text line whether or not `--json` was passed.
 
 `--json` success shape:
 
 ```json
-{ "ok": true, "from": "sillytavern", "to": "risu", "in": "vera.png", "out": "vera.charx", "extension": "charx", "lorebooks": 1, "bytes": 48213, "textChars": 0 }
+{ "ok": true, "from": "sillytavern", "to": "risu", "in": "vera.png", "out": "vera.charx", "extension": "charx", "lorebooks": 1, "bytes": 48213, "textChars": 0, "report": { "counts": { "escrowed": 0, "dropped": 2, "escrowShadowed": 0, "warnings": 0 }, "escrowed": [], "dropped": ["body.behavior.triggers", "original.sillytavern.raw"], "escrowShadowed": [], "warnings": [] } }
 ```
 
 `lorebooks` is a count of bundled lorebooks carried across, not the lorebooks themselves; `bytes`/
 `textChars` reflect whichever payload shape the target adapter produced (one of the two is always 0).
 
-The plain-text report prints the from/to adapter ids, the in/out paths with the resolved extension, a line
-noting any embedded lorebook carried across (with its entry count) when one exists, and, only when the
-source and target adapter ids differ, the line `note: cross-format keeps what the target can express;
-same-format aims lossless`.
+The plain-text report prints the from/to adapter ids, paths, resolved extension, bundled lorebook count,
+the four report counts, every dropped path, and every warning.
 
 @fig convert
 

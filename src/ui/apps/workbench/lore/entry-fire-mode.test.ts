@@ -1,3 +1,4 @@
+/** Regression coverage for the entry-fire-mode.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { emptyLoreEntry } from "../../../../core/lore";
 import { firesLine, timingLine } from "./entry-fire-mode";

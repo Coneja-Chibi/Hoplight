@@ -252,9 +252,9 @@ export function App(): JSX.Element | null {
         onPick: () => {
           // clear every tour's seen flag so each app's tour auto-launches again on its next visit
           const s = useShellStore.getState();
-          const cleared = { ...s.settings };
+          const cleared: Record<string, unknown> = {};
           for (const k of seenTourKeys(s.settings)) cleared[k] = false;
-          void s.saveSettings(cleared);
+          s.patchSettings(cleared);
           s.setStatus("tutorials will show again");
         },
       },
@@ -285,8 +285,7 @@ export function App(): JSX.Element | null {
       prefs: {
         get: (key) => useShellStore.getState().settings[key],
         set: (key, value) => {
-          const state = useShellStore.getState();
-          void state.saveSettings({ ...state.settings, [key]: value });
+          useShellStore.getState().patchSettings({ [key]: value });
         },
       },
       workbench: {

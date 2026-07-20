@@ -1,3 +1,4 @@
+/** One-time maintenance patch for embedding the sandbox engine WebAssembly asset. */
 const p = new URL("../src/sandbox/lua/engine.ts", import.meta.url);
 let t = await Bun.file(p).text();
 

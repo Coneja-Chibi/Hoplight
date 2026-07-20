@@ -17,6 +17,7 @@
         "wasmoon": "1.16.0",
         "webview-bun": "^2.4.0",
         "zustand": "^5.0.14",
+        "zod": "^4.4.3",
       },
       "devDependencies": {
         "@types/bun": "^1.3.14",

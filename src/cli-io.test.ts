@@ -19,8 +19,8 @@ import {
 
 describe("parseConvertFlags", () => {
   test("happy path with --yes and --to", () => {
-    const r = parseConvertFlags(["--to", "risu", "--yes"]);
-    expect(r).toEqual({ ok: true, yes: true, to: "risu", rest: [] });
+    const r = parseConvertFlags(["--to", "risu", "--yes", "--strict"]);
+    expect(r).toEqual({ ok: true, yes: true, strict: true, to: "risu", rest: [] });
   });
 
   test("rejects unknown flag", () => {

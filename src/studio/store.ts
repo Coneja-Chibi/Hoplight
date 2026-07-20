@@ -3,8 +3,7 @@
  */
 import { mkdir, readdir, access } from "node:fs/promises";
 import { constants } from "node:fs";
-import type { CanonicalEntity } from "../core/canonical";
-import { CANONICAL_SCHEMA_VERSION } from "../core/canonical";
+import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
 import {
   writeAtomicReplace,
   writeExclusive,
@@ -22,7 +21,10 @@ import {
 import { hasPortrait, portraitBytes } from "./portrait";
 import { signatureFromPng } from "./signature-color";
 
-type AnyEntity = CanonicalEntity<string, unknown>;
+type AnyEntity = ParsedCanonicalEntity;
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
 export interface EntitySummary {
   id: string;
@@ -135,14 +137,21 @@ export class StudioStore {
       if (code === "ENOENT") return null;
       throw new StudioReadError();
     }
-    let parsed: AnyEntity;
+    let raw: unknown;
     try {
-      parsed = JSON.parse(text) as AnyEntity;
+      raw = JSON.parse(text) as unknown;
     } catch {
       throw new StudioReadError("corrupt entity file");
     }
-    if (!parsed || typeof parsed !== "object") throw new StudioReadError("corrupt entity file");
-    if (parsed.schemaVersion !== CANONICAL_SCHEMA_VERSION) {
+    if (!isRecord(raw)) throw new StudioReadError("corrupt entity file");
+    const { escrow: legacy, ...withoutLegacy } = raw;
+    const migrated = legacy !== undefined && raw.original === undefined
+      ? { ...withoutLegacy, original: legacy }
+      : withoutLegacy;
+    let parsed: AnyEntity;
+    try {
+      parsed = parseCanonicalEntity(migrated);
+    } catch {
       throw new StudioReadError("corrupt entity file");
     }
     if (typeof parsed.kind !== "string" || parsed.kind !== kind) {
@@ -151,29 +160,17 @@ export class StudioStore {
     if (typeof parsed.id !== "string" || parsed.id !== id) {
       throw new StudioReadError("corrupt entity file");
     }
-    if (parsed.body === null || typeof parsed.body !== "object" || Array.isArray(parsed.body)) {
-      throw new StudioReadError("corrupt entity file");
-    }
-    const legacy = (parsed as { escrow?: unknown }).escrow;
-    if (legacy !== undefined && parsed.original === undefined) {
-      parsed.original = legacy as AnyEntity["original"];
-    }
-    delete (parsed as { escrow?: unknown }).escrow;
     return parsed;
   }
 
-  async save(entity: AnyEntity, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
-    const kind = assertStudioEntityKind(entity?.kind);
-    if (typeof entity.id !== "string" || !entity.id) {
-      throw new StudioValidationError("invalid entity id");
+  async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
+    let entity: AnyEntity;
+    try {
+      entity = parseCanonicalEntity(raw);
+    } catch {
+      throw new StudioValidationError("invalid canonical entity");
     }
-    // Fail closed on what read() would refuse: without this, save writes a file that list/read
-    // then treat as corrupt forever - the piece exists on disk but never appears in the studio.
-    if (entity.schemaVersion !== CANONICAL_SCHEMA_VERSION) {
-      throw new StudioValidationError(
-        `entity schemaVersion must be "${CANONICAL_SCHEMA_VERSION}"`,
-      );
-    }
+    const kind = assertStudioEntityKind(entity.kind);
     let id = assertSafeStudioId(entity.id);
     const kindDir = resolveStudioPath(this.dir, kind);
     await mkdir(kindDir, { recursive: true });

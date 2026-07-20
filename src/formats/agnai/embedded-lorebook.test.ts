@@ -1,3 +1,4 @@
+/** Regression coverage for the embedded-lorebook.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { characterAdapter as adapter } from "./index";
 import agnaiLorebook from "./lorebook";

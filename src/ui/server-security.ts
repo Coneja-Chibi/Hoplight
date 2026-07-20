@@ -218,9 +218,9 @@ export function checkApiRequest(
     return null;
   }
 
-  if (req.method === "POST") {
+  if (req.method === "POST" || req.method === "PATCH") {
     const origin = req.headers.get("origin");
-    // Same-origin POSTs from the app should send Origin. Missing Origin fails closed for mutations.
+    // Same-origin mutations from the app should send Origin. Missing Origin fails closed.
     if (!originAllowed(origin, sec.expectedOrigin)) return err("forbidden", 403);
     const token = req.headers.get("x-vaude-token") ?? "";
     if (!tokensEqual(token, sec.token)) return err("forbidden", 403);

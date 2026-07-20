@@ -33,7 +33,8 @@ The locked vs-setup-hybrid flow, one plain question per screen, built on the sam
   (`<studioDir>/settings.json`). The shell boots settings-first: no `setupComplete` -> wizard;
   after OPEN VAUDE the shell applies theme + house accent and lands on the app whose manifest set
   `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The theme
-  button persists to settings (localStorage is only a pre-paint cache).
+  button persists to settings (localStorage is only a pre-paint cache). Individual controls use
+  serialized `PATCH` updates so overlapping changes compose instead of replacing stale snapshots.
 
 ## The right-click system
 One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended by REGISTRATION:
@@ -73,7 +74,7 @@ what the engine already knows - no new format logic.
 ## Endpoints
 `GET /` shell · `GET /tokens.css` · `GET /boot.js` · `GET /api/apps` manifests ·
 `GET /apps/<id>.js` bundled app · `GET /api/setup/steps` step ids · `GET /setup/steps/<id>.js`
-bundled step · `GET|POST /api/settings` (POST replaces the whole document; parse is fail-closed) ·
+bundled step · `GET|POST|PATCH /api/settings` (POST replaces the document; PATCH validates and merges a partial update) ·
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
 canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
 `GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
@@ -131,7 +132,7 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   `presentation.fieldOrder` using RC's ids verbatim (cross-app order interop; unrendered ids keep
   their saved positions). Explicit save only: Save button + Ctrl+S, dirty flag, beforeunload guard;
   saving round-trips the WHOLE body so untouched fields (escrow, behavior, media) survive
-  byte-identical - pinned by editor-core tests. Fields the editor does not write yet stay visible
+  structurally unchanged, pinned by editor-core tests. Fields the editor does not write yet stay visible
   in a read-only tail. One `CharacterEditor` stays mounted (hidden via CSS) per open character, so
   its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
   the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in

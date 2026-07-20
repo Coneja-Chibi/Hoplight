@@ -1,3 +1,4 @@
+/** Regression coverage for the registry.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import * as registry from "./registry";
 import { loadFormats } from "./loader";

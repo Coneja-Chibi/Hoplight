@@ -1,3 +1,4 @@
+/** Regression coverage for the editor-derive.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { greetingsOf, parseScale, rec, str, strArr, tokenEstimate } from "./editor-derive";
 

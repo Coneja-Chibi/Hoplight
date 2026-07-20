@@ -9,6 +9,7 @@
  */
 import type { ReactNode } from "react";
 import type { ContextMenus } from "./shell/store";
+import type { ParseReport, SerializeReport } from "../core/reports";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
 export interface AppManifestEntry {
@@ -159,6 +160,7 @@ export interface InspectResult {
   related?: { lorebooks?: unknown[] };
   formatId?: string;
   kind?: string;
+  parseReport?: ParseReport;
   /** plain-words failure ("We could not read this one. ...") - warm, never technical */
   error?: string;
 }
@@ -177,6 +179,7 @@ export interface ExportResult {
   suggestedExtension: string;
   text?: string;
   bytesB64?: string;
+  report: SerializeReport;
 }
 
 export interface FormatInfo {

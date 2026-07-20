@@ -34,6 +34,18 @@ export type Theme = "paper" | "stage";
 
 const RECENTS_CAP = 60;
 const THEME_CACHE_KEY = "vaude.theme";
+let settingsRequestTail: Promise<void> = Promise.resolve();
+let settingsMutationVersion = 0;
+
+/** Keep settings HTTP mutations ordered even when UI actions fire in the same task. */
+function queueSettingsRequest<T>(request: () => Promise<T>): Promise<T> {
+  const result = settingsRequestTail.then(request, request);
+  settingsRequestTail = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
+}
 
 // -- the context-menu system lives in ./menus (one concept per file); the surface re-exports here
 export {
@@ -73,6 +85,7 @@ interface ShellState {
   // -- settings / theme --------------------------------------------------------------------------
   applySettings(next: StudioSettings): void;
   saveSettings(next: StudioSettings): Promise<void>;
+  patchSettings(patch: Record<string, unknown>): void;
   toggleTheme(): void;
   toggleDockSlim(): void;
 
@@ -146,32 +159,61 @@ export const useShellStore = create<ShellState>((set, get) => ({
 
   async saveSettings(next) {
     const prior = get().settings;
+    const version = ++settingsMutationVersion;
     try {
-      const saved = await apiFetchJson<StudioSettings>("/api/settings", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(next),
-      });
+      get().applySettings(parseSettings(next));
+      const saved = await queueSettingsRequest(() =>
+        apiFetchJson<StudioSettings>("/api/settings", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(next),
+        }),
+      );
       if (!saved || typeof saved !== "object" || Array.isArray(saved)) {
         throw new Error("settings save failed");
       }
-      get().applySettings(saved);
+      if (version === settingsMutationVersion) get().applySettings(saved);
     } catch (e) {
-      get().applySettings(prior);
+      if (version === settingsMutationVersion) get().applySettings(prior);
       const msg = e instanceof Error ? e.message : "settings save failed";
       set({ statusNote: msg });
       throw e;
     }
   },
 
+  patchSettings(patch) {
+    const version = ++settingsMutationVersion;
+    get().applySettings(parseSettings({ ...get().settings, ...patch }));
+    void queueSettingsRequest(() =>
+      apiFetchJson<StudioSettings>("/api/settings", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(patch),
+      }),
+    ).then(
+      (saved) => {
+        if (version === settingsMutationVersion) get().applySettings(saved);
+      },
+      (e: unknown) => {
+        const msg = e instanceof Error ? e.message : "settings save failed";
+        set({ statusNote: msg });
+        if (version !== settingsMutationVersion) return;
+        void apiFetchJson<StudioSettings>("/api/settings").then(
+          (saved) => get().applySettings(saved),
+          () => undefined,
+        );
+      },
+    );
+  },
+
   toggleTheme() {
     const next: Theme = get().theme === "paper" ? "stage" : "paper";
-    void get().saveSettings({ ...get().settings, [SETTING_KEYS.theme]: next });
+    get().patchSettings({ [SETTING_KEYS.theme]: next });
   },
 
   toggleDockSlim() {
     const slim = !get().dockSlim;
-    void get().saveSettings({ ...get().settings, [SETTING_KEYS.dockSlim]: slim });
+    get().patchSettings({ [SETTING_KEYS.dockSlim]: slim });
   },
 
   setManifests(manifests) {
@@ -253,7 +295,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
     const freshKeys = fresh.map((p) => keyOf(p.id, p.kind));
     const now = Date.now();
     const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), freshKeys, now, RECENTS_CAP);
-    void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+    get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
 
     const last = fresh[fresh.length - 1]!;
     const action = decideFollow(onWorkbench, settings[SETTING_KEYS.workbenchFollow]);
@@ -303,7 +345,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
         now,
         RECENTS_CAP,
       );
-      void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+      get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
     }
     set(besideKeys({ activeKey, splitKey }, key));
     const bench = get().benchApp();
@@ -354,7 +396,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
       now,
       RECENTS_CAP,
     );
-    void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchRecents]: recents });
+    get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
     set(focusKeys({ activeKey, splitKey }, key));
     const bench = get().benchApp();
     if (bench) get().mountApp(bench.id);
@@ -382,7 +424,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
     const { settings } = get();
     set({ followPrompt: null });
     if (remember) {
-      void get().saveSettings({ ...settings, [SETTING_KEYS.workbenchFollow]: follow ? "always" : "never" });
+      get().patchSettings({ [SETTING_KEYS.workbenchFollow]: follow ? "always" : "never" });
     }
     if (follow) {
       const bench = get().benchApp();

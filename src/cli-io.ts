@@ -7,7 +7,7 @@ import { open, rename, realpath, stat, unlink } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
 
 export type ConvertFlags =
-  | { ok: true; yes: boolean; to?: string; rest: string[] }
+  | { ok: true; yes: boolean; strict: boolean; to?: string; rest: string[] }
   | { ok: false; error: string };
 
 /**
@@ -16,6 +16,7 @@ export type ConvertFlags =
  */
 export function parseConvertFlags(args: string[]): ConvertFlags {
   let yes = false;
+  let strict = false;
   let to: string | undefined;
   const rest: string[] = [];
   for (let i = 0; i < args.length; i++) {
@@ -23,6 +24,11 @@ export function parseConvertFlags(args: string[]): ConvertFlags {
     if (a === "--yes" || a === "-y") {
       if (yes) return { ok: false, error: "duplicate --yes" };
       yes = true;
+      continue;
+    }
+    if (a === "--strict") {
+      if (strict) return { ok: false, error: "duplicate --strict" };
+      strict = true;
       continue;
     }
     if (a === "--to") {
@@ -41,7 +47,7 @@ export function parseConvertFlags(args: string[]): ConvertFlags {
     if (a.startsWith("-")) return { ok: false, error: `unknown flag: ${a}` };
     rest.push(a);
   }
-  return { ok: true, yes, to, rest };
+  return { ok: true, yes, strict, to, rest };
 }
 
 /** Normalize extension: strip leading dots, lowercase. Empty if none. */

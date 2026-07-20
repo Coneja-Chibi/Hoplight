@@ -6,7 +6,6 @@
  * the chain itself runs through the budgeted engine (core/regex/apply.ts), never a second matcher.
  */
 import type { RegexPhase, RegexRule } from "../../../../entities/regex/schema";
-import { applyRules } from "../../../../core/regex";
 import { newUiId } from "../../../_shared/new-id";
 
 /** The phase select in the sample card, mapped to the engine's phase vocabulary (naive-user words). */
@@ -102,20 +101,6 @@ export interface RuleEffect {
   after: string;
   matched: boolean;
   error?: string;
-}
-
-/**
- * Run ONE rule in isolation against the sample, forced on and in its own first phase, so the import
- * preview shows what it would do regardless of the run phase. Drops cross-rule condition + overlay so
- * a previewed rule produces its concrete replacement. Never throws - a bad pattern returns as error.
- */
-export function perRuleEffect(sample: string, rule: RegexRule): RuleEffect {
-  const phase = rule.phases[0] ?? "input";
-  const solo: RegexRule = { ...rule, enabled: true, phases: [phase], condition: undefined, overlay: false };
-  const trace = applyRules(sample, [solo], { phase }).traces[0];
-  if (!trace) return { before: sample, after: sample, matched: false };
-  if (trace.error) return { before: sample, after: sample, matched: false, error: trace.error };
-  return { before: trace.before, after: trace.after, matched: trace.matchCount > 0 };
 }
 
 // -- staged import (append picked rules into the open set with fresh ids + increasing sortOrder) ----

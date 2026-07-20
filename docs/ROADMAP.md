@@ -67,7 +67,7 @@ PNG chunk codec, Round-Trip Law harness running in CI.
 evolved past pure packages/*). Treat **effectively green** when tsc + bun test + color/line scans pass.
 
 **Exit:** `bun test` green under Bun and Node; a V2 PNG card parses to canonical and
-round-trips byte-losslessly; CI blocks a deliberately-broken round-trip; CI blocks a
+round-trips at its declared semantic or byte fidelity tier; CI blocks a deliberately-broken round-trip; CI blocks a
 deliberately-added AGPL dependency.
 
 **Status:** **JEWEL DONE** (2026-07-09).

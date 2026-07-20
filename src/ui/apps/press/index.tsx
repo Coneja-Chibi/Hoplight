@@ -174,7 +174,7 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
           const msg = isRec(out) && typeof out.error === "string" ? out.error : "export failed";
           throw new Error(msg);
         }
-        const payload = out as { suggestedExtension: string; text?: string; bytesB64?: string };
+        const payload = out;
         const bytes = payloadBytes(payload);
         if (!bytes) throw new Error("empty export payload");
         const flavor = flavorChoosable(payload.suggestedExtension) ? (flavors[rowKey] ?? "normal") : "normal";
@@ -188,11 +188,14 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
         const original = isRec(entity) ? entity.original : undefined;
         const chips = row.kind === "character" ? mediaExportSummary(body, original).chips : [];
         const carries = chips.length > 0 ? `carries: ${chips.join(" · ")}` : undefined;
+        const reportLine = out.report.dropped.length > 0
+          ? `${out.report.dropped.length} field${out.report.dropped.length === 1 ? "" : "s"} not carried`
+          : out.report.warnings[0];
         plan[i] = {
           ...row,
-          status: "ok",
+          status: reportLine ? "warn" : "ok",
           filename,
-          info: [row.info, carries].filter(Boolean).join(" · ") || undefined,
+          info: [row.info, carries, reportLine].filter(Boolean).join(" · ") || undefined,
         };
       } catch (e) {
         plan[i] = { ...row, status: "fail", note: e instanceof Error ? e.message : String(e) };

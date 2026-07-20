@@ -1,0 +1,139 @@
+{
+  "provenance": "Reviewed against SillyTavern public/scripts/templates/macros.html; represented by this committed snapshot.",
+  "capturedAt": "2026-07-20",
+  "groups": [
+    {
+      "name": "Identity",
+      "tokens": [
+        "{{user}}",
+        "{{char}}",
+        "{{persona}}",
+        "{{model}}",
+        "{{group}}",
+        "{{groupNotMuted}}",
+        "{{notChar}}"
+      ]
+    },
+    {
+      "name": "Character Card",
+      "tokens": [
+        "{{description}}",
+        "{{personality}}",
+        "{{scenario}}",
+        "{{mesExamples}}",
+        "{{mesExamplesRaw}}",
+        "{{version}}",
+        "{{charDepthPrompt}}",
+        "{{charPrompt}}",
+        "{{charInstruction}}"
+      ]
+    },
+    {
+      "name": "Chat Context",
+      "tokens": [
+        "{{lastMessage}}",
+        "{{lastUserMessage}}",
+        "{{lastCharMessage}}",
+        "{{lastMessageId}}",
+        "{{firstIncludedMessageId}}",
+        "{{firstDisplayedMessageId}}",
+        "{{currentSwipeId}}",
+        "{{lastSwipeId}}",
+        "{{summary}}",
+        "{{input}}",
+        "{{lastGenerationType}}"
+      ]
+    },
+    {
+      "name": "Time & Date",
+      "tokens": [
+        "{{time}}",
+        "{{date}}",
+        "{{weekday}}",
+        "{{isotime}}",
+        "{{isodate}}",
+        "{{datetimeformat DD.MM.YYYY HH:mm}}",
+        "{{time_UTC±#}}",
+        "{{timeDiff::(time1)::(time2)}}",
+        "{{idle_duration}}"
+      ]
+    },
+    {
+      "name": "Random & Dice",
+      "tokens": [
+        "{{roll:1d6}}",
+        "{{random:a,b,c}}",
+        "{{random::a::b}}",
+        "{{pick::a::b}}"
+      ]
+    },
+    {
+      "name": "Variables",
+      "tokens": [
+        "{{getvar::name}}",
+        "{{setvar::name::value}}",
+        "{{addvar::name::increment}}",
+        "{{incvar::name}}",
+        "{{decvar::name}}",
+        "{{getglobalvar::name}}",
+        "{{setglobalvar::name::value}}",
+        "{{addglobalvar::name::value}}",
+        "{{incglobalvar::name}}",
+        "{{decglobalvar::name}}",
+        "{{var::name}}",
+        "{{var::name::index}}"
+      ]
+    },
+    {
+      "name": "Formatting",
+      "tokens": [
+        "{{newline}}",
+        "{{trim}}",
+        "{{noop}}",
+        "{{reverse:(content)}}",
+        "{{// note}}",
+        "{{pipe}}",
+        "{{original}}"
+      ]
+    },
+    {
+      "name": "Runtime",
+      "tokens": [
+        "{{bias \"text here\"}}",
+        "{{banned \"text here\"}}",
+        "{{isMobile}}",
+        "{{maxPrompt}}"
+      ]
+    },
+    {
+      "name": "Lorebook",
+      "tokens": [
+        "{{outlet::name}}"
+      ]
+    },
+    {
+      "name": "Instruct & Context Template",
+      "tokens": [
+        "{{exampleSeparator}}",
+        "{{chatStart}}",
+        "{{systemPrompt}}",
+        "{{defaultSystemPrompt}}",
+        "{{instructStoryStringPrefix}}",
+        "{{instructStoryStringSuffix}}",
+        "{{instructUserPrefix}}",
+        "{{instructUserSuffix}}",
+        "{{instructAssistantPrefix}}",
+        "{{instructAssistantSuffix}}",
+        "{{instructFirstAssistantPrefix}}",
+        "{{instructLastAssistantPrefix}}",
+        "{{instructFirstUserPrefix}}",
+        "{{instructLastUserPrefix}}",
+        "{{instructSystemPrefix}}",
+        "{{instructSystemSuffix}}",
+        "{{instructSystemInstructionPrefix}}",
+        "{{instructUserFiller}}",
+        "{{instructStop}}"
+      ]
+    }
+  ]
+}

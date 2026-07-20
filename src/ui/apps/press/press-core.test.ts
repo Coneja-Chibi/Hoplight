@@ -66,6 +66,7 @@ describe("mintFilename", () => {
     expect(mintFilename("Adrian", "json", taken)).toBe("adrian.json".replace("adrian", "Adrian"));
     expect(mintFilename("Adrian", "json", taken)).toBe("Adrian-2.json");
     expect(mintFilename("a/b:c", ".charx", taken)).toBe("a_b_c.charx");
+    expect(mintFilename("..\\deck\u0000name", "json", taken)).toBe(".._deck_name.json");
   });
 });
 

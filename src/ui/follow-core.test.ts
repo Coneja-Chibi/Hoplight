@@ -1,3 +1,4 @@
+/** Regression coverage for the follow-core.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { decideFollow } from "./follow-core";
 

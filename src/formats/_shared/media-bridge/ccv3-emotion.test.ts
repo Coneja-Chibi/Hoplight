@@ -1,3 +1,4 @@
+/** Regression coverage for the ccv3-emotion.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { mergePackIntoCcv3Assets, packFromCcv3Assets } from "./ccv3-emotion";
 

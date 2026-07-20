@@ -11,7 +11,7 @@
 - [ADR-006: AI - BYOK + local, and an agent built for weak models](docs/decisions/ADR-006-ai-and-agent.md): **Status:** accepted
 - [ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)](docs/decisions/ADR-007-renderer-policy.md): **Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces
 - [ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
-- [ADR-009: Distinct origin for Lua sandbox execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED · 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
+- [ADR-009: Distinct origin for test-bench execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
 
 ## Guide
 
@@ -90,6 +90,6 @@
 - [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
 - [Architecture](docs/02-ARCHITECTURE.md): vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.
 - [Conventions](docs/03-CONVENTIONS.md): Binding for all code and docs in the product repo. Deviations fail review.
-- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-19.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-20.
 - [Documentation](docs/README.md): Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
 - [Roadmap](docs/ROADMAP.md): Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.

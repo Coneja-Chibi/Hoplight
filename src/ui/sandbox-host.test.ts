@@ -13,13 +13,14 @@ import { createSecurityContext, injectSandboxOriginMeta, injectSessionMeta } fro
 const UI_ORIGIN = "http://127.0.0.1:8321";
 
 describe("sandbox allowlist", () => {
-  test("only worker and wasm paths are allowlisted", () => {
+  test("only the two workers and wasm paths are allowlisted", () => {
     expect(isSandboxAllowlistedPath("/sandbox/worker.js")).toBe(true);
+    expect(isSandboxAllowlistedPath("/sandbox/regex-worker.js")).toBe(true);
     expect(isSandboxAllowlistedPath("/sandbox/glue.wasm")).toBe(true);
     expect(isSandboxAllowlistedPath("/api/studio/save")).toBe(false);
     expect(isSandboxAllowlistedPath("/")).toBe(false);
     expect(isSandboxAllowlistedPath("/sandbox/../api/settings")).toBe(false);
-    expect(SANDBOX_ALLOWLIST.length).toBe(2);
+    expect(SANDBOX_ALLOWLIST.length).toBe(3);
   });
 });
 
@@ -60,6 +61,14 @@ describe("createSandboxHandler", () => {
 
     const no = await handler(new Request("http://127.0.0.1:9/api/settings", { method: "OPTIONS" }));
     expect(no.status).toBe(404);
+  });
+
+  test("serves the regex worker from the isolated allowlist", async () => {
+    const handler = createSandboxHandler({ allowOrigin: UI_ORIGIN });
+    const res = await handler(new Request("http://127.0.0.1:9/sandbox/regex-worker.js"));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("access-control-allow-origin")).toBe(UI_ORIGIN);
+    expect(res.headers.get("content-type")).toContain("text/javascript");
   });
 
   test("rejects non-loopback allowOrigin at construction", () => {

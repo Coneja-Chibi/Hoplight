@@ -1,3 +1,4 @@
+/** Ambient declarations for dependencies that do not publish the TypeScript surface we consume. */
 // Ambient type shims for the untyped png-chunks* libraries.
 declare module "png-chunks-extract" {
   const extract: (data: Uint8Array) => { name: string; data: Uint8Array }[];

@@ -1,13 +1,12 @@
 /**
  * bench-core tests: the word diff (whole-block removal + the ellipsis case from the wireframe), the
- * per-rule import effect, the fresh-id/sortOrder staging, and the plain-language skip reasons.
+ * fresh-id/sortOrder staging, and the plain-language skip reasons.
  */
 import { describe, expect, it } from "bun:test";
 import type { RegexRule } from "../../../../entities/regex/schema";
 import {
   captureLane,
   diffTokens,
-  perRuleEffect,
   skipReasonText,
   stageRules,
 } from "./bench-core";
@@ -57,34 +56,6 @@ describe("diffTokens", () => {
     const rebuiltAfter = tokens.filter((t) => t.kind !== "del").map((t) => t.text).join("");
     expect(rebuiltBefore).toBe(before);
     expect(rebuiltAfter).toBe(after);
-  });
-});
-
-describe("perRuleEffect", () => {
-  it("applies a matching rule and reports matched", () => {
-    const e = perRuleEffect("foo baz", rule({ find: "foo", replace: "bar" }));
-    expect(e.before).toBe("foo baz");
-    expect(e.after).toBe("bar baz");
-    expect(e.matched).toBe(true);
-  });
-
-  it("reports no change and matched false when the rule misses", () => {
-    const e = perRuleEffect("nothing here", rule({ find: "zzz", replace: "!" }));
-    expect(e.after).toBe("nothing here");
-    expect(e.matched).toBe(false);
-  });
-
-  it("runs an off rule anyway (preview forces it on)", () => {
-    const e = perRuleEffect("foo", rule({ find: "foo", replace: "bar", enabled: false }));
-    expect(e.after).toBe("bar");
-    expect(e.matched).toBe(true);
-  });
-
-  it("returns an error, never throws, on an invalid pattern", () => {
-    const e = perRuleEffect("foo", rule({ find: "(", replace: "x" }));
-    expect(e.error).toBeDefined();
-    expect(e.matched).toBe(false);
-    expect(e.after).toBe("foo");
   });
 });
 

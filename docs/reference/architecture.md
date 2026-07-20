@@ -103,6 +103,13 @@ interface CharacterAdapter extends AdapterBase {
   fromCanonical(entity, context?): AdapterOutput;   // context carries embedded lorebooks to re-embed
 }
 
+interface AdapterOutput {
+  text?: string;
+  bytes?: Uint8Array;
+  extension: string;
+  report?: SerializeReport;
+}
+
 interface LorebookAdapter extends AdapterBase {
   kind: "lorebook";
   toCanonical(input): CanonicalLorebook;
@@ -119,6 +126,12 @@ representable. **Formats are open (drop in any folder); entity kinds are a small
 grows only by adding a member here plus a sibling `entities/<kind>/` folder. That trade buys
 compile-time safety across the whole engine.
 
+Adapter-local reports are optional while the codecs migrate, but every orchestration boundary attaches
+a `SerializeReport` before output reaches the CLI, HTTP API, export dialog, or Press. Reports name
+escrowed, dropped, and shadowed paths plus warnings; their counts are derived from those lists. Canonical
+JSON is parsed through `src/entities/runtime-schema.ts` at storage and HTTP boundaries, so TypeScript
+interfaces are never treated as runtime validation.
+
 ## Detection and the registry
 
 `src/core/registry.ts` is the pure, in-memory adapter table. `detect(input)` runs every adapter's
@@ -134,7 +147,7 @@ lorebook has none of those, so it can never be mistaken for a character.
 
 ## Folders-as-schema (the moddability promise)
 
-`src/core/loader.ts` is the one impure edge: it scans `src/formats/*/index.ts` with `Bun.Glob`,
+`src/core/loader.ts` is the one impure edge: it scans `src/formats/*/index.ts` with Node filesystem primitives,
 dynamically imports each, and registers what it default-exports. Folders whose name starts with `_`
 (`_template`, `_shared`) are skipped.
 

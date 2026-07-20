@@ -62,13 +62,14 @@ starting.
 
 1. **Hub and spoke only.** Every format maps to and from the canonical model
    (`src/core/canonical.ts`). Never write a format-to-format conversion.
-2. **Never modify escrowed originals.** The original imported file is stored inside the saved
-   piece. Code must not drop, rewrite, or reformat it. Same-format round trips stay
-   byte-identical; CI has a suite that checks this.
-3. **Scripts never execute.** Lua, macros, regex payloads, anything executable inside a card is
-   sealed data. The single exception (the test bench) runs in the wasmoon VM on the isolated
-   sandbox origin per [ADR-009](docs/decisions/ADR-009-sandbox-origin.md); do not add a second
-   exception.
+2. **Never modify escrowed originals.** The parsed source snapshot and unmapped source fields are
+   stored inside the saved piece. Code must not drop, rewrite, or reformat that escrow. Same-format
+   round trips satisfy the semantic Round-Trip Law; byte identity is required only where the format
+   spec explicitly declares a byte-level tier and fixtures prove it.
+3. **Imported scripts stay sealed.** Lua, macros, and regex payloads are data at every import and
+   conversion boundary. Execution is only user-invoked inside the Lua or regex test bench: Lua runs
+   in wasmoon and regex runs in a terminable worker, both on the isolated sandbox origin described by
+   [ADR-009](docs/decisions/ADR-009-sandbox-origin.md). Do not add another execution path.
 4. **Folders are the schema.** Apps, format adapters, settings sections, deck views, wizard
    steps, and tours are drop-in folders. Never register anything in a central list when a
    drop-in folder is possible.
@@ -97,10 +98,13 @@ Or individually while iterating:
 | Command | What it checks |
 | --- | --- |
 | `bun run typecheck` | tsc, strict, no emit |
-| `bun run test` | ~1,950 tests: engine, codecs, round-trip law, store, server, UI cores |
+| `bun run test` | ~2,000 tests: engine, codecs, round-trip law, store, server, UI cores |
+| `bun run test:node-core` | bundle the public core and execute its smoke test in Node |
 | `bun run scan:lines` | 500-line file cap |
 | `bun run scan:colors:check` | no hardcoded colors outside the token sheet |
 | `bun run scan:emdash` | no em dashes in prose |
+| `bun run scan:headers` | every authored TS/TSX file opens with a purpose docblock |
+| `bun run scan:emoji` | no emoji pictographs in authored TS/TSX code |
 | `bun run scan:links` | no dead markdown links |
 | `bun run lint:ui` | eslint on the React shell, zero warnings |
 | `bun run catalog:check` | docs/reference/components.md matches the component folders |

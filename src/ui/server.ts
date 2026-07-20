@@ -193,6 +193,19 @@ export function createHandler(
         headers: { "content-type": "text/javascript; charset=utf-8" },
       });
     }
+    if (p === "/sandbox/regex-worker.js") {
+      if (packaged?.regexWorkerJs) {
+        return text(packaged.regexWorkerJs, "text/javascript; charset=utf-8");
+      }
+      const entry = fileURLToPath(new URL("../sandbox/regex/worker.ts", import.meta.url));
+      const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm" });
+      if (!built.success || built.outputs.length === 0) {
+        return err(`regex worker bundle failed: ${built.logs.map((log) => log.message).join("; ")}`, 500);
+      }
+      return new Response(await built.outputs[0]!.text(), {
+        headers: { "content-type": "text/javascript; charset=utf-8" },
+      });
+    }
 
     // All /api/* routes: Host for every method; Origin+token for POST.
     if (p.startsWith("/api/")) {
@@ -259,6 +272,16 @@ export function createHandler(
             return err("invalid settings payload", 400);
           }
           return json(await settings.save(body));
+        }
+        if (req.method === "PATCH") {
+          if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
+          const parsed = await readJsonCapped(req);
+          if (!parsed.ok) return parsed.response;
+          const body = parsed.value;
+          if (body === null || typeof body !== "object" || Array.isArray(body)) {
+            return err("invalid settings patch", 400);
+          }
+          return json(await settings.update(body));
         }
         return json(await settings.read());
       } catch (e) {

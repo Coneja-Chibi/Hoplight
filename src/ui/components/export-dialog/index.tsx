@@ -102,7 +102,8 @@ export function ExportDialog({
       }
       const { blob, filename } = exportBlob(out, name);
       triggerDownload(blob, filename);
-      ctx.setStatus(`exported ${filename}`);
+      const loss = out.report.dropped.length;
+      ctx.setStatus(`exported ${filename}${loss > 0 ? ` · ${loss} field${loss === 1 ? "" : "s"} not carried` : ""}`);
       onClose();
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));

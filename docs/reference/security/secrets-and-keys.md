@@ -179,7 +179,7 @@ WebView or bundler bug exposed web capabilities, same-origin placement would wid
 
 The sandbox host fails closed by construction:
 
-- It serves only `/sandbox/worker.js` and `/sandbox/glue.wasm`; every other path returns a `404` with a
+- It serves only `/sandbox/worker.js`, `/sandbox/regex-worker.js`, and `/sandbox/glue.wasm`; every other path returns a `404` with a
   locked-down CSP (`SANDBOX_ALLOWLIST`, `deny`, `src/ui/sandbox-host.ts:29-57, 162-163`). No `/api`, no
   index HTML, no session token, no traversal aliases.
 - CORS is limited to the exact UI origin (plus its loopback aliases) so only the trusted UI can construct

@@ -1,3 +1,4 @@
+/** Regression coverage for the web-layout.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { componentLabels, seedLayout, stepLayout, WEB_NODE_CAP } from "./web-layout";
 

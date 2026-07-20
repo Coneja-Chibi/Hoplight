@@ -1,3 +1,4 @@
+/** Regression coverage for the vaud-json.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import adapter from "./index";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";

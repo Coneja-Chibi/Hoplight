@@ -1,3 +1,4 @@
+/** Regression coverage for the editor-core.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import {
   applyEdits,

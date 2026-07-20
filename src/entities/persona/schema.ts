@@ -1,3 +1,4 @@
+/** Canonical persona entity shape shared by adapters, storage, and editors. */
 import type { CanonicalEntity } from "../../core/canonical";
 import type { ContentRating, MediaAsset, Swatch } from "../character/schema";
 

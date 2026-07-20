@@ -1,3 +1,4 @@
+/** Regression coverage for the sillytavern.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { deflateSync } from "node:zlib";
 import { readFileSync } from "node:fs";

@@ -111,7 +111,7 @@ That would be fine if you only ever used one. **Nobody uses only one.** So you k
 | Guessing which fields a platform reads | An editor lens that dims what the target won't carry 🔍 |
 | Embedded scripts run on trust | Scripts carried as data, never executed 🔒 |
 
-> **Your work is no longer tied to any single format.** The original file is escrowed inside every saved piece, nothing you brought in can be lost by editing it, and a same-format round trip comes back byte-for-byte identical. The platforms read their dialects. You keep the source of truth. 🎯
+> **Your work is no longer tied to any single format.** The parsed source snapshot and unmapped fields are escrowed inside every saved piece, and same-format exports obey the semantic Round-Trip Law. Formats whose specs declare a byte-level tier prove that stronger guarantee with fixtures. The platforms read their dialects. You keep the source of truth.
 
 ---
 
@@ -204,7 +204,7 @@ fixture files and tells you whether your adapter is honest.
 **When you import a file, Hoplight does not throw the original away and keep only the parts it
 understood.** The original file rides inside the saved piece.
 
-- A same-format round trip, SillyTavern in and SillyTavern out, comes back byte-honest, faithful right down to the fields the canonical model never even bothered to name.
+- A same-format round trip, SillyTavern in and SillyTavern out, comes back semantically faithful, including escrowed fields the canonical model never names.
 - Anything a platform carries that has no home in the canonical shape rides in escrow instead of getting dropped, and prints back out untouched.
 - CI enforces this on every commit: a deliberately broken round trip fails the build.
 
@@ -255,7 +255,7 @@ You drop Seraphina.png onto the Library floor
 
 **And nothing got mangled to get here:**
 
-- The same-format round trip stayed byte-honest.
+- The same-format round trip stayed semantically faithful at the format's declared fidelity tier.
 - The embedded book became a real piece instead of staying welded inside a PNG only one app can open.
 - Any script the card carried rode through as sealed data.
 
@@ -913,17 +913,17 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 - **Fail-closed parsing.** Request bodies are size-capped, JSON is parsed fail-closed, and saves
   are schema-validated; anything the store couldn't re-read is rejected at the door.
 - **Bounded decompression.** Zip and PNG reading is size-capped; archive bombs die at the cap.
-- **No execution of card payloads.** Lua, macros, and regex scripts embedded in cards get static
-  analysis and honest reporting, never evaluation.
-- **The one exception is caged three deep.** The opt-in Risu test bench runs card triggers in
-  real PUC-Lua 5.4, but inside a WebAssembly VM (wasmoon) with hard timeouts, inside a web
-  worker, on a **separate sandbox origin** whose server allowlists exactly two files
-  (`worker.js`, `glue.wasm`), 404s every `/api/*` path, carries no session token, and pins its
+- **No automatic execution of card payloads.** Lua, macros, and regex scripts embedded in cards get
+  static analysis and honest reporting on import; only an explicit test-bench action can run them.
+- **The test benches are caged.** The opt-in Risu bench runs card triggers in real PUC-Lua 5.4
+  inside a WebAssembly VM (wasmoon). Regex previews run in a terminable worker with a hard wall-clock
+  deadline. Both run on a **separate sandbox origin** whose server allowlists exactly three files
+  (`worker.js`, `regex-worker.js`, `glue.wasm`), 404s every `/api/*` path, carries no session token, and pins its
   own CSP (`base-uri 'none'`, `frame-ancestors 'none'`). Escaping the VM lands you in a room
   with no doors. Even `calc::` expressions go through a hand-written numeric parser, not eval.
 - **Zero outbound calls.** There is no network client code targeting anything but 127.0.0.1 in
   the codebase; grep it.
-- **Tested.** ~1,950 tests including path-containment, server-security, and round-trip
+- **Tested.** ~2,000 tests including path-containment, server-security, and round-trip
   suites run on every commit.
 - Unsigned indie binaries make Windows SmartScreen and macOS Gatekeeper warn on first run. That's
   a missing paid certificate, not behavior; verify the SHA-256 checksums shipped with releases.
@@ -1020,7 +1020,7 @@ Hop + limelight. The V is the maker's mark, the tapered H is the app's.
 <summary>**How much of this code did an AI write?** 🤖</summary>
 
 Roughly 60/30. The 60 is AI writing code. The 30 is me: drafting, planning, project management,
-design, and testing. Everything merges through the same gates regardless of who typed it: ~1,950
+design, and testing. Everything merges through the same gates regardless of who typed it: ~2,000
 tests, the round-trip law, and the CI guards. Bugs get fixed the same way too.
 
 </details>
@@ -1217,7 +1217,7 @@ code-editor). The catalog with usage rules lives in
 <summary><b>Gates</b> · what CI actually enforces</summary>
 
 ```
-~1,950 tests        : engine, codecs, round-trip law, store, server, UI cores
+~2,000 tests        : engine, codecs, round-trip law, store, server, UI cores
 color-token guard   : no hardcoded colors outside theme/tokens.css
 file-size cap       : 500 lines per file; split, not grandfather
 prose gates         : no em dashes, no dead doc links

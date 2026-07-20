@@ -1,3 +1,4 @@
+/** Regression coverage for the color-math.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import { clamp01, dragFraction, hexToHsv, hsvToHex, normalizeHex, readableInk } from "./color-math";
 

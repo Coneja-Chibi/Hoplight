@@ -10,13 +10,11 @@ related: [reference/concepts/regex-engine, reference/concepts/regex-editor, refe
 # ReDoS defense in the regex engine
 
 A regex set rides in with an imported character card: the `find` pattern is untrusted, author-controlled
-text. JavaScript's `RegExp` engine runs synchronously and cannot be interrupted mid-execution (no worker,
-no signal, no yield point), so a genuine catastrophic-backtracking pattern like `(a+)+$` can hang the
-thread it runs on for as long as the input keeps it busy. `src/core/regex/validate.ts:6-9` states this
-plainly: refusing the pattern before it ever compiles is "the only real defense a synchronous JS engine
-has," and "the only 'clean timeout' a synchronous engine can offer." This page documents that screen: what
-it actually checks, what it lets through, where the rejection reason is shown, and where the screen's own
-coverage runs out.
+text. JavaScript's `RegExp` engine runs synchronously and cannot be interrupted within its own thread, so
+a catastrophic-backtracking pattern like `(a+)+$` can hold that thread indefinitely. Hoplight now uses
+two layers: the core engine screens patterns structurally before compilation, and every Studio preview
+runs that engine in a disposable worker that is terminated at a 750 ms wall-clock deadline. This page
+documents both layers, what the screen catches, and where direct core callers still need care.
 
 @fig pipeline
 
@@ -124,7 +122,7 @@ rule, on every single pass through the engine (`apply.ts:214-227`), immediately 
 skip-reason checks (disabled, wrong phase, wrong target, depth window, edit gating;
 `apply.ts:102-114, 209-212`) and before the pattern is ever compiled for real (`apply.ts:237-254`). There
 is no separate "save-time only" validation path: the same gate runs from the editor's live Quick Try
-preview (`rule-rail.tsx:72`, which calls `applyRules` directly), the test bench, and a real content pass,
+preview, the test bench, and a real content pass,
 regardless of which authoring mode (Guided, Plain-words, or raw Pattern) produced the stored
 `find`/`flags`. If a rule is rejected, `apply.ts` returns a trace with `applied: false` and the
 validation's `error` string, and the text passes through unchanged (`apply.ts:214-226`).
@@ -134,8 +132,11 @@ spans (`apply.ts:237-238`), and `runReplace` checks elapsed time against `timeou
 capped at 500ms, `apply.ts:28-29, 256`) before and between matches (`apply.ts:172-179, 184-191`). This
 budget is a between-steps check, not a preemptive interrupt: the actual match call, `text.match(regex)` or
 `text.matchAll(regex)` (`findMatches`, `apply.ts:116-120`), is one synchronous native call that the budget
-cannot stop once it has started. This is exactly the gap `validate.ts:6-9` names: the AST screen is what
-has to catch a real bomb, because the timeout cannot.
+cannot stop once it has started. Studio callers add a preemptive outer boundary:
+`src/ui/apps/workbench/regex/run-in-worker.ts` posts values to `/sandbox/regex-worker.js` and terminates
+the worker on timeout, cancellation, completion, or error. `src/sandbox/regex/worker.ts` caps requests at
+200,000 text characters and 500 well-shaped rules before calling `applyRules`. A core caller that invokes
+`applyRules` directly does not receive this outer boundary.
 
 ## What the user actually sees when a pattern is rejected
 
@@ -191,11 +192,13 @@ ahead of and independent from the gate that protects everything downstream.
 
 Stated plainly, per the code's own honesty posture (`validate.ts:6-9`, `redos.ts:9-10`):
 
-- **The timeout is not a preemptive interrupt.** A pattern the AST screen fails to flag as `dangerous`
+- **The core timeout is not a preemptive interrupt.** A pattern the AST screen fails to flag as `dangerous`
   (a false negative, which the detector's own precision-over-recall design treats as an accepted
   possibility, `redos.ts:9-10`) can still hang the thread inside a single synchronous `RegExp.match`/
   `matchAll` call (`apply.ts:116-120`) for as long as the input keeps it busy. The `timeoutMs` budget only
-  ever gets checked between steps, never during one (`apply.ts:172-191`).
+  ever gets checked between steps, never during one (`apply.ts:172-191`). Studio previews contain that
+  failure by terminating the disposable worker; non-UI direct core callers must provide their own
+  terminable execution boundary when they accept untrusted patterns.
 - **The fallback heuristic, used only when the AST parser refuses a pattern, is materially weaker.** It
   catches the classic nested-quantifier textual shape (`NESTED_QUANTIFIER`, `validate.ts:22`) but has no
   equivalent for overlapping-alternation or quantified-backreference bombs; those two shapes are only
@@ -217,10 +220,10 @@ Stated plainly, per the code's own honesty posture (`validate.ts:6-9`, `redos.ts
   `RuleValidation.culprit` is computed and tested but has no UI consumer today (see above); do not assume
   a rejected pattern's exact culprit is visible to the author beyond the plain-text `error` message.
 
-None of the above weakens the core claim: every pattern that reaches this gate is analyzed as an AST
-before it is ever compiled, on every execution, and a pattern the AST analysis calls `dangerous` is never
-run. The gaps above are about coverage at the analysis's edges (fallback syntax, `v`-flag set-notation, UI
-wiring), not about the gate being bypassable for an ordinary pattern that parses.
+Every pattern that reaches the core gate is analyzed before runtime compilation, and a pattern the AST
+analysis calls `dangerous` is never run. The Studio adds worker termination for analyzer false negatives;
+the remaining gaps concern direct core callers, fallback syntax, `v`-flag set notation, and culprit-span
+UI wiring.
 
 ## Source of truth
 
@@ -232,6 +235,8 @@ wiring), not about the gate being bypassable for an ordinary pattern that parses
 | The gate: `validateRule`, length caps, complexity, fallback heuristic | `src/core/regex/validate.ts` |
 | Flags derivation shared between the gate and the runtime | `src/core/regex/ast/dialect.ts` |
 | Runtime: validate-before-compile, per-rule timeout/match-count budget | `src/core/regex/apply.ts` |
+| Studio worker shell: wall-clock termination and cancellation | `src/ui/apps/workbench/regex/run-in-worker.ts` |
+| Value-only regex execution worker and request caps | `src/sandbox/regex/worker.ts` |
 | Whole-set linter, `broken-pattern` / `slow-pattern` findings | `src/core/regex/inspect.ts` |
 | Per-rule Health card (plain-text rejection reason) | `src/ui/apps/workbench/regex/rule-rail.tsx` |
 | Guided-mode hit/miss chips (a separate feature, not a rejection report) | `src/core/regex/guided-feedback.ts` |

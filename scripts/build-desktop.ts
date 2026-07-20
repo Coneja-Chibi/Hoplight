@@ -87,6 +87,7 @@ for (const [name, spec] of Object.entries(VENDOR_SPECS)) {
 const sandboxWorkerJs = await bundleBrowser(join(root, "src", "sandbox", "lua", "worker.ts"), [
   "module", "url", "fs", "path", "child_process", "crypto",
 ]);
+const regexWorkerJs = await bundleBrowser(join(root, "src", "sandbox", "regex", "worker.ts"));
 
 const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
@@ -99,6 +100,7 @@ const assets = {
   manifests,
   setupSteps,
   sandboxWorkerJs,
+  regexWorkerJs,
 };
 // The repo carries a null PLACEHOLDER at this path (a committed bake goes stale silently; null
 // cannot lie). The real bake exists only for the duration of the compile and is restored after.

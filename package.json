@@ -14,6 +14,7 @@
     "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
     "test:m1": "bun test src/m1.convert.smoke.test.ts src/convert.test.ts --timeout 60000",
+    "test:node-core": "bun run scripts/node-core-smoke.ts",
     "typecheck": "bunx tsc --noEmit",
     "matrix": "bun run scripts/format-matrix.ts",
     "matrix:check": "bun run scripts/format-matrix.ts --check",
@@ -30,10 +31,14 @@
     "scan:lines": "bun run scripts/hooks/file-lines.ts --scan",
     "scan:emdash": "bun run scripts/hooks/prose-guards.ts --emdash",
     "scan:links": "bun run scripts/hooks/prose-guards.ts --links",
+    "scan:headers": "bun run scripts/hooks/doctrines.ts --headers",
+    "scan:emoji": "bun run scripts/hooks/doctrines.ts --emoji",
+    "format:no-emoji": "bun run scripts/hooks/remove-emoji.ts",
+    "macros:pins": "bun run scripts/update-macro-pins.ts",
     "lint:ui": "bunx eslint \"src/ui/**/*.tsx\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
-    "verify:ci": "bun run typecheck && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:figures:check",
+    "verify:ci": "bun run typecheck && bun run test:node-core && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:emoji && bun run scan:headers && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:figures:check",
     "gate": "bun run scripts/hooks/gate.ts --worktree"
   },
   "engines": {
@@ -61,6 +66,7 @@
     "react-dom": "^19.2.7",
     "wasmoon": "1.16.0",
     "webview-bun": "^2.4.0",
-    "zustand": "^5.0.14"
+    "zustand": "^5.0.14",
+    "zod": "^4.4.3"
   }
 }

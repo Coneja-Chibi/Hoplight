@@ -1,11 +1,12 @@
-# Release gate: typecheck, tests, license, lines, colors, lint, catalog, matrix
+# Release gate: the same complete wall documented in AGENTS.md and package.json.
 name: ci
 
 on:
   push:
-    branches: [main, master]
+    branches: [Mainstage]
   pull_request:
-    branches: [main, master]
+    branches: [Mainstage]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -25,19 +26,5 @@ jobs:
           bun-version: latest
       - name: Install
         run: bun install --frozen-lockfile
-      - name: Typecheck
-        run: bun run typecheck
-      - name: License audit
-        run: bun run license:audit
-      - name: Unit + smoke tests
-        run: bun run test
-      - name: Line caps
-        run: bun run scan:lines
-      - name: Hardcoded colors
-        run: bun run scan:colors:check
-      - name: UI lint
-        run: bun run lint:ui
-      - name: Component catalog
-        run: bun run catalog:check
-      - name: Format matrix
-        run: bun run matrix:check
+      - name: Complete verification wall
+        run: bun run verify:ci

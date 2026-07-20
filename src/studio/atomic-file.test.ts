@@ -1,3 +1,4 @@
+/** Regression coverage for the atomic-file.test behavior owned beside this file. */
 import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import { mkdtemp, rm, readFile } from "node:fs/promises";
 import { join } from "node:path";

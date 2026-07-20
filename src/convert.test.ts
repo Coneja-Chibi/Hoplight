@@ -1,3 +1,4 @@
+/** Regression coverage for the convert.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { unzipSync, strFromU8 } from "fflate";
 import { convertFile, emitBundle, inspectBundle, rewriteKnowledgeRefs } from "./convert";

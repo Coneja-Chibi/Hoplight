@@ -1,3 +1,4 @@
+/** Regression coverage for the lumi-expressions.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import {
   lumiExpressionsFromPack,

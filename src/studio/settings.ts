@@ -9,6 +9,8 @@ import { StudioReadError } from "./errors";
 import { parseSettings, type StudioSettings, DEFAULT_SETTINGS } from "./settings-shape";
 
 export class SettingsStore {
+  private writeTail: Promise<void> = Promise.resolve();
+
   constructor(private readonly dir: string) {}
 
   private get file(): string {
@@ -41,13 +43,38 @@ export class SettingsStore {
     return parseSettings(raw);
   }
 
-  async save(raw: unknown): Promise<StudioSettings> {
-    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
-      throw new StudioReadError("invalid settings payload");
-    }
-    const settings = parseSettings(raw);
+  private async write(settings: StudioSettings): Promise<StudioSettings> {
     await mkdir(this.dir, { recursive: true });
     await writeAtomicReplace(this.file, JSON.stringify(settings, null, 2));
     return settings;
+  }
+
+  /** Serialize every settings mutation so read-modify-write patches cannot interleave. */
+  private enqueue<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.writeTail.then(operation, operation);
+    this.writeTail = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  }
+
+  save(raw: unknown): Promise<StudioSettings> {
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+      return Promise.reject(new StudioReadError("invalid settings payload"));
+    }
+    const settings = parseSettings(raw);
+    return this.enqueue(() => this.write(settings));
+  }
+
+  update(raw: unknown): Promise<StudioSettings> {
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+      return Promise.reject(new StudioReadError("invalid settings patch"));
+    }
+    const patch = raw as Record<string, unknown>;
+    return this.enqueue(async () => {
+      const current = await this.read();
+      return this.write(parseSettings({ ...current, ...patch }));
+    });
   }
 }

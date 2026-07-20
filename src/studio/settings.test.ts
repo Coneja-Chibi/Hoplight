@@ -1,3 +1,4 @@
+/** Regression coverage for the settings.test behavior owned beside this file. */
 import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -33,5 +34,15 @@ describe("SettingsStore", () => {
     const s = await store.read();
     expect(s.setupComplete).toBe(true);
     expect(s.theme).toBe("stage");
+  });
+
+  test("concurrent patches serialize without losing independent keys", async () => {
+    await Promise.all([
+      store.update({ theme: "stage" }),
+      store.update({ firstDeck: "lorebook" }),
+    ]);
+    const s = await store.read();
+    expect(s.theme).toBe("stage");
+    expect(s.firstDeck).toBe("lorebook");
   });
 });

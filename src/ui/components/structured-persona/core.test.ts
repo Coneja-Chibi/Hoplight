@@ -1,3 +1,4 @@
+/** Regression coverage for the core.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import {
   addAttribute,

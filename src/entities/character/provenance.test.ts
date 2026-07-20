@@ -1,3 +1,4 @@
+/** Regression coverage for the provenance.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { labelCard, sniffContainer } from "./provenance";
 

@@ -1,0 +1,245 @@
+{
+  "provenance": "Reviewed against RoleCall MacroReferenceDropdown source; private upstream represented by this committed snapshot.",
+  "capturedAt": "2026-07-20",
+  "groups": [
+    {
+      "name": "Identity",
+      "tokens": [
+        "{{char}}",
+        "{{user}}",
+        "{{persona}}",
+        "{{model}}"
+      ]
+    },
+    {
+      "name": "Character Card",
+      "tokens": [
+        "{{description}}",
+        "{{personality}}",
+        "{{scenario}}",
+        "{{mesExamples}}",
+        "{{mesExamplesRaw}}",
+        "{{firstMessage}}",
+        "{{charVersion}}",
+        "{{charCreator}}",
+        "{{charCreatorNotes}}",
+        "{{charTags}}",
+        "{{charPrompt}}",
+        "{{charInstruction}}",
+        "{{charDepthPrompt}}",
+        "{{accentColor}}",
+        "{{palette}}",
+        "{{gradient}}",
+        "{{personaColor}}",
+        "{{personaPalette}}"
+      ]
+    },
+    {
+      "name": "Chat Context",
+      "tokens": [
+        "{{lastMessage}}",
+        "{{lastUserMessage}}",
+        "{{lastCharMessage}}",
+        "{{firstMessage}}",
+        "{{messageCount}}",
+        "{{message::N}}",
+        "{{recentMessages::N}}",
+        "{{message history}}",
+        "{{memories}}",
+        "{{summary}}",
+        "{{lastMessageId}}",
+        "{{firstIncludedMessageId}}",
+        "{{firstDisplayedMessageId}}",
+        "{{userMessageCount}}",
+        "{{charMessageCount}}",
+        "{{chatStart}}",
+        "{{currentSwipeId}}",
+        "{{lastSwipeId}}",
+        "{{chatId}}"
+      ]
+    },
+    {
+      "name": "Time & Date",
+      "tokens": [
+        "{{time}}",
+        "{{time::24}}",
+        "{{date}}",
+        "{{date::long}}",
+        "{{weekday}}",
+        "{{month}}",
+        "{{day}}",
+        "{{year}}",
+        "{{isodate}}",
+        "{{isotime}}",
+        "{{datetimeformat::FMT}}",
+        "{{timeDiff::D1::D2}}",
+        "{{idle_duration}}",
+        "{{season}}",
+        "{{moonPhase}}",
+        "{{zodiac}}"
+      ]
+    },
+    {
+      "name": "Variables",
+      "tokens": [
+        "{{getvar::name}}",
+        "{{setvar::name::value}}",
+        "{{addvar::name::value}}",
+        "{{incvar::name}}",
+        "{{decvar::name}}",
+        "{{hasvar::name}}",
+        "{{delvar::name}}",
+        "{{getglobalvar::name}}",
+        "{{setglobalvar::name::value}}",
+        "{{addglobalvar::name::value}}",
+        "{{incglobalvar::name}}",
+        "{{decglobalvar::name}}",
+        "{{pushvar::name::value}}",
+        "{{popvar::name}}",
+        "{{listvar::name}}",
+        "{{countvar::name}}",
+        "{{allvars}}"
+      ]
+    },
+    {
+      "name": "Advanced Syntax",
+      "tokens": [
+        "{{if condition}}...{{/if}}",
+        "{{#if condition}}...{{/if}}",
+        "{{if condition}}...{{else}}...{{/if}}",
+        "{{setvar::name}}...{{/setvar}}",
+        "{{setglobalvar::name}}...{{/setglobalvar}}",
+        "{{macro::name::body}}",
+        "{{macro::name::arg1::arg2}}",
+        "{{.name}}",
+        "{{.name = value}}",
+        "{{.name++}}",
+        "{{$globalName}}",
+        "{{// comment}}"
+      ]
+    },
+    {
+      "name": "Random & Dice",
+      "tokens": [
+        "{{random}}",
+        "{{random::min::max}}",
+        "{{pick::a::b::c}}",
+        "{{roll::NdM}}",
+        "{{range::start::end::step}}",
+        "{{coinflip}}",
+        "{{percent}}",
+        "{{shuffle::a::b::c}}",
+        "{{weighted::a::3::b::1}}"
+      ]
+    },
+    {
+      "name": "Text Processing",
+      "tokens": [
+        "{{upper::text}}",
+        "{{lower::text}}",
+        "{{title::text}}",
+        "{{trim::text}}",
+        "{{newline}}",
+        "{{space}}",
+        "{{space::N}}",
+        "{{reverse::text}}",
+        "{{length::text}}",
+        "{{wordcount::text}}",
+        "{{truncate::text::len}}",
+        "{{replace::text::find::new}}",
+        "{{regex::text::pattern::new}}",
+        "{{split::text::delim::N}}",
+        "{{join::delim::a::b}}",
+        "{{repeat::text::N}}",
+        "{{pad::text::len::char::right}}",
+        "{{noop}}",
+        "{{// comment}}"
+      ]
+    },
+    {
+      "name": "Conditionals",
+      "tokens": [
+        "{{if::cond::then}}",
+        "{{if::cond::then::else}}",
+        "{{compare::a::==::b}}",
+        "{{compare::a::>::b}}",
+        "{{compare::text::contains::sub}}",
+        "{{switch::val::case1::res1::...}}",
+        "{{not::value}}",
+        "{{and::a::b}}",
+        "{{or::a::b}}"
+      ]
+    },
+    {
+      "name": "Pronouns",
+      "tokens": [
+        "{{they}}",
+        "{{them}}",
+        "{{their}}",
+        "{{theirs}}",
+        "{{themself}}",
+        "{{uthey}}",
+        "{{uthem}}",
+        "{{utheir}}",
+        "{{utheirs}}",
+        "{{uthemself}}"
+      ]
+    },
+    {
+      "name": "Runtime & Stats",
+      "tokens": [
+        "{{maxPrompt}}",
+        "{{tokenBudget}}",
+        "{{tokenCount}}",
+        "{{tokenRemaining}}",
+        "{{responseTokens}}",
+        "{{sessionTokens}}",
+        "{{contextUsage}}",
+        "{{costEstimate}}",
+        "{{isMobile}}",
+        "{{lastGenerationType}}",
+        "{{input}}",
+        "{{orisonPreferences}}",
+        "{{orisonPreferenceBlock}}",
+        "{{banned::text}}",
+        "{{outlet::name}}"
+      ]
+    },
+    {
+      "name": "Roleplay & Game",
+      "tokens": [
+        "{{mood}}",
+        "{{relationship}}",
+        "{{location}}",
+        "{{timeOfDay}}",
+        "{{trust}}",
+        "{{affection}}",
+        "{{tension}}",
+        "{{weather}}",
+        "{{stat::name}}",
+        "{{check::stat::DC}}",
+        "{{damage::2d6+3}}",
+        "{{hp}}",
+        "{{progress::current::max}}",
+        "{{inventory}}",
+        "{{questStatus::name}}",
+        "{{gold}}",
+        "{{level}}",
+        "{{xp}}"
+      ]
+    },
+    {
+      "name": "Lorebook",
+      "tokens": [
+        "{{triggered}}",
+        "{{triggeredEntries}}",
+        "{{lorebookCount}}",
+        "{{lorebookTokens}}",
+        "{{lorebookList}}",
+        "{{lorebookRandom::group}}",
+        "{{entry::name}}",
+        "{{lore::name}}"
+      ]
+    }
+  ]
+}

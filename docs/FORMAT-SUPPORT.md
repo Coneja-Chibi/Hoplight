@@ -2,7 +2,7 @@
 
 Auto-generated from live adapters (`bun run scripts/format-matrix.ts`).
 Canonical schema version: **1**.
-Generated: 2026-07-19.
+Generated: 2026-07-20.
 
 ## How to use
 
@@ -20,45 +20,45 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
-| `vaud-json` | character | .json | Vaudeville native (.json) |
-| `sillytavern` | character | .json | SillyTavern character card (v2/v3, png/json) |
-| `rolecall` | character | .json | RoleCall character card (v3, png/json) |
-| `risu` | character | .charx | RisuAI .charx (zip: card.json + assets) |
-| `pygmalion` | character | .json | Pygmalion character (flat JSON / PNG) |
-| `lumiverse` | character | .json, .charx | Lumiverse character (ST + modules) |
+| `agnai` | character | .json | Agnai (Agnaistic) character (.json) |
 | `backyard` | character | .json | Backyard.ai / Faraday character (legacy json) |
 | `byaf` | character | .byaf | Backyard archive (.byaf) |
-| `agnai` | character | .json | Agnai (Agnaistic) character (.json) |
+| `lumiverse` | character | .json, .charx | Lumiverse character (ST + modules) |
+| `pygmalion` | character | .json | Pygmalion character (flat JSON / PNG) |
+| `risu` | character | .charx | RisuAI .charx (zip: card.json + assets) |
+| `rolecall` | character | .json | RoleCall character card (v3, png/json) |
+| `sillytavern` | character | .json | SillyTavern character card (v2/v3, png/json) |
+| `vaud-json` | character | .json | Vaudeville native (.json) |
 
 ## Lorebooks (6)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
-| `sillytavern-lorebook` | lorebook | .json | SillyTavern world info (worldbook json) |
-| `rolecall-lorebook` | lorebook | .json | RoleCall lorebook (v1 export json) |
-| `risu-lorebook` | lorebook | .json | RisuAI lorebook (native export json) |
-| `novelai-lorebook` | lorebook | .lorebook | NovelAI lorebook (native export .lorebook / json) |
-| `marinara-lorebook` | lorebook | .json | Marinara-Engine lorebook (native .marinara.json export) |
 | `agnai-lorebook` | lorebook | .json | Agnai memory book (json) |
+| `marinara-lorebook` | lorebook | .json | Marinara-Engine lorebook (native .marinara.json export) |
+| `novelai-lorebook` | lorebook | .lorebook | NovelAI lorebook (native export .lorebook / json) |
+| `risu-lorebook` | lorebook | .json | RisuAI lorebook (native export json) |
+| `rolecall-lorebook` | lorebook | .json | RoleCall lorebook (v1 export json) |
+| `sillytavern-lorebook` | lorebook | .json | SillyTavern world info (worldbook json) |
 
 ## Personas (4)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
-| `sillytavern-persona` | persona | .json | SillyTavern personas backup (default persona; the rest ride sealed) |
-| `rolecall-persona` | persona | .json | RoleCall persona (rcpersona / RC persona-card export) |
-| `marinara-persona` | persona | .json | Marinara persona (theming and stat bars ride sealed) |
 | `lumiverse-persona` | persona | .json | Lumiverse persona (account object) |
+| `marinara-persona` | persona | .json | Marinara persona (theming and stat bars ride sealed) |
+| `rolecall-persona` | persona | .json | RoleCall persona (rcpersona / RC persona-card export) |
+| `sillytavern-persona` | persona | .json | SillyTavern personas backup (default persona; the rest ride sealed) |
 
 ## Regex script sets (5)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
-| `sillytavern-regex` | regex | .json | SillyTavern regex scripts (bare array or card extensions.regex_scripts) |
-| `rolecall-regex` | regex | .json | RoleCall regex script (chat-pipeline find/replace set) |
-| `risu-regex` | regex | .json | RisuAI regex scripts (.risum module or customscript array) |
-| `marinara-regex` | regex | .json | Marinara-Engine regex scripts (API dump array) |
 | `lumiverse-regex` | regex | .json | Lumiverse regex scripts (versioned export file) |
+| `marinara-regex` | regex | .json | Marinara-Engine regex scripts (API dump array) |
+| `risu-regex` | regex | .json | RisuAI regex scripts (.risum module or customscript array) |
+| `rolecall-regex` | regex | .json | RoleCall regex script (chat-pipeline find/replace set) |
+| `sillytavern-regex` | regex | .json | SillyTavern regex scripts (bare array or card extensions.regex_scripts) |
 
 ## Notes
 

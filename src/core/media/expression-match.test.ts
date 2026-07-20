@@ -1,3 +1,4 @@
+/** Regression coverage for the expression-match.test behavior owned beside this file. */
 import { describe, expect, test } from "bun:test";
 import { matchExpression } from "./expression-match";
 import { CORE_STARTER } from "./expression-profiles";

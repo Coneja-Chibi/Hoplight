@@ -273,6 +273,29 @@ describe("createHandler security", () => {
     const body = (await res.json()) as { setupComplete?: boolean };
     expect(typeof body.setupComplete).toBe("boolean");
   });
+
+  test("settings PATCH composes independent concurrent changes", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-srv-"));
+    const sec = filledSec();
+    const handler = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+    const patch = (body: object): Promise<Response> => handler(
+      apiReq("/api/settings", {
+        method: "PATCH",
+        token: sec.token,
+        contentType: "application/json",
+        body: JSON.stringify(body),
+      }),
+    );
+    const [theme, deck] = await Promise.all([
+      patch({ theme: "stage" }),
+      patch({ firstDeck: "lorebook" }),
+    ]);
+    expect(theme.status).toBe(200);
+    expect(deck.status).toBe(200);
+    const saved = await new SettingsStore(dir).read();
+    expect(saved.theme).toBe("stage");
+    expect(saved.firstDeck).toBe("lorebook");
+  });
 });
 
 
@@ -398,7 +421,8 @@ describe("bundle inspect/export/save", () => {
       }),
     );
     expect(expRes.status).toBe(200);
-    const exp = await expRes.json() as { text?: string };
+    const exp = await expRes.json() as { text?: string; report?: { dropped: string[] } };
+    expect(exp.report).toBeDefined();
     const wire = JSON.parse(exp.text!);
     expect(wire.data.character_book).toBeDefined();
     expect(wire.data.character_book.entries[0].keys).toEqual(["skyport"]);
@@ -417,5 +441,17 @@ describe("bundle inspect/export/save", () => {
     expect(miss.status).toBe(422);
     const missBody = await miss.json() as { error: string };
     expect(missBody.error).toContain("does-not-exist");
+
+    const malformed = structuredClone(entity!);
+    (malformed.body as { identity: { name: unknown } }).identity.name = 42;
+    const bad = await handler(
+      apiReq("/api/export", {
+        method: "POST",
+        token: sec.token,
+        contentType: "application/json",
+        body: JSON.stringify({ entity: malformed, targetId: "sillytavern" }),
+      }),
+    );
+    expect(bad.status).toBe(400);
   });
 });
