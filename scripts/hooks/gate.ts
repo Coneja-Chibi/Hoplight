@@ -1,9 +1,9 @@
 /**
- * The green + discipline gate: the imperative shell around lib.ts. Gathers the changed files (staged
- * for a commit, or the whole working tree for a "declaring done" check), runs the pure detectors, and
- * runs the test suite. Any violation exits 2 (the editor + git blocking contract); a clean pass
- * exits 0; an infrastructure failure (no git, unreadable file) exits 1 so a broken gate never locks
- * the repo - it fails closed on a real violation, open on its own breakage.
+ * The structural + discipline gate: the imperative shell around lib.ts. Gathers the changed files
+ * (staged for a commit, or the whole working tree for a "declaring done" check), runs the pure
+ * detectors, and runs the test suite only in worktree mode. Any violation exits 2; a clean pass
+ * exits 0; an infrastructure failure (no git, unreadable file) exits 1. Git treats every nonzero
+ * result as a block, while the distinct codes keep policy failures separate from broken tooling.
  *
  * Modes: --staged (git pre-commit, staged diff) | --worktree (editor Stop hook, uncommitted changes).
  * Run: bun run scripts/hooks/gate.ts --staged
@@ -65,7 +65,7 @@ function main(): number {
     }
   }
 
-  const changed = all.filter((p) => p.endsWith(".ts"));
+  const changed = all.filter((p) => p.endsWith(".ts") || p.endsWith(".tsx"));
   if (changed.length === 0) {
     // no TS touched: only the size cap could have fired
     if (violations.length) {
@@ -111,11 +111,13 @@ function main(): number {
     }
   }
 
-  // 3. green gate: the supported suite must be green (fast; tsc lives on pre-push).
-  // Single definition: package.json `test` (active roots only). Parked `src/macros` uses `test:macros`.
-  const test = run(["bun", "run", "test"]);
-  if (test.code !== 0) {
-    violations.push(`bun run test is red. Fix it before ${mode === "staged" ? "committing" : "declaring done"}.\n${test.out.trim().split("\n").slice(-12).join("\n")}`);
+  // 3. Editor Stop/worktree proof. Pre-commit stays structural and fast; pre-push owns typecheck
+  // plus this same supported suite.
+  if (mode === "worktree") {
+    const test = run(["bun", "run", "test"]);
+    if (test.code !== 0) {
+      violations.push(`bun run test is red. Fix it before declaring done.\n${test.out.trim().split("\n").slice(-12).join("\n")}`);
+    }
   }
 
   if (violations.length) {

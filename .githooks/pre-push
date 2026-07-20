@@ -1,8 +1,13 @@
 #!/bin/sh
-# The heavy typecheck lives here (kept off per-commit so the commit reflex stays fast).
-NODE_OPTIONS=--max-old-space-size=8192 bunx tsc --noEmit
+# Full local proof lives here so the commit reflex stays fast.
+bun run typecheck
 if [ $? -ne 0 ]; then
   echo "GUARDRAIL BLOCK (typecheck): tsc is red. Fix types before pushing." >&2
+  exit 1
+fi
+bun run test
+if [ $? -ne 0 ]; then
+  echo "GUARDRAIL BLOCK (tests): bun run test is red. Fix tests before pushing." >&2
   exit 1
 fi
 exit 0

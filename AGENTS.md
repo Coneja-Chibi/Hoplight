@@ -82,8 +82,8 @@ starting.
    rejected at the boundary. Detectors return empty on bad input instead of throwing.
 9. **Docs move with the code.** A change to any surface updates its page under
    `docs/reference/` in the same commit, truth-based, never aspirational.
-10. **Commits carry proof.** Every commit needs a test or a `Verified:` line describing how the
-    change was checked; a pre-commit hook looks for it. Don't bypass hooks.
+10. **Changes carry proof.** Bug fixes and features include tests or documented verification in the
+    PR or handoff. Commit messages need no special trailer. Don't bypass hooks.
 11. **UI collapse is container-based.** Panels adapt via `@container` queries on the pane they
     live in, never viewport media queries.
 
@@ -110,6 +110,9 @@ Or individually while iterating:
 | `bun run catalog:check` | docs/reference/components.md matches the component folders |
 | `bun run matrix:check` | docs/FORMAT-SUPPORT.md matches the live format registry |
 | `bun run license:audit` | no copyleft/restricted dependencies |
+
+Pre-commit runs fast checks against staged files. Pre-push runs the full typecheck and supported test
+suite. CI remains authoritative and runs `verify:ci`.
 
 If a gate fails, fix the cause. Don't modify the gate.
 

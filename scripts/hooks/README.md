@@ -1,20 +1,20 @@
 # Repo guardrails
 
-Mechanical gates that stop me (and any agent working in this repo) from shipping the class of mistake
-that memory alone cannot prevent, because reading memory is a choice and a hook is not. They raise the
-floor on our standing doctrine; they do **not** make anyone infallible. A novel logic bug nobody wrote
-a check for still gets through. What these guarantee is that skipping verification stops being silent
-and effortless and becomes a deliberate, recorded act.
+Mechanical gates that stop common structural mistakes without making ordinary commits feel like a CI
+run. They raise the floor on our standing doctrine; they do **not** make anyone infallible. A novel
+logic bug nobody wrote a check for can still get through, so tests and honest verification remain part
+of the work even though commit messages do not require special trailers.
 
 ## The gates
 
 | Gate | Fires on | Blocks when | Cleared by |
 | --- | --- | --- | --- |
-| green | pre-commit, Stop | `bun run test` is red | fix the supported suite |
-| core-purity | pre-commit, Stop | a changed `*-core.ts` reaches for effects (`document`, `fetch`, `Bun.`, ...) | move the effect to the shell |
-| core-sibling | pre-commit, Stop | a changed `*-core.ts` has no `*-core.test.ts` | add the sibling test |
-| branch-test | commit-msg | a new branch is added to the shell (`boot.ts` / an app `index.ts`) with no test touched | touch a test **or** add a `Verified: <how>` line to the commit message |
-| typecheck | pre-push | `tsc --noEmit` is red | fix the types |
+| structural | pre-commit, Stop | the line cap, core purity/sibling, HTML sink, or shell import rules fail | fix the structural violation |
+| staged-colors | pre-commit | staged UI additions contain hardcoded colors | use theme tokens |
+| component-catalog | relevant pre-commit changes | the generated component reference is stale | regenerate the catalog |
+| staged-ui-lint | pre-commit | staged live UI TSX has an ESLint error or warning | fix the staged files |
+| green | pre-push, Stop | `bun run test` is red | fix the supported suite |
+| typecheck | pre-push | `bun run typecheck` is red | fix the types |
 | no-verify | editor pre-tool | a command runs `git commit/push --no-verify` | do not bypass; fix the violation |
 
 ## Two surfaces
@@ -27,19 +27,20 @@ and effortless and becomes a deliberate, recorded act.
 
 ## Layout (drop-in)
 
-- `lib.ts` - the pure detectors (no fs, no git, no process). Unit-tested in `lib.test.ts`, which the
-  supported `bun run test` suite runs, so the guardrails cannot rot silently. This is why the logic lives here
-  in `scripts/hooks/` and not in a dot-directory, which bun skips when collecting tests.
-- `gate.ts` - green + core-purity + core-sibling. `--staged` (pre-commit) or `--worktree` (Stop).
-  Green means `bun run test` (active roots only). Parked `src/macros` is `test:macros`, not a release gate.
-- `branch-note.ts` - the branch-test gate (commit-msg).
+- `lib.ts` - the pure structural detectors (no fs, no git, no process). Unit-tested in `lib.test.ts`,
+  which the supported suite runs so the guardrails cannot rot silently.
+- `pre-commit-core.ts` - pure parsing and routing for staged paths, tested beside the implementation.
+- `pre-commit.ts` - fast orchestration: structural and color checks every time, then catalog and UI
+  lint only when the staged paths make them relevant.
+- `gate.ts` - structural checks in `--staged` mode; structural checks plus `bun run test` in
+  `--worktree` mode for the editor Stop gate.
+- `.githooks/pre-push` - the full local proof: typecheck followed by the supported test suite.
 
-Exit contract everywhere: **2** = block (the shared git + editor contract), **0** = pass, **1** =
-the gate's own infrastructure broke (non-blocking, so a bad gate never locks the repo). It fails closed
-on a real violation, open on its own breakage.
+Exit contract everywhere: **2** = policy violation, **1** = hook infrastructure failure, **0** = pass.
+Git blocks every nonzero result; the distinct failure codes keep the diagnosis clear.
 
 ## Adding a gate
 
-Add a pure detector to `lib.ts`, a test to `lib.test.ts`, call it from the relevant shell
-(`gate.ts` / `branch-note.ts`), and prove it blocks red-first before trusting it. An untested guardrail
-is the exact sin these exist to catch.
+Add a pure detector to the relevant core module, test it beside that module, call it from the smallest
+appropriate hook surface, and prove it blocks red-first before trusting it. Keep pre-commit checks
+staged and fast; put whole-repository proof in pre-push or CI.

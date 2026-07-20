@@ -1,20 +1,15 @@
 /** Regression coverage for the lib.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
 import {
-  addedDependencies,
   addedLinesByFile,
-  declaresDependency,
   hardcodedColorLiteral,
-  hasVerifiedNote,
   htmlSinkTokens,
   impureCoreTokens,
   isColorGuardedFile,
   isCoreFile,
   isLineGuardedFile,
-  isShellFile,
   missingCoreSiblings,
   overLineCap,
-  shellBranchHits,
   shellImportTokens,
 } from "./lib";
 
@@ -78,51 +73,12 @@ test("shellImportTokens flags shell imports from apps and setup, nowhere else", 
   expect(shellImportTokens("src/ui/apps/x/index.tsx", "// from '../../shell/store' in a comment")).toEqual([]);
 });
 
-test("addedDependencies ignores comma-churn re-emits of unchanged deps", () => {
-  const diff = [
-    "--- a/package.json",
-    "+++ b/package.json",
-    '-    "webview-bun": "^2.4.0"',
-    '+    "webview-bun": "^2.4.0",',
-    '+    "zustand": "^5.0.14"',
-  ].join("\n");
-  expect(addedDependencies(diff)).toEqual(["zustand"]);
-});
-
-test("addedDependencies reads only version-shaped package.json additions", () => {
-  const diff = [
-    "+++ b/package.json",
-    '+    "react": "^19.2.5",',
-    '+    "zustand": "workspace:*",',
-    '+    "build": "bun run scripts/build.ts",', // a script line, not a dep
-    "+++ b/src/ui/boot.ts",
-    '+    "fake-pkg": "^1.0.0",', // not package.json
-  ].join("\n");
-  expect(addedDependencies(diff)).toEqual(["react", "zustand"]);
-});
-
-test("declaresDependency wants a per-package line with substance after the name", () => {
-  const msg = "Add react\n\nNew-Dependency: react (UI layer per ADR-008)\nNew-Dependency: react-dom (pair)";
-  expect(declaresDependency(msg, "react")).toBe(true);
-  expect(declaresDependency(msg, "react-dom")).toBe(true);
-  expect(declaresDependency(msg, "zustand")).toBe(false);
-  expect(declaresDependency("New-Dependency: react", "react")).toBe(false); // bare stamp, no reason
-});
-
 test("isCoreFile matches only *-core.ts", () => {
   expect(isCoreFile("src/ui/follow-core.ts")).toBe(true);
   expect(isCoreFile("src/ui/apps/workbench/recents-core.ts")).toBe(true);
   expect(isCoreFile("src\\ui\\follow-core.ts")).toBe(true); // windows path
   expect(isCoreFile("src/ui/boot.ts")).toBe(false);
   expect(isCoreFile("src/ui/follow-core.test.ts")).toBe(false);
-});
-
-test("isShellFile is the boot store and app index files only", () => {
-  expect(isShellFile("src/ui/boot.ts")).toBe(true);
-  expect(isShellFile("src/ui/apps/library/index.ts")).toBe(true);
-  expect(isShellFile("src/ui/apps/workbench/recents-core.ts")).toBe(false);
-  expect(isShellFile("src/ui/apps/library/index.test.ts")).toBe(false);
-  expect(isShellFile("src/studio/settings-shape.ts")).toBe(false); // not under src/ui
 });
 
 test("impureCoreTokens flags effects and passes pure logic", () => {
@@ -166,34 +122,6 @@ test("addedLinesByFile pulls the + lines per file and skips the +++ header", () 
     "-const removed = 2;",
   ].join("\n");
   expect(addedLinesByFile(diff).get("src/ui/boot.ts")).toEqual(["const added = 1;"]);
-});
-
-test("shellBranchHits catches a new branch added to a shell file", () => {
-  const diff = [
-    "+++ b/src/ui/boot.ts",
-    "+  if (onWorkbench()) return;",
-    "+  const x = 1;",
-  ].join("\n");
-  const hits = shellBranchHits(diff);
-  expect(hits.length).toBe(1);
-  expect(hits[0]!.file).toBe("src/ui/boot.ts");
-});
-
-test("shellBranchHits ignores branches added to a core or test file", () => {
-  const diff = ["+++ b/src/ui/follow-core.ts", "+  if (onWorkbench) return 'surface';"].join("\n");
-  expect(shellBranchHits(diff)).toEqual([]);
-});
-
-test("shellBranchHits does not fire on non-branch added lines", () => {
-  const diff = ["+++ b/src/ui/boot.ts", "+  const notified = true; // if only"].join("\n");
-  expect(shellBranchHits(diff)).toEqual([]);
-});
-
-test("hasVerifiedNote accepts an explicit note and rejects an empty stamp", () => {
-  expect(hasVerifiedNote("Fix thing\n\nVerified: clicked the card, no dialog")).toBe(true);
-  expect(hasVerifiedNote("Fix thing\n\nTested: bun test green + manual")).toBe(true);
-  expect(hasVerifiedNote("Fix thing")).toBe(false);
-  expect(hasVerifiedNote("Verified:")).toBe(false); // bare stamp, nothing after
 });
 
 test("isLineGuardedFile covers src/scripts source, skips decls and other trees", () => {

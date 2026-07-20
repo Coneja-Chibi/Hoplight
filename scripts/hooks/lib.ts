@@ -1,24 +1,16 @@
 /**
  * Pure detectors for the repo guardrails - the functional core the git and editor hooks wrap.
  * Every rule here is a deterministic function over strings and path lists: no fs, no git, no process,
- * so each is unit-tested directly in lib.test.ts. The thin imperative shells (gate.ts, branch-note.ts)
- * gather the real inputs (changed files, diffs, on-disk siblings) and carry a violation out as exit 2.
+ * so each is unit-tested directly in lib.test.ts. Thin imperative shells gather the real inputs
+ * (changed files, diffs, on-disk siblings) and carry a violation out as exit 2.
  *
  * These encode our standing doctrine mechanically so it stops being advisory:
  * - functional core, imperative shell -> a *-core.ts may not touch effects, and must own a test.
- * - trust nothing until verified -> a new branch in the shell needs a test or a recorded Verified note.
+ * - trust nothing until verified -> structural hazards are rejected before expensive verification.
  */
 
 /** A *-core.ts (or its test) - the files our "pure logic lives in -core" convention marks. */
 export const isCoreFile = (path: string): boolean => /(^|\/)[^/]+-core\.ts$/.test(norm(path));
-
-/** The imperative shell: the boot store and each app's mount file, where effects are wired. */
-export const isShellFile = (path: string): boolean => {
-  const p = norm(path);
-  if (!p.startsWith("src/ui/")) return false;
-  if (p.endsWith(".test.ts") || p.endsWith("-core.ts")) return false;
-  return p === "src/ui/boot.ts" || /(^|\/)index\.ts$/.test(p);
-};
 
 export const isTestFile = (path: string): boolean => /\.test\.ts$/.test(norm(path));
 
@@ -68,12 +60,6 @@ export function missingCoreSiblings(changed: string[], exists: (path: string) =>
     .map((p) => p.replace(/-core\.ts$/, "-core.test.ts"));
 }
 
-/** One added line inside a shell file, with the file it lives in (for a readable warning). */
-export interface ShellBranchHit {
-  file: string;
-  line: string;
-}
-
 /** Parse a unified `git diff` into the added ("+") lines per file. Ignores the +++ header line. */
 export function addedLinesByFile(diff: string): Map<string, string[]> {
   const out = new Map<string, string[]>();
@@ -91,28 +77,6 @@ export function addedLinesByFile(diff: string): Map<string, string[]> {
   }
   return out;
 }
-
-const BRANCH_RE = /^\s*(if|\}?\s*else\s+if|switch)\s*\(/;
-
-/**
- * Added branch statements in shell files. A non-empty result is the one heuristic that would have
- * caught the follow-dialog bug (a new branch in boot.ts with no test). The caller pairs it with
- * "was any test touched / is there a Verified note" to decide whether to block.
- */
-export function shellBranchHits(diff: string): ShellBranchHit[] {
-  const hits: ShellBranchHit[] = [];
-  for (const [file, lines] of addedLinesByFile(diff)) {
-    if (!isShellFile(file)) continue;
-    for (const line of lines) {
-      if (BRANCH_RE.test(line)) hits.push({ file, line: line.trim() });
-    }
-  }
-  return hits;
-}
-
-/** Does a commit message carry an explicit verification note that clears the branch-test block? */
-export const hasVerifiedNote = (message: string): boolean =>
-  /^\s*(verified|tested)\s*:\s*\S+/im.test(message);
 
 /** Raw HTML-injection sinks banned in UI source (ADR-008): the auto-escape rule has no quiet
  * exceptions. Static SVG constants parse via DOMParser + importNode instead (the `icon` pattern). */
@@ -136,34 +100,6 @@ export function htmlSinkTokens(path: string, source: string): string[] {
   return HTML_SINKS.filter(([, re]) => re.test(clean)).map(([label]) => label);
 }
 
-const DEP_LINE_RE = /^\s*"(@?[\w./-]+)"\s*:\s*"(?:[~^]?\d|workspace|latest|next|file:|git|npm:)[^"]*"\s*,?\s*$/;
-
-/** Dependency names ADDED to package.json in a unified diff (version-shaped values only, so
- * scripts/config keys never match). A name that ALSO appears on a removed line is an edit or
- * comma-churn re-emit, not a new dependency, and does not count. */
-export function addedDependencies(diff: string): string[] {
-  const removed = new Set<string>();
-  let inPkg = false;
-  for (const raw of diff.split("\n")) {
-    if (raw.startsWith("+++ ")) {
-      inPkg = /(^|\/)package\.json$/.test(raw.slice(4).replace(/^b\//, "").trim());
-      continue;
-    }
-    if (!inPkg || !raw.startsWith("-") || raw.startsWith("---")) continue;
-    const m = DEP_LINE_RE.exec(raw.slice(1));
-    if (m) removed.add(m[1]!);
-  }
-  const out: string[] = [];
-  for (const [file, lines] of addedLinesByFile(diff)) {
-    if (!/(^|\/)package\.json$/.test(file)) continue;
-    for (const line of lines) {
-      const m = DEP_LINE_RE.exec(line);
-      if (m && !removed.has(m[1]!)) out.push(m[1]!);
-    }
-  }
-  return out;
-}
-
 /** Apps and setup steps may reach the shell ONLY through ctx (contract v2). A direct import of a
  * shell module gets bundled PER-APP, which forks the module: a second store instance, a second menu
  * universe, a second React - the exact split-brain class that black-screened the first React boot.
@@ -178,10 +114,6 @@ export function shellImportTokens(path: string, source: string): string[] {
   for (let m = re.exec(clean); m; m = re.exec(clean)) out.push(m[1]!);
   return out;
 }
-
-/** Does the commit message declare the new dependency? (One line per package, with a reason.) */
-export const declaresDependency = (message: string, pkg: string): boolean =>
-  new RegExp(`^\\s*new-dependency\\s*:\\s*${pkg.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&")}\\b\\s*\\S`, "im").test(message);
 
 // -- no hardcoded colors: UI wears tokens, not raw hex ----------------------------------------------
 
