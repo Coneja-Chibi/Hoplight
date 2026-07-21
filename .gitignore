@@ -1,6 +1,8 @@
 node_modules/
 dist/
-build/
+build/*
+!build/vaude.ico
+!build/vaude-256.png
 *.log
 .DS_Store
 .env
