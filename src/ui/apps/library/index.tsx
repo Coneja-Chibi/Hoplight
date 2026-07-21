@@ -10,10 +10,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, JSX } from "react";
 import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
-import { bundlePayloadFromInspect, deckCounts } from "./deck-core";
+import { deckCounts } from "./deck-core";
 import {
-  annotateRead,
   ImportOverlay,
+  makeImportRunners,
   pickFiles,
   type ImportState,
 } from "./import-flow";
@@ -35,6 +35,7 @@ import {
 } from "./regex-shelf-ops";
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { NewInDeckButton } from "./new-in-deck-button";
+import { useEntityDelete } from "./delete-flow";
 import { loadPersonaMeta, makePersonaShelf, type PersonaMeta } from "./persona-shelf-ops";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
@@ -135,6 +136,11 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     return unsub;
   }, [ctx, reload]);
 
+  const del = useEntityDelete(ctx, () => {
+    setSelected(new Set());
+    reload();
+  });
+
   const allCss = useMemo(() => LIBRARY_STYLE + deckViews().map((v) => v.css).join("\n"), []);
 
   const openKeys = new Set(ctx.workbench.pieces().map(pieceKey));
@@ -150,6 +156,10 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     loreMeta,
   );
 
+  /** Stage every piece on the active shelf that is not open on the Workbench. */
+  const selectAll = (): void =>
+    setSelected(new Set(inDeck.filter((e) => !openKeys.has(pieceKey(e))).map(pieceKey)));
+
   useEffect(() => {
     ctx.setStatus(
       loadFailed
@@ -160,60 +170,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     );
   }, [ctx, entities.length, deck, inDeck.length, loadFailed]);
 
-  const runImport = (files: File[], append = false): void => {
-    void (async () => {
-      setImportState((prev) =>
-        append && prev?.phase === "done"
-          ? { phase: "reading", reads: prev.reads }
-          : { phase: "reading", reads: [] },
-      );
-      const prior =
-        append && importState?.phase === "done" ? importState.reads : [];
-      const read: ImportState["reads"] = [...prior];
-      for (const file of files) {
-        // Per-file guard, mirroring commitImport below: one oversized or corrupt file becomes a
-        // failed receipt row. Unguarded, its rejection left the fullscreen "reading" overlay up
-        // forever with no way out but a reload.
-        try {
-          const result = await ctx.api.inspectFile(file);
-          read.push(annotateRead(file.name, result));
-        } catch (e) {
-          const error = e instanceof Error ? e.message : String(e);
-          read.push(annotateRead(file.name, { ok: false, error }));
-        }
-      }
-      setImportState({ phase: "done", reads: read });
-    })();
-  };
-
-  const commitImport = (checkedIndexes: number[]): void => {
-    if (!importState) return;
-    void (async () => {
-      const picked = checkedIndexes
-        .map((i) => importState.reads[i])
-        .filter((r): r is NonNullable<typeof r> => !!r && r.result.ok);
-      const errors: string[] = [];
-      for (const r of picked) {
-        const payload = bundlePayloadFromInspect(r.result);
-        if (!payload) continue;
-        try {
-          const result = await ctx.api.saveBundle(payload);
-          if (!result.ok) {
-            errors.push(`${r.filename}: ${result.error ?? "could not save"}`);
-          }
-        } catch (e) {
-          errors.push(`${r.filename}: ${e instanceof Error ? e.message : String(e)}`);
-        }
-      }
-      setImportState(null);
-      reload();
-      if (errors.length > 0) {
-        ctx.setStatus(errors.length === 1 ? errors[0]! : `${errors.length} files failed to save`);
-      } else {
-        ctx.setStatus(`imported ${picked.length} file${picked.length === 1 ? "" : "s"}`);
-      }
-    })();
-  };
+  const { runImport, commitImport } = makeImportRunners({ ctx, importState, setImportState, reload });
 
   const onDrop = (evt: DragEvent<HTMLDivElement>): void => {
     evt.preventDefault();
@@ -393,6 +350,22 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           >
             {`Send ${selectedValid.size === 1 ? "it" : `all ${selectedValid.size}`} to the Workbench`}
           </button>
+          <button
+            className="del"
+            onClick={() => {
+              const byKey = new Map(entities.map((e) => [pieceKey(e), e]));
+              del.requestDelete(
+                [...selectedValid]
+                  .map((k) => byKey.get(k))
+                  .filter((e): e is StudioEntitySummary => !!e),
+              );
+            }}
+          >
+            {`Delete ${selectedValid.size === 1 ? "it" : `all ${selectedValid.size}`}`}
+          </button>
+          <button className="clear" onClick={selectAll}>
+            Select all
+          </button>
           <button className="clear" onClick={() => setSelected(new Set())}>
             Clear
           </button>
@@ -405,6 +378,11 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             <span className="pip" />
             <span className="cn">{deck.plural}</span>
             <span className="cc">{inDeck.length ? `${view.label.toLowerCase()} · ${inDeck.length}` : "deck empty"}</span>
+            {inDeck.length > 0 && selectedValid.size === 0 && (
+              <button className="crumbsel" onClick={selectAll}>
+                Select all
+              </button>
+            )}
           </div>
           {inDeck.length === 0 ? (
             <div className="ghost-shelf">
@@ -457,6 +435,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           }}
         />
       )}
+      {del.confirm}
     </div>
   );
 }

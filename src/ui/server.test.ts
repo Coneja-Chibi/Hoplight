@@ -41,7 +41,7 @@ const apiReq = (
   headers.set("host", init.host ?? "127.0.0.1:8321");
   if (init.fetchSite) headers.set("sec-fetch-site", init.fetchSite);
   if (init.origin !== null) headers.set("origin", init.origin ?? "http://127.0.0.1:8321");
-  if (init.token !== null && init.token !== undefined) headers.set("x-vaude-token", init.token);
+  if (init.token !== null && init.token !== undefined) headers.set("x-hoplight-token", init.token);
   if (init.contentType) headers.set("content-type", init.contentType);
   return new Request(`http://127.0.0.1:8321${path}`, {
     method: init.method ?? "GET",
@@ -344,7 +344,7 @@ describe("bundle inspect/export/save", () => {
     const headers = new Headers();
     headers.set("host", "127.0.0.1:8321");
     headers.set("origin", "http://127.0.0.1:8321");
-    headers.set("x-vaude-token", sec.token);
+    headers.set("x-hoplight-token", sec.token);
     headers.set("content-type", "application/octet-stream");
     headers.set("x-filename", "aria.json");
     const res2 = await handler(
@@ -378,7 +378,7 @@ describe("bundle inspect/export/save", () => {
     const headers = new Headers();
     headers.set("host", "127.0.0.1:8321");
     headers.set("origin", "http://127.0.0.1:8321");
-    headers.set("x-vaude-token", sec.token);
+    headers.set("x-hoplight-token", sec.token);
     headers.set("content-type", "application/octet-stream");
     headers.set("x-filename", "aria.json");
     const inspected = await (

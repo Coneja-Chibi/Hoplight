@@ -43,6 +43,27 @@ export const LIBRARY_STYLE = `
   text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
   cursor:pointer;padding:.35rem .6rem}
 .sendbar .clear:hover{color:var(--text);border-color:var(--edge)}
+.sendbar .del{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
+  text-transform:uppercase;background:transparent;color:var(--rose);border:3px solid var(--rose);
+  cursor:pointer;padding:.4rem .8rem}
+.sendbar .del:hover{background:var(--rose);color:var(--stamp-fg)}
+.stage-crumb .crumbsel{margin-left:auto;font-family:var(--font-mono);font-weight:700;font-size:.5625rem;
+  letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--text-dim);
+  border:2px solid var(--text-faint);cursor:pointer;padding:.25rem .5rem}
+.stage-crumb .crumbsel:hover{color:var(--text);border-color:var(--edge)}
+.delsheet{padding:1rem 1.1rem;max-width:24rem}
+.delsheet .deltitle{display:block;font-family:var(--font-big);font-weight:900;font-size:.95rem;
+  color:var(--text);margin:0 0 .45rem}
+.delsheet .delbody{font-family:var(--font-body);font-size:.8rem;color:var(--text-dim);margin:0 0 .8rem;
+  line-height:1.5}
+.delsheet .delacts{display:flex;gap:.5rem}
+.delsheet .delgo{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--rose);color:var(--stamp-fg);border:3px solid var(--edge);
+  cursor:pointer;padding:.45rem .9rem;box-shadow:3px 3px 0 0 var(--edge)}
+.delsheet .delno{font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.08em;
+  text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
+  cursor:pointer;padding:.45rem .8rem}
+.delsheet .delno:hover{color:var(--text);border-color:var(--edge)}
 .deckchips{display:flex;gap:.4rem;flex:1;min-width:0;overflow-x:auto;padding-bottom:2px}
 .dchip{display:flex;align-items:center;gap:.45rem;flex:none;cursor:pointer;font-family:var(--font-big);
   font-weight:800;font-size:.625rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);

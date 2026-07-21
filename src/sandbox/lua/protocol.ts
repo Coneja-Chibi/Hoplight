@@ -24,7 +24,7 @@ const FORBIDDEN_KEYS = new Set([
   "secret",
   "vaude-session",
   "vaudeSession",
-  "x-vaude-token",
+  "x-hoplight-token",
   "xHoplightToken",
   "sessionToken",
   "apiToken",

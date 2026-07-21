@@ -25,6 +25,7 @@ import { handleDocsRequest } from "./server-docs";
 import { startSandboxHost } from "./sandbox-host";
 import { APP_VERSION } from "../version";
 import { handleUpdateCheck } from "./server-update";
+import { handleStudioDelete, handleStudioSave } from "./server-studio-write";
 import {
   type UiSecurityContext,
   createSecurityContext,
@@ -414,26 +415,8 @@ export function createHandler(
         return studioErr(e);
       }
     }
-    if (p === "/api/studio/save" && req.method === "POST") {
-      try {
-        if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
-        const parsed = await readJsonCapped(req);
-        if (!parsed.ok) return parsed.response;
-        const raw = parsed.value as
-          | AnyEntity
-          | { entity?: AnyEntity; overwrite?: boolean }
-          | null;
-        if (!raw || typeof raw !== "object") return err("expected a canonical entity");
-        // Editor re-saves wrap { entity, overwrite: true }; import posts the entity bare (keep-both).
-        const wrapped = "entity" in raw && raw.entity && typeof raw.entity === "object";
-        const entity = (wrapped ? raw.entity : raw) as AnyEntity;
-        const overwrite = wrapped ? raw.overwrite === true : false;
-        if (typeof entity.kind !== "string") return err("expected a canonical entity");
-        return json(await store.save(entity, { overwrite }));
-      } catch (e) {
-        return studioErr(e);
-      }
-    }
+    if (p === "/api/studio/save" && req.method === "POST") return handleStudioSave(req, store);
+    if (p === "/api/studio/delete" && req.method === "POST") return handleStudioDelete(req, store);
 
     if (p.startsWith("/api/")) return err("not found", 404);
     return err("not found", 404);

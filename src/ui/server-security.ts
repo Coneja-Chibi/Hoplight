@@ -222,7 +222,7 @@ export function checkApiRequest(
     const origin = req.headers.get("origin");
     // Same-origin mutations from the app should send Origin. Missing Origin fails closed.
     if (!originAllowed(origin, sec.expectedOrigin)) return err("forbidden", 403);
-    const token = req.headers.get("x-vaude-token") ?? "";
+    const token = req.headers.get("x-hoplight-token") ?? "";
     if (!tokensEqual(token, sec.token)) return err("forbidden", 403);
     return null;
   }

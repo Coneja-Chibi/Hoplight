@@ -1,7 +1,7 @@
 /**
  * The studio store - Hoplight local-first entity storage with path containment and atomic writes.
  */
-import { mkdir, readdir, access } from "node:fs/promises";
+import { mkdir, readdir, access, unlink } from "node:fs/promises";
 import { constants } from "node:fs";
 import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
 import {
@@ -161,6 +161,20 @@ export class StudioStore {
       throw new StudioReadError("corrupt entity file");
     }
     return parsed;
+  }
+
+  /** Remove one entity file (same containment as read). True when a file was actually removed. */
+  async delete(kindRaw: string, idRaw: string): Promise<boolean> {
+    const kind = assertStudioEntityKind(kindRaw);
+    const id = assertSafeStudioId(idRaw);
+    const path = resolveStudioPath(this.dir, kind, id);
+    try {
+      await unlink(path);
+      return true;
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException)?.code === "ENOENT") return false;
+      throw new StudioWriteError("could not delete entity");
+    }
   }
 
   async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {

@@ -53,6 +53,8 @@ export interface AppContext {
     getEntity(id: string): Promise<unknown>;
     /** Persist an entity. `overwrite: true` for editor re-saves; omit for import keep-both. */
     saveEntity(entity: unknown, opts?: { overwrite?: boolean }): Promise<StudioEntitySummary>;
+    /** Remove one entity from the studio. True when a file was actually removed. */
+    deleteEntity(kind: string, id: string): Promise<{ deleted: boolean }>;
     /** Persist a character plus related lorebooks; rewrites keep-both knowledgeRefs. */
     saveBundle(payload: {
       entity: unknown;

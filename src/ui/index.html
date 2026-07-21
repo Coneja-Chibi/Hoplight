@@ -219,6 +219,24 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
 .shell-crash-btn{font:700 .66rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
   padding:.5rem .8rem;cursor:pointer;color:var(--text);background:var(--panel);border:2px solid var(--edge)}
 .shell-crash-btn:hover{border-color:var(--rose)}
+
+/* ───────── THE RIGHT-CLICK MENU (shell chrome; Menu.tsx) ─────────
+   Restored from the locked right-click shell (93d6aa6) after an index rewrite dropped it and the
+   menu rendered as naked buttons. */
+.vmenu{position:fixed;z-index:200;min-width:11rem;max-width:16rem;background:var(--face);
+  border:3px solid var(--edge);box-shadow:5px 5px 0 0 var(--edge);padding:.25rem;
+  font-family:var(--font-big)}
+.vmenu .hd{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-dim);padding:.4rem .6rem .35rem;border-bottom:2px solid var(--seam);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vmenu .sep{height:2px;background:var(--seam);margin:.25rem .35rem;opacity:.7}
+.vmenu .it{display:block;width:100%;text-align:left;font:inherit;font-weight:700;font-size:.8125rem;
+  color:var(--text);background:none;border:none;cursor:pointer;padding:.45rem .6rem}
+.vmenu .it:hover,.vmenu .it:focus-visible{background:var(--stamp-bg);color:var(--stamp-fg);outline:none}
+.vmenu .it[disabled]{color:var(--text-faint);cursor:default}
+.vmenu .it[disabled]:hover{background:none;color:var(--text-faint)}
+.vmenu .it.danger{color:var(--rose)}
+.vmenu .it.danger:hover{background:var(--rose);color:var(--stamp-fg)}
 </style>
 </head>
 <body>

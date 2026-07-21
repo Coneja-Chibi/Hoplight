@@ -10,6 +10,7 @@ import { homedir } from "node:os";
 import { startUi } from "./ui/server";
 import { registerPackagedFormats } from "./generated/packaged-formats";
 import { PACKAGED_ASSETS } from "./generated/packaged-assets";
+import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 
 const PORT = 8321;
 
@@ -19,7 +20,7 @@ if (PACKAGED_ASSETS === null) {
   throw new Error("desktop: assets not baked - build with: bun run scripts/build-desktop.ts");
 }
 registerPackagedFormats();
-const studioDir = join(homedir(), "Documents", "Hoplight Studio");
+const studioDir = resolveDefaultStudioDir(homedir());
 const { url: uiUrl, stop } = startUi(PORT, studioDir, PACKAGED_ASSETS);
 console.log(`Hoplight. is up at ${uiUrl} (studio: ${studioDir})`);
 

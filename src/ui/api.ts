@@ -20,6 +20,12 @@ export const api: AppContext["api"] = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(opts?.overwrite ? { entity, overwrite: true } : entity),
     }),
+  deleteEntity: async (kind, id) =>
+    apiFetchJson("/api/studio/delete", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ kind, id }),
+    }),
   saveBundle: async (payload): Promise<SaveBundleResult> =>
     apiFetchJson("/api/studio/save-bundle", {
       method: "POST",

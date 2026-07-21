@@ -21,6 +21,7 @@ import { labelCard, sniffContainer } from "./entities/character/provenance";
 import { PACKAGED_ASSETS } from "./generated/packaged-assets";
 import { registerPackagedFormats } from "./generated/packaged-formats";
 import { APP_VERSION as VERSION } from "./version";
+import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 
 /**
  * A compiled binary cannot glob src/formats, so a packaged build (PACKAGED_ASSETS baked non-null)
@@ -237,7 +238,7 @@ async function main(argv: string[]): Promise<number> {
     const port = Number(args[1]) || 8321;
     // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
     // scattered entities into whatever cwd the command ran from.
-    const studioDir = args[2] ?? join(homedir(), "Documents", "Hoplight Studio");
+    const studioDir = args[2] ?? resolveDefaultStudioDir(homedir());
     const { url } = startUi(port, studioDir, PACKAGED_ASSETS ?? undefined);
     console.log(`\n  Hoplight. is up: ${url}`);
     console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);

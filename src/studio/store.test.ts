@@ -69,6 +69,18 @@ describe("StudioStore containment", () => {
     expect(s2.id).toBe("twin-2");
   });
 
+  test("delete removes the file, reports absence honestly, refuses traversal", async () => {
+    await store.save(ent("gone"));
+    expect(await store.delete("character", "gone")).toBe(true);
+    expect(await store.read("character", "gone")).toBeNull();
+    // deleting what is not there is false, never a throw (idempotent from the UI's view)
+    expect(await store.delete("character", "gone")).toBe(false);
+    await expect(store.delete("character", "../escape")).rejects.toBeInstanceOf(
+      StudioValidationError,
+    );
+    await expect(store.delete("../etc", "x")).rejects.toBeInstanceOf(StudioValidationError);
+  });
+
   test("path/kind mismatch throws read error", async () => {
     await mkdir(join(root, "character"), { recursive: true });
     await writeFile(

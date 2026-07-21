@@ -3,7 +3,8 @@
  * Lorebooks get a heal summary when the payload is soft-healed before commit.
  */
 import { useEffect, useState, type JSX } from "react";
-import type { InspectResult } from "../../app-contract";
+import type { AppContext, InspectResult } from "../../app-contract";
+import { bundlePayloadFromInspect } from "./deck-core";
 
 export interface ReadFile {
   filename: string;
@@ -154,6 +155,78 @@ export function ImportOverlay({
       </div>
     </div>
   );
+}
+
+/**
+ * The import runners, one pair per render: inspect every dropped file into receipt rows (a bad
+ * file becomes a failed row, never a stuck overlay), then commit the checked ones as bundles.
+ */
+export function makeImportRunners(args: {
+  ctx: AppContext;
+  importState: ImportState | null;
+  setImportState: (updater: ImportState | null | ((prev: ImportState | null) => ImportState | null)) => void;
+  reload: () => void;
+}): {
+  runImport: (files: File[], append?: boolean) => void;
+  commitImport: (checkedIndexes: number[]) => void;
+} {
+  const { ctx, importState, setImportState, reload } = args;
+
+  const runImport = (files: File[], append = false): void => {
+    void (async () => {
+      setImportState((prev) =>
+        append && prev?.phase === "done"
+          ? { phase: "reading", reads: prev.reads }
+          : { phase: "reading", reads: [] },
+      );
+      const prior = append && importState?.phase === "done" ? importState.reads : [];
+      const read: ImportState["reads"] = [...prior];
+      for (const file of files) {
+        // Per-file guard, mirroring commitImport below: one oversized or corrupt file becomes a
+        // failed receipt row. Unguarded, its rejection left the fullscreen "reading" overlay up
+        // forever with no way out but a reload.
+        try {
+          const result = await ctx.api.inspectFile(file);
+          read.push(annotateRead(file.name, result));
+        } catch (e) {
+          const error = e instanceof Error ? e.message : String(e);
+          read.push(annotateRead(file.name, { ok: false, error }));
+        }
+      }
+      setImportState({ phase: "done", reads: read });
+    })();
+  };
+
+  const commitImport = (checkedIndexes: number[]): void => {
+    if (!importState) return;
+    void (async () => {
+      const picked = checkedIndexes
+        .map((i) => importState.reads[i])
+        .filter((r): r is NonNullable<typeof r> => !!r && r.result.ok);
+      const errors: string[] = [];
+      for (const r of picked) {
+        const payload = bundlePayloadFromInspect(r.result);
+        if (!payload) continue;
+        try {
+          const result = await ctx.api.saveBundle(payload);
+          if (!result.ok) {
+            errors.push(`${r.filename}: ${result.error ?? "could not save"}`);
+          }
+        } catch (e) {
+          errors.push(`${r.filename}: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+      setImportState(null);
+      reload();
+      if (errors.length > 0) {
+        ctx.setStatus(errors.length === 1 ? errors[0]! : `${errors.length} files failed to save`);
+      } else {
+        ctx.setStatus(`imported ${picked.length} file${picked.length === 1 ? "" : "s"}`);
+      }
+    })();
+  };
+
+  return { runImport, commitImport };
 }
 
 export function pickFiles(onFiles: (files: File[]) => void): void {
