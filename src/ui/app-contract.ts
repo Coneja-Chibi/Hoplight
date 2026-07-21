@@ -70,6 +70,10 @@ export interface AppContext {
     version(): Promise<{ version: string; studioDir?: string }>;
     /** ask GitHub for the latest release, server-side against a fixed URL; button-press only */
     updateCheck(): Promise<{ httpStatus: number; body: unknown }>;
+    /** stop the server and exit the app (About's Quit button) */
+    shutdownApp(): Promise<{ ok: boolean }>;
+    /** stop, respawn the same command, exit; the page reconnects (About's Restart button) */
+    restartApp(): Promise<{ ok: boolean }>;
   };
   /** update the mono status bar's app segment */
   setStatus(text: string): void;

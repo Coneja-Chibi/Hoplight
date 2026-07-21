@@ -26,6 +26,7 @@ import { startSandboxHost } from "./sandbox-host";
 import { APP_VERSION } from "../version";
 import { handleUpdateCheck } from "./server-update";
 import { handleStudioDelete, handleStudioSave } from "./server-studio-write";
+import { handleRestart, handleShutdown, realSpawnSelf, type LifecycleDeps } from "./server-lifecycle";
 import {
   type UiSecurityContext,
   createSecurityContext,
@@ -85,6 +86,8 @@ export function createHandler(
    * both listeners bind. String form also accepted for tests.
    */
   sandboxOrigin?: string | { current: string },
+  /** filled by startUi after the listener binds; quit/restart need the real stop */
+  lifecycle?: LifecycleDeps,
 ): (req: Request) => Promise<Response> {
   const security = sec ?? createSecurityContext();
 
@@ -417,6 +420,8 @@ export function createHandler(
     }
     if (p === "/api/studio/save" && req.method === "POST") return handleStudioSave(req, store);
     if (p === "/api/studio/delete" && req.method === "POST") return handleStudioDelete(req, store);
+    if (lifecycle && p === "/api/shutdown" && req.method === "POST") return handleShutdown(lifecycle);
+    if (lifecycle && p === "/api/restart" && req.method === "POST") return handleRestart(lifecycle);
 
     if (p.startsWith("/api/")) return err("not found", 404);
     return err("not found", 404);
@@ -436,7 +441,8 @@ export function startUi(
 
   // Filled after the sandbox listener binds; HTML injection reads this live.
   const sandboxOriginRef = { current: "" };
-  const handler = createHandler(store, settings, packaged, sec, sandboxOriginRef);
+  const lifecycle: LifecycleDeps = { stop: () => {}, exit: (c) => process.exit(c), spawnSelf: realSpawnSelf };
+  const handler = createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle);
   const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: handler });
   const host = `127.0.0.1:${server.port}`;
   sec.expectedHost = host;
@@ -459,12 +465,11 @@ export function startUi(
     );
   }
 
-  return {
-    url: `http://${host}`,
-    sandboxUrl,
-    stop: () => {
-      server.stop(true);
-      stopSandbox?.();
-    },
+  const stop = (): void => {
+    server.stop(true);
+    stopSandbox?.();
   };
+  lifecycle.stop = stop;
+
+  return { url: `http://${host}`, sandboxUrl, stop };
 }

@@ -136,6 +136,13 @@
   scrollbar-width: thin;
   scrollbar-color: var(--stage-seam) transparent;
 }
+/* About: the armed Quit button goes hot so the second press is unmistakable */
+.plateDanger {
+  border-color: var(--stage-danger-edge);
+  color: var(--stage-danger-text);
+  background: color-mix(in srgb, var(--stage-danger-edge) 12%, transparent);
+}
+
 /* About: the studio folder path, shown as quiet mono that wraps instead of overflowing */
 .pathNote {
   font-family: var(--font-mono);

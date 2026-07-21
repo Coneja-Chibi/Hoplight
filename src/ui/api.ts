@@ -54,5 +54,7 @@ export const api: AppContext["api"] = {
   formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
   version: async () => apiFetchJson("/api/version", { requireToken: false }),
   updateCheck: async () => apiFetchJson("/api/update-check", { requireToken: false }),
+  shutdownApp: async () => apiFetchJson("/api/shutdown", { method: "POST" }),
+  restartApp: async () => apiFetchJson("/api/restart", { method: "POST" }),
   coverage: async () => apiFetchJson("/api/coverage", { requireToken: false }),
 };

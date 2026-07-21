@@ -3,7 +3,7 @@
  * check (the ONLY network call the app ever makes, button-press only), where the studio folder
  * lives on disk, and the project links (through the leaving gate, like every external door).
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import { requestExternal } from "../../../_shared/link-gate";
@@ -108,7 +108,102 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
           </button>
         </div>
       </SettingsRow>
+
+      <LifecycleRow ctx={ctx} />
     </>
+  );
+}
+
+/**
+ * Restart / Quit. Both arm on first press ("Really ...?") and fire on the second, so a stray
+ * click never kills the app; unsaved Workbench edits are the cost, and the hint says so. After
+ * restart the page polls /api/version until the respawned server answers, then reloads into it.
+ */
+function LifecycleRow({ ctx }: { ctx: AppContext }): JSX.Element {
+  const [armed, setArmed] = useState<"restart" | "quit" | null>(null);
+  const [phase, setPhase] = useState<"idle" | "restarting" | "closed">("idle");
+  const disarmTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const arm = (which: "restart" | "quit"): void => {
+    setArmed(which);
+    if (disarmTimer.current) clearTimeout(disarmTimer.current);
+    disarmTimer.current = setTimeout(() => setArmed(null), 4000);
+  };
+
+  const doRestart = async (): Promise<void> => {
+    setPhase("restarting");
+    try {
+      await ctx.api.restartApp();
+    } catch {
+      /* the server may die mid-response; the poll below decides the truth */
+    }
+    const started = Date.now();
+    const poll = async (): Promise<void> => {
+      if (Date.now() - started > 20000) {
+        setPhase("idle");
+        ctx.setStatus("the studio did not come back; start it from your shortcut");
+        return;
+      }
+      try {
+        const res = await fetch("/api/version", { cache: "no-store" });
+        if (res.ok) {
+          location.reload();
+          return;
+        }
+      } catch {
+        /* not back yet */
+      }
+      setTimeout(() => void poll(), 700);
+    };
+    setTimeout(() => void poll(), 1200);
+  };
+
+  const doQuit = async (): Promise<void> => {
+    setPhase("closed");
+    try {
+      await ctx.api.shutdownApp();
+    } catch {
+      /* exiting mid-response is expected */
+    }
+  };
+
+  if (phase === "restarting") {
+    return (
+      <SettingsRow label="The app" hint="Restarting. This page reconnects by itself.">
+        <span role="status">Waiting for the studio to come back...</span>
+      </SettingsRow>
+    );
+  }
+  if (phase === "closed") {
+    return (
+      <SettingsRow label="The app" hint="Hoplight is closed.">
+        <span role="status">You can close this tab. Start it again from your shortcut.</span>
+      </SettingsRow>
+    );
+  }
+
+  return (
+    <SettingsRow
+      label="The app"
+      hint="Restart relaunches the studio in place; Quit stops it fully (browser tabs stop working until you start it again). Unsaved edits on the Workbench are lost either way."
+    >
+      <div className={styles.plates}>
+        <button
+          type="button"
+          className={armed === "restart" ? `${styles.plate} ${styles.on}` : styles.plate}
+          onClick={() => (armed === "restart" ? void doRestart() : arm("restart"))}
+        >
+          {armed === "restart" ? "Really restart?" : "Restart Hoplight"}
+        </button>
+        <button
+          type="button"
+          className={armed === "quit" ? `${styles.plate} ${styles.plateDanger}` : styles.plate}
+          onClick={() => (armed === "quit" ? void doQuit() : arm("quit"))}
+        >
+          {armed === "quit" ? "Really quit?" : "Quit Hoplight"}
+        </button>
+      </div>
+    </SettingsRow>
   );
 }
 
