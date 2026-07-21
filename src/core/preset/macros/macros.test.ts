@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
 import {
+  LUMIVERSE_MACRO_GROUPS,
   macroGroupsForProfile,
   MARINARA_MACRO_GROUPS,
   ROLECALL_MACRO_GROUPS,
@@ -19,6 +20,7 @@ const CATALOGS: Array<[string, MacroGroup[]]> = [
   ["rolecall", ROLECALL_MACRO_GROUPS],
   ["sillytavern", SILLYTAVERN_MACRO_GROUPS],
   ["marinara", MARINARA_MACRO_GROUPS],
+  ["lumiverse", LUMIVERSE_MACRO_GROUPS],
 ];
 
 const tokens = (gs: MacroGroup[]): string[] => gs.flatMap((g) => g.macros.map((m) => m.macro));
@@ -70,16 +72,46 @@ describe("pinned to reviewed upstream snapshots", () => {
   });
 });
 
+describe("Lumiverse source pin: the catalog matches the live engine registry exactly", () => {
+  // Arm with VAUD_LUMI_MACRO_SRC=<path to the Lumiverse clone>. The pin RUNS the engine's own
+  // registration code and compares name+alias sets both ways, so an upstream macro added on
+  // staging or a catalog typo both fail loud. Unarmed (CI without the clone), it skips.
+  const src = process.env["VAUD_LUMI_MACRO_SRC"];
+  const lead = (token: string): string => /^\{\{([^:}\s]+)/.exec(token)?.[1]?.toLowerCase() ?? "";
+
+  test.if(!!src)("every engine name and alias is cataloged, and none are invented", async () => {
+    const mod = (await import(`${src!.replaceAll("\\", "/")}/src/macros/index.ts`)) as {
+      initMacros: () => void;
+      registry: { getAllMacros: () => Array<{ name: string; aliases?: string[] }> };
+    };
+    mod.initMacros();
+    const engine = new Set(
+      mod.registry.getAllMacros().flatMap((d) => [d.name, ...(d.aliases ?? [])]).map((n) => n.toLowerCase()),
+    );
+    const catalog = new Set(
+      LUMIVERSE_MACRO_GROUPS.flatMap((g) => g.macros).flatMap((m) => [
+        lead(m.macro),
+        ...(m.aliases ?? []).map((a) => a.toLowerCase()),
+      ]),
+    );
+    expect(engine.size).toBeGreaterThanOrEqual(400); // 239 macros + ~180 aliases; floor guards an empty parse
+    expect([...engine].filter((n) => !catalog.has(n))).toEqual([]);
+    expect([...catalog].filter((n) => !engine.has(n))).toEqual([]);
+  });
+});
+
 describe("dispatch: every lens gets its OWN engine's catalog", () => {
   test("each lens resolves to a catalog", () => {
     for (const p of PRESET_WRITE_FOR_PROFILES) expect(macroGroupsForProfile(p).length).toBeGreaterThan(0);
   });
 
-  test("sillytavern and marinara do NOT get RoleCall's catalog", () => {
+  test("sillytavern, marinara, and lumiverse do NOT get RoleCall's catalog", () => {
     expect(macroGroupsForProfile("sillytavern")).toBe(SILLYTAVERN_MACRO_GROUPS);
     expect(macroGroupsForProfile("marinara")).toBe(MARINARA_MACRO_GROUPS);
+    expect(macroGroupsForProfile("lumiverse")).toBe(LUMIVERSE_MACRO_GROUPS);
     expect(macroGroupsForProfile("sillytavern")).not.toBe(ROLECALL_MACRO_GROUPS);
     expect(macroGroupsForProfile("marinara")).not.toBe(ROLECALL_MACRO_GROUPS);
+    expect(macroGroupsForProfile("lumiverse")).not.toBe(ROLECALL_MACRO_GROUPS);
   });
 
   test("full mirrors the placement matrix: the superset dialect", () => {
@@ -152,6 +184,33 @@ describe("regression: the silent-wrong-output trap", () => {
     expect(mari).toBeDefined();
     expect(mari!.description.toLowerCase()).toContain("between");
     expect(has(MARINARA_MACRO_GROUPS, "{{random::min::max}}")).toBe(false);
+  });
+});
+
+describe("regression: the Lumiverse dialect is its own, never RC's or ST's", () => {
+  test("dual-mode random is documented as BOTH range and list pick", () => {
+    const rand = LUMIVERSE_MACRO_GROUPS.flatMap((g) => g.macros).find((m) => m.macro === "{{random::min::max}}");
+    expect(rand).toBeDefined();
+    expect(rand!.description.toLowerCase()).toContain("range");
+    expect(rand!.description.toLowerCase()).toContain("pick");
+  });
+
+  test("Lumi dice are double-colon; Lumi-only systems never leak into other lenses", () => {
+    expect(has(LUMIVERSE_MACRO_GROUPS, "{{roll::2d6}}")).toBe(true);
+    for (const t of ["{{lumiaOOC}}", "{{loomSovHand}}", "{{presetBlock::key}}", "{{entityFacts::name}}"]) {
+      expect(has(LUMIVERSE_MACRO_GROUPS, t)).toBe(true);
+      expect(has(SILLYTAVERN_MACRO_GROUPS, t)).toBe(false);
+      expect(has(MARINARA_MACRO_GROUPS, t)).toBe(false);
+      expect(has(ROLECALL_MACRO_GROUPS, t)).toBe(false);
+    }
+  });
+
+  test("aliases are carried and heavy: the engine's alternate names resolve as supported", () => {
+    const entries = LUMIVERSE_MACRO_GROUPS.flatMap((g) => g.macros);
+    const aliasCount = entries.reduce((n, m) => n + (m.aliases?.length ?? 0), 0);
+    expect(aliasCount).toBeGreaterThanOrEqual(170);
+    const char = entries.find((m) => m.macro === "{{char}}");
+    expect(char?.aliases).toEqual(["charName"]);
   });
 });
 

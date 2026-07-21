@@ -9,11 +9,13 @@
  * `unsupportedIn` is a reliable "this definitely dies" list, never a clean bill of health. For the
  * real form, read the entry `findMacro` hands back.
  *
- * SECOND LIMIT: this assumes the {{...}} dialect and one canonical name per macro, which holds for
- * the four preset lenses and NOT beyond them. Risu/Lumiverse CBS documents [[name]] and aliases 77
- * of its 187 macros; scanMacroTokens would see none of it and macroName would call valid aliases
- * dead. The PresetWriteForProfile type is what keeps callers out - do not widen it without growing
- * the model. See ./index.ts.
+ * SECOND LIMIT: this assumes the {{...}} dialect, which holds for every preset lens (the real
+ * Lumiverse engine included - the [[name]] worry belonged to Risu's CBS) and NOT beyond them.
+ * Aliases are modeled: supportedMacroNames/findMacro consult MacroEntry.aliases, so heavy aliasing
+ * (Lumiverse has ~180 alternate names) never warns as unsupported. Lumi's prefix flag characters
+ * ({{!x}}, {{#x}}...) make macroName return "", which fails lenient - flagged tokens are never
+ * called dead. The PresetWriteForProfile type is what keeps Risu/Agnai callers out - do not widen
+ * it without growing the model. See ./index.ts.
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
@@ -44,7 +46,7 @@ export function supportedMacroNames(profile: PresetWriteForProfile): ReadonlySet
   const names = new Set(
     macroGroupsForProfile(profile)
       .flatMap((g) => g.macros)
-      .map((m) => macroName(m.macro))
+      .flatMap((m) => [macroName(m.macro), ...(m.aliases ?? []).map((a) => a.toLowerCase())])
       .filter(Boolean),
   );
   namesCache.set(profile, names);
@@ -63,7 +65,10 @@ export function findMacro(profile: PresetWriteForProfile, token: string): MacroE
   const name = macroName(token);
   if (!name) return null;
   for (const g of macroGroupsForProfile(profile)) {
-    for (const m of g.macros) if (macroName(m.macro) === name) return m;
+    for (const m of g.macros) {
+      if (macroName(m.macro) === name) return m;
+      if (m.aliases?.some((a) => a.toLowerCase() === name)) return m;
+    }
   }
   return null;
 }

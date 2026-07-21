@@ -97,9 +97,21 @@ describe("unsupportedIn: the converter case", () => {
 
 describe("macroSupport", () => {
   test("reports every lens carrying the name", () => {
-    expect(macroSupport("{{char}}").sort()).toEqual(["full", "marinara", "rolecall", "sillytavern"]);
+    expect(macroSupport("{{char}}").sort()).toEqual(["full", "lumiverse", "marinara", "rolecall", "sillytavern"]);
     expect(macroSupport("{{hp}}").sort()).toEqual(["full", "rolecall"]);
     expect(macroSupport("{{backstory}}")).toEqual(["marinara"]);
     expect(macroSupport("{{nonsense_xyz}}")).toEqual([]);
+  });
+});
+
+describe("lumiverse aliases resolve as first-class names", () => {
+  test("engine aliases are supported and resolve to the canonical entry", () => {
+    expect(isMacroSupported("lumiverse", "{{charName}}")).toBe(true);
+    expect(isMacroSupported("lumiverse", "{{ltm}}")).toBe(true);
+    expect(isMacroSupported("lumiverse", "{{flushgvar::x}}")).toBe(true);
+    expect(findMacro("lumiverse", "{{charName}}")?.macro).toBe("{{char}}");
+    expect(unsupportedIn("{{charName}} and {{knowledgeBank}}", "lumiverse")).toEqual([]);
+    // and an alias never leaks onto an engine that lacks it
+    expect(isMacroSupported("sillytavern", "{{knowledgeBank}}")).toBe(false);
   });
 });

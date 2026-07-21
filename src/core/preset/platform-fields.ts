@@ -14,7 +14,12 @@
  * - Marinara (verified TESTT.marinara.json): sections + nested groups, samplers (`parameters`),
  *   a slice of api-options, per-block XML wrap (`wrapInXml`), ST-style markers, and the
  *   CHOICE-BLOCKS walkthrough. No ST templates / full system-prompt set / media / generation.
- * - Lumiverse: NOT a lens (import-only; see capabilities.ts).
+ * - Lumiverse (primary clone, types/preset.ts + loom exportToSTPreset): category blocks one level
+ *   deep, sampler overrides, behavior prompts, completion settings (api options + inline media),
+ *   advanced settings (seed/stop strings -> generation), markers, injection + character-tag
+ *   triggers, and two placements (its blocks are pre/post-history or in-history at depth). Its
+ *   per-block promptVariables ride blocks, not a preset walkthrough, so no `choices`; its export
+ *   always writes forbid_overrides false, so not authored; templates emit as fixed defaults.
  */
 import type { PresetFieldKey, PresetWriteForProfile } from "./capabilities";
 
@@ -65,6 +70,16 @@ export const PLATFORM_OWNED_EXTRAS: Record<PresetWriteForProfile, readonly Prese
     "injectionTrigger",
   ],
   marinara: ["groups", "samplers", "apiOptions", "choices", "markers", "xmlWrap"],
+  lumiverse: [
+    "groups",
+    "samplers",
+    "behavior",
+    "apiOptions",
+    "media",
+    "generation",
+    "markers",
+    "injectionTrigger",
+  ],
 };
 
 /**
@@ -86,6 +101,7 @@ export const PRESET_PLACEMENTS_BY_PROFILE: Record<PresetWriteForProfile, readonl
   rolecall: PRESET_ALL_PLACEMENTS,
   sillytavern: ["relative", "in_chat"],
   marinara: ["relative", "in_chat"],
+  lumiverse: ["relative", "in_chat"],
 };
 
 /** Plain-language placement labels (RC's own picker copy). */

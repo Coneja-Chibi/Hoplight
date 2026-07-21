@@ -78,6 +78,33 @@ test("full account wire round-trips byte-equal when unedited (R1 must #6)", () =
   expect(wireOut).toEqual(ACCOUNT_WIRE);
 });
 
+test("interactive actions ride extras sealed and round-trip byte-equal; absent key is never fabricated", () => {
+  const actions = [
+    {
+      id: "pick-scene",
+      type: "send",
+      multi_select: true,
+      cost: "$1",
+      limit: "$2",
+      title: "Pick a scene",
+      subtitle: "Claimed until the next send",
+      content: "I choose {{$1}}.",
+      effects: [
+        { type: "set_state", key: "scene", value: "$1" },
+        { type: "draft", content: "Continue in $1", mode: "append" },
+        { type: "fork" },
+      ],
+    },
+    { id: "hint", type: "append", multi_select: false, cost: "", limit: "", title: "Hint", subtitle: "", content: "hidden appendix" },
+  ];
+  const wire: LumiverseRegexScriptWire = { ...ACCOUNT_WIRE, actions };
+  const rule = decodeLumiverseRegexScript(wire);
+  expect(rule.extras?.actions).toEqual(actions);
+  expect(encodeLumiverseRegexScript(rule)).toEqual(wire);
+  // pre-actions files stay pre-actions on emit
+  expect("actions" in encodeLumiverseRegexScript(decodeLumiverseRegexScript(ACCOUNT_WIRE))).toBe(false);
+});
+
 test("disabled row decodes to enabled=false and re-encodes disabled=true", () => {
   const wire: LumiverseRegexScriptWire = { ...ACCOUNT_WIRE, disabled: true };
   const rule = decodeLumiverseRegexScript(wire);
@@ -163,6 +190,16 @@ test("decodeLumiverseModuleRegexScripts maps the reduced bundle shape (Q2 eviden
 test("module bundle round-trips byte-equal when unedited (R1 must #6)", () => {
   const rules = decodeLumiverseModuleRegexScripts([MODULE_WIRE]);
   expect(encodeLumiverseModuleRegexScripts(rules)).toEqual([MODULE_WIRE]);
+});
+
+test("module target widened upstream to string|string[]: array form decodes and re-emits as an array", () => {
+  const wire: LumiverseModuleRegexScript = { ...MODULE_WIRE, target: ["response", "display"] };
+  const rules = decodeLumiverseModuleRegexScripts([wire]);
+  expect(rules[0]!.targets).toEqual(["response", "display"]);
+  expect(encodeLumiverseModuleRegexScripts(rules)).toEqual([wire]);
+  // and the original single-string form still re-emits as a string, not a one-element array
+  const single = decodeLumiverseModuleRegexScripts([MODULE_WIRE]);
+  expect(encodeLumiverseModuleRegexScripts(single)[0]!.target).toBe("response");
 });
 
 test("module bundle with multiple rows round-trips the whole array in order", () => {

@@ -8,6 +8,12 @@ export interface MacroEntry {
   macro: string;
   description: string;
   example?: string;
+  /**
+   * Alternate names the engine resolves to this same macro ({{char}} = {{charName}}). Support
+   * checks must honor these: an engine with heavy aliasing (Lumiverse aliases ~100 names) would
+   * otherwise get false "unsupported" warnings on perfectly valid tokens.
+   */
+  aliases?: readonly string[];
 }
 
 export interface MacroGroup {

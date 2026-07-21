@@ -20,9 +20,19 @@ describe("profiles and labels", () => {
     }
   });
 
-  test("lumiverse is NOT an authoring lens (import-only)", () => {
-    expect((PRESET_WRITE_FOR_PROFILES as readonly string[]).includes("lumiverse")).toBe(false);
-    expect(parseWriteFor("lumiverse")).toBe("full");
+  test("lumiverse IS an authoring lens (primary-source clone; its app round-trips ST grammar)", () => {
+    expect((PRESET_WRITE_FOR_PROFILES as readonly string[]).includes("lumiverse")).toBe(true);
+    expect(PRESET_WRITE_FOR_LABELS.lumiverse).toBe("Lumiverse");
+    expect(parseWriteFor("lumiverse")).toBe("lumiverse");
+  });
+
+  test("lumiverse ownership traces its wire: no walkthrough, no xml wrap, no forbid-overrides", () => {
+    for (const k of ["groups", "samplers", "behavior", "apiOptions", "media", "generation", "markers", "injectionTrigger"] as const) {
+      expect(platformOwnsField("lumiverse", k)).toBe(true);
+    }
+    for (const k of ["choices", "xmlWrap", "forbidOverrides", "templates", "systemPrompts"] as const) {
+      expect(platformOwnsField("lumiverse", k)).toBe(false);
+    }
   });
 
   test("parseWriteFor is tolerant", () => {

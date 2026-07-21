@@ -115,6 +115,10 @@ export interface LumiverseRegexScriptWire {
   script_id?: string;
   find_regex: string;
   replace_string: string;
+  /** Interactive action blocks rendered from replacement HTML (send/append/effects rows). Sealed
+   *  data: carried via extras and replayed untouched, never rendered or executed here. Optional on
+   *  the wire because pre-actions exports lack the key and emit must not fabricate it. */
+  actions?: unknown[];
   flags: string;
   placement: string[];
   scope?: string;
@@ -148,6 +152,7 @@ export function decodeLumiverseRegexScript(wire: LumiverseRegexScriptWire): Rege
   const extras: Rec = {};
   if (wire.user_id !== undefined) extras.userId = wire.user_id;
   if (wire.script_id !== undefined) extras.scriptId = wire.script_id;
+  if (wire.actions !== undefined) extras.actions = wire.actions;
   if (wire.scope !== undefined) extras.scope = wire.scope;
   if (wire.scope_id !== undefined) extras.scopeId = wire.scope_id;
   if (wire.folder !== undefined) extras.folder = wire.folder;
@@ -202,6 +207,7 @@ export function encodeLumiverseRegexScript(rule: RegexRule): LumiverseRegexScrip
   };
   if (typeof extras.userId === "string") wire.user_id = extras.userId;
   if (typeof extras.scriptId === "string") wire.script_id = extras.scriptId;
+  if (Array.isArray(extras.actions)) wire.actions = extras.actions as unknown[];
   if (typeof extras.scope === "string") wire.scope = extras.scope;
   if (extras.scopeId !== undefined) wire.scope_id = extras.scopeId as string | null;
   if (typeof extras.folder === "string") wire.folder = extras.folder;
@@ -246,8 +252,9 @@ export function encodeLumiverseRegexFile(rules: readonly RegexRule[]): Lumiverse
  * The reduced shape actually written into a character archive's `regex_scripts[]`
  * (`BundledRegexScript` in `character-card.service.ts`, populated by
  * `character-export.service.ts`). No id/user_id/script_id/folder/pack_id/preset_id/created_at/
- * updated_at; `scope_id` is always exported null; `target` is a single STRING (not an array like
- * the account shape above) - confirmed live, not assumed.
+ * updated_at; `scope_id` is always exported null. `target` was a single STRING when first
+ * confirmed live; upstream has since widened it to `string | string[]`, so both forms decode and
+ * the wire form is remembered (extras.targetIsArray) so each file re-emits its own shape.
  */
 export interface LumiverseModuleRegexScript {
   name: string;
@@ -257,7 +264,7 @@ export interface LumiverseModuleRegexScript {
   placement: string[];
   scope: string;
   scope_id: string | null;
-  target: string;
+  target: string | string[];
   min_depth: number | null;
   max_depth: number | null;
   trim_strings: string[];
@@ -276,6 +283,7 @@ function decodeModuleRegexScript(wire: LumiverseModuleRegexScript, fallbackId: s
     scopeId: wire.scope_id,
     metadata: wire.metadata,
   };
+  if (Array.isArray(wire.target)) extras.targetIsArray = true;
   if (unmapped.length) extras.unmappedPlacements = unmapped;
 
   const rule: RegexRule = {
@@ -294,7 +302,8 @@ function decodeModuleRegexScript(wire: LumiverseModuleRegexScript, fallbackId: s
     extras,
   };
   rule.note = wire.description;
-  const targets = decodeTargets(wire.target ? [wire.target] : []);
+  const targetList = Array.isArray(wire.target) ? wire.target : wire.target ? [wire.target] : [];
+  const targets = decodeTargets(targetList);
   if (targets) rule.targets = targets;
   const substituteFind = decodeSubstitute(wire.substitute_macros);
   if (substituteFind) rule.substituteFind = substituteFind;
@@ -311,7 +320,7 @@ function encodeModuleRegexScript(rule: RegexRule): LumiverseModuleRegexScript {
     placement: encodePlacements(rule),
     scope: typeof extras.scope === "string" ? extras.scope : "character",
     scope_id: extras.scopeId !== undefined ? (extras.scopeId as string | null) : null,
-    target: rule.targets?.[0] ?? "",
+    target: extras.targetIsArray === true ? (rule.targets ?? []) : (rule.targets?.[0] ?? ""),
     min_depth: rule.minDepth ?? null,
     max_depth: rule.maxDepth ?? null,
     trim_strings: rule.trimStrings ?? [],

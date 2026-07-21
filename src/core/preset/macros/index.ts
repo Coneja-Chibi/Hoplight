@@ -9,19 +9,17 @@
  *
  * Each catalog is transcribed from that engine's own capability source. See the platform files.
  *
- * SCOPE, and why Lumiverse / Risu / Agnai are absent: the axis here is PresetWriteForProfile, the
- * four hosts a preset can be AUTHORED FOR. Lumiverse presets import but never serialize back, and
- * Risu/Agnai have no preset lens, so none of them belong on this axis today.
+ * SCOPE: the axis here is PresetWriteForProfile, the hosts a preset can be AUTHORED FOR. Lumiverse
+ * joined once its engine was cloned as primary source: the real dialect is {{...}} with ::
+ * separators (the earlier [[name]]/CBS worry came from LumiRealm, a third-party Risu port, not
+ * Lumiverse itself), and its heavy aliasing is modeled first-class via MacroEntry.aliases, which
+ * support.ts consults, so valid aliases never warn as unsupported.
  *
- * Do NOT just bolt them on when that changes - their engines break this model's assumptions, and a
- * naive add would be wrong in three ways (checked against the local clones, 2026-07):
+ * Risu / Agnai stay absent, and do NOT just bolt them on - their engines still break this model:
  *  1. SYNTAX. Risu's CBS documents its macros as [[name]] (48 uses in its own cbs_docs.cbs, zero
  *     {{name}}). scanMacroTokens only matches {{...}}, so it is blind to Risu text.
- *  2. ALIASES. 77 of the 187 macros in LumiRealm's risu-macros.json carry aliases (#puredisplay =
- *     pure_display = pure-display). One-name-per-macro would emit false "unsupported" for valid
- *     aliases - a wrong warning is worse than none.
- *  3. COLLISIONS. That same catalog marks 36 entries with `lumiverseCollision`: Lumi's own record of
- *     where it diverges from Risu on a shared name. The {{random::a::b}} trap, 36 more times.
+ *  2. COLLISIONS. LumiRealm's catalog marks 36 names where Lumi and Risu diverge on a shared name.
+ *     The {{random::a::b}} trap, 36 more times; name-level checks cannot see it.
  * Agnai is not this shape at all - it is a template system of named slots (system/history/post).
  * Ground truth if/when it is needed: _reference/RisuAI/src/etc/docs/cbs_docs.cbs (CSV: name,
  * description, aliases, arguments, example), _reference/LumiRealm/src/core/cbs/catalog/
@@ -33,11 +31,13 @@ import type { MacroGroup } from "./types";
 import { ROLECALL_MACRO_GROUPS } from "./rolecall";
 import { SILLYTAVERN_MACRO_GROUPS } from "./sillytavern";
 import { MARINARA_MACRO_GROUPS } from "./marinara";
+import { LUMIVERSE_MACRO_GROUPS } from "./lumiverse";
 
 export type { MacroEntry, MacroGroup } from "./types";
 export { ROLECALL_MACRO_GROUPS } from "./rolecall";
 export { SILLYTAVERN_MACRO_GROUPS } from "./sillytavern";
 export { MARINARA_MACRO_GROUPS } from "./marinara";
+export { LUMIVERSE_MACRO_GROUPS } from "./lumiverse";
 
 /**
  * The catalog each Write-for lens exposes. `full` (Hoplight) carries the superset dialect, mirroring
@@ -50,6 +50,7 @@ const CATALOG_BY_PROFILE: Record<PresetWriteForProfile, MacroGroup[]> = {
   rolecall: ROLECALL_MACRO_GROUPS,
   sillytavern: SILLYTAVERN_MACRO_GROUPS,
   marinara: MARINARA_MACRO_GROUPS,
+  lumiverse: LUMIVERSE_MACRO_GROUPS,
 };
 
 /** The macro groups the selected lens's engine actually supports. */

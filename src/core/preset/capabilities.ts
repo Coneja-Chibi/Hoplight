@@ -4,28 +4,26 @@
  * hiding never deletes body data. Same shape + function names as core/persona and core/regex
  * capabilities (PRESET-JEWEL-PLAN.md P0). Ownership matrix: platform-fields.ts (survey-grounded).
  *
- * LUMIVERSE IS NOT A LENS *YET*, AND THE OLD REASON HERE WAS WRONG. This used to claim there is
- * "nothing to author for Lumiverse" because the codec is import-only. That is a fact about OUR
- * code, not about Lumiverse, and it was laundered from a draft spec whose only cited reference is
- * RC's `packages/presets-core/src/lumiverse-converter.ts` - which exports exactly
- * isLumiversePreset() + convertLumiversePreset() and no serializer. "RC never wrote an exporter"
- * became "the platform cannot be authored for". It cannot support that weight.
+ * LUMIVERSE IS A LENS as of the primary-source clone (C:\Users\chiev\Documents\Lumiverse, staging
+ * branch). The earlier refusal here was correct in method: everything known before came secondhand
+ * (RC's reverse-engineered import converter, LumiRealm's Risu-compat port), and a lens built on
+ * that would have been invented. Read from the engine itself:
+ * - The app's own preset export is FLAT ST GRAMMAR (frontend loom service, exportToSTPreset), with
+ *   category blocks, marker mapping, and `lumiverse_character_tag_trigger` on triggered prompts.
+ *   The `{type:"lumiverse_preset"}` wrapper is what LumiHub serves; the app reads both. So our
+ *   sillytavern-shaped emit is exactly what Lumiverse itself round-trips.
+ * - Ownership facts for platform-fields.ts come from its Preset assembly types (PromptBlock,
+ *   PromptBehavior, CompletionSettings, SamplerOverrides, AdvancedSettings): categories one level
+ *   deep, in-history depth placement, behavior prompts, sampler overrides, inline media, triggers.
+ *   Its per-block promptVariables system is real but rides BLOCKS, not a preset-level walkthrough,
+ *   so the `choices` control stays off this lens (the import codec maps them to guarded setvar
+ *   prompts instead).
+ * - The macro dialect lives in src/macros (lexer/parser/registry, 239 definitions); the catalog in
+ *   ./macros/lumiverse.ts is registry-dumped and source-pinned (VAUD_LUMI_MACRO_SRC).
  *
- * What the evidence actually shows: Lumiverse ships a clean, writable block-based JSON wrapper
- * ({type, schemaVersion, cover_url, preset:{blocks[], promptBehavior, completionSettings,
- * samplerOverrides, advancedSettings}}), its own {{...}} macro dialect ({{if::}}, {{rcounter}},
- * group-card macros, lumia tokens) that RC implements in apps/rc/src/lib/macros/handlers/
- * lumiverse-compat.ts, and a macro engine that LumiRealm's risu-macros.json records colliding with
- * Risu on 36 names, 28 of them behaviourally INCOMPATIBLE. Nothing there blocks a serialize path.
- *
- * So Lumiverse is absent because the export codec is UNBUILT, not because it is unauthorable. Do
- * not re-justify it on capability. Before promoting it to a lens, get primary sources - the
- * Lumiverse app is NOT among the local clones (_reference/ has LumiRealm, which is a RisuAI compat
- * PORT for Lumiverse by another author, not Lumiverse itself) and RC's wrapper types are marked
- * "as observed in the wild", i.e. reverse-engineered.
- *
- * The current authoring targets are the engines vaud can really serialize: RoleCall (native),
- * SillyTavern (round-trip), Marinara (sealed round-trip).
+ * The authoring targets are the engines vaud can really serialize: RoleCall (native), SillyTavern
+ * (round-trip), Marinara (sealed round-trip), Lumiverse (ST-grammar round-trip, its own app's
+ * export shape).
  */
 import { platformOwnsField } from "./platform-fields";
 
@@ -33,7 +31,8 @@ export type PresetWriteForProfile =
   | "full"
   | "rolecall"
   | "sillytavern"
-  | "marinara";
+  | "marinara"
+  | "lumiverse";
 
 export type FieldVisibility = "show" | "hide";
 
@@ -65,6 +64,7 @@ export const PRESET_WRITE_FOR_LABELS: Record<PresetWriteForProfile, string> = {
   rolecall: "RoleCall",
   sillytavern: "SillyTavern",
   marinara: "Marinara",
+  lumiverse: "Lumiverse",
 };
 
 export const PRESET_WRITE_FOR_PROFILES: readonly PresetWriteForProfile[] = [
@@ -72,6 +72,7 @@ export const PRESET_WRITE_FOR_PROFILES: readonly PresetWriteForProfile[] = [
   "rolecall",
   "sillytavern",
   "marinara",
+  "lumiverse",
 ];
 
 /** Tolerant pref reader: anything unknown falls back to full (never throws). */
