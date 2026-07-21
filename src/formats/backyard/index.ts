@@ -107,7 +107,11 @@ const adapter: CharacterAdapter = {
     }
     if (!isRecord(o)) return 0;
     if (["aiName", "aiPersona", "aiDisplayName", "customDialogue"].some((k) => typeof o[k] === "string")) return 0.9;
-    if (typeof o.persona === "string" && o.description === undefined && o.kind !== "character") return 0.55;
+    // The bare-persona fallback needs a story companion: a real legacy card always carries one, and
+    // without this ANY {name, persona} notes blob imported as a Backyard character (cross-kind firewall).
+    const companion = ["personality", "scenario", "firstMessage", "first_mes", "greeting", "examples", "systemPrompt"]
+      .some((k) => typeof o[k] === "string");
+    if (typeof o.persona === "string" && companion && o.description === undefined && o.kind !== "character") return 0.55;
     return 0;
   },
 

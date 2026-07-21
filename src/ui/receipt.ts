@@ -105,3 +105,33 @@ export function buildReceipt(
 export const UNKNOWN_FILE_MESSAGE =
   "We could not read this one. It is not a card, book, or persona format we know yet. " +
   "We looked for: png, json, charx, lorebook, byaf.";
+
+const isRec = (v: unknown): v is Record<string, unknown> =>
+  typeof v === "object" && v !== null && !Array.isArray(v);
+
+/**
+ * Name a file we RECOGNIZE but cannot import, in plain words. Detection refuses these shapes on
+ * purpose (the cross-kind firewall); telling the user "unknown file" about a famous preset reads
+ * as a bug, so the refusal says what the file is and what works instead. Tolerant reader: anything
+ * unrecognized returns null and the generic line stands.
+ */
+export function unsupportedShapeLine(text: string | undefined): string | null {
+  if (!text) return null;
+  let o: unknown;
+  try {
+    o = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  if (!isRec(o)) return null;
+  if (Array.isArray(o.prompts) || "prompt_order" in o || "chat_completion_source" in o) {
+    return "This is a SillyTavern preset. Hoplight cannot import SillyTavern presets yet - Marinara preset exports work today.";
+  }
+  if ("input_sequence" in o && "output_sequence" in o) {
+    return "This is a SillyTavern instruct template. Hoplight cannot import those yet.";
+  }
+  if ("story_string" in o) {
+    return "This is a SillyTavern context template. Hoplight cannot import those yet.";
+  }
+  return null;
+}

@@ -108,6 +108,153 @@ for (const c of CASES) {
   });
 }
 
+/**
+ * The cross-KIND firewall, adversarial half: real settings artifacts users WILL drop (they sit in
+ * the same export menus as cards) that no adapter supports today. Detection must claim NOTHING -
+ * a wrong claim imports garbage under a wrong kind, which shipped once (a SillyTavern chat
+ * completion preset read as a flat character card because it carries `name` + `extensions`).
+ */
+const FOREIGN: Case[] = [
+  {
+    label: "ST chat-completion preset (name + extensions + prompts/prompt_order) is NOT a character",
+    expected: "nobody",
+    input: asText({
+      name: "Paramnesia-like preset",
+      extensions: {},
+      chat_completion_source: "openai",
+      openai_model: "gpt-4o",
+      temperature: 0.9,
+      top_p: 1,
+      impersonation_prompt: "x",
+      wi_format: "{0}",
+      prompts: [{ identifier: "main", name: "Main", system_prompt: true, content: "..." }],
+      prompt_order: [{ character_id: 100001, order: [] }],
+    }),
+  },
+  {
+    label: "ST instruct template (name + system_prompt string + sequences) is NOT a character",
+    expected: "nobody",
+    input: asText({
+      name: "Some Instruct",
+      system_prompt: "You are {{char}}.",
+      input_sequence: "<|user|>",
+      output_sequence: "<|assistant|>",
+      stop_sequence: "",
+      wrap: false,
+    }),
+  },
+  {
+    label: "ST context template (name + story_string) is NOT a character",
+    expected: "nobody",
+    input: asText({
+      name: "Some Context",
+      story_string: "{{#if system}}{{system}}{{/if}}",
+      chat_start: "***",
+      example_separator: "***",
+    }),
+  },
+  {
+    label: "bare name+extensions blob is NOT a character",
+    expected: "nobody",
+    input: asText({ name: "Just a name", extensions: {} }),
+  },
+  {
+    label: "a notes blob with a string persona and no story fields is NOT a Backyard card",
+    expected: "nobody",
+    input: asText({ name: "My notes", persona: "I write long journal entries." }),
+  },
+  {
+    label: "textgen sampler grid (no name, all numbers) is NOT anything",
+    expected: "nobody",
+    input: asText({ temp: 0.7, top_p: 0.9, top_k: 40, rep_pen: 1.1, rep_pen_range: 1024 }),
+  },
+];
+
+for (const c of FOREIGN) {
+  test(`refuses: ${c.label}`, () => {
+    expect(registry.detect(c.input)?.id).toBeUndefined();
+  });
+}
+
+/**
+ * The positive half, run over EVERY committed sample: the file's folder names its family and kind
+ * (samples/<family>/<kinddir>/...), and detection must land inside that family (or a listed
+ * generic reader) with exactly that kind. Grows with the sample tree; a new format drops samples
+ * in and is covered.
+ */
+import { readdirSync, statSync } from "node:fs";
+
+const SAMPLES_ROOT = join(import.meta.dir, "../../samples");
+type AdapterKind = "character" | "lorebook" | "persona" | "preset" | "regex";
+const KIND_BY_DIR: Record<string, AdapterKind> = {
+  characters: "character",
+  lorebooks: "lorebook",
+  personas: "persona",
+  presets: "preset",
+  regex: "regex",
+};
+// Bare CC cards and standalone character_books legitimately route to the generic Tavern readers.
+const FAMILY_ALLOW: Record<string, string[]> = {
+  chub: ["sillytavern"],
+  risu: ["risu", "sillytavern"],
+  lumiverse: ["lumiverse", "sillytavern"],
+  backyard: ["backyard", "byaf"],
+  agnai: ["agnai", "sillytavern"], // its samples include generic character_book downloads
+};
+
+function sampleInputs(): { family: string; kind: AdapterKind; file: string; input: Case["input"] }[] {
+  const out: { family: string; kind: AdapterKind; file: string; input: Case["input"] }[] = [];
+  for (const family of readdirSync(SAMPLES_ROOT)) {
+    const famDir = join(SAMPLES_ROOT, family);
+    if (!statSync(famDir).isDirectory()) continue;
+    for (const kindDir of readdirSync(famDir)) {
+      const kind = KIND_BY_DIR[kindDir];
+      if (!kind) continue;
+      for (const file of readdirSync(join(famDir, kindDir))) {
+        if (file.endsWith(".md")) continue;
+        const bytes = new Uint8Array(readFileSync(join(famDir, kindDir, file)));
+        // mirror the server's toAdapterInput: bytes always, text when it decodes as clean UTF-8
+        let text: string | undefined;
+        try {
+          text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+        } catch {
+          text = undefined;
+        }
+        out.push({ family, kind, file, input: text !== undefined ? { text, bytes } : { bytes } });
+      }
+    }
+  }
+  return out;
+}
+
+// Known-undetected samples, kept visible instead of silently skipped: committed for a planned
+// import path that does not exist yet. Shrink this list, never grow it quietly.
+const KNOWN_GAPS = new Set([
+  "novelai/sigurdcard-embedded-lorebook.png", // NAI png-embedded lorebook: no png path in the adapter yet
+]);
+
+for (const s of sampleInputs()) {
+  const label = `${s.family}/${s.file}`;
+  if (KNOWN_GAPS.has(label)) {
+    test(`samples KNOWN GAP (no adapter yet): ${label}`, () => {
+      expect(registry.detect(s.input)).toBeUndefined(); // the day an adapter claims it, promote it
+    });
+    continue;
+  }
+  test(
+    `samples: ${label} detects as a ${s.kind} in its own family`,
+    () => {
+      const adapter = registry.detect(s.input);
+      expect(adapter, "no adapter claimed this committed sample").toBeDefined();
+      expect(adapter!.kind).toBe(s.kind);
+      const allowed = FAMILY_ALLOW[s.family] ?? [s.family];
+      const familyOf = adapter!.id.split("-")[0]!;
+      expect(allowed).toContain(familyOf);
+    },
+    30000, // a 23MB charx makes sixteen adapters each decode the bytes; well past bun's 5s default
+  );
+}
+
 test("every registered adapter declares at least one output extension (drop-in contract)", () => {
   const adapters = registry.all();
   expect(adapters.length).toBeGreaterThanOrEqual(6);

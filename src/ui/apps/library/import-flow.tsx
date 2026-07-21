@@ -4,6 +4,7 @@
  */
 import { useEffect, useState, type JSX } from "react";
 import type { AppContext, InspectResult } from "../../app-contract";
+import { InkDialog } from "../../components/ink-dialog";
 import { bundlePayloadFromInspect } from "./deck-core";
 
 export interface ReadFile {
@@ -30,35 +31,39 @@ function ReceiptCard({
 }): JSX.Element {
   if (r.result.ok && r.result.receipt) {
     return (
-      <label className="receipt" style={{ display: "block", cursor: "pointer" }}>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "flex-start" }}>
-          <input type="checkbox" checked={checked} onChange={onToggle} />
-          <div>
-            <h3>{r.result.receipt.name}</h3>
-            <p>{r.result.receipt.kindLine}</p>
-            {typeof r.entryCount === "number" && (
-              <p className="mono">
-                {r.entryCount} entr{r.entryCount === 1 ? "y" : "ies"}
-              </p>
-            )}
-            {r.healNotes && r.healNotes.length > 0 && (
-              <p className="mono">
-                Healed: {r.healNotes.slice(0, 3).join(" · ")}
-                {r.healNotes.length > 3 ? ` · +${r.healNotes.length - 3} more` : ""}
-              </p>
-            )}
-            {r.result.receipt.extras.map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
-          </div>
+      <label className={`improw${checked ? " on" : ""}`}>
+        <input type="checkbox" checked={checked} onChange={onToggle} />
+        <span className="impcheck" aria-hidden="true" />
+        <div className="impbody">
+          <b className="impname">{r.result.receipt.name}</b>
+          <p className="impkind">{r.result.receipt.kindLine}</p>
+          {typeof r.entryCount === "number" && (
+            <p className="impmeta">
+              {r.entryCount} entr{r.entryCount === 1 ? "y" : "ies"}
+            </p>
+          )}
+          {r.healNotes && r.healNotes.length > 0 && (
+            <p className="impmeta">
+              Healed: {r.healNotes.slice(0, 3).join(" · ")}
+              {r.healNotes.length > 3 ? ` · +${r.healNotes.length - 3} more` : ""}
+            </p>
+          )}
+          {r.result.receipt.extras.map((line, i) => (
+            <p key={i} className="impkind">
+              {line}
+            </p>
+          ))}
         </div>
       </label>
     );
   }
   return (
-    <div className="receipt bad">
-      <h3>{r.filename}</h3>
-      <p>{r.result.error ?? "We could not read this one."}</p>
+    <div className="improw bad">
+      <div className="impbody">
+        <span className="impflag">Could not read</span>
+        <b className="impname">{r.filename}</b>
+        <p className="imperr">{r.result.error ?? "We could not read this one."}</p>
+      </div>
     </div>
   );
 }
@@ -91,27 +96,23 @@ export function ImportOverlay({
 
   if (state.phase === "reading") {
     return (
-      <div className="overlay">
-        <div className="sheet">
-          <h2>Reading your files</h2>
-        </div>
-      </div>
+      <InkDialog onDismiss={onCancel} ariaLabel="Reading your files" sheetClassName="impsheet">
+        <p className="impkick">The Library · Import</p>
+        <b className="imptitle">Reading your files…</b>
+      </InkDialog>
     );
   }
 
   const selectedGood = goodIndexes.filter((i) => checked.has(i));
 
   return (
-    <div className="overlay">
-      <div className="sheet">
-        <h2>
-          {goodIndexes.length === state.reads.length
-            ? "Pick what to keep."
-            : "Here is what we read."}
-        </h2>
-        <p className="mono" style={{ marginBottom: "0.6rem" }}>
-          Uncheck anything you do not want. Import only writes the checked ones.
-        </p>
+    <InkDialog onDismiss={onCancel} ariaLabel="Pick what to import" sheetClassName="impsheet">
+      <p className="impkick">The Library · Import</p>
+      <b className="imptitle">
+        {goodIndexes.length === state.reads.length ? "Pick what to keep." : "Here is what we read."}
+      </b>
+      <p className="impsub">Uncheck anything you do not want. Import only writes the checked ones.</p>
+      <div className="improws">
         {state.reads.map((r, i) => (
           <ReceiptCard
             key={i}
@@ -128,32 +129,29 @@ export function ImportOverlay({
             }}
           />
         ))}
-        <div className="actions">
-          <button
-            type="button"
-            className="chipbtn stamp"
-            onClick={() => setChecked(new Set(goodIndexes))}
-          >
-            Select all
-          </button>
-          {onAddMore && (
-            <button type="button" className="chipbtn stamp" onClick={onAddMore}>
-              Add more files
-            </button>
-          )}
-          <button
-            className="chipbtn primary stamp"
-            disabled={selectedGood.length === 0}
-            onClick={() => onCommit(selectedGood)}
-          >
-            {`Import ${selectedGood.length}`}
-          </button>
-          <button className="chipbtn stamp" onClick={onCancel}>
-            Not now
-          </button>
-        </div>
       </div>
-    </div>
+      <div className="impacts">
+        <button type="button" className="impbtn stamp" onClick={() => setChecked(new Set(goodIndexes))}>
+          Select all
+        </button>
+        {onAddMore && (
+          <button type="button" className="impbtn stamp" onClick={onAddMore}>
+            Add more files
+          </button>
+        )}
+        <button
+          type="button"
+          className="impbtn primary stamp"
+          disabled={selectedGood.length === 0}
+          onClick={() => onCommit(selectedGood)}
+        >
+          {`Import ${selectedGood.length}`}
+        </button>
+        <button type="button" className="impbtn stamp" onClick={onCancel}>
+          Not now
+        </button>
+      </div>
+    </InkDialog>
   );
 }
 

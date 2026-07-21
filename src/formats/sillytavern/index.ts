@@ -52,12 +52,26 @@ function detectCard(json: unknown): Detected | null {
     return { card, data: card.data as TavernData, variant: "v2" };
   }
   if (card.spec === undefined && card.data === undefined && typeof card.name === "string") {
+    // Cross-KIND firewall: ST's OTHER exports also carry `name` (+ `extensions`, + even
+    // `description` on a standalone character_book), and one of them shipped as a "flat character"
+    // once. Any marker of a preset, template, or book disqualifies outright - those files have
+    // rightful readers (or an honest refusal), never this branch.
+    const looksOtherKind =
+      "entries" in card || // worldbook / standalone character_book
+      Array.isArray(card.prompts) ||
+      "prompt_order" in card ||
+      "chat_completion_source" in card ||
+      "temperature" in card ||
+      "input_sequence" in card ||
+      "story_string" in card;
+    if (looksOtherKind) return null;
+    // `extensions` is NOT a signal here: presets, worldbooks, and standalone character_books all
+    // carry it. A flat card must show a field only a character has.
     const looksV2 =
       "alternate_greetings" in card ||
       "system_prompt" in card ||
       "post_history_instructions" in card ||
       "creator_notes" in card ||
-      "extensions" in card ||
       "character_version" in card;
     // A flat/v1 card must carry a real character signal, not just a `name`. This is the cross-kind
     // firewall: an ST worldbook is also `{ name, ... }` json, so without this it false-positives as a

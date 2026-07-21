@@ -23,9 +23,13 @@ function makeBackyardCard() {
 
 const asText = (c: unknown) => ({ text: JSON.stringify(c) });
 
-test("detect: strong Backyard keys score high, the bare-persona heuristic is weak and skips Agnai/CCv2", () => {
+test("detect: strong Backyard keys score high, the persona heuristic needs a story companion", () => {
   expect(adapter.detect(asText(makeBackyardCard()))).toBe(0.9);
-  expect(adapter.detect(asText({ persona: "x" }))).toBe(0.55);
+  // persona + a story field = plausibly a legacy card
+  expect(adapter.detect(asText({ persona: "x", scenario: "a port town" }))).toBe(0.55);
+  // a bare {name, persona} notes blob is NOT a card (cross-kind firewall)
+  expect(adapter.detect(asText({ persona: "x" }))).toBe(0);
+  expect(adapter.detect(asText({ name: "My notes", persona: "journal" }))).toBe(0);
   // an Agnai card (kind: "character") must NOT trip the weak persona clause
   expect(adapter.detect(asText({ kind: "character", persona: "x", greeting: "hi" }))).toBe(0);
   // a CCv2 card is not Backyard

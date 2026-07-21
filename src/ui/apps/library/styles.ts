@@ -11,9 +11,6 @@ export const PREF_SIZE = "library.size";
 export const PREF_FIRST_DECK = "firstDeck"; // written by the setup wizard; the shelves open on it
 
 export const LIBRARY_STYLE = `
-.chipbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
-  text-transform:uppercase;background:var(--panel);color:var(--ink);cursor:pointer;padding:.45rem .8rem}
-.chipbtn.primary{background:var(--rose);color:var(--stage-white)}
 .lib{display:flex;flex-direction:column;gap:.7rem;padding:clamp(.7rem,1.8vw,1.1rem);min-height:100%}
 .lib .stagezone{flex:1;display:flex;flex-wrap:wrap;gap:var(--gap-l);align-items:center;justify-content:center;padding:var(--gap-l)}
 .doorcard{aspect-ratio:2/3;width:clamp(11rem,22vw,16rem);display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -21,19 +18,38 @@ export const LIBRARY_STYLE = `
   font-family:var(--font-big);font-weight:900;font-size:clamp(1rem,1.6vw,1.3rem);line-height:1.15}
 .doorcard.primary{background:var(--rose);color:var(--stage-white)}
 .voice{font-style:italic;font-weight:600;color:var(--muted);text-align:center;font-size:1.05rem}
-.overlay{position:fixed;inset:0;background:var(--shadow-ink);display:flex;align-items:center;justify-content:center;padding:var(--gap-l);z-index:50}
-.sheet{background:var(--paper);color:var(--ink);border:var(--ink-border);box-shadow:8px 8px 0 0 var(--ink);
-  max-width:38rem;width:100%;max-height:85dvh;overflow:auto;padding:var(--gap-l);display:flex;flex-direction:column;gap:var(--gap-m)}
-.receipt{border:var(--ink-border);background:var(--panel);padding:var(--gap-m)}
-.receipt h3{margin:0 0 .25rem;font-family:var(--font-big);font-size:1rem;color:var(--ink)}
-.receipt p{margin:.15rem 0;font-size:.95rem;color:var(--ink)}
-.receipt input[type="checkbox"]{width:1.1rem;height:1.1rem;flex:none;margin-top:.15rem;
-  accent-color:var(--rose);cursor:pointer}
-.receipt.bad{border-style:dashed}
-.receipt.bad h3{color:var(--muted)}
-.receipt.bad p{font-family:var(--font-mono);font-size:.72rem;line-height:1.55;color:var(--ink)}
-.mono{font-family:var(--font-mono);font-size:.72rem;line-height:1.55;color:var(--ink)}
-.sheet .actions{display:flex;gap:var(--gap-s);flex-wrap:wrap}
+/* the import sheet (InkDialog owns overlay/sheet chrome; the delsheet/export-dialog grammar) */
+.impsheet{padding:1rem 1.1rem;width:min(92vw,34rem)}
+.impkick{font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 .3rem}
+.imptitle{display:block;font-family:var(--font-big);font-weight:900;font-size:1.05rem;color:var(--text);
+  margin:0 0 .3rem}
+.impsub{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.04em;color:var(--muted);margin:0 0 .8rem}
+.improws{display:flex;flex-direction:column;gap:.5rem;max-height:46dvh;overflow:auto;margin:0 0 .9rem}
+.improw{position:relative;display:flex;gap:.6rem;align-items:flex-start;background:var(--face);
+  border:2px solid var(--edge);padding:.55rem .65rem;cursor:pointer}
+.improw.on{box-shadow:2px 2px 0 0 var(--edge)}
+.improw.bad{border-style:dashed;cursor:default}
+.improw input{position:absolute;opacity:0;width:1px;height:1px}
+.impcheck{flex:none;width:1.05rem;height:1.05rem;border:2px solid var(--edge);background:var(--face);
+  position:relative;margin-top:.15rem}
+.improw input:checked + .impcheck{background:var(--accent-deep)}
+.improw input:checked + .impcheck::after{content:"";position:absolute;left:.26rem;top:.06rem;
+  width:.3rem;height:.55rem;border:solid var(--stage-white);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.improw input:focus-visible + .impcheck{outline:2px solid var(--accent-deep);outline-offset:2px}
+.impbody{min-width:0}
+.impname{display:block;font-family:var(--font-big);font-weight:800;font-size:.95rem;color:var(--text);
+  overflow-wrap:anywhere}
+.impkind{font-family:var(--font-body);font-size:.85rem;color:var(--text-soft);margin:.1rem 0 0}
+.impmeta{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.04em;color:var(--text-dim);margin:.2rem 0 0}
+.impflag{display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--rose-deep);color:var(--stage-white);padding:.12rem .4rem;margin:0 0 .25rem}
+.imperr{font-family:var(--font-body);font-size:.85rem;color:var(--text-soft);margin:.1rem 0 0;overflow-wrap:anywhere}
+.impacts{display:flex;gap:.5rem;flex-wrap:wrap}
+.impbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
+  text-transform:uppercase;background:var(--panel);color:var(--text);cursor:pointer;padding:.45rem .8rem}
+.impbtn.primary{background:var(--accent-deep);color:var(--stage-white)}
+.impbtn:disabled{opacity:.45;cursor:default}
 .wbbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap}
 /* the staging action bar: appears only when pieces are picked (the distributed tray's commit) */
 .sendbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap;background:var(--stamp-bg);

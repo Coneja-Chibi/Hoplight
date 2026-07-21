@@ -11,7 +11,7 @@ import { filterEnabledBooks } from "../core/lore";
 import { parseCanonicalEntity, safeParseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
 import { StudioStore } from "../studio/store";
 import { isStudioReadError } from "../studio/errors";
-import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE } from "./receipt";
+import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE, unsupportedShapeLine } from "./receipt";
 import {
   contentTypeIs,
   err,
@@ -62,7 +62,10 @@ export async function handleInspect(req: Request): Promise<Response> {
   if (bytes.length === 0) return err("empty upload");
   const input = toAdapterInput(bytes, filename);
   const adapter = registry.detect(input);
-  if (!adapter) return json({ ok: false, error: UNKNOWN_FILE_MESSAGE }, 200);
+  if (!adapter) {
+    // a shape we KNOW but refuse (preset/template firewall) gets named; strangers get the generic line
+    return json({ ok: false, error: unsupportedShapeLine(input.text) ?? UNKNOWN_FILE_MESSAGE }, 200);
+  }
   try {
     if (adapter.kind === "character") {
       const { entity, lorebooks } = inspectBundle(adapter, input);
