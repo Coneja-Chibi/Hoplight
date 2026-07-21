@@ -16,6 +16,7 @@
  * (stripped before reading) so a raw stored flags value can never flip dotall via the `s` inside a
  * token; the real strip for compilation lives in core/regex/apply.ts, not here.
  */
+import { assertNever } from "./assert-never";
 import type {
   Alternation,
   Anchor,
@@ -95,7 +96,7 @@ function describeNode(node: Node, ctx: Ctx): string {
     case "backreference":
       return describeBackreference(node);
     default:
-      return assertNever(node);
+      return assertNever("regex/explain", node);
   }
 }
 
@@ -149,7 +150,7 @@ function describeAnchor(node: Anchor, ctx: Ctx): string {
     case "non-word-boundary":
       return "a spot that is not the edge of a word";
     default:
-      return assertNever(node.kind);
+      return assertNever("regex/explain", node.kind);
   }
 }
 
@@ -204,7 +205,7 @@ function describeClassItem(item: ClassItem): string {
     case "unicode-property":
       return describeProperty(item, true);
     default:
-      return assertNever(item);
+      return assertNever("regex/explain", item);
   }
 }
 
@@ -336,6 +337,3 @@ function capitalize(text: string): string {
   return text.length === 0 ? text : text[0]?.toUpperCase() + text.slice(1);
 }
 
-function assertNever(value: never): never {
-  throw new Error(`regex/explain: unhandled node ${JSON.stringify(value)}`);
-}

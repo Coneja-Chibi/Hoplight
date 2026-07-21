@@ -42,7 +42,7 @@
 }
 
 .etitle {
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-big, Archivo, sans-serif); /* --font-display was never defined */
   font-weight: 900;
   font-size: 0.85rem;
   line-height: 1.15;

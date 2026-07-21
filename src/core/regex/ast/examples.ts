@@ -26,6 +26,7 @@ import type {
   UnicodeProperty,
 } from "./ast-types";
 import { printRegex } from "./printer";
+import { assertNever } from "./assert-never";
 
 /** How far past a quantifier's lower bound a random walk may repeat an unbounded/wide body. */
 const REPEAT_SPREAD = 3;
@@ -234,12 +235,8 @@ function generate(node: Node, ctx: WalkCtx): string {
       return ctx.captures.get(key) ?? "";
     }
     default:
-      return assertNever(node);
+      return assertNever("regex/examples", node);
   }
-}
-
-function assertNever(value: never): never {
-  throw new Error(`regex/examples: unhandled node ${JSON.stringify(value)}`);
 }
 
 /** Stateless match test (flags carry no g/y after normalization, so lastIndex never applies). */

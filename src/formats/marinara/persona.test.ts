@@ -67,4 +67,22 @@ describe("round trip", () => {
     expect(out.comment).toBe("New blurb.");
     expect(out.description).toBe("New identity text.");
   });
+
+  // The smallest wire readMarinaraPersona accepts: id + name + string description + string personality
+  // + one theming key. comment/appearance/backstory/avatarPath are all absent. Unedited round-trip must
+  // not fabricate them (the Round-Trip Law: fromCanonical invents nothing the source lacked).
+  const minimal = () => ({
+    id: "mp-min",
+    name: "User",
+    description: "Just me.",
+    personality: "Wry and tired.",
+    boxColor: "#101010",
+  });
+
+  test("minimal object round-trips byte-true: no fabricated comment/appearance/backstory/avatarPath", () => {
+    const src = minimal();
+    const e = adapter.toCanonical({ text: JSON.stringify(src) });
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "");
+    expect(out).toEqual(src);
+  });
 });

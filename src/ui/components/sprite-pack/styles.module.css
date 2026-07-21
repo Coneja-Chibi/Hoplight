@@ -49,7 +49,7 @@
   color: var(--muted);
 }
 .sel {
-  background: var(--panel, var(--field));
+  background: var(--panel, var(--face)); /* --field was never defined; --face matches this file's other panel fallbacks */
   border: 2px solid var(--seam, var(--edge));
   color: var(--text);
   font-family: var(--font-mono);
@@ -88,11 +88,11 @@
   bottom: 3px;
   right: 3px;
   font-family: var(--font-mono);
-  font-size: 0.42rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion + the 10px floor (was 0.42rem on bright rose) */
   color: var(--stage-white);
   border: 1px solid var(--edge);
   padding: 1px 3px;
@@ -120,11 +120,11 @@
   top: 3px;
   left: 3px;
   font-family: var(--font-mono);
-  font-size: 0.42rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  background: var(--gilt);
+  background: var(--stage-warn); /* --gilt was renamed and defined nowhere: the badge rendered transparent */
   color: var(--stage-black);
   border: 1px solid var(--edge);
   padding: 1px 3px;
@@ -215,7 +215,7 @@
   cursor: pointer;
 }
 .btnPri {
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   border-color: var(--rose);
   box-shadow: 3px 3px 0 0 var(--edge);
@@ -255,7 +255,7 @@
   cursor: pointer;
 }
 .groupOn {
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   border-color: var(--rose);
 }
@@ -308,15 +308,15 @@
   border: 2px solid var(--seam);
 }
 .healthOk {
-  color: var(--ok);
-  border-color: var(--ok);
+  color: var(--stage-ok); /* --ok is defined nowhere: same dangling-token class as --gilt beside it */
+  border-color: var(--stage-ok);
 }
 .healthTip {
   color: var(--muted);
 }
 .healthWarn {
-  color: var(--gilt);
-  border-color: var(--gilt);
+  color: var(--stage-warn); /* --gilt was renamed and defined nowhere */
+  border-color: var(--stage-warn);
 }
 .tools {
   display: flex;

@@ -10,8 +10,8 @@
   font-family: var(--font-mono);
   font-size: 0.625rem;
   line-height: 1.45;
-  color: var(--stage-danger, var(--danger));
-  border: 2px solid var(--stage-danger, var(--danger));
+  color: var(--stage-danger-text); /* --stage-danger/--danger were never defined */
+  border: 2px solid var(--stage-danger-text);
   padding: 0.4rem 0.5rem;
   background: var(--stage-well, var(--paper));
 }
@@ -31,7 +31,7 @@
   text-transform: none;
   letter-spacing: 0;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-input, var(--input));
+  background: var(--stage-row, var(--face)); /* --stage-input/--input were never defined */
   color: var(--stage-ink, var(--text));
   padding: 0.35rem 0.45rem;
 }
@@ -43,7 +43,7 @@
   text-transform: none;
   letter-spacing: 0;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-input, var(--input));
+  background: var(--stage-row, var(--face)); /* --stage-input/--input were never defined */
   color: var(--stage-ink, var(--text));
   padding: 0.35rem 0.45rem;
 }
@@ -68,7 +68,7 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-card, var(--card));
+  background: var(--stage-card, var(--panel)); /* --card was never defined; --panel is the fill-role flip token */
   color: var(--stage-mute, var(--muted));
   padding: 0.3rem 0.5rem;
   cursor: pointer;

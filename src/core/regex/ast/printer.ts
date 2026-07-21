@@ -8,6 +8,7 @@
  * string echo: printRegex(parseRegex(p)) is a stable fixpoint and compiles to a matcher equivalent
  * to the original pattern.
  */
+import { assertNever } from "./assert-never";
 import type {
   Alternation,
   Anchor,
@@ -66,7 +67,7 @@ function printNode(node: Node): string {
     case "backreference":
       return node.raw;
     default:
-      return assertNever(node);
+      return assertNever("regex/print", node);
   }
 }
 
@@ -112,6 +113,3 @@ function printLookaround(node: Lookaround): string {
   return `${head}${printAlternation(node.body)})`;
 }
 
-function assertNever(value: never): never {
-  throw new Error(`regex/print: unhandled node ${JSON.stringify(value)}`);
-}

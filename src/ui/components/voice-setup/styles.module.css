@@ -30,7 +30,7 @@
   width: 100%;
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   border: 2px solid var(--stage-seam, var(--seam));
   color: var(--stage-soft, var(--text));
   padding: 0.3rem 0.45rem;

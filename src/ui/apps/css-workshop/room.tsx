@@ -13,6 +13,7 @@ import {
   readCssFile,
   summarizeImport,
 } from "../../components/css-workshop";
+import { InkDialog } from "../../components/ink-dialog";
 import { TourGuide } from "../../components/tour-guide";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
 import { copyText, downloadCss } from "./actions";
@@ -49,6 +50,7 @@ export function CssWorkshopRoom({ ctx }: CssWorkshopRoomProps): JSX.Element {
   );
   const [flash, setFlash] = useState("");
   const [tourOpen, setTourOpen] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -98,7 +100,7 @@ export function CssWorkshopRoom({ ctx }: CssWorkshopRoomProps): JSX.Element {
   };
 
   const onClear = (): void => {
-    if (!window.confirm("Clear the draft CSS? This only clears the app draft, not any card.")) return;
+    setClearOpen(false);
     persist("");
     persistMode("simple");
     setSimpleTab("starters");
@@ -182,7 +184,11 @@ export function CssWorkshopRoom({ ctx }: CssWorkshopRoomProps): JSX.Element {
             aria-label="Import CSS file"
             onChange={onFileChange}
           />
-          <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={onClear}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnGhost}`}
+            onClick={() => setClearOpen(true)}
+          >
             clear draft
           </button>
           <button
@@ -212,6 +218,23 @@ export function CssWorkshopRoom({ ctx }: CssWorkshopRoomProps): JSX.Element {
 
       {tourOpen && (
         <TourGuide tour={cssWorkshopTour} ctx={ctx} onClose={() => setTourOpen(false)} />
+      )}
+
+      {clearOpen && (
+        <InkDialog onDismiss={() => setClearOpen(false)} ariaLabel="Clear the draft">
+          <div className={styles.clearSheet}>
+            <b className={styles.clearTitle}>Clear the draft?</b>
+            <p className={styles.clearBody}>Your unsaved CSS goes away.</p>
+            <div className={styles.clearActs}>
+              <button type="button" className={styles.clearGo} onClick={onClear}>
+                Clear
+              </button>
+              <button type="button" className={styles.clearKeep} onClick={() => setClearOpen(false)}>
+                Keep
+              </button>
+            </div>
+          </div>
+        </InkDialog>
       )}
     </div>
   );

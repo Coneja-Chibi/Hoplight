@@ -284,8 +284,8 @@
   position: absolute;
   top: -3px;
   right: -3px;
-  background: var(--rose);
-  color: var(--stage-paper);
+  background: var(--rose-deep); /* deep companion: cream on bright rose failed AA in both themes */
+  color: var(--stage-white);
   font-family: var(--font-mono);
   font-size: 0.625rem;
   letter-spacing: 0.1em;

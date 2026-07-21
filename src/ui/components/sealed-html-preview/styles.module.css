@@ -3,7 +3,7 @@
   width: 100%;
   min-height: 12rem;
   max-height: 28rem;
-  border: 2px solid var(--line);
-  background: var(--bg);
+  border: 2px solid var(--stage-line); /* --line was never defined */
+  background: var(--stage-panel); /* --bg was never defined; content-pane fill, matches code-editor's convention */
   box-sizing: border-box;
 }

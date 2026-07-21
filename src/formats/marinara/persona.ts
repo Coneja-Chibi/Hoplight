@@ -17,6 +17,19 @@ type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 const str = (v: unknown): string | undefined => (typeof v === "string" ? v : undefined);
 
+/**
+ * Twin-diff for a section-backed wire field: write it only when the canonical section drifts from
+ * the twin's decode (a raw value that trims non-empty), clearing it when the section was removed. A
+ * key absent from both the twin and canonical stays absent.
+ */
+function patchSectionField(out: Rec, wireKey: string, live: string | undefined): void {
+  const raw = str(out[wireKey]);
+  const twin = raw && raw.trim() !== "" ? raw : undefined;
+  if (live === twin) return;
+  if (live !== undefined) out[wireKey] = live;
+  else delete out[wireKey];
+}
+
 /** Marinara signal: id + name + the section keys + a theming key (disjoint from Lumi/ST/RC). */
 function readMarinaraPersona(input: AdapterInput): Rec | null {
   const o = readJsonObject(input);
@@ -65,19 +78,33 @@ const adapter: PersonaAdapter = {
 
   fromCanonical(entity: CanonicalPersona): AdapterOutput {
     const twin = entity.original?.["marinara-persona"]?.raw;
-    const base: Rec = isRec(twin) ? structuredClone(twin) : {};
+    const out: Rec = isRec(twin) ? structuredClone(twin) : {}; // theming/stats/crop/scenario ride sealed
     const b = entity.body;
-    const out: Rec = {
-      ...base, // theming, stats, crop, tags, scenario, timestamps - sealed, byte-true
-      id: str(base.id) ?? canonicalId(b.name),
-      name: b.name,
-      comment: b.brief ?? str(base.comment) ?? "",
-      description: b.content,
-      personality: b.sections?.personality ?? str(base.personality) ?? "",
-      appearance: b.sections?.appearance ?? str(base.appearance) ?? "",
-      backstory: b.sections?.history ?? str(base.backstory) ?? "",
-      avatarPath: b.presentation?.imageUrl ?? str(base.avatarPath) ?? null,
-    };
+
+    // Twin-diff: write a mapped key back only when canonical drifts from the twin's own decode, and
+    // never materialize a default for an optional field (comment/appearance/backstory/avatarPath)
+    // absent from both sides. id is Marinara bookkeeping with no canonical home: it rides the clone,
+    // and a fresh (twinless) emit leaves it absent rather than fabricating one.
+    if (b.name !== str(out.name)) out.name = b.name;
+    if (b.content !== (str(out.description) ?? "")) out.description = b.content;
+
+    const twinBrief = str(out.comment)?.trim() || undefined; // decoded trimmed; wire keeps whitespace
+    if (b.brief !== twinBrief) {
+      if (b.brief !== undefined) out.comment = b.brief;
+      else delete out.comment;
+    }
+
+    patchSectionField(out, "personality", b.sections?.personality);
+    patchSectionField(out, "appearance", b.sections?.appearance);
+    patchSectionField(out, "backstory", b.sections?.history);
+
+    const twinAvatar = str(out.avatarPath) || undefined;
+    const liveAvatar = b.presentation?.imageUrl;
+    if (liveAvatar !== twinAvatar) {
+      if (liveAvatar !== undefined) out.avatarPath = liveAvatar;
+      else delete out.avatarPath;
+    }
+
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 };

@@ -79,6 +79,43 @@ describe("keywordMatches", () => {
   });
 });
 
+describe("sampleMatchEntries and_any needs a real secondary hit", () => {
+  test("primary alone does not satisfy and_any when secondaries exist", async () => {
+    const { sampleMatchEntries } = await import("./sample-match");
+    const entry = {
+      id: "e1", title: "Gate", enabled: true, constant: false, selectiveLogic: "and_any",
+      triggers: [{ keyword: "gate", isRegex: false }],
+      secondaryTriggers: [{ keyword: "key", isRegex: false }],
+    } as never;
+    expect(sampleMatchEntries("the gate stands alone", [entry])[0]!.matched).toBe("none");
+    expect(sampleMatchEntries("the gate needs a key", [entry])[0]!.matched).toBe("primary");
+  });
+});
+
+describe("untrusted regex keys are vetted (the ReDoS firewall)", () => {
+  const opts = { wholeWords: false, caseSensitive: false };
+
+  test("a catastrophic-backtracking key never matches and never hangs", () => {
+    const bomb = { keyword: "(a+)+$", isRegex: true } as never;
+    const started = performance.now();
+    const r = keywordMatches(bomb, "a".repeat(64) + "b", opts);
+    expect(r.hit).toBe(false); // fail closed: refused before compile, not hung in re.test
+    expect(performance.now() - started).toBeLessThan(200);
+  });
+
+  test("the inline /pattern/flags home is vetted the same way", () => {
+    const bomb = { keyword: "/(x+)+$/i", isRegex: false } as never;
+    const started = performance.now();
+    expect(keywordMatches(bomb, "x".repeat(64) + "y", opts).hit).toBe(false);
+    expect(performance.now() - started).toBeLessThan(200);
+  });
+
+  test("honest regex keys still match", () => {
+    expect(keywordMatches({ keyword: "dra(gon|ke)", isRegex: true } as never, "a drake appears", opts).hit).toBe(true);
+    expect(keywordMatches({ keyword: "/skyport/i", isRegex: false } as never, "The SKYPORT docks", opts).hit).toBe(true);
+  });
+});
+
 describe("secondaryLogicOk truth table", () => {
   const logics: SelectiveLogic[] = ["and_any", "and_all", "not_any", "not_all"];
   const cases: Array<{ any: boolean; all: boolean; expect: Record<SelectiveLogic, boolean> }> = [

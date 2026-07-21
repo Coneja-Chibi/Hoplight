@@ -2,8 +2,7 @@
  * Pure readers for the packaged Risu module sitting on original.risu.unmapped.
  * Workshop uses this so the UI never digs into path strings ad-hoc.
  */
-import type { RisuModule } from "../../../../formats/risu/rpack/module";
-import { listScriptEffects } from "../../../../formats/risu/rpack";
+import { listScriptEffects, type RisuModule } from "../../../../formats/risu";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);

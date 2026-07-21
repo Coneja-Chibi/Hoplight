@@ -179,6 +179,26 @@ test("rc-v2-export edit: section + identity edits re-fold into their exact wire 
   expect(rc.type).toBe("persona");
 });
 
+// The smallest wire the rc-v2-export shape accepts: a persona-discriminated V2 card with only a name.
+// description/personality/scenario/creator_notes are all absent. Unedited round-trip must not
+// fabricate them (the Round-Trip Law: fromCanonical invents nothing the source lacked; foldDescription
+// is lossy so the absent description must stay absent, not become "").
+function rcV2Minimal() {
+  return {
+    spec: "chara_card_v2",
+    data: {
+      name: "User",
+      extensions: { rolecall: { type: "persona" } },
+    },
+  };
+}
+
+test("rc-v2-export minimal round-trips byte-true: no fabricated description/personality/scenario/creator_notes", () => {
+  const src = rcV2Minimal();
+  const ent = adapter.toCanonical(asText(src));
+  expect(JSON.parse(adapter.fromCanonical(ent).text ?? "")).toEqual(src);
+});
+
 test("cross-shape: an rc-v2-export persona re-emits as native rcpersona when its twin is absent", () => {
   const ent = adapter.toCanonical(asText(rcV2Export()));
   delete ent.original; // simulate a cross-format/authored entity with no twin

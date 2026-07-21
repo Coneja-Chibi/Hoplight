@@ -367,6 +367,69 @@
   line-height: 1;
 }
 
+/* Delete confirm sheet (InkDialog child): the delsheet grammar, re-keyed to stage tokens
+   since the binder lives on the dark stage, not the paper library chrome. */
+.bcSheet {
+  width: min(22rem, 88vw);
+  background: var(--stage-panel);
+  color: var(--stage-soft);
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.bcTitle {
+  display: block;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--stage-card);
+  margin: 0 0 0.4rem;
+}
+
+.bcBody {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-text-dim);
+  margin: 0 0 0.8rem;
+  line-height: 1.5;
+}
+
+.bcActs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bcGo {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--rose-deep);
+  color: var(--stage-white);
+  border: 3px solid var(--stage-black);
+  box-shadow: 3px 3px 0 0 var(--stage-black);
+  cursor: pointer;
+  padding: 0.45rem 0.9rem;
+}
+
+.bcKeep {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--stage-text-dim);
+  border: 2px solid var(--stage-seam);
+  cursor: pointer;
+  padding: 0.45rem 0.8rem;
+}
+
+.bcKeep:hover {
+  color: var(--stage-card);
+  border-color: var(--stage-black);
+}
+
 .trowOn {
   color: var(--stage-card);
   background: linear-gradient(90deg, color-mix(in srgb, var(--a, var(--stage-macro)) 13%, transparent), transparent);

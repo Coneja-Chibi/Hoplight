@@ -212,12 +212,27 @@ function bodyToV2Export(b: PersonaBody, twin: Rec): Rec {
   const data = card.data as Rec;
   const ext = data.extensions as Rec;
   const rc = ext.rolecall as Rec;
+  const decoded = v2ExportToBody(twin);
 
-  data.name = b.name;
-  data.description = foldDescription(b);
-  data.personality = b.sections?.personality ?? "";
-  data.scenario = b.sections?.history ?? "";
-  data.creator_notes = b.brief ?? "";
+  // Twin-diff: guard each write against the twin's own decode so an unedited card re-emits byte-true.
+  // foldDescription is lossy, so the description is kept verbatim unless the fields that fold INTO it
+  // (content / appearance / body) actually changed. The V2 slots below are standard card fields the
+  // twin always carries, so a cleared section writes "" (V2 convention) rather than deleting the key.
+  if (b.name !== decoded.name) data.name = b.name;
+  if (
+    b.content !== decoded.content ||
+    b.sections?.appearance !== decoded.sections?.appearance ||
+    b.sections?.body !== decoded.sections?.body
+  ) {
+    data.description = foldDescription(b);
+  }
+  if (b.sections?.personality !== decoded.sections?.personality) {
+    data.personality = b.sections?.personality ?? "";
+  }
+  if (b.sections?.history !== decoded.sections?.history) {
+    data.scenario = b.sections?.history ?? "";
+  }
+  if (b.brief !== decoded.brief) data.creator_notes = b.brief ?? "";
   if (b.traits !== undefined) data.tags = b.traits;
 
   const setRc = (k: string, v: unknown): void => {

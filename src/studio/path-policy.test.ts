@@ -63,3 +63,12 @@ describe("studio path-policy", () => {
     expect(() => resolveStudioPath(root, "../etc", "passwd")).toThrow(StudioValidationError);
   });
 });
+
+describe("canonicalId ids pass the studio path gate (the cross-layer contract, asserted from the outer layer)", () => {
+  test("every minted id is a safe studio id", async () => {
+    const { canonicalId } = await import("../core/canonical");
+    for (const name of ["", "Vera Sandoval", "a/b\c", "../etc/passwd", "CON", "한국 이름"]) {
+      expect(isSafeStudioId(canonicalId(name))).toBe(true);
+    }
+  });
+});

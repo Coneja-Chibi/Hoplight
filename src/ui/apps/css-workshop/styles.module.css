@@ -31,7 +31,7 @@
   color: var(--stage-mute, var(--muted));
 }
 .title {
-  font-family: var(--font-big, var(--font-display), sans-serif);
+  font-family: var(--font-big, sans-serif); /* --font-display was never defined; --font-big already wins */
   font-weight: 900;
   font-size: clamp(1.2rem, 1rem + 1.2vw, 1.65rem);
   letter-spacing: -0.02em;
@@ -121,4 +121,56 @@
   opacity: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
+}
+
+/* Clear-draft confirm sheet (InkDialog child): the delsheet grammar, locally styled for this app. */
+.clearSheet {
+  width: min(22rem, 88vw);
+  background: var(--stage-panel, var(--panel));
+  color: var(--stage-soft, var(--text));
+  padding: 0.9rem 1rem 1.1rem;
+}
+.clearTitle {
+  display: block;
+  font-family: var(--font-big, sans-serif); /* --font-display was never defined; --font-big already wins */
+  font-weight: 900;
+  font-size: 0.85rem;
+  color: var(--stage-soft, var(--text));
+  margin: 0 0 0.4rem;
+}
+.clearBody {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--stage-mute, var(--muted));
+  margin: 0 0 0.8rem;
+  line-height: 1.5;
+}
+.clearActs {
+  display: flex;
+  gap: 0.5rem;
+}
+.clearGo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--rose-deep);
+  color: var(--stage-white);
+  border: 3px solid var(--stage-black, var(--edge));
+  box-shadow: 3px 3px 0 0 var(--stage-black, var(--edge));
+  cursor: pointer;
+  padding: 0.45rem 0.9rem;
+}
+.clearKeep {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--stage-mute, var(--muted));
+  border: 2px solid var(--stage-black, var(--edge));
+  cursor: pointer;
+  padding: 0.45rem 0.8rem;
 }

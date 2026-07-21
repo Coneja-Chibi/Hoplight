@@ -57,7 +57,7 @@
 }
 
 .pcZh b {
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-big, Archivo, sans-serif); /* --font-display was never defined */
   font-weight: 800;
   font-size: 0.66rem;
   letter-spacing: 0.06em;
@@ -95,7 +95,7 @@
 
 .pcLabel {
   display: block;
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-big, Archivo, sans-serif); /* --font-display was never defined */
   font-weight: 800;
   font-size: 0.66rem;
   letter-spacing: 0.06em;
@@ -173,7 +173,7 @@
 
 .pcCellT b {
   display: block;
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-big, Archivo, sans-serif); /* --font-display was never defined */
   font-weight: 800;
   font-size: 0.64rem;
   letter-spacing: 0.05em;
@@ -211,7 +211,7 @@
 }
 
 .pcMemo b {
-  font-family: var(--font-big, var(--font-display), Archivo, sans-serif);
+  font-family: var(--font-big, Archivo, sans-serif); /* --font-display was never defined */
   font-weight: 800;
   font-size: 0.66rem;
   letter-spacing: 0.05em;

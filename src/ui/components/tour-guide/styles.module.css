@@ -82,7 +82,7 @@
 .body {
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--text-soft, var(--soft));
+  color: var(--text-soft, var(--stage-soft)); /* --soft was never defined */
   margin: 0;
 }
 .choice {
@@ -153,7 +153,7 @@
   font-size: 0.9rem;
   letter-spacing: 0.02em;
   color: var(--stage-white);
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   border: 3px solid var(--edge);
   box-shadow: 4px 4px 0 0 var(--edge);
   padding: 0.45rem 0.95rem;

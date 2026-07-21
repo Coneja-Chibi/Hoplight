@@ -1,7 +1,7 @@
 /**
  * The platform-tabs strip (vs-editor-2, transcribed): multi-select target platforms plus the
  * off-target treatment control. Tabs come from coverage DATA - this component names no platform.
- * Empty selection = the VAUDE tab is on (the full canonical card, nothing judged). Reusable by
+ * Empty selection = the Hoplight tab is on (the full card, nothing judged). Reusable by
  * any editor kind: lorebooks and presets get the same strip against their own coverage.
  */
 import type { JSX } from "react";
@@ -36,7 +36,7 @@ export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget
         aria-selected={selected.length === 0}
         className={`${styles.tab}${selected.length === 0 ? ` ${styles.on}` : ""}`}
         onClick={onClear}
-        title="The full canonical card: every field lit, nothing judged"
+        title="The full Hoplight card: every field kept, nothing dropped"
       >
         Hoplight <i className={styles.hint}>full card</i>
       </button>

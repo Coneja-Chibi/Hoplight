@@ -69,19 +69,45 @@ const adapter: PersonaAdapter = {
 
   fromCanonical(entity: CanonicalPersona): AdapterOutput {
     const twin = entity.original?.["lumiverse-persona"]?.raw;
-    const base: Rec = isRec(twin) ? structuredClone(twin) : {};
+    const out: Rec = isRec(twin) ? structuredClone(twin) : {}; // folder/narrator/metadata/timestamps ride sealed
     const b = entity.body;
-    const out: Rec = {
-      ...base,
-      name: b.name,
-      title: b.identity?.tagline ?? str(base.title) ?? "",
-      description: b.content,
-      subjective_pronoun: b.identity?.pronounSet?.subjective ?? str(base.subjective_pronoun) ?? "",
-      objective_pronoun: b.identity?.pronounSet?.objective ?? str(base.objective_pronoun) ?? "",
-      possessive_pronoun: b.identity?.pronounSet?.possessive ?? str(base.possessive_pronoun) ?? "",
-      attached_world_book_id: b.knowledgeRefs?.[0] ?? null,
-      avatar_path: b.presentation?.imageUrl ?? str(base.avatar_path) ?? null,
+
+    // Twin-diff: write a mapped key back only when canonical drifts from the twin's own decode, and
+    // never materialize a default for an optional field absent from both sides. possessive_pronoun is
+    // the crux here: detect requires only subjective/objective, so it is the one pronoun that can be
+    // genuinely absent, and comparing "" against "" keeps it absent rather than fabricating it.
+    if (b.name !== str(out.name)) out.name = b.name;
+    if (b.content !== (str(out.description) ?? "")) out.description = b.content;
+
+    const twinTitle = str(out.title)?.trim() || undefined; // decoded trimmed; wire keeps whitespace
+    const liveTitle = b.identity?.tagline;
+    if (liveTitle !== twinTitle) {
+      if (liveTitle !== undefined) out.title = liveTitle;
+      else delete out.title;
+    }
+
+    const pronoun = (key: string, live: string): void => {
+      if (live !== (str(out[key]) ?? "")) out[key] = live;
     };
+    const set = b.identity?.pronounSet;
+    pronoun("subjective_pronoun", set?.subjective ?? "");
+    pronoun("objective_pronoun", set?.objective ?? "");
+    pronoun("possessive_pronoun", set?.possessive ?? "");
+
+    const twinBook = str(out.attached_world_book_id) || undefined;
+    const liveBook = b.knowledgeRefs?.[0];
+    if (liveBook !== twinBook) {
+      if (liveBook !== undefined) out.attached_world_book_id = liveBook;
+      else delete out.attached_world_book_id;
+    }
+
+    const twinAvatar = str(out.avatar_path) || undefined;
+    const liveAvatar = b.presentation?.imageUrl;
+    if (liveAvatar !== twinAvatar) {
+      if (liveAvatar !== undefined) out.avatar_path = liveAvatar;
+      else delete out.avatar_path;
+    }
+
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 };

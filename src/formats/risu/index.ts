@@ -185,6 +185,11 @@ const adapter: CharacterAdapter = {
 /** The RisuAI family's character codec, exported by name for direct importers (tests, bundle). */
 export { adapter as characterAdapter };
 
+/** The STABLE seam for consumers outside this family (the Workshop's packaged-module reader):
+ * the rpack submodule layout is internal and may reshuffle; this named surface will not. */
+export { listScriptEffects } from "./rpack";
+export type { RisuModule } from "./rpack/module";
+
 /** Folders-as-schema: this format family exports every codec it provides (character + native lore +
  * regex scripts). The regex codec claims bare .risum modules with regex rows and customscript-row
  * JSON arrays; .charx zips still belong to the character adapter (its 1.0 outbids). */

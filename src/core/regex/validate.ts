@@ -45,6 +45,21 @@ function estimateComplexity(pattern: string): number {
 }
 
 /**
+ * Pattern-only safety vet for UNTRUSTED regexes compiled OUTSIDE the rule engine (lorebook
+ * regex keys ride imported books straight onto the render thread). Same discipline as
+ * validateRule minus the rule plumbing: length cap, AST ReDoS analysis when the pattern parses,
+ * the complexity heuristic when the u-mode parser refuses it. Fail closed: a dangerous or
+ * over-budget pattern comes back false and the caller must refuse to run it - refusing before
+ * the call is the only clean timeout a synchronous engine has.
+ */
+export function vetPattern(pattern: string): boolean {
+  if (!pattern.trim() || pattern.length > MAX_PATTERN_LENGTH) return false;
+  const parsed = parseRegex(pattern);
+  if ("ast" in parsed) return analyzeRedos(parsed.ast).severity !== "dangerous";
+  return estimateComplexity(pattern) < COMPLEXITY_HARD_CAP;
+}
+
+/**
  * Validate a rule's find pattern and replacement BEFORE the engine ever compiles or runs them.
  * Never throws: syntax errors and dangerous shapes both come back as `{ ok: false, error }`.
  */

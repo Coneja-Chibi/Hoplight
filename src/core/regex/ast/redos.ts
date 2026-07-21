@@ -24,6 +24,7 @@
  *
  * SAFETY: this is analysis over DATA. It compiles and runs nothing.
  */
+import { assertNever } from "./assert-never";
 import type {
   Alternation,
   CharClass,
@@ -317,7 +318,7 @@ function letterTest(letter: "d" | "D" | "w" | "W" | "s" | "S"): (cp: number) => 
     case "S":
       return (cp) => !isSpace(cp);
     default:
-      return assertNever(letter);
+      return assertNever("regex/redos", letter);
   }
 }
 
@@ -350,7 +351,7 @@ function classItemMatches(item: ClassItem, cp: number): boolean {
     case "unicode-property":
       return false; // handled by the wide short-circuit above
     default:
-      return assertNever(item);
+      return assertNever("regex/redos", item);
   }
 }
 
@@ -408,6 +409,3 @@ function worstSeverity(findings: readonly RedosFinding[]): RedosSeverity {
   return worst;
 }
 
-function assertNever(value: never): never {
-  throw new Error(`regex/redos: unhandled variant ${JSON.stringify(value)}`);
-}

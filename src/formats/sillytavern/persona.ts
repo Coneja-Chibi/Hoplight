@@ -141,16 +141,41 @@ const adapter: PersonaAdapter = {
     const descriptions = isRec(raw.persona_descriptions) ? (raw.persona_descriptions as Rec) : {};
     const prior = isRec(descriptions[avatarId]) ? (descriptions[avatarId] as Rec) : {};
     const inj = entity.body.chatInjection;
-    const entry: Rec = {
-      ...prior,
-      description: entity.body.content,
-      position: INT_BY_POSITION[inj?.position ?? "prompt"] ?? 0,
-      depth: inj?.depth ?? prior.depth ?? 2,
-      role: inj?.role !== undefined ? INT_BY_ROLE[inj.role] : (prior.role ?? 0),
-      lorebook: entity.body.knowledgeRefs?.[0] ?? "",
-    };
-    // title is optional and clearable. The ...prior spread preserves ST fields vaud does not model,
-    // but it must not resurrect a title the user has since removed: set when present, delete when not.
+    // Twin-diff: the ...prior clone re-emits every descriptor field byte-true; a mapped key is written
+    // back only when the canonical value drifts from the twin's own decode, deleted when the user has
+    // cleared it, and never materialized as a default for a key neither side carried. Clearing an
+    // optional stop deletes it (ST descriptors omit absent stops), which is edit-path only.
+    const entry: Rec = { ...prior };
+
+    const twinContent = typeof prior.description === "string" ? prior.description : "";
+    if (entity.body.content !== twinContent) entry.description = entity.body.content;
+
+    const twinPosInt = typeof prior.position === "number" ? prior.position : 0;
+    const twinPos = POSITION_BY_INT[twinPosInt] ?? "prompt";
+    const livePos = inj?.position ?? "prompt";
+    if (livePos !== twinPos) entry.position = INT_BY_POSITION[livePos] ?? 0;
+
+    const twinDepth = typeof prior.depth === "number" ? prior.depth : undefined;
+    if (inj?.depth !== twinDepth) {
+      if (inj?.depth !== undefined) entry.depth = inj.depth;
+      else delete entry.depth;
+    }
+
+    const twinRole = typeof prior.role === "number" ? ROLE_BY_INT[prior.role] : undefined;
+    if (inj?.role !== twinRole) {
+      if (inj?.role !== undefined) entry.role = INT_BY_ROLE[inj.role];
+      else delete entry.role;
+    }
+
+    const twinLore =
+      typeof prior.lorebook === "string" && prior.lorebook !== "" ? prior.lorebook : undefined;
+    const liveLore = entity.body.knowledgeRefs?.[0];
+    if (liveLore !== twinLore) {
+      if (liveLore !== undefined) entry.lorebook = liveLore;
+      else delete entry.lorebook;
+    }
+
+    // title is optional and clearable: set when present, delete when not (never resurrect a removed one).
     if (entity.body.identity?.tagline) entry.title = entity.body.identity.tagline;
     else delete entry.title;
     descriptions[avatarId] = entry;

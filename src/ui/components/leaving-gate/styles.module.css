@@ -106,8 +106,8 @@
   padding: 0.5rem 0.9rem;
 }
 .go {
-  color: var(--paper);
-  background: var(--rose);
+  color: var(--stage-white);
+  background: var(--rose-deep); /* deep companion: cream --paper on bright rose measured 4.43, under AA */
 }
 .back:disabled,
 .go:disabled {

@@ -52,8 +52,8 @@
 }
 
 .shelf.on {
-  color: var(--stamp-fg);
-  background: var(--accent);
+  color: var(--stage-white);
+  background: var(--accent-deep); /* deep companion: 10px bold on bright accent missed AA */
   border-color: var(--ink);
   box-shadow: 2px 2px 0 0 var(--seam);
 }
@@ -155,8 +155,8 @@
   display: inline-block;
   margin-bottom: 0.5rem;
   padding: 0.12rem 0.45rem;
-  color: var(--stamp-fg);
-  background: var(--accent);
+  color: var(--stage-white);
+  background: var(--accent-deep); /* deep companion: small caps on bright accent missed AA */
   border: 2px solid var(--ink);
   font-family: var(--font-mono);
   font-size: 0.625rem;

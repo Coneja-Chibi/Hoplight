@@ -24,16 +24,17 @@
 }
 .btn {
   border: 1px solid var(--stage-seam, var(--seam));
-  background: var(--stage-card, var(--card));
+  background: var(--stage-card, var(--panel)); /* --card was never defined; --panel is the fill-role flip token */
   color: var(--stage-ink, var(--text));
   border-radius: 0.35rem;
   padding: 0.28rem 0.5rem;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 600;
   cursor: pointer;
 }
 .btn:hover:not(:disabled) {
-  border-color: var(--stage-accent, var(--primary));
+  border-color: var(--accent, var(--rose)); /* --stage-accent/--primary were never defined */
 }
 .btn:disabled {
   opacity: 0.45;
@@ -74,7 +75,7 @@
   padding: 0;
   margin: 0;
   border: 2px solid var(--stage-paper);
-  background: var(--stage-accent, var(--primary));
+  background: var(--accent, var(--rose)); /* --stage-accent/--primary were never defined */
   border-radius: 0.1rem;
   touch-action: none;
 }

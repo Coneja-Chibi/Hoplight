@@ -49,4 +49,21 @@ describe("round trip", () => {
     expect(out.description).toBe("Rewritten.");
     expect(out.folder).toBe("mains"); // sealed survives
   });
+
+  // The smallest wire readLumiPersona accepts: name + string description + subjective + objective.
+  // possessive_pronoun/title/attached_world_book_id/avatar_path are all absent (detect never requires
+  // them). Unedited round-trip must not fabricate them (the Round-Trip Law: invents nothing absent).
+  const minimal = () => ({
+    name: "User",
+    description: "Just me.",
+    subjective_pronoun: "they",
+    objective_pronoun: "them",
+  });
+
+  test("minimal object round-trips byte-true: no fabricated possessive/title/world-book/avatar", () => {
+    const src = minimal();
+    const e = adapter.toCanonical({ text: JSON.stringify(src) });
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "");
+    expect(out).toEqual(src);
+  });
 });

@@ -27,7 +27,7 @@
 .cssIn {
   width: 100%;
   border: 1px solid var(--stage-seam, var(--seam));
-  background: var(--stage-input, var(--input));
+  background: var(--stage-row, var(--face)); /* --stage-input/--input were never defined */
   color: var(--stage-ink, var(--text));
   border-radius: 0.35rem;
   padding: 0.3rem 0.45rem;

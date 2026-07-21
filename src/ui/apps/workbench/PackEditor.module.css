@@ -51,7 +51,7 @@
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   border: 3px solid var(--edge);
   box-shadow: 3px 3px 0 0 var(--edge);

@@ -42,7 +42,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-weight: 700;
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   border: 2px solid var(--stage-seam, var(--seam));
   color: var(--stage-var, var(--text));
   padding: 0.25rem 0.4rem;
@@ -58,7 +58,7 @@
   font-family: var(--font-mono);
   font-size: 0.625rem;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   color: var(--stage-soft, var(--text));
   padding: 0.14rem 0.35rem;
   display: inline-flex;
@@ -88,7 +88,7 @@
   font-size: 0.625rem;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   color: var(--stage-mute, var(--muted));
   padding: 0.1rem 0.3rem;
   cursor: pointer;
@@ -111,7 +111,7 @@
   min-height: 4rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   border: 2px solid var(--stage-seam, var(--seam));
   color: var(--stage-soft, var(--text));
   padding: 0.4rem 0.5rem;

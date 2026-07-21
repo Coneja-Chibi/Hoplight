@@ -101,7 +101,7 @@
   cursor: pointer;
 }
 .btnPri {
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   border-color: var(--rose);
   box-shadow: 3px 3px 0 0 var(--edge);
@@ -117,7 +117,7 @@
   line-height: 1.55;
 }
 .macro code {
-  color: var(--ok);
+  color: var(--stage-ok); /* --ok was never defined */
   margin-right: 0.5rem;
 }
 .empty {

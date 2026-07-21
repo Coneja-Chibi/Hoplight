@@ -33,7 +33,7 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black, var(--edge));
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   padding: 0.4rem 0.65rem;
   cursor: pointer;

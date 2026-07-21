@@ -9,8 +9,8 @@
   font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ok);
-  border: 2px solid var(--ok);
+  color: var(--stage-ok); /* --ok was never defined */
+  border: 2px solid var(--stage-ok);
   display: inline-block;
   padding: 0.12rem 0.3rem;
   margin-bottom: 0.4rem;
@@ -61,7 +61,7 @@
   cursor: pointer;
 }
 .moodOn {
-  background: var(--rose);
+  background: var(--rose-deep); /* deep companion: bright rose fill can't carry small text at AA */
   color: var(--stage-white);
   border-color: var(--rose);
 }

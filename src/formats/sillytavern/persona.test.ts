@@ -62,4 +62,20 @@ describe("round trip", () => {
     const e = adapter.toCanonical({ text: JSON.stringify(raw) });
     expect(["Ada", "Kai"]).toContain(e.body.name);
   });
+
+  // The smallest wire readBackup accepts: one named persona whose descriptor carries only a
+  // description (position/depth/role/lorebook/title all absent). Unedited round-trip must not
+  // fabricate any of those keys (the Round-Trip Law: fromCanonical invents nothing the source lacked).
+  const minimal = () => ({
+    personas: { "u.png": "User" },
+    persona_descriptions: { "u.png": { description: "Just me." } },
+    default_persona: "u.png",
+  });
+
+  test("minimal descriptor round-trips byte-true: no fabricated position/depth/role/lorebook", () => {
+    const src = minimal();
+    const e = adapter.toCanonical({ text: JSON.stringify(src) });
+    const out = JSON.parse(adapter.fromCanonical(e).text ?? "");
+    expect(out).toEqual(src);
+  });
 });

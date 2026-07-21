@@ -119,7 +119,7 @@
 }
 
 .primary {
-  background: var(--accent);
-  color: var(--stage-ink);
+  background: var(--accent-deep); /* deep companion: a bright or dark accent pick breaks ink labels */
+  color: var(--stage-white);
   border-color: var(--edge);
 }

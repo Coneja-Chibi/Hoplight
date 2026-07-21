@@ -17,12 +17,9 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { cssClassNames, extractCatalogEntries, type CatalogEntry } from "./catalog-lib";
 
-const GLOBS = [
-  "src/ui/components/**/*.tsx",
-  "src/ui/apps/**/*.tsx",
-  "src/ui/shell/**/*.tsx",
-  "src/ui/_shared/*.ts",
-];
+// ONE glob over all of src/ui (folders-as-schema): the old four-dir hand-list silently omitted
+// src/ui/setup, so exported components there never reached the catalog while --check passed.
+const GLOBS = ["src/ui/**/*.{tsx,ts}"];
 
 const OUT_PATH = "docs/reference/components.md";
 

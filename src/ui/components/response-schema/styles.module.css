@@ -16,7 +16,7 @@
   gap: 0.4rem;
   align-items: center;
   border: 2px solid var(--stage-seam, var(--seam));
-  background: var(--stage-well, var(--field));
+  background: var(--stage-well, var(--paper)); /* --field was never defined */
   padding: 0.4rem 0.5rem;
 }
 .input,

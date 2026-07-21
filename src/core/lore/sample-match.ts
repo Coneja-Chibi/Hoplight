@@ -28,7 +28,9 @@ function anyTrigger(text: string, triggers: LorebookEntry["triggers"]): boolean 
 function selectiveOk(primary: boolean, secondary: boolean, logic: SelectiveLogic): boolean {
   switch (logic) {
     case "and_any":
-      return primary && (secondary || true);
+      // the caller already passes empty-secondary entries straight through, so when this runs a
+      // secondary list EXISTS and one of it must hit (the `|| true` here made and_any primary-only)
+      return primary && secondary;
     case "and_all":
       return primary && secondary;
     case "not_any":

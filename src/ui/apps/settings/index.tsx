@@ -31,6 +31,7 @@ function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
   const ActiveSection = active.Component;
 
   return (
+    <div className={styles.roomHost}>
     <div className={styles.room}>
       <div className={styles.tabs}>
         {sections.map((s) => (
@@ -47,6 +48,7 @@ function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
       <div className={styles.body}>
         <ActiveSection ctx={ctx} />
       </div>
+    </div>
     </div>
   );
 }

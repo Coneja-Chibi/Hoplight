@@ -365,7 +365,7 @@ function bookToWire(body: LorebookBody, twin: Rec | undefined): Rec {
         imagePath: null,
         scanDepth: body.globalScanDepth,
         tokenBudget: body.tokenBudget,
-        entryLimit: body.entryBudget || 100,
+        entryLimit: body.entryBudget ?? 100, // 0 is the valid canonical default; || silently coerced it to 100
         recursiveScanning: body.globalRecursion,
         maxRecursionDepth: 3,
         excludeFromVectorization: false,

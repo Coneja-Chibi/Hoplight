@@ -245,9 +245,11 @@ into another app's file (`architecture.md`, "Escrow: lossless round-trips, conta
 - `alternate_character_name` is a prompt/macro override, not the card name. It stays on `extensions` and
   is separately editable in the Workbench's Lumiverse native-fields panel; canonical `identity.name` is
   the library name and never reads from it (`ui/apps/workbench/platforms/lumiverse.ts:42-46`).
-- The Lumiverse PRESET format (a block-based prompt export, `{ type: "lumiverse_preset", ... }`) is a
-  different concern from the character card documented here, parsed by a different layer per its own
-  spec. No code path in this repository reads or writes it; excluded from this page.
+- The Lumiverse PRESET format (a block-based prompt export, `{ type: "lumiverse_preset", ... }`) imports
+  via `src/formats/lumiverse/preset.ts` (specs/formats/lumiverse-preset.md): blocks convert into the
+  shared ST preset wire (`_shared/st-preset-wire.ts`), category blocks become canonical groups,
+  promptVariables synthesize the guarded defaults prompt, and the wrapper rides whole as the escrow
+  twin. Export writes an ST flat preset (the wrapper is never reproduced - the spec's stated non-goal).
 
 ## Source of truth
 
