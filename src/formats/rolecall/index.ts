@@ -20,6 +20,7 @@ import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import personaCodec from "./persona";
 import { regexAdapter } from "./regex";
+import presetCodec from "./preset";
 import { embedCharacterBook } from "../_shared/character-book";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readCardJson } from "../_shared/card-io";
@@ -401,5 +402,5 @@ const adapter: CharacterAdapter = {
 export { adapter as characterAdapter };
 
 /** Folders-as-schema: this format family exports every codec it provides (character + lorebook +
- * persona + regex scripts). */
-export default [adapter, lorebookCodec, personaCodec, regexAdapter];
+ * persona + regex scripts + preset exports). */
+export default [adapter, lorebookCodec, personaCodec, regexAdapter, presetCodec];

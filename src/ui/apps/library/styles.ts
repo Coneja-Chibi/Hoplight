@@ -19,36 +19,38 @@ export const LIBRARY_STYLE = `
 .doorcard.primary{background:var(--rose);color:var(--stage-white)}
 .voice{font-style:italic;font-weight:600;color:var(--muted);text-align:center;font-size:1.05rem}
 /* the import sheet (InkDialog owns overlay/sheet chrome; the delsheet/export-dialog grammar) */
-.impsheet{padding:1rem 1.1rem;width:min(92vw,34rem)}
+.impsheet{padding:1.1rem 1.3rem;width:min(94vw,44rem)}
 .impkick{font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.12em;
-  text-transform:uppercase;color:var(--muted);margin:0 0 .3rem}
-.imptitle{display:block;font-family:var(--font-big);font-weight:900;font-size:1.05rem;color:var(--text);
+  text-transform:uppercase;color:var(--text-dim);margin:0 0 .3rem}
+.imptitle{display:block;font-family:var(--font-big);font-weight:900;font-size:1.15rem;color:var(--text);
   margin:0 0 .3rem}
-.impsub{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.04em;color:var(--muted);margin:0 0 .8rem}
-.improws{display:flex;flex-direction:column;gap:.5rem;max-height:46dvh;overflow:auto;margin:0 0 .9rem}
-.improw{position:relative;display:flex;gap:.6rem;align-items:flex-start;background:var(--face);
-  border:2px solid var(--edge);padding:.55rem .65rem;cursor:pointer}
-.improw.on{box-shadow:2px 2px 0 0 var(--edge)}
+.impsub{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.04em;color:var(--text-soft);margin:0 0 .9rem}
+.improws{display:flex;flex-direction:column;gap:.55rem;max-height:50dvh;overflow:auto;margin:0 0 1rem}
+.improw{position:relative;display:flex;gap:.7rem;align-items:flex-start;background:var(--face);
+  border:2px solid var(--edge);padding:.65rem .8rem;cursor:pointer}
+.improw.on{border-color:var(--accent);box-shadow:2px 2px 0 0 var(--edge)}
 .improw.bad{border-style:dashed;cursor:default}
 .improw input{position:absolute;opacity:0;width:1px;height:1px}
-.impcheck{flex:none;width:1.05rem;height:1.05rem;border:2px solid var(--edge);background:var(--face);
+.impcheck{flex:none;width:1.1rem;height:1.1rem;border:2px solid var(--edge);background:var(--face);
   position:relative;margin-top:.15rem}
-.improw input:checked + .impcheck{background:var(--accent-deep)}
-.improw input:checked + .impcheck::after{content:"";position:absolute;left:.26rem;top:.06rem;
+.improw input:checked + .impcheck{background:var(--accent-deep);border-color:var(--accent)}
+.improw input:checked + .impcheck::after{content:"";position:absolute;left:.28rem;top:.08rem;
   width:.3rem;height:.55rem;border:solid var(--stage-white);border-width:0 2px 2px 0;transform:rotate(45deg)}
-.improw input:focus-visible + .impcheck{outline:2px solid var(--accent-deep);outline-offset:2px}
+.improw input:focus-visible + .impcheck{outline:2px solid var(--accent);outline-offset:2px}
 .impbody{min-width:0}
-.impname{display:block;font-family:var(--font-big);font-weight:800;font-size:.95rem;color:var(--text);
+.impname{display:block;font-family:var(--font-big);font-weight:800;font-size:1rem;color:var(--text);
   overflow-wrap:anywhere}
-.impkind{font-family:var(--font-body);font-size:.85rem;color:var(--text-soft);margin:.1rem 0 0}
-.impmeta{font-family:var(--font-mono);font-size:.625rem;letter-spacing:.04em;color:var(--text-dim);margin:.2rem 0 0}
+.impkind{font-family:var(--font-body);font-size:.9rem;color:var(--text);margin:.15rem 0 0}
+.impmeta{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.04em;color:var(--text-soft);margin:.25rem 0 0}
 .impflag{display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.08em;
   text-transform:uppercase;background:var(--rose-deep);color:var(--stage-white);padding:.12rem .4rem;margin:0 0 .25rem}
 .imperr{font-family:var(--font-body);font-size:.85rem;color:var(--text-soft);margin:.1rem 0 0;overflow-wrap:anywhere}
 .impacts{display:flex;gap:.5rem;flex-wrap:wrap}
 .impbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
   text-transform:uppercase;background:var(--panel);color:var(--text);cursor:pointer;padding:.45rem .8rem}
-.impbtn.primary{background:var(--accent-deep);color:var(--stage-white)}
+/* deep fill carries the label (AA law); the BRIGHT picked accent rides the border so the button
+   visibly belongs to the user's accent choice instead of reading as an unrelated dark color */
+.impbtn.primary{background:var(--accent-deep);color:var(--stage-white);border-color:var(--accent)}
 .impbtn:disabled{opacity:.45;cursor:default}
 .wbbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap}
 /* the staging action bar: appears only when pieces are picked (the distributed tray's commit) */

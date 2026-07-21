@@ -96,9 +96,11 @@ const CASES: Case[] = [
     input: asText([{ scriptName: "s", findRegex: "/a/g", replaceString: "b", placement: [2] }]),
   },
   {
-    // the bundling law: a preset CARRYING regex is a PRESET (its bundle surfaces as a related set)
-    label: "RoleCall/ST preset export with bundled regex -> sillytavern-preset, never a regex set",
-    expected: "sillytavern-preset",
+    // the bundling law: a preset CARRYING regex is a PRESET - and the bundle IS the RoleCall
+    // fingerprint (vanilla ST preset exports never carry extensions.regex_scripts), so the RC
+    // codec outranks the generic ST one exactly like rolecall outranks sillytavern on cards
+    label: "RoleCall preset export with bundled regex -> rolecall-preset, never a regex set",
+    expected: "rolecall-preset",
     input: asText({
       temperature: 0.9,
       top_p: 1,

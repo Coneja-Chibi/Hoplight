@@ -23,7 +23,7 @@ const toDialect = (v: unknown): DividerDialect =>
 
 const presetAdapter: PresetAdapter = {
   id: FORMAT_ID,
-  label: "SillyTavern completion preset (flat json; RoleCall preset exports too)",
+  label: "SillyTavern completion preset (flat json)",
   outputExtensions: ["json"],
   kind: "preset",
   // coverage: deliberately undeclared until the claims harness audits it (deny-by-absence honest;

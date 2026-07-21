@@ -9,8 +9,11 @@ import { join } from "node:path";
 import presetAdapter from "./preset";
 import type { CanonicalPreset } from "../../entities/preset/schema";
 
+// the spec-covering fixture lives under rolecall (it bundles regex, which IS the RC fingerprint);
+// this suite tests the SHARED wire through the ST adapter by calling it directly - detection
+// routing is the registry's concern, pinned in core/detection.test.ts
 const FIXTURE = readFileSync(
-  join(import.meta.dir, "../../../samples/sillytavern/presets/spec-walk.preset.json"),
+  join(import.meta.dir, "../../../samples/rolecall/presets/spec-walk.preset.json"),
   "utf8",
 );
 const input = { text: FIXTURE, filename: "spec-walk.preset.json" };

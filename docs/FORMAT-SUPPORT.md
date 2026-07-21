@@ -50,13 +50,14 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `rolecall-persona` | persona | .json | RoleCall persona (rcpersona / RC persona-card export) |
 | `sillytavern-persona` | persona | .json | SillyTavern personas backup (default persona; the rest ride sealed) |
 
-## Presets (3)
+## Presets (4)
 
 | id | kind | writes | label |
 | --- | --- | --- | --- |
 | `lumiverse-preset` | preset | .json | Lumiverse preset (wrapper import; exports as an ST flat preset) |
 | `marinara-preset` | preset | .json | Marinara-Engine prompt preset (marinara_preset export) |
-| `sillytavern-preset` | preset | .json | SillyTavern completion preset (flat json; RoleCall preset exports too) |
+| `rolecall-preset` | preset | .json | RoleCall preset export (ST-compatible flat json, bundles regex) |
+| `sillytavern-preset` | preset | .json | SillyTavern completion preset (flat json) |
 
 ## Regex script sets (5)
 

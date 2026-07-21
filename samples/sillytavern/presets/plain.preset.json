@@ -1,0 +1,135 @@
+{
+  "temperature": 0.9,
+  "frequency_penalty": 0.1,
+  "presence_penalty": 0,
+  "top_p": 0.95,
+  "top_k": 40,
+  "openai_max_context": 32000,
+  "openai_max_tokens": 2048,
+  "impersonation_prompt": "Write as {{user}}.",
+  "new_chat_prompt": "",
+  "wi_format": "[World: {0}]",
+  "scenario_format": "{{scenario}}",
+  "wrap_in_quotes": false,
+  "names_behavior": 0,
+  "stream_openai": true,
+  "squash_system_messages": true,
+  "reasoning_effort": "high",
+  "image_inlining": false,
+  "seed": -1,
+  "n": 1,
+  "custom_unknown_knob": {
+    "keep": "me"
+  },
+  "another_unknown": 7,
+  "prompts": [
+    {
+      "identifier": "main",
+      "name": "Main Prompt",
+      "content": "You are {{char}}. Stay in character.",
+      "role": "system",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4,
+      "injection_order": 100,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "━━━ Style ━━━",
+      "name": "━━━ Style ━━━",
+      "content": "",
+      "role": "system",
+      "system_prompt": false,
+      "marker": false
+    },
+    {
+      "identifier": "5c1f0a52-19f6-4b58-b6ed-116e6ad565c9",
+      "name": "Prose rules",
+      "content": "Write vivid prose. No purple filler.",
+      "role": "system",
+      "system_prompt": false,
+      "injection_position": 1,
+      "injection_depth": 2,
+      "injection_order": 90,
+      "forbid_overrides": true,
+      "injection_trigger": [
+        "normal",
+        "continue"
+      ]
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "Chat History",
+      "system_prompt": false,
+      "marker": true
+    },
+    {
+      "identifier": "worldInfoBefore",
+      "name": "World Info (before)",
+      "content": "",
+      "role": "system",
+      "system_prompt": false,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 7,
+      "injection_order": 100,
+      "forbid_overrides": false
+    },
+    {
+      "identifier": "5c1f0a52-19f6-4b58-b6ed-116e6ad565c9",
+      "name": "Duplicate to skip",
+      "content": "later duplicate, first wins",
+      "role": "system",
+      "system_prompt": false
+    },
+    {
+      "identifier": "0af1b2c3-d4e5-4f60-8172-93a4b5c6d7e8",
+      "name": "Orphan prompt",
+      "content": "never referenced by the global order",
+      "role": "assistant",
+      "system_prompt": false,
+      "enabled": true
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 424242,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": false
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "character_id": 100001,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "━━━ Style ━━━",
+          "enabled": true
+        },
+        {
+          "identifier": "5c1f0a52-19f6-4b58-b6ed-116e6ad565c9",
+          "enabled": false
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}
