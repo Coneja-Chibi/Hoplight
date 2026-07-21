@@ -304,7 +304,15 @@ export function createHandler(
       }
     }
 
-    if (p === "/api/version") return json({ version: APP_VERSION, studioDir: store.studioPath() });
+    // mode tells the About row which UPDATE PATH applies: a packaged exe downloads the next
+    // release, a source checkout runs git pull - same version math, different prescription
+    if (p === "/api/version") {
+      return json({
+        version: APP_VERSION,
+        studioDir: store.studioPath(),
+        mode: packaged ? "packaged" : "source",
+      });
+    }
     if (p === "/api/update-check") return handleUpdateCheck();
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by

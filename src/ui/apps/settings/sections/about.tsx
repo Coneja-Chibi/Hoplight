@@ -17,6 +17,8 @@ const RELEASES_PAGE = "https://github.com/Coneja-Chibi/Hoplight/releases";
 function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [installed, setInstalled] = useState("");
   const [studioDir, setStudioDir] = useState("");
+  // how this studio runs decides the update PRESCRIPTION: exe downloads, checkout pulls
+  const [mode, setMode] = useState<"packaged" | "source">("packaged");
   const [status, setStatus] = useState<UpdateStatus | { state: "idle" } | { state: "checking" }>({
     state: "idle",
   });
@@ -29,6 +31,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
         if (cancelled) return;
         setInstalled(v.version);
         if (typeof v.studioDir === "string") setStudioDir(v.studioDir);
+        if (v.mode === "source") setMode("source");
       })
       .catch(() => {});
     return () => {
@@ -52,7 +55,9 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
       : status.state === "current"
         ? "You are on the newest release."
         : status.state === "available"
-          ? `${status.latest.version} is out.`
+          ? mode === "source"
+            ? `${status.latest.version} is out. Your checkout updates with: git pull (then bun install).`
+            : `${status.latest.version} is out.`
           : status.state === "none"
             ? "No published releases yet."
             : status.state === "error"
@@ -63,7 +68,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
     <>
       <SettingsRow
         label="Updates"
-        hint={`Version ${installed || "?"} installed. Checks GitHub only when you press the button; nothing runs on its own.`}
+        hint={`Version ${installed || "?"}, ${mode === "source" ? "running from source" : "installed app"}. Checks GitHub only when you press the button; nothing runs on its own.`}
       >
         <div className={styles.plates}>
           <button
@@ -77,7 +82,9 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
           {status.state === "available" && (
             <button
               type="button"
-              className={`${styles.plate} ${styles.on}`}
+              // the highlight belongs to the ACTION for this mode: downloading is the exe's
+              // path, only a footnote for a checkout that should git pull instead
+              className={mode === "source" ? styles.plate : `${styles.plate} ${styles.on}`}
               onClick={() => requestExternal(status.latest.url, "GitHub release")}
             >
               View release

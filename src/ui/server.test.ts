@@ -185,6 +185,27 @@ describe("readBodyCapped", () => {
   });
 });
 
+describe("/api/version reports the run mode (the update prescription fork)", () => {
+  test("no packaged assets = source; packaged assets = packaged", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-srv-"));
+    const sec = filledSec();
+    const source = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+    const a = (await (await source(apiReq("/api/version"))).json()) as { version: string; mode: string };
+    expect(a.mode).toBe("source");
+    expect(a.version.length).toBeGreaterThan(0);
+    // the version route never reads the bundle contents, only its presence
+    const packaged = createHandler(
+      new StudioStore(dir),
+      new SettingsStore(dir),
+      {} as Parameters<typeof createHandler>[2],
+      sec,
+    );
+    const b = (await (await packaged(apiReq("/api/version"))).json()) as { mode: string };
+    expect(b.mode).toBe("packaged");
+    await rm(dir, { recursive: true, force: true });
+  });
+});
+
 describe("createHandler security", () => {
   test("settings POST rejects text/plain before save", async () => {
     const dir = await mkdtemp(join(tmpdir(), "vaude-srv-"));
