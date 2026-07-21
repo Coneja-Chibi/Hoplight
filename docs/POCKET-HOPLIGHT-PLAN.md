@@ -51,6 +51,15 @@ server would produce. One handler, three shells (exe, dev server, service worker
 - **P6. iPad polish.** Playwright iPad-viewport walk of the promises table core flows; touch
   target and safe-area audit; fix what it finds.
 
+## P2 first move (probed 2026-07-21)
+
+`bun build --target=browser src/ui/server.ts` fails FIRST on `src/core/loader.ts`
+(pathToFileURL globbing) - which pocket does not need: the desktop bake already generates a static
+registry (`registerPackagedFormats`) because "a compiled binary cannot glob", and the pocket shell
+uses the same one. So P2 starts with import splitting: a `src/pocket/` entry that reaches
+`createHandler` without transitively importing the loader, dev-watch, or desktop-only helpers
+(they are runtime-gated behind `packaged` but still imported at bundle time today).
+
 ## Cuts (v1, deliberate, say so in the UI)
 
 - **Lua Test Stage OFF in pocket v1**: the desktop sandbox isolates via a separate ORIGIN; a SW
