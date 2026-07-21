@@ -3,12 +3,12 @@
  * Both parse untrusted JSON once behind the shared caps and fold storage failures via studioErr.
  */
 import type { CanonicalEntity } from "../core/canonical";
-import type { StudioStore } from "../studio/store";
+import type { StudioStoreLike } from "../studio/contracts";
 import { contentTypeIs, err, json, readJsonCapped, studioErr } from "./server-security";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
-export async function handleStudioSave(req: Request, store: StudioStore): Promise<Response> {
+export async function handleStudioSave(req: Request, store: StudioStoreLike): Promise<Response> {
   try {
     if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
     const parsed = await readJsonCapped(req);
@@ -26,7 +26,7 @@ export async function handleStudioSave(req: Request, store: StudioStore): Promis
   }
 }
 
-export async function handleStudioDelete(req: Request, store: StudioStore): Promise<Response> {
+export async function handleStudioDelete(req: Request, store: StudioStoreLike): Promise<Response> {
   try {
     if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
     const parsed = await readJsonCapped(req);

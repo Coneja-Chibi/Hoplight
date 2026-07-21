@@ -1,15 +1,9 @@
 /**
  * The studio store - Hoplight local-first entity storage with path containment and atomic writes.
  */
-import { mkdir, readdir, access, unlink } from "node:fs/promises";
-import { constants } from "node:fs";
 import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
-import {
-  writeAtomicReplace,
-  writeExclusive,
-  StudioConflictError,
-  StudioWriteError,
-} from "./atomic-file";
+import { StudioConflictError, StudioWriteError } from "./atomic-file";
+import { nodeStudioFs, type StudioFs } from "./fs-backend";
 import { StudioNotFoundError, StudioReadError, StudioValidationError } from "./errors";
 import {
   assertSafeStudioId,
@@ -68,17 +62,13 @@ function entityName(entity: AnyEntity): string {
   return entity.id;
 }
 
-async function pathExists(p: string): Promise<boolean> {
-  try {
-    await access(p, constants.F_OK);
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export class StudioStore {
-  constructor(private readonly dir: string) {}
+  // the fs backend is the ONE injection point: node fs on desktop/CLI, OPFS in the pocket build
+  constructor(
+    private readonly dir: string,
+    private readonly io: StudioFs = nodeStudioFs,
+  ) {}
 
   /** Where this studio lives on disk (About shows it; never used for writes outside resolve). */
   studioPath(): string {
@@ -92,14 +82,8 @@ export class StudioStore {
     const out: EntitySummary[] = [];
     for (const k of kinds) {
       const kindDir = resolveStudioPath(this.dir, k);
-      let files: string[];
-      try {
-        files = await readdir(kindDir);
-      } catch (e) {
-        const code = (e as NodeJS.ErrnoException)?.code;
-        if (code === "ENOENT") continue;
-        throw new StudioReadError();
-      }
+      const files = await this.io.listDir(kindDir);
+      if (files === null) continue;
       for (const f of files.filter((n) => n.endsWith(".json")).sort()) {
         const id = f.slice(0, -5);
         try {
@@ -134,14 +118,8 @@ export class StudioStore {
 
   async read(kind: string, id: string): Promise<AnyEntity | null> {
     const path = resolveStudioPath(this.dir, kind, id);
-    let text: string;
-    try {
-      text = await Bun.file(path).text();
-    } catch (e) {
-      const code = (e as NodeJS.ErrnoException)?.code;
-      if (code === "ENOENT") return null;
-      throw new StudioReadError();
-    }
+    const text = await this.io.readText(path);
+    if (text === null) return null;
     let raw: unknown;
     try {
       raw = JSON.parse(text) as unknown;
@@ -173,13 +151,7 @@ export class StudioStore {
     const kind = assertStudioEntityKind(kindRaw);
     const id = assertSafeStudioId(idRaw);
     const path = resolveStudioPath(this.dir, kind, id);
-    try {
-      await unlink(path);
-      return true;
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException)?.code === "ENOENT") return false;
-      throw new StudioWriteError("could not delete entity");
-    }
+    return this.io.remove(path);
   }
 
   async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
@@ -192,7 +164,7 @@ export class StudioStore {
     const kind = assertStudioEntityKind(entity.kind);
     let id = assertSafeStudioId(entity.id);
     const kindDir = resolveStudioPath(this.dir, kind);
-    await mkdir(kindDir, { recursive: true });
+    await this.io.mkdirp(kindDir);
 
     const now = new Date().toISOString();
     let priorImportedAt: string | undefined;
@@ -212,7 +184,7 @@ export class StudioStore {
     } else {
       let n = 2;
       let candidate = id;
-      while (await pathExists(resolveStudioPath(this.dir, kind, candidate))) {
+      while (await this.io.exists(resolveStudioPath(this.dir, kind, candidate))) {
         candidate = `${id}-${n++}`;
         assertSafeStudioId(candidate);
       }
@@ -248,20 +220,20 @@ export class StudioStore {
     const filePath = resolveStudioPath(this.dir, kind, id);
     const body = JSON.stringify(stamped, null, 2);
     try {
-      if (opts?.overwrite) await writeAtomicReplace(filePath, body);
-      else await writeExclusive(filePath, body);
+      if (opts?.overwrite) await this.io.writeAtomicReplace(filePath, body);
+      else await this.io.writeExclusive(filePath, body);
     } catch (e) {
       if (e instanceof StudioConflictError && !opts?.overwrite) {
         let n = 2;
         const base = assertSafeStudioId(entity.id);
         let candidate = base;
-        while (await pathExists(resolveStudioPath(this.dir, kind, candidate))) {
+        while (await this.io.exists(resolveStudioPath(this.dir, kind, candidate))) {
           candidate = `${base}-${n++}`;
           assertSafeStudioId(candidate);
         }
         id = candidate;
         const retry: AnyEntity = { ...stamped, id };
-        await writeExclusive(resolveStudioPath(this.dir, kind, id), JSON.stringify(retry, null, 2));
+        await this.io.writeExclusive(resolveStudioPath(this.dir, kind, id), JSON.stringify(retry, null, 2));
         return { id, kind, name: entityName(retry), importedAt, accent };
       }
       if (e instanceof StudioWriteError || e instanceof StudioConflictError) throw e;

@@ -8,7 +8,8 @@ import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CanonicalEntity } from "../core/canonical";
 import { rewriteKnowledgeRefs } from "../convert";
-import type { EntitySummary, StudioStore } from "./store";
+import type { EntitySummary } from "./store";
+import type { StudioStoreLike } from "./contracts";
 import { StudioValidationError } from "./errors";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
@@ -81,7 +82,7 @@ export function preflightBundle(input: BundleSaveInput): void {
  * knowledgeRefs before the character write.
  */
 export async function saveBundle(
-  store: StudioStore,
+  store: StudioStoreLike,
   input: BundleSaveInput,
 ): Promise<BundleSaveResult> {
   preflightBundle(input);

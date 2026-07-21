@@ -17,6 +17,7 @@ import type { CanonicalEntity } from "../core/canonical";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import { StudioStore } from "../studio/store";
+import type { StudioStoreLike, SettingsStoreLike } from "../studio/contracts";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
 import { safeExternalUrl } from "./_shared/external-url";
@@ -78,8 +79,8 @@ type AnyEntity = CanonicalEntity<string, unknown>;
 // -- the route table --------------------------------------------------------------------------------
 
 export function createHandler(
-  store: StudioStore,
-  settings: SettingsStore,
+  store: StudioStoreLike,
+  settings: SettingsStoreLike,
   packaged?: PackagedAssets,
   sec?: UiSecurityContext,
   /**

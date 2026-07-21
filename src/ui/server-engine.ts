@@ -9,7 +9,7 @@ import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import { filterEnabledBooks } from "../core/lore";
 import { parseCanonicalEntity, safeParseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
-import { StudioStore } from "../studio/store";
+import type { StudioStoreLike } from "../studio/contracts";
 import { isStudioReadError } from "../studio/errors";
 import { buildReceipt, friendlyFormat, UNKNOWN_FILE_MESSAGE, unsupportedShapeLine } from "./receipt";
 import {
@@ -114,7 +114,7 @@ export async function handleInspect(req: Request): Promise<Response> {
  * unreadable refs fail closed with the missing ids (no lossy export).
  */
 async function resolveLorebooksFromStore(
-  store: StudioStore,
+  store: StudioStoreLike,
   entity: AnyEntity,
 ): Promise<{ ok: true; lorebooks: CanonicalLorebook[] } | { ok: false; missing: string[] }> {
   if (entity.kind !== "character") return { ok: true, lorebooks: [] };
@@ -147,7 +147,7 @@ async function resolveLorebooksFromStore(
   return { ok: true, lorebooks: filterEnabledBooks(lorebooks) };
 }
 
-export async function handleExport(store: StudioStore, body: unknown): Promise<Response> {
+export async function handleExport(store: StudioStoreLike, body: unknown): Promise<Response> {
   const b = body as { entity?: unknown; targetId?: unknown } | null;
   if (!b?.entity || typeof b.targetId !== "string") return err("expected { entity, targetId }");
   const parsed = safeParseCanonicalEntity(b.entity);
