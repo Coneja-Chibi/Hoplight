@@ -137,13 +137,25 @@ export async function appManifests(apps: DiscoveredModule[]): Promise<unknown[]>
 /** Open a live-reload SSE response (dev only). */
 export function createDevReloadResponse(): Response {
   let ctrl: ReadableStreamDefaultController<Uint8Array>;
+  let heartbeat: ReturnType<typeof setInterval>;
   const stream = new ReadableStream<Uint8Array>({
     start(c) {
       ctrl = c;
       devClients.add(c);
       c.enqueue(SSE.encode(`data: hello ${DEV_BOOT_ID}\n\n`));
+      // keepalive comment under the server's idleTimeout (120s), or Bun chops the quiet stream
+      // mid-flight (ERR_INCOMPLETE_CHUNKED_ENCODING) and live-reload dies until the tab reloads
+      heartbeat = setInterval(() => {
+        try {
+          c.enqueue(SSE.encode(": ping\n\n"));
+        } catch {
+          clearInterval(heartbeat);
+          devClients.delete(c);
+        }
+      }, 30_000);
     },
     cancel() {
+      clearInterval(heartbeat);
       devClients.delete(ctrl);
     },
   });

@@ -151,7 +151,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     );
   }, [ctx, entities.length, deck, inDeck.length, loadFailed]);
 
-  const { runImport, commitImport } = makeImportRunners({ ctx, importState, setImportState, reload });
+  const { runImport, commitImport, cancelImport } = makeImportRunners({ ctx, importState, setImportState, reload });
 
   // the shell's Import button + global file drops arrive here: picker when empty-handed,
   // straight to the receipts when files rode along. Latest runImport via ref (stable listener).
@@ -218,7 +218,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           <ImportOverlay
             state={importState}
             onCommit={commitImport}
-            onCancel={() => setImportState(null)}
+            onCancel={cancelImport}
             onAddMore={() => pickFiles((f) => runImport(f, true))}
           />
         )}
@@ -431,7 +431,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
         <ImportOverlay
           state={importState}
           onCommit={commitImport}
-          onCancel={() => setImportState(null)}
+          onCancel={cancelImport}
           onAddMore={() => pickFiles((f) => runImport(f, true))}
         />
       )}

@@ -45,6 +45,12 @@ export const LIBRARY_STYLE = `
 .impflag{display:inline-block;font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.08em;
   text-transform:uppercase;background:var(--rose-deep);color:var(--stage-white);padding:.12rem .4rem;margin:0 0 .25rem}
 .imperr{font-family:var(--font-body);font-size:.85rem;color:var(--text-soft);margin:.1rem 0 0;overflow-wrap:anywhere}
+/* progress marker (house bar grammar: bordered track, accent fill; the fill is a mark, no text) */
+.impbar{display:block;height:.6rem;border:2px solid var(--edge);background:var(--face);
+  position:relative;margin:0 0 .5rem}
+.impbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);transition:width .15s ease}
+.impprog{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.04em;color:var(--text-soft);margin:0 0 .9rem}
+.improw.dupe{border-style:dotted;cursor:default;opacity:.85}
 .impacts{display:flex;gap:.5rem;flex-wrap:wrap}
 .impbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
   text-transform:uppercase;background:var(--panel);color:var(--text);cursor:pointer;padding:.45rem .8rem}

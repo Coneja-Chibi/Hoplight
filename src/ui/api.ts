@@ -32,10 +32,13 @@ export const api: AppContext["api"] = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
     }),
-  inspectFile: async (file): Promise<InspectResult> => {
+  inspectFile: async (file, signal): Promise<InspectResult> => {
     if (file.size > INSPECT_BODY_MAX_BYTES) {
       throw new Error("file too large to inspect");
     }
+    // Per-request deadline so one dead connection can never freeze a bulk run; the caller's
+    // signal (the import sheet's Cancel) composes with it.
+    const deadline = AbortSignal.timeout(90_000);
     return apiFetchJson("/api/inspect", {
       method: "POST",
       headers: {
@@ -45,6 +48,7 @@ export const api: AppContext["api"] = {
         "x-filename": encodeURIComponent(file.name),
       },
       body: await file.arrayBuffer(),
+      signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
     });
   },
   exportEntity: async (entity, targetId) =>

@@ -448,7 +448,10 @@ export function startUi(
   const sandboxOriginRef = { current: "" };
   const lifecycle: LifecycleDeps = { stop: () => {}, exit: (c) => process.exit(c), spawnSelf: realSpawnSelf };
   const handler = createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle);
-  const server = Bun.serve({ port, hostname: "127.0.0.1", fetch: handler });
+  // idleTimeout: Bun's default is 10s and it killed bulk imports mid-inspect (a multi-MB card
+  // racing 16 adapters can sit longer than that with no bytes on the wire). 120s covers the
+  // slowest real inspect observed (23MB charx) with an order of magnitude to spare.
+  const server = Bun.serve({ port, hostname: "127.0.0.1", idleTimeout: 120, fetch: handler });
   const host = `127.0.0.1:${server.port}`;
   sec.expectedHost = host;
   sec.expectedOrigin = `http://${host}`;

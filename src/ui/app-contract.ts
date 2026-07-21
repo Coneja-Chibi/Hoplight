@@ -62,7 +62,7 @@ export interface AppContext {
       related?: { lorebooks?: unknown[]; regexSets?: unknown[] };
       overwrite?: boolean;
     }): Promise<SaveBundleResult>;
-    inspectFile(file: File): Promise<InspectResult>;
+    inspectFile(file: File, signal?: AbortSignal): Promise<InspectResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */

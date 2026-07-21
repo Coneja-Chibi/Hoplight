@@ -1,24 +1,31 @@
 /**
- * Library import flow: staged pick (check/uncheck, select all) + plain-words receipts.
- * Lorebooks get a heal summary when the payload is soft-healed before commit.
+ * Library import flow: triage (folder drops carry chats/settings/themes we never POST), a small
+ * parallel inspect pool with live progress and a real Cancel, duplicate marking (against the shelf
+ * by kind+name, within the drop by content), staged pick with plain-words receipts, and grouped
+ * skip rows so 1,800 chat logs read as one honest line instead of a wall of red.
  */
 import { useEffect, useState, type JSX } from "react";
-import type { AppContext, InspectResult } from "../../app-contract";
+import type { AppContext } from "../../app-contract";
 import { InkDialog } from "../../components/ink-dialog";
 import { bundlePayloadFromInspect } from "./deck-core";
+import {
+  annotateRead,
+  contentKey,
+  defaultCheckedIndexes,
+  groupBadRows,
+  markDupes,
+  shelfKey,
+  triageFiles,
+  type BadGroup,
+  type ReadFile,
+} from "./import-triage";
 
-export interface ReadFile {
-  filename: string;
-  result: InspectResult;
-  /** Heal notes for lorebook payloads (empty when not a book or already clean). */
-  healNotes?: string[];
-  entryCount?: number;
-}
+export type { ReadFile } from "./import-triage";
 
-export interface ImportState {
-  phase: "reading" | "done";
-  reads: ReadFile[];
-}
+export type ImportState =
+  | { phase: "reading"; reads: ReadFile[]; done: number; total: number }
+  | { phase: "done"; reads: ReadFile[] }
+  | { phase: "saving"; done: number; total: number };
 
 function ReceiptCard({
   r,
@@ -30,6 +37,16 @@ function ReceiptCard({
   onToggle: () => void;
 }): JSX.Element {
   if (r.result.ok && r.result.receipt) {
+    if (r.batchDupe) {
+      return (
+        <div className="improw dupe">
+          <div className="impbody">
+            <b className="impname">{r.result.receipt.name}</b>
+            <p className="impmeta">Identical to {r.batchDupe} in this drop. We keep one.</p>
+          </div>
+        </div>
+      );
+    }
     return (
       <label className={`improw${checked ? " on" : ""}`}>
         <input type="checkbox" checked={checked} onChange={onToggle} />
@@ -37,6 +54,9 @@ function ReceiptCard({
         <div className="impbody">
           <b className="impname">{r.result.receipt.name}</b>
           <p className="impkind">{r.result.receipt.kindLine}</p>
+          {r.shelfDupe && (
+            <p className="impmeta">Already on your shelf as {r.shelfDupe}. Importing keeps both.</p>
+          )}
           {typeof r.entryCount === "number" && (
             <p className="impmeta">
               {r.entryCount} entr{r.entryCount === 1 ? "y" : "ies"}
@@ -68,6 +88,25 @@ function ReceiptCard({
   );
 }
 
+function BadGroupCard({ group }: { group: BadGroup }): JSX.Element {
+  const sample = group.filenames.slice(0, 3).join(" · ");
+  return (
+    <div className="improw bad">
+      <div className="impbody">
+        <span className="impflag">Skipped</span>
+        <b className="impname">
+          {group.filenames.length} file{group.filenames.length === 1 ? "" : "s"}
+        </b>
+        <p className="imperr">{group.error}</p>
+        <p className="impmeta">
+          {sample}
+          {group.filenames.length > 3 ? ` · +${group.filenames.length - 3} more` : ""}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function ImportOverlay({
   state,
   onCommit,
@@ -79,59 +118,112 @@ export function ImportOverlay({
   onCancel: () => void;
   onAddMore?: () => void;
 }): JSX.Element {
-  const goodIndexes = state.reads
-    .map((r, i) => (r.result.ok ? i : -1))
-    .filter((i) => i >= 0);
+  // Null until the read pass lands; the reading pool mutates ONE reads array for speed, so the
+  // reset below keys on this became-non-null transition, never on array identity alone.
+  const doneReads = state.phase === "done" ? state.reads : null;
+  const checkable = defaultCheckedIndexes(doneReads ?? []);
+  const [checked, setChecked] = useState<Set<number>>(() => new Set(checkable));
 
-  const [checked, setChecked] = useState<Set<number>>(() => new Set(goodIndexes));
-
-  // When new reads arrive, select all good by default.
+  // Reset to the honest default (readable, not a duplicate) when the receipts arrive.
   useEffect(() => {
-    setChecked(
-      new Set(
-        state.reads.map((r, i) => (r.result.ok ? i : -1)).filter((i) => i >= 0),
-      ),
-    );
-  }, [state.reads]);
+    if (doneReads) setChecked(new Set(defaultCheckedIndexes(doneReads)));
+  }, [doneReads]);
 
-  if (state.phase === "reading") {
+  if (state.phase === "reading" || state.phase === "saving") {
+    const bad = state.phase === "reading" ? state.reads.filter((r) => !r.result.ok).length : 0;
+    const pct = state.total === 0 ? 0 : Math.round((state.done / state.total) * 100);
+    const line =
+      state.phase === "saving"
+        ? `Shelving ${Math.min(state.done + 1, state.total)} of ${state.total}…`
+        : state.total === 0
+          ? "Sorting the drop…"
+          : `Read ${state.done} of ${state.total}${bad > 0 ? ` · ${bad} could not be read` : ""}`;
     return (
-      <InkDialog onDismiss={onCancel} ariaLabel="Reading your files" sheetClassName="impsheet">
+      <InkDialog
+        // dismissal mid-save would orphan the run's feedback while writes continue; sit tight
+        onDismiss={state.phase === "saving" ? () => {} : onCancel}
+        ariaLabel={state.phase === "saving" ? "Shelving your pieces" : "Reading your files"}
+        sheetClassName="impsheet"
+      >
         <p className="impkick">The Library · Import</p>
-        <b className="imptitle">Reading your files…</b>
+        <b className="imptitle">{state.phase === "saving" ? "Shelving…" : "Reading your files…"}</b>
+        <span className="impbar" role="progressbar" aria-valuemin={0} aria-valuemax={state.total} aria-valuenow={state.done}>
+          <i style={{ width: `${pct}%` }} />
+        </span>
+        <p className="impprog" role="status">
+          {line}
+        </p>
+        {state.phase === "reading" && (
+          <div className="impacts">
+            <button type="button" className="impbtn stamp" onClick={onCancel}>
+              Cancel
+            </button>
+          </div>
+        )}
       </InkDialog>
     );
   }
 
-  const selectedGood = goodIndexes.filter((i) => checked.has(i));
+  // Row order: readable pieces (dupes-of-shelf among them), identical copies, grouped refusals.
+  const okRows = state.reads.map((r, i) => ({ r, i })).filter(({ r }) => r.result.ok && !r.batchDupe);
+  const dupeRows = state.reads.map((r, i) => ({ r, i })).filter(({ r }) => r.result.ok && !!r.batchDupe);
+  const badGroups = groupBadRows(state.reads);
+  const badCount = badGroups.reduce((n, g) => n + g.filenames.length, 0);
+  const selectedGood = checkable.filter((i) => checked.has(i));
+  const shelfDupes = okRows.filter(({ r }) => r.shelfDupe).length;
+
+  const summary = [
+    `${okRows.length} readable`,
+    ...(shelfDupes > 0 ? [`${shelfDupes} already on your shelf`] : []),
+    ...(dupeRows.length > 0 ? [`${dupeRows.length} identical cop${dupeRows.length === 1 ? "y" : "ies"}`] : []),
+    ...(badCount > 0 ? [`${badCount} skipped`] : []),
+  ].join(" · ");
+
+  const toggle = (i: number): void => {
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  };
 
   return (
     <InkDialog onDismiss={onCancel} ariaLabel="Pick what to import" sheetClassName="impsheet">
       <p className="impkick">The Library · Import</p>
       <b className="imptitle">
-        {goodIndexes.length === state.reads.length ? "Pick what to keep." : "Here is what we read."}
+        {badCount === 0 && dupeRows.length === 0 ? "Pick what to keep." : "Here is what we read."}
       </b>
-      <p className="impsub">Uncheck anything you do not want. Import only writes the checked ones.</p>
+      <p className="impsub">
+        {summary}. Uncheck anything you do not want. Import only writes the checked ones.
+      </p>
       <div className="improws">
-        {state.reads.map((r, i) => (
+        {okRows.map(({ r, i }) => (
           <ReceiptCard
             key={i}
             r={r}
             checked={checked.has(i)}
             onToggle={() => {
-              if (!r.result.ok) return;
-              setChecked((prev) => {
-                const next = new Set(prev);
-                if (next.has(i)) next.delete(i);
-                else next.add(i);
-                return next;
-              });
+              if (!r.result.ok || r.batchDupe) return;
+              toggle(i);
             }}
           />
         ))}
+        {dupeRows.map(({ r, i }) => (
+          <ReceiptCard key={i} r={r} checked={false} onToggle={() => {}} />
+        ))}
+        {badGroups.map((g, gi) =>
+          g.filenames.length >= 4 ? (
+            <BadGroupCard key={`g${gi}`} group={g} />
+          ) : (
+            g.indexes.map((i) => (
+              <ReceiptCard key={i} r={state.reads[i]!} checked={false} onToggle={() => {}} />
+            ))
+          ),
+        )}
       </div>
       <div className="impacts">
-        <button type="button" className="impbtn stamp" onClick={() => setChecked(new Set(goodIndexes))}>
+        <button type="button" className="impbtn stamp" onClick={() => setChecked(new Set(checkable))}>
           Select all
         </button>
         {onAddMore && (
@@ -155,9 +247,17 @@ export function ImportOverlay({
   );
 }
 
+// One import flow runs at a time (the sheet is modal); Cancel and a new drop both abort the
+// previous pool so a stale worker can never resurrect the overlay after dismissal.
+let activeAbort: AbortController | null = null;
+
+const INSPECT_POOL = 3;
+
 /**
- * The import runners, one pair per render: inspect every dropped file into receipt rows (a bad
- * file becomes a failed row, never a stuck overlay), then commit the checked ones as bundles.
+ * The import runners, one trio per render: triage + inspect every dropped file into receipt rows
+ * (a bad file becomes a failed row, never a stuck overlay), then commit the checked ones as
+ * bundles. cancelImport aborts in-flight inspects AND closes the sheet; plain dismissal must go
+ * through it or a finishing pool would reopen the overlay.
  */
 export function makeImportRunners(args: {
   ctx: AppContext;
@@ -167,48 +267,89 @@ export function makeImportRunners(args: {
 }): {
   runImport: (files: File[], append?: boolean) => void;
   commitImport: (checkedIndexes: number[]) => void;
+  cancelImport: () => void;
 } {
   const { ctx, importState, setImportState, reload } = args;
 
+  const cancelImport = (): void => {
+    activeAbort?.abort();
+    activeAbort = null;
+    setImportState(null);
+  };
+
   const runImport = (files: File[], append = false): void => {
+    activeAbort?.abort();
+    const abort = new AbortController();
+    activeAbort = abort;
     void (async () => {
-      setImportState((prev) =>
-        append && prev?.phase === "done"
-          ? { phase: "reading", reads: prev.reads }
-          : { phase: "reading", reads: [] },
-      );
       const prior = append && importState?.phase === "done" ? importState.reads : [];
-      const read: ImportState["reads"] = [...prior];
-      for (const file of files) {
-        // Per-file guard, mirroring commitImport below: one oversized or corrupt file becomes a
-        // failed receipt row. Unguarded, its rejection left the fullscreen "reading" overlay up
-        // forever with no way out but a reload.
-        try {
-          const result = await ctx.api.inspectFile(file);
-          read.push(annotateRead(file.name, result));
-        } catch (e) {
-          const error = e instanceof Error ? e.message : String(e);
-          read.push(annotateRead(file.name, { ok: false, error }));
-        }
+      const { candidates, skipped } = triageFiles(files);
+      // ONE reads array for the whole pass, shared by reference into every progress tick: copying
+      // it per completed file made a 2,000-file drop quadratic for nothing the overlay renders.
+      const read: ReadFile[] = [...prior, ...skipped];
+      setImportState({ phase: "reading", reads: read, done: 0, total: candidates.length });
+
+      // Shelf names for duplicate marking; an unreachable list never blocks an import.
+      let shelf = new Map<string, string>();
+      try {
+        const pieces = await ctx.api.listEntities();
+        shelf = new Map(pieces.map((p) => [shelfKey(p.kind, p.name), p.name]));
+      } catch {
+        /* shelf unknown: imports proceed, nothing is marked */
       }
+      const seen = new Map<string, string>();
+      for (const r of prior) {
+        const key = r.result.ok ? contentKey(r.result) : null;
+        if (key && !seen.has(key)) seen.set(key, r.filename);
+      }
+
+      let done = 0;
+      let next = 0;
+      const worker = async (): Promise<void> => {
+        while (!abort.signal.aborted) {
+          const mine = next++;
+          const file = candidates[mine];
+          if (!file) return;
+          // Per-file guard: one oversized or corrupt file becomes a failed receipt row.
+          // Unguarded, its rejection left the fullscreen "reading" overlay up forever.
+          try {
+            const result = await ctx.api.inspectFile(file, abort.signal);
+            read.push(markDupes(annotateRead(file.name, result), shelf, seen));
+          } catch (e) {
+            if (abort.signal.aborted) return;
+            const error = e instanceof Error ? e.message : String(e);
+            read.push(annotateRead(file.name, { ok: false, error }));
+          }
+          done++;
+          setImportState({ phase: "reading", reads: read, done, total: candidates.length });
+        }
+      };
+      await Promise.all(Array.from({ length: INSPECT_POOL }, worker));
+      if (abort.signal.aborted) return;
+      activeAbort = null;
       setImportState({ phase: "done", reads: read });
     })();
   };
 
   const commitImport = (checkedIndexes: number[]): void => {
-    if (!importState) return;
+    if (importState?.phase !== "done") return;
     void (async () => {
       const picked = checkedIndexes
         .map((i) => importState.reads[i])
         .filter((r): r is NonNullable<typeof r> => !!r && r.result.ok);
       const errors: string[] = [];
+      let shelved = 0;
+      let attempted = 0;
       for (const r of picked) {
+        setImportState({ phase: "saving", done: attempted++, total: picked.length });
         const payload = bundlePayloadFromInspect(r.result);
         if (!payload) continue;
         try {
           const result = await ctx.api.saveBundle(payload);
           if (!result.ok) {
             errors.push(`${r.filename}: ${result.error ?? "could not save"}`);
+          } else {
+            shelved++;
           }
         } catch (e) {
           errors.push(`${r.filename}: ${e instanceof Error ? e.message : String(e)}`);
@@ -228,15 +369,15 @@ export function makeImportRunners(args: {
             };
           }),
         });
-        ctx.setStatus(`${errors.length} of ${picked.length} failed to save`);
+        ctx.setStatus(`shelved ${shelved} · ${errors.length} of ${picked.length} failed to save`);
       } else {
         setImportState(null);
-        ctx.setStatus(`imported ${picked.length} file${picked.length === 1 ? "" : "s"} · counts updated on the deck chips`);
+        ctx.setStatus(`imported ${shelved} file${shelved === 1 ? "" : "s"} · counts updated on the deck chips`);
       }
     })();
   };
 
-  return { runImport, commitImport };
+  return { runImport, commitImport, cancelImport };
 }
 
 export function pickFiles(onFiles: (files: File[]) => void): void {
@@ -247,32 +388,3 @@ export function pickFiles(onFiles: (files: File[]) => void): void {
   input.click();
 }
 
-const isRec = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
-
-/**
- * Annotate a successful inspect with an entry count. Every ok result here comes from a real format
- * adapter (server-engine handleInspect), so the body is already canonical and MUST pass through
- * untouched: healBook is a tolerant reader for foreign payloads that rebuilds by enumeration, and
- * running it on a canonical body silently reset every field outside its list (categories,
- * positions, selective logic, filters). Heal belongs to paths that ingest naked JSON, not this one.
- */
-export function annotateRead(filename: string, result: InspectResult): ReadFile {
-  if (!result.ok || !result.entity) return { filename, result };
-  const entity = result.entity as { kind?: string; body?: unknown };
-  const countOf = (v: unknown): number | undefined =>
-    isRec(v) && Array.isArray(v.entries) ? v.entries.length : undefined;
-  if (entity.kind !== "lorebook") {
-    // related lorebooks on a character bundle
-    const related = result.related?.lorebooks;
-    if (Array.isArray(related) && related.length > 0) {
-      const entries = related.reduce<number>(
-        (n, lb) => n + (countOf(isRec(lb) ? lb.body : undefined) ?? 0),
-        0,
-      );
-      return { filename, result, entryCount: entries || undefined };
-    }
-    return { filename, result };
-  }
-  return { filename, result, entryCount: countOf(entity.body) };
-}
