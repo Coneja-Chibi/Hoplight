@@ -54,13 +54,20 @@ export function Dock(): JSX.Element {
   return (
     <nav id="dock" className={slim ? "slim" : undefined} aria-label="Apps">
       <button id="dockhome" title="Home" aria-label="Home" onClick={goHome}>
+        {/* the illuminated V (docs/media/hoplight-v.svg): crossed searchlights, bunny ears */}
         <span className="beam">
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <polygon points="60,92 4,12 34,3" fill="var(--rose)" />
-            <polygon points="40,92 96,12 66,3" fill="var(--rose)" />
+          <svg viewBox="0 0 184 171" aria-hidden="true">
+            <g fill="var(--rose)">
+              <path d="M0 12 51 0 117 171 82 136Z" />
+              <path d="M135 0 184 12 101 136 67 171Z" />
+            </g>
+            <g fill="var(--stage-white)">
+              <path d="m34 33 11-4 34 82-8-10Z" />
+              <path d="m140 29 11 4-38 68-8 10Z" />
+            </g>
           </svg>
         </span>
-        <span className="hk">Vaude.</span>
+        <span className="hk">Hoplight.</span>
       </button>
 
       <div id="dockapps">

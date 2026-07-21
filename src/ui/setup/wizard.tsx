@@ -34,7 +34,7 @@ const CSS = `
 .vsetup .qcard{background:var(--panel);border:var(--ink-border);box-shadow:10px 10px 0 0 var(--ink);
   padding:clamp(1.25rem,3vw,1.875rem)}
 .vsetup .lock{display:inline-flex;align-items:baseline;font-size:clamp(1.35rem,1rem+1.4vw,1.5625rem)}
-.vsetup .lock svg{height:1.22em;width:auto;align-self:baseline;transform:translateY(.13em);margin-right:-.14em}
+.vsetup .lock svg{height:1.06em;width:auto;align-self:baseline;transform:translateY(.1em);margin-right:.22em}
 .vsetup .lock .txt{font-family:var(--font-big);font-weight:900;letter-spacing:-.01em}
 .vsetup .lock .quad{display:inline-block;width:.17em;height:.17em;background:var(--rose);margin-left:.09em}
 .vsetup .top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
@@ -130,16 +130,22 @@ const CSS = `
 }
 `;
 
-/** The locked tapered-H geometry (docs/media/hoplight-h.svg); the mark is ALWAYS brand rose. */
-const H_PATH = "M0 0h45l-6 67h66L99 0h45l-33 152-7-73H38l-7 73Z";
-
+/** The illuminated V (docs/media/hoplight-v.svg): crossed searchlights, bunny ears - THE logo. */
 function Lockup(): JSX.Element {
   return (
     <span className="lock">
-      <svg viewBox="0 0 144 152" aria-label="Hoplight">
-        <path d={H_PATH} fill="var(--rose)" /> {/* hardcode-ok: locked brand mark, always rose, not a themed surface */}
+      <svg viewBox="0 0 184 171" aria-label="Hoplight">
+        {/* hardcode-ok: locked brand mark, always rose, not a themed surface */}
+        <g fill="var(--rose)">
+          <path d="M0 12 51 0 117 171 82 136Z" />
+          <path d="M135 0 184 12 101 136 67 171Z" />
+        </g>
+        <g fill="var(--stage-white)">
+          <path d="m34 33 11-4 34 82-8-10Z" />
+          <path d="m140 29 11 4-38 68-8 10Z" />
+        </g>
       </svg>
-      <span className="txt">oplight</span>
+      <span className="txt">Hoplight</span>
       <span className="quad" />
     </span>
   );

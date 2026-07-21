@@ -37,7 +37,7 @@ export function StatusBar(): JSX.Element {
       <span className="seg trim">{statusNote && (<><span className="sep">·</span><span className="k">{statusNote}</span></>)}</span>
       <span className="spacer" />
       <span className="vaude">
-        $ vaude<i>.</i>
+        $ hoplight<i>.</i>
       </span>
     </footer>
   );

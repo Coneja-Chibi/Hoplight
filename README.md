@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/media/vaudeville-v.png" alt="" width="72">
+<img src="docs/media/hoplight-v.png" alt="" width="72">
 
 <sub>· A CONEJA-CHIBI PRODUCTION ·</sub>
 
