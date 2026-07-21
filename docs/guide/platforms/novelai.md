@@ -61,7 +61,7 @@ One more honest note. NovelAI counts its scan distance in characters of story te
 
 Send a piece from the Library to the Workbench and a lorebook opens onto its own binder: a table of contents down one side, and the entry you're on open on the page. Edit its title, its passage, and its keywords there. Save, and Hoplight writes back only what changed, so an entry you never touched stays exactly as it was.
 
-Pick "Writing for: NovelAI" from the platform tabs and NovelAI's own dials rise to the top of the entry: the two activation toggles, the context wrap and budget settings, and phrase bias. Fields other apps use and NovelAI does not fold out of the way. Nothing gets deleted by folding it away, either. Switch "Writing for" back to Vaude and everything is still there.
+Pick "Writing for: NovelAI" from the platform tabs and NovelAI's own dials rise to the top of the entry: the two activation toggles, the context wrap and budget settings, and phrase bias. Fields other apps use and NovelAI does not fold out of the way. Nothing gets deleted by folding it away, either. Switch "Writing for" back to Hoplight and everything is still there.
 
 ![Editing a lorebook entry](../../media/shot-lorebook.png)
 

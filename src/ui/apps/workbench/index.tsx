@@ -9,7 +9,7 @@
  */
 import { useEffect, useState } from "react";
 import type { CSSProperties, JSX, ReactNode } from "react";
-import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
+import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { deckMeta } from "../../_shared/decks";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
 import { rankRecents } from "./recents-core";
@@ -22,7 +22,7 @@ import { PresetEditor } from "./PresetEditor";
 import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
-import { keyOf, paneKeyOf } from "../../shell/store-core";
+import { keyOf, paneKeyOf } from "../../_shared/piece-key";
 import styles from "./styles.module.css";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
@@ -315,7 +315,7 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   );
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "workbench",
     title: "The Workbench",

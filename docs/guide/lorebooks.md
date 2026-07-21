@@ -34,7 +34,7 @@ and placing them in the assembled prompt.
 Each entry's Keys card holds its primary keywords, typed one at a time as chips. An entry fires one of
 three ways, and you pick one per entry: Keywords, the default, fires when a key shows up in the recent
 chat; Always on skips matching and injects every turn; By meaning fires on similarity to the chat rather
-than an exact word, and only survives writing for the Vaude lens or SillyTavern, since no other
+than an exact word, and only survives writing for the Hoplight lens or SillyTavern, since no other
 host on the Writing for select carries it.
 
 Switch the Keys card to Advanced to add a second, optional set of keys under "Only together with,"
@@ -59,7 +59,7 @@ that position is Depth or Append, which behaves the same way.
 
 World and Character are the portable floor: every host you can write for keeps these two. The richer
 stops, Scene, Depth, Append, Top, Bottom, Before example, and After example, are only available under the
-Vaude lens; SillyTavern keeps a subset (World, Character, Depth, Before example, After example); Chub,
+Hoplight lens; SillyTavern keeps a subset (World, Character, Depth, Before example, After example); Chub,
 Lumiverse, and Agnai keep World and Character only; Risu and NovelAI have no placement dial at all, and
 every entry lands on the character floor regardless of what you set. Pick a position your target host
 does not carry and the rail keeps it, marked foreign, so on export it lands at its closest slot instead

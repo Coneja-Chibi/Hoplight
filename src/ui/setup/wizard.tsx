@@ -137,7 +137,7 @@ const BEAM_POLYGONS = ["60,92 4,12 34,3", "40,92 96,12 66,3"] as const;
 function Lockup(): JSX.Element {
   return (
     <span className="lock">
-      <svg viewBox="0 0 100 100" aria-label="Vaude">
+      <svg viewBox="0 0 100 100" aria-label="Hoplight">
         {BEAM_POLYGONS.map((points) => (
           <polygon key={points} points={points} fill="var(--rose)" /> // hardcode-ok: locked brand mark, always rose, not a themed surface
         ))}
@@ -312,7 +312,7 @@ function FinalScreen({ steps, draft, onOpen }: { steps: LoadedStep[]; draft: Set
           ))}
         </div>
         <button className="open" onClick={onOpen}>
-          Open Vaude
+          Open Hoplight
           <span className="q2" />
         </button>
         <p className="change">Everything here can change later, whenever you want.</p>

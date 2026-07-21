@@ -9,7 +9,7 @@ related: [reference/architecture, reference/entities/character]
 
 # vaud-json format
 
-vaud-json is vaud's own native format: the [canonical entity](../architecture.md#the-canonical-entity)
+vaud-json is hoplight's own native format: the [canonical entity](../architecture.md#the-canonical-entity)
 written straight to plain JSON. Every other adapter translates between its app's wire shape and the
 canonical model; vaud-json does no translation at all. It serializes the `CanonicalCharacter` wrapper
 itself (`schemaVersion` / `kind` / `id` / `body` / `profiles?` / `original?`, `canonical.ts:70-81`) and
@@ -127,7 +127,7 @@ re-project if it is later exported back to SillyTavern.
   character adapters where `a.coverage && !a.native` both hold (`src/ui/server.ts:272-276`), so vaud-json,
   which is native and has no `coverage.ts` of its own, never reaches that list at all, not even as an
   undeclared-coverage entry. vaud-json still works as an ordinary import/export target everywhere else,
-  including `vaud convert` and the Workbench's editing surface.
+  including `hoplight convert` and the Workbench's editing surface.
 
 ## Source of truth
 

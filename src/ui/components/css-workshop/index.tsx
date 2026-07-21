@@ -56,7 +56,7 @@ export interface CssWorkshopProps {
 }
 
 const DEFAULT_NOTE =
-  "Sealed preview only. Vaude never applies this CSS to the app. Export keeps your full source for the host site.";
+  "Sealed preview only. Hoplight never applies this CSS to the app. Export keeps your full source for the host site.";
 
 const SIMPLE_TABS: ReadonlyArray<readonly [CssSimpleTab, string]> = [
   ["starters", "Starters"],

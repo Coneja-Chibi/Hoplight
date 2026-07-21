@@ -27,7 +27,7 @@ import cssWorkshopTour from "./tour";
 import styles from "./styles.module.css";
 
 const NOTE =
-  "Standalone draft. Vaude never applies this to the app chrome. Copy or download to paste on Chub, Janitor, Risu, or anywhere that takes CSS. Card-bound CSS still lives on the piece in the Workbench.";
+  "Standalone draft. Hoplight never applies this to the app chrome. Copy or download to paste on Chub, Janitor, Risu, or anywhere that takes CSS. Card-bound CSS still lives on the piece in the Workbench.";
 
 const PREF_MODE = "css-workshop.mode";
 

@@ -1,5 +1,5 @@
 /**
- * RoleCall's native schema. Most of RoleCall is canonical (Vaude was seeded from it); these are the
+ * RoleCall's native schema. Most of RoleCall is canonical (Hoplight was seeded from it); these are the
  * native-only fields it keeps in data.extensions.rolecall (plus its own character_book). Paths into
  * `entity.original`. Verified from RC source (serialize-v2.ts, tracker-presets.ts). Approved wireframe:
  * design/vs-native-rolecall.html.

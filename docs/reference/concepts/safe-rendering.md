@@ -39,7 +39,7 @@ never the weaker "it did not pop an alert".
 
 A rendered link is untrusted twice over: it can point anywhere, and its visible text can lie about where
 it points. So no link navigates directly. `RenderBox` intercepts a plain left-click on any rendered
-anchor (`onRenderedClick`) and routes it to a full-window "you are leaving Vaude" page
+anchor (`onRenderedClick`) and routes it to a full-window "you are leaving Hoplight" page
 (`src/ui/components/leaving-gate`) that shows the REAL destination host and url, and warns when the
 link's text named a different host (`externalLinkInfo.mismatch`). Modified clicks (ctrl/meta/middle) are
 left to native behavior - a deliberate "open anyway".

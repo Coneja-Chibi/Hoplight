@@ -24,7 +24,7 @@ const FRIENDLY: Record<string, string> = {
   backyard: "Backyard (legacy)",
   byaf: "Backyard",
   "novelai-lorebook": "NovelAI",
-  "vaud-json": "Vaude",
+  "vaud-json": "Hoplight",
   lumiverse: "Lumiverse",
   pygmalion: "Pygmalion",
   "sillytavern-regex": "SillyTavern",

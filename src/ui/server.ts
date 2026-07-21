@@ -133,8 +133,8 @@ export function createHandler(
     if (p === "/app.webmanifest") {
       return text(
         JSON.stringify({
-          name: "Vaude.",
-          short_name: "Vaude.",
+          name: "Hoplight.",
+          short_name: "Hoplight.",
           icons: [{ src: "/icon-256.png", sizes: "256x256", type: "image/png" }],
           display: "standalone",
           // hardcode-ok: the web-manifest spec takes literal colors, CSS vars cannot reach it

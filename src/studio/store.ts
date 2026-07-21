@@ -1,5 +1,5 @@
 /**
- * The studio store - Vaude local-first entity storage with path containment and atomic writes.
+ * The studio store - Hoplight local-first entity storage with path containment and atomic writes.
  */
 import { mkdir, readdir, access } from "node:fs/promises";
 import { constants } from "node:fs";

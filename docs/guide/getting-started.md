@@ -23,7 +23,7 @@ Getting started is four things: install Hoplight, run the first-run wizard once,
    ```bash
    bun run dev
    ```
-   This starts a loopback-only server and prints its address, `127.0.0.1:8321` by default. Open that in your browser. Your pieces live as plain JSON in a studio folder at `~/Documents/Vaude Studio` unless you point it elsewhere: `bun run vaud ui 8321 path/to/studio`.
+   This starts a loopback-only server and prints its address, `127.0.0.1:8321` by default. Open that in your browser. Your pieces live as plain JSON in a studio folder at `~/Documents/Hoplight Studio` unless you point it elsewhere: `bun run hoplight ui 8321 path/to/studio`.
 3. **Answer the wizard, or don't.** The very first run only, it asks four questions. Skip all fills in the defaults and drops you straight into the studio; every answer can still change in Settings afterward.
 4. **Land on the Library's two doors.** A brand-new studio opens here exactly once. Drag a file onto the primary door, or click it to browse for one.
 5. **Check the receipt, then click Import.** Uncheck anything you do not want kept. Import only writes the pieces still checked.
@@ -39,7 +39,7 @@ The wizard only appears once, the first time `bun run dev` finds no completed se
 3. **Where do you publish?** A multi-select list, pulled live from every platform format Hoplight currently knows (so a new format you drop in earns a slot automatically). Not sure yet is the default and keeps every slot ready either way.
 4. **Pick your color.** One accent color for the whole workspace, chosen from the house palette. Rose is the default. Setup does not offer a custom color, only Settings and a piece's own editor do that.
 
-Skip all at any point fills whatever is left with its default and jumps to the closing screen. That screen says "You're set," recaps what you picked, and Open Vaude carries it into the studio.
+Skip all at any point fills whatever is left with its default and jumps to the closing screen. That screen says "You're set," recaps what you picked, and Open Hoplight carries it into the studio.
 
 @fig boot
 
@@ -74,5 +74,5 @@ An honest note: the empty studio's second door, "Click here to start fresh," is 
 - The wizard's Skip all is not a lesser path. Every question it asks is also a Settings field, so skipping costs you nothing you can't fix in ten seconds later.
 - The Library opens on the deck you picked in "What do you want to make first?" the first time, and remembers whatever deck you last had open after that.
 - A lorebook that arrives attached to a character comes in as one bundle under one receipt row; that row's entry count is the lorebook's.
-- If a file's receipt reads "We could not read this one," that's a format Hoplight does not recognize yet, not a broken file. `bun run vaud formats` lists everything currently supported.
-- Point the studio at a different folder any time with `bun run vaud ui 8321 path/to/studio`. Nothing about your studio folder is baked into the install.
+- If a file's receipt reads "We could not read this one," that's a format Hoplight does not recognize yet, not a broken file. `bun run hoplight formats` lists everything currently supported.
+- Point the studio at a different folder any time with `bun run hoplight ui 8321 path/to/studio`. Nothing about your studio folder is baked into the install.

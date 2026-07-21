@@ -11,7 +11,7 @@ describe("lore platform cards", () => {
     }
   });
 
-  test("the Vaude lens surfaces every card", () => {
+  test("the Hoplight lens surfaces every card", () => {
     expect(cardsForLens("full").map((c) => c.id)).toEqual(LORE_PLATFORM_CARDS.map((c) => c.id));
   });
 

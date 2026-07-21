@@ -56,7 +56,7 @@ function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
 
   return (
     <>
-      <SettingsRow label="Home" hint="The room Vaude opens in when you start it.">
+      <SettingsRow label="Home" hint="The room Hoplight opens in when you start it.">
         <SegControl
           options={apps.map((m) => ({ value: m.id, label: m.title.replace(/^The /, "") }))}
           current={home}

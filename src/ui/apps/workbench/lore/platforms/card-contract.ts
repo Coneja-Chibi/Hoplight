@@ -2,7 +2,7 @@
  * The lore platform-card contract - the character editor's platforms/<key>.ts doctrine applied to
  * lorebooks: ONE FILE PER PLATFORM declares that platform's long-tail entry fields, rendered as a
  * platform-named folded card at the page's foot. A platform with no long tail simply has no file
- * (deny by absence). `lenses` names the Write-for lenses that surface the card; the Vaude (full)
+ * (deny by absence). `lenses` names the Write-for lenses that surface the card; the Hoplight (full)
  * lens surfaces every card.
  */
 import type { JSX } from "react";

@@ -21,7 +21,7 @@ const cssWorkshopTour: Tour = {
       id: "preview",
       anchor: "css-preview",
       title: "Sealed preview",
-      body: "The mock is sandboxed. Vaude never applies this CSS to the app chrome. Hosts apply it when you paste.",
+      body: "The mock is sandboxed. Hoplight never applies this CSS to the app chrome. Hosts apply it when you paste.",
     },
     {
       id: "starters",

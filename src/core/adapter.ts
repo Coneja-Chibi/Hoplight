@@ -47,7 +47,7 @@ interface AdapterBase {
   outputExtensions: string[];
   /** 0..1 confidence that this adapter can read the given input. */
   detect(input: AdapterInput): number;
-  /** True on Vaude's own storage format(s): still import/exportable, but never offered as an
+  /** True on Hoplight's own storage format(s): still import/exportable, but never offered as an
    * external "publish to" platform (the truth lives here, with the format, not in any UI list). */
   native?: boolean;
   /** True on the GENERIC reader of a family (the plain Tavern/CC card): cards it claims carry no

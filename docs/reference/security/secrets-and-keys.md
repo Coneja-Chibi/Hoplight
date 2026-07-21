@@ -38,7 +38,7 @@ server (`specs/engine/key-vault.md:16-24`).
 
 The spec splits state so that only one half is ever secret (`specs/engine/key-vault.md:30-42`):
 
-- **Non-secret metadata** in `~/.vaud/vault.json`: provider kind, label, base URL, organization id, and
+- **Non-secret metadata** in `~/.hoplight/vault.json`: provider kind, label, base URL, organization id, and
   the *names* of any extra headers, never values that could carry a token. Plain JSON, safe to read.
 - **Secret material**: the API key string, plus any `extraHeaders` values (a header can itself carry a
   bearer), keyed by the provider config id. This lives only in one of the two backends below, never in
@@ -55,14 +55,14 @@ On first vault use the spec probes for OS keychain support and records the choic
 
 1. **OS keychain** (Windows Credential Manager, macOS Keychain, Linux Secret Service via libsecret) when
    a native binding loads and a canary write-then-read round-trip succeeds. One entry per config:
-   `service = "vaud"`, `account = providerConfig.id`, secret = JSON-stringified
+   `service = "hoplight"`, `account = providerConfig.id`, secret = JSON-stringified
    `{ apiKey, extraHeaders? }` (`specs/engine/key-vault.md:77-82`).
 2. **Encrypted file** everywhere else (headless Linux, WSL, containers with no Secret Service daemon),
    with a one-time stderr warning (`specs/engine/key-vault.md:52-56`):
-   - `~/.vaud/vault.key`: 32 bytes from `crypto.randomBytes(32)`, generated once, permissions restricted
+   - `~/.hoplight/vault.key`: 32 bytes from `crypto.randomBytes(32)`, generated once, permissions restricted
      to the owner (`chmod 600` on POSIX, an owner-only ACL on Windows). This is the local secret, not a
      passphrase, and is not stretched by a KDF (`specs/engine/key-vault.md:84-96`).
-   - `~/.vaud/vault.enc`: one AES-256-GCM encrypted JSON blob, fresh random 96-bit IV per write, the GCM
+   - `~/.hoplight/vault.enc`: one AES-256-GCM encrypted JSON blob, fresh random 96-bit IV per write, the GCM
      auth tag appended to the ciphertext. Writes are atomic: encrypt to a temp file, `fsync`, rename over
      the target, so a crash mid-write cannot corrupt the previous good state
      (`specs/engine/key-vault.md:92-101`).

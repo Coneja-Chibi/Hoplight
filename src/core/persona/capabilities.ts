@@ -43,7 +43,7 @@ export type PersonaFieldKey =
 
 /** Platform tab labels (ONE platform per lens, never smushed - the lore/regex precedent). */
 export const PERSONA_WRITE_FOR_LABELS: Record<PersonaWriteForProfile, string> = {
-  full: "Vaude",
+  full: "Hoplight",
   rolecall: "RoleCall",
   sillytavern: "SillyTavern",
   lumiverse: "Lumiverse",

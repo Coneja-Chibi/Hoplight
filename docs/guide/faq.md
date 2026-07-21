@@ -20,7 +20,7 @@ Four questions come up more than any others: where your files go, what actually 
 
 ## Is my content private?
 
-Yes. `vaud ui` starts a local server bound to `127.0.0.1`, loopback only, so nothing outside your own machine can reach it. Your pieces are stored as plain JSON, one file per piece, in a studio folder on your disk (`Documents/Vaude Studio` by default, unless you point it somewhere else). No one at Hoplight can read them.
+Yes. `hoplight ui` starts a local server bound to `127.0.0.1`, loopback only, so nothing outside your own machine can reach it. Your pieces are stored as plain JSON, one file per piece, in a studio folder on your disk (`Documents/Hoplight Studio` by default, unless you point it somewhere else). No one at Hoplight can read them.
 
 There is no sign-up and no account anywhere in the app. Every request the interface makes goes to that same local server, not to some service on the internet, and there is no telemetry: nothing about what you open, edit, or convert is collected or sent anywhere.
 

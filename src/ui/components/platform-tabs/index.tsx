@@ -38,7 +38,7 @@ export function PlatformTabs({ platforms, selected, onToggle, onClear, offTarget
         onClick={onClear}
         title="The full canonical card: every field lit, nothing judged"
       >
-        Vaude <i className={styles.hint}>full card</i>
+        Hoplight <i className={styles.hint}>full card</i>
       </button>
       {platforms.map((p) => (
         <button

@@ -35,7 +35,7 @@ describe("isRegexWriteForProfile / parseWriteFor", () => {
 describe("REGEX_WRITE_FOR_LABELS", () => {
   test("every profile has a label, full reads as the studio name", () => {
     for (const p of REGEX_WRITE_FOR_PROFILES) expect(REGEX_WRITE_FOR_LABELS[p]).toBeTruthy();
-    expect(REGEX_WRITE_FOR_LABELS.full).toBe("Vaude");
+    expect(REGEX_WRITE_FOR_LABELS.full).toBe("Hoplight");
   });
 });
 

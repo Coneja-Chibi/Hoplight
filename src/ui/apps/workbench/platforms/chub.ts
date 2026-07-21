@@ -52,7 +52,7 @@ const chub: NativeSchema = {
       control: "css-workshop",
       cssPack: "chub-card",
       help:
-        "Chub page styling as plain CSS. Sealed preview only in Vaude; never applied to the app.",
+        "Chub page styling as plain CSS. Sealed preview only in Hoplight; never applied to the app.",
     },
     {
       path: `${CHUB}.preset`,

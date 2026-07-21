@@ -16,7 +16,7 @@ export interface LensRailProps {
   onOffTarget(m: OffTarget): void;
 }
 
-/** One-line sideways-scrolling lens chips; Vaude (full card) first, off-target mode at the tail. */
+/** One-line sideways-scrolling lens chips; Hoplight (full card) first, off-target mode at the tail. */
 export function LensRail({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps): JSX.Element {
   return (
     <div className={styles.rail}>
@@ -28,7 +28,7 @@ export function LensRail({ platforms, selected, onToggle, onClear, offTarget, on
           className={`${styles.chip}${selected.length === 0 ? ` ${styles.on}` : ""}`}
           onClick={onClear}
         >
-          Vaude
+          Hoplight
         </button>
         {platforms.map((p) => (
           <button

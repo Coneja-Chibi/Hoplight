@@ -115,7 +115,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-20.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-21.",
       "tags": [],
       "related": [],
       "anchors": [
@@ -1644,9 +1644,9 @@
     {
       "id": "reference/README",
       "path": "docs/reference/README.md",
-      "title": "vaud documentation",
+      "title": "hoplight documentation",
       "audience": "dev",
-      "summary": "This is the reference documentation for **vaud**, the Vaudeville Studios converter for AI-roleplay content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by",
+      "summary": "This is the reference documentation for **hoplight**, the Vaudeville Studios converter for AI-roleplay content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by",
       "tags": [],
       "related": [],
       "anchors": [
@@ -1749,7 +1749,7 @@
       "path": "docs/reference/cli.md",
       "title": "CLI reference",
       "audience": "dev",
-      "summary": "Every vaud command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.",
+      "summary": "Every hoplight command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.",
       "tags": [
         "cli",
         "reference"
@@ -1775,43 +1775,43 @@
           "level": 2
         },
         {
-          "text": "`vaud convert <in> <out>`",
-          "slug": "vaud-convert-in-out",
+          "text": "`hoplight convert <in> <out>`",
+          "slug": "hoplight-convert-in-out",
           "level": 2
         },
         {
-          "text": "`vaud inspect <file>`",
-          "slug": "vaud-inspect-file",
+          "text": "`hoplight inspect <file>`",
+          "slug": "hoplight-inspect-file",
           "level": 2
         },
         {
-          "text": "`vaud validate <file>`",
-          "slug": "vaud-validate-file",
+          "text": "`hoplight validate <file>`",
+          "slug": "hoplight-validate-file",
           "level": 2
         },
         {
-          "text": "`vaud label <file>`",
-          "slug": "vaud-label-file",
+          "text": "`hoplight label <file>`",
+          "slug": "hoplight-label-file",
           "level": 2
         },
         {
-          "text": "`vaud formats`",
-          "slug": "vaud-formats",
+          "text": "`hoplight formats`",
+          "slug": "hoplight-formats",
           "level": 2
         },
         {
-          "text": "`vaud ui [port] [studioDir]`",
-          "slug": "vaud-ui-port-studiodir",
+          "text": "`hoplight ui [port] [studioDir]`",
+          "slug": "hoplight-ui-port-studiodir",
           "level": 2
         },
         {
-          "text": "`vaud version`",
-          "slug": "vaud-version",
+          "text": "`hoplight version`",
+          "slug": "hoplight-version",
           "level": 2
         },
         {
-          "text": "`vaud help`",
-          "slug": "vaud-help",
+          "text": "`hoplight help`",
+          "slug": "hoplight-help",
           "level": 2
         },
         {
@@ -2014,7 +2014,7 @@
       "path": "docs/reference/concepts/detection.md",
       "title": "Detection and the registry",
       "audience": "dev",
-      "summary": "How vaud sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.",
+      "summary": "How hoplight sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.",
       "tags": [
         "concept",
         "detection",
@@ -2187,7 +2187,7 @@
       "path": "docs/reference/concepts/regex-engine.md",
       "title": "Concept: the regex engine",
       "audience": "dev",
-      "summary": "How vaud actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects). The entity it operates on is [entities/regex.md](../entities/regex.md); per-platform field/phase truth lives in `src/core/regex/capabilities.ts`",
+      "summary": "How hoplight actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects). The entity it operates on is [entities/regex.md](../entities/regex.md); per-platform field/phase truth lives in `src/core/regex/capabilities",
       "tags": [],
       "related": [],
       "anchors": [
@@ -2930,7 +2930,7 @@
       "path": "docs/reference/formats/README.md",
       "title": "Formats",
       "audience": "dev",
-      "summary": "Every format vaud reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one reference page here.",
+      "summary": "Every format hoplight reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one",
       "tags": [],
       "related": [],
       "anchors": [
@@ -3651,7 +3651,7 @@
       "path": "docs/reference/security/README.md",
       "title": "Security threat model and defense layers",
       "audience": "dev",
-      "summary": "The assets vaud protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.",
+      "summary": "The assets hoplight protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.",
       "tags": [
         "security",
         "threat-model",
@@ -3730,7 +3730,7 @@
       "path": "docs/reference/security/archives.md",
       "title": "Safe archive handling: .charx and .byaf",
       "audience": "dev",
-      "summary": "How vaud bounds a .charx or .byaf ZIP before and after inflation to resist a zip bomb, and where entry names are (and are not yet) checked for path traversal before they can become a filesystem write or a re-exported archive path.",
+      "summary": "How hoplight bounds a .charx or .byaf ZIP before and after inflation to resist a zip bomb, and where entry names are (and are not yet) checked for path traversal before they can become a filesystem write or a re-exported archive path.",
       "tags": [
         "security",
         "archive",
@@ -3945,7 +3945,7 @@
       "path": "docs/reference/security/script-sandbox.md",
       "title": "The Lua script sandbox",
       "audience": "dev",
-      "summary": "How vaud runs an untrusted card script in a terminable worker on a distinct loopback origin, behind a versioned value-only wire protocol and resource budgets that clamp downward only, with an honest account of what is enforced versus what is not yet measured.",
+      "summary": "How hoplight runs an untrusted card script in a terminable worker on a distinct loopback origin, behind a versioned value-only wire protocol and resource budgets that clamp downward only, with an honest account of what is enforced versus what is not yet measured.",
       "tags": [
         "security",
         "sandbox",
@@ -4138,7 +4138,7 @@
     {
       "id": "reference/ui",
       "path": "docs/reference/ui.md",
-      "title": "The visual app (vaud ui)",
+      "title": "The visual app (hoplight ui)",
       "audience": "dev",
       "summary": "uses. One engine, two shells - no format logic exists in the UI layer.",
       "tags": [],

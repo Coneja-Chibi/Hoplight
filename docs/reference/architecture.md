@@ -9,7 +9,7 @@ related: [reference/entities/character, reference/formats/sillytavern, reference
 
 # Architecture
 
-vaud converts AI-roleplay content between formats without losing information. This page explains the
+hoplight converts AI-roleplay content between formats without losing information. This page explains the
 whole engine: how a file becomes a canonical entity and back, and why the design guarantees are what
 they are.
 
@@ -76,7 +76,7 @@ original["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... }
   twin.
 - **Cross-format conversion is contained-loss by design.** Only the canonical body crosses. One app's
   private junk (its extension blocks, trigger scripts, bespoke layout) is deliberately **not** copied
-  into another app's file. This is a safety guarantee, not a gap: vaud never blind-copies one app's
+  into another app's file. This is a safety guarantee, not a gap: hoplight never blind-copies one app's
   fields or executable payloads into another. The future refinement is opt-in per-field extension
   mappers, never a blind copy.
 - **Binary carriers are kept.** An `EscrowEntry` may carry `sourceMedia: { b64, mime }` - the file
@@ -185,7 +185,7 @@ cli / app   depend on formats + core
 ```
 
 The engine never imports UI, a database, or a framework. Prove the converter (canonical + adapters +
-tests) before any UI. The CLI was the first surface for that reason; the desktop Studio (`vaud ui`,
+tests) before any UI. The CLI was the first surface for that reason; the desktop Studio (`hoplight ui`,
 a local Bun server + React app, see [ui.md](ui.md)) now sits beside it on the same engine.
 
 ## The CLI
@@ -194,13 +194,13 @@ a local Bun server + React app, see [ui.md](ui.md)) now sits beside it on the sa
 
 | Command | Does |
 | --- | --- |
-| `vaud convert <in> <out> [--to <format>]` | Convert a file. Target resolved by `--to` or the output extension. |
-| `vaud inspect <file>` | Show what is inside a file (kind, name, key fields). |
-| `vaud label <file>` | Guess a card's format and likely origin app. |
-| `vaud validate <file>` | Validate a file against its detected format and the canonical schema. |
-| `vaud formats` | List every adapter the registry discovered (the single source of truth). |
-| `vaud ui` | Launch the desktop Studio (local server, loopback-only). |
-| `vaud version` / `vaud help` | The obvious. |
+| `hoplight convert <in> <out> [--to <format>]` | Convert a file. Target resolved by `--to` or the output extension. |
+| `hoplight inspect <file>` | Show what is inside a file (kind, name, key fields). |
+| `hoplight label <file>` | Guess a card's format and likely origin app. |
+| `hoplight validate <file>` | Validate a file against its detected format and the canonical schema. |
+| `hoplight formats` | List every adapter the registry discovered (the single source of truth). |
+| `hoplight ui` | Launch the desktop Studio (local server, loopback-only). |
+| `hoplight version` / `hoplight help` | The obvious. |
 
 ## Source of truth
 

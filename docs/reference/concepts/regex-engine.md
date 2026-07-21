@@ -1,6 +1,6 @@
 # Concept: the regex engine
 
-How vaud actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects).
+How hoplight actually RUNS a regex set. Source of truth: `src/core/regex/` (pure, no side effects).
 The entity it operates on is [entities/regex.md](../entities/regex.md); per-platform field/phase
 truth lives in `src/core/regex/capabilities.ts` + `platform-fields.ts` (the position-picker law:
 per-platform facts live in the matrix, never a UI literal).

@@ -23,7 +23,7 @@ Editing happens on the Workbench. A piece opens there as its own tab, already fi
 
 ## The editor panels
 
-A character's editor opens with a strip of platform tabs above the fields. The first, labeled Vaude, is the full card with nothing hidden; select the platforms you're writing for and fields that platform can't carry leave the form. A Lens count next to the tabs says how many fields survive. Next to that, Hide and Dim look like two settings, but today they do the same thing: fields drop out of the form either way, dim included, that half is not built yet.
+A character's editor opens with a strip of platform tabs above the fields. The first, labeled Hoplight, is the full card with nothing hidden; select the platforms you're writing for and fields that platform can't carry leave the form. A Lens count next to the tabs says how many fields survive. Next to that, Hide and Dim look like two settings, but today they do the same thing: fields drop out of the form either way, dim included, that half is not built yet.
 
 Below the tabs, the header carries the piece's name, a scale control, the Grid/Steps and Bento/Playbill toggles, Save, and Export. The toggles show only until you've taken the tour once; after that they live in Settings, under Workbench. Export is covered in Convert a card. Six completion chips, Portrait, Name, Core Prompts, Greeting, Tags, Lens Check, track what's filled in.
 
@@ -46,7 +46,7 @@ Closing a tab, the &times; or the Delete key, does not ask first. It just discar
 ## Tips
 
 - The dirty dot on a tab is the one thing to watch. No dot, no unsaved work.
-- The platform tabs change what you see, not what you save. Click the Vaude tab to clear the selection and see the whole card again.
+- The platform tabs change what you see, not what you save. Click the Hoplight tab to clear the selection and see the whole card again.
 - Sealed Cargo is read-only on purpose: it's what makes a same-app round-trip lossless.
 - If your first-run tour already ran, the layout and mode toggles moved to Settings, under Workbench. Right-click anywhere and choose Replay tutorials to bring them back into the header.
 - A piece with no scripts never shows the Workshop toggle. If you were expecting it, the card just doesn't carry any.

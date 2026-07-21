@@ -49,7 +49,7 @@ specific formats outrank generic ones (`architecture.md`, "Detection and the reg
 - `schemaVersion` is `undefined`,
 - `body` is `undefined`.
 
-The last two clauses are the firewall against vaud's own native wrapper: a `vaud-json` entity carries
+The last two clauses are the firewall against hoplight's own native wrapper: a `vaud-json` entity carries
 `schemaVersion` and `body`, so requiring both absent stops Agnai from fighting `vaud-json` on the same
 file (`index.ts:317-324`). A parse failure or missing text returns `0` (`index.ts:313-314,326-327`).
 Agnai scores `1.0`, not `0.9`, because it is a specific, self-identifying shape: no other adapter claims

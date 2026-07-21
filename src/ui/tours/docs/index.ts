@@ -7,7 +7,7 @@ const docsTour: Tour = {
     {
       id: "welcome",
       title: "The docs live here too",
-      body: "This is the same documentation committed to GitHub, packaged into Vaude so it is always close by.",
+      body: "This is the same documentation committed to GitHub, packaged into Hoplight so it is always close by.",
     },
     {
       id: "search",

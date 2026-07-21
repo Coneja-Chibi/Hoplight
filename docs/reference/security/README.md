@@ -2,7 +2,7 @@
 id: reference/security/README
 title: Security threat model and defense layers
 audience: dev
-summary: The assets vaud protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.
+summary: The assets hoplight protects, the untrusted inputs it faces, and each defense layer with its honest tested or scaffolded status.
 tags: [security, threat-model, sandbox, redos, sanitization, byok, loopback]
 related:
   - reference/architecture
@@ -13,7 +13,7 @@ related:
 
 # Security
 
-vaud ingests untrusted files (character cards with embedded scripts, PNG and ZIP payloads, regex rules,
+hoplight ingests untrusted files (character cards with embedded scripts, PNG and ZIP payloads, regex rules,
 Risu Lua) and holds the user's provider API keys. Security is a first-class story, so this page states
 each defense and its honest status: what is enforced and covered by a code-layer suite, versus what is
 scaffolded but not yet measured. Overclaiming in a security document is a defect worse than a gap. Where
@@ -50,7 +50,7 @@ server evaluates nothing: scripts in entities are data, nothing is ever evaluate
 (`src/ui/server.ts:8-9`).
 
 Cross-format conversion is contained-loss by design. Only the canonical body crosses; one app's private
-junk, including any executable payload, is deliberately not copied into another app's file. vaud never
+junk, including any executable payload, is deliberately not copied into another app's file. hoplight never
 blind-copies one app's fields or executable payloads into another
 (`docs/reference/architecture.md:70-72`). The adapter contract makes a cross-kind call unrepresentable,
 so a lorebook can never be handed to a character writer (`docs/reference/architecture.md:104-111`).
@@ -116,7 +116,7 @@ Status: the pure policy has a suite at `src/ui/_shared/render-policy.test.ts`; t
 
 ### 5. The Lua sandbox and its resource budgets
 
-Lua is the one untrusted input vaud executes, and it runs only when the user opens the Risu Test Bench,
+Lua is the one untrusted input hoplight executes, and it runs only when the user opens the Risu Test Bench,
 never automatically on import (`docs/decisions/ADR-009-sandbox-origin.md:9-10`, `:40-41`).
 
 **Capability by absence.** The wasmoon (PUC-Lua 5.4) engine opens no standard libraries by default and

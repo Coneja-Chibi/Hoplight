@@ -18,7 +18,7 @@ This is a security page, so it errs toward honesty over comfort. Where a protect
 - **The server is loopback only.** When you open the studio it binds `127.0.0.1`, the local-only address, and prints it (`127.0.0.1:8321` by default). Nothing outside your machine can reach it.
 - **There are no outbound calls.** No part of the app phones home, uploads a card, or fetches a preview from a remote site. There is no network client in the codebase aimed at anything but your own loopback address, and the safety FAQ invites you to grep it and check.
 - **There are no accounts.** No sign-in, no cloud, nothing to breach somewhere else.
-- **Your pieces are plain files.** Everything you import or edit lives as JSON in a studio folder you can open, read, and back up yourself (`~/Documents/Vaude Studio` unless you point it elsewhere).
+- **Your pieces are plain files.** Everything you import or edit lives as JSON in a studio folder you can open, read, and back up yourself (`~/Documents/Hoplight Studio` unless you point it elsewhere).
 
 One honest limit: local means not uploaded, not encrypted at rest. Your studio folder is readable JSON on your own disk on purpose, so anyone who can already read your files can read your pieces. Guard the folder the way you guard the rest of your documents.
 

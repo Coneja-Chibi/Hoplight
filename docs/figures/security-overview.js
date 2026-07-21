@@ -18,7 +18,7 @@ export default {
     fig: "fig 01",
     title: "each untrusted input, its own gate",
     caption:
-      "vaud does not funnel every input through one pipeline. Each kind of untrusted content meets " +
+      "hoplight does not funnel every input through one pipeline. Each kind of untrusted content meets " +
       "the gate built for it. Import and conversion never execute a card's scripts; the only code " +
       "that runs is Lua, sandboxed, and only when the user opens the Test Bench.",
     cols: ["Entry gate", "Handling", "Runs code?"],

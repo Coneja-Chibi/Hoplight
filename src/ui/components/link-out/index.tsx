@@ -1,6 +1,6 @@
 /**
  * LinkOut - a reusable selector/link to ANOTHER editor. Lorebooks and regex are their own content
- * types in Vaude, so on a character card they appear as this: a chip that shows what's attached and
+ * types in Hoplight, so on a character card they appear as this: a chip that shows what's attached and
  * jumps to the dedicated editor (wired via onAction once that editor exists; until then it renders a
  * quiet "opens here soon" stub, never a fake button). An empty state offers to attach one.
  */

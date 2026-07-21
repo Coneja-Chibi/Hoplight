@@ -1,5 +1,5 @@
 /**
- * The Library app (CONTRACT V2, React) - the shelves, Vaude's deep-browse room (browsing IS the
+ * The Library app (CONTRACT V2, React) - the shelves, Hoplight's deep-browse room (browsing IS the
  * Library). Empty studio = the locked first-run doors; populated = the browse room: deck chips
  * with live counts, drop-in DECK VIEWS (views/registry: grid/showcase/list), the continuous
  * art-size dial, all persisted via ctx.prefs. Opens on the deck chosen at setup. Import (drop
@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, JSX } from "react";
-import type { AppContext, StudioEntitySummary, VaudeApp } from "../../app-contract";
+import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
 import { bundlePayloadFromInspect, deckCounts } from "./deck-core";
 import {
@@ -461,7 +461,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   );
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "library",
     title: "The Library",

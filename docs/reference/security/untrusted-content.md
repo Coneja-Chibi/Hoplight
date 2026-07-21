@@ -16,7 +16,7 @@ related:
 # Cards and files as untrusted input
 
 A character card, a standalone lorebook, a regex set, and the zip containers that wrap them (`.charx`,
-`.byaf`, `.risum`) are all author-controlled content the user opens, never content vaud fetches itself.
+`.byaf`, `.risum`) are all author-controlled content the user opens, never content hoplight fetches itself.
 This is layer 1 of the threat model (`docs/reference/security/README.md`, "Parse, not execute"). The
 guarantee this page documents: every one of those files is read by exactly one tolerant parser into the
 canonical model, nothing on that path evaluates a script, and a cross-format conversion carries only the
@@ -65,7 +65,7 @@ fail to a known empty value. None of them throw on bad input and none of them ev
 
 ## Two script surfaces, neither runs on import
 
-A card can carry two different kinds of authored script, and vaud treats both the same way at the door:
+A card can carry two different kinds of authored script, and hoplight treats both the same way at the door:
 classified as data, never evaluated, until an operator explicitly stages one.
 
 **Declarative trigger rows** (Risu's `triggerscript`: condition/effect pairs like "if a variable equals
@@ -94,7 +94,7 @@ their own honest proof gaps: see [script-sandbox.md](script-sandbox.md). This pa
 boundary: execution never happens on import, never happens during a format conversion, and never happens
 without the operator opening the Test Bench and clicking Run.
 
-A card can also request Risu's low-level script API (`lowLevelAccess`). vaud surfaces that request as a
+A card can also request Risu's low-level script API (`lowLevelAccess`). hoplight surfaces that request as a
 boolean, `privileged` (`schema.ts:312-314`, "a warning marker for the UI and a sandbox gating input, never
 an execution trigger"), read off the card on import (`src/formats/risu/index.ts:73-78`) and rendered to
 the operator as "It asks for deep access - we do not grant that" (`src/ui/receipt.ts:88`). Denial is
@@ -131,7 +131,7 @@ never executed here" (`coverage.ts:38`). Every other format's coverage declarati
 export-honesty layer turns that gap into a statement the operator actually sees instead of a silent drop:
 `buildExportHonesty` computes `carriesBehavior` straight from the target's own coverage claim
 (`src/ui/components/export-dialog/honesty.ts:345`) and, for any target that does not claim it, pushes an
-explicit line naming exactly what will not travel: "`<target>` does not carry Vaude behavior scripts.
+explicit line naming exactly what will not travel: "`<target>` does not carry Hoplight behavior scripts.
 Trigger rules, regex, virtual script, and backdrop HTML will not travel." (`honesty.ts:374-379`), plus a
 separate line when a packaged `.risum` module is present: "The card package (module scripts, module lore,
 module regex) will be dropped." (`honesty.ts:380-384`). The import side states the mirror fact up front:

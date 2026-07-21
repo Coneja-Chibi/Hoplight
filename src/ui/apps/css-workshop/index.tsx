@@ -3,7 +3,7 @@
  * Thin shell: manifest + Room. Shared leaf: components/css-workshop.
  * Plan: docs/CSS-WORKSHOP-PLAN.md · Wireframes: design/vs-css-workshop*.html
  */
-import type { VaudeApp } from "../../app-contract";
+import type { HoplightApp } from "../../app-contract";
 import { CssWorkshopRoom } from "./room";
 
 /** palette mark (flat stroke; house grammar) */
@@ -15,7 +15,7 @@ const MARK_SVG =
   '<circle cx="15" cy="10.2" r="1.1" fill="currentColor" stroke="none"/>' +
   "</svg>";
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "css-workshop",
     title: "CSS Workshop",

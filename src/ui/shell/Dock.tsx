@@ -75,7 +75,7 @@ export function Dock(): JSX.Element {
         <button
           type="button"
           className={`dockslot${catalog?.id === activeAppId ? " on" : ""}`}
-          title="Browse apps included with Vaude"
+          title="Browse apps included with Hoplight"
           aria-label="Browse apps"
           aria-current={catalog?.id === activeAppId ? "page" : undefined}
           disabled={!catalog}

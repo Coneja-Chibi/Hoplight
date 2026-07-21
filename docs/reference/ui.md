@@ -1,11 +1,11 @@
-# The visual app (vaud ui)
+# The visual app (hoplight ui)
 
-`vaud ui [port] [studioDir]` boots the local studio: a loopback-only Bun server (default
+`hoplight ui [port] [studioDir]` boots the local studio: a loopback-only Bun server (default
 `127.0.0.1:8321`) serving the shell and a JSON API that is a thin skin over the same engine the CLI
 uses. One engine, two shells - no format logic exists in the UI layer.
 
 ## Hyper-modularity (the build's spine)
-- **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `VaudeApp`
+- **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
   `comingSoon` / `catalogOnly` / `appCatalog`) plus `Component(ctx)`. The server discovers them with
   `Bun.Glob` (`_`-prefixed folders skipped) and bundles each for the browser on demand. A normal app
@@ -68,12 +68,12 @@ on GitHub, so there is one source rather than an in-app copy. Each page's **view
 uses the existing leaving gate and `/api/open` URL allowlist.
 
 ## Dev live-reload
-`vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
+`hoplight ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
 every open page; bundles are built fresh per request, so edits appear on save. The packaged exe
 serves baked bundles and 404s the stream (the client goes quiet). Zero dependencies.
 
 ## The card-type chip
-Summaries carry `sourceFormat` + `sourceVariant` (the first non-vaud escrow entry). The Library
+Summaries carry `sourceFormat` + `sourceVariant` (the first non-hoplight escrow entry). The Library
 maps ids to chip labels from the LIVE registry: platform name when the adapter is
 platform-specific ("RoleCall · V3"), "Default" when the adapter declares `generic` (the plain
 Tavern/CC reader); no source = no chip (made from scratch).
@@ -190,8 +190,8 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   the character editor's native-fields doctrine applied to lore: ONE FILE PER PLATFORM under
   `lore/platforms/` (sillytavern/rolecall/novelai/risu; registry.ts is the one stated seam;
   platforms with no long tail have no file - deny by absence), each rendering a platform-NAMED
-  folded card surfaced only by its Write-for lens (Vaude shows them all; RoleCall has no lens -
-  the Vaude card covers its wire). The lens select lists each platform separately - SillyTavern,
+  folded card surfaced only by its Write-for lens (Hoplight shows them all; RoleCall has no lens -
+  the Hoplight card covers its wire). The lens select lists each platform separately - SillyTavern,
   Chub, and Lumiverse are three lenses on the codec-grounded ownership matrix
   (`core/lore/platform-fields.ts`), never one smushed tab. RIGHT
   (`entry-rail.tsx`): the fine print - Order & survival label/value rows (order, priority, always

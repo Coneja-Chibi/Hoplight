@@ -217,7 +217,7 @@ together), but the SillyTavern codec (`src/formats/sillytavern/lorebook.ts`) con
 ### Filters and side effects
 
 `characterFilter` whitelists or blacklists the entry to specific characters or character tags.
-`sideEffects` is a list of variable mutations to run when the entry activates: declarative data vaud
+`sideEffects` is a list of variable mutations to run when the entry activates: declarative data hoplight
 never executes.
 
 ### CharacterFilter

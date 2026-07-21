@@ -2,14 +2,14 @@
 id: reference/concepts/detection
 title: Detection and the registry
 audience: dev
-summary: How vaud sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.
+summary: How hoplight sniffs a file's format from its content, scores each adapter's confidence, keeps the single best match above a threshold, and stops any detector from claiming another entity kind's files.
 tags: [concept, detection, registry, adapter, confidence, cross-kind]
 related: [reference/architecture, reference/formats/sillytavern, reference/entities/character, reference/entities/lorebook]
 ---
 
 # Detection and the registry
 
-vaud never trusts a file extension to say what a file is. It sniffs the content: every adapter inspects
+hoplight never trusts a file extension to say what a file is. It sniffs the content: every adapter inspects
 the bytes or the decoded text and returns a confidence, and the registry keeps the single highest score
 above a threshold. This page explains that one pass, the confidence gradient that makes a specific format
 outrank a generic one, and the firewall that stops a character reader from claiming a lorebook.
@@ -49,8 +49,8 @@ calls its `detect(input)`, and tracks the highest score; it returns that adapter
   equal later score never displaces an earlier one; the confidence ladder below is chosen distinct enough
   that detection never depends on registration order.
 
-Detection is the first step of every top-level operation: `vaud convert`, `vaud inspect`, `vaud validate`,
-and `vaud label` all resolve the source with `registry.detect(input)` before doing anything else
+Detection is the first step of every top-level operation: `hoplight convert`, `hoplight inspect`, `hoplight validate`,
+and `hoplight label` all resolve the source with `registry.detect(input)` before doing anything else
 (`src/cli.ts:185`, `src/cli.ts:241`, `src/cli.ts:286`, `src/cli.ts:322`), and so does the studio's inspect
 endpoint (`src/ui/server-engine.ts:58`).
 
@@ -80,7 +80,7 @@ generated [FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md), and for one family's sco
 
 ## Not detection: the origin labeler
 
-`vaud label` runs a second, separate scoring pass and reports its own `confidence`. Do not conflate it with
+`hoplight label` runs a second, separate scoring pass and reports its own `confidence`. Do not conflate it with
 `detect()`. After detection has already chosen the format, `labelCard` guesses which app most likely
 authored the card by testing app-namespaced extension blocks, and returns the winning rule's weight as a
 `0` to `1` confidence (`src/entities/character/provenance.ts:120-140`, `src/cli.ts:286-289`). That weight

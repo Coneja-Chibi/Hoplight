@@ -1,9 +1,9 @@
 /**
- * Open Vaude in the default browser (hot-reloading). Ensures a dev server is up on PORT - starting a
+ * Open Hoplight in the default browser (hot-reloading). Ensures a dev server is up on PORT - starting a
  * detached headless one if none is running - then opens the browser to it. UI edits (tsx/css)
  * hot-reload live via the dev server's reload stream; server-code changes still need the server
  * restarted. The native-window app (desktop-dev.ts) is the other way in; this is the browser way,
- * launched by the "Vaude (Browser)" Start Menu shortcut.
+ * launched by the "Hoplight (Browser)" Start Menu shortcut.
  */
 import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
@@ -26,7 +26,7 @@ const isUp = async (): Promise<boolean> => {
 if (!(await isUp())) {
   // start a detached headless dev server that outlives this launcher; process.execPath is the same
   // bun running this script, so no PATH assumption
-  const studioDir = join(homedir(), "Documents", "Vaude Studio");
+  const studioDir = join(homedir(), "Documents", "Hoplight Studio");
   spawn(process.execPath, ["run", "src/cli.ts", "ui", String(PORT), studioDir], {
     cwd: repoRoot,
     detached: true,

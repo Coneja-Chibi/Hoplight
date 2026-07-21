@@ -61,7 +61,7 @@ export type PresetFieldKey =
 
 /** Platform lens labels (ONE platform per lens, never smushed - the lore/regex/persona precedent). */
 export const PRESET_WRITE_FOR_LABELS: Record<PresetWriteForProfile, string> = {
-  full: "Vaude",
+  full: "Hoplight",
   rolecall: "RoleCall",
   sillytavern: "SillyTavern",
   marinara: "Marinara",

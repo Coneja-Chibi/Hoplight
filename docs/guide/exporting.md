@@ -25,11 +25,11 @@ Exporting writes a piece out in a specific platform's shape and hands you a file
 
 @fig honesty
 
-Every export runs the same check before it hands you a file: does the target even carry Vaude's behavior shape, the trigger scripts, regex, virtual script, backdrop HTML, and any packaged module rows a card can carry.
+Every export runs the same check before it hands you a file: does the target even carry Hoplight's behavior shape, the trigger scripts, regex, virtual script, backdrop HTML, and any packaged module rows a card can carry.
 
-**When the target carries behavior, scripts keep.** A format that claims Vaude's behavior shape re-exports your trigger scripts, regex, virtual script, and backdrop HTML along with the plain fields. A packaged module goes further only on Risu, where its .charx package re-packs the module's scripts and lore whole; anywhere else that still carries behavior, the module blob itself may not survive intact.
+**When the target carries behavior, scripts keep.** A format that claims Hoplight's behavior shape re-exports your trigger scripts, regex, virtual script, and backdrop HTML along with the plain fields. A packaged module goes further only on Risu, where its .charx package re-packs the module's scripts and lore whole; anywhere else that still carries behavior, the module blob itself may not survive intact.
 
-**When it does not, scripts drop, plain fields stay.** A leaner format has no place to run Vaude's rules, so trigger scripts, regex, virtual script, and backdrop HTML are marked dropped, not silently lost, you are told. Name, description, greetings, and the rest of the plain card still export regardless. If the rule pack matters, the dialog points you at Risu (.charx) instead.
+**When it does not, scripts drop, plain fields stay.** A leaner format has no place to run Hoplight's rules, so trigger scripts, regex, virtual script, and backdrop HTML are marked dropped, not silently lost, you are told. Name, description, greetings, and the rest of the plain card still export regardless. If the rule pack matters, the dialog points you at Risu (.charx) instead.
 
 A concrete case. Export a card with an expression pack and a linked lorebook to Agnai. The pack is marked dropped outright, Agnai has no PNG-pack recipe, only its own part system, and the linked lorebook maps into an Agnai MemoryBook with a warning that its regex keys may not survive the trip. Export the same card to SillyTavern or Risu instead and both lines read keep.
 

@@ -4,7 +4,7 @@
  * count + chevron), and, when expanded, the group description over a wrapping grid of macro pills.
  * Clicking a pill copies its token (green "Copied" state, then reverts). Which GROUPS appear is
  * capability-driven: the caller passes the groups the selected Write-for lens supports
- * (macroGroupsForProfile), so RC/Vaude show the whole engine while SillyTavern/Marinara show only
+ * (macroGroupsForProfile), so RC/Hoplight show the whole engine while SillyTavern/Marinara show only
  * what they can run - the "different options per app" the fixed RC panel can't do.
  */
 import { useState, type ComponentType, type JSX } from "react";

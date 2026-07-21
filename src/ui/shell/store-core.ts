@@ -3,24 +3,9 @@
  * shell/store.ts). No DOM, no fetch, no zustand: unit-tested directly.
  */
 
-/** "kind:id" composite key, the one spelling shared by the store and the tab strip. */
-export const keyOf = (id: string, kind: string): string => `${kind}:${id}`;
-
-/**
- * Pane identity: same as keyOf unless focusEntry is set, then kind:id@focusEntry so one lorebook
- * can sit beside itself on two entries. Dirty tracking still uses keyOf (entity-level).
- */
-export const paneKey = (
-  id: string,
-  kind: string,
-  focusEntry?: string | null,
-): string => (focusEntry ? `${kind}:${id}@${focusEntry}` : keyOf(id, kind));
-
-export const paneKeyOf = (p: {
-  id: string;
-  kind: string;
-  params?: { focusEntry?: string };
-}): string => paneKey(p.id, p.kind, p.params?.focusEntry);
+// Piece identity moved to _shared/piece-key so apps can use it without touching shell modules;
+// re-exported here so shell consumers keep one import site.
+export { keyOf, paneKey, paneKeyOf } from "../_shared/piece-key";
 
 /** Fail-closed reader: only "key" -> finite-number pairs survive an untrusted persisted blob. */
 export function parseRecents(raw: unknown): Record<string, number> {

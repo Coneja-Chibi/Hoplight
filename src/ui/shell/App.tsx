@@ -15,7 +15,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import { api } from "../api";
-import type { AppContext, AppManifestEntry, StudioEntitySummary, VaudeApp } from "../app-contract";
+import type { AppContext, AppManifestEntry, StudioEntitySummary, HoplightApp } from "../app-contract";
 import { parseSettings, type StudioSettings } from "../../studio/settings-shape";
 import { SetupWizard } from "../setup/wizard";
 import { Dock } from "./Dock";
@@ -35,8 +35,8 @@ type Phase = "loading" | "setup" | "ready" | "boot-error";
 export function App(): JSX.Element | null {
   const [phase, setPhase] = useState<Phase>("loading");
   const [bootError, setBootError] = useState<string | null>(null);
-  const modulesRef = useRef(new Map<string, VaudeApp>());
-  const [ActiveComponent, setActiveComponent] = useState<VaudeApp["Component"] | null>(null);
+  const modulesRef = useRef(new Map<string, HoplightApp>());
+  const [ActiveComponent, setActiveComponent] = useState<HoplightApp["Component"] | null>(null);
   const activeAppId = useShellStore((s) => s.activeAppId);
   // the active app's tour (folders-as-schema, loaded like an app module); null = this app has none
   const toursRef = useRef(new Map<string, Tour | null>());
@@ -126,7 +126,7 @@ export function App(): JSX.Element | null {
       // A failed chunk load (stale hash, network blip) must say so: unguarded, the dock highlights
       // the new app while the canvas sits empty.
       try {
-        const mod = (await import(`/apps/${activeAppId}.js`)) as { default: VaudeApp };
+        const mod = (await import(`/apps/${activeAppId}.js`)) as { default: HoplightApp };
         modulesRef.current.set(activeAppId, mod.default);
         if (!cancelled) setActiveComponent(() => mod.default.Component);
       } catch {
@@ -149,7 +149,7 @@ export function App(): JSX.Element | null {
       for (const m of manifests) {
         if (cancelled || m.comingSoon || modulesRef.current.has(m.id)) continue;
         try {
-          const mod = (await import(`/apps/${m.id}.js`)) as { default: VaudeApp };
+          const mod = (await import(`/apps/${m.id}.js`)) as { default: HoplightApp };
           modulesRef.current.set(m.id, mod.default);
         } catch {
           // prefetch is best-effort; the on-demand path above still owns the honest failure story
@@ -260,7 +260,7 @@ export function App(): JSX.Element | null {
       },
     ]);
 
-    const detachShellTarget = menus.attach(document.body, () => ({ type: "shell", label: "Vaude." }));
+    const detachShellTarget = menus.attach(document.body, () => ({ type: "shell", label: "Hoplight." }));
 
     return () => {
       unregisterEntity();

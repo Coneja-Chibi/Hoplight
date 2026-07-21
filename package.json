@@ -1,15 +1,15 @@
 {
-  "name": "vaudeville-studios",
+  "name": "hoplight",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
   "license": "AGPL-3.0-or-later",
   "bin": {
-    "vaud": "./src/cli.ts"
+    "hoplight": "./src/cli.ts"
   },
   "scripts": {
-    "vaud": "bun run src/cli.ts",
+    "hoplight": "bun run src/cli.ts",
     "dev": "bun run src/cli.ts ui 8321",
     "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
@@ -25,7 +25,7 @@
     "docs:figures": "bun run scripts/docs-figures.ts",
     "docs:figures:check": "bun run scripts/docs-figures.ts --check",
     "license:audit": "bun run scripts/license-audit.ts",
-    "build:cli": "bun build --compile src/cli.ts --outfile dist/vaud",
+    "build:cli": "bun build --compile src/cli.ts --outfile dist/hoplight",
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
     "scan:colors:check": "bun run scripts/hooks/no-hardcode-colors.ts --check",
     "scan:lines": "bun run scripts/hooks/file-lines.ts --scan",

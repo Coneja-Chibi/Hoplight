@@ -9,7 +9,7 @@ related: [reference/architecture, reference/entities/character, guide/platforms/
 
 # SillyTavern format
 
-SillyTavern is the de-facto standard ecosystem for local AI roleplay. vaud reads and writes its Character
+SillyTavern is the de-facto standard ecosystem for local AI roleplay. hoplight reads and writes its Character
 Card V1, V2, and V3 cards and its standalone world info (worldbook) files. The card is carried either as a
 `.json` file or embedded in a `.png` via a base64 text chunk; every adapter here writes `.json`.
 
@@ -197,7 +197,7 @@ The lorebook codec follows the same rule. ST has fewer injection slots than cano
 collapse on export: `append`/`append_bottom` to depth (`4`), `prepend_top` to `0`, `scene` to
 before_example (`2`) (`lorebook.ts:74-91`). ST also has no per-trigger probability, so `triggerMode` is
 always `simple` on read (`lorebook.ts:139`). That loss is inherent to ST and is what escrow-of-raw guards:
-an unedited entry re-projects from its raw twin by id, so a vaud ST to ST round-trip stays byte-lossless,
+an unedited entry re-projects from its raw twin by id, so a hoplight ST to ST round-trip stays byte-lossless,
 and only edited entries re-encode and take the collapse (`lorebook.ts:268-294`). Raw-only carriers with no
 authored meaning (entry `uid`, embedding vectors, `loreCache`) ride escrow untouched.
 
@@ -223,7 +223,7 @@ authored meaning (entry `uid`, embedding vectors, `loreCache`) ride escrow untou
   it maps to the scalar `worldName`, not `knowledgeRefs` (`tavern-fields.ts:111,142`). An embedded book is
   `data.character_book` and is handled by the bundle layer.
 - `displayIndex` is a distinct axis. In a real card `order` can be uniform (100) while `displayIndex` runs
-  `0..3`, so vaud never fabricates `displayIndex` from `sortOrder` on a cross-format write; a book that
+  `0..3`, so hoplight never fabricates `displayIndex` from `sortOrder` on a cross-format write; a book that
   authored none omits it (`lorebook.ts:189,215-217`).
 - Regex codec (`sillytavern-regex`). Reads the bare `RegexScriptData[]` array (Marinara's Essentials packs)
   or a card's `extensions.regex_scripts`, scoring `0.9` for the file and `0.85` for the card block; a full

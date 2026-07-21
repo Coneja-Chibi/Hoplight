@@ -7,7 +7,7 @@
  * 3. Instrument strips: one horizontal row per cluster (position, timing, recursion, group).
  * 4. Content owns the canvas; long-tail controls live below the fold.
  * 5. Off-target platform lens HIDES instruments; never deletes body data.
- * 6. Home host (Vaude full card) can show the richest strip; lean hosts strip down.
+ * 6. Home host (Hoplight full card) can show the richest strip; lean hosts strip down.
  *
  * Presentation only - codecs and canonical schema stay the source of truth.
  */

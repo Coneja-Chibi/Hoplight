@@ -1,6 +1,6 @@
 # Formats
 
-Every format vaud reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader
+Every format hoplight reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader
 discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one
 reference page here.
 
@@ -45,7 +45,7 @@ Tracked here so the matrix stays honest about what exists versus what is coming.
 | Wyvern lorebook | lorebook | **no standalone wire format** (see below) |
 
 Wyvern needs **no dedicated lorebook codec**: it has no verifiable standalone lorebook file. Wyvern's
-character export is a **CCv2 PNG**, which vaud already reads as a character; its Lexicon is
+character export is a **CCv2 PNG**, which hoplight already reads as a character; its Lexicon is
 character-attached, so it either rides that card's `extensions.wyvern` as escrow (already carried by the
 CCv2 reader) or lives only in-app (like Janitor), with no serialized file to convert. No public real
 Wyvern export exists to confirm which, and building a codec from wiki-inferred fields with zero real bytes
@@ -59,7 +59,7 @@ CCv3/ST worldbook codecs. Lumiverse is a local app, so lorebooks only move in an
 the file forms are Risu/CCv3, not anything Lumiverse-native:
 
 - **Import** (`parseDirectLorebook`, verified in the LumiRealm source) accepts exactly two shapes:
-  Risu-native `{type:"risu", data:[...]}` and CCv3/TavernAI `{entries:{...}}`. vaud's `risu-lorebook`
+  Risu-native `{type:"risu", data:[...]}` and CCv3/TavernAI `{entries:{...}}`. hoplight's `risu-lorebook`
   emits the former (matching their parser's `obj.type === "risu" && Array.isArray(obj.data)` gate exactly)
   and `sillytavern-lorebook` emits the latter.
 - **Export** goes back out the same way: a Lumiverse module file carries a Risu-shaped `loreBook[]`

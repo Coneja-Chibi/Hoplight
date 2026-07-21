@@ -29,7 +29,7 @@ describe("travelLint - clean rule and the home lens", () => {
     }
   });
 
-  test("full (Vaude) is home: every feature-bearing rule still returns []", () => {
+  test("full (Hoplight) is home: every feature-bearing rule still returns []", () => {
     const loud = rule({
       find: "(?<=a)b",
       flags: "gv<cbs>",

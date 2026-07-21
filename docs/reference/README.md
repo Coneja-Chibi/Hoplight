@@ -1,6 +1,6 @@
-# vaud documentation
+# hoplight documentation
 
-This is the reference documentation for **vaud**, the Vaudeville Studios converter for AI-roleplay
+This is the reference documentation for **hoplight**, the Vaudeville Studios converter for AI-roleplay
 content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by
 being updated in the same change that adds or alters a feature. If a doc and the code disagree, the code
 is right and the doc is a bug; file it as one.

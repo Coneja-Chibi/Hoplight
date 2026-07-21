@@ -39,7 +39,7 @@ export interface TravelNote {
 }
 
 /**
- * Notes for how `rule` will behave when written for `profile`. `full` is Vaude, the home lens: a rule
+ * Notes for how `rule` will behave when written for `profile`. `full` is Hoplight, the home lens: a rule
  * never travels to itself, so there is nothing to warn about and the result is always empty.
  */
 export function travelLint(rule: RegexRule, profile: RegexWriteForProfile): TravelNote[] {

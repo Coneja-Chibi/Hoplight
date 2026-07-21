@@ -338,7 +338,7 @@ export function fieldControl(
           defaultPackId={field.cssPack ?? "universal"}
           note={
             field.help ||
-            "Sealed preview only. Vaude never applies this CSS to the app. Export keeps your full source for the host site."
+            "Sealed preview only. Hoplight never applies this CSS to the app. Export keeps your full source for the host site."
           }
         />
       );

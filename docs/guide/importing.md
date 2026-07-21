@@ -28,7 +28,7 @@ Importing reads a file made in another app and turns it into a piece in your Lib
 
 Every import is read into the same shared model the rest of the studio uses, so the receipt already knows what it is looking at before anything gets written.
 
-**Your original file is kept, whole.** Whatever Vaude cannot use directly, an app's private layout, ids, anything with no slot in the shared model, is kept alongside the piece rather than thrown away. That is the same saved copy a same-app export reads back from later.
+**Your original file is kept, whole.** Whatever Hoplight cannot use directly, an app's private layout, ids, anything with no slot in the shared model, is kept alongside the piece rather than thrown away. That is the same saved copy a same-app export reads back from later.
 
 **A slightly broken lorebook is healed, not rejected.** A book with a missing name, or entries that are not quite the right shape, is quietly repaired on the way in. The receipt lists what it fixed and how many entries it kept, so you are never guessing what changed.
 
@@ -49,7 +49,7 @@ You also do not need to be looking at the right deck first. A lorebook dropped w
 ## Tips
 
 - The Import button in the corner does not browse your files, it only carries you to the shelves and reminds you to drop something there.
-- A file that fails to read is not a lost cause: fix it in the app that made it and try the drop again, or check whether it is a format Vaude does not know yet.
+- A file that fails to read is not a lost cause: fix it in the app that made it and try the drop again, or check whether it is a format Hoplight does not know yet.
 - Uncheck a file in the receipt before you click Import if you decide you do not want it; the rest of the batch imports normally.
 - Read the extras on a character's receipt before you assume nothing came along with it; an embedded lorebook, scripts, or a deep-access request each get their own line.
 - To update a piece you already imported, edit it open on the Workbench and save there. Re-importing the same file always makes a second copy, never a refresh.

@@ -39,7 +39,7 @@ export async function apiFetch(path: string, init: ApiFetchInit = {}): Promise<R
   if (requireToken) {
     const token = readSessionToken();
     if (!token) throw new ApiHttpError(403, "missing session");
-    headers["X-Vaude-Token"] = token;
+    headers["X-Hoplight-Token"] = token;
   }
   const { requireToken: _r, headers: _h, ...rest } = init;
   const res = await fetch(path, { ...rest, headers });

@@ -1,10 +1,10 @@
 /**
- * Build Vaude.exe - real software from the same code the CLI runs.
+ * Build Hoplight.exe - real software from the same code the CLI runs.
  * 1. Bake the UI assets (index/tokens/boot + every discovered app bundle + manifests) into
  *    src/generated/packaged-assets.ts.
  * 2. Bake a STATIC format registry into src/generated/packaged-formats.ts (a compiled binary cannot
  *    glob; the generator preserves drop-in truth by regenerating from the folder scan every build).
- * 3. bun build --compile src/desktop.ts -> dist/Vaude.exe with the beam-V icon, console hidden.
+ * 3. bun build --compile src/desktop.ts -> dist/Hoplight.exe with the beam-V icon, console hidden.
  * Run: bun run scripts/build-desktop.ts
  */
 import { mkdir } from "node:fs/promises";
@@ -258,14 +258,14 @@ try {
     [
       "bun", "build", "--compile",
       join(root, "src", "desktop.ts"),
-      "--outfile", join(root, "dist", "Vaude.exe"),
+      "--outfile", join(root, "dist", "Hoplight.exe"),
       `--windows-icon=${join(root, "build", "vaude.ico")}`,
       "--windows-hide-console",
     ],
     { cwd: root, stdout: "inherit", stderr: "inherit" },
   );
   if (compile.exitCode !== 0) throw new Error("compile failed");
-  console.log("dist/Vaude.exe ready");
+  console.log("dist/Hoplight.exe ready");
 } finally {
   // win or lose, the worktree goes back to the placeholder: the bake lives in the exe, not the repo
   await Bun.write(join(genDir, "packaged-assets.ts"), PLACEHOLDER);

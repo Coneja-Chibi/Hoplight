@@ -1,7 +1,7 @@
 /**
  * Packaged-assets contract: the difference between dev and shipped software, isolated to ONE seam.
  * Dev mode: the server discovers apps and bundles on the fly (drop-in modularity live).
- * Packaged mode (Vaude.exe): a build step bakes the same artifacts into a generated module, because
+ * Packaged mode (Hoplight.exe): a build step bakes the same artifacts into a generated module, because
  * a compiled binary has no source tree to scan. Same server, same routes, same bytes either way.
  */
 export interface PackagedAssets {

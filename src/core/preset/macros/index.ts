@@ -40,7 +40,7 @@ export { SILLYTAVERN_MACRO_GROUPS } from "./sillytavern";
 export { MARINARA_MACRO_GROUPS } from "./marinara";
 
 /**
- * The catalog each Write-for lens exposes. `full` (Vaude) carries the superset dialect, mirroring
+ * The catalog each Write-for lens exposes. `full` (Hoplight) carries the superset dialect, mirroring
  * placementsForProfile("full") which likewise returns every stop RoleCall carries: vaud has no
  * runtime of its own, so the canonical lens shows the richest engine we model rather than inventing
  * a dialect nothing runs.

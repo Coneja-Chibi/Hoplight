@@ -134,7 +134,7 @@
     "figid": "convert",
     "type": "flow",
     "title": "the convert pipeline",
-    "caption": "vaud convert runs six checked steps before a byte is written: a bad output path, an unresolvable target, or an adapter that lies about its own output all fail closed before publishAtomic ever opens a file (cli.ts:299-389, cli-io.ts:112-239).",
+    "caption": "hoplight convert runs six checked steps before a byte is written: a bad output path, an unresolvable target, or an adapter that lies about its own output all fail closed before publishAtomic ever opens a file (cli.ts:299-389, cli-io.ts:112-239).",
     "svg": "docs/generated/figures/cli__convert.svg",
     "w": 1138,
     "h": 172
@@ -534,7 +534,7 @@
     "figid": "routes",
     "type": "matrix",
     "title": "each untrusted input, its own gate",
-    "caption": "vaud does not funnel every input through one pipeline. Each kind of untrusted content meets the gate built for it. Import and conversion never execute a card's scripts; the only code that runs is Lua, sandboxed, and only when the user opens the Test Bench.",
+    "caption": "hoplight does not funnel every input through one pipeline. Each kind of untrusted content meets the gate built for it. Import and conversion never execute a card's scripts; the only code that runs is Lua, sandboxed, and only when the user opens the Test Bench.",
     "svg": "docs/generated/figures/security-overview__routes.svg",
     "w": 660,
     "h": 268

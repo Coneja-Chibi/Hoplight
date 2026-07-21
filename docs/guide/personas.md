@@ -15,7 +15,7 @@ A persona is your side of the fiction, the identity a target app shows the model
 
 1. **Create it.** On the Personas deck in the Library, click New persona (the shelf's own tile, or the button on an empty deck). It saves immediately as "Untitled persona" and opens on the Workbench.
 2. **Fill in who you are.** Give it a name, a tagline, pronouns, height, and age, then write either the section fields, Appearance, Body, Personality, Quirks, History, or, if you have no use for sections, the flat Identity Text.
-3. **Narrow it to one host, if you're building for one.** The Write for strip in the header defaults to Vaude, the full card. Pick a platform and the form drops to only what that platform's wire carries; nothing is deleted.
+3. **Narrow it to one host, if you're building for one.** The Write for strip in the header defaults to Hoplight, the full card. Pick a platform and the form drops to only what that platform's wire carries; nothing is deleted.
 4. **Set where it's injected, and link a lorebook if it needs one.** Both live in the right-hand cards: Prompt Injection and the Knowledge card on the left.
 5. **Save it.** Ctrl+s or the Save button, the same as any other piece, as described in Edit a piece.
 6. **Star it as default if you want the shelf to flag it, then stage it for the Press when you're ready to ship it as a file.**
@@ -32,7 +32,7 @@ Content is the fallback, not a second copy. Fill in even one section and the com
 
 **Brief never crosses.** Brief is the library-card blurb on the Personas shelf and nothing more; it never enters the injected block. If a line reads like your persona's voice, it belongs in a section or Identity Text, not Brief.
 
-A concrete case. Say you've written full sections and there is old flat text still sitting in Identity Text. Because the sections are filled, that old text is ignored, not deleted, just inert. Switch Write for from Vaude to Agnai and the section fields, traits, palette, and the injection picker all leave the form, Agnai's wire has no place for any of them. Switch back to Vaude and everything you wrote is still there.
+A concrete case. Say you've written full sections and there is old flat text still sitting in Identity Text. Because the sections are filled, that old text is ignored, not deleted, just inert. Switch Write for from Hoplight to Agnai and the section fields, traits, palette, and the injection picker all leave the form, Agnai's wire has no place for any of them. Switch back to Hoplight and everything you wrote is still there.
 
 Labeled colors compile too, one tag per color named from its label: label a swatch Hair and name it chestnut, and the model sees `<hair>chestnut (#7b4b32)</hair>`. The Live Preview card always shows this exact output, it's the real compiler, not a mock.
 
@@ -56,6 +56,6 @@ SillyTavern is the one to know about going in, too. ST keeps every persona you'v
 
 - Sections beat Identity Text the moment any one of them has text in it. Clear every section if you want old flat text gone, not just hidden.
 - Brief lives on the shelf only. Keep your one-line blurb there and put the real voice in a section or Identity Text.
-- A Write for pick only narrows what you see; nothing is deleted. Click Vaude to see the whole card again.
+- A Write for pick only narrows what you see; nothing is deleted. Click Hoplight to see the whole card again.
 - Only the first linked lorebook crosses on export. Reorder the Knowledge card if a different book should be the one that travels.
 - There is no Export button on a persona's own editor. Stage it and run it through the Press when you want a file out.

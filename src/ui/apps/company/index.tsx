@@ -3,7 +3,7 @@
  * an honest "installs later" tile, never mountable until the act lands. Its presence in the dock is
  * the moddability promise made visible.
  */
-import type { AppContext, VaudeApp } from "../../app-contract";
+import type { AppContext, HoplightApp } from "../../app-contract";
 
 /** the locked player-silhouette mark (vs-shell-apps) */
 const MARK_SVG =
@@ -14,7 +14,7 @@ function Company(_props: { ctx: AppContext }): null {
   return null;
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "company",
     title: "The Company",

@@ -87,7 +87,7 @@ target file. The mechanism is the per-id keying: the entity still carries the so
 app's private junk (its `extensions` block, trigger scripts, bespoke layout, internal ids), the raw twin,
 `unmapped`, and the carrier all stay in escrow and are deliberately not written into another app's file.
 
-This is a safety posture, not a limitation. vaud never blind-copies one app's fields or executable payloads
+This is a safety posture, not a limitation. hoplight never blind-copies one app's fields or executable payloads
 into another; it denies by absence (`architecture.md`, "Escrow: lossless round-trips, contained cross-format
 loss"). The future refinement is opt-in, per-field extension mappers, never a blind copy. Because the
 canonical body is a superset of what real formats actually serialize, what does cross a conversion is the

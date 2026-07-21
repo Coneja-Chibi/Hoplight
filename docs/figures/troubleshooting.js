@@ -27,8 +27,8 @@ export const figures = {
             kind: "group",
             sum: "\"We could not read this one.\" A format question, not a damage question.",
             children: [
-              { label: "Unrecognized format", kind: "field", sum: "Not a card, book, or persona shape Vaude knows yet. Check docs/FORMAT-SUPPORT.md." },
-              { label: "Right shape, wrong kind guess", kind: "field", sum: "Run vaud label to see what Vaude thinks the file is and why." },
+              { label: "Unrecognized format", kind: "field", sum: "Not a card, book, or persona shape Hoplight knows yet. Check docs/FORMAT-SUPPORT.md." },
+              { label: "Right shape, wrong kind guess", kind: "field", sum: "Run hoplight label to see what Hoplight thinks the file is and why." },
             ],
           },
           {

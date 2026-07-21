@@ -1,11 +1,11 @@
 # Create the packaged, browser, and live-development shortcuts from this checkout.
 # Run: powershell -ExecutionPolicy Bypass -File scripts/install-shortcuts.ps1
 $root = Split-Path -Parent $PSScriptRoot
-$exe = Join-Path $root "dist\Vaude.exe"
+$exe = Join-Path $root "dist\Hoplight.exe"
 $icon = Join-Path $root "build\vaude.ico"
-$packagedLauncher = Join-Path $root "scripts\launch-vaude.vbs"
-$browserLauncher = Join-Path $root "scripts\launch-vaude-browser.vbs"
-$devLauncher = Join-Path $root "scripts\launch-vaude-dev.vbs"
+$packagedLauncher = Join-Path $root "scripts\launch-hoplight.vbs"
+$browserLauncher = Join-Path $root "scripts\launch-hoplight-browser.vbs"
+$devLauncher = Join-Path $root "scripts\launch-hoplight-dev.vbs"
 $wscript = Join-Path $env:WINDIR "System32\wscript.exe"
 
 $required = @($exe, $packagedLauncher, $browserLauncher, $devLauncher, $wscript)
@@ -21,27 +21,27 @@ $programs = [Environment]::GetFolderPath("Programs")
 $desktop = [Environment]::GetFolderPath("Desktop")
 $definitions = @(
     @{
-        Name = "Vaude"
+        Name = "Hoplight"
         Target = $wscript
         Arguments = "`"$packagedLauncher`""
         WorkingDirectory = (Split-Path -Parent $exe)
-        Description = "Vaude - the forge for AI-roleplay content"
+        Description = "Hoplight - the forge for AI-roleplay content"
         Desktop = $true
     },
     @{
-        Name = "Vaude (Browser)"
+        Name = "Hoplight (Browser)"
         Target = $wscript
         Arguments = "`"$browserLauncher`""
         WorkingDirectory = $root
-        Description = "Vaude in the default browser, running from live source"
+        Description = "Hoplight in the default browser, running from live source"
         Desktop = $false
     },
     @{
-        Name = "Vaude (Dev)"
+        Name = "Hoplight (Dev)"
         Target = $wscript
         Arguments = "`"$devLauncher`""
         WorkingDirectory = $root
-        Description = "Vaude native development window, running from live source"
+        Description = "Hoplight native development window, running from live source"
         Desktop = $false
     }
 )

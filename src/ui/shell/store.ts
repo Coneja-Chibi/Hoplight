@@ -9,7 +9,7 @@
  * `ctx.workbench` and `ctx.prefs` (app-contract.ts) are thin adapters over this store's actions and
  * selectors, so app code and shell chrome read state the ONE way CONTRACT V2 requires.
  *
- * Loading the app MODULE behind an id is deliberately NOT store state (a VaudeApp export is not
+ * Loading the app MODULE behind an id is deliberately NOT store state (a HoplightApp export is not
  * serializable): App.tsx keeps its own module cache and effect keyed on `activeAppId`.
  */
 import { create } from "zustand";

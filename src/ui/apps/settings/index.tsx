@@ -6,7 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
-import type { AppContext, VaudeApp } from "../../app-contract";
+import type { AppContext, HoplightApp } from "../../app-contract";
 import { settingsSections } from "./sections/registry";
 import styles from "./styles.module.css";
 
@@ -48,7 +48,7 @@ function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
   );
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "settings",
     title: "Settings",

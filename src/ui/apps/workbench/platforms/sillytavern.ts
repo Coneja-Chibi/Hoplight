@@ -28,7 +28,7 @@ const sillytavern: NativeSchema = {
       path: "sillytavern.raw.data.character_book",
       label: "Character Book",
       control: "lorebook-link",
-      help: "An embedded lorebook. Lorebooks are their own editor in Vaude.",
+      help: "An embedded lorebook. Lorebooks are their own editor in Hoplight.",
     },
     {
       path: "sillytavern.raw.data.extensions.world",
@@ -40,7 +40,7 @@ const sillytavern: NativeSchema = {
       path: "sillytavern.raw.data.extensions.regex_scripts",
       label: "Regex scripts",
       control: "regex-link",
-      help: "Card-scoped find/replace rules. Regex is its own editor in Vaude.",
+      help: "Card-scoped find/replace rules. Regex is its own editor in Hoplight.",
     },
     {
       path: "sillytavern.raw.data.assets",

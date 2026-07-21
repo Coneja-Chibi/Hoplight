@@ -1,6 +1,6 @@
 /**
- * The Vaude app contract v2 (ADR-008, CONTRACT V2) - the dock's folders-as-schema, React shaped.
- * An APP is a folder in src/ui/apps/<name>/ whose index.tsx default-exports a VaudeApp. The server
+ * The Hoplight app contract v2 (ADR-008, CONTRACT V2) - the dock's folders-as-schema, React shaped.
+ * An APP is a folder in src/ui/apps/<name>/ whose index.tsx default-exports a HoplightApp. The server
  * discovers and bundles them; the client builds the dock from the manifest and renders the app's
  * Component into the Workbench canvas. Drop a folder in, the dock gains a tile - nothing central
  * lists apps, exactly like format adapters. This file is shared by server (discovery) and client
@@ -45,7 +45,7 @@ export interface AppManifestEntry {
 /** Everything an app may touch. Apps NEVER import the engine or reach the filesystem directly:
  * the shell hands them this context, and all IO goes through the local API - one engine, thin
  * shells. Theme lives in the shell store now (apps read it via useShellStore if they need it);
- * there is no `root` - a VaudeApp renders JSX, the shell owns the DOM. */
+ * there is no `root` - a HoplightApp renders JSX, the shell owns the DOM. */
 export interface AppContext {
   /** authenticated-local API base (loopback server) */
   api: {
@@ -129,7 +129,7 @@ export interface AppContext {
 
 /** The module an app folder default-exports. Component renders the app's whole surface; the shell
  * mounts it into the Workbench canvas and hands it the context every render. */
-export interface VaudeApp {
+export interface HoplightApp {
   manifest: AppManifestEntry;
   Component: (props: { ctx: AppContext }) => ReactNode;
 }
@@ -195,7 +195,7 @@ export interface FormatInfo {
   outputExtensions: string[];
   /** human platform name for receipts/pickers ("SillyTavern", "RisuAI") */
   friendly: string;
-  /** Vaude's own storage format: never offered as an external publish target */
+  /** Hoplight's own storage format: never offered as an external publish target */
   native: boolean;
   /** the generic reader of a family: its cards chip as "Default", not a platform name */
   generic: boolean;

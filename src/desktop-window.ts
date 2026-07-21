@@ -4,14 +4,14 @@
  * dead). The worker owns the window; the main thread owns the server; a close message joins them.
  *
  * Size is set at construction (Mac invisible-until-resized pitfall). Title comes from the host so
- * "Vaude (Dev)" vs "Vaude." matches the Start Menu tile the user clicked.
+ * "Hoplight (Dev)" vs "Hoplight." matches the Start Menu tile the user clicked.
  */
 import { Webview, SizeHint } from "webview-bun";
 
 declare const self: Worker;
 
 self.onmessage = (event: MessageEvent<{ url: string; title?: string }>) => {
-  const title = event.data.title?.trim() || "Vaude.";
+  const title = event.data.title?.trim() || "Hoplight.";
   const wv = new Webview(false, {
     width: 1280,
     height: 820,

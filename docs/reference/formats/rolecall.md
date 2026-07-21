@@ -13,7 +13,7 @@ RoleCall is Vaudeville Studios' own roleplay client. It has no wire-distinct "RC
 character serializes as an ordinary Character Card V2/V3 (PNG `chara`/`ccv3` chunk or bare JSON), with
 every RC-native field riding inside `data.extensions.rolecall`. Its lorebook is a dedicated v1 export
 envelope. Its persona and regex-script exports are separate JSON shapes. Because RoleCall is Vaudeville's
-own product, its source can be read and ported freely, unlike the GPL-licensed formats vaud treats as
+own product, its source can be read and ported freely, unlike the GPL-licensed formats hoplight treats as
 interop-facts-only.
 
 One folder, `src/formats/rolecall/`, default-exports four codecs (`index.ts:405`):
@@ -179,9 +179,9 @@ serializer, not this codec, and code wins.
   twin already used; only a from-scratch background (no prior slot on either) falls back to sniffing the
   ref string itself via `isUrlOrDataRef` (`index.ts:204-206,311-327`).
 - Real RC sprites emit `type:"expression"`, not `type:"emotion"`; the shared asset-role map accepts both
-  spellings and reads either to canonical role `"emotion"` (`assets.ts:69-78,147-148`). vaud's own test
+  spellings and reads either to canonical role `"emotion"` (`assets.ts:69-78,147-148`). hoplight's own test
   fixtures (as opposed to the samples under `samples/rolecall/`) use the unrealistic `"emotion"` spelling -
-  see `samples/rolecall/SOURCES.md`, "Why these differ from the in-repo vaud fixtures".
+  see `samples/rolecall/SOURCES.md`, "Why these differ from the in-repo hoplight fixtures".
 - Persona codec (`rolecall-persona`, kind `persona`). The USER-identity entity: `{{user}}`'s voice, first
   person. Two shapes, both claimed at `1.0` (`persona.ts:254-256`): the native `rcpersona` envelope
   (`{ spec: "rolecall_persona", spec_version, data }`, `personaRcExt`/`detectShape` at `persona.ts:48-62`)
@@ -200,7 +200,7 @@ serializer, not this codec, and code wins.
     linkage (`lorebook_id`), and `is_after_dark` - OMITTED, never written `false`, when the rating is not
     explicit or mature (`persona.ts:164-242,238-239`).
   - The load-bearing rule across both shapes: `brief` and `content` never swap - that exact swap was a live
-    RC production bug, fixed and pinned by RC's own persona-roundtrip suite; vaud replicates the fixed
+    RC production bug, fixed and pinned by RC's own persona-roundtrip suite; hoplight replicates the fixed
     behavior (`persona.ts:1-11`). Legacy library-export wrappers (`{ exportedAt, type, data }` then
     `{ persona }`) unwrap outer-first before shape matching (`unwrapPersonaJson`, `persona.ts:35-41`). A
     missing name fails the parse - never synthesized (`persona.ts:264`).

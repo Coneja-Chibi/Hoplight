@@ -36,7 +36,7 @@ Two entries need a note. Backyard reads two different character shapes, the olde
 
 A handful of apps never shipped a portable file worth its own page. Character.AI's export tools and Crushon both hand you plain SillyTavern-shaped JSON, so drop the file in and Hoplight reads it through [the SillyTavern page](sillytavern.md) the same as a real SillyTavern card. That is also the default shape to reach for if you are not sure what your app produces: most thin hosts copy it.
 
-For the exhaustive, generated list, every adapter Hoplight has today, run `bun run vaud formats`, or read [the format reference](../../reference/formats/README.md), the technical version of this page. It is built straight from the live adapter registry, so it never drifts from what the app can actually do.
+For the exhaustive, generated list, every adapter Hoplight has today, run `bun run hoplight formats`, or read [the format reference](../../reference/formats/README.md), the technical version of this page. It is built straight from the live adapter registry, so it never drifts from what the app can actually do.
 
 ## Common questions
 

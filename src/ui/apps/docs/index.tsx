@@ -1,5 +1,5 @@
 /** Help / Docs: the committed documentation corpus, packaged as a first-class app room. */
-import type { VaudeApp } from "../../app-contract";
+import type { HoplightApp } from "../../app-contract";
 import { DocsRoom } from "./room";
 
 const MARK_SVG =
@@ -8,7 +8,7 @@ const MARK_SVG =
   '<path d="M12 5.5c1.5-1.2 3.5-1.8 6-1.8 1 0 2 .1 3 .4v14.4c-1-.3-2-.4-3-.4-2.5 0-4.5.6-6 1.8z"/>' +
   "</svg>";
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "docs",
     title: "Help / Docs",

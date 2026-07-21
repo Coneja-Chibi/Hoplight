@@ -2,7 +2,7 @@
 
 Auto-generated from live adapters (`bun run scripts/format-matrix.ts`).
 Canonical schema version: **1**.
-Generated: 2026-07-20.
+Generated: 2026-07-21.
 
 ## How to use
 
@@ -28,7 +28,7 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `risu` | character | .charx | RisuAI .charx (zip: card.json + assets) |
 | `rolecall` | character | .json | RoleCall character card (v3, png/json) |
 | `sillytavern` | character | .json | SillyTavern character card (v2/v3, png/json) |
-| `vaud-json` | character | .json | Vaudeville native (.json) |
+| `vaud-json` | character | .json | Hoplight native (.json) |
 
 ## Lorebooks (6)
 

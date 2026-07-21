@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * vaud - the Vaudeville Studios command line.
+ * hoplight - the Hoplight command line.
  * First heartbeat: it boots, it knows who it is, it tells you what is coming.
  * The engine (canonical model + format adapters) gets poured in next.
  */
@@ -90,21 +90,21 @@ function sourceCardOf(src: FormatAdapter | undefined, input: AdapterInput): unkn
 }
 
 const BANNER = `
-  vaud  ${VERSION}
+  hoplight  ${VERSION}
   the forge for AI-roleplay content
 `;
 
 const HELP = `${BANNER}
   Usage
-    vaud <command> [options]
+    hoplight <command> [options]
 
   Commands
     convert <in> <out>    Convert a file from one format to another
     inspect <file>        Show what is inside a file
-    validate <file>       Detect + parse; exit 0 if vaud can open it
+    validate <file>       Detect + parse; exit 0 if hoplight can open it
     label <file>          Guess a card's format and which app it is likely from
-    formats               List the formats vaud knows about
-    ui [port] [studio]    Open the visual studio (local only; studio defaults to Documents/Vaude Studio)
+    formats               List the formats hoplight knows about
+    ui [port] [studio]    Open the visual studio (local only; studio defaults to Documents/Hoplight Studio)
     version               Print the version
     help                  Print this help
 
@@ -116,9 +116,9 @@ const HELP = `${BANNER}
     --json                inspect/validate/formats: machine-readable stdout
 
   Example
-    vaud convert vera.png vera.charx --to risu
-    vaud convert card.json out.charx --to lumiverse --yes
-    vaud validate samples/sillytavern/characters/v3-full.json
+    hoplight convert vera.png vera.charx --to risu
+    hoplight convert card.json out.charx --to lumiverse --yes
+    hoplight validate samples/sillytavern/characters/v3-full.json
 
   Status
     Converter jewel (M1): open/inspect/validate/convert across discovered adapters.
@@ -177,7 +177,7 @@ async function main(argv: string[]): Promise<number> {
   if (first === "validate") {
     const path = args.find((a) => a !== "validate" && a !== "--json");
     if (!path) {
-      console.log(`\n  Usage: vaud validate <file> [--json]\n`);
+      console.log(`\n  Usage: hoplight validate <file> [--json]\n`);
       return 1;
     }
     await loadFormats();
@@ -187,7 +187,7 @@ async function main(argv: string[]): Promise<number> {
       if (json) console.log(JSON.stringify({ ok: false, path, error: "unrecognized" }));
       else {
         console.log(`\n  INVALID  ${path}`);
-        console.log(`  vaud does not recognize this file.\n`);
+        console.log(`  hoplight does not recognize this file.\n`);
       }
       return 1;
     }
@@ -222,9 +222,9 @@ async function main(argv: string[]): Promise<number> {
     const port = Number(args[1]) || 8321;
     // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
     // scattered entities into whatever cwd the command ran from.
-    const studioDir = args[2] ?? join(homedir(), "Documents", "Vaude Studio");
+    const studioDir = args[2] ?? join(homedir(), "Documents", "Hoplight Studio");
     const { url } = startUi(port, studioDir);
-    console.log(`\n  Vaude. is up: ${url}`);
+    console.log(`\n  Hoplight. is up: ${url}`);
     console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);
     // Bun.serve keeps the process alive; ctrl-c to close the studio.
     return await new Promise<number>(() => {});
@@ -233,14 +233,14 @@ async function main(argv: string[]): Promise<number> {
   if (first === "inspect") {
     const path = args[1];
     if (!path) {
-      console.log(`\n  Usage: vaud inspect <file>\n`);
+      console.log(`\n  Usage: hoplight inspect <file>\n`);
       return 1;
     }
     await loadFormats();
     const input = await readInput(path);
     const src = registry.detect(input);
     if (!src) {
-      console.log(`\n  vaud does not recognize "${path}".`);
+      console.log(`\n  hoplight does not recognize "${path}".`);
       console.log(`  Known formats: ${registry.all().map((a) => a.id).join(", ")}\n`);
       return 1;
     }
@@ -284,7 +284,7 @@ async function main(argv: string[]): Promise<number> {
   if (first === "label") {
     const path = args[1];
     if (!path) {
-      console.log(`\n  Usage: vaud label <file>\n`);
+      console.log(`\n  Usage: hoplight label <file>\n`);
       return 1;
     }
     await loadFormats();
@@ -307,13 +307,13 @@ async function main(argv: string[]): Promise<number> {
     const flags = parseConvertFlags(convertArgs);
     if (!flags.ok) {
       console.log(`\n  ${flags.error}`);
-      console.log(`  Usage: vaud convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
+      console.log(`  Usage: hoplight convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
       return 1;
     }
     const inPath = flags.rest[0];
     const outPath = flags.rest[1];
     if (!inPath || !outPath || flags.rest.length !== 2) {
-      console.log(`\n  Usage: vaud convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
+      console.log(`\n  Usage: hoplight convert <in> <out> [--to <format>] [--yes] [--strict]\n`);
       return 1;
     }
 
@@ -327,7 +327,7 @@ async function main(argv: string[]): Promise<number> {
     const input = await readInput(inPath);
     const src = registry.detect(input);
     if (!src) {
-      console.log(`\n  vaud does not recognize "${inPath}".`);
+      console.log(`\n  hoplight does not recognize "${inPath}".`);
       console.log(`  Known formats: ${registry.all().map((a) => a.id).join(", ")}\n`);
       return 1;
     }
@@ -335,7 +335,7 @@ async function main(argv: string[]): Promise<number> {
     const target = resolveTarget(flags.to, outPath);
     if (!target.ok) {
       console.log(`\n  ${target.error}`);
-      console.log(`  Pass one explicitly: vaud convert ${inPath} ${outPath} --to <format>`);
+      console.log(`  Pass one explicitly: hoplight convert ${inPath} ${outPath} --to <format>`);
       console.log(`  Known formats: ${registry.all().map((a) => a.id).join(", ")}\n`);
       return 1;
     }
@@ -411,7 +411,7 @@ async function main(argv: string[]): Promise<number> {
   }
 
   console.log(`\n  Unknown command: ${first}`);
-  console.log(`  Run "vaud help" to see what is available.\n`);
+  console.log(`  Run "hoplight help" to see what is available.\n`);
   return 1;
 }
 

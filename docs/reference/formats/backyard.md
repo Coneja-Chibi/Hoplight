@@ -10,7 +10,7 @@ related: [reference/architecture, reference/entities/character]
 # Backyard format
 
 Backyard.ai (formerly Faraday.dev) has shipped two unrelated on-disk character shapes across its
-lifetime. vaud reads and writes both. Neither is a Tavern superset: each carries its own vocabulary, and
+lifetime. hoplight reads and writes both. Neither is a Tavern superset: each carries its own vocabulary, and
 each is handled by its own adapter.
 
 The format is one folder, `src/formats/backyard/`, whose `index.ts` default-exports two codecs
@@ -217,7 +217,7 @@ requires a source BYAF archive to have existed (`byaf.ts:317-363`).
   `"explicit"` (`byaf.ts:268-269,328`).
 - BYAF has one character per archive. The manifest's `characters` array is read as `characters[0]` only
   (`byaf-container.ts:56`); the ahoylabs spec itself caps the array at one entry, so this is not a
-  simplification vaud made, it is the format.
+  simplification hoplight made, it is the format.
 - Untitled vs titled alternate greetings take different archive homes. An alt with no title is folded into
   the primary scenario's own `firstMessages[]`; an alt with a title becomes (or updates) its own secondary
   `scenarios/*.json` file. Retitling an alt does not move it between the two homes on its own, only its

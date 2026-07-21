@@ -9,7 +9,7 @@ related: [reference/architecture, reference/concepts/canonical-model, reference/
 
 # Entities
 
-Every canonical shape vaud converts through. An **entity** is a `CanonicalEntity<Kind, Body>` (see
+Every canonical shape hoplight converts through. An **entity** is a `CanonicalEntity<Kind, Body>` (see
 [../architecture.md](../architecture.md), "The canonical entity"): a stable wrapper around a `Body`, the
 superset shape for one `kind`. The kind union is closed: `STUDIO_ENTITY_KINDS` in
 `src/studio/path-policy.ts` names exactly six kinds, alphabetically `character`, `lorebook`, `pack`,

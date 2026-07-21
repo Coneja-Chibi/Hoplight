@@ -27,8 +27,8 @@ describe("lore capabilities", () => {
     }
   });
 
-  test("full is Vaude card (no RC tab) and shows all first-class keys including specials", () => {
-    expect(LORE_WRITE_FOR_LABELS.full.toLowerCase()).toContain("vaude");
+  test("full is Hoplight card (no RC tab) and shows all first-class keys including specials", () => {
+    expect(LORE_WRITE_FOR_LABELS.full.toLowerCase()).toContain("hoplight");
     const m = loreFieldVisibility("full");
     for (const vis of Object.values(m)) expect(vis).not.toBe("hide");
     expect(fieldVisible("full", "displayIndex")).toBe(true);

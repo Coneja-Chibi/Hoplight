@@ -80,7 +80,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, advanced = false, pickedIndex, onPick, entryProbability = 100,... |  |  |
 | KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
-| LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Vaude (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
+| LensRail | src/ui/components/lens-rail/index.tsx | ({ platforms, selected, onToggle, onClear, offTarget, onOffTarget }: LensRailProps) | One-line sideways-scrolling lens chips; Hoplight (full card) first, off-target mode at the tail. | .rail .scroll .chip .on .offt .fade |
 | LinkOut | src/ui/components/link-out/index.tsx | ({ icon, title, meta, action, onAction, empty, emptyLabel }: LinkOutProps) |  | .row .ic .body .title .meta .go .pending .empty |
 | ListEditor | src/ui/components/list-editor/index.tsx | ({ items, fields, onChange, addLabel, itemTitle, makeItem }: ListEditorProps) |  | .wrap .item .ihead .ititle .rm .add |
 | ListToolbar | src/ui/apps/workbench/preset/list-toolbar.tsx | ({ counts, query, onQuery, tab, onTab, onExpandAll, onCollapseAll, onAdd, onAddCategory, }: ListToolbarProps) |  |  |

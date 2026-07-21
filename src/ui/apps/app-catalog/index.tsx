@@ -5,7 +5,7 @@
  */
 import { useEffect } from "react";
 import type { CSSProperties, JSX } from "react";
-import type { AppContext, AppManifestEntry, VaudeApp } from "../../app-contract";
+import type { AppContext, AppManifestEntry, HoplightApp } from "../../app-contract";
 import { AppMark } from "../../components/app-mark";
 import { Stamp } from "../../components/stamp";
 import { officialCatalogApps } from "./catalog-core";
@@ -17,7 +17,7 @@ const MARK_SVG =
   '<rect x="4" y="14" width="6" height="6"/><path d="M17 14v6M14 17h6"/></svg>';
 
 const descriptionFor = (app: AppManifestEntry): string =>
-  app.agentSurface?.describe ?? `${app.title} is included with this build of Vaude.`;
+  app.agentSurface?.describe ?? `${app.title} is included with this build of Hoplight.`;
 
 function AppCard({ app, ctx }: { app: AppManifestEntry; ctx: AppContext }): JSX.Element {
   return (
@@ -47,9 +47,9 @@ export function AppCatalog({ ctx }: { ctx: AppContext }): JSX.Element {
     <div className={styles.room}>
       <header className={styles.head}>
         <span className={styles.eyebrow}>Apps in this build</span>
-        <h1 className={styles.title}>Official Vaude apps</h1>
+        <h1 className={styles.title}>Official Hoplight apps</h1>
         <p className={styles.lede}>
-          Everything here shipped with this copy of Vaude. Open a room when you need it; compact
+          Everything here shipped with this copy of Hoplight. Open a room when you need it; compact
           specialist tools stay here instead of crowding your everyday Dock.
         </p>
       </header>
@@ -61,7 +61,7 @@ export function AppCatalog({ ctx }: { ctx: AppContext }): JSX.Element {
   );
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "app-catalog",
     title: "Apps",
@@ -70,7 +70,7 @@ const app: VaudeApp = {
     order: 80,
     catalogOnly: true,
     appCatalog: true,
-    agentSurface: { describe: "Catalog of official applications packaged with this build of Vaude." },
+    agentSurface: { describe: "Catalog of official applications packaged with this build of Hoplight." },
   },
   Component: AppCatalog,
 };

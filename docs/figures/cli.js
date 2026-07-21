@@ -11,7 +11,7 @@ export default {
     convert: {
       type: 'flow', fig: 'fig·01', title: 'the convert pipeline',
       caption:
-        'vaud convert runs six checked steps before a byte is written: a bad output path, an unresolvable ' +
+        'hoplight convert runs six checked steps before a byte is written: a bad output path, an unresolvable ' +
         'target, or an adapter that lies about its own output all fail closed before publishAtomic ever ' +
         'opens a file (cli.ts:299-389, cli-io.ts:112-239).',
       steps: [

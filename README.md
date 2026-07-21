@@ -775,7 +775,7 @@ Hoplight is one engine with two faces. Run either, or both at the same time:
 | | What it is | How to run it |
 |---|---|---|
 | 🖥️ **The Studio** | The visual app. It runs on your machine and uses your **browser as its window**; nothing about it is a website, and nothing goes online. | `bun run dev`, then open the address it prints (127.0.0.1) |
-| ⌨️ **The CLI** | Terminal commands for converting, inspecting, and batch work. No window at all. | `bun run vaud <command>` from the repo folder |
+| ⌨️ **The CLI** | Terminal commands for converting, inspecting, and batch work. No window at all. | `bun run hoplight <command>` from the repo folder |
 
 They share the same engine and the same studio folder, so a card you convert in the terminal shows
 up in the Library, and a card you edit in the Studio converts the same way from the CLI.
@@ -787,9 +787,9 @@ up in the Library, and a card you edit in the Studio converts the same way from 
 Drag any card, book, or archive into the Library and read the receipt. Want a dry run before you trust it with your real stuff? The samples are right there:
 
 ```bash
-bun run vaud formats                                          # what can we open?
-bun run vaud inspect samples/sillytavern/characters/Seraphina.png        # peek at a card
-bun run vaud convert samples/sillytavern/characters/v3-full.json out.charx --to risu
+bun run hoplight formats                                          # what can we open?
+bun run hoplight inspect samples/sillytavern/characters/Seraphina.png        # peek at a card
+bun run hoplight convert samples/sillytavern/characters/v3-full.json out.charx --to risu
 ```
 
 **Optional power moves:**
@@ -798,7 +798,7 @@ bun run vaud convert samples/sillytavern/characters/v3-full.json out.charx --to 
 - **Stage a whole batch**: right-click several pieces into the Press, pull one lever, walk away with one zip
 - **Open beside**: pin any two pieces into a split; a lorebook can even sit beside itself on two different entries
 - Repaint the studio live in the **CSS Workshop**, where every color is a token
-- Point the studio at any folder: `bun run vaud ui 8321 path/to/studio`
+- Point the studio at any folder: `bun run hoplight ui 8321 path/to/studio`
 - Work the **shelf ops** each deck carries: merge or split lorebooks, attach a book to a character, duplicate or combine regex sets, right from the Library
 
 ---
@@ -809,12 +809,12 @@ The studio is one shell over the engine; the terminal is the other. Same engine,
 
 | Command | Purpose |
 | --- | --- |
-| `vaud convert <in> <out> [--to id]` | Convert between formats |
-| `vaud inspect <file>` | Plain-words summary of any file |
-| `vaud validate <file>` | Detect + parse; exit 0 if openable |
-| `vaud label <file>` | Guess format and likely origin |
-| `vaud formats` | List every adapter |
-| `vaud ui [port] [studioDir]` | The visual studio (loopback only) |
+| `hoplight convert <in> <out> [--to id]` | Convert between formats |
+| `hoplight inspect <file>` | Plain-words summary of any file |
+| `hoplight validate <file>` | Detect + parse; exit 0 if openable |
+| `hoplight label <file>` | Guess format and likely origin |
+| `hoplight formats` | List every adapter |
+| `hoplight ui [port] [studioDir]` | The visual studio (loopback only) |
 
 `--json` on inspect/validate/formats/convert for machine output. The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
@@ -844,7 +844,7 @@ one-way door.
 ## 🔧 Common Issues
 
 _**Most trouble in here is a file question, and the studio answers file questions in plain words.
-Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
+Reach for `bun run hoplight inspect` before you reach for a forum.**_ 🩺
 
 ---
 
@@ -852,9 +852,9 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 <summary><b>"It won't open my file!" 😤</b></summary>
 
 
-- Run `bun run vaud inspect <file>`. It names what the file is, or tells you plainly that it can't
+- Run `bun run hoplight inspect <file>`. It names what the file is, or tells you plainly that it can't
   be read. No stack trace, a sentence.
-- `bun run vaud validate <file>` exits 0 if the file is openable at all. Drop it in a script.
+- `bun run hoplight validate <file>` exits 0 if the file is openable at all. Drop it in a script.
 - If it's a real format we don't read yet, open an issue with a sample file.
 
 ---
@@ -878,8 +878,8 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 <summary><b>"Where is my studio folder?" 📁</b></summary>
 
 
-- Default: `Documents/Vaude Studio`, one JSON file per piece.
-- Point the studio at any folder you like: `bun run vaud ui 8321 path/to/studio`.
+- Default: `Documents/Hoplight Studio`, one JSON file per piece.
+- Point the studio at any folder you like: `bun run hoplight ui 8321 path/to/studio`.
 
 ---
 
@@ -889,7 +889,7 @@ Reach for `bun run vaud inspect` before you reach for a forum.**_ 🩺
 <summary><b>"The port is taken!" 🔌</b></summary>
 
 
-- `bun run vaud ui <port>` takes any port you hand it; either way the studio binds loopback only.
+- `bun run hoplight ui <port>` takes any port you hand it; either way the studio binds loopback only.
 
 </details>
 

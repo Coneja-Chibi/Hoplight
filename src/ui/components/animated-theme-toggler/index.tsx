@@ -1,5 +1,5 @@
 /**
- * AnimatedThemeToggler adapts Magic UI's circular View Transition reveal to Vaude's controlled
+ * AnimatedThemeToggler adapts Magic UI's circular View Transition reveal to Hoplight's controlled
  * paper/stage theme store and existing Stamp control. Unsupported browsers and reduced-motion users
  * get the same immediate theme switch without animation.
  * Source inspiration: https://magicui.design/docs/components/animated-theme-toggler (MIT).

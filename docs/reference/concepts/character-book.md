@@ -10,7 +10,7 @@ related: [reference/architecture, reference/entities/lorebook, reference/entitie
 # The embedded character_book
 
 A character card can carry its own lorebook. In Character Card V2/V3 this is the `character_book`
-object, at `data.character_book` (V3) or `data.extensions.character_book` (a V2 convention). vaud
+object, at `data.character_book` (V3) or `data.extensions.character_book` (a V2 convention). hoplight
 treats it as a **linked lorebook**, not an inlined blob: on import it is pulled out into a standalone
 `CanonicalLorebook` and linked from the character by id, so the same lorebook can be viewed, edited, and
 re-attached independently of the card that carried it.
@@ -117,7 +117,7 @@ Risu, and Lumiverse (`sillytavern/index.ts:128`, `rolecall/index.ts:394`, `risu/
 `convertFile(src, target, input)` in `src/convert.ts` runs the whole path for a same-kind character
 conversion: `inspectBundle` extracts any embedded book and links it via `knowledgeRefs`, then
 `emitBundle` hands the resolved lorebooks to the target adapter's `fromCanonical` to re-embed
-(`convert.ts:96-107`). The CLI's `vaud convert` calls `convertFile` directly. The two halves also exist
+(`convert.ts:96-107`). The CLI's `hoplight convert` calls `convertFile` directly. The two halves also exist
 as standalone primitives, `inspectBundle` and `emitBundle`, because the app layer that owns the whole
 entity store needs to inspect a card and re-embed its lorebooks as separate steps (a book can be edited
 between the two); that layer resolves `knowledgeRefs` against its own store and calls the same

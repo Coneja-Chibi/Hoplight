@@ -2,14 +2,14 @@
 id: reference/cli
 title: CLI reference
 audience: dev
-summary: Every vaud command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.
+summary: Every hoplight command and flag, verified against src/cli.ts and src/cli-io.ts, with usage, behavior, JSON output shapes, and exit codes.
 tags: [cli, reference]
 related: [reference/architecture, reference/ui]
 ---
 
 # CLI reference
 
-`vaud` is the command line for the same engine the desktop Studio runs (see [architecture.md](architecture.md)
+`hoplight` is the command line for the same engine the desktop Studio runs (see [architecture.md](architecture.md)
 and [ui.md](ui.md)): one canonical model, adapters discovered from `src/formats/`. `src/cli.ts` is the whole
 dispatcher, one `main(argv)` function with an if-chain per command. `src/cli-io.ts` holds the pure IO policy
 the `convert` command leans on: flag parsing, path-identity comparison, container agreement, and atomic file
@@ -17,44 +17,44 @@ publish. This page documents every command and flag exactly as the code implemen
 
 ## Invocation
 
-- In the repo: `bun run src/cli.ts <command> [args]`, or the package script `bun run vaud <command> [args]`.
-- `package.json`'s `bin` field maps the `vaud` command straight to `src/cli.ts`, so an installed or linked
+- In the repo: `bun run src/cli.ts <command> [args]`, or the package script `bun run hoplight <command> [args]`.
+- `package.json`'s `bin` field maps the `hoplight` command straight to `src/cli.ts`, so an installed or linked
   package exposes it directly.
-- `bun run build:cli` compiles a standalone binary to `dist/vaud` (`bun build --compile src/cli.ts`).
-- `bun run dev` is `vaud ui 8321`.
+- `bun run build:cli` compiles a standalone binary to `dist/hoplight` (`bun build --compile src/cli.ts`).
+- `bun run dev` is `hoplight ui 8321`.
 
 ## Commands
 
 | Command | Does |
 | --- | --- |
-| `vaud convert <in> <out> [--to <format>] [--yes \| -y] [--strict]` | Convert a file and print its loss report. |
-| `vaud inspect <file>` | Show what is inside a file: format, kind, key fields. |
-| `vaud validate <file>` | Detect and parse a file against its format and the canonical schema. |
-| `vaud label <file>` | Guess a card's format spec and its likely origin app. |
-| `vaud formats` | List every adapter the registry discovered. |
-| `vaud ui [port] [studioDir]` | Launch the desktop Studio: a loopback-only local server. |
-| `vaud version` | Print the version. |
-| `vaud help` | Print the built-in help text. |
-| (no arguments) | Same as `vaud help`. |
+| `hoplight convert <in> <out> [--to <format>] [--yes \| -y] [--strict]` | Convert a file and print its loss report. |
+| `hoplight inspect <file>` | Show what is inside a file: format, kind, key fields. |
+| `hoplight validate <file>` | Detect and parse a file against its format and the canonical schema. |
+| `hoplight label <file>` | Guess a card's format spec and its likely origin app. |
+| `hoplight formats` | List every adapter the registry discovered. |
+| `hoplight ui [port] [studioDir]` | Launch the desktop Studio: a loopback-only local server. |
+| `hoplight version` | Print the version. |
+| `hoplight help` | Print the built-in help text. |
+| (no arguments) | Same as `hoplight help`. |
 | (an unrecognized first argument) | Prints an error naming it and exits 1. |
 
 ## Global flags
 
 | Flag | Where | Does |
 | --- | --- | --- |
-| `-v`, `--version` | Standalone, before any command | Same as `vaud version` (`cli.ts:135`). |
-| `-h`, `--help` | Standalone, before any command | Same as `vaud help` (`cli.ts:141`). |
+| `-v`, `--version` | Standalone, before any command | Same as `hoplight version` (`cli.ts:135`). |
+| `-h`, `--help` | Standalone, before any command | Same as `hoplight help` (`cli.ts:141`). |
 | `--json` | `version`, `formats`, `validate`, `convert` | Emit one JSON object to stdout instead of the human-readable form. `inspect`, `label`, `ui`, and `help` do not read this flag; they always print the human-readable form (see [Quirks](#quirks)). |
 | `--to <format>` | `convert` only | Force the output adapter id, bypassing extension resolution. |
 | `--yes`, `-y` | `convert` only | Allow replacing an existing output file. Never overwrites the input. |
 | `--strict` | `convert` only | Refuse before writing when the serialize report names any dropped field. |
 
-## `vaud convert <in> <out>`
+## `hoplight convert <in> <out>`
 
 ```
-vaud convert <in> <out> [--to <format>] [--yes | -y] [--strict] [--json]
-vaud convert vera.png vera.charx --to risu
-vaud convert card.json out.charx --to lumiverse --yes
+hoplight convert <in> <out> [--to <format>] [--yes | -y] [--strict] [--json]
+hoplight convert vera.png vera.charx --to risu
+hoplight convert card.json out.charx --to lumiverse --yes
 ```
 
 Flags may appear anywhere after `convert`, in any order: `parseConvertFlags` (`cli-io.ts:17-45`) scans the
@@ -108,10 +108,10 @@ the four report counts, every dropped path, and every warning.
 
 @fig convert
 
-## `vaud inspect <file>`
+## `hoplight inspect <file>`
 
 ```
-vaud inspect <file>
+hoplight inspect <file>
 ```
 
 Detects the source adapter, converts to the canonical entity, and prints the format id, the adapter's
@@ -127,10 +127,10 @@ label, the entity kind, and kind-specific fields (`cli.ts:233-276`):
 Does not honor `--json`; always prints the human-readable form. `<file>` is read as `args[1]`
 (`cli.ts:234`), the literal second token, so a flag placed before the path is read as the path instead.
 
-## `vaud validate <file>`
+## `hoplight validate <file>`
 
 ```
-vaud validate <file> [--json]
+hoplight validate <file> [--json]
 ```
 
 Runs the same detect-and-convert path as `inspect`, but reports pass/fail instead of a field dump
@@ -149,10 +149,10 @@ is `OK` and prints the format id, kind, and name. Exit code is 0 on `OK`, 1 on e
 { "ok": false, "path": "vera.png", "format": "sillytavern", "error": "<the thrown message>" }
 ```
 
-## `vaud label <file>`
+## `hoplight label <file>`
 
 ```
-vaud label <file>
+hoplight label <file>
 ```
 
 Guesses a card's spec and likely origin app without fully parsing it into the canonical model
@@ -172,10 +172,10 @@ Prints:
 
 Does not honor `--json`. `<file>` is `args[1]` (`cli.ts:279`), same positional caveat as `inspect`.
 
-## `vaud formats`
+## `hoplight formats`
 
 ```
-vaud formats [--json]
+hoplight formats [--json]
 ```
 
 Loads every adapter the loader discovers under `src/formats/*/index.ts` (`loadFormats`) and lists each
@@ -189,12 +189,12 @@ reminder that a new format is a folder drop-in (copy `src/formats/_template`).
 { "schema": "1", "adapters": [ { "id": "sillytavern", "kind": "character", "label": "SillyTavern character card (v2/v3, png/json)", "outputExtensions": ["json"] } ] }
 ```
 
-## `vaud ui [port] [studioDir]`
+## `hoplight ui [port] [studioDir]`
 
 ```
-vaud ui
-vaud ui 8321
-vaud ui 8321 "C:\Users\me\Documents\Vaude Studio"
+hoplight ui
+hoplight ui 8321
+hoplight ui 8321 "C:\Users\me\Documents\Hoplight Studio"
 ```
 
 Starts the loopback-only Studio server (`startUi`, see [ui.md](ui.md)) and blocks forever: `Bun.serve`
@@ -202,29 +202,29 @@ keeps the process alive and `main` awaits a promise that never resolves, so the 
 interrupt (`cli.ts:219-231`).
 
 `port` is `Number(args[1]) || 8321` (`cli.ts:222`): a missing, non-numeric, or literal `0` value all fall
-back to `8321`, since `0` is falsy. `studioDir` is `args[2]`, defaulting to `<home>/Documents/Vaude Studio`;
+back to `8321`, since `0` is falsy. `studioDir` is `args[2]`, defaulting to `<home>/Documents/Hoplight Studio`;
 it can only be set by also passing a `port` first, since it reads the third positional token regardless of
 the second. Does not honor `--json`.
 
-## `vaud version`
+## `hoplight version`
 
 ```
-vaud version
-vaud -v
-vaud --version
+hoplight version
+hoplight -v
+hoplight --version
 ```
 
 All three are equivalent; the `-v`/`--version` forms are checked before any other command match, ahead of
 the no-arguments and `help` fallback (`cli.ts:135-139`). Plain form prints just the version string.
 `--json` shape: `{ "version": "0.1.0", "schema": "1" }`.
 
-## `vaud help`
+## `hoplight help`
 
 ```
-vaud help
-vaud -h
-vaud --help
-vaud
+hoplight help
+hoplight -h
+hoplight --help
+hoplight
 ```
 
 All four print the same built-in `HELP` banner: usage line, the command table, the flag list, one example
@@ -258,5 +258,5 @@ arguments falls through to the same branch as `help` (`cli.ts:141`). Does not ho
 | Folder discovery (`loadFormats`) | `src/core/loader.ts` |
 | Bundle extract/re-embed on convert | `src/convert.ts` |
 | Card provenance labeler (`labelCard`, `sniffContainer`) | `src/entities/character/provenance.ts` |
-| Studio server started by `vaud ui` | `src/ui/server.ts` (see [ui.md](ui.md)) |
+| Studio server started by `hoplight ui` | `src/ui/server.ts` (see [ui.md](ui.md)) |
 | Invocation surfaces (`bin`, scripts) | `package.json` |

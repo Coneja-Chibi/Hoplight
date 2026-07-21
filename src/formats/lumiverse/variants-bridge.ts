@@ -1,6 +1,6 @@
 /**
  * Bridge Lumiverse alternate_fields / alternate_avatars <-> body.variants.
- * Lumi stores per-slot named alts; Vaude authors whole-card variants (VariantStrip).
+ * Lumi stores per-slot named alts; Hoplight authors whole-card variants (VariantStrip).
  * Import: fold alts into variants by shared label. Export: fold variant overrides back to Lumi wire.
  */
 import type { CharacterBody, CharacterVariant, MediaAsset } from "../../entities/character/schema";

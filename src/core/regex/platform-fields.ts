@@ -110,7 +110,7 @@ export function phasesForProfile(profile: RegexWriteForProfile): readonly RegexP
  * - {{match}}: ST `replaceString` sugar for `$0` (survey "SillyTavern (RegexScriptData)"). RC runs it
  *   too (task + REGEX-JEWEL-PLAN.md R2X mandate "{{match}}: ST+RC only"; the survey grounds ST
  *   explicitly and RC's `import-st-regex.ts` maps the same replace grammar, so RC is the plan's call,
- *   not a survey-derived one). Vaude runs it as well (core/regex/replace-ops.ts).
+ *   not a survey-derived one). Hoplight runs it as well (core/regex/replace-ops.ts).
  * - case transforms (\u \l \U \L \E): a vaud-engine extension (replace-ops.ts); no surveyed wire
  *   executes them, so on every other lens they print literally.
  * - conditional chaining (run B only if A fired), overlay (display-only spans), and
@@ -119,7 +119,7 @@ export function phasesForProfile(profile: RegexWriteForProfile): readonly RegexP
  *   travel-lint detects them straight off the rule (field: "rule") - the earlier "no single-rule
  *   token" note predates the schema fields.
  * - <cbs> flag tokens: Risu-only output-macro processing (survey "RisuAI", live "gu<cbs>"); every
- *   other engine (Vaude included - apply.ts strips it before compiling) ignores it.
+ *   other engine (Hoplight included - apply.ts strips it before compiling) ignores it.
  */
 export type RegexReplaceFeature =
   | "match-token"
@@ -145,7 +145,7 @@ export const REGEX_REPLACE_FEATURE_SUPPORT: Record<
 /**
  * PATTERN features every wire's JS engine supports on a CURRENT runtime but that OLDER installs may
  * reject (design/REGEX-FORMATS.md notes all five execute JS RegExp; the risk is the reader's engine
- * VERSION, not the platform). travel-lint flags these on every destination except full - Vaude is the
+ * VERSION, not the platform). travel-lint flags these on every destination except full - Hoplight is the
  * current, controlled runtime, i.e. "home", never a travel hop.
  */
 export type RegexHostAgeFeature = "v-flag" | "lookbehind";

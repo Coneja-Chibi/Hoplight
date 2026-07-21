@@ -9,7 +9,7 @@
  */
 import { useEffect, useMemo, useState, type JSX } from "react";
 import { zipSync } from "fflate";
-import type { AppContext, CoverageInfo, StudioEntitySummary, VaudeApp } from "../../app-contract";
+import type { AppContext, CoverageInfo, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { mediaExportSummary } from "../../components/export-dialog/honesty";
 import { triggerDownload } from "../../components/export-dialog/download";
 import {
@@ -406,7 +406,7 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
   );
 }
 
-const app: VaudeApp = {
+const app: HoplightApp = {
   manifest: {
     id: "press",
     title: "The Press",

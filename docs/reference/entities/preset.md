@@ -22,7 +22,7 @@ scope. They ride escrow or get their own kind later, never merged into this shap
 
 No format adapter reads or writes a `CanonicalPreset` today: `preset` is not a member of the
 `FormatAdapter` union in `src/core/adapter.ts` (see [architecture.md](../architecture.md), "The
-canonical entity"), and the `vaud` CLI has no preset command. The Library and Workbench author a
+canonical entity"), and the `hoplight` CLI has no preset command. The Library and Workbench author a
 `PresetBody` directly instead (`createAndOpenPreset`, `PresetEditorView`). The Producers column below
 still names the wire format each field was verified against, because that is what the shape models, not
 because an adapter exists yet.
