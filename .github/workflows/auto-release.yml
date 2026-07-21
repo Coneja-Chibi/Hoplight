@@ -41,15 +41,23 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # serialize against a racing train run that already pushed a bump
           git pull --rebase origin Mainstage
+          # bump BOTH version homes: package.json and src/version.ts (the constant the compiled
+          # exe reads). The parity test in update-check.test.ts fails the train if they drift -
+          # it did exactly that on the first run, by design.
           NEXT="$(bun -e '
             const pkg = JSON.parse(await Bun.file("package.json").text());
             const [maj, min, pat] = pkg.version.split(".").map(Number);
             pkg.version = `${maj}.${min}.${pat + 1}`;
             await Bun.write("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            const vPath = "src/version.ts";
+            const src = await Bun.file(vPath).text();
+            const out = src.replace(/APP_VERSION = "[^"]+"/, `APP_VERSION = "${pkg.version}"`);
+            if (out === src) throw new Error("bump: APP_VERSION not found in src/version.ts");
+            await Bun.write(vPath, out);
             console.log(pkg.version);
           ')"
           TAG="v${NEXT}"
-          git add package.json
+          git add package.json src/version.ts
           git commit -m "release: ${TAG} [skip release]"
           git tag "${TAG}"
           git push origin "HEAD:${GITHUB_REF_NAME}" "${TAG}"
