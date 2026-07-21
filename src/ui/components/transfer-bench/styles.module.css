@@ -16,7 +16,7 @@
   flex-direction: column;
   gap: 0.25rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -68,7 +68,7 @@
 .colHead b {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -80,7 +80,7 @@
   background: var(--stage-row);
   color: var(--stage-mute);
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.12rem 0.35rem;
@@ -148,7 +148,7 @@
 
 .meta {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   color: var(--stage-kicker);
   flex: none;
 }
@@ -189,7 +189,7 @@
   color: var(--stage-mute);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.4rem 0.7rem;

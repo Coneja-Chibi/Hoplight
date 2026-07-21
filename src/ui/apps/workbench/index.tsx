@@ -10,7 +10,7 @@
 import { useEffect, useState } from "react";
 import type { CSSProperties, JSX, ReactNode } from "react";
 import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
-import { deckMeta } from "../../_shared/decks";
+import { accentVars, deckMeta } from "../../_shared/decks";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
 import { rankRecents } from "./recents-core";
 import { CharacterEditor } from "./Editor";
@@ -115,7 +115,7 @@ function RecentCard({ ctx, entity }: { ctx: AppContext; entity: StudioEntitySumm
       ref={menuRef}
       type="button"
       className={styles.rcard}
-      style={{ "--a": entity.accent ?? deckMeta(entity.kind).accent } as CSSProperties}
+      style={accentVars(entity.accent ?? deckMeta(entity.kind).accent) as CSSProperties}
       title={`Bring ${entity.name} up`}
       onClick={() => ctx.workbench.send(entity)}
     >
@@ -279,7 +279,7 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
 
   return (
     <div className={`${styles.room}${focused ? ` ${styles.focused}` : ""}`}>
-      <div className={styles.stage} style={active?.accent ? ({ "--a": active.accent } as CSSProperties) : undefined}>
+      <div className={styles.stage} style={accentVars(active?.accent) as CSSProperties | undefined}>
         {!active && (
           <div className={styles.ghostRoom}>
             nothing is open on the workbench · open the Library and send pieces here · each one opens as a tab above

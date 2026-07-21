@@ -9,9 +9,15 @@
 :root {
   /* brand - FIXED, never recolored by accent picks */
   --rose: #e11d48;
+  /* the deep companion for TEXT-BEARING fills: bright rose cannot carry small dark-ink text at AA
+     (4.47:1 measured); white on this wine clears ~7:1. Marks, borders, and spines keep the bright
+     rose. Value = deepAccent(--rose) in _shared/color-math.ts; a unit test pins the agreement. */
+  --rose-deep: #b4092f;
 
   /* user-pickable house accent (chrome, empty states); entities wear their own accents */
   --accent: var(--rose);
+  /* repainted by the theme painter when a custom accent lands; text-bearing accent fills use it */
+  --accent-deep: var(--rose-deep);
 
   /* type roles (DECISIONS #13) */
   --font-big: "Archivo", sans-serif;          /* 900, tight */
@@ -90,6 +96,15 @@
   --deck-preset: #10b981;
   --deck-regex: #58c4a6;
   --deck-fog: #8a8496; /* unknown kind fallback */
+  /* deep companions for TEXT-BEARING deck fills (white labels clear ~7:1); bright originals keep
+     borders/spines/marks. Values = deepAccent(hue) in _shared/color-math.ts. */
+  --deck-character-deep: #784f00;
+  --deck-lorebook-deep: #7839ac;
+  --deck-persona-deep: #09645b;
+  --deck-pack-deep: #b4092f;
+  --deck-preset-deep: #006845;
+  --deck-regex-deep: #1e6551;
+  --deck-fog-deep: #5f5a69;
 }
 
 /* LIGHT = paper letterpress (shell chrome palette transcribed from the LOCKED vs-shell-apps) */

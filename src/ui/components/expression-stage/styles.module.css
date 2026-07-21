@@ -6,7 +6,7 @@
 }
 .seal {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ok);
@@ -37,7 +37,7 @@
 }
 .face span {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   background: var(--edge);
   color: var(--face);
   width: 100%;
@@ -52,7 +52,7 @@
 }
 .mood {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
   border: 2px solid var(--edge);
   background: var(--panel);
@@ -78,7 +78,7 @@
 }
 .hit {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--muted);
   margin-top: 0.3rem;
 }

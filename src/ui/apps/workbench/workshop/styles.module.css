@@ -34,7 +34,7 @@
 }
 .railhead {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--stage-line);
@@ -67,7 +67,7 @@
 }
 .ct {
   margin-left: auto;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   color: var(--stage-line);
   background: var(--stage-well);
   border: 1px solid var(--stage-seam);
@@ -98,12 +98,12 @@
 }
 .ehead .sub {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
 }
 .add {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -163,7 +163,7 @@
 .kw {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   color: var(--rose);
 }
@@ -224,7 +224,7 @@
 }
 .addmini {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -244,7 +244,7 @@
 }
 .advtag {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -265,7 +265,7 @@
 }
 .hint {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   color: var(--stage-line);
   margin: 0.4rem 0 0;
 }
@@ -281,7 +281,7 @@
 }
 .preview {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   line-height: 1.55;
   color: var(--stage-mute);
   background: var(--stage-well);
@@ -292,7 +292,7 @@
 }
 .warn {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   line-height: 1.45;
   color: var(--stage-var);
   border: 2px solid var(--stage-line);
@@ -302,7 +302,7 @@
 }
 .pkgban {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   line-height: 1.45;
   color: var(--stage-var);
   border: 2px solid var(--stage-line);
@@ -313,7 +313,7 @@
 .undo {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -325,7 +325,7 @@
 }
 .empty {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   line-height: 1.5;
   color: var(--stage-mute);
   border: 2px dashed var(--stage-seam);
@@ -372,7 +372,7 @@
 .runBtn {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -395,7 +395,7 @@
 }
 .vlabel {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-line);
@@ -426,7 +426,7 @@
 }
 .vpill {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-seam);
   padding: 0.14rem 0.4rem;
   color: var(--stage-mute);

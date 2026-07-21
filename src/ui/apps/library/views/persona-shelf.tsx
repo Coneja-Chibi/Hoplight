@@ -19,13 +19,13 @@ const CSS = `
 .psh-card.pick{outline:3px solid var(--a);outline-offset:-3px}
 .psh-cov{height:7.5rem;background:var(--stage-sunken);background-size:cover;background-position:center;display:grid;place-items:center;
   color:var(--stage-kicker);font:900 1.6rem var(--font-big);border-bottom:2px solid var(--stage-black);position:relative}
-.psh-def{position:absolute;top:.4rem;right:.4rem;font:700 .48rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
+.psh-def{position:absolute;top:.4rem;right:.4rem;font:700 .625rem var(--font-mono);letter-spacing:.06em;text-transform:uppercase;
   background:var(--stage-warn-ink);color:var(--stage-warn);border:1px solid var(--stage-black);padding:.08rem .3rem}
 .psh-body{padding:.5rem .6rem}
 .psh-nm{display:block;font:800 .8rem var(--font-big);letter-spacing:.03em;text-transform:uppercase;color:var(--stage-card);overflow-wrap:anywhere}
 .psh-brief{font-style:italic;font-family:var(--font-body);color:var(--stage-mute);font-size:.78rem;overflow-wrap:anywhere}
-.psh-line{font:500 .58rem var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--stage-kicker);margin-top:.3rem}
-.psh-new{display:grid;place-items:center;min-height:12rem;cursor:pointer;font:700 .62rem var(--font-mono);letter-spacing:.09em;text-transform:uppercase;
+.psh-line{font:500 .625rem var(--font-mono);letter-spacing:.05em;text-transform:uppercase;color:var(--stage-text-dim);margin-top:.3rem}
+.psh-new{display:grid;place-items:center;min-height:12rem;cursor:pointer;font:700 .625rem var(--font-mono);letter-spacing:.09em;text-transform:uppercase;
   color:var(--stage-mute);background:none;border:2px dashed var(--stage-seam)}
 `;
 

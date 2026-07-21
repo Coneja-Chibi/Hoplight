@@ -18,13 +18,14 @@ import { parseSettings, SETTING_KEYS, type StudioSettings } from "../../studio/s
 import { decideFollow } from "../follow-core";
 import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
 import { apiFetchJson } from "../_shared/api-fetch";
+import { deepAccent } from "../_shared/color-math";
 import {
   besideKeys,
-  bumpRecents,
   focusKeys,
   keyOf,
   paneKeyOf,
   parseRecents,
+  recentsPatch,
   removeKeys,
   stagePressBatch,
   unstagePressPiece,
@@ -60,6 +61,8 @@ export type { ContextMenus, MenuItem, MenuProvider, MenuTarget, OpenMenu } from 
 
 export interface FollowPrompt {
   count: number;
+  /** pane key of the newest sent piece; YES focuses it (a follow that lands on the OLD tab lies) */
+  followKey: string;
 }
 
 interface ShellState {
@@ -107,6 +110,9 @@ interface ShellState {
   /** the piece pinned beside the active one, or null when the stage is a single pane */
   besidePiece(): StudioEntitySummary | null;
   sendMany(pieces: StudioEntitySummary[]): void;
+  /** open a piece AND land on it, no follow prompt (create/"open" flows: the click IS the steering,
+   * the openBeside precedent). Idempotent: an already-open piece is focused, never duplicated. */
+  openPiece(piece: StudioEntitySummary): void;
   /** open a piece in the second pane, beside whatever is active (opens it first if needed) */
   openBeside(piece: StudioEntitySummary): void;
   /** collapse back to a single pane (the pinned piece stays open as a tab) */
@@ -130,7 +136,11 @@ interface ShellState {
 function paintTheme(t: Theme, houseAccent?: string): void {
   document.documentElement.dataset.theme = t;
   localStorage.setItem(THEME_CACHE_KEY, t); // pre-paint cache only; settings.json is the truth
-  if (houseAccent) document.documentElement.style.setProperty("--accent", houseAccent);
+  if (houseAccent) {
+    document.documentElement.style.setProperty("--accent", houseAccent);
+    // text-bearing accent fills read --accent-deep; a bright pick must not break their labels
+    document.documentElement.style.setProperty("--accent-deep", deepAccent(houseAccent));
+  }
 }
 
 export const useShellStore = create<ShellState>((set, get) => ({
@@ -293,9 +303,9 @@ export const useShellStore = create<ShellState>((set, get) => ({
 
     const onWorkbench = activeAppId !== "" && activeAppId === get().benchApp()?.id;
     const freshKeys = fresh.map((p) => keyOf(p.id, p.kind));
-    const now = Date.now();
-    const recents = bumpRecents(parseRecents(settings[SETTING_KEYS.workbenchRecents]), freshKeys, now, RECENTS_CAP);
-    get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
+    get().patchSettings(
+      recentsPatch(settings[SETTING_KEYS.workbenchRecents], SETTING_KEYS.workbenchRecents, freshKeys, Date.now(), RECENTS_CAP),
+    );
 
     const last = fresh[fresh.length - 1]!;
     const action = decideFollow(onWorkbench, settings[SETTING_KEYS.workbenchFollow]);
@@ -316,8 +326,21 @@ export const useShellStore = create<ShellState>((set, get) => ({
           fresh.length === 1 ? `${fresh[0]!.name} sent to the Workbench` : `${fresh.length} pieces sent to the Workbench`,
       });
     } else if (action === "ask") {
-      set({ followPrompt: { count: fresh.length } });
+      set({ followPrompt: { count: fresh.length, followKey: paneKeyOf(last) } });
     }
+  },
+
+  openPiece(piece) {
+    const { settings } = get();
+    if (!get().isOpen(piece.id, piece.kind)) {
+      get().patchSettings(
+        recentsPatch(settings[SETTING_KEYS.workbenchRecents], SETTING_KEYS.workbenchRecents, [keyOf(piece.id, piece.kind)], Date.now(), RECENTS_CAP),
+      );
+      set({ openPieces: [...get().openPieces, piece] });
+    }
+    set({ activeKey: paneKeyOf(piece) });
+    const bench = get().benchApp();
+    if (bench) get().mountApp(bench.id);
   },
 
   setPieceDirty(id, kind, dirty) {
@@ -338,14 +361,9 @@ export const useShellStore = create<ShellState>((set, get) => ({
     if (!already) {
       // an explicit "open beside" skips the follow prompt: the user is already steering the bench
       set({ openPieces: [...get().openPieces, piece] });
-      const now = Date.now();
-      const recents = bumpRecents(
-        parseRecents(settings[SETTING_KEYS.workbenchRecents]),
-        [keyOf(piece.id, piece.kind)],
-        now,
-        RECENTS_CAP,
+      get().patchSettings(
+        recentsPatch(settings[SETTING_KEYS.workbenchRecents], SETTING_KEYS.workbenchRecents, [keyOf(piece.id, piece.kind)], Date.now(), RECENTS_CAP),
       );
-      get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
     }
     set(besideKeys({ activeKey, splitKey }, key));
     const bench = get().benchApp();
@@ -389,14 +407,9 @@ export const useShellStore = create<ShellState>((set, get) => ({
       openPieces.find((p) => p.id === id && p.kind === kind);
     if (!hit) return;
     const key = paneKeyOf(hit);
-    const now = Date.now();
-    const recents = bumpRecents(
-      parseRecents(settings[SETTING_KEYS.workbenchRecents]),
-      [keyOf(id, kind)],
-      now,
-      RECENTS_CAP,
+    get().patchSettings(
+      recentsPatch(settings[SETTING_KEYS.workbenchRecents], SETTING_KEYS.workbenchRecents, [keyOf(id, kind)], Date.now(), RECENTS_CAP),
     );
-    get().patchSettings({ [SETTING_KEYS.workbenchRecents]: recents });
     set(focusKeys({ activeKey, splitKey }, key));
     const bench = get().benchApp();
     if (bench) get().mountApp(bench.id);
@@ -421,12 +434,13 @@ export const useShellStore = create<ShellState>((set, get) => ({
   },
 
   answerFollow(follow, remember) {
-    const { settings } = get();
+    const prompt = get().followPrompt;
     set({ followPrompt: null });
     if (remember) {
       get().patchSettings({ [SETTING_KEYS.workbenchFollow]: follow ? "always" : "never" });
     }
     if (follow) {
+      if (prompt?.followKey) set({ activeKey: prompt.followKey });
       const bench = get().benchApp();
       if (bench) get().mountApp(bench.id);
     }

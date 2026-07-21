@@ -100,7 +100,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -134,7 +134,7 @@
   display: block;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -153,7 +153,7 @@
 .pickCount {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -162,7 +162,7 @@
 .ghostBtn {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -176,7 +176,7 @@
   margin-left: auto;
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: var(--stage-card);

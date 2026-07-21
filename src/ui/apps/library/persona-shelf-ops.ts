@@ -68,7 +68,7 @@ export function makePersonaShelf(args: {
           setEntities((prev) =>
             prev.some((e) => e.kind === "persona" && e.id === summary.id) ? prev : [...prev, summary],
           );
-          ctx.workbench.send(summary);
+          ctx.workbench.open(summary);
           ctx.setStatus(`opened persona · ${summary.name}`);
         } catch (err) {
           ctx.setStatus(err instanceof Error ? err.message : "could not create the persona");

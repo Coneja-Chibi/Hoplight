@@ -16,6 +16,7 @@ import {
   type ReactNode,
 } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
+import { accentVars } from "../../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { CanonicalRegexSet, RegexRule, RegexSetBody } from "../../../../entities/regex/schema";
 import {
@@ -212,7 +213,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
   return (
     <div
       className={styles.root}
-      style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
+      style={accentVars(piece.accent) as CSSProperties | undefined}
     >
       {/* mobile head: below 34rem the desktop header hides and this thumb-sized back / name / save /
           kebab takes over (design/vs-regex-shelf-gallery wire 3, the registry MobileEditorHead) */}

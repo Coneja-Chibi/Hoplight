@@ -13,7 +13,7 @@
 }
 .kind {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam, var(--seam));
@@ -56,7 +56,7 @@
 }
 .chip {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-seam, var(--seam));
   background: var(--stage-well, var(--field));
   color: var(--stage-soft, var(--text));
@@ -76,7 +76,7 @@
 }
 .chipInput {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   border: 2px dashed var(--stage-seam, var(--seam));
   background: transparent;
   color: var(--stage-soft, var(--text));
@@ -85,7 +85,7 @@
 }
 .rm {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam, var(--seam));
   background: var(--stage-well, var(--field));
@@ -96,7 +96,7 @@
 }
 .add {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px dashed var(--stage-seam, var(--seam));

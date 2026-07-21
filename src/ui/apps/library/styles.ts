@@ -39,8 +39,8 @@ export const LIBRARY_STYLE = `
 .sendbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap;background:var(--stamp-bg);
   border:3px solid var(--edge);box-shadow:4px 4px 0 0 var(--accent);padding:.4rem .55rem .4rem .7rem}
 .sendbar .cnt{font-family:var(--font-big);font-weight:900;font-size:.75rem;letter-spacing:.04em;color:var(--stamp-fg)}
-.sendbar .send{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
-  text-transform:uppercase;background:var(--accent);color:var(--stage-ink);border:3px solid var(--edge);cursor:pointer;
+.sendbar .send{font-family:var(--font-big);font-weight:900;font-size:.8125rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--accent-deep);color:var(--stage-white);border:3px solid var(--edge);cursor:pointer;
   padding:.4rem .8rem;box-shadow:3px 3px 0 0 var(--edge);transition:transform .1s ease-out,box-shadow .1s ease-out}
 .sendbar .send:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--edge)}
 .sendbar .clear{font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.08em;
@@ -48,11 +48,11 @@ export const LIBRARY_STYLE = `
   border:2px solid color-mix(in srgb,var(--stamp-fg) 45%,transparent);
   cursor:pointer;padding:.35rem .6rem}
 .sendbar .clear:hover{border-color:var(--stamp-fg)}
-.sendbar .del{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
-  text-transform:uppercase;background:transparent;color:var(--rose);border:3px solid var(--rose);
-  cursor:pointer;padding:.4rem .8rem}
-.sendbar .del:hover{background:var(--rose);color:var(--stamp-fg)}
-.stage-crumb .crumbsel{margin-left:auto;font-family:var(--font-mono);font-weight:700;font-size:.5625rem;
+.sendbar .del{font-family:var(--font-big);font-weight:900;font-size:.8125rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--rose-deep);color:var(--stage-white);border:3px solid var(--rose);
+  cursor:pointer;padding:.4rem .8rem;transition:transform .1s ease-out,box-shadow .1s ease-out}
+.sendbar .del:hover{transform:translate(-1px,-1px);box-shadow:2px 2px 0 0 var(--edge)}
+.stage-crumb .crumbsel{font-family:var(--font-mono);font-weight:700;font-size:.625rem;
   letter-spacing:.1em;text-transform:uppercase;background:transparent;color:var(--text-dim);
   border:2px solid var(--text-faint);cursor:pointer;padding:.25rem .5rem}
 .stage-crumb .crumbsel:hover{color:var(--text);border-color:var(--edge)}
@@ -63,12 +63,14 @@ export const LIBRARY_STYLE = `
   line-height:1.5}
 .delsheet .delacts{display:flex;gap:.5rem}
 .delsheet .delgo{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
-  text-transform:uppercase;background:var(--rose);color:var(--stamp-fg);border:3px solid var(--edge);
+  text-transform:uppercase;background:var(--rose-deep);color:var(--stage-white);border:3px solid var(--edge);
   cursor:pointer;padding:.45rem .9rem;box-shadow:3px 3px 0 0 var(--edge)}
 .delsheet .delno{font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.08em;
   text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
   cursor:pointer;padding:.45rem .8rem}
 .delsheet .delno:hover{color:var(--text);border-color:var(--edge)}
+.delsheet .renamein{width:100%;font-family:var(--font-body);font-size:.95rem;color:var(--text);
+  background:var(--face);border:2px solid var(--edge);padding:.45rem .55rem;margin:0 0 .8rem}
 .deckchips{display:flex;gap:.4rem;flex:1;min-width:0;overflow-x:auto;padding-bottom:2px}
 .dchip{display:flex;align-items:center;gap:.45rem;flex:none;cursor:pointer;font-family:var(--font-big);
   font-weight:800;font-size:.625rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);

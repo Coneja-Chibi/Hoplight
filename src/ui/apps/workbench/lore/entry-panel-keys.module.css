@@ -82,7 +82,7 @@
 .keyPct {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   font-weight: 800;
   width: 2.2rem;
   text-align: center;
@@ -172,7 +172,7 @@
 .pos {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -205,7 +205,7 @@
 .posInner {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 0;
@@ -230,7 +230,7 @@
 .posRole {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   border: 0;
   background: transparent;
   color: var(--stage-soft);
@@ -257,7 +257,7 @@
 .seg {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -298,7 +298,7 @@
 .macro {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-text-dim);
@@ -342,7 +342,7 @@
 
 .fld > span {
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);

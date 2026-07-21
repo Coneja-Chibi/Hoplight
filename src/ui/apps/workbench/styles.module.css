@@ -17,7 +17,7 @@
 }
 .newPackBtn {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -85,7 +85,7 @@
   flex: none;
   width: clamp(9rem, 22vw, 16rem);
   align-self: flex-start;
-  background: var(--a);
+  background: var(--a, var(--rose));
   border: 3px solid var(--stage-black);
   aspect-ratio: 2 / 3;
   background-size: cover;
@@ -179,7 +179,7 @@
 }
 .rlabel {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -199,7 +199,8 @@
 }
 .rlabel .rtog {
   margin-left: auto;
-  color: var(--text-faint);
+  color: var(--text-soft, var(--text-dim));
+  font-weight: 600;
 }
 .rlabel:hover .rtog {
   color: var(--text-dim);
@@ -223,7 +224,7 @@
   cursor: pointer;
   background: var(--stage-panel);
   border: 3px solid var(--stage-black);
-  box-shadow: 3px 3px 0 0 var(--a);
+  box-shadow: 3px 3px 0 0 var(--a, var(--rose));
   padding: 0;
   font: inherit;
   text-align: left;
@@ -231,11 +232,11 @@
 }
 .rcard:hover {
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 0 var(--a);
+  box-shadow: 6px 6px 0 0 var(--a, var(--rose));
 }
 .rcov {
   aspect-ratio: 2 / 3;
-  background: var(--a);
+  background: var(--a, var(--rose));
   border-bottom: 3px solid var(--stage-black);
   background-size: cover;
   background-position: center top;
@@ -254,7 +255,7 @@
 .rnm {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--stage-card);
   padding: 0.22rem 0.3rem;
   white-space: nowrap;

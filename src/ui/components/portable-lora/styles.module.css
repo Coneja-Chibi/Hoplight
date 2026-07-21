@@ -8,7 +8,7 @@
 }
 .warn {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   line-height: 1.45;
   color: var(--stage-danger, var(--danger));
   border: 2px solid var(--stage-danger, var(--danger));
@@ -20,7 +20,7 @@
   flex-direction: column;
   gap: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));
@@ -54,7 +54,7 @@
 }
 .k {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -64,7 +64,7 @@
 .clear {
   align-self: flex-start;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border: 2px solid var(--stage-seam, var(--seam));

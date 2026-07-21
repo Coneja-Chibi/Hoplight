@@ -14,12 +14,12 @@
 }
 
 .flag.on .flagDot {
-  background: var(--a);
+  background: var(--a, var(--rose));
 }
 
 .hint {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--text-dim, var(--stage-text-dim)); /* readability floor: the old dim was ~2:1, invisible on the card */
   letter-spacing: 0.05em;
 }
@@ -43,7 +43,7 @@
   align-items: center;
   gap: 0.25rem;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-mute);
@@ -138,14 +138,14 @@
 
 .lsub {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
   margin-top: 0.2rem;
 }
 
 .stampBtn {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -180,7 +180,7 @@
   padding: 0.25rem 0.4rem 0.25rem 0.25rem;
   cursor: pointer;
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--stage-soft);
 }
 
@@ -201,7 +201,7 @@
 
 .palAdd {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   background: transparent;

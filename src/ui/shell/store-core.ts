@@ -66,6 +66,18 @@ export function bumpRecents(
   return Object.fromEntries(kept);
 }
 
+/** The whole recents ritual as one settings patch (parse the persisted blob, stamp `keys`, prune):
+ * every open path (send, open, open-beside) applies exactly this, extracted once. */
+export function recentsPatch(
+  recentsRaw: unknown,
+  recentsKey: string,
+  keys: string[],
+  now: number,
+  cap: number,
+): Record<string, unknown> {
+  return { [recentsKey]: bumpRecents(parseRecents(recentsRaw), keys, now, cap) };
+}
+
 /** A minimal piece identity for press-queue ops (the queue stores full summaries; ops key on these). */
 export interface PieceRef {
   id: string;

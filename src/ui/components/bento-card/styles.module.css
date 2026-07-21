@@ -44,7 +44,7 @@
 .aff :global(span),
 .aff :global(button) {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
   border: 2px solid var(--stage-seam);
   background: transparent;
@@ -63,7 +63,7 @@
 }
 .carry {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--rose);

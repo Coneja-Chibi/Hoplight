@@ -83,7 +83,7 @@
   box-shadow: 4px 4px 0 0 var(--stage-black);
 }
 .acHead {
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-line);

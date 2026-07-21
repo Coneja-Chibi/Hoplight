@@ -13,10 +13,10 @@
 .tocTitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0 0 0.5rem;
   display: flex;
   align-items: center;
@@ -26,7 +26,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -112,7 +112,7 @@
   width: 100%;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px dashed var(--stage-seam);
@@ -131,7 +131,7 @@
 /* the quiet slow chip (R4 health): a heavy pattern flagged at author time, never a blocker */
 .trowSlow {
   flex: none;
-  font: 700 0.48rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 1px solid var(--stage-warn);

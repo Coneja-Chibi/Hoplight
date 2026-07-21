@@ -32,7 +32,7 @@
 
 .pheadKick {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -40,7 +40,7 @@
 
 .blank {
   margin-left: auto;
-  font: 700 0.58rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px dashed var(--stage-line);
@@ -72,7 +72,7 @@
 
 .cat {
   display: block;
-  font: 800 0.58rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -135,7 +135,7 @@
 
 .baCell {
   padding: 0.4rem 0.55rem;
-  font: 500 0.62rem/1.5 var(--font-mono);
+  font: 500 0.625rem/1.5 var(--font-mono);
   color: var(--stage-soft);
   min-width: 0;
   overflow-wrap: anywhere;
@@ -162,7 +162,7 @@
 .tplFoot {
   display: block;
   padding: 0.35rem 0.6rem 0.5rem;
-  font: 700 0.5rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--a, var(--stage-macro));

@@ -14,8 +14,8 @@
   font-size: 0.6875rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background: var(--a);
-  color: var(--stage-ink);
+  background: var(--a-deep, var(--accent-deep)); /* deep companion: bright accents cannot carry small text */
+  color: var(--stage-white);
   border: 3px solid var(--stage-black);
   box-shadow: 3px 3px 0 0 var(--stage-black);
   padding: 0.45rem 0.9rem;
@@ -82,7 +82,7 @@
 
 .tno {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-faint);
@@ -102,7 +102,7 @@
 .tct {
   margin-left: auto;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   color: var(--text-faint);
 }
 
@@ -201,7 +201,7 @@
 
 .dk {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -285,7 +285,7 @@
 
 .escalePct {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.03em;
   color: var(--text-dim);
   background: transparent;
@@ -350,7 +350,7 @@
 
 .vchip {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   background: var(--stage-link);
   color: var(--stage-white);
@@ -428,7 +428,7 @@
   bottom: -1rem;
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
   text-align: center;
   white-space: nowrap;

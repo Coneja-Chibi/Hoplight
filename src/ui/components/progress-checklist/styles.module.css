@@ -29,7 +29,7 @@
 .tap {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);

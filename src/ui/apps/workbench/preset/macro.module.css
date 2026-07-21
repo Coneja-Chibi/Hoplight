@@ -19,14 +19,14 @@
 }
 
 .macrosLabel {
-  font: 900 0.6rem var(--font-big);
+  font: 900 0.625rem var(--font-big);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-kicker);
 }
 
 .macrosHint {
-  font: 500 0.58rem var(--font-body);
+  font: 500 0.625rem var(--font-body);
   color: var(--stage-mute);
 }
 
@@ -87,7 +87,7 @@
 }
 
 .macroCount {
-  font: 700 0.58rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   color: var(--stage-mute);
   flex: none;
 }
@@ -105,7 +105,7 @@
 
 .macroGroupDesc {
   margin: 0 0 0.4rem;
-  font: 500 0.62rem var(--font-body);
+  font: 500 0.625rem var(--font-body);
   color: var(--stage-kicker);
   line-height: 1.4;
 }

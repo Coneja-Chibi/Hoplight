@@ -31,7 +31,7 @@
 
 .pheadKick {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -64,7 +64,7 @@
 
 .groupTitle {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -97,7 +97,7 @@
 }
 
 .act {
-  font: 700 0.58rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);

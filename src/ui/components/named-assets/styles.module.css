@@ -32,7 +32,7 @@
 }
 .table th {
   text-align: left;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
@@ -45,7 +45,7 @@
   vertical-align: middle;
 }
 .kind {
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border: 2px solid var(--edge);
@@ -69,7 +69,7 @@
 }
 .ops button {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   text-transform: uppercase;
   border: 2px solid var(--seam);
   background: var(--panel);
@@ -90,7 +90,7 @@
 }
 .btn {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
 }
 .macro {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--muted);
   border: 2px dashed var(--seam);
   background: var(--stage-well, var(--paper));
@@ -138,7 +138,7 @@
 }
 .hint {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   color: var(--muted);
 }
 .hidden {

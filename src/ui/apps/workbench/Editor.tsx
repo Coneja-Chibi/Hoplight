@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties, JSX, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 import type { AppContext, CoverageInfo, StudioEntitySummary } from "../../app-contract";
 import type { OffTarget } from "../../components/platform-tabs";
+import { accentVars } from "../../_shared/decks";
 import { completionOf, deepEq, EDITOR_CARDS, lensVerdict, readPath, reconcileOrder, writePath } from "./editor-core";
 import { signatureFromPng } from "../../../studio/signature-color";
 import { hasSeenTour, tourSeenKey } from "../../tours/tour-core";
@@ -401,7 +402,7 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
   // grid is column-WIDTH based, so smaller = more, narrower bento columns that fill the freed space
   // (like browser zoom), never a shrink-into-the-corner with an empty void. --a rides along.
   const rootStyle: CSSProperties = {
-    ...(entityAccent !== undefined ? { ["--a"]: entityAccent } : {}),
+    ...(accentVars(entityAccent) ?? {}),
     ...(editorScale !== 1 ? { zoom: editorScale } : {}),
   };
   return (

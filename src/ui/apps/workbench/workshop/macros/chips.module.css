@@ -13,7 +13,7 @@
 }
 .macroChip {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -29,7 +29,7 @@
 }
 .macroPreview {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
   margin: 0.3rem 0 0;
 }

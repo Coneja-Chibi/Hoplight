@@ -3,7 +3,9 @@
  * extracted exactly once. Consumers: the Workbench deck chips + floated deck, the shell's tab
  * kind tags and tray beads, the Library rail (when its room builds). Kinds are OPEN strings
  * (drop-in formats may add kinds); deckMeta falls back gracefully for unknown ones.
+ * Also owns the --a convention: accentVars mints the pair every accent-wearing root paints.
  */
+import { deepAccent, normalizeHex } from "./color-math";
 
 export interface DeckMeta {
   /** canonical kind ("character") */
@@ -30,6 +32,21 @@ const BY_KIND = new Map(DECKS.map((d) => [d.kind, d]));
 
 /** Known decks in display order. */
 export const knownDecks = (): DeckMeta[] => [...DECKS];
+
+/**
+ * The style pair an accent-wearing root paints: --a (borders, spines, marks) plus --a-deep
+ * (TEXT-BEARING fills; white labels on it clear AA). A piece accent is a hex, a deck accent is a
+ * var(--deck-*) reference whose -deep twin lives in tokens.css; anything else omits --a-deep so
+ * CSS falls back to var(--accent-deep). No accent -> undefined (the var() fallback chains rule).
+ */
+export function accentVars(accent: string | undefined): Record<string, string> | undefined {
+  if (!accent) return undefined;
+  const hex = normalizeHex(accent);
+  if (hex) return { "--a": accent, "--a-deep": deepAccent(hex) };
+  const deck = accent.match(/^var\(--deck-([a-z]+)\)$/);
+  if (deck) return { "--a": accent, "--a-deep": `var(--deck-${deck[1]}-deep)` };
+  return { "--a": accent };
+}
 
 /** Meta for any kind; unknown kinds get a readable fallback (open-by-design). */
 export function deckMeta(kind: string): DeckMeta {

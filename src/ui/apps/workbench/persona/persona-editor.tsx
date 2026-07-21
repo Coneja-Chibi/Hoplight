@@ -8,6 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
+import { accentVars } from "../../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { PersonaBody } from "../../../../entities/persona/schema";
 import {
@@ -135,7 +136,7 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
   const onBody = setBody;
 
   return (
-    <div className={s.root} style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}>
+    <div className={s.root} style={accentVars(piece.accent) as CSSProperties | undefined}>
       <div className={s.mHeadGate}>
         <MobileEditorHead
           name={body.name || "Untitled persona"}

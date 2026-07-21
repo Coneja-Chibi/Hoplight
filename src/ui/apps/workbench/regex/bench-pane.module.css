@@ -43,7 +43,7 @@
 .tab {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 0;
@@ -112,7 +112,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -122,7 +122,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -159,7 +159,7 @@
   margin-top: 0.5rem;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -168,7 +168,7 @@
 .phaseSel {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-card);
@@ -182,7 +182,7 @@
 .ghostBtn {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -216,7 +216,7 @@
 .stepNo {
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   color: var(--stage-ink);
   background: var(--a, var(--stage-macro));
   border: 2px solid var(--stage-black);
@@ -241,7 +241,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.54rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -292,7 +292,7 @@
 .gchip {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   border: 1px solid var(--stage-faint);
   padding: 0.14rem 0.4rem;
   color: var(--stage-soft);
@@ -328,7 +328,7 @@
   padding: 0.45rem 0.7rem 0;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-var);
@@ -342,7 +342,7 @@
   padding: 0.45rem 0.7rem;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   color: var(--stage-kicker);
   display: flex;
   gap: 0.5rem;
@@ -354,7 +354,7 @@
 .stepSkip b {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--stage-mute);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -388,7 +388,7 @@
   display: block;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-ok);
@@ -455,7 +455,7 @@
 .escCopy {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: var(--stage-card);

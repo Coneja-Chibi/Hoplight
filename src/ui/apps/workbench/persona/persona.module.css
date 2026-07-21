@@ -35,10 +35,10 @@
 }
 
 .honest {
-  font: 500 0.55rem var(--font-mono);
+  font: 500 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .traits {
@@ -49,7 +49,7 @@
 }
 
 .trait {
-  font: 700 0.55rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   border: 1px solid var(--a, var(--stage-macro));
   background: none;
   color: var(--a, var(--stage-macro));
@@ -62,7 +62,7 @@
   background: var(--stage-row);
   border: 1px dashed var(--stage-line);
   color: var(--stage-soft);
-  font: 600 0.6rem var(--font-mono);
+  font: 600 0.625rem var(--font-mono);
   padding: 0.12rem 0.4rem;
 }
 
@@ -80,19 +80,20 @@
   padding: 0.45rem 0.6rem;
   cursor: pointer;
   text-align: left;
+  font: inherit; /* buttons do not inherit fonts; without this the button itself reads as the UA default */
 }
 
 .stopB {
   display: block;
-  font: 800 0.62rem var(--font-big);
+  font: 800 0.625rem var(--font-big);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-soft);
 }
 
 .stopHint {
-  font: 500 0.6rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
 }
 
 .stopOn {
@@ -114,10 +115,10 @@
   align-items: center;
   gap: 0.5rem;
   margin-top: 0.5rem;
-  font: 600 0.62rem var(--font-mono);
+  font: 600 0.625rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .depthIn {
@@ -143,7 +144,7 @@
 
 .xml {
   margin: 0;
-  font: 500 0.62rem/1.6 var(--font-mono);
+  font: 500 0.625rem/1.6 var(--font-mono);
   color: var(--stage-soft);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -156,10 +157,10 @@
   border-top: 1px solid var(--stage-seam);
   margin-top: 0.5rem;
   padding-top: 0.4rem;
-  font: 700 0.58rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .tokensN {
@@ -170,7 +171,7 @@
 
 .defaultBtn {
   width: 100%;
-  font: 700 0.62rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);

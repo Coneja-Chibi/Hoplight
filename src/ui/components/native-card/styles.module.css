@@ -25,7 +25,7 @@
 }
 .label {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-soft, var(--text-soft));
@@ -98,7 +98,7 @@
 }
 .k {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));

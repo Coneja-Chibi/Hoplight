@@ -13,7 +13,7 @@
 }
 .ghead {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));

@@ -19,18 +19,18 @@ const NOT_SURE: SetupOption = {
 const CSS = `
 .apron{border-top:3px dashed var(--stage-faint);background:var(--stage-well);padding:.75rem .95rem .9rem}
 .apron-head{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:.55rem}
-.apron-head .ap-k{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--stage-dim)}
+.apron-head .ap-k{font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--stage-soft)}
 .plates{display:flex;gap:.45rem;flex-wrap:wrap}
 .plate{flex:1;min-width:4.5rem;height:2.75rem;border:2px dashed var(--stage-faint);background:transparent;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  font-family:var(--font-mono);font-size:.53rem;letter-spacing:.05em;color:var(--stage-dim);
+  font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.04em;color:var(--stage-soft);
   text-transform:uppercase;text-align:center;line-height:1.2}
-.plate .pl-mk{font-size:.44rem;color:var(--stage-faint)}
+.plate .pl-mk{font-size:.6rem;font-weight:600;color:var(--stage-soft)}
 .plate.landed{border:3px solid var(--accent);background:var(--stage-row);color:var(--stage-paper)}
 .plate.landed .pl-mk{color:var(--accent);font-weight:500}
-.ap-note{font-family:var(--font-mono);font-size:.59rem;letter-spacing:.02em;
-  color:var(--stage-dim);margin:.6rem 2px 0;line-height:1.5}
+.ap-note{font-family:var(--font-mono);font-weight:600;font-size:.66rem;letter-spacing:.02em;
+  color:var(--stage-soft);margin:.6rem 2px 0;line-height:1.5}
 `;
 
 const picks = (draft: SetupDraft): string[] => {

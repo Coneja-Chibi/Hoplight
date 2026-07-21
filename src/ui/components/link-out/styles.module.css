@@ -36,14 +36,14 @@
 }
 .meta {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   color: var(--stage-mute, var(--muted));
 }
 .go {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--link, var(--rose));
@@ -55,7 +55,7 @@
 .pending {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));

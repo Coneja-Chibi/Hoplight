@@ -73,7 +73,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   color: var(--stage-text-dim);
   margin-left: auto;
   border: 2px solid var(--stage-seam);
@@ -150,7 +150,7 @@
   flex: none;
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -209,7 +209,7 @@
 .tokc {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   color: var(--stage-text-dim);
   flex: none;
 }
@@ -257,10 +257,10 @@
 
 .dragHint {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--stage-kicker, var(--stage-mute));
+  color: var(--stage-text-dim, var(--stage-mute));
   margin: 0 0 0.35rem;
 }
 
@@ -268,7 +268,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -330,7 +330,7 @@
   white-space: nowrap;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);

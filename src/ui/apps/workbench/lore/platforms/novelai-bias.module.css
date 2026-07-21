@@ -37,7 +37,7 @@
   cursor: pointer;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -76,7 +76,7 @@
   cursor: pointer;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }

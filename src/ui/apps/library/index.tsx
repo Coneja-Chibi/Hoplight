@@ -35,6 +35,7 @@ import {
 } from "./regex-shelf-ops";
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { NewInDeckButton } from "./new-in-deck-button";
+import { createAndOpenCharacter } from "./new-character";
 import { useEntityDelete } from "./delete-flow";
 import { consumeImportRequests } from "../../_shared/import-signal";
 import { peekPiece, sourceLabelFor } from "./piece-peek";
@@ -196,7 +197,19 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           <button className="doorcard primary stamp" onClick={() => pickFiles(runImport)}>
             Drag and drop to import asset
           </button>
-          <button className="doorcard stamp" onClick={() => ctx.setStatus("the editor arrives next slice")}>
+          <button
+            className="doorcard stamp"
+            onClick={() => {
+              void createAndOpenCharacter(ctx).then(
+                (summary) => {
+                  setEntities((prev) => [...prev, summary]);
+                  ctx.workbench.open(summary);
+                  ctx.setStatus(`opened character · ${summary.name}`);
+                },
+                (err) => ctx.setStatus(err instanceof Error ? err.message : "could not create a character"),
+              );
+            }}
+          >
             Click here to start fresh
           </button>
         </div>
@@ -371,10 +384,26 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             <span className="pip" />
             <span className="cn">{deck.plural}</span>
             <span className="cc">{inDeck.length ? `${view.label.toLowerCase()} · ${inDeck.length}` : "deck empty"}</span>
-            {inDeck.length > 0 && selectedValid.size === 0 && (
-              <button className="crumbsel" onClick={selectAll}>
-                Select all
-              </button>
+            {inDeck.length > 0 && (
+              <span style={{ marginLeft: "auto", display: "flex", gap: "0.35rem" }}>
+                <NewInDeckButton
+                  compact
+                  kind={activeKind}
+                  ctx={ctx}
+                  onCreated={(summary) =>
+                    setEntities((prev) =>
+                      prev.some((e) => e.kind === summary.kind && e.id === summary.id)
+                        ? prev
+                        : [...prev, summary],
+                    )
+                  }
+                />
+                {selectedValid.size === 0 && (
+                  <button className="crumbsel" onClick={selectAll}>
+                    Select all
+                  </button>
+                )}
+              </span>
             )}
           </div>
           {inDeck.length === 0 ? (

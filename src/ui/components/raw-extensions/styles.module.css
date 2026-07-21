@@ -10,7 +10,7 @@
 }
 .head {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));
@@ -22,7 +22,7 @@
 }
 .key {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   color: var(--stage-soft, var(--text-soft));
   word-break: break-all;
 }
@@ -55,7 +55,7 @@
 }
 .bad {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--rose);
   margin-top: 0.2rem;
 }

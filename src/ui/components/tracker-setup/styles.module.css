@@ -18,7 +18,7 @@
 }
 .k {
   font-family: var(--font-mono);
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));

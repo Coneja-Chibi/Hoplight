@@ -30,8 +30,9 @@ const CSS = `
 .thumb-name{font-family:var(--font-big);font-weight:600;font-size:1rem}
 .backwall{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1rem;padding:1.75rem 1.5rem 1.25rem;text-align:center}
-.wall-note{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.24em;
-  text-transform:uppercase;color:var(--stage-faint)}
+.wall-note{font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--status-fg)} /* the wizard wall is var(--stage): dark in BOTH themes, so
+  the ink must be the bright-on-dark pair (stage-soft flips dark in light mode and vanished) */
 .preview{width:min(12.25rem,90%);border:3px solid var(--pv-line);background:var(--pv-bg);
   box-shadow:5px 6px 0 0 var(--shadow-ink)}
 .preview.dark{--pv-bg:var(--stage-row);--pv-line:var(--stage-black);--pv-top:var(--stage-sunken);--pv-dim:#3a3646;--pv-lit:#6f6a7d} /* hardcode-ok: literal theme-preview swatches */
@@ -50,8 +51,8 @@ const CSS = `
 .pv-body span:nth-child(2){width:92%}
 .pv-body span:nth-child(3){width:78%}
 .pv-body .btn{height:12px;width:44%;margin-top:3px;background:var(--accent)}
-.pv-cap{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--stage-dim)}
+.pv-cap{font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--status-fg)} /* bright-on-dark pair; see .wall-note */
 `;
 
 function Bars({ cls, count }: { cls: string; count: number }): JSX.Element {

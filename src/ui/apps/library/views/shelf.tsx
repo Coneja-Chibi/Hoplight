@@ -259,8 +259,8 @@ const view: DeckView = {
           <span
             style={{
               fontFamily: "var(--font-mono)",
-              fontSize: "0.55rem",
-              color: "var(--stage-kicker)",
+              fontSize: "0.68rem",
+              color: "var(--stage-soft)",
               letterSpacing: "0.08em",
               textTransform: "uppercase",
             }}

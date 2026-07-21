@@ -75,7 +75,7 @@
 
 .qstep {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -146,7 +146,7 @@
 
 .qmiss {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -168,7 +168,7 @@
 
 .qskip {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -190,8 +190,8 @@
   font-weight: 700;
   font-size: 0.95rem;
   letter-spacing: 0.02em;
-  color: var(--stage-paper);
-  background: var(--rose);
+  color: var(--stage-white);
+  background: var(--rose-deep); /* deep companion: neither black nor cream clears AA on bright rose */
   padding: 0.65rem 1.3rem;
 }
 
@@ -207,7 +207,7 @@
 
 .stagecap {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-dim);
@@ -226,7 +226,8 @@
 
 .stagecap em {
   font-style: normal;
-  color: var(--a, var(--accent));
+  /* accent lifted toward paper so any user accent clears AA on the dark stage */
+  color: color-mix(in srgb, var(--a, var(--accent)) 55%, var(--stage-card));
 }
 
 .stage {
@@ -251,7 +252,7 @@
 
 .taking {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-dim);

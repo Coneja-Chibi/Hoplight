@@ -31,7 +31,7 @@
 .searchIcon {
   position: absolute;
   left: 0.5rem;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   pointer-events: none;
 }
 
@@ -51,8 +51,8 @@
 }
 
 .stats {
-  font: 500 0.62rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
   white-space: nowrap;
 }
 
@@ -153,14 +153,15 @@
 }
 
 .tabCount {
-  font: 800 0.58rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   background: color-mix(in srgb, var(--stage-card) 8%, transparent);
   padding: 0.05rem 0.3rem;
 }
 
 .tabCountOn {
-  background: color-mix(in srgb, var(--stage-black) 30%, transparent);
-  color: var(--stage-card);
+  /* solid ink chip: a translucent wash over an arbitrary accent fill cannot promise contrast */
+  background: var(--stage-ink);
+  color: var(--stage-white);
 }
 
 /* ---------- bulk bar ---------- */
@@ -197,7 +198,7 @@
   border: 2px solid var(--stage-black);
   background: var(--stage-panel);
   color: var(--stage-soft);
-  font: 700 0.62rem var(--font-body);
+  font: 700 0.625rem var(--font-body);
   padding: 0.22rem 0.45rem;
   cursor: pointer;
 }

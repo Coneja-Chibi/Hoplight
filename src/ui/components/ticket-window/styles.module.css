@@ -22,8 +22,9 @@
   background: var(--stage-black);
   color: var(--stage-white);
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.22em;
+  font-weight: 600;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 0.4rem 0.6rem;
 }
@@ -40,6 +41,7 @@
   aspect-ratio: 3 / 4;
   margin: 0.6rem;
   border: 2px solid var(--stage-black);
+  font-family: var(--font-mono); /* buttons do not inherit fonts; bare caption text fell to the UA default */
   position: relative;
   display: flex;
   align-items: center;
@@ -90,7 +92,7 @@
   right: 0;
   bottom: 0.8rem;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-mute);
@@ -107,7 +109,7 @@
 .stub {
   flex: 1;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
@@ -121,8 +123,8 @@
 }
 
 .stubPrimary {
-  background: var(--a);
-  color: var(--stage-ink);
+  background: var(--a-deep, var(--accent-deep)); /* bare var(--a) vanished outside accent roots (measured 1.04:1) */
+  color: var(--stage-white);
   border-left-style: solid;
 }
 
@@ -138,7 +140,7 @@
 .shelfKick {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--stage-mute);
@@ -176,7 +178,7 @@
   bottom: 0;
   right: 0;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.64rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-white);

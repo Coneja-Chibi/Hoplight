@@ -297,6 +297,7 @@ export function App(): JSX.Element | null {
         active: () => useShellStore.getState().activePiece(),
         beside: () => useShellStore.getState().besidePiece(),
         send: (s) => useShellStore.getState().sendMany([s]),
+        open: (s) => useShellStore.getState().openPiece(s),
         sendMany: (pieces) => useShellStore.getState().sendMany(pieces),
         openBeside: (s) => useShellStore.getState().openBeside(s),
         closeSplit: () => useShellStore.getState().closeSplit(),

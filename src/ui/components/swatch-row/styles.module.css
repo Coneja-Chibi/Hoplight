@@ -21,6 +21,7 @@
   border: 3px solid var(--ink);
   cursor: pointer;
   position: relative;
+  font-family: var(--font-mono);
   box-shadow: 4px 4px 0 0 var(--ink);
   padding: 0;
   transition:
@@ -49,9 +50,10 @@
   bottom: -1.4rem;
   text-align: center;
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  color: var(--text);
 }
 .sw.custom {
   background: conic-gradient(from 0deg, var(--rose), #f59e0b, #10b981, #3b82f6, #8b5cf6, var(--rose)); /* hardcode-ok: fixed rainbow spectrum swatch icon, not a themed surface */

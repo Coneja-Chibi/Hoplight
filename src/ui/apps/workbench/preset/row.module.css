@@ -45,6 +45,7 @@
 }
 
 .chev {
+  font-family: var(--font-mono); /* buttons do not inherit fonts */
   border: 0;
   background: none;
   color: var(--stage-mute);
@@ -91,7 +92,7 @@
 }
 
 .grip {
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   cursor: grab;
   flex: none;
   font-size: 0.9rem;
@@ -147,7 +148,7 @@
 }
 
 .role {
-  font: 800 0.5rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.12rem 0.38rem;
@@ -170,7 +171,7 @@
 }
 
 .mk {
-  font: 800 0.5rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-warn);
@@ -180,7 +181,7 @@
 }
 
 .depthBadge {
-  font: 600 0.52rem var(--font-mono);
+  font: 600 0.625rem var(--font-mono);
   color: var(--pa);
   background: color-mix(in srgb, var(--pa) 14%, transparent);
   padding: 0.12rem 0.38rem;
@@ -197,8 +198,8 @@
 }
 
 .tok {
-  font: 600 0.62rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 600 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
   flex: none;
 }
 
@@ -219,7 +220,7 @@
 }
 
 .actBtn {
-  font: 700 0.6rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);

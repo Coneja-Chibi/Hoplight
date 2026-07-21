@@ -68,7 +68,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid var(--stage-ok);
@@ -168,7 +168,7 @@
 .bchead i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -236,7 +236,7 @@
 .zoneLbl {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -293,7 +293,7 @@
 .logicSpacer {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   margin: 0.45rem 0 0.2rem;
   visibility: hidden;
 }
@@ -341,7 +341,7 @@
 .matchSeg {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -382,7 +382,7 @@
 .md {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 0;

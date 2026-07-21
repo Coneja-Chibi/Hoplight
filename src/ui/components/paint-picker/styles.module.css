@@ -86,7 +86,7 @@
   border-left: 3px solid var(--ink);
   background: var(--paper);
   font-family: var(--font-mono), monospace;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -104,7 +104,7 @@
 .rm {
   margin-left: auto;
   font-family: var(--font-mono), monospace;
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;

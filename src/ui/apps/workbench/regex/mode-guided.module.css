@@ -47,7 +47,7 @@
 .qk {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -147,7 +147,7 @@
 .qback {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -185,7 +185,7 @@
 .escapePlan {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-kicker);

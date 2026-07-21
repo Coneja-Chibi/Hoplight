@@ -42,7 +42,7 @@
 .chromLab {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -77,7 +77,7 @@
   padding: 0;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -96,7 +96,7 @@
   padding: 0;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-danger-text);
@@ -171,7 +171,7 @@
 .texpLabel {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -299,7 +299,7 @@
   font: inherit;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);

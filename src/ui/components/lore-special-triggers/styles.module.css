@@ -8,7 +8,7 @@
 .trigger {
   font: inherit;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -41,7 +41,7 @@
 
 .section {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--text-dim));
@@ -54,7 +54,7 @@
 .note {
   margin: 0;
   padding: 0.1rem 0.65rem 0.35rem;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   line-height: 1.35;
   color: var(--stage-mute, var(--text-dim));
 }
@@ -88,13 +88,13 @@
 
 .itemKey {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   color: var(--stage-mute, var(--text-dim));
 }
 
 .badge {
   font-family: var(--font-mono);
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 1px solid var(--stage-warn, var(--accent));

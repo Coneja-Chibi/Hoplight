@@ -8,7 +8,7 @@
 }
 .note {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   color: var(--muted);
   margin: 0;
   line-height: 1.4;
@@ -21,7 +21,7 @@
 }
 .k {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -32,7 +32,7 @@
   flex-direction: column;
   gap: 0.2rem;
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));
@@ -50,7 +50,7 @@
 }
 .gtitle {
   font-family: var(--font-mono);
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;

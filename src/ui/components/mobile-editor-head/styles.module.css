@@ -45,7 +45,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-kicker, var(--stage-mute));

@@ -24,7 +24,7 @@
 }
 .none {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;

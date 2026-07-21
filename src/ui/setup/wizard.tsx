@@ -89,7 +89,8 @@ const CSS = `
   text-transform:uppercase;color:var(--ink)}
 .vsetup .hc-s{font-family:var(--font-mono);font-size:.65625rem;letter-spacing:.04em;
   text-transform:uppercase;color:var(--muted)}
-.vsetup.final-on .hc-s{color:var(--wiz-a,var(--rose))}
+.vsetup.final-on .hc-s{color:var(--text);font-weight:700;
+  border-bottom:2px solid var(--wiz-a,var(--rose))}
 .vsetup .proscenium{position:relative;background:var(--paper);border:var(--ink-border);
   box-shadow:10px 10px 0 0 var(--ink);padding:clamp(.85rem,2vw,1.1875rem)}
 .vsetup .proscenium::before{content:"";position:absolute;inset:9px;border:1.5px solid var(--ink);
@@ -104,11 +105,13 @@ const CSS = `
 .vsetup .final-card .q{font-size:clamp(2.1rem,1.4rem+2.8vw,2.75rem);margin-top:1.25rem}
 .vsetup .summary{font-style:italic;font-weight:600;font-size:clamp(1.15rem,1rem+.6vw,1.25rem);
   color:var(--muted);margin:2px auto .5rem;max-width:22.5rem;line-height:1.4}
-.vsetup .summary b{font-style:normal;font-weight:600;color:var(--ink)}
+.vsetup .summary b{font-style:normal;font-weight:700;color:var(--text)}
 .vsetup .recap{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.4rem 0 1.75rem}
 .vsetup .recap span{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.05em;
   text-transform:uppercase;color:var(--muted);border:2px solid var(--ghost);padding:.4rem .7rem}
-.vsetup .recap span b{color:var(--wiz-a,var(--rose));font-weight:500}
+.vsetup .recap span b{color:var(--text);font-weight:700;
+  text-decoration:underline;text-decoration-color:var(--wiz-a,var(--rose));
+  text-decoration-thickness:2px;text-underline-offset:3px}
 .vsetup .open{font-family:var(--font-big);font-weight:900;font-size:1rem;letter-spacing:.1em;
   text-transform:uppercase;padding:1.1rem 2.6rem;border:var(--ink-border);
   background:var(--rose);color:var(--stage-white);box-shadow:8px 8px 0 0 var(--ink);cursor:pointer;

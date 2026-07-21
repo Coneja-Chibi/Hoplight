@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
+import { accentVars } from "../../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
 import type { PresetBody } from "../../../../entities/preset";
 import {
@@ -170,7 +171,7 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
   const meta = `preset · ${weight.totalCount} block${weight.totalCount === 1 ? "" : "s"} · ${weight.enabledCount} on · ~${weight.tokens} tokens`;
 
   return (
-    <div className={s.root} style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}>
+    <div className={s.root} style={accentVars(piece.accent) as CSSProperties | undefined}>
       <EditorEhead
         mark={monogram}
         name={body.name}

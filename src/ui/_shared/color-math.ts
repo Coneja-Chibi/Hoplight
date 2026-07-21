@@ -26,20 +26,51 @@ export function normalizeHex(input: string): string | null {
   return /^[0-9a-f]{6}$/.test(full) ? `#${full}` : null;
 }
 
+/** WCAG relative luminance of a "#rrggbb" hex. Tolerant: garbage reads as black. */
+export function relativeLuminance(hex: string): number {
+  const norm = normalizeHex(hex) ?? "#000000";
+  const lin = (pair: string): number => {
+    const s = parseInt(pair, 16) / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(norm.slice(1, 3)) + 0.7152 * lin(norm.slice(3, 5)) + 0.0722 * lin(norm.slice(5, 7));
+}
+
+/** WCAG contrast ratio (1..21) between two hex colors. */
+export function contrastRatio(a: string, b: string): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  const [hi, lo] = la >= lb ? [la, lb] : [lb, la];
+  return (hi + 0.05) / (lo + 0.05);
+}
+
 /**
  * Pick a legible ink (near-black or cream) to sit ON a solid hex fill, by WCAG relative luminance.
  * Used for monogram badges: the tile wears a brand color, the letter must stay readable on it. Tolerant:
  * an unparseable fill reads as dark, so it gets cream ink.
  */
-export const readableInk = (fill: string): string => {
-  const hex = normalizeHex(fill) ?? "#000000";
-  const lin = (pair: string): number => {
-    const s = parseInt(pair, 16) / 255;
-    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
-  };
-  const lum = 0.2126 * lin(hex.slice(1, 3)) + 0.7152 * lin(hex.slice(3, 5)) + 0.0722 * lin(hex.slice(5, 7));
-  return lum > 0.42 ? "#0a0a0b" : "#faf8f3";
-};
+export const readableInk = (fill: string): string =>
+  relativeLuminance(fill) > 0.42 ? "#0a0a0b" : "#faf8f3";
+
+/** White text needs 4.5:1; aim well past it so the companion reads as a designed shade family
+ * (a near-miss darken looks like a rendering glitch beside the original) and no accent pick can
+ * land near the line. */
+const DEEP_TARGET = 6.5;
+
+/**
+ * Darken an accent until WHITE text on it clears WCAG AA (with margin). Bright accents (the house
+ * rose, amber, spring green) cannot carry small text; their deepened companion can, while the
+ * original keeps wearing borders, spines, and marks. Already-deep colors return unchanged.
+ * Tolerant: garbage reads as black, which is already past the target.
+ */
+export function deepAccent(fill: string): string {
+  let hex = normalizeHex(fill) ?? "#000000";
+  for (let i = 0; i < 32 && contrastRatio(hex, "#ffffff") < DEEP_TARGET; i++) {
+    const { h, s, v } = hexToHsv(hex);
+    hex = hsvToHex({ h, s: Math.min(1, s * 1.03), v: v * 0.93 });
+  }
+  return hex;
+}
 
 /** Hex -> HSV. Tolerant: an unparseable value reads as black (never throws). */
 export function hexToHsv(hex: string): Hsv {

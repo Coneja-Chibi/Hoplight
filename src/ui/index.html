@@ -25,7 +25,7 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 #dock{grid-column:1;grid-row:1/3;width:clamp(11.5rem,15vw,12.5rem);
   background:var(--chrome);border-right:3px solid var(--seam);
   display:flex;flex-direction:column;min-height:0}
-#dockhome{display:flex;align-items:center;gap:.55rem;flex:none;cursor:pointer;
+#dockhome{display:flex;align-items:center;gap:.55rem;flex:none;cursor:pointer;font-family:var(--font-mono);
   background:transparent;border:none;border-bottom:3px solid var(--seam);
   padding:.7rem .7rem;width:100%}
 #dockhome .beam{width:1.8rem;height:1.8rem;flex:none}
@@ -77,7 +77,7 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .dockslot.on{border-color:var(--accent);color:var(--text);background:var(--face)}
 .dockslot:disabled{cursor:default;opacity:.5}
 .dockslot .plus{font-family:var(--font-big);font-weight:900;font-size:1.05rem;line-height:0}
-.dockslot .sl{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.14em;text-transform:uppercase}
+.dockslot .sl{font-family:var(--font-mono);font-weight:600;font-size:.625rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text)}
 #dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}
 #dockfoot .apptile{min-height:2.9rem}
 #dockToggle{flex:none;display:flex;align-items:center;justify-content:center;gap:.4rem;width:100%;
@@ -162,7 +162,7 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
   font-family:var(--font-mono);font-size:.65625rem;letter-spacing:.03em;overflow:hidden;white-space:nowrap}
 #status .seg{display:flex;align-items:center;gap:.4rem;flex:none}
 #status .seg.trim{overflow:hidden;text-overflow:ellipsis;min-width:0;flex:0 1 auto}
-#status .k{color:var(--status-dim)}
+#status .k{color:var(--status-fg);font-weight:600}
 #status .b{color:var(--status-fg)}
 #status .appdot{width:8px;height:8px;flex:none;background:var(--adot,var(--status-dim))}
 #status .spacer{flex:1;min-width:.5rem}

@@ -1,6 +1,6 @@
 /** Regression coverage for the color-math.test behavior owned beside this file. */
 import { expect, test } from "bun:test";
-import { clamp01, dragFraction, hexToHsv, hsvToHex, normalizeHex, readableInk } from "./color-math";
+import { clamp01, contrastRatio, deepAccent, dragFraction, hexToHsv, hsvToHex, normalizeHex, readableInk } from "./color-math";
 
 test("readableInk picks dark ink on light fills and cream on dark fills", () => {
   expect(readableInk("#ffd21e")).toBe("#0a0a0b"); // hugging-face yellow -> dark ink
@@ -57,6 +57,28 @@ test("hsvToHex wraps hue and clamps out-of-range axes", () => {
   expect(hsvToHex({ h: 360, s: 1, v: 1 })).toBe(hsvToHex({ h: 0, s: 1, v: 1 }));
   expect(hsvToHex({ h: -120, s: 1, v: 1 })).toBe(hsvToHex({ h: 240, s: 1, v: 1 }));
   expect(hsvToHex({ h: 0, s: 5, v: 5 })).toBe("#ff0000");
+});
+
+test("contrastRatio matches the WCAG anchors", () => {
+  expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 5);
+  expect(contrastRatio("#ffffff", "#000000")).toBeCloseTo(21, 5); // order-independent
+  expect(contrastRatio("#777777", "#777777")).toBeCloseTo(1, 5);
+});
+
+test("deepAccent darkens bright accents until white text clears AA with margin", () => {
+  // every deck accent plus the house rose: the exact palette that must carry white labels
+  for (const hex of ["#e11d48", "#e6a52a", "#10b981", "#b968f7", "#2ba79a", "#58c4a6", "#f59e0b"]) {
+    expect(contrastRatio(deepAccent(hex), "#ffffff")).toBeGreaterThanOrEqual(4.5);
+  }
+});
+
+test("deepAccent of the house rose matches the --rose-deep token (tokens.css must agree)", () => {
+  expect(deepAccent("#e11d48")).toBe("#b4092f");
+});
+
+test("deepAccent leaves already-deep colors alone and fails closed on garbage", () => {
+  expect(deepAccent("#123456")).toBe("#123456"); // already past the target -> untouched
+  expect(contrastRatio(deepAccent("garbage"), "#ffffff")).toBeGreaterThanOrEqual(4.5); // reads as black
 });
 
 test("dragFraction clamps to the track and handles a zero-size track", () => {

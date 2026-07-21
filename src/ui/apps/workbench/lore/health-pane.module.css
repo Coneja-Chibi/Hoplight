@@ -31,7 +31,7 @@
 .head i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -85,7 +85,7 @@
 .chipWarn {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.12rem 0.35rem;
@@ -108,7 +108,7 @@
   color: var(--stage-ink);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.22rem 0.4rem;
@@ -117,7 +117,7 @@
 
 .byHand {
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-text-dim);

@@ -62,10 +62,10 @@
 
 .spineMeta {
   display: block;
-  font: 500 0.56rem var(--font-mono);
+  font: 500 0.625rem var(--font-mono);
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .acts {
@@ -84,7 +84,7 @@
   text-transform: uppercase;
   padding: 0.35rem 0.65rem;
   border: 2px solid var(--stage-black);
-  background: var(--rose);
+  background: var(--a-deep, var(--accent-deep)); /* deep companion: white on bright rose/accent misses AA */
   color: var(--stage-white);
   cursor: pointer;
   box-shadow: 3px 3px 0 0 var(--stage-black);
@@ -92,7 +92,8 @@
 
 .save:disabled {
   background: var(--stage-panel);
-  color: var(--stage-text-dim);
+  color: var(--stage-soft);
+  border-color: var(--stage-seam);
   box-shadow: none;
   cursor: default;
 }

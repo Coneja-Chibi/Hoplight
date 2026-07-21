@@ -8,6 +8,7 @@ import {
   paneKey,
   paneKeyOf,
   parseRecents,
+  recentsPatch,
   removeKeys,
   stagePressBatch,
   unstagePressPiece,
@@ -42,6 +43,17 @@ test("bumpRecents caps at the newest `cap` entries", () => {
   const existing = Object.fromEntries(Array.from({ length: 5 }, (_, i) => [`k${i}`, i]));
   const out = bumpRecents(existing, [], 999, 3);
   expect(Object.keys(out).sort()).toEqual(["k2", "k3", "k4"]);
+});
+
+test("recentsPatch parses the raw blob, stamps the keys, and shapes the settings patch", () => {
+  const out = recentsPatch({ "character:a": 1, junk: "x" }, "workbench.recents", ["character:b"], 50, 10);
+  expect(out).toEqual({ "workbench.recents": { "character:a": 1, "character:b": 50 } });
+});
+
+test("recentsPatch survives a malformed persisted blob (fail closed)", () => {
+  expect(recentsPatch("garbage", "workbench.recents", ["k"], 7, 10)).toEqual({
+    "workbench.recents": { k: 7 },
+  });
 });
 
 test("bumpRecents no-ops cleanly on an empty key list", () => {

@@ -45,7 +45,7 @@
 .rk {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -66,7 +66,7 @@
 .fpSelect {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-seam);
   background: var(--stage-row);
   color: var(--stage-card);

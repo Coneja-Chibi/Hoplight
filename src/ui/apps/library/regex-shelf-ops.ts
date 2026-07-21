@@ -248,7 +248,7 @@ export function makeRegexShelf(args: {
         try {
           const summary = await createAndOpenRegexSet(ctx);
           reload();
-          ctx.workbench.send(summary);
+          ctx.workbench.open(summary);
           ctx.setStatus(`opened regex set · ${summary.name}`);
         } catch (err) {
           ctx.setStatus(err instanceof Error ? err.message : "could not create set");

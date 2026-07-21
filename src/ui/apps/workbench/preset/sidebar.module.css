@@ -68,7 +68,7 @@
 
 .sideEmptyHint {
   font: 500 0.74rem var(--font-body);
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0;
   line-height: 1.5;
 }
@@ -89,8 +89,8 @@
 .sideHintLine {
   display: block;
   margin-top: 0.25rem;
-  font: 500 0.6rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
 }
 
 .tokenCard {
@@ -103,10 +103,10 @@
 }
 
 .tokenCardLabel {
-  font: 700 0.6rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .tokenCardVal {
@@ -123,10 +123,10 @@
 }
 
 .sideAdvancedLabel {
-  font: 900 0.6rem var(--font-big);
+  font: 900 0.625rem var(--font-big);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
 }
 
 .sideCheck {
@@ -173,7 +173,7 @@
   margin-left: 0.3rem;
   border: 1px solid color-mix(in srgb, var(--stage-card) 22%, transparent);
   border-radius: 50%;
-  font: 700 0.55rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   color: var(--stage-mute);
   cursor: help;
   vertical-align: middle;
@@ -188,8 +188,8 @@
 
 .sideHint {
   margin: 0.35rem 0 0;
-  font: 500 0.6rem var(--font-body);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-body);
+  color: var(--stage-text-dim);
   line-height: 1.45;
 }
 
@@ -206,7 +206,7 @@
 .sideContentCount {
   display: block;
   margin-top: 0.3rem;
-  font: 500 0.6rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
 }
 

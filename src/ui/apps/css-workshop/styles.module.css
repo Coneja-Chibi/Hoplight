@@ -25,7 +25,7 @@
 }
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--stage-mute, var(--muted));
@@ -60,7 +60,7 @@
 }
 .modeBtn {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -75,12 +75,12 @@
   border-right: none;
 }
 .modeOn {
-  background: var(--accent, var(--rose));
+  background: var(--accent-deep, var(--rose-deep)); /* deep companion: a bright accent pick breaks white labels */
   color: var(--stage-white);
 }
 .btn {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;

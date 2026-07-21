@@ -44,8 +44,9 @@
 .hint {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
-  color: var(--text-faint);
+  font-weight: 600;
+  font-size: 0.64rem;
+  color: var(--text-soft, var(--text-dim));
   letter-spacing: 0.08em;
   margin-left: 0.25rem;
   text-transform: uppercase;
@@ -58,13 +59,13 @@
 }
 .offt button {
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.64rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   background: transparent;
   border: 2px solid var(--seam, var(--stage-seam));
-  color: var(--text-dim);
+  color: var(--text-soft, var(--text-dim));
   padding: 0.18rem 0.4rem;
   cursor: pointer;
 }

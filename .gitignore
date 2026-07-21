@@ -19,3 +19,4 @@ design/_serve.cjs
 .agents/
 .claude/
 CLAUDE.md
+audit-out/

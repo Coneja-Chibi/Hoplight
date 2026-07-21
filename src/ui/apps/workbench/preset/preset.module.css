@@ -63,7 +63,7 @@
 
 .emptyHint {
   font: 500 0.7rem var(--font-body);
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0;
   max-width: 26rem;
   line-height: 1.5;
@@ -74,7 +74,7 @@
   background: var(--stage-panel);
   box-shadow: 2px 2px 0 0 var(--stage-black);
   color: var(--pa);
-  font: 800 0.62rem var(--font-big);
+  font: 800 0.625rem var(--font-big);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0.3rem 0.6rem;
@@ -118,7 +118,7 @@
   border-right: 2px solid var(--stage-black);
   background: color-mix(in srgb, var(--stage-card) 3%, transparent);
   color: var(--stage-mute);
-  font: 800 0.6rem var(--font-big);
+  font: 800 0.625rem var(--font-big);
   letter-spacing: 0.07em;
   text-transform: uppercase;
   padding: 0.45rem 0.4rem;
@@ -155,6 +155,7 @@
 }
 
 .sectionHead {
+  font: inherit; /* buttons do not inherit fonts */
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -194,7 +195,7 @@
 }
 
 .sectionCount {
-  font: 800 0.6rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   color: var(--pa);
   background: color-mix(in srgb, var(--stage-black) 35%, transparent);
   border: 1px solid color-mix(in srgb, var(--pa) 30%, transparent);
@@ -212,7 +213,7 @@
 
 .sectionEmpty {
   font: 500 0.68rem var(--font-body);
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin: 0;
   padding: 0.4rem 0.2rem;
 }
@@ -248,8 +249,8 @@
 
 .contentFoot {
   margin-top: 0.45rem;
-  font: 600 0.62rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 600 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
 }
 
 /* ---------- preset fields (hard-neo; the shared es.in is vaud's, not RC's) ---------- */
@@ -281,10 +282,10 @@
 
 .flabel {
   display: block;
-  font: 700 0.58rem var(--font-big);
+  font: 700 0.625rem var(--font-big);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   margin-bottom: 0.3rem;
 }
 

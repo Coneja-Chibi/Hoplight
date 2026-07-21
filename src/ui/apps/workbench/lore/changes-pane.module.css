@@ -31,7 +31,7 @@
 .head i {
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -83,7 +83,7 @@
 
 .fieldK {
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -124,7 +124,7 @@
   background: var(--stage-sunken);
   color: var(--stage-soft);
   font-family: var(--font-mono);
-  font-size: 0.61rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 0.18rem 0.4rem;

@@ -10,6 +10,7 @@
 }
 
 .head {
+  font: inherit; /* buttons do not inherit fonts */
   display: flex;
   align-items: center;
   gap: 0.45rem;
@@ -39,8 +40,8 @@
 
 .summary {
   margin-left: auto;
-  font: 500 0.6rem var(--font-mono);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-mono);
+  color: var(--stage-text-dim);
 }
 
 .body {
@@ -53,8 +54,8 @@
 
 .note {
   margin: 0;
-  font: 500 0.62rem var(--font-body);
-  color: var(--stage-kicker);
+  font: 500 0.625rem var(--font-body);
+  color: var(--stage-text-dim);
 }
 
 .grid {

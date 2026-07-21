@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
+import { accentVars } from "../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import type { CanonicalLorebook, LorebookBody } from "../../../entities/lorebook/schema";
 import {
@@ -285,7 +286,7 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
   return (
     <div
       className={styles.root}
-      style={piece.accent ? ({ "--a": piece.accent } as CSSProperties) : undefined}
+      style={accentVars(piece.accent) as CSSProperties | undefined}
     >
       <EditorEhead
         mark={monogram}

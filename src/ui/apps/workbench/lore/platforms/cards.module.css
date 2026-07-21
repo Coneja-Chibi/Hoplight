@@ -78,10 +78,10 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--stage-kicker, var(--stage-mute));
+  color: var(--stage-text-dim, var(--stage-mute));
 }
 
 /* Legacy section label (still used by simple cards) */
@@ -239,7 +239,7 @@
 .pcWrapLab {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-soft);
@@ -295,7 +295,7 @@
 .pcK {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-soft);

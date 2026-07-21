@@ -66,7 +66,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 600;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   color: var(--stage-soft);
   min-width: 0;
   overflow: hidden;
@@ -78,7 +78,7 @@
   margin-left: auto;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -121,7 +121,7 @@
 .wwDial span {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -201,7 +201,7 @@
   flex: 1;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   border: 0;
@@ -259,10 +259,10 @@
 .wwW {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.48rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker, var(--stage-mute));
+  color: var(--stage-text-dim, var(--stage-mute));
   flex: none;
 }
 

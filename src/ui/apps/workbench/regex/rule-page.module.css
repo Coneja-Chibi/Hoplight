@@ -20,7 +20,7 @@
 .pageNo {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.54rem;
+  font-size: 0.625rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--a, var(--stage-macro));
@@ -56,7 +56,7 @@
   color: var(--stage-ok);
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0.18rem 0.4rem;
@@ -113,7 +113,7 @@
 .md {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 0;
@@ -168,7 +168,7 @@
   font-style: normal;
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.52rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -211,7 +211,7 @@
   display: block;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.13em;
   text-transform: uppercase;
   color: var(--stage-mute);
@@ -240,7 +240,7 @@
   margin-top: 0.35rem;
   font-style: normal;
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -249,7 +249,7 @@
 .escBtn {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 1px solid var(--stage-seam);
@@ -274,7 +274,7 @@
   color: var(--stage-warn);
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   line-height: 1.5;
   padding: 0.35rem 0.5rem;
 }
@@ -297,7 +297,7 @@
 
 /* quiet pager actions (Duplicate / Delete - found missing by the R6 audit) */
 .pgQuiet {
-  font: 700 0.55rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);

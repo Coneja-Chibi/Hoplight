@@ -13,7 +13,7 @@
 .railTitle {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.55rem;
+  font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -37,7 +37,7 @@
 .rheadB {
   font-family: var(--font-big);
   font-weight: 800;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--stage-card);
@@ -98,7 +98,7 @@
 .tryMeta {
   display: block;
   margin-top: 0.35rem;
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   color: var(--stage-kicker);
 }
@@ -107,7 +107,7 @@
   width: 100%;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.54rem;
+  font-size: 0.625rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border: 2px solid var(--stage-seam);
@@ -126,7 +126,7 @@
 .healthLine {
   font-family: var(--font-mono);
   font-weight: 500;
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   color: var(--stage-ok);
   margin: 0;
   display: flex;

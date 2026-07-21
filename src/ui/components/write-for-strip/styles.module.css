@@ -8,15 +8,15 @@
 
 .stripLabel {
   font-style: normal;
-  font: 700 0.48rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--stage-kicker);
+  color: var(--stage-text-dim);
   padding: 0 0.45rem;
 }
 
 .pill {
-  font: 700 0.52rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   border: 0;
@@ -28,6 +28,6 @@
 }
 
 .pillOn {
-  background: var(--a, var(--stage-macro));
-  color: var(--stage-ink);
+  background: var(--a-deep, var(--accent-deep)); /* deep companion: bright accents cannot carry small text */
+  color: var(--stage-white);
 }

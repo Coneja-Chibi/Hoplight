@@ -54,7 +54,7 @@
   border: 1px solid var(--stage-black);
   font-family: var(--font-mono);
   font-weight: 800;
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--stage-ink);
 }
 
@@ -81,7 +81,7 @@
 .eiHash {
   flex: none;
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
   color: var(--stage-text-dim);
 }
 
@@ -112,7 +112,7 @@
   cursor: pointer;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.57rem;
+  font-size: 0.625rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -154,7 +154,7 @@
   margin: 0 0 0.3rem;
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-text-dim);
@@ -220,7 +220,7 @@
   margin: 0;
   color: var(--stage-text-dim);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.625rem;
 }
 
 .eiChromRead i {
@@ -229,6 +229,7 @@
 }
 
 .eiKeep {
+  font: inherit; /* buttons do not inherit fonts */
   display: grid;
   gap: 0.2rem;
   flex: none;
@@ -242,7 +243,7 @@
 .eiKeepLab {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 0.54rem;
+  font-size: 0.625rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }

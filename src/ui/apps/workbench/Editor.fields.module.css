@@ -26,7 +26,7 @@
 }
 
 .dot.full {
-  background: var(--a);
+  background: var(--a, var(--rose));
 }
 
 .mv {
@@ -54,12 +54,12 @@
 
 .in:focus {
   outline: none;
-  border-color: var(--a);
+  border-color: var(--a, var(--rose));
 }
 
 .cnt {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   color: var(--text-dim, var(--stage-text-dim)); /* readability floor: the old dim was ~2:1, invisible on the card */
   align-self: flex-end;
 }
@@ -100,7 +100,7 @@
 
 .chip {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -110,7 +110,8 @@
 }
 
 .chipOk {
-  color: var(--a, var(--accent));
+  /* accent lifted toward card ink so ANY user accent clears AA on the dark editor bg */
+  color: color-mix(in srgb, var(--a, var(--accent)) 55%, var(--stage-card));
   border-color: var(--a, var(--accent));
 }
 
@@ -167,7 +168,7 @@
   align-items: center;
   gap: 0.28rem;
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   border: 2px solid var(--stage-line);
   color: var(--stage-soft);
   background: transparent;
@@ -216,7 +217,7 @@
 
 .add {
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -286,7 +287,7 @@
   background: var(--rose);
   color: var(--stage-paper);
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.15rem 0.4rem;
@@ -310,7 +311,7 @@
 .k {
   display: block;
   font-family: var(--font-mono);
-  font-size: 0.5rem;
+  font-size: 0.625rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--stage-line);
@@ -340,7 +341,7 @@
   border: 2px solid var(--stage-seam);
   color: var(--stage-paper);
   font-family: var(--font-mono);
-  font-size: 0.5625rem;
+  font-size: 0.625rem;
   padding: 0.15rem 0.5rem;
 }
 

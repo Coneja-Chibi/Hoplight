@@ -32,10 +32,11 @@
 
 .kick {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
+  font-weight: 600;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--stage-dim);
+  color: var(--stage-soft);
 }
 
 /* ---- the offer rail: the library's quick face inside the room ---- */
@@ -64,6 +65,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   text-align: left;
+  font-family: var(--font-body);
   font-size: 0.85rem;
   color: var(--stage-soft);
   background: var(--stage-sunken);
@@ -118,7 +120,7 @@
 
 .unstage {
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-dim);
@@ -160,7 +162,7 @@
 
 .riderDrop {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--stage-dim);
@@ -207,7 +209,7 @@
 
 .tchip {
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);
@@ -218,8 +220,9 @@
 }
 
 .tchipOn {
-  background: var(--accent);
-  color: var(--stage-ink);
+  background: var(--accent-deep); /* deep companion: dark ink on bright accent misses AA */
+  color: var(--stage-white);
+  font-weight: 800;
   box-shadow: 2px 2px 0 0 var(--stage-black);
 }
 
@@ -244,7 +247,7 @@
 
 .flavor {
   font-family: var(--font-mono);
-  font-size: 0.56rem;
+  font-size: 0.625rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid var(--stage-black);
@@ -255,21 +258,22 @@
 }
 
 .flavorOn {
-  background: var(--accent);
-  color: var(--stage-ink);
+  background: var(--accent-deep); /* deep companion: dark ink on bright accent misses AA */
+  color: var(--stage-white);
 }
 
 .jkind {
   font-family: var(--font-mono);
-  font-size: 0.58rem;
-  color: var(--stage-dim);
+  font-weight: 600;
+  font-size: 0.64rem;
+  color: var(--stage-soft);
   text-transform: uppercase;
 }
 
 .jfile {
   grid-column: 2 / -1;
   font-family: var(--font-mono);
-  font-size: 0.62rem;
+  font-size: 0.625rem;
   color: var(--stage-dim);
 }
 
@@ -358,8 +362,9 @@
 }
 
 .stampRun {
-  background: var(--accent);
-  color: var(--stage-ink);
+  background: var(--accent-deep); /* deep companion: dark ink on bright accent misses AA */
+  color: var(--stage-white);
+  font-weight: 800;
   font-size: 0.74rem;
   padding: 0.5rem 1.1rem;
   box-shadow: 4px 4px 0 0 var(--stage-black);

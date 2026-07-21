@@ -16,6 +16,14 @@ uses. One engine, two shells - no format logic exists in the UI layer.
 - **Tokens are one CSS source**: `src/ui/theme/tokens.css`, transcribed from `design/DECISIONS.md`
   (both themes, the stamp, the seam). Apps consume tokens; hardcoding colors or layout pixels in an
   app is a review rejection (fluid law).
+- **Bright accents never carry small text**: every accent has a deep companion for text-bearing
+  fills, always worn with `var(--stage-white)` ink (white on the deep tone clears ~7:1; on bright
+  rose even black ink measured 4.47:1, under AA). Pairs: `--rose`/`--rose-deep`,
+  `--accent`/`--accent-deep` (repainted together by the shell when a custom house accent lands),
+  `--deck-*`/`--deck-*-deep`, and per-piece `--a`/`--a-deep` (minted together by
+  `accentVars()` in `src/ui/_shared/decks.ts`; the deepening math is `deepAccent()` in
+  `src/ui/_shared/color-math.ts`, unit-tested to agree with the tokens). Bright originals keep
+  borders, spines, and marks; a fill with a label on it takes the deep twin.
 
 ## First-run setup (the wizard)
 The locked vs-setup-hybrid flow, one plain question per screen, built on the same drop-in doctrine:
@@ -138,6 +146,10 @@ tagline/description/personality; the writable editor replaces the pane's body ne
 - Sending honors the FOLLOW setting (`workbench.follow`): "ask" pops the dialog ("N items were
   sent to the Workbench. Follow?" Yes/No + "Never ask me this again"), "always" jumps there,
   "never" stays with a status note. Changeable in Settings.
+- `workbench.open` opens a piece AND lands on its editor with no follow prompt - the path every
+  create button uses ("New persona" etc.): the click itself already says where the user is going,
+  the same reasoning that lets "Open beside" skip the prompt. `send` stays the ask-me path for
+  Library send flows.
 - The manifest flag `editsPieces` marks the room tabs focus into. The home app on boot is the
   user's `homeApp` setting.
 - **The recents rail** (a low deck along the bottom - "wanna bring this one up?") offers recently

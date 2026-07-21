@@ -19,7 +19,7 @@
 }
 
 .headline {
-  font: 800 0.62rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--stage-kicker);
@@ -71,7 +71,7 @@
 }
 
 .ord {
-  font: 800 0.6rem var(--font-mono);
+  font: 800 0.625rem var(--font-mono);
   color: var(--pa);
   flex: none;
 }
@@ -97,7 +97,7 @@
 }
 
 .tok {
-  font: 700 0.58rem var(--font-mono);
+  font: 700 0.625rem var(--font-mono);
   color: var(--stage-kicker);
   flex: none;
 }
@@ -123,7 +123,7 @@
 
 .note {
   margin: 0.2rem 0 0;
-  font: 500 0.6rem var(--font-body);
+  font: 500 0.625rem var(--font-body);
   color: var(--stage-kicker);
   line-height: 1.45;
 }

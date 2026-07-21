@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-21",
-  "count": 80,
+  "count": 81,
   "docs": [
     {
       "id": "01-VISION",
@@ -1740,6 +1740,37 @@
         {
           "text": "Source of truth",
           "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/audits",
+      "path": "docs/reference/audits.md",
+      "title": "The audit suite",
+      "audience": "dev",
+      "summary": "Runnable UI audits under `scripts/audit/`. They drive the real app in a real browser against a scratch studio seeded through the real adapters, and they **enumerate the live app at runtime**: the room list comes from the dock, deck and view",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Runs",
+          "slug": "runs",
+          "level": 2
+        },
+        {
+          "text": "The style audit (every visited state)",
+          "slug": "the-style-audit-every-visited-state",
+          "level": 2
+        },
+        {
+          "text": "Artifacts",
+          "slug": "artifacts",
+          "level": 2
+        },
+        {
+          "text": "Honest boundaries",
+          "slug": "honest-boundaries",
           "level": 2
         }
       ]

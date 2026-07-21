@@ -104,6 +104,9 @@ export interface AppContext {
     beside(): StudioEntitySummary | null;
     /** open a piece on the Workbench (follow-prompt per settings; no-op if already open) */
     send(s: StudioEntitySummary): void;
+    /** open a piece AND land on its editor, no follow prompt - for create/"open" buttons where
+     * the click itself already says where the user is going (the openBeside precedent) */
+    open(s: StudioEntitySummary): void;
     /** pin a piece into the second pane beside the active one (opens it first if needed) */
     openBeside(s: StudioEntitySummary): void;
     /** collapse back to a single pane; the pinned piece stays open as a tab */
