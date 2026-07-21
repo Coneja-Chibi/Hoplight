@@ -6,12 +6,13 @@
  *
  * Reusable by construction - it takes the value and its declared format, never a field id, so nothing
  * about which field this is leaks into the component. Security lives entirely in render-markup; this
- * file only decides rendered-vs-source and hands the sanitized string to innerHTML.
+ * file only decides rendered-vs-source and mounts the sanitized string as parsed nodes (DOMParser +
+ * importNode, the ADR-008 pattern - no innerHTML-family sink even for sanitized output).
  *
  * "plain" fields (a version string, a URL) have nothing to render, so they show inline with no toggle;
  * the button only appears where markup actually transforms the text.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { JSX, MouseEvent, ReactNode } from "react";
 import { renderMarkup } from "../../_shared/render-markup";
 import type { RenderFormat } from "../../_shared/render-policy";
@@ -24,13 +25,48 @@ import styles from "./styles.module.css";
  * single-window webview has nowhere to spawn a tab regardless. The gate is confirmation; the /api/open
  * route is the actual guard, so a click that slips past here still cannot open an unsafe target.
  */
-const onRenderedClick = (e: MouseEvent<HTMLDivElement>): void => {
+const onRenderedClick = (
+  e: MouseEvent<HTMLDivElement>,
+  onLinkClick?: (href: string, text: string) => boolean,
+): void => {
   if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
   const anchor = (e.target as HTMLElement).closest("a");
   const href = anchor?.getAttribute("href");
   if (!href) return;
+  if (onLinkClick?.(href, anchor?.textContent ?? "")) {
+    e.preventDefault();
+    return;
+  }
   if (requestExternal(href, anchor?.textContent ?? "")) e.preventDefault();
 };
+
+/** Mount an already-sanitized markup string as parsed inert nodes (DOMParser never runs scripts). */
+function SanitizedHtml({
+  html,
+  className,
+  onClick,
+}: {
+  html: string;
+  className: string | undefined;
+  onClick: (e: MouseEvent<HTMLDivElement>) => void;
+}): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    // resolve the parser from the element's own window (test DOMs expose it there, not globally)
+    const Parser =
+      el.ownerDocument.defaultView?.DOMParser ??
+      (typeof DOMParser !== "undefined" ? DOMParser : undefined);
+    if (!Parser) {
+      el.textContent = ""; // fail closed: no parser, no markup
+      return;
+    }
+    const doc = new Parser().parseFromString(html, "text/html");
+    el.replaceChildren(...[...doc.body.childNodes].map((n) => el.ownerDocument.importNode(n, true)));
+  }, [html]);
+  return <div ref={ref} className={className} onClick={onClick} />;
+}
 
 interface RenderBoxProps {
   /** the stored field value */
@@ -41,6 +77,10 @@ interface RenderBoxProps {
   children?: ReactNode;
   /** start rendered (default) or start on source */
   defaultRendered?: boolean;
+  /** show only sanitized output, without the editor's rendered/source chrome */
+  displayOnly?: boolean;
+  /** intercept safe in-app links before the external leaving gate */
+  onLinkClick?: (href: string, text: string) => boolean;
 }
 
 const EyeIcon = (
@@ -57,13 +97,27 @@ const CodeIcon = (
 );
 
 /** A content box that toggles between a sanitized rendered view and its raw source. */
-export function RenderBox({ value, format, children, defaultRendered = true }: RenderBoxProps): JSX.Element {
+export function RenderBox({
+  value,
+  format,
+  children,
+  defaultRendered = true,
+  displayOnly = false,
+  onLinkClick,
+}: RenderBoxProps): JSX.Element {
   const [rendered, setRendered] = useState(defaultRendered);
   const html = useMemo(() => renderMarkup(value, format), [value, format]);
 
-  // plain fields carry no markup, but a URL in one (creator, source) is linkified and still gated
-  if (format === "plain") {
-    return <div className={styles.plain} onClick={onRenderedClick} dangerouslySetInnerHTML={{ __html: html }} />;
+  // plain fields carry no markup, but a URL in one (creator, source) is linkified and still gated;
+  // displayOnly shares the chrome-less surface
+  if (format === "plain" || displayOnly) {
+    return (
+      <SanitizedHtml
+        html={html}
+        className={styles.plain}
+        onClick={(event) => onRenderedClick(event, onLinkClick)}
+      />
+    );
   }
 
   const empty = value.trim() === "";
@@ -85,7 +139,11 @@ export function RenderBox({ value, format, children, defaultRendered = true }: R
         </button>
       </div>
       {showRendered ? (
-        <div className={styles.out} onClick={onRenderedClick} dangerouslySetInnerHTML={{ __html: html }} />
+        <SanitizedHtml
+          html={html}
+          className={styles.out}
+          onClick={(event) => onRenderedClick(event, onLinkClick)}
+        />
       ) : (
         children ?? <pre className={styles.src}>{value}</pre>
       )}

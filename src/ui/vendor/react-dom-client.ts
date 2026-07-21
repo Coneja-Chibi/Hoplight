@@ -13,3 +13,4 @@ const d = (dom as { default?: Record<string, unknown> }).default ?? (dom as Reco
 export const createRoot = (m as Record<string, unknown>).createRoot ?? (ns as Record<string, unknown>).createRoot;
 export const hydrateRoot = (m as Record<string, unknown>).hydrateRoot ?? (ns as Record<string, unknown>).hydrateRoot;
 export const createPortal = (d as Record<string, unknown>).createPortal ?? (dom as Record<string, unknown>).createPortal;
+export const flushSync = (d as Record<string, unknown>).flushSync ?? (dom as Record<string, unknown>).flushSync;

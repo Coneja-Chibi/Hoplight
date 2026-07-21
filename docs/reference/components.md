@@ -11,7 +11,10 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
 | AltFields | src/ui/components/alt-fields/index.tsx | ({ value, onChange }: AltFieldsProps) |  | .wrap .section .gtitle |
+| AnimatedThemeToggler | src/ui/components/animated-theme-toggler/index.tsx | ({ theme, onToggle, duration = 400, fromCenter = false, id, }: AnimatedThemeTogglerProps) | Switch between paper and stage with a reveal that grows from the control. | .iconStack .hidden .shown |
 | App | src/ui/shell/App.tsx | () |  |  |
+| AppCatalog | src/ui/apps/app-catalog/index.tsx | ({ ctx }: { ctx: AppContext }) | Browse and open every official app packaged in this build. | .room .head .eyebrow .status .title .lede .description .grid ... |
+| AppMark | src/ui/components/app-mark/index.tsx | ({ markSvg, className }: AppMarkProps) | Render one sanitized application mark. |  |
 | AssetManager | src/ui/components/asset-manager/index.tsx | ({ assets, onChange, onOpenSprites }: AssetManagerProps) |  | .wrap .group .ghead .handoff .handoffBtn .tiles .tile .preview ... |
 | AttachLoreDialog | src/ui/components/attach-lore-dialog/index.tsx | ({ books, alreadyLinked, onConfirm, onDismiss, }: AttachLoreDialogProps) |  | .sheet .body .kick .h .p .empty .list .row ... |
 | AttachPanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ packCatalog, attachId, attachBusy, onAttachId, onAttach, }: { packCatalog: readonly PackCatalogEntry[]; attachId: ... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
@@ -39,7 +42,11 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CssStarters | src/ui/components/css-workshop/starters.tsx | ({ packId, packBlurb, onApply }: CssStartersProps) | Recipe list filtered by active target pack. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshop | src/ui/components/css-workshop/index.tsx | ({ value, onChange, defaultPackId = "universal", onPackChange, note = DEFAULT_NOTE, mode: modeProp, onModeChange, ini... | Main assisted CSS editor shell. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
+| DocContent | src/ui/apps/docs/doc-content.tsx | ({ doc, docs, figures, body, anchor, loading, onPick }: DocContentProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
+| DocNav | src/ui/apps/docs/doc-nav.tsx | ({ docs, activeId, query, onQuery, onPick }: DocNavProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
+| DocsRoom | src/ui/apps/docs/room.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .nav .search .shelves .shelf .on .group .section ... |
+| DocToc | src/ui/apps/docs/doc-toc.tsx | ({ anchors, activeSlug, onJump }: DocTocProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
 | EditorEhead | src/ui/components/editor-ehead/index.tsx | ({ mark, name, onNameChange, namePlaceholder, nameAriaLabel, meta, dirty, saving, onSave, saveTitle = "Save · ctrl+s"... |  | .ehead .spine .spineMark .spineText .spineName .spineMeta .acts .save |
 | EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |
@@ -125,7 +132,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
 | RegexWorkshopDialog | src/ui/apps/library/regex-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: RegexWorkshopDialogProps) |  |  |
 | RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry, onAddKeyword, }: RehearsalPaneProps) |  |  |
-| RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
+| RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true, displayOnly = false, onLinkClick, }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
 | RuleKnobs | src/ui/components/css-workshop/knobs.tsx | ({ rule, onChange }: RuleKnobsProps) | Property knobs for the selected rule. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |

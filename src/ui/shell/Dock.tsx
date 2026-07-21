@@ -2,27 +2,14 @@
  * Dock - the app roster (transcribed 1:1 from src/ui/index.html's #dock/#dockapps/#dockfoot
  * markup and CSS, which stays as-is; this component only supplies the DOM those rules already
  * style). Built from the manifest: present tiles, a divider, "installs later" future tiles, and
- * the "add app" slot; the foot holds `dockFoot` tiles (Settings). Slim collapse persists as
- * `shell.dockSlim`. Home routes to the user's chosen home app.
+ * the Apps-catalog control; `catalogOnly` apps stay out. The foot holds `dockFoot` tiles (Settings).
+ * Slim collapse persists as `shell.dockSlim`. Home routes to the user's chosen home app.
  */
-import { useEffect, useRef } from "react";
 import type { CSSProperties, JSX } from "react";
 import type { AppManifestEntry } from "../app-contract";
-import { sanitizeSvg } from "./sanitize-svg";
+import { AppMark } from "../components/app-mark";
+import { dockManifestGroups } from "./dock-core";
 import { useContextMenu, useShellStore } from "./store";
-
-/** Grafts a drop-in app's UNTRUSTED, sanitized mark into a `.mk` box (never innerHTML). */
-function AppMark({ markSvg }: { markSvg: string }): JSX.Element {
-  const ref = useRef<HTMLSpanElement>(null);
-  useEffect(() => {
-    const box = ref.current;
-    if (!box) return;
-    box.replaceChildren();
-    const svg = sanitizeSvg(markSvg);
-    if (svg) box.append(svg);
-  }, [markSvg]);
-  return <span ref={ref} className="mk" />;
-}
 
 function DockTile({ m }: { m: AppManifestEntry }): JSX.Element {
   const activeAppId = useShellStore((s) => s.activeAppId);
@@ -41,7 +28,7 @@ function DockTile({ m }: { m: AppManifestEntry }): JSX.Element {
       tabIndex={m.comingSoon ? -1 : undefined}
       onClick={m.comingSoon ? undefined : () => mountApp(m.id)}
     >
-      <AppMark markSvg={m.markSvg} />
+      <AppMark markSvg={m.markSvg} className="mk" />
       <span className="tx">
         <span className="nm">{m.title}</span>
         <span className="kd">{m.comingSoon ? "installs later" : (m.subtitle ?? "app")}</span>
@@ -55,15 +42,14 @@ export function Dock(): JSX.Element {
   const dockSlim = useShellStore((s) => s.dockSlim);
   const toggleDockSlim = useShellStore((s) => s.toggleDockSlim);
   const goHome = useShellStore((s) => s.goHome);
+  const mountApp = useShellStore((s) => s.mountApp);
+  const activeAppId = useShellStore((s) => s.activeAppId);
   // Discord rule: while pieces are open for editing, the dock is marks-only regardless of the
   // saved preference (the pref still governs the empty-bench state; the toggle keeps writing it)
   const editing = useShellStore((s) => s.openPieces.length > 0);
   const slim = dockSlim || editing;
 
-  const body = manifests.filter((m) => !m.dockFoot);
-  const foot = manifests.filter((m) => m.dockFoot);
-  const present = body.filter((m) => !m.comingSoon);
-  const future = body.filter((m) => m.comingSoon);
+  const { present, future, foot, catalog } = dockManifestGroups(manifests);
 
   return (
     <nav id="dock" className={slim ? "slim" : undefined} aria-label="Apps">
@@ -86,11 +72,18 @@ export function Dock(): JSX.Element {
         {future.map((m) => (
           <DockTile key={m.id} m={m} />
         ))}
-        {/* a hint, not a control: no role, so screen readers don't announce a button that does nothing */}
-        <div className="dockslot" title="Apps can be added - drop a folder in src/ui/apps">
+        <button
+          type="button"
+          className={`dockslot${catalog?.id === activeAppId ? " on" : ""}`}
+          title="Browse apps included with Vaude"
+          aria-label="Browse apps"
+          aria-current={catalog?.id === activeAppId ? "page" : undefined}
+          disabled={!catalog}
+          onClick={() => catalog && mountApp(catalog.id)}
+        >
           <span className="plus">+</span>
           <span className="sl">add app</span>
-        </div>
+        </button>
       </div>
 
       <div id="dockfoot">

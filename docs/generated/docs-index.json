@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-20",
+  "generated": "2026-07-21",
   "count": 80,
   "docs": [
     {
@@ -4157,6 +4157,11 @@
         {
           "text": "The right-click system",
           "slug": "the-right-click-system",
+          "level": 2
+        },
+        {
+          "text": "Apps catalog and documentation",
+          "slug": "apps-catalog-and-documentation",
           "level": 2
         },
         {

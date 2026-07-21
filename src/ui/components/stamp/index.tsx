@@ -6,12 +6,12 @@
  * Every top-strip and dialog action renders through it.
  */
 import { useMemo } from "react";
-import type { JSX, ReactNode } from "react";
+import type { JSX, MouseEventHandler, ReactNode } from "react";
 import styles from "./styles.module.css";
 
 export interface StampProps {
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   disabled?: boolean;
   /** background paint override (defaults to the chrome token); never the brand rose except CTAs */
   accent?: string;

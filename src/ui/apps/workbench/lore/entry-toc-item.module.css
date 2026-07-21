@@ -1,0 +1,275 @@
+/** Focused lore-entry card: identity, actions, placement readout, and keep-budget switch. */
+
+.eiCard {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  margin: 0 0 0.45rem;
+  padding: 0.45rem;
+}
+
+.eiHead {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.eiToggle {
+  width: 1.7rem;
+  height: 0.9rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+  flex: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.eiToggle::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.48rem;
+  height: 0.48rem;
+  background: var(--stage-ink);
+}
+
+.eiToggleOff {
+  background: var(--stage-faint);
+}
+
+.eiToggleOff::after {
+  left: 2px;
+  right: auto;
+}
+
+.eiBadgeC,
+.eiBadgeS {
+  display: inline-grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  flex: none;
+  border: 1px solid var(--stage-black);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.58rem;
+  color: var(--stage-ink);
+}
+
+.eiBadgeC {
+  background: var(--stage-var);
+}
+
+.eiBadgeS {
+  background: var(--stage-ok);
+}
+
+.eiTitle {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--stage-card);
+}
+
+.eiHash {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  color: var(--stage-text-dim);
+}
+
+.eiMode {
+  margin: 0.35rem 0 0 2.05rem;
+}
+
+.eiActs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.45rem;
+}
+
+.eiOpen,
+.eiBeside,
+.eiMove,
+.eiCopy,
+.eiDel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  color: var(--stage-soft);
+  padding: 0.22rem 0.38rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.57rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.eiOpen {
+  border-color: var(--a, var(--stage-macro));
+  color: var(--stage-card);
+}
+
+.eiBeside:hover,
+.eiMove:hover,
+.eiCopy:hover {
+  border-color: var(--stage-line);
+  color: var(--stage-card);
+}
+
+.eiDel {
+  color: var(--stage-danger-text);
+  border-color: var(--stage-danger-edge);
+}
+
+.eiMoveWrap {
+  position: relative;
+}
+
+.eiMoveMenu {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.18rem);
+  left: 0;
+  width: min(13rem, 76vw);
+  border: 2px solid var(--stage-black);
+  background: var(--stage-panel);
+  box-shadow: 4px 4px 0 0 var(--stage-black);
+  padding: 0.35rem;
+}
+
+.eiMoveLab {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-text-dim);
+}
+
+.eiMoveOpt {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.3rem 0.35rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.76rem;
+}
+
+.eiMoveOpt:hover,
+.eiMoveOptOn {
+  background: var(--stage-row);
+  color: var(--stage-card);
+}
+
+.eiMoveCheck {
+  display: inline-grid;
+  place-items: center;
+  width: 1rem;
+  flex: none;
+  color: var(--a, var(--stage-macro));
+}
+
+.eiMoveName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eiMoveSep {
+  height: 1px;
+  background: var(--stage-seam);
+  margin: 0.2rem 0;
+}
+
+.eiChrom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-top: 1px solid var(--stage-seam);
+  margin-top: 0.45rem;
+  padding-top: 0.4rem;
+}
+
+.eiChromRead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.55rem;
+  margin: 0;
+  color: var(--stage-text-dim);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+
+.eiChromRead i {
+  font-style: normal;
+  color: var(--stage-soft);
+}
+
+.eiKeep {
+  display: grid;
+  gap: 0.2rem;
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0;
+  cursor: pointer;
+}
+
+.eiKeepLab {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.54rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.eiKeepSw {
+  width: 1.7rem;
+  height: 0.85rem;
+  border: 2px solid var(--stage-black);
+  background: var(--stage-ok);
+  position: relative;
+}
+
+.eiKeepSw::after {
+  content: "";
+  position: absolute;
+  right: 2px;
+  top: 1px;
+  width: 0.44rem;
+  height: 0.44rem;
+  background: var(--stage-ink);
+}
+
+.eiKeepOff .eiKeepSw {
+  background: var(--stage-faint);
+}
+
+.eiKeepOff .eiKeepSw::after {
+  left: 2px;
+  right: auto;
+}

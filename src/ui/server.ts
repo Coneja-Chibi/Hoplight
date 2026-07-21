@@ -21,6 +21,7 @@ import { portraitBytes } from "../studio/portrait";
 import { safeExternalUrl } from "./_shared/external-url";
 import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
 import type { PackagedAssets } from "./assets";
+import { handleDocsRequest } from "./server-docs";
 import { startSandboxHost } from "./sandbox-host";
 import {
   type UiSecurityContext,
@@ -95,6 +96,7 @@ export function createHandler(
 
   const htmlResponse = (rawHtml: string): Response => {
     let html = injectSessionMeta(rawHtml, security.token);
+    if (!packaged) html = html.replace("</head>", '<meta name="vaude-dev" content="1">\n</head>');
     const sb = resolveSandboxOrigin();
     if (sb) html = injectSandboxOriginMeta(html, sb);
     return new Response(html, {
@@ -213,6 +215,9 @@ export function createHandler(
       if (denied) return denied;
     }
 
+    const docsResponse = await handleDocsRequest(req, url, packaged);
+    if (docsResponse) return docsResponse;
+
     if (p === "/api/apps") {
       return json(packaged ? packaged.manifests : await appManifests(await discoverApps()));
     }
@@ -247,7 +252,7 @@ export function createHandler(
     if (p.startsWith("/tours/") && p.endsWith(".js")) {
       const id = p.slice("/tours/".length, -".js".length);
       if (packaged) {
-        const code = packaged.tours?.[id];
+        const code = packaged.tours[id];
         return code !== undefined ? text(code, "text/javascript") : err("no such tour", 404);
       }
       const tour = (await discoverTours()).find((t) => t.id === id);

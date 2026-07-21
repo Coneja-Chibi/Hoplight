@@ -71,8 +71,11 @@ html,body{margin:0;height:100dvh;overflow:hidden;background:var(--canvas);color:
 .apptile.future:hover .nm{color:var(--text-dim)}
 .dockslot{display:flex;align-items:center;justify-content:center;gap:.4rem;
   min-height:3rem;margin:.15rem .5rem .35rem;border:2px dashed var(--text-faint);
-  color:var(--text-faint);cursor:pointer;transition:border-color .1s ease-out,color .1s ease-out;flex:none}
+  color:var(--text-faint);background:transparent;width:calc(100% - 1rem);font:inherit;
+  cursor:pointer;transition:border-color .1s ease-out,color .1s ease-out;flex:none}
 .dockslot:hover{border-color:var(--text-dim);color:var(--text-dim)}
+.dockslot.on{border-color:var(--accent);color:var(--text);background:var(--face)}
+.dockslot:disabled{cursor:default;opacity:.5}
 .dockslot .plus{font-family:var(--font-big);font-weight:900;font-size:1.05rem;line-height:0}
 .dockslot .sl{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.14em;text-transform:uppercase}
 #dockfoot{flex:none;border-top:3px solid var(--seam);display:flex;flex-direction:column}

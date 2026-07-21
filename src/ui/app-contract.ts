@@ -29,6 +29,10 @@ export interface AppManifestEntry {
   dockFoot?: boolean;
   /** dimmed "installs later" tile: shown in the dock, not mountable yet */
   comingSoon?: boolean;
+  /** packaged and available from the Apps catalog, but intentionally absent from the everyday Dock */
+  catalogOnly?: boolean;
+  /** the one catalog surface opened by the Dock's Add app control */
+  appCatalog?: boolean;
   /** this app is the surface a brand-new studio lands on right after setup (JOURNEY 1.1) */
   firstRunLanding?: boolean;
   /** this app is where open pieces are edited: the shell's tab strip focuses into it */
@@ -65,6 +69,8 @@ export interface AppContext {
   setStatus(text: string): void;
   /** every installed app's manifest (Settings needs the roster for the home-app picker) */
   apps(): AppManifestEntry[];
+  /** open another packaged app without importing shell state into an app bundle */
+  openApp(id: string): void;
   /** THE right-click system (src/ui/shell/store.ts): attach targets on your elements, register
    * providers for target types; one consistent menu everywhere, extended by registration. Prefer
    * the `useContextMenu` hook for React elements (attaches on mount, detaches on unmount); `attach`

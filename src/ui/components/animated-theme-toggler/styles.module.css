@@ -1,0 +1,43 @@
+/**
+ * The Stamp owns the button skin. This module only layers the sun/moon glyphs and controls the
+ * root snapshot used by the View Transitions API.
+ */
+.iconStack {
+  display: grid;
+  place-items: center;
+}
+
+.iconStack svg {
+  grid-area: 1 / 1;
+  transition: opacity 180ms ease, transform 280ms ease;
+}
+
+.hidden {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.65);
+}
+
+.shown {
+  opacity: 1;
+  transform: rotate(0deg) scale(1);
+}
+
+:global(html[data-vaude-theme-transition="active"]::view-transition-old(root)),
+:global(html[data-vaude-theme-transition="active"]::view-transition-new(root)) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+:global(html[data-vaude-theme-transition="active"]::view-transition-new(root)) {
+  clip-path: var(--vaude-theme-transition-clip-from);
+}
+
+:global(html[data-vaude-theme-transition="active"]::view-transition-group(root)) {
+  animation-duration: var(--vaude-theme-transition-duration);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iconStack svg {
+    transition: none;
+  }
+}

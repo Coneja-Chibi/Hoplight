@@ -1,0 +1,87 @@
+/** NovelAI phrase-bias group cards inside the shared platform-extras shell. */
+
+.pcHint {
+  margin: 0.25rem 0 0.45rem;
+  color: var(--stage-text-dim);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+}
+
+.pcBiasCard {
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-sunken);
+  padding: 0.45rem;
+  margin-bottom: 0.4rem;
+}
+
+.pcBiasHead {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+
+.pcBiasBias {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.pcBiasDel {
+  border: 1px solid var(--stage-danger-edge);
+  background: transparent;
+  color: var(--stage-danger-text);
+  padding: 0.2rem 0.35rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.56rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pcBiasPhrases {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.pcBiasTa {
+  width: 100%;
+  min-height: 3.5rem;
+  resize: vertical;
+  border: 1px solid var(--stage-seam);
+  background: var(--stage-row);
+  color: var(--stage-card);
+  padding: 0.35rem 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.pcBiasFlags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+}
+
+.pcBiasAdd {
+  width: 100%;
+  border: 1px dashed var(--stage-seam);
+  background: transparent;
+  color: var(--stage-soft);
+  padding: 0.35rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.pcBiasAdd:hover {
+  border-color: var(--host);
+  color: var(--stage-card);
+}

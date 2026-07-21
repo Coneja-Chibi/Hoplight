@@ -224,8 +224,8 @@ export const useShellStore = create<ShellState>((set, get) => ({
     const { manifests, settings } = get();
     const chosen = settings[SETTING_KEYS.homeApp];
     return (
-      manifests.find((m) => m.id === chosen && !m.comingSoon && !m.dockFoot) ??
-      manifests.find((m) => !m.comingSoon && !m.dockFoot)
+      manifests.find((m) => m.id === chosen && !m.comingSoon && !m.dockFoot && !m.catalogOnly) ??
+      manifests.find((m) => !m.comingSoon && !m.dockFoot && !m.catalogOnly)
     );
   },
 

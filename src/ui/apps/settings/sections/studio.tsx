@@ -12,8 +12,8 @@ import { SegControl, SettingsRow, type SettingsSection } from "../section-contra
 import styles from "../styles.module.css";
 
 function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
-  // home app: any real dock app can be home
-  const apps = ctx.apps().filter((m) => !m.comingSoon && !m.dockFoot);
+  // home app: any real everyday Dock app can be home; catalog-only tools are destinations, not landings
+  const apps = ctx.apps().filter((m) => !m.comingSoon && !m.dockFoot && !m.catalogOnly);
   const [home, setHome] = useState<string>(() => {
     const h = ctx.prefs.get(SETTING_KEYS.homeApp);
     return typeof h === "string" && apps.some((m) => m.id === h) ? h : (apps[0]?.id ?? "");

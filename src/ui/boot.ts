@@ -25,9 +25,10 @@ createRoot(mountNode).render(createElement(ShellErrorBoundary, null, createEleme
 // dev live-reload: the server streams "hello <bootId>" on connect and "reload" on rebuild. Never
 // close() on error - EventSource auto-reconnects across transient drops and server restarts, and
 // closing on the first hiccup pins the tab to a stale bundle forever (the proven failure: every
-// dev-server restart orphaned every open tab). In the packaged exe the endpoint 404s and the
-// browser fails the connection permanently on its own, so quiet needs no help from us. A hello
+// dev-server restart orphaned every open tab). Packaged pages carry no dev marker and never request
+// this endpoint. A hello
 // with a NEW boot id means a different server process (the bundle may have changed): reload once.
+if (document.querySelector('meta[name="vaude-dev"]')) {
 const devReload = new EventSource("/dev/reload");
 let devBootId: string | null = null;
 let devDown = false;
@@ -63,3 +64,4 @@ devReload.addEventListener("error", () => {
     useShellStore.getState().setStatus("studio server is not running · this page reloads itself when it is back");
   }, 8000);
 });
+}

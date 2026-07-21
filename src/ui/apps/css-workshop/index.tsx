@@ -22,6 +22,7 @@ const app: VaudeApp = {
     markSvg: MARK_SVG,
     accent: "#7c3aed", // hardcode-ok: per-app identity accent, not theming
     order: 35,
+    catalogOnly: true,
     subtitle: "app · style",
     agentSurface: {
       describe:

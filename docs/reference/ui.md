@@ -7,9 +7,10 @@ uses. One engine, two shells - no format logic exists in the UI layer.
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `VaudeApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
-  `comingSoon`) plus `mount(ctx)`. The server discovers them with `Bun.Glob` (`_`-prefixed folders
-  skipped) and bundles each for the browser on demand. Drop a folder in, restart, the dock gains a
-  tile - identical doctrine to `src/formats/`.
+  `comingSoon` / `catalogOnly` / `appCatalog`) plus `Component(ctx)`. The server discovers them with
+  `Bun.Glob` (`_`-prefixed folders skipped) and bundles each for the browser on demand. A normal app
+  gains a Dock tile; a `catalogOnly` app stays packaged and opens from the manifest-declared Apps
+  catalog. No central list names either kind, identical doctrine to `src/formats/`.
 - **Apps never touch the engine or the filesystem**: they receive an `AppContext` whose `api` is the
   only door (inspect/export/studio/formats). The shell owns theme, the Workbench tabs, and the status bar.
 - **Tokens are one CSS source**: `src/ui/theme/tokens.css`, transcribed from `design/DECISIONS.md`
@@ -32,8 +33,10 @@ The locked vs-setup-hybrid flow, one plain question per screen, built on the sam
   in `SETTING_KEYS`: theme / firstDeck / publishTargets / houseAccent) + `src/studio/settings.ts`
   (`<studioDir>/settings.json`). The shell boots settings-first: no `setupComplete` -> wizard;
   after OPEN VAUDE the shell applies theme + house accent and lands on the app whose manifest set
-  `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The theme
-  button persists to settings (localStorage is only a pre-paint cache). Individual controls use
+  `firstRunLanding` (the Library's two doors); later boots open the lowest-order app. The top-strip
+  theme button reveals the next theme outward from the control through the View Transitions API,
+  falls back to an immediate switch when unsupported or reduced motion is requested, and persists
+  to settings (localStorage is only a pre-paint cache). Individual controls use
   serialized `PATCH` updates so overlapping changes compose instead of replacing stale snapshots.
 
 ## The right-click system
@@ -47,6 +50,22 @@ One context menu for the whole app (`src/ui/_shared/context-menu.ts`), extended 
   Workbench - the one-shot single path, works in every room), `app` (dock tiles), `shell` (Go home /
   Import files / Switch theme). Adding a menu later (Open in editor, Export, Delete) = one
   register() call; nothing central is edited.
+
+## Apps catalog and documentation
+The Dock's **Add app** slot is a real control. It finds the one manifest with `appCatalog: true` and
+opens that surface without hardcoding an app id. The catalog derives its cards from `ctx.apps()`, so
+it shows the official applications in the running build and cannot drift from the packaged manifest
+roster. CSS Workshop is the first `catalogOnly` tool: it remains fully bundled and mountable while
+staying off the everyday Dock. Help / Docs is another catalog-only app and renders the committed
+`docs/` corpus inside the Studio. Its left navigation and search derive from
+`docs/generated/docs-index.json`, then present it as **User Docs** and **Developer Docs** with
+human-facing workflow, platform, application/API, architecture, data-model, format, security,
+extension, and technical-decision sections. Decision records keep their canonical ADR filenames on
+disk while the reader uses plain titles without ADR codes. The center pane renders Markdown through the shared sanitizer and
+mounts only generated figures or committed `docs/media/` images; the right rail derives from the
+current page's heading anchors. The desktop build bakes the same Markdown and assets that are visible
+on GitHub, so there is one source rather than an in-app copy. Each page's **view on GitHub** action
+uses the existing leaving gate and `/api/open` URL allowlist.
 
 ## Dev live-reload
 `vaud ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
@@ -75,6 +94,8 @@ what the engine already knows - no new format logic.
 `GET /` shell · `GET /tokens.css` · `GET /boot.js` · `GET /api/apps` manifests ·
 `GET /apps/<id>.js` bundled app · `GET /api/setup/steps` step ids · `GET /setup/steps/<id>.js`
 bundled step · `GET|POST|PATCH /api/settings` (POST replaces the document; PATCH validates and merges a partial update) ·
+`GET /api/docs/index|figures` generated docs metadata · `GET /api/docs/get?id=` catalog-declared
+Markdown only · `GET /api/docs/asset?path=` committed docs media and generated figure assets only ·
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
 canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
 `GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
@@ -236,4 +257,5 @@ Extracted-once UI, layered so a single implementation serves every consumer:
 ## Security
 Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
 included). Scripts inside entities remain data everywhere. App-manifest SVGs are sanitized before
-insertion (scripts/foreignObject/handlers stripped) because the dock invites third-party drop-ins.
+insertion in both the Dock and catalog (scripts/foreignObject/handlers stripped) because the shell
+invites third-party drop-ins.

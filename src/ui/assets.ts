@@ -15,10 +15,12 @@ export interface PackagedAssets {
   apps: Record<string, string>;
   /** the dock manifest list, pre-collected */
   manifests: unknown[];
+  /** the same committed docs corpus GitHub exposes, baked for the in-app Help reader */
+  docs: import("./docs-types").PackagedDocs;
   /** setup step id -> browser bundle (same drop-in mechanism as apps) */
   setupSteps: Record<string, string>;
-  /** app id -> its tour bundle (same drop-in mechanism; optional - not every app ships a tour) */
-  tours?: Record<string, string>;
+  /** tour id -> bundle; the record is required even though individual apps may omit a tour */
+  tours: Record<string, string>;
   /** shared platform bundles (react, jsx-runtime, react-dom-client) served at /vendor/<name>.js;
    * every other bundle marks these external and resolves them through the page's import map so
    * exactly ONE React instance exists (two copies = null-dispatcher hook crashes) */

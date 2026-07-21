@@ -254,6 +254,7 @@ describe("createHandler security", () => {
     expect(res.headers.get("cache-control")).toBe("no-store");
     const html = await res.text();
     expect(html).toContain('name="vaude-session"');
+    expect(html).toContain('name="vaude-dev"');
     expect(html).toContain(sec.token);
     const csp = res.headers.get("content-security-policy") ?? "";
     // The hash is COMPUTED from the served html, never pinned by hand: a hand pin rotted the moment

@@ -281,6 +281,7 @@ export function App(): JSX.Element | null {
       api,
       setStatus: (text) => useShellStore.getState().setStatus(text),
       apps: () => [...useShellStore.getState().manifests],
+      openApp: (id) => useShellStore.getState().mountApp(id),
       menus,
       prefs: {
         get: (key) => useShellStore.getState().settings[key],

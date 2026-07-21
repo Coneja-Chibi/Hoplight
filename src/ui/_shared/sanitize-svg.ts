@@ -1,12 +1,8 @@
 /**
- * Sanitize a drop-in app's mark SVG (moved verbatim out of the old boot.ts). The dock invites
- * third-party drop-in apps, so a manifest's `markSvg` is untrusted by doctrine (deny by absence).
- * Only static drawing survives: scripts, foreignObject, use/href indirection, and every on* handler
- * are stripped; a non-svg root is refused. This is NOT the IconBox seed (trusted, first-party
- * marks only) - Dock.tsx grafts the result in via its own ref + importNode, never innerHTML.
+ * Sanitize a drop-in app's untrusted mark SVG. Only static drawing survives: scripts,
+ * foreignObject, use/href indirection, animation, frames, and event handlers are stripped.
  */
 export function sanitizeSvg(markup: string): SVGSVGElement | null {
-  // tolerate manifests that omit xmlns (without it the parsed nodes never draw)
   const withNs = markup.includes("xmlns=") ? markup : markup.replace("<svg", '<svg xmlns="http://www.w3.org/2000/svg"');
   const doc = new DOMParser().parseFromString(withNs, "image/svg+xml");
   const root = doc.documentElement;

@@ -22,6 +22,7 @@ const app: VaudeApp = {
     accent: "#2aa198", // hardcode-ok: app identity accent, not theme chrome
     order: 90,
     comingSoon: true,
+    catalogOnly: true,
   },
   Component: Company,
 };

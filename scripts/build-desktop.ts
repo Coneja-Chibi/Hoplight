@@ -10,6 +10,8 @@
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { docsAssetMime, parseDocsIndex, resolveDocPage } from "../src/ui/docs-corpus";
+import type { DocFigure, PackagedDocAsset } from "../src/ui/docs-types";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const uiDir = join(root, "src", "ui");
@@ -77,6 +79,16 @@ for await (const rel of stepsGlob.scan({ cwd: join(uiDir, "setup", "steps") })) 
   setupSteps[id] = await bundleBrowser(join(uiDir, "setup", "steps", rel));
 }
 
+const toursGlob = new Bun.Glob("*/index.{ts,tsx}");
+const tourIds: string[] = [];
+const tours: Record<string, string> = {};
+for await (const rel of toursGlob.scan({ cwd: join(uiDir, "tours") })) {
+  const id = rel.split(/[\\/]/)[0]!;
+  if (id.startsWith("_")) continue;
+  tourIds.push(id);
+  tours[id] = await bundleBrowser(join(uiDir, "tours", rel));
+}
+
 const vendor: Record<string, string> = {};
 for (const [name, spec] of Object.entries(VENDOR_SPECS)) {
   vendor[name] = await bundleBrowser(join(uiDir, spec.entry), spec.external);
@@ -89,6 +101,32 @@ const sandboxWorkerJs = await bundleBrowser(join(root, "src", "sandbox", "lua", 
 ]);
 const regexWorkerJs = await bundleBrowser(join(root, "src", "sandbox", "regex", "worker.ts"));
 
+const docsIndexRaw = await Bun.file(join(root, "docs", "generated", "docs-index.json")).json();
+const docsIndex = parseDocsIndex(docsIndexRaw);
+if (!docsIndex) throw new Error("docs bake: generated docs index is invalid");
+const docPages: Record<string, string> = {};
+for (const record of docsIndex.docs) {
+  const path = resolveDocPage(root, docsIndex, record.id);
+  if (!path) throw new Error(`docs bake: refused page path for ${record.id}`);
+  docPages[record.id] = await Bun.file(path).text();
+}
+const docFiguresRaw = await Bun.file(join(root, "docs", "generated", "figures.json")).json();
+if (!Array.isArray(docFiguresRaw)) throw new Error("docs bake: generated figure manifest is invalid");
+const docFigures = docFiguresRaw as DocFigure[];
+const docAssetPaths = new Set<string>(docFigures.map((figure) => figure.svg));
+const mediaGlob = new Bun.Glob("**/*");
+for await (const rel of mediaGlob.scan({ cwd: join(root, "docs", "media"), onlyFiles: true })) {
+  docAssetPaths.add(`docs/media/${rel.replaceAll("\\", "/")}`);
+}
+const docAssets: Record<string, PackagedDocAsset> = {};
+for (const path of docAssetPaths) {
+  const mime = docsAssetMime(path);
+  if (!mime) continue;
+  const file = Bun.file(join(root, ...path.split("/")));
+  if (!await file.exists()) throw new Error(`docs bake: missing asset ${path}`);
+  docAssets[path] = { mime, b64: Buffer.from(await file.arrayBuffer()).toString("base64") };
+}
+
 const assets = {
   indexHtml: await Bun.file(join(uiDir, "index.html")).text(),
   tokensCss: await Bun.file(join(uiDir, "theme", "tokens.css")).text(),
@@ -98,7 +136,9 @@ const assets = {
   iconPngB64: Buffer.from(await Bun.file(join(root, "build", "vaude-256.png")).arrayBuffer()).toString("base64"),
   apps,
   manifests,
+  docs: { index: docsIndex, pages: docPages, figures: docFigures, assets: docAssets },
   setupSteps,
+  tours,
   sandboxWorkerJs,
   regexWorkerJs,
 };
@@ -119,7 +159,12 @@ await Bun.write(
     `import type { PackagedAssets } from "../ui/assets";\n` +
     `export const PACKAGED_ASSETS: PackagedAssets | null = ${JSON.stringify(assets)};\n`,
 );
-console.log(`baked ui assets (${appIds.length} apps: ${appIds.join(", ")}; ${stepIds.length} setup steps: ${stepIds.join(", ")})`);
+console.log(
+  `baked ui assets (${appIds.length} apps: ${appIds.join(", ")}; ` +
+    `${stepIds.length} setup steps: ${stepIds.join(", ")}; ` +
+    `${tourIds.length} tours: ${tourIds.join(", ")}; ` +
+    `${docsIndex.count} docs, ${Object.keys(docAssets).length} doc assets)`,
+);
 
 // -- 1b. BOOT SMOKE: the build proves the page can boot before anyone claims done -------------------
 // Three first-boot crashes taught this: tsc + tests never exercise module RESOLUTION in the page.
@@ -130,7 +175,7 @@ const REQUIRED_VENDOR_EXPORTS: Record<string, string[]> = {
     "createElement", "useState", "useEffect", "Fragment", "jsx", "jsxs", "jsxDEV",
     "__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE",
   ],
-  "react-dom-client": ["createRoot", "createPortal"],
+  "react-dom-client": ["createRoot", "createPortal", "flushSync"],
 };
 const importMapMatch = /<script type="importmap">\s*([\s\S]*?)<\/script>/.exec(assets.indexHtml);
 if (!importMapMatch) throw new Error("smoke: index.html carries no import map");
@@ -172,6 +217,7 @@ const allBundles: Record<string, string> = {
   boot: assets.bootJs,
   ...Object.fromEntries(Object.entries(apps).map(([k, v]) => [`app:${k}`, v])),
   ...Object.fromEntries(Object.entries(setupSteps).map(([k, v]) => [`step:${k}`, v])),
+  ...Object.fromEntries(Object.entries(tours).map(([k, v]) => [`tour:${k}`, v])),
   ...Object.fromEntries(Object.entries(vendor).map(([k, v]) => [`vendor:${k}`, v])),
 };
 for (const [name, code] of Object.entries(allBundles)) {

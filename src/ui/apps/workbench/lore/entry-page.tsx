@@ -3,7 +3,7 @@
  * cards (Keys, When & where, passage, note, platforms). Each card is collapsible; open state
  * is persisted in prefs so it survives entry and session switches.
  */
-import { useState, type JSX, type SyntheticEvent } from "react";
+import { useEffect, useRef, useState, type JSX, type SyntheticEvent } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
 import { TriggerEditor } from "./trigger-editor";
@@ -63,12 +63,18 @@ export function LoreEntryPage({
   prefs,
 }: EntryPageProps): JSX.Element {
   const [folds, setFolds] = useState<FoldMap>(() => loadEntryFolds(prefs));
+  const prefsRef = useRef(prefs);
+  const mountedRef = useRef(false);
+  prefsRef.current = prefs;
+  useEffect(() => {
+    if (!mountedRef.current) {
+      mountedRef.current = true;
+      return;
+    }
+    saveEntryFolds(prefsRef.current, folds);
+  }, [folds]);
   const onFoldToggle = (id: EntryFoldId | string, open: boolean): void => {
-    setFolds((prev) => {
-      const next = withFold(prev, id as EntryFoldId, open);
-      saveEntryFolds(prefs, next);
-      return next;
-    });
+    setFolds((prev) => withFold(prev, id as EntryFoldId, open));
   };
   const onDetails =
     (id: EntryFoldId | string) =>

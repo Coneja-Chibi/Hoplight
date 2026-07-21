@@ -1,0 +1,97 @@
+/** The official app catalog: a quiet directory of what this exact Vaude build already contains. */
+.room {
+  container-type: inline-size;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2vw, 1.6rem);
+  padding: clamp(1rem, 3vw, 2.2rem);
+}
+
+.head { max-width: 52rem; }
+
+.eyebrow,
+.status {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.title {
+  margin: 0.25rem 0 0.45rem;
+  font-family: var(--font-big);
+  font-size: var(--text-title);
+  line-height: 1;
+  color: var(--text);
+}
+
+.lede,
+.description {
+  margin: 0;
+  color: var(--text-soft);
+  line-height: 1.45;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+}
+
+.card {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  padding: 1rem;
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 5px 5px 0 0 var(--a);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mark {
+  width: 2.6rem;
+  height: 2.6rem;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--stage-ink);
+  background: var(--a);
+  border: 3px solid var(--edge);
+}
+
+.mark svg { width: 1.2rem; height: 1.2rem; }
+
+.name {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--font-big);
+  font-size: 1rem;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.description { flex: 1; font-size: 0.9rem; }
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+@container (max-width: 38rem) {
+  .cardFoot { align-items: flex-start; flex-direction: column; }
+}
