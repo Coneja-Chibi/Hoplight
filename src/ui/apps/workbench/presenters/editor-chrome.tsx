@@ -179,7 +179,6 @@ export function EditorHeader({
           </button>
         </span>
         <EditorModeBar
-          onboarded={onboarded}
           mode={mode}
           setMode={setMode}
           editorLayout={editorLayout}

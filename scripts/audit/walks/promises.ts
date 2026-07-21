@@ -253,5 +253,36 @@ await promise("rename-sticks", async () => {
   return rig.page.getByText("Walk Renamed").first().isVisible().catch(() => false);
 });
 
+await promise("getting-started-tour-tells-the-truth-and-really-highlights", async () => {
+  // deterministic state: clear the bench so the tour's open act takes the "opened one of yours"
+  // branch (the seeded library has characters). The walk rig's own skip() would dismiss the rail,
+  // so no openApp/skip calls happen after the replay button is pressed.
+  await rig.openApp(/The Workbench/i);
+  await rig.page.evaluate(() => {
+    for (const x of Array.from(document.querySelectorAll<HTMLElement>("#tabstrip .tab .close"))) x.click();
+  });
+  await rig.settle(600);
+  await rig.page.getByRole("button", { name: /Replay the tour/i }).click({ timeout: 5000 });
+  await rig.settle(500);
+  const rail = rig.page.getByRole("dialog", { name: /tour/i });
+  if (!(await rail.isVisible().catch(() => false))) return false;
+  await rail.getByRole("button", { name: /^Next$/ }).click(); // welcome -> open step
+  await rig.settle(1200);
+  const openText = (await rail.innerText().catch(() => "")).trim();
+  // the narration must match what actually happened: bench was empty, library had characters
+  if (!openText.includes("I opened one of your characters")) return false;
+  await rail.getByRole("button", { name: /^Next$/ }).click(); // -> layout step
+  await rig.settle(1200);
+  // the honest-highlight law: an anchored step either LIGHTS a real element or says it cannot
+  const state = await rig.page.evaluate(() => ({
+    highlighted: document.querySelectorAll(".tourHl").length,
+    admitsMissing: /not on this screen right now/i.test(
+      document.querySelector("[role=dialog][aria-label*='tour' i]")?.textContent ?? "",
+    ),
+  }));
+  await rail.getByRole("button", { name: /^skip$/i }).click().catch(() => {});
+  return state.highlighted > 0 && !state.admitsMissing;
+});
+
 console.log(`promises: ${passCount} kept, ${failCount} broken`);
 process.exit((await rig.finish("promises")) > 0 ? 1 : 0);

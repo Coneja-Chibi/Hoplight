@@ -3,8 +3,8 @@
  * new-persona.ts; the body is the minimal canonical character (every section present, empty),
  * the same shape the store's own tests pin.
  */
-import type { AppContext, StudioEntitySummary } from "../../app-contract";
-import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
+import type { AppContext, StudioEntitySummary } from "../app-contract";
+import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 
 export async function createAndOpenCharacter(ctx: AppContext): Promise<StudioEntitySummary> {
   const name = "Untitled character";

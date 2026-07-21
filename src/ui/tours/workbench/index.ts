@@ -16,19 +16,26 @@ const workbenchTour: Tour = {
     {
       id: "welcome",
       title: "This is the Workbench",
-      body: "Where you build and edit a character. Everything about them lives on this one page. Let me open one of yours so you can see it.",
+      body: "Where you build and edit a character. Everything about them lives on this one page. Let me get a character on the bench so you can see it.",
     },
     {
       id: "open",
       act: { setPref: { key: "editor.mode", value: "grid" }, open: "piece" },
       title: "Here's the editor",
-      body: "I opened one of your characters. This is where every detail lives, laid out as cards you can fill in.",
+      body: "This is where every detail lives, laid out as cards you can fill in.",
+      // narrate what actually happened - a fresh studio has nothing to open, and the old copy
+      // claimed "I opened your card" over an empty shelf (the proven first-user lie)
+      bodyBy: {
+        opened: "I opened one of your characters. This is where every detail lives, laid out as cards you can fill in.",
+        focused: "You already had a character on the bench, so let's use them. Every detail lives here, laid out as cards you can fill in.",
+        created: "Your shelf is empty, so I started a blank card for you. Every detail will live here as you fill it in.",
+      },
     },
     {
       id: "layout",
       anchor: "layout",
       title: "Pick your layout",
-      body: "Click Bento or Playbill up here (highlighted) and watch the fields rearrange. Bento shows them all at once; Playbill turns them into acts you page through.",
+      body: "Click Bento or Playbill in the lit-up toggle and watch the fields rearrange. Bento shows them all at once; Playbill turns them into acts you page through.",
     },
     {
       id: "mode",

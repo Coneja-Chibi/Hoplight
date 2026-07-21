@@ -4,7 +4,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import type { Tour } from "./tour-contract";
-import { hasSeenTour, isRunnable, nextIndex, positionAt, prevIndex, seenTourKeys, tourIdCandidates, tourSeenKey } from "./tour-core";
+import { hasSeenTour, isRunnable, nextIndex, planOpenAct, positionAt, prevIndex, seenTourKeys, stepBody, tourIdCandidates, tourSeenKey } from "./tour-core";
 
 const tour = (n: number): Tour => ({
   manifest: { appId: "workbench", title: "Getting started" },
@@ -112,5 +112,36 @@ describe("tourIdCandidates: the ? serves the active piece's kind on the bench", 
 
   test("no active app yields nothing", () => {
     expect(tourIdCandidates("", "workbench", "lorebook")).toEqual([]);
+  });
+});
+
+describe("planOpenAct truth table (the fresh-studio lie, pinned)", () => {
+  test("a piece on the bench wins", () => {
+    expect(planOpenAct(2, 5)).toBe("focused");
+    expect(planOpenAct(1, 0)).toBe("focused");
+  });
+  test("a library character opens when the bench is clear", () => {
+    expect(planOpenAct(0, 3)).toBe("opened");
+  });
+  test("an empty studio CREATES instead of narrating an open that never happened", () => {
+    expect(planOpenAct(0, 0)).toBe("created");
+  });
+});
+
+describe("stepBody speaks the outcome variant, never a lie", () => {
+  const step = {
+    id: "open",
+    title: "t",
+    body: "base",
+    bodyBy: { opened: "I opened one of yours.", created: "I started a blank card." },
+  } as never;
+  test("known outcome with a variant uses it", () => {
+    expect(stepBody(step, "opened")).toBe("I opened one of yours.");
+    expect(stepBody(step, "created")).toBe("I started a blank card.");
+  });
+  test("missing variant and unknown outcome fall back to the base body", () => {
+    expect(stepBody(step, "focused")).toBe("base");
+    expect(stepBody(step, null)).toBe("base");
+    expect(stepBody({ id: "x", title: "t", body: "plain" } as never, "opened")).toBe("plain");
   });
 });

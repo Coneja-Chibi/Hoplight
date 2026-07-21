@@ -5,7 +5,7 @@
  * directly. The imperative shell (components/tour-guide) supplies the real index state, the DOM
  * highlight, and the pref read/write.
  */
-import type { Tour, TourStep } from "./tour-contract";
+import type { Tour, TourOpenOutcome, TourStep } from "./tour-contract";
 
 /** The settings key that records a tour as completed (namespaced by app, per the prefs convention). */
 export const tourSeenKey = (appId: string): string => `tour.${appId}.seen`;
@@ -59,6 +59,23 @@ export const prevIndex = (index: number): number => Math.max(0, index - 1);
 /** A validity check a shell can use before mounting: a real tour has at least one step. */
 export const isRunnable = (tour: Tour | null | undefined): tour is Tour =>
   !!tour && Array.isArray(tour.steps) && tour.steps.length > 0;
+
+/**
+ * What an `open: "piece"` act should DO given the live state - pure, so the truth table is pinned
+ * by tests: a piece on the bench wins (focus it), else open a library character, else the studio
+ * is empty and the tour starts a blank card (nothing to open is not nothing to say).
+ */
+export function planOpenAct(openPieceCount: number, libraryCharacterCount: number): TourOpenOutcome {
+  if (openPieceCount > 0) return "focused";
+  if (libraryCharacterCount > 0) return "opened";
+  return "created";
+}
+
+/** The body a step should speak: the outcome variant when one is known, else the base line. */
+export function stepBody(step: TourStep, outcome: TourOpenOutcome | null): string {
+  if (outcome !== null && step.bodyBy?.[outcome] !== undefined) return step.bodyBy[outcome]!;
+  return step.body;
+}
 
 /**
  * Which tour ids to try for the current view, most specific first. On the Workbench with a piece

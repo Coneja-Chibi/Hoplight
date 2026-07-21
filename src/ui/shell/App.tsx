@@ -42,6 +42,10 @@ export function App(): JSX.Element | null {
   const activeAppId = useShellStore((s) => s.activeAppId);
   // the active app's tour (folders-as-schema, loaded like an app module); null = this app has none
   const toursRef = useRef(new Map<string, Tour | null>());
+  /** the tour identity currently resolved for the view; auto-open re-evaluates ONLY when this
+   * changes - a piece change mid-tour must never close a rail the user replayed (the act that
+   * opens a piece re-fires this effect, and closing on "seen" killed every replay at step 2) */
+  const tourIdRef = useRef<string | null>(null);
   const [tour, setTour] = useState<Tour | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
 
@@ -199,8 +203,13 @@ export function App(): JSX.Element | null {
       }
       if (cancelled) return;
       setTour(t);
-      const seen = t ? hasSeenTour(useShellStore.getState().settings[tourSeenKey(t.manifest.appId)]) : true;
-      setTourOpen(!!t && !seen); // first visit with an unseen tour opens it; otherwise it waits on ?
+      const id = t ? t.manifest.appId : null;
+      const surfaceChanged = tourIdRef.current !== id;
+      tourIdRef.current = id;
+      if (surfaceChanged) {
+        const seen = t ? hasSeenTour(useShellStore.getState().settings[tourSeenKey(t.manifest.appId)]) : true;
+        setTourOpen(!!t && !seen); // first visit with an unseen tour opens it; otherwise it waits on ?
+      }
     })();
     return () => {
       cancelled = true;

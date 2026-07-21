@@ -10,7 +10,6 @@ import type { JSX } from "react";
 type Styles = Readonly<Record<string, string>>;
 
 export interface EditorModeBarProps {
-  onboarded: boolean;
   mode: "grid" | "interview";
   setMode(m: "grid" | "interview"): void;
   editorLayout: "bento" | "playbill";
@@ -23,10 +22,13 @@ export interface EditorModeBarProps {
 }
 
 export function EditorModeBar(props: EditorModeBarProps): JSX.Element {
-  const { onboarded, mode, setMode, editorLayout, setEditorLayout, hasBehavior, workshop, setWorkshop, styles } = props;
+  const { mode, setMode, editorLayout, setEditorLayout, hasBehavior, workshop, setWorkshop, styles } = props;
   return (
     <>
-      {!onboarded && mode === "grid" && (
+      {/* ALWAYS rendered: these are the controls the tour points at, and gating them on the
+          tour-seen flag made every REPLAYED tour highlight nothing (the proven first-user report).
+          The context menu keeps its duplicate for people who prefer it. */}
+      {mode === "grid" && (
         <span className={styles.seg} data-tour="layout">
           <button type="button" className={editorLayout === "bento" ? styles.on : undefined} onClick={() => setEditorLayout("bento")}>
             Bento
@@ -36,16 +38,14 @@ export function EditorModeBar(props: EditorModeBarProps): JSX.Element {
           </button>
         </span>
       )}
-      {!onboarded && (
-        <span className={styles.seg} data-tour="mode">
-          <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
-            Grid
-          </button>
-          <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
-            Steps
-          </button>
-        </span>
-      )}
+      <span className={styles.seg} data-tour="mode">
+        <button type="button" className={mode === "grid" ? styles.on : undefined} onClick={() => setMode("grid")}>
+          Grid
+        </button>
+        <button type="button" className={mode === "interview" ? styles.on : undefined} onClick={() => setMode("interview")}>
+          Steps
+        </button>
+      </span>
       {hasBehavior && (
         <span className={styles.seg}>
           <button type="button" className={!workshop ? styles.on : undefined} onClick={() => setWorkshop(false)}>

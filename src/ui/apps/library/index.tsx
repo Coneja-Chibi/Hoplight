@@ -35,7 +35,7 @@ import {
 } from "./regex-shelf-ops";
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { NewInDeckButton } from "./new-in-deck-button";
-import { createAndOpenCharacter } from "./new-character";
+import { createAndOpenCharacter } from "../../_shared/new-character";
 import { useEntityDelete } from "./delete-flow";
 import { consumeImportRequests } from "../../_shared/import-signal";
 import { peekPiece, sourceLabelFor } from "./piece-peek";

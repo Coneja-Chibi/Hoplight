@@ -12,8 +12,9 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext } from "../../app-contract";
-import type { Tour } from "../../tours/tour-contract";
-import { nextIndex, positionAt, prevIndex, tourSeenKey } from "../../tours/tour-core";
+import type { Tour, TourOpenOutcome } from "../../tours/tour-contract";
+import { nextIndex, planOpenAct, positionAt, prevIndex, stepBody, tourSeenKey } from "../../tours/tour-core";
+import { createAndOpenCharacter } from "../../_shared/new-character";
 import { MonoTag } from "../mono-tag";
 import styles from "./styles.module.css";
 
@@ -29,6 +30,10 @@ export interface TourGuideProps {
 
 export function TourGuide({ tour, ctx, onClose }: TourGuideProps): JSX.Element {
   const [index, setIndex] = useState(0);
+  /** what the open act actually did, so steps narrate the truth (see planOpenAct) */
+  const [openOutcome, setOpenOutcome] = useState<TourOpenOutcome | null>(null);
+  /** null while searching; false when the anchor never appeared (the rail then says so honestly) */
+  const [highlightLive, setHighlightLive] = useState<boolean | null>(null);
   const pos = positionAt(tour, index);
   const anchor = pos.step?.anchor;
 
@@ -41,12 +46,17 @@ export function TourGuide({ tour, ctx, onClose }: TourGuideProps): JSX.Element {
     if (act.open === "piece") {
       void (async () => {
         const open = ctx.workbench.pieces();
-        if (open.length > 0) {
+        const chars = open.length > 0 ? [] : await ctx.api.listEntities("character");
+        const plan = planOpenAct(open.length, chars.length);
+        setOpenOutcome(plan);
+        if (plan === "focused") {
           ctx.workbench.focus(open[0]!.id, open[0]!.kind);
-          return;
+        } else if (plan === "opened") {
+          ctx.workbench.open(chars[0]!); // a real one, so the editor populates
+        } else {
+          // empty studio: nothing to open is not nothing to say - start a blank card for them
+          ctx.workbench.open(await createAndOpenCharacter(ctx));
         }
-        const chars = await ctx.api.listEntities("character");
-        if (chars[0]) ctx.workbench.send(chars[0]); // open a real one so the editor populates
       })();
     }
     // run once per step activation; ctx methods read live state and are stable for the tour
@@ -57,15 +67,24 @@ export function TourGuide({ tour, ctx, onClose }: TourGuideProps): JSX.Element {
   // re-runs when the step's own render settles, so an anchor that appears after an act (a just-opened
   // editor) still gets caught on the next tick.
   useEffect(() => {
-    if (!anchor) return;
+    if (!anchor) {
+      setHighlightLive(null);
+      return;
+    }
     let raf = 0;
     let tries = 0;
+    setHighlightLive(null);
     const paint = (): void => {
       const el = document.querySelector(`[data-tour="${anchor}"]`);
       if (!el) {
-        if (tries++ < 40) raf = requestAnimationFrame(paint); // ~0.6s for a just-navigated surface
-        return; // give up quietly after the cap: a truly absent anchor just gets no highlight
+        if (tries++ < 40) {
+          raf = requestAnimationFrame(paint); // ~0.6s for a just-navigated surface
+        } else {
+          setHighlightLive(false); // truly absent: the rail admits it instead of pointing at nothing
+        }
+        return;
       }
+      setHighlightLive(true);
       el.classList.add(HL_CLASS);
       el.scrollIntoView({ block: "center", behavior: "smooth" });
     };
@@ -103,7 +122,10 @@ export function TourGuide({ tour, ctx, onClose }: TourGuideProps): JSX.Element {
       </div>
 
       <h3 className={styles.title}>{step.title}</h3>
-      <p className={styles.body}>{step.body}</p>
+      <p className={styles.body}>{stepBody(step, openOutcome)}</p>
+      {highlightLive === false && (
+        <p className={styles.noAnchor}>The control this step points at is not on this screen right now.</p>
+      )}
 
       {step.choice && (
         <div className={styles.choice}>

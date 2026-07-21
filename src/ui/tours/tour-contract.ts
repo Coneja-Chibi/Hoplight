@@ -33,6 +33,15 @@ export interface TourAct {
   setPref?: { key: string; value: string };
 }
 
+/**
+ * What an `open: "piece"` act actually DID, so a step can narrate honestly instead of claiming an
+ * event that never happened (a fresh studio has nothing to open - the proven lie):
+ *   - "focused": a piece was already on the bench; the tour brought it forward
+ *   - "opened": the tour opened one of the user's library characters
+ *   - "created": the studio was empty; the tour started a blank card
+ */
+export type TourOpenOutcome = "focused" | "opened" | "created";
+
 /** One stop on the tour. */
 export interface TourStep {
   /** a navigation to run when this step activates (drives the user; see TourAct) */
@@ -47,6 +56,9 @@ export interface TourStep {
   title: string;
   /** the plain-words body - no jargon a creator would not know */
   body: string;
+  /** outcome-specific bodies for a step whose `act.open` ran: the engine renders the variant
+   * matching what actually happened, falling back to `body`. Narration must never lie. */
+  bodyBy?: Partial<Record<TourOpenOutcome, string>>;
   /** optional inline preference choice rendered inside the step (the "setup options" in-tour) */
   choice?: TourChoice;
 }

@@ -7,7 +7,7 @@
  */
 import type { JSX } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
-import { createAndOpenCharacter } from "./new-character";
+import { createAndOpenCharacter } from "../../_shared/new-character";
 import { createAndOpenLorebook } from "./new-lorebook";
 import { createAndOpenRegexSet } from "./new-regex-set";
 import { createAndOpenPersona } from "./new-persona";
