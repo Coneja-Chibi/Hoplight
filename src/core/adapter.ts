@@ -106,6 +106,12 @@ export interface PresetAdapter extends AdapterBase {
   kind: "preset";
   toCanonical(input: AdapterInput): CanonicalPreset;
   fromCanonical(entity: CanonicalPreset): AdapterOutput;
+  /**
+   * Optional: pull regex scripts BUNDLED inside the preset export (ST/RC ride them under
+   * `extensions.regex_scripts`). The bundle layer surfaces the set as a related entity beside the
+   * preset, the same seam as CharacterAdapter.extractLorebook. Tolerant: null when none ride.
+   */
+  extractRegex?(entity: CanonicalPreset): CanonicalRegexSet | null;
 }
 
 /**

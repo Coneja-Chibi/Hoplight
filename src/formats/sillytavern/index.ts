@@ -10,6 +10,7 @@ import coverage from "./coverage";
 import lorebookCodec from "./lorebook";
 import regexCodec from "./regex";
 import personaCodec from "./persona";
+import presetCodec from "./preset";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { getVersion, pngSourceMedia } from "../_shared/png";
 import { readCardJson } from "../_shared/card-io";
@@ -23,6 +24,7 @@ import {
   CARD_SPEC_V2,
   CARD_SPEC_V3,
 } from "../_shared/tavern-fields";
+import { looksLikeSettingsExport } from "../_shared/kind-markers";
 
 export { embedCharacterJson } from "../_shared/png";
 
@@ -58,12 +60,7 @@ function detectCard(json: unknown): Detected | null {
     // rightful readers (or an honest refusal), never this branch.
     const looksOtherKind =
       "entries" in card || // worldbook / standalone character_book
-      Array.isArray(card.prompts) ||
-      "prompt_order" in card ||
-      "chat_completion_source" in card ||
-      "temperature" in card ||
-      "input_sequence" in card ||
-      "story_string" in card;
+      looksLikeSettingsExport(card);
     if (looksOtherKind) return null;
     // `extensions` is NOT a signal here: presets, worldbooks, and standalone character_books all
     // carry it. A flat card must show a field only a character has.
@@ -166,7 +163,8 @@ const adapter: CharacterAdapter = {
 export { adapter as characterAdapter };
 
 /** Folders-as-schema: this format family exports every codec it provides (character + world info +
- * regex scripts). The regex codec reads the bare `RegexScriptData[]` array (Marinara's Essentials
- * packs) and a card's `extensions.regex_scripts`; a full character card still wins detection (0.9)
- * over the codec's card-home score (0.85), so cards keep importing as characters. */
-export default [adapter, lorebookCodec, regexCodec, personaCodec];
+ * regex scripts + completion presets). The regex codec reads the bare `RegexScriptData[]` array
+ * (Marinara's Essentials packs) and a card's `extensions.regex_scripts`; a full character card
+ * still wins detection (0.9) over the codec's card-home score (0.85), so cards keep importing as
+ * characters, and a preset bundling regex wins the same way (preset 0.9 over 0.85). */
+export default [adapter, lorebookCodec, regexCodec, personaCodec, presetCodec];

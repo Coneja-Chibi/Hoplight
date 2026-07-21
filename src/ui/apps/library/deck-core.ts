@@ -14,7 +14,7 @@ export function deckCounts(entities: StudioEntitySummary[], kindOrder: string[])
 
 export type ImportBundlePayload = {
   entity: unknown;
-  related?: { lorebooks?: unknown[] };
+  related?: { lorebooks?: unknown[]; regexSets?: unknown[] };
 };
 
 /**
@@ -24,8 +24,10 @@ export type ImportBundlePayload = {
 export function bundlePayloadFromInspect(result: InspectResult): ImportBundlePayload | null {
   if (!result.ok || result.entity === undefined || result.entity === null) return null;
   const lorebooks = result.related?.lorebooks;
-  if (lorebooks && lorebooks.length > 0) {
-    return { entity: result.entity, related: { lorebooks } };
-  }
+  const regexSets = result.related?.regexSets;
+  const related: { lorebooks?: unknown[]; regexSets?: unknown[] } = {};
+  if (lorebooks && lorebooks.length > 0) related.lorebooks = lorebooks;
+  if (regexSets && regexSets.length > 0) related.regexSets = regexSets;
+  if (Object.keys(related).length > 0) return { entity: result.entity, related };
   return { entity: result.entity };
 }

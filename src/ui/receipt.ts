@@ -7,6 +7,7 @@
 import type { CanonicalEntity } from "../core/canonical";
 import type { CharacterBody } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
+import type { CanonicalRegexSet } from "../entities/regex/schema";
 
 type AnyEntity = CanonicalEntity<string, unknown>;
 
@@ -34,6 +35,7 @@ const FRIENDLY: Record<string, string> = {
   "marinara-regex": "Marinara",
   "marinara-lorebook": "Marinara",
   "marinara-preset": "Marinara",
+  "sillytavern-preset": "SillyTavern (RoleCall exports too)",
   "sillytavern-persona": "SillyTavern",
   "lumiverse-persona": "Lumiverse",
   "marinara-persona": "Marinara",
@@ -65,6 +67,7 @@ export function buildReceipt(
   entity: AnyEntity,
   formatId: string,
   relatedLorebooks?: CanonicalLorebook[],
+  relatedRegexSets?: CanonicalRegexSet[],
 ): Receipt {
   const kindWord = KIND_WORD[entity.kind] ?? entity.kind;
   const platform = friendlyFormat(formatId);
@@ -91,6 +94,15 @@ export function buildReceipt(
   }
   if (entity.kind === "persona") {
     extras.push("That is you, not a character - we shelve it with your personas.");
+  }
+  if (entity.kind === "preset") {
+    const sets = relatedRegexSets ?? [];
+    if (sets.length > 0) {
+      const rules = sets.reduce((n, s) => n + s.body.rules.length, 0);
+      extras.push(
+        `It bundles ${rules} regex ${rules === 1 ? "script" : "scripts"} - they shelve beside it as their own set.`,
+      );
+    }
   }
 
   const name =
@@ -124,14 +136,16 @@ export function unsupportedShapeLine(text: string | undefined): string | null {
     return null;
   }
   if (!isRec(o)) return null;
-  if (Array.isArray(o.prompts) || "prompt_order" in o || "chat_completion_source" in o) {
-    return "This is a SillyTavern preset. Hoplight cannot import SillyTavern presets yet - Marinara preset exports work today.";
-  }
+  // ST/RC completion presets import for real now (the sillytavern-preset codec claims them);
+  // only the still-unsupported settings shapes get named refusals here.
   if ("input_sequence" in o && "output_sequence" in o) {
     return "This is a SillyTavern instruct template. Hoplight cannot import those yet.";
   }
   if ("story_string" in o) {
     return "This is a SillyTavern context template. Hoplight cannot import those yet.";
+  }
+  if (typeof o.type === "string" && "exportedAt" in o && isRec(o.data)) {
+    return `This is a RoleCall library export of a ${o.type}. Hoplight cannot import these yet.`;
   }
   return null;
 }

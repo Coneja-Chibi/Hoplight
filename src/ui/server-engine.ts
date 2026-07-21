@@ -4,7 +4,7 @@
  */
 import { buildParseReport, buildSerializeReport, registry } from "../core";
 import type { AdapterInput, AdapterOutput, CharacterAdapter, FormatAdapter } from "../core";
-import { emitBundle, inspectBundle } from "../convert";
+import { emitBundle, inspectBundle, inspectPresetBundle } from "../convert";
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import { filterEnabledBooks } from "../core/lore";
@@ -74,6 +74,18 @@ export async function handleInspect(req: Request): Promise<Response> {
         receipt: buildReceipt(entity, adapter.id, lorebooks),
         entity,
         related: lorebooks.length > 0 ? { lorebooks } : undefined,
+        formatId: adapter.id,
+        kind: entity.kind,
+        parseReport: buildParseReport(entity, adapter.id),
+      });
+    }
+    if (adapter.kind === "preset") {
+      const { entity, regexSets } = inspectPresetBundle(adapter, input);
+      return json({
+        ok: true,
+        receipt: buildReceipt(entity, adapter.id, undefined, regexSets),
+        entity,
+        related: regexSets.length > 0 ? { regexSets } : undefined,
         formatId: adapter.id,
         kind: entity.kind,
         parseReport: buildParseReport(entity, adapter.id),

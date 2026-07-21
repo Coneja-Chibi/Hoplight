@@ -55,10 +55,11 @@ export interface AppContext {
     saveEntity(entity: unknown, opts?: { overwrite?: boolean }): Promise<StudioEntitySummary>;
     /** Remove one entity from the studio. True when a file was actually removed. */
     deleteEntity(kind: string, id: string): Promise<{ deleted: boolean }>;
-    /** Persist a character plus related lorebooks; rewrites keep-both knowledgeRefs. */
+    /** Persist a primary entity plus its bundled relations (a character's lorebooks, a preset's
+     * regex sets); rewrites keep-both knowledgeRefs. */
     saveBundle(payload: {
       entity: unknown;
-      related?: { lorebooks?: unknown[] };
+      related?: { lorebooks?: unknown[]; regexSets?: unknown[] };
       overwrite?: boolean;
     }): Promise<SaveBundleResult>;
     inspectFile(file: File): Promise<InspectResult>;
@@ -175,8 +176,9 @@ export interface InspectResult {
   /** friendly, plain-words lines for the receipt (already humanized by the server) */
   receipt?: { name: string; kindLine: string; extras: string[] };
   entity?: unknown;
-  /** Related entities extracted with the primary (same pass as CLI inspectBundle). */
-  related?: { lorebooks?: unknown[] };
+  /** Related entities extracted with the primary (a character's embedded lorebooks, a preset's
+   * bundled regex sets - the same pass as CLI inspectBundle). */
+  related?: { lorebooks?: unknown[]; regexSets?: unknown[] };
   formatId?: string;
   kind?: string;
   parseReport?: ParseReport;

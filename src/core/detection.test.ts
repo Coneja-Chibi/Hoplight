@@ -77,6 +77,57 @@ const CASES: Case[] = [
     input: asText({ entries: { "0": { key: ["x"], content: "y" } }, name: "World", scan_depth: 4 }),
   },
   {
+    // scoped regex bundled INSIDE a real card belongs to the CHARACTER claim (the card wins on score)
+    label: "spec'd card with data.extensions.regex_scripts -> sillytavern character, not regex",
+    expected: "sillytavern",
+    input: asText({
+      spec: "chara_card_v2",
+      spec_version: "2.0",
+      data: {
+        name: "A",
+        first_mes: "hi",
+        extensions: { regex_scripts: [{ scriptName: "s", findRegex: "/a/", replaceString: "b" }] },
+      },
+    }),
+  },
+  {
+    label: "bare array of ST regex rows -> sillytavern-regex (the rows FILE home stays claimed)",
+    expected: "sillytavern-regex",
+    input: asText([{ scriptName: "s", findRegex: "/a/g", replaceString: "b", placement: [2] }]),
+  },
+  {
+    // the bundling law: a preset CARRYING regex is a PRESET (its bundle surfaces as a related set)
+    label: "RoleCall/ST preset export with bundled regex -> sillytavern-preset, never a regex set",
+    expected: "sillytavern-preset",
+    input: asText({
+      temperature: 0.9,
+      top_p: 1,
+      impersonation_prompt: "x",
+      prompts: [{ identifier: "main", name: "Main", system_prompt: true, content: "..." }],
+      prompt_order: [{ character_id: 100001, order: [] }],
+      extensions: {
+        regex_scripts: [
+          { id: "1", scriptName: "Fix quotes", findRegex: "/a/g", replaceString: "b", placement: [2], disabled: false },
+        ],
+        linkedRegexScripts: [{ id: "1", name: "Fix quotes", description: "", rules: [] }],
+      },
+    }),
+  },
+  {
+    label: "plain ST chat-completion preset -> sillytavern-preset",
+    expected: "sillytavern-preset",
+    input: asText({
+      name: "Paramnesia-like preset",
+      extensions: {},
+      chat_completion_source: "openai",
+      temperature: 0.9,
+      top_p: 1,
+      impersonation_prompt: "x",
+      prompts: [{ identifier: "main", name: "Main", system_prompt: true, content: "..." }],
+      prompt_order: [{ character_id: 100001, order: [] }],
+    }),
+  },
+  {
     label: "RC v1 lorebook export -> rolecall-lorebook",
     expected: "rolecall-lorebook",
     input: asText({ schemaVersion: "1.0.0", exportDate: "2026-01-01", lorebook: { name: "W", entries: [] } }),
@@ -116,22 +167,6 @@ for (const c of CASES) {
  */
 const FOREIGN: Case[] = [
   {
-    label: "ST chat-completion preset (name + extensions + prompts/prompt_order) is NOT a character",
-    expected: "nobody",
-    input: asText({
-      name: "Paramnesia-like preset",
-      extensions: {},
-      chat_completion_source: "openai",
-      openai_model: "gpt-4o",
-      temperature: 0.9,
-      top_p: 1,
-      impersonation_prompt: "x",
-      wi_format: "{0}",
-      prompts: [{ identifier: "main", name: "Main", system_prompt: true, content: "..." }],
-      prompt_order: [{ character_id: 100001, order: [] }],
-    }),
-  },
-  {
     label: "ST instruct template (name + system_prompt string + sequences) is NOT a character",
     expected: "nobody",
     input: asText({
@@ -167,6 +202,16 @@ const FOREIGN: Case[] = [
     label: "textgen sampler grid (no name, all numbers) is NOT anything",
     expected: "nobody",
     input: asText({ temp: 0.7, top_p: 0.9, top_k: 40, rep_pen: 1.1, rep_pen_range: 1024 }),
+  },
+  {
+    label: "RoleCall library wrapper (exportedAt/type/version/data) is NOT its inner kind",
+    expected: "nobody",
+    input: asText({
+      exportedAt: "2026-07-21T00:00:00.000Z",
+      type: "preset",
+      version: "1.0",
+      data: { temperature: 1, prompts: [], prompt_order: [] },
+    }),
   },
 ];
 

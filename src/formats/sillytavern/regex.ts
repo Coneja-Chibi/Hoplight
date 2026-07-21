@@ -33,6 +33,7 @@ import type {
 import type { AdapterInput, AdapterOutput, RegexAdapter } from "../../core/adapter";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonAny } from "../_shared/card-io";
+import { looksLikeLibraryWrapper, looksLikeSettingsExport } from "../_shared/kind-markers";
 import { setNameFromFilename } from "../_shared/regex-set-name";
 
 /** A single ST `RegexScriptData` row, as it appears on the wire. Tolerant: unknown keys allowed. */
@@ -102,6 +103,11 @@ function readRows(input: AdapterInput): { rows: StRegexRow[]; source: RowsSource
     return json.length > 0 && json.every(looksLikeStRegexRow) ? { rows: json, source: "file" } : null;
   }
   if (json && typeof json === "object") {
+    // Bundle firewall: the "card" home reads scoped regex out of a CHARACTER CARD's extensions.
+    // Preset exports (ST's own, and RoleCall's, which is the same flat grammar) and library
+    // wrappers ALSO bundle regex_scripts - those files ARE presets, and claiming their bundle
+    // imported one as "a regex set" once. The bundle belongs to its outermost owner.
+    if (looksLikeSettingsExport(json) || looksLikeLibraryWrapper(json)) return null;
     const ext = extensionsOf(json as Record<string, unknown>);
     const scripts = ext?.regex_scripts;
     if (Array.isArray(scripts) && scripts.length > 0 && scripts.every(looksLikeStRegexRow)) {
@@ -299,3 +305,21 @@ const sillytavernRegex: RegexAdapter = {
 };
 
 export default sillytavernRegex;
+
+/**
+ * Build a canonical regex set from card/preset-bundled `extensions.regex_scripts` rows - the
+ * shared seam the preset codec's bundle extraction uses (shared once; the row mapping lives here
+ * with the rest of the ST regex dialect). Tolerant: null when no valid rows.
+ */
+export function regexSetFromBundledRows(rowsRaw: unknown, name: string): CanonicalRegexSet | null {
+  if (!Array.isArray(rowsRaw)) return null;
+  const rows = rowsRaw.filter(looksLikeStRegexRow);
+  if (rows.length === 0) return null;
+  return {
+    schemaVersion: CANONICAL_SCHEMA_VERSION,
+    kind: "regex",
+    id: canonicalId(name),
+    body: { name, rules: rows.map(rowToRule) },
+    original: { "sillytavern-regex": { raw: rows } },
+  };
+}

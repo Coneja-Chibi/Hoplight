@@ -50,6 +50,13 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `rolecall-persona` | persona | .json | RoleCall persona (rcpersona / RC persona-card export) |
 | `sillytavern-persona` | persona | .json | SillyTavern personas backup (default persona; the rest ride sealed) |
 
+## Presets (2)
+
+| id | kind | writes | label |
+| --- | --- | --- | --- |
+| `marinara-preset` | preset | .json | Marinara-Engine prompt preset (marinara_preset export) |
+| `sillytavern-preset` | preset | .json | SillyTavern completion preset (flat json; RoleCall preset exports too) |
+
 ## Regex script sets (5)
 
 | id | kind | writes | label |
@@ -59,6 +66,12 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | `risu-regex` | regex | .json | RisuAI regex scripts (.risum module or customscript array) |
 | `rolecall-regex` | regex | .json | RoleCall regex script (chat-pipeline find/replace set) |
 | `sillytavern-regex` | regex | .json | SillyTavern regex scripts (bare array or card extensions.regex_scripts) |
+
+## Sprite packs (0)
+
+| id | kind | writes | label |
+| --- | --- | --- | --- |
+| (none yet) | pack | | The studio edits this kind, but no import/export format exists yet. |
 
 ## Notes
 

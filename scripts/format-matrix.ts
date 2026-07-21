@@ -3,7 +3,7 @@
  * Run: bun run scripts/format-matrix.ts
  * Check: bun run scripts/format-matrix.ts --check  (fail if committed doc differs)
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadFormats, CANONICAL_SCHEMA_VERSION } from "../src/core";
 
@@ -15,16 +15,46 @@ const found = await loadFormats();
 const row = (a: (typeof found)[number]): string =>
   `| \`${a.id}\` | ${a.kind} | .${a.outputExtensions.join(", .")} | ${a.label.replace(/\|/g, "/")} |`;
 
+/** Display names for known kinds; an unlisted kind still renders (Title-cased) - open by design. */
+const KIND_TITLES: Record<string, string> = {
+  character: "Characters",
+  lorebook: "Lorebooks",
+  persona: "Personas",
+  preset: "Presets",
+  regex: "Regex script sets",
+  pack: "Sprite packs",
+};
+const KIND_ORDER = ["character", "lorebook", "persona", "preset", "regex", "pack"];
+
+/**
+ * Every kind this matrix must SHOW = every kind the studio models (src/entities/<kind>/,
+ * folders-as-schema) UNION every kind any adapter declares. A kind with zero adapters renders an
+ * honest "(none yet)" section - the old hand-partition silently hid the preset kind for weeks.
+ */
+export function matrixKinds(entityKinds: string[], adapters: { kind: string }[]): string[] {
+  const all = new Set([...entityKinds, ...adapters.map((a) => a.kind)]);
+  const known = KIND_ORDER.filter((k) => all.has(k));
+  const unknown = [...all].filter((k) => !KIND_ORDER.includes(k)).sort();
+  return [...known, ...unknown];
+}
+
 /** Pure render of the matrix body (date uses a fixed stamp for check stability within a day). */
 export function renderFormatMatrix(
   adapters: typeof found,
   schemaVersion: string,
   generatedDate: string,
+  entityKinds: string[],
 ): string {
-  const c = adapters.filter((a) => a.kind === "character");
-  const l = adapters.filter((a) => a.kind === "lorebook");
-  const p = adapters.filter((a) => a.kind === "persona");
-  const r = adapters.filter((a) => a.kind === "regex");
+  const section = (kind: string): string => {
+    const rows = adapters.filter((a) => a.kind === kind);
+    const title = KIND_TITLES[kind] ?? kind.charAt(0).toUpperCase() + kind.slice(1) + "s";
+    const body =
+      rows.length > 0
+        ? rows.map(row).join("\n")
+        : `| (none yet) | ${kind} | | The studio edits this kind, but no import/export format exists yet. |`;
+    return `## ${title} (${rows.length})\n\n| id | kind | writes | label |\n| --- | --- | --- | --- |\n${body}`;
+  };
+  const sections = matrixKinds(entityKinds, adapters).map(section).join("\n\n");
   return `# Format support matrix
 
 Auto-generated from live adapters (\`bun run scripts/format-matrix.ts\`).
@@ -43,29 +73,7 @@ bun run vaud validate path/to/card.json
 Default portable character shape for thin hosts (C.AI Tools dumps, Crushon import, etc.):
 **SillyTavern / CCv3** (\`sillytavern\` adapter).
 
-## Characters (${c.length})
-
-| id | kind | writes | label |
-| --- | --- | --- | --- |
-${c.map(row).join("\n")}
-
-## Lorebooks (${l.length})
-
-| id | kind | writes | label |
-| --- | --- | --- | --- |
-${l.map(row).join("\n")}
-
-## Personas (${p.length})
-
-| id | kind | writes | label |
-| --- | --- | --- | --- |
-${p.length ? p.map(row).join("\n") : "| (none) | | | |"}
-
-## Regex script sets (${r.length})
-
-| id | kind | writes | label |
-| --- | --- | --- | --- |
-${r.length ? r.map(row).join("\n") : "| (none) | | | |"}
+${sections}
 
 ## Notes
 
@@ -91,7 +99,11 @@ ${r.length ? r.map(row).join("\n") : "| (none) | | | |"}
 `;
 }
 
-const body = renderFormatMatrix(found, CANONICAL_SCHEMA_VERSION, new Date().toISOString().slice(0, 10));
+const entityKinds = readdirSync(join(import.meta.dir, "../src/entities"), { withFileTypes: true })
+  .filter((d) => d.isDirectory())
+  .map((d) => d.name);
+
+const body = renderFormatMatrix(found, CANONICAL_SCHEMA_VERSION, new Date().toISOString().slice(0, 10), entityKinds);
 
 if (checkOnly) {
   let existing = "";

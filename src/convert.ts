@@ -14,6 +14,7 @@ import type {
   AdapterOutput,
   CharacterAdapter,
   FormatAdapter,
+  PresetAdapter,
 } from "./core";
 import { primaryOriginalRaw } from "./core";
 import { buildSerializeReport } from "./core";
@@ -21,6 +22,8 @@ import type { CanonicalEntity } from "./core/canonical";
 import type { CanonicalCharacter } from "./entities/character/schema";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
 import type { CanonicalPersona } from "./entities/persona/schema";
+import type { CanonicalPreset } from "./entities/preset/schema";
+import type { CanonicalRegexSet } from "./entities/regex/schema";
 import { parseCanonicalEntity } from "./entities/runtime-schema";
 
 import { extractCharacterBook } from "./formats/_shared/character-book";
@@ -56,6 +59,27 @@ export function inspectBundle(
   const lorebooks = lorebook ? [lorebook] : [];
   if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
   return { entity, lorebooks };
+}
+
+/** Primary preset + regex sets bundled inside its export (the preset counterpart of inspectBundle). */
+export interface InspectPresetBundleResult {
+  entity: CanonicalPreset;
+  regexSets: CanonicalRegexSet[];
+}
+
+/**
+ * Read a preset file into canonical form and pull any bundled regex scripts once (ST/RC exports
+ * ride them under extensions.regex_scripts). Shared by Studio inspect and any future CLI bundle path.
+ */
+export function inspectPresetBundle(
+  source: PresetAdapter,
+  input: AdapterInput,
+): InspectPresetBundleResult {
+  const parsed = parseCanonicalEntity(source.toCanonical(input));
+  if (parsed.kind !== "preset") throw new Error("convert: preset adapter returned the wrong entity kind");
+  const entity = parsed as CanonicalPreset;
+  const regex = source.extractRegex ? source.extractRegex(entity) : null;
+  return { entity, regexSets: regex ? [regex] : [] };
 }
 
 /**

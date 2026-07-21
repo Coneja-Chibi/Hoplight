@@ -15,6 +15,7 @@ import { registry } from "../core";
 import { saveBundle } from "../studio/bundle";
 import type { CanonicalEntity } from "../core/canonical";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
+import type { CanonicalRegexSet } from "../entities/regex/schema";
 import { StudioStore } from "../studio/store";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
@@ -402,7 +403,7 @@ export function createHandler(
         if (!parsed.ok) return parsed.response;
         const raw = parsed.value as {
           entity?: AnyEntity;
-          related?: { lorebooks?: CanonicalLorebook[] };
+          related?: { lorebooks?: CanonicalLorebook[]; regexSets?: CanonicalRegexSet[] };
           overwrite?: boolean;
         } | null;
         if (!raw?.entity || typeof raw.entity !== "object") {
@@ -411,6 +412,7 @@ export function createHandler(
         const result = await saveBundle(store, {
           entity: raw.entity,
           lorebooks: raw.related?.lorebooks,
+          regexSets: raw.related?.regexSets,
           overwrite: raw.overwrite === true,
         });
         return json(result, result.ok ? 200 : result.partial ? 207 : 422);

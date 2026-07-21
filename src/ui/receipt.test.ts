@@ -21,12 +21,16 @@ describe("friendlyFormat", () => {
 });
 
 describe("unsupportedShapeLine", () => {
-  test("names an ST chat-completion preset and points at the working path", () => {
-    const line = unsupportedShapeLine(
-      JSON.stringify({ name: "P", extensions: {}, prompts: [], prompt_order: [], temperature: 1 }),
-    );
-    expect(line).toContain("SillyTavern preset");
-    expect(line).toContain("Marinara");
+  test("stays SILENT on completion presets - the sillytavern-preset codec imports them now", () => {
+    expect(
+      unsupportedShapeLine(JSON.stringify({ name: "P", extensions: {}, prompts: [], prompt_order: [], temperature: 1 })),
+    ).toBeNull();
+  });
+
+  test("names the RoleCall library wrapper by its declared type", () => {
+    expect(
+      unsupportedShapeLine(JSON.stringify({ exportedAt: "t", type: "preset", version: "1.0", data: { temperature: 1 } })),
+    ).toContain("RoleCall library export of a preset");
   });
 
   test("names instruct and context templates", () => {

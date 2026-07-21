@@ -5,6 +5,7 @@
  */
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
+import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CanonicalEntity } from "../core/canonical";
 import { rewriteKnowledgeRefs } from "../convert";
 import type { EntitySummary, StudioStore } from "./store";
@@ -15,6 +16,8 @@ type AnyEntity = CanonicalEntity<string, unknown>;
 export interface BundleSaveInput {
   entity: AnyEntity;
   lorebooks?: CanonicalLorebook[];
+  /** Regex sets bundled with a preset import (ST/RC exports); saved beside the primary. */
+  regexSets?: CanonicalRegexSet[];
   /** When true, primary and related overwrite by id (editor path). Import uses keep-both. */
   overwrite?: boolean;
 }
@@ -59,6 +62,18 @@ export function preflightBundle(input: BundleSaveInput): void {
       throw new StudioValidationError("bundle: lorebook body required");
     }
   }
+  for (const rs of input.regexSets ?? []) {
+    if (!rs || typeof rs !== "object") throw new StudioValidationError("bundle: invalid regex set");
+    if (rs.kind !== "regex") {
+      throw new StudioValidationError(`bundle: related entity kind must be regex, got ${String(rs.kind)}`);
+    }
+    if (typeof rs.id !== "string" || !rs.id) {
+      throw new StudioValidationError("bundle: regex set id required");
+    }
+    if (rs.body === null || typeof rs.body !== "object" || Array.isArray(rs.body)) {
+      throw new StudioValidationError("bundle: regex set body required");
+    }
+  }
 }
 
 /**
@@ -88,6 +103,21 @@ export async function saveBundle(
         partial: related.length > 0,
         related,
         error: `bundle: failed saving lorebook "${requestedId}": ${message}`,
+      };
+    }
+  }
+
+  // Regex sets bundled with a preset: keep-both saves, no ref rewriting (presets do not link them).
+  for (const rs of input.regexSets ?? []) {
+    try {
+      related.push(await store.save(rs as AnyEntity, { overwrite }));
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return {
+        ok: false,
+        partial: related.length > 0,
+        related,
+        error: `bundle: failed saving regex set "${rs.id}": ${message}`,
       };
     }
   }
