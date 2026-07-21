@@ -41,16 +41,16 @@ The whole design is three pieces:
 ## Table of contents
 
 1. [What is Hoplight?](#-what-is-hoplight)
-2. [Why This is Better (The Format Problem)](#-why-this-is-better-the-format-problem)
-3. ["But the Platforms Have Editors Already?"](#-but-the-platforms-have-editors-already)
-4. [How It Actually Works](#️-how-it-actually-works)
-5. [One Card, Start to Finish](#️-one-card-start-to-finish)
-6. [The Library](#-the-library)
-7. [The Workbench](#-the-workbench)
-8. [The Binder](#-the-binder)
-9. [The Press](#️-the-press)
-10. [The Small Rooms](#-the-small-rooms)
-11. [Installation & Setup](#-installation--setup)
+2. [Installation & Setup](#-installation--setup)
+3. [Why This is Better (The Format Problem)](#-why-this-is-better-the-format-problem)
+4. ["But the Platforms Have Editors Already?"](#-but-the-platforms-have-editors-already)
+5. [How It Actually Works](#️-how-it-actually-works)
+6. [One Card, Start to Finish](#️-one-card-start-to-finish)
+7. [The Library](#-the-library)
+8. [The Workbench](#-the-workbench)
+9. [The Binder](#-the-binder)
+10. [The Press](#️-the-press)
+11. [The Small Rooms](#-the-small-rooms)
 12. [Settings Reference](#️-settings-reference)
 13. [Common Issues](#-common-issues)
 14. [FAQ](#-faq)
@@ -78,6 +78,101 @@ One studio. Yours.
 **Hoplight flips the relationship.** Your studio is the master copy; the platforms become publish targets. When you want to post somewhere, you export to that platform's format, and the piece you keep working on is always your own copy, in your own folder, in plain JSON you can read yourself.
 
 **The result?** One master instead of a copy per app. You keep it in a studio linked to no platform, and send it out to perform wherever you like.
+
+---
+
+## 🚀 Installation & Setup
+
+---
+
+### The fast way: download it 📥
+
+Grab the newest release from the [Releases page](https://github.com/Coneja-Chibi/Hoplight/releases):
+
+| You are on | Take this file | Then |
+|---|---|---|
+| **Windows** | `Hoplight.exe` | Double-click it. That is the whole install. |
+| **macOS** | `hoplight-darwin-arm64` (Apple Silicon) or `hoplight-darwin-x64` (Intel) | It is a terminal tool: `chmod +x` it, run `./hoplight-darwin-arm64 ui`, open the address it prints |
+| **Linux** | `hoplight-linux-x64` | Same: `chmod +x` it, run `./hoplight-linux-x64 ui`, open the address it prints |
+
+Three honest notes:
+
+- **Windows will warn you once.** SmartScreen shows "Windows protected your PC" because the exe is
+  new and unsigned, not because anything is wrong. Click **More info**, then **Run anyway**. Every
+  release ships a `SHA256SUMS` file if you want to verify your download first.
+- **If the app starts but no window appears**, your Windows is missing the WebView2 runtime
+  (Windows 11 and most Windows 10 machines already have it). Install it from Microsoft's
+  [WebView2 page](https://developer.microsoft.com/microsoft-edge/webview2/) and launch again.
+- **The `hoplight-*` files are terminal tools.** Double-clicking one flashes a console and closes;
+  that is a CLI waiting for a command, not a broken download. The double-click app is `Hoplight.exe`.
+
+Launching `Hoplight.exe` while Hoplight is already running just opens another window onto the same
+studio. Your pieces live in `Documents/Hoplight Studio` as plain files either way.
+
+---
+
+### The dev way: run it from source ⌨️
+
+You need **[Bun](https://bun.sh) 1.3+** (the only dependency you install yourself).
+
+```bash
+git clone https://github.com/Coneja-Chibi/Hoplight
+cd Hoplight
+bun install
+bun run dev
+```
+
+Loopback only. The first run walks you through four questions (theme, first deck, publish targets, accent), and every one of them can change later.
+
+### Two ways to run it 🖥️⌨️
+
+Hoplight is one engine with two faces. Run either, or both at the same time:
+
+| | What it is | How to run it |
+|---|---|---|
+| 🖥️ **The Studio** | The visual app. It runs on your machine and uses your **browser as its window**; nothing about it is a website, and nothing goes online. | `bun run dev`, then open the address it prints (127.0.0.1) |
+| ⌨️ **The CLI** | Terminal commands for converting, inspecting, and batch work. No window at all. | `bun run hoplight <command>` from the repo folder |
+
+They share the same engine and the same studio folder, so a card you convert in the terminal shows
+up in the Library, and a card you edit in the Studio converts the same way from the CLI.
+
+---
+
+### Step 3: Bring your work 📦
+
+Drag any card, book, or archive into the Library and read the receipt. Want a dry run before you trust it with your real stuff? The samples are right there:
+
+```bash
+bun run hoplight formats                                          # what can we open?
+bun run hoplight inspect samples/sillytavern/characters/Seraphina.png        # peek at a card
+bun run hoplight convert samples/sillytavern/characters/v3-full.json out.charx --to risu
+```
+
+**Optional power moves:**
+
+- Set the **editor lens** to a target platform and watch off-target fields dim, so you know what a card carries *before* you export it
+- **Stage a whole batch**: right-click several pieces into the Press, pull one lever, walk away with one zip
+- **Open beside**: pin any two pieces into a split; a lorebook can even sit beside itself on two different entries
+- Repaint the studio live in the **CSS Workshop**, where every color is a token
+- Point the studio at any folder: `bun run hoplight ui 8321 path/to/studio`
+- Work the **shelf ops** each deck carries: merge or split lorebooks, attach a book to a character, duplicate or combine regex sets, right from the Library
+
+---
+
+### The CLI
+
+The studio is one shell over the engine; the terminal is the other. Same engine, argv-shaped:
+
+| Command | Purpose |
+| --- | --- |
+| `hoplight convert <in> <out> [--to id]` | Convert between formats |
+| `hoplight inspect <file>` | Plain-words summary of any file |
+| `hoplight validate <file>` | Detect + parse; exit 0 if openable |
+| `hoplight label <file>` | Guess format and likely origin |
+| `hoplight formats` | List every adapter |
+| `hoplight ui [port] [studioDir]` | The visual studio (loopback only) |
+
+`--json` on inspect/validate/formats/convert for machine output. The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
 ---
 
@@ -736,87 +831,6 @@ Platforms that read CCv3 with their own extension bags (Marinara, Chub) print ch
 **Every control is call-and-response against the running studio.** Change the theme or the accent and the whole app repaints instantly, no reload.
 
 </details>
-
----
-
-## 🚀 Installation & Setup
-
----
-
-### Prerequisites
-
-- **[Bun](https://bun.sh) 1.3+** (the only dependency you install yourself)
-- Some cards. You have cards.
-
----
-
-### Step 1: Install 📥
-
-```bash
-git clone https://github.com/Coneja-Chibi/Hoplight
-cd Hoplight
-bun install
-```
-
----
-
-### Step 2: Open the studio 🎬
-
-```bash
-bun run dev
-```
-
-Loopback only. The first run walks you through four questions (theme, first deck, publish targets, accent), and every one of them can change later.
-
-### Two ways to run it 🖥️⌨️
-
-Hoplight is one engine with two faces. Run either, or both at the same time:
-
-| | What it is | How to run it |
-|---|---|---|
-| 🖥️ **The Studio** | The visual app. It runs on your machine and uses your **browser as its window**; nothing about it is a website, and nothing goes online. | `bun run dev`, then open the address it prints (127.0.0.1) |
-| ⌨️ **The CLI** | Terminal commands for converting, inspecting, and batch work. No window at all. | `bun run hoplight <command>` from the repo folder |
-
-They share the same engine and the same studio folder, so a card you convert in the terminal shows
-up in the Library, and a card you edit in the Studio converts the same way from the CLI.
-
----
-
-### Step 3: Bring your work 📦
-
-Drag any card, book, or archive into the Library and read the receipt. Want a dry run before you trust it with your real stuff? The samples are right there:
-
-```bash
-bun run hoplight formats                                          # what can we open?
-bun run hoplight inspect samples/sillytavern/characters/Seraphina.png        # peek at a card
-bun run hoplight convert samples/sillytavern/characters/v3-full.json out.charx --to risu
-```
-
-**Optional power moves:**
-
-- Set the **editor lens** to a target platform and watch off-target fields dim, so you know what a card carries *before* you export it
-- **Stage a whole batch**: right-click several pieces into the Press, pull one lever, walk away with one zip
-- **Open beside**: pin any two pieces into a split; a lorebook can even sit beside itself on two different entries
-- Repaint the studio live in the **CSS Workshop**, where every color is a token
-- Point the studio at any folder: `bun run hoplight ui 8321 path/to/studio`
-- Work the **shelf ops** each deck carries: merge or split lorebooks, attach a book to a character, duplicate or combine regex sets, right from the Library
-
----
-
-### The CLI
-
-The studio is one shell over the engine; the terminal is the other. Same engine, argv-shaped:
-
-| Command | Purpose |
-| --- | --- |
-| `hoplight convert <in> <out> [--to id]` | Convert between formats |
-| `hoplight inspect <file>` | Plain-words summary of any file |
-| `hoplight validate <file>` | Detect + parse; exit 0 if openable |
-| `hoplight label <file>` | Guess format and likely origin |
-| `hoplight formats` | List every adapter |
-| `hoplight ui [port] [studioDir]` | The visual studio (loopback only) |
-
-`--json` on inspect/validate/formats/convert for machine output. The current CLI covers the essentials; the full CLI/TUI is a work in progress.
 
 ---
 

@@ -267,6 +267,9 @@ try {
       [
         "bun", "build", "--compile",
         join(root, "src", "desktop.ts"),
+        // the window worker MUST ride as its own entrypoint; without it the exe compiles fine and
+        // then boots headless (worker ModuleNotFound at runtime, console hidden, no window)
+        join(root, "src", "desktop-window.ts"),
         "--outfile", join(root, "dist", "Hoplight.exe"),
         `--windows-icon=${join(root, "build", "vaude.ico")}`,
         "--windows-hide-console",

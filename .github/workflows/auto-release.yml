@@ -1,0 +1,62 @@
+name: auto-release
+
+# The release train: every push to Mainstage bumps the patch version, tags it, and hands the tag
+# to release.yml, so downloads and the in-app update check always track the latest work with no
+# manual step. Escape hatch: put [skip release] anywhere in the head commit message.
+#
+# No loop: the bump commit is pushed with GITHUB_TOKEN, and GitHub never triggers workflows from
+# GITHUB_TOKEN pushes; the actor/message guards are belt and suspenders for a future PAT.
+
+on:
+  push:
+    branches:
+      - Mainstage
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-train
+  cancel-in-progress: false
+
+jobs:
+  cut:
+    if: github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, '[skip release]')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Bump patch version, commit, tag, push
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # serialize against a racing train run that already pushed a bump
+          git pull --rebase origin Mainstage
+          NEXT="$(bun -e '
+            const pkg = JSON.parse(await Bun.file("package.json").text());
+            const [maj, min, pat] = pkg.version.split(".").map(Number);
+            pkg.version = `${maj}.${min}.${pat + 1}`;
+            await Bun.write("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            console.log(pkg.version);
+          ')"
+          TAG="v${NEXT}"
+          git add package.json
+          git commit -m "release: ${TAG} [skip release]"
+          git tag "${TAG}"
+          git push origin "HEAD:${GITHUB_REF_NAME}" "${TAG}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+
+  release:
+    needs: cut
+    uses: ./.github/workflows/release.yml
+    permissions:
+      contents: write
+    with:
+      tag: ${{ needs.cut.outputs.tag }}
