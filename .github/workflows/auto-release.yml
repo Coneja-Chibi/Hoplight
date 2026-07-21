@@ -11,6 +11,8 @@ on:
   push:
     branches:
       - Mainstage
+  # hand-crank: cut a release from the current Mainstage without waiting for a push
+  workflow_dispatch:
 
 permissions:
   contents: write
