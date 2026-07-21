@@ -32,8 +32,8 @@ const CSS = `
   letter-spacing:-.01em;color:var(--stage-card);line-height:1}
 .dv-show .plate .tag{font-style:italic;font-weight:600;font-size:1rem;color:var(--stage-soft)}
 .dv-show .plate .desc{font-size:.95rem;line-height:1.5;color:var(--stage-mute);white-space:pre-line}
-.dv-show .plate .meta{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--stage-kicker)}
+.dv-show .plate .meta{font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--stage-soft)}
 .dv-show .plate .stage-btn{align-self:flex-start;font-family:var(--font-big);font-weight:900;font-size:.625rem;
   letter-spacing:.1em;text-transform:uppercase;padding:.55rem .9rem;border:3px solid var(--stage-black);cursor:pointer;
   background:var(--a);color:var(--stage-ink);box-shadow:4px 4px 0 0 var(--stage-black);

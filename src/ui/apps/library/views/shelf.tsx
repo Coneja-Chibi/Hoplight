@@ -2,10 +2,10 @@
  * Deck view: SHELF - lorebook spine cards (vs-lore-shelf). Enable switch, drag-merge target,
  * kebab via context menu. Non-lore decks still render as monogram spines.
  */
-import { useState, type CSSProperties, type DragEvent, type JSX } from "react";
+import { useEffect, useState, type CSSProperties, type DragEvent, type JSX } from "react";
 import type { StudioEntitySummary } from "../../../app-contract";
 import { deckMeta } from "../../../_shared/decks";
-import { pieceKey, type DeckView, type DeckViewContext } from "../view-contract";
+import { pieceKey, type DeckView, type DeckViewContext, type PiecePeek } from "../view-contract";
 
 const CSS = `
 .dv-shelfscroll{flex:1;min-height:0;overflow-y:auto;padding:clamp(.5rem,1.8vw,1.1rem)}
@@ -17,7 +17,11 @@ const CSS = `
 .dv-book .spine{position:absolute;left:0;top:0;bottom:0;width:.45rem;background:var(--spine);border-right:2px solid var(--stage-black)}
 .dv-book .body{padding:.7rem .7rem .55rem 1.05rem;display:flex;flex-direction:column;gap:.3rem;min-height:6.2rem}
 .dv-book .nm{font-family:var(--font-big);font-weight:800;font-size:.95rem;color:var(--stage-card);line-height:1.1}
-.dv-book .meta{font-family:var(--font-mono);font-size:.52rem;letter-spacing:.06em;text-transform:uppercase;color:var(--stage-kicker)}
+.dv-book .meta{font-family:var(--font-mono);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stage-soft)}
+.dv-book .facts{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.1rem}
+.dv-book .fact{font-family:var(--font-mono);font-size:.62rem;font-weight:600;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--stage-soft);border:1px solid var(--stage-line);padding:.1rem .32rem}
+.dv-book .fact.tagc{text-transform:none;color:var(--stage-card);border-color:var(--stage-seam);background:var(--stage-row)}
 .dv-book .foot{display:flex;align-items:center;gap:.4rem;padding:0 .55rem .55rem 1.05rem}
 .dv-book .sw{width:1.7rem;height:.9rem;border:2px solid var(--stage-black);background:var(--stage-ok);position:relative;flex:none;cursor:pointer;padding:0}
 .dv-book .sw::after{content:"";position:absolute;right:2px;top:1px;width:.45rem;height:.45rem;background:var(--stage-ink)}
@@ -37,14 +41,45 @@ const CSS = `
 
 const DRAG_MIME = "application/x-vaude-lore-id";
 
+/** The card's metadata chips: platform, rough tokens, filled card fields, first content tags. */
+function ShelfFacts({
+  ctx,
+  e,
+  peek,
+}: {
+  ctx: DeckViewContext;
+  e: StudioEntitySummary;
+  peek: PiecePeek | null;
+}): JSX.Element | null {
+  const fmt = ctx.sourceLabel(e);
+  const tags = peek?.tags?.slice(0, 3) ?? [];
+  const extra = (peek?.tags?.length ?? 0) - tags.length;
+  if (!fmt && !peek) return null;
+  return (
+    <div className="facts">
+      {fmt && <span className="fact">{fmt}</span>}
+      {typeof peek?.tokens === "number" && peek.tokens > 0 && <span className="fact">~{peek.tokens} tok</span>}
+      {peek?.filled && <span className="fact">{peek.filled} fields</span>}
+      {tags.map((t) => (
+        <span key={t} className="fact tagc">
+          {t}
+        </span>
+      ))}
+      {extra > 0 && <span className="fact tagc">+{extra}</span>}
+    </div>
+  );
+}
+
 function BookCard({
   ctx,
   e,
+  peek,
   draggingId,
   setDraggingId,
 }: {
   ctx: DeckViewContext;
   e: StudioEntitySummary;
+  peek: PiecePeek | null;
   draggingId: string | null;
   setDraggingId: (id: string | null) => void;
 }): JSX.Element {
@@ -117,6 +152,7 @@ function BookCard({
             ? `${count} ${count === 1 ? "entry" : "entries"}`
             : e.kind}
         </div>
+        <ShelfFacts ctx={ctx} e={e} peek={peek} />
       </div>
       {lore && e.kind === "lorebook" && (
         <div className="foot" onClick={(ev) => ev.stopPropagation()}>
@@ -177,6 +213,24 @@ const view: DeckView = {
   Component({ ctx }) {
     const [draggingId, setDraggingId] = useState<string | null>(null);
     const [query, setQuery] = useState("");
+    // peeks lift to the view so FIND can search tags, not just names/keys
+    const [peeks, setPeeks] = useState<Record<string, PiecePeek | null>>({});
+    useEffect(() => {
+      let cancelled = false;
+      for (const e of ctx.entities) {
+        const key = pieceKey(e);
+        if (key in peeks) continue;
+        void ctx.peek(e).then((p) => {
+          if (!cancelled) setPeeks((prev) => (key in prev ? prev : { ...prev, [key]: p }));
+        });
+      }
+      return () => {
+        cancelled = true;
+      };
+      // fetch-once per piece; peeks in deps would refetch forever
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ctx.entities]);
+
     const q = query.trim().toLowerCase();
     const filtered = !q
       ? ctx.entities
@@ -185,6 +239,8 @@ const view: DeckView = {
           // loreShelf may expose key search via entryCountOf presence only - use optional bag
           const keys = (e as StudioEntitySummary & { searchKeys?: string[] }).searchKeys;
           if (keys?.some((k) => k.toLowerCase().includes(q))) return true;
+          const tags = peeks[pieceKey(e)]?.tags;
+          if (tags?.some((t) => t.toLowerCase().includes(q))) return true;
           return false;
         });
     return (
@@ -214,8 +270,8 @@ const view: DeckView = {
           <input
             value={query}
             onChange={(ev) => setQuery(ev.target.value)}
-            placeholder="Name or key…"
-            aria-label="Search lorebooks by name or key"
+            placeholder="Name, key, or tag…"
+            aria-label="Search by name, key, or tag"
             style={{
               flex: 1,
               border: 0,
@@ -232,6 +288,7 @@ const view: DeckView = {
               key={pieceKey(e)}
               ctx={ctx}
               e={e}
+              peek={peeks[pieceKey(e)] ?? null}
               draggingId={draggingId}
               setDraggingId={setDraggingId}
             />

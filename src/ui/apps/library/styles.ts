@@ -43,10 +43,11 @@ export const LIBRARY_STYLE = `
   text-transform:uppercase;background:var(--accent);color:var(--stage-ink);border:3px solid var(--edge);cursor:pointer;
   padding:.4rem .8rem;box-shadow:3px 3px 0 0 var(--edge);transition:transform .1s ease-out,box-shadow .1s ease-out}
 .sendbar .send:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--edge)}
-.sendbar .clear{font-family:var(--font-mono);font-weight:700;font-size:.5625rem;letter-spacing:.1em;
-  text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
+.sendbar .clear{font-family:var(--font-mono);font-weight:700;font-size:.66rem;letter-spacing:.08em;
+  text-transform:uppercase;background:transparent;color:var(--stamp-fg);
+  border:2px solid color-mix(in srgb,var(--stamp-fg) 45%,transparent);
   cursor:pointer;padding:.35rem .6rem}
-.sendbar .clear:hover{color:var(--text);border-color:var(--edge)}
+.sendbar .clear:hover{border-color:var(--stamp-fg)}
 .sendbar .del{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
   text-transform:uppercase;background:transparent;color:var(--rose);border:3px solid var(--rose);
   cursor:pointer;padding:.4rem .8rem}

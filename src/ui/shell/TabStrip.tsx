@@ -9,6 +9,7 @@ import type { StudioEntitySummary } from "../app-contract";
 import { deckMeta } from "../_shared/decks";
 import { AnimatedThemeToggler } from "../components/animated-theme-toggler";
 import { Stamp } from "../components/stamp";
+import { requestImport } from "../_shared/import-signal";
 import { keyOf, paneKeyOf } from "./store-core";
 import { useContextMenu, useShellStore } from "./store";
 
@@ -70,7 +71,10 @@ export function TabStrip(): JSX.Element {
   const goImport = (): void => {
     const shelves = manifests.find((m) => m.firstRunLanding && !m.comingSoon);
     if (shelves) mountApp(shelves.id);
-    setStatus("drop files anywhere on the shelves");
+    // the button OPENS THE PICKER (via the import signal the Library consumes); a status-line
+    // whisper alone was read as a broken button
+    requestImport();
+    setStatus("pick files to import · or drop them anywhere");
   };
 
   return (

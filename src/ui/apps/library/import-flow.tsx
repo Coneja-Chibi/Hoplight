@@ -216,12 +216,24 @@ export function makeImportRunners(args: {
           errors.push(`${r.filename}: ${e instanceof Error ? e.message : String(e)}`);
         }
       }
-      setImportState(null);
       reload();
       if (errors.length > 0) {
-        ctx.setStatus(errors.length === 1 ? errors[0]! : `${errors.length} files failed to save`);
+        // failure must be LOUD: the sheet stays up with one red receipt per failed file
+        // (closing it while whispering into the status bar read as "imported, then nothing")
+        setImportState({
+          phase: "done",
+          reads: errors.map((msg) => {
+            const at = msg.indexOf(": ");
+            return {
+              filename: at > 0 ? msg.slice(0, at) : msg,
+              result: { ok: false as const, error: at > 0 ? msg.slice(at + 2) : "could not save" },
+            };
+          }),
+        });
+        ctx.setStatus(`${errors.length} of ${picked.length} failed to save`);
       } else {
-        ctx.setStatus(`imported ${picked.length} file${picked.length === 1 ? "" : "s"}`);
+        setImportState(null);
+        ctx.setStatus(`imported ${picked.length} file${picked.length === 1 ? "" : "s"} · counts updated on the deck chips`);
       }
     })();
   };

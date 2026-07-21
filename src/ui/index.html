@@ -220,6 +220,15 @@ body.focus-editor #dock,body.focus-editor #tabstrip{display:none}
   padding:.5rem .8rem;cursor:pointer;color:var(--text);background:var(--panel);border:2px solid var(--edge)}
 .shell-crash-btn:hover{border-color:var(--rose)}
 
+/* ───────── THE DROP VEIL (shell chrome; DropVeil.tsx) ─────────
+   Files dragged anywhere dim the studio behind one loud plate. pointer-events:none so the
+   drop itself falls through to the window listener. */
+#dropveil{position:fixed;inset:0;z-index:300;pointer-events:none;display:grid;place-items:center;
+  background:color-mix(in srgb,var(--canvas) 68%,transparent)}
+#dropveil .veilbox{border:3px dashed var(--rose);background:var(--chrome);color:var(--text);
+  font-family:var(--font-big);font-weight:900;font-size:1.15rem;letter-spacing:.09em;
+  text-transform:uppercase;padding:1.2rem 2.2rem;box-shadow:6px 6px 0 0 var(--edge)}
+
 /* ───────── THE RIGHT-CLICK MENU (shell chrome; Menu.tsx) ─────────
    Restored from the locked right-click shell (93d6aa6) after an index rewrite dropped it and the
    menu rendered as naked buttons. */

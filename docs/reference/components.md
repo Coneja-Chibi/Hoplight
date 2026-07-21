@@ -47,6 +47,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | DocNav | src/ui/apps/docs/doc-nav.tsx | ({ docs, activeId, query, onQuery, onPick }: DocNavProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
 | DocsRoom | src/ui/apps/docs/room.tsx | ({ ctx }: { ctx: AppContext }) |  | .room .nav .search .shelves .shelf .on .group .section ... |
 | DocToc | src/ui/apps/docs/doc-toc.tsx | ({ anchors, activeSlug, onJump }: DocTocProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
+| DropVeil | src/ui/shell/DropVeil.tsx | () |  |  |
 | EditorDialogs | src/ui/apps/workbench/presenters/editor-dialogs.tsx | ({ exportOpen, setExportOpen, spritesOpen, setSpritesOpen, setSpritesFocusLabel, spritesFocusLabel, namedOpen, setNam... |  |  |
 | EditorEhead | src/ui/components/editor-ehead/index.tsx | ({ mark, name, onNameChange, namePlaceholder, nameAriaLabel, meta, dirty, saving, onSave, saveTitle = "Save · ctrl+s"... |  | .ehead .spine .spineMark .spineText .spineName .spineMeta .acts .save |
 | EditorHeader | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ name, version, onClose, editorScale, stepScale, setEditorScale, scaleMin, scaleMax, onboarded, mode, setMode, edit... |  |  |

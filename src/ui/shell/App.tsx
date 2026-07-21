@@ -21,6 +21,8 @@ import { SetupWizard } from "../setup/wizard";
 import { Dock } from "./Dock";
 import { TabStrip } from "./TabStrip";
 import { StatusBar } from "./StatusBar";
+import { DropVeil } from "./DropVeil";
+import { requestImport } from "../_shared/import-signal";
 import { FollowDialog } from "./FollowDialog";
 import { Menu } from "./Menu";
 import { LeavingGate } from "../components/leaving-gate";
@@ -243,7 +245,8 @@ export function App(): JSX.Element | null {
           const state = useShellStore.getState();
           const shelves = state.firstLandingApp();
           if (shelves) state.mountApp(shelves.id);
-          state.setStatus("drop files anywhere on the shelves");
+          requestImport();
+          state.setStatus("pick files to import · or drop them anywhere");
         },
       },
       { label: "Switch theme", onPick: () => useShellStore.getState().toggleTheme() },
@@ -377,6 +380,7 @@ export function App(): JSX.Element | null {
         </main>
       </div>
       <StatusBar />
+      <DropVeil />
       <FollowDialog />
       <Menu />
       <LeavingGate />

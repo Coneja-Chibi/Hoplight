@@ -36,6 +36,8 @@ import {
 import { RegexWorkshopDialog } from "./regex-workshop-dialog";
 import { NewInDeckButton } from "./new-in-deck-button";
 import { useEntityDelete } from "./delete-flow";
+import { consumeImportRequests } from "../../_shared/import-signal";
+import { peekPiece, sourceLabelFor } from "./piece-peek";
 import { loadPersonaMeta, makePersonaShelf, type PersonaMeta } from "./persona-shelf-ops";
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
@@ -45,34 +47,6 @@ import { deckView, deckViews } from "./views/registry";
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;
-
-/** Fetch a piece's own words for close-up views; tolerant (null on any failure). */
-async function peekPiece(ctx: AppContext, e: StudioEntitySummary): Promise<PiecePeek | null> {
-  try {
-    const entity = (await ctx.api.getEntity(
-      `kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}`,
-    )) as { body?: { identity?: { tagline?: string }; persona?: { description?: string } } };
-    const tagline = entity.body?.identity?.tagline;
-    const description = entity.body?.persona?.description;
-    if (!tagline && !description) return null;
-    return { tagline, description };
-  } catch {
-    return null;
-  }
-}
-
-/**
- * "RoleCall · V3" / "CC V2" from the summary's source fields; null = made from scratch. The
- * generic Tavern reader's "Default" label meant nothing on a card chip - a plain character card
- * is a CC (character card) of some spec version, so say that.
- */
-function sourceLabelFor(formatLabels: Map<string, string>, e: StudioEntitySummary): string | null {
-  if (!e.sourceFormat) return null;
-  const base = formatLabels.get(e.sourceFormat) ?? e.sourceFormat;
-  const variant = e.sourceVariant?.toUpperCase();
-  if (base === "Default") return variant ? `CC ${variant}` : "CC";
-  return variant ? `${base} · ${variant}` : base;
-}
 
 /** Parse a static first-party icon constant into a live SVG node (no innerHTML, house rule). */
 function Icon({ svg }: { svg: string }): JSX.Element {
@@ -177,6 +151,19 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   }, [ctx, entities.length, deck, inDeck.length, loadFailed]);
 
   const { runImport, commitImport } = makeImportRunners({ ctx, importState, setImportState, reload });
+
+  // the shell's Import button + global file drops arrive here: picker when empty-handed,
+  // straight to the receipts when files rode along. Latest runImport via ref (stable listener).
+  const runImportRef = useRef(runImport);
+  runImportRef.current = runImport;
+  useEffect(
+    () =>
+      consumeImportRequests((files) => {
+        if (files) runImportRef.current(files);
+        else pickFiles((picked) => runImportRef.current(picked));
+      }),
+    [],
+  );
 
   const onDrop = (evt: DragEvent<HTMLDivElement>): void => {
     evt.preventDefault();

@@ -23,6 +23,12 @@ export function clampSize(value: unknown): number {
 export interface PiecePeek {
   tagline?: string;
   description?: string;
+  /** rough size of everything written on the piece (chars/4, the shared convention) */
+  tokens?: number;
+  /** the piece's own content tags (character discovery tags, book/persona tags) */
+  tags?: string[];
+  /** filled core fields as "n/m" (characters: the nine card fields); absent where meaningless */
+  filled?: string;
 }
 
 export interface DeckViewContext {
