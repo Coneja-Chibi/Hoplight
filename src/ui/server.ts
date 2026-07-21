@@ -297,7 +297,7 @@ export function createHandler(
       }
     }
 
-    if (p === "/api/version") return json({ version: APP_VERSION });
+    if (p === "/api/version") return json({ version: APP_VERSION, studioDir: store.studioPath() });
     if (p === "/api/update-check") return handleUpdateCheck();
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by

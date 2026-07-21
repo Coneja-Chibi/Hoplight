@@ -4,10 +4,11 @@
  * section itself; nothing else is edited anywhere.
  */
 import type { SettingsSection } from "../section-contract";
+import about from "./about";
 import appearance from "./appearance";
 import studio from "./studio";
 import workbench from "./workbench";
 
-const SECTIONS: SettingsSection[] = [appearance, studio, workbench];
+const SECTIONS: SettingsSection[] = [appearance, studio, workbench, about];
 
 export const settingsSections = (): SettingsSection[] => [...SECTIONS].sort((a, b) => a.order - b.order);

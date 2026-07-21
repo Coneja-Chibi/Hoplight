@@ -8,86 +8,8 @@ import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import { SETTING_KEYS } from "../../../../studio/settings-shape";
 import { knownDecks } from "../../../_shared/decks";
-import { requestExternal } from "../../../_shared/link-gate";
-import { updateStatusOf, type UpdateStatus } from "../../../_shared/update-check";
 import { SegControl, SettingsRow, type SettingsSection } from "../section-contract";
 import styles from "../styles.module.css";
-
-/**
- * The update check, manual by design: the app promises local-only, so the ONLY network call to
- * GitHub happens on this button press - never on boot, never on a timer. No self-update either;
- * "View release" walks through the leaving gate to the download page.
- */
-function UpdatesRow({ ctx }: { ctx: AppContext }): JSX.Element {
-  const [installed, setInstalled] = useState("");
-  const [status, setStatus] = useState<UpdateStatus | { state: "idle" } | { state: "checking" }>({
-    state: "idle",
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    void ctx.api
-      .version()
-      .then((v) => {
-        if (!cancelled) setInstalled(v.version);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, [ctx]);
-
-  const check = async (): Promise<void> => {
-    setStatus({ state: "checking" });
-    try {
-      const { httpStatus, body } = await ctx.api.updateCheck();
-      setStatus(updateStatusOf(installed, httpStatus, body));
-    } catch {
-      setStatus({ state: "error", message: "Could not reach GitHub." });
-    }
-  };
-
-  const line =
-    status.state === "checking"
-      ? "Asking GitHub..."
-      : status.state === "current"
-        ? "You are on the newest release."
-        : status.state === "available"
-          ? `${status.latest.version} is out.`
-          : status.state === "none"
-            ? "No published releases yet."
-            : status.state === "error"
-              ? status.message
-              : "";
-
-  return (
-    <SettingsRow
-      label="Updates"
-      hint={`Version ${installed || "?"} installed. Checks GitHub only when you press the button; nothing runs on its own.`}
-    >
-      <div className={styles.plates}>
-        <button
-          type="button"
-          className={styles.plate}
-          disabled={status.state === "checking"}
-          onClick={() => void check()}
-        >
-          Check for updates
-        </button>
-        {status.state === "available" && (
-          <button
-            type="button"
-            className={`${styles.plate} ${styles.on}`}
-            onClick={() => requestExternal(status.latest.url, "GitHub release")}
-          >
-            View release
-          </button>
-        )}
-        {line && <span role="status">{line}</span>}
-      </div>
-    </SettingsRow>
-  );
-}
 
 function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
   // home app: any real everyday Dock app can be home; catalog-only tools are destinations, not landings
@@ -168,7 +90,6 @@ function StudioSection({ ctx }: { ctx: AppContext }): JSX.Element {
           ))}
         </div>
       </SettingsRow>
-      <UpdatesRow ctx={ctx} />
     </>
   );
 }

@@ -80,6 +80,11 @@ async function pathExists(p: string): Promise<boolean> {
 export class StudioStore {
   constructor(private readonly dir: string) {}
 
+  /** Where this studio lives on disk (About shows it; never used for writes outside resolve). */
+  studioPath(): string {
+    return this.dir;
+  }
+
   async list(kind?: string): Promise<EntitySummary[]> {
     const kinds: StudioEntityKind[] = kind
       ? [assertStudioEntityKind(kind)]

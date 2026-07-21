@@ -136,6 +136,16 @@
   scrollbar-width: thin;
   scrollbar-color: var(--stage-seam) transparent;
 }
+/* About: the studio folder path, shown as quiet mono that wraps instead of overflowing */
+.pathNote {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--stage-soft);
+  word-break: break-all;
+  max-width: 28rem;
+  text-align: right;
+}
+
 @media (max-width: 40rem) {
   .room {
     padding: 0.5rem;
