@@ -160,5 +160,41 @@
         ]
       }
     ]
-  }
+  },
+  "name": "Spec Walk RC",
+  "readme": "A spec-walk preset. Covers dividers, markers, orders, and RC extras.",
+  "macro_engine_yaml": "dashboard:\n  - label: Spec\n    value: \"{{getvar::spec}}\"\n",
+  "choice_groups": [
+    {
+      "id": "language_selector",
+      "label": "Language Selector",
+      "type": "input",
+      "description": "Write ALL output in this language.",
+      "default": "English",
+      "placeholder": "Spanish",
+      "suggestions": [
+        "English",
+        "Spanish"
+      ]
+    },
+    {
+      "id": "pace",
+      "label": "Pacing",
+      "type": "one",
+      "key": "pace",
+      "options": [
+        {
+          "id": "slow",
+          "label": "Slow burn",
+          "value": "slow"
+        },
+        {
+          "id": "fast",
+          "label": "Sprint",
+          "value": "fast"
+        }
+      ],
+      "default": "slow"
+    }
+  ]
 }
