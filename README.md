@@ -124,6 +124,39 @@ bun run dev
 
 Loopback only. The first run walks you through four questions (theme, first deck, publish targets, accent), and every one of them can change later.
 
+---
+
+### Updating 🔄
+
+Hoplight never updates itself. It checks GitHub only when you press the button in
+**Settings > About > Check for updates**, and that page also tells you which kind of install you
+have ("installed app" or "running from source"). New releases are cut automatically from every
+change, so there is usually something newer waiting.
+
+**If you downloaded the app** (you have a `Hoplight.exe`):
+
+1. Press **Check for updates** in Settings. If something newer is out, press **View release**.
+2. Download the new `Hoplight.exe` and replace your old one. That is the whole update.
+3. Your library is never touched by this. Every piece lives in `Documents/Hoplight Studio` as
+   plain files; the exe is just the app that opens them.
+4. If the app still looks old after updating, an invisible old copy is probably still running:
+   open **Settings > Quit Hoplight**, then launch the new exe again (a reboot also clears it).
+
+**If you run from source** (you have a `git clone`):
+
+```bash
+git pull
+bun install
+```
+
+Then restart it (`bun run dev`). Done. The update check will say "running from source" and remind
+you of exactly these two commands whenever something newer exists.
+
+**If you use the CLI binaries** (`hoplight-windows-x64.exe`, `hoplight-linux-x64`, ...): download
+the new one from the release and replace the old file, same as the app.
+
+---
+
 ### Two ways to run it 🖥️⌨️
 
 Hoplight is one engine with two faces. Run either, or both at the same time:
