@@ -49,7 +49,13 @@ export async function handleInspect(req: Request): Promise<Response> {
   if (!contentTypeIs(req, "application/octet-stream")) {
     return err("unsupported media type", 415);
   }
-  const filename = req.headers.get("x-filename") ?? "upload";
+  const rawFilename = req.headers.get("x-filename") ?? "upload";
+  let filename: string;
+  try {
+    filename = decodeURIComponent(rawFilename); // the client always encodes (headers are Latin-1)
+  } catch {
+    filename = rawFilename; // older client or hand-rolled request: use it as sent
+  }
   const capped = await readBodyCapped(req, INSPECT_BODY_MAX);
   if (!capped.ok) return capped.response;
   const bytes = capped.bytes;

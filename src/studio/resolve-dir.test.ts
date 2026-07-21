@@ -27,12 +27,32 @@ describe("resolveDefaultStudioDir", () => {
     rmSync(home, { recursive: true, force: true });
   });
 
-  test("both exist: the new path wins, the legacy folder is left alone", () => {
+  test("both exist but the new home is EMPTY: the legacy library moves in kind by kind", () => {
     const home = freshHome();
-    mkdirSync(join(home, "Documents", "Hoplight Studio"), { recursive: true });
-    mkdirSync(join(home, "Documents", "Vaude Studio"), { recursive: true });
-    expect(resolveDefaultStudioDir(home)).toBe(join(home, "Documents", "Hoplight Studio"));
-    expect(existsSync(join(home, "Documents", "Vaude Studio"))).toBe(true);
+    const fresh = join(home, "Documents", "Hoplight Studio");
+    const legacy = join(home, "Documents", "Vaude Studio");
+    mkdirSync(fresh, { recursive: true });
+    writeFileSync(join(fresh, "settings.json"), '{"setupComplete":true}');
+    mkdirSync(join(legacy, "character"), { recursive: true });
+    writeFileSync(join(legacy, "character", "vera.json"), "{}");
+    expect(resolveDefaultStudioDir(home)).toBe(fresh);
+    expect(existsSync(join(fresh, "character", "vera.json"))).toBe(true);
+    // the fresh settings (the user's newest answers) survive the adoption
+    expect(existsSync(join(fresh, "settings.json"))).toBe(true);
+    rmSync(home, { recursive: true, force: true });
+  });
+
+  test("both exist with content in both: the new home wins untouched", () => {
+    const home = freshHome();
+    const fresh = join(home, "Documents", "Hoplight Studio");
+    const legacy = join(home, "Documents", "Vaude Studio");
+    mkdirSync(join(fresh, "character"), { recursive: true });
+    writeFileSync(join(fresh, "character", "new.json"), "{}");
+    mkdirSync(join(legacy, "character"), { recursive: true });
+    writeFileSync(join(legacy, "character", "old.json"), "{}");
+    expect(resolveDefaultStudioDir(home)).toBe(fresh);
+    expect(existsSync(join(legacy, "character", "old.json"))).toBe(true);
+    expect(existsSync(join(fresh, "character", "old.json"))).toBe(false);
     rmSync(home, { recursive: true, force: true });
   });
 });

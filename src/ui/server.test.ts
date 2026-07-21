@@ -2,7 +2,7 @@
  * Loopback API boundary: Host / Origin / token, body caps, session HTML injection.
  */
 import { describe, expect, test, beforeAll } from "bun:test";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { StudioStore } from "../studio/store";
@@ -326,6 +326,32 @@ describe("bundle inspect/export/save", () => {
       },
     },
   };
+
+  test("inspect decodes a URI-encoded x-filename (emoji filenames broke fetch client-side)", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-emoji-"));
+    const sec = filledSec();
+    const handler = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+    // a Marinara regex dump names its set from the FILENAME, so the receipt proves the decode
+    const rows = [{ findRegex: "a", replaceString: "b", placement: ["ai_output"], order: 1 }];
+    const headers = new Headers();
+    headers.set("host", "127.0.0.1:8321");
+    headers.set("origin", "http://127.0.0.1:8321");
+    headers.set("x-hoplight-token", sec.token);
+    headers.set("content-type", "application/octet-stream");
+    headers.set("x-filename", encodeURIComponent("[\u{1F48E}datacat] Sian rules.json"));
+    const res = await handler(
+      new Request("http://127.0.0.1:8321/api/inspect", {
+        method: "POST",
+        headers,
+        body: new TextEncoder().encode(JSON.stringify(rows)),
+      }),
+    );
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { ok: boolean; entity?: { body: { name: string } } };
+    expect(body.ok).toBe(true);
+    expect(body.entity?.body.name).toContain("\u{1F48E}datacat");
+    await rm(dir, { recursive: true, force: true });
+  });
 
   test("inspect returns related lorebook and matching knowledgeRefs", async () => {
     const dir = await mkdtemp(join(tmpdir(), "vaude-insp-"));

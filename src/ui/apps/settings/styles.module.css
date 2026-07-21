@@ -77,10 +77,24 @@
   font-size: 0.9rem;
   color: var(--text);
 }
+/* Functional copy is mono, not serif: Crimson at small-dim on dark failed the legibility bar. */
 .hint {
-  font-size: 0.95rem;
-  color: var(--text-dim);
-  margin-top: 0.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--text-soft, var(--text-dim));
+  margin-top: 0.2rem;
+  max-width: 46rem;
+}
+
+/* Result/status lines beside controls (update check, lifecycle): same legible meta voice. */
+.statusNote {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text);
+  align-self: center;
 }
 .seg {
   display: flex;

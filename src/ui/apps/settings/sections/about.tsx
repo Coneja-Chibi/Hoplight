@@ -83,7 +83,7 @@ function AboutSection({ ctx }: { ctx: AppContext }): JSX.Element {
               View release
             </button>
           )}
-          {line && <span role="status">{line}</span>}
+          {line && <span role="status" className={styles.statusNote}>{line}</span>}
         </div>
       </SettingsRow>
 
@@ -170,14 +170,14 @@ function LifecycleRow({ ctx }: { ctx: AppContext }): JSX.Element {
   if (phase === "restarting") {
     return (
       <SettingsRow label="The app" hint="Restarting. This page reconnects by itself.">
-        <span role="status">Waiting for the studio to come back...</span>
+        <span role="status" className={styles.statusNote}>Waiting for the studio to come back...</span>
       </SettingsRow>
     );
   }
   if (phase === "closed") {
     return (
       <SettingsRow label="The app" hint="Hoplight is closed.">
-        <span role="status">You can close this tab. Start it again from your shortcut.</span>
+        <span role="status" className={styles.statusNote}>You can close this tab. Start it again from your shortcut.</span>
       </SettingsRow>
     );
   }

@@ -25,10 +25,14 @@ export const LIBRARY_STYLE = `
 .sheet{background:var(--paper);color:var(--ink);border:var(--ink-border);box-shadow:8px 8px 0 0 var(--ink);
   max-width:38rem;width:100%;max-height:85dvh;overflow:auto;padding:var(--gap-l);display:flex;flex-direction:column;gap:var(--gap-m)}
 .receipt{border:var(--ink-border);background:var(--panel);padding:var(--gap-m)}
-.receipt h3{margin:0 0 .2rem;font-family:var(--font-big);font-size:1.1rem}
-.receipt p{margin:.15rem 0;font-size:1rem}
-.receipt.bad{border-style:dashed;color:var(--muted)}
-.mono{font-family:var(--font-mono);font-size:.7rem;color:var(--muted)}
+.receipt h3{margin:0 0 .25rem;font-family:var(--font-big);font-size:1rem;color:var(--ink)}
+.receipt p{margin:.15rem 0;font-size:.95rem;color:var(--ink)}
+.receipt input[type="checkbox"]{width:1.1rem;height:1.1rem;flex:none;margin-top:.15rem;
+  accent-color:var(--rose);cursor:pointer}
+.receipt.bad{border-style:dashed}
+.receipt.bad h3{color:var(--muted)}
+.receipt.bad p{font-family:var(--font-mono);font-size:.72rem;line-height:1.55;color:var(--ink)}
+.mono{font-family:var(--font-mono);font-size:.72rem;line-height:1.55;color:var(--ink)}
 .sheet .actions{display:flex;gap:var(--gap-s);flex-wrap:wrap}
 .wbbar{display:flex;align-items:center;gap:.6rem;flex:none;flex-wrap:wrap}
 /* the staging action bar: appears only when pieces are picked (the distributed tray's commit) */
@@ -98,9 +102,16 @@ export const LIBRARY_STYLE = `
 .stage-crumb .cn{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.06em;text-transform:uppercase;color:var(--stage-paper)}
 .stage-crumb .cc{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--stage-mute);margin-left:auto}
 .ghost-shelf{margin:auto;width:clamp(9rem,30vw,14rem);aspect-ratio:2/3;border:2px dashed var(--stage-faint);
-  display:flex;align-items:center;justify-content:center;text-align:center;padding:.8rem;
-  font-family:var(--font-mono);font-size:.625rem;letter-spacing:.06em;line-height:1.5;
-  text-transform:uppercase;color:var(--stage-kicker)}
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:.8rem;
+  font-family:var(--font-mono);font-size:.7rem;font-weight:600;letter-spacing:.06em;line-height:1.6;
+  text-transform:uppercase;color:var(--stage-soft)}
+/* the ghost shelf's create button: the send stamp, which only .sendbar styled before (it rendered
+   as a naked browser button out here) */
+.ghost-shelf .send{font-family:var(--font-big);font-weight:900;font-size:.6875rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--rose);color:var(--stage-white);border:3px solid var(--stage-black);
+  cursor:pointer;padding:.45rem .85rem;box-shadow:3px 3px 0 0 var(--stage-black);
+  transition:transform .1s ease-out,box-shadow .1s ease-out}
+.ghost-shelf .send:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 0 var(--stage-black)}
 /* scrollbars wear the house ink, never the OS chrome */
 .lib *{scrollbar-width:thin;scrollbar-color:var(--stage-seam) transparent}
 .lib *::-webkit-scrollbar{width:8px;height:8px}

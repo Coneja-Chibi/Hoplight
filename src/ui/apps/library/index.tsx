@@ -61,11 +61,17 @@ async function peekPiece(ctx: AppContext, e: StudioEntitySummary): Promise<Piece
   }
 }
 
-/** "RoleCall · V3" / "Default · V2" from the summary's source fields; null = made from scratch. */
+/**
+ * "RoleCall · V3" / "CC V2" from the summary's source fields; null = made from scratch. The
+ * generic Tavern reader's "Default" label meant nothing on a card chip - a plain character card
+ * is a CC (character card) of some spec version, so say that.
+ */
 function sourceLabelFor(formatLabels: Map<string, string>, e: StudioEntitySummary): string | null {
   if (!e.sourceFormat) return null;
   const base = formatLabels.get(e.sourceFormat) ?? e.sourceFormat;
-  return e.sourceVariant ? `${base} · ${e.sourceVariant.toUpperCase()}` : base;
+  const variant = e.sourceVariant?.toUpperCase();
+  if (base === "Default") return variant ? `CC ${variant}` : "CC";
+  return variant ? `${base} · ${variant}` : base;
 }
 
 /** Parse a static first-party icon constant into a live SVG node (no innerHTML, house rule). */

@@ -40,7 +40,9 @@ export const api: AppContext["api"] = {
       method: "POST",
       headers: {
         "content-type": "application/octet-stream",
-        "x-filename": file.name,
+        // HTTP headers are ISO-8859-1 only; an emoji in a filename made fetch itself throw and
+        // every import "fail" client-side. Always URI-encode; the server always decodes.
+        "x-filename": encodeURIComponent(file.name),
       },
       body: await file.arrayBuffer(),
     });
