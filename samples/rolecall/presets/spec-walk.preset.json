@@ -18,7 +18,9 @@
   "image_inlining": false,
   "seed": -1,
   "n": 1,
-  "custom_unknown_knob": { "keep": "me" },
+  "custom_unknown_knob": {
+    "keep": "me"
+  },
   "another_unknown": 7,
   "prompts": [
     {
@@ -51,7 +53,10 @@
       "injection_depth": 2,
       "injection_order": 90,
       "forbid_overrides": true,
-      "injection_trigger": ["normal", "continue"]
+      "injection_trigger": [
+        "normal",
+        "continue"
+      ]
     },
     {
       "identifier": "chatHistory",
@@ -91,18 +96,39 @@
     {
       "character_id": 424242,
       "order": [
-        { "identifier": "main", "enabled": false },
-        { "identifier": "chatHistory", "enabled": true }
+        {
+          "identifier": "main",
+          "enabled": false
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        }
       ]
     },
     {
       "character_id": 100001,
       "order": [
-        { "identifier": "main", "enabled": true },
-        { "identifier": "━━━ Style ━━━", "enabled": true },
-        { "identifier": "5c1f0a52-19f6-4b58-b6ed-116e6ad565c9", "enabled": false },
-        { "identifier": "chatHistory", "enabled": true },
-        { "identifier": "worldInfoBefore", "enabled": true }
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "━━━ Style ━━━",
+          "enabled": true
+        },
+        {
+          "identifier": "5c1f0a52-19f6-4b58-b6ed-116e6ad565c9",
+          "enabled": false
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        }
       ]
     }
   ],
@@ -113,8 +139,25 @@
         "scriptName": "Trim trailing spaces",
         "findRegex": "/ +$/gm",
         "replaceString": "",
-        "placement": [2],
+        "placement": [
+          2
+        ],
         "disabled": false
+      }
+    ],
+    "linkedRegexScripts": [
+      {
+        "id": "rx-1",
+        "name": "Trim trailing spaces",
+        "description": "",
+        "rules": [
+          {
+            "name": "trim",
+            "find_pattern": " +$",
+            "replace_string": "",
+            "placement": 2
+          }
+        ]
       }
     ]
   }

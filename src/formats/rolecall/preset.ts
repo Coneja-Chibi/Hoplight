@@ -1,11 +1,11 @@
 /**
  * RoleCall preset codec. RC's export writes the SAME flat SillyTavern completion-preset grammar
- * (specs/formats/st-preset.md) - the distinguishing mark is the BUNDLE: RC's export routes attach
- * regex under extensions.regex_scripts (newer ones add extensions.linkedRegexScripts), which
- * vanilla ST preset exports never carry. A bundled flat preset is therefore an RC export by
- * construction and deserves its own identity ("A preset, made for RoleCall."), not a parenthetical
- * on the ST codec. Wire logic is the shared _shared/st-preset-wire pair; only the identity,
- * escrow key, and claim strength live here.
+ * (specs/formats/st-preset.md), and SillyTavern presets can bundle regex under
+ * extensions.regex_scripts too (platform-owner correction: a bundle proves nothing about origin).
+ * The ONE provable RC fingerprint is extensions.linkedRegexScripts - written by RoleCall's newer
+ * export route and by nothing else (verified against RC source; RC itself does not even read it
+ * back). Only that claims here; bundled-but-unmarked presets stay with the ST codec, whose own
+ * extractRegex still surfaces their regex. Wire logic is the shared _shared/st-preset-wire pair.
  */
 import type { AdapterInput, AdapterOutput, PresetAdapter } from "../../core/adapter";
 import type { CanonicalPreset } from "../../entities/preset/schema";
@@ -28,17 +28,17 @@ const FORMAT_ID = "rolecall-preset";
 
 const toDialect = (v: unknown): DividerDialect => (v === "legacy" || v === "nemo-wiki" ? v : "none");
 
-/** The RC fingerprint: a flat ST-grammar preset whose extensions carry a regex bundle. */
+/** The RC fingerprint: linkedRegexScripts, which only RoleCall's export writes. A bare
+ * regex_scripts bundle is NOT enough - SillyTavern presets bundle regex too. */
 export function isRolecallPresetExport(json: unknown): json is Rec {
   if (!isRec(json) || !detectStPreset(json)) return false;
   const ext = json.extensions;
-  if (!isRec(ext)) return false;
-  return Array.isArray(ext.regex_scripts) || Array.isArray(ext.linkedRegexScripts);
+  return isRec(ext) && Array.isArray(ext.linkedRegexScripts);
 }
 
 const rolecallPreset: PresetAdapter = {
   id: FORMAT_ID,
-  label: "RoleCall preset export (ST-compatible flat json, bundles regex)",
+  label: "RoleCall preset export (ST-compatible flat json, linkedRegexScripts fingerprint)",
   outputExtensions: ["json"],
   kind: "preset",
 

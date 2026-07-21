@@ -125,6 +125,21 @@ const CASES: Case[] = [
     }),
   },
   {
+    // ST presets bundle regex too (platform-owner correction): a bare regex_scripts bundle is NOT
+    // the RC fingerprint - only linkedRegexScripts is. This file stays SillyTavern's.
+    label: "ST preset with a bare regex_scripts bundle -> sillytavern-preset, not rolecall",
+    expected: "sillytavern-preset",
+    input: asText({
+      temperature: 0.9,
+      top_p: 1,
+      prompts: [{ identifier: "main", name: "Main", system_prompt: true, content: "..." }],
+      prompt_order: [{ character_id: 100001, order: [] }],
+      extensions: {
+        regex_scripts: [{ id: "1", scriptName: "Fix quotes", findRegex: "/a/g", replaceString: "b", placement: [2] }],
+      },
+    }),
+  },
+  {
     label: "plain ST chat-completion preset -> sillytavern-preset",
     expected: "sillytavern-preset",
     input: asText({

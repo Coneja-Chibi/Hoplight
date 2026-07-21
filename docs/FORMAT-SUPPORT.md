@@ -56,7 +56,7 @@ Default portable character shape for thin hosts (C.AI Tools dumps, Crushon impor
 | --- | --- | --- | --- |
 | `lumiverse-preset` | preset | .json | Lumiverse preset (wrapper import; exports as an ST flat preset) |
 | `marinara-preset` | preset | .json | Marinara-Engine prompt preset (marinara_preset export) |
-| `rolecall-preset` | preset | .json | RoleCall preset export (ST-compatible flat json, bundles regex) |
+| `rolecall-preset` | preset | .json | RoleCall preset export (ST-compatible flat json, linkedRegexScripts fingerprint) |
 | `sillytavern-preset` | preset | .json | SillyTavern completion preset (flat json) |
 
 ## Regex script sets (5)

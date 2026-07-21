@@ -11,10 +11,12 @@ import rolecallPreset, { isRolecallPresetExport } from "./preset";
 const FIXTURE = readFileSync(join(import.meta.dir, "../../../samples/rolecall/presets/spec-walk.preset.json"), "utf8");
 const input = { text: FIXTURE, filename: "spec-walk.preset.json" };
 
-test("detect: the bundle fingerprint claims at 0.95; plain flat presets are refused to the ST codec", () => {
+test("detect: ONLY linkedRegexScripts claims (ST presets bundle regex_scripts too - not a fingerprint)", () => {
   expect(rolecallPreset.detect(input)).toBe(0.95);
   expect(rolecallPreset.detect({ text: JSON.stringify({ temperature: 1, top_p: 1, prompts: [], prompt_order: [] }) })).toBe(0);
   expect(isRolecallPresetExport({ temperature: 1, top_p: 1, extensions: { linkedRegexScripts: [] } })).toBe(true);
+  // a bare regex_scripts bundle stays with the ST codec (platform-owner correction)
+  expect(isRolecallPresetExport({ temperature: 1, top_p: 1, extensions: { regex_scripts: [{ scriptName: "s" }] } })).toBe(false);
   expect(isRolecallPresetExport({ temperature: 1, top_p: 1, extensions: {} })).toBe(false);
 });
 
