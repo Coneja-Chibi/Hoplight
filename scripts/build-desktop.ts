@@ -18,6 +18,14 @@ const uiDir = join(root, "src", "ui");
 const genDir = join(root, "src", "generated");
 await mkdir(genDir, { recursive: true });
 
+// Release knobs: --cli-targets=bun-linux-x64,... compiles the CLI (same bake) per target;
+// --no-desktop skips the WebView2 exe on runners that cannot build it (everything but Windows).
+const cliTargets = (process.argv.find((a) => a.startsWith("--cli-targets="))?.split("=")[1] ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+const skipDesktop = process.argv.includes("--no-desktop");
+
 // -- 1. UI assets -----------------------------------------------------------------------------------
 
 /** The react family stays OUT of every app/boot bundle; the page's import map resolves these to
@@ -254,18 +262,30 @@ console.log(`baked static format registry (${formatIds.length} families: ${forma
 
 await mkdir(join(root, "dist"), { recursive: true });
 try {
-  const compile = Bun.spawnSync(
-    [
-      "bun", "build", "--compile",
-      join(root, "src", "desktop.ts"),
-      "--outfile", join(root, "dist", "Hoplight.exe"),
-      `--windows-icon=${join(root, "build", "vaude.ico")}`,
-      "--windows-hide-console",
-    ],
-    { cwd: root, stdout: "inherit", stderr: "inherit" },
-  );
-  if (compile.exitCode !== 0) throw new Error("compile failed");
-  console.log("dist/Hoplight.exe ready");
+  if (!skipDesktop) {
+    const compile = Bun.spawnSync(
+      [
+        "bun", "build", "--compile",
+        join(root, "src", "desktop.ts"),
+        "--outfile", join(root, "dist", "Hoplight.exe"),
+        `--windows-icon=${join(root, "build", "vaude.ico")}`,
+        "--windows-hide-console",
+      ],
+      { cwd: root, stdout: "inherit", stderr: "inherit" },
+    );
+    if (compile.exitCode !== 0) throw new Error("compile failed");
+    console.log("dist/Hoplight.exe ready");
+  }
+  for (const target of cliTargets) {
+    const short = target.replace(/^bun-/, "");
+    const out = join(root, "dist", `hoplight-${short}${short.startsWith("windows") ? ".exe" : ""}`);
+    const compile = Bun.spawnSync(
+      ["bun", "build", "--compile", `--target=${target}`, join(root, "src", "cli.ts"), "--outfile", out],
+      { cwd: root, stdout: "inherit", stderr: "inherit" },
+    );
+    if (compile.exitCode !== 0) throw new Error(`cli compile failed for ${target}`);
+    console.log(`${out} ready`);
+  }
 } finally {
   // win or lose, the worktree goes back to the placeholder: the bake lives in the exe, not the repo
   await Bun.write(join(genDir, "packaged-assets.ts"), PLACEHOLDER);

@@ -18,8 +18,22 @@ import {
   publishAtomic,
 } from "./cli-io";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
+import { PACKAGED_ASSETS } from "./generated/packaged-assets";
+import { registerPackagedFormats } from "./generated/packaged-formats";
 
 const VERSION = "0.1.0";
+
+/**
+ * A compiled binary cannot glob src/formats, so a packaged build (PACKAGED_ASSETS baked non-null)
+ * uses the static registry generated in the same bake; a source checkout keeps drop-in loading.
+ */
+let formatsReady = false;
+async function ensureFormats(): Promise<void> {
+  if (formatsReady) return;
+  formatsReady = true;
+  if (PACKAGED_ASSETS !== null) registerPackagedFormats();
+  else await loadFormats();
+}
 
 /** Read a file into the shape adapters expect: bytes always, text when it is UTF-8-ish. */
 async function readInput(path: string): Promise<AdapterInput> {
@@ -144,7 +158,8 @@ async function main(argv: string[]): Promise<number> {
   }
 
   if (first === "formats") {
-    const found = await loadFormats();
+    await ensureFormats();
+    const found = registry.all();
     if (json) {
       console.log(
         JSON.stringify(
@@ -163,7 +178,8 @@ async function main(argv: string[]): Promise<number> {
       );
       return 0;
     }
-    console.log(`\n  Adapters discovered in src/formats/ (canonical schema v${CANONICAL_SCHEMA_VERSION}):`);
+    const source = PACKAGED_ASSETS !== null ? "packaged in this build" : "discovered in src/formats/";
+    console.log(`\n  Adapters ${source} (canonical schema v${CANONICAL_SCHEMA_VERSION}):`);
     if (found.length === 0) {
       console.log("    (none yet)");
     } else {
@@ -180,7 +196,7 @@ async function main(argv: string[]): Promise<number> {
       console.log(`\n  Usage: hoplight validate <file> [--json]\n`);
       return 1;
     }
-    await loadFormats();
+    await ensureFormats();
     const input = await readInput(path);
     const src = registry.detect(input);
     if (!src) {
@@ -217,13 +233,13 @@ async function main(argv: string[]): Promise<number> {
   }
 
   if (first === "ui") {
-    await loadFormats();
+    await ensureFormats();
     const { startUi } = await import("./ui/server");
     const port = Number(args[1]) || 8321;
     // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
     // scattered entities into whatever cwd the command ran from.
     const studioDir = args[2] ?? join(homedir(), "Documents", "Hoplight Studio");
-    const { url } = startUi(port, studioDir);
+    const { url } = startUi(port, studioDir, PACKAGED_ASSETS ?? undefined);
     console.log(`\n  Hoplight. is up: ${url}`);
     console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);
     // Bun.serve keeps the process alive; ctrl-c to close the studio.
@@ -236,7 +252,7 @@ async function main(argv: string[]): Promise<number> {
       console.log(`\n  Usage: hoplight inspect <file>\n`);
       return 1;
     }
-    await loadFormats();
+    await ensureFormats();
     const input = await readInput(path);
     const src = registry.detect(input);
     if (!src) {
@@ -287,7 +303,7 @@ async function main(argv: string[]): Promise<number> {
       console.log(`\n  Usage: hoplight label <file>\n`);
       return 1;
     }
-    await loadFormats();
+    await ensureFormats();
     const input = await readInput(path);
     const card = sourceCardOf(registry.detect(input), input);
     const label = labelCard(card, sniffContainer(input));
@@ -323,7 +339,7 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
 
-    await loadFormats();
+    await ensureFormats();
     const input = await readInput(inPath);
     const src = registry.detect(input);
     if (!src) {
