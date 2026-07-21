@@ -12,7 +12,7 @@ import { officialCatalogApps } from "./catalog-core";
 import styles from "./styles.module.css";
 
 const MARK_SVG =
-  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
   '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/>' +
   '<rect x="4" y="14" width="6" height="6"/><path d="M17 14v6M14 17h6"/></svg>';
 

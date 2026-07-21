@@ -30,7 +30,9 @@ const PREF_RAIL_OPEN = "workbench.recentsOpen"; // collapse survives sessions; o
 
 /** the locked bench mark (vs-shell-apps) */
 const MARK_SVG =
-  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="13"/><path d="M3 17h18"/><rect x="9" y="10" width="6" height="7" fill="currentColor" stroke="none"/></svg>';
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
+  '<path d="M3 11h18"/><path d="M6 11v9M18 11v9"/><rect x="8.5" y="3.5" width="7" height="7.5"/>' +
+  "</svg>";
 
 const portraitUrl = (e: StudioEntitySummary): string | null =>
   e.hasPortrait ? `/api/studio/portrait?kind=${encodeURIComponent(e.kind)}&id=${encodeURIComponent(e.id)}` : null;

@@ -30,7 +30,10 @@ import styles from "./styles.module.css";
 
 /** the locked press mark (vs-shell-apps) */
 const MARK_SVG =
-  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="4"/><path d="M7 7v3M17 7v3"/><rect x="4" y="14" width="16" height="6"/><path d="M9 10.5 12 13l3-2.5"/></svg>';
+  '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">' +
+  '<rect x="5" y="3" width="14" height="4"/><path d="M7 7v3.5M17 7v3.5"/>' +
+  '<path d="m9 11.5 3 2.8 3-2.8"/><rect x="4" y="16.5" width="16" height="4.5"/>' +
+  "</svg>";
 
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
