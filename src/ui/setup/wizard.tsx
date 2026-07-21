@@ -3,11 +3,10 @@
  * life, one screen at a time. This component is a thin renderer: all logic lives in wizard-core
  * (pure, tested) and all content lives in the drop-in steps (src/ui/setup/steps/<name>/). The
  * wizard derives dots, progress, defaults, skip-all, the stage zones, the summary sentence, and
- * the recap chips from the step list alone; it names no step. The setup surface itself is always
- * paper (print) - App.tsx forces that theme while this component is mounted. The stage's CSS
- * custom properties (a step's `stageVars`, e.g. the accent step's live --accent repaint) are
- * merged in step order and painted onto the stage root, since steps no longer reach the DOM
- * directly.
+ * the recap chips from the step list alone; it names no step. The wizard WEARS the answers live:
+ * a step's `pageTheme` flips the document theme (pick Dark, the wizard goes dark - the always-
+ * paper setup was rejected in review), `pageVars` repaints the selection marks in the picked
+ * accent (brand mark + CTAs stay rose, DECISIONS #3), and `stageVars` paints the stage root.
  */
 import { useEffect, useState } from "react";
 import type { CSSProperties, JSX, ReactNode } from "react";
@@ -44,7 +43,7 @@ const CSS = `
 .vsetup .dots{display:flex;gap:6px}
 .vsetup .dots i{width:9px;height:9px;border:2px solid var(--ink);background:var(--panel);display:block}
 .vsetup .dots i.done{background:var(--ink)}
-.vsetup .dots i.now{background:var(--rose);border-color:var(--rose)}
+.vsetup .dots i.now{background:var(--wiz-a,var(--rose));border-color:var(--wiz-a,var(--rose))}
 .vsetup .step-n{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.14em;
   text-transform:uppercase;color:var(--muted)}
 .vsetup .q{font-family:var(--font-big);font-weight:900;font-size:clamp(1.9rem,1.2rem+2.6vw,2.3125rem);
@@ -57,8 +56,8 @@ const CSS = `
   transition:transform .1s ease-out,box-shadow .1s ease-out,border-color .1s ease-out}
 .vsetup .opt:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 0 var(--ink)}
 .vsetup .opt:active{transform:translate(4px,4px);box-shadow:1px 1px 0 0 var(--ink)}
-.vsetup .opt.on{transform:translate(4px,4px);box-shadow:1px 1px 0 0 var(--rose);border-color:var(--rose)}
-.vsetup .opt .on-mark{position:absolute;top:-3px;right:-3px;background:var(--rose);color:var(--stage-white);
+.vsetup .opt.on{transform:translate(4px,4px);box-shadow:1px 1px 0 0 var(--wiz-a,var(--rose));border-color:var(--wiz-a,var(--rose))}
+.vsetup .opt .on-mark{position:absolute;top:-3px;right:-3px;background:var(--wiz-a,var(--rose));color:var(--stage-white);
   font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;
   padding:3px 7px;display:none}
 .vsetup .opt.on .on-mark{display:block}
@@ -90,7 +89,7 @@ const CSS = `
   text-transform:uppercase;color:var(--ink)}
 .vsetup .hc-s{font-family:var(--font-mono);font-size:.65625rem;letter-spacing:.04em;
   text-transform:uppercase;color:var(--muted)}
-.vsetup.final-on .hc-s{color:var(--rose)}
+.vsetup.final-on .hc-s{color:var(--wiz-a,var(--rose))}
 .vsetup .proscenium{position:relative;background:var(--paper);border:var(--ink-border);
   box-shadow:10px 10px 0 0 var(--ink);padding:clamp(.85rem,2vw,1.1875rem)}
 .vsetup .proscenium::before{content:"";position:absolute;inset:9px;border:1.5px solid var(--ink);
@@ -109,7 +108,7 @@ const CSS = `
 .vsetup .recap{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin:1.4rem 0 1.75rem}
 .vsetup .recap span{font-family:var(--font-mono);font-size:.6875rem;letter-spacing:.05em;
   text-transform:uppercase;color:var(--muted);border:2px solid var(--ghost);padding:.4rem .7rem}
-.vsetup .recap span b{color:var(--rose);font-weight:500}
+.vsetup .recap span b{color:var(--wiz-a,var(--rose));font-weight:500}
 .vsetup .open{font-family:var(--font-big);font-weight:900;font-size:1rem;letter-spacing:.1em;
   text-transform:uppercase;padding:1.1rem 2.6rem;border:var(--ink-border);
   background:var(--rose);color:var(--stage-white);box-shadow:8px 8px 0 0 var(--ink);cursor:pointer;
@@ -131,18 +130,16 @@ const CSS = `
 }
 `;
 
-/** The locked beam-V geometry (vs-pick-4); the mark is ALWAYS brand rose. */
-const BEAM_POLYGONS = ["60,92 4,12 34,3", "40,92 96,12 66,3"] as const;
+/** The locked tapered-H geometry (docs/media/hoplight-h.svg); the mark is ALWAYS brand rose. */
+const H_PATH = "M0 0h45l-6 67h66L99 0h45l-33 152-7-73H38l-7 73Z";
 
 function Lockup(): JSX.Element {
   return (
     <span className="lock">
-      <svg viewBox="0 0 100 100" aria-label="Hoplight">
-        {BEAM_POLYGONS.map((points) => (
-          <polygon key={points} points={points} fill="var(--rose)" /> // hardcode-ok: locked brand mark, always rose, not a themed surface
-        ))}
+      <svg viewBox="0 0 144 152" aria-label="Hoplight">
+        <path d={H_PATH} fill="var(--rose)" /> {/* hardcode-ok: locked brand mark, always rose, not a themed surface */}
       </svg>
-      <span className="txt">aude</span>
+      <span className="txt">oplight</span>
       <span className="quad" />
     </span>
   );
@@ -342,7 +339,19 @@ export function SetupWizard({ ctx, existing, onComplete }: SetupWizardProps): JS
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // the wizard wears the theme answer live: the last step to speak wins (normally just theme's)
+  const pageTheme = steps?.reduce<string | undefined>(
+    (acc, { step }) => step.pageTheme?.(draft) ?? acc,
+    undefined,
+  );
+  useEffect(() => {
+    if (pageTheme) document.documentElement.dataset.theme = pageTheme;
+  }, [pageTheme]);
+
   if (!steps) return null; // loading: nothing to paint yet
+
+  const pageVars: Record<string, string> = {};
+  for (const { step } of steps) Object.assign(pageVars, step.pageVars?.(draft));
 
   const finished = index >= steps.length;
 
@@ -365,12 +374,17 @@ export function SetupWizard({ ctx, existing, onComplete }: SetupWizardProps): JS
     setIndex(steps.length);
   };
 
-  const onOpen = (): void => onComplete({ ...existing, ...draft, setupComplete: true });
+  const onOpen = (): void => {
+    // derived keys land last (e.g. the makes step derives firstDeck from the first pick)
+    const derived: Record<string, unknown> = {};
+    for (const { step } of steps) Object.assign(derived, step.deriveSettings?.(draft));
+    onComplete({ ...existing, ...draft, ...derived, setupComplete: true });
+  };
 
   const css = CSS + steps.map(({ step }) => step.css ?? "").join("\n");
 
   return (
-    <div className={`vsetup${finished ? " final-on" : ""}`}>
+    <div className={`vsetup${finished ? " final-on" : ""}`} style={pageVars as CSSProperties}>
       <style>{css}</style>
       <div className="frame">
         {finished ? (

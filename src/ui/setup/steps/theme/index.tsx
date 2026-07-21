@@ -121,6 +121,11 @@ const step: SetupStep = {
   css: CSS,
   options: () => OPTIONS,
   renderOption: ThemeOption,
+  // the whole wizard wears the pick immediately: choose Dark, the page goes dark
+  pageTheme(draft: SetupDraft) {
+    const v = draft[SETTING_KEYS.theme];
+    return v === "paper" || v === "stage" ? v : undefined;
+  },
   renderZone(draft: SetupDraft) {
     const dark = draft[SETTING_KEYS.theme] !== "paper"; // unanswered previews the dark default
     return (

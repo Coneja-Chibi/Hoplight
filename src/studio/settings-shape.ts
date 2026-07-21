@@ -9,6 +9,8 @@
 export const SETTING_KEYS = {
   theme: "theme",
   firstDeck: "firstDeck",
+  /** the deck kinds picked at setup ("what do you want to make?"); firstDeck = the first pick */
+  makes: "makes",
   publishTargets: "publishTargets",
   houseAccent: "houseAccent",
   /** which app opens on boot; the user picks in Settings */

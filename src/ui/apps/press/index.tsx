@@ -10,6 +10,7 @@
 import { useEffect, useMemo, useState, type JSX } from "react";
 import { zipSync } from "fflate";
 import type { AppContext, CoverageInfo, StudioEntitySummary, HoplightApp } from "../../app-contract";
+import { SETTING_KEYS } from "../../../studio/settings-shape";
 import { mediaExportSummary } from "../../components/export-dialog/honesty";
 import { triggerDownload } from "../../components/export-dialog/download";
 import {
@@ -67,8 +68,17 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
         ]);
         if (cancelled) return;
         setAllSummaries(list);
-        setPlatforms(groupPlatforms(formats));
+        const grouped = groupPlatforms(formats);
+        setPlatforms(grouped);
         setCoverage(cov);
+        // the setup/Settings publish answer finally DOES something here: the first pick that
+        // exists in the roster starts selected (an untouched room otherwise starts unselected)
+        const picksRaw = ctx.prefs.get(SETTING_KEYS.publishTargets);
+        const picks = Array.isArray(picksRaw)
+          ? picksRaw.filter((t): t is string => typeof t === "string")
+          : [];
+        const preferred = picks.find((p) => grouped.some((g) => g.friendly === p));
+        if (preferred) setTarget((t) => (t === "" ? preferred : t));
       } catch {
         if (!cancelled) setLoadNote("could not load the studio · the server may be unreachable");
       }

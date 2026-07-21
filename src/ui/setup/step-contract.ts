@@ -77,6 +77,15 @@ export interface SetupStep {
   /** CSS custom properties this step paints onto the stage root (the accent step's live --accent
    * repaint); merged from every step, in step order, each render. Absent = no stage vars. */
   stageVars?(draft: SetupDraft): Record<string, string> | undefined;
+  /** The page-level theme this step's answer implies ("paper" | "stage"); the wizard applies the
+   * last defined answer to the document so the wizard itself wears the pick live. */
+  pageTheme?(draft: SetupDraft): string | undefined;
+  /** CSS custom properties painted onto the WIZARD ROOT (the accent step's --wiz-a live repaint
+   * of selection marks); merged like stageVars. Brand mark + CTAs never follow (DECISIONS #3). */
+  pageVars?(draft: SetupDraft): Record<string, string> | undefined;
+  /** Extra settings derived from this step's answer at completion (the makes step derives
+   * firstDeck from the first pick); merged over the draft, before setupComplete. */
+  deriveSettings?(draft: SetupDraft): Record<string, unknown> | undefined;
   /** fragment for the final summary sentence; null = omitted (e.g. no publish picks) */
   phrase(draft: SetupDraft, options: SetupOption[]): SummaryFragment | null;
   /** recap chip on the final screen ("theme dark"); null = omitted */

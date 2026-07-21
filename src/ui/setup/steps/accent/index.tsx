@@ -1,17 +1,9 @@
 /**
  * Setup step: house accent ("Pick your color."). A thin consumer of the shared SwatchRow
  * component (src/ui/components/swatch-row/) - the same picker Settings and the editor's
- * per-entity accent reuse. Swatches repaint --accent on the STAGE ONLY during setup (and the
- * house chrome after OPEN VAUDE) - never the brand rose mark or CTAs (DECISIONS #3).
- * Writes SETTING_KEYS.houseAccent (the hex, directly usable as the --accent token).
- *
- * DEPENDENCY (flagged): SwatchRow is being built in parallel by the settings-conversion agent
- * under src/ui/components/swatch-row/. This file assumes a controlled contract - palette in,
- * value in, onChange(hex) out - mirroring the vanilla swatchRow() this replaces (_shared/swatches.ts),
- * MINUS its allowCustom door: the setup accent step never offered a custom color (only Settings and
- * the editor did), so parity with the vanilla step is a plain palette + value + onChange, no
- * allowCustom. If src/ui/components/swatch-row does not exist yet, or its real props differ, this
- * import is a known, owned tsc error scoped to this one file - it does not block any other surface.
+ * per-entity accent reuse, custom tile included. Swatches repaint --accent on the stage AND
+ * the wizard's own selection marks live (--wiz-a) - never the brand rose mark or the CTAs
+ * (DECISIONS #3). Writes SETTING_KEYS.houseAccent (the hex, directly usable as --accent).
  */
 import type { JSX } from "react";
 import { SETTING_KEYS } from "../../../../studio/settings-shape";
@@ -43,9 +35,11 @@ const step: SetupStep = {
       <SwatchRow
         palette={HOUSE_PALETTE}
         value={typeof value === "string" ? value : undefined}
+        allowCustom
         onChange={(hex: string) => {
           const picked = options.find((o) => o.value === hex);
-          if (picked) onPick(picked);
+          // a custom hex has no palette option; carry the value through a synthetic option
+          onPick(picked ?? { id: "custom", title: "Custom", value: hex });
         }}
       />
     );
@@ -54,13 +48,22 @@ const step: SetupStep = {
     const hex = draft[SETTING_KEYS.houseAccent];
     return typeof hex === "string" ? { "--accent": hex } : undefined;
   },
+  // the wizard's own selection marks follow the pick live; brand mark + CTAs stay rose
+  pageVars(draft) {
+    const hex = draft[SETTING_KEYS.houseAccent];
+    return typeof hex === "string" ? { "--wiz-a": hex } : undefined;
+  },
   phrase(draft, options) {
-    const picked = options.find((o) => o.value === draft[SETTING_KEYS.houseAccent]);
-    return picked ? { pre: "in ", strong: picked.title } : null;
+    const hex = draft[SETTING_KEYS.houseAccent];
+    if (typeof hex !== "string") return null;
+    const picked = options.find((o) => o.value === hex);
+    return { pre: "in ", strong: picked ? picked.title : "your own color" };
   },
   recap(draft, options) {
-    const picked = options.find((o) => o.value === draft[SETTING_KEYS.houseAccent]);
-    return picked ? { label: "color", value: picked.title } : null;
+    const hex = draft[SETTING_KEYS.houseAccent];
+    if (typeof hex !== "string") return null;
+    const picked = options.find((o) => o.value === hex);
+    return { label: "color", value: picked ? picked.title : hex };
   },
 };
 
