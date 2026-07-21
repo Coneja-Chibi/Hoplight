@@ -21,7 +21,7 @@ import {
   TEMPLATE_FIELDS,
   type DividerDialect,
   type Rec,
-} from "./preset-wire";
+} from "./st-preset-wire";
 
 /** A true marker at parse-time defaults emits ST's preferred sparse 4-key shape (lossless: the
  * next parse recovers the same defaults). Any customized field forces the full shape instead -

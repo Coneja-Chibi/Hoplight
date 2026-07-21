@@ -12,8 +12,8 @@ import type { CanonicalRegexSet } from "../../entities/regex/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
 import { setNameFromFilename } from "../_shared/regex-set-name";
-import { detectStPreset, isRec, parsedToBody, parseStPreset, type DividerDialect, type Rec } from "./preset-wire";
-import { buildStPreset } from "./preset-emit";
+import { detectStPreset, isRec, parsedToBody, parseStPreset, type DividerDialect, type Rec } from "../_shared/st-preset-wire";
+import { buildStPreset } from "../_shared/st-preset-emit";
 import { regexSetFromBundledRows } from "./regex";
 
 const FORMAT_ID = "sillytavern-preset";

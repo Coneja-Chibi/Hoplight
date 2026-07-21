@@ -32,6 +32,7 @@ import {
 import { applyAltsToBody, applyVariantsToExtensions } from "./variants-bridge";
 import { regexAdapter } from "./regex";
 import personaCodec from "./persona";
+import presetCodec from "./preset";
 
 type Rec = Record<string, unknown>;
 const isRec = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -261,5 +262,5 @@ const adapter: CharacterAdapter = {
 export { adapter as characterAdapter };
 
 /** Folders-as-schema: this format family exports every codec it provides (character + regex
- * scripts). Was a single-adapter default until the regex codec grew its file home. */
-export default [adapter, regexAdapter, personaCodec];
+ * scripts + presets). Was a single-adapter default until the regex codec grew its file home. */
+export default [adapter, regexAdapter, personaCodec, presetCodec];

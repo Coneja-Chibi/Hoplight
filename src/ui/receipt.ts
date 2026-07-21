@@ -36,6 +36,7 @@ const FRIENDLY: Record<string, string> = {
   "marinara-lorebook": "Marinara",
   "marinara-preset": "Marinara",
   "sillytavern-preset": "SillyTavern (RoleCall exports too)",
+  "lumiverse-preset": "Lumiverse",
   "sillytavern-persona": "SillyTavern",
   "lumiverse-persona": "Lumiverse",
   "marinara-persona": "Marinara",

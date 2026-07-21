@@ -114,6 +114,15 @@ const CASES: Case[] = [
     }),
   },
   {
+    label: "lumiverse_preset wrapper -> lumiverse-preset (never the ST preset codec)",
+    expected: "lumiverse-preset",
+    input: asText({
+      type: "lumiverse_preset",
+      schemaVersion: 2,
+      preset: { id: "x", name: "Wrapped", blocks: [], samplerOverrides: { temperature: 1 } },
+    }),
+  },
+  {
     label: "plain ST chat-completion preset -> sillytavern-preset",
     expected: "sillytavern-preset",
     input: asText({
@@ -275,7 +284,11 @@ function sampleInputs(): { family: string; kind: AdapterKind; file: string; inpu
 // Known-undetected samples, kept visible instead of silently skipped: committed for a planned
 // import path that does not exist yet. Shrink this list, never grow it quietly.
 const KNOWN_GAPS = new Set([
-  "novelai/sigurdcard-embedded-lorebook.png", // NAI png-embedded lorebook: no png path in the adapter yet
+  // Forensically examined 2026-07-21: this file carries NO payload anywhere (no tEXt/iTXt/zTXt
+  // chunks, no alpha/RGB LSB steganography, no post-IEND tail - the alpha channel is a plain
+  // rounded-corner fade). It is a re-encoded copy that lost its embedded data. A png lorebook
+  // path needs a REAL NovelAI export to spec against; building one from this file would be invention.
+  "novelai/sigurdcard-embedded-lorebook.png",
 ]);
 
 for (const s of sampleInputs()) {
