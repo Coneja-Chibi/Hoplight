@@ -64,6 +64,10 @@ export interface AppContext {
     formats(): Promise<FormatInfo[]>;
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */
     coverage(): Promise<CoverageInfo[]>;
+    /** the running build's version (Settings shows it; the update check compares against it) */
+    version(): Promise<{ version: string }>;
+    /** ask GitHub for the latest release, server-side against a fixed URL; button-press only */
+    updateCheck(): Promise<{ httpStatus: number; body: unknown }>;
   };
   /** update the mono status bar's app segment */
   setStatus(text: string): void;

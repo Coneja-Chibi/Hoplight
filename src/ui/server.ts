@@ -23,6 +23,8 @@ import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
 import type { PackagedAssets } from "./assets";
 import { handleDocsRequest } from "./server-docs";
 import { startSandboxHost } from "./sandbox-host";
+import { APP_VERSION } from "../version";
+import { handleUpdateCheck } from "./server-update";
 import {
   type UiSecurityContext,
   createSecurityContext,
@@ -294,6 +296,8 @@ export function createHandler(
       }
     }
 
+    if (p === "/api/version") return json({ version: APP_VERSION });
+    if (p === "/api/update-check") return handleUpdateCheck();
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by
     // absence - an undeclared platform simply is not lensable yet, and the UI says so honestly)

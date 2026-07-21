@@ -46,5 +46,7 @@ export const api: AppContext["api"] = {
       body: JSON.stringify({ entity, targetId }),
     }),
   formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
+  version: async () => apiFetchJson("/api/version", { requireToken: false }),
+  updateCheck: async () => apiFetchJson("/api/update-check", { requireToken: false }),
   coverage: async () => apiFetchJson("/api/coverage", { requireToken: false }),
 };

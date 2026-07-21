@@ -20,8 +20,7 @@ import {
 import { labelCard, sniffContainer } from "./entities/character/provenance";
 import { PACKAGED_ASSETS } from "./generated/packaged-assets";
 import { registerPackagedFormats } from "./generated/packaged-formats";
-
-const VERSION = "0.1.0";
+import { APP_VERSION as VERSION } from "./version";
 
 /**
  * A compiled binary cannot glob src/formats, so a packaged build (PACKAGED_ASSETS baked non-null)
