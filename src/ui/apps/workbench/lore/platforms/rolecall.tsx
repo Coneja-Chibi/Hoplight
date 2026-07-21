@@ -157,7 +157,7 @@ function Component({ entry, show, styles, onPatch }: LorePlatformCardProps): JSX
 const card: LorePlatformCard = {
   id: "rolecall",
   label: "RoleCall",
-  lenses: [],
+  lenses: ["rolecall"],
   Component,
 };
 

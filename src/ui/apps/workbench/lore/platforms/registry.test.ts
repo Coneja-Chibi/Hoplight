@@ -27,9 +27,10 @@ describe("lore platform cards", () => {
     expect(cardsForLens("agnai")).toEqual([]);
   });
 
-  test("RoleCall has no lens of its own; the full card covers it", () => {
+  test("RoleCall surfaces on its own lens and the full card, never on other hosts", () => {
     const rc = LORE_PLATFORM_CARDS.find((c) => c.id === "rolecall")!;
-    expect(rc.lenses).toEqual([]);
+    expect(rc.lenses).toEqual(["rolecall"]);
+    expect(cardVisible(rc, "rolecall")).toBe(true);
     expect(cardVisible(rc, "full")).toBe(true);
     expect(cardVisible(rc, "sillytavern")).toBe(false);
   });

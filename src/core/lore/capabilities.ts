@@ -11,6 +11,7 @@ import {
 
 export type LoreWriteForProfile =
   | "full"
+  | "rolecall"
   | "sillytavern"
   | "chub"
   | "marinara"
@@ -35,7 +36,7 @@ export type LoreFieldKey =
   | "secondaryTriggers"
   | "selectiveLogic"
   | "triggerRiders"
-  /** RC [type:value] insert chips. Full card only - RC is not a Write-for tab. */
+  /** RC [type:value] insert chips (RoleCall's own trigger syntax). */
   | "specialTriggers"
   | "position"
   | "depth"
@@ -106,6 +107,15 @@ const ALL_SHOW: Record<LoreFieldKey, FieldVisibility> = {
 /** Emphasis only (never hide). Hide is owned exclusively by platformOwnsField. */
 const PROFILE_EMPHASIS: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey, FieldVisibility>>> = {
   full: {},
+  rolecall: {
+    priority: "emphasize",
+    sticky: "emphasize",
+    cooldown: "emphasize",
+    categoryId: "emphasize",
+    specialTriggers: "emphasize",
+    sideEffects: "emphasize",
+    characterFilter: "emphasize",
+  },
   sillytavern: {
     sticky: "emphasize",
     groupName: "emphasize",
@@ -163,6 +173,7 @@ const PROFILE_EMPHASIS: Record<LoreWriteForProfile, Partial<Record<LoreFieldKey,
  * Full is the Hoplight tab, not a platform name. */
 export const LORE_WRITE_FOR_LABELS: Record<LoreWriteForProfile, string> = {
   full: "Hoplight",
+  rolecall: "RoleCall",
   sillytavern: "SillyTavern",
   chub: "Chub",
   marinara: "Marinara",
@@ -174,6 +185,7 @@ export const LORE_WRITE_FOR_LABELS: Record<LoreWriteForProfile, string> = {
 
 export const LORE_WRITE_FOR_PROFILES: readonly LoreWriteForProfile[] = [
   "full",
+  "rolecall",
   "sillytavern",
   "chub",
   "marinara",

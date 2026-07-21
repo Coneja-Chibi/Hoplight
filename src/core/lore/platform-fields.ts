@@ -4,7 +4,10 @@
  * never strip body data when a profile hides a control.
  *
  * Grounded in codecs:
- * - full / RC: formats/rolecall/lorebook.ts
+ * - full: the union of every platform wire
+ * - rolecall: formats/rolecall/lorebook.ts - a near-superset wire, but NOT the union: NAI assembly
+ *   (contextConfig/naiActivation/phraseBias) and ST bookkeeping (vectorized/automationId/
+ *   displayIndex) only ride RC's labeled unsupported bag, so "writing for RoleCall" hides them
  * - sillytavern: sillytavern/lorebook.ts (the full worldinfo wire)
  * - chub / lumiverse: the CCv3 character_book floor via _shared/character-book.ts - SEPARATE
  *   lenses (a platform is never smushed into another's tab); their owned lists duplicate on
@@ -40,7 +43,7 @@ export const PLATFORM_OWNED_EXTRAS: Record<LoreWriteForProfile, readonly LoreFie
     "secondaryTriggers",
     "selectiveLogic",
     "triggerRiders",
-    "specialTriggers", // RC [type:value] specials live on the full card only (no RC tab)
+    "specialTriggers",
     "position",
     "depth",
     "role",
@@ -64,6 +67,33 @@ export const PLATFORM_OWNED_EXTRAS: Record<LoreWriteForProfile, readonly LoreFie
     "automationId",
     "displayIndex",
     "matchOverrides",
+  ],
+  rolecall: [
+    "comment",
+    "secondaryTriggers",
+    "selectiveLogic",
+    "triggerRiders", // per-trigger probability rides RC's advanced triggers
+    "specialTriggers", // RC's own [type:value] syntax
+    "position",
+    "depth",
+    "role",
+    "priority",
+    "probability",
+    "sticky",
+    "cooldown",
+    "delay",
+    "groupName",
+    "groupTuning", // groupWeight
+    "categoryId", // RC categories/tree are first-class wire
+    "recursion",
+    "delayUntilRecursion",
+    "useMemo",
+    "characterFilter",
+    "scanSources",
+    "sideEffects", // RC's effects system, additive on the wire
+    "matchOverrides",
+    // NOT owned: contextConfig/naiActivation/phraseBias (NAI assembly) and
+    // vectorized/automationId/displayIndex (ST bookkeeping) - those ride RC's unsupported bag
   ],
   sillytavern: [
     "secondaryTriggers",
@@ -168,7 +198,7 @@ export const LORE_ALL_POSITIONS: readonly InjectionPosition[] = [
 
 /**
  * Which injection slots each profile's wire can actually carry. Grounded in codecs:
- * - full / RC: rolecall/lorebook.ts round-trips the whole canonical set
+ * - full + rolecall: rolecall/lorebook.ts round-trips the whole canonical slot set
  * - sillytavern: sillytavern/lorebook.ts parsePosition (numeric 0-4: before/after char,
  *   before/after example, @depth); the rest collapse lossily on export
  * - chub / lumiverse / agnai: before_char/after_char floor (character-book wire)
@@ -179,6 +209,7 @@ export const LORE_ALL_POSITIONS: readonly InjectionPosition[] = [
  */
 export const LORE_POSITIONS_BY_PROFILE: Record<LoreWriteForProfile, readonly InjectionPosition[]> = {
   full: LORE_ALL_POSITIONS,
+  rolecall: LORE_ALL_POSITIONS,
   sillytavern: ["world", "character", "depth", "before_example", "after_example"],
   chub: ["world", "character"],
   marinara: ["world", "character", "depth"],

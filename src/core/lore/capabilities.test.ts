@@ -27,7 +27,7 @@ describe("lore capabilities", () => {
     }
   });
 
-  test("full is Hoplight card (no RC tab) and shows all first-class keys including specials", () => {
+  test("full is the Hoplight card and shows all first-class keys including specials", () => {
     expect(LORE_WRITE_FOR_LABELS.full.toLowerCase()).toContain("hoplight");
     const m = loreFieldVisibility("full");
     for (const vis of Object.values(m)) expect(vis).not.toBe("hide");
@@ -36,6 +36,23 @@ describe("lore capabilities", () => {
     expect(fieldVisible("full", "triggerRiders")).toBe(true);
     expect(fieldVisible("full", "specialTriggers")).toBe(true);
     expect(fieldVisible("full", "contextConfig")).toBe(true);
+  });
+
+  test("rolecall is a REAL filter, not an alias of full: only RC-native settings show", () => {
+    expect(LORE_WRITE_FOR_LABELS.rolecall).toBe("RoleCall");
+    // RC signatures show (and the profile emphasizes its own: specials, effects, categories, timing)
+    for (const key of [
+      "specialTriggers", "sideEffects", "categoryId", "sticky", "cooldown", "delay",
+      "priority", "characterFilter", "scanSources", "useMemo", "triggerRiders", "matchOverrides",
+    ] as const) {
+      expect(fieldVisible("rolecall", key)).toBe(true);
+    }
+    // foreign specials ride RC's unsupported bag, so writing FOR RoleCall hides their controls
+    for (const key of [
+      "contextConfig", "naiActivation", "phraseBias", "vectorized", "automationId", "displayIndex",
+    ] as const) {
+      expect(fieldVisible("rolecall", key)).toBe(false);
+    }
   });
 
   test("agnai keeps comment (wire has it); hides sticky (no wire)", () => {

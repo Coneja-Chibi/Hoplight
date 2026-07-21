@@ -76,10 +76,11 @@ describe("platform field ownership (all lore platforms)", () => {
     expect(fieldVisible("risu", "triggerRiders")).toBe(false); // entry-level chance only
   });
 
-  test("RC specials only on full card (RC is not a host tab)", () => {
+  test("RC specials show on the full card and the RoleCall lens; no other host owns them", () => {
     expect(fieldVisible("full", "specialTriggers")).toBe(true);
+    expect(fieldVisible("rolecall", "specialTriggers")).toBe(true);
     for (const p of LORE_WRITE_FOR_PROFILES) {
-      if (p === "full") continue;
+      if (p === "full" || p === "rolecall") continue;
       expect(fieldVisible(p, "specialTriggers")).toBe(false);
     }
   });
