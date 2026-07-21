@@ -92,8 +92,11 @@ export function createHandler(
 ): (req: Request) => Promise<Response> {
   const security = sec ?? createSecurityContext();
 
+  // no-store on every served asset: the bytes are local and free, and heuristic browser caching
+  // (no cache-control at all) let a restarted server keep serving WEEK-OLD bundles from HTTP
+  // cache - "restart" then looked broken because the tab never re-fetched the fresh code
   const text = (body: string, type: string, extra?: Record<string, string>): Response =>
-    new Response(body, { headers: { "content-type": type, ...extra } });
+    new Response(body, { headers: { "content-type": type, "cache-control": "no-store", ...extra } });
 
   const resolveSandboxOrigin = (): string => {
     if (!sandboxOrigin) return "";
@@ -163,7 +166,7 @@ export function createHandler(
       // the shell's own CSS Modules (Stamp, dialogs, tags) ride in the boot bundle as separate css
       // artifacts; without this they serve style-less in dev while the packaged exe (bundleBrowser)
       // injects - the unstyled-Import-stamp split. Boot goes through the SAME injector now.
-      return new Response(await withCssInjected(built.outputs), { headers: { "content-type": "text/javascript" } });
+      return new Response(await withCssInjected(built.outputs), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
     }
     if (p.startsWith("/vendor/") && p.endsWith(".js")) {
       const name = p.slice("/vendor/".length, -".js".length);
@@ -236,7 +239,7 @@ export function createHandler(
       }
       const app = (await discoverApps()).find((a) => a.id === id);
       if (!app) return err("no such app", 404);
-      return new Response(await bundleModule(app), { headers: { "content-type": "text/javascript" } });
+      return new Response(await bundleModule(app), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
     }
 
     // setup steps: same drop-in mechanism as apps (DECISIONS #10 build law)
@@ -251,7 +254,7 @@ export function createHandler(
       }
       const step = (await discoverSetupSteps()).find((s) => s.id === id);
       if (!step) return err("no such step", 404);
-      return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript" } });
+      return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
     }
 
     // tours: one per app, same drop-in mechanism. A 404 is normal (an app with no tour), so the
@@ -264,7 +267,7 @@ export function createHandler(
       }
       const tour = (await discoverTours()).find((t) => t.id === id);
       if (!tour) return err("no such tour", 404);
-      return new Response(await bundleModule(tour), { headers: { "content-type": "text/javascript" } });
+      return new Response(await bundleModule(tour), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
     }
 
     // dev live-reload stream (404 in the packaged exe; the client goes quiet on error)

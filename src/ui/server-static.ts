@@ -153,4 +153,7 @@ export function createDevReloadResponse(): Response {
 }
 
 export const staticFile = (rel: string, type: string): Response =>
-  new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
+  new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), {
+    // no-store: heuristically cached local assets survived server restarts as stale UI
+    headers: { "content-type": type, "cache-control": "no-store" },
+  });
