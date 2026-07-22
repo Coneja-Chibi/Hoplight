@@ -46,7 +46,7 @@ starting; they answer most design questions so you don't have to guess.
 | RoleCall | [specs/formats/rolecall-character.md](specs/formats/rolecall-character.md), [specs/formats/rolecall-lorebook.md](specs/formats/rolecall-lorebook.md) |
 | Backyard | [specs/formats/backyard.md](specs/formats/backyard.md) |
 | Import of multi-piece files | [specs/formats/bundle-import.md](specs/formats/bundle-import.md) |
-| Lumiverse data archives (.lvbak) | [specs/formats/lumiverse-archive.md](specs/formats/lumiverse-archive.md), [specs/formats/bundle-import.md](specs/formats/bundle-import.md) |
+| Lumiverse data archives (.lvbak) | [specs/formats/lumiverse-archive.md](specs/formats/lumiverse-archive.md), [specs/formats/bundle-import.md](specs/formats/bundle-import.md), [specs/formats/lumiverse-preset.md](specs/formats/lumiverse-preset.md) |
 | Macros | [specs/engine/macro-engine.md](specs/engine/macro-engine.md) |
 | Token estimates | [specs/engine/token-counting.md](specs/engine/token-counting.md) |
 | Prompt assembly | [specs/engine/prompt-assembly.md](specs/engine/prompt-assembly.md) |

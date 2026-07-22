@@ -195,8 +195,30 @@ export interface LvbakDetection {
   counts?: Record<string, number>; // from manifest-stats.json when present
 }
 
-/** Cheap detection: central directory + manifest.json probe only. */
-export function detectLumiverseArchive(zipBytes: Uint8Array): LvbakDetection;
+/**
+ * The entry-source seam. A .lvbak ZIP and a pre-extracted directory are
+ * the same archive to everything downstream: a source enumerates entry
+ * names and streams entry bytes, and detection, bounds accounting, the
+ * NDJSON table reader, and the files/ resolver all run on this interface
+ * without knowing which one is underneath (edge case 1). New input shapes
+ * (say, a dropped FileSystemDirectoryHandle in the pocket build) become
+ * new sources, never new import paths.
+ */
+export interface LvbakEntrySource {
+  /** Entry names, archive order (manifest.json first when the producer wrote it first). */
+  list(): Promise<string[]>;
+  /** Streamed bytes of one entry. */
+  open(name: string): Promise<ReadableStream<Uint8Array>>;
+  /** Stored size in bytes, for bounds accounting before opening. */
+  size(name: string): Promise<number>;
+}
+
+/** The two shipped sources; both feed the same table reader. */
+export function zipEntrySource(zipBytes: Uint8Array): LvbakEntrySource;
+export function directoryEntrySource(rootDir: string): LvbakEntrySource;
+
+/** Cheap detection: entry listing + manifest.json probe only. */
+export function detectLumiverseArchive(source: LvbakEntrySource): LvbakDetection;
 
 export interface LvbakImportReport {
   imported: Record<"character" | "lorebook" | "preset" | "persona" | "regex",
@@ -214,7 +236,7 @@ export interface LvbakImportReport {
  * writes, never executes any imported script (regex/Lua stay sealed data).
  */
 export function importLumiverseArchive(
-  zipBytes: Uint8Array
+  source: LvbakEntrySource
 ): Promise<{ entities: CanonicalEntity[]; report: LvbakImportReport }>;
 ```
 
@@ -225,12 +247,11 @@ the same way for both seams at once.
 
 1. **Pre-extracted archive (a folder, not a ZIP).** Users unzip `.lvbak`
    files; the inspected real export arrived as a directory. DECIDED
-   2026-07-21: both inputs are supported. The library API takes bytes only;
-   the studio/CLI surface additionally accepts a directory and feeds the
-   same table reader through a directory-walking entry source. Detection,
-   bounds, and per-row behavior are identical for both inputs; only the
-   entry enumeration differs. Exact UI/CLI affordances still belong to
-   those surfaces' specs.
+   2026-07-21: both inputs are supported, via the `LvbakEntrySource` seam
+   in the Public API sketch: `zipEntrySource` and `directoryEntrySource`
+   feed the same table reader. Detection, bounds, and per-row behavior are
+   identical for both inputs; only the entry enumeration differs. Exact
+   UI/CLI affordances still belong to those surfaces' specs.
 2. **`manifest-stats.json` absent or truncated.** Counts and missingFiles
    degrade to unknown (`rows: null` in skippedTables); import proceeds.
 3. **Unknown columns / missing columns in a known table.** Mirror
@@ -250,10 +271,13 @@ the same way for both seams at once.
    fine.** Import the card from flat columns, park the raw extensions
    string in escrow, warn. Losing sprites is better than losing the card.
 8. **Duplicate import (same archive twice).** Out of scope for the parse
-   layer (it returns entities; committing is the caller's). The studio
-   commit flow should surface duplicates by name the same way single-file
-   import already does. OPEN QUESTION: whether to thread Lumiverse's
-   original row IDs through for smarter dedupe.
+   layer (it returns entities; committing is the caller's). Mostly settled
+   upstream: the studio commit flow now marks kind+name shelf matches on
+   import ("Already on your shelf", default-unchecked, keep-both; the
+   triage logic in `src/ui/apps/library/import-triage.ts`, landed 2026-07-21),
+   and archive imports ride that same sheet. OPEN QUESTION (kept):
+   whether to thread Lumiverse's original row IDs through for
+   content-level dedupe smarter than kind+name.
 9. **Huge lorebooks.** The real export had one book's entries spread over
    22,770 total entry rows; the join buffer must stream per-book, not load
    the whole entries table.
