@@ -20,3 +20,6 @@ design/_serve.cjs
 .claude/
 CLAUDE.md
 audit-out/
+
+# local design wireframes (never shipped)
+wireframes/
