@@ -20,7 +20,7 @@ drive them with a loop, paint them in our chrome. That is a bounded build, not a
 | Tool surface | **OWNED** | `createHandler` seams + `saveBundle` + `convert` + detection. Each becomes one tool: name, JSON-schema args, handler that calls the engine. Receipts already speak human. |
 | Safety / enforcement | **OWNED** | Sealed scripts stay data; fail-closed adapters; path containment; the engine is the enforcer, the model only proposes. |
 | Design / chrome | **OWNED** | vs-harness-face.html: window frame, session strip, scrollback, tool rows, receipt cards, the gold write gate, input bar. ~7 components. |
-| Render layer | net-new | Ink (React for terminal). Our components port 1:1; start Ink, keep OpenTUI in reserve for streaming smoothness. See vs-ink-opentui.html. |
+| Render layer | net-new | **OpenTUI** (decided). React model, precompiled Zig render core over Bun FFI (Zig, not Rust; we write only TS, never build the native layer). Chosen because stock Ink's naive renderer is what strobed Claude Code for a year; Anthropic fixed it by hand-forking Ink, the community fixed it by rewriting in Rust/Ratatui with a TS bridge (breaks one-engine). OpenTUI ships that better renderer natively under React. See vs-ink-opentui.html. |
 | Agent loop | net-new, small | user msg -> model(tools) -> stream text+tool calls -> run tool -> feed result -> repeat until done. Anthropic SDK tool-runner / Agent SDK does the plumbing; licensed, supported. A few hundred lines. |
 | Provider adapter | net-new, small | BYO key across providers + local (ollama). THE first real decision (below). |
 | Permission gate | net-new, tiny | writes pass the gate; reads narrate freely. One component + one await. |
@@ -55,8 +55,22 @@ format adapters). Decide the default provider when the skeleton can actually cal
   mutating tool. First real "talk to the studio" moment.
 - **H4. Provider adapter + local model.** Extract the `chat` interface; add the ollama/local path;
   `/model` command; the loud egress opt-in. Now it is BYO-key and purist-friendly.
-- **H5. Polish + ship.** Streaming smoothness pass (Ink vs OpenTUI decision if it bites), `/gates`
-  and `/cli` commands, transcripts to disk, `hoplight harness` subcommand, release-train entry.
+- **H5. Polish + ship.** `/gates` and `/cli` commands, transcripts to disk, the `hoplight harness`
+  subcommand (a Bun CLI framework like Bunli/Boune can own the command wiring + release scaffolding;
+  OpenTUI owns the interactive screen), release-train entry.
+
+## Render decisions locked (research, 2026-07)
+
+- **OpenTUI, not Ink.** The flicker that plagued Claude Code (1,000+ upvotes, 4-6k scroll events/sec,
+  editors freezing) traces to stock Ink's naive renderer: one JS object per cell per frame,
+  string-level row diffs, no double buffering, no cell dirty-tracking. OpenTUI's native core does
+  exactly the buffering/dirty-tracking Anthropic had to fork Ink to add. React model kept, one-engine
+  kept (pure TS, native layer precompiled).
+- **Alt-screen buffer from line one.** The other half of the flicker fix is using the alternate
+  screen buffer (like vim) so frame updates are atomic. Do it in H1, never retrofit it.
+- **Sweep result:** the TS/Bun field (Ink, @rlabs-inc/tui, nberlette/tui, Melker) has no better fit;
+  the reactive-signal ones lose React + maturity, Melker is Deno/HTML-doc-first. Rust options
+  (Ratatui) ruled out: they need a cross-language bridge that breaks the one-engine law.
 
 ## Convergence + naming
 
