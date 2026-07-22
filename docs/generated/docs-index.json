@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-22",
-  "count": 82,
+  "count": 83,
   "docs": [
     {
       "id": "01-VISION",
@@ -115,7 +115,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-21.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-22.",
       "tags": [],
       "related": [],
       "anchors": [
@@ -162,6 +162,47 @@
         {
           "text": "Samples",
           "slug": "samples",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "HARNESS-PLAN",
+      "path": "docs/HARNESS-PLAN.md",
+      "title": "The Hoplight Harness: our own agentic terminal face",
+      "audience": "dev",
+      "summary": "**Status:** plan · **Visual north star:** wireframes/vs-harness-face.html · **Shell #:** the fourth (desktop exe, dev server, pocket PWA, harness) · **Not:** a fork of grok-build/Codex/Claude Code.",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "The bet, stated plainly",
+          "slug": "the-bet-stated-plainly",
+          "level": 2
+        },
+        {
+          "text": "What we OWN vs what is NET-NEW",
+          "slug": "what-we-own-vs-what-is-net-new",
+          "level": 2
+        },
+        {
+          "text": "The provider seam (the one decision that gates everything)",
+          "slug": "the-provider-seam-the-one-decision-that-gates-everything",
+          "level": 2
+        },
+        {
+          "text": "Phases (each gates on green tests + a live terminal run)",
+          "slug": "phases-each-gates-on-green-tests-a-live-terminal-run",
+          "level": 2
+        },
+        {
+          "text": "Convergence + naming",
+          "slug": "convergence-naming",
+          "level": 2
+        },
+        {
+          "text": "First move if greenlit",
+          "slug": "first-move-if-greenlit",
           "level": 2
         }
       ]
