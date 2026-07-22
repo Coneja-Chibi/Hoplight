@@ -32,6 +32,22 @@ I'm glad you're here. Let's all make Hoplight the best it can be!
 - **Explain new dependencies.** Include the package and why it is useful in the PR. The license audit
   rejects restricted licenses, and reviewers may suggest a small local helper when that is simpler.
 
+## How changes land
+
+- **Work on a branch, open a pull request.** `Mainstage` is the default branch; contributions come
+  in as PRs against it, not direct pushes.
+- **`Mainstage` is also the release branch.** Every push to it triggers the release train: it bumps
+  the version, tags, builds the binaries, and publishes a GitHub Release. That is another reason
+  changes arrive by PR, since a merge cuts a release and a stray direct push would too. Put
+  `[skip release]` in a commit message for a docs-only or tooling change that should not cut one.
+- **CI must be green to merge.** Each PR runs `verify:ci` (the whole wall). The `test` check has to
+  pass before a PR is merged.
+
+**Maintainer note (branch ruleset).** The recommended protection on `Mainstage` is to require the
+`test` status check, block force pushes, and add the GitHub Actions bot to the ruleset bypass list.
+The bypass is not optional: the release train pushes the version bump and tag directly, so without it
+on the bypass list, releases stop cutting.
+
 ## Adding a platform format
 
 Formats are drop-in folders. Copy `src/formats/_template/`, implement detect/read/write plus a
