@@ -271,7 +271,7 @@ On the platforms, a character and its lorebook are one welded file you cannot ed
 **Hoplight keeps them as separate, editable pieces that know about each other.**
 
 - Edit the book once, and every export of the character carries the current version.
-- Stage that character for the Press and its linked lorebooks ride along as a kit, even books you never staged, and a book already riding a kit is never printed twice.
+- Stage that character for the Press and its linked lorebooks ride along as a bundle, even books you never staged, and a book already riding a bundle is never printed twice.
 - The character travels with its luggage. 🎁
 
 ---
@@ -376,7 +376,7 @@ You drop Seraphina.png onto the Library floor
 ✍️ You open her on the Workbench with the lens set to "RisuAI":
    every field Risu will not carry is dimmed, so you know before you export, not after
  ↓
-🖨️ You stage her for the Press, and her linked book rides along automatically as her kit
+🖨️ You stage her for the Press, and her linked book rides along automatically as her bundle
  ↓
 📦 One zip drops: seraphina.charx, her lorebook, and an honest per-file result line
 ```
@@ -494,7 +494,7 @@ Apps register their own providers into the very same menu, so it grows richer as
 |---|---|
 | 📖 **Lorebooks** | Merge books, split a book, attach to a character |
 | 🧪 **Regex sets** | Duplicate, enable/disable, combine sets |
-| 🎭 **Characters** | Travel with their linked lorebooks; kits are first-class |
+| 🎭 **Characters** | Travel with their linked lorebooks; bundles are first-class |
 | 👤 **Personas** | The structured persona editor, same chassis as characters |
 
 </details>
@@ -750,7 +750,7 @@ It's the **same coverage ground truth** the character Lens and the Press readine
 ## 🖨️ The Press
 
 <details>
-<summary><i>Staging, kits, readiness, filenames and flavor, the run</i></summary>
+<summary><i>Staging, bundles, readiness, filenames and flavor, the run</i></summary>
 
 <img src="docs/media/shot-press.png" alt="The Press">
 
@@ -780,16 +780,16 @@ staged for the Press · 2 in the queue
 
 ---
 
-### 🎁 **Kits** *(a character travels with its luggage)*
+### 🎁 **Bundles** *(a character travels with its luggage)*
 
-**A staged character isn't just a character. It's a kit.** Every lorebook linked to him climbs into the trunk automatically, even books you never staged yourself.
+**A staged character isn't just a character. It's a bundle.** Every lorebook linked to him climbs into the trunk automatically, even books you never staged yourself.
 
-| Kit behavior | What happens |
+| Bundle behavior | What happens |
 |---|---|
 | 🧳 **Riders** | Linked books appear under their character, marked "rides with" |
 | 🪂 **Drop from this run** | Excludes a rider from one run without unlinking anything |
 | 🔁 **Ride again** | Puts it back |
-| 🚫 **No doubling** | A staged book already riding a kit isn't printed twice |
+| 🚫 **No doubling** | A staged book already riding a bundle isn't printed twice |
 
 ---
 
@@ -1239,7 +1239,7 @@ library/      : browse room - decks by kind, grid/showcase/list views, import,
 workbench/    : the editors - guided character interview, native platform bags,
                 the lorebook binder (lore/), regex bench (regex/), persona and
                 preset editors, the platform lens
-press/        : batch export - the staged queue, kits (character + linked books),
+press/        : batch export - the staged queue, bundles (character + linked books),
                 readiness lines from coverage, one zip per run
 settings/     : drop-in sections (appearance, studio, workbench)
 css-workshop/ : live theme editing on real components

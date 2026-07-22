@@ -1,6 +1,6 @@
 /**
  * The Press tour - the staging-grammar room (vs-press-room-1). Copy matches the built room: stage
- * from the Library or the left rail, kits with riders, readiness lines, one target, the single zip.
+ * from the Library or the left rail, bundles with riders, readiness lines, one target, the single zip.
  */
 import type { Tour } from "../tour-contract";
 
@@ -18,8 +18,8 @@ const pressTour: Tour = {
       body: "Right-click any piece in the Library and choose Stage for the Press, or click a stamp on the left rail. The queue survives app switches.",
     },
     {
-      id: "kits",
-      title: "Characters travel as kits",
+      id: "bundles",
+      title: "Characters travel as bundles",
       body: "A staged character brings his linked lorebooks along as riders. Drop a rider from one run without unlinking anything; it rides again next time.",
     },
     {

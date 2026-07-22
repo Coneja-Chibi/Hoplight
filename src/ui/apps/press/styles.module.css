@@ -1,6 +1,6 @@
 /**
  * The Press (vs-press-room-1, transcribed): left sticky offer rail (unstaged library pieces as
- * stamps), center kit proof cards over the staged queue, bookkeeping foot. Stage tokens;
+ * stamps), center bundle proof cards over the staged queue, bookkeeping foot. Stage tokens;
  * letterpress borders and offset shadows; mono kickers. Collapses by PANE width via @container.
  */
 /* the pane container: @container below resolves against THIS, so the room collapses by the
@@ -91,15 +91,15 @@
   white-space: nowrap;
 }
 
-/* ---- kits: a marquee'd group of proof cards ---- */
-.kit {
+/* ---- bundles: a marquee'd group of proof cards ---- */
+.bundle {
   border: 2px solid var(--stage-black);
   background: var(--stage-row);
   box-shadow: 4px 4px 0 0 var(--stage-black);
   margin-bottom: 0.9rem;
 }
 
-.kitMarq {
+.bundleMarq {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -112,7 +112,7 @@
   color: var(--stage-paper);
 }
 
-.kitMarq i {
+.bundleMarq i {
   font-style: normal;
   color: var(--stage-dim);
   margin-right: auto;
@@ -134,7 +134,7 @@
   color: var(--stage-danger-text);
 }
 
-/* ---- the proof card: one piece's row inside a kit ---- */
+/* ---- the proof card: one piece's row inside a bundle ---- */
 .kcard {
   display: grid;
   grid-template-columns: 1.05rem minmax(0, 1fr) auto auto;
