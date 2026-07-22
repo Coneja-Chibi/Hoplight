@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-22",
-  "count": 83,
+  "count": 81,
   "docs": [
     {
       "id": "01-VISION",
@@ -162,93 +162,6 @@
         {
           "text": "Samples",
           "slug": "samples",
-          "level": 2
-        }
-      ]
-    },
-    {
-      "id": "HARNESS-PLAN",
-      "path": "docs/HARNESS-PLAN.md",
-      "title": "The Hoplight Harness: our own agentic terminal face",
-      "audience": "dev",
-      "summary": "**Status:** plan · **Visual north star:** wireframes/vs-harness-face.html · **Shell #:** the fourth (desktop exe, dev server, pocket PWA, harness) · **Not:** a fork of grok-build/Codex/Claude Code.",
-      "tags": [],
-      "related": [],
-      "anchors": [
-        {
-          "text": "The bet, stated plainly",
-          "slug": "the-bet-stated-plainly",
-          "level": 2
-        },
-        {
-          "text": "What we OWN vs what is NET-NEW",
-          "slug": "what-we-own-vs-what-is-net-new",
-          "level": 2
-        },
-        {
-          "text": "The provider seam (the one decision that gates everything)",
-          "slug": "the-provider-seam-the-one-decision-that-gates-everything",
-          "level": 2
-        },
-        {
-          "text": "Phases (each gates on green tests + a live terminal run)",
-          "slug": "phases-each-gates-on-green-tests-a-live-terminal-run",
-          "level": 2
-        },
-        {
-          "text": "Render decisions locked (research, 2026-07)",
-          "slug": "render-decisions-locked-research-2026-07",
-          "level": 2
-        },
-        {
-          "text": "Convergence + naming",
-          "slug": "convergence-naming",
-          "level": 2
-        },
-        {
-          "text": "Reference study (clones outside the repo, 2026-07)",
-          "slug": "reference-study-clones-outside-the-repo-2026-07",
-          "level": 2
-        },
-        {
-          "text": "First move if greenlit",
-          "slug": "first-move-if-greenlit",
-          "level": 2
-        }
-      ]
-    },
-    {
-      "id": "POCKET-HOPLIGHT-PLAN",
-      "path": "docs/POCKET-HOPLIGHT-PLAN.md",
-      "title": "Pocket Hoplight: the studio, fully client-side, installable from GitHub Pages",
-      "audience": "dev",
-      "summary": "**Goal:** someone with only an iPad opens a URL, adds it to their home screen, and runs the whole studio: import, edit, convert, export. No PC, no server, no app store. Data never leaves the device.",
-      "tags": [],
-      "related": [],
-      "anchors": [
-        {
-          "text": "Ground facts (surveyed 2026-07-21)",
-          "slug": "ground-facts-surveyed-2026-07-21",
-          "level": 2
-        },
-        {
-          "text": "Phases (each gates on green tests + a live iPad-viewport probe via Playwright)",
-          "slug": "phases-each-gates-on-green-tests-a-live-ipad-viewport-probe-via-playwright",
-          "level": 2
-        },
-        {
-          "text": "P2 first move (probed 2026-07-21)",
-          "slug": "p2-first-move-probed-2026-07-21",
-          "level": 2
-        },
-        {
-          "text": "Cuts (v1, deliberate, say so in the UI)",
-          "slug": "cuts-v1-deliberate-say-so-in-the-ui",
-          "level": 2
-        },
-        {
-          "text": "Risks pinned",
-          "slug": "risks-pinned",
           "level": 2
         }
       ]

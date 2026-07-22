@@ -23,3 +23,6 @@ audit-out/
 
 # local design wireframes (never shipped)
 wireframes/
+
+# internal planning notes (the vaud-notes; never shipped, like the old design/ folder)
+vaud-notes/
