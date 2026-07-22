@@ -1,5 +1,5 @@
 /** Fast pre-commit orchestration: structural guards plus only relevant catalog and lint work. */
-import { needsComponentCatalog, parseNameStatusZ, stagedUiTsx } from "./pre-commit-core";
+import { needsComponentCatalog, needsDocsIndex, parseNameStatusZ, stagedUiTsx } from "./pre-commit-core";
 
 const run = (name: string, command: string[]): number => {
   const result = Bun.spawnSync(command, { stdout: "inherit", stderr: "inherit" });
@@ -18,6 +18,22 @@ function main(): number {
     return diff.exitCode ?? 1;
   }
   const paths = parseNameStatusZ(new TextDecoder().decode(diff.stdout));
+
+  // Auto-regenerate the docs index when docs change and stage it, so a forgotten manual regen can
+  // never fail docs:index:check in verify:ci (the recurring stale-index CI red). A no-op when the
+  // index is already current.
+  if (needsDocsIndex(paths)) {
+    if (run("docs-index-regen", ["bun", "run", "scripts/docs-index.ts"]) !== 0) return 1;
+    const add = Bun.spawnSync(["git", "add", "docs/generated/docs-index.json", "docs/llms.txt"], {
+      stdout: "inherit",
+      stderr: "inherit",
+    });
+    if ((add.exitCode ?? 1) !== 0) {
+      console.error("GUARDRAIL BLOCK (docs-index-stage): could not stage the regenerated docs index.");
+      return add.exitCode ?? 1;
+    }
+  }
+
   const checks: Array<readonly [string, string[]]> = [
     ["structural", ["bun", "run", "scripts/hooks/gate.ts", "--staged"]],
     ["colors", ["bun", "run", "scripts/hooks/no-hardcode-colors.ts", "--staged"]],

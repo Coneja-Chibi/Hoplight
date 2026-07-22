@@ -1,6 +1,6 @@
 /** Regression coverage for staged pre-commit parsing and routing decisions. */
 import { expect, test } from "bun:test";
-import { needsComponentCatalog, parseNameStatusZ, stagedUiTsx, type StagedPath } from "./pre-commit-core";
+import { needsComponentCatalog, needsDocsIndex, parseNameStatusZ, stagedUiTsx, type StagedPath } from "./pre-commit-core";
 
 const staged = (status: string, path: string): StagedPath => ({ status, path });
 
@@ -40,4 +40,19 @@ test("needsComponentCatalog includes source deletions, output, and generator cha
   expect(needsComponentCatalog([
     { status: "R100", path: "archive/Button.tsx", previousPath: "src/ui/components/button/Button.tsx" },
   ])).toBe(true);
+});
+
+test("needsDocsIndex fires on corpus docs, not on generated tables or non-docs", () => {
+  expect(needsDocsIndex([staged("M", "docs/guide/converting.md")])).toBe(true);
+  expect(needsDocsIndex([staged("A", "docs/reference/ui.md")])).toBe(true);
+  expect(needsDocsIndex([staged("D", "docs/HARNESS-PLAN.md")])).toBe(true);
+  // a doc moved out of docs/ (rename destination outside, previous inside) still changes the index
+  expect(needsDocsIndex([
+    { status: "R100", path: "vaud-notes/HARNESS-PLAN.md", previousPath: "docs/HARNESS-PLAN.md" },
+  ])).toBe(true);
+  // generated outputs and non-corpus tables never trigger (no regen loop)
+  expect(needsDocsIndex([staged("M", "docs/generated/docs-index.json")])).toBe(false);
+  expect(needsDocsIndex([staged("M", "docs/FORMAT-SUPPORT.md")])).toBe(false);
+  expect(needsDocsIndex([staged("M", "docs/media/shot.png")])).toBe(false);
+  expect(needsDocsIndex([staged("M", "src/ui/receipt.ts")])).toBe(false);
 });
