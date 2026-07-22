@@ -5,9 +5,15 @@
  * so the surface stays small and the trust boundary stays in one place.
  */
 import { homedir } from "node:os";
-import { StudioStore } from "../studio/store";
+import { StudioStore, type EntitySummary } from "../studio/store";
 import { resolveDefaultStudioDir } from "../studio/resolve-dir";
 import { STUDIO_ENTITY_KINDS, type StudioEntityKind } from "../studio/path-policy";
+import type { ParsedCanonicalEntity } from "../entities/runtime-schema";
+
+export type { EntitySummary } from "../studio/store";
+
+/** A canonical entity as the engine parsed it; tools read this, never raw files. */
+export type KitEntity = ParsedCanonicalEntity;
 
 export interface DeckCount {
   kind: StudioEntityKind;
@@ -20,6 +26,10 @@ export interface KitBridge {
   studioDir: string;
   /** One row per deck kind, in canonical order, with its live entity count. */
   deckCounts(): Promise<DeckCount[]>;
+  /** Every entity summary, or just one deck kind's. Bad kinds resolve to []. */
+  list(kind?: string): Promise<EntitySummary[]>;
+  /** One canonical entity, or null if the kind/id is unknown or unreadable. */
+  read(kind: string, id: string): Promise<KitEntity | null>;
 }
 
 const DECK_LABELS: Record<StudioEntityKind, string> = {
@@ -48,6 +58,20 @@ export function createBridge(
         label: DECK_LABELS[kind],
         count: tallies.get(kind) ?? 0,
       }));
+    },
+    async list(kind?: string): Promise<EntitySummary[]> {
+      try {
+        return await store.list(kind);
+      } catch {
+        return [];
+      }
+    },
+    async read(kind: string, id: string): Promise<KitEntity | null> {
+      try {
+        return await store.read(kind, id);
+      } catch {
+        return null;
+      }
     },
   };
 }
