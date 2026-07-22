@@ -41,7 +41,7 @@ You never have to guess what will happen. Every export shows you first. From an 
 
 The Press converts a whole set in one go. Stage every piece you want (right-click each and choose Stage for the Press, or use the left rail); the queue survives switching between rooms. Pick one target, click run the press once, and every piece prints into a single zip.
 
-Each row prints its own honest result: printed with a note on what it carries, skipped when the target has no format for that kind of piece, or failed with the error. A staged character travels as a kit: it drags its linked lorebooks along as riders, and you can drop a rider from one run without unlinking anything.
+Each row prints its own honest result: printed with a note on what it carries, skipped when the target has no format for that kind of piece, or failed with the error. A staged character travels as a troupe: it drags its linked lorebooks along as riders, and you can drop a rider from one run without unlinking anything.
 
 It is one target per run. To convert the same set to a second app, run the press again with a different platform.
 

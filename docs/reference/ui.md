@@ -222,10 +222,10 @@ The staging grammar applied to export: the Library browses, pieces get STAGED fo
 (right-click "Stage for the Press", or the room's own left rail of unstaged-piece stamps), and the
 room works only its staged queue - no studio browser inside. The queue is shell-store state
 (`pressQueue` + `ctx.press`), so it survives app switches.
-- **Kits** (`press/press-kits.ts`, pure + tested): a staged character travels as a kit - his
+- **Troupes** (`press/press-troupes.ts`, pure + tested): a staged character travels as a troupe - his
   `body.knowledgeRefs` lorebooks ride along automatically (resolved against the whole studio, even
   when never staged), droppable per run ("drop from this run" / "ride again"); staged books already
-  riding a kit are not doubled as solos. Everything else rides solo.
+  riding a troupe are not doubled as solos. Everything else rides solo.
 - **Readiness on every card** (`press/readiness-core.ts`, pure + tested): characters are read
   against the run target's coverage claims (`/api/coverage` carries - the same ground truth as the
   editor lens): "8 of 23 filled - empty: nickname, personality, +12 more" with an
