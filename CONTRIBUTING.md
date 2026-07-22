@@ -38,8 +38,12 @@ I'm glad you're here. Let's all make Hoplight the best it can be!
   in as PRs against it, not direct pushes.
 - **`Mainstage` is also the release branch.** Every push to it triggers the release train: it bumps
   the version, tags, builds the binaries, and publishes a GitHub Release. That is another reason
-  changes arrive by PR, since a merge cuts a release and a stray direct push would too. Put
-  `[skip release]` in a commit message for a docs-only or tooling change that should not cut one.
+  changes arrive by PR, since a merge cuts a release and a stray direct push would too. For a
+  docs-only or tooling change that should not cut a release, put `[skip release]` in the commit that
+  lands on `Mainstage`. The train reads only that landing commit's message (`head_commit`), not the
+  individual PR commits, so for a squash or merge you must put the marker in the squash or merge
+  commit message itself (edit it before confirming); a marker buried in a branch commit is ignored
+  and the release still runs.
 - **CI must be green to merge.** Each PR runs `verify:ci` (the whole wall). The `test` check has to
   pass before a PR is merged.
 
