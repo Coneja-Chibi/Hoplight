@@ -1,7 +1,7 @@
 /**
  * The Press - the locked vs-press-room-1 room, staging grammar: no studio browser in here. Pieces
  * arrive via "Stage for the Press" (the shell entity menu, the offer rail); the room works ONLY the
- * staged queue, grouped as KITS (a character owns his linked lorebooks; riders droppable per run),
+ * staged queue, grouped as BUNDLES (a character owns his linked lorebooks; riders droppable per run),
  * each card carrying its readiness against the run's target (readiness-core over the same coverage
  * claims the Write-for lens trusts). One target per run, filenames + flavors per row, the lever,
  * one zip out. Ledger and drag-reorder are follow-up slices, named here so absence reads as
@@ -26,7 +26,7 @@ import {
   type RunRow,
 } from "./press-core";
 import { lorebookKeyGap, readiness, readinessLine } from "./readiness-core";
-import { groupKits, knowledgeRefsOf, pieceKeyOf, runSet } from "./press-kits";
+import { groupBundles, knowledgeRefsOf, pieceKeyOf, runSet } from "./press-bundles";
 import styles from "./styles.module.css";
 
 /** the locked press mark (vs-shell-apps) */
@@ -99,16 +99,16 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
     return out;
   }, [queue, entities]);
 
-  const grouping = useMemo(() => groupKits(queue, allSummaries, refsByOwner), [queue, allSummaries, refsByOwner]);
+  const grouping = useMemo(() => groupBundles(queue, allSummaries, refsByOwner), [queue, allSummaries, refsByOwner]);
 
-  // Fetch bodies for the queue AND kit riders (readiness + kit links need them; the run reuses the
+  // Fetch bodies for the queue AND bundle riders (readiness + bundle links need them; the run reuses the
   // cache). Riders arrive one pass late by design: fetching an owner reveals his refs, the grouping
   // gains the rider, this effect refires and fetches him. Rider bodies never change the grouping,
   // so it settles in two passes.
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const wanted = [...queue, ...grouping.kits.flatMap((k) => k.riders)];
+      const wanted = [...queue, ...grouping.bundles.flatMap((k) => k.riders)];
       for (const p of wanted) {
         const key = pieceKeyOf(p);
         if (entities[key] !== undefined) continue;
@@ -348,26 +348,26 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
           {queue.length === 0 ? (
             <p className={styles.empty}>
               Nothing staged. Stage pieces from the Library - right-click any piece, or use the rail
-              on the left. A staged character brings his linked lorebooks as a kit.
+              on the left. A staged character brings his linked lorebooks as a bundle.
             </p>
           ) : (
             <>
-              {grouping.kits.map((kit) => (
-                <div key={pieceKeyOf(kit.owner)} className={styles.kit}>
-                  <div className={styles.kitMarq}>
-                    <span>{`kit · ${kit.owner.name}`}</span>
-                    <i>{kit.riders.length > 0 ? `character + ${kit.riders.length} linked` : "character"}</i>
-                    <button type="button" className={styles.unstage} onClick={() => ctx.press.unstage(kit.owner.id, kit.owner.kind)}>
+              {grouping.bundles.map((bundle) => (
+                <div key={pieceKeyOf(bundle.owner)} className={styles.bundle}>
+                  <div className={styles.bundleMarq}>
+                    <span>{`bundle · ${bundle.owner.name}`}</span>
+                    <i>{bundle.riders.length > 0 ? `character + ${bundle.riders.length} linked` : "character"}</i>
+                    <button type="button" className={styles.unstage} onClick={() => ctx.press.unstage(bundle.owner.id, bundle.owner.kind)}>
                       unstage ×
                     </button>
                   </div>
-                  {card(kit.owner)}
-                  {kit.riders.map((r) => card(r, { of: kit.owner.name }))}
+                  {card(bundle.owner)}
+                  {bundle.riders.map((r) => card(r, { of: bundle.owner.name }))}
                 </div>
               ))}
               {grouping.solos.map((s) => (
-                <div key={pieceKeyOf(s)} className={styles.kit}>
-                  <div className={styles.kitMarq}>
+                <div key={pieceKeyOf(s)} className={styles.bundle}>
+                  <div className={styles.bundleMarq}>
                     <span>{`solo · ${s.name}`}</span>
                     <i>{s.kind}</i>
                     <button type="button" className={styles.unstage} onClick={() => ctx.press.unstage(s.id, s.kind)}>

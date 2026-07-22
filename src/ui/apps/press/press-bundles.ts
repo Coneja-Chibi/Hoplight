@@ -1,5 +1,5 @@
 /**
- * Kit grouping for the Press queue (the locked vs-press-room-1 wire): a staged CHARACTER is a kit -
+ * Bundle grouping for the Press queue (the locked vs-press-room-1 wire): a staged CHARACTER is a bundle -
  * his linked lorebooks (body.knowledgeRefs) ride with him automatically, droppable per run. Staged
  * non-characters (and staged lorebooks nobody links) ride solo. Pure over summaries + fetched
  * bodies; the room owns fetching.
@@ -18,28 +18,28 @@ export function knowledgeRefsOf(entity: unknown): string[] {
   return Array.isArray(refs) ? refs.filter((r): r is string => typeof r === "string") : [];
 }
 
-export interface PressKit {
+export interface PressBundle {
   owner: StudioEntitySummary;
   /** linked lorebooks riding with the owner (resolved against the studio's summaries) */
   riders: StudioEntitySummary[];
 }
 
-export interface KitGrouping {
-  kits: PressKit[];
+export interface BundleGrouping {
+  bundles: PressBundle[];
   solos: StudioEntitySummary[];
 }
 
 /**
- * Group the staged queue into kits and solos. Riders resolve from the WHOLE studio's summaries (a
+ * Group the staged queue into bundles and solos. Riders resolve from the WHOLE studio's summaries (a
  * linked book rides even when it was never separately staged); a staged lorebook that already rides
- * some staged character's kit is not doubled as a solo. Queue order is preserved.
+ * some staged character's bundle is not doubled as a solo. Queue order is preserved.
  */
-export function groupKits(
+export function groupBundles(
   queue: readonly StudioEntitySummary[],
   allSummaries: readonly StudioEntitySummary[],
   refsByOwner: Readonly<Record<string, readonly string[]>>,
-): KitGrouping {
-  const kits: PressKit[] = [];
+): BundleGrouping {
+  const bundles: PressBundle[] = [];
   const ridden = new Set<string>();
 
   for (const p of queue) {
@@ -49,22 +49,22 @@ export function groupKits(
       .map((id) => allSummaries.find((s) => s.kind === "lorebook" && s.id === id))
       .filter((s): s is StudioEntitySummary => s !== undefined);
     for (const r of riders) ridden.add(pieceKeyOf(r));
-    kits.push({ owner: p, riders });
+    bundles.push({ owner: p, riders });
   }
 
   const solos = queue.filter((p) => p.kind !== "character" && !ridden.has(pieceKeyOf(p)));
-  return { kits, solos };
+  return { bundles, solos };
 }
 
-/** Every piece a run prints, in order: kit owners with their (non-dropped) riders, then solos. */
+/** Every piece a run prints, in order: bundle owners with their (non-dropped) riders, then solos. */
 export function runSet(
-  grouping: KitGrouping,
+  grouping: BundleGrouping,
   dropped: ReadonlySet<string>,
 ): StudioEntitySummary[] {
   const out: StudioEntitySummary[] = [];
-  for (const kit of grouping.kits) {
-    out.push(kit.owner);
-    for (const r of kit.riders) if (!dropped.has(pieceKeyOf(r))) out.push(r);
+  for (const bundle of grouping.bundles) {
+    out.push(bundle.owner);
+    for (const r of bundle.riders) if (!dropped.has(pieceKeyOf(r))) out.push(r);
   }
   for (const s of grouping.solos) out.push(s);
   return out;

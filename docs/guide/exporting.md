@@ -41,7 +41,7 @@ You never have to guess which case you are in. Chips above the list already show
 
 The Press is the only way to export a lorebook, persona, or preset on its own, and the only way to export more than one piece in a single run.
 
-Right-click any piece, in the Library or on the Workbench, and choose Stage for the Press, or click one on the left rail inside the Press itself. The queue survives switching rooms. Stage a character and his linked lorebooks ride along automatically as a kit, even ones you never separately staged; drop a rider out of just this run without unlinking it (drop from this run, then ride again to bring it back).
+Right-click any piece, in the Library or on the Workbench, and choose Stage for the Press, or click one on the left rail inside the Press itself. The queue survives switching rooms. Stage a character and his linked lorebooks ride along automatically as a bundle, even ones you never separately staged; drop a rider out of just this run without unlinking it (drop from this run, then ride again to bring it back).
 
 Pick one target for the whole queue. The Press does not show the honesty view, keep, note, dropped, that lives on the single-piece Export button. It shows readiness instead. Every staged lorebook checks its own keywords right away, no target needed: an entry with none at all reads red, it will never fire; some entries missing keywords reads amber instead, naming how many. A staged character needs a target picked first, then its line reads how many of that platform's fields are actually filled in, with the empty ones named. If a piece is not ready, open in the editor sends it to the Workbench without losing your spot in the queue.
 

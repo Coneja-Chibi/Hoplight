@@ -38,7 +38,7 @@ You do not have to guess which case you are in. The Export button on a character
 
 ![What will drop](../media/shot-export-honesty.png)
 
-See [Convert a card](converting.md) for the full walkthrough, including how a staged character's linked lorebooks ride along as a kit.
+See [Convert a card](converting.md) for the full walkthrough, including how a staged character's linked lorebooks ride along as a bundle.
 
 ## Which apps are supported?
 
