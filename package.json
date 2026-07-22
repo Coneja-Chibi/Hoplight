@@ -6,10 +6,12 @@
   "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
   "license": "AGPL-3.0-or-later",
   "bin": {
-    "hoplight": "./src/cli.ts"
+    "hoplight": "./src/cli.ts",
+    "kit": "./src/kit/index.tsx"
   },
   "scripts": {
     "hoplight": "bun run src/cli.ts",
+    "kit": "bun run src/kit/index.tsx",
     "dev": "bun run src/cli.ts ui 8321",
     "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
@@ -66,6 +68,8 @@
     "typescript-eslint": "^8.62.1"
   },
   "dependencies": {
+    "@opentui/core": "^0.4.5",
+    "@opentui/react": "^0.4.5",
     "dompurify": "^3.4.11",
     "fflate": "^0.8.3",
     "lucide-react": "^1.24.0",
@@ -77,7 +81,7 @@
     "react-dom": "^19.2.7",
     "wasmoon": "1.16.0",
     "webview-bun": "^2.4.0",
-    "zustand": "^5.0.14",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   }
 }
