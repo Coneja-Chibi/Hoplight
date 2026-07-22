@@ -79,6 +79,26 @@ future Orison shares this loop skeleton, it is built once. Naming is Chi's call 
 it; the bunny lineage (BunnyMo, TunnelVision, VectHare) suggests something like **Warren** (the
 tunnel-network an agent navigates) or **Burrow**, but that is a nudge, not a decision.
 
+## Reference study (clones outside the repo, 2026-07)
+
+Cloned into `Documents/external-refs/` (beside Marinara-Engine, never inside the repo, provenance
+stays clean). Studied for ARCHITECTURE, never copied; the clean-room rule that governs format work
+governs this too. We do NOT and will not use leaked Claude Code source: permission to look is not a
+license to copy, and it would poison the AGPL provenance we protect everywhere else.
+
+- **opencode (sst/opencode, MIT) — the goldmine.** Our exact stack (Bun + TS monorepo) and it runs
+  on OpenTUI (which SST built FOR it). It validates this plan point-for-point: provider seam =
+  `packages/llm/` with one file per provider + `tool-runtime.ts` (our folders-as-schema); agent loop
+  = `packages/core/src/session/` (`execution.ts` + `compaction.ts` for context management); tools =
+  `packages/core/src/tool/` one focused file each + a `question.ts` consent tool + its own AGENTS.md.
+  NEW IDEA worth taking: a client/server split (agent as server, TUI as client over a protocol) —
+  maps onto Hoplight already being a server with a browser client; the harness could be a second
+  client on the same brain. An H3 consideration, not H1.
+- **codex (openai/codex, Apache-2.0) — Rust, reference only.** Read the consent-per-action model and
+  sandboxing, not the code.
+- **grok-build (xai-org/grok-build, Apache-2.0) — Rust, reference only.** Read the tool layer and
+  MCP/ACP integration, not the code.
+
 ## First move if greenlit
 
 H1, tonight-sized: `bun add ink react`, a `src/harness/` folder, the chrome components transcribed
