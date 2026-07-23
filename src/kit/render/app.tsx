@@ -1,9 +1,10 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Kit's render root: the live-session chrome (title bar, session strip, scrollback, input).
- * Transcribed from the locked harness face. This is the imperative shell's view only; it holds
- * no engine logic. For this skeleton the input echoes locally and /quit exits; the agent loop and
- * tool surface plug into onSubmit next. Nothing here reaches a network or a model.
+ * Kit's render root in the LOCKED look (DECISIONS #23, wireframes/vs-kit-look.html): the Default
+ * session screen. Marquee crossed with Hard Stamp, translated to terminal-honest primitives: a big
+ * block-letter masthead (the mockup's display font), a rose-deep bottom rule where the browser had an
+ * offset shadow, solid stage fills where it had a gradient, hard edges, and a rose-outlined input.
+ * This is the imperative shell's view only; the agent loop and tools plug into onSubmit next.
  */
 import { useState } from "react";
 import type { ReactNode } from "react";
@@ -23,8 +24,8 @@ interface Line {
 }
 
 const WELCOME: Line[] = [
-  { role: "say", text: "This is Kit, a terminal way to work your studio by talking to it." },
-  { role: "say", text: "Nothing leaves your machine until you send, and scripts stay sealed as text." },
+  { role: "say", text: "Talk to your studio. Nothing leaves your machine until you send." },
+  { role: "say", text: "Scripts stay sealed as text and never run." },
 ];
 
 const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
@@ -51,7 +52,7 @@ export function App({ studioName, totalPieces, decks, onQuit }: AppProps): React
 
   return (
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
-      <TitleBar studioName={studioName} totalPieces={totalPieces} />
+      <Masthead studioName={studioName} totalPieces={totalPieces} />
       <SessionStrip decks={decks} />
       <box flexGrow={1} flexDirection="column" paddingLeft={1} paddingRight={1} paddingTop={1} gap={1}>
         {lines.map((line, index) => (
@@ -63,25 +64,22 @@ export function App({ studioName, totalPieces, decks, onQuit }: AppProps): React
   );
 }
 
-function TitleBar({ studioName, totalPieces }: { studioName: string; totalPieces: number }): ReactNode {
+function Masthead({ studioName, totalPieces }: { studioName: string; totalPieces: number }): ReactNode {
+  const kicker = `studio · ${studioName} · ${totalPieces} pieces`.toUpperCase();
   return (
     <box
-      flexDirection="row"
-      backgroundColor={theme.stage}
+      flexDirection="column"
+      backgroundColor={theme.panel}
       border={["bottom"]}
-      borderColor={theme.edge}
+      borderColor={theme.roseDeep}
       paddingLeft={1}
       paddingRight={1}
     >
-      <text>
-        <span fg={theme.text}>Kit</span>
-        <span fg={theme.rose}>.</span>
-      </text>
-      <box flexGrow={1} />
-      <text fg={theme.soft}>
-        studio <span fg={theme.text}>{studioName}</span> {"  "}
-        <span fg={theme.text}>{String(totalPieces)}</span> pieces
-      </text>
+      <box flexDirection="row">
+        <ascii-font text="Kit" font="block" color={theme.text} />
+        <ascii-font text="." font="block" color={theme.rose} />
+      </box>
+      <text fg={theme.mut}>{kicker}</text>
     </box>
   );
 }
@@ -92,9 +90,9 @@ function SessionStrip({ decks }: { decks: DeckCount[] }): ReactNode {
   return (
     <box
       flexDirection="row"
-      backgroundColor={theme.row}
+      backgroundColor={theme.floor}
       border={["bottom"]}
-      borderColor={theme.line}
+      borderColor={theme.edge}
       paddingLeft={1}
       paddingRight={1}
     >
@@ -139,7 +137,7 @@ function InputBar({
   return (
     <box
       flexDirection="column"
-      backgroundColor={theme.stage}
+      backgroundColor={theme.floor}
       border={["top"]}
       borderColor={theme.edge}
       paddingLeft={1}
@@ -147,9 +145,9 @@ function InputBar({
     >
       <box
         flexDirection="row"
-        backgroundColor={theme.well}
+        backgroundColor="#0a0a0b"
         border
-        borderColor={theme.line}
+        borderColor={theme.rose}
         paddingLeft={1}
         paddingRight={1}
       >
@@ -163,7 +161,7 @@ function InputBar({
           onSubmit={(value: unknown) => onSubmit(typeof value === "string" ? value : "")}
         />
       </box>
-      <text fg={theme.soft}>
+      <text fg={theme.mut}>
         <span fg={theme.text}>/model </span>provider {"  "}
         <span fg={theme.text}>/gates </span>what asks first {"  "}
         <span fg={theme.text}>/cli </span>classic verbs {"  "}
