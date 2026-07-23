@@ -18,7 +18,9 @@ import { SayLine } from "./primitives/say-line";
 import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { InputBar } from "./primitives/input-bar";
+import { StatusRow } from "./primitives/status-row";
 import { SettingsScreen } from "./settings/settings-screen";
+import { applyTurnEvent, type RenderLine, type TurnView } from "./turn-events";
 
 export interface AppProps {
   studioName: string;
@@ -27,12 +29,6 @@ export interface AppProps {
   session: Session;
   onQuit: () => void;
 }
-
-type RenderLine =
-  | { role: "you"; text: string }
-  | { role: "say"; text: string }
-  | { role: "tool"; text: string }
-  | { role: "error"; text: string };
 
 const WELCOME: RenderLine[] = [
   { role: "say", text: "Talk to your studio. Nothing leaves your machine until you send." },
@@ -44,13 +40,14 @@ const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
 /** The window shell: session state plus composed widgets. */
 export function App({ studioName, totalPieces, decks, session, onQuit }: AppProps): ReactNode {
   const [draft, setDraft] = useState("");
-  const [lines, setLines] = useState<RenderLine[]>(WELCOME);
   const [busy, setBusy] = useState(false);
+  const [turn, setTurn] = useState<TurnView>({ lines: WELCOME, live: { phase: "idle" }, label: "" });
   const [view, setView] = useState<"session" | "settings">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
   );
   const history = useRef<ModelMessage[]>([]);
-  const add = (line: RenderLine): void => setLines((prev) => [...prev, line]);
+  const add = (line: RenderLine): void =>
+    setTurn((prev) => ({ ...prev, lines: [...prev.lines, line] }));
 
   const submit = async (raw: string): Promise<void> => {
     const value = raw.trim();
@@ -67,12 +64,11 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     }
     add({ role: "you", text: value });
     setBusy(true);
+    setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
     history.current = await session.runTurn(value, history.current, (event) => {
-      if (event.type === "say") add({ role: "say", text: event.text });
-      else if (event.type === "tool") add({ role: "tool", text: event.summary });
-      else if (event.type === "stopped") add({ role: "say", text: event.reason });
-      else if (event.type === "error") add({ role: "error", text: event.message });
+      setTurn((prev) => applyTurnEvent(prev, event));
     });
+    setTurn((prev) => ({ ...prev, live: { phase: "idle" } }));
     setBusy(false);
   };
 
@@ -94,7 +90,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
       <Masthead studioName={studioName} totalPieces={totalPieces} />
       <SessionStrip decks={decks} />
       <Scrollback>
-        {lines.map((line, index) =>
+        {turn.lines.map((line, index) =>
           line.role === "you" ? (
             <YouLine key={index} text={line.text} />
           ) : line.role === "tool" ? (
@@ -105,6 +101,10 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
             <SayLine key={index} text={line.text} />
           ),
         )}
+        {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
+        {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? (
+          <StatusRow label={turn.label || "the model"} status={turn.live} />
+        ) : null}
       </Scrollback>
       <InputBar draft={draft} onInput={setDraft} onSubmit={submit} />
     </box>

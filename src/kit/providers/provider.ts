@@ -34,8 +34,20 @@ export interface ToolSpec {
   schema: Record<string, unknown>;
 }
 
-/** The model call the loop depends on; every provider spoke implements this. Injected into the loop. */
-export type ChatFn = (messages: ModelMessage[], tools: ToolSpec[]) => Promise<ModelReply>;
+/** A live fragment of the model's turn, streamed as it arrives. "reasoning" is the model thinking
+ * before it answers; "text" is the answer being typed. Pure data; the render layer decides the look. */
+export interface ChatDelta {
+  kind: "text" | "reasoning";
+  text: string;
+}
+
+/** The model call the loop depends on; every provider spoke implements this. Injected into the loop.
+ * onDelta (optional) receives live fragments while the reply forms, for typing/thinking feedback. */
+export type ChatFn = (
+  messages: ModelMessage[],
+  tools: ToolSpec[],
+  onDelta?: (delta: ChatDelta) => void,
+) => Promise<ModelReply>;
 
 /** A configured provider spoke reachable through chat(). */
 export interface Provider {

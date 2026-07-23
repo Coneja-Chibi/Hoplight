@@ -4,7 +4,7 @@
  * is no I/O here, the model call and tool dispatch are injected, so this runs and is tested without a
  * network or a real model. It yields events for the render layer and returns the updated history.
  */
-import type { ChatFn, ModelMessage, ModelToolCall, ToolSpec } from "../providers/provider";
+import type { ChatDelta, ChatFn, ModelMessage, ModelToolCall, ToolSpec } from "../providers/provider";
 import { callKey, stopReason } from "./stop-core";
 
 /** The outcome of running one tool call: a one-line row for the terminal, plus the model's observation. */
@@ -27,6 +27,8 @@ export interface LoopDeps {
   dispatch: DispatchFn;
   tools: ToolSpec[];
   maxSteps: number;
+  /** Live typing/thinking fragments, forwarded straight to the render layer. */
+  onDelta?: (delta: ChatDelta) => void;
 }
 
 /** Run one user turn to completion, yielding events and returning the turn's full message history. */
@@ -45,7 +47,7 @@ export async function* runTurn(
       return messages;
     }
 
-    const reply = await deps.chat(messages, deps.tools);
+    const reply = await deps.chat(messages, deps.tools, deps.onDelta);
 
     if (reply.kind === "say") {
       messages.push({ role: "assistant", content: reply.text });

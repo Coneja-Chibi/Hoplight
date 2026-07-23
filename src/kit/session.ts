@@ -11,8 +11,14 @@ import { makeDispatch, toolSpecs } from "./loop/dispatch";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage } from "./providers/provider";
 
-/** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API failure). */
-export type TurnEvent = LoopEvent | { type: "error"; message: string };
+/** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
+ * failure). begin fires once when the provider resolves (who is about to answer); delta streams live
+ * typing/thinking fragments while the reply forms. */
+export type TurnEvent =
+  | LoopEvent
+  | { type: "begin"; label: string }
+  | { type: "delta"; kind: "text" | "reasoning"; text: string }
+  | { type: "error"; message: string };
 
 export interface Session {
   runTurn(
@@ -41,8 +47,15 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           });
           return history;
         }
+        onEvent({ type: "begin", label: `${config.name ?? config.kind} · ${config.model}` });
         const chat = makeChat(config);
-        const turn = runLoop(input, history, { chat, dispatch, tools: specs, maxSteps: MAX_STEPS });
+        const turn = runLoop(input, history, {
+          chat,
+          dispatch,
+          tools: specs,
+          maxSteps: MAX_STEPS,
+          onDelta: (delta) => onEvent({ type: "delta", kind: delta.kind, text: delta.text }),
+        });
         let next = await turn.next();
         while (!next.done) {
           onEvent(next.value);
