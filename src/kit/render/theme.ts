@@ -21,6 +21,7 @@ export const theme = {
   teal: "#14b8a6",
   tealDeep: "#0f766e",
   gold: "#eab308",
+  alive: "#22c55e", // the connected/alive dot in the status bar
   white: "#ffffff",
   stamp: "#2b2734", // the heavy pressed ledge (carved bottom + right edges)
   stampDim: "#141019", // the recessed thin edge (carved top + left)

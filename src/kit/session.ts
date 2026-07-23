@@ -29,6 +29,8 @@ export interface Session {
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
   probe(onEvent: (event: TurnEvent) => void): Promise<void>;
+  /** The connected provider's name + model for the status bar, or null if none is set yet. */
+  activeProvider(): Promise<{ name: string; model: string } | null>;
 }
 
 const MAX_STEPS = 12;
@@ -86,6 +88,12 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
       } catch (error) {
         onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
       }
+    },
+
+    async activeProvider() {
+      const config = await resolveProviderConfig();
+      if (!config) return null;
+      return { name: config.name ?? config.kind, model: config.model };
     },
   };
 }

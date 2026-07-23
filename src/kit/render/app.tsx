@@ -4,7 +4,7 @@
  * render/primitives widgets. Typing runs a turn through the session; its events (say / tool / stopped
  * / error) stream in as the matching widget. No chrome is drawn inline; the look lives in primitives/.
  */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
@@ -13,7 +13,8 @@ import type { ModelMessage } from "../providers/provider";
 import type { Session } from "../session";
 import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
-import { SessionStrip } from "./primitives/session-strip";
+import { Playbill } from "./primitives/playbill";
+import { StatusBar } from "./primitives/status-bar";
 import { Scrollback } from "./primitives/scrollback";
 import { YouLine } from "./primitives/you-line";
 import { SayLine } from "./primitives/say-line";
@@ -39,9 +40,13 @@ export interface AppProps {
 const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
 
 /** The window shell: session state plus composed widgets. */
-export function App({ studioName, totalPieces, decks, session, onQuit }: AppProps): ReactNode {
+export function App({ studioName, totalPieces, session, onQuit }: AppProps): ReactNode {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [provider, setProvider] = useState<{ name: string; model: string } | null>(null);
+  useEffect(() => {
+    session.activeProvider().then(setProvider);
+  }, [session]);
   const [turn, setTurn] = useState<TurnView>({
     lines: [],
     live: { phase: "idle" },
@@ -97,6 +102,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
         onSaved={(config) => {
           setView("session");
           add({ role: "say", text: `Connected ${config.name ?? config.kind}. Talk to your studio.` });
+          session.activeProvider().then(setProvider);
         }}
       />
     );
@@ -104,7 +110,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
 
   return (
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
-      <SessionStrip decks={decks} />
+      <Playbill studioName={studioName} totalPieces={totalPieces} />
       <Scrollback>
         <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
         {turn.lines.map((line, index) =>
@@ -143,6 +149,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
+      <StatusBar provider={provider} busy={busy} />
       <InputBar
         draft={draft}
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
