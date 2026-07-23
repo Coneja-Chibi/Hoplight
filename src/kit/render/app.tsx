@@ -12,7 +12,7 @@ import type { DeckCount } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session } from "../session";
 import { theme } from "./theme";
-import { Masthead } from "./primitives/masthead";
+import { OpeningBanner } from "./primitives/opening-banner";
 import { SessionStrip } from "./primitives/session-strip";
 import { Scrollback } from "./primitives/scrollback";
 import { YouLine } from "./primitives/you-line";
@@ -35,12 +35,6 @@ export interface AppProps {
   session: Session;
   onQuit: () => void;
 }
-
-// The confiding voice (design bible): bright, under the header, not in the transcript.
-const CONFIDE: string[] = [
-  "Talk to your studio. Nothing leaves your machine until you send.",
-  "Scripts stay sealed as text and never run.",
-];
 
 const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
 
@@ -110,15 +104,8 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
 
   return (
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
-      <Masthead studioName={studioName} totalPieces={totalPieces} />
+      <OpeningBanner studioName={studioName} totalPieces={totalPieces} />
       <SessionStrip decks={decks} />
-      <box flexDirection="column" paddingLeft={1} paddingRight={1} paddingTop={1} paddingBottom={1}>
-        {CONFIDE.map((line, index) => (
-          <box key={index} flexDirection="row" height={1}>
-            <text fg={theme.bright}>{line}</text>
-          </box>
-        ))}
-      </box>
       <Scrollback>
         {turn.lines.map((line, index) =>
           line.role === "you" ? (
