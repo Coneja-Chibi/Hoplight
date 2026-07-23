@@ -3,14 +3,14 @@
  * InputBar: the composer (DECISIONS #27), heavy frame + lifted plate + rose cap. A thick "heavy"
  * box border is the neo-brute stamp (a TTY can't fake an offset shadow, it only makes a grey bar);
  * the field sits on a lighter plate for a lift without a shadow. A rose-deep "> " cap block (white
- * ink) is fused to the left border so the prompt is a real stamp, not a floating marker. The caret
- * is a blinking underscore whose color shifts through the spectrum (style set once so the terminal's
- * blink is not reset; only the color animates). No command-hint row (the slash popup surfaces those).
+ * ink) is fused to the left border so the prompt is a real stamp, not a floating marker. The caret is
+ * a blinking underscore whose color shifts through the spectrum, set on the input itself (it draws
+ * its own cursor) via a ref, imperatively, so animating the color never re-renders the field or jumps
+ * the caret. No command-hint row (the slash popup surfaces commands on demand).
  */
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
-import { useRenderer } from "@opentui/react";
-import { RGBA } from "@opentui/core";
+import type { InputRenderable } from "@opentui/core";
 import { theme } from "../theme";
 import { rampAt } from "../colors";
 import { SweepLine } from "./sweep-line";
@@ -33,16 +33,18 @@ export function InputBar({
   onInput: (value: string) => void;
   onSubmit: (value: string) => void;
 }): ReactNode {
-  const renderer = useRenderer();
-  const [tick, setTick] = useState(0);
+  const inputRef = useRef<InputRenderable | null>(null);
   useEffect(() => {
-    renderer.setCursorStyle({ style: "underline", blinking: true });
-    const id = setInterval(() => setTick((x) => x + 1), CURSOR_STEP_MS);
+    const input = inputRef.current;
+    if (!input) return;
+    input.cursorStyle = { style: "underline", blinking: true };
+    let n = 0;
+    const id = setInterval(() => {
+      n += 1;
+      input.cursorColor = rampAt(CURSOR_RAMP, n * CURSOR_FLOW);
+    }, CURSOR_STEP_MS);
     return () => clearInterval(id);
-  }, [renderer]);
-  useEffect(() => {
-    renderer.setCursorColor(RGBA.fromHex(rampAt(CURSOR_RAMP, tick * CURSOR_FLOW)));
-  }, [renderer, tick]);
+  }, []);
 
   return (
     <box flexDirection="column" backgroundColor={theme.well} paddingLeft={1} paddingRight={1} paddingBottom={1}>
@@ -61,6 +63,7 @@ export function InputBar({
         </box>
         <box width={1} />
         <input
+          ref={inputRef}
           focused
           flexGrow={1}
           value={draft}
