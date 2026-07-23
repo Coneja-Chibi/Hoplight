@@ -8,6 +8,7 @@ export const theme = {
   panel: "#17161d",
   row: "#1d1a21",
   floor: "#141217",
+  sunken: "#0a0a0b",
   edge: "#000000",
   line: "#3a3542",
   text: "#f2eee9",
