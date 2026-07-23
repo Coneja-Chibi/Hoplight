@@ -76,6 +76,7 @@ export function SettingsScreen({
   };
 
   const apply = (next: SettingsState, intent?: Intent): void => {
+    stateRef.current = next; // advance synchronously so a burst of keys chains off fresh state
     setState(next);
     if (intent) void runIntent(intent);
   };
@@ -96,7 +97,7 @@ export function SettingsScreen({
 
   usePaste((event) => {
     const current = stateRef.current;
-    if (current) setState(applyPaste(current, new TextDecoder().decode(event.bytes)));
+    if (current) apply(applyPaste(current, new TextDecoder().decode(event.bytes)));
   });
 
   if (!state) {

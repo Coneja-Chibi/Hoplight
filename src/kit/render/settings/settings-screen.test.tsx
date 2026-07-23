@@ -41,3 +41,23 @@ test("renders the Panel Deck with the providers section and the add row", async 
     await t.renderer.destroy();
   }
 });
+
+test("real keys drive pick then masked key entry (proves name mapping + masking)", async () => {
+  const t = await testRender(
+    <SettingsScreen studioName="Studio" onClose={() => {}} onSaved={() => {}} />,
+    { width: 100, height: 30 },
+  );
+  try {
+    await t.waitForFrame((frame) => frame.includes("add a provider"), { maxPasses: 300 });
+    t.mockInput.pressKey("2"); // focus the content pane (the add row)
+    t.mockInput.pressEnter(); // open the picker
+    await t.waitForFrame((frame) => frame.includes("Choose a provider"), { maxPasses: 100 });
+    t.mockInput.pressEnter(); // pick the first provider -> form
+    await t.waitForFrame((frame) => frame.includes("paste your key"), { maxPasses: 100 });
+    await t.mockInput.typeText("sk-live-secret");
+    const frame = await t.waitForFrame((f) => f.includes("•"), { maxPasses: 100 });
+    expect(frame).not.toContain("sk-live-secret"); // the key is masked, never shown
+  } finally {
+    await t.renderer.destroy();
+  }
+});
