@@ -54,3 +54,22 @@ export function needsComponentCatalog(paths: readonly StagedPath[]): boolean {
   return paths.some((entry) =>
     affectsCatalog(entry.path) || (entry.previousPath !== undefined && affectsCatalog(entry.previousPath)));
 }
+
+/**
+ * Whether any staged change touches a docs-index corpus file. The generator's corpus is every `.md`
+ * under docs/ EXCEPT the generated/ and media/ directories (SKIP_DIRS in scripts/docs-index.ts), so
+ * the predicate must match that exactly. FORMAT-SUPPORT.md lives directly under docs/ and IS in the
+ * corpus (it has a record in the committed index), so editing it must trigger a regen too. When true
+ * the hook regenerates docs/generated/docs-index.json + docs/llms.txt and stages them, so
+ * docs:index:check in verify:ci can never go stale from a forgotten regen. Add, edit, rename, and
+ * delete all count (moving a doc out of docs/ changes the index too).
+ */
+export function needsDocsIndex(paths: readonly StagedPath[]): boolean {
+  const affects = (rawPath: string): boolean => {
+    const path = normalize(rawPath);
+    if (!/^docs\/.*\.md$/.test(path)) return false;
+    return !path.startsWith("docs/generated/") && !path.startsWith("docs/media/");
+  };
+  return paths.some((entry) =>
+    affects(entry.path) || (entry.previousPath !== undefined && affects(entry.previousPath)));
+}
