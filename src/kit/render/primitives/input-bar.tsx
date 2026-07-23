@@ -8,18 +8,23 @@
  */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
+import { SweepLine } from "./sweep-line";
 
 export function InputBar({
   draft,
+  active,
   onInput,
   onSubmit,
 }: {
   draft: string;
+  /** True while a turn runs: the searchlight beam rides the box's top edge. */
+  active: boolean;
   onInput: (value: string) => void;
   onSubmit: (value: string) => void;
 }): ReactNode {
   return (
     <box flexDirection="column" backgroundColor={theme.well} paddingLeft={1} paddingRight={1} paddingBottom={1}>
+      {active ? <SweepLine /> : <box height={1} />}
       <box
         flexDirection="row"
         height={3}
