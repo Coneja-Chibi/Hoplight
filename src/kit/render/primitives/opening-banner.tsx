@@ -74,6 +74,13 @@ const rampColor = (t: number): string => {
 const STEP_MS = 90;
 const FLOW = 0.016; // gradient offset per tick
 
+/** One line of the welcome; height 1 so stacked rows do not pile onto one another. */
+const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode => (
+  <box flexDirection="row" height={1}>
+    <text fg={fg}>{children}</text>
+  </box>
+);
+
 export function OpeningBanner({
   studioName,
   totalPieces,
@@ -106,26 +113,54 @@ export function OpeningBanner({
           </text>
         </box>
       ))}
+
       <box height={1} />
+      <Row fg={theme.bright}>Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
+      <Row fg={theme.soft}>This is Kit: your {studioName}, living right here in the terminal.</Row>
+
+      <box height={1} />
+      <Row fg={theme.text}>
+        Everything you&apos;ve made lives here, all {String(totalPieces)} pieces: your characters, personas,
+      </Row>
+      <Row fg={theme.text}>
+        lorebooks, presets, the lot. No menus to dig through, no forms to fill in. You
+      </Row>
+      <Row fg={theme.text}>just talk to it, like a friend who already knows where all of it is.</Row>
+
+      <box height={1} />
+      <Row fg={theme.text}>Want a new character? Ask for one. Need to fix a persona, pull a fact from a</Row>
+      <Row fg={theme.text}>lorebook, or bring a card in from another app? Say so in plain words, and Kit</Row>
+      <Row fg={theme.text}>does the fiddly parts for you, then shows you exactly what it changed.</Row>
+
+      <box height={1} />
+      <Row fg={theme.bright}>Two promises, because they matter:</Row>
       <box flexDirection="row" height={1}>
-        <text fg={theme.bright}>{studioName}, in the terminal.</text>
+        <text fg={theme.soft}>
+          Nothing you write <span fg={theme.text}>leaves your machine</span> until you choose to send it.
+        </text>
       </box>
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          Talk to your {String(totalPieces)} pieces in plain language. Nothing leaves your machine until you send.
+          Any scripts inside your pieces stay <span fg={theme.text}>sealed as plain text</span>. Kit never runs them.
         </text>
       </box>
-      <box flexDirection="row" height={1}>
-        <text fg={theme.soft}>Scripts stay sealed as text and never run.</text>
-      </box>
+
       <box height={1} />
       <box flexDirection="row" height={1}>
-        <text fg={theme.mut}>
-          <span fg={theme.text}>/model</span> connect a provider {"   "}
-          <span fg={theme.text}>/test</span> check it is alive {"   "}
-          <span fg={theme.text}>/quit</span> leave
+        <text fg={theme.soft}>
+          When you&apos;re ready: <span fg={theme.text}>/model</span> to connect a provider,{" "}
+          <span fg={theme.text}>/test</span> to check it&apos;s awake, then just
         </text>
       </box>
+      <box flexDirection="row" height={1}>
+        <text fg={theme.soft}>
+          start talking. <span fg={theme.text}>/quit</span> whenever you want to step out.
+        </text>
+      </box>
+
+      <box height={1} />
+      <Row fg={theme.bright}>Go make something you love.</Row>
+      <Row fg={theme.mut}>- Chi</Row>
     </box>
   );
 }
