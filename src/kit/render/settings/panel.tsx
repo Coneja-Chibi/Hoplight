@@ -1,8 +1,9 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Panel: a numbered, bordered Panel Deck pane. The header reads "[n] TITLE"; the border and header
- * glow rose when the pane holds focus and sit on the dim line color otherwise. The one frame both
- * the sections rail and the content pane are drawn in.
+ * Panel: one Panel Deck pane, transcribed from the locked wireframe (.p/.ph): a header row on the
+ * floor color with a hard black underline, the body below, and a single right-edge rule that turns
+ * rose when the pane is active. No box borders anywhere; the wireframe's "2px solid #000" rules are
+ * drawn as solid background rows/columns, which stay stable across re-renders.
  */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
@@ -20,24 +21,20 @@ export function Panel({
   width?: number;
   children: ReactNode;
 }): ReactNode {
-  const accent = focused ? theme.rose : theme.line;
   return (
-    <box
-      flexDirection="column"
-      width={width}
-      flexGrow={width ? undefined : 1}
-      border
-      borderColor={accent}
-      backgroundColor={theme.panel}
-    >
-      <box border={["bottom"]} borderColor={theme.line} paddingLeft={1} paddingRight={1}>
-        <text fg={focused ? theme.rose : theme.mut}>
-          [{String(index)}] {title.toUpperCase()}
-        </text>
+    <box flexDirection="row" width={width} flexGrow={width ? undefined : 1}>
+      <box flexDirection="column" flexGrow={1} backgroundColor={theme.panel}>
+        <box backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
+          <text fg={focused ? theme.rose : theme.mut}>
+            [{String(index)}] {title.toUpperCase()}
+          </text>
+        </box>
+        <box height={1} backgroundColor={theme.edge} />
+        <box flexDirection="column" flexGrow={1} paddingTop={1}>
+          {children}
+        </box>
       </box>
-      <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1} paddingTop={1}>
-        {children}
-      </box>
+      <box width={1} backgroundColor={focused ? theme.rose : theme.edge} />
     </box>
   );
 }

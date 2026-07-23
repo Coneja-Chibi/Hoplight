@@ -19,7 +19,7 @@ const shownValue = (form: FormState, field: Field): string => {
 export function Form({ form }: { form: FormState }): ReactNode {
   const fields = formFields(form.choice);
   return (
-    <box flexDirection="column">
+    <box flexDirection="column" paddingLeft={2} paddingRight={2}>
       <text fg={theme.mut}>
         <span fg={theme.text}>{form.choice.label}</span> · paste your key, enter to save
       </text>

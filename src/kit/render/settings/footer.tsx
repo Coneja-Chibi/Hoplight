@@ -29,14 +29,7 @@ const HINTS: Record<Mode, ReadonlyArray<Hint>> = {
 
 export function SettingsFooter({ mode }: { mode: Mode }): ReactNode {
   return (
-    <box
-      flexDirection="row"
-      backgroundColor={theme.floor}
-      border={["top"]}
-      borderColor={theme.edge}
-      paddingLeft={1}
-      paddingRight={1}
-    >
+    <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
       <KeyHint hints={HINTS[mode]} />
     </box>
   );

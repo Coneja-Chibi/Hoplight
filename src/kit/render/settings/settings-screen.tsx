@@ -110,14 +110,7 @@ export function SettingsScreen({
 
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.well}>
-      <box
-        flexDirection="row"
-        backgroundColor={theme.panel}
-        border={["bottom"]}
-        borderColor={theme.roseDeep}
-        paddingLeft={1}
-        paddingRight={1}
-      >
+      <box flexDirection="row" backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
         <text>
           <span fg={theme.text}>Kit</span>
           <span fg={theme.rose}>.</span> <span fg={theme.mut}>settings</span>
@@ -125,15 +118,15 @@ export function SettingsScreen({
         <box flexGrow={1} />
         <text fg={theme.mut}>{studioName}</text>
       </box>
+      <box height={1} backgroundColor={theme.edge} />
 
-      <box flexDirection="row" flexGrow={1} paddingLeft={1} paddingRight={1} paddingTop={1} paddingBottom={1}>
-        <Panel index={1} title="Sections" focused={state.focus === "rail" && state.mode === "sections"} width={28}>
+      <box flexDirection="row" flexGrow={1}>
+        <Panel index={1} title="Sections" focused={state.focus === "rail" && state.mode === "sections"} width={26}>
           <Rail
             state={state}
             onPick={(index) => setState({ ...state, section: SECTIONS[index]!, focus: "rail" })}
           />
         </Panel>
-        <box width={1} />
         <Panel index={2} title={contentTitle(state)} focused={state.focus === "content" || state.mode !== "sections"}>
           {state.mode === "picker" ? (
             <Picker state={state} onPick={(index) => activate({ pickerIndex: index })} />
@@ -142,11 +135,14 @@ export function SettingsScreen({
           ) : state.section === "providers" ? (
             <ProvidersContent state={state} onRow={(index) => activate({ focus: "content", contentIndex: index })} />
           ) : (
-            <text fg={theme.mut}>{BLURBS[state.section]}</text>
+            <box paddingLeft={2}>
+              <text fg={theme.mut}>{BLURBS[state.section]}</text>
+            </box>
           )}
         </Panel>
       </box>
 
+      <box height={1} backgroundColor={theme.edge} />
       <SettingsFooter mode={state.mode} />
     </box>
   );

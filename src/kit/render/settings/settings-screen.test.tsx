@@ -42,6 +42,10 @@ test("renders the Panel Deck with the providers section and the add row", async 
   }
 });
 
+// React commits on a real macrotask the harness's pass-pumping does not reliably yield; a short
+// real-timer tick after each press makes the drive deterministic (a live renderer has real timers).
+const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 15));
+
 test("real keys drive pick then masked key entry (proves name mapping + masking)", async () => {
   const t = await testRender(
     <SettingsScreen studioName="Studio" onClose={() => {}} onSaved={() => {}} />,
@@ -51,10 +55,14 @@ test("real keys drive pick then masked key entry (proves name mapping + masking)
     await t.waitForFrame((frame) => frame.includes("add a provider"), { maxPasses: 300 });
     t.mockInput.pressKey("2"); // focus the content pane (the add row)
     t.mockInput.pressEnter(); // open the picker
+    await tick();
     await t.waitForFrame((frame) => frame.includes("Choose a provider"), { maxPasses: 100 });
-    t.mockInput.pressEnter(); // pick the first provider -> form
+    t.mockInput.pressKey("ARROW_DOWN"); // move through the list, then pick
+    t.mockInput.pressEnter();
+    await tick();
     await t.waitForFrame((frame) => frame.includes("paste your key"), { maxPasses: 100 });
     await t.mockInput.typeText("sk-live-secret");
+    await tick();
     const frame = await t.waitForFrame((f) => f.includes("•"), { maxPasses: 100 });
     expect(frame).not.toContain("sk-live-secret"); // the key is masked, never shown
   } finally {
