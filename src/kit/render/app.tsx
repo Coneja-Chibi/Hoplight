@@ -24,8 +24,10 @@ import { StatusRow } from "./primitives/status-row";
 import { SweepLine } from "./primitives/sweep-line";
 import { ThoughtBox } from "./primitives/thought-box";
 import { ThoughtRow } from "./primitives/thought-row";
+import { BackstageBox } from "./primitives/backstage-box";
+import { BackstageRow } from "./primitives/backstage-row";
 import { SettingsScreen } from "./settings/settings-screen";
-import { applyTurnEvent, settleTurn, toggleThought, type RenderLine, type TurnView } from "./turn-events";
+import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
 
 export interface AppProps {
   studioName: string;
@@ -46,7 +48,13 @@ const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
 export function App({ studioName, totalPieces, decks, session, onQuit }: AppProps): ReactNode {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
-  const [turn, setTurn] = useState<TurnView>({ lines: WELCOME, live: { phase: "idle" }, label: "" });
+  const [turn, setTurn] = useState<TurnView>({
+    lines: WELCOME,
+    live: { phase: "idle" },
+    label: "",
+    tools: null,
+    toolsSeen: false,
+  });
   const [startedAt, setStartedAt] = useState(0);
   const [view, setView] = useState<"session" | "settings">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
@@ -81,9 +89,9 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
   };
 
   useKeyboard((event: KeyEvent) => {
-    // ctrl+o toggles the latest rehearsal trace (plain o would collide with the composer)
+    // ctrl+o toggles the latest foldable trace, thought or backstage (plain o would hit the composer)
     if (view === "session" && event.ctrl && event.name === "o") {
-      setTurn((prev) => toggleThought(prev));
+      setTurn((prev) => toggleTrace(prev));
     }
   });
 
@@ -118,19 +126,30 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
               text={line.text}
               seconds={line.seconds}
               open={line.open}
-              onToggle={() => setTurn((prev) => toggleThought(prev, index))}
+              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
+            />
+          ) : line.role === "backstage" ? (
+            <BackstageRow
+              key={index}
+              moves={line.moves}
+              seconds={line.seconds}
+              open={line.open}
+              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
             />
           ) : (
             <SayLine key={index} text={line.text} />
           ),
         )}
+        {turn.tools ? <BackstageBox moves={turn.tools.moves} /> : null}
         {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
         {turn.live.phase === "thinking" ? (
           <ThoughtBox text={turn.live.text} startedAt={startedAt} />
         ) : null}
-        {turn.live.phase === "waiting" ? <StatusRow startedAt={startedAt} /> : null}
+        {turn.live.phase === "waiting" && !turn.toolsSeen && !turn.tools ? (
+          <StatusRow startedAt={startedAt} />
+        ) : null}
       </Scrollback>
-      {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? <SweepLine /> : null}
+      {turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools ? <SweepLine /> : null}
       <InputBar draft={draft} onInput={setDraft} onSubmit={submit} />
     </box>
   );

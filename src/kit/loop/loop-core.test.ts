@@ -51,6 +51,7 @@ test("ReAct: calls a tool, observes the result, then answers", async () => {
   const { events, history } = await drain(runTurn("how many?", [], deps(chat)));
   expect(events).toEqual([
     { type: "say", text: "let me look" },
+    { type: "tool-start", name: "list" },
     { type: "tool", name: "list", summary: "list ok" },
     { type: "say", text: "you have three" },
   ]);

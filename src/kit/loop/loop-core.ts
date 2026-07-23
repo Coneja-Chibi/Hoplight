@@ -16,9 +16,11 @@ export interface DispatchResult {
 /** Parse-and-run one tool call. Impure (touches the studio); injected so the core stays pure. */
 export type DispatchFn = (call: ModelToolCall) => Promise<DispatchResult>;
 
-/** What the render layer paints as a turn unfolds. */
+/** What the render layer paints as a turn unfolds. tool-start fires the instant a tool begins (so a
+ * slow tool can be named on stage while it grinds); tool fires when it settles, with its summary. */
 export type LoopEvent =
   | { type: "say"; text: string }
+  | { type: "tool-start"; name: string }
   | { type: "tool"; name: string; summary: string }
   | { type: "stopped"; reason: string };
 
@@ -61,6 +63,7 @@ export async function* runTurn(
     if (reply.text) yield { type: "say", text: reply.text };
 
     for (const call of reply.calls) {
+      yield { type: "tool-start", name: call.name };
       const result = await deps.dispatch(call);
       messages.push({
         role: "tool",

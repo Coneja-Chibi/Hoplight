@@ -6,10 +6,11 @@
  */
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
-import { applyTurnEvent, settleTurn, toggleThought, type TurnView } from "./turn-events";
+import { applyTurnEvent, settleTurn, toggleTrace, type TurnView } from "./turn-events";
 import { SayLine } from "./primitives/say-line";
 import { StatusRow } from "./primitives/status-row";
 import { ThoughtRow } from "./primitives/thought-row";
+import { BackstageRow } from "./primitives/backstage-row";
 
 setDefaultTimeout(30000);
 
@@ -17,7 +18,13 @@ setDefaultTimeout(30000);
 // tests); a short real-timer tick after mount lets the widget paint before we read frames.
 const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
-const view = (): TurnView => ({ lines: [], live: { phase: "waiting" }, label: "" });
+const view = (): TurnView => ({
+  lines: [],
+  live: { phase: "waiting" },
+  label: "",
+  tools: null,
+  toolsSeen: false,
+});
 
 describe("applyTurnEvent", () => {
   test("begin sets the label; reasoning deltas accumulate the live thought", () => {
@@ -46,22 +53,42 @@ describe("applyTurnEvent", () => {
     expect(v.live).toEqual({ phase: "waiting" }); // the turn may continue into tools
   });
 
-  test("tool rows land and reset the live row; errors land as errors", () => {
-    let v = applyTurnEvent(view(), { type: "tool", name: "list", summary: "list character: 13" }, 0);
-    expect(v.lines).toEqual([{ role: "tool", text: "list character: 13" }]);
-    expect(v.live).toEqual({ phase: "waiting" });
-    v = applyTurnEvent(v, { type: "error", message: "boom" }, 0);
-    expect(v.lines.at(-1)).toEqual({ role: "error", text: "boom" });
+  test("a standalone tool (no cluster, e.g. /test) lands as a plain teal row", () => {
+    const v = applyTurnEvent(view(), { type: "tool", name: "test", summary: "test NanoGPT · 340ms" }, 0);
+    expect(v.lines).toEqual([{ role: "tool", text: "test NanoGPT · 340ms" }]);
   });
 
-  test("settleTurn lands a mid-flight thought; toggleThought reopens and folds traces", () => {
+  test("loop tools gather in a live cluster, then seal into one backstage line on the reply", () => {
+    // first tool-start opens the cluster and drops the stagehand
+    let v = applyTurnEvent(view(), { type: "tool-start", name: "list characters" }, 1000);
+    expect(v.tools?.moves).toEqual([{ name: "list characters" }]);
+    expect(v.toolsSeen).toBe(true);
+    expect(v.live).toEqual({ phase: "idle" });
+    // the tool settles in place, a second runs, settles
+    v = applyTurnEvent(v, { type: "tool", name: "list", summary: "list character: 13" }, 1600);
+    expect(v.tools?.moves).toEqual([{ name: "list characters", summary: "list character: 13" }]);
+    v = applyTurnEvent(v, { type: "tool-start", name: "read Basil" }, 1700);
+    v = applyTurnEvent(v, { type: "tool", name: "read", summary: "read character: Basil" }, 2600);
+    expect(v.tools?.moves.length).toBe(2);
+    // the reply seals the whole cluster into one collapsed backstage line, then lands the say
+    v = applyTurnEvent(v, { type: "say", text: "Basil haunts the Half-Moon." }, 6000);
+    expect(v.tools).toBeNull();
+    expect(v.lines).toEqual([
+      { role: "backstage", moves: ["list character: 13", "read character: Basil"], seconds: 5, open: false },
+      { role: "say", text: "Basil haunts the Half-Moon." },
+    ]);
+    // the stagehand stays suppressed for the rest of the turn
+    expect(v.toolsSeen).toBe(true);
+  });
+
+  test("settleTurn lands a mid-flight thought; toggleTrace reopens and folds traces", () => {
     let v = applyTurnEvent(view(), { type: "delta", kind: "reasoning", text: "unfinished" }, 1000);
     v = settleTurn(v, 4000);
     expect(v.live).toEqual({ phase: "idle" });
     expect(v.lines.at(-1)).toEqual({ role: "thought", text: "unfinished", seconds: 3, open: false });
-    v = toggleThought(v); // no index: the latest trace
+    v = toggleTrace(v); // no index: the latest trace
     expect((v.lines.at(-1) as { open: boolean }).open).toBe(true);
-    v = toggleThought(v, v.lines.length - 1);
+    v = toggleTrace(v, v.lines.length - 1);
     expect((v.lines.at(-1) as { open: boolean }).open).toBe(false);
   });
 });
@@ -92,6 +119,22 @@ describe("widgets", () => {
       expect(frame).toContain("rehearsed for 8s");
       expect(frame).toContain("ctrl+o");
       expect(frame).not.toContain("walk the sheets"); // folded traces keep the thought put away
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("BackstageRow collapsed shows the fold invitation, not the moves", async () => {
+    const t = await testRender(
+      <BackstageRow moves={["list character: 13", "read character: Basil"]} seconds={6} open={false} onToggle={() => {}} />,
+      { width: 72, height: 4 },
+    );
+    try {
+      await tick();
+      const frame = await t.waitForFrame((f) => f.includes("backstage"), { maxPasses: 300 });
+      expect(frame).toContain("backstage · 2 moves · 6s");
+      expect(frame).toContain("ctrl+o");
+      expect(frame).not.toContain("read character"); // folded moves stay put away
     } finally {
       await t.renderer.destroy();
     }
