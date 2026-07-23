@@ -20,9 +20,12 @@ export function Scrollback({ children }: { children: ReactNode }): ReactNode {
         paddingLeft={1}
         paddingRight={1}
         paddingTop={1}
-        gap={1}
       >
-        {children}
+        {/* Anchor content to the bottom so a short transcript hugs the composer (no dead space above
+            it); when it overflows this box just grows and the scrollbox scrolls to the bottom. */}
+        <box flexDirection="column" justifyContent="flex-end" minHeight="100%" gap={1}>
+          {children}
+        </box>
       </scrollbox>
     </box>
   );

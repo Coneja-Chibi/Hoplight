@@ -52,7 +52,7 @@ export function InputBar({
   }, []);
 
   return (
-    <box flexDirection="column" backgroundColor={theme.well} paddingLeft={1} paddingRight={1} paddingBottom={1}>
+    <box flexDirection="column" backgroundColor={theme.well} paddingLeft={1} paddingRight={1}>
       {active ? <SweepLine /> : <box height={1} />}
       <box
         flexDirection="row"
