@@ -60,16 +60,18 @@ describe("widgets", () => {
     }
   });
 
-  test("StatusRow shows who is answering and the thinking count", async () => {
-    const t = await testRender(
-      <StatusRow label="NanoGPT · deepseek-r1" status={{ phase: "thinking", chars: 42 }} />,
-      { width: 60, height: 4 },
-    );
+  test("StatusRow is the stagehand: a stage verb and the stamp clock, no provider name", async () => {
+    const t = await testRender(<StatusRow startedAt={Date.now() - 65000} />, {
+      width: 60,
+      height: 4,
+    });
     try {
       await tick();
-      const frame = await t.waitForFrame((f) => f.includes("thinking"), { maxPasses: 300 });
-      expect(frame).toContain("NanoGPT");
-      expect(frame).toContain("42 chars");
+      const frame = await t.waitForFrame((f) => f.includes("1:0"), { maxPasses: 300 });
+      const verbs = ["cueing", "rifling", "staging", "rehearsing", "consulting"];
+      expect(verbs.some((verb) => frame.includes(verb))).toBe(true);
+      expect(frame).toContain("1:0"); // 65s elapsed renders as the 1:05-ish stamp
+      expect(frame).not.toContain("NanoGPT");
     } finally {
       await t.renderer.destroy();
     }

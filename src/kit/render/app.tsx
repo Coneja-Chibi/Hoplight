@@ -19,6 +19,7 @@ import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { InputBar } from "./primitives/input-bar";
 import { StatusRow } from "./primitives/status-row";
+import { SweepLine } from "./primitives/sweep-line";
 import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, type RenderLine, type TurnView } from "./turn-events";
 
@@ -42,6 +43,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [turn, setTurn] = useState<TurnView>({ lines: WELCOME, live: { phase: "idle" }, label: "" });
+  const [startedAt, setStartedAt] = useState(0);
   const [view, setView] = useState<"session" | "settings">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
   );
@@ -64,6 +66,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     }
     add({ role: "you", text: value });
     setBusy(true);
+    setStartedAt(Date.now());
     setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
     history.current = await session.runTurn(value, history.current, (event) => {
       setTurn((prev) => applyTurnEvent(prev, event));
@@ -103,9 +106,10 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
         )}
         {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
         {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? (
-          <StatusRow label={turn.label || "the model"} status={turn.live} />
+          <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
+      {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? <SweepLine /> : null}
       <InputBar draft={draft} onInput={setDraft} onSubmit={submit} />
     </box>
   );
