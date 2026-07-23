@@ -9,8 +9,8 @@ import { KeyHint, type Hint } from "./key-hint";
 
 const HINTS: ReadonlyArray<Hint> = [
   { key: "/model", label: "provider" },
+  { key: "/test", label: "proof of life" },
   { key: "/gates", label: "what asks first" },
-  { key: "/cli", label: "classic verbs" },
   { key: "/quit" },
 ];
 

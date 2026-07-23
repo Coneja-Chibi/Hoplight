@@ -72,9 +72,10 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     setBusy(true);
     setStartedAt(Date.now());
     setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
-    history.current = await session.runTurn(value, history.current, (event) => {
+    const onEvent = (event: Parameters<typeof applyTurnEvent>[1]): void =>
       setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
-    });
+    if (value === "/test") await session.probe(onEvent);
+    else history.current = await session.runTurn(value, history.current, onEvent);
     setTurn((prev) => settleTurn(prev, Date.now()));
     setBusy(false);
   };

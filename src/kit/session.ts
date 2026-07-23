@@ -6,6 +6,7 @@
 import type { KitBridge } from "./bridge";
 import { resolveProviderConfig } from "./providers/vault";
 import { makeChat } from "./providers/chat";
+import { pingProvider } from "./providers/probe";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
@@ -26,6 +27,8 @@ export interface Session {
     history: ModelMessage[],
     onEvent: (event: TurnEvent) => void,
   ): Promise<ModelMessage[]>;
+  /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
+  probe(onEvent: (event: TurnEvent) => void): Promise<void>;
 }
 
 const MAX_STEPS = 12;
@@ -65,6 +68,23 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
       } catch (error) {
         onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
         return history;
+      }
+    },
+
+    async probe(onEvent) {
+      try {
+        const config = await resolveProviderConfig();
+        if (!config) {
+          onEvent({ type: "error", message: "No provider connected. Open setup with /model to add one." });
+          return;
+        }
+        const label = `${config.name ?? config.kind} · ${config.model}`;
+        onEvent({ type: "begin", label });
+        const { text, ms } = await pingProvider(makeChat(config));
+        onEvent({ type: "tool", name: "test", summary: `test ${label} · ${ms}ms` });
+        onEvent({ type: "say", text: `"${text}"` });
+      } catch (error) {
+        onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
       }
     },
   };
