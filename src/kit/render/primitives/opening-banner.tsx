@@ -81,9 +81,16 @@ const rampColor = (t: number): string => {
   const b = hexToRgb(RAMP[i + 1]!);
   return `#${toHex(a[0] + (b[0] - a[0]) * f)}${toHex(a[1] + (b[1] - a[1]) * f)}${toHex(a[2] + (b[2] - a[2]) * f)}`;
 };
+/** A darker variant of a color, for the stamp shadow. */
+const darken = (hex: string, f: number): string => {
+  const [r, g, b] = hexToRgb(hex);
+  return `#${toHex(r * f)}${toHex(g * f)}${toHex(b * f)}`;
+};
 
 const STEP_MS = 110;
 const FLOW = 0.014; // gradient offset per tick
+const SHADOW_DX = 2; // stamp shadow x-offset (matches the generated "S" cells)
+const SHADOW_DARKEN = 0.42; // how much darker the stamp is than the letter it shadows
 
 /** One line of the welcome; height 1 so stacked rows do not pile onto one another. */
 const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode => (
@@ -106,6 +113,7 @@ export function OpeningBanner({
   }, []);
   const offset = tick * FLOW;
   const cols = Array.from({ length: WIDTH }, (_, c) => rampColor(c / WIDTH - offset));
+  const shadowCols = cols.map((c) => darken(c, SHADOW_DARKEN)); // darker variant of each column, flows too
 
   return (
     <box flexDirection="column" paddingTop={1}>
@@ -116,7 +124,7 @@ export function OpeningBanner({
               ch === " " ? (
                 <span key={col}> </span>
               ) : ch === "S" ? (
-                <span key={col} fg={theme.roseDeep}>
+                <span key={col} fg={shadowCols[Math.max(0, col - SHADOW_DX)]}>
                   █
                 </span>
               ) : (
