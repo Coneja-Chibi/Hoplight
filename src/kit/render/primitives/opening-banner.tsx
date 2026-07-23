@@ -36,21 +36,23 @@ const LOGO = [
   "                  ██      ██",
   "                 █          █",
 ];
-// The wordmark, polygon-rasterized and outlined (solid border, light-shade interior = segmented).
+// The wordmark, polygon-rasterized, solid, with a hard rose-deep offset shadow ("S" cells) down-right
+// (the neobrutalist stamp: "it stamps, it does not float", per docs__AESTHETIC + the locked masthead).
 const KIT = [
   "████       ████    ████████████   ██████████████",
-  "█░░█     ██░██     █░░░░░░░░░░█   █░░░░░░░░░░░░█",
-  "█░░█    █░░█       ████░░░░████   █████░░░░█████",
-  "█░░█  ██░██            █░░█            █░░█",
-  "█░░█ █░░█              █░░█            █░░█",
-  "█░░░█░██               █░░█            █░░█",
-  "█░░░░█                 █░░█            █░░█",
-  "█░░░█░██               █░░█            █░░█",
-  "█░░█ █░░█              █░░█            █░░█",
-  "█░░█  ██░██            █░░█            █░░█",
-  "█░░█    █░░█       ████░░░░████        █░░█",
-  "█░░█     ██░██     █░░░░░░░░░░█        █░░█",
-  "████       ████    ████████████        ████",
+  "████SS   █████SSS  ████████████SS ██████████████SS",
+  "████SS  ████SSSS   ████████████SS ██████████████SS",
+  "████SS█████SSS       SS████SSSSSS   SSS████SSSSSSS",
+  "████S████SSSS          ████SS          ████SS",
+  "████████SSS            ████SS          ████SS",
+  "██████SSSS             ████SS          ████SS",
+  "████████               ████SS          ████SS",
+  "████S████S             ████SS          ████SS",
+  "████SS█████            ████SS          ████SS",
+  "████SS  ████S      ████████████        ████SS",
+  "████SS   █████     ████████████SS      ████SS",
+  "████SS     ████S   ████████████SS      ████SS",
+  "  SSSS       SSSS    SSSSSSSSSSSS        SSSS",
 ];
 
 const LOGO_W = Math.max(...LOGO.map((l) => l.length));
@@ -113,6 +115,10 @@ export function OpeningBanner({
             {[...line].map((ch, col) =>
               ch === " " ? (
                 <span key={col}> </span>
+              ) : ch === "S" ? (
+                <span key={col} fg={theme.roseDeep}>
+                  █
+                </span>
               ) : (
                 <span key={col} fg={cols[col]}>
                   {ch}
