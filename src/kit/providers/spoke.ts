@@ -8,6 +8,7 @@
 import type { FetchFunction } from "@ai-sdk/provider-utils";
 import type { LanguageModel } from "ai";
 import type { ProviderConfig } from "./config";
+import type { ModelInfo } from "./models";
 
 export interface ProviderSpoke {
   /** Stable id stored in config.kind. */
@@ -24,4 +25,7 @@ export interface ProviderSpoke {
   keyless?: boolean;
   /** Build the AI SDK model, lazy-importing the vendor adapter and wiring the guarded fetch. */
   model(config: ProviderConfig, fetch: FetchFunction): Promise<LanguageModel>;
+  /** Query the provider's live model list (through the guarded fetch). Omit when the provider has
+   * no usable models endpoint; the setup form then falls back to manual model entry. */
+  listModels?(config: ProviderConfig, fetch: FetchFunction): Promise<ModelInfo[]>;
 }

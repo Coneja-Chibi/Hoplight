@@ -4,8 +4,8 @@
  * correctly built ProviderConfig (with and without a base URL).
  */
 import { describe, expect, test } from "bun:test";
-import type { ProviderChoice, SettingsState } from "./model";
-import { applyPaste, initialState, reduce } from "./model";
+import type { FormState, ProviderChoice, SettingsState } from "./model";
+import { applyPaste, canFetchModels, filteredModels, formSignature, initialState, reduce } from "./model";
 
 const CHOICES: ProviderChoice[] = [
   { id: "anthropic", label: "Claude", brand: "#DE7356", defaultModel: "claude-opus-4-8", keyless: false, needsBaseURL: false },
@@ -63,6 +63,80 @@ describe("add-provider flow", () => {
     const step = reduce(s, { name: "return" });
     expect(step.intent).toBeUndefined();
     expect(step.state.form?.field).toBe("key");
+  });
+
+  test("a ready model list turns up/down/enter into pick-from-list", () => {
+    let s = reduce(reduce(fresh(), { name: "2" }).state, { name: "return" }).state; // picker
+    s = reduce(s, { name: "return" }).state; // anthropic form
+    s = applyPaste(s, "sk-ant-long-enough");
+    // shell injects fetched models; simulate that, then focus the model field
+    const withList: SettingsState = {
+      ...s,
+      form: {
+        ...s.form!,
+        model: "",
+        field: "model",
+        list: {
+          state: "ready",
+          index: 0,
+          models: [
+            { id: "claude-haiku-4-5", context: 200000 },
+            { id: "claude-opus-4-8", context: 1000000 },
+          ],
+        },
+      },
+    };
+    const down = reduce(withList, { name: "down" }).state;
+    expect(down.form?.list.index).toBe(1); // moved the highlight, not the field
+    expect(down.form?.field).toBe("model");
+    const step = reduce(down, { name: "return" });
+    expect(step.intent).toEqual({
+      kind: "save",
+      config: { kind: "anthropic", model: "claude-opus-4-8", name: "Claude", apiKey: "sk-ant-long-enough" },
+    });
+  });
+
+  test("typing filters the list and enter falls back to typed text when nothing matches", () => {
+    let s = reduce(reduce(fresh(), { name: "2" }).state, { name: "return" }).state;
+    s = reduce(s, { name: "return" }).state;
+    s = applyPaste(s, "sk-ant-long-enough");
+    const withList: SettingsState = {
+      ...s,
+      form: {
+        ...s.form!,
+        model: "",
+        field: "model",
+        list: { state: "ready", index: 1, models: [{ id: "alpha" }, { id: "beta" }] },
+      },
+    };
+    const typed = [..."bet"].reduce((st, ch) => reduce(st, { name: ch, char: ch }).state, withList);
+    expect(filteredModels(typed.form!)).toEqual([{ id: "beta" }]);
+    expect(typed.form?.list.index).toBe(0); // filter edits re-anchor the highlight
+
+    const noMatch = [..."zzz"].reduce((st, ch) => reduce(st, { name: ch, char: ch }).state, withList);
+    const step = reduce(noMatch, { name: "return" });
+    expect(step.intent?.kind).toBe("save");
+    if (step.intent?.kind === "save") expect(step.intent.config.model).toBe("zzz");
+  });
+
+  test("fetch gate and signature", () => {
+    const form = (over: Partial<FormState>): FormState => ({
+      choice: CHOICES[0]!,
+      key: "",
+      baseURL: "",
+      model: "",
+      field: "key",
+      list: { state: "idle", models: [], index: 0 },
+      ...over,
+    });
+    expect(canFetchModels(form({ key: "short" }))).toBe(false);
+    expect(canFetchModels(form({ key: "sk-long-enough" }))).toBe(true);
+    expect(canFetchModels(form({ choice: CHOICES[2]!, key: "" }))).toBe(false); // local: keyless but needs URL
+    expect(canFetchModels(form({ choice: CHOICES[2]!, baseURL: "http://localhost:1234/v1" }))).toBe(true);
+    // model text must not change the signature (picking must not refire the fetch)
+    expect(formSignature(form({ key: "k".repeat(9), model: "a" }))).toBe(
+      formSignature(form({ key: "k".repeat(9), model: "b" })),
+    );
   });
 
   test("a custom provider carries model, key, and base URL", () => {

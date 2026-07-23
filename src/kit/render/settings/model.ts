@@ -5,6 +5,7 @@
  * shell executes (close, save, set-active); it never touches the vault, the screen, or the clock.
  */
 import type { ProviderConfig } from "../../providers/config";
+import type { ModelInfo } from "../../providers/models";
 
 export type Section = "providers" | "gates" | "studio" | "about";
 export const SECTIONS: readonly Section[] = ["providers", "gates", "studio", "about"];
@@ -20,12 +21,22 @@ export interface ProviderChoice {
 
 export type Field = "key" | "baseURL" | "model";
 
+/** The live model list under the model field: idle until a fetch fires, then loading, then ready
+ * (possibly empty, which the form shows as "check the key"). index highlights within the FILTERED
+ * view, what the user's typed text currently matches. */
+export interface ModelList {
+  state: "idle" | "loading" | "ready";
+  models: ModelInfo[];
+  index: number;
+}
+
 export interface FormState {
   choice: ProviderChoice;
   key: string;
   baseURL: string;
   model: string;
   field: Field;
+  list: ModelList;
 }
 
 export type Mode = "sections" | "picker" | "form";
@@ -94,6 +105,40 @@ const startForm = (choice: ProviderChoice): FormState => ({
   baseURL: "",
   model: choice.defaultModel,
   field: formFields(choice)[0] ?? "model",
+  list: { state: "idle", models: [], index: 0 },
+});
+
+/** The fetched models the typed text currently matches (case-insensitive substring). Text that
+ * exactly equals a model id is a selection, not a search: the full list stays browsable (RC's
+ * behavior, so a prefilled default never collapses the list to one row). */
+export function filteredModels(form: FormState): ModelInfo[] {
+  const needle = form.model.trim().toLowerCase();
+  if (!needle) return form.list.models;
+  if (form.list.models.some((info) => info.id.toLowerCase() === needle)) return form.list.models;
+  return form.list.models.filter(
+    (info) => info.id.toLowerCase().includes(needle) || (info.label ?? "").toLowerCase().includes(needle),
+  );
+}
+
+/** RC's gate for firing a model fetch: enough of a key (8+ chars unless keyless), and a base URL
+ * when the provider needs one. */
+export function canFetchModels(form: FormState): boolean {
+  if (!form.choice.keyless && form.key.trim().length < 8) return false;
+  if (form.choice.needsBaseURL && form.baseURL.trim().length === 0) return false;
+  return true;
+}
+
+/** What the key and base URL currently are, as one string: the shell refetches models only when
+ * this changes (typing a model name must not refire the fetch). */
+export const formSignature = (form: FormState): string =>
+  `${form.choice.id}|${form.key}|${form.baseURL.trim()}`;
+
+/** A config good enough to query the provider's model list with (the model itself may be unset). */
+export const draftConfig = (form: FormState): ProviderConfig => ({
+  kind: form.choice.id,
+  model: form.model.trim() || form.choice.defaultModel || "draft",
+  ...(form.choice.keyless ? {} : { apiKey: form.key }),
+  ...(form.choice.needsBaseURL ? { baseURL: form.baseURL.trim() } : {}),
 });
 
 const firstInvalidField = (form: FormState): Field | null => {
@@ -184,25 +229,43 @@ function reducePicker(state: SettingsState, key: KeyInput): Step {
 function reduceForm(state: SettingsState, form: FormState, key: KeyInput): Step {
   const fields = formFields(form.choice);
   const pos = fields.indexOf(form.field);
+  // On the model field with a live list showing, up/down/enter drive the list, not the fields.
+  const picking = form.field === "model" && form.list.state === "ready" && filteredModels(form).length > 0;
   switch (key.name) {
     case "escape":
       return { state: { ...state, mode: "picker", form: null } };
     case "tab":
-    case "down":
       return { state: { ...state, form: { ...form, field: fields[(pos + 1) % fields.length]! } } };
+    case "down":
+      return picking
+        ? { state: { ...state, form: moveList(form, 1) } }
+        : { state: { ...state, form: { ...form, field: fields[(pos + 1) % fields.length]! } } };
     case "up":
-      return { state: { ...state, form: { ...form, field: fields[(pos - 1 + fields.length) % fields.length]! } } };
+      return picking
+        ? { state: { ...state, form: moveList(form, -1) } }
+        : { state: { ...state, form: { ...form, field: fields[(pos - 1 + fields.length) % fields.length]! } } };
     case "backspace":
-      return { state: { ...state, form: editField(form, form.field, (v) => v.slice(0, -1)) } };
-    case "return":
-      return submitForm(state, form);
+      return { state: { ...state, form: resetListIndex(editField(form, form.field, (v) => v.slice(0, -1))) } };
+    case "return": {
+      const chosen = picking ? filteredModels(form)[form.list.index] : undefined;
+      return submitForm(state, chosen ? { ...form, model: chosen.id } : form);
+    }
     default:
       if (key.char) {
-        return { state: { ...state, form: editField(form, form.field, (v) => v + key.char) } };
+        return { state: { ...state, form: resetListIndex(editField(form, form.field, (v) => v + key.char)) } };
       }
       return { state };
   }
 }
+
+const moveList = (form: FormState, delta: number): FormState => {
+  const last = filteredModels(form).length - 1;
+  return { ...form, list: { ...form.list, index: clamp(form.list.index + delta, 0, last) } };
+};
+
+/** Editing the filter text re-anchors the highlight to the top match. */
+const resetListIndex = (form: FormState): FormState =>
+  form.field === "model" ? { ...form, list: { ...form.list, index: 0 } } : form;
 
 function submitForm(state: SettingsState, form: FormState): Step {
   const missing = firstInvalidField(form);

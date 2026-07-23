@@ -1,5 +1,6 @@
 /** DeepSeek: OpenAI-compatible endpoint at a fixed base. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const deepseek: ProviderSpoke = {
   id: "deepseek",
@@ -16,6 +17,9 @@ const deepseek: ProviderSpoke = {
       headers,
       fetch,
     })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    return openAICompatModels(baseURL ?? "https://api.deepseek.com/v1", apiKey, fetch);
   },
 };
 

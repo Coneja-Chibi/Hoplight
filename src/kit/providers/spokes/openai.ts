@@ -1,5 +1,6 @@
 /** OpenAI: native. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const openai: ProviderSpoke = {
   id: "openai",
@@ -10,6 +11,9 @@ const openai: ProviderSpoke = {
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createOpenAI } = await import("@ai-sdk/openai");
     return createOpenAI({ apiKey, baseURL, headers, fetch })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    return openAICompatModels(baseURL ?? "https://api.openai.com/v1", apiKey, fetch);
   },
 };
 

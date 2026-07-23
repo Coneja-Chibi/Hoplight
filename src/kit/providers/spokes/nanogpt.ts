@@ -1,5 +1,6 @@
 /** NanoGPT: pay-as-you-go access to many models through one OpenAI-compatible endpoint. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const nanogpt: ProviderSpoke = {
   id: "nanogpt",
@@ -16,6 +17,10 @@ const nanogpt: ProviderSpoke = {
       headers,
       fetch,
     })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    // One public list for subscription and pay-as-you-go; detailed=true adds context lengths.
+    return openAICompatModels(baseURL ?? "https://nano-gpt.com/api/v1", apiKey, fetch);
   },
 };
 

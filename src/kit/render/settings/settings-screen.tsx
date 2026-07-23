@@ -2,8 +2,13 @@
 /**
  * Settings screen: the Panel Deck shell. It loads the spokes and the saved vault, routes every
  * keypress through the pure model (reduce), and runs the intents the model returns (close, save,
- * set-active). Clicks are mirrored through the same reduce so keyboard and mouse never diverge. This
- * is imperative-shell only; all navigation logic lives in model.ts.
+ * set-active). Clicks are mirrored through the same reduce so keyboard and mouse never diverge.
+ *
+ * Model discovery follows RC's proven flow: ~1.2s after the key or base URL last changed (and only
+ * when they pass the fetch gate), the provider's live model list is fetched silently through the
+ * egress-guarded spoke and lands under the model field as a filterable picker. The fetch is keyed
+ * by a form signature so typing a model name never refires it, and stale responses are dropped.
+ * This is imperative-shell only; all navigation logic lives in model.ts.
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
@@ -17,9 +22,22 @@ import { Picker } from "./content-picker";
 import { Form } from "./content-form";
 import { SettingsFooter } from "./footer";
 import { loadChoices } from "./providers-data";
-import { applyPaste, initialState, reduce, SECTIONS, type Intent, type SettingsState } from "./model";
+import {
+  applyPaste,
+  canFetchModels,
+  draftConfig,
+  formSignature,
+  initialState,
+  reduce,
+  SECTIONS,
+  type Intent,
+  type ModelList,
+  type SettingsState,
+} from "./model";
 import { readVault, saveProvider, setActive } from "../../providers/vault";
+import { listModelsFor } from "../../providers/adapters";
 import type { ProviderConfig } from "../../providers/config";
+import type { ModelInfo } from "../../providers/models";
 
 const printable = (event: KeyEvent): string | undefined => {
   if (event.ctrl || event.meta || event.option || event.super) return undefined;
@@ -44,23 +62,31 @@ export function SettingsScreen({
   studioName,
   onClose,
   onSaved,
+  listModels = listModelsFor,
+  modelsDebounceMs = 1200,
 }: {
   studioName: string;
   onClose: () => void;
   onSaved: (config: ProviderConfig) => void;
+  /** Injectable for tests; defaults to the real egress-guarded spoke query. */
+  listModels?: (config: ProviderConfig) => Promise<ModelInfo[] | null>;
+  modelsDebounceMs?: number;
 }): ReactNode {
   const [state, setState] = useState<SettingsState | null>(null);
   const stateRef = useRef<SettingsState | null>(state);
   stateRef.current = state;
+  const alive = useRef(true);
+  const fetchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSig = useRef("");
 
   useEffect(() => {
-    let alive = true;
     void (async () => {
       const [choices, vault] = await Promise.all([loadChoices(), readVault()]);
-      if (alive) setState(initialState(choices, vault.providers, vault.activeId));
+      if (alive.current) setState(initialState(choices, vault.providers, vault.activeId));
     })();
     return () => {
-      alive = false;
+      alive.current = false;
+      if (fetchTimer.current) clearTimeout(fetchTimer.current);
     };
   }, []);
 
@@ -75,9 +101,56 @@ export function SettingsScreen({
     if (intent.kind === "save") onSaved(await saveProvider(intent.config));
   };
 
+  /** Patch the form's model list, advancing the ref so key bursts stay coherent. */
+  const injectList = (patch: Partial<ModelList>): void => {
+    const current = stateRef.current;
+    if (!current?.form) return;
+    const next = {
+      ...current,
+      form: { ...current.form, list: { ...current.form.list, ...patch } },
+    };
+    stateRef.current = next;
+    setState(next);
+  };
+
+  const fireFetch = async (sig: string): Promise<void> => {
+    const current = stateRef.current;
+    const form = current?.mode === "form" ? current.form : null;
+    if (!alive.current || !form || formSignature(form) !== sig) return;
+    injectList({ state: "loading" });
+    const models = await listModels(draftConfig(form));
+    const now = stateRef.current;
+    const nowForm = now?.mode === "form" ? now.form : null;
+    if (!alive.current || !nowForm || formSignature(nowForm) !== sig) return; // stale response
+    if (models === null) {
+      injectList({ state: "idle", models: [], index: 0 }); // no endpoint: manual entry
+      return;
+    }
+    // Land the highlight on the current model when it is in the list (the prefilled default case).
+    const current2 = nowForm.model.trim().toLowerCase();
+    const at = models.findIndex((info) => info.id.toLowerCase() === current2);
+    injectList({ state: "ready", models, index: Math.max(0, at) });
+  };
+
+  const maybeScheduleFetch = (next: SettingsState): void => {
+    const form = next.mode === "form" ? next.form : null;
+    if (!form) {
+      lastSig.current = "";
+      if (fetchTimer.current) clearTimeout(fetchTimer.current);
+      return;
+    }
+    const sig = formSignature(form);
+    if (sig === lastSig.current) return;
+    lastSig.current = sig;
+    if (fetchTimer.current) clearTimeout(fetchTimer.current);
+    if (!canFetchModels(form)) return;
+    fetchTimer.current = setTimeout(() => void fireFetch(sig), modelsDebounceMs);
+  };
+
   const apply = (next: SettingsState, intent?: Intent): void => {
     stateRef.current = next; // advance synchronously so a burst of keys chains off fresh state
     setState(next);
+    maybeScheduleFetch(next);
     if (intent) void runIntent(intent);
   };
 
@@ -124,14 +197,26 @@ export function SettingsScreen({
         <Panel index={1} title="Sections" focused={state.focus === "rail" && state.mode === "sections"} width={26}>
           <Rail
             state={state}
-            onPick={(index) => setState({ ...state, section: SECTIONS[index]!, focus: "rail" })}
+            onPick={(index) => {
+              const current = stateRef.current;
+              if (current) apply({ ...current, section: SECTIONS[index]!, focus: "rail" });
+            }}
           />
         </Panel>
         <Panel index={2} title={contentTitle(state)} focused={state.focus === "content" || state.mode !== "sections"}>
           {state.mode === "picker" ? (
             <Picker state={state} onPick={(index) => activate({ pickerIndex: index })} />
           ) : state.mode === "form" && state.form ? (
-            <Form form={state.form} />
+            <Form
+              form={state.form}
+              onModel={(index) => {
+                const current = stateRef.current;
+                if (!current?.form) return;
+                activate({
+                  form: { ...current.form, field: "model", list: { ...current.form.list, index } },
+                });
+              }}
+            />
           ) : state.section === "providers" ? (
             <ProvidersContent state={state} onRow={(index) => activate({ focus: "content", contentIndex: index })} />
           ) : (

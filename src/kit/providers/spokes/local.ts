@@ -1,5 +1,6 @@
 /** Local (Ollama / LM Studio): an OpenAI-compatible server on your machine. Keyless, zero egress. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const local: ProviderSpoke = {
   id: "local",
@@ -17,6 +18,9 @@ const local: ProviderSpoke = {
       headers,
       fetch,
     })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    return openAICompatModels(baseURL ?? "http://localhost:11434/v1", apiKey, fetch);
   },
 };
 

@@ -1,5 +1,6 @@
 /** Mistral AI: native. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const mistral: ProviderSpoke = {
   id: "mistral",
@@ -10,6 +11,9 @@ const mistral: ProviderSpoke = {
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createMistral } = await import("@ai-sdk/mistral");
     return createMistral({ apiKey, baseURL, headers, fetch })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    return openAICompatModels(baseURL ?? "https://api.mistral.ai/v1", apiKey, fetch);
   },
 };
 

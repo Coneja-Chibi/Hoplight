@@ -1,5 +1,6 @@
 /** Custom (OpenAI-compatible): any proxy or endpoint the user pastes a base URL for. */
 import type { ProviderSpoke } from "../spoke";
+import { openAICompatModels } from "../models";
 
 const custom: ProviderSpoke = {
   id: "custom",
@@ -15,6 +16,10 @@ const custom: ProviderSpoke = {
       headers,
       fetch,
     })(model);
+  },
+  async listModels({ apiKey, baseURL }, fetch) {
+    if (!baseURL) return [];
+    return openAICompatModels(baseURL, apiKey, fetch);
   },
 };
 
