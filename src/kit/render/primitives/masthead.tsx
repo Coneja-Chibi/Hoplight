@@ -1,8 +1,9 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Masthead: the session's theatrical header (locked look, DECISIONS #23). Big block-letter "Kit."
- * with a rose period via OpenTUI's ascii-font, an uppercase studio kicker, and a rose-deep bottom
- * rule (the terminal-honest translation of the mockup's offset stamp shadow).
+ * Masthead: the session's header, a compact "Kit." bar (wordmark left, studio right) over a
+ * rose-deep bottom rule, the session's accent. Terminal-honest small mixed-case, matching the nav
+ * header, not the browser mockup's oversized display font (which a terminal can only fake as chunky
+ * all-caps block letters).
  */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
@@ -14,21 +15,24 @@ export function Masthead({
   studioName: string;
   totalPieces: number;
 }): ReactNode {
-  const kicker = `studio · ${studioName} · ${totalPieces} pieces`.toUpperCase();
   return (
     <box
-      flexDirection="column"
+      flexDirection="row"
       backgroundColor={theme.panel}
       border={["bottom"]}
       borderColor={theme.roseDeep}
       paddingLeft={1}
       paddingRight={1}
     >
-      <box flexDirection="row">
-        <ascii-font text="Kit" font="block" color={theme.text} />
-        <ascii-font text="." font="block" color={theme.rose} />
-      </box>
-      <text fg={theme.mut}>{kicker}</text>
+      <text>
+        <span fg={theme.text}>Kit</span>
+        <span fg={theme.rose}>.</span>
+      </text>
+      <box flexGrow={1} />
+      <text fg={theme.mut}>
+        studio <span fg={theme.soft}>{studioName}</span> <span fg={theme.rose}>·</span>{" "}
+        <span fg={theme.soft}>{String(totalPieces)}</span> pieces
+      </text>
     </box>
   );
 }
