@@ -57,7 +57,8 @@ export interface SettingsState {
 export type Intent =
   | { kind: "close" }
   | { kind: "save"; config: ProviderConfig }
-  | { kind: "setActive"; id: string };
+  | { kind: "setActive"; id: string }
+  | { kind: "remove"; id: string };
 
 export interface Step {
   state: SettingsState;
@@ -190,10 +191,21 @@ function reduceSections(state: SettingsState, key: KeyInput): Step {
         : { state: { ...state, contentIndex: clamp(state.contentIndex + 1, 0, rows - 1) } };
     case "return":
       return activateSections(state, rows);
+    case "d": // make the highlighted saved provider the default (what enter also does)
+      return savedRowIntent(state, (id) => ({ kind: "setActive", id }));
+    case "x": // remove the highlighted saved provider
+      return savedRowIntent(state, (id) => ({ kind: "remove", id }));
     default:
       return { state };
   }
 }
+
+const savedRowIntent = (state: SettingsState, make: (id: string) => Intent): Step => {
+  if (state.focus !== "content" || state.section !== "providers") return { state };
+  const provider = state.saved[state.contentIndex];
+  if (!provider?.id) return { state };
+  return { state, intent: make(provider.id) };
+};
 
 function activateSections(state: SettingsState, rows: number): Step {
   if (state.focus === "rail") return { state: { ...state, focus: "content" } };

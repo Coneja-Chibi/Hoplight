@@ -34,7 +34,7 @@ import {
   type ModelList,
   type SettingsState,
 } from "./model";
-import { readVault, saveProvider, setActive } from "../../providers/vault";
+import { readVault, removeProvider, saveProvider, setActive } from "../../providers/vault";
 import { listModelsFor } from "../../providers/adapters";
 import type { ProviderConfig } from "../../providers/config";
 import type { ModelInfo } from "../../providers/models";
@@ -92,10 +92,19 @@ export function SettingsScreen({
 
   const runIntent = async (intent: Intent): Promise<void> => {
     if (intent.kind === "close") return onClose();
-    if (intent.kind === "setActive") {
-      await setActive(intent.id);
+    if (intent.kind === "setActive" || intent.kind === "remove") {
+      await (intent.kind === "remove" ? removeProvider(intent.id) : setActive(intent.id));
       const vault = await readVault();
-      setState((prev) => (prev ? { ...prev, saved: vault.providers, activeId: vault.activeId } : prev));
+      setState((prev) =>
+        prev
+          ? {
+              ...prev,
+              saved: vault.providers,
+              activeId: vault.activeId,
+              contentIndex: Math.min(prev.contentIndex, vault.providers.length),
+            }
+          : prev,
+      );
       return;
     }
     if (intent.kind === "save") onSaved(await saveProvider(intent.config));
@@ -228,7 +237,15 @@ export function SettingsScreen({
       </box>
 
       <box height={1} backgroundColor={theme.edge} />
-      <SettingsFooter mode={state.mode} />
+      <SettingsFooter
+        mode={state.mode}
+        providerActions={
+          state.mode === "sections"
+          && state.section === "providers"
+          && state.focus === "content"
+          && state.saved.length > 0
+        }
+      />
     </box>
   );
 }

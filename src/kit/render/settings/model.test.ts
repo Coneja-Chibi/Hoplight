@@ -33,6 +33,19 @@ describe("sections", () => {
     const state = initialState(CHOICES, saved, null); // focus starts on content
     expect(reduce(state, { name: "return" }).intent).toEqual({ kind: "setActive", id: "p1" });
   });
+
+  test("d defaults and x removes the highlighted saved provider, and only there", () => {
+    const saved = [{ id: "p1", kind: "anthropic", model: "claude-opus-4-8" }];
+    const state = initialState(CHOICES, saved, null);
+    expect(reduce(state, { name: "d" }).intent).toEqual({ kind: "setActive", id: "p1" });
+    expect(reduce(state, { name: "x" }).intent).toEqual({ kind: "remove", id: "p1" });
+    // on the add row (below the saved one) they are no-ops
+    const onAdd = reduce(state, { name: "down" }).state;
+    expect(reduce(onAdd, { name: "x" }).intent).toBeUndefined();
+    // and in the rail they are no-ops
+    const rail = { ...state, focus: "rail" as const };
+    expect(reduce(rail, { name: "x" }).intent).toBeUndefined();
+  });
 });
 
 describe("add-provider flow", () => {

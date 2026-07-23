@@ -27,10 +27,23 @@ const HINTS: Record<Mode, ReadonlyArray<Hint>> = {
   ],
 };
 
-export function SettingsFooter({ mode }: { mode: Mode }): ReactNode {
+const PROVIDER_ACTIONS: ReadonlyArray<Hint> = [
+  { key: "d", label: "default" },
+  { key: "x", label: "remove" },
+];
+
+export function SettingsFooter({
+  mode,
+  providerActions = false,
+}: {
+  mode: Mode;
+  /** True when the providers list holds focus: d/x act on the highlighted saved provider. */
+  providerActions?: boolean;
+}): ReactNode {
+  const hints = providerActions ? [...HINTS[mode], ...PROVIDER_ACTIONS] : HINTS[mode];
   return (
     <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
-      <KeyHint hints={HINTS[mode]} />
+      <KeyHint hints={hints} />
     </box>
   );
 }
