@@ -2,71 +2,64 @@
 /**
  * OpeningBanner: the statement-piece greeting, printed once at the top and scrolling away as you
  * chat. The real Hoplight illuminated-V mark (two crossed searchlight beams with white slits, ears
- * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, stacked over
- * the big "Kit" wordmark (also polygon-rasterized so it scales cleanly). A rainbow FLOWS across it
- * all on a timer, Gemini's horizontal-gradient idea hand-rendered per column and animated because
- * OpenTUI's ascii-font can do neither. Emojis + a warm note live only in this welcome (banned
- * everywhere else in Hoplight); the working chrome stays rose and emoji-free.
+ * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, BESIDE the
+ * big "Kit" wordmark (also polygon-rasterized so it scales cleanly), the wordmark centered against
+ * the mark's height. A rainbow FLOWS across it all on a timer, Gemini's horizontal-gradient idea
+ * hand-rendered per column and animated because OpenTUI's ascii-font can do neither. Emojis + a warm
+ * note live only in this welcome (banned everywhere else in Hoplight); the chrome stays rose.
  */
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { theme } from "../theme";
 
-// The mark, rasterized ~1.9x from the svg polygons (interior gaps are the slits + tail crossing).
+// The mark, rasterized from the svg polygons (interior gaps are the slits + tail crossing).
 const LOGO = [
-  "               ████                              █████",
-  "      ██████████████                             █████████████",
-  "█████████████████████                           ████████████████████",
-  "  ████████████████████                         ███████████████████",
-  "   ███████████████████                        ███████████████████",
-  "    ████████████ ██████                       ██████████████████",
-  "      ███████     ██████                     ██████    ███████",
-  "       ███████    ███████                   ██████    ███████",
-  "        ███████    ██████                  ██████    ███████",
-  "         ███████    ██████                ██████    ██████",
-  "           ██████    ██████               █████    ██████",
-  "            ██████    ██████             ██████   ██████",
-  "             ██████   ██████            ██████   █████",
-  "               █████   ██████          ██████   █████",
-  "                ██████  ██████         █████   █████",
-  "                 ██████  ██████       █████   ████",
-  "                   █████  █████      █████  █████",
-  "                    █████  █████    ██████ █████",
-  "                     █████ ██████  ██████ █████",
-  "                       ████ ██████ █████ ████",
-  "                        ████████████████████",
-  "                         ██████████████████",
-  "                          ███████████████",
-  "                            ████████████",
-  "                             ██████████",
-  "                              ████████",
-  "                             ██████████",
-  "                            █████ ██████",
-  "                            ███     █████",
-  "                           ███        ███",
-  "                          ██            ██",
-  "                         █                █",
+  "           █████                         ████",
+  "   ██████████████                       █████████████",
+  " ████████████████                      ████████████████",
+  "  ████████████████                    ████████████████",
+  "    █████████ █████                   ██████████████",
+  "     ██████    █████                 █████   ██████",
+  "      ██████   ██████               █████   ██████",
+  "        █████   █████              █████   █████",
+  "         █████   █████            █████   █████",
+  "          █████   █████           ████   █████",
+  "           █████   █████         ████   ████",
+  "             ████   ████        █████  ████",
+  "              ████  █████      █████  ████",
+  "               █████ █████    █████ ████",
+  "                 ████ █████   ████ ████",
+  "                  ████ ████  ████ ████",
+  "                   ████ ████████ ███",
+  "                     ██████████████",
+  "                      ████████████",
+  "                       █████████",
+  "                         ██████",
+  "                        ████████",
+  "                       ████  ████",
+  "                      ███      ███",
+  "                      █          █",
 ];
 // The wordmark, polygon-rasterized to match.
 const KIT = [
-  "█████        █████     █████████████     ████████████████",
-  "█████      █████       █████████████     ████████████████",
-  "█████    █████             █████              █████",
-  "█████  █████               █████              █████",
-  "██████████                 █████              █████",
-  "████████                   █████              █████",
-  "██████████                 █████              █████",
-  "█████  █████               █████              █████",
-  "█████    █████             █████              █████",
-  "█████      █████       █████████████          █████",
-  "█████        █████     █████████████          █████",
+  "████     ███    ██████████   ███████████",
+  "████   ████     ██████████   ███████████",
+  "████  ███          ████          ███",
+  "████████           ████          ███",
+  "██████             ████          ███",
+  "██████             ████          ███",
+  "████████           ████          ███",
+  "████  ███          ████          ███",
+  "████   ████     ██████████       ███",
+  "████     ███    ██████████       ███",
 ];
 
 const LOGO_W = Math.max(...LOGO.map((l) => l.length));
-const KIT_W = Math.max(...KIT.map((l) => l.length));
-const KIT_PAD = Math.max(0, Math.floor((LOGO_W - KIT_W) / 2)); // center the wordmark under the mark
-const ART = [...LOGO, "", ...KIT.map((l) => " ".repeat(KIT_PAD) + l)];
-const WIDTH = LOGO_W;
+const KIT_OFFSET = Math.floor((LOGO.length - KIT.length) / 2); // center the wordmark against the mark
+const GAP = "    ";
+const pad = (line: string, w: number): string => line + " ".repeat(Math.max(0, w - line.length));
+const ART = LOGO.map((line, r) => `${pad(line, LOGO_W)}${GAP}${KIT[r - KIT_OFFSET] ?? ""}`);
+const WIDTH = Math.max(...ART.map((l) => l.length));
 
 // A full rainbow, made cyclic (first color repeated) so the flow wraps seamlessly.
 const RAMP = [
