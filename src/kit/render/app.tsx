@@ -74,9 +74,8 @@ function TitleBar({ studioName, totalPieces }: { studioName: string; totalPieces
       paddingRight={1}
     >
       <text>
-        <span fg={theme.text}>hoplight</span>
+        <span fg={theme.text}>Kit</span>
         <span fg={theme.rose}>.</span>
-        <span fg={theme.text}> kit</span>
       </text>
       <box flexGrow={1} />
       <text fg={theme.soft}>
