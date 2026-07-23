@@ -17,6 +17,7 @@ export async function loadChoices(): Promise<ProviderChoice[]> {
       defaultModel: spoke.defaultModel ?? "",
       keyless: spoke.keyless ?? false,
       needsBaseURL: !spoke.host, // custom / local endpoints supply their own URL
+      options: spoke.options ?? [],
     }),
   );
   return choices.sort((a, b) => {

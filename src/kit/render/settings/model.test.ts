@@ -8,9 +8,28 @@ import type { FormState, ProviderChoice, SettingsState } from "./model";
 import { applyPaste, canFetchModels, filteredModels, formSignature, initialState, reduce } from "./model";
 
 const CHOICES: ProviderChoice[] = [
-  { id: "anthropic", label: "Claude", brand: "#DE7356", defaultModel: "claude-opus-4-8", keyless: false, needsBaseURL: false },
-  { id: "custom", label: "Custom", brand: "#E11D48", defaultModel: "", keyless: false, needsBaseURL: true },
-  { id: "local", label: "Local", brand: "#5AD07A", defaultModel: "", keyless: true, needsBaseURL: true },
+  { id: "anthropic", label: "Claude", brand: "#DE7356", defaultModel: "claude-opus-4-8", keyless: false, needsBaseURL: false, options: [] },
+  { id: "custom", label: "Custom", brand: "#E11D48", defaultModel: "", keyless: false, needsBaseURL: true, options: [] },
+  { id: "local", label: "Local", brand: "#5AD07A", defaultModel: "", keyless: true, needsBaseURL: true, options: [] },
+  {
+    id: "nanogpt",
+    label: "NanoGPT",
+    brand: "#34D399",
+    defaultModel: "chatgpt-4o-latest",
+    keyless: false,
+    needsBaseURL: false,
+    options: [
+      {
+        key: "plan",
+        label: "Plan",
+        choices: [
+          { value: "paygo", label: "Pay-as-you-go" },
+          { value: "subscription", label: "Subscription" },
+        ],
+        defaultValue: "paygo",
+      },
+    ],
+  },
 ];
 
 const fresh = (): SettingsState => initialState(CHOICES, [], null);
@@ -138,6 +157,7 @@ describe("add-provider flow", () => {
       key: "",
       baseURL: "",
       model: "",
+      options: {},
       field: "key",
       list: { state: "idle", models: [], index: 0 },
       ...over,
@@ -150,6 +170,33 @@ describe("add-provider flow", () => {
     expect(formSignature(form({ key: "k".repeat(9), model: "a" }))).toBe(
       formSignature(form({ key: "k".repeat(9), model: "b" })),
     );
+  });
+
+  test("a provider option (NanoGPT plan) is a chip field: right cycles it, save carries it", () => {
+    let s = reduce(reduce(fresh(), { name: "2" }).state, { name: "return" }).state; // picker
+    s = reduce(s, { name: "down" }).state; // custom
+    s = reduce(s, { name: "down" }).state; // local
+    s = reduce(s, { name: "down" }).state; // nanogpt
+    s = reduce(s, { name: "return" }).state; // form: fields [key, opt:plan, model]
+    expect(s.form?.options).toEqual({ plan: "paygo" });
+    s = applyPaste(s, "nano-key-long-enough");
+    s = reduce(s, { name: "tab" }).state; // -> opt:plan
+    expect(s.form?.field).toBe("opt:plan");
+    s = reduce(s, { name: "right" }).state; // cycle to subscription
+    expect(s.form?.options).toEqual({ plan: "subscription" });
+    s = reduce(s, { name: "a", char: "a" }).state; // typing on a chip row is a no-op
+    expect(s.form?.model).toBe("chatgpt-4o-latest");
+    const step = reduce(s, { name: "return" });
+    expect(step.intent).toEqual({
+      kind: "save",
+      config: {
+        kind: "nanogpt",
+        model: "chatgpt-4o-latest",
+        name: "NanoGPT",
+        apiKey: "nano-key-long-enough",
+        options: { plan: "subscription" },
+      },
+    });
   });
 
   test("a custom provider carries model, key, and base URL", () => {

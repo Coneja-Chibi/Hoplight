@@ -1,18 +1,25 @@
 /** @jsxImportSource @opentui/react */
 /**
  * Provider form: the fields for the chosen provider, RC-style. The API key renders as dots (never
- * shown or logged); the focused field is rose-outlined with a caret. Under the model field lives
- * the live picker: models fetched from the provider, filtered by what you type, a windowed list
- * with context chips and an N-of-M line. Typed text stays the escape hatch when nothing matches.
- * Clicking a model row does what enter would: pick it and save.
+ * shown or logged); the focused field is rose-outlined with a caret. Provider-declared options
+ * (e.g. NanoGPT's plan) render as chip rows, left/right or click to choose. Under the model field
+ * lives the live picker: models fetched from the provider, filtered by what you type, a windowed
+ * list with context chips and an N-of-M line. Typed text stays the escape hatch when nothing
+ * matches. Clicking a model row does what enter would: pick it and save.
  */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
 import { formatContext } from "../../providers/models";
-import { filteredModels, formFields, type Field, type FormState } from "./model";
+import { filteredModels, formFields, optionOf, type Field, type FormState } from "./model";
 
-const LABELS: Record<Field, string> = { key: "API key", baseURL: "Base URL", model: "Model" };
 const WINDOW = 8;
+
+const labelFor = (form: FormState, field: Field): string => {
+  if (field === "key") return "API key";
+  if (field === "baseURL") return "Base URL";
+  if (field === "model") return "Model";
+  return optionOf(form.choice, field)?.label ?? field;
+};
 
 const shownValue = (form: FormState, field: Field): string => {
   if (field === "key") return form.key.length ? "•".repeat(form.key.length) : "";
@@ -71,12 +78,54 @@ function ModelRows({ form, onModel }: { form: FormState; onModel: (index: number
   );
 }
 
+function OptionChips({
+  form,
+  field,
+  active,
+  onOption,
+}: {
+  form: FormState;
+  field: Field;
+  active: boolean;
+  onOption: (key: string, value: string) => void;
+}): ReactNode {
+  const option = optionOf(form.choice, field);
+  if (!option) return null;
+  const picked = form.options[option.key] ?? option.defaultValue;
+  return (
+    <box flexDirection="row">
+      {option.choices.map((choice) => (
+        <box key={choice.value} flexDirection="row">
+          <box
+            border
+            borderColor={picked === choice.value ? (active ? theme.rose : theme.soft) : theme.line}
+            backgroundColor={picked === choice.value ? theme.row : theme.sunken}
+            paddingLeft={1}
+            paddingRight={1}
+            onMouseDown={() => onOption(option.key, choice.value)}
+          >
+            <text fg={picked === choice.value ? theme.text : theme.soft}>{choice.label}</text>
+          </box>
+          <box width={1} />
+        </box>
+      ))}
+      {active ? (
+        <box paddingTop={1}>
+          <text fg={theme.mut}>left/right choose</text>
+        </box>
+      ) : null}
+    </box>
+  );
+}
+
 export function Form({
   form,
   onModel,
+  onOption,
 }: {
   form: FormState;
   onModel: (index: number) => void;
+  onOption: (key: string, value: string) => void;
 }): ReactNode {
   const fields = formFields(form.choice);
   return (
@@ -87,22 +136,26 @@ export function Form({
       <box flexDirection="column" paddingTop={1}>
         {fields.map((field) => {
           const active = field === form.field;
-          const value = shownValue(form, field);
+          const isOption = optionOf(form.choice, field) !== undefined;
           return (
             <box key={field} flexDirection="column" paddingBottom={1}>
-              <text fg={active ? theme.rose : theme.mut}>{LABELS[field]}</text>
-              <box
-                border
-                borderColor={active ? theme.rose : theme.line}
-                backgroundColor={theme.sunken}
-                paddingLeft={1}
-                paddingRight={1}
-              >
-                <text fg={theme.text}>
-                  {value}
-                  {active ? <span fg={theme.rose}>{"▏"}</span> : null}
-                </text>
-              </box>
+              <text fg={active ? theme.rose : theme.mut}>{labelFor(form, field)}</text>
+              {isOption ? (
+                <OptionChips form={form} field={field} active={active} onOption={onOption} />
+              ) : (
+                <box
+                  border
+                  borderColor={active ? theme.rose : theme.line}
+                  backgroundColor={theme.sunken}
+                  paddingLeft={1}
+                  paddingRight={1}
+                >
+                  <text fg={theme.text}>
+                    {shownValue(form, field)}
+                    {active ? <span fg={theme.rose}>{"▏"}</span> : null}
+                  </text>
+                </box>
+              )}
               {field === "model" && active ? <ModelRows form={form} onModel={onModel} /> : null}
             </box>
           );

@@ -20,6 +20,8 @@ export interface ProviderConfig {
   baseURL?: string;
   /** Extra headers a proxy might require. */
   headers?: Record<string, string>;
+  /** Provider-specific choices from the spoke's declared options (e.g. NanoGPT's plan). */
+  options?: Record<string, string>;
   /** Optional human label (e.g. "Personal", "Work"). */
   name?: string;
 }

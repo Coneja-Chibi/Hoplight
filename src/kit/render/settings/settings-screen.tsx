@@ -225,6 +225,14 @@ export function SettingsScreen({
                   form: { ...current.form, field: "model", list: { ...current.form.list, index } },
                 });
               }}
+              onOption={(key, value) => {
+                const current = stateRef.current;
+                if (!current?.form) return;
+                apply({
+                  ...current,
+                  form: { ...current.form, options: { ...current.form.options, [key]: value } },
+                });
+              }}
             />
           ) : state.section === "providers" ? (
             <ProvidersContent state={state} onRow={(index) => activate({ focus: "content", contentIndex: index })} />

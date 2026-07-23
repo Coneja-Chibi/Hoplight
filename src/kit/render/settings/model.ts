@@ -6,6 +6,7 @@
  */
 import type { ProviderConfig } from "../../providers/config";
 import type { ModelInfo } from "../../providers/models";
+import type { SpokeOption } from "../../providers/spoke";
 
 export type Section = "providers" | "gates" | "studio" | "about";
 export const SECTIONS: readonly Section[] = ["providers", "gates", "studio", "about"];
@@ -17,9 +18,14 @@ export interface ProviderChoice {
   defaultModel: string;
   keyless: boolean; // local endpoints need no key
   needsBaseURL: boolean; // custom / local endpoints need a URL
+  options: ReadonlyArray<SpokeOption>; // provider-specific choices (e.g. NanoGPT's plan)
 }
 
-export type Field = "key" | "baseURL" | "model";
+/** Text fields plus one focusable entry per provider-declared option ("opt:plan"). */
+export type Field = "key" | "baseURL" | "model" | `opt:${string}`;
+
+export const optionOf = (choice: ProviderChoice, field: Field): SpokeOption | undefined =>
+  field.startsWith("opt:") ? choice.options.find((o) => `opt:${o.key}` === field) : undefined;
 
 /** The live model list under the model field: idle until a fetch fires, then loading, then ready
  * (possibly empty, which the form shows as "check the key"). index highlights within the FILTERED
@@ -35,6 +41,7 @@ export interface FormState {
   key: string;
   baseURL: string;
   model: string;
+  options: Record<string, string>; // per-option picked values, seeded from defaults
   field: Field;
   list: ModelList;
 }
@@ -94,6 +101,7 @@ export function formFields(choice: ProviderChoice): Field[] {
   const fields: Field[] = [];
   if (!choice.keyless) fields.push("key");
   if (choice.needsBaseURL) fields.push("baseURL");
+  for (const option of choice.options) fields.push(`opt:${option.key}`);
   fields.push("model");
   return fields;
 }
@@ -105,6 +113,7 @@ const startForm = (choice: ProviderChoice): FormState => ({
   key: "",
   baseURL: "",
   model: choice.defaultModel,
+  options: Object.fromEntries(choice.options.map((o) => [o.key, o.defaultValue])),
   field: formFields(choice)[0] ?? "model",
   list: { state: "idle", models: [], index: 0 },
 });
@@ -129,10 +138,10 @@ export function canFetchModels(form: FormState): boolean {
   return true;
 }
 
-/** What the key and base URL currently are, as one string: the shell refetches models only when
- * this changes (typing a model name must not refire the fetch). */
+/** What the key, base URL, and options currently are, as one string: the shell refetches models
+ * only when this changes (typing a model name must not refire the fetch). */
 export const formSignature = (form: FormState): string =>
-  `${form.choice.id}|${form.key}|${form.baseURL.trim()}`;
+  `${form.choice.id}|${form.key}|${form.baseURL.trim()}|${JSON.stringify(form.options)}`;
 
 /** A config good enough to query the provider's model list with (the model itself may be unset). */
 export const draftConfig = (form: FormState): ProviderConfig => ({
@@ -140,6 +149,7 @@ export const draftConfig = (form: FormState): ProviderConfig => ({
   model: form.model.trim() || form.choice.defaultModel || "draft",
   ...(form.choice.keyless ? {} : { apiKey: form.key }),
   ...(form.choice.needsBaseURL ? { baseURL: form.baseURL.trim() } : {}),
+  ...(Object.keys(form.options).length ? { options: { ...form.options } } : {}),
 });
 
 const firstInvalidField = (form: FormState): Field | null => {
@@ -157,6 +167,7 @@ const toConfig = (form: FormState): ProviderConfig => ({
   name: form.choice.label,
   ...(form.choice.keyless ? {} : { apiKey: form.key }),
   ...(form.choice.needsBaseURL ? { baseURL: form.baseURL.trim() } : {}),
+  ...(Object.keys(form.options).length ? { options: { ...form.options } } : {}),
 });
 
 /** Reduce a keypress to the next state, plus an optional intent for the shell to run. Total: it
@@ -256,7 +267,12 @@ function reduceForm(state: SettingsState, form: FormState, key: KeyInput): Step 
       return picking
         ? { state: { ...state, form: moveList(form, -1) } }
         : { state: { ...state, form: { ...form, field: fields[(pos - 1 + fields.length) % fields.length]! } } };
+    case "left":
+      return { state: { ...state, form: cycleOption(form, -1) } };
+    case "right":
+      return { state: { ...state, form: cycleOption(form, 1) } };
     case "backspace":
+      if (optionOf(form.choice, form.field)) return { state };
       return { state: { ...state, form: resetListIndex(editField(form, form.field, (v) => v.slice(0, -1))) } };
     case "return": {
       const chosen = picking ? filteredModels(form)[form.list.index] : undefined;
@@ -264,11 +280,25 @@ function reduceForm(state: SettingsState, form: FormState, key: KeyInput): Step 
     }
     default:
       if (key.char) {
+        if (optionOf(form.choice, form.field)) {
+          // space cycles a choice row; other typing has no meaning there
+          return key.char === " " ? { state: { ...state, form: cycleOption(form, 1) } } : { state };
+        }
         return { state: { ...state, form: resetListIndex(editField(form, form.field, (v) => v + key.char)) } };
       }
       return { state };
   }
 }
+
+/** Step an option field's value through its declared choices. No-op on text fields. */
+const cycleOption = (form: FormState, delta: number): FormState => {
+  const option = optionOf(form.choice, form.field);
+  if (!option) return form;
+  const values = option.choices.map((c) => c.value);
+  const at = Math.max(0, values.indexOf(form.options[option.key] ?? option.defaultValue));
+  const next = values[(at + delta + values.length) % values.length]!;
+  return { ...form, options: { ...form.options, [option.key]: next } };
+};
 
 const moveList = (form: FormState, delta: number): FormState => {
   const last = filteredModels(form).length - 1;
