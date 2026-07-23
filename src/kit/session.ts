@@ -4,7 +4,7 @@
  * streams events to the caller. This is the ONE place live egress happens, and only when you send.
  */
 import type { KitBridge } from "./bridge";
-import { resolveProviderConfig } from "./providers/config";
+import { resolveProviderConfig } from "./providers/vault";
 import { makeChat } from "./providers/chat";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
@@ -32,15 +32,15 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
 
   return {
     async runTurn(input, history, onEvent) {
-      const config = await resolveProviderConfig();
-      if (!config) {
-        onEvent({
-          type: "error",
-          message: "No provider connected. Set a key (e.g. ANTHROPIC_API_KEY) and restart Kit.",
-        });
-        return history;
-      }
       try {
+        const config = await resolveProviderConfig();
+        if (!config) {
+          onEvent({
+            type: "error",
+            message: "No provider connected. Open setup with /model to add one.",
+          });
+          return history;
+        }
         const chat = makeChat(config);
         const turn = runLoop(input, history, { chat, dispatch, tools: specs, maxSteps: MAX_STEPS });
         let next = await turn.next();
