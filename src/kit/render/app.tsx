@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import type { DeckCount } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
@@ -58,6 +58,7 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
   const [view, setView] = useState<"session" | "settings">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
   );
+  const { width, height } = useTerminalDimensions();
   const history = useRef<ModelMessage[]>([]);
   const add = (line: RenderLine): void =>
     setTurn((prev) => ({ ...prev, lines: [...prev.lines, line] }));
@@ -109,7 +110,7 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
   }
 
   return (
-    <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
+    <box flexDirection="column" backgroundColor={theme.well} width={width} height={height}>
       <Playbill studioName={studioName} totalPieces={totalPieces} />
       <Scrollback>
         <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
@@ -149,13 +150,13 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
-      <StatusBar provider={provider} busy={busy} />
       <InputBar
         draft={draft}
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
         onInput={setDraft}
         onSubmit={submit}
       />
+      <StatusBar provider={provider} busy={busy} />
     </box>
   );
 }
