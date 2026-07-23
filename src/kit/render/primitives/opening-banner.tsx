@@ -11,6 +11,7 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { theme } from "../theme";
+import { darken, rampAt } from "../colors";
 
 // The mark, rasterized from the svg polygons (interior gaps are the slits + tail crossing).
 const LOGO = [
@@ -67,26 +68,6 @@ const RAMP = [
   "#3b82f6", "#0ea5e9", "#06b6d4", "#14b8a6", "#22c55e", "#84cc16",
   "#eab308", "#f59e0b", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
 ];
-const hexToRgb = (h: string): [number, number, number] => [
-  parseInt(h.slice(1, 3), 16),
-  parseInt(h.slice(3, 5), 16),
-  parseInt(h.slice(5, 7), 16),
-];
-const toHex = (n: number): string => Math.round(n).toString(16).padStart(2, "0");
-const rampColor = (t: number): string => {
-  const scaled = ((((t % 1) + 1) % 1)) * (RAMP.length - 1);
-  const i = Math.min(RAMP.length - 2, Math.floor(scaled));
-  const f = scaled - i;
-  const a = hexToRgb(RAMP[i]!);
-  const b = hexToRgb(RAMP[i + 1]!);
-  return `#${toHex(a[0] + (b[0] - a[0]) * f)}${toHex(a[1] + (b[1] - a[1]) * f)}${toHex(a[2] + (b[2] - a[2]) * f)}`;
-};
-/** A darker variant of a color, for the stamp shadow. */
-const darken = (hex: string, f: number): string => {
-  const [r, g, b] = hexToRgb(hex);
-  return `#${toHex(r * f)}${toHex(g * f)}${toHex(b * f)}`;
-};
-
 const STEP_MS = 110;
 const FLOW = 0.014; // gradient offset per tick
 const SHADOW_DX = 2; // stamp shadow x-offset (matches the generated "S" cells)
@@ -112,7 +93,7 @@ export function OpeningBanner({
     return () => clearInterval(id);
   }, []);
   const offset = tick * FLOW;
-  const cols = Array.from({ length: WIDTH }, (_, c) => rampColor(c / WIDTH - offset));
+  const cols = Array.from({ length: WIDTH }, (_, c) => rampAt(RAMP, c / WIDTH - offset));
   const shadowCols = cols.map((c) => darken(c, SHADOW_DARKEN)); // darker variant of each column, flows too
 
   return (
