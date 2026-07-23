@@ -2,54 +2,85 @@
 /**
  * OpeningBanner: the statement-piece greeting, printed once at the top and scrolling away as you
  * chat. The real Hoplight illuminated-V mark (two crossed searchlight beams with white slits, ears
- * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, beside the
- * big "Kit" wordmark. A rainbow FLOWS across the whole thing on a timer (a shimmering marquee, not a
- * static gradient) via Gemini's horizontal-gradient idea, hand-rendered per column and animated
- * because OpenTUI's ascii-font can do neither. The one deliberate spectrum splash; chrome stays rose.
+ * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, stacked over
+ * the big "Kit" wordmark (also polygon-rasterized so it scales cleanly). A rainbow FLOWS across it
+ * all on a timer, Gemini's horizontal-gradient idea hand-rendered per column and animated because
+ * OpenTUI's ascii-font can do neither. Emojis + a warm note live only in this welcome (banned
+ * everywhere else in Hoplight); the working chrome stays rose and emoji-free.
  */
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { theme } from "../theme";
 
-// The mark, rasterized from the svg polygons (interior gaps are the illuminated slits + tail crossing).
+// The mark, rasterized 2.5x from the svg polygons (interior gaps are the slits + tail crossing).
 const LOGO = [
-  "      ████                ████",
-  "███████████              ███████████",
-  "  ██████████            ██████████",
-  "   ████  ████           ███  ████",
-  "    ████  ███          ███  ████",
-  "      ███  ███        ███  ███",
-  "       ███  ███      ███  ███",
-  "        ███  ███     ███ ███",
-  "          ██ ███    ███ ██",
-  "           ██ ███  ███ ██",
-  "            ████████████",
-  "             █████████",
-  "               ██████",
-  "                ████",
-  "               ██████",
-  "              ██    ██",
-  "             █        █",
+  "                     ████                                         ████",
+  "            ██████████████                                       █████████████",
+  "    ███████████████████████                                     ██████████████████████",
+  " ███████████████████████████                                   ██████████████████████████",
+  "  ██████████████████████████                                  ██████████████████████████",
+  "   ██████████████████████████                                 █████████████████████████",
+  "     █████████████████████████                               ████████████████████████",
+  "      ██████████████  █████████                             ████████   █████████████",
+  "       ██████████      ████████                            ████████      ██████████",
+  "         █████████      ████████                           ███████      █████████",
+  "          █████████      ████████                         ████████     █████████",
+  "           █████████      ████████                       ████████     █████████",
+  "             ████████     █████████                     ████████     ████████",
+  "              ████████     ████████                    ████████     ████████",
+  "               █████████    ████████                   ███████     ████████",
+  "                 ████████    ████████                 ███████     ███████",
+  "                  ████████    ████████               ████████    ███████",
+  "                   ████████    ███████              ████████   ████████",
+  "                    ████████   ████████            ████████   ███████",
+  "                      ███████   ████████           ███████   ███████",
+  "                       ███████   ████████         ███████   ███████",
+  "                        ███████   ███████        ███████   ██████",
+  "                          ██████   ███████      ███████   ██████",
+  "                           ██████   ███████    ████████  ██████",
+  "                            ██████  ████████   ███████  █████",
+  "                              ██████ ████████ ███████ ██████",
+  "                               ██████ ██████████████ ██████",
+  "                                █████████████████████████",
+  "                                  ██████████████████████",
+  "                                   ████████████████████",
+  "                                    █████████████████",
+  "                                      ██████████████",
+  "                                       ████████████",
+  "                                        ███████████",
+  "                                       ████████████",
+  "                                      ██████████████",
+  "                                     ██████   ███████",
+  "                                    █████       ██████",
+  "                                    ████          █████",
+  "                                   ███              ███",
+  "                                  ██                  ██",
+  "                                 █                      █",
 ];
-// The wordmark.
+// The wordmark, polygon-rasterized 2.5x to match.
 const KIT = [
-  "██╗  ██╗ ██╗ ████████╗",
-  "██║ ██╔╝ ██║ ╚══██╔══╝",
-  "█████╔╝  ██║    ██║   ",
-  "██╔═██╗  ██║    ██║   ",
-  "██║  ██╗ ██║    ██║   ",
-  "╚═╝  ╚═╝ ╚═╝    ╚═╝   ",
+  "███████          ███████       ██████████████████     ██████████████████████",
+  "███████        ███████         ██████████████████     ██████████████████████",
+  "███████      ███████           ██████████████████     ██████████████████████",
+  "███████    ███████                  ███████                   ███████",
+  "███████  ███████                    ███████                   ███████",
+  "██████████████                      ███████                   ███████",
+  "████████████                        ███████                   ███████",
+  "██████████                          ███████                   ███████",
+  "████████████                        ███████                   ███████",
+  "██████████████                      ███████                   ███████",
+  "███████  ███████                    ███████                   ███████",
+  "███████    ███████                  ███████                   ███████",
+  "███████      ███████           ██████████████████             ███████",
+  "███████        ███████         ██████████████████             ███████",
+  "███████          ███████       ██████████████████             ███████",
 ];
 
-const ROWS = LOGO.length;
-const KIT_OFFSET = Math.round((ROWS - KIT.length) / 2); // center the wordmark against the mark
 const LOGO_W = Math.max(...LOGO.map((l) => l.length));
-const pad = (line: string, w: number): string => line + " ".repeat(Math.max(0, w - line.length));
-const ART = Array.from({ length: ROWS }, (_, r) => {
-  const k = KIT[r - KIT_OFFSET] ?? "";
-  return `${pad(LOGO[r] ?? "", LOGO_W)}    ${k}`;
-});
-const WIDTH = Math.max(...ART.map((line) => line.length));
+const KIT_W = Math.max(...KIT.map((l) => l.length));
+const KIT_PAD = Math.max(0, Math.floor((LOGO_W - KIT_W) / 2)); // center the wordmark under the mark
+const ART = [...LOGO, "", ...KIT.map((l) => " ".repeat(KIT_PAD) + l)];
+const WIDTH = LOGO_W;
 
 // A full rainbow, made cyclic (first color repeated) so the flow wraps seamlessly.
 const RAMP = [
@@ -71,8 +102,8 @@ const rampColor = (t: number): string => {
   return `#${toHex(a[0] + (b[0] - a[0]) * f)}${toHex(a[1] + (b[1] - a[1]) * f)}${toHex(a[2] + (b[2] - a[2]) * f)}`;
 };
 
-const STEP_MS = 90;
-const FLOW = 0.016; // gradient offset per tick
+const STEP_MS = 110;
+const FLOW = 0.014; // gradient offset per tick
 
 /** One line of the welcome; height 1 so stacked rows do not pile onto one another. */
 const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode => (
@@ -115,46 +146,38 @@ export function OpeningBanner({
       ))}
 
       <box height={1} />
-      <Row fg={theme.bright}>Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
-      <Row fg={theme.soft}>This is Kit: your {studioName}, living right here in the terminal.</Row>
+      <Row fg={theme.bright}>👋  Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
+      <Row fg={theme.soft}>    This is Kit: your whole {studioName}, living right here in the terminal.</Row>
 
       <box height={1} />
       <Row fg={theme.text}>
-        Everything you&apos;ve made lives here, all {String(totalPieces)} pieces: your characters, personas,
+        🎭  Everything you&apos;ve made lives here, all {String(totalPieces)} pieces. No menus, no forms to fill.
       </Row>
-      <Row fg={theme.text}>
-        lorebooks, presets, the lot. No menus to dig through, no forms to fill in. You
-      </Row>
-      <Row fg={theme.text}>just talk to it, like a friend who already knows where all of it is.</Row>
+      <Row fg={theme.text}>    You just talk to it, like a friend who already knows where all of it is.</Row>
 
       <box height={1} />
-      <Row fg={theme.text}>Want a new character? Ask for one. Need to fix a persona, pull a fact from a</Row>
-      <Row fg={theme.text}>lorebook, or bring a card in from another app? Say so in plain words, and Kit</Row>
-      <Row fg={theme.text}>does the fiddly parts for you, then shows you exactly what it changed.</Row>
+      <Row fg={theme.bright}>✨  Try saying:</Row>
+      <Row fg={theme.teal}>      &quot;make me a grumpy tavern keeper who hates adventurers&quot;</Row>
+      <Row fg={theme.teal}>      &quot;add a hidden secret to Mira&apos;s lorebook&quot;</Row>
+      <Row fg={theme.teal}>      &quot;bring in this character card from another app&quot;</Row>
 
       <box height={1} />
-      <Row fg={theme.bright}>Two promises, because they matter:</Row>
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          Nothing you write <span fg={theme.text}>leaves your machine</span> until you choose to send it.
+          🔒  Two promises: nothing <span fg={theme.text}>leaves your machine</span> until you send it, and the
         </text>
       </box>
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          Any scripts inside your pieces stay <span fg={theme.text}>sealed as plain text</span>. Kit never runs them.
+          {"    "}scripts inside your pieces stay <span fg={theme.text}>sealed as text</span>. Kit never runs them.
         </text>
       </box>
 
       <box height={1} />
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          When you&apos;re ready: <span fg={theme.text}>/model</span> to connect a provider,{" "}
-          <span fg={theme.text}>/test</span> to check it&apos;s awake, then just
-        </text>
-      </box>
-      <box flexDirection="row" height={1}>
-        <text fg={theme.soft}>
-          start talking. <span fg={theme.text}>/quit</span> whenever you want to step out.
+          🐇  Ready? <span fg={theme.text}>/model</span> connects a provider,{" "}
+          <span fg={theme.text}>/test</span> checks it&apos;s awake, then just talk.
         </text>
       </box>
 
