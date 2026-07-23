@@ -39,6 +39,29 @@ export async function readProviderConfig(): Promise<ProviderConfig | null> {
   }
 }
 
+/** Familiar env vars that stand in for a saved config, so a key can be set without the setup screen. */
+const ENV_PROVIDERS: ReadonlyArray<{ env: string; kind: string; model: string }> = [
+  { env: "ANTHROPIC_API_KEY", kind: "anthropic", model: "claude-opus-4-8" },
+  { env: "OPENAI_API_KEY", kind: "openai", model: "gpt-4o" },
+  { env: "OPENROUTER_API_KEY", kind: "openrouter", model: "anthropic/claude-opus-4-8" },
+  { env: "GROQ_API_KEY", kind: "groq", model: "llama-3.3-70b-versatile" },
+  { env: "MISTRAL_API_KEY", kind: "mistral", model: "mistral-large-latest" },
+  { env: "DEEPSEEK_API_KEY", kind: "deepseek", model: "deepseek-chat" },
+  { env: "NANOGPT_API_KEY", kind: "nanogpt", model: "chatgpt-4o-latest" },
+  { env: "GEMINI_API_KEY", kind: "google", model: "gemini-2.5-pro" },
+];
+
+/** The active provider: the saved config first, else a familiar env var, else null (fail-closed). */
+export async function resolveProviderConfig(): Promise<ProviderConfig | null> {
+  const saved = await readProviderConfig();
+  if (saved) return saved;
+  for (const provider of ENV_PROVIDERS) {
+    const key = process.env[provider.env];
+    if (key) return { kind: provider.kind, model: provider.model, apiKey: key };
+  }
+  return null;
+}
+
 /** Save the provider config to the user-scoped file, locked to the owner where the OS supports it. */
 export async function writeProviderConfig(config: ProviderConfig): Promise<void> {
   await mkdir(CONFIG_DIR, { recursive: true });

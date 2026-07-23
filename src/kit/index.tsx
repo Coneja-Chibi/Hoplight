@@ -11,6 +11,7 @@ import { basename } from "node:path";
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createBridge } from "./bridge";
+import { createSession } from "./session";
 import { App } from "./render/app";
 
 async function main(): Promise<void> {
@@ -18,6 +19,7 @@ async function main(): Promise<void> {
   const decks = await bridge.deckCounts();
   const total = decks.reduce((sum, deck) => sum + deck.count, 0);
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
+  const session = await createSession(bridge);
 
   const renderer = await createCliRenderer({ screenMode: "alternate-screen", exitOnCtrlC: true });
   const root = createRoot(renderer);
@@ -26,7 +28,9 @@ async function main(): Promise<void> {
     process.exit(0);
   };
 
-  root.render(<App studioName={studioName} totalPieces={total} decks={decks} onQuit={quit} />);
+  root.render(
+    <App studioName={studioName} totalPieces={total} decks={decks} session={session} onQuit={quit} />,
+  );
 
   if (process.env.KIT_SMOKE) {
     console.error(`kit-smoke: mounted; studio=${studioName} pieces=${total}`);
