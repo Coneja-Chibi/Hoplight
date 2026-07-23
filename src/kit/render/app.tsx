@@ -6,6 +6,8 @@
  */
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
+import { useKeyboard } from "@opentui/react";
+import type { KeyEvent } from "@opentui/core";
 import type { DeckCount } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session } from "../session";
@@ -20,8 +22,10 @@ import { ErrorRow } from "./primitives/error-row";
 import { InputBar } from "./primitives/input-bar";
 import { StatusRow } from "./primitives/status-row";
 import { SweepLine } from "./primitives/sweep-line";
+import { ThoughtBox } from "./primitives/thought-box";
+import { ThoughtRow } from "./primitives/thought-row";
 import { SettingsScreen } from "./settings/settings-screen";
-import { applyTurnEvent, type RenderLine, type TurnView } from "./turn-events";
+import { applyTurnEvent, settleTurn, toggleThought, type RenderLine, type TurnView } from "./turn-events";
 
 export interface AppProps {
   studioName: string;
@@ -69,11 +73,18 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     setStartedAt(Date.now());
     setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
     history.current = await session.runTurn(value, history.current, (event) => {
-      setTurn((prev) => applyTurnEvent(prev, event));
+      setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
     });
-    setTurn((prev) => ({ ...prev, live: { phase: "idle" } }));
+    setTurn((prev) => settleTurn(prev, Date.now()));
     setBusy(false);
   };
+
+  useKeyboard((event: KeyEvent) => {
+    // ctrl+o toggles the latest rehearsal trace (plain o would collide with the composer)
+    if (view === "session" && event.ctrl && event.name === "o") {
+      setTurn((prev) => toggleThought(prev));
+    }
+  });
 
   if (view === "settings") {
     return (
@@ -100,14 +111,23 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
             <ToolRow key={index} summary={line.text} />
           ) : line.role === "error" ? (
             <ErrorRow key={index} text={line.text} />
+          ) : line.role === "thought" ? (
+            <ThoughtRow
+              key={index}
+              text={line.text}
+              seconds={line.seconds}
+              open={line.open}
+              onToggle={() => setTurn((prev) => toggleThought(prev, index))}
+            />
           ) : (
             <SayLine key={index} text={line.text} />
           ),
         )}
         {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
-        {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? (
-          <StatusRow startedAt={startedAt} />
+        {turn.live.phase === "thinking" ? (
+          <ThoughtBox text={turn.live.text} startedAt={startedAt} />
         ) : null}
+        {turn.live.phase === "waiting" ? <StatusRow startedAt={startedAt} /> : null}
       </Scrollback>
       {turn.live.phase === "waiting" || turn.live.phase === "thinking" ? <SweepLine /> : null}
       <InputBar draft={draft} onInput={setDraft} onSubmit={submit} />
