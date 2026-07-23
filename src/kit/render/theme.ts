@@ -21,6 +21,7 @@ export const theme = {
   teal: "#14b8a6",
   tealDeep: "#0f766e",
   gold: "#eab308",
+  goldDim: "#4a3d10", // unlit marquee lamp (twinkles up to gold)
   alive: "#22c55e", // the connected/alive dot in the status bar
   white: "#ffffff",
   stamp: "#2b2734", // the heavy pressed ledge (carved bottom + right edges)
