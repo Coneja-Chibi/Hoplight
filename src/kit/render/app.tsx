@@ -21,7 +21,6 @@ import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { InputBar } from "./primitives/input-bar";
 import { StatusRow } from "./primitives/status-row";
-import { SweepLine } from "./primitives/sweep-line";
 import { ThoughtBox } from "./primitives/thought-box";
 import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageBox } from "./primitives/backstage-box";
@@ -157,7 +156,6 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
-      {turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools ? <SweepLine /> : null}
       <InputBar draft={draft} onInput={setDraft} onSubmit={submit} />
     </box>
   );
