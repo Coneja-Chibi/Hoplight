@@ -18,6 +18,7 @@ import { SayLine } from "./primitives/say-line";
 import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { InputBar } from "./primitives/input-bar";
+import { SettingsScreen } from "./settings/settings-screen";
 
 export interface AppProps {
   studioName: string;
@@ -45,13 +46,21 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
   const [draft, setDraft] = useState("");
   const [lines, setLines] = useState<RenderLine[]>(WELCOME);
   const [busy, setBusy] = useState(false);
+  const [view, setView] = useState<"session" | "settings">(
+    process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
+  );
   const history = useRef<ModelMessage[]>([]);
   const add = (line: RenderLine): void => setLines((prev) => [...prev, line]);
 
   const submit = async (raw: string): Promise<void> => {
     const value = raw.trim();
     setDraft("");
-    if (!value || busy) return;
+    if (!value) return;
+    if (value === "/model" || value === "/providers") {
+      setView("settings");
+      return;
+    }
+    if (busy) return;
     if (isQuit(value)) {
       onQuit();
       return;
@@ -66,6 +75,19 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     });
     setBusy(false);
   };
+
+  if (view === "settings") {
+    return (
+      <SettingsScreen
+        studioName={studioName}
+        onClose={() => setView("session")}
+        onSaved={(config) => {
+          setView("session");
+          add({ role: "say", text: `Connected ${config.name ?? config.kind}. Talk to your studio.` });
+        }}
+      />
+    );
+  }
 
   return (
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">

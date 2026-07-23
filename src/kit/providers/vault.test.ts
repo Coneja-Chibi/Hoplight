@@ -4,7 +4,7 @@
  * env var. Runs against a throwaway HOPLIGHT_HOME so it never touches the real vault. On Windows the
  * sealing goes through the DPAPI backend for real.
  */
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rm } from "node:fs/promises";
@@ -19,6 +19,9 @@ import {
 } from "./vault";
 
 const HOME = join(tmpdir(), `kit-vault-test-${randomUUID()}`);
+
+// DPAPI seals spawn PowerShell (~1s cold); give the write-heavy cases room.
+setDefaultTimeout(30000);
 
 beforeAll(() => {
   process.env.HOPLIGHT_HOME = HOME;

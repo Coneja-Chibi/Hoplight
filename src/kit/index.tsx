@@ -21,7 +21,11 @@ async function main(): Promise<void> {
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
   const session = await createSession(bridge);
 
-  const renderer = await createCliRenderer({ screenMode: "alternate-screen", exitOnCtrlC: true });
+  const renderer = await createCliRenderer({
+    screenMode: "alternate-screen",
+    exitOnCtrlC: true,
+    useMouse: true,
+  });
   const root = createRoot(renderer);
   const quit = (): void => {
     root.unmount();

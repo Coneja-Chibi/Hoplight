@@ -17,13 +17,20 @@ export interface Vault {
 
 const EMPTY: Vault = { providers: [], activeId: null };
 
+// In-memory cache of the decrypted vault, keyed by path so a changed HOPLIGHT_HOME (tests, portable
+// installs) invalidates it. This keeps the key unlocked once per process rather than spawning the
+// OS keystore (a PowerShell DPAPI call) on every turn; the plaintext lives in process memory only.
+let cache: { path: string; vault: Vault } | null = null;
+
 /** The decrypted vault. Empty when no vault file exists; THROWS if a present vault will not open
  * (wrong passphrase or tampering) so callers surface it rather than silently losing the keys. */
 export async function readVault(unlock: Unlock = {}): Promise<Vault> {
+  const path = vaultPath();
+  if (cache && cache.path === path) return cache.vault;
   const sealed = await readSealed();
-  if (!sealed) return { providers: [], activeId: null };
-  const plain = await open(sealed, unlock);
-  return toVault(JSON.parse(plain) as unknown);
+  const vault = sealed ? toVault(JSON.parse(await open(sealed, unlock)) as unknown) : { ...EMPTY };
+  cache = { path, vault };
+  return vault;
 }
 
 /** Add or replace a provider (by id) and make it active. Returns the saved provider with its id. */
@@ -82,6 +89,7 @@ async function writeVault(vault: Vault, unlock: Unlock): Promise<void> {
     // ACL-based on Windows; the encryption is the real lock, this is only defense-in-depth.
   }
   await rename(tmp, vaultPath()); // atomic replace
+  cache = { path: vaultPath(), vault }; // keep the in-memory copy in step with disk
 }
 
 function isSealed(value: unknown): value is Sealed {
