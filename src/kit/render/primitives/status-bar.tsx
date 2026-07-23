@@ -15,21 +15,18 @@ export function StatusBar({
   busy: boolean;
 }): ReactNode {
   return (
-    <box flexDirection="column">
-      <box height={1} backgroundColor={theme.edge} />
-      <box flexDirection="row" height={1} backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
-        {provider ? (
-          <text fg={theme.soft}>
-            <span fg={theme.alive}>●</span> <span fg={theme.text}>{provider.name}</span> {provider.model}
-          </text>
-        ) : (
-          <text fg={theme.mut}>
-            ○ no provider <span fg={theme.soft}>· /model to connect</span>
-          </text>
-        )}
-        <box flexGrow={1} />
-        <text fg={busy ? theme.rose : theme.mut}>{busy ? "working" : "ready"}</text>
-      </box>
+    <box flexDirection="row" height={1} backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
+      {provider ? (
+        <text fg={theme.soft}>
+          <span fg={theme.alive}>●</span> <span fg={theme.text}>{provider.name}</span> {provider.model}
+        </text>
+      ) : (
+        <text fg={theme.mut}>
+          ○ no provider <span fg={theme.soft}>· /model to connect</span>
+        </text>
+      )}
+      <box flexGrow={1} />
+      <text fg={busy ? theme.rose : theme.mut}>{busy ? "working" : "ready"}</text>
     </box>
   );
 }
