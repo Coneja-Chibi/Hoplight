@@ -18,8 +18,12 @@ import { SweepLine } from "./sweep-line";
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
 ];
-const CURSOR_STEP_MS = 120;
-const CURSOR_FLOW = 0.03; // color offset per tick (~4s per full spectrum sweep)
+const CURSOR_STEP_MS = 90;
+const CURSOR_FLOW = 0.01; // color offset per tick (small steps, ~10s per full spectrum sweep)
+// We drive the blink ourselves (the terminal's blink resets whenever the color changes, which reads
+// as jittery). BLINK_ON/OFF are tick counts, so the cadence is even by construction.
+const BLINK_ON = 7;
+const BLINK_OFF = 5;
 
 export function InputBar({
   draft,
@@ -37,11 +41,12 @@ export function InputBar({
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
-    input.cursorStyle = { style: "underline", blinking: true };
+    input.cursorStyle = { style: "underline", blinking: false }; // we drive the blink, evenly
     let n = 0;
     const id = setInterval(() => {
       n += 1;
-      input.cursorColor = rampAt(CURSOR_RAMP, n * CURSOR_FLOW);
+      const on = n % (BLINK_ON + BLINK_OFF) < BLINK_ON;
+      input.cursorColor = on ? rampAt(CURSOR_RAMP, n * CURSOR_FLOW) : theme.panel; // off = blend into the field
     }, CURSOR_STEP_MS);
     return () => clearInterval(id);
   }, []);

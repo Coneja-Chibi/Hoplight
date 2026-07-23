@@ -83,15 +83,19 @@ const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode =
 export function OpeningBanner({
   studioName,
   totalPieces,
+  animate = true,
 }: {
   studioName: string;
   totalPieces: number;
+  /** Flow the rainbow only while the banner is the whole screen; freeze once a turn scrolls it away. */
+  animate?: boolean;
 }): ReactNode {
   const [tick, setTick] = useState(0);
   useEffect(() => {
+    if (!animate) return;
     const id = setInterval(() => setTick((x) => x + 1), STEP_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [animate]);
   const offset = tick * FLOW;
   const cols = Array.from({ length: WIDTH }, (_, c) => rampAt(RAMP, c / WIDTH - offset));
   const shadowCols = cols.map((c) => darken(c, SHADOW_DARKEN)); // darker variant of each column, flows too

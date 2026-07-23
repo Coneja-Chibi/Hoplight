@@ -106,7 +106,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
       <SessionStrip decks={decks} />
       <Scrollback>
-        <OpeningBanner studioName={studioName} totalPieces={totalPieces} />
+        <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
         {turn.lines.map((line, index) =>
           line.role === "you" ? (
             <YouLine key={index} text={line.text} />
