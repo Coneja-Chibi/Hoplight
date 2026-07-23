@@ -37,9 +37,10 @@ export interface AppProps {
   onQuit: () => void;
 }
 
-const WELCOME: RenderLine[] = [
-  { role: "say", text: "Talk to your studio. Nothing leaves your machine until you send." },
-  { role: "say", text: "Scripts stay sealed as text and never run." },
+// The confiding voice (design bible): bright, under the header, not in the transcript.
+const CONFIDE: string[] = [
+  "Talk to your studio. Nothing leaves your machine until you send.",
+  "Scripts stay sealed as text and never run.",
 ];
 
 const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
@@ -49,7 +50,7 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [turn, setTurn] = useState<TurnView>({
-    lines: WELCOME,
+    lines: [],
     live: { phase: "idle" },
     label: "",
     tools: null,
@@ -112,6 +113,13 @@ export function App({ studioName, totalPieces, decks, session, onQuit }: AppProp
     <box flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
       <Masthead studioName={studioName} totalPieces={totalPieces} />
       <SessionStrip decks={decks} />
+      <box flexDirection="column" paddingLeft={1} paddingRight={1} paddingTop={1} paddingBottom={1}>
+        {CONFIDE.map((line, index) => (
+          <box key={index} flexDirection="row" height={1}>
+            <text fg={theme.bright}>{line}</text>
+          </box>
+        ))}
+      </box>
       <Scrollback>
         {turn.lines.map((line, index) =>
           line.role === "you" ? (

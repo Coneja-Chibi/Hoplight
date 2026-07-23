@@ -80,7 +80,7 @@ test("real keys drive the whole RC flow: masked key, live model list, pick, save
     await t.waitForFrame((frame) => frame.includes("paste your key"), { maxPasses: 100 });
     await t.mockInput.typeText("sk-live-secret");
     await tick();
-    const masked = await t.waitForFrame((f) => f.includes("•"), { maxPasses: 100 });
+    const masked = await t.waitForFrame((f) => f.includes("●"), { maxPasses: 100 });
     expect(masked).not.toContain("sk-live-secret"); // the key is masked, never shown
 
     await tick(40); // let the debounced (10ms) model fetch fire and land

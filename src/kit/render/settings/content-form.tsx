@@ -22,7 +22,8 @@ const labelFor = (form: FormState, field: Field): string => {
 };
 
 const shownValue = (form: FormState, field: Field): string => {
-  if (field === "key") return form.key.length ? "•".repeat(form.key.length) : "";
+  // Mask the key. The design bible bans the • bullet glyph; use the filled circle for the mask.
+  if (field === "key") return form.key.length ? "●".repeat(form.key.length) : "";
   if (field === "baseURL") return form.baseURL;
   return form.model;
 };

@@ -1,9 +1,9 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Masthead: the session's header, a compact "Kit." bar (wordmark left, studio right) over a
- * rose-deep bottom rule, the session's accent. Terminal-honest small mixed-case, matching the nav
- * header, not the browser mockup's oversized display font (which a terminal can only fake as chunky
- * all-caps block letters).
+ * Masthead: the signature stack (DECISIONS #27, design bible Pattern #1), terminal-translated:
+ * a rose eyebrow (tracked uppercase) over the "Kit." wordmark, closed by a hard rose-deep rule.
+ * The confiding line lives just below in the shell, in bright ink. No big display font (a terminal
+ * can only fake that as chunky block letters); the wordmark carries at cell size.
  */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
@@ -15,24 +15,19 @@ export function Masthead({
   studioName: string;
   totalPieces: number;
 }): ReactNode {
+  const eyebrow = `studio · ${studioName} · ${totalPieces} pieces`.toUpperCase();
   return (
-    <box
-      flexDirection="row"
-      backgroundColor={theme.panel}
-      border={["bottom"]}
-      borderColor={theme.roseDeep}
-      paddingLeft={1}
-      paddingRight={1}
-    >
-      <text>
-        <span fg={theme.text}>Kit</span>
-        <span fg={theme.rose}>.</span>
-      </text>
-      <box flexGrow={1} />
-      <text fg={theme.mut}>
-        studio <span fg={theme.soft}>{studioName}</span> <span fg={theme.rose}>·</span>{" "}
-        <span fg={theme.soft}>{String(totalPieces)}</span> pieces
-      </text>
+    <box flexDirection="column" backgroundColor={theme.sunken}>
+      <box flexDirection="row" height={1} paddingLeft={1} paddingRight={1}>
+        <text fg={theme.rose}>{eyebrow}</text>
+      </box>
+      <box flexDirection="row" height={1} paddingLeft={1} paddingRight={1}>
+        <text>
+          <span fg={theme.text}>Kit</span>
+          <span fg={theme.rose}>.</span>
+        </text>
+      </box>
+      <box height={1} backgroundColor={theme.roseDeep} />
     </box>
   );
 }
