@@ -10,12 +10,16 @@
 export interface CommandContext {
   /** Text after the command word ("" for a bare command); for arg-taking commands later. */
   readonly arg: string;
+  /** Every registered command, so a command like /help can enumerate the others. */
+  readonly commands: readonly KitCommand[];
   /** Open the provider setup screen (/model, /providers). */
   openSettings: () => void;
   /** Leave Kit (/quit, /q). */
   quit: () => void;
   /** Run the active provider's proof-of-life inside a turn (/test). */
   probe: () => Promise<void>;
+  /** Print a line to the transcript (markdown-rendered), e.g. /help's listing. */
+  say: (text: string) => void;
 }
 
 export interface KitCommand {

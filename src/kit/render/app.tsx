@@ -84,9 +84,11 @@ export function App({ studioName, totalPieces, session, commands, onQuit }: AppP
     if (matched) {
       const ctx: CommandContext = {
         arg: matched.arg,
+        commands,
         openSettings: () => setView("settings"),
         quit: onQuit,
         probe: () => withTurn((onEvent) => session.probe(onEvent)),
+        say: (text) => add({ role: "say", text }),
       };
       await matched.command.run(ctx);
       return;
