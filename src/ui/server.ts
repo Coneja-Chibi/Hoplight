@@ -25,6 +25,14 @@ import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
 import type { PackagedAssets } from "./assets";
 import { handleDocsRequest } from "./server-docs";
 import { startSandboxHost } from "./sandbox-host";
+import type { SidecarManager } from "./remote/sidecar-manager";
+import type { LanManager } from "./remote/lan-manager";
+import {
+  handleRemoteRoutes,
+  isHostOnlyRoute,
+  setupRemoteAccess,
+  type MakeHandler,
+} from "./server-remote";
 import { APP_VERSION } from "../version";
 import { handleUpdateCheck } from "./server-update";
 import { handleStudioDelete, handleStudioSave } from "./server-studio-write";
@@ -41,22 +49,21 @@ import {
   readBodyCapped,
   readJsonCapped,
   checkApiRequest,
+  checkRemoteApiRequest,
+  checkLanApiRequest,
   contentTypeIs,
   studioErr,
   openInBrowser,
 } from "./server-security";
 import {
-  REACT_EXTERNALS,
   discoverApps,
   discoverSetupSteps,
   discoverTours,
-  withCssInjected,
   bundleModule,
-  bundleVendor,
   startDevWatch,
   appManifests,
   createDevReloadResponse,
-  staticFile,
+  handleAssetRoutes,
 } from "./server-static";
 import { formatMeta, handleInspect, handleExport } from "./server-engine";
 
@@ -90,6 +97,16 @@ export function createHandler(
   sandboxOrigin?: string | { current: string },
   /** filled by startUi after the listener binds; quit/restart need the real stop */
   lifecycle?: LifecycleDeps,
+  /** remote-access sidecar manager; absent in tests and when the binary is missing */
+  remote?: SidecarManager,
+  /** when set, this handler serves the UNTRUSTED remote listener: the /api gate requires this shared
+   *  secret (stamped by the sidecar) instead of the loopback Host/Origin check. */
+  remoteSecret?: string,
+  /** when true, this handler serves an already-approved LAN session (the connect code + host approval
+   *  gated it upstream); /api uses the CSRF token only, no Host/Origin or secret. */
+  lanApproved?: boolean,
+  /** the LAN manager, present only on the trusted handler (LAN management is host-only). */
+  lan?: LanManager,
 ): (req: Request) => Promise<Response> {
   const security = sec ?? createSecurityContext();
 
@@ -119,111 +136,53 @@ export function createHandler(
     });
   };
 
+  // A remote handler is the untrusted Tailscale listener (remoteSecret) or an approved LAN session.
+  const isRemote = remoteSecret != null || lanApproved === true;
+
   return async (req: Request): Promise<Response> => {
     const url = new URL(req.url);
     const p = url.pathname;
+
+    // Trusted loopback listener must never accept sidecar-proxied (remote) traffic; refuse the secret
+    // header on ANY path, before routing (not just /api).
+    if (!isRemote && req.headers.get("x-hoplight-sidecar-secret")) return err("refused", 403);
+
+    // Untrusted remote listener: NOTHING is served without the sidecar secret (only the sidecar, which
+    // has already gated the caller down to the studio owner, carries it). This replaces the loopback
+    // Host check and stops a DNS-rebinding page from pulling the token-bearing HTML. Every path, first.
+    if (remoteSecret) {
+      const denied = checkRemoteApiRequest(req, security, remoteSecret);
+      if (denied) return denied;
+    }
+
+    // HOST-ONLY surface: a tailed-in or LAN-served device may USE the studio, but must never reach
+    // remote-access management OR host/app control (turn access off, kick devices, open a browser on
+    // the host, write settings, shut down or restart). Those belong to the local host alone.
+    if (isRemote && isHostOnlyRoute(p, req.method)) {
+      return err("forbidden: managed on the host device", 403);
+    }
 
     if (p === "/" || p === "/index.html") {
       if (packaged) return htmlResponse(packaged.indexHtml);
       const file = Bun.file(fileURLToPath(new URL("./index.html", import.meta.url)));
       return htmlResponse(await file.text());
     }
-    if (p === "/tokens.css") {
-      return packaged ? text(packaged.tokensCss, "text/css; charset=utf-8") : staticFile("./theme/tokens.css", "text/css; charset=utf-8");
-    }
-    if (p === "/favicon.ico" || p === "/icon-256.png") {
-      const isIco = p === "/favicon.ico";
-      const type = isIco ? "image/x-icon" : "image/png";
-      if (packaged) {
-        const b64 = isIco ? packaged.faviconIcoB64 : packaged.iconPngB64;
-        return new Response(Buffer.from(b64, "base64"), { headers: { "content-type": type } });
-      }
-      const rel = isIco ? "../../build/vaude.ico" : "../../build/vaude-256.png";
-      return new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
-    }
-    if (p === "/app.webmanifest") {
-      return text(
-        JSON.stringify({
-          name: "Hoplight.",
-          short_name: "Hoplight.",
-          icons: [{ src: "/icon-256.png", sizes: "256x256", type: "image/png" }],
-          display: "standalone",
-          // hardcode-ok: the web-manifest spec takes literal colors, CSS vars cannot reach it
-          background_color: "#faf8f3", // hardcode-ok (paper, tokens.css --paper)
-          theme_color: "#e11d48", // hardcode-ok (house rose, tokens.css --host-rc)
-        }),
-        "application/manifest+json",
-      );
-    }
-    if (p === "/boot.js") {
-      if (packaged) return text(packaged.bootJs, "text/javascript");
-      const built = await Bun.build({
-        entrypoints: [fileURLToPath(new URL("./boot.ts", import.meta.url))],
-        target: "browser",
-        format: "esm",
-        external: REACT_EXTERNALS,
-      });
-      if (!built.success) return err("boot bundle failed", 500);
-      // the shell's own CSS Modules (Stamp, dialogs, tags) ride in the boot bundle as separate css
-      // artifacts; without this they serve style-less in dev while the packaged exe (bundleBrowser)
-      // injects - the unstyled-Import-stamp split. Boot goes through the SAME injector now.
-      return new Response(await withCssInjected(built.outputs), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
-    }
-    if (p.startsWith("/vendor/") && p.endsWith(".js")) {
-      const name = p.slice("/vendor/".length, -".js".length);
-      if (packaged) {
-        const code = packaged.vendor[name];
-        return code !== undefined ? text(code, "text/javascript") : err("no such vendor bundle", 404);
-      }
-      const code = await bundleVendor(name);
-      return code !== null ? text(code, "text/javascript") : err("no such vendor bundle", 404);
-    }
+    // Static + bundled assets (CSS, icons, boot bundle, vendor, sealed sandbox workers). The HTML shell
+    // above stays here because it needs per-launch session-meta injection.
+    const assetResp = await handleAssetRoutes(p, packaged);
+    if (assetResp) return assetResp;
 
-    // Sealed Lua Stage (browser): wasmoon glue.wasm + worker bundle. Never evaluate card code here.
-    if (p === "/sandbox/glue.wasm") {
-      const wasmPath = fileURLToPath(new URL("../../node_modules/wasmoon/dist/glue.wasm", import.meta.url));
-      return new Response(Bun.file(wasmPath), {
-        headers: {
-          "content-type": "application/wasm",
-          "cache-control": "public, max-age=86400",
-        },
-      });
-    }
-    if (p === "/sandbox/worker.js") {
-      if (packaged?.sandboxWorkerJs) {
-        return text(packaged.sandboxWorkerJs, "text/javascript; charset=utf-8");
-      }
-      const entry = fileURLToPath(new URL("../sandbox/lua/worker.ts", import.meta.url));
-      const built = await Bun.build({
-        entrypoints: [entry],
-        target: "browser",
-        format: "esm",
-      });
-      if (!built.success || built.outputs.length === 0) {
-        return err(`sandbox worker bundle failed: ${built.logs.map((l) => l.message).join("; ")}`, 500);
-      }
-      return new Response(await built.outputs[0]!.text(), {
-        headers: { "content-type": "text/javascript; charset=utf-8" },
-      });
-    }
-    if (p === "/sandbox/regex-worker.js") {
-      if (packaged?.regexWorkerJs) {
-        return text(packaged.regexWorkerJs, "text/javascript; charset=utf-8");
-      }
-      const entry = fileURLToPath(new URL("../sandbox/regex/worker.ts", import.meta.url));
-      const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm" });
-      if (!built.success || built.outputs.length === 0) {
-        return err(`regex worker bundle failed: ${built.logs.map((log) => log.message).join("; ")}`, 500);
-      }
-      return new Response(await built.outputs[0]!.text(), {
-        headers: { "content-type": "text/javascript; charset=utf-8" },
-      });
-    }
-
-    // All /api/* routes: Host for every method; Origin+token for POST.
+    // /api auth gate. The untrusted Tailscale listener was already gated by its secret at the top; an
+    // approved LAN session uses the CSRF token only (its Host is the LAN IP); the trusted loopback
+    // listener uses Host/Origin/token. Host-only routes were already refused above.
     if (p.startsWith("/api/")) {
-      const denied = checkApiRequest(req, security);
-      if (denied) return denied;
+      if (lanApproved) {
+        const denied = checkLanApiRequest(req, security);
+        if (denied) return denied;
+      } else if (!remoteSecret) {
+        const denied = checkApiRequest(req, security);
+        if (denied) return denied;
+      }
     }
 
     const docsResponse = await handleDocsRequest(req, url, packaged);
@@ -310,10 +269,16 @@ export function createHandler(
     if (p === "/api/version") {
       return json({
         version: APP_VERSION,
-        studioDir: store.studioPath(),
+        // Never leak the host filesystem path to a remote/LAN device.
+        studioDir: isRemote ? undefined : store.studioPath(),
         mode: packaged ? "packaged" : "source",
       });
     }
+    // Remote access control plane (Tailscale + LAN). The /api gate above already enforced trusted-origin
+    // auth, and host-only routes were refused for remote/LAN devices, so only the local owner reaches it.
+    const remoteResp = await handleRemoteRoutes(req, p, { remote, lan, settings });
+    if (remoteResp) return remoteResp;
+
     if (p === "/api/update-check") return handleUpdateCheck();
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by
@@ -456,7 +421,25 @@ export function startUi(
   // Filled after the sandbox listener binds; HTML injection reads this live.
   const sandboxOriginRef = { current: "" };
   const lifecycle: LifecycleDeps = { stop: () => {}, exit: (c) => process.exit(c), spawnSelf: realSpawnSelf };
-  const handler = createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle);
+
+  // Remote access (Tailscale + LAN). The handler factory is injected so server-remote.ts never imports
+  // back here; setupRemoteAccess creates the managers, binds the untrusted listener, and resumes on boot.
+  const makeHandler: MakeHandler = (o) =>
+    createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle, o.remote, o.remoteSecret, o.lanApproved, o.lan);
+  const remoteAccess = setupRemoteAccess({ settings, studioDir, makeHandler });
+
+  const handler = createHandler(
+    store,
+    settings,
+    packaged,
+    sec,
+    sandboxOriginRef,
+    lifecycle,
+    remoteAccess.remote,
+    undefined,
+    undefined,
+    remoteAccess.lan,
+  );
   // idleTimeout: Bun's default is 10s and it killed bulk imports mid-inspect (a multi-MB card
   // racing 16 adapters can sit longer than that with no bytes on the wire). 120s covers the
   // slowest real inspect observed (23MB charx) with an order of magnitude to spare.
@@ -485,6 +468,7 @@ export function startUi(
   const stop = (): void => {
     server.stop(true);
     stopSandbox?.();
+    remoteAccess.stop();
   };
   lifecycle.stop = stop;
 

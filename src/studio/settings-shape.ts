@@ -21,6 +21,8 @@ export const SETTING_KEYS = {
   workbenchRecents: "workbench.recents",
   /** user collapsed the app dock to marks-only (the same language as the locked narrow mode) */
   dockSlim: "shell.dockSlim",
+  /** remote access on/off (reach this studio from another device via the Tailscale sidecar) */
+  remoteAccessEnabled: "remoteAccessEnabled",
 } as const;
 
 export interface StudioSettings {
@@ -34,6 +36,8 @@ export interface StudioSettings {
   publishTargets?: string[];
   /** house accent hex for chrome/empty states; NEVER recolors the brand rose mark */
   houseAccent?: string;
+  /** remote access enabled (starts the Tailscale sidecar at boot); default false, fail-closed */
+  remoteAccessEnabled?: boolean;
   /** drop-in setup steps write their own keys here */
   [key: string]: unknown;
 }
@@ -58,5 +62,7 @@ export function parseSettings(raw: unknown): StudioSettings {
   }
   if (isHex(rec.houseAccent)) out.houseAccent = rec.houseAccent;
   else delete out.houseAccent;
+  if (rec.remoteAccessEnabled === true) out.remoteAccessEnabled = true;
+  else delete out.remoteAccessEnabled;
   return out;
 }

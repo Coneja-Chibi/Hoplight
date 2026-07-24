@@ -1,0 +1,7 @@
+# Build + runtime artifacts. The source (main.go, go.mod, go.sum) is tracked; these are not.
+sidecar.exe
+sidecar
+*.log
+# Any local tsnet state that lands beside the binary (real state lives in the user config dir).
+tsnet-state/
+*.state

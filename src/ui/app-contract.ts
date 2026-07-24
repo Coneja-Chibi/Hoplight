@@ -10,6 +10,7 @@
 import type { ReactNode } from "react";
 import type { ContextMenus } from "./shell/store";
 import type { ParseReport, SerializeReport } from "../core/reports";
+import type { LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
 export interface AppManifestEntry {
@@ -75,6 +76,23 @@ export interface AppContext {
     shutdownApp(): Promise<{ ok: boolean }>;
     /** stop, respawn the same command, exit; the page reconnects (About's Restart button) */
     restartApp(): Promise<{ ok: boolean }>;
+    /** current remote-access state (the Remote access tab polls this) */
+    remoteStatus(): Promise<RemoteState>;
+    /** start remote access; the server opens the Tailscale sign-in page when the node asks for it */
+    remoteEnable(): Promise<RemoteState>;
+    /** stop remote access and drop back to off */
+    remoteDisable(): Promise<RemoteState>;
+    /** the devices currently connected (host-only) */
+    remoteDevices(): Promise<RemoteDevice[]>;
+    /** kick a connected device by its node id (host-only) */
+    remoteKick(nodeId: string): Promise<{ ok: boolean }>;
+    /** LAN mode status (connect code + pending/connected devices), host-only */
+    remoteLanStatus(): Promise<LanStatus>;
+    remoteLanEnable(): Promise<LanStatus>;
+    remoteLanDisable(): Promise<LanStatus>;
+    remoteLanApprove(id: string): Promise<LanStatus>;
+    remoteLanDeny(id: string): Promise<LanStatus>;
+    remoteLanKick(id: string): Promise<LanStatus>;
   };
   /** update the mono status bar's app segment */
   setStatus(text: string): void;

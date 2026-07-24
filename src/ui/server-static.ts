@@ -5,6 +5,8 @@
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { watch as watchFs } from "node:fs";
+import type { PackagedAssets } from "./assets";
+import { err } from "./server-security";
 
 export interface DiscoveredModule {
   id: string;
@@ -169,3 +171,111 @@ export const staticFile = (rel: string, type: string): Response =>
     // no-store: heuristically cached local assets survived server restarts as stale UI
     headers: { "content-type": type, "cache-control": "no-store" },
   });
+
+/** no-store response for served bytes (local + free, and heuristic caching served week-old bundles). */
+const noStore = (body: string, type: string, extra?: Record<string, string>): Response =>
+  new Response(body, { headers: { "content-type": type, "cache-control": "no-store", ...extra } });
+
+/**
+ * Static + bundled asset routes: everything the browser loads that is NOT the HTML shell (the shell
+ * needs session-meta injection, so it stays in createHandler). Returns null for any non-asset path so
+ * the caller's route table continues. Behavior-preserving move out of server.ts.
+ */
+export async function handleAssetRoutes(
+  p: string,
+  packaged?: PackagedAssets,
+): Promise<Response | null> {
+  if (p === "/tokens.css") {
+    return packaged ? noStore(packaged.tokensCss, "text/css; charset=utf-8") : staticFile("./theme/tokens.css", "text/css; charset=utf-8");
+  }
+  if (p === "/favicon.ico" || p === "/icon-256.png") {
+    const isIco = p === "/favicon.ico";
+    const type = isIco ? "image/x-icon" : "image/png";
+    if (packaged) {
+      const b64 = isIco ? packaged.faviconIcoB64 : packaged.iconPngB64;
+      return new Response(Buffer.from(b64, "base64"), { headers: { "content-type": type } });
+    }
+    const rel = isIco ? "../../build/vaude.ico" : "../../build/vaude-256.png";
+    return new Response(Bun.file(fileURLToPath(new URL(rel, import.meta.url))), { headers: { "content-type": type } });
+  }
+  if (p === "/app.webmanifest") {
+    return noStore(
+      JSON.stringify({
+        name: "Hoplight.",
+        short_name: "Hoplight.",
+        icons: [{ src: "/icon-256.png", sizes: "256x256", type: "image/png" }],
+        display: "standalone",
+        // hardcode-ok: the web-manifest spec takes literal colors, CSS vars cannot reach it
+        background_color: "#faf8f3", // hardcode-ok (paper, tokens.css --paper)
+        theme_color: "#e11d48", // hardcode-ok (house rose, tokens.css --host-rc)
+      }),
+      "application/manifest+json",
+    );
+  }
+  if (p === "/boot.js") {
+    if (packaged) return noStore(packaged.bootJs, "text/javascript");
+    const built = await Bun.build({
+      entrypoints: [fileURLToPath(new URL("./boot.ts", import.meta.url))],
+      target: "browser",
+      format: "esm",
+      external: REACT_EXTERNALS,
+    });
+    if (!built.success) return err("boot bundle failed", 500);
+    // the shell's own CSS Modules (Stamp, dialogs, tags) ride in the boot bundle as separate css
+    // artifacts; without this they serve style-less in dev while the packaged exe (bundleBrowser)
+    // injects - the unstyled-Import-stamp split. Boot goes through the SAME injector now.
+    return new Response(await withCssInjected(built.outputs), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
+  }
+  if (p.startsWith("/vendor/") && p.endsWith(".js")) {
+    const name = p.slice("/vendor/".length, -".js".length);
+    if (packaged) {
+      const code = packaged.vendor[name];
+      return code !== undefined ? noStore(code, "text/javascript") : err("no such vendor bundle", 404);
+    }
+    const code = await bundleVendor(name);
+    return code !== null ? noStore(code, "text/javascript") : err("no such vendor bundle", 404);
+  }
+
+  // Sealed Lua Stage (browser): wasmoon glue.wasm + worker bundle. Never evaluate card code here.
+  if (p === "/sandbox/glue.wasm") {
+    const wasmPath = fileURLToPath(new URL("../../node_modules/wasmoon/dist/glue.wasm", import.meta.url));
+    return new Response(Bun.file(wasmPath), {
+      headers: {
+        "content-type": "application/wasm",
+        "cache-control": "public, max-age=86400",
+      },
+    });
+  }
+  if (p === "/sandbox/worker.js") {
+    if (packaged?.sandboxWorkerJs) {
+      return noStore(packaged.sandboxWorkerJs, "text/javascript; charset=utf-8");
+    }
+    const entry = fileURLToPath(new URL("../sandbox/lua/worker.ts", import.meta.url));
+    const built = await Bun.build({
+      entrypoints: [entry],
+      target: "browser",
+      format: "esm",
+    });
+    if (!built.success || built.outputs.length === 0) {
+      return err(`sandbox worker bundle failed: ${built.logs.map((l) => l.message).join("; ")}`, 500);
+    }
+    return new Response(await built.outputs[0]!.text(), {
+      headers: { "content-type": "text/javascript; charset=utf-8" },
+    });
+  }
+  if (p === "/sandbox/regex-worker.js") {
+    if (packaged?.regexWorkerJs) {
+      return noStore(packaged.regexWorkerJs, "text/javascript; charset=utf-8");
+    }
+    const entry = fileURLToPath(new URL("../sandbox/regex/worker.ts", import.meta.url));
+    const built = await Bun.build({ entrypoints: [entry], target: "browser", format: "esm" });
+    if (!built.success || built.outputs.length === 0) {
+      return err(`regex worker bundle failed: ${built.logs.map((log) => log.message).join("; ")}`, 500);
+    }
+    return new Response(await built.outputs[0]!.text(), {
+      headers: { "content-type": "text/javascript; charset=utf-8" },
+    });
+  }
+
+  return null;
+}

@@ -229,6 +229,58 @@ export function checkApiRequest(
   return err("method not allowed", 405);
 }
 
+/**
+ * Gate for the UNTRUSTED remote listener (the sidecar's data plane). Auth is the shared secret the
+ * sidecar stamps on every request it forwards, and only the sidecar, which has already gated the caller
+ * down to the studio owner, knows it, plus the session token on state-changing methods (CSRF). There is
+ * no Host/Origin check here: the Host is the .ts.net name, and an unforgeable per-boot secret is a
+ * stronger gate than a loopback host name would be. A local process hitting this port directly, or a
+ * DNS-rebinding page, has no secret, so it fails closed.
+ */
+export function checkRemoteApiRequest(
+  req: Request,
+  sec: UiSecurityContext,
+  secret: string,
+): Response | null {
+  if (!sec.token || !secret) return err("server not ready", 503);
+  const presented = req.headers.get("x-hoplight-sidecar-secret") ?? "";
+  if (!tokensEqual(presented, secret)) return err("forbidden", 403);
+
+  if (req.method === "GET" || req.method === "HEAD") {
+    if ((req.headers.get("sec-fetch-site") ?? "").toLowerCase() === "cross-site") {
+      return err("forbidden", 403);
+    }
+    return null;
+  }
+  if (req.method === "POST" || req.method === "PATCH") {
+    const token = req.headers.get("x-hoplight-token") ?? "";
+    if (!tokensEqual(token, sec.token)) return err("forbidden", 403);
+    return null;
+  }
+  return err("method not allowed", 405);
+}
+
+/**
+ * Gate for the LAN listener's app requests, used ONLY after the LanHost has verified the connect code
+ * AND the host approved the device (that flow is the LAN auth). Here we add only CSRF, the token on
+ * state-changing methods, plus the cross-site block. No Host/Origin check: the Host is the LAN IP.
+ */
+export function checkLanApiRequest(req: Request, sec: UiSecurityContext): Response | null {
+  if (!sec.token) return err("server not ready", 503);
+  if (req.method === "GET" || req.method === "HEAD") {
+    if ((req.headers.get("sec-fetch-site") ?? "").toLowerCase() === "cross-site") {
+      return err("forbidden", 403);
+    }
+    return null;
+  }
+  if (req.method === "POST" || req.method === "PATCH") {
+    const token = req.headers.get("x-hoplight-token") ?? "";
+    if (!tokensEqual(token, sec.token)) return err("forbidden", 403);
+    return null;
+  }
+  return err("method not allowed", 405);
+}
+
 export function contentTypeIs(req: Request, expected: string): boolean {
   const ct = (req.headers.get("content-type") ?? "").split(";")[0]!.trim().toLowerCase();
   return ct === expected;
@@ -269,7 +321,7 @@ export const openInBrowser = (href: string): void => {
         ? ["open", href]
         : ["xdg-open", href];
   try {
-    Bun.spawn(argv, { stdout: "ignore", stderr: "ignore", stdin: "ignore" });
+    Bun.spawn(argv, { stdout: "ignore", stderr: "ignore", stdin: "ignore", windowsHide: true });
   } catch {
     // a missing launcher on an exotic OS is a degraded experience, not a server fault
   }

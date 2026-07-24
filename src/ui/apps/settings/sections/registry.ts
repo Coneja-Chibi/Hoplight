@@ -6,9 +6,10 @@
 import type { SettingsSection } from "../section-contract";
 import about from "./about";
 import appearance from "./appearance";
+import remoteAccess from "./remote-access";
 import studio from "./studio";
 import workbench from "./workbench";
 
-const SECTIONS: SettingsSection[] = [appearance, studio, workbench, about];
+const SECTIONS: SettingsSection[] = [appearance, studio, workbench, remoteAccess, about];
 
 export const settingsSections = (): SettingsSection[] => [...SECTIONS].sort((a, b) => a.order - b.order);
