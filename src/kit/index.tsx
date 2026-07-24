@@ -12,6 +12,7 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createBridge } from "./bridge";
 import { createSession } from "./session";
+import { discoverCommands } from "./commands/discover";
 import { App } from "./render/app";
 
 async function main(): Promise<void> {
@@ -20,6 +21,7 @@ async function main(): Promise<void> {
   const total = decks.reduce((sum, deck) => sum + deck.count, 0);
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
   const session = await createSession(bridge);
+  const commands = await discoverCommands();
 
   const renderer = await createCliRenderer({
     screenMode: "alternate-screen",
@@ -33,7 +35,7 @@ async function main(): Promise<void> {
   };
 
   root.render(
-    <App studioName={studioName} totalPieces={total} decks={decks} session={session} onQuit={quit} />,
+    <App studioName={studioName} totalPieces={total} decks={decks} session={session} commands={commands} onQuit={quit} />,
   );
 
   if (process.env.KIT_SMOKE) {

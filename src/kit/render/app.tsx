@@ -11,6 +11,7 @@ import type { KeyEvent } from "@opentui/core";
 import type { DeckCount } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session } from "../session";
+import { matchCommand, type CommandContext, type KitCommand } from "../commands/command";
 import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
 import { Playbill } from "./primitives/playbill";
@@ -34,13 +35,12 @@ export interface AppProps {
   totalPieces: number;
   decks: DeckCount[];
   session: Session;
+  commands: KitCommand[];
   onQuit: () => void;
 }
 
-const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
-
 /** The window shell: session state plus composed widgets. */
-export function App({ studioName, totalPieces, session, onQuit }: AppProps): ReactNode {
+export function App({ studioName, totalPieces, session, commands, onQuit }: AppProps): ReactNode {
   const [busy, setBusy] = useState(false);
   const [provider, setProvider] = useState<{ name: string; model: string } | null>(null);
   useEffect(() => {
@@ -62,28 +62,40 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
   const add = (line: RenderLine): void =>
     setTurn((prev) => ({ ...prev, lines: [...prev.lines, line] }));
 
-  const submit = async (raw: string): Promise<void> => {
-    const value = raw.trim();
-    if (!value) return;
-    if (value === "/model" || value === "/providers") {
-      setView("settings");
-      return;
-    }
+  // Wrap any event-producing work in the turn lifecycle (busy guard, waiting -> settle). One at a time.
+  const withTurn = async (
+    produce: (onEvent: (event: Parameters<typeof applyTurnEvent>[1]) => void) => Promise<void>,
+  ): Promise<void> => {
     if (busy) return;
-    if (isQuit(value)) {
-      onQuit();
-      return;
-    }
-    add({ role: "you", text: value });
     setBusy(true);
     setStartedAt(Date.now());
     setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
     const onEvent = (event: Parameters<typeof applyTurnEvent>[1]): void =>
       setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
-    if (value === "/test") await session.probe(onEvent);
-    else history.current = await session.runTurn(value, history.current, onEvent);
+    await produce(onEvent);
     setTurn((prev) => settleTurn(prev, Date.now()));
     setBusy(false);
+  };
+
+  const submit = async (raw: string): Promise<void> => {
+    const value = raw.trim();
+    if (!value) return;
+    const matched = matchCommand(commands, value);
+    if (matched) {
+      const ctx: CommandContext = {
+        arg: matched.arg,
+        openSettings: () => setView("settings"),
+        quit: onQuit,
+        probe: () => withTurn((onEvent) => session.probe(onEvent)),
+      };
+      await matched.command.run(ctx);
+      return;
+    }
+    if (busy) return;
+    add({ role: "you", text: value });
+    await withTurn(async (onEvent) => {
+      history.current = await session.runTurn(value, history.current, onEvent);
+    });
   };
 
   useKeyboard((event: KeyEvent) => {
