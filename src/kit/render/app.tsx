@@ -20,7 +20,7 @@ import { YouLine } from "./primitives/you-line";
 import { SayLine } from "./primitives/say-line";
 import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
-import { InputBar } from "./primitives/input-bar";
+import { Composer } from "./primitives/composer/composer";
 import { StatusRow } from "./primitives/status-row";
 import { ThoughtBox } from "./primitives/thought-box";
 import { ThoughtRow } from "./primitives/thought-row";
@@ -41,7 +41,6 @@ const isQuit = (value: string): boolean => value === "/quit" || value === "/q";
 
 /** The window shell: session state plus composed widgets. */
 export function App({ studioName, totalPieces, session, onQuit }: AppProps): ReactNode {
-  const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [provider, setProvider] = useState<{ name: string; model: string } | null>(null);
   useEffect(() => {
@@ -65,7 +64,6 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
 
   const submit = async (raw: string): Promise<void> => {
     const value = raw.trim();
-    setDraft("");
     if (!value) return;
     if (value === "/model" || value === "/providers") {
       setView("settings");
@@ -150,10 +148,8 @@ export function App({ studioName, totalPieces, session, onQuit }: AppProps): Rea
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
-      <InputBar
-        draft={draft}
+      <Composer
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
-        onInput={setDraft}
         onSubmit={submit}
       />
       <StatusBar provider={provider} busy={busy} />
