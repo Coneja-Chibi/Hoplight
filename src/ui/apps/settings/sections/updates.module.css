@@ -1,0 +1,321 @@
+/*
+ * Updates section: the version timeline. Shared card/status/button/chip vocabulary comes from
+ * section-card.module.css (composed below, so the component keeps using styles.card etc.); only the
+ * behind-counter and the timeline itself are feature-specific. Tokens only.
+ */
+.wrap {
+  composes: wrap from "./section-card.module.css";
+}
+.title {
+  composes: title from "./section-card.module.css";
+}
+.blurb {
+  composes: blurb from "./section-card.module.css";
+}
+.card {
+  composes: card from "./section-card.module.css";
+}
+.hero {
+  composes: cardHero from "./section-card.module.css";
+}
+.cardTitle {
+  composes: cardTitle from "./section-card.module.css";
+}
+.cardBody {
+  composes: cardBody from "./section-card.module.css";
+}
+.actions {
+  composes: actions from "./section-card.module.css";
+}
+.btn {
+  composes: btn from "./section-card.module.css";
+}
+.btnGhost {
+  composes: btnGhost from "./section-card.module.css";
+}
+.btnDanger {
+  composes: btnDanger from "./section-card.module.css";
+}
+.status {
+  composes: status from "./section-card.module.css";
+}
+.dot {
+  composes: dot from "./section-card.module.css";
+}
+.busy {
+  composes: dotBusy from "./section-card.module.css";
+}
+.chip {
+  composes: chip from "./section-card.module.css";
+}
+/* "up to date" reads as success, not the house accent, so this modifier stays feature-local. */
+.on {
+  background: var(--stage-ok);
+}
+
+/* the behind counter */
+.behindWrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.behindNum {
+  font-family: var(--font-mono);
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--stage-warn);
+  border: 3px solid var(--edge);
+  background: var(--shell-panel);
+  padding: 0.35rem 0.7rem;
+}
+.behindText {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--text-soft, var(--text-dim));
+}
+.behindPair {
+  margin-top: 0.4rem;
+}
+.cur {
+  color: var(--text);
+  font-weight: 700;
+}
+.lat {
+  color: var(--stage-ok);
+  font-weight: 700;
+}
+
+/* the timeline */
+.tl {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border-left: 3px solid var(--seam);
+  margin-left: 0.5rem;
+}
+.ver {
+  position: relative;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  border: 2px solid var(--seam);
+  border-left: none;
+  padding: 0.7rem 0.85rem;
+  margin-left: 1.1rem;
+  background: var(--shell-panel);
+}
+.ver::before {
+  content: "";
+  position: absolute;
+  left: -1.55rem;
+  top: 1rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  border: 2px solid var(--edge);
+}
+.ver.here {
+  border-color: var(--accent);
+  box-shadow: 3px 3px 0 0 var(--accent-deep);
+}
+.ver.here::before {
+  background: var(--accent);
+}
+.vtag {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.15rem 0.5rem;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  flex: none;
+  min-width: 5.4rem;
+  text-align: center;
+  color: var(--text);
+}
+.ver.here .vtag {
+  background: var(--accent);
+  color: var(--stage-white);
+}
+.vbody {
+  flex: 1;
+  min-width: 0;
+}
+.vact {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+}
+.hereMark {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  padding-top: 0.3rem;
+}
+.vname {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cm {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text);
+  font-weight: 600;
+  word-break: break-word;
+}
+.vmeta {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  margin-top: 0.25rem;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.rel {
+  font-weight: 700;
+}
+.rel.ahead {
+  color: var(--stage-ok);
+}
+.rel.behind {
+  color: var(--stage-warn);
+}
+.rel.here {
+  color: var(--accent);
+}
+.chipNow {
+  composes: chip;
+  background: var(--accent);
+  color: var(--stage-white);
+}
+.caret {
+  cursor: pointer;
+  color: var(--text-soft, var(--text-dim));
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  background: transparent;
+  border: none;
+  padding: 0.4rem 0 0;
+  text-align: left;
+}
+.caret:hover {
+  color: var(--text);
+}
+.noLog {
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  margin-top: 0.4rem;
+}
+.log {
+  margin-top: 0.6rem;
+  border-top: 2px solid var(--seam);
+  padding-top: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.c {
+  display: flex;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-soft, var(--text-dim));
+}
+.c .h {
+  color: var(--accent);
+  flex: none;
+}
+.c .s {
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* switch modals (confirm / progress / result popup) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55); /* hardcode-ok: a neutral scrim dim, not a themed surface */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 50;
+}
+.popup {
+  background: var(--face);
+  border: 3px solid var(--edge);
+  box-shadow: 6px 6px 0 0 var(--accent-deep);
+  padding: 1.4rem;
+  max-width: 24rem;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  text-align: center;
+}
+.jump {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--text);
+  font-weight: 700;
+}
+.arrow {
+  color: var(--accent);
+}
+.warnNote {
+  border: 2px solid var(--stage-warn);
+  background: var(--stage-warn-ink, var(--shell-panel));
+  color: var(--text);
+  padding: 0.6rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  text-align: left;
+}
+.badge {
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--edge);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+}
+.badgeOk {
+  background: var(--stage-ok);
+  color: var(--stage-black, var(--edge));
+}
+.badgeBad {
+  background: var(--accent-deep);
+  color: var(--stage-white);
+}
+.big {
+  font-family: var(--font-big);
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+.sub {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-soft, var(--text-dim));
+  line-height: 1.5;
+}
+.actionsCenter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}

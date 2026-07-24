@@ -35,6 +35,9 @@ import {
 } from "./server-remote";
 import { APP_VERSION } from "../version";
 import { handleUpdateCheck } from "./server-update";
+import { makeSwitchManager } from "./switch/setup";
+import type { SwitchManager } from "./switch/manager";
+import { handleUpdatesRoutes } from "./switch/routes";
 import { handleStudioDelete, handleStudioSave } from "./server-studio-write";
 import { handleRestart, handleShutdown, realSpawnSelf, type LifecycleDeps } from "./server-lifecycle";
 import {
@@ -107,6 +110,8 @@ export function createHandler(
   lanApproved?: boolean,
   /** the LAN manager, present only on the trusted handler (LAN management is host-only). */
   lan?: LanManager,
+  /** the version-switch manager, present only on the trusted handler (switching is host-only). */
+  switchManager?: SwitchManager,
 ): (req: Request) => Promise<Response> {
   const security = sec ?? createSecurityContext();
 
@@ -280,6 +285,10 @@ export function createHandler(
     if (remoteResp) return remoteResp;
 
     if (p === "/api/update-check") return handleUpdateCheck();
+    if (switchManager) {
+      const upd = await handleUpdatesRoutes(req, p, { manager: switchManager, settings, installed: APP_VERSION });
+      if (upd) return upd;
+    }
     if (p === "/api/formats") return json(registry.all().map(formatMeta));
     // the editor lens's ground truth: every character adapter that declared coverage (deny by
     // absence - an undeclared platform simply is not lensable yet, and the UI says so honestly)
@@ -428,6 +437,9 @@ export function startUi(
     createHandler(store, settings, packaged, sec, sandboxOriginRef, lifecycle, o.remote, o.remoteSecret, o.lanApproved, o.lan);
   const remoteAccess = setupRemoteAccess({ settings, studioDir, makeHandler });
 
+  // Version switching (update/rollback). Host-only: only the trusted handler below gets the manager.
+  const switchManager = makeSwitchManager(!!packaged, process.cwd(), APP_VERSION, settings);
+
   const handler = createHandler(
     store,
     settings,
@@ -439,6 +451,7 @@ export function startUi(
     undefined,
     undefined,
     remoteAccess.lan,
+    switchManager,
   );
   // idleTimeout: Bun's default is 10s and it killed bulk imports mid-inspect (a multi-MB card
   // racing 16 adapters can sit longer than that with no bytes on the wire). 120s covers the

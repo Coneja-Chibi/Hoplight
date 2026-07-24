@@ -35,6 +35,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CharacterFilterBlock | src/ui/apps/workbench/lore/platforms/filter-block.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
+| ConfirmSwitch | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ installed, target, kind, onConfirm, onCancel, }: { installed: string; target: string; kind: "update" \| "rollback";... | Confirm a switch. Rollbacks read as danger; a rollback to a pre-feature version says so plainly. |  |
 | ContentCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaWriteForProfile; }) | The flat identity text (the whole persona on section-less platforms). |  |
 | CssAdvancedPane | src/ui/components/css-workshop/advanced-pane.tsx | ({ value, onChange, doc, selected, onSelectRule, onRuleChange, onChip, }: CssAdvancedPaneProps) | Code + breakdown split for advanced authors. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssAssistPane | src/ui/components/css-workshop/assist-pane.tsx | ({ pack, doc, selected, onSelectRule, onAddRule, onRuleChange, onDeleteRule, }: CssAssistPaneProps) | Structured assist over one rule at a time. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
@@ -161,6 +162,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | StructuredPersona | src/ui/components/structured-persona/index.tsx | ({ value, onChange }: StructuredPersonaProps) |  | .wrap .kinds .kind .kindOn .attr .top .key .chips ... |
 | StubEditor | src/ui/components/stub-editor/index.tsx | ({ title, note, onClose, children }: StubEditorProps) |  | .head .note .body .close |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
+| SwitchProgress | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ message }: { message: string }) | Progress while a switch runs (the manager's status message). |  |
+| SwitchResult | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ outcome, onDone, onUndo, }: { outcome: SwitchOutcome; onDone: () => void; onUndo: (from: string) => void; }) | The post-restart popup, from the pending-switch marker. Undo (back to where you came from) on success. |  |
 | TabStrip | src/ui/shell/TabStrip.tsx | () |  |  |
 | TicketWindow | src/ui/components/ticket-window/index.tsx | ({ label, title, artUrl, monogram, onPick, onRemove, alternates, onHang, onAdd, }: TicketWindowProps) |  | .sheet .booth .marquee .marqueeTitle .glass .glassDrag .monogram .emptyLine ... |
 | ToggleSwitch | src/ui/components/toggle-switch/index.tsx | ({ on, onChange, label }: ToggleSwitchProps) |  | .btn .track .on .knob |
@@ -186,4 +189,6 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 
 ## Legacy widgets (`src/ui/_shared`, vanilla)
 
-_None found_
+| Name | File | Signature | Doc | Styles |
+| --- | --- | --- | --- | --- |
+| buildTimeline | src/ui/_shared/version-history.ts | ( releases: readonly ReleaseInfo[], installed: string, hasMore = false, ) | Build the timeline against the running version. Relation and behind-count come from the SIGN of |  |

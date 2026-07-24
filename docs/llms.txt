@@ -86,12 +86,13 @@
 - [Secrets and keys](docs/reference/security/secrets-and-keys.md): How Vaudeville Studios is designed to hold BYOK provider keys, keep them out of logs and exports, and how the shipping loopback server gates its API with a per-launch bearer plus Host and Origin checks.
 - [Cards and files as untrusted input](docs/reference/security/untrusted-content.md): Cards, PNGs, and zip containers are parsed once into the canonical model without ever executing a card-authored script, and a cross-format conversion carries only the portable body, so one app's scripts and payloads never reach another app's file.
 - [The visual app (hoplight ui)](docs/reference/ui.md): uses. One engine, two shells - no format logic exists in the UI layer.
+- [Updates and version rollback](docs/reference/updates.md): The Updates settings tab, a version timeline built from each release's commit log, and a one-button switch that updates OR rolls back. How the switch works for a source checkout vs an installed build, and the safety rails (refuse a dirty tree, single-flight, restart-outcome marker, refuse a data-losing rollback). Off-network except a button-press GitHub read.
 
 ## Top level
 
 - [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
 - [Architecture](docs/02-ARCHITECTURE.md): vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.
 - [Conventions](docs/03-CONVENTIONS.md): Binding for all code and docs in the product repo. Deviations fail review.
-- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-24.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-21.
 - [Documentation](docs/README.md): Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
 - [Roadmap](docs/ROADMAP.md): Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.

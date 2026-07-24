@@ -60,6 +60,16 @@ export const api: AppContext["api"] = {
   formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
   version: async () => apiFetchJson("/api/version", { requireToken: false }),
   updateCheck: async () => apiFetchJson("/api/update-check", { requireToken: false }),
+  updatesReleases: async (page = 1) =>
+    apiFetchJson(`/api/updates/releases?page=${page}`, { requireToken: false }),
+  switchTo: async (version: string) =>
+    apiFetchJson("/api/updates/switch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ version }),
+    }),
+  switchStatus: async () => apiFetchJson("/api/updates/switch-status", { requireToken: false }),
+  switchPending: async () => apiFetchJson("/api/updates/pending", { requireToken: false }),
   shutdownApp: async () => apiFetchJson("/api/shutdown", { method: "POST" }),
   restartApp: async () => apiFetchJson("/api/restart", { method: "POST" }),
   coverage: async () => apiFetchJson("/api/coverage", { requireToken: false }),

@@ -72,6 +72,20 @@ export interface AppContext {
     version(): Promise<{ version: string; studioDir?: string; mode?: "packaged" | "source" }>;
     /** ask GitHub for the latest release, server-side against a fixed URL; button-press only */
     updateCheck(): Promise<{ httpStatus: number; body: unknown }>;
+    /** one page of the repo's GitHub releases (raw array in `body`); the client builds the timeline. */
+    updatesReleases(
+      page?: number,
+    ): Promise<{ httpStatus: number; body: unknown; hasMore: boolean; retryAfterSec?: number }>;
+    /** begin an update/rollback to a release tag; 202 -> { started, kind }, else throws (host-only). */
+    switchTo(version: string): Promise<{ started: boolean; kind: "update" | "rollback" }>;
+    /** poll the running switch's progress. */
+    switchStatus(): Promise<{
+      phase: "idle" | "working" | "restarting" | "manual" | "failed";
+      message: string;
+      target: string | null;
+    }>;
+    /** read + clear the restart-outcome marker (drives the post-restart popup). */
+    switchPending(): Promise<{ marker: { from: string; to: string; at: number } | null }>;
     /** stop the server and exit the app (About's Quit button) */
     shutdownApp(): Promise<{ ok: boolean }>;
     /** stop, respawn the same command, exit; the page reconnects (About's Restart button) */

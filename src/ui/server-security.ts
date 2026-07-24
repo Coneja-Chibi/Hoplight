@@ -326,3 +326,22 @@ export const openInBrowser = (href: string): void => {
     // a missing launcher on an exotic OS is a degraded experience, not a server fault
   }
 };
+
+/**
+ * Open a local folder/file in the OS file manager (argv array, never a shell string; fire-and-forget).
+ * Used to hand a downloaded, checksum-verified build to the user. The caller passes an absolute local
+ * path it produced, never untrusted input, so there is no allowlist here (unlike openInBrowser's URLs).
+ */
+export const openPath = (path: string): void => {
+  const argv =
+    process.platform === "win32"
+      ? ["explorer", path]
+      : process.platform === "darwin"
+        ? ["open", path]
+        : ["xdg-open", path];
+  try {
+    Bun.spawn(argv, { stdout: "ignore", stderr: "ignore", stdin: "ignore", windowsHide: true });
+  } catch {
+    // a missing file manager is a degraded experience, not a server fault
+  }
+};

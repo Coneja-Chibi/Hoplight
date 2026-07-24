@@ -31,11 +31,13 @@ function resolveSidecarBin(): string {
   return fileURLToPath(new URL(`../../sidecar/${name}`, import.meta.url));
 }
 
-/** Routes that are HOST-ONLY: remote-access management plus host/app control. Refused to any remote or
- *  LAN-served device, these are the local owner's controls, never a tailed-in guest's. */
+/** Routes that are HOST-ONLY: remote-access management, version updates, plus host/app control. Refused to
+ *  any remote or LAN-served device, these are the local owner's controls, never a tailed-in guest's. */
 export function isHostOnlyRoute(p: string, method: string): boolean {
   return (
     p.startsWith("/api/remote/") ||
+    p.startsWith("/api/updates/") || // version timeline + switch: never a guest's to drive
+    p === "/api/update-check" || // even the outbound GitHub ping is the host's alone
     p === "/api/open" ||
     p === "/api/shutdown" ||
     p === "/api/restart" ||

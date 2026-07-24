@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-24",
-  "count": 82,
+  "count": 83,
   "docs": [
     {
       "id": "01-VISION",
@@ -115,7 +115,7 @@
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-24.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-21.",
       "tags": [],
       "related": [],
       "anchors": [
@@ -4320,6 +4320,41 @@
         {
           "text": "Security",
           "slug": "security",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/updates",
+      "path": "docs/reference/updates.md",
+      "title": "Updates and version rollback",
+      "audience": "dev",
+      "summary": "The Updates settings tab, a version timeline built from each release's commit log, and a one-button switch that updates OR rolls back. How the switch works for a source checkout vs an installed build, and the safety rails (refuse a dirty tree, single-flight, restart-outcome marker, refuse a data-losing rollback). Off-network except a button-press GitHub read.",
+      "tags": [
+        "updates",
+        "rollback",
+        "releases",
+        "versioning",
+        "self-update"
+      ],
+      "related": [
+        "reference/security/remote-access",
+        "reference/architecture"
+      ],
+      "anchors": [
+        {
+          "text": "The timeline (read-only, live-proven)",
+          "slug": "the-timeline-read-only-live-proven",
+          "level": 2
+        },
+        {
+          "text": "The switch (built + unit-proven; the apply path is not yet live-provable)",
+          "slug": "the-switch-built-unit-proven-the-apply-path-is-not-yet-live-provable",
+          "level": 2
+        },
+        {
+          "text": "Rollback safety",
+          "slug": "rollback-safety",
           "level": 2
         }
       ]

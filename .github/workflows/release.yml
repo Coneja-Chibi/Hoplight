@@ -124,16 +124,27 @@ jobs:
           cd dist
           sha256sum Hoplight.exe hoplight-windows-x64.exe hoplight-linux-x64 hoplight-darwin-arm64 hoplight-darwin-x64 > SHA256SUMS
           cat SHA256SUMS
-      - name: Release notes (install guide first, then the changelog link)
+      - name: Release notes (install guide, changelog link, machine-parseable commit block)
         run: |
           cp .github/RELEASE-NOTES-INSTALL.md notes.md
           PREV="$(git tag --sort=-v:refname | grep -vx "${RELEASE_TAG}" | head -n1 || true)"
           echo "" >> notes.md
           if [ -n "$PREV" ]; then
             echo "**Changes**: https://github.com/${GITHUB_REPOSITORY}/compare/${PREV}...${RELEASE_TAG}" >> notes.md
+            RANGE="${PREV}..${RELEASE_TAG}"
           else
             echo "**Changes**: https://github.com/${GITHUB_REPOSITORY}/commits/${RELEASE_TAG}" >> notes.md
+            RANGE="${RELEASE_TAG}"
           fi
+          # Machine-parseable commit block: Hoplight's in-app version timeline reads EXACTLY this fence.
+          # One "<shorthash> <subject>" per commit, newest first; grammar ^[0-9a-f]{7,40} .+$. The app
+          # derives each release's headline from the first non-release, non-merge subject; absence of the
+          # fence just renders "commit log unavailable" (the parser never guesses from prose).
+          echo "" >> notes.md
+          echo "## Commits" >> notes.md
+          echo '```commits' >> notes.md
+          git log --format='%h %s' "$RANGE" | head -n 500 >> notes.md
+          echo '```' >> notes.md
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}

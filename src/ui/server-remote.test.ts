@@ -277,6 +277,9 @@ describe("untrusted remote handler gates every path (not just /api)", () => {
       );
       expect((await handler(apiReq("/api/remote/lan/status"))).status).toBe(403);
       expect((await handler(apiReq("/api/remote/status"))).status).toBe(403);
+      // version updates are host-only too: a tailed-in device cannot switch the host's version
+      expect((await handler(apiReq("/api/updates/releases"))).status).toBe(403);
+      expect((await handler(apiReq("/api/update-check"))).status).toBe(403);
     });
   });
 });
