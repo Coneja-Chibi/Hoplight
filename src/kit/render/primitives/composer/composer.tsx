@@ -139,6 +139,7 @@ export function Composer({
           ref={ref}
           focused
           flexGrow={1}
+          placeholder="talk to your studio"
           keyBindings={KEYS}
           onSubmit={submit}
           onContentChange={() => setRows(ref.current?.lineCount ?? 1)}
