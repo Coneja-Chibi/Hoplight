@@ -13,7 +13,7 @@
     "hoplight": "bun run src/cli.ts",
     "kit": "bun run src/kit/index.tsx",
     "dev": "bun run src/cli.ts ui 8321",
-    "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
+    "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts/format-matrix.test.ts scripts/hooks/catalog-lib.test.ts scripts/hooks/doctrine-core.test.ts scripts/hooks/lib.test.ts scripts/hooks/pre-commit-core.test.ts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
     "test:m1": "bun test src/m1.convert.smoke.test.ts src/convert.test.ts --timeout 60000",
     "test:node-core": "bun run scripts/node-core-smoke.ts",
