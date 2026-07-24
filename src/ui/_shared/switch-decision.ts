@@ -17,10 +17,10 @@ export const SCHEMA_BUMPS: readonly string[] = [];
 /**
  * The first release that carries the Updates feature itself. A rollback to a version BELOW this cannot
  * show a post-restart confirmation or an Undo (that old code has neither), so the confirm screen becomes
- * the receipt. This ships in v0.1.12 (one patch above the current v0.1.11 release, via the auto-release
- * train), so every existing release is correctly treated as pre-feature.
+ * the receipt. This first ships in v0.1.13 (v0.1.12 was tagged but its release build failed), so every
+ * release with a downloadable build is correctly treated as pre-feature.
  */
-export const UPDATES_FEATURE_MIN_VERSION: string = "v0.1.12";
+export const UPDATES_FEATURE_MIN_VERSION: string = "v0.1.13";
 
 /** True if a version has the Updates feature, so a switch INTO it will show the post-restart popup. */
 export function isFeatureAware(version: string): boolean {

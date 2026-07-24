@@ -18,12 +18,13 @@ const SHAPE_FILES = [
   "src/core/canonical.ts",
 ];
 
-// sha256 of the concatenated storage-shape files. Update deliberately (read the header first).
-const PINNED_SHAPE_HASH = "8b0e7f276cf2a4ed3fd3a7cb8a87325eeab31371aa6eb1787915eefa5171d3d4";
+// sha256 of the concatenated storage-shape files, line endings normalized to LF so the pin is identical
+// on Windows (CRLF working copy) and CI (LF). Update deliberately (read the header first).
+const PINNED_SHAPE_HASH = "7fc3d5932bd3bb9e8795de2081d6140865e7ee789a8767657378f1854a59d2ae";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");
-  for (const f of SHAPE_FILES) h.update(await Bun.file(f).text());
+  for (const f of SHAPE_FILES) h.update((await Bun.file(f).text()).replace(/\r\n/g, "\n"));
   const got = h.digest("hex");
   expect(got).toBe(PINNED_SHAPE_HASH);
 });
