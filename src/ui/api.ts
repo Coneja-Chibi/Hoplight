@@ -63,4 +63,35 @@ export const api: AppContext["api"] = {
   shutdownApp: async () => apiFetchJson("/api/shutdown", { method: "POST" }),
   restartApp: async () => apiFetchJson("/api/restart", { method: "POST" }),
   coverage: async () => apiFetchJson("/api/coverage", { requireToken: false }),
+  remoteStatus: async () => apiFetchJson("/api/remote/status", { requireToken: false }),
+  remoteEnable: async () => apiFetchJson("/api/remote/enable", { method: "POST" }),
+  remoteDisable: async () => apiFetchJson("/api/remote/disable", { method: "POST" }),
+  remoteDevices: async () => apiFetchJson("/api/remote/devices", { requireToken: false }),
+  remoteKick: async (nodeId: string) =>
+    apiFetchJson("/api/remote/kick", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ nodeId }),
+    }),
+  remoteLanStatus: async () => apiFetchJson("/api/remote/lan/status", { requireToken: false }),
+  remoteLanEnable: async () => apiFetchJson("/api/remote/lan/enable", { method: "POST" }),
+  remoteLanDisable: async () => apiFetchJson("/api/remote/lan/disable", { method: "POST" }),
+  remoteLanApprove: async (id: string) =>
+    apiFetchJson("/api/remote/lan/approve", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    }),
+  remoteLanDeny: async (id: string) =>
+    apiFetchJson("/api/remote/lan/deny", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    }),
+  remoteLanKick: async (id: string) =>
+    apiFetchJson("/api/remote/lan/kick", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ id }),
+    }),
 };
