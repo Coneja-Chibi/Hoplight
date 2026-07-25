@@ -35,6 +35,8 @@ export function lineText(line: RenderLine): string {
       return line.text;
     case "backstage":
       return line.moves.join(" ");
+    case "doctor":
+      return line.checks.map((check) => `${check.label} ${check.detail}`).join(" ");
     default:
       return assertNever(line);
   }

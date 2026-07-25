@@ -12,6 +12,7 @@
  */
 import type { TurnEvent } from "../session";
 import type { TokenUsage } from "../providers/usage";
+import type { DoctorResult } from "../doctor/check";
 import { isLongSay } from "./say-fold";
 
 export type RenderLine =
@@ -19,6 +20,7 @@ export type RenderLine =
   | { role: "say"; text: string; open?: boolean }
   | { role: "tool"; text: string }
   | { role: "error"; text: string }
+  | { role: "doctor"; checks: DoctorResult[] }
   | { role: "thought"; text: string; seconds: number; open: boolean }
   | { role: "backstage"; moves: string[]; seconds: number; open: boolean };
 

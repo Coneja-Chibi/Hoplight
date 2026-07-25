@@ -20,6 +20,8 @@ export interface CommandContext {
   quit: () => void;
   /** Run the active provider's proof-of-life inside a turn (/test). */
   probe: () => boolean | Promise<void>;
+  /** Run the read-only, bounded diagnostic playbill (/doctor). */
+  doctor: () => Promise<void>;
   /** Print a line to the transcript (markdown-rendered), e.g. /help's listing. */
   say: (text: string) => void;
   /** The /privacy readout: the formatted egress ledger (what has left this machine this session). The

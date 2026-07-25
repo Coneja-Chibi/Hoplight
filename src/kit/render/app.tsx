@@ -24,6 +24,7 @@ import { ErrorRow } from "./primitives/error-row";
 import { Composer } from "./primitives/composer/composer";
 import { StatusRow } from "./primitives/status-row";
 import { StatusToast } from "./primitives/status-toast";
+import { DoctorCard } from "./primitives/doctor-card";
 import { ThoughtBox } from "./primitives/thought-box";
 import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageBox } from "./primitives/backstage-box";
@@ -45,6 +46,7 @@ import { createSessionStore, newSessionId, type SessionStore } from "../sessions
 import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
 import { copyText, type CopyResult } from "./clipboard";
+import type { DoctorResult } from "../doctor/check";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -61,6 +63,7 @@ export interface AppProps {
   sessionStore?: SessionStore;
   makeSessionId?: () => string;
   now?: () => number;
+  runDoctor?: () => Promise<DoctorResult[]>;
 }
 
 /** The window shell: session state plus composed widgets. */
@@ -75,6 +78,7 @@ export function App({
   sessionStore,
   makeSessionId = newSessionId,
   now = Date.now,
+  runDoctor = async () => [],
 }: AppProps): ReactNode {
   const renderer = useRenderer();
   const [busy, setBusy] = useState(false);
@@ -253,6 +257,10 @@ export function App({
         openSettings: () => setView("settings"),
         quit: onQuit,
         probe: () => startTurn((signal, onEvent) => session.probe(onEvent, signal)),
+        doctor: async () => {
+          add({ role: "tool", text: "doctor · running checks" });
+          add({ role: "doctor", checks: await runDoctor() });
+        },
         say: (text) => add({ role: "say", text }),
         egressSummary: () => formatLedger(ledger),
         sessions: sessionActions,
@@ -392,6 +400,8 @@ export function App({
               open={line.open}
               onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
             />
+          ) : line.role === "doctor" ? (
+            <DoctorCard key={index} checks={line.checks} />
           ) : (
             <SayLine
               key={index}

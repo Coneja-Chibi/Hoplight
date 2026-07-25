@@ -16,6 +16,11 @@ import { discoverCommands } from "./commands/discover";
 import { App } from "./render/app";
 import { theme } from "./render/theme";
 import { restoreTerminalBackground, setTerminalBackground } from "./terminal-surface";
+import { discoverDoctorChecks } from "./doctor/discover";
+import { runDoctor } from "./doctor/run";
+import { activeBackendId } from "./keystore/keystore";
+import { readVault } from "./providers/vault";
+import { APP_VERSION } from "../version";
 
 async function main(): Promise<void> {
   const bridge = createBridge();
@@ -25,6 +30,22 @@ async function main(): Promise<void> {
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
   const session = await createSession(bridge);
   const commands = await discoverCommands();
+  const doctorChecks = await discoverDoctorChecks();
+  const diagnose = (): ReturnType<typeof runDoctor> =>
+    runDoctor(doctorChecks, {
+      pieces: () => bridge.list(),
+      provider: (signal) => session.providerProbe?.(signal) ?? Promise.resolve(null),
+      async vault() {
+        const [vault, backend] = await Promise.all([readVault(), activeBackendId()]);
+        return {
+          backend,
+          providers: vault.providers.length,
+          active: vault.activeId !== null,
+        };
+      },
+      version: APP_VERSION,
+      runtime: Bun.version,
+    });
 
   setTerminalBackground(process.stdout, theme.well);
   try {
@@ -50,6 +71,7 @@ async function main(): Promise<void> {
         pieces={pieces}
         session={session}
         commands={commands}
+        runDoctor={diagnose}
         onQuit={quit}
       />,
     );

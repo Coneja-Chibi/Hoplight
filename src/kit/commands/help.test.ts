@@ -19,6 +19,7 @@ const capture = (commands: KitCommand[]): string => {
     openSettings: () => {},
     quit: () => {},
     probe: async () => {},
+    doctor: async () => {},
     say: (text) => {
       out = text;
     },

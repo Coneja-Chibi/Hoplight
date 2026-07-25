@@ -12,6 +12,10 @@ describe("lineText covers every RenderLine variant", () => {
     [{ role: "error", text: "it broke" }, "it broke"],
     [{ role: "thought", text: "hmm", seconds: 3, open: false }, "hmm"],
     [{ role: "backstage", moves: ["read a", "list b"], seconds: 2, open: false }, "read a list b"],
+    [{
+      role: "doctor",
+      checks: [{ id: "studio", label: "Studio", status: "ok", detail: "16 pieces readable" }],
+    }, "Studio 16 pieces readable"],
   ];
   for (const [line, expected] of cases) {
     test(`projects ${line.role}`, () => expect(lineText(line)).toBe(expected));

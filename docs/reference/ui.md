@@ -37,6 +37,9 @@ lists keep the selected row inside a terminal-height-based visible window.
 `/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
 previous model result before another lookup. Lookup and save failures remain visible and can be
 retried; activating or removing a provider refreshes the shell's provider and model state.
+`/doctor` discovers and concurrently runs four independently timed, read-only checks: vault sealing,
+a real provider proof-of-life, canonical studio enumeration, and the exact Hoplight/Bun build. One
+timeout or failure becomes its own warning/failure row without hiding the other completed results.
 `/decks` (also `/inventory`) prints the current canonical deck counts on demand. `/privacy` reports
 the session's provider sends and token counts on demand. Wide terminals show the animated NOW
 PLAYING theatre marquee without a persistent telemetry strip;

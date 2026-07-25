@@ -6,7 +6,7 @@
 import type { KitBridge } from "./bridge";
 import { resolveProviderConfig } from "./providers/vault";
 import { makeChat } from "./providers/chat";
-import { pingProvider } from "./providers/probe";
+import { pingProvider, type Probe } from "./providers/probe";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
 import { makeGatedDispatch } from "./tools/safety/gated-dispatch";
@@ -32,6 +32,8 @@ export interface Session {
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
+  /** Doctor's provider row: the same real ping as /test, returned as structured read-only data. */
+  providerProbe?(signal?: AbortSignal): Promise<(Probe & { name: string; model: string }) | null>;
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
   activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
 }
@@ -104,6 +106,17 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         }
         onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
       }
+    },
+
+    async providerProbe(signal) {
+      const config = await resolveProviderConfig();
+      if (!config) return null;
+      const result = await pingProvider(makeChat(config, signal));
+      return {
+        ...result,
+        name: config.name ?? config.kind,
+        model: config.model,
+      };
     },
 
     async activeProvider() {
