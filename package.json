@@ -1,6 +1,6 @@
 {
   "name": "hoplight",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "private": true,
   "type": "module",
   "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
