@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/safe-rendering",
+  "sourcePath": "docs/reference/concepts/safe-rendering.md",
+  "sourceHash": "sha256:142456a7f07bfe4a5c09fe46d8e463ec21b735de239d7fba9823a795a04356f0",
+  "semanticSummaryHash": "sha256:f7bd387b5838f37709dd8dc3b20f3d213d59a0b0354165bf96b4a8192486354e",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:29.453Z"
+}

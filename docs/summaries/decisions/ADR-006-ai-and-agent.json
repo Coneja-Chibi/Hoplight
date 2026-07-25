@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-006-ai-and-agent",
+  "sourcePath": "docs/decisions/ADR-006-ai-and-agent.md",
+  "sourceHash": "sha256:78242aec9197bcfdae86f80f175dcf87667bb1206a6d3825ec1b373b9a108fe2",
+  "summary": "Accepted ADR for AI posture and weak-model agent design. BYOK first with Anthropic, OpenRouter, OpenAI, Gemini, and any OpenAI-compatible endpoint covering Ollama LM Studio koboldcpp for local; no Vaudeville-operated inference, no account, no proxy; keys in local vault OS keychain or encrypted file. AI is optional: Converter, inspection, validation, deterministic Doctor checks, and project management work with zero keys; first key ask is at first AI moment never at install. Agent must survive weak models using Orison lessons: tiny always-on tools with deferred schemas, resource verbs over vaud URIs, prompted XML tool-calling fallback one tool per iteration, spill store for big results, explicit samplers, staged edits with validate-before-commit never writing user files directly. Model roles are user-mappable per interview treatment test-stage and bulk audits with a sane single-model default. Eval harness at M2 before agent feature work with golden tasks replayable transcripts and model matrix requiring success-rate and tokens-per-task movement. Why: local-first BYOK matches privacy pitch and audience that owns keys; weak-model constraints also make frontier behavior cheaper and more reliable.",
+  "topics": [
+    "BYOK first local vault",
+    "AI optional zero keys",
+    "weak model agent design",
+    "Orison tool constraints",
+    "spill store staged edits",
+    "user-mappable model roles",
+    "eval harness M2",
+    "ADR-006 accepted"
+  ],
+  "sections": [
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:de6c4b3cf770403fcad38ee376953bac3d528e1ec21657197c5891a8995f074b",
+      "summary": "BYOK first: Anthropic, OpenRouter, OpenAI, Gemini, plus any OpenAI-compatible endpoint for Ollama LM Studio koboldcpp local; no Vaudeville-operated inference account or proxy; keys in OS keychain or encrypted file. AI is optional so Converter inspection validation deterministic Doctor and project management need zero keys; first key ask is at first AI moment never install. Agent must survive weak models via tiny always-on tools with deferred schemas, resource verbs ls read write search over vaud URIs, prompted XML fallback with one tool per iteration, spill store to disk handles, explicit samplers with max_tokens room for tool args, and staged edits validate-before-commit never writing user files directly. Model roles are user-mappable across interview treatment test-stage and bulk audits with a sane single-model default. Eval harness at M2 before agent feature work uses golden tasks, replayable transcripts, and a model matrix; agent changes must move success-rate and tokens-per-task numbers.",
+      "topics": [
+        "BYOK providers local",
+        "optional AI zero keys",
+        "tiny tools deferred schemas",
+        "vaud URI resource verbs",
+        "spill store staged edits",
+        "eval harness before features"
+      ],
+      "children": []
+    },
+    {
+      "slug": "why",
+      "title": "Why",
+      "level": 2,
+      "sourceHash": "sha256:be20c1749865594bbb18efac8254c67ab1d33121b94ff74cbb91483619545bf8",
+      "summary": "Local-first plus BYOK is the only stance consistent with the privacy pitch and with an audience that already owns keys and local rigs. Weak-model constraints are not charity: they make frontier-model behavior cheaper and more reliable too, which is Orison's measured lesson.",
+      "topics": [
+        "privacy local-first BYOK",
+        "audience owns keys",
+        "weak model helps frontier",
+        "Orison measured lesson"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

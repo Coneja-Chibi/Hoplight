@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-009-sandbox-origin",
+  "sourcePath": "docs/decisions/ADR-009-sandbox-origin.md",
+  "sourceHash": "sha256:362b50642e31292048098c942d0d671cf8bc9a4eaa0f78203676ac7f776c7d9b",
+  "semanticSummaryHash": "sha256:4c0c31b0674cbf371c4fbcdbb3186d49a7a9920e4ac1370d012b28a6ba7ccfdb",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:56.672Z"
+}

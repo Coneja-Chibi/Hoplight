@@ -10,6 +10,13 @@ import {
   searchDocChunks,
 } from "./catalog";
 
+const a = (
+  text: string,
+  slug: string,
+  level: 2 | 3 = 2,
+): DocRecord["anchors"][number] =>
+  ({ text, slug, level, summary: "", topics: [], children: [] });
+
 const docs: DocRecord[] = [
   {
     id: "guide/importing",
@@ -19,10 +26,9 @@ const docs: DocRecord[] = [
     summary: "Bring cards and lorebooks into the Studio.",
     tags: ["import", "cards"],
     related: [],
-    anchors: [
-      { text: "Import a card", slug: "import-a-card", level: 2 },
-      { text: "Troubleshooting", slug: "troubleshooting", level: 2 },
-    ],
+    semanticSummary: "",
+    topics: [],
+    anchors: [a("Import a card", "import-a-card"), a("Troubleshooting", "troubleshooting")],
   },
   {
     id: "reference/security/remote-access",
@@ -32,7 +38,9 @@ const docs: DocRecord[] = [
     summary: "Tailscale and LAN gates for another device.",
     tags: ["security", "remote-access", "lan"],
     related: [],
-    anchors: [{ text: "The LAN gate", slug: "the-lan-gate", level: 2 }],
+    semanticSummary: "",
+    topics: [],
+    anchors: [a("The LAN gate", "the-lan-gate")],
   },
 ];
 
@@ -48,6 +56,23 @@ describe("searchDocCatalog", () => {
     expect(searchDocCatalog(docs, "the", { audience: "user", limit: 1 })).toHaveLength(1);
     expect(searchDocCatalog(docs, "the", { audience: "dev" }).map((doc) => doc.id)).toEqual([
       "reference/security/remote-access",
+    ]);
+  });
+
+  test("indexes optional semantic summaries and topics when present", () => {
+    const withSemantic: DocRecord[] = [
+      {
+        ...docs[0]!,
+        semanticSummary: "Bring platform cards and lorebooks into the local studio safely.",
+        topics: ["card import workflow", "lorebook intake"],
+      },
+      docs[1]!,
+    ];
+    expect(searchDocCatalog(withSemantic, "lorebook intake").map((doc) => doc.id)).toEqual([
+      "guide/importing",
+    ]);
+    expect(searchDocCatalog(withSemantic, "platform cards").map((doc) => doc.id)).toEqual([
+      "guide/importing",
     ]);
   });
 });

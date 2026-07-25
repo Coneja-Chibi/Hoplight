@@ -7,28 +7,55 @@ import type { DocAnchor, DocRecord, DocsIndex } from "./types";
 const stringArray = (value: unknown): value is string[] =>
   Array.isArray(value) && value.every((item) => typeof item === "string");
 
+/** Nested anchors validate recursively. Missing summary/topics/children default for older indexes. */
 const isAnchor = (value: unknown): value is DocAnchor => {
   if (!value || typeof value !== "object") return false;
   const anchor = value as Partial<DocAnchor>;
-  return typeof anchor.text === "string"
-    && typeof anchor.slug === "string"
-    && (anchor.level === 2 || anchor.level === 3);
+  if (
+    typeof anchor.text !== "string"
+    || typeof anchor.slug !== "string"
+    || (anchor.level !== 2 && anchor.level !== 3)
+  ) {
+    return false;
+  }
+  if (anchor.summary !== undefined && typeof anchor.summary !== "string") return false;
+  if (anchor.topics !== undefined && !stringArray(anchor.topics)) return false;
+  if (anchor.children !== undefined) {
+    if (!Array.isArray(anchor.children) || !anchor.children.every(isAnchor)) return false;
+  }
+  return true;
 };
+
+const normalizeAnchor = (value: DocAnchor): DocAnchor => ({
+  text: value.text,
+  slug: value.slug,
+  level: value.level,
+  summary: value.summary ?? "",
+  topics: value.topics ?? [],
+  children: (value.children ?? []).map(normalizeAnchor),
+});
 
 const isRecord = (value: unknown): value is DocRecord => {
   if (!value || typeof value !== "object") return false;
   const doc = value as Partial<DocRecord>;
-  return typeof doc.id === "string"
-    && doc.id.length > 0
-    && typeof doc.path === "string"
-    && doc.path.startsWith("docs/")
-    && typeof doc.title === "string"
-    && typeof doc.audience === "string"
-    && typeof doc.summary === "string"
-    && stringArray(doc.tags)
-    && stringArray(doc.related)
-    && Array.isArray(doc.anchors)
-    && doc.anchors.every(isAnchor);
+  if (
+    typeof doc.id !== "string"
+    || doc.id.length === 0
+    || typeof doc.path !== "string"
+    || !doc.path.startsWith("docs/")
+    || typeof doc.title !== "string"
+    || typeof doc.audience !== "string"
+    || typeof doc.summary !== "string"
+    || !stringArray(doc.tags)
+    || !stringArray(doc.related)
+    || !Array.isArray(doc.anchors)
+    || !doc.anchors.every(isAnchor)
+  ) {
+    return false;
+  }
+  if (doc.semanticSummary !== undefined && typeof doc.semanticSummary !== "string") return false;
+  if (doc.topics !== undefined && !stringArray(doc.topics)) return false;
+  return true;
 };
 
 export function parseDocsIndex(value: unknown): DocsIndex | null {
@@ -43,7 +70,13 @@ export function parseDocsIndex(value: unknown): DocsIndex | null {
   }
   if (!index.docs.every(isRecord) || index.count !== index.docs.length) return null;
   if (new Set(index.docs.map((doc) => doc.id)).size !== index.docs.length) return null;
-  return index as DocsIndex;
+  const docs = index.docs.map((doc) => ({
+    ...doc,
+    semanticSummary: doc.semanticSummary ?? "",
+    topics: doc.topics ?? [],
+    anchors: doc.anchors.map(normalizeAnchor),
+  }));
+  return { generated: index.generated, count: docs.length, docs };
 }
 
 const containedBy = (parent: string, child: string): boolean => {

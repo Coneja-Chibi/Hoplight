@@ -6,7 +6,7 @@
  */
 import type { ChatDelta, ChatFn, ModelMessage, ModelToolCall, ToolSpec } from "../providers/provider";
 import type { TokenUsage } from "../providers/usage";
-import type { ToolActivity, ToolEffect, ToolResult } from "../tools/tool";
+import type { DraftReview, ToolActivity, ToolEffect, ToolResult } from "../tools/tool";
 import { scheduleToolCalls } from "./scheduler";
 import { initialLoopState, transitionLoop, type LoopPhase } from "./state";
 import { observationKey, stopReason } from "./stop-core";
@@ -51,6 +51,83 @@ export interface LoopDeps {
   onDelta?: (delta: ChatDelta) => void;
 }
 
+/** Discard one declined review through the same validated tool path as an explicit model call. */
+async function* discardReviewedDraft(
+  draftId: string,
+  messages: ModelMessage[],
+  deps: LoopDeps,
+  initialLifecycle: ReturnType<typeof initialLoopState>,
+): AsyncGenerator<LoopEvent, void> {
+  let lifecycle = initialLifecycle;
+  const discardCall: ModelToolCall = {
+    id: `kit-review-discard-${draftId}`,
+    name: "change_discard",
+    args: { draftId },
+  };
+  messages.push({ role: "assistant", content: "", toolCalls: [discardCall] });
+  yield { type: "tool-start", name: discardCall.name };
+  const drafting = transitionLoop(lifecycle, { type: "tool-start", effect: "draft" });
+  if (drafting.phase !== lifecycle.phase) yield { type: "state", phase: drafting.phase };
+  lifecycle = drafting;
+  const discarded = await deps.dispatch(discardCall);
+  messages.push({
+    role: "tool",
+    content: discarded.output,
+    toolCallId: discardCall.id,
+    toolName: discardCall.name,
+  });
+  yield { type: "tool", name: discardCall.name, summary: discarded.summary };
+  const terminal = transitionLoop(lifecycle, {
+    type: discarded.outcome === "discarded" ? "discarded" : "failed",
+  });
+  if (terminal.phase !== lifecycle.phase) yield { type: "state", phase: terminal.phase };
+}
+
+/** Finish one composed draft through the application-owned Gate, never through model-authored prose. */
+async function* runDraftReview(
+  review: DraftReview,
+  messages: ModelMessage[],
+  deps: LoopDeps,
+  initialLifecycle: ReturnType<typeof initialLoopState>,
+): AsyncGenerator<LoopEvent, void> {
+  let lifecycle = initialLifecycle;
+  const applyCall: ModelToolCall = {
+    id: `kit-review-apply-${review.draftId}`,
+    name: "change_apply",
+    args: { draftId: review.draftId },
+  };
+  messages.push({ role: "assistant", content: "", toolCalls: [applyCall] });
+  yield { type: "tool-start", name: applyCall.name };
+  const applying = transitionLoop(lifecycle, { type: "tool-start", effect: "apply" });
+  if (applying.phase !== lifecycle.phase) yield { type: "state", phase: applying.phase };
+  lifecycle = applying;
+  const applied = await deps.dispatch(applyCall);
+  messages.push({
+    role: "tool",
+    content: applied.output,
+    toolCallId: applyCall.id,
+    toolName: applyCall.name,
+  });
+  yield { type: "tool", name: applyCall.name, summary: applied.summary };
+
+  if (applied.gateDecision === "denied") {
+    yield* discardReviewedDraft(review.draftId, messages, deps, lifecycle);
+    return;
+  }
+
+  const verifying = transitionLoop(lifecycle, { type: "verifying" });
+  if (verifying.phase !== lifecycle.phase) yield { type: "state", phase: verifying.phase };
+  lifecycle = verifying;
+  const terminal = transitionLoop(lifecycle, {
+    type: applied.outcome === "applied"
+      ? "completed"
+      : applied.outcome === "stale"
+        ? "stale"
+        : "failed",
+  });
+  if (terminal.phase !== lifecycle.phase) yield { type: "state", phase: terminal.phase };
+}
+
 /** Run one user turn to completion, yielding events and returning the turn's full message history. */
 export async function* runTurn(
   input: string,
@@ -65,6 +142,7 @@ export async function* runTurn(
   const maxElapsedMs = deps.maxElapsedMs ?? 120_000;
   let toolCalls = 0;
   let lifecycle = initialLoopState();
+  let pendingReview: DraftReview | null = null;
 
   for (let step = 0; ; step += 1) {
     if (deps.signal?.aborted) {
@@ -120,6 +198,10 @@ export async function* runTurn(
     if (reply.usage) yield { type: "usage", usage: reply.usage };
 
     if (reply.kind === "say") {
+      if (pendingReview) {
+        yield* runDraftReview(pendingReview, messages, deps, lifecycle);
+        return messages;
+      }
       messages.push({ role: "assistant", content: reply.text });
       yield { type: "say", text: reply.text };
       return messages;
@@ -127,8 +209,9 @@ export async function* runTurn(
 
     // reply.kind === "use": the model wants tools. Record the assistant turn with its calls so an
     // adapter can rebuild proper tool_use/tool_result pairs on the next round.
+    // Preserve provider-authored tool preambles in model history, but do not promote them into the
+    // user transcript. Backstage and the Gate own in-progress status and approval language.
     messages.push({ role: "assistant", content: reply.text, toolCalls: reply.calls });
-    if (reply.text) yield { type: "say", text: reply.text };
 
     if (toolCalls + reply.calls.length > maxToolCalls) {
       lifecycle = transitionLoop(lifecycle, { type: "stopped" });
@@ -193,11 +276,23 @@ export async function* runTurn(
         const next = transitionLoop(lifecycle, { type: "preview-ready" });
         if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
         lifecycle = next;
+        if (result.review) pendingReview = result.review;
       }
       if (result.outcome === "discarded") {
+        pendingReview = null;
         const next = transitionLoop(lifecycle, { type: "discarded" });
         if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
         lifecycle = next;
+      }
+      if (call.name === "change_apply" && result.gateDecision === "denied") {
+        const args = typeof call.args === "object" && call.args !== null
+          ? call.args as { draftId?: unknown }
+          : null;
+        if (typeof args?.draftId === "string") {
+          pendingReview = null;
+          yield* discardReviewedDraft(args.draftId, messages, deps, lifecycle);
+          return messages;
+        }
       }
       if (effectFor(call) === "apply" && result.outcome) {
         const verifying = transitionLoop(lifecycle, { type: "verifying" });
@@ -215,6 +310,7 @@ export async function* runTurn(
         const next = transitionLoop(lifecycle, { type: terminal });
         if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
         lifecycle = next;
+        return messages;
       }
     }
   }

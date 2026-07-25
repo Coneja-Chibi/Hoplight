@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/components",
+  "sourcePath": "docs/reference/components.md",
+  "sourceHash": "sha256:56d60659b3714a3ff14b9f16bfaa444c23912a9846f8bd1ab5d2682d885355ad",
+  "summary": "Component catalog is the generated inventory of every exported UI control Hoplight ships. It is produced by scripts/hooks/component-catalog.ts from real TypeScript exports under src/ui/components, src/ui/apps, and src/ui/shell for React entries (ADR-008), plus src/ui/_shared for legacy vanilla .ts widget factories that the React conversion still replaces. Authors must not hand-edit the markdown; regenerate with bun run scripts/hooks/component-catalog.ts, and the pre-commit --check gate fails when the file drifts from live exports. Read each table as Name, File path, Signature, optional Doc blurb, and Styles class list. Before building any new control, scan this catalog and reuse an existing entry rather than inventing a twin. The page has two H2 tables only: Components (React, `.tsx`) for the modern studio surface, and Legacy widgets (`src/ui/_shared`, vanilla) for remaining factory helpers. Use the catalog as lookup authority for props and file homes, not as a design narrative; behavior and layout truth still live on reference/ui and the component folders themselves.",
+  "topics": [
+    "generated component catalog",
+    "component-catalog.ts hook",
+    "React ADR-008 tsx",
+    "legacy vanilla widgets",
+    "pre-commit catalog check",
+    "reuse before invent",
+    "Name File Signature Doc Styles",
+    "src/ui components apps shell"
+  ],
+  "sections": [
+    {
+      "slug": "components-react-tsx",
+      "title": "Components (React, `.tsx`)",
+      "level": 2,
+      "sourceHash": "sha256:e17375c33c6486781ce33c1fc3034796a351d226c2a20a7f151c14b5a6921e1a",
+      "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), and app-scoped presenters under src/ui/apps. Workbench dominates: character, lorebook, persona, preset, regex, and workshop editors with rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import overlay and lore workshop dialog; settings contributes LAN and update confirm dialogs; docs app contributes room, nav, toc, and content. Setup and shell exports round out boot. Each row is Name, source File, TypeScript Signature, optional Doc one-liner when the export carries one, and Styles class tokens from the component CSS module. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
+      "topics": [
+        "React tsx exports",
+        "shell Dock App",
+        "shared components folder",
+        "workbench editors presenters",
+        "library settings docs apps",
+        "signature and styles columns",
+        "reuse existing controls"
+      ],
+      "children": []
+    },
+    {
+      "slug": "legacy-widgets-srcui_shared-vanilla",
+      "title": "Legacy widgets (`src/ui/_shared`, vanilla)",
+      "level": 2,
+      "sourceHash": "sha256:ca508498fa130bed042da519fb431f6e3fcd7ecd8fca773c74204fb055d7e470",
+      "summary": "Secondary table for vanilla TypeScript widget factories still exported from src/ui/_shared while the studio finishes moving to React. These are not .tsx components; they are .ts helpers that older or transitional surfaces still call. The catalog lists the same columns as the React table: Name, File, Signature, Doc, Styles. At generation time the section is thin, currently featuring buildTimeline from version-history for release timeline rows against the installed version. Treat anything here as migration surface: prefer the React counterpart when one exists, and do not grow new vanilla factories. When the conversion deletes a factory, regenerating the catalog drops the row; when a factory remains, this table is the honest home for its signature. Agents building UI should almost always land in the React section first and only open legacy widgets when matching an existing _shared call site.",
+      "topics": [
+        "legacy vanilla widgets",
+        "src/ui/_shared factories",
+        "buildTimeline version history",
+        "migration to React",
+        "same table columns",
+        "do not grow vanilla"
+      ],
+      "children": []
+    }
+  ]
+}

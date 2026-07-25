@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/escrow-and-roundtrip",
+  "sourcePath": "docs/reference/concepts/escrow-and-roundtrip.md",
+  "sourceHash": "sha256:f762c56b669c684339b0382a9bac3ee29ff26848670e2a5750a949b300767da0",
+  "summary": "Escrow and round-trip document how every canonical entity carries a lossless import twin in original so same-format round trips lose nothing and cross-format conversions lose only non-portable residue by design. The escrow envelope is Record FormatId to OriginalEntry with raw unmapped and optional sourceMedia, filled automatically under each adapter key, with primaryOriginalRaw selecting the source twin. A same-format round-trip loses nothing via toCanonical stash and fromCanonical three-state overlay onto the twin so only edited fields re-encode; scope is fields not bit-identical containers after pretty-print. A cross-format conversion is contained loss by design because targets read only their own original key and full-encode body without blind-copying foreign extensions or scripts. Per-kind coverage of the same idea points format pages for character lorebook persona and regex twins. Source of truth lists canonical adapter convert tavern-fields sillytavern and architecture ownership for the twin path.",
+  "topics": [
+    "escrow original envelope",
+    "same-format lossless",
+    "cross-format contained loss",
+    "OriginalEntry raw unmapped",
+    "three-state twin overlay",
+    "primaryOriginalRaw",
+    "sourceMedia PNG carrier",
+    "deny by absence"
+  ],
+  "sections": [
+    {
+      "slug": "the-escrow-envelope",
+      "title": "The escrow envelope",
+      "level": 2,
+      "sourceHash": "sha256:422f6baa268edaaa522f374a292783f88c0422d95f13e62d0da807d8a39965de",
+      "summary": "Escrow is per-source original on the wrapper: Record of FormatId to OriginalEntry. raw is the entire parsed source payload untouched as the exporter twin. unmapped holds source facts canonical does not first-class such as Tavern round-trip variant. sourceMedia is the binary carrier such as PNG card pixels kept as a raw-bytes twin, not body content. original fills automatically on import and is never hand-edited; each adapter stores under its own format id. primaryOriginalRaw reads the first entry raw so labeler and bundle layers cannot drift. Superset rule sends non-wire residue here rather than inventing body fields.",
+      "topics": [
+        "OriginalEntry fields",
+        "raw twin payload",
+        "unmapped residue",
+        "sourceMedia carrier",
+        "per-format-id keys"
+      ],
+      "children": []
+    },
+    {
+      "slug": "a-same-format-round-trip-loses-nothing",
+      "title": "A same-format round-trip loses nothing",
+      "level": 2,
+      "sourceHash": "sha256:f78c8c76996b888ccbf37e077547dfacf56e75e38de884a29af15f66ecbd7121",
+      "summary": "Adapter symmetry: toCanonical stashes the payload while reading; fromCanonical re-emits from that original for the round trip. SillyTavern character is the worked example storing whole card twin variant and PNG carrier then overlaying body onto a twin clone in the original variant. applyBodyToData three-state: equal values leave raw untouched, changed values write exact wire homes, values twin had but canonical dropped clear those homes. Absent both sides leaves raw alone protecting unrepresentable shapes and unknown keys. Lossless means every field including unexpressed ones survives from the twin and only edits re-encode. Pretty-printed JSON and PNG-to-JSON container changes are out of scope; no authored field is silently dropped or fabricated.",
+      "topics": [
+        "toCanonical fromCanonical",
+        "SillyTavern twin overlay",
+        "three-state applyBodyToData",
+        "fields not container bits",
+        "unknown keys protected"
+      ],
+      "children": []
+    },
+    {
+      "slug": "a-cross-format-conversion-is-contained-loss-by-design",
+      "title": "A cross-format conversion is contained loss by design",
+      "level": 2,
+      "sourceHash": "sha256:a131e2725753afb146e8e15acee29718f955175de0a55db8cd61901be07b5f5e",
+      "summary": "convertFile same-kind paths pass the full entity but only the canonical body plus re-embedded lorebooks project into the target file. Per-id keying keeps the source twin under original source while the target adapter looks for original target, finds none on a fresh conversion, and full-encodes from body alone. Private extensions scripts layout and internal ids stay in escrow and are not written into another app file. This is safety: never blind-copy executable or private payloads; deny by absence with future opt-in field mappers only. PNG carriers likewise stay in escrow across formats as portrait yet restore on same-format re-emit. Loss is bounded to non-portable extras while the portable core crosses.",
+      "topics": [
+        "body only crosses",
+        "no foreign original twin",
+        "deny by absence safety",
+        "carrier stays escrowed",
+        "portable core crosses"
+      ],
+      "children": []
+    },
+    {
+      "slug": "per-kind-coverage-of-the-same-idea",
+      "title": "Per-kind coverage of the same idea",
+      "level": 2,
+      "sourceHash": "sha256:cfa6d145c343985e95073614b09028d30cd7247415ea043ef90111c27404cc25",
+      "summary": "Every entity kind carries escrow the same way. Format pages document where same-format is lossless and where cross-format collapses. SillyTavern covers character and lorebook twins, injection-slot collapse on cross-format lorebooks, and persona plus regex codecs that seal multi-record files so untouched records re-emit unchanged. Entity pages define what each canonical slot means for character and lorebook bodies.",
+      "topics": [
+        "all kinds share escrow",
+        "format page round-trip",
+        "persona regex multi-record",
+        "entity slot meanings"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:ea24a10f2938ac07a2e872e461b163558e18d71754abb971dc9f79f28f3c00d3",
+      "summary": "canonical.ts owns original OriginalEntry and primaryOriginalRaw. adapter.ts states the stash and re-emit contract. convert.ts projects only body across formats. tavern-fields applyBodyToData is the three-state overlay example. sillytavern index stores and re-emits twins. architecture.md maps escrow in the whole engine diagram.",
+      "topics": [
+        "canonical original",
+        "adapter contract",
+        "convert body only",
+        "tavern-fields overlay"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

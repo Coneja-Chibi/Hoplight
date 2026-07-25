@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/pygmalion",
+  "sourcePath": "docs/reference/formats/pygmalion.md",
+  "sourceHash": "sha256:043788268dd54fd50c4bf2c4bead1407fed89b19f557685b5cfde07996fa33bb",
+  "semanticSummaryHash": "sha256:b0c174aef41fb073f3fcaf1e2c031e1ad7ba82c0a80f0a80816e1e0e51c08201",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:59.153Z"
+}

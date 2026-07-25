@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/converting",
+  "sourcePath": "docs/guide/converting.md",
+  "sourceHash": "sha256:8829b0d150ed48f1751136ec2125087d4cf0dfa9518c9c13a4a93336562587da",
+  "summary": "User guide for converting a card from one app's format to another. Most content crosses cleanly through one shared middle model, but private scripts and fields without a target home stay behind on purpose. Short workflow: import into Library with receipt, optionally edit on Workbench, stage for the Press, pick one target format, run the press and download a platform-named zip. Same-app round-trip keeps everything via the saved original file including private extensions layout and ids. Cross-app keeps only shared model fields; one app's private scripts never copy into another; scripts drop when converting to plainer apps like Agnai or legacy Backyard while name description and greetings arrive; use Risu .charx when the full rule pack must travel. Export honesty view lists keep note and drop lines before commit. Press batch stages many pieces one target per run with per-row printed skipped or failed results; staged characters bring linked lorebooks as riders. Tips stress same-app prefer, read drop notes, and fix lorebook keywords before export because empty keywords never fire and Press flags that in red.",
+  "topics": [
+    "convert card formats",
+    "shared middle model",
+    "same-app round-trip lossless",
+    "cross-app drops scripts",
+    "Press one target zip",
+    "export honesty view",
+    "Risu charx full rules",
+    "lorebook keywords red flag"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:51db1a0f95aa38d2e0fc6f2c54ea909e382bffc74bcfaba084b40125f98b819f",
+      "summary": "Five steps: import the card into the Library by drop or Import files reading the receipt and checking desired files; open on Workbench to edit or skip; stage for the Press via right-click or Press left rail, with staged characters bringing linked lorebooks; pick one target platform in the Press; click run the press then download the bundle as a single zip named for the platform.",
+      "topics": [
+        "import receipt",
+        "Workbench optional",
+        "Stage for the Press",
+        "one target platform",
+        "download zip bundle"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-survives-and-what-drops",
+      "title": "What survives and what drops",
+      "level": 2,
+      "sourceHash": "sha256:592e3be180e9adcbff5aafde6d04260eba5632d10f6bfe57bc56a549b721d524",
+      "summary": "Every convert passes through one shared model: read in then write out in the target shape. Same app round-trip keeps everything because the Library keeps the original file so private extensions layout and ids return from that saved copy. A different app keeps only what the shared model can express; if the target has no place for something it does not travel, and one app's private scripts are never copied into another as the safe choice. Example: converting a card with trigger scripts and regex to Agnai or legacy Backyard keeps name description and greetings but drops scripts; use Risu .charx to keep the full rule pack. Every export shows outcomes first via the editor Export honesty view listing what will and will not travel line by line before commit.",
+      "topics": [
+        "shared model pipeline",
+        "same app everything kept",
+        "different app shared only",
+        "scripts never hitchhike",
+        "honesty view before export",
+        "Risu keeps rule pack"
+      ],
+      "children": []
+    },
+    {
+      "slug": "converting-many-at-once",
+      "title": "Converting many at once",
+      "level": 2,
+      "sourceHash": "sha256:7eca39935b5cacd202d68022b917ca4a404e4f2abb3710109ee55c05e3b0c475",
+      "summary": "The Press converts a whole set in one go. Stage pieces via right-click Stage for the Press or left rail; the queue survives room switches. Pick one target, run once, every piece prints into a single zip. Each row reports printed with notes, skipped when the target has no format for that kind, or failed with error. A staged character travels as a bundle dragging linked lorebooks as riders; drop a rider from one run without unlinking. One target per run; for a second app run the press again with a different platform.",
+      "topics": [
+        "Press batch queue",
+        "one target per run",
+        "printed skipped failed",
+        "character lorebook bundle",
+        "drop rider without unlink"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:d571b77a8dd9dcd332eb9f0989c05c1570dd67f7f646e245cde7bc05579a8bd6",
+      "summary": "Prefer same-app round-trip to keep everything via the original file. Read drop notes keep note and dropped lines before export. Convert one piece from editor Export or a batch from the Press with the same honesty. If scripts matter pick a target that keeps them such as Risu .charx; plainer formats keep words not machinery. A lorebook whose entries have no keywords will never fire; Press flags that in red so fix keywords first.",
+      "topics": [
+        "prefer same-app",
+        "read drop notes",
+        "Risu for scripts",
+        "keywords red flag"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

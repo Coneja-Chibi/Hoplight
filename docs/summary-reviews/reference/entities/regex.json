@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/regex",
+  "sourcePath": "docs/reference/entities/regex.md",
+  "sourceHash": "sha256:9f651e2d9a54ad51e1c3589195d4d5f9230ca3f19c96da6bf388268f6f6cf9ef",
+  "semanticSummaryHash": "sha256:d604b7025cd79ba3d2f4bb65d20f926060f8dd63ed5c0cb0eb002964d35e029a",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:31.030Z"
+}

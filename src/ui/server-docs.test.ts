@@ -39,6 +39,8 @@ describe("packaged docs HTTP boundary", () => {
           summary: "Start here.",
           tags: [],
           related: [],
+          semanticSummary: "",
+          topics: [],
           anchors: [],
         }],
       },

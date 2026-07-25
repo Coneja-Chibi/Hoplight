@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/marinara",
+  "sourcePath": "docs/guide/platforms/marinara.md",
+  "sourceHash": "sha256:32b82ce374625c5b7e6c2958d2c618d3929f5c798fdf0efea8edcc24dc2869c4",
+  "semanticSummaryHash": "sha256:6d6e0a280f7ec5283c99498952a755de6ae21f1e0e92b2b605f9b22e13a21540",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.063Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/detection",
+  "sourcePath": "docs/reference/concepts/detection.md",
+  "sourceHash": "sha256:fde4f93e0bc14ad261ea9e81f9f3b855c57af1e560b1e3a606e3344b6f589728",
+  "semanticSummaryHash": "sha256:ecba976bc18c6260a1bc009225679eca4a5589501ec7a012a4d4fea695ff9ba2",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:28.525Z"
+}

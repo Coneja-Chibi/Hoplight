@@ -194,15 +194,52 @@ and are imported by both Kit and the Workbench. Script capabilities only transfo
 execution remains confined to the existing user-invoked sandbox benches.
 
 Kit separates the complete runtime registry from the provider-visible snapshot. Direct tools are
-always visible. A deterministic search may reveal up to five deferred capabilities for the next
-model request; hidden capabilities never enter that snapshot. See
-[Kit content tools](kit/tools.md) and [ADR-010](../decisions/ADR-010-content-capabilities.md).
+always visible. One validated provider-discovery catalog covers `content`, `studio`, `transfer`, and
+`diagnostics` descriptors. Content capability metadata projects into it; deferred non-content
+`HarnessTool` drop-ins can provide the same metadata without creating another router. The live
+deferred inventory is currently content-only. Only pure content capabilities enter the exact
+read-or-draft access resolver. General workflow metadata cannot self-classify a tool that retains
+the writable Studio bridge; those tools remain unknown until a separate safety-owned policy grants
+an exact name. Deferred apply descriptors fail closed until that contract exists. Duplicate tool
+names fail before dispatch maps or provider schemas are built.
 
-Kit also receives one direct read-only documentation meta-tool. It lazily builds a small in-memory
-BM25-style index over heading chunks from catalog-declared Markdown and resolves reads through the
-same fail-closed, catalog-contained corpus boundary as the Studio docs reader. It needs no vector
-server or network call. Documentation access is separate from Studio piece access and never accepts
-an arbitrary filesystem path.
+Deterministic search replaces the current deferred set with up to five matches; collapsed browse
+exposes only domain, area, and action metadata, and describe selects exactly one operation. The real
+typed schemas appear on the next model request. Deferred exposure resets at the start of each user
+turn, while preview drafts remain independently available for query, apply, or discard. Hidden
+descriptors never enter search results, browse results, descriptions, or provider snapshots.
+
+`studio_read` traverses canonical values with RFC 6901 JSON Pointers, outlines, offsets, and bounded
+limits. Results above 4,096 characters receive an opaque session-local handle and peek.
+`result_query` provides bounded stat, read, and literal search without accepting filesystem paths.
+The store has UTF-8 byte caps per entry and in aggregate, a count cap, and oldest-first eviction;
+character counts drive paging, and direct offsets keep values larger than the store cap recoverable.
+
+Draft composition retains every operation's warnings and platform impact. `change_query` lists,
+shows, and validates the complete accumulated proposal without writing. Content capabilities with a
+`read` effect return deterministic observations and are rejected if they change canonical content or
+claim changes. See [Kit content tools](kit/tools.md) and
+[ADR-010](../decisions/ADR-010-content-capabilities.md).
+
+Kit also receives one direct read-only documentation meta-tool with browse, outline, search, and
+read. Browse and outline use only generated index metadata (collections, nested section maps, and
+authored semantic summaries under `docs/summaries/`). Search lazily builds a small in-memory
+BM25-style index over heading chunks plus semantic topics; read is the only path that returns
+authoritative Markdown.
+
+Documentation discovery for summary tooling is folder-derived from `docs/` (excluding `generated`,
+`media`, `summaries`, and `summary-reviews`), not from a stale generated index: a new Markdown page
+is visible to `docs:summaries:check` and `scaffold` immediately. Semantic prose enters
+`docs-index.json` and `PAGE-INDEX.md` only when the sidecar is complete and an independent, hash-bound
+`APPROVE` receipt under `docs/summary-reviews/` matches the current source and summary hashes.
+Hashes prove drift, not semantic quality. Global `docs:summaries:check` requires every page
+`APPROVED` and current queue/review projections; focused `docs:summaries:check -- <id>` (or
+`--author`) validates the sidecar alone for authors before review. Source or summary edits invalidate
+approval until a new independent review is recorded. The recursive catalogue is
+`docs/generated/PAGE-INDEX.md`. Resolves reads through the same fail-closed, catalog-contained corpus
+boundary as the Studio docs reader. It needs no vector server, embedding model, or network call.
+Documentation access is separate from Studio piece access and never accepts an arbitrary filesystem
+path.
 
 Durable apply remains outside the pure capability. `StudioStore.compareAndSave()` compares the full
 canonical revision and publishes under the storage backend's per-path write lock. Kit then re-reads

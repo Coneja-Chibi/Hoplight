@@ -4,7 +4,11 @@
 export interface DocAnchor {
   text: string;
   slug: string;
-  level: number;
+  level: 2 | 3;
+  /** Semantic section summary; empty string when no sidecar is merged. */
+  summary: string;
+  topics: string[];
+  children: DocAnchor[];
 }
 
 export interface DocRecord {
@@ -12,9 +16,13 @@ export interface DocRecord {
   path: string;
   title: string;
   audience: string;
+  /** Short frontmatter or first-paragraph description. */
   summary: string;
   tags: string[];
   related: string[];
+  /** Complete semantic page overview; empty string when no sidecar is merged. */
+  semanticSummary: string;
+  topics: string[];
   anchors: DocAnchor[];
 }
 

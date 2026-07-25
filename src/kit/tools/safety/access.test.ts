@@ -4,11 +4,13 @@ import { createAccessResolver, resolveAccess } from "./access";
 
 describe("resolveAccess", () => {
   test("the known read tools resolve to read", () => {
-    expect(resolveAccess("list")).toBe("read");
-    expect(resolveAccess("read")).toBe("read");
-    expect(resolveAccess("search")).toBe("read");
+    expect(resolveAccess("studio_list")).toBe("read");
+    expect(resolveAccess("studio_read")).toBe("read");
+    expect(resolveAccess("studio_search")).toBe("read");
     expect(resolveAccess("docs_query")).toBe("read");
     expect(resolveAccess("capability_find")).toBe("read");
+    expect(resolveAccess("result_query")).toBe("read");
+    expect(resolveAccess("change_query")).toBe("read");
   });
 
   test("draft lifecycle tools have explicit least-privilege classes", () => {
@@ -21,6 +23,13 @@ describe("resolveAccess", () => {
     expect(resolve("lorebook_entries_update")).toBe("draft");
     expect(resolve("lorebook_entries_remove")).toBe("unknown");
     expect(resolve("lorebook_entries_update_extra")).toBe("unknown");
+  });
+
+  test("catalog-supplied read capabilities remain read-only", () => {
+    const resolve = createAccessResolver([
+      { name: "lorebook_health_inspect", access: "read" },
+    ]);
+    expect(resolve("lorebook_health_inspect")).toBe("read");
   });
 
   test("an absent tool resolves to unknown (deny by absence)", () => {

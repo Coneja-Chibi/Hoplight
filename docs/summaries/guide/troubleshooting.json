@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/troubleshooting",
+  "sourcePath": "docs/guide/troubleshooting.md",
+  "sourceHash": "sha256:1df5f7f8edfd1d600e4585114178d4635ebb1fb10f53fd9295559a3fce3b0f92",
+  "summary": "Troubleshoot common problems using plain messages Hoplight already shows: failed Studio boot prints address and SSH command; failed import names a reason; export lists Note or Dropped per field; Press rows settle printed skipped or failed with why. The short version: read the message you have; ask the file with hoplight inspect and validate; check Workbench lens or Export honesty before re-export; check FORMAT-SUPPORT matrix; if unexplained run hoplight formats for known support. The studio says forbidden over SSH: bind is loopback 127.0.0.1:8321 so use printed ssh -L command leave tunnel open open exact localhost not server IP; second -L for sandbox test benches; recovery buttons Open Studio and Remote Access setup; Settings Remote access for everyday devices. A card would not import: receipt headings Pick what to keep or Here is what we read; unrecognized format not damage; import never overwrites -2; lorebook heal; scripts inert; deep access refused; Import no browser after pieces exist. A convert dropped something: shared canonical only; same app means exact format id; persona one lorebook ref; placement foreign closest; Press bundle lorebook once. An export looks wrong: lens honesty agree; Export anyway on Note Dropped; Press skipped vs failed; -2 name collision; editor one file Press zip; casting fields platform slots. Tips: message first CLI inspect exact format round-trip shared coverage unknown format issue sample.",
+  "topics": [
+    "read message first",
+    "inspect validate formats",
+    "SSH loopback tunnel",
+    "import receipt never overwrite",
+    "convert shared only drops",
+    "export honesty Press rows",
+    "lens coverage matrix",
+    "same-app exact format"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:7d2246bd537f0fc112963b7071a8eee7f2e46b70fd8750f5a178be8c0f82be9c",
+      "summary": "Read the message you already have: a Studio boot error receipt line Note or Dropped line or Press row note states a fact and a next step. Ask the file what it is from a project terminal: hoplight inspect names kind and format or says it could not be read; hoplight validate exits 0 if the file opens at all. Check the lens or honesty view before you export again: pick target platform on Workbench and read dimmed fields or open Export Note and Dropped lines; both read the same coverage claims so they never disagree. Check the format matrix if one field is the question: docs FORMAT-SUPPORT.md is generated from live adapters what each platform reads and writes kind by kind. If none of that explains it the file may be a format Hoplight does not know yet not a broken one; hoplight formats lists everything currently supported.",
+      "topics": [
+        "read message first",
+        "hoplight inspect validate",
+        "lens honesty coverage",
+        "FORMAT-SUPPORT matrix",
+        "hoplight formats list"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-studio-says-forbidden-over-ssh",
+      "title": "The Studio says \"forbidden\" over SSH",
+      "level": 2,
+      "sourceHash": "sha256:ac5f119a866c207646c0ff29a17fc14bc43b14f2316169ace372c479167db52c",
+      "summary": "Hoplight listens at 127.0.0.1:8321 by default deliberately local. Container or headless use needs you to carry loopback to your browser machine. Start Hoplight on the server; copy the printed full ssh -L command; replace user at server with your login; leave the tunnel open; open the exact localhost URL not server or container IP. Two -L entries appear when the Lua regex sandbox is up: Studio plus random sandbox port; copy both for test benches. If shell loads but Studio could not start and refused the address use Open Studio Open Remote Access setup and Copy SSH command recovery pointed at forwarded localhost. Restart reprints the current two-port command. This tunnel is owner loopback access; Settings Remote access is for approved phones and everyday devices. Test benches stay host-local unless the second port is forwarded too.",
+      "topics": [
+        "loopback 8321 only",
+        "ssh -L two ports",
+        "open localhost not IP",
+        "Open Studio recovery",
+        "Remote access Settings",
+        "sandbox second port"
+      ],
+      "children": []
+    },
+    {
+      "slug": "a-card-would-not-import",
+      "title": "A card would not import",
+      "level": 2,
+      "sourceHash": "sha256:702022e6fe8523d8cb688971a3d5ce2d58757e4056384e245d11cf48653c705b",
+      "summary": "Every file is read before write under Pick what to keep when clean or Here is what we read when some fail; every row has checkbox and reason. Could not read means unrecognized format not damage for known shapes png json charx lorebook byaf; use hoplight inspect before calling it broken. Import never overwrites: second drop gets -2 id so re-drop cannot clobber edits; update via Workbench save instead. Broken lorebooks heal with receipt fix lines and entry counts. Scripts stay text inert until the test stage; Workshop toggle shows them when present. Deep access is refused on the receipt; rest still imports. After pieces exist Import only routes to shelves to drop; empty studio alone opens a file browser.",
+      "topics": [
+        "receipt before write",
+        "unrecognized not damaged",
+        "never overwrite -2",
+        "heal lorebook receipt",
+        "scripts inert deep refuse",
+        "Import no browser later"
+      ],
+      "children": []
+    },
+    {
+      "slug": "a-convert-dropped-something",
+      "title": "A convert dropped something",
+      "level": 2,
+      "sourceHash": "sha256:df6fddba72a94ad6ad4e865e78d583823e51e6a83c6cc3d5ead3dfcc304bfced",
+      "summary": "Convert reads into one shared canonical model then writes the target shape; most drop bugs are that design working. Different-app loss of scripts regex modules is expected: only shared model crosses; private blocks never copy; full rule packs need a keeper like Risu charx. Same-app still different means you did not use the exact format id both ways; RoleCall in then plain SillyTavern JSON is cross-format; export through the import format for byte-honest copy. Persona wires carry one lorebook ref so only the first crosses; reorder Knowledge or stage the book alone. Rich placement exists only under Hoplight and some platforms; Risu NovelAI land every entry on the character floor with foreign closest slot. Staged characters bundle linked lorebooks once; Press drop from this run omits without unlink; ride again restores.",
+      "topics": [
+        "canonical shared only",
+        "exact format id round-trip",
+        "persona single lorebook ref",
+        "placement foreign closest",
+        "Press bundle lorebook once",
+        "charx keep rule pack"
+      ],
+      "children": []
+    },
+    {
+      "slug": "an-export-looks-wrong",
+      "title": "An export looks wrong",
+      "level": 2,
+      "sourceHash": "sha256:5ae97b24b2ee2eb114421d03d1f828e3aec623e16599cb00351b99acd3c99bff",
+      "summary": "Export and Press share Workbench lens coverage so they never disagree on carry. Dimmed or missing fields are the lens hiding unsupported slots; Hoplight tab restores the full card nothing deleted. Export becomes Export anyway when honesty shows Note or Dropped; Note is partial Dropped does not travel not a hard stop. Press skipped names reasons like no persona format before the run not a failure. Failed is a real row error with the actual message while the batch continues. Colliding names mint -2; rename or pick txt md before run then fields lock. Editor Export always one file; Press always a zip even for one piece. Casting full name title pronouns drop when the target has no slot; check the lens not the field.",
+      "topics": [
+        "lens honesty same claims",
+        "Export anyway Note Dropped",
+        "Press skipped vs failed",
+        "name -2 collision",
+        "editor file Press zip",
+        "casting platform slots"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:2758674bd6120d336627cdf9684fe6a2e9b9c4f46734e593e23675df9b33ef01",
+      "summary": "Read the message first; it was already the answer. Use hoplight inspect validate formats before clicking around. Same-app lossless needs the exact import format id out not a lookalike. Lens and honesty share one coverage table so dimmed means Dropped. Unsupported format is not a broken file; file an issue with a sample.",
+      "topics": [
+        "message first",
+        "CLI inspect formats",
+        "exact format round-trip",
+        "shared coverage table",
+        "unsupported issue sample"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

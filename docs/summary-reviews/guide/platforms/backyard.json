@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/backyard",
+  "sourcePath": "docs/guide/platforms/backyard.md",
+  "sourceHash": "sha256:b23218aed147a574ac732411c6007be3bb659713f8b597e7e885c4f675567af8",
+  "semanticSummaryHash": "sha256:bab27f8ad66b719e9c9b88f510cda76b406b1583e6da6c8825b057dab074f2df",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:25.493Z"
+}

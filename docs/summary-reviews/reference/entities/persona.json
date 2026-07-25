@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/persona",
+  "sourcePath": "docs/reference/entities/persona.md",
+  "sourceHash": "sha256:e68eb05a83b6201fd5a2b3d5efb0616b581bc4fe4532eb7a3204048261636538",
+  "semanticSummaryHash": "sha256:80a1c99a34fd2bb22c140f3ab20f5741e379a25373ce5d86129168ade8e2381d",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:30.644Z"
+}

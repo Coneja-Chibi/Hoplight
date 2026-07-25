@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/risu",
+  "sourcePath": "docs/reference/formats/risu.md",
+  "sourceHash": "sha256:0595208177c34967e26a9d0a82152e5b47b45513c73a309c155601c42ae7fd3a",
+  "semanticSummaryHash": "sha256:d05ddda4e026dce0a650759b760fcf890115e8ae72527df8a3d7ae85a31ead21",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:58.076Z"
+}

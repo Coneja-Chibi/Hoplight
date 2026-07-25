@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-010-content-capabilities",
+  "sourcePath": "docs/decisions/ADR-010-content-capabilities.md",
+  "sourceHash": "sha256:8c65b8a658a10350a7d3a45d02cc2b9458e784ef39678a95a7003174bd50630e",
+  "summary": "Accepted ADR dated 2026-07-25 for shared semantic content capabilities. Context: Kit will eventually need more than one hundred content-editing operations; advertising every schema on every model request wastes context and hurts tool selection; implementing the same mutation separately in Kit and Workbench would allow drift. Filesystem is already the registry for formats and UI extensions, so content edits need the same drop-in property while canonical validation and escrow preservation remain mandatory. Decision: pure semantic operations live under src/entities kind capabilities; platform-specific operations may live under src/formats platform capabilities; one immutable catalog validates stable dotted IDs and supports deterministic metadata search; Kit keeps a complete runtime registry but exposes only direct tools and up to five successfully discovered deferred capabilities to the model; browser uses a generated import seam from the same folders never a second hand-maintained catalog; a capability produces a validated preview and never writes; Kit composes previews into a session-local draft while apply stale-revision checks persistence and verification are separate runtime responsibilities; Web UI imports the same pure operations and keeps presentation-only state locally. Consequences: add operations via drop-in and proof; small task-relevant tool sets; shared mutation meaning; capability IDs become compatibility-sensitive once shipped; live apply rejects stale drafts and reports only verified post-save receipts as applied.",
+  "topics": [
+    "content capabilities drop-in",
+    "entities formats capabilities",
+    "Kit deferred tools limit five",
+    "preview never writes",
+    "session-local draft",
+    "shared Kit Workbench ops",
+    "stable dotted capability IDs",
+    "ADR-010 accepted"
+  ],
+  "sections": [
+    {
+      "slug": "context",
+      "title": "Context",
+      "level": 2,
+      "sourceHash": "sha256:cfcad57d6298f83e8c7f8170074037a209017ffb057544cd61c4695146d730cb",
+      "summary": "Kit will eventually need more than one hundred content-editing operations. Advertising every schema on every model request wastes context and makes tool selection less reliable. Implementing the same mutation separately in Kit and the Workbench would also allow their behavior to drift. The filesystem is already Hoplight's registry for formats and UI extensions. Content edits need the same drop-in property, while canonical validation and escrow preservation remain mandatory.",
+      "topics": [
+        "hundred plus operations",
+        "context waste tool selection",
+        "Kit Workbench drift risk",
+        "filesystem as registry",
+        "escrow validation mandatory"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:0bcbf141ba6fe182063b0d60df85b4ecc4d89aed0b8eab3e3c84e62629aa9903",
+      "summary": "Pure semantic operations live under src/entities kind capabilities folders. Platform-specific operations may live under src/formats platform capabilities. One immutable catalog validates stable dotted IDs and supports deterministic metadata search. Kit keeps a complete runtime registry but exposes only direct tools and up to five successfully discovered deferred capabilities to the model. The browser uses a generated import seam from the same folders; the generated file is never a second hand-maintained catalog. A capability produces a validated preview and never writes. Kit composes previews into a session-local draft; applying, stale-revision checks, persistence, and verification are separate runtime responsibilities. The Web UI imports the same pure operations and keeps presentation-only state such as focus and undo locally.",
+      "topics": [
+        "entities capabilities folders",
+        "formats platform capabilities",
+        "immutable dotted ID catalog",
+        "five deferred capabilities max",
+        "preview never writes",
+        "session draft apply separate"
+      ],
+      "children": []
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:f6d60f9e444ef93d70b1dece37aa23ced40f2714cdb53dbbe27b36b999c479e3",
+      "summary": "Adding an operation means adding a capability drop-in and proof, not editing a central registry. Models receive small task-relevant typed tool sets instead of one huge static catalog. Kit and the Workbench can share mutation meaning without sharing surface state. Capability IDs become compatibility-sensitive once shipped. The live apply boundary rejects stale drafts and reports only a verified post-save receipt as applied.",
+      "topics": [
+        "drop-in not central registry",
+        "small typed tool sets",
+        "shared mutation meaning",
+        "ID compatibility sensitive",
+        "stale draft reject verified receipt"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/kit/tools",
+  "sourcePath": "docs/reference/kit/tools.md",
+  "sourceHash": "sha256:07c444dfc0c0b925346ec70027bda8738112e3d0d306836544b75713a6f28c3d",
+  "summary": "Kit content tools separates provider runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, generated Workbench bindings, semantic Gate review, documentation query, JSON Pointer reads, and bounded result handles. Content capabilities declare stable IDs, Zod inputs, effects, exposure, concurrency, changes, warnings, platform impact, and optional deterministic observations. Read effects cannot mutate or draft. Only pure content descriptors derive safe exact-name access; general workflows retain the writable bridge and remain unknown until separately classified. Duplicate provider names fail closed. Nine direct tools begin each turn. Search reveals at most five deferred descriptors; browse shows collapsed metadata; describe reveals one typed schema; hidden entries never surface. Oversized observations spill to UTF-8-byte-capped session storage and remain navigable by character offsets. Draft operations compose before the loop replaces model save prose with an application-owned before/after review. Apply performs stale checking, one save, and verification; denial discards without another model round. Character has ten preview capabilities; lorebook has five; persona, preset, regex, and pack own their bundles. docs_query supplies bounded documentation traversal. Unit and integration proof exists; live terminal verification remains required.",
+  "topics": [
+    "runtime tools vs slash",
+    "workflow discovery lifecycle",
+    "capability contract pure",
+    "apply Gate authorization",
+    "nine direct five deferred",
+    "character ten capabilities",
+    "lorebook five ops",
+    "docs_query four actions",
+    "result and change query",
+    "change_apply verify"
+  ],
+  "sections": [
+    {
+      "slug": "built-lifecycle",
+      "title": "Built lifecycle",
+      "level": 2,
+      "sourceHash": "sha256:1035124274ea33508df678ed67d85d1258044091e203643b8ee1a29956835366",
+      "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns stable IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract shared with broader workflows. Lorebook and character folders own pure previews while persona, preset, regex, and pack own their operations. kit capabilities adapts content and non-content descriptors into one registry whose provider names must be unique. capability_find searches up to five workflows, browses domain-area-action metadata, or describes one exact operation. Only pure content descriptors derive safe read or draft access; general workflow tools require separate safety policy. kit changes composes operations while retaining baseline, escrow, warnings, and platform impact. Each draft result carries a semantic review projection, allowing multiple operations to compose before final model prose becomes one application-owned review. Denial dispatches discard without another model round; apply Gates, checks revision, saves once, re-reads, and verifies. studio_read traverses canonical JSON while result_query pages bounded observations. docs_query remains catalog-only. Reads can overlap while mutations serialize. /tools is the target-aware Panel Deck. Backstage owns tool status, hides provider preambles, and labels lifecycle receipts from state.",
+      "topics": [
+        "six content bundles",
+        "pure entity previews",
+        "shared workflow descriptor catalog",
+        "result and change query",
+        "change_apply Gate",
+        "docs_query catalog",
+        "serial draft batches",
+        "Panel Deck /tools"
+      ],
+      "children": []
+    },
+    {
+      "slug": "capability-contract",
+      "title": "Capability contract",
+      "level": 2,
+      "sourceHash": "sha256:30b76128e775b15614b7e50c610596361896cf89137b15b97422e11fa285b6dd",
+      "summary": "A content capability is a pure semantic operation declaring a stable dotted ID, kind, navigation metadata, platform applicability, Zod input, effect, exposure, concurrency key, and preview. Preview returns a complete canonical entity, changes, warnings, platform impact, and optionally a deterministic read observation. It never writes. The composer rejects identity or original escrow changes. The read adapter also requires a canonically identical entity and empty changes, preventing analysis from creating a mutation draft.",
+      "topics": [
+        "stable dotted ID",
+        "Zod input schema",
+        "read or draft effect",
+        "read observation isolation",
+        "preview never writes",
+        "reject escrow change"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "apply-and-authorization",
+      "title": "Apply and authorization",
+      "level": 2,
+      "sourceHash": "sha256:7a734a5edd58bd907091c52875b81b68688483a70b0a2521438832db274aaeff",
+      "summary": "The safety subsystem owns exact-name access classification and never trusts name prefixes, general workflow discovery metadata, or a tool's claimed runtime effect. Only restricted pure-content capabilities derive safe read or preview-only draft access from catalog metadata. General workflow tools retain the writable Studio bridge and therefore remain unknown until an independent safety policy classifies their exact names. Under guarded mode, apply pauses in an application-owned semantic review card rather than a generic tool prompt or model-authored verbal contract. The card shows bounded before/after rows and target, with mouse or keyboard Apply and Discard controls. The Studio backend compares the expected revision and publishes under one per-path lock. Stale state writes nothing. After publish Kit re-reads and verifies capability-owned canonical fields and non-Studio escrow before reporting applied. Unreadable or mismatched verification reports failure and is never retried automatically.",
+      "topics": [
+        "catalog name classify",
+        "read vs draft least privilege",
+        "Gate guarded apply",
+        "per-path write lock",
+        "post-save verify"
+      ],
+      "children": []
+    },
+    {
+      "slug": "progressive-exposure",
+      "title": "Progressive exposure",
+      "level": 2,
+      "sourceHash": "sha256:33af6a4841b92548a197f84d6c3945d5a626a7bc0097a2f0b3ea8b1c2baf147e",
+      "summary": "The complete unique-name registry remains dispatchable while every user turn starts with nine direct tools. One validated discovery catalog serves content, studio, transfer, and diagnostics descriptors; live deferred entries are currently content capabilities. Discovery metadata controls exposure but cannot grant general workflow tools safe access. Only pure content operations derive read or draft classification; other workflows need a separate exact-name safety policy, and deferred apply fails closed pending that contract. Search replaces exposure with at most five matches; browse returns collapsed domains, areas, or actions without schemas; describe reveals one typed operation. Optional targets filter kinds without blocking studio-wide discovery. Hidden descriptors never surface and turn reset clears exposure while drafts remain queryable. Canonical reads use RFC 6901 pointers, outlines, offsets, and limits. Results beyond 4096 characters receive UTF-8-byte-capped opaque handles navigated by stat, read, or literal search. Draft query retains operations, warnings, platform impact, baseline, and proposal, and validates canonical shape plus current revision without writing.",
+      "topics": [
+        "nine direct tools",
+        "four discovery domains",
+        "apply safety fail closed",
+        "five deferred matches",
+        "hidden never exposed",
+        "JSON Pointer reads",
+        "opaque result handles",
+        "complete draft query"
+      ],
+      "children": [
+        {
+          "slug": "canonical-reads-and-result-handles",
+          "title": "Canonical reads and result handles",
+          "level": 3,
+          "sourceHash": "sha256:a2eceeec0e2bbac7d948594fa5bacba55aa91172d65e64ba9be40b85c6a32c12",
+          "summary": "studio_read defaults to the complete canonical entity and can outline immediate children as RFC 6901 JSON Pointers or read one selected value with character offsets and limits. Invalid pointers fail closed. Unpaged results over 4096 characters enter a session-local store and return an opaque result-N handle plus peek. result_query provides stat, bounded read, and literal case-insensitive search. Handles reveal no path and expire with the session. Storage caps are 24 entries, 1,000,000 UTF-8 bytes per entry, and 4,000,000 UTF-8 bytes total, with oldest-first eviction. Character counts drive paging; reads and searches have separate response bounds. Values beyond the store cap remain recoverable through direct studio_read offsets.",
+          "topics": [
+            "RFC 6901 outline read",
+            "offset limit continuation",
+            "opaque result-N handle",
+            "bounded store eviction",
+            "oversize direct paging"
+          ],
+          "children": []
+        },
+        {
+          "slug": "complete-draft-review",
+          "title": "Complete draft review",
+          "level": 3,
+          "sourceHash": "sha256:9e2e019ca353eaec426c2010e1f1f4364da6a6a6ca40d05d2a7e30fc38d17aca",
+          "summary": "Every composed operation retains validated input, changes, warnings, and platform impact, while the draft aggregates warning and impact evidence over one immutable baseline. change_query list returns compact state and counts. show returns operations, baseline, complete proposed entity, warnings, and platform impact, using a result handle or explicit offsets for large proposals. validate re-parses canonical shape and compares the live stored revision without mutating draft state or writing. Per-operation rollback remains excluded until deterministic replay is specified.",
+          "topics": [
+            "operation evidence retained",
+            "list show validate",
+            "complete proposed entity",
+            "revision check no write",
+            "rollback deferred"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "character-slice",
+      "title": "Character slice",
+      "level": 2,
+      "sourceHash": "sha256:a1b32508a1fec718ab99b58c510f77cc1f3db9d26b413815625acf1468eaa089",
+      "summary": "The canonical character bundle is ten preview-only capabilities: identity.update for name nickname tagline casting-card identity; prompts.update for persona prose prompts examples depth injections; greetings.update for first alternate group-only; metadata.update for tags attribution rating warnings creator notes; presentation.update for palette background field order spoilers links; media.update for portrait asset pack visual kind face label; links.update for world lorebook standalone behavior refs; variants.manage for add remove rename mode field inheritance; settings.update for dials bias variables sealed behavior settings; behavior-scripts.manage for add overlay remove reorder embedded script data. Embedded regex and trigger payloads remain data never executed. Platform-native character extension fields that exist only inside original escrow are not editable through this lifecycle. A semantic capability must not rewrite escrow to implement a canonical edit. Format-owned capabilities can be added only when their adapter provides a typed non-escrow semantic home.",
+      "topics": [
+        "ten character ops",
+        "preview-only drafts",
+        "sealed behavior scripts",
+        "no original escrow edit",
+        "format-owned later"
+      ],
+      "children": []
+    },
+    {
+      "slug": "lorebook-slice",
+      "title": "Lorebook slice",
+      "level": 2,
+      "sourceHash": "sha256:8bcdcbaba77938cdb912db28402c03147cde101d33467ae66a1cea9e78e23cb3",
+      "summary": "Current drop-ins are lorebook.settings.update for portable book settings, entries.update for basic fields on one entry, entries.reorder for authored order, entries.enable for enabled state of one or more entries, and entries.remove for removal of one or more entries. Create duplicate trigger-specific placement-specific and broad bulk-operation capabilities remain future additions. The Web UI keeps its selection focus generated-ID and undo behavior locally rather than through these Kit capabilities.",
+      "topics": [
+        "settings and entries",
+        "update reorder enable",
+        "remove multi entry",
+        "future create bulk",
+        "UI local undo"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "other-canonical-bundles",
+      "title": "Other canonical bundles",
+      "level": 2,
+      "sourceHash": "sha256:d2b6e6ba86803696ac7caf29b147c5116bce7ef0e30a19b3c9b30468e8f34c34",
+      "summary": "Persona capabilities cover identity text structured profile injection and presentation. Preset covers settings and samplers prompt blocks and groups. Regex covers set settings and stored rule lifecycle. Pack covers pack settings media items and named groups. These operations share pure entity-layer reducers with the Workbench where the corresponding editor already exists. Regex and embedded behavior payloads remain sealed data and are never executed by a capability.",
+      "topics": [
+        "persona identity profile",
+        "preset blocks samplers",
+        "regex rule lifecycle",
+        "pack media groups",
+        "sealed never execute"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-documentation-query",
+      "title": "Hoplight documentation query",
+      "level": 2,
+      "sourceHash": "sha256:88c83cdc067da9c40c0982bd127e23796653be7f04030dea8663b8c67a73eb6d",
+      "summary": "docs_query is a direct read-only meta-tool with four actions. browse lists collections and pages from index metadata only, with root or immediate children, limit 12 cap 25, offset pagination, and slash-separated collection ids that never path-escape. outline returns a semantic page overview and collapsed H2 map without loading Markdown; a returned section slug expands only that branch and its H3 summaries. search ranks body text plus title, short summary, semantic summary, topics, and headings with in-memory BM25. read alone returns authoritative source prose: omit the section for a whole document or select a slug for a targeted nugget. Bounded responses provide continuation offsets so long documents can be read completely across calls. Whole-document reads are preferred around located answers to preserve qualifications, failure conditions, and current-versus-planned distinctions. Semantic navigation merges only from docs/summaries sidecars with current independent APPROVE receipts bound to source and semantic-summary hashes. Authoring discovery is folder-derived from docs/. New and edited pages require authoring, stamping, focused checking, and independent review. Global check requires every page APPROVED. No embeddings or network.",
+      "topics": [
+        "collapsed browse outline expand search read",
+        "APPROVE-only catalog merge",
+        "folder-derived discovery",
+        "new and edit document flows",
+        "whole document and targeted nugget reads",
+        "bounded continuation offsets",
+        "no embeddings network",
+        "hash-bound review"
+      ],
+      "children": []
+    },
+    {
+      "slug": "verification-status",
+      "title": "Verification status",
+      "level": 2,
+      "sourceHash": "sha256:61863ba2ffc8d1d5cab8845fdbdf6c8aed50ef9a7068ab589ba722ca1f5d6c0c",
+      "summary": "Unit and integration proof covers catalog parity across discovery domains, progressive exposure, duplicate-name refusal, UTF-8 byte storage limits and eviction, JSON Pointer traversal, complete draft evidence, read-effect isolation, and a dishonest workflow blocked before its attempted save. It also covers canonical composition, escrow preservation, stale refusal, one-save apply, post-save verification, and a fake-provider rename journey through the real Studio store. Live terminal verification remains required before the milestone is called shippable.",
+      "topics": [
+        "unit integration proof",
+        "result and draft proof",
+        "read-effect isolation",
+        "stale one-save verify",
+        "fake-provider journey",
+        "live terminal required"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

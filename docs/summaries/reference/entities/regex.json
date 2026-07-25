@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/regex",
+  "sourcePath": "docs/reference/entities/regex.md",
+  "sourceHash": "sha256:9f651e2d9a54ad51e1c3589195d4d5f9230ca3f19c96da6bf388268f6f6cf9ef",
+  "summary": "Canonical field reference for CanonicalRegexSet: CanonicalEntity of kind regex around RegexSetBody, the superset union of real find/replace-script formats. src/entities/regex/schema.ts owns the types; this page owns what each field means and which formats produce it. A set is a named ordered rule collection mapping to ST standalone or card bundle, RC script, Lumi folder or pack slice, Risu card or module list, or Marinara collection, stored under studio/regex id json. A rule is data applied as budgeted String.replace never eval; engine and editor concepts live on sibling pages. How to read the field tables explains generated docs-fields embedding and Field Type Producers Meaning columns. Composition frames RegexSetBody as small name description enabled rules, with nearly all surface on flat RegexRule identity content placement and vaud-engine-only controls plus nested RegexRuleCondition. The set table covers name description enabled and rules. The rule table stores find and flags separately, documents all 21 fields, and nests Rule chaining for condition ruleId matched. The character-card twin is CharacterRegexScript for Risu customScripts, re-exported as character RegexScript without full RegexRule alias. What rides escrow, not a field covers original format raw versus rule-level extras, and firstMatchOnly condition overlay as first-class non-escrow engine fields. See also links architecture character regex-engine regex-editor and formats README.",
+  "topics": [
+    "CanonicalRegexSet entity",
+    "RegexSetBody rules",
+    "RegexRule 21 fields",
+    "find flags separate",
+    "vaud-engine-only controls",
+    "CharacterRegexScript twin",
+    "extras escrow bag",
+    "condition rule chaining",
+    "docs-fields generated tables",
+    "studio/regex storage"
+  ],
+  "sections": [
+    {
+      "slug": "how-to-read-the-field-tables",
+      "title": "How to read the field tables",
+      "level": 2,
+      "sourceHash": "sha256:921ebf7045bcab7a01fa7a83ad875968262c5e1007b664b2db649cd55027a570",
+      "summary": "Field tables are generated from the schema by scripts/docs-fields.ts and embedded verbatim; do not hand-edit cells, improve the schema doc comment and regenerate so docs follow. Field is the canonical name with trailing question mark for optional. Type is the TypeScript type in the schema. Producers are source formats named in the field schema doc comment; a dash means no specific producer tagged, covering universal core fields such as id label find flags replace phases enabled sortOrder or provenance described only in surrounding prose. Meaning is purpose; blank Meaning is a self-evident primitive without schema annotation, while non-obvious fields pull meaning from the schema comment. Richer explanation lives in prose around a table never inside a cell.",
+      "topics": [
+        "docs-fields generated tables",
+        "Field Type Producers Meaning",
+        "no hand-edit cells",
+        "dash producer core",
+        "blank Meaning primitive"
+      ],
+      "children": []
+    },
+    {
+      "slug": "composition",
+      "title": "Composition",
+      "level": 2,
+      "sourceHash": "sha256:fba14a638b4f54affea6d82e6d734ce7699a1b2470f6bda2cb673007b621e205",
+      "summary": "RegexSetBody is small: name, optional description, set-level enabled switch, and ordered rules list. Nearly all entity surface lives inside RegexRule, a flat interface whose 21 fields still group as three concerns: identity and content for what the rule is and does, placement for when and where it runs in the pipeline, and vaud-engine-only controls for behavior no wire format can carry. RegexRuleCondition is the small nested shape used by the single condition field. The composition figure and following sections walk each shape; every field table is pasted verbatim from docs/generated/fields.regex.md.",
+      "topics": [
+        "RegexSetBody small shell",
+        "RegexRule three concerns",
+        "identity placement engine",
+        "RegexRuleCondition nested",
+        "fields.regex.md tables"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-set",
+      "title": "The set",
+      "level": 2,
+      "sourceHash": "sha256:95a8991246d78b8565e8fbcade6b17dce87a90ab55e48f03b534ed626f6cd600",
+      "summary": "RegexSetBody is the top-level shape: the set name and description, its on/off switch, and the rule list. name and description are unannotated string primitives with empty Meaning cells. enabled is optional boolean set-level on/off matching the Library shelf enable switch and the lorebook enabled precedent; absent means on, always read as enabled not equal false; an off set skips export the way an off lorebook does; additive and optional so the risu character codec and in-flight set editor stay compatible without breaking older writers. rules is the ordered RegexRule array that holds nearly all of the entity surface.",
+      "topics": [
+        "RegexSetBody name rules",
+        "enabled absent means on",
+        "off set skips export",
+        "lorebook enabled precedent"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-rule",
+      "title": "The rule",
+      "level": 2,
+      "sourceHash": "sha256:4200ed9edb05c6e5a8a62fd0a4c70ee8683ef65e0dcd490a77959f94badea8f5",
+      "summary": "find and flags store separately as Risu RC Lumi encoding; the SillyTavern codec folds and unfolds its single slash pattern flags wire string. flags are stored verbatim including Risu extension tokens such as gu cbs never stripped except at compile time. Reading the table: id through trimStrings is identity and content; phases through characterIds is placement; firstMatchOnly through overlay are three vaud-engine-only controls; enabled and sortOrder are membership state; extras is the escrow bag. Key fields include stable id, bare find without delimiters, default g flags, useFlags for Risu ableFlag, replace that may carry groups match sugar CBS or HTML rendered only via SealedHtmlPreview, trimStrings, phases, Lumiverse targets, substituteFind, min and max depth, runOnEdit, Marinara characterIds, firstMatchOnly condition overlay as engine-only with travel lint under every lens, and extras for per-platform leftovers. Rule chaining nests under condition: earlier-rule gate with ruleId and matched, one pass sortOrder never forward reference.",
+      "topics": [
+        "find flags separate storage",
+        "identity placement engine fields",
+        "firstMatchOnly condition overlay",
+        "extras escrow leftovers",
+        "Rule chaining condition",
+        "trimStrings phases depth"
+      ],
+      "children": [
+        {
+          "slug": "rule-chaining",
+          "title": "Rule chaining",
+          "level": 3,
+          "sourceHash": "sha256:ca88a8776c992b385517f6e50d1c634f0ac2727c5ac76eacc1994df074f8ba6c",
+          "summary": "condition is the only field that uses a nested shape. It chains a rule firing on whether an earlier rule in the same set did or did not apply on the same pass: one pass, sortOrder order, never a forward reference. A ruleId naming a rule that has not run yet or does not exist skips the carrying rule with an honest trace reason instead of guessing. Nested fields are ruleId string and matched boolean.",
+          "topics": [
+            "condition earlier rule",
+            "one pass sortOrder",
+            "no forward reference",
+            "ruleId matched fields",
+            "skip honest trace"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "the-character-card-twin",
+      "title": "The character-card twin",
+      "level": 2,
+      "sourceHash": "sha256:d67bd9cab6c84f0529f8bedf148da47b7c0977e704f9911211e538e5dfb1c456",
+      "summary": "CharacterRegexScript in the same schema file is the narrow card-embedded Risu customScripts shape: singular phase instead of phases, and no id enabled or sortOrder because the card wire has none. entities/character/schema.ts re-exports this type as its own RegexScript so there is one definition not two. It is deliberately not RegexRule itself: a full alias would change CharacterBehavior.regexScripts wire contract and break the Risu codec round-trip. It stays the small card-embedded twin until a real migration replaces customScripts with references to standalone regex entities. See character entity CharacterBehavior. Fields: optional label, find, replace, phase as open pipeline string union, optional flags and useFlags for Risu flag and ableFlag.",
+      "topics": [
+        "CharacterRegexScript card",
+        "singular phase no id",
+        "re-export RegexScript",
+        "not full RegexRule alias",
+        "Risu customScripts shape"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-rides-escrow-not-a-field",
+      "title": "What rides escrow, not a field",
+      "level": 2,
+      "sourceHash": "sha256:6be468f84a9ae0911af21e1ab770d29e31c4ce59b8fbc5dd4c3b673c2ab5a94b",
+      "summary": "Anything a single source format keeps but no canonical field expresses stays in escrow formatId raw and survives same-format round-trip byte-for-byte under the shared entity doctrine. For SillyTavern this is original sillytavern-regex raw script rows for exact re-projection. A second finer-grained mechanism is rule-level extras: a canonical RegexRule field sealing per-platform leftovers with no first-class slot such as Lumi telemetry scope script_id or ST id uuid, re-merged untouched on export at row grain so edited or reordered rules keep their own leftovers rather than whole-file original replay. Does not ride escrow because modeled: firstMatchOnly condition and overlay have no wire home on any platform and travel-lint marks all three under every lens, but they are first-class canonical fields the Workbench can set and applyRules executes; export emits nothing for them on formats that cannot carry them.",
+      "topics": [
+        "escrow original raw",
+        "sillytavern-regex rows",
+        "extras row-grain bag",
+        "firstMatchOnly not escrow",
+        "condition overlay engine",
+        "export emits nothing"
+      ],
+      "children": []
+    },
+    {
+      "slug": "see-also",
+      "title": "See also",
+      "level": 2,
+      "sourceHash": "sha256:37e205488d43a3719ba76129d7f194b9c0223eaf236ccca0b77eb369394ae3d3",
+      "summary": "Related authorities: architecture for canonical model escrow hub-and-spoke and adapter contract; character entity for CharacterBehavior.regexScripts and the RegexScript card twin defined here; regex-engine for how a set runs applyRules AST travel-lint; regex-editor for Workbench authoring three modes and test bench; formats README for coverage matrix of every format and fields it produces.",
+      "topics": [
+        "architecture escrow",
+        "character regexScripts",
+        "regex-engine applyRules",
+        "regex-editor Workbench",
+        "formats coverage matrix"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

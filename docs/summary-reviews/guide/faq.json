@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/faq",
+  "sourcePath": "docs/guide/faq.md",
+  "sourceHash": "sha256:a0052845dd33b1430a7650ba6d60d6ec69d8652677e78eec9a4c597386f5001d",
+  "semanticSummaryHash": "sha256:2fc6b76cb25b9a7d312daa9c63551eb5ab45675b24f11aef3ab960c6cc02ccca",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:23.614Z"
+}

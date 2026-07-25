@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "docId": "ROADMAP",
+  "sourcePath": "docs/ROADMAP.md",
+  "sourceHash": "sha256:255089237cfb6b49e4ee3290f7eba4ed676cd6c38a5997c340eceeaba4ce4194",
+  "summary": "Product roadmap authority: milestones are strictly ordered and DONE only when every exit criterion passes live in a real install, not when tickets close. Status as of 2026-07-09: M0 Foundation and M1 Converter jewels DONE at v0.1; character-card forge CLOSED; Media jewel largely landed; Lorebook studio jewel planned next; Risu Workshop jewel DONE; Studio usable ahead of formal M6 packaging. Character-card forge closed platforms include SillyTavern Default CCv3, RoleCall, Backyard, Agnai, Pygmalion, Lumiverse, Marinara schema, Chub, Risu Workshop; Character.AI dropped, Crushon skipped, Janitor thin defer, NovelAI not a character jewel. Studio content types table tracks character, media, lorebook, sprite pack, and regex/persona/preset status. Numbered milestones: M0 and M1 jewel done; M2 Brain, M3 Script Doctor, M4 Table Read, and M7 Archives not started; M5 Test Stage partial with sealed Test Bench but productions open; M6 Studio ahead of plan and usable but packaging not formal DONE. What now recommends content-type editors, sprites media, NovelAI lorebook, M3, M2, packaging polish, then M6 packaging; do not reopen C.AI or Crushon native bags. Ground truth is this file plus M0 and M1 jewel docs.",
+  "topics": [
+    "milestone exit criteria live",
+    "M0 M1 jewel done",
+    "character card forge closed",
+    "content types lorebook media",
+    "M2 Brain not started",
+    "M3 Script Doctor",
+    "M5 partial M6 ahead",
+    "recommended order next",
+    "no reopen C.AI Crushon",
+    "Risu Workshop done"
+  ],
+  "sections": [
+    {
+      "slug": "character-card-forge-workstream-not-a-numbered-m",
+      "title": "Character-card forge (workstream, not a numbered M)",
+      "level": 2,
+      "sourceHash": "sha256:6c3f32da286e93b2afe7619b33278c9cb177de8b61a38102c2d92215e0879b3f",
+      "summary": "Closed workstream, not a numbered milestone. Platform statuses: SillyTavern Default CCv3 done; RoleCall done; Backyard done with .byaf lens and legacy JSON export-only; Agnai jewel accepted; Pygmalion done adapter and export only with no lens tab; Lumiverse jewel accepted; Marinara native schema landed; Chub jewel accepted; Risu Workshop jewel done on approved bar; Character.AI dropped for no export or locked definition; Crushon skipped emit Default CCv3 only no strip tab; Janitor thin defer prefer ST Default CCv3 no strip tab; Default lens is one strip tab for portable CCv3 thin-host interop; NovelAI is not a character-card jewel, lorebook and scenario later. Exit met: open edit re-export real cards for every host with a portable shape; thin hosts use Default CCv3; dropped hosts named honestly. Historical note: full lore and regex editors were listed here while forge closed; Media jewel has since landed; Lorebook studio authoring is the next content-type jewel with codecs already present and editor plus attach as the remaining gap.",
+      "topics": [
+        "character forge closed",
+        "Default CCv3 thin hosts",
+        "Character.AI dropped",
+        "Crushon skipped",
+        "Risu Workshop jewel done",
+        "next lorebook studio",
+        "platform jewel statuses"
+      ],
+      "children": []
+    },
+    {
+      "slug": "studio-content-types-after-character-forge",
+      "title": "Studio content types (after character forge)",
+      "level": 2,
+      "sourceHash": "sha256:f161ffe8f10107bc6820f746ccc872cf156a929258c33aa3f718bdbf91962e11",
+      "summary": "Tracks content types after character forge. Character codecs and editor jewel closed, shipped. Media face pack named codecs done and jewel largely landed, shipped. Lorebook codecs done for ST RC Agnai Risu NAI and character_book; full binder editor shipped. Sprite pack entity is hub pack model with Library pack folder under MEDIA, pack entity landed. Regex persona preset codecs done; editors shipped; preset codecs in progress. Lore locked decisions: one RC-shaped editor; Write for equals single host profile with no multi-select lens; knowledgeRefs attach; no per-platform full editors; M5 activation engine is separate. Lore jewel bar requires open edit save book, new book, attach to character, export re-embeds, honesty, and no empty native lore boxes.",
+      "topics": [
+        "character media lorebook shipped",
+        "sprite pack entity",
+        "regex persona preset progress",
+        "Write for single host",
+        "lore jewel bar",
+        "knowledgeRefs attach"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m0---foundation",
+      "title": "M0 - Foundation",
+      "level": 2,
+      "sourceHash": "sha256:346850dd4f3cdec824cdf6c9e5ec6f7a89284714623211615e58f1ae4e927ca3",
+      "summary": "Foundation milestone: repo scaffold with Bun workspace, CI, lint, LICENSE and CLA bot; fixture corpus seeded with at least forty real files across formats; packages/core canonical schemas; escrow envelope; PNG chunk codec; Round-Trip Law harness in CI. Code reality notes engine fixtures and round-trip culture live under src/ as monorepo shape evolved past pure packages; treat effectively green when tsc, bun test, and color and line scans pass. Exit requires bun test green under Bun and Node; a V2 PNG card parses to canonical and round-trips at declared fidelity; CI blocks a deliberately broken round-trip and a deliberately added AGPL dependency. Status: JEWEL DONE as of 2026-07-09.",
+      "topics": [
+        "M0 foundation jewel done",
+        "fixture corpus Round-Trip Law",
+        "escrow PNG codec",
+        "CI blocks AGPL",
+        "src monorepo reality"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m1---the-converter-v01-first-public-release",
+      "title": "M1 - The Converter (v0.1, first public release)",
+      "level": 2,
+      "sourceHash": "sha256:4fa480f80ec8a910cf3fae935e77d3320c5ca222bd7c9d2956d90a68ac1e90e7",
+      "summary": "First public converter release scope: all codecs for V2 V3 JSON PNG, charx, Backyard, ST worldbook, RC lorebook, ST preset, Lumiverse preset, personas, regex scripts; content-type detection; vaud convert inspect validate import --bundle export --all-formats; honest conversion reports; single-exe builds checksums and vaud upgrade; README and auto-generated format-support matrix. Code reality: strong ST Risu BYAF Agnai Pygmalion Lumi paths exist; CLI public packaging and full matrix were formal exit items; Studio convert export dialog covers most M1 intent. Exit: mixed ZIP from five platforms converts both ways with zero same-format data loss; binaries on win mac linux; stranger converts a card from GitHub in under three minutes. Status: JEWEL DONE 2026-07-09 for convert inspect validate formats multi-platform smoke matrix and CLI compile; GitHub multi-OS Releases and vaud upgrade remain packaging polish not jewel blockers.",
+      "topics": [
+        "M1 converter jewel done",
+        "vaud convert inspect validate",
+        "honest conversion reports",
+        "format-support matrix",
+        "packaging polish remaining",
+        "v0.1 first public"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m2---the-brain",
+      "title": "M2 - The Brain",
+      "level": 2,
+      "sourceHash": "sha256:2513afbb760ab0c4c4ad6073e67846cc91090d41c763b045f3390a2beed5e5fb",
+      "summary": "Planned agent milestone, NOT STARTED. packages/ai for providers, streaming, weak-model tool fallback, and key vault built on the Vercel AI SDK without a forked agent base. packages/agent for loop, resource tools over vaud://, spill store, staged edits, and personas implementing ADR-006 as product code. Includes vaud bare REPL and agent eval harness with golden tasks. Exit: REPL performs a staged multi-file edit on a production via a frontier model and via a local 7-8B model; eval harness reports success-rate and tokens-per-task for both. Product still treats BYOK as optional later; convert works offline.",
+      "topics": [
+        "M2 Brain not started",
+        "Vercel AI SDK",
+        "ADR-006 agent constraints",
+        "vaud REPL",
+        "eval harness golden tasks",
+        "weak model 7-8B"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m3---the-script-doctor-v02",
+      "title": "M3 - The Script Doctor (v0.2)",
+      "level": 2,
+      "sourceHash": "sha256:c0b7e328591f1554e07ebcb8eae4328e43682046a61194da016b25973e5c432e",
+      "summary": "Planned Script Doctor milestone, NOT STARTED though specs exist under specs/features/. Scope includes deterministic passes for format errors, token waste, contradiction candidates, slop banks, speaks-for-user, and W++ relics; health score; AI treatment planner with fix-by-fix staged approval; vaud doctor plus batch mode and markdown ward reports. Exit: doctor a known-bad public card to health at least 85 with every fix approved individually; deterministic pass runs with no key configured.",
+      "topics": [
+        "M3 Script Doctor not started",
+        "deterministic audit passes",
+        "health score 85",
+        "staged AI treatment",
+        "vaud doctor batch",
+        "specs features"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "m4---the-table-read-v03",
+      "title": "M4 - The Table Read (v0.3)",
+      "level": 2,
+      "sourceHash": "sha256:1205a187a743fe5277eb63821861c3ae14bac9cd3cd2579aed35db7501f32a7f",
+      "summary": "Planned interview milestone, NOT STARTED. Interview engine as a UI-agnostic event stream of question, chips, answer, and field-patch events; three tempos Cold Read, Deep Dive, and Rapid Fire; adaptive depth; settings; persona voices; deliverable bundles of card plus starter lorebook plus alt greetings. Exit: Cold Read produces a playable card in under five minutes in the terminal; Deep Dive produces a card that beats a hand-written baseline in a blind vibe-check by the owner.",
+      "topics": [
+        "M4 Table Read not started",
+        "Cold Read Deep Dive Rapid Fire",
+        "interview event stream",
+        "deliverable bundles",
+        "five minute Cold Read"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "m5---the-test-stage-productions-v04",
+      "title": "M5 - The Test Stage + Productions (v0.4)",
+      "level": 2,
+      "sourceHash": "sha256:0d19a3821a9ea4f3e1079304aefd798f1522d41edb3f34135e43781564613a07",
+      "summary": "Partial milestone. Planned scope: packages/assembly with full prompt trace, CLI test chat with lorebook activation readout rigging view, productions as workspace folders with manifest, content-addressed history and restore, and library mode. Code reality: Risu Workshop Test Bench runs sealed triggers and scripts as a card-local test stage; full production workspaces and assembly package still open. Exit: edit a card field, replay the same test line, watch output change; vaud history restore recovers a deleted lorebook entry. Status PARTIAL: sealed Test Bench exists; full M5 productions open.",
+      "topics": [
+        "M5 partial",
+        "Test Bench sealed",
+        "productions open",
+        "prompt assembly trace",
+        "vaud history restore",
+        "rigging view"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m6---the-studio-v05",
+      "title": "M6 - The Studio (v0.5)",
+      "level": 2,
+      "sourceHash": "sha256:274a3a95dc7165f16b342ea5ee582ea43bf2284f56a83914f1a6a47497c44cfc",
+      "summary": "Desktop app face planned as Tauri shell over the engine, originally blocked on visual-direction re-exploration while code ran ahead. Code reality: local studio shell already runs via bun run dev and desktop-dev with Workbench, Library, Press, Settings, CSS Workshop, Character Fields, Risu Workshop, and platform native bags. Revised exit: studio is the daily driver for forge and convert; formal Tauri packaging polish and public v0.5 packaging still TBD. Status AHEAD OF PLAN: in progress and usable, not formal DONE until packaging exit.",
+      "topics": [
+        "M6 Studio ahead of plan",
+        "bun run dev usable",
+        "Workbench Library Press",
+        "Tauri packaging TBD",
+        "not formal DONE"
+      ],
+      "children": []
+    },
+    {
+      "slug": "m7---the-archives-the-world-forge-v06",
+      "title": "M7 - The Archives + The World Forge (v0.6+)",
+      "level": 2,
+      "sourceHash": "sha256:0ebaa1f1cc58592e9816362a02c0e05afe9aac1b704827e642726318064e1c33",
+      "summary": "Later planned milestone, NOT STARTED. Distill-from-logs with per-claim citations and evidence review; world forge with interview-grown worlds, corkboard data model, and continuity desk as a standing Doctor pass over a whole production. Exit: distill a real character from at least twenty thousand words of logs where every field cites real scenes; continuity desk catches a planted cross-file contradiction.",
+      "topics": [
+        "M7 Archives not started",
+        "distill from logs citations",
+        "world forge corkboard",
+        "continuity desk",
+        "twenty thousand words"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-now-recommended-order",
+      "title": "What now (recommended order)",
+      "level": 2,
+      "sourceHash": "sha256:5967d724545ccd7be2c22c1109821ac0dc38a6ec527847bb4188fd23ecea4456",
+      "summary": "With M0 and M1 jewels closed and character cards closed, recommended next order is: full Lorebook and Regex content-type editors to unlock link-outs; Sprites and media milestone Manage Sprites with Lumi and Chub stubs; NovelAI lorebook adapter; M3 Script Doctor deterministic audits without a key; M2 Brain agent loop; packaging polish multi-OS GitHub Releases and vaud upgrade as optional M1 plus; M6 packaging for formal studio release when ready. Do not reopen Character.AI or Crushon native bags. Ground truth is this roadmap file plus M0 and M1 jewel docs.",
+      "topics": [
+        "recommended order",
+        "lorebook regex editors next",
+        "NovelAI lorebook adapter",
+        "M3 before M2",
+        "packaging polish",
+        "do not reopen C.AI Crushon"
+      ],
+      "children": []
+    }
+  ]
+}

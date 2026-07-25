@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/editing",
+  "sourcePath": "docs/guide/editing.md",
+  "sourceHash": "sha256:64360fedb6f55277a6fe3b1ea44e0254ec48bcbfc0c254098351d92691e40172",
+  "semanticSummaryHash": "sha256:d576284e9523c0a948d400eb0626937902ba8b0bef3e2e6185d3cd196e4fd8b1",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:23.200Z"
+}

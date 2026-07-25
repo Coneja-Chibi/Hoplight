@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/vaud-json",
+  "sourcePath": "docs/reference/formats/vaud-json.md",
+  "sourceHash": "sha256:130be9bc3b97679e7ac628d0665b322ca602b80703e2a04ffbd45248e45c0031",
+  "summary": "vaud-json is Hoplight's native format: the canonical character entity written straight to plain JSON with no wire translation. Every other adapter maps app wire shapes; this one serializes the CanonicalCharacter wrapper schemaVersion kind id body optional profiles and original and reads it back unchanged. It is the lossless local save and interchange format, the simplest registry adapter, and proof the drop-in folder pattern works end to end. One codec src formats vaud-json writes .json with native true so Press and export dialogs skip it as a publish platform while import and convert still work. Detection scores 1.0 when kind is character and schemaVersion is a string so native files always win, 0.1 for other JSON below the 0.5 threshold, and 0 for non-JSON. Field map is identity one to one with no translation table; fromCanonical is pretty-printed JSON.stringify of the whole entity. Escrow and round-trip are exact and unconditional because serialization is the entity itself; original entries from prior app imports pass through untouched. Quirks cover wrapper-only detect versus toCanonical validation, identity.name as sole body check, dead 0.1 fallback, pretty print, pure JSON media, and native exclusion from coverage. Source of truth lists adapter tests registry canonical adapter contract and UI filters.",
+  "topics": [
+    "vaud-json native character",
+    "no wire translation",
+    "detect 1.0 wrapper",
+    "DETECT_THRESHOLD 0.5",
+    "original pass-through",
+    "native skip publish",
+    "pretty JSON export",
+    "identity.name validate"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:af85f903933be5dc0e7950f89d6ddb29cfbf873354dced21c29a253c97de5855",
+      "summary": "detect parses input text as JSON then scores by whether it is already a canonical character. Score 1.0 when kind equals character and schemaVersion is a string, the highest any adapter returns so a vaud-json file always wins detection over every app format on its own output. Score 0.1 when text parses as JSON but is not a canonical character wrong kind or no string schemaVersion. Score 0 when there is no text or parse fails. Registry only returns the highest scorer above DETECT_THRESHOLD 0.5 so 0.1 can never make registry.detect return vaud-json; plain JSON that fails the 1.0 check leaves no winner. Every consumer routes through gated registry.detect so today the 0.1 score has no observable pick effect. The 1.0 case keys on the wrapper not body fields. toCanonical re-checks the wrapper and requires body.identity.name string, throwing if either is missing; detect can return 1.0 on a wrapper whose body is otherwise malformed while hard validation happens on read.",
+      "topics": [
+        "kind character 1.0",
+        "schemaVersion string",
+        "0.1 below threshold",
+        "wrapper not body",
+        "toCanonical name check"
+      ],
+      "children": []
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:8075d8aa8cf534330de5084aa661b385de64a8e61b982d8fb40dd60fb596ea0d",
+      "summary": "There is no wire translation to tabulate. On-disk JSON is the canonical entity one to one: schemaVersion kind id body profiles and original map to themselves. Every CharacterBody field the eight always-present sub-objects identity persona prompts greetings examples media attribution discovery plus optional presentation settings bias worldName knowledgeRefs behavior behaviorRefs variants is written verbatim under body. The adapter has no opinion on field meanings; see entities character for semantics. fromCanonical is JSON.stringify entity null 2 with suggested extension json. It writes the whole entity including any original and profiles the entity carries with no filtering or re-projection.",
+      "topics": [
+        "one-to-one identity map",
+        "body CharacterBody full",
+        "profiles original pass",
+        "JSON.stringify pretty",
+        "no re-projection"
+      ],
+      "children": []
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:acee691178f838d8bab620e9255a369db5f3e7e4cf0fe39110776d3377df384c",
+      "summary": "vaud-json is the one format where same-format round-trip is lossless exact and unconditional rather than reconstructed from an escrowed twin. Because it serializes the canonical entity directly, vaud-json to canonical to vaud-json returns the identical entity same body original and profiles untouched, proven by the adapter round-trip test and the registry-level round-trip test. Relationship to escrow differs from app adapters: those fill an original entry keyed by their own id on import so private fields survive same-format round-trip. vaud-json neither reads nor writes an original entry keyed to itself; it carries whatever original the entity already holds straight through because toCanonical and fromCanonical never inspect that field. A card imported from SillyTavern then saved as vaud-json keeps original.sillytavern.raw intact in the file ready to re-project if later exported back to SillyTavern.",
+      "topics": [
+        "unconditional lossless RT",
+        "entity serialize direct",
+        "no self original key",
+        "prior app original keep",
+        "sillytavern raw survive"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:eac196baae6ff51d71956fce962de86657e32c0082e6dbad7c4ffd638e090bf9",
+      "summary": "Detection is wrapper-only; validation is on read. detect can score 1.0 when body is missing or lacks identity.name; toCanonical rejects with not a canonical character for missing kind schemaVersion or malformed for missing body.identity.name. The two checks differ by design: detect is cheap recognition and toCanonical is the trust boundary. Validation stops at identity.name: after kind schemaVersion and name check out the object is cast to CanonicalCharacter without confirming the eight required body sub-objects so a hand-edited drop still passes toCanonical. The 0.1 fallback cannot win because DETECT_THRESHOLD is 0.5 and every real caller uses gated registry.detect. Exports are two-space pretty JSON human-readable not minified. Pure JSON has no PNG or zip container; media rides as canonical media encodes it. native keeps it off Press export publish lists and the coverage API which requires coverage and not native so vaud-json never appears there while convert and Workbench editing still work.",
+      "topics": [
+        "detect vs toCanonical",
+        "name-only body check",
+        "0.1 never wins",
+        "pretty print export",
+        "native hide publish",
+        "coverage API skip"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:83f601f9a6e41c5692331ca2b942a7db2dcd35b131b2dec4831931f6ad9aa2a3",
+      "summary": "Source of truth maps concerns to files. Adapter detect toCanonical fromCanonical is formats vaud-json index.ts with adapter tests in vaud-json.test.ts covering round-trip and the two throw messages. Registry detection threshold DETECT_THRESHOLD and gated detect live in core registry.ts. Canonical wrapper escrow original and id policy are core canonical.ts. Adapter contract fields native coverage and lens are core adapter.ts. CharacterBody superset of eight required and optional slots is entities character schema.ts. Publish-surface filtering that excludes native adapters is press-core export-dialog and the setup publish step. Generated format matrix row for this format is docs FORMAT-SUPPORT.md.",
+      "topics": [
+        "vaud-json index.ts",
+        "registry threshold",
+        "canonical adapter contract",
+        "native UI filters",
+        "FORMAT-SUPPORT matrix"
+      ],
+      "children": []
+    }
+  ]
+}

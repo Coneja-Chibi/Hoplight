@@ -26,6 +26,12 @@ test("a confirmed write pauses in GatePrompt before the session continues", asyn
           level: "caution",
           reason: "creates or updates a piece",
         },
+        review: {
+          draftId: "draft-1",
+          target: { kind: "character", id: "aphrodite" },
+          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
+          warningCount: 0,
+        },
       });
       choice = picked.type;
       gate!.onChoice?.(picked, "change_apply");
@@ -53,8 +59,13 @@ test("a confirmed write pauses in GatePrompt before the session continues", asyn
     await rendered.mockInput.typeText("apply it");
     rendered.mockInput.pressEnter();
     await tick();
-    expect(rendered.captureCharFrame()).toContain("GATE");
-    expect(rendered.captureCharFrame()).toContain("change_apply draft-1");
+    expect(rendered.captureCharFrame()).toContain("REVIEW CHANGE");
+    expect(rendered.captureCharFrame()).toContain("character / aphrodite");
+    expect(rendered.captureCharFrame()).toContain("name");
+    expect(rendered.captureCharFrame()).toContain("Aphrodite");
+    expect(rendered.captureCharFrame()).toContain("Dite");
+    expect(rendered.captureCharFrame()).toContain("Apply & save");
+    expect(rendered.captureCharFrame()).toContain("Discard");
     expect(choice).toBe("");
     rendered.mockInput.pressKey("y");
     await tick();

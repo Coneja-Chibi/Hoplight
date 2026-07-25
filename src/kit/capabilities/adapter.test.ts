@@ -1,5 +1,6 @@
 /** Capability-to-HarnessTool adapter coverage. */
 import { expect, test } from "bun:test";
+import { z } from "zod";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import { emptyLorebookBody } from "../../core/lore";
 import type { KitBridge } from "../bridge";
@@ -11,6 +12,7 @@ import type { CanonicalPack } from "../../entities/pack/schema";
 import { createChangeSession } from "../changes/session";
 import { discoverCapabilities } from "./discover";
 import { capabilityToHarnessTool } from "./adapter";
+import type { ContentCapability } from "../../entities/capabilities";
 
 test("capabilityToHarnessTool reads the target and creates a typed draft preview", async () => {
   const original = {
@@ -42,8 +44,68 @@ test("capabilityToHarnessTool reads the target and creates a typed draft preview
   }, { bridge });
 
   expect(result.summary).toBe("draft lorebook.entries.update: 1 change");
+  expect(result).toMatchObject({
+    review: {
+      draftId: "draft-1",
+      target: { kind: "lorebook", id: "world" },
+      changes: [{ label: "entry-1: title", before: "", after: "Dragon" }],
+      warningCount: 0,
+    },
+  });
   expect(result.output).toContain('"draftId":"draft-1"');
   expect(result.output).toContain('"after":"Dragon"');
+});
+
+test("read-effect capabilities return observations without creating drafts", async () => {
+  const original = {
+    schemaVersion: CANONICAL_SCHEMA_VERSION,
+    kind: "lorebook" as const,
+    id: "world",
+    body: emptyLorebookBody("World"),
+  };
+  const bridge: KitBridge = {
+    studioDir: "/fake",
+    async deckCounts() { return []; },
+    async list() { return []; },
+    async read() { return original; },
+    async save() { throw new Error("read capability must not save"); },
+    async delete() { return false; },
+  };
+  const capability: ContentCapability<{ target: { id: string } }> = {
+    id: "lorebook.health.inspect",
+    kind: "lorebook",
+    area: "health",
+    action: "inspect",
+    summary: "Inspect lorebook health.",
+    aliases: ["diagnose lore"],
+    platforms: "canonical",
+    exposure: "deferred",
+    effect: "read",
+    input: z.object({ target: z.object({ id: z.string() }) }),
+    concurrencyKey: ({ target }) => `lorebook/${target.id}`,
+    preview(entity) {
+      return {
+        entity,
+        changes: [],
+        warnings: ["one deterministic warning"],
+        platformImpact: [],
+        observation: {
+          entryCount: (entity.body as { entries: readonly unknown[] }).entries.length,
+        },
+      };
+    },
+  };
+  const changes = createChangeSession();
+  const tool = capabilityToHarnessTool(capability, changes);
+  const result = await tool.execute({ target: { id: "world" } }, { bridge });
+
+  expect(tool.effect).toBe("read");
+  expect(result.outcome).toBeUndefined();
+  expect(JSON.parse(result.output)).toMatchObject({
+    observation: { entryCount: 1 },
+    warnings: ["one deterministic warning"],
+  });
+  expect(changes.list()).toEqual([]);
 });
 
 test("character discovery tools compose a variant-aware Kit draft without saving", async () => {

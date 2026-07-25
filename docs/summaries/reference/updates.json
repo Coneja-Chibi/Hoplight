@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/updates",
+  "sourcePath": "docs/reference/updates.md",
+  "sourceHash": "sha256:f499785b3c49b53560afc7c400be17e684c856d379df3df861c42b27b01b6f2a",
+  "summary": "Developer authority for Settings Updates: a newest-first version timeline from each release commit log and a one-button switch that updates or rolls back. Reads GitHub only when the page opens or a button is pressed; nothing runs on its own. The timeline is read-only and live-proven: fixed GitHub URL releases fetch with cache and ETag, pure version-history parsing from fenced commits blocks only, and compareVersions so bare versions match v-prefixed tags. The switch is built and unit-proven while the full apply path is not yet live-provable: host-only POST validates real release tags single-flight returns 202 with status poll; source checkout refuses dirty tracked trees names files restores prior ref on failure; installed build downloads allowlisted asset verifies SHA256SUMS and stages without auto-swapping the running executable. Restart-outcome marker confirms next boot via pending endpoint. Rollback safety refuses storage-shape schema bumps via classifyDataChange SCHEMA_BUMPS and a storage-shape tripwire hash; studio data folder is never touched by a switch.",
+  "topics": [
+    "Settings Updates timeline",
+    "GitHub releases cache ETag",
+    "switch update or rollback",
+    "source checkout dirty refuse",
+    "packaged download SHA256SUMS",
+    "pending restart marker",
+    "schema bump rollback refuse",
+    "studio folder never touched"
+  ],
+  "sections": [
+    {
+      "slug": "the-timeline-read-only-live-proven",
+      "title": "The timeline (read-only, live-proven)",
+      "level": 2,
+      "sourceHash": "sha256:346546e7eba5dc96175c5f5556f686911b4ef2d694af000a118e9d35e2f9ff8e",
+      "summary": "GET /api/updates/releases fetches the repo releases from a fixed GitHub URL with no caller input in host or path so SSRF is out of scope. Five-minute in-memory cache plus ETag prevents burning unauthenticated hourly limits; 403 or 429 answers with try again in N min from server-updates. Pure core version-history.ts parses the payload into the timeline. Commit data comes only from a fenced commits block each release ships emitted by the release workflow as shorthash subject lines; a release without the block renders commit log unavailable never a guess from install-guide prose. Every version comparison goes through compareVersions so the bare running version still matches its v-prefixed tag.",
+      "topics": [
+        "fixed GitHub URL SSRF",
+        "cache ETag rate limit",
+        "fenced commits block only",
+        "compareVersions bare tags"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-switch-built-unit-proven-the-apply-path-is-not-yet-live-provable",
+      "title": "The switch (built + unit-proven; the apply path is not yet live-provable)",
+      "level": 2,
+      "sourceHash": "sha256:38b3222e4fdfad3ea14ececa2246922690e21cdfaf9c8b645a58dce3096c5067",
+      "summary": "POST /api/updates/switch is host-only refused to remote or LAN devices, validates a real release tag blocking force-shaped values before git argv, refuses current version, starts one switch behind single-flight lock, and returns 202 while the client polls switch-status. Source checkout refuses a dirty tracked tree and names files never stashes work, captures prior ref, checks out the tag, reinstalls, and relaunches; on failure restores prior ref and reinstalls. Installed build downloads the matching asset over https with GitHub-host allowlist on URL and every redirect hop plus size cap, verifies SHA256SUMS, stages and opens the folder, but does not swap the running executable because auto-swap can brick and is deferred. Restart-outcome marker is written before source relaunch so next boot confirms via GET pending which clears on read. Older rollbacks cannot show the popup so confirm becomes the receipt. Guard rails and timeline are live-proven; full apply is unit-tested not yet live-provable until shipped.",
+      "topics": [
+        "host-only single-flight 202",
+        "source dirty tree restore",
+        "packaged verify stage no swap",
+        "pending-switch marker",
+        "live vs unit proven apply"
+      ],
+      "children": []
+    },
+    {
+      "slug": "rollback-safety",
+      "title": "Rollback safety",
+      "level": 2,
+      "sourceHash": "sha256:a35a4d30b9a04f076e62134b36721288f79fadf3e94d283ff4f5c0fcf180f11c",
+      "summary": "A rollback that crosses a release which changed how the studio is stored is refused by classifyDataChange and SCHEMA_BUMPS in switch-decision. SCHEMA_BUMPS is empty today because CANONICAL_SCHEMA_VERSION has never moved so no rollback is refused yet but the guard fails closed the day one lands. A storage-shape tripwire test pins a hash of the files that define on-disk shape so a storage change cannot ship without a deliberate schema bump or SCHEMA_BUMPS entry. The studio folder with pieces settings and keys is never touched by a switch; only the program changes.",
+      "topics": [
+        "classifyDataChange refuse",
+        "SCHEMA_BUMPS empty today",
+        "storage-shape tripwire hash",
+        "studio data never touched"
+      ],
+      "children": []
+    }
+  ]
+}

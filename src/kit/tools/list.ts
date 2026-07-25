@@ -16,7 +16,7 @@ const input = z.object({
 });
 
 const list: HarnessTool<z.infer<typeof input>> = {
-  name: "list",
+  name: "studio_list",
   description: "List the pieces in the studio. Give a kind to list one deck, or omit it to list everything.",
   exposure: "direct",
   effect: "read",

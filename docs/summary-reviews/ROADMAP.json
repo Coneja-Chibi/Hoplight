@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "ROADMAP",
+  "sourcePath": "docs/ROADMAP.md",
+  "sourceHash": "sha256:255089237cfb6b49e4ee3290f7eba4ed676cd6c38a5997c340eceeaba4ce4194",
+  "semanticSummaryHash": "sha256:b18eb2cefc9905b0778b34ffa03d0427c63fbe4f307547f675704ce27b35fbf7",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:55.196Z"
+}

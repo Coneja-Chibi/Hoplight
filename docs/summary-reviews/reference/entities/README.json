@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/README",
+  "sourcePath": "docs/reference/entities/README.md",
+  "sourceHash": "sha256:25d7f39501b62fbb7ae24a5c646235b1ee497362b9186c71dca16b9e9e575e5b",
+  "semanticSummaryHash": "sha256:2af6c201dcf4e18dac53dae157863b94f6648eb5cbf05d5b47c63bd84fcd367e",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:29.876Z"
+}

@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/README",
+  "sourcePath": "docs/guide/README.md",
+  "sourceHash": "sha256:d6329fe0da58769f2470641fdfea81c5ec516c8441cdeb4e647c9f75956f0685",
+  "summary": "User guide index for Hoplight, the forge for AI-roleplay content to convert edit and ship any format. Pages walk through using the app itself as opposed to formats or internals in the reference docs. New users start with setup and first import; other pages can be read in task order. The rooms section maps Dock rooms: Workbench for editing as home after first boot, Library for browsing six decks and import door, Press for shipping a staged queue to one target platform, CSS Workshop for token restyling, The Company not open yet as a dimmed tile, and Settings pinned in the dock foot for theme accent home app first deck publish targets and Workbench follow. The pages table links getting-started, importing, library browse, editing, personas, lorebooks, regex, converting, and exporting. Platform notes list per-platform guides for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern covering what is read kept and dropped; read Convert a card first for the general rule.",
+  "topics": [
+    "user guide index",
+    "Dock rooms map",
+    "Workbench Library Press",
+    "CSS Workshop Settings",
+    "guide pages list",
+    "platform notes",
+    "convert edit ship",
+    "not reference docs"
+  ],
+  "sections": [
+    {
+      "slug": "the-rooms",
+      "title": "The rooms",
+      "level": 2,
+      "sourceHash": "sha256:33cd00daae4d1b9d601f2167a1a996990e8fe1a3e156783e7aa75c1c58786612",
+      "summary": "Fast map of rooms behind one dock; getting-started covers the dock in full. Workbench is editing where every kind of piece opens as a tab and is home for every boot after the first or last location. Library is browsing with six decks, deck chips with live counts, view modes, and the import door. Press ships out only a staged queue: stage a piece, pick one target platform, run the press, download the bundle. CSS Workshop restyles the studio by repainting tokens. The Company is not open yet as a dimmed tile below the divider. Settings is pinned in the dock foot for theme, accent, home app, first deck, publish targets, and Workbench follow behavior.",
+      "topics": [
+        "Workbench home editing",
+        "Library six decks",
+        "Press staged queue",
+        "CSS Workshop tokens",
+        "Company not open",
+        "Settings dock foot"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-pages",
+      "title": "The pages",
+      "level": 2,
+      "sourceHash": "sha256:242f9560e6315a910a89e30f4d4a886c34c147c586d40ce1ead2a646953ff14a",
+      "summary": "Index of task guide pages. Get started is the start-here page for install, four-question setup wizard, and first import. Import a file brings card lorebook persona or regex into the Library with a receipt before write. Browse the Library covers deck filter, Grid Show List, and staging for Workbench. Edit a piece covers Workbench Grid or Steps and saving draft. Personas covers identity sections or flat text and inject location. Lorebooks covers entries keywords and prompt placement. Regex covers find-replace rules order and check before save. Convert a card covers cross-format shipping and what crosses or stays. Export a piece covers editor Export or Press batch.",
+      "topics": [
+        "getting-started first",
+        "import library receipt",
+        "edit Workbench",
+        "personas lorebooks regex",
+        "convert export"
+      ],
+      "children": []
+    },
+    {
+      "slug": "platform-notes",
+      "title": "Platform notes",
+      "level": 2,
+      "sourceHash": "sha256:2a51e7f04237b724cc485252b974ea64923b87b160b0de5d0f0697b696dce592",
+      "summary": "Every supported platform has its own page describing what Hoplight reads, what comes across cleanly, and what is dropped on purpose when converting to a different app. Read Convert a card first for the general rule, then platform pages for detail. Agnai covers character JSON and memory books. Backyard covers older flat JSON export and modern .byaf archive. Chub covers character cards and lorebooks. Lumiverse covers cards expression archives personas and regex. Marinara covers regex and personas. NovelAI covers lorebooks. Pygmalion covers classic flat character JSON. RisuAI covers .charx cards lorebooks and regex. RoleCall covers character cards and lorebooks. SillyTavern covers character cards and worldbooks.",
+      "topics": [
+        "per platform guides",
+        "read convert first",
+        "Agnai Backyard Chub",
+        "Lumiverse Marinara NovelAI",
+        "Risu RoleCall SillyTavern",
+        "what drops on purpose"
+      ],
+      "children": []
+    }
+  ]
+}

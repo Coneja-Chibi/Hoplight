@@ -51,7 +51,6 @@ test("ReAct: calls a tool, observes the result, then answers", async () => {
   ]);
   const { events, history } = await drain(runTurn("how many?", [], deps(chat)));
   expect(events).toEqual([
-    { type: "say", text: "let me look" },
     { type: "tool-start", name: "list" },
     { type: "state", phase: "reading" },
     { type: "tool", name: "list", summary: "list ok" },
@@ -110,6 +109,230 @@ test("a discarded draft emits a discarded terminal receipt", async () => {
   })));
   expect(events).toContainEqual({ type: "state", phase: "discarded" });
   expect(events.at(-1)).toEqual({ type: "say", text: "discarded" });
+});
+
+test("a reviewable draft turns final model prose into application-owned review", async () => {
+  let chatCalls = 0;
+  const calls: ModelToolCall[] = [];
+  const chat: ChatFn = async () => {
+    chatCalls += 1;
+    return chatCalls === 1
+      ? {
+          kind: "use",
+          text: "",
+          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
+        }
+      : { kind: "say", text: "Would you like me to apply this change?" };
+  };
+  const { events, history } = await drain(runTurn("rename her", [], deps(chat, {
+    effectFor: (call) => call.name === "change_apply" ? "apply" : "draft",
+    dispatch: async (call) => {
+      calls.push(call);
+      if (call.name === "change_apply") {
+        return {
+          summary: "apply draft-1: applied",
+          output: '{"status":"applied"}',
+          outcome: "applied",
+        };
+      }
+      return {
+        summary: "draft character.identity.update: 1 change",
+        output: '{"draftId":"draft-1"}',
+        outcome: "draft",
+        review: {
+          draftId: "draft-1",
+          target: { kind: "character", id: "aphrodite" },
+          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
+          warningCount: 0,
+        },
+      };
+    },
+  })));
+
+  expect(chatCalls).toBe(2);
+  expect(calls.map((call) => call.name)).toEqual([
+    "character_identity_update",
+    "change_apply",
+  ]);
+  expect(calls[1]?.args).toEqual({ draftId: "draft-1" });
+  expect(events).toContainEqual({ type: "tool-start", name: "change_apply" });
+  expect(events).toContainEqual({ type: "state", phase: "completed" });
+  expect(events).not.toContainEqual({
+    type: "say",
+    text: "Would you like me to apply this change?",
+  });
+  expect(history.filter((message) => message.role === "assistant").at(-1)?.toolCalls)
+    .toMatchObject([{ name: "change_apply", args: { draftId: "draft-1" } }]);
+});
+
+test("denying an automatic draft review discards it without a verbal follow-up", async () => {
+  let chatCalls = 0;
+  const calls: string[] = [];
+  const { events } = await drain(runTurn("rename her", [], deps(async () => {
+    chatCalls += 1;
+    return chatCalls === 1
+      ? {
+          kind: "use",
+          text: "",
+          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
+        }
+      : { kind: "say", text: "Would you like me to save or discard it?" };
+  }, {
+    effectFor: (call) => call.name === "change_apply"
+      ? "apply"
+      : call.name === "change_discard"
+        ? "draft"
+        : "draft",
+    dispatch: async (call) => {
+      calls.push(call.name);
+      if (call.name === "change_apply") {
+        return {
+          summary: "change_apply: blocked",
+          output: "Denied by the user.",
+          gateDecision: "denied",
+        };
+      }
+      if (call.name === "change_discard") {
+        return {
+          summary: "discard draft-1: discarded",
+          output: '{"status":"discarded"}',
+          outcome: "discarded",
+        };
+      }
+      return {
+        summary: "draft character.identity.update: 1 change",
+        output: '{"draftId":"draft-1"}',
+        outcome: "draft",
+        review: {
+          draftId: "draft-1",
+          target: { kind: "character", id: "aphrodite" },
+          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
+          warningCount: 0,
+        },
+      };
+    },
+  })));
+
+  expect(chatCalls).toBe(2);
+  expect(calls).toEqual([
+    "character_identity_update",
+    "change_apply",
+    "change_discard",
+  ]);
+  expect(events).toContainEqual({ type: "state", phase: "discarded" });
+});
+
+test("multiple draft operations compose before the single review handoff", async () => {
+  const chat = scripted([
+    {
+      kind: "use",
+      text: "",
+      calls: [{ id: "identity", name: "character_identity_update", args: {} }],
+    },
+    {
+      kind: "use",
+      text: "",
+      calls: [{ id: "prompt", name: "character_prompts_update", args: {} }],
+    },
+    { kind: "say", text: "Ready to save both changes." },
+  ]);
+  const calls: string[] = [];
+  await drain(runTurn("rename her and change the prompt", [], deps(chat, {
+    effectFor: (call) => call.name === "change_apply" ? "apply" : "draft",
+    dispatch: async (call) => {
+      calls.push(call.name);
+      if (call.name === "change_apply") {
+        return {
+          summary: "apply draft-1: applied",
+          output: '{"status":"applied"}',
+          outcome: "applied",
+        };
+      }
+      const composed = call.name === "character_prompts_update";
+      return {
+        summary: `draft ${call.name}`,
+        output: '{"draftId":"draft-1"}',
+        outcome: "draft",
+        review: {
+          draftId: "draft-1",
+          target: { kind: "character", id: "aphrodite" },
+          changes: composed
+            ? [
+                { label: "name", before: "Aphrodite", after: "Dite" },
+                { label: "system prompt", before: "Old", after: "New" },
+              ]
+            : [{ label: "name", before: "Aphrodite", after: "Dite" }],
+          warningCount: 0,
+        },
+      };
+    },
+  })));
+
+  expect(calls).toEqual([
+    "character_identity_update",
+    "character_prompts_update",
+    "change_apply",
+  ]);
+});
+
+test("denying a model-requested apply discards once instead of prompting again", async () => {
+  const chat = scripted([
+    {
+      kind: "use",
+      text: "",
+      calls: [{ id: "rename", name: "character_identity_update", args: {} }],
+    },
+    {
+      kind: "use",
+      text: "",
+      calls: [{ id: "apply", name: "change_apply", args: { draftId: "draft-1" } }],
+    },
+    { kind: "say", text: "Should I try that again?" },
+  ]);
+  const calls: string[] = [];
+  const { events } = await drain(runTurn("rename her", [], deps(chat, {
+    effectFor: (call) => call.name === "change_apply"
+      ? "apply"
+      : call.name === "change_discard"
+        ? "draft"
+        : "draft",
+    dispatch: async (call) => {
+      calls.push(call.name);
+      if (call.name === "change_apply") {
+        return {
+          summary: "change_apply: blocked",
+          output: "Denied by the user.",
+          gateDecision: "denied",
+        };
+      }
+      if (call.name === "change_discard") {
+        return {
+          summary: "discard draft-1: discarded",
+          output: '{"status":"discarded"}',
+          outcome: "discarded",
+        };
+      }
+      return {
+        summary: "draft character.identity.update: 1 change",
+        output: '{"draftId":"draft-1"}',
+        outcome: "draft",
+        review: {
+          draftId: "draft-1",
+          target: { kind: "character", id: "aphrodite" },
+          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
+          warningCount: 0,
+        },
+      };
+    },
+  })));
+
+  expect(calls).toEqual([
+    "character_identity_update",
+    "change_apply",
+    "change_discard",
+  ]);
+  expect(events).toContainEqual({ type: "state", phase: "discarded" });
+  expect(events).not.toContainEqual({ type: "say", text: "Should I try that again?" });
 });
 
 test("stops when the model calls the same tool three times", async () => {

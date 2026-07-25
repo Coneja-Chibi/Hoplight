@@ -14,18 +14,23 @@ import {
   type GateSeam,
 } from "./tools/safety/gated-dispatch";
 import { initGate } from "./tools/safety/permission-mode";
-import { createAccessResolver } from "./tools/safety/access";
+import {
+  contentCapabilityAccess,
+  createAccessResolver,
+} from "./tools/safety/access";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage } from "./providers/provider";
 import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
+import { reviewChangeDraft } from "./changes/review";
 import { createCapabilityFindTool } from "./tools/capability-find";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
-import { providerToolName } from "../entities/capabilities";
+import { createChangeQueryTool } from "./tools/change-query";
 import type { ContentCapability } from "../entities/capabilities";
 import { createHoplightDocs } from "./docs/repository";
+import { createResultStore } from "./results/store";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
  * failure). begin fires once when the provider resolves (who is about to answer); delta streams live
@@ -62,6 +67,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     discoverCapabilities(),
   ]);
   const changes = createChangeSession();
+  const results = createResultStore();
   const runtime = createCapabilityRuntime({
     capabilities,
     directTools,
@@ -69,22 +75,28 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   });
   const lifecycleTools = [
     createCapabilityFindTool(runtime),
+    createChangeQueryTool(changes),
     createChangeApplyTool(changes),
     createChangeDiscardTool(changes),
   ];
   const tools = [...runtime.registeredTools(), ...lifecycleTools];
-  const dispatch = makeDispatch(tools, { bridge, docs: createHoplightDocs() });
+  const dispatch = makeDispatch(tools, {
+    bridge,
+    docs: createHoplightDocs(),
+    results,
+  });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
   const activities = new Map(tools.map((tool) => [tool.name, tool.activity]));
   const accessFor = createAccessResolver(
-    capabilities.map((capability) => providerToolName(capability.id)),
+    contentCapabilityAccess(runtime.descriptors()),
   );
 
   return {
     capabilities: () => capabilities,
     async runTurn(input, history, onEvent, signal, gate) {
       try {
+        runtime.beginTurn();
         const config = await resolveProviderConfig();
         if (!config) {
           onEvent({
@@ -101,6 +113,15 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           dispatch,
           gate ?? { state: initGate() },
           accessFor,
+          (call) => {
+            if (call.name !== "change_apply") return undefined;
+            const args = typeof call.args === "object" && call.args !== null
+              ? call.args as { draftId?: unknown }
+              : null;
+            if (typeof args?.draftId !== "string") return undefined;
+            const draft = changes.get(args.draftId);
+            return draft ? reviewChangeDraft(draft) : undefined;
+          },
         );
         const turn = runLoop(input, history, {
           chat,

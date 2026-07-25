@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/lumiverse",
+  "sourcePath": "docs/guide/platforms/lumiverse.md",
+  "sourceHash": "sha256:eff2eeaa2172b16c167cedade2d240fd063d4682a0452586c1066e86009fa419",
+  "summary": "Lumiverse cards ride SillyTavern-shaped JSON or PNG plus Lumiverse-only expression images alternate faces text persona and regex export. What Hoplight reads: character .png or .json, .charx archive with expressions alternate faces and baked regex, persona .json dump, and standalone regex .json; detect by Lumiverse-only keys not filename. What comes across cleanly keeps the original and lifts core fields talkativeness linked world embedded worldbook portrait resolved expression images and alternate text or faces as variants; unresolved image refs stay plain text never guessed. What changes when you convert to another app: same-app JSON keeps fields unchanged and .charx may re-path files inside the archive; cross-app drops variants regex TTS LoRA databank ids layout while core and worldbook cross as far as target holds. Editing on the Workbench uses portrait variant strip Manage Sprites and Lumiverse-tagged extras with world-book ids read-only for later lore editor work. Exporting back out keeps container JSON or charx by default and refuses JSON when archive files would strand. Common questions cover round-trip paths expressions variants scripts and persona dump.",
+  "topics": [
+    "Lumiverse ST-shaped cards",
+    "charx archive expressions",
+    "variants alternate faces",
+    "persona regex dumps",
+    "same-app re-path archive",
+    "cross-app private drop",
+    "refuse stranding JSON"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:9c74410d04e9c38f3eb2fc4a4e3c562fa7d74c84e60d1970d1827ad4e5ffd707",
+      "summary": "Hoplight reads four Lumiverse outputs. Character cards as .png or .json like SillyTavern. A Lumiverse archive as .charx packing the card expression images alternate faces and any regex scripts as separate files inside rather than inline. A persona as a .json dump of one account persona with name title description and pronouns. A set of regex scripts as standalone .json separate from any card. Drop on the Library for a plain-words receipt. It tells Lumiverse from plain SillyTavern by Lumiverse-only keys inside data not by filename so renaming does not confuse. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "png json character",
+        "charx archive",
+        "persona regex dumps",
+        "Lumiverse-only keys",
+        "Library receipt"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:99c253ad35db9fb2e26ade6c084de54d4f51e2fecaec5fdc754a76c54c1af267",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original card and for an archive every file inside then lifts name description personality scenario greetings examples system post-history creator notes tags talkativeness linked world name embedded worldbook portrait art and expression images the archive carried plus alternate description personality scenario or face as variants. An expression image becomes editable art only when bytes are found embedded or in the same archive; a missing file reference stays plain text and Hoplight never guesses. Card picture is the piece portrait. Listed fields ready to edit; the rest held safely in the background.",
+      "topics": [
+        "core fields worldbook",
+        "expressions when resolved",
+        "variants alternate text",
+        "no guess missing art",
+        "portrait kept"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:f7cc745009aca706de070cd1838cb91bb989a738b50d13ecaae1710ca7441fe5",
+      "summary": "Same-app JSON round-trip returns every field unchanged because Hoplight kept the original and only rewrote changed fields. A .charx round-trip keeps every image alternate face and script though paths inside the archive may be regenerated; Lumiverse reads its manifest so the card still opens. Plain JSON has no layout to shift so it comes back closer to original. Converting to another app drops Lumiverse private extras: alternate faces and text variants for now since no other write target reads variants yet; regex baked into archive; TTS voice LoRA hint attached world-book and databank ids alternate character name internal ids layout. Core character worldbook and resolved images come across as far as the target holds. Another app means SillyTavern Agnai Backyard RoleCall Risu. The drop is deliberate never blind-copy private scripts or settings.",
+      "topics": [
+        "JSON vs charx round-trip",
+        "archive path refile",
+        "variants drop cross-app",
+        "regex TTS LoRA drop",
+        "shared core crosses"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:d29e5d28ed08ccf3844c5ee91a2becf3793697089fe32f8860db5728babb4fa2",
+      "summary": "Send a piece to the Workbench as a tab and edit core character fields like any card. The portrait card carries a variant strip with Base plus one tile per alternate version; click a tile to edit that variant text or art or add with plus. Manage Sprites opens the pack editor when expression images exist. Lumiverse-tagged fields sit alongside: alternate character name image-gen LoRA TTS voice attached world-book and databank ids read-only full lore editor is later work and a catch-all. Save writes the whole card so untouched parts stay.",
+      "topics": [
+        "variant strip tiles",
+        "Manage Sprites pack",
+        "Lumiverse-tagged extras",
+        "world-book ids read-only",
+        "whole card save"
+      ],
+      "children": []
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:3d52487e2704ffaef02b5e92cf0486b49f33ddd89d29ce13d82eb992d6ceadfb",
+      "summary": "Stage for the Press; each run exports staged pieces to one target. Export to Lumiverse keeps the container the card came in: .json stays .json and archive returns as .charx with edited images faces and scripts packed back. You can ask for the other container. Asking .json after an archive import refuses rather than silently drop stranded files; that check can still trip after removing fields that pointed at them. Plain .txt or .md is available for JSON output not for .charx. Other app targets apply the drop story.",
+      "topics": [
+        "keep container default",
+        "charx pack images scripts",
+        "refuse stranded JSON",
+        "txt md JSON only",
+        "other app drop"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:23d2c424dfccc6f414da60b322fb1f6d8410434c01825f0bb2989d9ff85949e7",
+      "summary": "Will the card come back exactly as it was? Yes on export to Lumiverse unedited: plain JSON fields unchanged; archive keeps image and script bytes though internal paths may regenerate which Lumiverse does not mind. Imported archive returns .charx by default; ask for .json and Hoplight refuses rather than drop archive-only files. Picture and resolved expression images come across as portrait and editable art. Alternate faces and text fold into variants on the portrait card and fold back on Lumiverse export. Regex baked into archive stay with the card and do not copy cross-app; standalone regex is its own piece. Persona .json dumps import name title description pronouns with everything else on the twin for round-trip.",
+      "topics": [
+        "JSON vs archive exact",
+        "refuse stranding",
+        "expressions variants",
+        "regex stay put",
+        "persona dump twin"
+      ],
+      "children": []
+    }
+  ]
+}

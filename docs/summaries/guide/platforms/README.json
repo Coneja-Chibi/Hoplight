@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/README",
+  "sourcePath": "docs/guide/platforms/README.md",
+  "sourceHash": "sha256:64da6f2e35bfe71f8083a53a312f24ccdd004b9364a9cc7dd5abf970113b1495",
+  "summary": "Platforms is the index map of every platform Hoplight reads and writes today: ten platforms each with a same-shaped guide page covering what Hoplight reads, same-app round trip keep, cross-app drops, Workbench look, and common questions. The platforms table lists Agnai characters and lorebooks; Backyard characters; Chub characters and lorebooks; Lumiverse characters personas regex; Marinara personas regex; NovelAI lorebooks only; Pygmalion characters; RisuAI characters lorebooks regex; RoleCall and SillyTavern characters lorebooks personas regex. Handles means decks those files land on; blank kinds mean the platform never shipped that shape. Backyard covers flat JSON and .byaf on one page; Marinara character cards are SillyTavern-shaped so they go through SillyTavern while Marinara's page covers regex and personas only. If your platform isn't listed, Character.AI and Crushon hand SillyTavern-shaped JSON so import via that path; default shape if unsure. Exhaustive live list via bun run hoplight formats or the format reference from the adapter registry. Common questions cover why handle counts differ, convert losses spelled per page, and try import by shape not name.",
+  "topics": [
+    "ten platforms index",
+    "handles by deck kind",
+    "Backyard two shapes",
+    "Marinara via SillyTavern",
+    "unlisted ST-shaped apps",
+    "hoplight formats list",
+    "convert drop tables"
+  ],
+  "sections": [
+    {
+      "slug": "the-platforms",
+      "title": "The platforms",
+      "level": 2,
+      "sourceHash": "sha256:632d7d0d8c1166da716d98d5f6d43cf4969426b33d471ebb0dea082a653870da",
+      "summary": "The table maps each platform to what it handles and its guide page. Agnai characters and lorebooks; Backyard characters; Chub characters and lorebooks; Lumiverse characters personas and regex sets; Marinara personas and regex sets; NovelAI lorebooks; Pygmalion characters; RisuAI characters lorebooks and regex sets; RoleCall and SillyTavern characters lorebooks personas and regex sets. Handles lists decks a platform own files land on among Characters Lorebooks Personas Regex sets. A blank kind means that platform never shipped a file of that shape, not that Hoplight is missing something. Two notes: Backyard reads older flat JSON and modern .byaf archive both on its one page; Marinara character cards are SillyTavern-shaped underneath so they come and go through the SillyTavern page while Marinara covers only regex scripts and personas.",
+      "topics": [
+        "platform handles table",
+        "ten apps decks",
+        "blank kind not missing",
+        "Backyard flat and byaf",
+        "Marinara regex personas"
+      ],
+      "children": []
+    },
+    {
+      "slug": "if-your-platform-isnt-listed",
+      "title": "If your platform isn't listed",
+      "level": 2,
+      "sourceHash": "sha256:a8f200c49870062a618de4e077f37a81b924aecd6d48b7a2a898619c7ba63006",
+      "summary": "A handful of apps never shipped a portable file worth its own page. Character.AI export tools and Crushon both hand plain SillyTavern-shaped JSON, so drop the file in and Hoplight reads it through the SillyTavern page the same as a real SillyTavern card. That is also the default shape to reach for if you are not sure what your app produces: most thin hosts copy it. For the exhaustive generated list of every adapter Hoplight has today, run bun run hoplight formats or read the format reference, the technical version of this page. It is built straight from the live adapter registry so it never drifts from what the app can actually do.",
+      "topics": [
+        "Character.AI Crushon ST",
+        "default SillyTavern shape",
+        "hoplight formats CLI",
+        "format reference registry"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:c595ab6329c707fd8fcc80a2728fc7f596e97d74eb880cda9a93130db3c7e561",
+      "summary": "Why do some platforms handle fewer kinds than others? Because the platform itself does; Hoplight adapters mirror what each app actually exports, so a platform with no lorebook feature never gets a Lorebooks column. Will I lose anything moving between two platforms? Sometimes, always spelled out: each platform page has a what changes when you convert table with exact fields that stay and drop, and the converting guide covers the general rule. My app is not SillyTavern Chub or anything above? Try importing anyway; Hoplight recognizes a file by its shape not its name, and most roleplay apps without their own page still export a SillyTavern-shaped card underneath.",
+      "topics": [
+        "fewer kinds mirror app",
+        "convert losses per page",
+        "import by shape",
+        "ST-shaped thin hosts"
+      ],
+      "children": []
+    }
+  ]
+}

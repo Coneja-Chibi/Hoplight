@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/agnai",
+  "sourcePath": "docs/guide/platforms/agnai.md",
+  "sourceHash": "sha256:e40c0e228c2d4307de7e783d70855de0a787f27da318254e3f7ef22198d19b5e",
+  "semanticSummaryHash": "sha256:61db205c63fefd424055729c8489762a6db7b8edf4f42c6a5aebe4e550c838c3",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:25.306Z"
+}

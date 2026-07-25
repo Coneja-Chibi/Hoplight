@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/kit/tools",
+  "sourcePath": "docs/reference/kit/tools.md",
+  "sourceHash": "sha256:07c444dfc0c0b925346ec70027bda8738112e3d0d306836544b75713a6f28c3d",
+  "semanticSummaryHash": "sha256:13ee6d1369e9e1ff59887bc73898944b08db39a50568b32df03edaf2ac69ca10",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-reviewer-2",
+  "notes": "Re-read all 279 source lines and the entire sidecar. Page and section summaries materially cover the current tool contract, progressive exposure, result and draft evidence, content bundles, docs traversal, semantic Gate handoff, denial discard, provider-preamble suppression, accumulated rehearsal receipt, and the live-terminal verification caveat. Focused implementation evidence passed 37/37 tests.",
+  "reviewedAt": "2026-07-25T23:37:04.827Z"
+}

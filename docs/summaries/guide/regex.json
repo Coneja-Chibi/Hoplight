@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/regex",
+  "sourcePath": "docs/guide/regex.md",
+  "sourceHash": "sha256:f454344fd0111656350fb236bd9e8486bcf4ada539013bbef328df3377cf96e9",
+  "summary": "User guide for editing a regex set: a list of find-and-replace rules that run on chat text wherever you point them, one after another top to bottom. The short version: open or start a set from Library Regex sets chip Sets view or New set or drop file; add a rule via New rule with 37 starter recipes or blank; write find and replace in Guided Plain words or Pattern mode; pick Where it runs pipeline stages; Quick try alone then full test bench chain then Save. Three ways to write a rule share one find one replace and phases so mode switches never lose work: Guided asks catch become where from examples without showing pattern; Plain words Match these words or Match by example; Pattern is raw Find and flags with live In words reading. Order and how to check it: rules run listed order each seeing prior output so earlier wins on competing text; full Health check flags never-fires shadowing and one-click Fix for exact duplicates; Only run after sequences without reorder; no drag-to-reorder yet; Quick try vs full bench with Import preview for SillyTavern dialect and Escape a literal tool. Tips: start from recipe empty Replace removes match let full check find shadows use Only run after and Duplicate insert after original.",
+  "topics": [
+    "regex set find replace",
+    "Guided Plain Pattern modes",
+    "Where it runs phases",
+    "rule order chain check",
+    "Quick try test bench",
+    "starter recipes 37",
+    "no drag reorder yet",
+    "Import preview ST dialect"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:7a74fadc7a53c7cdcb70428d223896a959edc58c172bc8b84786a60976b5d47e",
+      "summary": "Open or start a set in the Library via the Regex sets chip then Sets view for rule count and one-line read of each set; open existing, click New set, or drop a file to start blank on the Workbench. Add a rule with New rule; pick a starter recipe among 37 each with real Before After or Start blank; either opens ready to edit. Write find and replace: pick Guided Plain words or Pattern mode; fill Find and Replace with; leave Replace empty to remove the match. Under Where it runs turn on pipeline stages this rule should act on such as user input model output display. Try then save: Quick try beside the rule runs it alone on a sample line; open the full test bench to watch the whole set as a chain; then Save or Ctrl Cmd S.",
+      "topics": [
+        "open start set",
+        "New rule recipes",
+        "find replace modes",
+        "Where it runs",
+        "Quick try Save"
+      ],
+      "children": []
+    },
+    {
+      "slug": "three-ways-to-write-a-rule",
+      "title": "Three ways to write a rule",
+      "level": 2,
+      "sourceHash": "sha256:2bbb680efc80ad7db992e2e6f23053523449862737b45e0755e7216ba65134b2",
+      "summary": "Every rule is one find pattern one replacement and a list of phases. The three modes view the same fields so switching never loses work. Guided never shows the pattern; it asks what to catch what it becomes and where it runs; examples build the pattern and show one honest miss that it only knows words you showed; escape link hands off to Pattern. Plain words offers Match these words with comma list and tune grid plus plain English pattern and hit chips, or Match by example with two to five phrases detecting shared structure. Pattern is raw Find and flags with live In words reading; undescribable forms say so instead of guessing. Empty Replace with removes the match. Where it runs uses phase pills from Write for; foreign phases show dashed not vanish. Fine print holds depth window re-run macros character filter first-match only draw-over and Only run after.",
+      "topics": [
+        "Guided example build",
+        "Plain words tune grid",
+        "Pattern raw Find",
+        "empty Replace remove",
+        "phase pills foreign dashed",
+        "fine print depth order"
+      ],
+      "children": []
+    },
+    {
+      "slug": "order-and-how-to-check-it",
+      "title": "Order, and how to check it",
+      "level": 2,
+      "sourceHash": "sha256:b28bb9fc8334b92a4afa00c43c8cab33496e8215946d0a4878168ac2fca3f1aa",
+      "summary": "Rules run top to bottom in list order; each sees text the prior left so earlier wins when two compete for the same text. Full Health check runs the real chain on execution-verified examples; never-fires shadowing is flagged in plain words; exact duplicates get one-click Fix off; shadowed rules stay for your reorder judgment. Only run after sequences two by fired or not without moving either. No drag-to-reorder yet; new and imported land at bottom; Duplicate inserts after original; to run earlier delete and re-add. Quick try runs one rule alone on a sample. Full test bench steps every rule with word diff capture chips or skip reason ending in What comes out. Import preview checks a rival file against your sample before import; SillyTavern dialect today others not wired. Bench Escape a literal works; Pattern-mode Find Escape button is still a placeholder.",
+      "topics": [
+        "top to bottom chain",
+        "earlier wins compete",
+        "Health full check shadow",
+        "Only run after sequence",
+        "no drag reorder Duplicate",
+        "test bench Import preview",
+        "Escape a literal"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:611b30e04fef09216adcb0217d4657cdf6b5ce2057e4bb9ee7a681979cc5be68",
+      "summary": "Start from a recipe: New rule opens 37 starters in Cleanup Guardrails Formatting Style Compatibility Roleplay; every Before After is engine-computed not hand-written. Empty Replace with removes the match. Two rules can shadow without either being wrong; let the full check find it. Prefer Only run after before workarounds. No drag reorder yet; add in run order and Duplicate to insert right after the original.",
+      "topics": [
+        "37 recipe groups",
+        "empty Replace remove",
+        "full check shadows",
+        "Only run after first",
+        "Duplicate insert after"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

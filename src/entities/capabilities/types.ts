@@ -31,6 +31,8 @@ export interface CapabilityPreview<Entity extends ParsedCanonicalEntity = Parsed
   changes: readonly CapabilityChange[];
   warnings: readonly string[];
   platformImpact: readonly CapabilityPlatformImpact[];
+  /** Read-effect capabilities may return deterministic structured analysis here. */
+  observation?: unknown;
 }
 
 export interface ContentCapability<

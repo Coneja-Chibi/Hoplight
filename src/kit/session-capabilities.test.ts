@@ -62,6 +62,7 @@ test("a provider discovers one typed edit, previews it, applies once, and observ
           id: "find",
           name: "capability_find",
           args: {
+            action: "search",
             target: { kind: "lorebook", id: "world" },
             query: "rename lorebook",
           },

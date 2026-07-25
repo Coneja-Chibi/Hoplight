@@ -2,6 +2,8 @@
  * Pure deterministic search and section extraction for Kit's Hoplight documentation tool.
  */
 import type { DocRecord } from "../../docs/types";
+import { slugifyHeading } from "../../docs/summary-corpus";
+import { flattenAnchors } from "./navigation";
 
 export interface DocSearchOptions {
   audience?: "user" | "dev";
@@ -37,8 +39,15 @@ const scoreDoc = (doc: DocRecord, query: string, tokens: readonly string[]): num
   const id = normalized(doc.id);
   const tags = normalized(doc.tags.join(" "));
   const summary = normalized(doc.summary);
-  const anchors = normalized(doc.anchors.map((anchor) => anchor.text).join(" "));
-  const haystack = `${title} ${id} ${tags} ${summary} ${anchors}`;
+  const semanticSummary = normalized(doc.semanticSummary ?? "");
+  const topics = normalized((doc.topics ?? []).join(" "));
+  const flatAnchors = flattenAnchors(doc.anchors);
+  const anchors = normalized(flatAnchors.map((anchor) => anchor.text).join(" "));
+  const anchorMeta = normalized(flatAnchors.flatMap((anchor) => [
+    anchor.summary ?? "",
+    ...(anchor.topics ?? []),
+  ]).join(" "));
+  const haystack = `${title} ${id} ${tags} ${summary} ${semanticSummary} ${topics} ${anchors} ${anchorMeta}`;
   if (!includesAll(haystack, tokens)) return -1;
   let score = 0;
   if (title === query) score += 100;
@@ -46,12 +55,18 @@ const scoreDoc = (doc: DocRecord, query: string, tokens: readonly string[]): num
   if (id.includes(query)) score += 25;
   if (tags.includes(query)) score += 20;
   if (summary.includes(query)) score += 12;
+  if (semanticSummary.includes(query)) score += 14;
+  if (topics.includes(query)) score += 16;
   if (anchors.includes(query)) score += 8;
+  if (anchorMeta.includes(query)) score += 6;
   for (const token of tokens) {
     if (title.includes(token)) score += 6;
     if (tags.includes(token)) score += 4;
+    if (topics.includes(token)) score += 4;
+    if (semanticSummary.includes(token)) score += 3;
     if (summary.includes(token)) score += 2;
     if (anchors.includes(token)) score += 1;
+    if (anchorMeta.includes(token)) score += 1;
   }
   return score;
 };
@@ -83,22 +98,20 @@ const stripFrontmatter = (raw: string): string => {
   return after === -1 ? "" : raw.slice(after + 1);
 };
 
-const slugify = (value: string): string =>
-  value
-    .toLowerCase()
-    .replace(/`/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
-
 /** Extract one H2 or H3 section, including its descendants, from a Markdown page. */
 export function extractDocSection(raw: string, requestedSlug: string): string | null {
   const lines = stripFrontmatter(raw).split(/\r?\n/);
   let start = -1;
   let level = 0;
+  const slugSeen = new Map<string, number>();
   for (let index = 0; index < lines.length; index += 1) {
     const match = /^(#{2,3})\s+(.+?)\s*$/.exec(lines[index] ?? "");
-    if (match && slugify(match[2] ?? "") === requestedSlug) {
+    if (!match) continue;
+    const base = slugifyHeading(match[2] ?? "");
+    const prior = slugSeen.get(base) ?? 0;
+    slugSeen.set(base, prior + 1);
+    const slug = prior === 0 ? base : `${base}-${prior}`;
+    if (slug === requestedSlug) {
       start = index;
       level = match[1]?.length ?? 0;
       break;
@@ -152,10 +165,19 @@ export function buildDocChunks(doc: DocRecord, raw: string): DocChunk[] {
   let heading = doc.title;
   let section: string | null = null;
   let lines: string[] = [];
+  const slugSeen = new Map<string, number>();
   const flush = (): void => {
     const text = lines.join("\n").trim();
     if (text) {
-      const searchable = `${doc.title}\n${heading}\n${doc.summary}\n${doc.tags.join(" ")}\n${text}`;
+      const searchable = [
+        doc.title,
+        heading,
+        doc.summary,
+        doc.semanticSummary ?? "",
+        doc.tags.join(" "),
+        (doc.topics ?? []).join(" "),
+        text,
+      ].join("\n");
       chunks.push({ doc, section, heading, text, terms: termsOf(searchable) });
     }
     lines = [];
@@ -166,7 +188,10 @@ export function buildDocChunks(doc: DocRecord, raw: string): DocChunk[] {
     if (match) {
       flush();
       heading = match[2] ?? doc.title;
-      section = slugify(heading);
+      const base = slugifyHeading(heading);
+      const prior = slugSeen.get(base) ?? 0;
+      slugSeen.set(base, prior + 1);
+      section = prior === 0 ? base : `${base}-${prior}`;
       continue;
     }
     lines.push(line);
@@ -229,10 +254,14 @@ export function searchDocChunks(
     const titleTerms = new Set(termsOf(chunk.doc.title));
     const headingTerms = new Set(termsOf(chunk.heading));
     const tagTerms = new Set(termsOf(chunk.doc.tags.join(" ")));
+    const topicTerms = new Set(termsOf((chunk.doc.topics ?? []).join(" ")));
+    const semanticTerms = new Set(termsOf(chunk.doc.semanticSummary ?? ""));
     for (const term of queryTerms) {
       if (headingTerms.has(term)) score += 3;
       if (titleTerms.has(term)) score += 2;
       if (tagTerms.has(term)) score += 2;
+      if (topicTerms.has(term)) score += 2;
+      if (semanticTerms.has(term)) score += 1;
     }
     const phrase = query.toLowerCase();
     if (chunk.heading.toLowerCase().includes(phrase)) score += 8;

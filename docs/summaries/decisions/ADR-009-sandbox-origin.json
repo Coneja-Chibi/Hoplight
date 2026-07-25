@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-009-sandbox-origin",
+  "sourcePath": "docs/decisions/ADR-009-sandbox-origin.md",
+  "sourceHash": "sha256:362b50642e31292048098c942d0d671cf8bc9a4eaa0f78203676ac7f776c7d9b",
+  "summary": "Accepted-in-design ADR for a distinct origin for test-bench execution; packaged-host proof remains BLOCKED as of 2026-07-09. Context: Risu Test Bench runs untrusted Lua and regex previews in dedicated Workers with resource ceilings; historically workers shared the UI loopback origin which is only an availability boundary not an origin boundary. Decision chooses a second loopback listener on an ephemeral port as a sandbox-only origin serving only worker.js, regex-worker.js, and glue.wasm with CORS for the UI origin, never exposing /api, studio paths, session-token HTML, arbitrary static, or secret source maps. UI injects vaude-sandbox-origin meta; API token stays only in vaude-session and trusted apiFetch. Lua and regex wires are value-only protocols with size and rule caps. Rejected same-path sandbox, allow-same-origin iframe, CORS-only, and deferred helper process. Measured results automate unit allowlist protocol and packaged asset build but not packaged WebView2 probes. Consequences: HTTP-layer origin separation is implementable; do not claim full sandbox isolation in release notes until WebView2 matrix is green; Plans 005 and 016 remain load-bearing. STOP honesty: Plan 017 full Done is BLOCKED until packaged measurements exist.",
+  "topics": [
+    "distinct sandbox origin",
+    "second loopback port",
+    "worker.js regex-worker wasm",
+    "no API on sandbox host",
+    "value-only Lua protocol",
+    "packaged-host proof BLOCKED",
+    "defense in depth",
+    "Plan 005 016 017",
+    "ADR-009"
+  ],
+  "sections": [
+    {
+      "slug": "context",
+      "title": "Context",
+      "level": 2,
+      "sourceHash": "sha256:2a8afd8babfca5cd0d27a7e2d67b4a3b8bf13db82dc11b7bd060db588bc78ba3",
+      "summary": "Risu Test Bench runs untrusted Lua in a dedicated Worker with Plan 016 resource ceilings for timeout, heap, host-state, and wire size. Regex previews run in a dedicated terminable Worker with a 750 ms wall-clock ceiling. Plan 005 authenticates the loopback API with a per-launch bearer X-Vaude-Token and meta vaude-session. Historically the worker module was served from the same loopback origin as the UI and /api. A same-origin Worker is an availability boundary (killable thread), not an origin boundary. If a future engine bundler WebView or bridge bug exposes web capabilities, same-origin placement increases blast radius for same-origin APIs, storage, or credentials. This is defense-in-depth architecture, not evidence of a current same-origin exploit.",
+      "topics": [
+        "Lua regex Workers",
+        "Plan 016 ceilings",
+        "Plan 005 bearer token",
+        "same-origin blast radius",
+        "defense in depth"
+      ],
+      "children": []
+    },
+    {
+      "slug": "packaged-host-acceptance",
+      "title": "Packaged-host acceptance",
+      "level": 2,
+      "sourceHash": "sha256:7ceb2cc15cfc9033878d5cdb14ab05d540f4d9cb88cb1d3346d3456a039cc588",
+      "summary": "Before a public Windows release, check the freshly built dist/Vaude.exe not the development server: open Workshop Test Bench, run return 42, and run a Regex Bench preview. Both must finish without a worker-load error. Record build version and result in release notes. Automated suite already proves distinct loopback authority, allowlist CSP CORS, API denial, token absence, and protocol; this acceptance specifically covers installed WebView2 runtime.",
+      "topics": [
+        "dist Vaude.exe acceptance",
+        "Test Bench return 42",
+        "Regex Bench preview",
+        "WebView2 packaged proof",
+        "release notes record"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "threat-model-in-scope",
+      "title": "Threat model (in scope)",
+      "level": 2,
+      "sourceHash": "sha256:36c7c335396f981f0d876aa23da8416cc85ec3ad1ef5677546e73dd973362dad",
+      "summary": "In-scope assets if sandbox shares the app origin: per-launch API token leak into script state worker globals messages logs or URLs; mutating /api routes via cross-origin-less fetch with ambient authority; studio filesystem write or delete through authenticated routes; trusted cookies and localStorage shared with the worker. Out of scope: arbitrary untrusted native-code isolation, giving Lua DOM fetch or fs access, and auto-running scripts on import.",
+      "topics": [
+        "API token leak risk",
+        "mutating api ambient auth",
+        "filesystem via API",
+        "shared storage cookies",
+        "out of scope native Lua DOM"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:f607dbc7fab4ddf92ad8193814dadd462e22f1add736283d7dd480e278b596c6",
+      "summary": "Chosen boundary is a second loopback listener where distinct port equals distinct origin. Primary UI API server stays on 127.0.0.1 configured port with Host Origin token gating from Plan 005. Sandbox-only server binds 127.0.0.1 on an ephemeral port and serves only GET sandbox worker.js, regex-worker.js, and glue.wasm plus CORS preflight for the UI origin. Sandbox host must not expose /api, studio paths, index HTML with session token, arbitrary static files, or source maps with secrets. UI HTML injects meta vaude-sandbox-origin which is public not a secret; API token stays only in meta vaude-session and trusted apiFetch. Browser UI loads workers from sandbox origin when meta is present; Bun tests keep module-relative worker paths. Lua wire protocol is a versioned value-only tagged union with allowlisted keys, Plan 016 size budgets, no token fields, no functions handles or ports except the Worker channel. Regex worker accepts values only and rejects oversized input, more than 500 rules, and malformed rows or options before the core engine. Nested sections reject weaker isolation alternatives and document origin alias fail-closed behavior.",
+      "topics": [
+        "second loopback listener",
+        "ephemeral sandbox port",
+        "workers and wasm only",
+        "vaude-sandbox-origin meta",
+        "value-only protocols",
+        "rejected alternatives notes"
+      ],
+      "children": [
+        {
+          "slug": "rejected-alternatives",
+          "title": "Rejected alternatives",
+          "level": 3,
+          "sourceHash": "sha256:f581717b2fe5d9de80db445deebebb622634605fff722d766871b95891910ec0",
+          "summary": "Reject same-path sandbox as same origin; reject iframe allow-same-origin; reject CORS alone as non-auth. Defer helper child process until measured need for packaging cost.",
+          "topics": [
+            "reject same path origin",
+            "reject allow-same-origin iframe",
+            "reject CORS alone",
+            "defer helper process"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "origin-alias-notes",
+          "title": "Origin / alias notes",
+          "level": 3,
+          "sourceHash": "sha256:a022b7f43ab5162523a4a0a83f4b0baba184c8b7d9a2ddea36b2f30385487d1c",
+          "summary": "Distinct 127.0.0.1 ports are distinct origins. Host checks fail closed on aliases. Sandbox origin never authorizes API calls without token and correct Origin.",
+          "topics": [
+            "distinct ports origins",
+            "exact host check fail closed",
+            "sandbox never trusted for API",
+            "403 missing token wrong Origin"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "measured-results-this-environment",
+      "title": "Measured results (this environment)",
+      "level": 2,
+      "sourceHash": "sha256:fe71b3ab0c22c1a0d8e0cb248609e136ab868bf206ebdd93fd5837e41ed2da65",
+      "summary": "Unit checks automated: sandbox handler allowlist serves only the two workers plus wasm and returns 404 for /api and traversal; value protocol rejects wrong version unknown type secret keys and oversized payloads; worker run without token in messages via protocol encode parse. Packaged asset build is automated by bun run scripts/build-desktop.ts. Not run or not measured in this implementation pass: packaged WebView2 origin probe on Windows, self.crossOriginIsolated and storage visibility in WebView, and credentialed API fetch from a sandbox-origin worker in the packaged host.",
+      "topics": [
+        "automated unit allowlist",
+        "protocol reject cases",
+        "build-desktop assets",
+        "WebView2 probe not measured",
+        "crossOriginIsolated unknown"
+      ],
+      "children": []
+    },
+    {
+      "slug": "rollback-packaging",
+      "title": "Rollback / packaging",
+      "level": 2,
+      "sourceHash": "sha256:bb7e38c94e25efec7e01303f1ac798ddfbb15fa23b1689bee5a5df7afbb09d12",
+      "summary": "startUi starts both listeners and stop tears both down. Packaged exe uses the same dual-listen path; sandbox serves both packaged worker bundles plus wasm. If sandbox listen fails, UI can fall back to the matching same-origin worker path on the primary server as degraded mode not claimed isolated; prefer fail-visible logs over silent false isolation. Re-run the origin probe when WebView, bundler, server, or packaging dependencies change.",
+      "topics": [
+        "dual listen start stop",
+        "packaged dual path",
+        "degraded same-origin fallback",
+        "fail-visible logs",
+        "reprobe on dependency change"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:93457863dfa52c309d907d75650c1db58e0234182f65d91b1faf59e5e49e72bd",
+      "summary": "Real origin separation is implementable and tested at the HTTP handler layer in Bun. Packaged-host proof remains BLOCKED until a WebView2 smoke matrix records distinct authority, no shared storage or token, API denial from the sandbox origin, and CSP probes. Do not claim full sandbox isolation in release notes until that matrix is green. Plans 005 token and 016 quotas remain load-bearing layers; origin isolation is additive.",
+      "topics": [
+        "HTTP layer tested",
+        "packaged proof BLOCKED",
+        "no full isolation claim yet",
+        "Plans 005 016 additive"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "stop-honesty",
+      "title": "STOP / honesty",
+      "level": 2,
+      "sourceHash": "sha256:63836a4e507dde5386d9681f7e75cd3c437732408dd5d66d52500cf0983a87c0",
+      "summary": "This ADR deliberately does not assert that the shipped WebView collapses authorities safely. Until packaged measurements exist, Plan 017 status is BLOCKED for full Done criteria while the code path of sandbox host protocol and token absence ships as defense-in-depth scaffolding.",
+      "topics": [
+        "no WebView safety claim",
+        "Plan 017 BLOCKED",
+        "defense-in-depth scaffolding"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

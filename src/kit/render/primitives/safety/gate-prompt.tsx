@@ -27,6 +27,7 @@ export function GatePrompt({
   mode: PermissionMode;
   onChoice: (choice: GateChoice) => void;
 }): ReactNode {
+  const review = req.review;
   const stripe = stripeFor(req.verdict.level);
   const grantable = !isFloor(req.verdict.access);
   const frameColor =
@@ -38,7 +39,13 @@ export function GatePrompt({
 
   useKeyboard((e: KeyEvent) => {
     const k = e.name;
-    if (k === "y") {
+    if (review && (k === "y" || k === "return")) {
+      e.preventDefault();
+      onChoice({ type: "allow-once" });
+    } else if (review && (k === "n" || k === "d" || k === "escape")) {
+      e.preventDefault();
+      onChoice({ type: "deny" });
+    } else if (k === "y") {
       e.preventDefault();
       onChoice({ type: "allow-once" });
     } else if (k === "a" && grantable) {
@@ -55,6 +62,72 @@ export function GatePrompt({
       onChoice({ type: "abort" });
     }
   });
+
+  if (review) {
+    const shown = review.changes.slice(0, 5);
+    const hidden = review.changes.length - shown.length;
+    return (
+      <box
+        flexDirection="column"
+        border
+        borderColor={frameColor}
+        backgroundColor={theme.panel}
+        paddingLeft={1}
+        paddingRight={1}
+      >
+        <box flexDirection="row">
+          <text fg={theme.rose}>REVIEW CHANGE</text>
+          <box flexGrow={1} />
+          <text fg={theme.soft}>{mode}</text>
+        </box>
+        <text fg={theme.bright}>
+          {review.target.kind} / {review.target.id}
+        </text>
+        <box height={1} />
+        {shown.map((change, index) => (
+          <text key={index} fg={theme.soft}>
+            <span fg={theme.teal}>{change.label}</span>
+            {"  "}{displayValue(change.before)}{"  ->  "}
+            <span fg={theme.bright}>{displayValue(change.after)}</span>
+          </text>
+        ))}
+        {hidden > 0 ? <text fg={theme.quiet}>+ {String(hidden)} more changes</text> : null}
+        {review.warningCount > 0 ? (
+          <text fg={theme.gold}>
+            {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
+          </text>
+        ) : null}
+        <box height={1} />
+        <box flexDirection="row">
+          <box
+            border
+            borderColor={theme.teal}
+            paddingLeft={1}
+            paddingRight={1}
+            onMouseDown={() => onChoice({ type: "allow-once" })}
+          >
+            <text fg={theme.bright}>
+              <span fg={theme.teal}>{"[y]"}</span> Apply & save
+            </text>
+          </box>
+          <box width={2} />
+          <box
+            border
+            borderColor={theme.line}
+            paddingLeft={1}
+            paddingRight={1}
+            onMouseDown={() => onChoice({ type: "deny" })}
+          >
+            <text fg={theme.soft}>
+              <span fg={theme.rose}>{"[n]"}</span> Discard
+            </text>
+          </box>
+          <box flexGrow={1} />
+          <text fg={theme.quiet}>enter applies · esc discards</text>
+        </box>
+      </box>
+    );
+  }
 
   return (
     <box
@@ -101,3 +174,9 @@ export function GatePrompt({
     </box>
   );
 }
+
+const displayValue = (value: unknown): string => {
+  const raw = typeof value === "string" ? value : JSON.stringify(value);
+  const text = raw === undefined ? "unset" : raw;
+  return text.length <= 48 ? text : `${text.slice(0, 45)}...`;
+};

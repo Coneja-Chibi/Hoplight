@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/exporting",
+  "sourcePath": "docs/guide/exporting.md",
+  "sourceHash": "sha256:e60eb34d2ed7c04111db4b18d76977472eafa18e700a753141fde401920040c6",
+  "summary": "User guide for exporting pieces from Vaudeville Studios. Two paths: character editor Export button for one piece with full honesty view of keep note and dropped lines and immediate single-file download, or staging for the Press for batches and for lorebook persona or preset alone. Short character path: open Workbench, Export, pick platform defaulting Risu or SillyTavern when available, read honesty lines, Export or Export anyway. Honesty checks whether the target carries Hoplight behavior shape for trigger scripts regex virtual script backdrop HTML and packaged modules; when it does scripts keep and Risu .charx re-packs modules; when not scripts drop and plain fields stay with pointer to Risu for rule packs. Example Agnai drops expression packs and maps lorebooks to MemoryBook with regex key warning. Press stages queue surviving room switches; linked lorebooks ride as bundles; one target; readiness not honesty showing keyword gaps red amber and filled field counts; run prints printed skipped failed then zip download. Tips: Press for non-character exports; Export anyway is soft warn; rename and flavor lock after result; fix zero-keyword lorebooks first.",
+  "topics": [
+    "export honesty view",
+    "Export button character only",
+    "Press batch staging",
+    "keep note dropped lines",
+    "behavior shape scripts",
+    "Risu charx modules",
+    "readiness vs honesty",
+    "zip download bundle"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:b98ffed512c9bc60a099bfe92f7377dcd71caa15c94128f0d3f50991e452dbc9",
+      "summary": "For characters open Workbench Export at top of editor; lorebook persona or preset skip to Press staging. Click Export, pick a platform from formats for this kind with Risu or SillyTavern chosen first if available. Read honesty lines that state facts or open with Note or Dropped. Click Export or Export anyway when anything needs a second look; one file downloads immediately no zip.",
+      "topics": [
+        "character Export button",
+        "pick platform",
+        "Note Dropped lines",
+        "Export anyway",
+        "single file no zip"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "reading-the-honesty-view",
+      "title": "Reading the honesty view",
+      "level": 2,
+      "sourceHash": "sha256:06d35d63546660f2cfb83a73e9a2e23792d2fa9352cc8b26d4a638164e02b516",
+      "summary": "Every export checks whether the target carries Hoplight behavior shape: trigger scripts, regex, virtual script, backdrop HTML, and packaged module rows. When the target carries behavior, scripts keep; Risu .charx re-packs module scripts and lore whole while elsewhere the module blob may not survive intact. When it does not, scripts drop and plain fields stay with explicit dropped marks not silent loss; dialog points to Risu .charx if rules matter. Concrete case: export to Agnai drops expression pack and maps linked lorebook to MemoryBook with regex key survival warning; SillyTavern or Risu keep both. Media chips show portrait expression pack and named assets before platform pick.",
+      "topics": [
+        "behavior shape check",
+        "scripts keep or drop",
+        "Risu module re-pack",
+        "Agnai pack drop example",
+        "media chips"
+      ],
+      "children": []
+    },
+    {
+      "slug": "staging-for-the-press",
+      "title": "Staging for the Press",
+      "level": 2,
+      "sourceHash": "sha256:aa9526a49a527630ac66795c096feb5b101f711af8b22c30ba6f4e41c8d354db",
+      "summary": "Press is the only way to export a lorebook persona or preset alone and the only multi-piece single run. Stage via right-click Stage for the Press or left rail; queue survives rooms. Staged characters auto-bring linked lorebooks as riders; drop a rider from this run without unlinking. One target for the whole queue. Press shows readiness not honesty: lorebooks check keywords immediately red if none amber if some missing; characters need target then show filled vs empty platform fields. Open in editor preserves queue spot. Run the press settles rows as printed skipped or failed; download the bundle is always a zip even for one piece once any row prints.",
+      "topics": [
+        "Press only non-character",
+        "stage queue riders",
+        "readiness not honesty",
+        "keyword red amber",
+        "always zip download"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:9ca594e6ecdde4d5f7d7e6654f63d8ffb7c79b454b325c9f130fd0f87f13eb7b",
+      "summary": "Export is character-only; stage other kinds for the Press even alone. Export becomes Export anyway on Note or Dropped as a soft warn. Press readiness is not honesty. Rename or pick txt/md flavor before run; fields lock after a result. Zero-keyword lorebooks read red and never fire; fix keywords first.",
+      "topics": [
+        "character Export only",
+        "Export anyway soft warn",
+        "readiness not honesty",
+        "rename flavor lock",
+        "zero keywords red"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

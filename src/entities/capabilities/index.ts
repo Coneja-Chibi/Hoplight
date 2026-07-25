@@ -10,6 +10,14 @@ export type {
   ContentKind,
 } from "./types";
 export {
+  CAPABILITY_DOMAINS,
+  createCapabilityDescriptorCatalog,
+  describeContentCapability,
+  type CapabilityDescriptor,
+  type CapabilityDescriptorCatalog,
+  type CapabilityDomain,
+} from "./descriptor";
+export {
   createCapabilityCatalog,
   providerToolName,
   type CapabilityCatalog,
@@ -25,3 +33,13 @@ export {
   visibleCapabilities,
   type CapabilityExposureState,
 } from "./exposure";
+export {
+  browseCapabilities,
+  describeCapability,
+  type CapabilityAreaRef,
+  type CapabilityBrowseRequest,
+  type CapabilityBrowseResult,
+  type CapabilityDomainRef,
+  type CapabilityDescribeRequest,
+  type CapabilityRef,
+} from "./navigation";

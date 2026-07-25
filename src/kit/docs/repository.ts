@@ -13,6 +13,13 @@ import {
   type DocChunk,
   type DocSearchOptions,
 } from "./catalog";
+import {
+  browseDocs,
+  outlineDoc,
+  type DocBrowseOptions,
+  type DocBrowseResult,
+  type DocPageOutline,
+} from "./navigation";
 
 export interface DocMatch {
   id: string;
@@ -30,12 +37,23 @@ export interface DocReadResult {
   section: string | null;
   body: string;
   truncated: boolean;
+  offset: number;
+  nextOffset: number | null;
+  totalChars: number;
   anchors: readonly DocAnchor[];
 }
 
+export interface DocReadOptions {
+  section?: string;
+  maxChars?: number;
+  offset?: number;
+}
+
 export interface HoplightDocs {
+  browse(options?: DocBrowseOptions): Promise<DocBrowseResult | null>;
+  outline(id: string): Promise<DocPageOutline | null>;
   search(query: string, options?: DocSearchOptions): Promise<readonly DocMatch[]>;
-  read(id: string, section?: string, maxChars?: number): Promise<DocReadResult | null>;
+  read(id: string, options?: DocReadOptions): Promise<DocReadResult | null>;
 }
 
 const DEFAULT_ROOT = fileURLToPath(new URL("../../..", import.meta.url));
@@ -51,10 +69,24 @@ const asMatch = (doc: DocRecord, section?: string | null, excerpt?: string): Doc
   ...(excerpt ? { excerpt } : {}),
 });
 
-const trimToBoundary = (body: string, maxChars: number): string => {
-  const slice = body.slice(0, maxChars);
+const pageAtBoundary = (
+  body: string,
+  requestedOffset: number,
+  maxChars: number,
+): { body: string; offset: number; nextOffset: number | null } => {
+  const offset = Math.max(0, Math.min(body.length, requestedOffset));
+  const candidateEnd = Math.min(body.length, offset + maxChars);
+  const slice = body.slice(offset, candidateEnd);
+  if (candidateEnd === body.length) {
+    return { body: slice, offset, nextOffset: null };
+  }
   const boundary = slice.lastIndexOf("\n");
-  return (boundary > maxChars * 0.7 ? slice.slice(0, boundary) : slice).trimEnd();
+  const end = boundary > maxChars * 0.7 ? offset + boundary + 1 : candidateEnd;
+  return {
+    body: body.slice(offset, end).trimEnd(),
+    offset,
+    nextOffset: end,
+  };
 };
 
 /** Bind a docs repository to the checked-in corpus beneath one Hoplight root. */
@@ -83,6 +115,17 @@ export function createHoplightDocs(root: string = DEFAULT_ROOT): HoplightDocs {
   };
 
   return {
+    async browse(options) {
+      const index = await loadIndex();
+      if (!index) return null;
+      return browseDocs(index.docs, options);
+    },
+    async outline(id) {
+      const index = await loadIndex();
+      if (!index) return null;
+      const record = index.docs.find((doc) => doc.id === id);
+      return record ? outlineDoc(record) : null;
+    },
     async search(query, options) {
       const corpus = await loadCorpus();
       if (!corpus) return [];
@@ -92,7 +135,7 @@ export function createHoplightDocs(root: string = DEFAULT_ROOT): HoplightDocs {
       }
       return searchDocCatalog(corpus.index.docs, query, options).map((doc) => asMatch(doc));
     },
-    async read(id, section, requestedMax) {
+    async read(id, options = {}) {
       const index = await loadIndex();
       if (!index) return null;
       const record = index.docs.find((doc) => doc.id === id);
@@ -101,17 +144,23 @@ export function createHoplightDocs(root: string = DEFAULT_ROOT): HoplightDocs {
       const file = Bun.file(path);
       if (!await file.exists()) return null;
       const raw = await file.text();
-      const selected = section ? extractDocSection(raw, section) : docBody(raw);
+      const selected = options.section ? extractDocSection(raw, options.section) : docBody(raw);
       if (selected === null) return null;
-      const maxChars = Math.max(1_000, Math.min(12_000, requestedMax ?? DEFAULT_MAX_CHARS));
+      const maxChars = Math.max(1_000, Math.min(12_000, options.maxChars ?? DEFAULT_MAX_CHARS));
+      const page = pageAtBoundary(selected, options.offset ?? 0, maxChars);
       return {
         id,
         title: record.title,
-        section: section ?? null,
-        body: selected.length > maxChars ? trimToBoundary(selected, maxChars) : selected,
-        truncated: selected.length > maxChars,
+        section: options.section ?? null,
+        body: page.body,
+        truncated: page.nextOffset !== null,
+        offset: page.offset,
+        nextOffset: page.nextOffset,
+        totalChars: selected.length,
         anchors: record.anchors,
       };
     },
   };
 }
+
+export type { DocBrowseOptions, DocBrowseResult, DocPageOutline };

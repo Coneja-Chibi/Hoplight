@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/remote-access",
+  "sourcePath": "docs/reference/security/remote-access.md",
+  "sourceHash": "sha256:d611c620c806cf7845724c34f07e7f4c06d750de31bb56e05cbcefec5b60fa7d",
+  "summary": "Canonical security reference for reaching the studio from another device without exposing it to the open internet. Remote access is off by default, driven only from Settings greater than Remote access never a terminal, with two independent modes: Tailscale private encrypted tailnet link and LAN connect-code plus per-device approval on the local network. Containers and SSH forwarding use the printed startup receipt with Studio port and optional sandbox port; browsing the server IP is refused by the trusted Host gate; one-port is enough for ordinary Studio work but both ports are required for Lua and regex benches; this guidance does not broaden hostAllowed or weaken token Origin checks. Two listeners one trust boundary: trusted 127.0.0.1 default 8321 with Host Origin and per-launch session token; untrusted 127.0.0.1:8788 only for the Tailscale sidecar with per-boot shared secret required on untrusted and refused on trusted. Tailscale owner gate admits only the studio owner's numeric user id fail closed. LAN gate uses CSPRNG connect code argon2id hashed never sent, per-IP throttle, pending approval with caps and 15 minute TTL, self-signed TLS on 0.0.0.0:8790; session cookie is HttpOnly SameSite Lax without Secure. Host-only surface blocks remote management open shutdown restart and settings writes. Owner can kick devices; sidecar lifecycle exits on parent death and kills orphans. What is proven lists unit tests and live end-to-end verification.",
+  "topics": [
+    "remote access off by default",
+    "Tailscale owner gate",
+    "LAN connect code approval",
+    "two listeners trust boundary",
+    "sidecar shared secret",
+    "host-only routes",
+    "SSH port forwarding",
+    "fail closed WhoIs",
+    "argon2id connect code",
+    "kick device sidecar"
+  ],
+  "sections": [
+    {
+      "slug": "containers-and-ssh-forwarding",
+      "title": "Containers and SSH forwarding",
+      "level": 2,
+      "sourceHash": "sha256:413281d57007e84aa37629866a91128de938ee07f18da975f8eef9b07064a1aa",
+      "summary": "Container or headless use does not need a browser inside that environment. The hoplight ui startup receipt prints the local Studio URL, one copyable SSH command for the Studio port, and when the isolated Lua regex listener started a second forward for its random sandbox port. Run it on the browser machine, replace user@server, keep the tunnel open, browse localhost with the printed ui-port. Browsing the server or container IP is refused by the trusted Host gate. HTML may arrive before api/settings is refused, so the browser turns that 403 into localhost and SSH instructions with Studio, Settings Remote access deep link, and one-port recovery copy buttons; host-only API gates still decide whether controls may change anything. One-port is enough for ordinary Studio work; Lua and regex benches need both ports because ADR-009 uses a second ephemeral loopback origin. Tailscale and LAN serve the approved Studio surface only and do not make the sandbox listener a general remote endpoint. This does not broaden hostAllowed, expose a new listener, or weaken token and Origin checks.",
+      "topics": [
+        "SSH startup receipt",
+        "two-port sandbox forward",
+        "Host gate refuses IP browse",
+        "403 localhost instructions",
+        "does not broaden hostAllowed"
+      ],
+      "children": []
+    },
+    {
+      "slug": "two-listeners-one-trust-boundary",
+      "title": "Two listeners, one trust boundary",
+      "level": 2,
+      "sourceHash": "sha256:7d9b82eea4cd41b01c277d39db942b3ea33955451f6d8d8e86643b82856d509b",
+      "summary": "The app binds two loopback listeners in server-remote and server. Trusted 127.0.0.1 port default 8321 is the local owner's browser, gated by loopback Host Origin check plus a per-launch session token on state-changing requests via checkApiRequest in server-security. Untrusted 127.0.0.1:8788 is the ONLY thing the Tailscale sidecar reverse-proxies already-owner-gated remote traffic to; gated by a per-boot shared secret the sidecar stamps on every forwarded request checkRemoteApiRequest plus the session token on writes. The shared secret is a CSPRNG value generated once per launch in setupRemoteAccess, passed to the sidecar via environment variable never argv because argv is world-readable in the process table. The untrusted listener REQUIRES the secret so a local process or DNS-rebinding page without it fails closed. The trusted listener REFUSES the secret on any path before routing: a request carrying the sidecar secret is by definition sidecar-proxied remote traffic and has no business at the local door in createHandler.",
+      "topics": [
+        "trusted 127.0.0.1:8321",
+        "untrusted 127.0.0.1:8788",
+        "CSPRNG shared secret env",
+        "untrusted requires secret",
+        "trusted refuses secret",
+        "session token writes"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-tailscale-owner-gate",
+      "title": "The Tailscale owner gate",
+      "level": 2,
+      "sourceHash": "sha256:9008ac679ba5ad9ace15c5fd1c83488679732dbd965154744935b8ac7eea0989",
+      "summary": "The sidecar embeds Tailscale via tsnet and for every remote request calls WhoIs on the caller tailnet address, admitting only the studio owner's own account. Identity is compared by numeric user id who.UserProfile.ID equals Self.UserID via resolveOwnerID and newProxy; login-name strings are not used because tsnet can return an empty login for the owner node while the numeric id is populated. Fail closed everywhere: unresolved owner id zero denies everyone; unidentifiable caller with no WhoIs is denied; a caller whose node has no stable id is denied because a device that cannot be tracked or kicked will not be served. Identity headers forwarded upstream X-Tailscale-User and X-Tailscale-Node are taken from WhoIs never from client-supplied headers so a forged header cannot survive. These properties are unit-tested against a fake resolver in sidecar main_test.go.",
+      "topics": [
+        "WhoIs owner only",
+        "numeric UserID not login",
+        "fail closed owner id zero",
+        "no stable id denied",
+        "WhoIs identity headers",
+        "sidecar main_test"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-lan-gate-connect-code-per-device-approval",
+      "title": "The LAN gate: connect code + per-device approval",
+      "level": 2,
+      "sourceHash": "sha256:158fc96714ccb3d5f13a1971885d06719463fb0e3fa7f88c640aea72f958cea3",
+      "summary": "Without tailnet identity, LAN gates on two stranger-proof checks in lan-host. Connect code the owner reads off screen is CSPRNG with rejection sampling, argon2id-hashed via Bun.password, and never sent to the connecting device. Wrong guesses throttle per IP with exponential backoff never a global lockout. Right code makes a pending session served nothing until host approval; pending is capped per IP and expires after 15 minutes so the code alone cannot flood approvals or leave stale entries. Listener binds 0.0.0.0:8790 with self-signed TLS in lan-server so code and traffic never cross clear; cert puts LAN IP and loopback in subjectAltName, regenerates if cache misses current IP, private key chmod 600 best effort with Windows ACLs; owner verifies shown sha256 fingerprint. Nested why the session cookie is not Secure: approved cookie is HttpOnly SameSite Lax Path slash without Secure because self-signed is not a secure context in some browsers that silently drop Secure cookies.",
+      "topics": [
+        "CSPRNG connect code",
+        "argon2id never sent",
+        "per-IP throttle backoff",
+        "pending approval 15 min",
+        "self-signed TLS 8790",
+        "cookie no Secure attribute"
+      ],
+      "children": [
+        {
+          "slug": "why-the-session-cookie-is-not-secure",
+          "title": "Why the session cookie is not `Secure`",
+          "level": 3,
+          "sourceHash": "sha256:36451ddd425da97deadf5977422e88eda1ddfdefb86aa861415e964ca3c8f876",
+          "summary": "The approved-session cookie is HttpOnly SameSite Lax Path slash with no Secure attribute in lan-server. The listener is HTTPS-only, but a self-signed cert is not a secure context in some browsers, which then silently DROP a Secure cookie and leave the device stuck re-entering the code forever. SameSite Lax lets the cookie ride the reload navigation; HttpOnly still stands.",
+          "topics": [
+            "HttpOnly SameSite Lax",
+            "no Secure attribute",
+            "self-signed not secure context",
+            "avoid stuck re-enter code"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "host-only-surface",
+      "title": "Host-only surface",
+      "level": 2,
+      "sourceHash": "sha256:bef81b1ed5176478352c6f8dca2dac1e9319034a1fa85528912bf3f70f2a28de",
+      "summary": "Whether a device tailed in over Tailscale or was approved on the LAN, it may USE the studio but must never reach management or host control. isHostOnlyRoute in server-remote refuses for any remote or LAN-served handler every api/remote route that turns access on or off or kicks devices, api/open that opens a browser on the host, api/shutdown, api/restart, and settings writes. Those belong to the local owner alone.",
+      "topics": [
+        "isHostOnlyRoute",
+        "remote management blocked",
+        "api open shutdown restart",
+        "settings writes host only",
+        "use not manage"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "kicking-a-device",
+      "title": "Kicking a device",
+      "level": 2,
+      "sourceHash": "sha256:e739f536859543251a30ce465f0b0e33b85f5d2070e21ef663524bff2d76d8f6",
+      "summary": "The owner can remove any connected device from the host. Over Tailscale the app writes a kick command to the sidecar stdin; the sidecar blocklists that node stable id and denies it on the next request even though it is the owner own account via deviceTracker in main.go. On LAN the session is dropped.",
+      "topics": [
+        "kick via sidecar stdin",
+        "blocklist stable node id",
+        "LAN session drop",
+        "owner account still kickable"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "sidecar-lifecycle",
+      "title": "Sidecar lifecycle",
+      "level": 2,
+      "sourceHash": "sha256:ccd9ee4c82d7d7fb6e5b47c337c0bd3a3ad4e3c2854f4d5305c3fe8792e57186",
+      "summary": "The sidecar is a background process that speaks only over stdio pipes: status events out, kick commands in. It watches stdin; when the parent app dies stdin hits EOF and the sidecar exits so a crashed app never leaves an orphan carrying a stale secret. On startup the manager also sweeps any orphan from a prior run before spawning a fresh one via killOrphans in sidecar-manager. The binary is built as a Windows GUI-subsystem executable with bun sidecar/build.ts -H=windowsgui so spawning from the window-less packaged app never pops a console; parent-provided pipes still work as handles independent of any console. Spawns also pass windowsHide as a second layer.",
+      "topics": [
+        "stdio only pipes",
+        "exit on parent EOF",
+        "killOrphans on startup",
+        "Windows GUI subsystem",
+        "windowsHide spawn"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-is-proven",
+      "title": "What is proven",
+      "level": 2,
+      "sourceHash": "sha256:73882ffa96f222a7aa0985f7e6c59c54d17f763a3a736ff07093c35b62ecc70e",
+      "summary": "The Tailscale owner gate and its fail-closed cases are unit-tested in sidecar main_test.go. The LAN code format, per-IP throttle, pending cap, and TTL are unit-tested in lan-host.test.ts. The trusted-port secret refusal and the host-only route block are tested at the handler in server-remote.test.ts. The full LAN path from code to cookie to pending to host approval to served, with host-only routes refused to an approved device, has been verified live end-to-end at the listener boundary, and the Tailscale path has been verified live from a phone reaching the studio.",
+      "topics": [
+        "sidecar main_test",
+        "lan-host unit tests",
+        "server-remote handler tests",
+        "live LAN end-to-end",
+        "live Tailscale phone"
+      ],
+      "children": []
+    }
+  ]
+}

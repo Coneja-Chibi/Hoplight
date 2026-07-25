@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/architecture",
+  "sourcePath": "docs/reference/architecture.md",
+  "sourceHash": "sha256:10572d70e0b13e9b045261f2331904999acd36a0f266c043146312385547ce82",
+  "summary": "Engine architecture for hoplight converting AI-roleplay content without losing information. Hub and spoke maps every format through one canonical superset rather than format-to-format: N adapters instead of N times N-1, with import through toCanonical and export through fromCanonical. The shared entity wrapper carries schema version, kind, stable ID, body, profiles, and original escrow for adapter-backed character, lorebook, persona, and regex plus schema-defined preset and pack. Only fields represented by real wire formats earn canonical slots. Escrow reprojects same-format edits onto the raw twin, contains cross-format loss, refuses blind copying of executable payloads, and keeps binary carriers. Kind-discriminated adapters attach SerializeReport at orchestration boundaries; detection ranks specific formats above generic ones with a cross-kind firewall. Folders are schema for formats. Bundles extract embedded lorebooks to knowledgeRefs and re-embed through EmitContext. Semantic content capabilities preview without writing. Kit combines them with studio, transfer, and diagnostics descriptors in one progressive catalog, traverses canonical JSON through bounded result handles, retains complete draft evidence, and applies through compareAndSave plus re-read verification. Its separate docs meta-tool browses, outlines, searches, and reads approved indexed documentation. Layers remain core then formats then CLI or app. CLI commands cover convert, inspect, label, validate, formats, UI, version, and help.",
+  "topics": [
+    "hub and spoke canonical",
+    "escrow round-trip safety",
+    "adapter contract kinds",
+    "detect registry firewall",
+    "folders-as-schema load",
+    "bundles character book",
+    "capabilities Kit apply",
+    "layering CLI truth"
+  ],
+  "sections": [
+    {
+      "slug": "the-one-idea-hub-and-spoke",
+      "title": "The one idea: hub and spoke",
+      "level": 2,
+      "sourceHash": "sha256:5968e07a4eccc2c3e553ec922fcb66262633b9f5bb198ea23ec8125318f50e64",
+      "summary": "Every format converts through one canonical superset model never format-to-format directly. With N formats a mesh needs N times N-1 converters; hub-and-spoke needs N adapters each mapping to and from the canonical model. Adding a format is plus one adapter and touches no other format and no core code. import reads a file into the canonical model via toCanonical. export writes a canonical entity out via fromCanonical. A conversion is just import then export.",
+      "topics": [
+        "canonical hub only",
+        "N adapters not mesh",
+        "import toCanonical",
+        "export fromCanonical"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-canonical-entity",
+      "title": "The canonical entity",
+      "level": 2,
+      "sourceHash": "sha256:43f823948602117915df3157aca206e820abf40cb80028f3a6a4a6bb89500214",
+      "summary": "src core canonical.ts defines the stable wrapper every entity shares: schemaVersion 1, kind, id stable slug from name, body the superset content, optional profiles sparse per-app overrides, optional original the escrow envelope. Four adapter-backed kinds exist today: character lorebook persona and regex. Body shapes live under entities starting with character and lorebook docs. Canonical schemas also define preset and pack entities. The superset rule under this section gates first-class slots: only fields some real wire format serializes earn a body home; otherwise they ride escrow so RoleCall in-memory-only lorebook fields do not pretend portability.",
+      "topics": [
+        "wrapper kind body original",
+        "character lorebook persona regex",
+        "preset pack schemas",
+        "superset rule slots"
+      ],
+      "children": [
+        {
+          "slug": "the-superset-rule",
+          "title": "The superset rule",
+          "level": 3,
+          "sourceHash": "sha256:c28c436853755bfb51d9334fc35cd858e8ac3edc35720d7b9105e428afc637f7",
+          "summary": "The canonical body is a superset of what real formats express. A first-class slot requires some real wire producer; otherwise the field rides escrow only. Lorebook drops five RoleCall in-memory-only fields to escrow rather than faking portability.",
+          "topics": [
+            "union of real wires",
+            "slot needs producer",
+            "else escrow only",
+            "RoleCall lorebook example"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "escrow-lossless-round-trips-contained-cross-format-loss",
+      "title": "Escrow: lossless round-trips, contained cross-format loss",
+      "level": 2,
+      "sourceHash": "sha256:ccae3e43863f6e820c48bf100b99a1cdb1f030f9fcd46f16d76d9278e027a3fc",
+      "summary": "Each entity carries an escrow envelope in original keyed by source format holding raw and unmapped. Same-format round-trip is lossless: export re-projects the canonical body onto a clone of original raw so app-specific extensions scripts layout ids survive byte-for-byte; edited fields re-encode; untouched fields come from the twin. Cross-format conversion is contained-loss by design: only the canonical body crosses; private junk extension blocks trigger scripts bespoke layout are deliberately not copied into another app file. Safety guarantee not a gap: never blind-copies fields or executable payloads; future refinement is opt-in per-field extension mappers never blind copy. Binary carriers are kept: EscrowEntry may carry sourceMedia b64 mime for the file the payload arrived inside; PNG card pixels are authored art so Tavern-lineage PNG adapters store the carrier for portrait and future same-format re-emit; text sources omit it.",
+      "topics": [
+        "original raw unmapped",
+        "same-format byte keep",
+        "cross-format body only",
+        "never blind-copy payloads",
+        "sourceMedia PNG carrier"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-adapter-contract",
+      "title": "The adapter contract",
+      "level": 2,
+      "sourceHash": "sha256:e918a876cf444b2d98547dd0beb640b7dc8513d0639a631f185a13eb8db5b1ee",
+      "summary": "src core adapter.ts defines every format plugin as a kind-discriminated union. AdapterBase has id label outputExtensions and detect 0 to 1 confidence. CharacterAdapter adds toCanonical and fromCanonical with optional context for embedded lorebooks; AdapterOutput may carry text bytes extension and SerializeReport. Lorebook persona and regex adapters follow the same shape for their kinds. Registry stores the union; converters narrow on kind before fromCanonical so cross-kind calls are not representable. Formats are open drop-in folders; entity kinds are a small closed union grown only by adding a member and entities kind folder. Adapter-local reports optional while codecs migrate but every orchestration boundary attaches SerializeReport before CLI HTTP export or Press. Reports name escrowed dropped shadowed paths and warnings. Canonical JSON is parsed through entities runtime-schema at storage and HTTP so TypeScript interfaces are never runtime validation.",
+      "topics": [
+        "kind-discriminated adapters",
+        "detect to fromCanonical",
+        "open formats closed kinds",
+        "SerializeReport boundary",
+        "runtime-schema parse"
+      ],
+      "children": []
+    },
+    {
+      "slug": "detection-and-the-registry",
+      "title": "Detection and the registry",
+      "level": 2,
+      "sourceHash": "sha256:e722a0614da147a2f69ae541b8c3595c7d70d2a7d5ed60d62174a29885d9dbfc",
+      "summary": "src core registry.ts is the pure in-memory adapter table. detect input runs every adapter detect and returns the single highest-confidence match above a 0.5 threshold. Scores make specific formats outrank generic ones: a RoleCall card scores 1.0 and beats the generic SillyTavern reader 0.9 on the same CCv3 card. Cross-kind firewall: character and lorebook share one registry so a detector must not claim another kind. Load-bearing case: SillyTavern worldbook is also name json so character flat v1 path requires a real character signal description personality scenario first_mes mes_example not bare name; a lorebook has none so it cannot be mistaken for a character.",
+      "topics": [
+        "highest above 0.5",
+        "specificity over generic",
+        "cross-kind firewall",
+        "character signal required"
+      ],
+      "children": []
+    },
+    {
+      "slug": "folders-as-schema-the-moddability-promise",
+      "title": "Folders-as-schema (the moddability promise)",
+      "level": 2,
+      "sourceHash": "sha256:75af585ea8f8f08cc31173a5218690dc8c3d927f644c20cd1cac794c4692f7c9",
+      "summary": "src core loader.ts is the one impure edge: scans src formats star index.ts with Node filesystem primitives dynamically imports each and registers default exports. Folders whose name starts with underscore template and shared are skipped. A format is a folder; nothing central lists formats; the filesystem is the schema. index.ts default-exports one adapter or an array when a family ships more than one codec as SillyTavern and RoleCall each export character and lorebook. FormatId is an open string so a drop-in can claim any id. To add a format copy formats template fill detect toCanonical fromCanonical done with no core edits and nothing to register by hand.",
+      "topics": [
+        "loader scan formats",
+        "skip underscore folders",
+        "array multi-codec export",
+        "open FormatId drop-in",
+        "copy template no core edit"
+      ],
+      "children": []
+    },
+    {
+      "slug": "bundles-a-card-plus-its-lorebook",
+      "title": "Bundles: a card plus its lorebook",
+      "level": 2,
+      "sourceHash": "sha256:d99c031d6496e237991d9877bb3bd2271d2ffb3689e34b05308eeec68c846855",
+      "summary": "A character card can embed a lorebook data character_book in CCv2 v3. That embedded book is treated as a reference to a canonical lorebook not an inlined blob. On import a shared layer extracts the embedded book into a standalone CanonicalLorebook and links it from the character via knowledgeRefs format-agnostic for any CCv2 v3 card. On export the target character adapter re-embeds the referenced lorebook into that format book slot via EmitContext it receives format-specific. The resolved list is authoritative even when empty: clearing a link or disabling every linked book removes any stale embedded book inherited from the source twin instead of resurrecting it. convertFile ties extract on import re-embed on export for same-kind conversions. Details in concepts character-book.",
+      "topics": [
+        "character_book reference",
+        "import extract knowledgeRefs",
+        "export re-embed EmitContext",
+        "empty list clears stale",
+        "convertFile orchestration"
+      ],
+      "children": []
+    },
+    {
+      "slug": "semantic-content-capabilities",
+      "title": "Semantic content capabilities",
+      "level": 2,
+      "sourceHash": "sha256:7d48c6d06b5e84fe08512a2c60057b725ea9cb9546bf99c058c338c87a491cc6",
+      "summary": "Semantic edits are pure drop-ins under entity capabilities; folder discovery prevents drift. Capabilities return canonical previews and never write. Kit rejects identity or original escrow changes, while Workbench owns focus and undo. Character ships ten operations, including sealed script data executed only in user benches. Kit projects content metadata into one catalog shared with studio, transfer, and diagnostics descriptors; live deferred entries remain content-only. Only pure content descriptors derive exact read or draft access. General workflows retain the writable bridge and remain unknown until separately classified; deferred apply fails closed. Duplicate provider names fail before schema or dispatch construction. Direct tools stay visible while search reveals five matches, browse returns metadata, and describe reveals one schema. Hidden descriptors never surface. studio_read traverses canonical values through RFC 6901 pointers, offsets, and limits. Oversized results use UTF-8-byte-capped opaque handles navigated by result_query, with character paging beyond the cap. Drafts retain every operation, warning, and platform impact; change_query lists shows and validates without writing. Read effects cannot change canonical content. docs_query traverses approved metadata and Markdown. Apply uses compareAndSave and re-read verification.",
+      "topics": [
+        "pure capability previews",
+        "four-domain discovery catalog",
+        "deferred apply fail closed",
+        "JSON Pointer result handles",
+        "complete draft query",
+        "APPROVE-only semantic merge",
+        "docs browse outline search read",
+        "compareAndSave receipt"
+      ],
+      "children": []
+    },
+    {
+      "slug": "layering",
+      "title": "Layering",
+      "level": 2,
+      "sourceHash": "sha256:f59a04774556bb8e30a11a376c50b11fa5eea09e2e961754eb5c522112f8dd2f",
+      "summary": "Strict inward dependencies never outward: core depends on nothing; formats depend on core plus shared helpers in formats shared; cli and app depend on formats plus core. The engine never imports UI a database or a framework. Prove the converter canonical adapters tests before any UI. The CLI was the first surface for that reason; the desktop Studio hoplight ui a local Bun server plus React app now sits beside it on the same engine.",
+      "topics": [
+        "core formats app layers",
+        "no UI in engine",
+        "prove converter first",
+        "CLI then Studio same engine"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-cli",
+      "title": "The CLI",
+      "level": 2,
+      "sourceHash": "sha256:3f96b4607ab8879dc2c4c505fee5a9e996a93cac389d66077c6bf469b48903e7",
+      "summary": "src cli.ts is the thin app layer. hoplight convert in out optional to format converts a file with target from flag or output extension. inspect shows kind name key fields. label guesses format and likely origin app. validate checks detected format and canonical schema. formats lists every adapter the registry discovered as single source of truth. ui launches the desktop Studio local loopback-only server. version and help are the obvious.",
+      "topics": [
+        "convert inspect label",
+        "validate formats",
+        "ui version help",
+        "thin app layer"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:8c4012348f8e2209ad5d093bcba83a72271ae3e5f2c10185a860193adfadaffb",
+      "summary": "Canonical wrapper escrow and id policy live in src core canonical.ts. Adapter contract entity kinds and emit context live in adapter.ts. Registry detection and lookup live in registry.ts. Loader folders-as-schema lives in loader.ts. Bundle extract re-embed orchestration lives in convert.ts. Character superset schema is entities character schema.ts; lorebook superset is entities lorebook schema.ts.",
+      "topics": [
+        "core canonical adapter",
+        "registry loader",
+        "convert bundles",
+        "entity schemas"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

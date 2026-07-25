@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/safe-rendering",
+  "sourcePath": "docs/reference/security/safe-rendering.md",
+  "sourceHash": "sha256:3f55785152dab0f7d3f0154b4041c9312232e4c6af8c329d549b12447a80b0f1",
+  "summary": "Sanitizer spec of record for card-authored HTML and CSS: complete allow and forbid lists for both places the app turns untrusted markup into DOM. Concepts safe-rendering covers prose UX RenderBox and leaving-gate; this page covers the higher-risk Risu behavior.backgroundHTML and backgroundCSS surface and what is proven only at string level. Where card HTML and CSS enter the app: CharacterBehavior carries them verbatim, Risu maps unchanged, flagged hasExecutableContent until a behavior entity exists; regex replace HTML also reaches only the sealed preview; ordinary prose uses renderMarkup and dangerouslySetInnerHTML without iframe. Two rendering surfaces two boundaries: prose sanitizes with DOMPurify into the document relying on ambient CSP and a strict forbid list; backdrop preview uses narrower DOMPurify then a srcDoc iframe with scoped CSP as the load-bearing egress barrier; both run DOMPurify last and cap input. What DOMPurify allows and strips: ALLOW_DATA_ATTR false, script forbidden, prose forbids media and style form controls; backdrop keeps style and img and leans on CSP; afterSanitizeAttributes on prose only strips fetch attrs, isSafeHref, pins noopener, narrows styles. CSS sanitizeBackdropCss is defense in depth not a parser; Workshop CSS sanitizer is separate and more permissive. Iframe sandbox empty is most restrictive without allow-same-origin; scoped CSP default-src none; ambient app CSP covers prose. What is tested and what is not: jsdom string and HTTP header assertions only; no packaged WebView2 claim of full isolation.",
+  "topics": [
+    "DOMPurify allow forbid lists",
+    "prose vs backdrop surfaces",
+    "sealed HTML preview iframe",
+    "scoped CSP egress barrier",
+    "sanitizeBackdropCss defense in depth",
+    "ambient app CSP",
+    "behavior.backgroundHTML CSS",
+    "string-level proof only",
+    "no full WebView2 isolate claim"
+  ],
+  "sections": [
+    {
+      "slug": "where-card-html-and-css-enter-the-app",
+      "title": "Where card HTML and CSS enter the app",
+      "level": 2,
+      "sourceHash": "sha256:d85e22ac8063092d9c166f163d72c3b931a4e6df1e95722870c9fe55007aa859",
+      "summary": "CharacterBehavior carries optional verbatim backgroundHTML and backgroundCSS. The Risu field mapper reads and writes them unchanged with no transform either way. The module header calls this the executable behavior surface, not original-forever, carried on the raw twin and flagged at import via hasExecutableContent until a dedicated behavior entity models it. Nothing in the canonical model parses or interprets this HTML and CSS; it rides as data until a render call touches it. Regex replace effects can produce HTML strings; that output is never rendered inline and reaches the screen only through the same sealed preview. Ordinary prose fields description greeting creator notes are lower risk: markdown or HTML tagged by RenderFormat, rendered through renderMarkup with dangerouslySetInnerHTML, and no iframe between that output and app chrome.",
+      "topics": [
+        "backgroundHTML backgroundCSS",
+        "Risu unchanged map",
+        "hasExecutableContent flag",
+        "regex only sealed preview",
+        "prose no iframe"
+      ],
+      "children": []
+    },
+    {
+      "slug": "two-rendering-surfaces-two-boundaries",
+      "title": "Two rendering surfaces, two boundaries",
+      "level": 2,
+      "sourceHash": "sha256:f55f2f3285c6f9eec87bbd94ba3b5fbf9103d635aae1d4aa25cd9634d094acc0",
+      "summary": "Prose fields via render-markup and RenderBox sanitize with DOMPurify and inject into the current document with no iframe; isolation is only the app shell ambient CSP, so the forbid list must block auto-fetch elements outright. The backdrop preview sealed-html-preview wired from workshop code-pane for backgroundHTML and backgroundCSS sanitizes with a narrower DOMPurify config then loads into a srcDoc iframe carrying its own scoped CSP. The component header states sanitizing is not isolation; the iframe plus CSP are the load-bearing egress barrier. Both surfaces run DOMPurify last after any markdown-to-HTML conversion and both cap input before parsing: RENDER_INPUT_CAP 200000 characters, BACKDROP_HTML_CAP 200000, BACKDROP_CSS_CAP 100000.",
+      "topics": [
+        "prose DOMPurify no iframe",
+        "backdrop iframe CSP barrier",
+        "sanitizing not isolation",
+        "RENDER_INPUT_CAP 200k",
+        "BACKDROP HTML CSS caps"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-dompurify-allows-and-strips",
+      "title": "What DOMPurify allows and strips",
+      "level": 2,
+      "sourceHash": "sha256:7e686ff44befc960114dbd3c9707e5e6d929c951f48e4144b59a69639e8a7fc6",
+      "summary": "Both configs set ALLOW_DATA_ATTR false and add back only target on anchors. DOMPurify default empties script content and strips handlers and javascript or vbscript URIs; both also explicitly forbid script. Baseline is tested: script, onerror, SVG onload, javascript href, and a mutation-XSS payload come out clean. Prose forbid list removes style script iframe object embed form controls link meta base and all auto-fetch media including SVG image because there is no CSP of its own for network egress; verified remote media stripped. Backdrop forbid list drops script iframe object embed form controls link meta base frame frameset but not style or img; scoped CSP img-src data blob and connect-src none carry network egress. Prose afterSanitizeAttributes registered lazily strips FETCH_ATTRS, drops unsafe href unless isSafeHref http https mailto or relative then pins target blank rel noopener noreferrer, and narrows style to six props rejecting url image-set import expression behavior moz-binding var. buildBackdropSrcDoc does not install that hook; its guarantees come from own FORBID_TAGS CSS sanitizer and iframe CSP never from hook order which is untested.",
+      "topics": [
+        "ALLOW_DATA_ATTR false",
+        "prose media forbid list",
+        "backdrop keeps style img",
+        "afterSanitizeAttributes prose",
+        "isSafeHref noopener",
+        "backdrop no hook reliance"
+      ],
+      "children": []
+    },
+    {
+      "slug": "css-sanitizebackdropcss-is-defense-in-depth-not-a-parser",
+      "title": "CSS: `sanitizeBackdropCss` is defense in depth, not a parser",
+      "level": 2,
+      "sourceHash": "sha256:b333eb0a5312b90171c1d5a777fcb50e8a0fa20e6d43999473f43b563ee8937a",
+      "summary": "behavior.backgroundCSS as the css prop distinct from style tags inside backgroundHTML goes through sanitizeBackdropCss. Header states defense in depth only: sealed-preview CSP is the load-bearing egress barrier; this helper must not claim to be a complete CSS parser. Regex passes in order: neutralize close-style breakout, blank residual markup, strip import and font-face blocks, neutralize expression behavior and moz-binding, rewrite non-data url to about:blank, wipe bare http https substrings outside url. All verified at string-output level including four varied close-style breakout payloads. CSS Workshop uses separate sanitizeWorkshopCss not a reuse; it overlaps on import font-face expression behavior moz-binding and non-data url rewrite but omits CLOSE_STYLE neutralization and bare http https strip. Workshop CSP is more permissive img-src data blob https http versus backdrop data blob only. Workshop sanitizes CSS the user types against fixed mock HTML, a lower-stakes boundary not otherwise covered here.",
+      "topics": [
+        "sanitizeBackdropCss not parser",
+        "close-style breakout",
+        "non-data url about:blank",
+        "sanitizeWorkshopCss separate",
+        "Workshop more permissive CSP"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-iframe-sandbox-and-the-scoped-csp",
+      "title": "The iframe sandbox and the scoped CSP",
+      "level": 2,
+      "sourceHash": "sha256:3b2c27ebad2b360dccf2c8f15e4439ec6b2017ed429f9012ade9b509fcf7ea26",
+      "summary": "Backdrop preview uses iframe sandbox empty srcDoc with referrerPolicy no-referrer. Empty sandbox is the most restrictive HTML form: scripts forms popups pointer lock and top navigation disabled; without allow-same-origin the frame has a unique opaque origin not the app origin. srcDoc carries meta Content-Security-Policy SEALED_PREVIEW_CSP: default-src none, images and media data and blob only, script-src none, connect-src none, frame-src none, object-src none, base-uri none, form-action none, style-src unsafe-inline so inline style can apply. Policy is asserted as a literal string; tests confirm generated document has no http https after close-style breakout attempts. Tests do not run a real browser or WebView2; jsdom has no CSP implementation. Surviving claim is generated markup has no literal remote reference and the CSP string is present and well-formed, not cannot exfiltrate. ADR-009 records the same class of gap for Lua sandbox: pack measure BLOCKED; by the same posture this page does not claim full isolation or full sandbox in packaged Windows, only what code enforces and what tests exercise.",
+      "topics": [
+        "sandbox empty most restrictive",
+        "no allow-same-origin",
+        "SEALED_PREVIEW_CSP",
+        "jsdom no CSP enforce",
+        "no full isolate claim",
+        "ADR-009 same posture"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-ambient-app-csp-covers-the-prose-field-surface-too",
+      "title": "The ambient app CSP covers the prose-field surface too",
+      "level": 2,
+      "sourceHash": "sha256:2ef65fc9628038fedd2f6d05b2f47ee1ad1acba989c7448f5c81944fd09aec74",
+      "summary": "Prose fields have no iframe but are not undefended past DOMPurify. Every HTML response including the shell carries a CSP from htmlSecurityHeaders: default-src self, script-src self plus exact sha256 hashes of served inline scripts computed from the HTML so hashes cannot rot, style-src self unsafe-inline, img-src self data blob, connect-src self, worker-src self blob plus sandbox origin when set, font-src self, frame-ancestors none, base-uri none, form-action none. server applies this to every served index HTML. No unsafe-inline on script-src means even a script past DOMPurify could not run from inline source; connect-src self means a surviving element could not fetch or beacon externally. Asserted against a real HTTP Response header in server.test proving the header is served correctly not that a browser enforces every directive. Prose DOMPurify media forbid is intentional defense in depth with img-src self data blob: either layer alone would stop a remote img; they fail differently by removing the node versus blocking the network request.",
+      "topics": [
+        "htmlSecurityHeaders CSP",
+        "script-src hashed no unsafe-inline",
+        "connect-src self only",
+        "header served proven",
+        "DOMPurify CSP defense depth"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-is-tested-and-what-is-not",
+      "title": "What is tested, and what is not",
+      "level": 2,
+      "sourceHash": "sha256:b66fff5c3be6e43e80abacbe2c6f552e1268a381f7a89fbcb337d64fba521571",
+      "summary": "Prose DOMPurify stripping scripts handlers active tags unsafe hrefs styles and fetch attrs is verified by render-markup.test on jsdom sanitized strings not a real browser or packaged WebView2. Ambient app CSP well-formed and served on every HTML response is verified by server.test real HTTP Response header not live browser enforcement. Backdrop DOMPurify plus CSS regex strip of active tags and known CSS breakout is verified by sealed-html-preview.test jsdom string assertions on srcDoc not CSP network enforcement. Backdrop iframe sandbox empty without allow-same-origin blocking scripts and granting opaque origin is standard HTML sandbox specification not packaged WebView2 measurement for this component; no measurement pass exists unlike the Lua-worker ADR-009 gap it mirrors. Do not read this page as absolute cards cannot smuggle active markup. Read it as two sanitizer passes, ambient CSP, and sandboxed iframe with second CSP each remove a tested payload class with intentional cross-layer cover, and no claim of confirmation against packaged Windows WebView2.",
+      "topics": [
+        "jsdom string assertions",
+        "HTTP header not browser enforce",
+        "no WebView2 backdrop measure",
+        "not absolute cannot smuggle",
+        "cross-layer defense depth"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-010-content-capabilities",
+  "sourcePath": "docs/decisions/ADR-010-content-capabilities.md",
+  "sourceHash": "sha256:8c65b8a658a10350a7d3a45d02cc2b9458e784ef39678a95a7003174bd50630e",
+  "semanticSummaryHash": "sha256:05dd170393d7ff0ce8b88b5802e0b96a108dadefdadd63b6d8a4a87feac73e65",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:22.648Z"
+}

@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/regex-editor",
+  "sourcePath": "docs/reference/concepts/regex-editor.md",
+  "sourceHash": "sha256:1bee7bf94d05562a87fe5fa2b28c20e31ba28d546acda11d4884fdfec8e3e9c7",
+  "summary": "Regex editor is the Workbench surface for authoring a regex set under src/ui/apps/workbench/regex, transcribed from locked wireframes, with Library shelf in regex-shelf views. Everything shown about a pattern is engine truth from explainAst verified examples validate and travelLint; the UI never fabricates match claims. Three authoring modes, one rule keeps Guided Plain words and Pattern as lossless views on one pattern source. Platform honesty in the frame re-lenses Write-for phases fine-print fields and travel notes from capability matrices only. The full check (health) runs six linters with shadowing proven by real chain execution and safe duplicate fix. The recipe gallery offers thirty-seven engine-proven starters grouped by purpose. The test bench hosts live applyRules step cards and dialect import preview beside the editor. Fluid grammar collapses by pane container queries not viewport width. Source of truth is the workbench regex folder plus core/regex helpers shared with the engine page.",
+  "topics": [
+    "regex Workbench editor",
+    "engine truth UI claims",
+    "three authoring modes",
+    "Write-for platform honesty",
+    "health shadowing check",
+    "recipe gallery templates",
+    "test bench applyRules",
+    "container fluid grammar"
+  ],
+  "sections": [
+    {
+      "slug": "three-authoring-modes-one-rule",
+      "title": "Three authoring modes, one rule",
+      "level": 2,
+      "sourceHash": "sha256:2d42b9c6cccee417f23fd967caabeedd205b460c670c311355369c1e8ad42b7d",
+      "summary": "Mode switch is per-rule and lossless: the pattern is the single source and modes are views. Guided uses quiz cards in binder grammar with three steps, an it-will-catch card from template plus verified examples and one computed miss, confession line, no raw pattern, and escape to Pattern. Plain words is RoleCall example-driven builder for match-these-words family analysis stems and match-by-example with syntax-colored slash readout token chips and inline try-it. Pattern is raw find flags replace with live plain-words reading under the box and an honest partial note when the pattern exceeds builder grammar.",
+      "topics": [
+        "Guided quiz cards",
+        "Plain words builder",
+        "Pattern raw fields",
+        "lossless mode views",
+        "verified examples"
+      ],
+      "children": []
+    },
+    {
+      "slug": "platform-honesty-in-the-frame",
+      "title": "Platform honesty in the frame",
+      "level": 2,
+      "sourceHash": "sha256:c80baef83aa796d874235d6634f1ae8b94f3cf5a81f3718653fe1594cc56773e",
+      "summary": "Header Write-for tab strip re-lenses the whole editor per profile. Where it runs pills come from phasesForProfile so unsupported phases disappear and foreign phases already set show dashed amber. Fine-print fold shows only fields platformOwnsField. Travel-lint notes render dashed amber inline. All per-platform truth is read from capability matrices never hardcoded UI literals.",
+      "topics": [
+        "Write-for lens",
+        "phasesForProfile pills",
+        "platformOwnsField",
+        "travelLint amber",
+        "capability matrices"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-full-check-health",
+      "title": "The full check (health)",
+      "level": 2,
+      "sourceHash": "sha256:2972c26b244a3a73ed002552a17aa58ed1e1288116f08eabb50cef6593c43ad1",
+      "summary": "health-pane plus core/regex/inspect runs six linter checks over the whole set with problems first. Headline is shadowing detection: execution-verified examples per rule run through the real chain; a rule flags only when it provably never fires while an earlier rule did, and indeterminate runs stay silent. Duplicates get one-click safe fix switching the copy off in session until Save. Reordering advice is always fix by hand. Per-rule Health card shows that rule slice; heavy patterns wear quiet slow chips on TOC rows and N slow counts on Library shelf cards.",
+      "topics": [
+        "six linter checks",
+        "shadowing real chain",
+        "safe duplicate fix",
+        "slow chips shelf",
+        "inspect.ts health"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-recipe-gallery",
+      "title": "The recipe gallery",
+      "level": 2,
+      "sourceHash": "sha256:15ab1ac20927d7438a9f3d5be6bfb0784558a0bd1eeb8c7691f0dc3414aaaed7",
+      "summary": "gallery-pane plus templates and template-catalog provide starter recipes opened from New rule. Thirty-seven recipes group Cleanup Guardrails Formatting Style Compatibility Roleplay. Each pitch includes Before After pairs the engine computed; catalog tests re-run every example so unproven recipes do not ship. Picking appends a pre-filled rule focused in Plain-words when the pattern fits words grammar otherwise Pattern with reading; Start blank keeps empty-rule path.",
+      "topics": [
+        "37 starter recipes",
+        "engine Before After",
+        "template catalog tests",
+        "append focused rule",
+        "Start blank path"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-test-bench",
+      "title": "The test bench",
+      "level": 2,
+      "sourceHash": "sha256:de0f4ba0f3864cd25217e9d6cb3386f3887a4bea4cffa2a92d3d44af822a5441",
+      "summary": "bench-pane hosts beside the editor never as a modal. A sample line runs through real applyRules on every keystroke with one step card per rule showing before after word diff, engine-span capture chips, overlay chips, or plain skip reason, plus a final what comes out card. Second tab is import preview: drop any of five dialects, see per-rule before after against the sample, and stage-pick rules into the open set. Narrow panes become full-screen takeover so the chain stays legible while editing.",
+      "topics": [
+        "beside not modal",
+        "applyRules live steps",
+        "capture overlay chips",
+        "import preview dialects",
+        "narrow full-screen"
+      ],
+      "children": []
+    },
+    {
+      "slug": "fluid-grammar",
+      "title": "Fluid grammar",
+      "level": 2,
+      "sourceHash": "sha256:e035e4ed234ab9870f62403bcb9bc290c1d20d1ee8f07700fe8e5d6de5b0db18",
+      "summary": "Editor collapses by its pane width via container queries not viewport media queries. Below 34rem TOC becomes a Contents bottom sheet with pager, Write-for strip folds into head kebab, and bench takes full screen. Bench-open has its own 44rem stack point because two columns need less room than three.",
+      "topics": [
+        "container queries pane",
+        "34rem TOC sheet",
+        "Write-for kebab fold",
+        "44rem bench stack"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

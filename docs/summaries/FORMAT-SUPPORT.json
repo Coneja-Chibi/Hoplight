@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "docId": "FORMAT-SUPPORT",
+  "sourcePath": "docs/FORMAT-SUPPORT.md",
+  "sourceHash": "sha256:f087b8c2ace64e59b2cd7a4697266148413762184336eb4d7596089ecde62d8f",
+  "summary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows vaud formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
+  "topics": [
+    "format support matrix",
+    "live adapter registry",
+    "character lorebook persona preset regex",
+    "sillytavern default CCv3",
+    "vaud formats convert inspect",
+    "content sniff detection",
+    "round trip lossless",
+    "sprite packs none yet",
+    "samples fixtures",
+    "format matrix auto-generated"
+  ],
+  "sections": [
+    {
+      "slug": "how-to-use",
+      "title": "How to use",
+      "level": 2,
+      "sourceHash": "sha256:dedaa3c41ad14104b4fa99779863630c445e17533883c1ee6f70119f11a525ec",
+      "summary": "Documents the primary CLI entry points for format work: bun run vaud formats to list adapters, vaud inspect on a card path, vaud convert with --to for target format such as sillytavern, and vaud validate on a card json. Default portable character shape for thin hosts including C.AI Tools dumps and Crushon import is SillyTavern CCv3 through the sillytavern adapter.",
+      "topics": [
+        "vaud formats",
+        "vaud inspect",
+        "vaud convert --to",
+        "vaud validate",
+        "default sillytavern CCv3",
+        "thin host portable shape"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "characters-9",
+      "title": "Characters (9)",
+      "level": 2,
+      "sourceHash": "sha256:52e7bdaaf676e33edd1013f5be1084caafe0ae9900fa7678d7752f2398ce1483",
+      "summary": "Nine character adapters. agnai writes .json for Agnai Agnaistic. backyard writes .json for Backyard.ai or Faraday legacy json. byaf writes .byaf Backyard archives. lumiverse writes .json and .charx for ST plus modules. pygmalion writes .json and .png flat character. risu writes .charx zip with card.json and assets. rolecall writes .json for RoleCall v3 png or json cards. sillytavern writes .json for SillyTavern CCv2 and v3 png or json. vaud-json writes .json as Hoplight native. All are kind character.",
+      "topics": [
+        "agnai backyard byaf",
+        "lumiverse pygmalion risu",
+        "rolecall sillytavern",
+        "vaud-json native",
+        "character adapters nine",
+        "charx png json"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "lorebooks-6",
+      "title": "Lorebooks (6)",
+      "level": 2,
+      "sourceHash": "sha256:3c4785ce39e7a5c07398cd8e406423cee3a00d743ecf1ee0f0128e26d70b7e0d",
+      "summary": "Six lorebook adapters. agnai-lorebook writes .json Agnai memory books. marinara-lorebook writes .json native .marinara.json export. novelai-lorebook writes .lorebook for NovelAI native export or json. risu-lorebook writes .json RisuAI native export. rolecall-lorebook writes .json RoleCall v1 export. sillytavern-lorebook writes .json SillyTavern world info worldbook. All are kind lorebook.",
+      "topics": [
+        "agnai memory book",
+        "marinara lorebook",
+        "novelai .lorebook",
+        "risu rolecall lorebook",
+        "sillytavern world info",
+        "six lorebook adapters"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "personas-4",
+      "title": "Personas (4)",
+      "level": 2,
+      "sourceHash": "sha256:9a61148e210a6bbed679015998a60c58efee4911a09cd5d62f2b11dee8dde783",
+      "summary": "Four persona adapters, all writing .json. lumiverse-persona is a Lumiverse account object. marinara-persona carries theming and stat bars sealed. rolecall-persona is rcpersona or RC persona-card export. sillytavern-persona is a SillyTavern personas backup where the default persona is primary and the rest ride sealed.",
+      "topics": [
+        "lumiverse persona",
+        "marinara persona sealed",
+        "rolecall rcpersona",
+        "sillytavern personas backup",
+        "four persona adapters"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "presets-4",
+      "title": "Presets (4)",
+      "level": 2,
+      "sourceHash": "sha256:eca1f83a6ad238d97bb38ce3b31f78462cf48ef950307db14460428fd845b5f8",
+      "summary": "Four preset adapters, all writing .json. lumiverse-preset imports a wrapper and exports as an ST flat preset. marinara-preset is Marinara-Engine marinara_preset export. rolecall-preset is RoleCall preset export with ST grammar plus macros, choice groups, and readme. sillytavern-preset is SillyTavern completion preset as flat json.",
+      "topics": [
+        "lumiverse preset wrapper",
+        "marinara_preset",
+        "rolecall preset macros",
+        "sillytavern completion preset",
+        "four preset adapters"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "regex-script-sets-5",
+      "title": "Regex script sets (5)",
+      "level": 2,
+      "sourceHash": "sha256:ef2a820e32702186dc2b8e2d6c04ff50c83a8872981f2e41265b68e130bb5bcc",
+      "summary": "Five regex script set adapters, all writing .json. lumiverse-regex is a versioned export file. marinara-regex is an API dump array. risu-regex covers .risum module or customscript array. rolecall-regex is a chat-pipeline find and replace set. sillytavern-regex is a bare array or card extensions.regex_scripts. All are kind regex.",
+      "topics": [
+        "lumiverse regex export",
+        "marinara regex dump",
+        "risu .risum customscript",
+        "rolecall chat pipeline regex",
+        "sillytavern regex_scripts",
+        "five regex adapters"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "sprite-packs-0",
+      "title": "Sprite packs (0)",
+      "level": 2,
+      "sourceHash": "sha256:4a9f8ca951836bde138a8a51612485e37f5cdda2d30f0e7f6213c9cbd9c93527",
+      "summary": "Sprite packs currently list zero format adapters in the live matrix. The studio already edits the pack kind as a first-class content type, but no import or export format adapter exists yet. The table row is an explicit placeholder with kind pack, empty id, and no writes extensions until a format is registered.",
+      "topics": [
+        "sprite packs empty",
+        "pack kind studio only",
+        "no import export yet"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "notes",
+      "title": "Notes",
+      "level": 2,
+      "sourceHash": "sha256:2b1c3da44551a2b4063c17c31e1636cb4d61768e87247eaa7b8d6877416500ca",
+      "summary": "Detection is content-sniff, not only extension; prefer vaud label when unsure. Same-format round-trips aim for lossless where fixtures prove it, see adapter tests and samples/. Cross-format convert keeps what the target can express; use export honesty in the studio UI for drop notes. Dropped or skipped host-native bags such as Character.AI and Crushon should use Default CCv3 via the sillytavern adapter.",
+      "topics": [
+        "content sniff detection",
+        "vaud label",
+        "lossless same-format round trip",
+        "cross-format export honesty",
+        "Default CCv3 Character.AI Crushon"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "samples",
+      "title": "Samples",
+      "level": 2,
+      "sourceHash": "sha256:81ac09ec74ad596bb758d9810358486cd2e4b484a922e187e6c215ea99672377",
+      "summary": "Lists sample fixture folders under samples/. sillytavern holds CCv2/v3 and Seraphina.png. rolecall has RC character plus lorebook. risu has .charx and card json. agnai, backyard .byaf, pygmalion classic flat, lumiverse ST plus Lumi extensions, chub ST plus extensions.chub, marinara lorebook envelope plus prompt preset, and novelai lorebook complete the corpus map.",
+      "topics": [
+        "samples sillytavern",
+        "samples rolecall risu",
+        "samples backyard byaf",
+        "samples lumiverse chub",
+        "samples marinara novelai",
+        "fixture corpus folders"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

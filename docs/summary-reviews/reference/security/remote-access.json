@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/remote-access",
+  "sourcePath": "docs/reference/security/remote-access.md",
+  "sourceHash": "sha256:d611c620c806cf7845724c34f07e7f4c06d750de31bb56e05cbcefec5b60fa7d",
+  "semanticSummaryHash": "sha256:133c22579d39024955fac5ca506b466abcf5a4d730f0508079acd9db825fc035",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:50.748Z"
+}

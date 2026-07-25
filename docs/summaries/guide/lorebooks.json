@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/lorebooks",
+  "sourcePath": "docs/guide/lorebooks.md",
+  "sourceHash": "sha256:2980b2995a88a45f72315be397a9961029d012a0ec3b586f70c98cbe2ed946ce",
+  "summary": "Build a lorebook covers writing entries, keying them to fire, and placing them in the assembled prompt. Other apps call this world info, character book, or memory. The short version is create or open a lorebook, add a blank entry from the binder, give it Keys chips or switch Always on or By meaning, place it on the Where rail at World Character or a richer host stop, then Save or ctrl+s. Keywords and triggers fire one of three ways: Keywords default on recent chat, Always on every turn, By meaning by similarity only for Hoplight or SillyTavern; Advanced adds Only together with AND/NOT sets, regex chance, and min messages between activations; whole-word and case defaults inherit from Book rules with per-entry override; Keywords with no keys never fires and health flags it. Where it lands is after scan chance cooldown sticky delay and optional recursion budgets; World and Character are the portable floor; richer stops under Hoplight, subset on SillyTavern, World Character only on Chub Lumiverse Agnai, and Risu NovelAI force character floor; foreign positions stay marked and export to closest slot. Building the book covers TOC Always on and Entries with health pips, bulk Select, Book rules defaults, Writing for host lens that hides not deletes, and Knowledge rail Attach lorebook. Tips cover new entry defaults, Try a line, Wake map, Always on portability, and full check Fix all.",
+  "topics": [
+    "lorebook entries keys",
+    "Keywords Always By meaning",
+    "Where rail positions",
+    "Book rules Writing for",
+    "Attach lorebook Knowledge",
+    "health pips Select",
+    "Try a line Wake map"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:0f94b71caaeb7e6574978138b49e7eed95cd910a8ace826535e82d88e50ab583",
+      "summary": "Create or open a lorebook from the Library with New lorebook on an empty shelf or open one you already have. Add an entry in the binder with + New entry in the table of contents; a blank entry starts with no keywords so it will not fire until you give it one. Open the Keys card and type a word then Enter or comma to add a chip; switch the entry to Always on or By meaning instead if you do not want keyword dependence. Place it via When and where then Where and pick a stop on the rail: World, Character, or a richer position your target host supports. Save with the Save button or press ctrl+s.",
+      "topics": [
+        "create open lorebook",
+        "New entry blank",
+        "Keys chips triggers",
+        "Where rail place",
+        "Save ctrl+s"
+      ],
+      "children": []
+    },
+    {
+      "slug": "keywords-and-triggers",
+      "title": "Keywords and triggers",
+      "level": 2,
+      "sourceHash": "sha256:4a40e4fb8d216b91d8b6c65b5e70fd9f8d8b5d9731be198b3c8468320eeae7d8",
+      "summary": "Each entry Keys card holds primary keywords typed one at a time as chips. An entry fires one of three ways picked per entry: Keywords default when a key shows in recent chat; Always on skips matching and injects every turn; By meaning fires on similarity to chat rather than exact word and only survives writing for the Hoplight lens or SillyTavern since no other host on Writing for carries it. Switch Keys to Advanced for a second optional set under Only together with, combined against primary by AND any, AND all, NOT any, or NOT all; Advanced also exposes regex with flags, per-key chance, and a minimum messages wait between activations. Whole-word and case-sensitive matching default from Book rules and can be overridden per entry; each toggle cycles inherit, on, off. An entry set to Keywords with no keywords never fires; health check flags it; brand-new entries start that way so give at least one key or leave Keywords.",
+      "topics": [
+        "Keys chips primary",
+        "Keywords Always By meaning",
+        "Advanced secondary keys",
+        "regex chance cooldown",
+        "inherit on off",
+        "empty keys never fire"
+      ],
+      "children": []
+    },
+    {
+      "slug": "where-it-lands",
+      "title": "Where it lands",
+      "level": 2,
+      "sourceHash": "sha256:6c85f51f2c5e1b81dc7d5ada74eb2200080d4f6cefd461b1bc49e8573a056e2e",
+      "summary": "A key clearing the scan window is only the first gate. Chance, cooldown, sticky, and delay still must pass, and if recursion is on one entry text can wake another entry keys under the same rules. If the book token or entry budget is full a fired entry can still be cut. What survives lands at the Where rail position, with depth and role when that position is Depth or Append which behave the same. World and Character are the portable floor every write host keeps. Richer stops Scene Depth Append Top Bottom Before example After example are only under Hoplight; SillyTavern keeps World Character Depth Before example After example; Chub Lumiverse Agnai keep World and Character only; Risu and NovelAI have no placement dial and every entry lands on the character floor. Pick a position your host does not carry and the rail keeps it marked foreign so export lands at the closest slot instead of losing it.",
+      "topics": [
+        "scan chance cooldown",
+        "recursion budget cut",
+        "World Character floor",
+        "richer Hoplight stops",
+        "host placement subsets",
+        "foreign closest export"
+      ],
+      "children": []
+    },
+    {
+      "slug": "building-the-book",
+      "title": "Building the book",
+      "level": 2,
+      "sourceHash": "sha256:32526ab906f150eef5f0d7da8e037930cd308c003ae2eeffd4548ae3749cc34a",
+      "summary": "The table of contents groups entries into Always on and Entries, is searchable, and reorders by dragging rows only while not searching or in Select mode. A colored pip shows health: green ready, amber worth a look, red problem, grey off. Click Select to pick several entries at once and turn them on or off, delete them, or move them into a new book. Book rules behind the header link hold book-level defaults every entry inherits: name description case sensitivity whole words recursion global scan depth token or entry budget and named categories. Writing for next to it switches which fields the binder shows to match the export host; it never deletes anything, only hides what that host cannot carry. A lorebook sits alone in the Library until you attach it to a character or persona on the Knowledge rail with Attach lorebook; reorder or detach there. A staged character brings attached lorebooks along automatically when you run the press.",
+      "topics": [
+        "TOC Always on Entries",
+        "health pips Select",
+        "Book rules defaults",
+        "Writing for host lens",
+        "Attach lorebook Knowledge",
+        "press brings attached"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:6fa96643d36e57120e3ec1b7fe6a924829925be76788632459492c8edef364c5",
+      "summary": "A new entry starts on World at 100 percent chance with no keywords; nothing is broken, it just will not do anything until you key it. Use Try a line on the binder right rail to paste a sample chat line and see exactly which entries fire and why using the same matcher real chat uses. Wake map on the same rail shows which entries can wake your focused entry through recursion and which it can wake in turn. Always on works on every host; By meaning does not, so check Writing for before you rely on it. Open the full check from the rail to see every finding across the book at once, with Fix all where a fix is safe to apply automatically.",
+      "topics": [
+        "new entry World defaults",
+        "Try a line matcher",
+        "Wake map recursion",
+        "Always on portable",
+        "full check Fix all"
+      ],
+      "children": []
+    }
+  ]
+}

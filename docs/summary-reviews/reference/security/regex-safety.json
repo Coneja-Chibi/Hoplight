@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/regex-safety",
+  "sourcePath": "docs/reference/security/regex-safety.md",
+  "sourceHash": "sha256:3fff3f463fffcf9fdef82daf0ee27d36e54aa69197257df9c0a92c751dffe58b",
+  "semanticSummaryHash": "sha256:732d04c9975ccc3735660ebeb9c52fbff52bdb12bdbf6c9d8d0f044c1df4c7da",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:50.220Z"
+}

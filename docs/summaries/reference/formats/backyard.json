@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/backyard",
+  "sourcePath": "docs/reference/formats/backyard.md",
+  "sourceHash": "sha256:60b4863eb7cebded92c23b9c6cd1624c876c4adc20482e4ecc0bdf639a25558d",
+  "summary": "Developer reference for Backyard.ai Faraday adapters: two unrelated character shapes in one folder src/formats/backyard exporting backyard legacy flat JSON with aiName era writing .json and byaf ZIP archives with manifest character scenarios and images writing .byaf. Neither is a Tavern superset. Detection Legacy JSON scores 0.9 on Backyard-unique string keys aiName aiPersona aiDisplayName customDialogue, 0.55 weak persona-only fallback guarded against description and Agnai kind character, else 0. BYAF scores 1 only when bytes are ZIP PK with manifest characters and scenarios arrays and characters zero string, no weak tier. Field map Legacy uses firstStr alias lists and brace placeholder conversion on text fields; models two names display versus char shorthand nickname; leaves most CharacterBody unset beyond mapped slots. Field map BYAF maps archive via archiveToBody with verbatim text no brace conversion, multi-scenario alternate greetings with deterministic byaf path ids, media data URIs, and loreItems sampler transcript non-primary fields escrow only. Escrow and round-trip cover original.backyard with non-bijective toTavern toBackyard fieldOut unedited raw preserve, original.byaf full archive twin packByaf applyBody media and greeting path resolution refuse hostile ids, and from-scratch minimal shell. Quirks cover two-names fix, no version fabrication, lossy mature rating, one character per archive, titled versus untitled alt homes, BYAF detect no weak tier, creator tags bypass conversion. Source of truth lists adapter container scenario coverage sample files.",
+  "topics": [
+    "backyard legacy JSON",
+    "byaf ZIP archive",
+    "two name keys",
+    "brace placeholder conversion",
+    "detect 0.9 0.55 1.0",
+    "alternate greeting scenarios",
+    "original.byaf twin pack",
+    "media data URI round-trip"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:73f6b8f4e10710ec1b6a56a3091a36bf221a06c920f36500c9f6b332d6eb61a6",
+      "summary": "Registry keeps highest detect above 0.5. Legacy JSON detect reads only input.text: 0 if no text non-JSON or non-object; 0.9 if any of aiName aiPersona aiDisplayName customDialogue is a string; 0.55 if persona is string description is undefined and kind is not character so it misses flat cards pairing persona with description and Agnai cards with kind character; else 0. Both scores sit below 1.0 RoleCall Risu Agnai and the 0.9 Tavern reader on shared inputs; 0.55 clears threshold barely by design. BYAF detect reads only input.bytes: 0 unless ZIP PK signature then unzips only manifest.json requiring characters and scenarios arrays and characters zero a string; match scores 1 with no weaker tier because schema-shaped manifest ZIP is unambiguous.",
+      "topics": [
+        "legacy 0.9 unique keys",
+        "0.55 persona fallback",
+        "Agnai kind guard",
+        "BYAF PK manifest 1.0",
+        "no BYAF weak tier"
+      ],
+      "children": [
+        {
+          "slug": "legacy-json",
+          "title": "Legacy JSON",
+          "level": 3,
+          "sourceHash": "sha256:bba2216ffe22873a8410a906bfd2287ded7360e45afee2a0d0e11e9067f3523d",
+          "summary": "Text-only detect with two tiers: 0.9 on Backyard-unique string keys, 0.55 persona-only with description undefined and kind not character, else 0. Scores intentionally below 1.0 specialists and sit at or under generic Tavern 0.9 on shared inputs.",
+          "topics": [
+            "aiName customDialogue",
+            "weak persona 0.55",
+            "kind character guard"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "byaf",
+          "title": "BYAF",
+          "level": 3,
+          "sourceHash": "sha256:3ef0d628163526780d164bd4099176ebe8def41246d94c082c915f8bab179434",
+          "summary": "Bytes-only detect: ZIP PK then manifest.json with characters and scenarios arrays and first character id string scores 1; any failure returns 0. No ambiguous middle tier in the registry.",
+          "topics": [
+            "ZIP PK signature",
+            "manifest characters scenarios",
+            "score 1 or 0"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:951250660edd85a1ed7e8092fca966a833b07f934f0fe3baac44d22046fdc4bc",
+      "summary": "Legacy JSON maps identity name nickname description version personality scenario systemPrompt firstMessage exampleMessages creator tags via first non-empty alias lists; converted text fields run brace placeholder conversion; nickname carried only when aiName differs from resolved name. Unmapped CharacterBody slots stay unset and survive only in escrow. BYAF maps through byaf-container then archiveToBody: displayName name persona narrative formattingInstructions firstMessages exampleMessages images background attribution discovery rating; text is verbatim without brace conversion; alternate greetings fold extra primary firstMessages and later scenarios with deterministic byaf path ids; loreItems sampler settings chat transcript and non-primary scenario fields stay escrow only.",
+      "topics": [
+        "firstStr alias lists",
+        "converted text fields",
+        "BYAF archiveToBody",
+        "alternate greeting ids",
+        "loreItems escrow only"
+      ],
+      "children": [
+        {
+          "slug": "legacy-json-1",
+          "title": "Legacy JSON",
+          "level": 3,
+          "sourceHash": "sha256:bb9e7ebac94a94e06d06f36fbe843625302744af0664fddedb7a7759b1b17ba8",
+          "summary": "Canonical table for legacy wire aliases: name from aiDisplayName aiName displayName name; nickname from aiName when distinct; description personality scenario systemPrompt greetings examples creator tags. Converted fields run toTavern on import. Everything else in CharacterBody left unset; other source keys survive only through escrow. Two Backyard name keys are distinct authored fields modeled as name versus nickname.",
+          "topics": [
+            "alias firstStr map",
+            "converted placeholders",
+            "two names nickname",
+            "unset body escrow"
+          ],
+          "children": []
+        },
+        {
+          "slug": "byaf-1",
+          "title": "BYAF",
+          "level": 3,
+          "sourceHash": "sha256:60031f729d029ec6f04d5a99c061da13ead80d664880017c7d92acba5da8ac52",
+          "summary": "archiveToBody maps displayName name persona narrative formattingInstructions firstMessages examples images background author timestamps isNSFW rating. persona.personality left unset because BYAF has no personality description split. Alternate greetings from extra primary firstMessages and secondary scenarios with byaf path ids for stable re-import. Media re-embedded as data URIs; missing image files skipped. loreItems not mapped to lorebook refs; sampler runtime transcript and non-primary scenario extras stay escrow only.",
+          "topics": [
+            "scenarios primary first",
+            "verbatim no braces",
+            "alt greeting path ids",
+            "media data URIs",
+            "escrow sampler lore"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:c45f5653960fe0d78fee5862f7f5df73d633c377c93bed8d441f8d807e36523c",
+      "summary": "original.backyard holds whole parsed raw for legacy; original.byaf holds full opened archive base64. Legacy placeholders single-brace to Tavern double on import via toTavern with lookaround safe char; inverse toBackyard only handles char and user so is lossy. fieldOut re-emits raw when unedited so non-bijection cannot corrupt untouched cards; edited fields write lossy inverse. BYAF export rebuilds archive from twin, applyBodyToArchive, packByaf; sampler transcript grammar ride untouched. Media unedited versus edited split; clearing images deletes archive files. Alternate greetings match by stable scenario path id with hostile id refusal; orphan secondary scenarios deleted; titled title match only without resolvable id. From-scratch character synthesizes minimal manifest character scenario shell without requiring a source archive.",
+      "topics": [
+        "toTavern toBackyard lossy",
+        "fieldOut unedited raw",
+        "byaf twin packByaf",
+        "media clear deletes files",
+        "greeting path id safety",
+        "from-scratch shell"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:2e530196a8a24307fb2eadb50a83fe4746d7b44bd9b055a318a8c79a0fba0271",
+      "summary": "Two names two keys: displayName name versus aiName nickname; earlier fold destroyed distinct aiName and was fixed with regression WB-1; BYAF applyBody same rule. No version fabrication at parse; export invents 1.0 only for from-scratch without twin. BYAF boolean isNSFW is lossy toward mature never produced on import; export only writes for exact explicit or all-ages else leaves twin; from-scratch defaults false unless explicit. One character per archive characters zero only per ahoylabs cap. Untitled alts fold into primary firstMessages; titled alts become secondary scenario files; retitle alone does not move homes. BYAF detect has no weak tier. creator and tags bypass placeholder conversion on legacy.",
+      "topics": [
+        "WB-1 two names fix",
+        "version 1.0 floor only",
+        "mature rating lossy",
+        "one character archive",
+        "titled alt scenario home",
+        "tags bypass conversion"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:e2d7259be2756e1d9eff51809a53521e20f70cd6fb3e61beec87e8eb5616a9b2",
+      "summary": "Authoritative files: legacy adapter index.ts for detect toCanonical fromCanonical plus coverage.ts; BYAF adapter byaf.ts; ZIP container open pack original twin in byaf-container.ts; scenario and greeting id mapping in byaf-scenarios.ts; byaf-coverage.ts; canonical.ts for escrow and id policy; samples/backyard ahoylabs byaf conformance archives; legacy JSON shape fixtured only in backyard.test.ts because no clean public sample was found.",
+      "topics": [
+        "index byaf container",
+        "scenarios coverage",
+        "canonical escrow",
+        "byaf samples tests"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

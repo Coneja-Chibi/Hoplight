@@ -11,8 +11,10 @@ import {
 
 const INFRA = new Set([
   "catalog.ts",
+  "descriptor.ts",
   "exposure.ts",
   "index.ts",
+  "navigation.ts",
   "operations.ts",
   "search.ts",
   "shared.ts",

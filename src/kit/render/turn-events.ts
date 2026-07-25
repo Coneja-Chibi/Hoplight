@@ -55,6 +55,21 @@ export const EMPTY_TOOLS = null;
 const landThought = (view: TurnView, now: number): TurnView => {
   if (view.live.phase !== "thinking") return view;
   const seconds = Math.max(1, Math.round((now - view.live.since) / 1000));
+  const prior = view.lines.at(-1);
+  if (prior?.role === "thought" && !prior.open) {
+    return {
+      ...view,
+      lines: [
+        ...view.lines.slice(0, -1),
+        {
+          ...prior,
+          text: `${prior.text}${view.live.text}`,
+          seconds: prior.seconds + seconds,
+        },
+      ],
+      live: { phase: "waiting" },
+    };
+  }
   return {
     ...view,
     lines: [...view.lines, { role: "thought", text: view.live.text, seconds, open: false }],

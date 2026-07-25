@@ -16,6 +16,7 @@ export interface ChangeSession {
     entity: ParsedCanonicalEntity,
   ): ChangeDraft;
   get(id: string): ChangeDraft | null;
+  list(): readonly ChangeDraft[];
   forTarget(kind: ContentKind, id: string): ChangeDraft | null;
   discard(id: string): ChangeDraft | null;
   startApply(id: string): ChangeDraft | null;
@@ -75,9 +76,16 @@ export function createChangeSession(): ChangeSession {
             proposed,
             operations: [
               ...current.operations,
-              { capabilityId: capability.id, input, changes: preview.changes },
+              {
+                capabilityId: capability.id,
+                input,
+                changes: preview.changes,
+                warnings: preview.warnings,
+                platformImpact: preview.platformImpact,
+              },
             ],
             warnings: [...current.warnings, ...preview.warnings],
+            platformImpact: [...current.platformImpact, ...preview.platformImpact],
           }
         : {
             id: `draft-${++sequence}`,
@@ -85,9 +93,16 @@ export function createChangeSession(): ChangeSession {
             baseline: structuredClone(entity),
             proposed,
             operations: [
-              { capabilityId: capability.id, input, changes: preview.changes },
+              {
+                capabilityId: capability.id,
+                input,
+                changes: preview.changes,
+                warnings: preview.warnings,
+                platformImpact: preview.platformImpact,
+              },
             ],
             warnings: [...preview.warnings],
+            platformImpact: [...preview.platformImpact],
             status: "draft",
           };
 
@@ -98,6 +113,10 @@ export function createChangeSession(): ChangeSession {
 
     get(id) {
       return drafts.get(id) ?? null;
+    },
+
+    list() {
+      return [...drafts.values()];
     },
 
     forTarget(kind, id) {

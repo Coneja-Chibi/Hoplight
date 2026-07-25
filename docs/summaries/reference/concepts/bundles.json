@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/bundles",
+  "sourcePath": "docs/reference/concepts/bundles.md",
+  "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
+  "summary": "Bundles explain how a character card that embeds a lorebook becomes two linked canonical entities instead of one blob. On import the embedded book splits into a standalone CanonicalLorebook while the character keeps only body.knowledgeRefs id links; on export the target adapter re-embeds resolved lorebooks into its native slot. The page is the join mechanism and call-site lifetimes, not the CCv2/v3 wire map (see character-book) or the shared wrapper (see canonical-model). knowledgeRefs: the join field is an ordered id list distinct from worldName, which names an external worldbook by title. Import: extract at the boundary runs inspectBundle with shared extractCharacterBook or an adapter extractLorebook override such as Agnai. Export: re-embed at the boundary runs emitBundle with EmitContext lorebooks and multi-book merge when the wire has one slot. Two call sites, two lifetimes contrast the CLI one-shot convertFile path with Studio persist-resolve-export. Source of truth tables convert.ts, adapter contracts, studio bundle, and CLI wiring.",
+  "topics": [
+    "bundle character lorebook",
+    "knowledgeRefs join field",
+    "inspectBundle emitBundle",
+    "import extract boundary",
+    "export re-embed boundary",
+    "CLI vs Studio lifetimes",
+    "EmitContext lorebooks",
+    "worldName vs knowledgeRefs"
+  ],
+  "sections": [
+    {
+      "slug": "knowledgerefs-the-join-field",
+      "title": "knowledgeRefs: the join field",
+      "level": 2,
+      "sourceHash": "sha256:39552ae478cb1d562857fd31d5e56e1c7f6bdcc961c853e2aef685a20375ac1e",
+      "summary": "CanonicalCharacter body.knowledgeRefs is an ordered string array of linked lorebook ids that export adapters embed when the format requires it. It is not worldName: worldName is the creator intent to auto-load an external worldbook by name, while knowledgeRefs links an embedded or library book by canonical id. The field is a list because KnowledgeRail lets authors attach, detach, and reorder multiple library books on one character; attachKnowledgeRef appends only if absent. Import extraction is narrower: a single card import yields at most one extracted book, so ConvertResult.lorebooks is zero or one entry per pass. Multi-book knowledgeRefs lists are therefore Studio-authored, never produced alone by one import, and they are exactly what forces export-side merge when the target wire supports only one character_book slot.",
+      "topics": [
+        "knowledgeRefs ordered ids",
+        "worldName by name",
+        "KnowledgeRail multi attach",
+        "import one book only",
+        "Studio multi-book lists"
+      ],
+      "children": []
+    },
+    {
+      "slug": "import-extract-at-the-boundary",
+      "title": "Import: extract at the boundary",
+      "level": 2,
+      "sourceHash": "sha256:281fee7d4acc52906d50b92f8baad97dc9c7c4348bc5f0a73d8dae0616c9026f",
+      "summary": "inspectBundle runs once per import. First source.toCanonical leaves any embedded book inside entity.original in the source raw shape. Extraction then chooses: if CharacterAdapter implements extractLorebook for a dialect the shared mapper cannot read, that override runs; otherwise extractCharacterBook on primaryOriginalRaw handles only CCv2/v3 character_book. Finally knowledgeRefs is set to the new lorebook id. Agnai is the concrete override case with native characterBook MemoryBook and its standalone lorebook codec; SillyTavern, RoleCall, and Risu fall through to the shared path. The shared extractor also escrow-stashes the raw book on the lorebook under key character-book, not the host format id, so later standalone export can still overlay that twin. Wire field mapping lives on the character-book concept page.",
+      "topics": [
+        "inspectBundle steps",
+        "extractLorebook override",
+        "extractCharacterBook shared",
+        "Agnai MemoryBook",
+        "character-book escrow key"
+      ],
+      "children": []
+    },
+    {
+      "slug": "export-re-embed-at-the-boundary",
+      "title": "Export: re-embed at the boundary",
+      "level": 2,
+      "sourceHash": "sha256:ce19bd9c3bd67f44c01e01a9454cadbc0e42b10f17ae05a48d183c406f0e739f",
+      "summary": "Extraction is shared; re-embedding belongs to the target adapter. emitBundle builds EmitContext with resolved lorebooks and passes it to target.fromCanonical. EmitContext is optional and cross-entity, resolved by CLI or Studio, never by core. Adapters that embed knowledge write context.lorebooks into their slot; formats without embedding or that only use worldName ignore it. Three-way contract: omitted lorebooks leaves the twin alone; nonempty list replaces the embedded book; empty list clears both CCv2/v3 slots so resolution stays authoritative without breaking direct same-format adapter round trips. When multiple linked books hit a single slot, lorebooksToCharacterBook collapses them: one ref overlays or encodes that book; many refs concatenate entries under the first book's settings and record names plus entry counts in extensions.vaud_source_books so the split stays recoverable.",
+      "topics": [
+        "emitBundle EmitContext",
+        "three-way lorebooks contract",
+        "adapter re-embed job",
+        "multi-book merge",
+        "vaud_source_books"
+      ],
+      "children": []
+    },
+    {
+      "slug": "two-call-sites-two-lifetimes",
+      "title": "Two call sites, two lifetimes",
+      "level": 2,
+      "sourceHash": "sha256:e726b1cbbddbe71c4ff34367409361f77bc396978418201042302db2ef3abec4",
+      "summary": "knowledgeRefs is the same field, but resolution differs by caller. The CLI hoplight convert path is one ephemeral convertFile pass: inspectBundle then emitBundle in memory, no lorebook file on disk; if the target embeds knowledge the book rides inside the single output and CLI only reports entry counts. The Studio persists character and lorebook as separate Library entities. handleInspect returns both pieces; save-bundle writes lorebook first, rewrites knowledgeRefs on keep-both rename, then character. Later export resolves refs via resolveLorebooksFromStore and fails closed with 422 naming missing ids rather than exporting a silent book-less card. Disabled books are omitted with knowledgeRefs named as not carried so export is not a false success. App and CLI both re-embed through the same emitBundle primitive after their own resolution steps.",
+      "topics": [
+        "CLI convertFile ephemeral",
+        "Studio two Library entities",
+        "save-bundle order",
+        "resolve fail closed 422",
+        "disabled books omitted"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:ee7b85db0c319eaebac6da637a437fc367522f1cfeab7452efa5a9ed8cbd849e",
+      "summary": "Ownership map for bundle code. convert.ts owns inspectBundle, emitBundle, convertFile, and rewriteKnowledgeRefs. adapter.ts defines EmitContext and extractLorebook. character-book.ts owns shared CCv2/v3 extract and re-embed. character schema owns knowledgeRefs and worldName. KnowledgeRail session ops attach and reorder refs. studio/bundle.ts persists lorebook then character. server-engine.ts wires Studio inspect export and fail-closed resolution. cli.ts wires convert. book-ops filters enabled books. Agnai index is the non-CCv3 override example.",
+      "topics": [
+        "convert.ts orchestration",
+        "adapter EmitContext",
+        "studio bundle save",
+        "server-engine resolve",
+        "CLI convert wiring"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

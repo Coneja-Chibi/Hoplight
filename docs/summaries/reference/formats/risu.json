@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/risu",
+  "sourcePath": "docs/reference/formats/risu.md",
+  "sourceHash": "sha256:0595208177c34967e26a9d0a82152e5b47b45513c73a309c155601c42ae7fd3a",
+  "summary": "RisuAI format is the developer authority for how Hoplight's risu family detects, maps, and round-trips .charx character cards, native lorebook exports, and regex script sets through the canonical model. The folder exports three codecs: risu character for .charx ZIP with card.json assets and optional module.risum, risu-lorebook for native lore JSON, and risu-regex for .risum or bare customscript rows writing JSON only. Detection covers Character via PK magic and card.json at 1.0 with bounded unzip, and Lorebook via type risu data array at 1 or character_book extract at 0.75. Field map reuses shared Tavern data mapping plus first-class extensions.risuai behavior media and book extract for Character, and native key secondkey alwaysActive insertorder folder modes for Lorebook. Escrow and round-trip seals original.risu with raw assets module and safety flags and overlays lorebook twins; same-format is data-lossless not byte-identical ZIP. Quirks document always CCv3, millisecond dates, selective media cross-format, behavior never executed, risum edit-blocked re-encode, risu-regex scores and rows-only export, native role, and insertorder as sortOrder. Source of truth lists adapters rpack helpers and samples. Regex codec detail lives mainly under Quirks.",
+  "topics": [
+    "risu charx codec",
+    "risu-lorebook native",
+    "risu-regex rows only",
+    "extensions.risuai first-class",
+    "module.risum rpack",
+    "behavior never executed",
+    "millisecond date fix",
+    "insertorder sortOrder",
+    "twin overlay escrow",
+    "bounded unzip detect"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:48def0fd09ebf0c24e5fa4dc26c863a45e945ff727db0d4ee644a3ba716e544d",
+      "summary": "Detection splits Character and Lorebook. Character detect returns 1.0 only for a ZIP whose first two bytes are PK and whose bounded inflate finds a card.json entry; bare JSON never wins, and spec contents are not inspected so V2-shaped data inside still scores 1.0. Every inflate uses unzipBounded CARD_ARCHIVE_BOUNDS with 96 MiB archive and entry caps rejecting oversized input before decompress. Lorebook returns 1 for top-level type risu with array data, unambiguous against ST object entries, and 0.75 for portable character_book extracts so real Risu native always outranks the shared fallback.",
+      "topics": [
+        "PK zip card.json",
+        "bounded archive inflate",
+        "type risu data array",
+        "character_book 0.75",
+        "no bare JSON claim"
+      ],
+      "children": [
+        {
+          "slug": "character",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:4240c89df42af6b22dad7281d36d98c63a24eac7e4b4683a3a8ebc6709741704",
+          "summary": "detect returns 1.0 for a recognizable .charx and 0 otherwise via two steps: zip magic first two bytes PK or score zero immediately so bare JSON is never claimed; then a bounded single-entry inflate only card.json scores 1.0 if present else 0. Detection does not parse spec or spec_version; a charx with V2-shaped data still scores 1.0. Inflates use core unzipBounded with CARD_ARCHIVE_BOUNDS max archive 96 MiB, 512 entries, 64 MiB per entry, 96 MiB aggregate inflated, rejecting oversized entries before decompress.",
+          "topics": [
+            "detect 1.0 charx",
+            "PK magic required",
+            "card.json only inflate",
+            "CARD_ARCHIVE_BOUNDS",
+            "no spec parse"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:7e3e78d5ba147420acbf94617c5bf084944bd9e4292cc40eda6656bb8807804a",
+          "summary": "risu-lorebook returns 1 for the native envelope, 0.75 for a portable character_book extract, and 0 otherwise. Score 1 requires a top-level object with type exactly risu and an array data; that shape does not collide with SillyTavern worldbook object-keyed entries. Score 0.75 is a Chub-style or card-extracted character_book with entries array of CCv3-shaped rows, the same fallback ST lorebook accepts, scored below native so a real Risu export always wins any tie.",
+          "topics": [
+            "type risu score 1",
+            "character_book 0.75",
+            "no ST entries collide",
+            "native outranks extract"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:d9fe0eb372a9b0fdd701c8f4b773f33bb8edc5a413602e3463c52e329045be5b",
+      "summary": "Field map covers Character then Lorebook. Character card.json data uses the shared Tavern V2 V3 mapper identical to SillyTavern; Risu delta is first-class extensions.risuai for license bias additionalText display settings imagePrompt vits customScripts triggerscripts virtualscript backgrounds variables prebuilt assets module toggles and privileged lowLevelAccess, plus millisecond date unit fix, assets to media roles, and character_book as bundle extract not Tavern map. Lorebook maps native loreBook rows where key and secondkey are comma strings, alwaysActive is constant, insertorder is sortOrder not priority, folder is categoryId, mode folder rows become categories, and book-level name settings stay empty because Risu keeps them on the character record.",
+      "topics": [
+        "shared tavern-fields",
+        "extensions.risuai map",
+        "assets to media",
+        "native loreBook fields",
+        "insertorder not priority"
+      ],
+      "children": [
+        {
+          "slug": "character-1",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:0b0dc2a04b7c21a8765b000b748f50d2b5e965d4ff0f808f166d2264a367dc0d",
+          "summary": "card.json data maps through shared tavern-fields dataToBody and applyBodyToData like SillyTavern. Risu delta is extensions.risuai fully first-class: license bias additionalText settings viewScreen largePortrait inlay utilityBot lorePlus imagePrompt from sdData and newGenData, vits voice, customScripts triggerscript virtualscript backgrounds defaultVariables prebuiltAsset moduleToggles and privileged as lowLevelAccess warning never execution. Dates above 1e11 normalize ms to seconds on import and restore raw ms on same-format export. assets map to media roles icon main portrait emotion outfit pose background other with bytes in escrow. character_book is bundle extract via knowledgeRefs and re-embed on export; resolved empty list removes both slots rather than keeping a stale twin.",
+          "topics": [
+            "tavern-fields shared",
+            "risuai first-class",
+            "ms date normalize",
+            "assets media roles",
+            "character_book bundle"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook-1",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:95aa8fa5f3a211545bd0418adb645044f64aeb1d1e5f64dbe54b3506a92b4f3b",
+          "summary": "Native field names differ from CCv3: key and secondkey are comma-joined strings split trimmed with slash pattern decode and useRegex force. comment maps to title and comment, alwaysActive to constant, activationPercent to probability, insertorder to sortOrder never priority, role kept as native-richer system user assistant, folder to categoryId, enabled always true. mode folder loreCache bookVersion ride escrow; mode folder rows lift to LorebookCategory. Envelope has no book name or settings so name empty and budgets zero. Native and charx-embedded Risu lore must canonicalize identically matching character-book insertorder path.",
+          "topics": [
+            "comma key secondkey",
+            "alwaysActive constant",
+            "insertorder sortOrder",
+            "folder categories",
+            "no book-level name"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:82672dbed0c4c9722b8cec1317bc2ea8772818450502843ca0cf06e0ae20b717",
+      "summary": "Character twin is original.risu with raw full card.json envelope, unmapped assetFiles base64 for every non-card non-risum zip entry, moduleRisum bytes, optional structured OpenedRisumModule, and hasExecutableContent plus privileged safety flags. Export clones raw or baseCard V3, applies Tavern three-state overlay, media merge, risuai twin-diff, restores raw millisecond dates, re-stringifies card with 4-space JSON, restores asset bytes, re-emits unedited module.risum or refuses edited, and re-zips. Data is lossless including assets and module but output bytes need not equal input due to JSON and zip regeneration. Lorebook twin original risu-lorebook raw walks rows by id for field-for-field unedited re-emit, partial rewrite on edit, drop on delete, append on add; book-level name depth budget are not written because Risu keeps them on the character record.",
+      "topics": [
+        "original.risu structure",
+        "assetFiles moduleRisum",
+        "data-lossless not byte",
+        "risu-lorebook twin walk",
+        "no book metadata write"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:7659aa053a8974f448fbca4e732f90af026e61b10edf6cdb11d993f0c71a06bd",
+      "summary": "Quirks pin Risu-specific edges. Always CCv3 never V2 via wrapV3 and baseCard. Millisecond dates normalize per field above 1e11 because samples mix units. Media crosses format selectively for data http and ccdefault refs; archive-relative refs need twin uri match; same-format keeps assets via assetFiles. Behavior is first-class editable never executed and never re-emitted by non-Risu codecs. module.risum is RPack opened into structured view; unedited re-exports original bytes; edited throws RpackEditedExportBlockedError until fixtures flip the verified gate. risu-regex detects 0.8 for risum with regex and 0.85 for bare customscript arrays while charx stays character; export is pretty JSON rows never repacked module; phases map editinput output display and request spellings with open unlisted types. Native role is richer than embedded path; insertorder maps to sortOrder for clean ST order conversion.",
+      "topics": [
+        "always CCv3",
+        "millisecond dates",
+        "media selective cross",
+        "risum edit blocked",
+        "risu-regex rows only"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:ac6d8840d84bf611cc3898aea618bb938dda82fb477c00fee10ad68f324621f4",
+      "summary": "Source of truth maps concerns to files. Character adapter detect container escrow dates and safety flags live in formats risu index.ts; risuai scalar mapping in risu-fields.ts; native lorebook in lorebook.ts; regex codec in regex.ts. RPack container codec table module and index live under formats risu rpack; structured module open is open-module.ts. Shared Tavern field map assets and character-book helpers are formats shared. Coverage is coverage.ts; canonical escrow core canonical.ts; bounded zip core archive.ts. Samples under samples risu with SOURCES.md.",
+      "topics": [
+        "risu index.ts",
+        "risu-fields lorebook regex",
+        "rpack open-module",
+        "shared tavern assets",
+        "samples risu"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/agnai",
+  "sourcePath": "docs/reference/formats/agnai.md",
+  "sourceHash": "sha256:627986d812ab05d9e29b5af3a4cfda80996c67b248ebc7f3bc2ab37c603ba477",
+  "semanticSummaryHash": "sha256:336cff11a0cbfd57c749eb37cad4c9fba4be5dfdfd8deb3a427c3cdff166536b",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:58.620Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/regex-editor",
+  "sourcePath": "docs/reference/concepts/regex-editor.md",
+  "sourceHash": "sha256:1bee7bf94d05562a87fe5fa2b28c20e31ba28d546acda11d4884fdfec8e3e9c7",
+  "semanticSummaryHash": "sha256:f8da1d2b975d273b358d542fbc50d61a75cc4e29576fb20484eec71d446b3f9b",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:29.079Z"
+}

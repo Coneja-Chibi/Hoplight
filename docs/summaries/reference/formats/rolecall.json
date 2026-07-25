@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/rolecall",
+  "sourcePath": "docs/reference/formats/rolecall.md",
+  "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
+  "summary": "RoleCall format is the developer authority for how Hoplight's rolecall family detects, maps, and round-trips Vaudeville's own character, lorebook, persona, and regex exports through the canonical model. RC characters are ordinary CCv2 V3 cards with extensions.rolecall; lorebook is a dedicated v1 envelope; persona and regex are separate JSON shapes covered mainly under Quirks. Four codecs export from formats rolecall: character PNG or JSON, lorebook persona and regex as JSON. Detection requires Character extensions.rolecall at 1.0 outranking ST 0.9 with a cross-kind firewall when type is persona, and Lorebook schemaVersion plus lorebook.entries envelope at 1.0 without ST collision. Field map layers RC tagline genre rating casting-card details titled greetings depth injections presentation and assets for Character, and nested triggers matching injection priority timing grouping advanced scanSources groups for Lorebook. Escrow and round-trip clone original.rolecall raw with three-state presentation overlay and document depth-injection write asymmetry; lorebook preserves exportDate and conditional budget keys. Quirks cover object-form source, greeting titles, background slots, expression sprites, full persona and regex codec summaries, and coverage as lens only. Source of truth lists adapters shared helpers specs and constructed samples.",
+  "topics": [
+    "rolecall character CCv3",
+    "extensions.rolecall",
+    "rolecall-lorebook v1",
+    "cross-kind persona firewall",
+    "casting-card details",
+    "depth injection asymmetry",
+    "rolecall-persona shapes",
+    "rolecall-regex placements",
+    "outbid sillytavern 0.9"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:add5103974dbe6c50cb10114e2309bd45e816c9f5e56a6db18167689ff4661bd",
+      "summary": "Detection follows registry highest score above 0.5. Character detect returns 1.0 for CCv2 or V3 cards that carry extensions.rolecall whose type is not the literal persona, outranking SillyTavern 0.9 on the same card. Cross-kind firewall: RC persona exports reuse the CCv2 V3 shape with type persona so character returns 0 and toCanonical throws pointing at rolecall-persona instead of tying. Lorebook detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion containing 1.0.0 as substring, exportDate, and lorebook object with entries array; no firewall needed versus ST because ST has top-level entries object and no lorebook wrapper.",
+      "topics": [
+        "extensions.rolecall 1.0",
+        "outbid ST 0.9",
+        "persona type firewall",
+        "schemaVersion substring",
+        "lorebook envelope shape"
+      ],
+      "children": [
+        {
+          "slug": "character",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:04c5d46691826fa4342843eff65fa89c3426a1303a16de0e695ccf2785da3993",
+          "summary": "detect returns 1.0 for a CCv2 or V3 card carrying extensions.rolecall and 0 otherwise. Requirements are spec chara_card_v3 or chara_card_v2, a data object, and rolecallExt whose type is not the literal persona. Score 1.0 outranks SillyTavern generic 0.9. Cross-kind firewall: RC persona-export route emits the same CCv2 V3 shape with type persona; character detect returns 0 and toCanonical throws pointing at rolecall-persona so the adapters never tie at 1.0 on the same file.",
+          "topics": [
+            "spec v2 or v3",
+            "rolecallExt present",
+            "type not persona",
+            "throw to rolecall-persona"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:e0829c7ab2b80e9b871f2f878c08d16a68b293b1b2bd12cb6e299fa1a5b8eaef",
+          "summary": "detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion, exportDate, and lorebook object whose entries is an array, else 0. isRcVersion requires schemaVersion string to contain 1.0.0 as substring not exact match so beta tags pass; unfamiliar versions are not hard-rejected, only structural parse. Envelope shape does not collide with SillyTavern worldbook top-level entries object without lorebook wrapper, so no firewall is needed between the two lorebook codecs.",
+          "topics": [
+            "v1 export envelope",
+            "schemaVersion contains 1.0.0",
+            "lorebook.entries array",
+            "no ST lorebook collide"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:01437399ac9071d31a8661fbf7d85e2594863ce63bdd73be46c356fa14fcb91c",
+      "summary": "Field map covers Character RC deltas then Lorebook nesting. Character reuses shared Tavern data mapping and adds extensions.rolecall tagline genre fandom content_rating mapped all_hours late_night after_dark to all-ages mature explicit, source_url creators_note, details full_name title age pronouns, titled alternate greetings, prompt_depth_injections concatenated with depth_prompt origin, presentation casting-card colors fieldOrder background media_links, and assets with expression as emotion; unmapped loadout links ride escrow. Lorebook flattens RoleCallEntryV1 nested groups triggers matching injection priority timing grouping advanced scanSources characterFilter and unsupportedFields ST toggles into flat LorebookEntry; book settings metadata categories map at book level; scanPreset has no v1 wire slot.",
+      "topics": [
+        "rolecall extension map",
+        "rating three-way",
+        "casting-card presentation",
+        "nested entry groups",
+        "unsupportedFields first-class"
+      ],
+      "children": [
+        {
+          "slug": "character-1",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:769b660fd42bd680cb313a8e2438661d1feb23163d30cee5ac249e53a5295899",
+          "summary": "Shared Tavern data mapping is documented on sillytavern; this table is RC layer only. extensions.rolecall maps tagline genre fandom content_rating with exact three-way rating, source_url creators_note, details full_name title free-text age pronouns, alternate_greeting_titles merged by index into alternate greetings, prompt_depth_injections as origin rolecall_details concatenated before depth_prompt, and presentation signature gradient palette fieldOrder background spoiler media_links. assets use shared assetsToMedia dialect rolecall with expression as emotion; PNG carrier bytes live in original.rolecall.sourceMedia. character_book is shared bundle re-embed; empty resolution removes stale twin book. id nsfw image urls loadout recommendations trackerPreset linked lists ride whole-card escrow.",
+          "topics": [
+            "tagline genre rating",
+            "details identity fields",
+            "titled greetings",
+            "depth injection origins",
+            "presentation casting card"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook-1",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:c96a9b368f09df310d4e391c31663509a99091b78ef5e7d39338e175138b931a",
+          "summary": "Canonical LorebookEntry is flat; RC v1 wire nests each entry into named groups and the codec flattens on import and re-nests on export. Groups cover triggers mode primary secondary selectiveLogic, matching case whole-words scanDepth, injection position depth role, priority sortOrder priority, timing sticky cooldown delay, grouping name category weight, advanced recursion memo ignoreBudget, scanSources four RC toggles, top-level characterFilter probability sideEffects metadata, and unsupportedFields for ST-origin vectorized groupOverride useGroupScoring automationId matchCharacterDepthPrompt matchCreatorNotes as first-class canonical. Book settings metadata categories map at book level; scanPreset has no RC v1 wire slot.",
+          "topics": [
+            "entryToWire nesting",
+            "triggers matching injection",
+            "unsupportedFields ST toggles",
+            "scanSources four only",
+            "book settings categories"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:877d25ee008a2bf4c484cdb7719f21d2539de293da0e0bb60f0f5e9be55b21f1",
+      "summary": "Character twin stores whole parsed card in original.rolecall.raw plus PNG sourceMedia when input was PNG. Export clones raw or fresh V3, applies Tavern overlay, media dialect rolecall, then applyBodyToRcExt three-state for presentation fields gradientColors palette background fieldOrder distinguishing untouched edited cleared while rebuilding nested details; scalars write when defined and cleared values on twin stay rather than delete. Depth-injection asymmetry: import concatenates rolecall_details and depth_prompt origins but export only rewrites depth_prompt via shared applyBodyToData; applyBodyToRcExt never writes prompt_depth_injections so details array re-emits from twin. Lorebook twin original rolecall-lorebook raw overlays by id; budgetMode entryBudget write only when twin had them or from-scratch differs from defaults; exportDate preserved from twin and only regenerated from-scratch, which differs from source product always minting fresh exportDate in the design spec.",
+      "topics": [
+        "original.rolecall raw",
+        "presentation three-state",
+        "depth injection write gap",
+        "budget keys conditional",
+        "exportDate preserve twin"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:d63818efb62ef7c66d107f08b5c972c3f7f2fed6cce4e67425403b548b211f59",
+      "summary": "Quirks pin RC edges and summarize persona and regex codecs. V3 source as object array is unread by shared Tavern string[] decoder so object form rides twin; greeting titles omit key when all untitled; background keeps customUrl or backgroundId slot; real sprites use type expression mapped to emotion. Persona codec claims 1.0 on rcpersona envelope and chara_card_v2 lookalike with type persona; brief never swaps with content; sections compile or fold unfold description; after_dark omitted when not mature explicit; no rcpersona PNG keyword path in code despite design specs. Regex codec models live find_pattern pipeline only at 0.9 for single script with rules; placements map to phases open-union; no substituteFind on this wire; unknown keys ride extras. coverage.ts is editor lens only not round-trip.",
+      "topics": [
+        "object-form source twin",
+        "expression not emotion wire",
+        "rolecall-persona two shapes",
+        "brief content never swap",
+        "rolecall-regex placements"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:9c37ea40809212d1c6e8dee4e9b7c3d47301f65ff8864f94ba9abe2531c4fff8",
+      "summary": "Source of truth maps concerns to files. Character adapter is formats rolecall index.ts; lorebook persona and regex codecs are sibling files. Shared Tavern field map lore-enums assets png and card-io live under formats shared. Coverage declaration is coverage.ts; canonical escrow is core canonical.ts. Persona schema and generated fields.persona.md cover the entity without a dedicated entity page. Design intent specs rolecall-character and rolecall-lorebook must be verified against code not treated as sole authority. Samples under samples rolecall are constructed from RoleCall serializer source; no genuine RC export file was found on disk per SOURCES.md.",
+      "topics": [
+        "rolecall index.ts",
+        "persona regex lorebook files",
+        "shared tavern assets",
+        "design specs verify code",
+        "constructed samples"
+      ],
+      "children": []
+    }
+  ]
+}

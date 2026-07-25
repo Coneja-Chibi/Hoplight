@@ -30,3 +30,25 @@ test("scheduler lifecycle updates the open cluster and its sealed receipt", () =
     moves: ["apply draft-1: applied"],
   });
 });
+
+test("tool-loop reasoning lands as one accumulated rehearsal receipt", () => {
+  let current = applyTurnEvent(view(), {
+    type: "delta",
+    kind: "reasoning",
+    text: "Find the character. ",
+  }, 1000);
+  current = applyTurnEvent(current, { type: "tool-start", name: "studio_search" }, 2000);
+  current = applyTurnEvent(current, {
+    type: "delta",
+    kind: "reasoning",
+    text: "Inspect its identity. ",
+  }, 3000);
+  current = applyTurnEvent(current, { type: "tool-start", name: "studio_read" }, 4000);
+
+  expect(current.lines).toEqual([{
+    role: "thought",
+    text: "Find the character. Inspect its identity. ",
+    seconds: 2,
+    open: false,
+  }]);
+});

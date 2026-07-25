@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/bundles",
+  "sourcePath": "docs/reference/concepts/bundles.md",
+  "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
+  "semanticSummaryHash": "sha256:f7bd60397ca7457d52dbcfa8ac724c4c21d1f58dd62d7381b8cc34dfcc937fc0",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:27.947Z"
+}

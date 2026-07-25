@@ -14,7 +14,7 @@ const input = z.object({
 });
 
 const search: HarnessTool<z.infer<typeof input>> = {
-  name: "search",
+  name: "studio_search",
   description: "Find pieces whose name, id, or kind contains some text. Narrow to one deck with kind.",
   exposure: "direct",
   effect: "read",

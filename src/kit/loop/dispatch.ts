@@ -9,8 +9,20 @@ import type { HarnessTool, ToolContext } from "../tools/tool";
 import type { DispatchFn, DispatchResult } from "./loop-core";
 import type { ModelToolCall, ToolSpec } from "../providers/provider";
 
+/** Refuse ambiguous registries before provider schemas or dispatch maps can disagree. */
+export function assertUniqueToolNames(tools: readonly HarnessTool[]): void {
+  const names = new Set<string>();
+  for (const tool of tools) {
+    if (names.has(tool.name)) {
+      throw new Error(`duplicate tool name "${tool.name}"`);
+    }
+    names.add(tool.name);
+  }
+}
+
 /** Advertise the tools to the model: name, description, and a JSON schema for the args. */
 export function toolSpecs(tools: HarnessTool[]): ToolSpec[] {
+  assertUniqueToolNames(tools);
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
@@ -20,6 +32,7 @@ export function toolSpecs(tools: HarnessTool[]): ToolSpec[] {
 
 /** A dispatcher over the tools: find by name, parse args fail-closed, then execute. */
 export function makeDispatch(tools: HarnessTool[], ctx: ToolContext): DispatchFn {
+  assertUniqueToolNames(tools);
   const byName = new Map(tools.map((tool) => [tool.name, tool]));
   return async (call: ModelToolCall): Promise<DispatchResult> => {
     const tool = byName.get(call.name);

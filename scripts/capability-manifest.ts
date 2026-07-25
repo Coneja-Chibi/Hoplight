@@ -31,8 +31,10 @@ const OUTPUT = join(
 const CHECK_ONLY = process.argv.includes("--check");
 const INFRA = new Set([
   "catalog.ts",
+  "descriptor.ts",
   "exposure.ts",
   "index.ts",
+  "navigation.ts",
   "operations.ts",
   "search.ts",
   "shared.ts",

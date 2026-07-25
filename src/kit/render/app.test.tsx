@@ -20,7 +20,7 @@ setDefaultTimeout(30000);
 
 // React commits on a real macrotask the harness pumping does not reliably yield (see the settings
 // tests); a short real-timer tick after mount lets the widget paint before we read frames.
-const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const tick = (ms = 120): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const view = (): TurnView => ({
   lines: [],

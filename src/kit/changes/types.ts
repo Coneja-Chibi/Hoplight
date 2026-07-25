@@ -4,6 +4,7 @@
 import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import type {
   CapabilityChange,
+  CapabilityPlatformImpact,
   ContentKind,
 } from "../../entities/capabilities";
 
@@ -25,6 +26,8 @@ export interface ChangeOperation {
   capabilityId: string;
   input: unknown;
   changes: readonly CapabilityChange[];
+  warnings: readonly string[];
+  platformImpact: readonly CapabilityPlatformImpact[];
 }
 
 export interface ChangeDraft {
@@ -34,6 +37,7 @@ export interface ChangeDraft {
   proposed: ParsedCanonicalEntity;
   operations: readonly ChangeOperation[];
   warnings: readonly string[];
+  platformImpact: readonly CapabilityPlatformImpact[];
   status: ChangeDraftStatus;
 }
 

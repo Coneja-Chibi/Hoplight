@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "02-ARCHITECTURE",
+  "sourcePath": "docs/02-ARCHITECTURE.md",
+  "sourceHash": "sha256:1823d3aee566322a39dded96dc7cc0d1b6b1271be654b640c7ead0902a7f444f",
+  "semanticSummaryHash": "sha256:431b201712ef5752ea2e81506c89875d38af5a1181009868d7f54945620433e6",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:54.508Z"
+}

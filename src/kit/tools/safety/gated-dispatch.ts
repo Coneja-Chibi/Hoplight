@@ -8,6 +8,7 @@
  */
 import type { DispatchFn, DispatchResult } from "../../loop/loop-core";
 import type { ModelToolCall } from "../../providers/provider";
+import type { DraftReview } from "../tool";
 import { resolveAccess, type AccessResolver } from "./access";
 import { classifyRisk, type RiskVerdict } from "./risk";
 import { decideGate, type GateDecision, type GateState } from "./gate-core";
@@ -19,6 +20,8 @@ export interface GateRequest {
   readonly name: string;
   readonly peek: PeekView;
   readonly verdict: RiskVerdict;
+  /** Present for a draft apply so the Gate can render the semantic diff instead of tool jargon. */
+  readonly review?: DraftReview;
 }
 
 /** The seam the shell reaches the outside through: the per-turn policy snapshot, the confirm pause, and
@@ -34,9 +37,14 @@ const MAX_ROUNDS = 3; // bounded re-decision so an allow-session / set-mode can 
 const LOCKED_FALLBACK: GateState = { mode: "locked", grants: new Set<string>() };
 
 /** A blocked call the model can read and recover from. The inner dispatch is never reached. */
-const blocked = (name: string, reason: string): DispatchResult => ({
+const blocked = (
+  name: string,
+  reason: string,
+  gateDecision?: DispatchResult["gateDecision"],
+): DispatchResult => ({
   summary: `${name || "tool"}: blocked`,
   output: `Blocked by the safety gate: ${reason}. Do not retry this call; ask the user to allow it.`,
+  ...(gateDecision ? { gateDecision } : {}),
 });
 
 /** A structurally-valid GateState from the seam, or fall back to locked (fail-closed) if it is missing. */
@@ -50,6 +58,7 @@ export function makeGatedDispatch(
   inner: DispatchFn,
   seam: GateSeam,
   accessFor: AccessResolver = resolveAccess,
+  reviewFor?: (call: ModelToolCall) => DraftReview | undefined,
 ): DispatchFn {
   let turnLocked = false; // an abort this turn denies every later risky call without re-asking
 
@@ -80,7 +89,13 @@ export function makeGatedDispatch(
       let choice: GateChoice;
       try {
         const peek = summarizePeek(name, call?.args, verdict);
-        choice = await seam.requestConfirm({ name, peek, verdict });
+        const review = reviewFor?.(call);
+        choice = await seam.requestConfirm({
+          name,
+          peek,
+          verdict,
+          ...(review ? { review } : {}),
+        });
       } catch {
         return blocked(name, "the confirmation was declined");
       }
@@ -88,10 +103,10 @@ export function makeGatedDispatch(
 
       const type = (choice as { type?: unknown } | null)?.type;
       if (type === "allow-once") return inner(call);
-      if (type === "deny") return blocked(name, verdict.reason);
+      if (type === "deny") return blocked(name, verdict.reason, "denied");
       if (type === "abort") {
         turnLocked = true;
-        return blocked(name, "aborted by the user");
+        return blocked(name, "aborted by the user", "aborted");
       }
       // allow-session / set-mode: evolve the working policy and re-decide (bounded by MAX_ROUNDS).
       working = applyGateChoice(working, choice, name);

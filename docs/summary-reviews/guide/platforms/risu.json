@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/risu",
+  "sourcePath": "docs/guide/platforms/risu.md",
+  "sourceHash": "sha256:80c97b1df348be0ae2f6a53518ff468f8f62a72f35a6d9e3a2a0fe50b4d3ab9c",
+  "semanticSummaryHash": "sha256:3a3ad45932bf24867487f2c5762c9b740bca9e7d6ca34719cc6e9ba2f965c1f7",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.612Z"
+}

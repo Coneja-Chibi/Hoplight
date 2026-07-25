@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-008-react-ui",
+  "sourcePath": "docs/decisions/ADR-008-react-ui.md",
+  "sourceHash": "sha256:02eda3c403e50a852276795401a9515ee6e84459feb1aab09f8e22818cfb8ba5",
+  "semanticSummaryHash": "sha256:1d2ed27a83a1d7214ad0f3679615db4f1cf69a056e9a05c991750ee98dd50317",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:22.464Z"
+}

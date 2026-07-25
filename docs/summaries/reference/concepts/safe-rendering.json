@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/safe-rendering",
+  "sourcePath": "docs/reference/concepts/safe-rendering.md",
+  "sourceHash": "sha256:142456a7f07bfe4a5c09fe46d8e463ec21b735de239d7fba9823a795a04356f0",
+  "summary": "Safe content rendering explains how character fields that carry untrusted Markdown, HTML, or plain text are shown in the editor and inspector without dumping raw tags or running XSS. Authority lives in render-markup and render-policy plus the RenderBox and leaving-gate components. The pipeline (sanitize last) caps input, routes by format through marked or escape, and always finishes with DOMPurify before dangerouslySetInnerHTML. Hardening forbids script style iframe object embed and form controls, keeps sanitized style attributes, drops non-allowlisted hrefs, pins noopener blank targets, and memoizes results. The leaving-gate (external links) intercepts rendered anchor clicks, shows the real destination via a CustomEvent, and enforces open only through POST open plus safeExternalUrl with OS browser argv; recognition uses a local platform registry without network unfurl. The RenderBox component is the reusable toggle that takes value and RenderFormat, defaults render ON, and falls back to source for plain empty or editable blank fields.",
+  "topics": [
+    "safe content rendering",
+    "DOMPurify sanitize last",
+    "RenderBox render toggle",
+    "leaving-gate external links",
+    "safeExternalUrl open API",
+    "render-markup render-policy",
+    "Markdown HTML plain formats",
+    "platform-registry monogram"
+  ],
+  "sections": [
+    {
+      "slug": "the-pipeline-sanitize-last",
+      "title": "The pipeline (sanitize last)",
+      "level": 2,
+      "sourceHash": "sha256:a556861dfe9e384d024e7ad8ecf1c6f841869fe9d0c688f1aaf07bf5b57a7911",
+      "summary": "renderMarkup in render-markup.ts is the DOM shell and render-policy.ts holds pure decisions. Pipeline order is fixed: capInput truncates to RENDER_INPUT_CAP of 200k so giant fields cannot stall parsing; then format branches so markdown runs marked then sanitize, html sanitizes as-is, and plain HTML-escapes with no parsing; DOMPurify.sanitize is always the last step and its output goes straight to dangerouslySetInnerHTML with no post-mutation. The sanitizer is never hand-rolled because allowlist walks miss mutation-XSS. Policy purity enables unit tests without a DOM for isSafeHref http https mailto and relative only plus the input cap. The XSS battery in render-markup.test.ts runs real DOMPurify under jsdom and asserts sanitized output lacks script on handlers and javascript schemes rather than relying on alert absence.",
+      "topics": [
+        "renderMarkup pipeline",
+        "RENDER_INPUT_CAP 200k",
+        "DOMPurify last step",
+        "isSafeHref schemes",
+        "jsdom XSS battery"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hardening",
+      "title": "Hardening",
+      "level": 2,
+      "sourceHash": "sha256:320a9871693715b07d58ea9049c570fa1deb4db2e9121e52c9611f8135963b0c",
+      "summary": "Forbidden elements include script style iframe object embed and form controls while the style attribute is kept so authored text-align on notes survives after DOMPurify value sanitization. An afterSanitizeAttributes hook drops non-scheme-allowlisted anchor hrefs and pins target blank with rel noopener noreferrer so rendered links cannot share an opener or navigate the shell in place. The hook registers lazily on first render never at import so the module stays side-effect-free for desktop boot smoke that evaluates without window. Results memoize in a bounded map keyed on format plus raw so unchanged fields do not re-run marked and DOMPurify.",
+      "topics": [
+        "forbidden tags",
+        "style attribute kept",
+        "afterSanitizeAttributes hook",
+        "noopener noreferrer",
+        "bounded memo map"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-leaving-gate-external-links",
+      "title": "The leaving-gate (external links)",
+      "level": 2,
+      "sourceHash": "sha256:6359f77d7974b7229342d14af506d8b487a99563f02e34069145252e85fb0474",
+      "summary": "Rendered links are untrusted for destination and visible text so none navigate directly. RenderBox onRenderedClick intercepts plain left-clicks and routes to the full-window leaving-gate page that shows the real host and url and warns on externalLinkInfo mismatch when visible text names another host. Modified ctrl meta middle clicks stay native as deliberate open anyway. Because RenderBox and gate live in separate bundles the click crosses as a window CustomEvent via link-gate.ts not a shared module bus that would split-brain. Enforcement is server-side: POST only api open re-runs safeExternalUrl for http https normalized and spawns the OS browser with an argv array no shell. DOMPurify forbids form so content cannot auto-submit. Bare URLs in plain fields are linkifyEscaped through the same gate. Destination recognition uses a local curated platform-registry seed with monogram tile or neutral globe and never fetches favicons or unfurls which would be SSRF; widen by seed row only.",
+      "topics": [
+        "leaving-gate page",
+        "onRenderedClick intercept",
+        "POST api open",
+        "safeExternalUrl argv",
+        "platform-registry lookup",
+        "no metadata unfurl",
+        "linkifyEscaped plain"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-renderbox-component",
+      "title": "The RenderBox component",
+      "level": 2,
+      "sourceHash": "sha256:5ef05e078c142547663dd74ab9911791901a7dbedd3f80de6be0c76bf5883bf2",
+      "summary": "RenderBox under components render-box is the reusable surface with a per-box render toggle default ON. It accepts value and declared RenderFormat never a field id so field identity does not leak into the component; format is data-driven from characterFields InspectField tags and editor markdown for prose cards. Rendered mode shows sanitized HTML; source mode shows the raw editable textarea or raw text for read-only fields. plain fields have nothing to render so they show inline without a toggle. An empty editable field falls back to its source surface so editing a blank preview never costs an extra click.",
+      "topics": [
+        "RenderBox toggle",
+        "RenderFormat data-driven",
+        "rendered vs source mode",
+        "plain no toggle",
+        "empty field fallback"
+      ],
+      "children": []
+    }
+  ]
+}

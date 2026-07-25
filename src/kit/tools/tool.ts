@@ -5,14 +5,34 @@
  * with `input` and fails closed before `execute` ever runs, so execute only ever sees valid args.
  */
 import type { z } from "zod";
+import type {
+  CapabilityDescriptor,
+  CapabilityDomain,
+  ContentKind,
+} from "../../entities/capabilities";
 import type { KitBridge } from "../bridge";
 import type { HoplightDocs } from "../docs/repository";
+import type { ResultStore } from "../results/store";
 
 /** What a tool is handed at dispatch time: the one engine seam, nothing else. */
 export interface ToolContext {
   bridge: KitBridge;
   /** Read-only access to the catalog-contained Hoplight documentation corpus. */
   docs?: HoplightDocs;
+  /** Bounded, opaque session-local storage for oversized tool observations. */
+  results?: ResultStore;
+}
+
+/** Structured preview handed from a draft tool to the application-owned review surface. */
+export interface DraftReview {
+  draftId: string;
+  target: { kind: ContentKind; id: string };
+  changes: readonly {
+    label: string;
+    before: unknown;
+    after: unknown;
+  }[];
+  warningCount: number;
 }
 
 /** A tool's outcome: a one-line row for the terminal, and the full observation for the model. */
@@ -21,11 +41,26 @@ export interface ToolResult {
   output: string;
   /** Machine-readable lifecycle result; the loop uses it instead of guessing from prose. */
   outcome?: "draft" | "applied" | "stale" | "discarded" | "failed";
+  /** A complete draft preview cues application-owned review instead of model-authored permission prose. */
+  review?: DraftReview;
+  /** Machine-readable user decision from the Gate; never inferred from a blocked message. */
+  gateDecision?: "denied" | "aborted";
 }
 
 export type ToolExposure = "direct" | "deferred" | "hidden";
 export type ToolEffect = "read" | "draft" | "apply";
 export type ToolActivity = "discovering";
+
+export interface ToolDiscoveryMetadata {
+  id: string;
+  domain: Exclude<CapabilityDomain, "content">;
+  kind?: ContentKind;
+  area: string;
+  action: string;
+  summary: string;
+  aliases: readonly string[];
+  platforms: CapabilityDescriptor["platforms"];
+}
 
 export interface HarnessTool<Input = unknown> {
   /** Stable id the model calls by; unique across the folder. */
@@ -38,6 +73,8 @@ export interface HarnessTool<Input = unknown> {
   effect: ToolEffect;
   /** Optional lifecycle specialization when effect alone cannot name the visible work. */
   activity?: ToolActivity;
+  /** Search metadata for a deferred non-content workflow. Direct tools may omit it. */
+  discovery?: ToolDiscoveryMetadata;
   /** Zod schema for the args; the single parse-once, fail-closed boundary. */
   input: z.ZodType<Input>;
   /** Calls sharing a key serialize when the scheduler supports batching. */

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/pack",
+  "sourcePath": "docs/reference/entities/pack.md",
+  "sourceHash": "sha256:76d0edc05f6ac4c287497670598aa93a96ddef600f8fb33673b93c5c357e68bd",
+  "semanticSummaryHash": "sha256:78b1504f1ad1abffdef6380a74ec5e31ca125cba82c9bafbd5b7ec47d1f6b8d6",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:30.460Z"
+}

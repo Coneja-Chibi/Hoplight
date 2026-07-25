@@ -9,6 +9,13 @@ import {
 } from "./docs-core";
 import type { DocFigure, DocRecord } from "../../docs-types";
 
+const emptyAnchor = (
+  text: string,
+  slug: string,
+  level: 2 | 3 = 2,
+): DocRecord["anchors"][number] =>
+  ({ text, slug, level, summary: "", topics: [], children: [] });
+
 const docs: DocRecord[] = [
   {
     id: "guide/getting-started",
@@ -18,7 +25,9 @@ const docs: DocRecord[] = [
     summary: "Install and make a first import.",
     tags: ["install"],
     related: [],
-    anchors: [{ text: "First import", slug: "first-import", level: 2 }],
+    semanticSummary: "",
+    topics: [],
+    anchors: [emptyAnchor("First import", "first-import")],
   },
   {
     id: "reference/ui",
@@ -28,6 +37,8 @@ const docs: DocRecord[] = [
     summary: "The visual shell.",
     tags: [],
     related: [],
+    semanticSummary: "",
+    topics: [],
     anchors: [],
   },
   {
@@ -38,15 +49,36 @@ const docs: DocRecord[] = [
     summary: "Move a card between platforms.",
     tags: [],
     related: [],
+    semanticSummary: "",
+    topics: [],
     anchors: [],
   },
 ];
 
 describe("docs reader derivation", () => {
-  test("searches titles, summaries, tags, and headings", () => {
+  test("searches titles, summaries, tags, headings, and optional semantic fields", () => {
     expect(searchDocs(docs, "install").map((doc) => doc.id)).toEqual(["guide/getting-started"]);
     expect(searchDocs(docs, "first import").map((doc) => doc.id)).toEqual(["guide/getting-started"]);
     expect(searchDocs(docs, "visual shell").map((doc) => doc.id)).toEqual(["reference/ui"]);
+    const withSemantic: DocRecord[] = [{
+      ...docs[0]!,
+      semanticSummary: "Local install and first card intake walkthrough.",
+      topics: ["first card intake"],
+      anchors: [{
+        text: "First import",
+        slug: "first-import",
+        level: 2,
+        summary: "Drop a file on the shelves.",
+        topics: ["drop zone"],
+        children: [],
+      }],
+    }];
+    expect(searchDocs(withSemantic, "first card intake").map((doc) => doc.id)).toEqual([
+      "guide/getting-started",
+    ]);
+    expect(searchDocs(withSemantic, "drop zone").map((doc) => doc.id)).toEqual([
+      "guide/getting-started",
+    ]);
   });
 
   test("groups into human-facing user and developer shelves", () => {

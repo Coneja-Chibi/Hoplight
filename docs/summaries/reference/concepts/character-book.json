@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/character-book",
+  "sourcePath": "docs/reference/concepts/character-book.md",
+  "sourceHash": "sha256:353be50f0c22ed0b78ca23ce893dad5a1e3bd991f1ec7ab2bcf3111b99285b72",
+  "summary": "The embedded character_book concept explains how a card-carried lorebook becomes a linked CanonicalLorebook on import and is re-inlined into the target format book slot on export. Source is formats/_shared/character-book.ts with convert.ts orchestration; this implements architecture bundles for card-plus-book. A different dialect from the worldbook file covers CCv3 field names versus standalone ST world info, including dual-encoded position under extensions. Import: extract at the boundary finds, maps, escrows under character-book, and links knowledgeRefs, with Non-CCv3 dialects override the extractor for Agnai MemoryBook. Export: inline at the boundary uses EmitContext lorebooks and twin overlay, with Quirks preserved faithfully for use_regex and multi-book merge via vaud_source_books. End to end walks convertFile inspectBundle plus emitBundle for CLI and Studio callers. Source of truth lists mapper, adapter, enums, convert, and canonical files that own each concern for implementers reading the wire path end to end.",
+  "topics": [
+    "embedded character_book",
+    "linked CanonicalLorebook",
+    "worldbook dialect differ",
+    "import extract boundary",
+    "export inline embed",
+    "dual-encoded position",
+    "Agnai extractLorebook",
+    "convertFile end to end"
+  ],
+  "sections": [
+    {
+      "slug": "a-different-dialect-from-the-worldbook-file",
+      "title": "A different dialect from the worldbook file",
+      "level": 2,
+      "sourceHash": "sha256:8ab937b875afdb50be54fd1de76dda6b3e9827c872c5aa25c61c1d4d4a90cc15",
+      "summary": "Embedded character_book is not the same wire shape as a standalone SillyTavern world info file. It uses CCv3 entry field names at top level and tucks ST-extended fields into each entry extensions bag: keys and secondary_keys instead of key and keysecondary, insertion_order instead of displayIndex and order, use_regex force flag plus inline regex, coarse before_char after_char strings with precise value in extensions.position, and depth role group probability selective_logic scan sources inside extensions. Because ST-extended fields can appear top-level or in extensions, entryToCanonical reads both with extensions winning via pick. Only selective logic, injection role, and character filter share worldbook codecs through lore-enums; position and keyword parsing stay local. Position is dual-encoded, not degraded so export writes coarse string and precise extensions.position together and import prefers extensions then falls back.",
+      "topics": [
+        "CCv3 vs worldbook wire",
+        "keys secondary_keys",
+        "extensions bag ST fields",
+        "pick extensions win",
+        "position dual encode"
+      ],
+      "children": [
+        {
+          "slug": "position-is-dual-encoded-not-degraded",
+          "title": "Position is dual-encoded, not degraded",
+          "level": 3,
+          "sourceHash": "sha256:0544715f687989b6c89a2e08be6c991adfedc5bb29da4384c836bc8038976aa3",
+          "summary": "On export positionToCoarse writes CCv3 top-level before_char or after_char while positionToExt writes the precise slot into extensions.position in parallel. Spec-only readers see the coarse floor; ST-family readers recover the exact slot. On import parseBookPosition reads extensions.position first and falls back to the top-level string only when extensions carries none, so encoding is lossless for any reader that understands extensions.",
+          "topics": [
+            "positionToCoarse",
+            "positionToExt",
+            "parseBookPosition order",
+            "lossless with extensions"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "import-extract-at-the-boundary",
+      "title": "Import: extract at the boundary",
+      "level": 2,
+      "sourceHash": "sha256:475afff59d39476d90d4aca851487be09b82ecacbd259e02d304a83bf4c0c007",
+      "summary": "When a character imports, a format-agnostic layer finds an embedded book and extracts it. findCharacterBook checks CCv3 slot, CCv2 extensions.character_book, and flat V1, returning raw so the caller controls escrow. characterBookToLorebook maps to LorebookBody. extractCharacterBook stashes raw under the new lorebook original key character-book, not the host format id, so dialect owns the escrow shape across host formats. inspectBundle sets knowledgeRefs to the lorebook id. Non-CCv3 dialects override the extractor via CharacterAdapter extractLorebook; Agnai embeds native characterBook MemoryBook and reuses its standalone lorebook mapper so embedded and file imports canonicalize identically.",
+      "topics": [
+        "findCharacterBook slots",
+        "characterBookToLorebook",
+        "escrow key character-book",
+        "knowledgeRefs link",
+        "extractLorebook override"
+      ],
+      "children": [
+        {
+          "slug": "non-ccv3-dialects-override-the-extractor",
+          "title": "Non-CCv3 dialects override the extractor",
+          "level": 3,
+          "sourceHash": "sha256:c2a5c90a8b4fce4fcc729120a174a36754ac35aa8a6b77a2905738f7b78276c7",
+          "summary": "Shared extractCharacterBook understands only CCv2/v3 character_book. Formats with another dialect implement extractLorebook on CharacterAdapter; inspectBundle calls that override when present. Agnai is the case today: native characterBook MemoryBook mapped through agnai-lorebook so books read the same embedded or as files.",
+          "topics": [
+            "extractLorebook override",
+            "Agnai MemoryBook",
+            "standalone lorebook codec"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "export-inline-at-the-boundary",
+      "title": "Export: inline at the boundary",
+      "level": 2,
+      "sourceHash": "sha256:69914a1a10eb8a9b958e98631572478e1251ce24d40d629065ee4459d6bd5ac2",
+      "summary": "Re-embedding is the target format job. Adapters that embed knowledge receive resolved lorebooks in EmitContext and call embedCharacterBook to write data.character_book and clear stale extensions.character_book. Empty resolved list clears both slots; omitted context leaves the raw twin intact. SillyTavern RoleCall Risu and Lumiverse use the shared helper; Agnai applies the same three-way rule to native characterBook. lorebookToCharacterBook overlays when a character-book twin exists so unedited books re-emit byte-true with residue preserved; without twin it full-encodes from canonical for cross-format paths. Quirks preserved faithfully covers entry-level use_regex only when every keyword is regex, and multi-book concatenation with vaud_source_books boundaries.",
+      "topics": [
+        "embedCharacterBook EmitContext",
+        "three-way clear replace leave",
+        "twin overlay byte-true",
+        "cross-format full encode",
+        "use_regex multi-book quirks"
+      ],
+      "children": [
+        {
+          "slug": "quirks-preserved-faithfully",
+          "title": "Quirks preserved faithfully",
+          "level": 3,
+          "sourceHash": "sha256:de2cba33b4bade581b9d638ae8e17030e66859f9b3e65233a1b9eab7455c70a3",
+          "summary": "use_regex is entry-level only when every keyword in both trigger lists is regex. Multi-book refs concatenate under the first book's settings with extensions.vaud_source_books recording each source name and entry count.",
+          "topics": [
+            "use_regex all keywords",
+            "multi-book concatenate",
+            "vaud_source_books"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "end-to-end",
+      "title": "End to end",
+      "level": 2,
+      "sourceHash": "sha256:926ff077018dd3732a1169130913a48c45b7d09ddd8433b5940252f22621f7c6",
+      "summary": "convertFile runs the same-kind character path: inspectBundle extracts and links books, then emitBundle hands resolved lorebooks to target fromCanonical. CLI calls convertFile; Studio uses the same primitives with store-resolved knowledgeRefs so both re-embed through identical code and lorebooks survive format hops.",
+      "topics": [
+        "convertFile path",
+        "inspectBundle emitBundle",
+        "CLI and Studio callers",
+        "lorebook survives convert"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:6c244079e65e7ee72e0fda26c3337d803bd4554dcb0f5246064516eb40f258f0",
+      "summary": "character-book.ts owns mapping extract and re-embed. adapter.ts owns extractLorebook and EmitContext. lore-enums.ts shares selective logic role and filter. convert.ts orchestrates inspectBundle emitBundle and convertFile. canonical.ts owns wrapper escrow and ids. VAUDEVILLE apps/rc notes are interop facts only for this dialect.",
+      "topics": [
+        "character-book.ts",
+        "adapter convert canonical",
+        "lore-enums shared",
+        "VAUDEVILLE interop notes"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

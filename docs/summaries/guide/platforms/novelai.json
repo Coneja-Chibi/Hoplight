@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/novelai",
+  "sourcePath": "docs/guide/platforms/novelai.md",
+  "sourceHash": "sha256:7968a541e031823117e88f85f03f722bc7ca01581643039e30a1a37ccc49966b",
+  "summary": "NovelAI has no character-card concept; the only portable file is a lorebook .lorebook plain JSON underneath. What Hoplight reads: .lorebook or same-shaped .json by version and entries list not filename; imports always land as standalone lorebook pieces never characters. What comes across cleanly keeps the original and lifts entry title passage keywords including inline /regex/ enabled always-on scan distance placement category book categories key-relative and non-story toggles context wrap budget settings and phrase bias groups; book settings folders ride in background. What changes when you convert to another app keeps same-app everything; cross-app keeps shared entry core and categories only where RoleCall Risu have them while NovelAI-only dials drop; scan distance number can cross into message units unchanged not a bug. Editing on the Workbench uses the lorebook binder and Writing for NovelAI surfaces private dials. Exporting back out writes .lorebook; reverse convert uses blank-entry defaults. Common questions cover exact return no character cards regex keywords unnamed books and private dials stay on NovelAI export.",
+  "topics": [
+    "NovelAI lorebook only",
+    "no character cards",
+    "regex keywords kept",
+    "phrase bias wrap",
+    "same-app round-trip",
+    "scan distance unit risk",
+    "Press .lorebook write"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:815ffc96b845f8709ca4a6d8e10d5a5de89260805441e77951afcdadac42670f",
+      "summary": "Hoplight reads NovelAI native lorebook export as a .lorebook file or plain .json with the same shape. It recognizes by looking inside at version number and entries list not by file name. Because NovelAI has no character card dropping one in never produces a character; it lands in the Library as a standalone lorebook piece. Drag onto the Library for a plain-words receipt of what it read and kept. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "lorebook or JSON",
+        "detect version entries",
+        "standalone never character",
+        "Library receipt"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:37e03f6bb800048e892b9a0009e065127b4eda307af4368b913677ec02f76ea0",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original lorebook then lifts each entry title and passage; keywords including inline /regex/ patterns; enabled and always-on; scan distance and placement order; category assignment and the book list of categories; two NovelAI-only activation toggles key-relative match and non-story fire; context wrap and budget settings framing text token budget trim behavior; phrase bias groups nudging words while active. Book-level settings and folder details ride safely in the background with the original file so nothing is thrown away even without a field.",
+      "topics": [
+        "entry title passage keys",
+        "inline regex keywords",
+        "activation toggles",
+        "wrap budget bias",
+        "book settings escrow"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:3026b25d497f70345668284ce64abf0ed92c2c67826e3621e94095d0f0f7acf2",
+      "summary": "Same-app round-trip keeps everything because Hoplight kept the original and only rewrites entries you changed. Converting to another app drops NovelAI private dials: key-relative and non-story toggles context wrap budget phrase bias book-level settings folders internal ids. Core entry title passage keywords enabled always-on scan distance placement order come across as far as the target holds. Category assignment comes across only if the target has categories or folders RoleCall Risu; dropped elsewhere. Another app means SillyTavern RoleCall Risu Agnai; plain apps without lorebook format like Backyard or Pygmalion are never offered as lorebook targets. Honest unit note: NovelAI scan distance is characters of story text; an app that counts messages reads the same number unchanged so 1000 characters can land as 1000 messages after convert, a unit mismatch not a bug.",
+      "topics": [
+        "same-app full keep",
+        "private dials drop",
+        "categories conditional",
+        "lore targets only",
+        "scan unit mismatch"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:fe558385230106459f8ec355772ae35b02f757228715e308a857e5ad3a213cae",
+      "summary": "Send a lorebook to the Workbench and it opens on its binder with a table of contents and the focused entry on the page. Edit title passage and keywords there. Save writes back only what changed so untouched entries stay exact. Pick Writing for NovelAI and NovelAI dials rise: activation toggles context wrap budget and phrase bias; fields other apps use fold away without deleting. Switch Writing for back to Hoplight and everything is still there.",
+      "topics": [
+        "binder TOC entry",
+        "save changed only",
+        "Writing for NovelAI",
+        "dials fold not delete"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:0ca8ffbf8b0763128b9d5c65719bf4f9843742744922da8360fb3f33043fdbb1",
+      "summary": "Stage for the Press via right-click or rail. Since NovelAI has no character card a lorebook staged alone prints by itself; a lorebook already linked to a character rides with that character. Hoplight writes .lorebook. Choosing a different app applies the drop story. Reverse convert into NovelAI from another app builds each entry on NovelAI blank-entry defaults the same starting point NovelAI uses for a new entry so the file loads clean.",
+      "topics": [
+        "solo or linked ride",
+        "write .lorebook",
+        "other app drop",
+        "blank-entry defaults"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:b24dc18e43a58cf8e6745d9ee850025209e15548d37b989b9a601d04113fceda",
+      "summary": "Will the lorebook come back exactly as it was? Yes on export to NovelAI with only touched entries rewritten. NovelAI has no character cards Hoplight can read; every import is a standalone lorebook. Inline /regex/ keywords are kept as regex not flattened. An imported book may show no name because NovelAI export carries no book-level name; name it in Library or Workbench and it sticks. Phrase bias and context wrap do not survive another app; they stay untouched on export back to NovelAI.",
+      "topics": [
+        "exact NovelAI return",
+        "no character cards",
+        "regex keywords keep",
+        "unnamed book fix",
+        "private dials stay"
+      ],
+      "children": []
+    }
+  ]
+}

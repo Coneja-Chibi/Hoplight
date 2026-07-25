@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/chub",
+  "sourcePath": "docs/guide/platforms/chub.md",
+  "sourceHash": "sha256:cbcb24f811659742194823328edac5f008dccc1b3e0b3b238410efdbc499f80e",
+  "summary": "Chub also called CharacterHub hosts SillyTavern-shaped Character Card v2/v3 files with an extensions.chub block for site extras. What Hoplight reads: character .png or .json recognized as SillyTavern shape plus chub extras, and lorebooks as bare character_book entry arrays standalone or embedded; origin labeled Chub when extras give it away. What comes across cleanly keeps the original and lifts core fields embedded worldbook expressions when present Chub extras background CSS bound preset related lorebook links plus id path Stages references escrowed not yet editable. What changes when you convert to another app: same-app Chub or SillyTavern round-trip keeps everything; cross-app drops Chub private extras; standalone Chub lorebook has no write-back twin and always exports as plain SillyTavern worldbook. Editing on the Workbench shows Chub-tagged cards CSS Workshop sealed preview and Write for Chub narrows lorebook placement. Exporting back out writes CCv3 JSON with chub bag; lorebooks not a Chub target. Common questions cover exact return JSON not PNG portrait extras worldbook and no byte-identical lorebook download.",
+  "topics": [
+    "Chub ST-shaped cards",
+    "extensions.chub bag",
+    "lorebook character_book",
+    "same-app keep extras",
+    "standalone no twin",
+    "CSS Workshop preview",
+    "Press CCv3 JSON"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:c82ccef8d822e11f879da00bd0176f5f05d00922050fbea76d7cd4da4f4493a3",
+      "summary": "Hoplight reads Chub character cards as .png with text inside the image or plain .json. It does not treat Chub as its own wire format: it recognizes the SillyTavern shape underneath and keeps the extensions.chub block that rides along. Lorebooks arrive as .json embedded in a card or standalone from Chub lorebook shelf; standalone downloads are a bare character_book entry array not SillyTavern keyed worldbook map, and Hoplight recognizes that shape too. Drop on the Library for a plain-words receipt calling origin Chub CharacterHub when extras give it away; recognition is by inside content not filename. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "PNG or JSON ST shape",
+        "extensions.chub keep",
+        "bare character_book",
+        "origin Chub receipt",
+        "shape not filename"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:22f6e61512100b7b1348c29816d3b91ab546cee09732c3f881be854ffd227349",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original then lifts name description personality scenario greetings examples system post-history creator notes tags embedded worldbook expression images when present and Chub extras chat background custom CSS bound preset related lorebook links. Card picture becomes the piece portrait. Chub extras show as their own Workbench cards with a Chub tag. A few more bits ride along not yet editable: Chub id full path and Stages scenario-builder references; Hoplight keeps them on the twin for round trip. Standalone lorebook entries keywords and placement come across editable like any lorebook.",
+      "topics": [
+        "core fields worldbook",
+        "Chub extras editable",
+        "id path Stages escrow",
+        "portrait kept",
+        "standalone lorebook"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:433a24b32e3de834170f947a28a75537b2155199a3a9f877c80618d4e47222e8",
+      "summary": "Character same-app round-trip keeps everything down to the byte because Hoplight kept the original and only rewrote changed fields. Converting to a different app drops Chub private extras on purpose: chat background custom CSS bound preset related-lorebook links Chub id path Stages. Core character and embedded worldbook come across as far as the target holds; expressions if the target has extra art slots. SillyTavern gets the identical result as Chub since they share file shape. Another app means genuinely different targets like Agnai Backyard RoleCall Risu Pygmalion. Standalone lorebook wrinkle: no back to Chub option and no twin because Chub never gave downloads a write-back wire format only borrowed character_book shape so Hoplight always writes plain SillyTavern worldbook or another lore format; entries keywords placement survive not the original wrapper.",
+      "topics": [
+        "byte same-app keep",
+        "Chub extras drop",
+        "ST identical shape",
+        "standalone no twin",
+        "write ST worldbook"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:921a83b279357ee07a89d46ebe729c507fb9ce1bd8660985640ee4da28d7cbe9",
+      "summary": "Send a piece to the Workbench as a tab and edit core character fields the same as any card; save writes the whole card so untouched parts stay. Cards with a Chub bag show Chub-tagged cards for chat background bound preset and related-lorebook links. Custom CSS opens in the CSS Workshop sealed preview mocked to Chub chat-bubble classes never applied to Hoplight interface. Open a lorebook and Write for Chub narrows to character_book floor emphasizing priority secondary triggers and before-character after-character placement only; hiding never deletes fields.",
+      "topics": [
+        "core fields whole save",
+        "Chub-tagged extras",
+        "CSS Workshop sealed",
+        "Write for Chub floor"
+      ],
+      "children": []
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:3127a7e588dc473a5b7b0bcdba78d70c7445baf5a693bcb2cde7d450090e0654",
+      "summary": "Stage for the Press via right-click or rail; each run exports staged pieces to one target. Chub is a character target writing the same file SillyTavern would get: .json CCv3 with extensions.chub bag if present. Embedded worldbook rides automatically. Plain .txt or .md available for text. Chub is not a lorebook target; export standalone lorebooks as SillyTavern or another lorebook-capable app instead. Other app targets apply the drop story.",
+      "topics": [
+        "Press CCv3 JSON",
+        "chub bag rides",
+        "no lorebook target",
+        "txt md text copy"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:458bddb54826402ef1a04c97d3f586a8bc0f7776ba98863a1d406f710b0e53dd",
+      "summary": "Will the card come back exactly as it was? Yes when exported to Chub or SillyTavern since both read the same shape. Imported .png returns as .json which both apps load like a picture. Character picture is kept as portrait and the original import file is held. Background and custom CSS stay with Chub extras and are not copied into another app. Embedded worldbook is pulled for solo edit and put back on export to worldbook-capable apps. Standalone Chub lorebook download never returns byte-identical; no save-back format so entries keywords placement write as plain SillyTavern worldbook.",
+      "topics": [
+        "Chub ST exact return",
+        "JSON not PNG",
+        "extras stay private",
+        "worldbook put-back",
+        "no lore twin"
+      ],
+      "children": []
+    }
+  ]
+}

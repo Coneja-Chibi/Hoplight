@@ -54,7 +54,7 @@ describe("capability exposure", () => {
     expect(state.revealedIds).toEqual([deferred.id]);
   });
 
-  test("keeps the cumulative provider-visible deferred set capped at five", () => {
+  test("replaces the provider-visible deferred set and caps each reveal at five", () => {
     const deferredCapabilities = Array.from({ length: 6 }, (_, index) =>
       capability(`lorebook.entries.action-${index}`, "deferred"));
     const broadCatalog = createCapabilityCatalog(deferredCapabilities);
@@ -69,7 +69,7 @@ describe("capability exposure", () => {
       deferredCapabilities.slice(4).map((item) => item.id),
     );
     expect(second.revealedIds).toEqual(
-      deferredCapabilities.slice(0, 5).map((item) => item.id),
+      deferredCapabilities.slice(4).map((item) => item.id),
     );
   });
 });

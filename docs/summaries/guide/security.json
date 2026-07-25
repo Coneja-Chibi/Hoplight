@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/security",
+  "sourcePath": "docs/guide/security.md",
+  "sourceHash": "sha256:52c2a4e5d19304896fce17789379aadb804be95281641ec0ebbde4020878bad1",
+  "summary": "Security and privacy for a local-only studio that also opens untrusted cards scripts PNGs zips and stranger regex. Honesty over comfort: real protections named with backing; partial ones said so. Your content stays on your machine: loopback 127.0.0.1 bind default 8321 no outbound calls no accounts pieces as plain JSON in studio folder; limit is not encrypted at rest so guard the folder. A card cannot run itself: regex is budgeted find-replace never eval with refuse-dangerous then time backstop; macros and triggers analyzed not evaluated including hand-written calc parser; Lua only in Risu Test Bench you open on purpose caged in wasm worker separate loopback origin two files no session token; origin boundary proven at HTTP tests not yet measured in packaged Windows app per ADR-009 so not claimed fully isolated. Other files stay bounded: size caps zip PNG bomb caps parse fail closed path containment. Converting never copies one apps code into another: portable content only private extras escrowed for same-format round-trip never blind-copied so payloads cannot smuggle. About API keys: none needed or stored today no AI; planned BYOK local vault ADR-006 not yet measured; session token minted per launch never disk-logged. What we do not claim: unsigned binaries checksum verify; Test Bench pack measure open; no at-rest encryption. Report holes privately to chibiconeja@gmail.com.",
+  "topics": [
+    "loopback local-first privacy",
+    "no outbound no accounts",
+    "card scripts inert default",
+    "Lua Test Bench cage",
+    "fail closed bounded parse",
+    "convert never copy code",
+    "API keys none today BYOK planned",
+    "honest partial claims"
+  ],
+  "sections": [
+    {
+      "slug": "your-content-stays-on-your-machine",
+      "title": "Your content stays on your machine",
+      "level": 2,
+      "sourceHash": "sha256:4d14128b115889f4fc66c807586d495d1232813b175da9070a3ec3ed875c3da8",
+      "summary": "The server is loopback only: studio binds 127.0.0.1 the local-only address and prints it default 127.0.0.1:8321 so nothing outside your machine can reach it. There are no outbound calls: no phone home upload card or remote preview fetch; no network client aims at anything but your own loopback and the safety FAQ invites a codebase grep check. There are no accounts: no sign-in no cloud nothing to breach elsewhere. Pieces are plain files: import and edit live as JSON in a studio folder you open read and back up yourself Documents Hoplight Studio unless pointed elsewhere. Honest limit: local means not uploaded not encrypted at rest; readable JSON on disk on purpose so anyone who can already read your files can read pieces. Guard the folder the way you guard other documents.",
+      "topics": [
+        "loopback 127.0.0.1 bind",
+        "no outbound network",
+        "no accounts cloud",
+        "plain JSON studio folder",
+        "not encrypted at rest"
+      ],
+      "children": []
+    },
+    {
+      "slug": "a-card-cannot-run-itself",
+      "title": "A card cannot run itself",
+      "level": 2,
+      "sourceHash": "sha256:21497022d3205fdbaf3c8b5c550439c329a7dd7b3b800183ee372d2f5725a192",
+      "summary": "A downloaded card is read not run. Scripts go three ways and only one executes. Regex is budgeted find-replace never eval; dangerous patterns are refused first; time limit is a backstop so a rare slip could still hang. Macros and triggers are analyzed not evaluated; calc uses a hand-written number parser not the language runtime. Lua runs only in the Risu Test Bench you open on purpose never on import preview or background. Opened bench is caged: Lua in WebAssembly VM in a worker with timeouts and memory caps on a separate loopback origin that serves only worker and wasm glue 404s every api path and carries no session token. Separate-origin is proven at the HTTP test layer but not yet measured in the packaged Windows app ADR-009 check still open. We claim opt-in and limited not fully isolated until that measurement exists.",
+      "topics": [
+        "regex data not eval",
+        "macros analyzed not run",
+        "Lua Test Bench only",
+        "wasm worker separate origin",
+        "ADR-009 pack measure open",
+        "opt-in limited not full isolate claim"
+      ],
+      "children": []
+    },
+    {
+      "slug": "other-files-stay-bounded",
+      "title": "Other files stay bounded",
+      "level": 2,
+      "sourceHash": "sha256:e19d7327de5bd84fc71ac423960ce53d9ba68a82c029f008165cf263aea6ea82",
+      "summary": "Untrusted input cannot exhaust the machine on the way in. Uploads and bodies are size-capped at the door. Zip and PNG reads are bounded so archive bombs hit the cap and stop. Parsing fails closed: malformed cards are rejected not half-read; unreadable saves are refused. Piece ids resolve only inside the studio folder so crafted escape names are blocked before any file is touched.",
+      "topics": [
+        "size-capped uploads",
+        "zip PNG bomb cap",
+        "parse fail closed",
+        "path containment ids"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "converting-never-copies-one-apps-code-into-another",
+      "title": "Converting never copies one app's code into another",
+      "level": 2,
+      "sourceHash": "sha256:6e1e0afedec6954709810e023ad4979f9136ca48de5e68c215f40ed92298f7ee",
+      "summary": "Cross-format convert carries portable content only. Private extras extension blocks trigger scripts and layout stay in escrow so same-format round-trip loses nothing but are never blind-copied into another app file. On purpose: conversion cannot smuggle one app executable payload into another. Shared core crosses; drops are reported.",
+      "topics": [
+        "portable content only",
+        "escrow same-format keep",
+        "never blind-copy code",
+        "no payload smuggle",
+        "drops reported"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "about-api-keys",
+      "title": "About API keys",
+      "level": 2,
+      "sourceHash": "sha256:e7b7bedb5a5d8130e8f4f13ee5a1b68508c309ddc2a2bf0bc9c6dfdd3cc2aecc",
+      "summary": "Today there is nothing to leak because today Hoplight calls no AI. No key is needed and none is stored: converter inspection validation editing and deterministic checks work with zero keys and there is no key field in settings the app writes. AI is planned as bring-your-own-key: when AI features ship they are designed opt-in BYOK entered at first AI moment not install kept in local vault OS keychain or encrypted file if no keychain with no Vaudeville server proxy or account in the path. That is design of record ADR-006 not a shipped-and-measured guarantee; this page will update once enforcement lands. One secret the app holds today: studio mints a fresh session token each launch uses it to gate every change and never logs or saves it to disk.",
+      "topics": [
+        "no AI no keys today",
+        "planned BYOK vault",
+        "ADR-006 design not measured",
+        "session token per launch"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-we-do-not-claim",
+      "title": "What we do not claim",
+      "level": 2,
+      "sourceHash": "sha256:8df8872b2c9674ef20ddaffbf2a2beb7aea17a3d91e5183c37b156fab3821deb",
+      "summary": "Binaries are unsigned so SmartScreen and Gatekeeper warn on first run; missing paid cert not tampering; verify release SHA-256 checksums. Test Bench origin is not measured in the packaged app yet. Studio folder is not encrypted at rest. Report holes privately to chibiconeja@gmail.com also in SECURITY.md for reply fix and optional credit.",
+      "topics": [
+        "unsigned binaries checksums",
+        "Test Bench pack open",
+        "no at-rest encryption",
+        "private report email"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

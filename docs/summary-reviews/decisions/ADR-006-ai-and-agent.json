@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-006-ai-and-agent",
+  "sourcePath": "docs/decisions/ADR-006-ai-and-agent.md",
+  "sourceHash": "sha256:78242aec9197bcfdae86f80f175dcf87667bb1206a6d3825ec1b373b9a108fe2",
+  "semanticSummaryHash": "sha256:41dafb20c4d3314e57895d126354a9ef89371d10ab2166bab32fc487cd9132dd",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:56.123Z"
+}

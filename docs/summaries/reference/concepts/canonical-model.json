@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/canonical-model",
+  "sourcePath": "docs/reference/concepts/canonical-model.md",
+  "sourceHash": "sha256:f4eef355484b7e9ff460542f9b229ba6354d2209bb437e378d6ab21f02552d5d",
+  "summary": "The canonical superset model is the one hub every format converts through, never format to format. This page defines the shared wrapper and the superset rule that decides what body may hold; whole-engine hub-and-spoke context lives in architecture.md and per-kind body detail on entity pages. Structure lives in src/core/canonical.ts while per-kind fields live under src/entities. The wrapper is CanonicalEntity with schemaVersion, kind, id, body, optional profiles, and original escrow. The superset rule first-classes only fields a real supported wire format serializes; everything else rides escrow. Escrow: what the rule leaves out is original as Record of OriginalEntry with raw, unmapped, and optional sourceMedia for carriers. Profiles: one superset, many apps stores sparse per-FormatId Partial body overrides so authors set only deltas without full duplicate records. Source of truth lists canonical.ts, adapter kind union, character and lorebook schemas, and architecture map.",
+  "topics": [
+    "hub and spoke canonical",
+    "CanonicalEntity wrapper",
+    "superset rule wire fields",
+    "escrow original envelope",
+    "profiles per-app deltas",
+    "FormatId open string",
+    "closed entity kinds",
+    "src/core/canonical.ts"
+  ],
+  "sections": [
+    {
+      "slug": "the-wrapper",
+      "title": "The wrapper",
+      "level": 2,
+      "sourceHash": "sha256:b5d5e17caa777f08382b0e6253ad136ff21ff2c37df696ae8ced315a6e423f32",
+      "summary": "CanonicalEntity is the stable shape every entity shares: schemaVersion fixed at 1, kind as a closed union of character lorebook persona or regex today, id as a storage-safe slug from canonicalId, body as the superset content, optional profiles as sparse per-FormatId Partial body overrides, and optional original as the escrow map. FormatId is intentionally an open string so drop-in adapters claim any id without core hardcoding the set. canonicalId normalizes names with NFKC, lowercases, collapses non-alphanumerics to hyphens, caps length, and falls back to character when empty so path policy always accepts the result. kind stays closed for compile-time safety across FormatAdapter; preset and pack schemas exist under entities without adapters yet. Formats are open; entity kinds grow only by union member plus entities folder.",
+      "topics": [
+        "CanonicalEntity fields",
+        "schemaVersion kind id body",
+        "profiles and original",
+        "open FormatId",
+        "canonicalId slug policy",
+        "closed kind union"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-superset-rule",
+      "title": "The superset rule",
+      "level": 2,
+      "sourceHash": "sha256:00ad561551dadd7abf7404380ac6db541d80250b65c5cf44a553013ed950f0c0",
+      "summary": "Body is the union of what real formats express, not any one wire shape. A field earns a first-class canonical slot only if some real currently supported wire format serializes it; otherwise it rides original. Not serialized means no slot: platform and database baggage such as creator stats publishing timestamps and runtime state stay out of body, and in-memory-only residue such as RoleCall allowRecursion boostIds scanPreset probabilityMode verified absent from serializers stays in escrow. Single-platform is not a reason to relegate: if even one format serializes an authored field it earns a slot because the schema is the editor. Lorebook first-classes SillyTavern-only scan sources vectorized group toggles automation and displayIndex on that ground. The policed distinction is authored-and-serialized content versus derived-or-runtime state; character schema states the same gate.",
+      "topics": [
+        "superset union body",
+        "wire serialize gate",
+        "no DB baggage in body",
+        "single platform ok",
+        "authored vs runtime",
+        "lorebook worked example"
+      ],
+      "children": []
+    },
+    {
+      "slug": "escrow-what-the-rule-leaves-out",
+      "title": "Escrow: what the rule leaves out",
+      "level": 2,
+      "sourceHash": "sha256:7b21570aaa57331f34aad1a7dfbd97bab340afa6f2129fc4df25526ef24b3f4a",
+      "summary": "Fields that fail the superset rule are contained, not dropped. The wrapper original field is a Record keyed by FormatId of OriginalEntry values: raw source payload verbatim, unmapped fields canonical did not express, and optional sourceMedia for binary carriers such as PNG card pixels. Same-format round trips stay field-lossless; cross-format conversion is contained-loss by design. Superset rule and escrow keep body portable while nothing outside it is lost silently.",
+      "topics": [
+        "original escrow map",
+        "OriginalEntry raw unmapped",
+        "sourceMedia carrier",
+        "contained cross-format loss",
+        "portable body promise"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "profiles-one-superset-many-apps",
+      "title": "Profiles: one superset, many apps",
+      "level": 2,
+      "sourceHash": "sha256:9c896a2c5d50a3437dd343784ac7a01f241621a799c4447519ea4afe7523eb5b",
+      "summary": "One superset body still allows per-app differences without full duplicates. profiles is a sparse Record of FormatId to Partial body, empty by default. Authors write the entity once and set only fields that should differ for a given app; the projected app version is body plus those overrides via the adapter. Both profiles and original share the open FormatId key space, so overrides and escrow residue thread the same format identity model across the wrapper.",
+      "topics": [
+        "sparse profiles map",
+        "Partial body deltas",
+        "no full duplicate records",
+        "FormatId shared keys"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:30b5785e8e2dabd2adacea7b91c3bc5dcd4f4084215d47e5d28fb9a50511ce48",
+      "summary": "canonical.ts owns the wrapper, schema version, id policy, escrow envelope, primaryOriginalRaw, and profiles. adapter.ts owns the closed entity-kind union. character and lorebook entity schemas state the superset rule for their bodies. architecture.md supplies whole-engine hub-and-spoke, escrow, and detection context for this model page.",
+      "topics": [
+        "canonical.ts ownership",
+        "adapter kind union",
+        "entity schema rules",
+        "architecture context"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

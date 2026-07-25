@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "03-CONVENTIONS",
+  "sourcePath": "docs/03-CONVENTIONS.md",
+  "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
+  "semanticSummaryHash": "sha256:f5f0f06e293af33839ade282eedbd6445d88636b002cf653eee668a1baf370d8",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:54.684Z"
+}

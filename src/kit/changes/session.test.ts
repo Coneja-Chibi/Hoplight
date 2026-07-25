@@ -3,6 +3,8 @@ import { describe, expect, test } from "bun:test";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import { emptyLorebookBody } from "../../core/lore";
 import type { CanonicalLorebook } from "../../entities/lorebook/schema";
+import type { ContentCapability } from "../../entities/capabilities";
+import { z } from "zod";
 import { discoverCapabilities } from "../capabilities/discover";
 import { createChangeSession } from "./session";
 
@@ -78,5 +80,57 @@ describe("ChangeSession", () => {
     expect(changes.discard(draft.id)?.status).toBe("discarded");
     expect(changes.discard(draft.id)).toBeNull();
     expect(changes.forTarget("lorebook", original.id)).toBeNull();
+  });
+
+  test("retains warnings and platform impact for every composed operation", () => {
+    const original = entity();
+    const changes = createChangeSession();
+    const capability: ContentCapability<{ target: { id: string }; value: string }> = {
+      id: "lorebook.entries.explain",
+      kind: "lorebook",
+      area: "entries",
+      action: "explain",
+      summary: "Exercise complete draft evidence.",
+      aliases: [],
+      platforms: "canonical",
+      exposure: "deferred",
+      effect: "draft",
+      input: z.object({
+        target: z.object({ id: z.string() }),
+        value: z.string(),
+      }),
+      concurrencyKey: ({ target }) => `lorebook/${target.id}`,
+      preview(source, input) {
+        return {
+          entity: source,
+          changes: [{
+            path: "body.name",
+            label: input.value,
+            before: "World",
+            after: "World",
+          }],
+          warnings: [`warning ${input.value}`],
+          platformImpact: [{
+            platform: "sillytavern",
+            disposition: "carried",
+            detail: `impact ${input.value}`,
+          }],
+        };
+      },
+    };
+
+    changes.draft(capability, { target: { id: "world" }, value: "one" }, original);
+    const draft = changes.draft(
+      capability,
+      { target: { id: "world" }, value: "two" },
+      original,
+    );
+
+    expect(draft.operations.map((operation) => operation.platformImpact[0]?.detail))
+      .toEqual(["impact one", "impact two"]);
+    expect(draft.operations.map((operation) => operation.warnings[0]))
+      .toEqual(["warning one", "warning two"]);
+    expect(draft.platformImpact).toHaveLength(2);
+    expect(changes.list().map((item) => item.id)).toEqual([draft.id]);
   });
 });

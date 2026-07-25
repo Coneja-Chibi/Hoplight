@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/persona-editor",
+  "sourcePath": "docs/reference/concepts/persona-editor.md",
+  "sourceHash": "sha256:0c6c9f4ba23153842ed477b2225ebe1cd0ad92b7336054e337c9fcc91fbe0e18",
+  "summary": "Persona editor is the Workbench {{user}} sheet that reuses the character editor chassis on purpose: same bento three-column grid, BentoCard tiles, and portrait face plate from editor-styles under src/ui/apps/workbench/persona. Left holds PortraitCard writing media.portrait as data-URI without character variant strip, plus KnowledgeRail for knowledgeRefs. Middle holds Identity with tagline pronouns BRIEF honesty line, section tiles Appearance Body Personality Quirks History, and flat Identity Text for section-less personas. Right holds shared SwatchRow and PaletteControl colors, Prompt Injection stops per Write-for via injectionsForProfile, LIVE PREVIEW from real core/persona/inject.ts, and default-persona star. Compiler test landmine: brief never injects and content never becomes the card blurb. Reuse law on this surface requires components catalog first before any new control. The shelf covers Library persona cards brief lines and Default badge. The wires cover rcpersona ST backup Lumiverse Marinara and Agnai limits without inventing extra formats.",
+  "topics": [
+    "persona editor chassis",
+    "character bento reuse",
+    "Identity BRIEF honesty",
+    "injection live preview",
+    "reuse law catalog",
+    "persona shelf badges",
+    "rcpersona ST wires",
+    "brief never injects"
+  ],
+  "sections": [
+    {
+      "slug": "reuse-law-on-this-surface",
+      "title": "Reuse law on this surface",
+      "level": 2,
+      "sourceHash": "sha256:c52c3552144e54b5cc086253e4cd5cc252a9bb54c17d329b852e0db1cf73257a",
+      "summary": "Every element on the persona editor was walked against the component catalog. Anything new on this surface must come from docs/reference/components.md first before inventing a twin control. The law matches house UI reuse: scan the generated catalog and share chassis pieces already used by character and regex editors such as WriteForStrip BentoCard and KnowledgeRail.",
+      "topics": [
+        "components.md first",
+        "no invent twin controls",
+        "shared chassis pieces"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-shelf",
+      "title": "The shelf",
+      "level": 2,
+      "sourceHash": "sha256:694debe2e6adeb8dfd2d82517d2bb8bb055efe9be863d3cb10d442e77f146ae2",
+      "summary": "Library persona shelf lives in persona-shelf.tsx and persona-shelf-ops.ts. Cards show portrait or monogram, put the brief as the card line which is its one honest home, and surface pronouns section count and lorebook facts from the meta loader. A gilt Default badge marks the studio default persona preference.",
+      "topics": [
+        "persona-shelf cards",
+        "brief as card line",
+        "Default badge gilt",
+        "meta pronouns lorebook"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-wires",
+      "title": "The wires",
+      "level": 2,
+      "sourceHash": "sha256:9ece2b56e5eee54db03f41ebac9d0d1d3eba896b450190210839307ef146df5a",
+      "summary": "Supported persona wires include rcpersona with RoleCall V2 side-channel export, SillyTavern personas backup that imports the default persona and seals the entire backup so others re-emit byte-true, Lumiverse account objects with pronoun triplet as data, and Marinara persona where theming and stat bars ride sealed. Codec headers document detection firewalls. Agnai persona has no real standalone file wire and is served by the structured-persona component on character cards.",
+      "topics": [
+        "rcpersona RoleCall",
+        "ST personas backup seal",
+        "Lumiverse pronouns",
+        "Marinara sealed theming",
+        "Agnai no standalone wire"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

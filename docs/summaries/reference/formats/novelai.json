@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/novelai",
+  "sourcePath": "docs/reference/formats/novelai.md",
+  "sourceHash": "sha256:77452b37e0802b8431f1cbd7a029a441ce8a3acba241102d47e2efb7e2b84319",
+  "summary": "NovelAI format is the developer authority for how Hoplight's single novelai-lorebook codec detects, maps, and round-trips native NovelAI lorebook exports through the canonical model. NovelAI has no character card, so the family is one lorebook reader writer under formats novelai writing .lorebook JSON. Detection scores 1.0 only when lorebookVersion is numeric and entries is an array, scoring zero on ST object-keyed entries, Risu wrappers, or version alone. Field map covers NAI entry names versus LorebookEntry including keys as inline slash pattern flags, forceActivation as constant, searchRange as scanDepth, budgetPriority as sortOrder, plus nested Enums are strings on the wire, the searchRange unit caveat, the contextConfig assembly block, and Phrase bias loreBiasGroups. Escrow and round-trip seals the whole raw book under original novelai-lorebook and overlays by uuid or index with merge replace and category rules, including Cross-format into NovelAI no twin shells. Quirks list no book name, dual bias casing, non-clearable categories, priority never serializes, no character adapter, and nothing executed. Source of truth maps codec schema fixtures samples and tests. No design spec exists; content is read from adapter tests and samples.",
+  "topics": [
+    "novelai-lorebook codec",
+    "lorebookVersion entries detect",
+    "keys slash pattern flags",
+    "budgetPriority sortOrder",
+    "searchRange unit caveat",
+    "contextConfig merge",
+    "loreBiasGroups dual casing",
+    "twin overlay escrow",
+    "cross-format NAI shell",
+    "no character adapter"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:df1f382541ee9e8209818aae54408e65c55aea9e07c9690ac20b2b674605ac8d",
+      "summary": "detect returns 1.0 when parsed JSON has a numeric lorebookVersion and an array entries, otherwise 0. Unlike SillyTavern's generic 0.9 which yields the ceiling to a more specific reader, nothing else claims this exact pair so 1.0 is the plain top score not a collision defense. Three shapes score zero: ST worldbooks with object-keyed entries, Risu exports wrapped with type risu and no top-level lorebookVersion, and lorebookVersion alone without entries. Detection does not sniff the version number; 3 4 and 6 all pass the same typeof number check because only entry-level richness differs across versions not the top-level shape.",
+      "topics": [
+        "detect 1.0",
+        "lorebookVersion number",
+        "entries array required",
+        "ST object entries zero",
+        "version value ignored"
+      ],
+      "children": []
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:07f0c2c3960a427a4cfeee357069ffd43b88ea21eab7c6e207bc33e90704bd84",
+      "summary": "Field map documents NovelAI entry names versus LorebookEntry. keys use inline slash pattern flags via shared keywordToTrigger with forceRegex false so bare keys stay literal. text becomes content, displayName title, forceActivation constant, searchRange scanDepth, budgetPriority alone is sortOrder and is placement not eviction, categories become body.categories, book name and budgets stay empty or zero defaults. Secondary ST axes like selective recursion probability and position are fixed defaults because NAI lacks them. Nested subsections cover Enums are strings on the wire for trim and insertion fields, The searchRange unit caveat on character versus message units, The contextConfig assembly block for prefix suffix budgets and insertionPosition, and Phrase bias loreBiasGroups as first-class canonical with dual casing accepted.",
+      "topics": [
+        "NAI to LorebookEntry",
+        "forceActivation constant",
+        "budgetPriority placement",
+        "contextConfig fields",
+        "loreBiasGroups canonical"
+      ],
+      "children": [
+        {
+          "slug": "enums-are-strings-on-the-wire",
+          "title": "Enums are strings on the wire",
+          "level": 3,
+          "sourceHash": "sha256:78d58d09791072f3855d34c9964bade653f5b1850d3bca2832479527649d5f62",
+          "summary": "trimDirection, insertionType, and maximumTrimType are plain strings in both real samples on hand, a v3 slice and a v6 export. The schema records them as an open string union rather than a closed enum on the assumption NAI may add values. The codec does no int-to-string decoding for these three fields; whatever string the export carries is read and written as-is.",
+          "topics": [
+            "open string union",
+            "trimDirection insertionType",
+            "no int decode",
+            "as-is round trip"
+          ],
+          "children": []
+        },
+        {
+          "slug": "the-searchrange-unit-caveat",
+          "title": "The `searchRange` unit caveat",
+          "level": 3,
+          "sourceHash": "sha256:8686086f51cbdd587e52dd056e51a4b69e229b35ab0803e88e65f1fba98f8233",
+          "summary": "NAI searchRange is measured in characters of story text; SillyTavern scanDepth is measured in messages. Both map to canonical scanDepth as the closest home for how far back to scan, and the exact number round-trips losslessly through escrow on a same-format NAI trip. Cross-format import into a messages-based format carries the number verbatim with no unit conversion, so NAI 1000 characters becomes 1000 messages downstream. That is documented drift not a bug and does not affect same-format NAI round-trip.",
+          "topics": [
+            "characters not messages",
+            "scanDepth shared home",
+            "no unit conversion",
+            "cross-format drift"
+          ],
+          "children": []
+        },
+        {
+          "slug": "the-contextconfig-assembly-block",
+          "title": "The `contextConfig` assembly block",
+          "level": 3,
+          "sourceHash": "sha256:33234a038aa01ee037ec53d60e6cbca9730ad7e2737d6231b11e911eafacfaed",
+          "summary": "EntryContextConfig is read field-by-field skipping absent wire keys so deep equality against the twin re-decode stays stable. Mapped fields are prefix suffix tokenBudget reservedTokens trimDirection insertionType maximumTrimType and insertionPosition as a signed offset within the target context section, a different axis than canonical position and depth. budgetPriority is excluded from this block and lives in sortOrder alone so it has exactly one canonical home.",
+          "topics": [
+            "prefix suffix budgets",
+            "insertionPosition offset",
+            "skip absent keys",
+            "budgetPriority excluded"
+          ],
+          "children": []
+        },
+        {
+          "slug": "phrase-bias-lorebiasgroups",
+          "title": "Phrase bias (`loreBiasGroups`)",
+          "level": 3,
+          "sourceHash": "sha256:3c0e51f1ee905a66a6d6e8cb8f5c70aea605ee0e6f001c421f93fee83e0b5014",
+          "summary": "LoreBiasGroup arrays are first-class canonical not escrow. The reader tolerates two casings for whenInactive generateOnce and ensureSequenceFinish snake and camel. The real v6 sample confirms dual casing for generateOnce and ensureSequenceFinish while whenInactive appears only camel; the v3 fixture has no loreBiasGroups. Mapped fields include enabled bias phrases sequence sequences type and the three booleans. bias is signed strength defaulting to zero if missing or non-numeric; phrase type is NAI's numeric enum carried open.",
+          "topics": [
+            "first-class bias groups",
+            "dual casing booleans",
+            "signed bias strength",
+            "phrases sequence type"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:c3da2b25840f0fdf389438b90e17bc1109915faa3392280a22635f1815ba88a1",
+      "summary": "Escrow and round-trip store only the whole raw lorebook at original novelai-lorebook raw with no unmapped or sourceMedia. fromCanonical overlays the body onto that twin matching entries by id on v6 uuid or by array index on v3 v4. Flat scalars replace when changed; nested blocks differ: contextConfig merges so twin-only dials survive and you cannot unset by omit; loreBiasGroups is replace-or-delete and edits drop snake_case duplicates while untouched entries keep dual casing; categories can be added renamed or toggled but not bulk-cleared by empty list. Twin-only fields include lorebookVersion top-level order lastUpdatedAt category subcontext settings and advancedConditions. Tests pin v3 field-level fidelity and v6 bias and category edits with 4-space JSON. Cross-format into NovelAI no twin builds each entry on a blank NAI shell with default contextConfig and lorebookVersion 3.",
+      "topics": [
+        "raw twin overlay",
+        "contextConfig merge",
+        "bias replace delete",
+        "categories no bulk clear",
+        "cross-format shell"
+      ],
+      "children": [
+        {
+          "slug": "cross-format-into-novelai-no-twin",
+          "title": "Cross-format into NovelAI (no twin)",
+          "level": 3,
+          "sourceHash": "sha256:75e10047eaea6905d46ef87cfd04c1bef35bbd795d0427095fdf6c9ed487c2bb",
+          "summary": "A canonical lorebook from SillyTavern Risu or CCv3 has no NAI twin, so each entry is built onto a valid shell instead of overlaid. contextConfig defaults match a real NAI blank-entry export: empty prefix, newline suffix, tokenBudget 2048, reservedTokens 0, budgetPriority from sortOrder, doNotTrim, newline insertion, sentence maximumTrimType, insertionPosition -1. searchRange defaults to 1000 and the book writes lorebookVersion 3. v3 v4 entries carry no wire id so cross-format entries get none; a v6 uuid only survives on a same-format twin.",
+          "topics": [
+            "blank entry shell",
+            "default contextConfig",
+            "sortOrder to budgetPriority",
+            "lorebookVersion 3 default",
+            "no cross-format uuid"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:13950e058e869e888e2a294a3fcb1de7f9d073796f32e028c8238128959e456f",
+      "summary": "Quirks pin edges already detailed under Escrow. The book has no name field so body.name is always empty and canonicalId falls back to character for the entity id. contextConfig writes merge while loreBiasGroups writes replace and dual bias casing only survives untouched entries. Categories cannot be bulk-cleared through this codec. Priority never serializes: NAI is single-axis budgetPriority placement and a regression test greps that the string priority never appears in a serialized entry. No character adapter and no bundle path exists because NAI has no character card. Nothing is ever executed; the codec is pure JSON transform and advancedConditions always empty so far rides the twin only.",
+      "topics": [
+        "empty book name",
+        "merge vs replace nests",
+        "priority never serializes",
+        "no novelai character",
+        "no script execution"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:3fd338f484a35e1975c0771443bcfdd5e7c1a92ce901b6a7e43a547426dffb16",
+      "summary": "Source of truth maps concerns to files. The native lorebook codec for detect field map escrow and twin overlay is formats novelai lorebook.ts; folder default export is index.ts. Canonical lorebook schema including EntryContextConfig LoreBiasGroup and LorebookEntry is entities lorebook schema.ts with field meanings in entities lorebook.md. Shared keyword slash pattern flags decode is formats shared character-book.ts. Committed v3 fixture is reformatted 4-space test-only JSON; real untouched v6 sample is samples novelai crystal dragon with provenance in SOURCES.md. Adapter tests are lorebook.test.ts; canonical wrapper escrow and id policy are core canonical.ts.",
+      "topics": [
+        "lorebook.ts codec",
+        "entities lorebook schema",
+        "character-book keywords",
+        "v3 fixture v6 sample",
+        "lorebook.test.ts"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-001-runtime",
+  "sourcePath": "docs/decisions/ADR-001-runtime.md",
+  "sourceHash": "sha256:15c2e3188c6c0523fe2c8d312dfa690b0ef683b7e5dbdab9ed2509a7e09d4b9a",
+  "summary": "Accepted ADR choosing TypeScript everywhere with Bun as the toolchain for dev runtime, bun test, bundling, and bun build --compile single-file executables as primary distribution. Core packages core, formats, lore, presets, macros, regexkit, and assembly must not use Bun-only APIs and must stay runnable under Node for npm publish and embedding. apps, agent, and ai may use Bun APIs where they matter for spawn, file IO speed, and compile. Why: one-file no-install distribution is the top goal; TypeScript matches VAUDEVILLE extraction surface and zod dual use as validation and docs; Node-compat core keeps npm and embedding open and de-risks Bun stalls. Consequences: CI runs core package tests under both Bun and Node; a lint rule bans bun star imports inside packages except an allowlist of ai and agent. Status is accepted.",
+  "topics": [
+    "Bun TypeScript runtime",
+    "Node compatible core",
+    "bun build --compile",
+    "no Bun-only APIs core",
+    "CI Bun and Node tests",
+    "bun import allowlist",
+    "ADR-001 accepted"
+  ],
+  "shortSource": true,
+  "sections": [
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:62b458176815d0721c378209e19983e1aee4430b2859a98d4f321721247e852b",
+      "summary": "TypeScript is used everywhere. Bun is the toolchain for development runtime, test runner via bun test, bundler, and bun build --compile for single-file executables as primary distribution. Core packages named core, formats, lore, presets, macros, regexkit, and assembly must not use Bun-only APIs so they remain runnable under Node for npm publish and embedding by other tools. apps plus agent and ai may use Bun APIs where they matter for spawn, file IO speed, and compile.",
+      "topics": [
+        "TypeScript everywhere",
+        "Bun toolchain",
+        "core Node compatible",
+        "apps agent ai Bun APIs",
+        "single-file executables"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "why",
+      "title": "Why",
+      "level": 2,
+      "sourceHash": "sha256:f0197e4f93cbf2ccade44ae3aa97e2b1f61ab3c127f9a2d4ce7b65cc11e964cd",
+      "summary": "The top stated distribution goal is one file with no install pain as the anti-SillyTavern-setup answer; bun build --compile is the most direct path on all three OSes. TypeScript is chosen because the entire VAUDEVILLE extraction surface is TS and because zod schemas double as validation and documentation. Node-compatible core keeps the npm and embedding door open and de-risks Bun: if Bun stalls, only apps need porting.",
+      "topics": [
+        "one file no install",
+        "anti ST setup",
+        "zod validation docs",
+        "npm embedding door",
+        "de-risk Bun"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:ff295d773be0a24a678679b62951bb75f7d57fb03ddfb7e28fb786fc801498f3",
+      "summary": "CI must run core package tests under both Bun and Node so Node-compat claims stay proven. A lint rule bans bun colon star imports inside packages except an allowlist covering the ai and agent packages, which are permitted to use Bun-only APIs where they matter.",
+      "topics": [
+        "CI Bun and Node",
+        "lint ban bun imports",
+        "ai agent allowlist"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

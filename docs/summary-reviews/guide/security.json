@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/security",
+  "sourcePath": "docs/guide/security.md",
+  "sourceHash": "sha256:52c2a4e5d19304896fce17789379aadb804be95281641ec0ebbde4020878bad1",
+  "semanticSummaryHash": "sha256:5f00392001f6615270390a621071181c1eb1e214e363fd8b979a774efc0f1c8b",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:51.208Z"
+}

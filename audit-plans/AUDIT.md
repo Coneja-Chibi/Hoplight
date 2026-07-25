@@ -110,3 +110,218 @@ row into view. At 50x10, a 20-session resume list could open `s15` while that ro
   on a Linux or macOS host.
 - The working tree was already dirty, so executor plans must rebase against the owner's changes and
   must not assume the audited revision is a clean patch base.
+
+---
+
+## Creative studio tool-surface addendum
+
+- Date: 2026-07-25
+- Revision: `052be627518754f749ebab2d133fc5d23b112804`
+- Scope: Kit's provider-visible tools, deferred content capabilities, draft lifecycle, shared
+  Workbench operations, Library lifecycle, Press publishing, deterministic lore/regex analyzers,
+  and future production, Doctor, Test Stage, and Table Read contracts
+- Method: two independent read-only shards followed by conductor source verification
+- Excluded: live model evaluation, a terminal journey, exhaustive per-format field comparison,
+  implementation, security testing, and future engines that do not exist in `src/`
+
+### Current verified inventory
+
+Kit has seven always-on tools: `studio_list`, `studio_search`, `studio_read`, `docs_query`,
+`capability_find`, `change_apply`, and `change_discard`. It discovers 27 deferred semantic draft
+capabilities: 10 character, 5 lorebook, 4 persona, 3 preset, 3 pack, and 2 regex. Drafts compose
+per target, refuse stale writes, save once, and verify by re-reading. Read-only model batches may
+overlap, while any mutation batch serializes.
+
+This is a credible editing foundation, but not a complete creative studio. The missing work is
+concentrated in six boundaries rather than one hundred independent form controls.
+
+### Findings
+
+| Priority | Finding | Source-confirmed mechanism | Plan |
+| --- | --- | --- | --- |
+| P0 | Progressive discovery only understands existing-entity content edits | `ContentCapability` IDs and `capability_find` require a content kind and `{kind,id}` target; deferred non-content workflows have no reveal path | 09 |
+| P0 | Large-piece reading is irrecoverably truncated | `renderEntity()` caps canonical JSON at 4,000 characters and exposes no path, offset, continuation, outline, or spill handle | 09 |
+| P0 | Composed drafts cannot be fully reviewed | `CapabilityPreview.platformImpact` is dropped from `ChangeDraft`; the adapter returns only the latest operation and there is no draft list/show/validate tool | 09 |
+| P1 | Kit cannot create, import, organize, delete, or publish pieces | The Web UI and CLI already expose canonical blank creation, duplicate/rename/delete, inspect, bundle save, format coverage, conversion, export, and Press planning; Kit exposes none of them | 10 |
+| P1 | Shared semantic parity and deterministic diagnosis remain incomplete | Lore entry creation, duplication, triggers, placement, categories, and several preset surfaces remain UI-owned; pure lore, regex, pack, and preset analyzers have no read capability | 11 |
+| P2 | Multi-piece work has no durable recovery model | Current drafts own one target and store writes are per file; the production history package and snapshot store exist only as a specification | 12 |
+
+### Finding details
+
+#### [ARCH-01] Generalize one progressive catalog
+
+- Severity: HIGH
+- Confidence: HIGH
+- Evidence:
+  - `src/entities/capabilities/types.ts`, `ContentCapability`: IDs are content-kind-prefixed and
+    previews require an existing parsed entity.
+  - `src/kit/tools/capability-find.ts`, `target`: every search, browse, and describe request requires
+    an existing `{kind,id}`.
+  - `src/kit/capabilities/runtime.ts`, `toolSnapshot`: only direct ordinary tools and revealed
+    adapted content capabilities can enter a provider snapshot.
+- Mechanism: lifecycle, conversion, Doctor, history, and publishing workflows cannot be deferred
+  through the current catalog. Making each one direct would recreate the prompt overload ADR-010
+  was written to prevent.
+- Impact: Kit cannot grow to Studio parity without either multiplying direct schemas or creating a
+  competing search router.
+- Systemic boundary: provider-visible tool planning and exposure.
+- Effort: M.
+- Fix risk: MEDIUM because stable content IDs, generated Workbench imports, safety classification,
+  and provider snapshots must remain compatible.
+- Direction: introduce one discoverable descriptor union with explicit domains such as `content`,
+  `studio`, `transfer`, and `diagnostics`. Keep `ContentCapability` as the pure entity-edit subtype.
+  Extend the existing search/browse/describe entry point instead of adding another router.
+
+#### [DATA-01] Make large reads navigable and recoverable
+
+- Severity: HIGH
+- Confidence: HIGH
+- Evidence:
+  - `src/kit/tools/_shared/format.ts`, `BODY_CAP`: bodies are sliced at 4,000 characters.
+  - `src/kit/tools/read.ts`, `studio_read`: input accepts only kind and id and describes the result
+    as the full canonical content.
+  - `specs/engine/agent-loop.md` requires bounded spill handles for oversized results.
+- Mechanism: content after the first 4,000 characters is absent from the observation, and the model
+  receives no continuation token or structural path by which to recover it.
+- Impact: a large lorebook, preset, or media manifest cannot be inspected reliably before editing.
+- Systemic boundary: Kit read results and session-local result storage.
+- Effort: M to L.
+- Fix risk: MEDIUM because result lifetime, output budgets, and weak-model navigation need explicit
+  contracts.
+- Direction: give `studio_read` outline, path, offset, and limit actions, then add bounded spill
+  handles with stat, read, and search. Never expose arbitrary filesystem paths.
+
+#### [CORRECTNESS-01] Preserve and query the complete draft
+
+- Severity: HIGH
+- Confidence: HIGH
+- Evidence:
+  - `src/entities/capabilities/types.ts`, `CapabilityPreview`: includes changes, warnings, and
+    platform impact.
+  - `src/kit/changes/types.ts`, `ChangeDraft`: retains changes and warnings but no platform impact.
+  - `src/kit/capabilities/adapter.ts`: returns only the latest operation's changes.
+  - `src/kit/tools/`: apply and discard are the only draft controls.
+- Mechanism: composition retains a proposed entity but discards part of each preview's explanation,
+  and there is no provider operation to inspect the full accumulated proposal.
+- Impact: a user or model can be asked to approve a multi-step draft without a complete composed
+  diff or platform-loss report.
+- Systemic boundary: session-local change ownership.
+- Effort: M.
+- Fix risk: MEDIUM; operation rollback requires deterministic replay of later operations.
+- Direction: preserve platform impact and add a compact `change_query` workflow with list, show, and
+  validate. Defer per-operation rollback until replay semantics are proven.
+
+#### [PARITY-01] Expose lifecycle and publishing without bypassing the engine
+
+- Severity: HIGH
+- Confidence: HIGH
+- Evidence:
+  - `src/ui/app-contract.ts` and `src/ui/api.ts`: save, delete, bundle save, inspect, export, formats,
+    and coverage are already first-class app services.
+  - `src/ui/apps/library/new-in-deck-button.tsx`: five canonical kinds have create flows.
+  - `src/ui/apps/library/delete-flow.tsx`: duplicate, rename, and delete are implemented.
+  - `src/ui/server-engine.ts`: inspect and export use the same adapters and bundle layer as the CLI.
+  - `src/ui/apps/press/`: target planning, readiness, riders, skips, and export receipts are pure or
+    already orchestrated.
+- Mechanism: engine and UI paths exist, but Kit's provider belt exposes only read and edit-existing
+  operations.
+- Impact: Kit can edit a shelf item but cannot carry a creator through ingest, organization, and
+  publishing.
+- Systemic boundary: lifecycle and transfer orchestration over canonical engines.
+- Effort: L.
+- Fix risk: HIGH because deletion, external paths, archives, binary output, overwrite policy, and
+  partial bundles require truthful receipts.
+- Direction: implement deferred workflow capabilities with inspect or plan separated from gated
+  apply. Use bounded path handles and existing format reports; never add a raw filesystem tool.
+
+#### [PARITY-02] Finish semantic parity and add deterministic read capabilities
+
+- Severity: MEDIUM
+- Confidence: HIGH
+- Evidence:
+  - `docs/reference/kit/tools.md`: lore create, duplicate, trigger, placement, and broad bulk work
+    are explicitly absent.
+  - `src/entities/lorebook/capabilities/entries.ts`: the entry patch is limited to title, content,
+    note, enabled, and constant.
+  - `src/ui/apps/workbench/lore/session.ts`: add and duplicate are still UI-owned.
+  - `src/core/lore/inspect.ts`, `src/core/regex/inspect.ts`, `src/core/media/pack-health.ts`, and
+    `src/core/preset/build.ts`: deterministic analyzers already exist.
+  - `src/kit/capabilities/adapter.ts`: every semantic capability is forced into the draft lane even
+    though the contract declares a read effect.
+- Mechanism: editor semantics and useful analysis remain split between pure core, entity
+  capabilities, and UI reducers. Kit cannot call the built analyzers through the same catalog.
+- Impact: professional users can author or diagnose details in the Web UI that Kit cannot reach.
+- Systemic boundary: pure entity capabilities and read-effect adaptation.
+- Effort: L for lorebook and built analyzers; XL for every canonical field family.
+- Fix risk: MEDIUM because platform representability and escrow restrictions must stay explicit.
+- Direction: first make the adapter honor read effects. Add coherent read capabilities for health,
+  readiness, token/build traces, and comparisons. Then close lorebook and preset semantic gaps one
+  area at a time, sharing reducers with the Workbench.
+
+#### [DIRECTION-01] Do not fake history-backed batch work
+
+- Severity: MEDIUM
+- Confidence: HIGH
+- Evidence:
+  - `src/kit/changes/session.ts`: one active draft is indexed by one exact target.
+  - `src/studio/store.ts`: compare-and-save is atomic for one entity, not a multi-entity
+    transaction.
+  - `specs/engine/productions-and-history.md`: the production manifest, object store, snapshot,
+    restore, and recovery package are future work and have no `src/productions` implementation.
+- Mechanism: a multi-piece apply over current per-file saves can partially commit without one
+  durable snapshot or recovery boundary.
+- Impact: broad creative refactors could be reported as one action even when only a subset saved.
+- Systemic boundary: production storage and history, then batch orchestration.
+- Effort: XL.
+- Fix risk: HIGH because partial writes, stale revisions, restore safety, and identity references
+  cross several files.
+- Direction: build the production history engine first. Batch tools then resolve an immutable
+  selector to a frozen target set, preview every item, declare all-or-nothing versus partial policy,
+  take one recovery snapshot, and report per-item outcomes.
+
+### Product-direction ledger
+
+These are valuable, but not current tool-wrapper work:
+
+- Script Doctor: deterministic and treatment contracts are specified, but the Doctor content
+  engine is not implemented. Existing lore and regex analyzers can ship first.
+- Test Stage: lore and regex traces exist today; full prompt assembly, live audition, and isolated
+  A/B sessions remain future engine work.
+- Table Read: this is a core differentiator and should surface as a resumable session workflow, not
+  dozens of field tools. Its interview engine does not yet exist.
+- Production graph and history: prerequisite for honest restore and safe studio-wide batch changes.
+
+### Rejected candidates
+
+- One provider tool per form control.
+- Advertising every deferred schema every turn.
+- A raw JSON patch tool.
+- Arbitrary shell or filesystem access.
+- Agent tools for tabs, split panes, focus, or Library checkmarks.
+- Direct mutation of escrow without a typed semantic home.
+- Automatic execution of imported Lua or regex behavior.
+- A vector database for docs or tool search.
+- Cloud collaboration or accounts; the product is explicitly local-first and file-social.
+
+### Recommended dependency graph
+
+```text
+09 runtime discovery + read traversal + draft query
+  |\
+  | +--> 11 deterministic diagnostics + semantic parity
+  |
+  +----> 10 lifecycle + transfer + publishing
+            |
+            +--> 12 production history + batch orchestration
+
+Future Doctor, Test Stage, and Table Read tools start only after their engines exist.
+```
+
+### Verification performed and limitations
+
+- Two independent read-only audits covered the capability, Kit tool, change, loop, Library,
+  Workbench, Press, CLI, server-engine, core analyzer, architecture, and feature-spec surfaces.
+- The conductor re-opened every source boundary used in the findings.
+- No live Kit journey or model-selection evaluation was run.
+- No implementation or source mutation was performed as part of this addendum.
+- Line evidence is tied to the dirty local `Backstage` worktree at the revision above.

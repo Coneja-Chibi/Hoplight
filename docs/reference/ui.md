@@ -74,12 +74,19 @@ dimension snapshot. Kit also matches the terminal emulator's default background 
 it is open, then restores it on exit, so fractional-cell and profile-padding gutters visually belong
 to the same surface.
 
-Kit's live model tool belt includes studio list, read, and search; bounded Hoplight documentation
-query; bounded capability discovery; draft discard; and revision-checked apply. Documentation
+Kit's live model tool belt includes `studio_list`, `studio_read`, and `studio_search`; bounded
+Hoplight documentation query; bounded capability discovery; draft discard; and revision-checked
+apply. Documentation
 query lazily ranks catalog-declared Markdown sections with a local full-text scorer and reads only
 catalog-declared pages or heading sections.
-Discovery reveals no more than five typed semantic operations for later model steps. Capability
-calls preview without saving. Apply pauses in an interactive Gate, saves once
+Capability discovery can search, browse a collapsed target to area to action hierarchy, or describe
+one exact operation. Search replaces the deferred set with no more than five typed operations;
+describe reveals exactly one. The set resets on the next user turn. Capability calls preview without
+save. Kit keeps composing preview operations while the model still needs tools. When the model
+finishes a composed draft, the shell replaces any model-authored save question with a semantic
+`REVIEW CHANGE` panel. The panel shows up to five field-level before/after rows, the target, hidden
+change and warning counts, and clickable Apply & save or Discard controls. Enter or `y` applies;
+Escape, `n`, or `d` discards. Apply pauses in this interactive Gate, saves once
 only if the stored canonical revision still matches, then re-reads the piece before reporting an
 applied, stale, or failed receipt. Read-only tool batches may run concurrently, but their
 observations retain provider order; drafts and applies always serialize. Loop stops name the
@@ -90,6 +97,9 @@ applicability, and preview behavior. Compact terminals show one active pane at a
 
 The Backstage header reflects scheduler-owned lifecycle state. Its sealed trace keeps the final
 verified, stale, discarded, failed, cancelled, or stopped receipt beside the ordered tool moves.
+Reasoning fragments from consecutive tool rounds accumulate into one rehearsal receipt instead of
+adding one nearly identical collapsed row per model round. Provider-authored tool preambles remain
+in model history but do not interrupt the user transcript; Backstage owns in-progress narration.
 
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
@@ -153,14 +163,17 @@ it shows the official applications in the running build and cannot drift from th
 roster. CSS Workshop is the first `catalogOnly` tool: it remains fully bundled and mountable while
 staying off the everyday Dock. Help / Docs is another catalog-only app and renders the committed
 `docs/` corpus inside the Studio. Its left navigation and search derive from
-`docs/generated/docs-index.json`, then present it as **User Docs** and **Developer Docs** with
-human-facing workflow, platform, application/API, architecture, data-model, format, security,
-extension, and technical-decision sections. Decision records keep their canonical ADR filenames on
-disk while the reader uses plain titles without ADR codes. The center pane renders Markdown through the shared sanitizer and
-mounts only generated figures or committed `docs/media/` images; the right rail derives from the
-current page's heading anchors. The desktop build bakes the same Markdown and assets that are visible
-on GitHub, so there is one source rather than an in-app copy. Each page's **view on GitHub** action
-uses the existing leaving gate and `/api/open` URL allowlist.
+`docs/generated/docs-index.json`, including short frontmatter summaries, optional semantic page
+summaries, retrieval topics, and nested H2/H3 anchors when sidecars are merged. The reader presents
+the index as **User Docs** and **Developer Docs** with human-facing workflow, platform,
+application/API, architecture, data-model, format, security, extension, and technical-decision
+sections. Decision records keep their canonical ADR filenames on disk while the reader uses plain
+titles without ADR codes. The center pane renders Markdown through the shared sanitizer and mounts
+only generated figures or committed `docs/media/` images; the right rail derives from the current
+page's heading anchors (nested anchors flatten depth-first while preserving H3 styling). The
+desktop build bakes the same Markdown and assets that are visible on GitHub, so there is one source
+rather than an in-app copy. Each page's **view on GitHub** action uses the existing leaving gate and
+`/api/open` URL allowlist.
 
 ## Dev live-reload
 `hoplight ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to

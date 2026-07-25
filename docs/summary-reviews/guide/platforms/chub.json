@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/chub",
+  "sourcePath": "docs/guide/platforms/chub.md",
+  "sourceHash": "sha256:cbcb24f811659742194823328edac5f008dccc1b3e0b3b238410efdbc499f80e",
+  "semanticSummaryHash": "sha256:540825c551d8dd62da558786810575f4a49bcced6038d77555df1d48ba9c3c21",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:25.678Z"
+}

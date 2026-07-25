@@ -2,8 +2,8 @@
 id: reference/kit/tools
 title: Kit content tools
 audience: dev
-summary: The shared semantic capability catalog, progressive model tool exposure, draft previews, and Hoplight docs query.
-tags: [kit, tools, capabilities, character, lorebook, drafts, documentation]
+summary: Kit's shared workflow discovery, traversable results, semantic drafts, and Hoplight docs query.
+tags: [kit, tools, capabilities, character, lorebook, drafts, results, documentation]
 related: [reference/kit, reference/architecture, reference/ui]
 ---
 
@@ -22,8 +22,8 @@ discovery remains part of the tool loop.
 The capability foundation and all six canonical content bundles are connected to the live Kit
 session:
 
-- `src/entities/capabilities/` owns stable IDs, deterministic search, provider-safe names, and
-  direct, deferred, or hidden exposure.
+- `src/entities/capabilities/` owns stable IDs, deterministic search, provider-safe names,
+  direct, deferred, or hidden exposure, and the shared provider-discovery descriptor contract.
 - `src/entities/lorebook/capabilities/` owns pure lorebook settings and entry update, reorder,
   enable, and remove previews.
 - `src/entities/character/capabilities/` owns typed character identity, prompts, greetings,
@@ -35,20 +35,37 @@ session:
   tool.
 - The Workbench lorebook session imports the same pure operations for its existing editing paths.
 - `src/kit/capabilities/` discovers drop-in capability modules, adapts them to Kit runtime tools,
-  keeps a complete dispatch registry, and exposes only successful search matches to later model
-  calls.
+  joins content and non-content descriptors into one discovery catalog, keeps a complete dispatch
+  registry, and exposes only successful search or exact describe selections to later model calls.
 - `src/kit/changes/` composes multiple operations for one target into one in-memory draft while
-  preserving the baseline and `original` escrow.
+  preserving the baseline, `original` escrow, per-operation warnings, and platform impact.
+- `src/kit/results/` owns bounded session-local observations and fail-closed JSON Pointer traversal.
 - `src/ui/apps/workbench/capabilities/generated.ts` is generated from the same folders for the
   browser bundle. `bun run capabilities:check` rejects drift.
 - The loop asks for a fresh tool snapshot before every model request.
-- `capability_find` reveals up to five relevant typed operations for the next model step.
-- A selected capability creates or composes a preview draft without saving.
+- `capability_find` searches and reveals up to five relevant typed workflows, browses a collapsed
+  domain to area to action hierarchy without revealing schemas, or describes and reveals one exact
+  operation for the next model step. An existing piece target is optional during discovery.
+- A selected capability creates or composes a preview draft without saving. Its result also carries
+  a structured semantic review projection; the loop never parses a draft ID or field diff from
+  prose or JSON output.
+- A selected read-effect capability returns deterministic analysis and is rejected if its preview
+  changes canonical content.
+- `change_query` lists drafts, returns one complete accumulated proposal, or validates canonical
+  shape and current revision without writing.
 - `change_discard` drops an in-memory draft.
+- When the model finishes composing a draft, the loop suppresses its final save-or-discard prose
+  and deterministically hands the accumulated review to the application-owned Gate. Several draft
+  operations can compose before this single handoff.
 - `change_apply` pauses at the Gate, compares the stored canonical revision, saves exactly once,
-  re-reads the piece, and returns an applied, stale, or failed receipt.
+  re-reads the piece, and returns an applied, stale, or failed receipt. Denying the draft review
+  dispatches `change_discard` without another model round.
 - `docs_query` searches the generated Hoplight documentation catalog, then reads only a
   catalog-declared page or heading section. It cannot accept filesystem paths.
+- `studio_read` outlines or reads any canonical JSON Pointer with character offsets and bounded
+  continuation.
+- `result_query` stats, reads, or literally searches an oversized observation through an opaque
+  session handle.
 
 The scheduler is live. Read-only batches run concurrently while retaining provider order in the
 returned observations. Any batch containing a draft, apply, or unknown effect runs serially. The
@@ -59,7 +76,8 @@ boundary. Compact terminals show one active pane at a time instead of crushing t
 
 Backstage labels come from the loop state machine, not model prose. Live and sealed traces retain
 capability discovery, reads, drafting, preview readiness, one-shot apply, verification, and the final
-verified, stale, discarded, failed, cancelled, or stopped receipt.
+verified, stale, discarded, failed, cancelled, or stopped receipt. Text emitted alongside a provider
+tool call stays in provider history but is not rendered as a conversational transcript line.
 
 ## Capability contract
 
@@ -74,29 +92,82 @@ A content capability is a pure semantic operation. It declares:
   platform impact.
 
 Preview never writes. The draft composer rejects a changed target identity or changed `original`
-escrow.
+escrow. Read-effect capabilities may also return a structured observation, but their returned entity
+must be canonically identical and their change list must be empty. The adapter enforces both rules
+before returning analysis.
 
 ## Apply and authorization
 
 The safety subsystem owns access classification. It receives exact provider names from the validated
-capability catalog; it does not trust arbitrary runtime tool metadata or name prefixes. Catalog
-capabilities and discard are preview-only drafts. Applying is a durable write and pauses in the
-interactive Gate under the default guarded mode.
+pure-content capability catalog; it does not trust general workflow metadata, runtime effects, or
+name prefixes. Content read capabilities remain read-only, content draft capabilities and discard
+are preview-only drafts, and applying is a durable write that pauses in the interactive Gate under
+the default guarded mode. General workflow tools retain the writable Studio bridge, so discovery
+metadata cannot classify them as safe; they remain unknown until a separate safety-owned exact-name
+policy grants the appropriate access.
 
 The Studio backend compares and publishes under one per-path write lock. A stale revision writes
 nothing. After a successful publish, Kit re-reads the entity and verifies all capability-owned
 canonical fields and non-Studio escrow before reporting `applied`. A save with an unreadable or
 mismatched verification result reports failure and is not retried automatically.
 
+The guarded-mode draft Gate is a semantic review card, not a generic tool confirmation and not a
+verbal contract with the model. It shows the target and bounded before/after rows. Mouse controls
+and `y` or Enter apply; mouse controls and `n`, `d`, or Escape discard. Autopilot and full-control
+modes retain their documented write behavior.
+
 ## Progressive exposure
 
-The runtime registry contains every adapted capability so dispatch can resolve a selected tool.
-The provider snapshot starts with direct tools only. A catalog search returns no more than five
-deterministically ranked matches and reveals only registered deferred capabilities. Hidden
-capabilities never enter the provider snapshot.
+The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
+resolve a selected operation. Each user turn starts with nine direct tools: `studio_list`,
+`studio_search`, `studio_read`, `docs_query`, `result_query`, `capability_find`, `change_query`,
+`change_apply`, and `change_discard`.
+
+One provider-discovery catalog accepts `content`, `studio`, `transfer`, and `diagnostics` domains.
+Content capability metadata projects into that catalog; a non-content `HarnessTool` supplies the
+same validated discovery metadata beside its implementation. The current live deferred inventory is
+the content catalog. Lifecycle, transfer, and diagnostic workflows can join the same router as their
+engines land instead of adding another meta-tool. Only restricted pure-content capabilities derive
+safe read or draft access from catalog metadata. General workflow tools remain unknown to the Gate
+until separately classified. A deferred `apply` workflow is rejected until its plan supplies an
+explicit safety-owned access contract, so discovery metadata cannot quietly downgrade a write. The
+complete tool registry also rejects duplicate provider names before dispatch or schema publication.
+
+A catalog search replaces the current deferred set with no more than five deterministically ranked
+matches. A collapsed browse lists domains, areas, or the actions under one area without exposing
+typed schemas. Describe selects one exact action and replaces the deferred set with that operation.
+An optional piece target filters compatible kinds but is no longer required to discover studio-wide
+workflows. Hidden descriptors never appear in search, browse, describe, or the provider snapshot.
+The deferred set is cleared before the next user turn, while any preview draft remains available to
+the direct query, apply, or discard tools.
 
 This keeps a future catalog of more than one hundred semantic operations out of every prompt while
 preserving typed inputs for the selected operation.
+
+### Canonical reads and result handles
+
+`studio_read` defaults to the complete canonical entity. `outline` returns the selected value's
+immediate children as RFC 6901 JSON Pointers. `read` accepts one returned pointer plus character
+offset and limit, so a model can read one field or page through the whole value without guessing a
+path. Missing and malformed pointers fail closed.
+
+An unpaged observation over 4,096 characters is stored in the owning Kit session and returned as an
+opaque `result-N` handle plus a 4,096-character peek. `result_query` provides `stat`, bounded `read`,
+and literal case-insensitive `search`. Handles contain no path and disappear with the session.
+Storage is capped at 24 results, 1,000,000 UTF-8 bytes per entry, and 4,000,000 UTF-8 bytes total.
+Oldest entries are evicted first. Character counts remain available for paging. A value too large
+for the store remains recoverable through direct `studio_read` offsets. Result reads cap at 12,000
+characters and searches at 50 rows.
+
+### Complete draft review
+
+Every operation stores its validated input, changes, warnings, and platform impact. The draft also
+retains the aggregate warnings and impact while composing over one immutable baseline.
+`change_query list` returns compact counts and states. `show` returns the complete operations,
+baseline, proposed entity, warnings, and platform impact; oversized proposals use the same result
+handles, and explicit offsets remain available beyond the store cap. `validate` re-parses the
+proposed canonical entity and compares the current stored revision without changing draft state or
+writing. Operation rollback remains deliberately absent until deterministic replay is specified.
 
 ## Character slice
 
@@ -152,21 +223,57 @@ capability.
 
 ## Hoplight documentation query
 
-`docs_query` is one direct read-only meta-tool with two actions:
+`docs_query` is one direct read-only meta-tool with four actions:
 
+- `browse` returns catalog collections and pages from index metadata only (no Markdown bodies).
+  With no collection it lists root collections and root pages; with a collection it lists that
+  folder's immediate child collections and direct pages. Limit defaults to 12 and caps at 25;
+  offset paginates pages. Collection ids are slash-separated catalog prefixes and never raw
+  filesystem paths.
+- `outline` returns one page's semantic overview and a collapsed H2 map from the generated index,
+  still without loading the Markdown body. Each H2 reports its child count. Passing one returned
+  section slug expands only that H2/H3 branch and its semantic summaries.
 - `search` lazily loads catalog-declared Markdown, splits it into heading-addressable chunks, and
-  ranks full text plus title, summary, tags, and headings with an in-memory BM25-style scorer;
-- `read` accepts one returned catalog ID and an optional returned heading slug.
+  ranks full text plus title, short summary, semantic summary, topics, and headings with an
+  in-memory BM25-style scorer;
+- `read` accepts one returned catalog ID and is the only action that returns authoritative source
+  prose. Omit the section slug to read the whole document; provide one returned slug for a targeted
+  nugget. Responses stay bounded at 1,000 to 12,000 characters and return a continuation offset, so
+  Kit can consume a long whole document over several calls instead of truncating it permanently.
 
-The shared corpus boundary validates the generated index, resolves only catalog-declared Markdown
-beneath `docs/`, and caps returned prose. The index is built lazily on the first docs query and
-requires no embedding model, vector database, server, background process, dependency, or network
-call. The Studio docs reader and Kit use the same path-containment implementation. This lets Kit
-answer how Hoplight works from authored documentation without exposing arbitrary local file reads.
+Semantic summaries and topics are navigation aids. They are merged into the generated catalog only
+from authored sidecars under `docs/summaries/` that also have a current independent `APPROVE`
+receipt under `docs/summary-reviews/` bound to the page source hash and the semantic-summary hash.
+Unapproved, revised, blocked, or stale sidecars never become navigation metadata. Discovery of pages
+for authoring tools is folder-derived from `docs/`; authors do not hand-edit generated JSON to
+register a new page.
+
+New document flow:
+
+1. Add `docs/.../page.md`
+2. `bun run docs:summaries:scaffold -- <doc-id>`
+3. Author page and section summaries in the sidecar
+4. `bun run docs:summaries:stamp -- <doc-id>`
+5. `bun run docs:summaries:check -- <doc-id>` (author validation)
+6. Independent review: `bun run docs:summaries:review -- <doc-id> APPROVE --notes "..." --reviewer <id>`
+7. `bun run docs:index` and commit generated artifacts
+
+Edited document flow: re-read changed ranges, update affected summaries, stamp, author-check, then
+new independent review (never self-approve; never stamp without reviewing prose). Global
+`docs:summaries:check` fails until every page is `APPROVED` and projections are current.
+
+The model must read source prose before relying on a detail. It should normally read the whole
+document around a located answer so nearby qualifications, failure conditions, and current-versus-
+planned distinctions remain visible. A section nugget is appropriate for a narrow lookup or limited
+context. The shared corpus boundary validates the generated index, resolves only catalog-declared
+Markdown beneath `docs/`, and caps each returned page. The index is built lazily on the first docs
+query and requires no embedding model, vector database, server, background process, dependency, or
+network call. The Studio docs reader and Kit use the same path-containment implementation.
 
 ## Verification status
 
-Unit and integration proof covers catalog parity, progressive exposure, canonical draft
-composition, escrow preservation, stale refusal, one-save apply, post-save verification, and a full
-fake-provider rename journey through the real Studio store. Live terminal verification remains
-required before this milestone is called shippable.
+Unit and integration proof covers catalog parity, all discovery domains, progressive exposure,
+bounded result storage, JSON Pointer reads, complete draft evidence, read-effect isolation, canonical
+draft composition, escrow preservation, stale refusal, one-save apply, post-save verification, and
+a full fake-provider rename journey through the real Studio store. Live terminal verification
+remains required before this milestone is called shippable.
