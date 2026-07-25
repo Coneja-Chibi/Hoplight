@@ -8,12 +8,13 @@
  */
 import { useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { theme } from "../../render/theme";
 import { turnBounds } from "../projection";
 import type { SessionActions } from "../session-actions";
 import { TurnRow } from "./turn-row";
+import { visibleWindow } from "../../render/primitives/nav/visible-window";
 
 const clamp = (value: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, value));
 
@@ -27,6 +28,7 @@ export function RewindRail({
   onClose: () => void;
 }): ReactNode {
   const bounds = turnBounds(actions.current());
+  const { height } = useTerminalDimensions();
   const [index, setIndex] = useState(Math.max(0, bounds.length - 1));
   const [confirming, setConfirming] = useState(false);
   const indexRef = useRef(index);
@@ -35,6 +37,11 @@ export function RewindRail({
   confirmingRef.current = confirming;
   const busyRef = useRef(busy);
   busyRef.current = busy;
+
+  const applyIndex = (next: number): void => {
+    indexRef.current = next;
+    setIndex(next);
+  };
 
   useKeyboard((event: KeyEvent) => {
     const last = bounds.length - 1;
@@ -51,9 +58,9 @@ export function RewindRail({
       case "escape":
         return onClose();
       case "up":
-        return setIndex((i) => clamp(i - 1, 0, Math.max(0, last)));
+        return applyIndex(clamp(indexRef.current - 1, 0, Math.max(0, last)));
       case "down":
-        return setIndex((i) => clamp(i + 1, 0, Math.max(0, last)));
+        return applyIndex(clamp(indexRef.current + 1, 0, Math.max(0, last)));
       case "return":
         if (target && !busyRef.current) setConfirming(true);
         return;
@@ -66,14 +73,16 @@ export function RewindRail({
   });
 
   const target = bounds[index];
-  const discardCount = target ? bounds.length - target.turn : 0;
+  const turnCount = actions.current().turns.length;
+  const discardCount = target ? turnCount - target.turn : 0;
+  const window = visibleWindow(bounds, index, Math.max(1, height - 8));
 
   return (
     <box flexDirection="column" border borderColor={theme.line} backgroundColor={theme.floor}>
       <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
         <text fg={theme.rose}>Rewind</text>
         <box flexGrow={1} />
-        <text fg={theme.mut}>{String(bounds.length)} turns</text>
+        <text fg={theme.mut}>{String(turnCount)} turns</text>
       </box>
 
       {bounds.length === 0 ? (
@@ -82,7 +91,7 @@ export function RewindRail({
         </box>
       ) : (
         <box flexDirection="column">
-          {bounds.map((bound) => (
+          {window.items.map((bound) => (
             <TurnRow key={bound.turn} turn={bound.turn} preview={bound.preview} selected={bound.turn === target?.turn} />
           ))}
           <box height={1} backgroundColor={theme.line} />

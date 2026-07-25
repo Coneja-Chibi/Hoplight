@@ -1,4 +1,4 @@
-/** Transcript export tests for stable filenames and readable session text. */
+/** Verifies collision-safe Markdown and JSON session transcript exports. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import { appendTurn, buildTurn, emptySession, renameSession, type Session } from "./session-model";
@@ -43,7 +43,7 @@ describe("sanitizeFilename", () => {
 describe("formatTranscript", () => {
   test("markdown carries the title, turn count, and you/reply blocks", () => {
     const { filename, body } = formatTranscript(combat(), "markdown");
-    expect(filename).toBe("draw-steel-combat-math-20260723.md");
+    expect(filename).toBe("draw-steel-combat-math-20260723-root.md");
     expect(body).toContain("# draw steel combat math");
     expect(body).toContain("_1 turn_");
     expect(body).toContain("## you\n\nset up combat");
@@ -53,7 +53,7 @@ describe("formatTranscript", () => {
   test("json round-trips back to the exact session", () => {
     const session = combat();
     const { filename, body } = formatTranscript(session, "json");
-    expect(filename).toBe("draw-steel-combat-math-20260723.json");
+    expect(filename).toBe("draw-steel-combat-math-20260723-root.json");
     expect(JSON.parse(body)).toEqual(JSON.parse(JSON.stringify(session)));
   });
 
@@ -84,5 +84,26 @@ describe("formatTranscript", () => {
     expect(body).toContain("```call · grep");
     expect(body).toContain("```tool · grep");
     expect(body).toContain("3 hits");
+  });
+
+  test("different session ids cannot collide on the same title and day", () => {
+    const first = formatTranscript({ ...combat(), id: "first" }, "markdown");
+    const second = formatTranscript({ ...combat(), id: "second" }, "markdown");
+    expect(first.filename).not.toBe(second.filename);
+  });
+
+  test("tool output containing backtick fences remains inside a longer outer fence", () => {
+    let session = emptySession("ticks", DAY);
+    session = appendTurn(
+      session,
+      buildTurn(
+        "show code",
+        [{ role: "tool", content: "before\n```\ninside\n```\nafter", toolName: "read" }],
+        DAY,
+      ),
+    );
+    const { body } = formatTranscript(session, "markdown");
+    expect(body).toContain("````tool");
+    expect(body).toContain("after\n````");
   });
 });

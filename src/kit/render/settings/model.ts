@@ -31,9 +31,10 @@ export const optionOf = (choice: ProviderChoice, field: Field): SpokeOption | un
  * (possibly empty, which the form shows as "check the key"). index highlights within the FILTERED
  * view, what the user's typed text currently matches. */
 export interface ModelList {
-  state: "idle" | "loading" | "ready";
+  state: "idle" | "loading" | "ready" | "error";
   models: ModelInfo[];
   index: number;
+  error?: string;
 }
 
 export interface FormState {
@@ -165,6 +166,9 @@ const toConfig = (form: FormState): ProviderConfig => ({
   kind: form.choice.id,
   model: form.model.trim(),
   name: form.choice.label,
+  ...(form.list.models.find((info) => info.id === form.model.trim())?.context
+    ? { context: form.list.models.find((info) => info.id === form.model.trim())!.context }
+    : {}),
   ...(form.choice.keyless ? {} : { apiKey: form.key }),
   ...(form.choice.needsBaseURL ? { baseURL: form.baseURL.trim() } : {}),
   ...(Object.keys(form.options).length ? { options: { ...form.options } } : {}),
@@ -297,7 +301,11 @@ const cycleOption = (form: FormState, delta: number): FormState => {
   const values = option.choices.map((c) => c.value);
   const at = Math.max(0, values.indexOf(form.options[option.key] ?? option.defaultValue));
   const next = values[(at + delta + values.length) % values.length]!;
-  return { ...form, options: { ...form.options, [option.key]: next } };
+  return {
+    ...form,
+    options: { ...form.options, [option.key]: next },
+    list: { state: "idle", models: [], index: 0 },
+  };
 };
 
 const moveList = (form: FormState, delta: number): FormState => {
@@ -316,8 +324,12 @@ function submitForm(state: SettingsState, form: FormState): Step {
 }
 
 const editField = (form: FormState, field: Field, edit: (value: string) => string): FormState => {
-  if (field === "key") return { ...form, key: edit(form.key) };
-  if (field === "baseURL") return { ...form, baseURL: edit(form.baseURL) };
+  if (field === "key") {
+    return { ...form, key: edit(form.key), list: { state: "idle", models: [], index: 0 } };
+  }
+  if (field === "baseURL") {
+    return { ...form, baseURL: edit(form.baseURL), list: { state: "idle", models: [], index: 0 } };
+  }
   return { ...form, model: edit(form.model) };
 };
 
@@ -327,6 +339,7 @@ const stepSection = (section: Section, delta: number): number =>
 /** Paste lands in the focused form field (how API keys actually get entered). No-op elsewhere. */
 export function applyPaste(state: SettingsState, text: string): SettingsState {
   if (state.mode !== "form" || !state.form) return state;
+  if (optionOf(state.form.choice, state.form.field)) return state;
   const clean = text.replace(/[\r\n]+/g, "").trim();
   if (!clean) return state;
   return { ...state, form: editField(state.form, state.form.field, (v) => v + clean) };

@@ -1,4 +1,4 @@
-/** Session-model tests for titles, turns, forks, renames, and immutable updates. */
+/** Verifies immutable session creation, naming, rewind, and fork behavior. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import {

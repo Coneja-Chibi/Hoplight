@@ -6,6 +6,7 @@
  * returns a whole new Session, never mutates its input, never throws. Mirrors the recall.ts shape.
  */
 import type { ModelMessage } from "../providers/provider";
+import { truncateGraphemes } from "../_shared/graphemes";
 
 /** Where a fork branched from: the parent's id and how many of its turns were copied. */
 export interface ForkParent {
@@ -100,5 +101,5 @@ export const renameSession = (session: Session, title: string, now: number): Ses
 export const deriveTitle = (turns: readonly SessionTurn[], cap: number = TITLE_CAP): string => {
   const first = turns[0]?.input.replace(/\s+/g, " ").trim() ?? "";
   if (!first) return FALLBACK_TITLE;
-  return first.length > cap ? `${first.slice(0, cap).trimEnd()}…` : first;
+  return truncateGraphemes(first, cap);
 };

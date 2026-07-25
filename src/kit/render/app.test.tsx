@@ -11,6 +11,12 @@ import { SayLine } from "./primitives/say-line";
 import { StatusRow } from "./primitives/status-row";
 import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageRow } from "./primitives/backstage-row";
+import { App } from "./app";
+import type { Session } from "../session";
+import { discoverCommands } from "../commands/discover";
+import type { SessionStore } from "../sessions/store";
+import type { Session as MemorySession } from "../sessions/session-model";
+import { summarize } from "../sessions/projection";
 
 setDefaultTimeout(30000);
 
@@ -91,6 +97,326 @@ describe("applyTurnEvent", () => {
     v = toggleTrace(v, v.lines.length - 1);
     expect((v.lines.at(-1) as { open: boolean }).open).toBe(false);
   });
+
+  test("an interrupted text stream keeps the partial answer before the error", () => {
+    let v = applyTurnEvent(view(), { type: "delta", kind: "text", text: "partial answer" }, 0);
+    v = applyTurnEvent(v, { type: "error", message: "stream interrupted" }, 1000);
+    v = settleTurn(v, 1000);
+    expect(v.lines).toEqual([
+      { role: "say", text: "partial answer" },
+      { role: "error", text: "stream interrupted" },
+    ]);
+  });
+});
+
+describe("App turn lifecycle", () => {
+  const renderApp = (
+    session: Session,
+    options: {
+      commands?: Awaited<ReturnType<typeof discoverCommands>>;
+      sessionStore?: SessionStore;
+      makeSessionId?: () => string;
+      width?: number;
+      height?: number;
+    } = {},
+  ) =>
+    testRender(
+      <App
+        studioName="Studio"
+        totalPieces={0}
+        decks={[]}
+        session={session}
+        commands={options.commands ?? []}
+        onQuit={() => {}}
+        sessionStore={options.sessionStore}
+        makeSessionId={options.makeSessionId}
+        now={() => 1000}
+      />,
+      { width: options.width ?? 80, height: options.height ?? 24 },
+    );
+
+  test("two rapid submissions start one turn and retain the rejected draft", async () => {
+    let release = (): void => {};
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const calls: string[] = [];
+    const session: Session = {
+      async runTurn(input, history) {
+        calls.push(input);
+        await gate;
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.typeText("first");
+      t.mockInput.pressEnter();
+      await t.mockInput.typeText("second");
+      t.mockInput.pressEnter();
+      await tick();
+      expect(calls).toEqual(["first"]);
+      expect(t.captureCharFrame()).toContain("second");
+    } finally {
+      release();
+      await tick();
+      await t.renderer.destroy();
+    }
+  });
+
+  test("Escape aborts the active turn", async () => {
+    let release = (): void => {};
+    let aborted = false;
+    const session: Session = {
+      async runTurn(_input, history, _onEvent, signal?: AbortSignal) {
+        await new Promise<void>((resolve) => {
+          release = resolve;
+          signal?.addEventListener("abort", () => {
+            aborted = true;
+            resolve();
+          }, { once: true });
+        });
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.typeText("cancel me");
+      t.mockInput.pressEnter();
+      await tick();
+      t.mockInput.pressKey("ESCAPE");
+      await tick();
+      expect(aborted).toBe(true);
+    } finally {
+      release();
+      await tick();
+      await t.renderer.destroy();
+    }
+  });
+
+  test("Down Arrow on the live draft leaves it unchanged", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.typeText("keep this draft");
+      t.mockInput.pressKey("ARROW_DOWN");
+      await tick();
+      expect(t.captureCharFrame()).toContain("keep this draft");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("Ctrl+F round-trip preserves the live draft", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.typeText("unsent draft");
+      t.mockInput.pressKey("f", { ctrl: true });
+      await tick();
+      expect(t.captureCharFrame()).toContain("SEARCH");
+      t.mockInput.pressEscape();
+      await tick();
+      expect(t.captureCharFrame()).toContain("unsent draft");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("a sixth paste is visibly rejected instead of silently dropped", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      for (let i = 1; i <= 6; i += 1) {
+        await t.mockInput.pasteBracketedText(`paste ${i}\na\nb\nc\nd`);
+        await tick(10);
+      }
+      await tick();
+      expect(t.captureCharFrame()).toContain("Paste not added");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("clicking a paste card removes only that pending card", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.pasteBracketedText("pending paste\na\nb\nc\nd");
+      await tick();
+      const rows = t.captureCharFrame().split("\n");
+      const y = rows.findIndex((row) => row.includes("remove"));
+      const x = rows[y]?.indexOf("remove") ?? -1;
+      expect(y).toBeGreaterThanOrEqual(0);
+      expect(x).toBeGreaterThanOrEqual(0);
+      await t.mockMouse.click(x, y);
+      await tick();
+      expect(t.captureCharFrame()).not.toContain("pasted text");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("an unknown slash command stays local and never reaches the provider", async () => {
+    const calls: string[] = [];
+    const session: Session = {
+      async runTurn(input, history) {
+        calls.push(input);
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session);
+    try {
+      await tick();
+      await t.mockInput.typeText("/quut");
+      t.mockInput.pressEnter();
+      await tick();
+      expect(calls).toEqual([]);
+      expect(t.captureCharFrame()).toContain("Unknown command");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("a completed turn persists and /resume restores it after restart", async () => {
+    const records = new Map<string, MemorySession>();
+    const store: SessionStore = {
+      async list() {
+        return [...records.values()].map(summarize).sort((a, b) => b.updatedAt - a.updatedAt);
+      },
+      async read(id) {
+        return records.get(id) ?? null;
+      },
+      async write(record) {
+        records.set(record.id, record);
+      },
+      async remove(id) {
+        return records.delete(id);
+      },
+      async writeExport(_dir, filename) {
+        return filename;
+      },
+    };
+    const session: Session = {
+      async runTurn(input, history, onEvent) {
+        const next = [
+          ...history,
+          { role: "user" as const, content: input },
+          { role: "assistant" as const, content: `reply ${input}` },
+        ];
+        onEvent({ type: "say", text: `reply ${input}` });
+        return next;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const commands = await discoverCommands();
+    const ids = ["first", "second"];
+    const first = await renderApp(session, {
+      commands,
+      sessionStore: store,
+      makeSessionId: () => ids.shift() ?? "extra",
+    });
+    try {
+      await tick();
+      await first.mockInput.typeText("hello");
+      first.mockInput.pressEnter();
+      await tick();
+      expect(records.get("first")?.turns).toHaveLength(1);
+    } finally {
+      await first.renderer.destroy();
+    }
+
+    const second = await renderApp(session, {
+      commands,
+      sessionStore: store,
+      makeSessionId: () => ids.shift() ?? "extra",
+    });
+    try {
+      await tick();
+      await second.mockInput.typeText("/resume");
+      second.mockInput.pressEnter();
+      await tick();
+      expect(second.captureCharFrame()).toContain("reply hello");
+    } finally {
+      await second.renderer.destroy();
+    }
+  });
+
+  test("compact terminal chrome keeps labels separate and the opening actionable", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session, { width: 30, height: 12 });
+    try {
+      await tick();
+      const frame = t.captureCharFrame();
+      expect(frame).toContain("Kit.");
+      expect(frame).toContain("Welcome to Kit.");
+      expect(frame).toContain("/model");
+      expect(frame).not.toContain("Kitstudio");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
 });
 
 describe("widgets", () => {
@@ -131,8 +457,8 @@ describe("widgets", () => {
     );
     try {
       await tick();
-      const frame = await t.waitForFrame((f) => f.includes("backstage"), { maxPasses: 300 });
-      expect(frame).toContain("backstage · 2 moves · 6s");
+      const frame = await t.waitForFrame((f) => f.includes("Backstage"), { maxPasses: 300 });
+      expect(frame).toContain("Backstage · 2 moves · 6s");
       expect(frame).toContain("ctrl+o");
       expect(frame).not.toContain("read character"); // folded moves stay put away
     } finally {

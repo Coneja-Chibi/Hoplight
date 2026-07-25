@@ -12,6 +12,8 @@ import { randomUUID } from "node:crypto";
 import { testRender } from "@opentui/react/test-utils";
 import { SettingsScreen } from "./settings-screen";
 import { loadChoices } from "./providers-data";
+import type { SettingsVaultApi } from "./settings-screen";
+import type { ProviderConfig } from "../../providers/config";
 
 const HOME = join(tmpdir(), `kit-settings-test-${randomUUID()}`);
 
@@ -95,6 +97,56 @@ test("real keys drive the whole RC flow: masked key, live model list, pick, save
     for (let i = 0; i < 200 && saved.length === 0; i++) await tick(50);
     expect(saved.length).toBe(1);
     expect((saved[0] as { model: string }).model).toBe("deepseek-reasoner");
+  } finally {
+    await t.renderer.destroy();
+  }
+});
+
+test("activating an existing provider notifies App and rejected mutations stay visible", async () => {
+  const providers: ProviderConfig[] = [
+    { id: "one", kind: "openai", model: "first", name: "First" },
+    { id: "two", kind: "openai", model: "second", name: "Second" },
+  ];
+  let activeId = "one";
+  let changes = 0;
+  const vaultApi: SettingsVaultApi = {
+    async read() {
+      return { providers, activeId };
+    },
+    async save(config) {
+      return config;
+    },
+    async activate(id) {
+      activeId = id;
+    },
+    async remove() {},
+  };
+  const t = await testRender(
+    <SettingsScreen
+      studioName="Studio"
+      onClose={() => {}}
+      onSaved={() => {}}
+      onChanged={() => {
+        changes += 1;
+      }}
+      vaultApi={vaultApi}
+    />,
+    { width: 100, height: 30 },
+  );
+  try {
+    await t.waitForFrame((frame) => frame.includes("Second"), { maxPasses: 300 });
+    t.mockInput.pressKey("ARROW_DOWN");
+    t.mockInput.pressKey("d");
+    await tick(60);
+    expect(activeId).toBe("two");
+    expect(changes).toBe(1);
+
+    vaultApi.activate = async () => {
+      throw new Error("provider switch failed");
+    };
+    t.mockInput.pressKey("d");
+    await tick(60);
+    expect(t.captureCharFrame()).toContain("provider switch failed");
   } finally {
     await t.renderer.destroy();
   }

@@ -1,4 +1,4 @@
-/** Help navigation model tests for grouping, filtering, and keyboard reduction. */
+/** Verifies help-screen navigation and selection state transitions. */
 import { describe, expect, test } from "bun:test";
 import { buildHelp, initHelp, reduce, type HelpCommand } from "./help-model";
 import type { Keybinding } from "./keymap";

@@ -23,6 +23,12 @@ const fakeBridge: KitBridge = {
   async read() {
     return null;
   },
+  async save() {
+    throw new Error("no writes in this test");
+  },
+  async delete() {
+    return false;
+  },
 };
 
 const tools = [list, read, search];

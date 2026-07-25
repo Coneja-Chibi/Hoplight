@@ -1,4 +1,4 @@
-/** Context-meter tests for known limits, warning thresholds, and unknown models. */
+/** Verifies context-meter thresholds and bounded usage calculations. */
 import { describe, expect, test } from "bun:test";
 import { contextMeter, CRIT_AT, WARN_AT } from "./context-meter-core";
 

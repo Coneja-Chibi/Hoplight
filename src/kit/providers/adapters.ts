@@ -21,16 +21,12 @@ export async function buildModel(config: ProviderConfig | null): Promise<Languag
 }
 
 /** Query the provider's live model list through the same egress gate. Returns null when the spoke
- * has no models endpoint (manual entry), [] when the query yields nothing (bad key, empty list);
- * tolerant at this one boundary, it never throws into the setup screen. */
+ * has no models endpoint (manual entry). Request failures remain errors so setup can explain and
+ * retry them instead of misreporting every failure as an empty model list. */
 export async function listModelsFor(config: ProviderConfig): Promise<ModelInfo[] | null> {
-  try {
-    const spoke = (await spokes()).get(config.kind);
-    if (!spoke?.listModels) return null;
-    assertReady(config, spoke);
-    const fetch = guardedFetch(allowedHost(config, spoke));
-    return await spoke.listModels(config, fetch);
-  } catch {
-    return [];
-  }
+  const spoke = (await spokes()).get(config.kind);
+  if (!spoke?.listModels) return null;
+  assertReady(config, spoke);
+  const fetch = guardedFetch(allowedHost(config, spoke));
+  return spoke.listModels(config, fetch);
 }

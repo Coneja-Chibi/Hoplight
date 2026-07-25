@@ -17,9 +17,12 @@ export interface CommandContext {
   /** Leave Kit (/quit, /q). */
   quit: () => void;
   /** Run the active provider's proof-of-life inside a turn (/test). */
-  probe: () => Promise<void>;
+  probe: () => boolean | Promise<void>;
   /** Print a line to the transcript (markdown-rendered), e.g. /help's listing. */
   say: (text: string) => void;
+  /** The /privacy readout: the formatted egress ledger (what has left this machine this session). The
+   * shell owns the ledger state and formats it, so a command never reaches into render or session. */
+  egressSummary: () => string;
 }
 
 export interface KitCommand {
@@ -29,7 +32,10 @@ export interface KitCommand {
   readonly aliases?: readonly string[];
   /** One line shown by the help stage and the slash popup. */
   readonly summary: string;
-  run(ctx: CommandContext): void | Promise<void>;
+  /** Which help section it files under (setup / session / moving / ...); absent falls to Other.
+   * Matches HelpCommand.group so /help and the (future) help stage group identically. */
+  readonly group?: string;
+  run(ctx: CommandContext): boolean | void | Promise<boolean | void>;
 }
 
 /** Resolve a raw input to a command + its argument. Null when it is not a slash command we know. */

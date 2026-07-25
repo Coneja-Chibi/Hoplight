@@ -1,4 +1,4 @@
-/** Command matching tests for primary names, aliases, and unknown input. */
+/** Verifies command matching, aliases, and slash-command argument extraction. */
 import { describe, expect, test } from "bun:test";
 import { matchCommand, type KitCommand } from "./command";
 

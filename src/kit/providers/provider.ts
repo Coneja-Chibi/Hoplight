@@ -3,6 +3,7 @@
  * anthropic/openai/xai/local adapters all implement chat(); the loop never knows which is behind it.
  * Types only, so loop-core can import this without pulling in any transport (keeps the core pure).
  */
+import type { TokenUsage } from "./usage";
 
 /** One message in the running conversation the model sees. */
 export interface ModelMessage {
@@ -22,10 +23,12 @@ export interface ModelToolCall {
   args: unknown;
 }
 
-/** One model turn: a final answer, or a request to run tools with an optional preamble. */
+/** One model turn: a final answer, or a request to run tools with an optional preamble. `usage` is the
+ * provider's reported token counts for this call (already cleaned), when it reported any; the meter and
+ * tally read it. Optional: an OAI-compatible router that omits usage simply leaves it undefined. */
 export type ModelReply =
-  | { kind: "say"; text: string }
-  | { kind: "use"; text: string; calls: ModelToolCall[] };
+  | { kind: "say"; text: string; usage?: TokenUsage }
+  | { kind: "use"; text: string; calls: ModelToolCall[]; usage?: TokenUsage };
 
 /** How a tool looks to the model: name, description, and a JSON-schema for its args. */
 export interface ToolSpec {

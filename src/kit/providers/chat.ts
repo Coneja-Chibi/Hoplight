@@ -8,6 +8,22 @@ import { jsonSchema, streamText, tool, type ModelMessage as AiMessage, type Text
 import type { ChatFn, ModelMessage, ModelReply, ModelToolCall, ToolSpec } from "./provider";
 import type { ProviderConfig } from "./config";
 import { buildModel } from "./adapters";
+import { readUsage, type TokenUsage } from "./usage";
+
+/** Map the AI SDK's ragged usage object into a clean TokenUsage. Field names have drifted across SDK
+ * majors (promptTokens/inputTokens, cachedInputTokens/cacheReadInputTokens), so we read tolerantly and
+ * let readUsage guard every count (undefined / NaN -> 0). The `unknown` cast is the raw-payload edge. */
+function mapUsage(raw: unknown): TokenUsage {
+  const u = (raw ?? {}) as Record<string, number | undefined>;
+  return readUsage({
+    input: u.inputTokens ?? u.promptTokens,
+    output: u.outputTokens ?? u.completionTokens,
+    total: u.totalTokens,
+    reasoning: u.reasoningTokens,
+    cacheRead: u.cachedInputTokens ?? u.cacheReadInputTokens,
+    cacheWrite: u.cacheCreationInputTokens ?? u.cacheWriteInputTokens,
+  });
+}
 
 // A whole turn (wait + stream) may never hang forever: generous, but finite.
 const HANG_CAP_MS = 300_000;
@@ -33,7 +49,7 @@ export function makeChat(config: ProviderConfig, abortSignal?: AbortSignal): Cha
         throw part.error instanceof Error ? part.error : new Error(String(part.error));
       }
     }
-    return toReply(await result.text, await result.toolCalls);
+    return toReply(await result.text, await result.toolCalls, mapUsage(await result.usage));
   };
 }
 
@@ -75,18 +91,19 @@ function toAiTools(specs: ToolSpec[]): ToolSet {
   return Object.fromEntries(entries);
 }
 
-/** AI SDK result -> our ModelReply: a plain answer, or a request to run tools. */
+/** AI SDK result -> our ModelReply: a plain answer, or a request to run tools, carrying this call's usage. */
 function toReply(
   text: string,
   toolCalls: ReadonlyArray<{ toolCallId: string; toolName: string; input: unknown }>,
+  usage: TokenUsage,
 ): ModelReply {
   if (toolCalls.length === 0) {
-    return { kind: "say", text };
+    return { kind: "say", text, usage };
   }
   const calls: ModelToolCall[] = toolCalls.map((call) => ({
     id: call.toolCallId,
     name: call.toolName,
     args: call.input,
   }));
-  return { kind: "use", text, calls };
+  return { kind: "use", text, calls, usage };
 }

@@ -1,67 +1,89 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Playbill: the persistent header (wireframe E1, the "full bill"). A lit theatre marquee: gold lamp
- * rows (dim base, a sparse moving set twinkling up to bright) frame a centered NOW PLAYING eyebrow,
- * the studio title with the rose crossed-V mark, and the legible pieces + egress line. It carries
- * who/what; the status bar down low carries live state, so neither repeats the other. Lamps fill the
- * pane width, edge to edge.
+ * Playbill: the persistent header (locked look, DECISIONS #23 refined with Chi 2026-07-24). A compact
+ * masthead, "Kit." in the display weight with a rose period, and the studio, piece count, and active
+ * provider on the right, over a rose-deep rule and a deck strip carrying each deck's live count and the
+ * egress promise. No marquee lamps: the header carries who/what quietly; the status bar down low carries
+ * live state, so neither repeats the other.
  */
-import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useTerminalDimensions } from "@opentui/react";
+import type { DeckCount } from "../../bridge";
+import type { TokenUsage } from "../../providers/usage";
 import { theme } from "../theme";
+import { ContextMeter } from "./meters/context-meter";
+import { TokenTally } from "./meters/token-tally";
 
-const Centered = ({ children }: { children: ReactNode }): ReactNode => (
-  <box flexDirection="row" height={1} justifyContent="center">
-    {children}
-  </box>
-);
-
-const TWINKLE_MS = 260;
-
-export function Playbill({ studioName, totalPieces }: { studioName: string; totalPieces: number }): ReactNode {
+export function Playbill({
+  studioName,
+  totalPieces,
+  decks,
+  provider,
+  turnUsage,
+  sessionUsage,
+  contextMax,
+}: {
+  studioName: string;
+  totalPieces: number;
+  decks: DeckCount[];
+  provider: { name: string; model: string } | null;
+  turnUsage: TokenUsage;
+  sessionUsage: TokenUsage;
+  contextMax: number | undefined;
+}): ReactNode {
   const { width } = useTerminalDimensions();
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setTick((x) => x + 1), TWINKLE_MS);
-    return () => clearInterval(id);
-  }, []);
-
-  const dots = Math.ceil(width / 2);
-  const Lamps = ({ phase }: { phase: number }): ReactNode => {
-    const cells: ReactNode[] = [];
-    for (let i = 0; i < dots; i += 1) {
-      // a sparse set of dots is lit at any moment, and the set drifts, so the row twinkles
-      const lit = (i * 5 + tick + phase) % 11 === 0;
-      cells.push(
-        <span key={i} fg={lit ? theme.gold : theme.goldDim}>
-          ·
-        </span>,
-      );
-      cells.push(<span key={`s${i}`}> </span>);
-    }
-    return (
-      <box flexDirection="row" height={1}>
-        <text>{cells}</text>
-      </box>
-    );
-  };
-
+  const compact = width < 60;
   return (
-    <box flexDirection="column" backgroundColor={theme.panel}>
-      <Lamps phase={0} />
-      <Centered>
-        <text fg={theme.rose}>N O W　 P L A Y I N G</text>
-      </Centered>
-      <Centered>
-        <text fg={theme.text}>
-          <span fg={theme.rose}>V</span> {studioName}
+    <box flexDirection="column">
+      <box flexDirection="row" backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
+        <text>
+          <b fg={theme.text}>Kit</b>
+          <span fg={theme.rose}>.</span>
         </text>
-      </Centered>
-      <Centered>
-        <text fg={theme.soft}>{String(totalPieces)} pieces in the wings · nothing leaves until you send</text>
-      </Centered>
-      <Lamps phase={6} />
+        <box flexGrow={1} />
+        <text fg={theme.soft}>
+          {compact ? (
+            <span fg={theme.text}>{String(totalPieces)} pieces</span>
+          ) : (
+            <span>
+              studio <span fg={theme.text}>{studioName}</span> ·{" "}
+              <span fg={theme.text}>{String(totalPieces)}</span> pieces
+            </span>
+          )}
+          {provider && !compact ? (
+            <span>
+              {" · "}
+              <span fg={theme.text}>{provider.name}</span>
+            </span>
+          ) : null}
+        </text>
+      </box>
+      <box height={1} backgroundColor={theme.roseDeep} />
+      <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
+        {!compact ? (
+          <>
+            <text fg={theme.soft}>
+              <span fg={theme.text}>decks </span>
+              {decks.flatMap((deck, i) => [
+                i > 0 ? <span key={`sep${i}`} fg={theme.quiet}>{" · "}</span> : null,
+                <span key={`lbl${i}`}>{deck.label} </span>,
+                <span key={`cnt${i}`} fg={theme.text}>{String(deck.count)}</span>,
+              ])}
+            </text>
+            <box flexGrow={1} />
+          </>
+        ) : null}
+        <text fg={theme.soft}>
+          <span fg={theme.text}>egress </span>only when you send
+        </text>
+      </box>
+      {provider ? (
+        <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1} border={["top"]} borderColor={theme.seam}>
+          <ContextMeter consumed={turnUsage.input} max={contextMax} />
+          <box flexGrow={1} />
+          <TokenTally turn={turnUsage} session={sessionUsage} />
+        </box>
+      ) : null}
     </box>
   );
 }

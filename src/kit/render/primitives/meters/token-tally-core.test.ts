@@ -1,4 +1,4 @@
-/** Token-tally tests for per-turn and session-wide usage summaries. */
+/** Verifies provider token totals rendered in Kit's status area. */
 import { describe, expect, test } from "bun:test";
 import { EMPTY_USAGE, type TokenUsage } from "../../../providers/usage";
 import { tokenTally } from "./token-tally-core";

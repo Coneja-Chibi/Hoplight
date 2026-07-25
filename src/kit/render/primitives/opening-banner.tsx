@@ -5,11 +5,12 @@
  * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, BESIDE the
  * big "Kit" wordmark (also polygon-rasterized so it scales cleanly), the wordmark centered against
  * the mark's height. A rainbow FLOWS across it all on a timer, Gemini's horizontal-gradient idea
- * hand-rendered per column and animated because OpenTUI's ascii-font can do neither. Emojis + a warm
- * note live only in this welcome (banned everywhere else in Hoplight); the chrome stays rose.
+ * hand-rendered per column and animated because OpenTUI's ascii-font can do neither. A warm note
+ * lives only in this welcome; the chrome stays rose.
  */
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import { theme } from "../theme";
 import { darken, rampAt } from "../colors";
 
@@ -90,6 +91,7 @@ export function OpeningBanner({
   /** Flow the rainbow only while the banner is the whole screen; freeze once a turn scrolls it away. */
   animate?: boolean;
 }): ReactNode {
+  const { width, height } = useTerminalDimensions();
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!animate) return;
@@ -99,6 +101,19 @@ export function OpeningBanner({
   const offset = tick * FLOW;
   const cols = Array.from({ length: WIDTH }, (_, c) => rampAt(RAMP, c / WIDTH - offset));
   const shadowCols = cols.map((c) => darken(c, SHADOW_DARKEN)); // darker variant of each column, flows too
+
+  if (height < 32 || width < 110) {
+    return (
+      <box flexDirection="column" paddingTop={1} paddingLeft={1}>
+        <Row fg={theme.bright}>Welcome to Kit.</Row>
+        <Row fg={theme.soft}>{String(totalPieces)} pieces in {studioName}.</Row>
+        {width >= 50 ? (
+          <Row fg={theme.text}>Talk to your studio in plain language; /help lists local commands.</Row>
+        ) : null}
+        <Row fg={theme.mut}>/model connects a provider. /test checks it.</Row>
+      </box>
+    );
+  }
 
   return (
     <box flexDirection="column" paddingTop={1}>

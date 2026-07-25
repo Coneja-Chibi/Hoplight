@@ -4,6 +4,26 @@
 `127.0.0.1:8321`) serving the shell and a JSON API that is a thin skin over the same engine the CLI
 uses. One engine, two shells - no format logic exists in the UI layer.
 
+## Kit terminal shell
+
+Kit is Hoplight's conversational terminal shell. Its composer accepts multiline text and up to five
+large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
+transcript search without discarding the current draft, and Escape stops an active turn. A rejected
+submission remains in the composer. If a provider stops after streaming part of a reply, Kit keeps
+that partial reply visible before showing the stop or error.
+
+Successful turns are saved atomically as one JSON file per session under the Hoplight configuration
+directory's `sessions/` folder. `/session` opens the saved-session playbill, `/resume [name]` restores
+history and visible transcript lines, `/rewind` can truncate or fork at an earlier turn, and
+`/export [md|json]` writes a transcript with a session-specific filename. Search, resume, and rewind
+lists keep the selected row inside a terminal-height-based visible window.
+
+`/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
+previous model result before another lookup. Lookup and save failures remain visible and can be
+retried; activating or removing a provider refreshes the shell's provider, model, and context-meter
+state. Small terminals use compact opening, playbill, and status layouts so the composer and
+connection commands remain reachable.
+
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional

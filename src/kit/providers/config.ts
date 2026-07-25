@@ -14,6 +14,8 @@ export interface ProviderConfig {
   kind: string;
   /** The model id to call, e.g. "claude-opus-4-8" or "gpt-4o". */
   model: string;
+  /** Context window reported by model discovery, when the provider supplied one. */
+  context?: number;
   /** Absent only for keyless local endpoints (openai-compatible against localhost). */
   apiKey?: string;
   /** Base URL for openai-compatible endpoints, proxies, and local servers. */

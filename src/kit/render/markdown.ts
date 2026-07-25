@@ -19,7 +19,7 @@ export type Block =
   | { t: "bullet"; depth: number; spans: Inline[] }
   | { t: "ordered"; depth: number; num: number; spans: Inline[] }
   | { t: "quote"; spans: Inline[] }
-  | { t: "code"; lines: string[] }
+  | { t: "code"; lines: string[]; lang?: string }
   | { t: "hr" };
 
 // Inline markers, in priority order: code (protects its content), bold (**/__), italic (*), link.
@@ -65,11 +65,12 @@ export const parseMarkdown = (src: string): Block[] => {
   while (i < lines.length) {
     const line = lines[i]!;
     if (FENCE.test(line)) {
+      const lang = line.replace(/^\s*```/, "").trim() || undefined; // the info string after the fence
       i += 1;
       const code: string[] = [];
       while (i < lines.length && !FENCE.test(lines[i]!)) code.push(lines[i++]!);
       i += 1; // skip closing fence (may be absent mid-stream; loop just ends)
-      blocks.push({ t: "code", lines: code });
+      blocks.push({ t: "code", lines: code, lang });
       continue;
     }
     if (!line.trim()) {

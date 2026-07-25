@@ -1,4 +1,4 @@
-/** Search-highlight tests for plain, matched, and active terminal segments. */
+/** Verifies search-match highlighting without losing surrounding text. */
 import { describe, expect, test } from "bun:test";
 import { segments } from "./highlight";
 

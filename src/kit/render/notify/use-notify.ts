@@ -32,7 +32,7 @@ export const useNotify = (args: UseNotifyArgs): void => {
     let alive = true;
     void discoverChannels().then((found) => {
       if (alive) channels.current = new Map(found.map((c) => [c.name, c]));
-    });
+    }).catch(() => {});
     if (args.settings.title) saveTitle();
     return () => {
       alive = false;
@@ -51,7 +51,10 @@ export const useNotify = (args: UseNotifyArgs): void => {
     }
     if (!args.busy && was) {
       const actions = planNotifications({ summary: args.studio, focused: args.focused }, args.settings);
-      for (const action of actions) channels.current.get(action.channel)?.emit(action);
+      for (const action of actions) {
+        if (action.channel === "title") setTitle(action.text);
+        else channels.current.get(action.channel)?.emit(action);
+      }
     }
     // Gated on the busy transition; focused/studio/settings are read at the settle render.
   }, [args.busy]);

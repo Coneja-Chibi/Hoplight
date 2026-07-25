@@ -30,6 +30,12 @@ export interface KitBridge {
   list(kind?: string): Promise<EntitySummary[]>;
   /** One canonical entity, or null if the kind/id is unknown or unreadable. */
   read(kind: string, id: string): Promise<KitEntity | null>;
+  /** Save (create, or overwrite when opts.overwrite) a canonical entity; returns its summary. A real
+   * write failure throws (the dispatch turns it into a readable tool result). Every write reaches the
+   * studio only after the safety gate has allowed it, upstream in gated-dispatch. */
+  save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary>;
+  /** Delete one entity; true when a file was actually removed. Tolerant: a bad kind/id resolves false. */
+  delete(kind: string, id: string): Promise<boolean>;
 }
 
 const DECK_LABELS: Record<StudioEntityKind, string> = {
@@ -71,6 +77,16 @@ export function createBridge(
         return await store.read(kind, id);
       } catch {
         return null;
+      }
+    },
+    async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
+      return store.save(raw, opts);
+    },
+    async delete(kind: string, id: string): Promise<boolean> {
+      try {
+        return await store.delete(kind, id);
+      } catch {
+        return false;
       }
     },
   };

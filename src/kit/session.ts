@@ -9,6 +9,8 @@ import { makeChat } from "./providers/chat";
 import { pingProvider } from "./providers/probe";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
+import { makeGatedDispatch } from "./tools/safety/gated-dispatch";
+import { initGate } from "./tools/safety/permission-mode";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage } from "./providers/provider";
 
@@ -26,11 +28,12 @@ export interface Session {
     input: string,
     history: ModelMessage[],
     onEvent: (event: TurnEvent) => void,
+    signal?: AbortSignal,
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
-  probe(onEvent: (event: TurnEvent) => void): Promise<void>;
+  probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
-  activeProvider(): Promise<{ name: string; model: string } | null>;
+  activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
 }
 
 const MAX_STEPS = 12;
@@ -42,7 +45,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   const specs = toolSpecs(tools);
 
   return {
-    async runTurn(input, history, onEvent) {
+    async runTurn(input, history, onEvent, signal) {
       try {
         const config = await resolveProviderConfig();
         if (!config) {
@@ -53,10 +56,15 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           return history;
         }
         onEvent({ type: "begin", label: `${config.name ?? config.kind} · ${config.model}` });
-        const chat = makeChat(config);
+        const chat = makeChat(config, signal);
+        // Every tool call rides through the safety gate (built per turn so its abort-latch is the turn's
+        // memory). Fail-closed by default: the read tools classify "safe" and pass; anything risky would
+        // hit confirm, and with no confirm seam wired yet it is blocked. When the /gates screen and the
+        // confirm prompt land, the shell threads the live mode + requestConfirm through here.
+        const gated = makeGatedDispatch(dispatch, { state: initGate() });
         const turn = runLoop(input, history, {
           chat,
-          dispatch,
+          dispatch: gated,
           tools: specs,
           maxSteps: MAX_STEPS,
           onDelta: (delta) => onEvent({ type: "delta", kind: delta.kind, text: delta.text }),
@@ -68,12 +76,16 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         }
         return next.value;
       } catch (error) {
+        if (signal?.aborted) {
+          onEvent({ type: "stopped", reason: "Turn cancelled." });
+          return history;
+        }
         onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
         return history;
       }
     },
 
-    async probe(onEvent) {
+    async probe(onEvent, signal) {
       try {
         const config = await resolveProviderConfig();
         if (!config) {
@@ -82,10 +94,14 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         }
         const label = `${config.name ?? config.kind} · ${config.model}`;
         onEvent({ type: "begin", label });
-        const { text, ms } = await pingProvider(makeChat(config));
+        const { text, ms } = await pingProvider(makeChat(config, signal));
         onEvent({ type: "tool", name: "test", summary: `test ${label} · ${ms}ms` });
         onEvent({ type: "say", text: `"${text}"` });
       } catch (error) {
+        if (signal?.aborted) {
+          onEvent({ type: "stopped", reason: "Provider test cancelled." });
+          return;
+        }
         onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
       }
     },
@@ -93,7 +109,11 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     async activeProvider() {
       const config = await resolveProviderConfig();
       if (!config) return null;
-      return { name: config.name ?? config.kind, model: config.model };
+      return {
+        name: config.name ?? config.kind,
+        model: config.model,
+        ...(config.context ? { context: config.context } : {}),
+      };
     },
   };
 }

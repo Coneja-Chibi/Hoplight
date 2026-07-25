@@ -1,4 +1,4 @@
-/** Session projection tests for turn bounds, model history, and summaries. */
+/** Verifies session summaries, provider history, and rewind projections. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import { appendTurn, buildTurn, emptySession, forkFrom, renameSession, type Session } from "./session-model";
@@ -41,17 +41,18 @@ describe("projection", () => {
     expect(s.updatedAt).toBe(6000);
   });
 
-  test("turnBounds numbers turns 1..N with previews", () => {
+  test("turnBounds exposes the start and every meaningful earlier state", () => {
     expect(turnBounds(built())).toEqual([
+      { turn: 0, at: 1000, preview: "start of session" },
       { turn: 1, at: 2000, preview: "set up combat" },
-      { turn: 2, at: 3000, preview: "goblin attacks" },
     ]);
   });
 
   test("turnBounds caps a long preview and is empty for a fresh session", () => {
     let s = emptySession("a", 1);
     s = appendTurn(s, buildTurn("x".repeat(200), [msg("x")], 2));
-    expect(turnBounds(s)[0]?.preview).toBe(`${"x".repeat(60)}…`);
+    s = appendTurn(s, buildTurn("current", [msg("current")], 3));
+    expect(turnBounds(s)[1]?.preview).toBe(`${"x".repeat(60)}…`);
     expect(turnBounds(emptySession("b", 1))).toEqual([]);
   });
 });

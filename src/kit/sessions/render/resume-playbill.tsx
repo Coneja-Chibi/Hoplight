@@ -9,13 +9,15 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { theme } from "../../render/theme";
 import type { SessionSummary } from "../projection";
 import type { SessionActions } from "../session-actions";
 import { relativeTime } from "./relative-time";
 import { SessionCard } from "./session-card";
+import { visibleWindow } from "../../render/primitives/nav/visible-window";
+import { dropLastGrapheme } from "../../_shared/graphemes";
 
 type Mode = { kind: "browse" } | { kind: "renaming"; draft: string } | { kind: "deleting" };
 
@@ -44,6 +46,7 @@ export function ResumePlaybill({
   onClose: () => void;
 }): ReactNode {
   const [view, setView] = useState<PlaybillView>({ summaries: [], index: 0, mode: { kind: "browse" } });
+  const { height } = useTerminalDimensions();
   const ref = useRef<PlaybillView>(view);
   ref.current = view;
   const busyRef = useRef(busy);
@@ -83,7 +86,9 @@ export function ResumePlaybill({
         else apply({ ...current, mode: { kind: "browse" } });
         return;
       }
-      if (event.name === "backspace") return apply({ ...current, mode: { kind: "renaming", draft: draft.slice(0, -1) } });
+      if (event.name === "backspace") {
+        return apply({ ...current, mode: { kind: "renaming", draft: dropLastGrapheme(draft) } });
+      }
       const char = printable(event);
       if (char) apply({ ...current, mode: { kind: "renaming", draft: draft + char } });
       return;
@@ -123,6 +128,7 @@ export function ResumePlaybill({
 
   const titleById = new Map(view.summaries.map((s) => [s.id, s.displayTitle] as const));
   const now = Date.now();
+  const window = visibleWindow(view.summaries, view.index, Math.max(1, Math.floor((height - 5) / 2)));
 
   return (
     <box flexDirection="column" width="100%" height="100%" backgroundColor={theme.well}>
@@ -145,7 +151,8 @@ export function ResumePlaybill({
             <text fg={theme.mut}>press n to start a new one</text>
           </box>
         ) : (
-          view.summaries.map((summary, i) => {
+          window.items.map((summary, slot) => {
+            const i = window.start + slot;
             const selected = i === view.index;
             if (selected && view.mode.kind === "renaming") {
               return (

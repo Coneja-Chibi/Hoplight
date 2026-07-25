@@ -24,6 +24,19 @@ const twoTurns = (id: string, title: string): Session => {
   return renameSession(s, title, 3000);
 };
 
+const manyTurns = (id: string, count: number): Session => {
+  let session = emptySession(id, 1000);
+  for (let turn = 1; turn <= count; turn += 1) {
+    session = appendTurn(
+      session,
+      buildTurn(`turn ${String(turn).padStart(2, "0")}`, [msg(`turn ${turn}`)], 1000 + turn),
+    );
+  }
+  return session;
+};
+
+const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
 const stubActions = (summaries: SessionSummary[], current: Session): SessionActions => ({
   list: async () => summaries,
   open: async () => {},
@@ -76,4 +89,50 @@ test("RewindRail renders the current session's turns and the branch action", asy
   const frame = await t.waitForFrame((f) => f.includes("Rewind"), { maxPasses: 300 });
   expect(frame).toContain("first turn here");
   expect(frame).toContain("branch");
+});
+
+test("ResumePlaybill keeps a long-list selection visible and opens that row", async () => {
+  const summaries = Array.from({ length: 20 }, (_, index) =>
+    summarize(twoTurns(`s${index}`, `session ${String(index).padStart(2, "0")}`)));
+  const opened: string[] = [];
+  const actions = {
+    ...stubActions(summaries, twoTurns("s0", "session 00")),
+    open: async (id: string) => {
+      opened.push(id);
+    },
+  };
+  const t = await testRender(
+    <ResumePlaybill actions={actions} busy={false} onClose={() => {}} />,
+    { width: 50, height: 10 },
+  );
+  destroy = () => t.renderer.destroy();
+  await t.waitForFrame((frame) => frame.includes("20 saved"), { maxPasses: 300 });
+  for (let i = 0; i < 15; i += 1) t.mockInput.pressKey("ARROW_DOWN");
+  await tick();
+  expect(t.captureCharFrame()).toContain("session 15");
+  t.mockInput.pressEnter();
+  await tick();
+  expect(opened).toEqual(["s15"]);
+});
+
+test("RewindRail burst navigation forks the row selected by the key burst", async () => {
+  const current = manyTurns("long", 20);
+  const forked: number[] = [];
+  const actions = {
+    ...stubActions([], current),
+    fork: async (turn: number) => {
+      forked.push(turn);
+    },
+  };
+  const t = await testRender(
+    <RewindRail actions={actions} busy={false} onClose={() => {}} />,
+    { width: 50, height: 10 },
+  );
+  destroy = () => t.renderer.destroy();
+  await t.waitForFrame((frame) => frame.includes("20 turns"), { maxPasses: 300 });
+  t.mockInput.pressKey("ARROW_UP");
+  t.mockInput.pressKey("f");
+  await tick();
+  expect(forked).toEqual([18]);
+  expect(t.captureCharFrame()).toContain("turn 18");
 });

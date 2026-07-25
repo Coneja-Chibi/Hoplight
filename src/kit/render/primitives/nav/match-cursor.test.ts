@@ -1,4 +1,4 @@
-/** Match-cursor tests for initialization, navigation, labels, and active hits. */
+/** Verifies transcript-search cursor movement across match groups. */
 import { describe, expect, test } from "bun:test";
 import type { LineMatch } from "./search";
 import { activeHit, cursorLabel, initCursor, nextMatch, prevMatch } from "./match-cursor";

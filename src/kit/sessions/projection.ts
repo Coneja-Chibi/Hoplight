@@ -4,6 +4,7 @@
  * these touch the render layer, so RenderLine never leaks into the sessions core. All total, no throw.
  */
 import type { ModelMessage } from "../providers/provider";
+import { truncateGraphemes } from "../_shared/graphemes";
 import { deriveTitle, type ForkParent, type Session } from "./session-model";
 
 /** A row in the resume playbill: the display title (user title else derived) plus glance metadata. */
@@ -27,7 +28,7 @@ const PREVIEW_CAP = 60;
 
 const preview = (input: string, cap: number = PREVIEW_CAP): string => {
   const clean = input.replace(/\s+/g, " ").trim();
-  return clean.length > cap ? `${clean.slice(0, cap).trimEnd()}…` : clean;
+  return truncateGraphemes(clean, cap);
 };
 
 /** The lossless wire history: every turn's messages concatenated in order. Feeds resume. */
@@ -43,10 +44,15 @@ export const summarize = (session: Session): SessionSummary => ({
   parent: session.parent,
 });
 
-/** One bound per turn, ordinals 1..N, for the rewind rail. Empty session yields no rows. */
-export const turnBounds = (session: Session): TurnBound[] =>
-  session.turns.map((turn, index) => ({
-    turn: index + 1,
-    at: turn.at,
-    preview: preview(turn.input),
-  }));
+/** Meaningful rewind targets: the pre-first-turn start plus every state before the current tail. */
+export const turnBounds = (session: Session): TurnBound[] => {
+  if (session.turns.length === 0) return [];
+  return [
+    { turn: 0, at: session.createdAt, preview: "start of session" },
+    ...session.turns.slice(0, -1).map((turn, index) => ({
+      turn: index + 1,
+      at: turn.at,
+      preview: preview(turn.input),
+    })),
+  ];
+};

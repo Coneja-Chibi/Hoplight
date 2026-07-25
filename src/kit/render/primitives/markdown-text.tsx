@@ -80,6 +80,16 @@ export function MarkdownText({ text, fg = theme.soft }: { text: string; fg?: str
         <i key={`${key}-q`}>{inlineNodes(b.spans, key)}</i>,
       );
     } else if (b.t === "code") {
+      // Terminal-honest code slab: a dim language label (when the fence carried one) over the code lines
+      // on the sunken fill. No box (a nested box measures to 0 in the scrollback); the fill IS the slab.
+      if (b.lang) {
+        out.push(
+          <span key={`${key}-lang`} fg={theme.quiet}>
+            {b.lang}
+          </span>,
+          br(`${key}-lang-nl`),
+        );
+      }
       b.lines.forEach((ln, li) => {
         out.push(
           <span key={`${key}-c${li}`} fg={theme.teal} bg={theme.sunken}>

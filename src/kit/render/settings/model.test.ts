@@ -124,7 +124,13 @@ describe("add-provider flow", () => {
     const step = reduce(down, { name: "return" });
     expect(step.intent).toEqual({
       kind: "save",
-      config: { kind: "anthropic", model: "claude-opus-4-8", name: "Claude", apiKey: "sk-ant-long-enough" },
+      config: {
+        kind: "anthropic",
+        model: "claude-opus-4-8",
+        name: "Claude",
+        context: 1000000,
+        apiKey: "sk-ant-long-enough",
+      },
     });
   });
 
@@ -186,6 +192,8 @@ describe("add-provider flow", () => {
     expect(s.form?.options).toEqual({ plan: "subscription" });
     s = reduce(s, { name: "a", char: "a" }).state; // typing on a chip row is a no-op
     expect(s.form?.model).toBe("chatgpt-4o-latest");
+    const pastedOnOption = applyPaste(s, "SHOULD-NOT-LAND");
+    expect(pastedOnOption.form?.model).toBe("chatgpt-4o-latest");
     const step = reduce(s, { name: "return" });
     expect(step.intent).toEqual({
       kind: "save",
@@ -219,5 +227,20 @@ describe("add-provider flow", () => {
         baseURL: "https://proxy.example/v1",
       },
     });
+  });
+
+  test("editing credentials invalidates models fetched for the old signature", () => {
+    let state = reduce(reduce(fresh(), { name: "2" }).state, { name: "return" }).state;
+    state = reduce(state, { name: "return" }).state;
+    const ready: SettingsState = {
+      ...state,
+      form: {
+        ...state.form!,
+        field: "key",
+        list: { state: "ready", models: [{ id: "stale-only" }], index: 0 },
+      },
+    };
+    const edited = reduce(ready, { name: "x", char: "x" }).state;
+    expect(edited.form?.list).toEqual({ state: "idle", models: [], index: 0 });
   });
 });

@@ -1,4 +1,4 @@
-/** Relative-time rendering tests across recent, daily, and older timestamps. */
+/** Verifies compact relative timestamps for saved-session rows. */
 import { describe, expect, test } from "bun:test";
 import { relativeTime } from "./relative-time";
 

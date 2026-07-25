@@ -38,6 +38,21 @@ import { readVault, removeProvider, saveProvider, setActive } from "../../provid
 import { listModelsFor } from "../../providers/adapters";
 import type { ProviderConfig } from "../../providers/config";
 import type { ModelInfo } from "../../providers/models";
+import type { Vault } from "../../providers/vault";
+
+export interface SettingsVaultApi {
+  read(): Promise<Vault>;
+  save(config: ProviderConfig): Promise<ProviderConfig>;
+  activate(id: string): Promise<void>;
+  remove(id: string): Promise<void>;
+}
+
+const DEFAULT_VAULT_API: SettingsVaultApi = {
+  read: readVault,
+  save: saveProvider,
+  activate: setActive,
+  remove: removeProvider,
+};
 
 const printable = (event: KeyEvent): string | undefined => {
   if (event.ctrl || event.meta || event.option || event.super) return undefined;
@@ -62,17 +77,25 @@ export function SettingsScreen({
   studioName,
   onClose,
   onSaved,
+  onChanged = () => {},
   listModels = listModelsFor,
   modelsDebounceMs = 1200,
+  vaultApi = DEFAULT_VAULT_API,
 }: {
   studioName: string;
   onClose: () => void;
   onSaved: (config: ProviderConfig) => void;
+  onChanged?: () => void;
   /** Injectable for tests; defaults to the real egress-guarded spoke query. */
   listModels?: (config: ProviderConfig) => Promise<ModelInfo[] | null>;
   modelsDebounceMs?: number;
+  vaultApi?: SettingsVaultApi;
 }): ReactNode {
   const [state, setState] = useState<SettingsState | null>(null);
+  const [operation, setOperation] = useState(false);
+  const operationRef = useRef(false);
+  const [error, setError] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const stateRef = useRef<SettingsState | null>(state);
   stateRef.current = state;
   const alive = useRef(true);
@@ -80,34 +103,52 @@ export function SettingsScreen({
   const lastSig = useRef("");
 
   useEffect(() => {
+    alive.current = true;
+    setError("");
     void (async () => {
-      const [choices, vault] = await Promise.all([loadChoices(), readVault()]);
-      if (alive.current) setState(initialState(choices, vault.providers, vault.activeId));
+      try {
+        const [choices, vault] = await Promise.all([loadChoices(), vaultApi.read()]);
+        if (alive.current) setState(initialState(choices, vault.providers, vault.activeId));
+      } catch (caught) {
+        if (alive.current) setError(caught instanceof Error ? caught.message : String(caught));
+      }
     })();
     return () => {
       alive.current = false;
       if (fetchTimer.current) clearTimeout(fetchTimer.current);
     };
-  }, []);
+  }, [loadAttempt, vaultApi]);
 
   const runIntent = async (intent: Intent): Promise<void> => {
     if (intent.kind === "close") return onClose();
-    if (intent.kind === "setActive" || intent.kind === "remove") {
-      await (intent.kind === "remove" ? removeProvider(intent.id) : setActive(intent.id));
-      const vault = await readVault();
-      setState((prev) =>
-        prev
-          ? {
-              ...prev,
-              saved: vault.providers,
-              activeId: vault.activeId,
-              contentIndex: Math.min(prev.contentIndex, vault.providers.length),
-            }
-          : prev,
-      );
-      return;
+    if (operationRef.current) return;
+    operationRef.current = true;
+    setOperation(true);
+    setError("");
+    try {
+      if (intent.kind === "setActive" || intent.kind === "remove") {
+        await (intent.kind === "remove" ? vaultApi.remove(intent.id) : vaultApi.activate(intent.id));
+        const vault = await vaultApi.read();
+        setState((prev) =>
+          prev
+            ? {
+                ...prev,
+                saved: vault.providers,
+                activeId: vault.activeId,
+                contentIndex: Math.min(prev.contentIndex, vault.providers.length),
+              }
+            : prev,
+        );
+        onChanged();
+        return;
+      }
+      if (intent.kind === "save") onSaved(await vaultApi.save(intent.config));
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : String(caught));
+    } finally {
+      operationRef.current = false;
+      setOperation(false);
     }
-    if (intent.kind === "save") onSaved(await saveProvider(intent.config));
   };
 
   /** Patch the form's model list, advancing the ref so key bursts stay coherent. */
@@ -127,7 +168,21 @@ export function SettingsScreen({
     const form = current?.mode === "form" ? current.form : null;
     if (!alive.current || !form || formSignature(form) !== sig) return;
     injectList({ state: "loading" });
-    const models = await listModels(draftConfig(form));
+    let models: ModelInfo[] | null;
+    try {
+      models = await listModels(draftConfig(form));
+    } catch (caught) {
+      const now = stateRef.current;
+      const nowForm = now?.mode === "form" ? now.form : null;
+      if (!alive.current || !nowForm || formSignature(nowForm) !== sig) return;
+      injectList({
+        state: "error",
+        models: [],
+        index: 0,
+        error: caught instanceof Error ? caught.message : String(caught),
+      });
+      return;
+    }
     const now = stateRef.current;
     const nowForm = now?.mode === "form" ? now.form : null;
     if (!alive.current || !nowForm || formSignature(nowForm) !== sig) return; // stale response
@@ -172,12 +227,26 @@ export function SettingsScreen({
 
   useKeyboard((event: KeyEvent) => {
     const current = stateRef.current;
-    if (!current) return;
+    if (!current) {
+      if (error && event.name === "escape") onClose();
+      if (error && event.name === "return") {
+        setState(null);
+        setLoadAttempt((attempt) => attempt + 1);
+      }
+      return;
+    }
+    if (operationRef.current) return;
+    if (current.form?.list.state === "error" && event.name === "r") {
+      lastSig.current = "";
+      maybeScheduleFetch(current);
+      return;
+    }
     const step = reduce(current, { name: event.name, char: printable(event) });
     apply(step.state, step.intent);
   });
 
   usePaste((event) => {
+    if (operationRef.current) return;
     const current = stateRef.current;
     if (current) apply(applyPaste(current, new TextDecoder().decode(event.bytes)));
   });
@@ -185,7 +254,9 @@ export function SettingsScreen({
   if (!state) {
     return (
       <box padding={1} backgroundColor={theme.well} width="100%" height="100%">
-        <text fg={theme.mut}>Loading providers...</text>
+        <text fg={error ? theme.rose : theme.mut}>
+          {error ? `Could not load providers: ${error}. Enter retries; Esc goes back.` : "Loading providers..."}
+        </text>
       </box>
     );
   }
@@ -230,7 +301,11 @@ export function SettingsScreen({
                 if (!current?.form) return;
                 apply({
                   ...current,
-                  form: { ...current.form, options: { ...current.form.options, [key]: value } },
+                  form: {
+                    ...current.form,
+                    options: { ...current.form.options, [key]: value },
+                    list: { state: "idle", models: [], index: 0 },
+                  },
                 });
               }}
             />
@@ -245,6 +320,11 @@ export function SettingsScreen({
       </box>
 
       <box height={1} backgroundColor={theme.edge} />
+      {operation || error ? (
+        <box backgroundColor={theme.sunken} paddingLeft={1} paddingRight={1}>
+          <text fg={error ? theme.rose : theme.mut}>{error || "Saving provider..."}</text>
+        </box>
+      ) : null}
       <SettingsFooter
         mode={state.mode}
         providerActions={

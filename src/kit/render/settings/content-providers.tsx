@@ -34,7 +34,7 @@ export function ProvidersContent({
           >
             <text fg={theme.rose}>{selected ? "▌ " : "  "}</text>
             <text fg={selected ? theme.text : theme.soft}>
-              {provider.name ?? provider.kind} <span fg={theme.mut}>{provider.kind}</span>
+              {provider.name ?? provider.kind} <span fg={theme.mut}>{provider.kind} · {provider.model}</span>
             </text>
             <box flexGrow={1} />
             {active ? <text fg={theme.gold}>active</text> : null}

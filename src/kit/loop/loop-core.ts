@@ -5,6 +5,7 @@
  * network or a real model. It yields events for the render layer and returns the updated history.
  */
 import type { ChatDelta, ChatFn, ModelMessage, ModelToolCall, ToolSpec } from "../providers/provider";
+import type { TokenUsage } from "../providers/usage";
 import { callKey, stopReason } from "./stop-core";
 
 /** The outcome of running one tool call: a one-line row for the terminal, plus the model's observation. */
@@ -22,6 +23,7 @@ export type LoopEvent =
   | { type: "say"; text: string }
   | { type: "tool-start"; name: string }
   | { type: "tool"; name: string; summary: string }
+  | { type: "usage"; usage: TokenUsage }
   | { type: "stopped"; reason: string };
 
 export interface LoopDeps {
@@ -50,6 +52,9 @@ export async function* runTurn(
     }
 
     const reply = await deps.chat(messages, deps.tools, deps.onDelta);
+    // Surface this call's token usage the instant it lands, so the meter/tally update per API call
+    // (a tool loop makes several). The guard keeps replies without usage from yielding a noise event.
+    if (reply.usage) yield { type: "usage", usage: reply.usage };
 
     if (reply.kind === "say") {
       messages.push({ role: "assistant", content: reply.text });

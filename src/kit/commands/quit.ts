@@ -5,6 +5,7 @@ const command: KitCommand = {
   name: "/quit",
   aliases: ["/q"],
   summary: "leave Kit",
+  group: "session",
   run: (ctx) => ctx.quit(),
 };
 

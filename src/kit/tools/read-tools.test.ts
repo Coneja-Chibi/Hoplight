@@ -30,6 +30,12 @@ const fakeBridge: KitBridge = {
   async read(kind: string, id: string) {
     return kind === "character" && id === "nyx" ? NYX : null;
   },
+  async save() {
+    throw new Error("no writes in this test");
+  },
+  async delete() {
+    return false;
+  },
 };
 
 const ctx: ToolContext = { bridge: fakeBridge };

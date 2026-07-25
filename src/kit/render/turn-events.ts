@@ -11,6 +11,7 @@
  * has appeared, the stagehand never re-enters the turn (toolsSeen suppresses it).
  */
 import type { TurnEvent } from "../session";
+import type { TokenUsage } from "../providers/usage";
 
 export type RenderLine =
   | { role: "you"; text: string }
@@ -38,6 +39,9 @@ export interface TurnView {
   label: string;
   tools: { moves: ToolMove[]; since: number } | null;
   toolsSeen: boolean;
+  /** The most recent API call's token usage (the meter reads .input for context fullness, the tally
+   * reads in/out). Overwritten per usage event, so it reflects the turn's final context. */
+  usage?: TokenUsage;
 }
 
 export const EMPTY_TOOLS = null;
@@ -67,6 +71,18 @@ const sealTools = (view: TurnView, now: number): TurnView => {
 
 /** Land any open thought and seal any open cluster: the wind-down before a plain line is pushed. */
 const quiesce = (view: TurnView, now: number): TurnView => sealTools(landThought(view, now), now);
+
+/** Preserve assistant text that streamed without a final say event (error, cancellation, disconnect). */
+const landTyping = (view: TurnView): TurnView => {
+  if (view.live.phase !== "typing" || !view.live.text) return view;
+  return {
+    ...view,
+    lines: [...view.lines, { role: "say", text: view.live.text }],
+    live: { phase: "waiting" },
+  };
+};
+
+const quiesceInterrupted = (view: TurnView, now: number): TurnView => landTyping(quiesce(view, now));
 
 /** Fold one event into the view. Total: unknown events leave the view unchanged. */
 export function applyTurnEvent(view: TurnView, event: TurnEvent, now: number): TurnView {
@@ -107,17 +123,29 @@ export function applyTurnEvent(view: TurnView, event: TurnEvent, now: number): T
       const landed = landThought(view, now);
       return { ...landed, lines: [...landed.lines, { role: "tool", text: event.summary }] };
     }
+    case "usage":
+      // Overwrite (not accumulate): .usage tracks the latest call's counts, so the meter reads the
+      // current context fullness. The shell accumulates the session tally from these events separately.
+      return { ...view, usage: event.usage };
     case "say": {
       const settled = quiesce(view, now);
       return { ...settled, lines: [...settled.lines, { role: "say", text: event.text }], live: { phase: "waiting" } };
     }
     case "stopped": {
-      const settled = quiesce(view, now);
-      return { ...settled, lines: [...settled.lines, { role: "say", text: event.reason }] };
+      const settled = quiesceInterrupted(view, now);
+      return {
+        ...settled,
+        lines: [...settled.lines, { role: "say", text: event.reason }],
+        live: { phase: "waiting" },
+      };
     }
     case "error": {
-      const settled = quiesce(view, now);
-      return { ...settled, lines: [...settled.lines, { role: "error", text: event.message }] };
+      const settled = quiesceInterrupted(view, now);
+      return {
+        ...settled,
+        lines: [...settled.lines, { role: "error", text: event.message }],
+        live: { phase: "waiting" },
+      };
     }
     default:
       return view;
@@ -126,7 +154,7 @@ export function applyTurnEvent(view: TurnView, event: TurnEvent, now: number): T
 
 /** A turn that ends mid-thought or mid-tool still lands its traces (the shell calls this after runTurn). */
 export const settleTurn = (view: TurnView, now: number): TurnView => ({
-  ...quiesce(view, now),
+  ...quiesceInterrupted(view, now),
   live: { phase: "idle" },
 });
 

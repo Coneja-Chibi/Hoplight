@@ -1,22 +1,16 @@
 /** @jsxImportSource @opentui/react */
-/** ErrorRow: a failure in the transcript, a rose left spine and the plain message. */
+/** ErrorRow: a failure in the transcript, a recessed band with a red spine and the plain message. */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
+import { Band } from "./band";
 
 export function ErrorRow({ text }: { text: string }): ReactNode {
   return (
-    <box
-      flexDirection="row"
-      backgroundColor={theme.row}
-      border={["left"]}
-      borderColor={theme.rose}
-      paddingLeft={1}
-      paddingRight={1}
-    >
+    <Band bg={theme.recess} spine={theme.red}>
       <text fg={theme.soft}>
-        <span fg={theme.rose}>{"! "}</span>
+        <span fg={theme.red}>{"! "}</span>
         {text}
       </text>
-    </box>
+    </Band>
   );
 }

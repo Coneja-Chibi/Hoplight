@@ -1,4 +1,4 @@
-/** Composer history-recall tests for navigation, drafts, and committed entries. */
+/** Verifies composer history recall and restoration of an unsent draft. */
 import { describe, expect, test } from "bun:test";
 import { commit, initRecall, recallNext, recallPrev } from "./recall";
 

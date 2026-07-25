@@ -1,4 +1,4 @@
-/** Composer paste tests for inline text, attachments, and submission assembly. */
+/** Verifies paste-card classification, byte caps, and submission assembly. */
 import { describe, expect, test } from "bun:test";
 import { buildSubmission, classifyPaste, type PasteCard } from "./paste-classify";
 
@@ -29,6 +29,17 @@ describe("classifyPaste", () => {
       expect(r.truncated).toBe(true);
       expect(r.byteLength).toBeLessThanOrEqual(200_000);
       expect(r.preview).toContain("truncated");
+    }
+  });
+
+  test("the byte cap is exact for multibyte text", () => {
+    const r = classifyPaste("é".repeat(200_001));
+    expect(r.kind).toBe("card");
+    if (r.kind === "card") {
+      const actualBytes = new TextEncoder().encode(r.text).length;
+      expect(actualBytes).toBeLessThanOrEqual(200_000);
+      expect(r.byteLength).toBe(actualBytes);
+      expect(r.text.endsWith("\ud800")).toBe(false);
     }
   });
 

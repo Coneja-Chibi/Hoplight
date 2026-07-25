@@ -32,6 +32,14 @@ function ModelRows({ form, onModel }: { form: FormState; onModel: (index: number
   if (form.list.state === "loading") {
     return <text fg={theme.mut}>Looking up models from {form.choice.label}...</text>;
   }
+  if (form.list.state === "error") {
+    return (
+      <text fg={theme.soft}>
+        <span fg={theme.rose}>{"! "}</span>
+        Model lookup failed: {form.list.error ?? "unknown error"} · press r to retry
+      </text>
+    );
+  }
   if (form.list.state !== "ready") return null;
   const total = form.list.models.length;
   if (total === 0) {

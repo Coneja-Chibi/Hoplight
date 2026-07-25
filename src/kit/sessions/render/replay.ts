@@ -8,6 +8,7 @@
  */
 import type { ModelMessage } from "../../providers/provider";
 import type { RenderLine } from "../../render/turn-events";
+import { truncateGraphemes } from "../../_shared/graphemes";
 
 const ROLES: ReadonlySet<string> = new Set(["user", "assistant", "tool"]);
 
@@ -19,7 +20,7 @@ const isMessage = (value: unknown): value is ModelMessage => {
 
 const preview = (text: string, cap = 60): string => {
   const clean = text.replace(/\s+/g, " ").trim();
-  return clean.length > cap ? `${clean.slice(0, cap).trimEnd()}…` : clean;
+  return truncateGraphemes(clean, cap);
 };
 
 const toolMove = (message: ModelMessage): string => {

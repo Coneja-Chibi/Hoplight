@@ -29,7 +29,11 @@ export const sanitizeFilename = (title: string): string => {
 /** YYYYMMDD in UTC from an epoch-ms reading, so the same session always stamps the same date. */
 const dateStamp = (ms: number): string => new Date(ms).toISOString().slice(0, 10).replace(/-/g, "");
 
-const fence = (label: string, body: string): string => `\`\`\`${label}\n${body}\n\`\`\``;
+const fence = (label: string, body: string): string => {
+  const longest = Math.max(2, ...Array.from(body.matchAll(/`+/g), (match) => match[0].length));
+  const marker = "`".repeat(longest + 1);
+  return `${marker}${label.replaceAll("`", "'")}\n${body}\n${marker}`;
+};
 
 /** One wire message as a markdown block, or "" for a message that carries nothing to show. */
 const messageBlock = (message: ModelMessage): string => {
@@ -59,8 +63,9 @@ export const formatTranscript = (session: Session, format: string): Transcript =
   const title = session.title ?? deriveTitle(session.turns);
   const stamp = dateStamp(session.updatedAt);
   const base = sanitizeFilename(title);
+  const identity = sanitizeFilename(session.id).slice(-8);
   if (format === "json") {
-    return { filename: `${base}-${stamp}.json`, body: `${JSON.stringify(session, null, 2)}\n` };
+    return { filename: `${base}-${stamp}-${identity}.json`, body: `${JSON.stringify(session, null, 2)}\n` };
   }
-  return { filename: `${base}-${stamp}.md`, body: toMarkdown(session, title) };
+  return { filename: `${base}-${stamp}-${identity}.md`, body: toMarkdown(session, title) };
 };

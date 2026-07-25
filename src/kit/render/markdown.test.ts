@@ -1,4 +1,4 @@
-/** Markdown parser tests for inline spans and block-level terminal rendering. */
+/** Verifies Kit's terminal-safe Markdown block and inline parsing. */
 import { describe, expect, test } from "bun:test";
 import { parseInline, parseMarkdown } from "./markdown";
 

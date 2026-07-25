@@ -1,4 +1,4 @@
-/** Notification planning tests for focus gating and settled-turn events. */
+/** Verifies notification decisions for active, settled, and failed turns. */
 import { describe, expect, test } from "bun:test";
 import { planNotifications, type NotifySettings, type SettleEvent } from "./plan";
 

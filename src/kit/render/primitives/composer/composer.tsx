@@ -45,16 +45,25 @@ const KEYS: KeyBinding[] = [
 
 export function Composer({
   active,
+  enabled = true,
   onSubmit,
 }: {
   active: boolean;
-  onSubmit: (value: string) => void;
+  enabled?: boolean;
+  onSubmit: (value: string) => boolean;
 }): ReactNode {
   const ref = useRef<TextareaRenderable | null>(null);
   const recall = useRef<RecallState>(initRecall());
   const lastEsc = useRef(0);
   const [cards, setCards] = useState<Card[]>([]);
+  const cardsRef = useRef<Card[]>([]);
+  const [notice, setNotice] = useState("");
   const [rows, setRows] = useState(1);
+
+  const replaceCards = (next: Card[]): void => {
+    cardsRef.current = next;
+    setCards(next);
+  };
 
   useEffect(() => {
     const ta = ref.current;
@@ -73,15 +82,17 @@ export function Composer({
     const ta = ref.current;
     if (!ta) return;
     const draft = ta.plainText;
-    const text = buildSubmission(draft, cards);
-    if (text.trim()) onSubmit(text);
+    const text = buildSubmission(draft, cardsRef.current);
+    if (!text.trim() || !onSubmit(text)) return;
     recall.current = commit(recall.current, draft);
-    setCards([]);
+    replaceCards([]);
+    setNotice("");
     ta.setText("");
     setRows(1);
   };
 
   useKeyboard((e: KeyEvent) => {
+    if (!enabled) return;
     const ta = ref.current;
     if (!ta) return;
     if (e.name === "up" && ta.logicalCursor.row === 0) {
@@ -89,7 +100,11 @@ export function Composer({
       const r = recallPrev(recall.current, ta.plainText);
       recall.current = r.state;
       ta.setText(r.text);
-    } else if (e.name === "down" && ta.logicalCursor.row === ta.lineCount - 1) {
+    } else if (
+      e.name === "down"
+      && recall.current.index !== null
+      && ta.logicalCursor.row === ta.lineCount - 1
+    ) {
       e.preventDefault();
       const r = recallNext(recall.current);
       recall.current = r.state;
@@ -98,7 +113,8 @@ export function Composer({
       const t = performance.now();
       if (t - lastEsc.current < DOUBLE_ESC_MS) {
         ta.setText("");
-        setCards([]);
+        replaceCards([]);
+        setNotice("");
         setRows(1);
         lastEsc.current = 0;
       } else {
@@ -108,10 +124,16 @@ export function Composer({
   });
 
   usePaste((e: PasteEvent) => {
+    if (!enabled) return;
     const classified = classifyPaste(decodePasteBytes(e.bytes));
     if (classified.kind === "card") {
       e.preventDefault();
-      setCards((prev) => [...prev, classified].slice(0, MAX_CARDS));
+      if (cardsRef.current.length >= MAX_CARDS) {
+        setNotice("Paste not added: remove a card first.");
+        return;
+      }
+      replaceCards([...cardsRef.current, classified]);
+      setNotice("");
     }
   });
 
@@ -119,8 +141,20 @@ export function Composer({
   return (
     <box flexDirection="column" backgroundColor={theme.well} paddingLeft={1} paddingRight={1}>
       {cards.map((card, i) => (
-        <PasteCard key={i} card={card} onRemove={() => setCards((prev) => prev.filter((_, j) => j !== i))} />
+        <PasteCard
+          key={i}
+          card={card}
+          onRemove={() => {
+            replaceCards(cardsRef.current.filter((_, j) => j !== i));
+            setNotice("");
+          }}
+        />
       ))}
+      {notice ? (
+        <box height={1} backgroundColor={theme.sunken} paddingLeft={1}>
+          <text fg={theme.gold}>{notice}</text>
+        </box>
+      ) : null}
       {active ? <SweepLine /> : <box height={1} />}
       <box
         flexDirection="row"
@@ -137,7 +171,7 @@ export function Composer({
         <box width={1} />
         <textarea
           ref={ref}
-          focused
+          focused={enabled}
           flexGrow={1}
           placeholder="talk to your studio"
           keyBindings={KEYS}

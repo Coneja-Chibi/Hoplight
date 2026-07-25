@@ -4,6 +4,7 @@ import type { KitCommand } from "./command";
 const command: KitCommand = {
   name: "/test",
   summary: "check the connected provider is alive",
+  group: "setup",
   run: (ctx) => ctx.probe(),
 };
 

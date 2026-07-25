@@ -4248,6 +4248,11 @@
       "related": [],
       "anchors": [
         {
+          "text": "Kit terminal shell",
+          "slug": "kit-terminal-shell",
+          "level": 2
+        },
+        {
           "text": "Hyper-modularity (the build's spine)",
           "slug": "hyper-modularity-the-builds-spine",
           "level": 2

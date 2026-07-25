@@ -5,6 +5,7 @@ const command: KitCommand = {
   name: "/model",
   aliases: ["/providers"],
   summary: "connect or switch a provider",
+  group: "setup",
   run: (ctx) => ctx.openSettings(),
 };
 
