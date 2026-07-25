@@ -22,6 +22,8 @@ import { SayLine } from "./primitives/say-line";
 import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { Composer } from "./primitives/composer/composer";
+import { QueueTicket } from "./primitives/composer/queue-ticket";
+import { useQueuedWhispers } from "./primitives/composer/use-queued-whispers";
 import { StatusRow } from "./primitives/status-row";
 import { StatusToast } from "./primitives/status-toast";
 import { DoctorCard } from "./primitives/doctor-card";
@@ -138,6 +140,7 @@ export function App({
   }, [scroll.metrics.atBottom, visibleLineCount]);
   const history = useRef<ModelMessage[]>([]);
   const activeTurn = useRef<{ controller: AbortController } | null>(null);
+  const queued = useQueuedWhispers();
   const store = useRef<SessionStore | null>(null);
   if (!store.current) store.current = sessionStore ?? createSessionStore();
   const memory = useRef<MemorySession | null>(null);
@@ -257,10 +260,28 @@ export function App({
         activeTurn.current = null;
         setTurn((prev) => settleTurn(prev, Date.now()));
         setBusy(false);
+        const next = queued.shift();
+        if (next) runPrompt(next);
       }
     })();
     return true;
   };
+
+  function runPrompt(prompt: string): boolean {
+    const accepted = startTurn(async (signal, onEvent) => {
+      const before = history.current;
+      const nextHistory = await session.runTurn(prompt, before, onEvent, signal);
+      history.current = nextHistory;
+      const delta = nextHistory.slice(before.length);
+      if (delta.length > 0) {
+        const nextSession = appendTurn(memory.current!, buildTurn(prompt, delta, now()));
+        memory.current = nextSession;
+        await store.current!.write(nextSession);
+      }
+    });
+    if (accepted) add({ role: "you", text: prompt });
+    return accepted;
+  }
 
   const submit = (raw: string): boolean => {
     const value = raw.trim();
@@ -302,19 +323,14 @@ export function App({
       return true;
     }
     const prompt = escapedSlash ? value.slice(1) : value;
-    const accepted = startTurn(async (signal, onEvent) => {
-      const before = history.current;
-      const nextHistory = await session.runTurn(prompt, before, onEvent, signal);
-      history.current = nextHistory;
-      const delta = nextHistory.slice(before.length);
-      if (delta.length > 0) {
-        const nextSession = appendTurn(memory.current!, buildTurn(prompt, delta, now()));
-        memory.current = nextSession;
-        await store.current!.write(nextSession);
+    if (activeTurn.current) {
+      if (!queued.append(prompt)) {
+        add({ role: "error", text: "The follow-up queue is full. Send this after a turn settles." });
+        return false;
       }
-    });
-    if (accepted) add({ role: "you", text: prompt });
-    return accepted;
+      return true;
+    }
+    return runPrompt(prompt);
   };
 
   useKeyboard((event: KeyEvent) => {
@@ -453,6 +469,7 @@ export function App({
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
+      <QueueTicket items={queued.items} />
       <SnapPill
         show={newBelow.show}
         unseen={newBelow.unseen}

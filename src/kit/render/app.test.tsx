@@ -140,7 +140,7 @@ describe("App turn lifecycle", () => {
       { width: options.width ?? 80, height: options.height ?? 24 },
     );
 
-  test("two rapid submissions start one turn and retain the rejected draft", async () => {
+  test("two rapid submissions queue the second until the first settles", async () => {
     let release = (): void => {};
     const gate = new Promise<void>((resolve) => {
       release = resolve;
@@ -166,7 +166,12 @@ describe("App turn lifecycle", () => {
       t.mockInput.pressEnter();
       await tick();
       expect(calls).toEqual(["first"]);
+      expect(t.captureCharFrame()).toContain("QUEUED");
       expect(t.captureCharFrame()).toContain("second");
+      release();
+      await tick(180);
+      expect(calls).toEqual(["first", "second"]);
+      expect(t.captureCharFrame()).not.toContain("QUEUED");
     } finally {
       release();
       await tick();

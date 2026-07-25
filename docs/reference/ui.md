@@ -9,7 +9,11 @@ uses. One engine, two shells - no format logic exists in the UI layer.
 Kit is Hoplight's conversational terminal shell. Its composer accepts multiline text and up to five
 large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
-submission remains in the composer. Typing `/` opens a registry-driven command palette containing
+submission remains in the composer. Plain messages submitted during an active turn enter a bounded
+FIFO follow-up queue; a compact receipt shows the next message and folded remainder count, then Kit
+runs each message in order as the previous turn settles. The queue survives stopping the active turn
+but is intentionally session-local and is not restored after relaunch. Typing `/` opens a
+registry-driven command palette containing
 every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
 runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. A
 trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
