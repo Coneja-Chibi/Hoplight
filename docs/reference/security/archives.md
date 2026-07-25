@@ -27,8 +27,8 @@ degrees:
 ### The shared bound
 
 `CARD_ARCHIVE_BOUNDS` is the budget both `.charx` and `.byaf` are unzipped under: 96 MiB max archive size,
-512 entries max, 64 MiB max per entry (compressed or inflated), 96 MiB max aggregate inflated size across
-every selected entry (`src/core/archive.ts:30-36`). The Risu adapter's `safeUnzip` and the BYAF container's
+512 total entries max, 64 MiB max per selected entry (compressed or inflated), 96 MiB max aggregate
+inflated size across selected entries (`src/core/archive.ts:30-36`). The Risu adapter's `safeUnzip` and the BYAF container's
 `safeUnzip` are both thin wrappers that pin `bounds: CARD_ARCHIVE_BOUNDS` and forward to the same
 `unzipBounded` (`src/formats/risu/index.ts:38-41`, `src/formats/backyard/byaf-container.ts:11-13`). Neither
 format reimplements the check; both call the one helper in `src/core/archive.ts`.
@@ -45,15 +45,18 @@ For entries fflate is about to consider, `unzipBounded` passes fflate an `UnzipF
 callback returns true decides whether that entry gets decompressed at all (fflate `UnzipFileFilter`,
 `node_modules/fflate/lib/index.d.ts:1403-1408`). Inside that callback, before any bytes are inflated:
 
+- A running total-entry count is checked against `maxEntries` before the detection-only or caller-supplied
+  selection filters run. Filtered entries still consume this budget, so a tiny archive with a hostile
+  directory count cannot make synchronous detection enumerate without a bound.
 - Compressed size (`f.size`, straight from the ZIP's own metadata) and declared original size
   (`f.originalSize`, falling back to the compressed size when `originalSize` is missing or not a valid
   non-negative number, `entryOriginal`, `archive.ts:55-60`) are checked against `maxEntryCompressed` and
-  `maxEntryOriginal`. Either one over budget throws `ArchiveLimitError` (`archive.ts:85-89`).
-- A running selected-entry count is checked against `maxEntries` (`archive.ts:90-92`).
-- A running sum of declared original sizes is checked against `maxAggregateOriginal` (`archive.ts:93-95`).
+  `maxEntryOriginal` for selected entries. Either one over budget throws `ArchiveLimitError`.
+- A running sum of declared original sizes is checked against `maxAggregateOriginal` for selected entries.
 
 An entry that fails `options.only` (a single named entry, used for detection) is skipped by returning
-`false` before any of these checks run, so it is never inflated and never counted (`archive.ts:82`).
+`false` before its size contributes to the selected-entry budgets, so it is never inflated. It has already
+contributed to the total-entry budget.
 
 ### Post-inflate, as a backstop
 
@@ -96,10 +99,11 @@ shapes.
 
 Format detection never inflates a whole archive to check its shape. Risu's `detect()` calls `safeUnzip(b,
 "card.json")`, so `unzipBounded`'s `only` filter skips every entry except `card.json` before any inflation
-decision, while the entry that does match still passes the same compressed/original/count checks
+decision, while every directory entry consumes the total-entry budget and the matching entry passes the
+compressed, original, and aggregate checks
 (`risu/index.ts:87-95`). BYAF's detection reads only `manifest.json` the same way, through
 `readManifestBytes` (`byaf-container.ts:142-148`, called from `byaf.ts:288-301`). A large hostile archive
-being probed for its format cannot force a full inflate.
+being probed for its format cannot force a full inflate or an unbounded directory scan.
 
 ### The module.risum aside
 
@@ -189,9 +193,10 @@ path is.
 
 ## What is not yet proven
 
-Proven and enforced: the pre-inflate archive-size, per-entry, count, and aggregate caps in
-`unzipBounded`, all exercised by `archive.test.ts`; the fail-closed wrapping of any unzip error into
-`ArchiveLimitError`; the `only`-mode short-circuit that keeps format detection cheap on a hostile archive;
+Proven and enforced: the pre-inflate archive-size, selected-entry size, total-entry count, and selected
+aggregate caps in `unzipBounded`, all exercised by `archive.test.ts`; the fail-closed wrapping of any unzip
+error into `ArchiveLimitError`; the `only`-mode selection plus total-entry cap that keeps format detection
+cheap on a hostile archive;
 and `resolveGreetingPath`'s traversal-and-known-path gate on the one BYAF export write path, exercised by
 a hostile-id test.
 

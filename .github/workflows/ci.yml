@@ -21,10 +21,23 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          cache-dependency-path: sidecar/go.sum
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - name: Install
         run: bun install --frozen-lockfile
+      - name: Vet sidecar
+        run: go vet -mod=readonly ./...
+        working-directory: sidecar
+      - name: Test sidecar
+        run: go test -mod=readonly ./... -count=1
+        working-directory: sidecar
+      - name: Build sidecar
+        run: go build -mod=readonly ./...
+        working-directory: sidecar
       - name: Complete verification wall
         run: bun run verify:ci

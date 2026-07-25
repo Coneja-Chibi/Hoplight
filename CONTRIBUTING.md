@@ -44,8 +44,9 @@ I'm glad you're here. Let's all make Hoplight the best it can be!
   individual PR commits, so for a squash or merge you must put the marker in the squash or merge
   commit message itself (edit it before confirming); a marker buried in a branch commit is ignored
   and the release still runs.
-- **CI must be green to merge.** Each PR runs `verify:ci` (the whole wall). The `test` check has to
-  pass before a PR is merged.
+- **CI must be green to merge.** Each PR's required `test` check runs the complete Bun/TypeScript
+  `verify:ci` wall plus `go vet`, uncached `go test`, and `go build` for the remote-access sidecar.
+  The `test` check has to pass before a PR is merged.
 
 **Maintainer note (branch ruleset).** The recommended protection on `Mainstage` is to require the
 `test` status check, block force pushes, and add the GitHub Actions bot to the ruleset bypass list.

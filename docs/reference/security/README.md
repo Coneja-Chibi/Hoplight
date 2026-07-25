@@ -62,9 +62,10 @@ conversion; the one place code does run is the Lua Test Bench, layer 5.
 ### 2. Decompression caps on archives
 
 `src/core/archive.ts` inflates untrusted ZIP containers (charx, byaf, lumiverse, sprite packs) through
-`unzipBounded`, which checks compressed size, original size, entry count, and aggregate size before
-inflation where fflate's filter allows, then rechecks actual lengths after (`src/core/archive.ts:62-118`).
-Card containers cap at 96 MiB archive, 512 entries, 64 MiB per entry, 96 MiB aggregate
+`unzipBounded`, which checks total entry count before selection, then checks selected compressed size,
+original size, and aggregate size before inflation where fflate's filter allows, and rechecks actual
+lengths after (`src/core/archive.ts:62-118`). Card containers cap at 96 MiB archive, 512 total entries,
+64 MiB per selected entry, 96 MiB selected aggregate
 (`src/core/archive.ts:30-36`); packs are tighter at 48 MiB and 256 entries (`src/core/archive.ts:39-45`).
 A missing `originalSize` is treated as a lower bound, so a lying header still caps on compressed size
 (`src/core/archive.ts:55-60`). Any breach throws `ArchiveLimitError`, and a required entry is never

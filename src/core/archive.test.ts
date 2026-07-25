@@ -32,6 +32,16 @@ describe("unzipBounded", () => {
     expect(Object.keys(out)).toEqual(["card.json"]);
   });
 
+  test("only mode counts skipped entries toward the archive cap", () => {
+    const z = zipOf({ "card.json": "{}", a: "", b: "", c: "" });
+    expect(() =>
+      unzipBounded(z, {
+        bounds: { ...CARD_ARCHIVE_BOUNDS, maxEntries: 3 },
+        only: "card.json",
+      }),
+    ).toThrow(ArchiveLimitError);
+  });
+
   test("rejects archive over maxArchiveBytes", () => {
     const z = zipOf({ "a.txt": "hello" });
     expect(() =>
@@ -85,5 +95,15 @@ describe("unzipBounded", () => {
       filter: (f) => f.name.endsWith(".png"),
     });
     expect(Object.keys(out)).toEqual(["keep.png"]);
+  });
+
+  test("custom filter counts rejected entries toward the archive cap", () => {
+    const z = zipOf({ "keep.png": "png", a: "", b: "", c: "" });
+    expect(() =>
+      unzipBounded(z, {
+        bounds: { ...PACK_ARCHIVE_BOUNDS, maxEntries: 3 },
+        filter: (f) => f.name.endsWith(".png"),
+      }),
+    ).toThrow(ArchiveLimitError);
   });
 });
