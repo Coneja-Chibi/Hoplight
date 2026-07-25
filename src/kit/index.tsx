@@ -20,6 +20,7 @@ import { restoreTerminalBackground, setTerminalBackground } from "./terminal-sur
 async function main(): Promise<void> {
   const bridge = createBridge();
   const decks = await bridge.deckCounts();
+  const pieces = await bridge.list();
   const total = decks.reduce((sum, deck) => sum + deck.count, 0);
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
   const session = await createSession(bridge);
@@ -42,7 +43,15 @@ async function main(): Promise<void> {
     };
 
     root.render(
-      <App studioName={studioName} totalPieces={total} decks={decks} session={session} commands={commands} onQuit={quit} />,
+      <App
+        studioName={studioName}
+        totalPieces={total}
+        decks={decks}
+        pieces={pieces}
+        session={session}
+        commands={commands}
+        onQuit={quit}
+      />,
     );
 
     if (process.env.KIT_SMOKE) {

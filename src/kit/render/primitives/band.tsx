@@ -11,18 +11,31 @@ export function Band({
   bg,
   spine,
   onMouseDown,
+  onMouseOver,
+  onMouseOut,
+  corner,
   children,
 }: {
   bg: string;
   spine: string;
   onMouseDown?: () => void;
+  onMouseOver?: () => void;
+  onMouseOut?: () => void;
+  corner?: ReactNode;
   children: ReactNode;
 }): ReactNode {
   return (
-    <box flexDirection="row" backgroundColor={bg} onMouseDown={onMouseDown}>
+    <box
+      flexDirection="row"
+      backgroundColor={bg}
+      onMouseDown={onMouseDown}
+      onMouseOver={onMouseOver}
+      onMouseOut={onMouseOut}
+    >
       <box width={1} backgroundColor={spine} />
-      <box flexGrow={1} paddingLeft={1} paddingRight={1}>
+      <box position="relative" flexGrow={1} paddingLeft={1} paddingRight={1}>
         {children}
+        {corner}
       </box>
     </box>
   );

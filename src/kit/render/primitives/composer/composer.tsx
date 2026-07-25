@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import { decodePasteBytes, defaultTextareaKeyBindings } from "@opentui/core";
 import type { KeyBinding, KeyEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
+import type { EntitySummary } from "../../../bridge";
 import type { KitCommand } from "../../../commands/command";
 import { theme } from "../../theme";
 import { rampAt } from "../../colors";
@@ -25,6 +26,8 @@ import { commit, initRecall, recallNext, recallPrev, type RecallState } from "./
 import { buildSubmission, classifyPaste, type PasteCard as Card } from "./paste-classify";
 import { matchingCommands } from "./command-menu-core";
 import { CommandMenu } from "./command-menu";
+import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core";
+import { MentionMenu } from "./mention-menu";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -54,6 +57,7 @@ export function Composer({
   provider,
   busy,
   commands,
+  pieces = [],
   onSubmit,
 }: {
   active: boolean;
@@ -61,6 +65,7 @@ export function Composer({
   provider: ProviderStatus;
   busy: boolean;
   commands: readonly KitCommand[];
+  pieces?: readonly EntitySummary[];
   onSubmit: (value: string) => boolean;
 }): ReactNode {
   const ref = useRef<TextareaRenderable | null>(null);
@@ -73,8 +78,13 @@ export function Composer({
   const [slashDraft, setSlashDraft] = useState("");
   const [commandIndex, setCommandIndex] = useState(0);
   const [menuDismissed, setMenuDismissed] = useState(false);
+  const [mentionText, setMentionText] = useState("");
+  const [mentionIndex, setMentionIndex] = useState(0);
+  const [mentionDismissed, setMentionDismissed] = useState(false);
   const commandMatches = matchingCommands(commands, slashDraft);
   const menuOpen = !menuDismissed && commandMatches.length > 0;
+  const pieceMatches = matchingPieces(pieces, mentionText);
+  const mentionOpen = !menuOpen && !mentionDismissed && pieceMatches.length > 0;
 
   const replaceCards = (next: Card[]): void => {
     cardsRef.current = next;
@@ -111,7 +121,23 @@ export function Composer({
     if (!enabled) return;
     const ta = ref.current;
     if (!ta) return;
-    if (menuOpen && (e.name === "up" || e.name === "down")) {
+    if (mentionOpen && (e.name === "up" || e.name === "down")) {
+      e.preventDefault();
+      const delta = e.name === "up" ? -1 : 1;
+      setMentionIndex((index) =>
+        (index + delta + pieceMatches.length) % pieceMatches.length
+      );
+    } else if (mentionOpen && (e.name === "tab" || e.name === "return")) {
+      e.preventDefault();
+      const piece = pieceMatches[mentionIndex] ?? pieceMatches[0];
+      if (!piece) return;
+      ta.setText(applyMention(ta.plainText, piece));
+      setMentionText("");
+      setMentionDismissed(true);
+    } else if (mentionOpen && e.name === "escape") {
+      e.preventDefault();
+      setMentionDismissed(true);
+    } else if (menuOpen && (e.name === "up" || e.name === "down")) {
       e.preventDefault();
       const delta = e.name === "up" ? -1 : 1;
       setCommandIndex((index) =>
@@ -206,6 +232,19 @@ export function Composer({
           }}
         />
       ) : null}
+      {mentionOpen ? (
+        <MentionMenu
+          pieces={pieceMatches}
+          activeIndex={Math.min(mentionIndex, pieceMatches.length - 1)}
+          onChoose={(piece) => {
+            const ta = ref.current;
+            if (!ta) return;
+            ta.setText(applyMention(ta.plainText, piece));
+            setMentionText("");
+            setMentionDismissed(true);
+          }}
+        />
+      ) : null}
       {active ? <SweepLine /> : <box height={1} />}
       <box
         flexDirection="column"
@@ -232,9 +271,12 @@ export function Composer({
               setRows(ref.current?.lineCount ?? 1);
               setCommandIndex(0);
               setMenuDismissed(false);
+              setMentionIndex(0);
+              setMentionDismissed(false);
               setSlashDraft(
                 text.startsWith("/") && !text.includes("\n") && !/\s/.test(text) ? text : "",
               );
+              setMentionText(mentionDraft(text));
             }}
           />
         </box>

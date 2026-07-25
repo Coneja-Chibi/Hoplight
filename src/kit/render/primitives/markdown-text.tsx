@@ -8,13 +8,40 @@
  */
 import { Fragment } from "react";
 import type { ReactNode } from "react";
+import type { EntitySummary } from "../../bridge";
 import { theme } from "../theme";
+import { classifyDiff, type DiffLineKind } from "../diff-classify";
+import { parsePieceMentions } from "../mention-parse";
 import { parseMarkdown, type Inline } from "../markdown";
+import { PieceCard } from "./piece-card";
+import { sceneSeam } from "./scene-seam";
 
-const RULE = "─".repeat(40);
+const DIFF_LINE_CAP = 80;
 
-const inlineNodes = (spans: Inline[], key: string): ReactNode[] =>
-  spans.map((sp, i) => {
+const diffColor = (kind: DiffLineKind): string => {
+  if (kind === "add") return theme.alive;
+  if (kind === "remove") return theme.red;
+  if (kind === "meta") return theme.violet;
+  return theme.soft;
+};
+
+const plainNodes = (
+  text: string,
+  pieces: readonly EntitySummary[],
+  key: string,
+): ReactNode[] =>
+  parsePieceMentions(text, pieces).map((part, index) =>
+    part.type === "piece"
+      ? <PieceCard key={`${key}-piece-${index}`} piece={part.piece} />
+      : <span key={`${key}-text-${index}`}>{part.text}</span>,
+  );
+
+const inlineNodes = (
+  spans: Inline[],
+  key: string,
+  pieces: readonly EntitySummary[],
+): ReactNode[] =>
+  spans.flatMap((sp, i) => {
     const k = `${key}-${i}`;
     if (sp.t === "bold") return <b key={k}>{sp.s}</b>;
     if (sp.t === "italic") return <i key={k}>{sp.s}</i>;
@@ -32,10 +59,18 @@ const inlineNodes = (spans: Inline[], key: string): ReactNode[] =>
         </u>
       );
     }
-    return <span key={k}>{sp.s}</span>;
+    return plainNodes(sp.s, pieces, k);
   });
 
-export function MarkdownText({ text, fg = theme.soft }: { text: string; fg?: string }): ReactNode {
+export function MarkdownText({
+  text,
+  fg = theme.soft,
+  pieces = [],
+}: {
+  text: string;
+  fg?: string;
+  pieces?: readonly EntitySummary[];
+}): ReactNode {
   const blocks = parseMarkdown(text);
   const out: ReactNode[] = [];
   // <br> takes no key (LineBreakProps = Pick<SpanProps,"id">), so key the wrapping Fragment instead.
@@ -53,55 +88,85 @@ export function MarkdownText({ text, fg = theme.soft }: { text: string; fg?: str
     if (b.t === "heading") {
       out.push(
         <b key={`${key}-h`}>
-          <span fg={theme.bright}>{inlineNodes(b.spans, key)}</span>
+          <span fg={theme.bright}>{inlineNodes(b.spans, key, pieces)}</span>
         </b>,
       );
     } else if (b.t === "para") {
-      out.push(...inlineNodes(b.spans, key));
+      out.push(...inlineNodes(b.spans, key, pieces));
     } else if (b.t === "bullet") {
       out.push(
         <span key={`${key}-p`} fg={theme.mut}>
           {"  ".repeat(b.depth) + "- "}
         </span>,
-        ...inlineNodes(b.spans, key),
+        ...inlineNodes(b.spans, key, pieces),
       );
     } else if (b.t === "ordered") {
       out.push(
         <span key={`${key}-p`} fg={theme.mut}>
           {`${"  ".repeat(b.depth)}${b.num}. `}
         </span>,
-        ...inlineNodes(b.spans, key),
+        ...inlineNodes(b.spans, key, pieces),
       );
     } else if (b.t === "quote") {
       out.push(
         <span key={`${key}-p`} fg={theme.mut}>
           {"| "}
         </span>,
-        <i key={`${key}-q`}>{inlineNodes(b.spans, key)}</i>,
+        <i key={`${key}-q`}>{inlineNodes(b.spans, key, pieces)}</i>,
       );
     } else if (b.t === "code") {
+      const diff = classifyDiff(b.lines, b.lang);
       // Terminal-honest code slab: a dim language label (when the fence carried one) over the code lines
       // on the sunken fill. No box (a nested box measures to 0 in the scrollback); the fill IS the slab.
-      if (b.lang) {
+      if (diff) {
         out.push(
-          <span key={`${key}-lang`} fg={theme.quiet}>
-            {b.lang}
-          </span>,
-          br(`${key}-lang-nl`),
+          <b key={`${key}-diff-label`}>
+            <span fg={theme.bright}>DIFF </span>
+            <span fg={theme.alive}>+{String(diff.additions)}</span>
+            <span fg={theme.red}> -{String(diff.removals)}</span>
+          </b>,
+          br(`${key}-diff-nl`),
         );
+        diff.lines.slice(0, DIFF_LINE_CAP).forEach((line, li) => {
+          out.push(
+            <span key={`${key}-d${li}`} fg={diffColor(line.kind)} bg={theme.sunken}>
+              {` ${line.text} `}
+            </span>,
+          );
+          if (li < Math.min(diff.lines.length, DIFF_LINE_CAP) - 1) {
+            out.push(br(`${key}-d${li}-nl`));
+          }
+        });
+        if (diff.lines.length > DIFF_LINE_CAP) {
+          out.push(
+            br(`${key}-diff-cap-nl`),
+            <span key={`${key}-diff-cap`} fg={theme.quiet}>
+              {String(diff.lines.length - DIFF_LINE_CAP)} more lines
+            </span>,
+          );
+        }
+      } else {
+        if (b.lang) {
+          out.push(
+            <span key={`${key}-lang`} fg={theme.quiet}>
+              {b.lang}
+            </span>,
+            br(`${key}-lang-nl`),
+          );
+        }
+        b.lines.forEach((ln, li) => {
+          out.push(
+            <span key={`${key}-c${li}`} fg={theme.teal} bg={theme.sunken}>
+              {` ${ln} `}
+            </span>,
+          );
+          if (li < b.lines.length - 1) out.push(br(`${key}-c${li}-nl`));
+        });
       }
-      b.lines.forEach((ln, li) => {
-        out.push(
-          <span key={`${key}-c${li}`} fg={theme.teal} bg={theme.sunken}>
-            {` ${ln} `}
-          </span>,
-        );
-        if (li < b.lines.length - 1) out.push(br(`${key}-c${li}-nl`));
-      });
     } else if (b.t === "hr") {
       out.push(
         <span key={`${key}-hr`} fg={theme.mut}>
-          {RULE}
+          {sceneSeam()}
         </span>,
       );
     }

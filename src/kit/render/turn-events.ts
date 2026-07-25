@@ -12,10 +12,11 @@
  */
 import type { TurnEvent } from "../session";
 import type { TokenUsage } from "../providers/usage";
+import { isLongSay } from "./say-fold";
 
 export type RenderLine =
   | { role: "you"; text: string }
-  | { role: "say"; text: string }
+  | { role: "say"; text: string; open?: boolean }
   | { role: "tool"; text: string }
   | { role: "error"; text: string }
   | { role: "thought"; text: string; seconds: number; open: boolean }
@@ -158,14 +159,19 @@ export const settleTurn = (view: TurnView, now: number): TurnView => ({
   live: { phase: "idle" },
 });
 
-/** Toggle a foldable trace (thought or backstage) open/closed: by line index, else the most recent. */
+/** Toggle a foldable trace or settled long reply: by line index, else the most recent. */
 export function toggleTrace(view: TurnView, index?: number): TurnView {
-  const foldable = (line: RenderLine): boolean => line.role === "thought" || line.role === "backstage";
+  const foldable = (line: RenderLine): boolean =>
+    line.role === "thought" || line.role === "backstage" || (line.role === "say" && isLongSay(line.text));
   const at = index ?? view.lines.map((line, i) => (foldable(line) ? i : -1)).filter((i) => i >= 0).at(-1);
   if (at === undefined) return view;
   const line = view.lines[at];
-  if (!line || (line.role !== "thought" && line.role !== "backstage")) return view;
+  if (!line || !foldable(line)) return view;
   const lines = [...view.lines];
-  lines[at] = { ...line, open: !line.open };
+  if (line.role === "say") {
+    lines[at] = { ...line, open: !line.open };
+  } else if (line.role === "thought" || line.role === "backstage") {
+    lines[at] = { ...line, open: !line.open };
+  }
   return { ...view, lines };
 }

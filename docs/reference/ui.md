@@ -11,13 +11,22 @@ large paste cards. Up and Down recall submitted drafts only at the relevant buff
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
 submission remains in the composer. Typing `/` opens a registry-driven command palette containing
 every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
-runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. If a
-provider stops after streaming part of a reply, Kit keeps
+runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. A
+trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
+and resolved markers in replies render as compact name-and-kind cards. If a provider stops after
+streaming part of a reply, Kit keeps
 that partial reply visible before showing the stop or error. The input and connection state form one
 fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
 thin seam joins the quieter provider, model, and ready or working register below. Transcript
 scrolling remains available by mouse wheel and navigation keys without painting a second,
 application-owned scrollbar beside the terminal's own window chrome.
+
+Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
+live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove
+treatment, horizontal rules share Kit's scene seam, and error rows cap hostile or accidental floods.
+Hovering a user, assistant, or error band exposes a copy corner. Copy uses the terminal's OSC52
+support, refuses oversized payloads, and reports unsupported or rejected requests in a short status
+toast instead of claiming clipboard success.
 
 Successful turns are saved atomically as one JSON file per session under the Hoplight configuration
 directory's `sessions/` folder. `/session` opens the saved-session playbill, `/resume [name]` restores

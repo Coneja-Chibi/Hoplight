@@ -77,3 +77,37 @@ test("typing slash opens every command and enter runs the filtered selection", a
     await t.renderer.destroy();
   }
 });
+
+test("typing at opens studio pieces and enter inserts a stable marker", async () => {
+  const submitted: string[] = [];
+  const t = await testRender(
+    <Composer
+      active={false}
+      provider={null}
+      busy={false}
+      commands={[]}
+      pieces={[
+        { id: "basil-1", kind: "character", name: "Basil" },
+        { id: "half-moon", kind: "lorebook", name: "Half-Moon" },
+      ]}
+      onSubmit={(value) => {
+        submitted.push(value);
+        return true;
+      }}
+    />,
+    { width: 72, height: 16 },
+  );
+  try {
+    await tick();
+    await t.mockInput.typeText("ask @ba");
+    await tick();
+    expect(t.captureCharFrame()).toContain("STUDIO PIECES");
+    expect(t.captureCharFrame()).toContain("Basil");
+    t.mockInput.pressEnter();
+    await tick();
+    expect(t.captureCharFrame()).toContain("@character:basil-1");
+    expect(submitted).toEqual([]);
+  } finally {
+    await t.renderer.destroy();
+  }
+});

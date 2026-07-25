@@ -2,15 +2,15 @@
 /** YouLine: your turn in the transcript, a lifted band with a rose spine, the rose prompt and your words. */
 import type { ReactNode } from "react";
 import { theme } from "../theme";
-import { Band } from "./band";
+import { CopyableBand } from "./copyable-band";
 
-export function YouLine({ text }: { text: string }): ReactNode {
+export function YouLine({ text, onCopy }: { text: string; onCopy?: () => void }): ReactNode {
   return (
-    <Band bg={theme.lift} spine={theme.rose}>
+    <CopyableBand bg={theme.lift} spine={theme.rose} onCopy={onCopy}>
       <text>
         <span fg={theme.rose}>{"> "}</span>
         <span fg={theme.text}>{text}</span>
       </text>
-    </Band>
+    </CopyableBand>
   );
 }

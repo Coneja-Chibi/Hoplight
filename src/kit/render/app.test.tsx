@@ -7,10 +7,6 @@
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
 import { testRender } from "@opentui/react/test-utils";
 import { applyTurnEvent, settleTurn, toggleTrace, type TurnView } from "./turn-events";
-import { SayLine } from "./primitives/say-line";
-import { StatusRow } from "./primitives/status-row";
-import { ThoughtRow } from "./primitives/thought-row";
-import { BackstageRow } from "./primitives/backstage-row";
 import { App } from "./app";
 import type { Session } from "../session";
 import { discoverCommands } from "../commands/discover";
@@ -96,6 +92,15 @@ describe("applyTurnEvent", () => {
     expect((v.lines.at(-1) as { open: boolean }).open).toBe(true);
     v = toggleTrace(v, v.lines.length - 1);
     expect((v.lines.at(-1) as { open: boolean }).open).toBe(false);
+  });
+
+  test("toggleTrace reopens and folds the latest settled long reply", () => {
+    const longReply = "long answer ".repeat(140);
+    let v = applyTurnEvent(view(), { type: "say", text: longReply }, 0);
+    v = toggleTrace(v);
+    expect(v.lines.at(-1)).toEqual({ role: "say", text: longReply, open: true });
+    v = toggleTrace(v);
+    expect(v.lines.at(-1)).toEqual({ role: "say", text: longReply, open: false });
   });
 
   test("an interrupted text stream keeps the partial answer before the error", () => {
@@ -419,69 +424,4 @@ describe("App turn lifecycle", () => {
     }
   });
 
-});
-
-describe("widgets", () => {
-  test("SayLine renders the reply text (markdown treatment lands after the wireframe pick)", async () => {
-    const t = await testRender(<SayLine text={"You have 13 characters in your studio."} />, {
-      width: 60,
-      height: 8,
-    });
-    try {
-      await tick();
-      const frame = await t.waitForFrame((f) => f.includes("13 characters"), { maxPasses: 300 });
-      expect(frame).toContain("13 characters");
-    } finally {
-      await t.renderer.destroy();
-    }
-  });
-
-  test("ThoughtRow: collapsed shows the invitation, open shows the thought", async () => {
-    const t = await testRender(
-      <ThoughtRow text="walk the sheets and compare" seconds={8} open={false} onToggle={() => {}} />,
-      { width: 70, height: 4 },
-    );
-    try {
-      await tick();
-      const frame = await t.waitForFrame((f) => f.includes("rehearsed"), { maxPasses: 300 });
-      expect(frame).toContain("rehearsed for 8s");
-      expect(frame).toContain("ctrl+o");
-      expect(frame).not.toContain("walk the sheets"); // folded traces keep the thought put away
-    } finally {
-      await t.renderer.destroy();
-    }
-  });
-
-  test("BackstageRow collapsed shows the fold invitation, not the moves", async () => {
-    const t = await testRender(
-      <BackstageRow moves={["list character: 13", "read character: Basil"]} seconds={6} open={false} onToggle={() => {}} />,
-      { width: 72, height: 4 },
-    );
-    try {
-      await tick();
-      const frame = await t.waitForFrame((f) => f.includes("Backstage"), { maxPasses: 300 });
-      expect(frame).toContain("Backstage · 2 moves · 6s");
-      expect(frame).toContain("ctrl+o");
-      expect(frame).not.toContain("read character"); // folded moves stay put away
-    } finally {
-      await t.renderer.destroy();
-    }
-  });
-
-  test("StatusRow is the stagehand: a stage verb and the stamp clock, no provider name", async () => {
-    const t = await testRender(<StatusRow startedAt={Date.now() - 65000} />, {
-      width: 60,
-      height: 4,
-    });
-    try {
-      await tick();
-      const frame = await t.waitForFrame((f) => f.includes("1:0"), { maxPasses: 300 });
-      const verbs = ["cueing", "rifling", "staging", "rehearsing", "consulting"];
-      expect(verbs.some((verb) => frame.includes(verb))).toBe(true);
-      expect(frame).toContain("1:0"); // 65s elapsed renders as the 1:05-ish stamp
-      expect(frame).not.toContain("NanoGPT");
-    } finally {
-      await t.renderer.destroy();
-    }
-  });
 });

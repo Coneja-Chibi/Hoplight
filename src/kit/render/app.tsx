@@ -7,9 +7,9 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { join } from "node:path";
-import { useKeyboard } from "@opentui/react";
+import { useKeyboard, useRenderer } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
-import type { DeckCount } from "../bridge";
+import type { DeckCount, EntitySummary } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session as ChatSession } from "../session";
 import { matchCommand, type KitCommand } from "../commands/command";
@@ -23,6 +23,7 @@ import { ToolRow } from "./primitives/tool-row";
 import { ErrorRow } from "./primitives/error-row";
 import { Composer } from "./primitives/composer/composer";
 import { StatusRow } from "./primitives/status-row";
+import { StatusToast } from "./primitives/status-toast";
 import { ThoughtBox } from "./primitives/thought-box";
 import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageBox } from "./primitives/backstage-box";
@@ -43,6 +44,7 @@ import { RewindRail } from "../sessions/render/rewind-rail";
 import { createSessionStore, newSessionId, type SessionStore } from "../sessions/store";
 import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
+import { copyText, type CopyResult } from "./clipboard";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -52,6 +54,7 @@ export interface AppProps {
   studioName: string;
   totalPieces: number;
   decks: DeckCount[];
+  pieces?: readonly EntitySummary[];
   session: ChatSession;
   commands: KitCommand[];
   onQuit: () => void;
@@ -65,6 +68,7 @@ export function App({
   studioName,
   totalPieces,
   decks,
+  pieces = [],
   session,
   commands,
   onQuit,
@@ -72,7 +76,27 @@ export function App({
   makeSessionId = newSessionId,
   now = Date.now,
 }: AppProps): ReactNode {
+  const renderer = useRenderer();
   const [busy, setBusy] = useState(false);
+  const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (copyTimer.current) clearTimeout(copyTimer.current);
+    },
+    [],
+  );
+  const copy = (text: string): void => {
+    const messages: Record<CopyResult, string> = {
+      requested: "copy requested",
+      unsupported: "clipboard unavailable in this terminal",
+      "too-large": "message too large for safe terminal copy",
+      failed: "terminal refused the copy",
+    };
+    setCopyNotice(messages[copyText(renderer, text)]);
+    if (copyTimer.current) clearTimeout(copyTimer.current);
+    copyTimer.current = setTimeout(() => setCopyNotice(null), 2200);
+  };
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   useEffect(() => {
@@ -276,7 +300,7 @@ export function App({
       activeTurn.current.controller.abort();
       return;
     }
-    // ctrl+o toggles the latest foldable trace, thought or backstage (plain o would hit the composer)
+    // ctrl+o toggles the latest folded thought, backstage cluster, or settled long reply.
     if (event.ctrl && event.name === "o") {
       setTurn((prev) => toggleTrace(prev));
       return;
@@ -346,12 +370,12 @@ export function App({
             // turn's own traces + reply stay grouped tight (scrollback gap is 0). The first line skips it.
             <Fragment key={index}>
               {index > 0 ? <box height={1} /> : null}
-              <YouLine text={line.text} />
+              <YouLine text={line.text} onCopy={() => copy(line.text)} />
             </Fragment>
           ) : line.role === "tool" ? (
             <ToolRow key={index} summary={line.text} />
           ) : line.role === "error" ? (
-            <ErrorRow key={index} text={line.text} />
+            <ErrorRow key={index} text={line.text} onCopy={() => copy(line.text)} />
           ) : line.role === "thought" ? (
             <ThoughtRow
               key={index}
@@ -369,7 +393,14 @@ export function App({
               onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
             />
           ) : (
-            <SayLine key={index} text={line.text} />
+            <SayLine
+              key={index}
+              text={line.text}
+              open={line.open}
+              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
+              onCopy={() => copy(line.text)}
+              pieces={pieces}
+            />
           ),
         )}
         {turn.tools ? <BackstageBox moves={turn.tools.moves} /> : null}
@@ -381,12 +412,14 @@ export function App({
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
+      <StatusToast text={copyNotice} />
       <Composer
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
         enabled={!searching}
         provider={provider}
         busy={busy}
         commands={commands}
+        pieces={pieces}
         onSubmit={submit}
       />
       </box>
