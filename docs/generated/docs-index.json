@@ -1608,9 +1608,12 @@
       "path": "docs/guide/troubleshooting.md",
       "title": "Troubleshoot common problems",
       "audience": "user",
-      "summary": "Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.",
+      "summary": "Work out why the Studio would not open, why a card would not import, why a convert dropped something, or why an export looks wrong, using plain recovery steps.",
       "tags": [
         "troubleshooting",
+        "studio",
+        "ssh",
+        "container",
         "import",
         "convert",
         "export",
@@ -1618,6 +1621,7 @@
         "honesty"
       ],
       "related": [
+        "guide/getting-started",
         "guide/importing",
         "guide/converting",
         "guide/exporting",
@@ -1627,6 +1631,11 @@
         {
           "text": "The short version",
           "slug": "the-short-version",
+          "level": 2
+        },
+        {
+          "text": "The Studio says \"forbidden\" over SSH",
+          "slug": "the-studio-says-forbidden-over-ssh",
           "level": 2
         },
         {
@@ -3944,6 +3953,11 @@
         "reference/architecture"
       ],
       "anchors": [
+        {
+          "text": "Containers and SSH forwarding",
+          "slug": "containers-and-ssh-forwarding",
+          "level": 2
+        },
         {
           "text": "Two listeners, one trust boundary",
           "slug": "two-listeners-one-trust-boundary",

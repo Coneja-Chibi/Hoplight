@@ -2,24 +2,52 @@
 id: guide/troubleshooting
 title: Troubleshoot common problems
 audience: user
-summary: Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.
-tags: [troubleshooting, import, convert, export, receipt, honesty]
-related: [guide/importing, guide/converting, guide/exporting, guide/faq]
+summary: Work out why the Studio would not open, why a card would not import, why a convert dropped something, or why an export looks wrong, using plain recovery steps.
+tags: [troubleshooting, studio, ssh, container, import, convert, export, receipt, honesty]
+related: [guide/getting-started, guide/importing, guide/converting, guide/exporting, guide/faq]
 ---
 
 # Troubleshoot common problems
 
-Most of what looks broken in Hoplight already told you what happened, in plain words, at the moment it happened. A failed import names a reason. An export lists a Note or a Dropped line for every field that didn't travel. A Press row settles as printed, skipped, or failed, and says why. This page walks the three places that message shows up: a card that would not import, a convert that dropped something, and an export that looks wrong.
+Most of what looks broken in Hoplight already told you what happened, in plain words, at the moment it happened. A failed Studio boot now gives the address and SSH command it expects. A failed import names a reason. An export lists a Note or a Dropped line for every field that didn't travel. A Press row settles as printed, skipped, or failed, and says why.
 
 ## The short version
 
-1. **Read the message you already have.** A receipt line, a Note or Dropped line, a Press row's note: each one states a fact, not a guess. Start there before you assume something is broken.
+1. **Read the message you already have.** A Studio boot error, receipt line, Note or Dropped line, or Press row's note states a fact and a next step.
 2. **Ask the file what it is.** From a terminal in the project folder, `hoplight inspect <file>` names the kind and format Hoplight sees, or says plainly it could not be read; `hoplight validate <file>` exits 0 if the file opens at all.
 3. **Check the lens or the honesty view before you export again.** Pick the target platform on the Workbench and read what's dimmed, or open Export and read the Note and Dropped lines. Both read off the same coverage claims, so they never disagree with each other.
 4. **Check the format matrix if one specific field is the question.** `docs/FORMAT-SUPPORT.md` is generated straight from the live adapters: what each platform reads and writes, kind by kind.
 5. **If none of that explains it, the file may be a format Hoplight doesn't know yet, not a broken one.** `hoplight formats` lists everything currently supported.
 
 ![Dropping a file into the Library](../media/shot-import-drop.png)
+
+## The Studio says "forbidden" over SSH
+
+Hoplight listens on the machine where it is running, at `127.0.0.1:8321` by default. That address is
+deliberately local. A container or headless server does not make the browser Studio unusable, but you
+must carry the local address to your own computer.
+
+1. Start Hoplight on the server or in the container. Its terminal prints a complete command beginning
+   with `ssh -L`.
+2. Copy that command to a terminal on the computer where your browser lives.
+3. Replace `user@server` with the same SSH login you normally use, then run it and leave that terminal
+   open.
+4. Open the exact `http://localhost:...` address Hoplight printed. Do not open the server IP or
+   container IP in the browser.
+
+The printed command contains two `-L` entries when the isolated Lua and regex test-bench listener is
+available. The first carries the Studio. The second carries the random sandbox port. Copy the whole
+command if you need the test benches.
+
+If the page shell loads but says **Studio could not start** and **refused the address**, the browser
+used an address the local Studio does not accept. The error screen offers **Open Studio** and
+**Open Remote Access setup** buttons, repeats a one-port recovery command, and points both buttons at
+the forwarded localhost address. **Copy SSH command** puts the recovery command on your clipboard.
+Restarting Hoplight prints the complete current two-port command.
+
+This forwarding is for an owner reaching their own loopback Studio. Hoplight's Settings > Remote
+access is the normal route for an approved phone or another everyday device. The isolated test benches
+remain host-local unless their printed second port is forwarded too.
 
 ## A card would not import
 

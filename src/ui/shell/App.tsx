@@ -31,12 +31,19 @@ import type { Tour } from "../tours/tour-contract";
 import { hasSeenTour, isRunnable, seenTourKeys, tourIdCandidates, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
 import { paneKeyOf } from "./store-core";
+import {
+  genericBootProblem,
+  settingsBootProblem,
+  type BootProblem,
+} from "./boot-error";
+import { parseLaunchTarget } from "../_shared/launch-target";
+import { BootErrorScreen } from "./BootErrorScreen";
 
 type Phase = "loading" | "setup" | "ready" | "boot-error";
 
 export function App(): JSX.Element | null {
   const [phase, setPhase] = useState<Phase>("loading");
-  const [bootError, setBootError] = useState<string | null>(null);
+  const [bootError, setBootError] = useState<BootProblem | null>(null);
   const modulesRef = useRef(new Map<string, HoplightApp>());
   const [ActiveComponent, setActiveComponent] = useState<HoplightApp["Component"] | null>(null);
   const activeAppId = useShellStore((s) => s.activeAppId);
@@ -71,7 +78,11 @@ export function App(): JSX.Element | null {
     } catch {
       remembered = undefined;
     }
-    const first = landing ?? remembered ?? state.homeApp();
+    const launch = parseLaunchTarget(window.location.hash);
+    const requested = launch
+      ? manifestList.find((manifest) => manifest.id === launch.appId && !manifest.comingSoon)
+      : undefined;
+    const first = requested ?? landing ?? remembered ?? state.homeApp();
     if (first) state.mountApp(first.id);
     setPhase("ready");
   }
@@ -82,7 +93,13 @@ export function App(): JSX.Element | null {
         const res = await fetch("/api/settings");
         if (!res.ok) {
           const body = (await res.json().catch(() => null)) as { error?: string } | null;
-          throw new Error(body?.error ?? "could not read settings");
+          setBootError(
+            settingsBootProblem(res.status, body?.error, {
+              port: window.location.port,
+            }),
+          );
+          setPhase("boot-error");
+          return;
         }
         const raw = await res.json();
         if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
@@ -98,7 +115,7 @@ export function App(): JSX.Element | null {
         }
         await bootStudio(false);
       } catch (e) {
-        setBootError(e instanceof Error ? e.message : "could not start Studio");
+        setBootError(genericBootProblem(e));
         setPhase("boot-error");
       }
     })();
@@ -345,25 +362,7 @@ export function App(): JSX.Element | null {
   if (phase === "loading") return null; // chrome renders only from real state; nothing to paint yet
 
   if (phase === "boot-error") {
-    return (
-      <div
-        id="shell"
-        style={{
-          display: "grid",
-          placeItems: "center",
-          minHeight: "100dvh",
-          padding: "2rem",
-          fontFamily: "var(--font-body, system-ui)",
-        }}
-      >
-        <div role="alert" style={{ maxWidth: "28rem", textAlign: "center" }}>
-          <h1 style={{ fontSize: "1.25rem", margin: "0 0 0.75rem" }}>Studio could not start</h1>
-          <p style={{ margin: 0, color: "var(--text-soft)" }}>
-            {bootError ?? "settings are unreadable. Fix or restore settings.json, then reload."}
-          </p>
-        </div>
-      </div>
-    );
+    return <BootErrorScreen problem={bootError} />;
   }
 
   if (phase === "setup") {

@@ -38,7 +38,7 @@
 - [User guide](docs/guide/README.md): A map of Hoplight's rooms and links to every guide page, setup, importing, browsing, editing, personas, lorebooks, regex sets, converting, exporting, and platform notes.
 - [Edit a regex set](docs/guide/regex.md): Write find-and-replace rules into a set, choose where and in what order each one runs, and check what a rule actually does before you save it.
 - [Security and privacy](docs/guide/security.md): What keeps your content and your keys on your machine, why a downloaded card cannot run code on its own, and the few places where a protection is partial and we say so.
-- [Troubleshoot common problems](docs/guide/troubleshooting.md): Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.
+- [Troubleshoot common problems](docs/guide/troubleshooting.md): Work out why the Studio would not open, why a card would not import, why a convert dropped something, or why an export looks wrong, using plain recovery steps.
 
 ## Reference
 

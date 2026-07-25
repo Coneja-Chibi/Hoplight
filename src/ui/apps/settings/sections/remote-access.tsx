@@ -9,6 +9,7 @@ import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import type { RemoteDevice, RemoteState } from "../../../remote/sidecar-status";
 import { ApiError } from "../../../api";
+import { copyText } from "../../../_shared/clipboard";
 import { requestExternal } from "../../../_shared/link-gate";
 import type { SettingsSection } from "../section-contract";
 import { LanCard } from "./lan-card";
@@ -69,31 +70,6 @@ interface Actions {
 
 /** The Tailscale admin page where HTTPS certificates are enabled (the one-time toggle). */
 const TAILSCALE_HTTPS_ADMIN = "https://login.tailscale.com/admin/dns";
-
-/** Copy via the async clipboard, falling back to the legacy path for older/embedded webviews. */
-async function copyText(text: string): Promise<boolean> {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  } catch {
-    /* fall through to the legacy path */
-  }
-  try {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.position = "fixed";
-    ta.style.opacity = "0";
-    document.body.appendChild(ta);
-    ta.select();
-    const ok = document.execCommand("copy");
-    document.body.removeChild(ta);
-    return ok;
-  } catch {
-    return false;
-  }
-}
 
 function StateCard({
   state,

@@ -20,6 +20,33 @@ modes that can each be on or off:
 
 Neither mode ever exposes the studio to the open internet, and every device is gated before it is served.
 
+## Containers and SSH forwarding
+
+Running Hoplight in a container or on a headless machine does not require a browser inside that
+environment. The `hoplight ui` startup receipt prints:
+
+- the local Studio URL;
+- one copyable SSH command with a forward for the Studio port; and
+- when the isolated Lua/regex listener started, a second forward in that same command for its random
+  sandbox port.
+
+Run the printed command on the computer with the browser, replace `user@server`, keep the tunnel open,
+and browse to the printed `http://localhost:<ui-port>` address. Browsing to the server or container IP
+is intentionally refused by the trusted listener's Host gate. The HTML shell can still arrive before
+the first `/api/settings` request is refused, so the browser now turns that otherwise opaque 403 into
+the same localhost and SSH instructions. It offers one button for the Studio and another deep link
+that opens the forwarded Studio directly on Settings > Remote access. A third button copies the
+one-port recovery command. The normal host-only API gates still decide whether those controls may
+change anything.
+
+A one-port tunnel is enough for ordinary Studio work. It is not enough for the Lua and regex test
+benches because ADR-009 puts their workers on a second, ephemeral loopback origin. Forward both ports
+from the startup receipt to use those benches remotely. Tailscale and LAN access serve the approved
+Studio surface, but they do not turn the sandbox-only listener into a general remote endpoint.
+
+This guidance does not broaden `hostAllowed`, expose a new listener, or weaken the existing token and
+Origin checks. It makes the two-listener architecture visible at the point where a user needs it.
+
 ## Two listeners, one trust boundary
 
 The app binds two loopback listeners (`src/ui/server-remote.ts`, `src/ui/server.ts`):
