@@ -11,6 +11,7 @@ import { SayLine } from "./say-line";
 import { ThoughtRow } from "./thought-row";
 import { ToolRow } from "./tool-row";
 import { YouLine } from "./you-line";
+import { WatchNote } from "./watch-note";
 
 export function SettledLine({
   line,
@@ -37,6 +38,7 @@ export function SettledLine({
   if (line.role === "error") {
     return <ErrorRow text={line.text} onCopy={() => onCopy(line.text)} />;
   }
+  if (line.role === "watch") return <WatchNote text={line.text} />;
   if (line.role === "thought") {
     return (
       <ThoughtRow

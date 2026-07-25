@@ -20,6 +20,7 @@ export type RenderLine =
   | { role: "say"; text: string; open?: boolean }
   | { role: "tool"; text: string }
   | { role: "error"; text: string }
+  | { role: "watch"; text: string }
   | { role: "doctor"; checks: DoctorResult[] }
   | { role: "thought"; text: string; seconds: number; open: boolean }
   | { role: "backstage"; moves: string[]; seconds: number; open: boolean };

@@ -21,6 +21,7 @@ import { runDoctor } from "./doctor/run";
 import { activeBackendId } from "./keystore/keystore";
 import { readVault } from "./providers/vault";
 import { APP_VERSION } from "../version";
+import { watchStudio, type StudioWatchSource } from "./watch/watcher";
 
 async function main(): Promise<void> {
   const bridge = createBridge();
@@ -45,6 +46,12 @@ async function main(): Promise<void> {
       },
       version: APP_VERSION,
       runtime: Bun.version,
+    });
+  const studioWatcher: StudioWatchSource = (onChange) =>
+    watchStudio({
+      initial: pieces,
+      list: () => bridge.list(),
+      onChange,
     });
 
   setTerminalBackground(process.stdout, theme.well);
@@ -72,6 +79,7 @@ async function main(): Promise<void> {
         session={session}
         commands={commands}
         runDoctor={diagnose}
+        watchStudio={studioWatcher}
         onQuit={quit}
       />,
     );

@@ -13,6 +13,8 @@ import { discoverCommands } from "../commands/discover";
 import type { SessionStore } from "../sessions/store";
 import type { Session as MemorySession } from "../sessions/session-model";
 import { summarize } from "../sessions/projection";
+import type { StudioChange } from "../watch/watch-core";
+import type { StudioWatchSource } from "../watch/watcher";
 
 setDefaultTimeout(30000);
 
@@ -123,6 +125,7 @@ describe("App turn lifecycle", () => {
       makeSessionId?: () => string;
       width?: number;
       height?: number;
+      watchStudio?: StudioWatchSource;
     } = {},
   ) =>
     testRender(
@@ -135,6 +138,7 @@ describe("App turn lifecycle", () => {
         onQuit={() => {}}
         sessionStore={options.sessionStore}
         makeSessionId={options.makeSessionId}
+        watchStudio={options.watchStudio}
         now={() => 1000}
       />,
       { width: options.width ?? 80, height: options.height ?? 24 },
@@ -451,6 +455,37 @@ describe("App turn lifecycle", () => {
       t.mockInput.pressEscape();
       await tick();
       expect(t.captureCharFrame()).toContain("talk to your studio");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
+  test("an outside studio change lands one non-modal notice and refreshes the composer", async () => {
+    const watcher: { emit?: (change: StudioChange) => void } = {};
+    const watchStudio: StudioWatchSource = (onChange) => {
+      watcher.emit = onChange;
+      return () => {};
+    };
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session, { watchStudio });
+    try {
+      await tick();
+      const after = [{ id: "mira", kind: "character", name: "Mira" }];
+      if (!watcher.emit) throw new Error("studio watcher did not mount");
+      watcher.emit({ added: after, removed: [], updated: [], after });
+      await tick();
+      const frame = t.captureCharFrame();
+      expect(frame).toContain("NOTICED");
+      expect(frame).toContain("Mira");
+      expect(frame).toContain("try: what should I improve about Mira?");
     } finally {
       await t.renderer.destroy();
     }

@@ -35,6 +35,13 @@ pressing End returns to the latest row and clears the count.
 into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
 with navigation keys, and Escape or `q` returns to the untouched session view.
 
+While Kit is open, a bounded read-only stage watcher polls the canonical studio listing and compares
+it with the prior snapshot. Outside imports, edits, and removals coalesce into one searchable
+`NOTICED` transcript cue with a suggested next question; Kit never acts on the change by itself.
+Temporary unreadable states are skipped until the next poll, the live piece/deck counts and composer
+suggestion refresh from the new snapshot, and the watcher stops with the Kit process. Watch notices
+are live-session context and are not written into saved conversation history.
+
 Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
 live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove
 treatment, horizontal rules share Kit's scene seam, and error rows cap hostile or accidental floods.

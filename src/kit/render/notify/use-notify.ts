@@ -21,11 +21,14 @@ export interface UseNotifyArgs {
   readonly studio: string;
   /** The user's channel toggles. */
   readonly settings: NotifySettings;
+  /** Monotonic count of non-turn completions, such as outside studio changes. */
+  readonly notice?: number;
 }
 
 export const useNotify = (args: UseNotifyArgs): void => {
   const channels = useRef<Map<string, NotifyChannel>>(new Map());
   const prevBusy = useRef(false);
+  const prevNotice = useRef(args.notice ?? 0);
 
   // Mount: gather the drop-in channels and save the terminal title. Unmount: restore it (paired).
   useEffect(() => {
@@ -58,4 +61,19 @@ export const useNotify = (args: UseNotifyArgs): void => {
     }
     // Gated on the busy transition; focused/studio/settings are read at the settle render.
   }, [args.busy]);
+
+  useEffect(() => {
+    const current = args.notice ?? 0;
+    const previous = prevNotice.current;
+    prevNotice.current = current;
+    if (current <= previous) return;
+    const actions = planNotifications(
+      { summary: args.studio, focused: args.focused },
+      args.settings,
+    );
+    for (const action of actions) {
+      if (action.channel === "title") setTitle(action.text);
+      else channels.current.get(action.channel)?.emit(action);
+    }
+  }, [args.notice]);
 };

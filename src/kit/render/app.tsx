@@ -48,6 +48,8 @@ import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
 import { copyText, type CopyResult } from "./clipboard";
 import type { DoctorResult } from "../doctor/check";
+import { watchSummary } from "../watch/watch-core";
+import type { StudioWatchSource } from "../watch/watcher";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -65,6 +67,7 @@ export interface AppProps {
   makeSessionId?: () => string;
   now?: () => number;
   runDoctor?: () => Promise<DoctorResult[]>;
+  watchStudio?: StudioWatchSource;
 }
 
 /** The window shell: session state plus composed widgets. */
@@ -80,9 +83,14 @@ export function App({
   makeSessionId = newSessionId,
   now = Date.now,
   runDoctor = async () => [],
+  watchStudio,
 }: AppProps): ReactNode {
   const renderer = useRenderer();
   const [busy, setBusy] = useState(false);
+  const [studioPieces, setStudioPieces] = useState<readonly EntitySummary[]>(pieces);
+  const [studioDecks, setStudioDecks] = useState<DeckCount[]>(decks);
+  const [studioTotal, setStudioTotal] = useState(totalPieces);
+  const [watchNotices, setWatchNotices] = useState(0);
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
@@ -143,9 +151,24 @@ export function App({
   if (!memory.current) memory.current = emptySession(makeSessionId(), now());
   // Notify: title/bell/desktop fire on the turn's busy falling edge, focus-gated (see notify/plan.ts).
   const focused = useFocus();
-  useNotify({ busy, focused, studio: studioName, settings: NOTIFY_SETTINGS });
+  useNotify({ busy, focused, studio: studioName, settings: NOTIFY_SETTINGS, notice: watchNotices });
   const add = (line: RenderLine): void =>
     setTurn((prev) => ({ ...prev, lines: [...prev.lines, line] }));
+  useEffect(() => {
+    if (!watchStudio) return;
+    return watchStudio((change) => {
+      setStudioPieces(change.after);
+      setStudioTotal(change.after.length);
+      setStudioDecks((current) =>
+        current.map((deck) => ({
+          ...deck,
+          count: change.after.filter((piece) => piece.kind === deck.kind).length,
+        })),
+      );
+      add({ role: "watch", text: watchSummary(change) });
+      setWatchNotices((count) => count + 1);
+    });
+  }, [watchStudio]);
 
   const selectMemory = (next: MemorySession): void => {
     memory.current = next;
@@ -287,7 +310,7 @@ export function App({
       const ctx: SessionCommandContext = {
         arg: matched.arg,
         commands,
-        decks,
+        decks: studioDecks,
         openSettings: () => setView("settings"),
         openHelp: () => setView("help"),
         quit: onQuit,
@@ -419,13 +442,13 @@ export function App({
         minHeight={0}
       >
       <Scrollback scrollRef={scroll.ref}>
-        <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
+        <OpeningBanner studioName={studioName} totalPieces={studioTotal} animate={turn.lines.length === 0} />
         {turn.lines.map((line, index) => (
           <SettledLine
             key={index}
             line={line}
             index={index}
-            pieces={pieces}
+            pieces={studioPieces}
             onCopy={copy}
             onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
           />
@@ -452,8 +475,8 @@ export function App({
         provider={provider}
         busy={busy}
         commands={commands}
-        decks={decks}
-        pieces={pieces}
+        decks={studioDecks}
+        pieces={studioPieces}
         onSubmit={submit}
       />
       </box>

@@ -10,6 +10,7 @@ describe("lineText covers every RenderLine variant", () => {
     [{ role: "say", text: "hello say" }, "hello say"],
     [{ role: "tool", text: "read foo.ts" }, "read foo.ts"],
     [{ role: "error", text: "it broke" }, "it broke"],
+    [{ role: "watch", text: "Basil changed" }, "Basil changed"],
     [{ role: "thought", text: "hmm", seconds: 3, open: false }, "hmm"],
     [{ role: "backstage", moves: ["read a", "list b"], seconds: 2, open: false }, "read a list b"],
     [{

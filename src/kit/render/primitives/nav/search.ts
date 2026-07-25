@@ -31,6 +31,7 @@ export function lineText(line: RenderLine): string {
     case "say":
     case "tool":
     case "error":
+    case "watch":
     case "thought":
       return line.text;
     case "backstage":
