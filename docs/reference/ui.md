@@ -19,7 +19,10 @@ that partial reply visible before showing the stop or error. The input and conne
 fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
 thin seam joins the quieter provider, model, and ready or working register below. Transcript
 scrolling remains available by mouse wheel and navigation keys without painting a second,
-application-owned scrollbar beside the terminal's own window chrome.
+application-owned scrollbar beside the terminal's own window chrome. Home and End jump to the oldest
+or newest transcript content, and Page Up/Page Down move by a viewport. When new rows arrive while
+the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
+pressing End returns to the latest row and clears the count.
 
 Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
 live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove

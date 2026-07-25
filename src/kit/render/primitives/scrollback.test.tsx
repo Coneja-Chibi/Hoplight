@@ -28,3 +28,21 @@ test("hides the painted scrollbar while retaining scroll movement", async () => 
     await rendered.renderer.destroy();
   }
 });
+
+test("forwards the scrollbox ref to the shared navigation seam", async () => {
+  let captured: ScrollBoxRenderable | null = null;
+  const rendered = await testRender(
+    <Scrollback scrollRef={(value) => {
+      captured = value;
+    }}>
+      <text>one line</text>
+    </Scrollback>,
+    { width: 40, height: 8 },
+  );
+  try {
+    await rendered.renderOnce();
+    expect((captured as ScrollBoxRenderable | null)?.id).toBe("kit-scrollback");
+  } finally {
+    await rendered.renderer.destroy();
+  }
+});

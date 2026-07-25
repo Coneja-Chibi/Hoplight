@@ -10,12 +10,20 @@
  * disjointed blocks (Chi, 2026-07-24). The shell instead groups a turn tightly and drops one spacer
  * before each new your-line, so the breathing room lands BETWEEN turns, not inside one.
  */
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
+import type { ScrollBoxRenderable } from "@opentui/core";
 
-export function Scrollback({ children }: { children: ReactNode }): ReactNode {
+export function Scrollback({
+  children,
+  scrollRef,
+}: {
+  children: ReactNode;
+  scrollRef?: Ref<ScrollBoxRenderable>;
+}): ReactNode {
   return (
     <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0}>
       <scrollbox
+        ref={scrollRef}
         id="kit-scrollback"
         height="100%"
         scrollY

@@ -30,6 +30,9 @@ import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageBox } from "./primitives/backstage-box";
 import { BackstageRow } from "./primitives/backstage-row";
 import { SearchCard } from "./primitives/nav/search-card";
+import { SnapPill } from "./primitives/nav/snap-pill";
+import { useScrollSeam } from "./primitives/nav/use-scroll-seam";
+import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
 import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
@@ -119,6 +122,20 @@ export function App({
   );
   const [searching, setSearching] = useState(false);
   const [rewinding, setRewinding] = useState(false);
+  const scroll = useScrollSeam(view === "session" && !searching && !rewinding);
+  const visibleLineCount =
+    turn.lines.length
+    + (turn.tools ? 1 : 0)
+    + (turn.live.phase === "idle" ? 0 : 1);
+  const [newBelow, setNewBelow] = useState(() => initNewBelow(visibleLineCount));
+  useEffect(() => {
+    setNewBelow((previous) =>
+      trackNewBelow(previous, {
+        atBottom: scroll.metrics.atBottom,
+        lineCount: visibleLineCount,
+      }),
+    );
+  }, [scroll.metrics.atBottom, visibleLineCount]);
   const history = useRef<ModelMessage[]>([]);
   const activeTurn = useRef<{ controller: AbortController } | null>(null);
   const store = useRef<SessionStore | null>(null);
@@ -317,6 +334,20 @@ export function App({
     if (event.ctrl && event.name === "f") {
       event.preventDefault();
       setSearching(true);
+      return;
+    }
+    if (event.name === "end") {
+      event.preventDefault();
+      scroll.snapToBottom();
+    } else if (event.name === "home") {
+      event.preventDefault();
+      scroll.snapToTop();
+    } else if (event.name === "pageup") {
+      event.preventDefault();
+      scroll.pageBy(-1);
+    } else if (event.name === "pagedown") {
+      event.preventDefault();
+      scroll.pageBy(1);
     }
   });
 
@@ -370,7 +401,7 @@ export function App({
         height={searching ? 0 : undefined}
         minHeight={0}
       >
-      <Scrollback>
+      <Scrollback scrollRef={scroll.ref}>
         <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
         {turn.lines.map((line, index) =>
           line.role === "you" ? (
@@ -422,6 +453,11 @@ export function App({
           <StatusRow startedAt={startedAt} />
         ) : null}
       </Scrollback>
+      <SnapPill
+        show={newBelow.show}
+        unseen={newBelow.unseen}
+        onSnap={scroll.snapToBottom}
+      />
       <StatusToast text={copyNotice} />
       <Composer
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
