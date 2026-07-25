@@ -1,3 +1,4 @@
+/** Transcript search tests for render-line text projection and match ranges. */
 import { describe, expect, test } from "bun:test";
 import type { RenderLine } from "../../turn-events";
 import { lineText, matchesByLine, searchLines } from "./search";

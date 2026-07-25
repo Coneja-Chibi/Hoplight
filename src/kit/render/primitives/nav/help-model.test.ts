@@ -1,3 +1,4 @@
+/** Help navigation model tests for grouping, filtering, and keyboard reduction. */
 import { describe, expect, test } from "bun:test";
 import { buildHelp, initHelp, reduce, type HelpCommand } from "./help-model";
 import type { Keybinding } from "./keymap";

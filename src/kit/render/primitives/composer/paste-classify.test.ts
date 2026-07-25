@@ -1,3 +1,4 @@
+/** Composer paste tests for inline text, attachments, and submission assembly. */
 import { describe, expect, test } from "bun:test";
 import { buildSubmission, classifyPaste, type PasteCard } from "./paste-classify";
 

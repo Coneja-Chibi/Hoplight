@@ -11,7 +11,7 @@ const command: KitCommand = {
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((c) => {
         const also = c.aliases && c.aliases.length > 0 ? ` (${c.aliases.join(", ")})` : "";
-        return `- \`${c.name}${also}\` — ${c.summary}`;
+  return `- \`${c.name}${also}\` - ${c.summary}`;
       });
     ctx.say(["**Commands**", ...rows].join("\n"));
   },

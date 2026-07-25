@@ -1,3 +1,4 @@
+/** Scroll-seam tests for bottom detection and unseen-line tracking. */
 import { describe, expect, test } from "bun:test";
 import { initNewBelow, newBelowLabel, readScroll, trackNewBelow } from "./scroll-seam";
 

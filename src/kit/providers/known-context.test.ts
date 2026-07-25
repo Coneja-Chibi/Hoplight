@@ -1,3 +1,4 @@
+/** Known model-context tests for exact ids, provider prefixes, and fallback behavior. */
 import { describe, expect, test } from "bun:test";
 import { knownContext } from "./known-context";
 

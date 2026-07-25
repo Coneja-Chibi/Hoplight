@@ -1,3 +1,4 @@
+/** Permission-mode tests for guarded defaults and explicit user choices. */
 import { describe, expect, test } from "bun:test";
 import { applyGateChoice, initGate, type GateChoice } from "./permission-mode";
 

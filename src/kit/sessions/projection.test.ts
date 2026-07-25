@@ -1,3 +1,4 @@
+/** Session projection tests for turn bounds, model history, and summaries. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import { appendTurn, buildTurn, emptySession, forkFrom, renameSession, type Session } from "./session-model";

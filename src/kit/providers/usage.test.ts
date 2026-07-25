@@ -1,3 +1,4 @@
+/** Provider token-usage tests for parsing, defaults, and cumulative accounting. */
 import { describe, expect, test } from "bun:test";
 import { addUsage, EMPTY_USAGE, readUsage, type TokenUsage } from "./usage";
 

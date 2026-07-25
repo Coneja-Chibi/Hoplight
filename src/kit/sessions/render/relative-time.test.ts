@@ -1,3 +1,4 @@
+/** Relative-time rendering tests across recent, daily, and older timestamps. */
 import { describe, expect, test } from "bun:test";
 import { relativeTime } from "./relative-time";
 

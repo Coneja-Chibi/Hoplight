@@ -1,3 +1,4 @@
+/** Risk-stripe presentation tests for safe, guarded, and dangerous actions. */
 import { describe, expect, test } from "bun:test";
 import { stripeFor } from "./stripe-core";
 import type { RiskLevel } from "./risk";

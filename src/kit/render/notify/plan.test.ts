@@ -1,3 +1,4 @@
+/** Notification planning tests for focus gating and settled-turn events. */
 import { describe, expect, test } from "bun:test";
 import { planNotifications, type NotifySettings, type SettleEvent } from "./plan";
 

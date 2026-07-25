@@ -1,3 +1,4 @@
+/** Session replay tests that project stored model messages into render lines. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../../providers/provider";
 import { messagesToLines } from "./replay";

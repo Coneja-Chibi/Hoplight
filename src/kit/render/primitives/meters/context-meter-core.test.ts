@@ -1,3 +1,4 @@
+/** Context-meter tests for known limits, warning thresholds, and unknown models. */
 import { describe, expect, test } from "bun:test";
 import { contextMeter, CRIT_AT, WARN_AT } from "./context-meter-core";
 

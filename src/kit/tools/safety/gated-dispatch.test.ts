@@ -1,3 +1,4 @@
+/** Gated-dispatch tests for approval seams, denial, and tool execution. */
 import { describe, expect, test } from "bun:test";
 import { makeGatedDispatch, type GateSeam } from "./gated-dispatch";
 import { initGate } from "./permission-mode";

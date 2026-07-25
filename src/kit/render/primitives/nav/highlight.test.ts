@@ -1,3 +1,4 @@
+/** Search-highlight tests for plain, matched, and active terminal segments. */
 import { describe, expect, test } from "bun:test";
 import { segments } from "./highlight";
 

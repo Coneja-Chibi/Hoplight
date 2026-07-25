@@ -1,3 +1,4 @@
+/** Transcript export tests for stable filenames and readable session text. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import { appendTurn, buildTurn, emptySession, renameSession, type Session } from "./session-model";

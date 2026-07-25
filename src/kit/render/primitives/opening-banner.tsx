@@ -123,17 +123,17 @@ export function OpeningBanner({
       ))}
 
       <box height={1} />
-      <Row fg={theme.bright}>👋  Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
+      <Row fg={theme.bright}>Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
       <Row fg={theme.soft}>    This is Kit: your whole {studioName}, living right here in the terminal.</Row>
 
       <box height={1} />
       <Row fg={theme.text}>
-        🎭  Everything you&apos;ve made lives here, all {String(totalPieces)} pieces. No menus, no forms to fill.
+        Everything you&apos;ve made lives here, all {String(totalPieces)} pieces. No menus, no forms to fill.
       </Row>
       <Row fg={theme.text}>    You just talk to it, like a friend who already knows where all of it is.</Row>
 
       <box height={1} />
-      <Row fg={theme.bright}>✨  Try saying:</Row>
+      <Row fg={theme.bright}>Try saying:</Row>
       <Row fg={theme.teal}>      &quot;make me a grumpy tavern keeper who hates adventurers&quot;</Row>
       <Row fg={theme.teal}>      &quot;add a hidden secret to Mira&apos;s lorebook&quot;</Row>
       <Row fg={theme.teal}>      &quot;bring in this character card from another app&quot;</Row>
@@ -141,7 +141,7 @@ export function OpeningBanner({
       <box height={1} />
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          🔒  Two promises: nothing <span fg={theme.text}>leaves your machine</span> until you send it, and the
+          Two promises: nothing <span fg={theme.text}>leaves your machine</span> until you send it, and the
         </text>
       </box>
       <box flexDirection="row" height={1}>
@@ -153,7 +153,7 @@ export function OpeningBanner({
       <box height={1} />
       <box flexDirection="row" height={1}>
         <text fg={theme.soft}>
-          🐇  Ready? <span fg={theme.text}>/model</span> connects a provider,{" "}
+          Ready? <span fg={theme.text}>/model</span> connects a provider,{" "}
           <span fg={theme.text}>/test</span> checks it&apos;s awake, then just talk.
         </text>
       </box>

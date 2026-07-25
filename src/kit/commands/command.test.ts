@@ -1,3 +1,4 @@
+/** Command matching tests for primary names, aliases, and unknown input. */
 import { describe, expect, test } from "bun:test";
 import { matchCommand, type KitCommand } from "./command";
 

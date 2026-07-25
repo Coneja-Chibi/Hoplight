@@ -1,3 +1,4 @@
+/** Permission-gate decision tests across modes, risks, and temporary grants. */
 import { describe, expect, test } from "bun:test";
 import { decideGate, isFloor, type GateState } from "./gate-core";
 import type { RiskLevel, RiskVerdict, ToolAccess } from "./risk";

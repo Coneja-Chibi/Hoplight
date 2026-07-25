@@ -1,3 +1,4 @@
+/** Tool-access resolution tests for known operations and fail-closed defaults. */
 import { describe, expect, test } from "bun:test";
 import { resolveAccess } from "./access";
 

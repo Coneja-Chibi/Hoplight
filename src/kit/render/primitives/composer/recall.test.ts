@@ -1,3 +1,4 @@
+/** Composer history-recall tests for navigation, drafts, and committed entries. */
 import { describe, expect, test } from "bun:test";
 import { commit, initRecall, recallNext, recallPrev } from "./recall";
 

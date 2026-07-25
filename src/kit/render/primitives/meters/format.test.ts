@@ -1,3 +1,4 @@
+/** Compact token-count formatting tests across whole and abbreviated ranges. */
 import { describe, expect, test } from "bun:test";
 import { compactTokens } from "./format";
 

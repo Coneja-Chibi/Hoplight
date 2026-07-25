@@ -1,3 +1,4 @@
+/** Tool-risk classification tests for access levels and dangerous arguments. */
 import { describe, expect, test } from "bun:test";
 import { classifyRisk, type ToolAccess } from "./risk";
 

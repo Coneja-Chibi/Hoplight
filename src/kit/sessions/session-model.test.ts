@@ -1,3 +1,4 @@
+/** Session-model tests for titles, turns, forks, renames, and immutable updates. */
 import { describe, expect, test } from "bun:test";
 import type { ModelMessage } from "../providers/provider";
 import {

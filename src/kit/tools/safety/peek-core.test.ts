@@ -1,3 +1,4 @@
+/** Tool-peek summary tests for human-readable targets and risk details. */
 import { describe, expect, test } from "bun:test";
 import { summarizePeek } from "./peek-core";
 import type { RiskVerdict } from "./risk";
