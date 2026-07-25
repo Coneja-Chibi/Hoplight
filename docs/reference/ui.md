@@ -21,8 +21,10 @@ lists keep the selected row inside a terminal-height-based visible window.
 `/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
 previous model result before another lookup. Lookup and save failures remain visible and can be
 retried; activating or removing a provider refreshes the shell's provider, model, and context-meter
-state. Small terminals use compact opening, playbill, and status layouts so the composer and
-connection commands remain reachable.
+state. `/decks` (also `/inventory`) prints the current canonical deck counts on demand. Wide terminals
+show the animated NOW PLAYING theatre marquee with provider, context, and token status beneath it;
+small terminals use compact opening, playbill, and status layouts so the composer and connection
+commands remain reachable.
 
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`

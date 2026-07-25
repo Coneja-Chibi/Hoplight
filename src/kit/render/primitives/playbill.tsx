@@ -1,23 +1,50 @@
 /** @jsxImportSource @opentui/react */
 /**
- * Playbill: the persistent header (locked look, DECISIONS #23 refined with Chi 2026-07-24). A compact
- * masthead, "Kit." in the display weight with a rose period, and the studio, piece count, and active
- * provider on the right, over a rose-deep rule and a deck strip carrying each deck's live count and the
- * egress promise. No marquee lamps: the header carries who/what quietly; the status bar down low carries
- * live state, so neither repeats the other.
+ * Playbill: the persistent theatre marquee. Twinkling gold lamp rows frame NOW PLAYING, the studio,
+ * piece count, and local-first promise. Live provider/context/token status sits beneath the bill without
+ * replacing its personality. Small panes fall back to one compact line so chrome never eats the stage.
  */
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useTerminalDimensions } from "@opentui/react";
-import type { DeckCount } from "../../bridge";
 import type { TokenUsage } from "../../providers/usage";
 import { theme } from "../theme";
 import { ContextMeter } from "./meters/context-meter";
 import { TokenTally } from "./meters/token-tally";
+import { compactPlaybill, lampPattern } from "./playbill-core";
+
+const TWINKLE_MS = 260;
+
+const Centered = ({ children }: { children: ReactNode }): ReactNode => (
+  <box flexDirection="row" height={1} justifyContent="center">
+    {children}
+  </box>
+);
+
+function Lamps({
+  width,
+  tick,
+  phase,
+}: {
+  width: number;
+  tick: number;
+  phase: number;
+}): ReactNode {
+  return (
+    <box flexDirection="row" height={1}>
+      <text>
+        {lampPattern(width, tick, phase).flatMap((lit, index) => [
+          <span key={`lamp-${index}`} fg={lit ? theme.gold : theme.goldDim}>·</span>,
+          <span key={`space-${index}`}> </span>,
+        ])}
+      </text>
+    </box>
+  );
+}
 
 export function Playbill({
   studioName,
   totalPieces,
-  decks,
   provider,
   turnUsage,
   sessionUsage,
@@ -25,63 +52,64 @@ export function Playbill({
 }: {
   studioName: string;
   totalPieces: number;
-  decks: DeckCount[];
   provider: { name: string; model: string } | null;
   turnUsage: TokenUsage;
   sessionUsage: TokenUsage;
   contextMax: number | undefined;
 }): ReactNode {
-  const { width } = useTerminalDimensions();
-  const compact = width < 60;
+  const { width, height } = useTerminalDimensions();
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (compactPlaybill(width, height)) return;
+    const id = setInterval(() => setTick((value) => value + 1), TWINKLE_MS);
+    return () => clearInterval(id);
+  }, [width, height]);
+
+  const compact = compactPlaybill(width, height);
   return (
     <box flexDirection="column">
-      <box flexDirection="row" backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
-        <text>
-          <b fg={theme.text}>Kit</b>
-          <span fg={theme.rose}>.</span>
-        </text>
-        <box flexGrow={1} />
-        <text fg={theme.soft}>
-          {compact ? (
+      {compact ? (
+        <box flexDirection="row" backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
+          <text>
+            <b fg={theme.text}>Kit</b>
+            <span fg={theme.rose}>.</span>
+          </text>
+          <box flexGrow={1} />
+          <text fg={theme.soft}>
             <span fg={theme.text}>{String(totalPieces)} pieces</span>
-          ) : (
-            <span>
-              studio <span fg={theme.text}>{studioName}</span> ·{" "}
-              <span fg={theme.text}>{String(totalPieces)}</span> pieces
-            </span>
-          )}
-          {provider && !compact ? (
-            <span>
-              {" · "}
-              <span fg={theme.text}>{provider.name}</span>
-            </span>
-          ) : null}
-        </text>
-      </box>
-      <box height={1} backgroundColor={theme.roseDeep} />
-      <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
-        {!compact ? (
-          <>
-            <text fg={theme.soft}>
-              <span fg={theme.text}>decks </span>
-              {decks.flatMap((deck, i) => [
-                i > 0 ? <span key={`sep${i}`} fg={theme.quiet}>{" · "}</span> : null,
-                <span key={`lbl${i}`}>{deck.label} </span>,
-                <span key={`cnt${i}`} fg={theme.text}>{String(deck.count)}</span>,
-              ])}
+          </text>
+        </box>
+      ) : (
+        <box flexDirection="column" backgroundColor={theme.panel}>
+          <Lamps width={width} tick={tick} phase={0} />
+          <Centered>
+            <text fg={theme.rose}>N O W　 P L A Y I N G</text>
+          </Centered>
+          <Centered>
+            <text fg={theme.text}>
+              <span fg={theme.rose}>V</span> {studioName}
             </text>
-            <box flexGrow={1} />
-          </>
-        ) : null}
-        <text fg={theme.soft}>
-          <span fg={theme.text}>egress </span>only when you send
-        </text>
-      </box>
+          </Centered>
+          <Centered>
+            <text fg={theme.soft}>
+              {String(totalPieces)} pieces in the wings · nothing leaves until you send
+            </text>
+          </Centered>
+          <Lamps width={width} tick={tick} phase={6} />
+        </box>
+      )}
       {provider ? (
-        <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1} border={["top"]} borderColor={theme.seam}>
+        <box
+          flexDirection="row"
+          backgroundColor={theme.floor}
+          paddingLeft={1}
+          paddingRight={1}
+          border={["top"]}
+          borderColor={theme.seam}
+        >
           <ContextMeter consumed={turnUsage.input} max={contextMax} />
           <box flexGrow={1} />
-          <TokenTally turn={turnUsage} session={sessionUsage} />
+          {!compact ? <TokenTally turn={turnUsage} session={sessionUsage} /> : null}
         </box>
       ) : null}
     </box>

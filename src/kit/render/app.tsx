@@ -231,6 +231,7 @@ export function App({
       const ctx: SessionCommandContext = {
         arg: matched.arg,
         commands,
+        decks,
         openSettings: () => setView("settings"),
         quit: onQuit,
         probe: () => startTurn((signal, onEvent) => session.probe(onEvent, signal)),
@@ -325,7 +326,6 @@ export function App({
       <Playbill
         studioName={studioName}
         totalPieces={totalPieces}
-        decks={decks}
         provider={provider}
         turnUsage={turn.usage ?? EMPTY_USAGE}
         sessionUsage={sessionUsage}

@@ -12,6 +12,8 @@ export interface CommandContext {
   readonly arg: string;
   /** Every registered command, so a command like /help can enumerate the others. */
   readonly commands: readonly KitCommand[];
+  /** Current canonical deck counts, exposed on demand by /decks rather than persistent chrome. */
+  readonly decks: readonly { label: string; count: number }[];
   /** Open the provider setup screen (/model, /providers). */
   openSettings: () => void;
   /** Leave Kit (/quit, /q). */

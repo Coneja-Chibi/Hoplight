@@ -15,6 +15,7 @@ const capture = (commands: KitCommand[]): string => {
   const ctx: CommandContext = {
     arg: "",
     commands,
+    decks: [],
     openSettings: () => {},
     quit: () => {},
     probe: async () => {},
