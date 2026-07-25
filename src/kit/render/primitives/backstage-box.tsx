@@ -11,6 +11,8 @@ import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { theme, colorForVerb } from "../theme";
 import type { ToolMove } from "../turn-events";
+import type { LoopPhase } from "../../loop/state";
+import { lifecycleLabel } from "./lifecycle-label";
 
 const DOTS = [" ·  ", " ·· ", " ···"];
 
@@ -29,7 +31,7 @@ function MoveRow({ raw, running, dots }: { raw: string; running: boolean; dots: 
   );
 }
 
-export function BackstageBox({ moves }: { moves: ToolMove[] }): ReactNode {
+export function BackstageBox({ moves, phase }: { moves: ToolMove[]; phase?: LoopPhase }): ReactNode {
   const [tick, setTick] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => setTick((prev) => prev + 1), 220);
@@ -40,6 +42,7 @@ export function BackstageBox({ moves }: { moves: ToolMove[] }): ReactNode {
     <box flexDirection="column" border borderColor={theme.line} backgroundColor={theme.floor}>
       <box flexDirection="row" backgroundColor={theme.lift} paddingLeft={1} paddingRight={1}>
         <text fg={theme.soft}>BACKSTAGE</text>
+        {phase ? <text fg={theme.teal}> · {lifecycleLabel(phase)}</text> : null}
         <box flexGrow={1} />
         <text fg={theme.quiet}>
           {String(moves.length)} move{moves.length === 1 ? "" : "s"}

@@ -8,6 +8,7 @@ import { tmpdir } from "node:os";
 import { CANONICAL_SCHEMA_VERSION } from "../core/canonical";
 import { StudioValidationError } from "./errors";
 import { StudioStore } from "./store";
+import { entityRevision } from "../kit/changes/revision";
 
 const ent = (id: string, kind = "character") => ({
   schemaVersion: CANONICAL_SCHEMA_VERSION,
@@ -126,5 +127,53 @@ describe("StudioStore containment", () => {
     const disk = await store.read("character", "keep");
     const um = disk?.original?.["vaud-studio"]?.unmapped;
     expect(um?.["importedAt"]).toBe(first);
+  });
+
+  test("compareAndSave writes once for the expected revision and rejects a stale retry", async () => {
+    await store.save(ent("revision"));
+    const baseline = (await store.read("character", "revision"))!;
+    const expectedRevision = entityRevision(baseline);
+    const baselineBody = baseline.body as ReturnType<typeof ent>["body"];
+    const changed = {
+      ...baseline,
+      body: {
+        ...baselineBody,
+        identity: { ...baselineBody.identity, name: "new" },
+      },
+    };
+
+    const saved = await store.compareAndSave(changed, expectedRevision);
+    expect(saved.status).toBe("saved");
+    expect(((await store.read("character", "revision"))!.body as { identity: { name: string } })
+      .identity.name).toBe("new");
+
+    const stale = await store.compareAndSave({
+      ...changed,
+      body: {
+        ...changed.body,
+        identity: { ...(changed.body as { identity: object }).identity, name: "stale overwrite" },
+      },
+    }, expectedRevision);
+    expect(stale.status).toBe("stale");
+    expect(((await store.read("character", "revision"))!.body as { identity: { name: string } })
+      .identity.name).toBe("new");
+  });
+
+  test("two concurrent compareAndSave calls from one revision have exactly one winner", async () => {
+    await store.save(ent("race"));
+    const baseline = (await store.read("character", "race"))!;
+    const expectedRevision = entityRevision(baseline);
+    const body = baseline.body as ReturnType<typeof ent>["body"];
+    const result = await Promise.all([
+      store.compareAndSave({
+        ...baseline,
+        body: { ...body, identity: { ...body.identity, name: "first" } },
+      }, expectedRevision),
+      store.compareAndSave({
+        ...baseline,
+        body: { ...body, identity: { ...body.identity, name: "second" } },
+      }, expectedRevision),
+    ]);
+    expect(result.map((item) => item.status).sort()).toEqual(["saved", "stale"]);
   });
 });

@@ -6,13 +6,13 @@
  */
 import type { ChatDelta, ChatFn, ModelMessage, ModelToolCall, ToolSpec } from "../providers/provider";
 import type { TokenUsage } from "../providers/usage";
-import { callKey, stopReason } from "./stop-core";
+import type { ToolActivity, ToolEffect, ToolResult } from "../tools/tool";
+import { scheduleToolCalls } from "./scheduler";
+import { initialLoopState, transitionLoop, type LoopPhase } from "./state";
+import { observationKey, stopReason } from "./stop-core";
 
 /** The outcome of running one tool call: a one-line row for the terminal, plus the model's observation. */
-export interface DispatchResult {
-  summary: string;
-  output: string;
-}
+export interface DispatchResult extends ToolResult {}
 
 /** Parse-and-run one tool call. Impure (touches the studio); injected so the core stays pure. */
 export type DispatchFn = (call: ModelToolCall) => Promise<DispatchResult>;
@@ -24,13 +24,29 @@ export type LoopEvent =
   | { type: "tool-start"; name: string }
   | { type: "tool"; name: string; summary: string }
   | { type: "usage"; usage: TokenUsage }
-  | { type: "stopped"; reason: string };
+  | { type: "state"; phase: LoopPhase }
+  | {
+    type: "stopped";
+    reason: string;
+    budget?: "model-rounds" | "tool-calls" | "elapsed" | "no-progress" | "cancelled";
+    observed?: number;
+    limit?: number;
+    recovery?: string;
+  };
 
 export interface LoopDeps {
   chat: ChatFn;
   dispatch: DispatchFn;
-  tools: ToolSpec[];
+  /** Resolve immediately before each model call so discovery can change the visible tool belt. */
+  toolSnapshot(): ToolSpec[];
   maxSteps: number;
+  /** Explicit metadata lookup. An absent name fails toward mutation serialization. */
+  effectFor?: (call: ModelToolCall) => ToolEffect | undefined;
+  activityFor?: (call: ModelToolCall) => ToolActivity | undefined;
+  maxToolCalls?: number;
+  maxElapsedMs?: number;
+  signal?: AbortSignal;
+  now?: () => number;
   /** Live typing/thinking fragments, forwarded straight to the render layer. */
   onDelta?: (delta: ChatDelta) => void;
 }
@@ -42,16 +58,63 @@ export async function* runTurn(
   deps: LoopDeps,
 ): AsyncGenerator<LoopEvent, ModelMessage[]> {
   const messages: ModelMessage[] = [...history, { role: "user", content: input }];
-  const recentCallKeys: string[] = [];
+  const recentObservationKeys: string[] = [];
+  const now = deps.now ?? Date.now;
+  const startedAt = now();
+  const maxToolCalls = deps.maxToolCalls ?? 48;
+  const maxElapsedMs = deps.maxElapsedMs ?? 120_000;
+  let toolCalls = 0;
+  let lifecycle = initialLoopState();
 
   for (let step = 0; ; step += 1) {
-    const reason = stopReason({ step, maxSteps: deps.maxSteps, recentCallKeys });
+    if (deps.signal?.aborted) {
+      lifecycle = transitionLoop(lifecycle, { type: "cancelled" });
+      yield { type: "state", phase: lifecycle.phase };
+      yield {
+        type: "stopped",
+        reason: "Turn cancelled before more work was started.",
+        budget: "cancelled",
+        recovery: "Send again when you are ready.",
+      };
+      return messages;
+    }
+    const elapsed = now() - startedAt;
+    if (elapsed >= maxElapsedMs) {
+      lifecycle = transitionLoop(lifecycle, { type: "stopped" });
+      yield { type: "state", phase: lifecycle.phase };
+      yield {
+        type: "stopped",
+        reason: `elapsed-time budget reached (${elapsed}ms of ${maxElapsedMs}ms)`,
+        budget: "elapsed",
+        observed: elapsed,
+        limit: maxElapsedMs,
+        recovery: "Narrow the request or continue in a new turn.",
+      };
+      return messages;
+    }
+    const reason = stopReason({
+      step,
+      maxSteps: deps.maxSteps,
+      recentObservationKeys,
+    });
     if (reason) {
-      yield { type: "stopped", reason };
+      const noProgress = reason.includes("same tool");
+      lifecycle = transitionLoop(lifecycle, { type: "stopped" });
+      yield { type: "state", phase: lifecycle.phase };
+      yield {
+        type: "stopped",
+        reason,
+        budget: noProgress ? "no-progress" : "model-rounds",
+        observed: noProgress ? 3 : step,
+        limit: noProgress ? 3 : deps.maxSteps,
+        recovery: noProgress
+          ? "Change the approach or inspect the target directly."
+          : "Continue the remaining work in a new turn.",
+      };
       return messages;
     }
 
-    const reply = await deps.chat(messages, deps.tools, deps.onDelta);
+    const reply = await deps.chat(messages, deps.toolSnapshot(), deps.onDelta);
     // Surface this call's token usage the instant it lands, so the meter/tally update per API call
     // (a tool loop makes several). The guard keeps replies without usage from yielding a noise event.
     if (reply.usage) yield { type: "usage", usage: reply.usage };
@@ -67,17 +130,92 @@ export async function* runTurn(
     messages.push({ role: "assistant", content: reply.text, toolCalls: reply.calls });
     if (reply.text) yield { type: "say", text: reply.text };
 
-    for (const call of reply.calls) {
-      yield { type: "tool-start", name: call.name };
-      const result = await deps.dispatch(call);
+    if (toolCalls + reply.calls.length > maxToolCalls) {
+      lifecycle = transitionLoop(lifecycle, { type: "stopped" });
+      yield { type: "state", phase: lifecycle.phase };
+      yield {
+        type: "stopped",
+        reason: `tool-call budget reached (${toolCalls + reply.calls.length} requested, ${maxToolCalls} allowed)`,
+        budget: "tool-calls",
+        observed: toolCalls + reply.calls.length,
+        limit: maxToolCalls,
+        recovery: "Narrow the operation or continue with a fresh turn.",
+      };
+      return messages;
+    }
+
+    const effectFor = (call: ModelToolCall): ToolEffect =>
+      deps.effectFor?.(call) ?? "apply";
+    const allReads = reply.calls.every((call) => effectFor(call) === "read");
+    const settled: Awaited<ReturnType<typeof scheduleToolCalls>> = [];
+
+    if (allReads) {
+      for (const call of reply.calls) {
+        yield { type: "tool-start", name: call.name };
+        const next = deps.activityFor?.(call) === "discovering"
+          ? transitionLoop(lifecycle, { type: "discovering" })
+          : transitionLoop(lifecycle, { type: "tool-start", effect: "read" });
+        if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
+        lifecycle = next;
+      }
+      settled.push(...await scheduleToolCalls(reply.calls, {
+        dispatch: deps.dispatch,
+        effectFor,
+      }));
+    } else {
+      for (const call of reply.calls) {
+        if (deps.signal?.aborted) break;
+        yield { type: "tool-start", name: call.name };
+        const effect = effectFor(call);
+        const next = deps.activityFor?.(call) === "discovering"
+          ? transitionLoop(lifecycle, { type: "discovering" })
+          : transitionLoop(lifecycle, { type: "tool-start", effect });
+        if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
+        lifecycle = next;
+        settled.push(...await scheduleToolCalls([call], {
+          dispatch: deps.dispatch,
+          effectFor,
+        }));
+      }
+    }
+
+    toolCalls += settled.length;
+    for (const { call, result } of settled) {
       messages.push({
         role: "tool",
         content: result.output,
         toolCallId: call.id,
         toolName: call.name,
       });
-      recentCallKeys.push(callKey(call.name, call.args));
+      recentObservationKeys.push(observationKey(call.name, call.args, result.output));
       yield { type: "tool", name: call.name, summary: result.summary };
+      if (result.outcome === "draft") {
+        const next = transitionLoop(lifecycle, { type: "preview-ready" });
+        if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
+        lifecycle = next;
+      }
+      if (result.outcome === "discarded") {
+        const next = transitionLoop(lifecycle, { type: "discarded" });
+        if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
+        lifecycle = next;
+      }
+      if (effectFor(call) === "apply" && result.outcome) {
+        const verifying = transitionLoop(lifecycle, { type: "verifying" });
+        if (verifying.phase !== lifecycle.phase) {
+          yield { type: "state", phase: verifying.phase };
+        }
+        lifecycle = verifying;
+        const terminal = result.outcome === "applied"
+          ? "completed"
+          : result.outcome === "stale"
+            ? "stale"
+            : result.outcome === "discarded"
+              ? "discarded"
+              : "failed";
+        const next = transitionLoop(lifecycle, { type: terminal });
+        if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
+        lifecycle = next;
+      }
     }
   }
 }

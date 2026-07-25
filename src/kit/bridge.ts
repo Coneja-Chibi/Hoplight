@@ -5,7 +5,11 @@
  * so the surface stays small and the trust boundary stays in one place.
  */
 import { homedir } from "node:os";
-import { StudioStore, type EntitySummary } from "../studio/store";
+import {
+  StudioStore,
+  type CompareSaveResult,
+  type EntitySummary,
+} from "../studio/store";
 import { resolveDefaultStudioDir } from "../studio/resolve-dir";
 import { STUDIO_ENTITY_KINDS, type StudioEntityKind } from "../studio/path-policy";
 import type { ParsedCanonicalEntity } from "../entities/runtime-schema";
@@ -34,6 +38,8 @@ export interface KitBridge {
    * write failure throws (the dispatch turns it into a readable tool result). Every write reaches the
    * studio only after the safety gate has allowed it, upstream in gated-dispatch. */
   save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary>;
+  /** Overwrite only when the stored entity still has the expected complete canonical revision. */
+  compareAndSave?(raw: unknown, expectedRevision: string): Promise<CompareSaveResult>;
   /** Delete one entity; true when a file was actually removed. Tolerant: a bad kind/id resolves false. */
   delete(kind: string, id: string): Promise<boolean>;
 }
@@ -81,6 +87,9 @@ export function createBridge(
     },
     async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
       return store.save(raw, opts);
+    },
+    async compareAndSave(raw: unknown, expectedRevision: string): Promise<CompareSaveResult> {
+      return store.compareAndSave(raw, expectedRevision);
     },
     async delete(kind: string, id: string): Promise<boolean> {
       try {

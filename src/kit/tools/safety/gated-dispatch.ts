@@ -8,7 +8,7 @@
  */
 import type { DispatchFn, DispatchResult } from "../../loop/loop-core";
 import type { ModelToolCall } from "../../providers/provider";
-import { resolveAccess } from "./access";
+import { resolveAccess, type AccessResolver } from "./access";
 import { classifyRisk, type RiskVerdict } from "./risk";
 import { decideGate, type GateDecision, type GateState } from "./gate-core";
 import { applyGateChoice, type GateChoice } from "./permission-mode";
@@ -46,12 +46,16 @@ const validState = (s: unknown): s is GateState =>
   && typeof (s as { grants?: { has?: unknown } }).grants?.has === "function";
 
 /** Wrap a DispatchFn in the gate. Returns a DispatchFn with the same shape the loop already expects. */
-export function makeGatedDispatch(inner: DispatchFn, seam: GateSeam): DispatchFn {
+export function makeGatedDispatch(
+  inner: DispatchFn,
+  seam: GateSeam,
+  accessFor: AccessResolver = resolveAccess,
+): DispatchFn {
   let turnLocked = false; // an abort this turn denies every later risky call without re-asking
 
   return async (call: ModelToolCall): Promise<DispatchResult> => {
     const name = typeof call?.name === "string" ? call.name : "";
-    const access = resolveAccess(name);
+    const access = accessFor(name);
     const verdict = classifyRisk(access, call?.args, name);
 
     const base = validState(seam?.state) ? seam.state : LOCKED_FALLBACK;

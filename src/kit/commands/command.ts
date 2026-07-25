@@ -18,6 +18,8 @@ export interface CommandContext {
   openSettings: () => void;
   /** Open the full-screen command and keyboard reference (/help, /?). */
   openHelp: () => void;
+  /** Open the target-aware semantic capability browser (/tools). */
+  openTools?: () => void;
   /** Leave Kit (/quit, /q). */
   quit: () => void;
   /** Run the active provider's proof-of-life inside a turn (/test). */

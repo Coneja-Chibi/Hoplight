@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-25",
-  "count": 83,
+  "count": 86,
   "docs": [
     {
       "id": "01-VISION",
@@ -518,6 +518,32 @@
         {
           "text": "STOP / honesty",
           "slug": "stop-honesty",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "decisions/ADR-010-content-capabilities",
+      "path": "docs/decisions/ADR-010-content-capabilities.md",
+      "title": "ADR-010: Shared semantic content capabilities",
+      "audience": "dev",
+      "summary": "**Status:** accepted, 2026-07-25",
+      "tags": [],
+      "related": [],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
           "level": 2
         }
       ]
@@ -1744,6 +1770,11 @@
         {
           "text": "Bundles: a card plus its lorebook",
           "slug": "bundles-a-card-plus-its-lorebook",
+          "level": 2
+        },
+        {
+          "text": "Semantic content capabilities",
+          "slug": "semantic-content-capabilities",
           "level": 2
         },
         {
@@ -3626,6 +3657,94 @@
         {
           "text": "Source of truth",
           "slug": "source-of-truth",
+          "level": 2
+        }
+      ]
+    },
+    {
+      "id": "reference/kit",
+      "path": "docs/reference/kit/README.md",
+      "title": "Kit reference",
+      "audience": "dev",
+      "summary": "Kit's conversational runtime, semantic content capabilities, and change-draft lifecycle.",
+      "tags": [
+        "kit",
+        "tools",
+        "capabilities",
+        "agent",
+        "terminal"
+      ],
+      "related": [
+        "reference/kit/tools",
+        "reference/architecture",
+        "reference/ui"
+      ],
+      "anchors": []
+    },
+    {
+      "id": "reference/kit/tools",
+      "path": "docs/reference/kit/tools.md",
+      "title": "Kit content tools",
+      "audience": "dev",
+      "summary": "The shared semantic capability catalog, progressive model tool exposure, draft previews, and Hoplight docs query.",
+      "tags": [
+        "kit",
+        "tools",
+        "capabilities",
+        "character",
+        "lorebook",
+        "drafts",
+        "documentation"
+      ],
+      "related": [
+        "reference/kit",
+        "reference/architecture",
+        "reference/ui"
+      ],
+      "anchors": [
+        {
+          "text": "Built lifecycle",
+          "slug": "built-lifecycle",
+          "level": 2
+        },
+        {
+          "text": "Capability contract",
+          "slug": "capability-contract",
+          "level": 2
+        },
+        {
+          "text": "Apply and authorization",
+          "slug": "apply-and-authorization",
+          "level": 2
+        },
+        {
+          "text": "Progressive exposure",
+          "slug": "progressive-exposure",
+          "level": 2
+        },
+        {
+          "text": "Character slice",
+          "slug": "character-slice",
+          "level": 2
+        },
+        {
+          "text": "Lorebook slice",
+          "slug": "lorebook-slice",
+          "level": 2
+        },
+        {
+          "text": "Other canonical bundles",
+          "slug": "other-canonical-bundles",
+          "level": 2
+        },
+        {
+          "text": "Hoplight documentation query",
+          "slug": "hoplight-documentation-query",
+          "level": 2
+        },
+        {
+          "text": "Verification status",
+          "slug": "verification-status",
           "level": 2
         }
       ]

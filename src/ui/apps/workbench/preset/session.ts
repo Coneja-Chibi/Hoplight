@@ -8,16 +8,25 @@ import { newUiId } from "../../../_shared/new-id";
 import { deepEq } from "../editor-core";
 import { MARKER_LABELS } from "../../../../core/preset";
 import type { PresetBody, PresetPrompt, PresetSamplers } from "../../../../entities/preset";
+import {
+  addPresetBlock,
+  addPresetGroup,
+  movePresetBlock,
+  patchPresetBlock,
+  patchPresetBody,
+  placedPresetMarkerSlots,
+  removePresetBlocks,
+  setPresetBlockGroup,
+  setPresetBlocksEnabled,
+  setPresetSampler,
+} from "../../../../entities/preset/operations";
 
 // deepEq short-circuits on the first differing leaf; the editor calls this every render, and an
 // ST-scale preset (100+ blocks) serialized twice per keystroke was the shard's costliest dirty check.
 export const presetDirty = (body: PresetBody, baseline: PresetBody): boolean =>
   !deepEq(body, baseline);
 
-export const patchBody = (body: PresetBody, patch: Partial<PresetBody>): PresetBody => ({
-  ...body,
-  ...patch,
-});
+export const patchBody = patchPresetBody;
 
 /** A blank authored block (fresh vaud id, relative system placement - the ST default shape). */
 export const newBlock = (over: Partial<PresetPrompt> = {}): PresetPrompt => ({
@@ -35,10 +44,8 @@ export const newBlock = (over: Partial<PresetPrompt> = {}): PresetPrompt => ({
   ...over,
 });
 
-export const addBlock = (body: PresetBody, block: PresetPrompt = newBlock()): PresetBody => ({
-  ...body,
-  prompts: [...body.prompts, block],
-});
+export const addBlock = (body: PresetBody, block: PresetPrompt = newBlock()): PresetBody =>
+  addPresetBlock(body, block);
 
 /* ---------- settings ---------- */
 
@@ -54,15 +61,7 @@ export const setSampler = (
   key: keyof PresetSamplers,
   value: number | string | undefined,
 ): PresetBody => {
-  const samplers: PresetSamplers = { ...(body.samplers ?? {}) };
-  if (value === undefined || value === "") delete samplers[key];
-  else (samplers as Record<string, unknown>)[key] = value;
-
-  if (Object.keys(samplers).length === 0) {
-    const { samplers: _drop, ...rest } = body;
-    return rest;
-  }
-  return { ...body, samplers };
+  return setPresetSampler(body, key, value);
 };
 
 /* ---------- marker slots ---------- */
@@ -91,9 +90,7 @@ export const addMarker = (body: PresetBody, slot: string): PresetBody => {
 
 /** The slots already placed, so the menu can go quiet on them (and addMarker can refuse). */
 export const placedMarkerSlots = (body: PresetBody): ReadonlySet<string> => {
-  const placed = new Set<string>();
-  for (const p of body.prompts) if (p.marker && p.markerSlot) placed.add(p.markerSlot);
-  return placed;
+  return placedPresetMarkerSlots(body);
 };
 
 /** Sentence-cased from core's own MARKER_LABELS ("the chat history" -> "Chat history"), never new copy. */
@@ -114,34 +111,18 @@ export const markerSlotName = (slot: string): string => {
 export const addGroup = (body: PresetBody, name = "New category"): PresetBody => {
   const groups = body.groups ?? [];
   const order = groups.reduce((n, g) => Math.max(n, g.order ?? 0), 0) + 1;
-  return { ...body, groups: [...groups, { id: newUiId("group"), name, order }] };
+  return addPresetGroup(body, { id: newUiId("group"), name, order });
 };
 
 /** Move a block into a category, or out of one when groupId is null. */
-export const setBlockGroup = (body: PresetBody, id: string, groupId: string | null): PresetBody => ({
-  ...body,
-  prompts: body.prompts.map((p) => {
-    if (p.id !== id) return p;
-    if (groupId === null) {
-      const { groupId: _drop, ...rest } = p;
-      return rest;
-    }
-    return { ...p, groupId };
-  }),
-});
+export const setBlockGroup = setPresetBlockGroup;
 
 /* ---------- bulk ops over a checked selection (RC's PromptListV4 bulk actions) ---------- */
 
 /** Enable or disable every selected block in one pass. */
-export const bulkSetEnabled = (body: PresetBody, ids: ReadonlySet<string>, enabled: boolean): PresetBody => ({
-  ...body,
-  prompts: body.prompts.map((p) => (ids.has(p.id) ? { ...p, enabled } : p)),
-});
+export const bulkSetEnabled = setPresetBlocksEnabled;
 
-export const bulkDelete = (body: PresetBody, ids: ReadonlySet<string>): PresetBody => ({
-  ...body,
-  prompts: body.prompts.filter((p) => !ids.has(p.id)),
-});
+export const bulkDelete = removePresetBlocks;
 
 /**
  * Copy each selected block in place, right after its original, preserving list order. A duplicate is
@@ -155,32 +136,27 @@ export const bulkDuplicate = (body: PresetBody, ids: ReadonlySet<string>): Prese
   ),
 });
 
-export const toggleBlock = (body: PresetBody, id: string): PresetBody => ({
-  ...body,
-  prompts: body.prompts.map((p) => (p.id === id ? { ...p, enabled: !p.enabled } : p)),
-});
+export const toggleBlock = (body: PresetBody, id: string): PresetBody => {
+  const block = body.prompts.find((item) => item.id === id);
+  return block ? setPresetBlocksEnabled(body, new Set([id]), !block.enabled) : body;
+};
 
-export const deleteBlock = (body: PresetBody, id: string): PresetBody => ({
-  ...body,
-  prompts: body.prompts.filter((p) => p.id !== id),
-});
+export const deleteBlock = (body: PresetBody, id: string): PresetBody =>
+  body.prompts.some((item) => item.id === id)
+    ? removePresetBlocks(body, new Set([id]))
+    : body;
 
 export const patchBlock = (
   body: PresetBody,
   id: string,
   patch: Partial<PresetPrompt>,
-): PresetBody => ({
-  ...body,
-  prompts: body.prompts.map((p) => (p.id === id ? { ...p, ...patch } : p)),
-});
+): PresetBody => body.prompts.some((item) => item.id === id)
+  ? patchPresetBlock(body, id, patch)
+  : body;
 
 /** Move a block to a new index in the manuscript order (clamped; a missing id is a no-op). */
 export const moveBlock = (body: PresetBody, id: string, toIndex: number): PresetBody => {
-  const from = body.prompts.findIndex((p) => p.id === id);
-  if (from < 0) return body;
-  const next = [...body.prompts];
-  const [moved] = next.splice(from, 1);
-  const clamped = Math.max(0, Math.min(toIndex, next.length));
-  next.splice(clamped, 0, moved!);
-  return { ...body, prompts: next };
+  return body.prompts.some((item) => item.id === id)
+    ? movePresetBlock(body, id, toIndex)
+    : body;
 };

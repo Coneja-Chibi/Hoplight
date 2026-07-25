@@ -7,6 +7,13 @@ describe("classifyRisk", () => {
     const v = classifyRisk("read", undefined, "read");
     expect(v.level).toBe("safe");
     expect(v.access).toBe("read");
+    expect(v.reason).toContain("local content");
+  });
+
+  test("draft is safe because it previews without durable mutation", () => {
+    const verdict = classifyRisk("draft", undefined, "lorebook_entries_update");
+    expect(verdict.level).toBe("safe");
+    expect(verdict.reason).toContain("without saving");
   });
 
   test("write is caution", () => {

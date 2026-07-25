@@ -174,6 +174,41 @@ as a **reference** to a canonical lorebook, not an inlined blob:
 `src/convert.ts` `convertFile` ties it together: extract on import, re-embed on export, for same-kind
 conversions. Details in [concepts/character-book.md](concepts/character-book.md).
 
+## Semantic content capabilities
+
+Semantic edits are pure drop-ins under `src/entities/<kind>/capabilities/`, with platform-native
+extensions allowed under `src/formats/<platform>/capabilities/`. The filesystem remains the source
+of truth. `src/kit/capabilities/discover.ts` loads the runtime catalog, while
+`scripts/capability-manifest.ts` generates the browser import seam and CI checks it for drift.
+
+A capability validates typed input and returns a complete canonical preview, exact changes,
+warnings, and platform impact. It never writes. Kit's session-local change composer can combine
+several previews for one target while rejecting identity or `original` escrow changes. The
+Workbench imports the same pure mutation operations but continues to own focus, selection, and undo
+state.
+
+The first expanded bundle lives under `src/entities/character/capabilities/`. Its ten semantic
+operations cover the canonical character editor surfaces, including named variants and
+card-embedded behavior scripts. Base-path and variant transforms live beside the character entity
+and are imported by both Kit and the Workbench. Script capabilities only transform sealed data;
+execution remains confined to the existing user-invoked sandbox benches.
+
+Kit separates the complete runtime registry from the provider-visible snapshot. Direct tools are
+always visible. A deterministic search may reveal up to five deferred capabilities for the next
+model request; hidden capabilities never enter that snapshot. See
+[Kit content tools](kit/tools.md) and [ADR-010](../decisions/ADR-010-content-capabilities.md).
+
+Kit also receives one direct read-only documentation meta-tool. It lazily builds a small in-memory
+BM25-style index over heading chunks from catalog-declared Markdown and resolves reads through the
+same fail-closed, catalog-contained corpus boundary as the Studio docs reader. It needs no vector
+server or network call. Documentation access is separate from Studio piece access and never accepts
+an arbitrary filesystem path.
+
+Durable apply remains outside the pure capability. `StudioStore.compareAndSave()` compares the full
+canonical revision and publishes under the storage backend's per-path write lock. Kit then re-reads
+and verifies the saved canonical state before emitting a receipt. The security gate classifies only
+exact catalog-derived capability names as preview-only drafts; apply remains an explicit write.
+
 ## Layering
 
 Strict inward dependencies, never outward:

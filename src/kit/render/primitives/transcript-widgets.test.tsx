@@ -77,6 +77,7 @@ describe("transcript widgets", () => {
       <BackstageRow
         moves={["list character: 13", "read character: Basil"]}
         seconds={6}
+        phase="completed"
         open={false}
         onToggle={() => {}}
       />,
@@ -87,8 +88,9 @@ describe("transcript widgets", () => {
       const frame = await rendered.waitForFrame((value) => value.includes("Backstage"), {
         maxPasses: 300,
       });
-      expect(frame).toContain("Backstage · 2 moves · 6s");
+      expect(frame).toContain("Backstage · 2 moves · verified · 6s");
       expect(frame).toContain("ctrl+o");
+      expect(frame).toContain("verified");
       expect(frame).not.toContain("read character");
     } finally {
       await rendered.renderer.destroy();

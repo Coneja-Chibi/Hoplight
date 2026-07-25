@@ -13,16 +13,18 @@ export function Panel({
   title,
   focused,
   width,
+  visible = true,
   children,
 }: {
   index: number;
   title: string;
   focused: boolean;
   width?: number;
+  visible?: boolean;
   children: ReactNode;
 }): ReactNode {
   return (
-    <box flexDirection="row" width={width} flexGrow={width ? undefined : 1}>
+    <box visible={visible} flexDirection="row" width={width} flexGrow={width || !visible ? undefined : 1}>
       <box flexDirection="column" flexGrow={1} backgroundColor={theme.panel}>
         <box backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
           <text fg={focused ? theme.rose : theme.mut}>

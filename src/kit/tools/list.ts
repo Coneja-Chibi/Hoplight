@@ -18,7 +18,10 @@ const input = z.object({
 const list: HarnessTool<z.infer<typeof input>> = {
   name: "list",
   description: "List the pieces in the studio. Give a kind to list one deck, or omit it to list everything.",
+  exposure: "direct",
+  effect: "read",
   input,
+  concurrencyKey: ({ kind }) => `studio/list/${kind ?? "all"}`,
   async execute({ kind }, { bridge }) {
     const summaries = await bridge.list(kind);
     const label = kind ?? "all";

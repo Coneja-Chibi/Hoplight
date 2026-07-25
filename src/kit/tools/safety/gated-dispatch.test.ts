@@ -1,6 +1,7 @@
 /** Gated-dispatch tests for approval seams, denial, and tool execution. */
 import { describe, expect, test } from "bun:test";
 import { makeGatedDispatch, type GateSeam } from "./gated-dispatch";
+import { createAccessResolver } from "./access";
 import { initGate } from "./permission-mode";
 import type { GateState } from "./gate-core";
 import type { DispatchFn, DispatchResult } from "../../loop/loop-core";
@@ -38,6 +39,35 @@ describe("makeGatedDispatch", () => {
     expect(inner.calls()).toBe(1);
     expect(asked).toBe(0);
     expect(r).toEqual(ok);
+  });
+
+  test("a validated capability draft runs without confirming", async () => {
+    const inner = spyInner();
+    let asked = 0;
+    const gated = makeGatedDispatch(
+      inner.fn,
+      seamWith(initGate(), async () => {
+        asked += 1;
+        return { type: "deny" };
+      }),
+      createAccessResolver(["lorebook_entries_update"]),
+    );
+    const result = await gated(call("lorebook_entries_update"));
+    expect(result).toEqual(ok);
+    expect(inner.calls()).toBe(1);
+    expect(asked).toBe(0);
+  });
+
+  test("a capability-like name absent from the catalog remains on the danger floor", async () => {
+    const inner = spyInner();
+    const gated = makeGatedDispatch(
+      inner.fn,
+      { state: { mode: "full", grants: new Set() } },
+      createAccessResolver(["lorebook_entries_update"]),
+    );
+    const result = await gated(call("lorebook_entries_remove"));
+    expect(result.summary).toContain("blocked");
+    expect(inner.calls()).toBe(0);
   });
 
   test("locked denies a risky call and never calls inner", async () => {

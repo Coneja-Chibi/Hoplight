@@ -1,14 +1,13 @@
 /**
  * risk: the heart of the trust boundary. It maps a tool's access class onto a risk level and a human
- * reason, exhaustively and fail-closed. read is safe; write is caution; delete/egress/exec/unknown are
- * danger, with exec and unknown the non-negotiable floor (never auto-allowed anywhere, enforced in
- * gate-core). Total and tolerant: an out-of-range access fails toward danger and never throws. args is
- * accepted for the reason and future refinement only and NEVER lowers a level, a boundary can only get
- * stricter from its input, never looser.
+ * reason, exhaustively and fail-closed. read and preview-only draft are safe; write is caution;
+ * delete/egress/exec/unknown are danger, with exec and unknown the non-negotiable floor. Total and
+ * tolerant: an out-of-range access fails toward danger and never throws. args is accepted for the
+ * reason and future refinement only and NEVER lowers a level.
  */
 import { assertNever } from "./assert-never";
 
-export type ToolAccess = "read" | "write" | "delete" | "egress" | "exec" | "unknown";
+export type ToolAccess = "read" | "draft" | "write" | "delete" | "egress" | "exec" | "unknown";
 export type RiskLevel = "safe" | "caution" | "danger";
 
 export interface RiskVerdict {
@@ -17,14 +16,24 @@ export interface RiskVerdict {
   readonly reason: string;
 }
 
-const ACCESSES = new Set<ToolAccess>(["read", "write", "delete", "egress", "exec", "unknown"]);
+const ACCESSES = new Set<ToolAccess>([
+  "read",
+  "draft",
+  "write",
+  "delete",
+  "egress",
+  "exec",
+  "unknown",
+]);
 const isToolAccess = (v: unknown): v is ToolAccess =>
   typeof v === "string" && ACCESSES.has(v as ToolAccess);
 
 const reasonFor = (access: ToolAccess, name: string): string => {
   switch (access) {
     case "read":
-      return "reads a piece without changing anything";
+      return "reads local content without changing anything";
+    case "draft":
+      return "previews canonical changes without saving";
     case "write":
       return "creates or updates a piece";
     case "delete":
@@ -45,6 +54,7 @@ const reasonFor = (access: ToolAccess, name: string): string => {
 const levelFor = (access: ToolAccess): RiskLevel => {
   switch (access) {
     case "read":
+    case "draft":
       return "safe";
     case "write":
       return "caution";

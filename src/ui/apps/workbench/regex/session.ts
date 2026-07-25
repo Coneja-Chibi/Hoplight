@@ -7,6 +7,13 @@
 import type { RegexRule, RegexSetBody } from "../../../../entities/regex/schema";
 import { newUiId } from "../../../_shared/new-id";
 import { deepEq, reconcileAfterSave } from "../editor-core";
+import {
+  addRegexRule,
+  moveRegexRule,
+  patchRegexRule,
+  patchRegexSet,
+  removeRegexRule,
+} from "../../../../entities/regex/operations";
 
 export interface RegexSession {
   body: RegexSetBody;
@@ -60,8 +67,7 @@ export function addRule(session: RegexSession): RegexSession {
   const id = newUiId("rule_");
   const rule = emptyRegexRule(id);
   rule.sortOrder = (session.body.rules.at(-1)?.sortOrder ?? 0) + 10;
-  const rules = [...session.body.rules, rule];
-  return selectRule({ ...session, body: { ...session.body, rules } }, id);
+  return selectRule({ ...session, body: addRegexRule(session.body, rule) }, id);
 }
 
 /** Append a pre-filled rule (a gallery recipe) at the end and focus it (R5, QOL 4). */
@@ -71,8 +77,7 @@ export function addRuleFrom(
 ): RegexSession {
   const id = newUiId("rule_");
   const rule = mint(id, (session.body.rules.at(-1)?.sortOrder ?? 0) + 10);
-  const rules = [...session.body.rules, rule];
-  return selectRule({ ...session, body: { ...session.body, rules } }, id);
+  return selectRule({ ...session, body: addRegexRule(session.body, rule) }, id);
 }
 
 export function duplicateRule(session: RegexSession, id: string): RegexSession {
@@ -85,25 +90,18 @@ export function duplicateRule(session: RegexSession, id: string): RegexSession {
     sortOrder: src.sortOrder + 1,
   };
   const idx = session.body.rules.findIndex((r) => r.id === id);
-  const rules = [...session.body.rules];
-  rules.splice(idx + 1, 0, copy);
-  return selectRule({ ...session, body: { ...session.body, rules } }, copy.id);
+  return selectRule({ ...session, body: addRegexRule(session.body, copy, idx + 1) }, copy.id);
 }
 
 export function deleteRule(session: RegexSession, id: string): RegexSession {
-  const rules = session.body.rules.filter((r) => r.id !== id);
-  const body = { ...session.body, rules };
+  if (!hasRule(session.body, id)) return session;
+  const body = removeRegexRule(session.body, id);
   return { body, focusedId: refocus(body, session.focusedId) };
 }
 
 export function reorderRule(session: RegexSession, id: string, toIndex: number): RegexSession {
-  const from = session.body.rules.findIndex((r) => r.id === id);
-  if (from < 0) return session;
-  const rules = [...session.body.rules];
-  const [row] = rules.splice(from, 1);
-  const clamped = Math.max(0, Math.min(toIndex, rules.length));
-  rules.splice(clamped, 0, row!);
-  return { ...session, body: { ...session.body, rules } };
+  if (!hasRule(session.body, id)) return session;
+  return { ...session, body: moveRegexRule(session.body, id, toIndex) };
 }
 
 export function updateRule(
@@ -111,15 +109,15 @@ export function updateRule(
   id: string,
   patch: Partial<RegexRule>,
 ): RegexSession {
-  const rules = session.body.rules.map((r) => (r.id === id ? { ...r, ...patch, id: r.id } : r));
-  return { ...session, body: { ...session.body, rules } };
+  if (!hasRule(session.body, id)) return session;
+  return { ...session, body: patchRegexRule(session.body, id, patch) };
 }
 
 export function updateSet(
   session: RegexSession,
   patch: Partial<Pick<RegexSetBody, "name" | "description">>,
 ): RegexSession {
-  return { ...session, body: { ...session.body, ...patch } };
+  return { ...session, body: patchRegexSet(session.body, patch) };
 }
 
 export function sessionDirty(session: RegexSession, baseline: RegexSetBody): boolean {

@@ -1,6 +1,6 @@
 /** Coverage for the pure stop conditions. */
 import { expect, test } from "bun:test";
-import { callKey, stopReason } from "./stop-core";
+import { callKey, observationKey, stopReason } from "./stop-core";
 
 test("stops at the step cap, not before", () => {
   expect(stopReason({ step: 5, maxSteps: 5, recentCallKeys: [] })).toContain("5-step limit");
@@ -21,4 +21,9 @@ test("does not stop on fewer than three, or on varied calls", () => {
 test("callKey is stable and distinguishes args", () => {
   expect(callKey("list", { a: 1 })).toBe(callKey("list", { a: 1 }));
   expect(callKey("list", { a: 1 })).not.toBe(callKey("list", { a: 2 }));
+});
+
+test("observationKey distinguishes changed results for the same call", () => {
+  expect(observationKey("read", {}, "one")).not.toBe(observationKey("read", {}, "two"));
+  expect(observationKey("read", {}, "one")).toBe(observationKey("read", {}, "one"));
 });

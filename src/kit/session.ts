@@ -9,10 +9,23 @@ import { makeChat } from "./providers/chat";
 import { pingProvider, type Probe } from "./providers/probe";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
-import { makeGatedDispatch } from "./tools/safety/gated-dispatch";
+import {
+  makeGatedDispatch,
+  type GateSeam,
+} from "./tools/safety/gated-dispatch";
 import { initGate } from "./tools/safety/permission-mode";
+import { createAccessResolver } from "./tools/safety/access";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage } from "./providers/provider";
+import { discoverCapabilities } from "./capabilities/discover";
+import { createCapabilityRuntime } from "./capabilities/runtime";
+import { createChangeSession } from "./changes/session";
+import { createCapabilityFindTool } from "./tools/capability-find";
+import { createChangeApplyTool } from "./tools/change-apply";
+import { createChangeDiscardTool } from "./tools/change-discard";
+import { providerToolName } from "../entities/capabilities";
+import type { ContentCapability } from "../entities/capabilities";
+import { createHoplightDocs } from "./docs/repository";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
  * failure). begin fires once when the provider resolves (who is about to answer); delta streams live
@@ -24,11 +37,13 @@ export type TurnEvent =
   | { type: "error"; message: string };
 
 export interface Session {
+  capabilities?(): readonly ContentCapability[];
   runTurn(
     input: string,
     history: ModelMessage[],
     onEvent: (event: TurnEvent) => void,
     signal?: AbortSignal,
+    gate?: GateSeam,
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
@@ -42,12 +57,33 @@ const MAX_STEPS = 12;
 
 /** Build a session bound to a studio bridge. Tools are discovered once; the provider is read per turn. */
 export async function createSession(bridge: KitBridge): Promise<Session> {
-  const tools = await discoverTools();
-  const dispatch = makeDispatch(tools, { bridge });
-  const specs = toolSpecs(tools);
+  const [directTools, capabilities] = await Promise.all([
+    discoverTools(),
+    discoverCapabilities(),
+  ]);
+  const changes = createChangeSession();
+  const runtime = createCapabilityRuntime({
+    capabilities,
+    directTools,
+    changes,
+  });
+  const lifecycleTools = [
+    createCapabilityFindTool(runtime),
+    createChangeApplyTool(changes),
+    createChangeDiscardTool(changes),
+  ];
+  const tools = [...runtime.registeredTools(), ...lifecycleTools];
+  const dispatch = makeDispatch(tools, { bridge, docs: createHoplightDocs() });
+  const lifecycleSpecs = toolSpecs(lifecycleTools);
+  const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
+  const activities = new Map(tools.map((tool) => [tool.name, tool.activity]));
+  const accessFor = createAccessResolver(
+    capabilities.map((capability) => providerToolName(capability.id)),
+  );
 
   return {
-    async runTurn(input, history, onEvent, signal) {
+    capabilities: () => capabilities,
+    async runTurn(input, history, onEvent, signal, gate) {
       try {
         const config = await resolveProviderConfig();
         if (!config) {
@@ -59,16 +95,21 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         }
         onEvent({ type: "begin", label: `${config.name ?? config.kind} · ${config.model}` });
         const chat = makeChat(config, signal);
-        // Every tool call rides through the safety gate (built per turn so its abort-latch is the turn's
-        // memory). Fail-closed by default: the read tools classify "safe" and pass; anything risky would
-        // hit confirm, and with no confirm seam wired yet it is blocked. When the /gates screen and the
-        // confirm prompt land, the shell threads the live mode + requestConfirm through here.
-        const gated = makeGatedDispatch(dispatch, { state: initGate() });
+        // Every tool call rides through a per-turn gate. The validated capability catalog contributes
+        // exact preview-only names to the security-owned resolver; arbitrary lookalikes remain unknown.
+        const gated = makeGatedDispatch(
+          dispatch,
+          gate ?? { state: initGate() },
+          accessFor,
+        );
         const turn = runLoop(input, history, {
           chat,
           dispatch: gated,
-          tools: specs,
+          toolSnapshot: () => [...runtime.toolSnapshot(), ...lifecycleSpecs],
+          effectFor: (call) => effects.get(call.name),
+          activityFor: (call) => activities.get(call.name),
           maxSteps: MAX_STEPS,
+          signal,
           onDelta: (delta) => onEvent({ type: "delta", kind: delta.kind, text: delta.text }),
         });
         let next = await turn.next();

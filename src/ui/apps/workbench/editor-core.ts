@@ -8,6 +8,12 @@
  * order and can round-trip. Ids we do not render yet (alternateGreetings, creators-note) are KEPT
  * in place, never dropped: reorder swaps skip over them so their saved positions survive a save.
  */
+import { writeCharacterPath } from "../../../entities/character/capabilities/operations";
+import {
+  inheritVariantOverride,
+  variantOverridePresent,
+  writeVariantOverride,
+} from "../../../entities/character/variant-edit";
 
 /** One editable card: an RC-interop order id bound to a canonical body path. */
 export interface CardDef {
@@ -213,20 +219,7 @@ export function readPath(body: unknown, dotPath: string): unknown {
  * undefined) DELETE the leaf - canonical stores absence, never empty husks. Untouched branches
  * are structurally shared, and the no-data-loss law holds: nothing outside the path changes. */
 export function writePath(body: Record<string, unknown>, dotPath: string, value: unknown): Record<string, unknown> {
-  const keys = dotPath.split(".");
-  const out: Record<string, unknown> = { ...body };
-  let host: Record<string, unknown> = out;
-  for (const key of keys.slice(0, -1)) {
-    const next = host[key];
-    const clone: Record<string, unknown> =
-      next !== null && typeof next === "object" && !Array.isArray(next) ? { ...(next as Record<string, unknown>) } : {};
-    host[key] = clone;
-    host = clone;
-  }
-  const leaf = keys[keys.length - 1]!;
-  if (isEmptyValue(value)) delete host[leaf];
-  else host[leaf] = value;
-  return out;
+  return writeCharacterPath(body, dotPath, value);
 }
 
 /**
@@ -238,45 +231,17 @@ export function writeOverridePath(
   dotPath: string,
   value: unknown,
 ): Record<string, unknown> {
-  const keys = dotPath.split(".");
-  const out: Record<string, unknown> = { ...body };
-  let host: Record<string, unknown> = out;
-  for (const key of keys.slice(0, -1)) {
-    const next = host[key];
-    const clone: Record<string, unknown> =
-      next !== null && typeof next === "object" && !Array.isArray(next) ? { ...(next as Record<string, unknown>) } : {};
-    host[key] = clone;
-    host = clone;
-  }
-  host[keys[keys.length - 1]!] = value;
-  return out;
+  return writeVariantOverride(body, dotPath, value);
 }
 
 /** Delete a leaf on an override tree so the base value is inherited again. */
 export function inheritOverridePath(body: Record<string, unknown>, dotPath: string): Record<string, unknown> {
-  const keys = dotPath.split(".");
-  const out: Record<string, unknown> = { ...body };
-  let host: Record<string, unknown> = out;
-  for (const key of keys.slice(0, -1)) {
-    const next = host[key];
-    if (next === null || typeof next !== "object" || Array.isArray(next)) return out;
-    const clone = { ...(next as Record<string, unknown>) };
-    host[key] = clone;
-    host = clone;
-  }
-  delete host[keys[keys.length - 1]!];
-  return out;
+  return inheritVariantOverride(body, dotPath);
 }
 
 /** True when every segment of the dot path is a PRESENT key ("" and [] count as overrides). */
 export function hasOverridePath(overrides: unknown, dotPath: string): boolean {
-  let cur: unknown = overrides;
-  for (const key of dotPath.split(".")) {
-    if (cur === null || typeof cur !== "object" || Array.isArray(cur)) return false;
-    if (!Object.prototype.hasOwnProperty.call(cur, key)) return false;
-    cur = (cur as Record<string, unknown>)[key];
-  }
-  return true;
+  return variantOverridePresent(overrides, dotPath);
 }
 
 /** JSON-shape structural equality (drafts and baselines are parsed JSON; functions never appear). */

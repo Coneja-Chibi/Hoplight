@@ -9,6 +9,10 @@
 - Excluded: security review, live provider calls, source implementation, and the user's existing edits
 - Implementation update: Plans 01-04 and the non-security portion of Plan 05 were completed and
   regression-tested on 2026-07-25. Security-related Plan 05 items remain deferred by user request.
+- Architecture addendum: [Plan 06](06-kit-content-tool-lifecycle.md) covers the non-security content
+  capability catalog and tool loop required before Kit can reach Web UI editing parity. Its evidence
+  is recorded in
+  [PROFESSIONAL-TOOLFLOW-REFERENCE.md](PROFESSIONAL-TOOLFLOW-REFERENCE.md).
 
 ## Executive summary
 

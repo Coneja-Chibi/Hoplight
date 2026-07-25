@@ -14,7 +14,10 @@ const input = z.object({
 const read: HarnessTool<z.infer<typeof input>> = {
   name: "read",
   description: "Open one piece by kind and id and read its full canonical content.",
+  exposure: "direct",
+  effect: "read",
   input,
+  concurrencyKey: ({ kind, id }) => `${kind}/${id}`,
   async execute({ kind, id }, { bridge }) {
     const entity = await bridge.read(kind, id);
     if (!entity) {

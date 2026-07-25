@@ -74,6 +74,23 @@ dimension snapshot. Kit also matches the terminal emulator's default background 
 it is open, then restores it on exit, so fractional-cell and profile-padding gutters visually belong
 to the same surface.
 
+Kit's live model tool belt includes studio list, read, and search; bounded Hoplight documentation
+query; bounded capability discovery; draft discard; and revision-checked apply. Documentation
+query lazily ranks catalog-declared Markdown sections with a local full-text scorer and reads only
+catalog-declared pages or heading sections.
+Discovery reveals no more than five typed semantic operations for later model steps. Capability
+calls preview without saving. Apply pauses in an interactive Gate, saves once
+only if the stored canonical revision still matches, then re-reads the piece before reporting an
+applied, stale, or failed receipt. Read-only tool batches may run concurrently, but their
+observations retain provider order; drafts and applies always serialize. Loop stops name the
+model-round, tool-call, elapsed-time, no-progress, or cancellation budget and offer a recovery
+action. `/tools` opens the keyboard-and-mouse Panel Deck browser for piece, area, action, platform
+applicability, and preview behavior. Compact terminals show one active pane at a time. See
+[Kit content tools](kit/tools.md) for the exact implementation boundary.
+
+The Backstage header reflects scheduler-owned lifecycle state. Its sealed trace keeps the final
+verified, stale, discarded, failed, cancelled, or stopped receipt beside the ordered tool moves.
+
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
@@ -240,6 +257,8 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
   the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in
   `workbench/Editor.tsx`. Other kinds keep the read-only inspector until their editors land.
+  Canonical path writes and variant lifecycle/override writes now delegate to the same entity-layer
+  operations used by Kit's typed character capabilities, so base and variant semantics cannot drift.
 - **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
   (`splitKey`, never equal to `activeKey`); "Open beside" on the `entity` menu pins any piece into
   a second pane next to the active one (opening it first if needed - the explicit gesture skips the

@@ -4,9 +4,22 @@
  * its platform's error codes into these semantics. Backends: nodeStudioFs (desktop/CLI, wraps
  * atomic-file), memoryStudioFs (tests), and the OPFS twin for the pocket build (src/studio/opfs/).
  */
-import { mkdir, readdir, access, unlink } from "node:fs/promises";
+import {
+  mkdir,
+  readdir,
+  access,
+  open,
+  stat,
+  unlink,
+} from "node:fs/promises";
 import { constants } from "node:fs";
-import { writeAtomicReplace, writeExclusive, StudioConflictError, StudioWriteError } from "./atomic-file";
+import { dirname } from "node:path";
+import {
+  writeAtomicReplace as atomicReplace,
+  writeExclusive,
+  StudioConflictError,
+  StudioWriteError,
+} from "./atomic-file";
 import { StudioReadError } from "./errors";
 
 export interface StudioFs {
@@ -22,6 +35,55 @@ export interface StudioFs {
   writeExclusive(path: string, body: string): Promise<void>;
   /** Atomic replace (temp + rename or platform equivalent). */
   writeAtomicReplace(path: string, body: string): Promise<void>;
+  /** Under the backend's per-path write lock, replace only when transform returns a body. */
+  updateAtomic(
+    path: string,
+    transform: (current: string | null) => string | null,
+  ): Promise<boolean>;
+}
+
+const LOCK_ATTEMPTS = 40;
+const STALE_LOCK_MS = 30_000;
+
+const nodeText = async (path: string): Promise<string | null> => {
+  try {
+    return await Bun.file(path).text();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException)?.code === "ENOENT") return null;
+    throw new StudioReadError();
+  }
+};
+
+async function withNodePathLock<T>(path: string, task: () => Promise<T>): Promise<T> {
+  const lockPath = `${path}.hoplight-lock`;
+  await mkdir(dirname(lockPath), { recursive: true });
+  let handle: Awaited<ReturnType<typeof open>> | null = null;
+  for (let attempt = 0; attempt < LOCK_ATTEMPTS; attempt += 1) {
+    try {
+      handle = await open(lockPath, "wx");
+      await handle.writeFile(`${process.pid}\n${Date.now()}\n`, "utf8");
+      break;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code !== "EEXIST") throw new StudioWriteError();
+      try {
+        const info = await stat(lockPath);
+        if (Date.now() - info.mtimeMs > STALE_LOCK_MS) {
+          await unlink(lockPath);
+          continue;
+        }
+      } catch {
+        continue;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+  }
+  if (!handle) throw new StudioWriteError("studio file is busy");
+  try {
+    return await task();
+  } finally {
+    await handle.close().catch(() => undefined);
+    await unlink(lockPath).catch(() => undefined);
+  }
 }
 
 export const nodeStudioFs: StudioFs = {
@@ -36,14 +98,7 @@ export const nodeStudioFs: StudioFs = {
       throw new StudioReadError();
     }
   },
-  readText: async (path) => {
-    try {
-      return await Bun.file(path).text();
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException)?.code === "ENOENT") return null;
-      throw new StudioReadError();
-    }
-  },
+  readText: nodeText,
   exists: async (path) => {
     try {
       await access(path, constants.F_OK);
@@ -52,17 +107,26 @@ export const nodeStudioFs: StudioFs = {
       return false;
     }
   },
-  remove: async (path) => {
-    try {
-      await unlink(path);
-      return true;
-    } catch (e) {
-      if ((e as NodeJS.ErrnoException)?.code === "ENOENT") return false;
-      throw new StudioWriteError("could not delete entity");
-    }
-  },
+  remove: async (path) =>
+    withNodePathLock(path, async () => {
+      try {
+        await unlink(path);
+        return true;
+      } catch (e) {
+        if ((e as NodeJS.ErrnoException)?.code === "ENOENT") return false;
+        throw new StudioWriteError("could not delete entity");
+      }
+    }),
   writeExclusive,
-  writeAtomicReplace,
+  writeAtomicReplace: async (path, body) =>
+    withNodePathLock(path, () => atomicReplace(path, body)),
+  updateAtomic: async (path, transform) =>
+    withNodePathLock(path, async () => {
+      const next = transform(await nodeText(path));
+      if (next === null) return false;
+      await atomicReplace(path, next);
+      return true;
+    }),
 };
 
 /**
@@ -93,6 +157,13 @@ export function memoryStudioFs(): StudioFs {
     },
     writeAtomicReplace: async (path, body) => {
       files.set(norm(path), body);
+    },
+    updateAtomic: async (path, transform) => {
+      const key = norm(path);
+      const next = transform(files.get(key) ?? null);
+      if (next === null) return false;
+      files.set(key, next);
+      return true;
     },
   };
 }

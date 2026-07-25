@@ -103,6 +103,6 @@ describe("search", () => {
 describe("discovery", () => {
   test("finds the drop-in tools and skips infra", async () => {
     const names = (await discoverTools()).map((tool) => tool.name).sort();
-    expect(names).toEqual(["list", "read", "search"]);
+    expect(names).toEqual(["docs_query", "list", "read", "search"]);
   });
 });

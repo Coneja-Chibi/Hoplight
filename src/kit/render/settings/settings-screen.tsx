@@ -62,7 +62,7 @@ const printable = (event: KeyEvent): string | undefined => {
 };
 
 const BLURBS: Record<string, string> = {
-  gates: "What Kit asks before it acts. Coming soon.",
+  gates: "Saved writes pause at a Gate prompt. y allows once, a allows this session, n denies, ! locks down.",
   studio: "Where your studio lives on disk. Coming soon.",
   about: "Kit v0.1 · Hoplight Studio.",
 };

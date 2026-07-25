@@ -6,25 +6,42 @@
  */
 import type { z } from "zod";
 import type { KitBridge } from "../bridge";
+import type { HoplightDocs } from "../docs/repository";
 
 /** What a tool is handed at dispatch time: the one engine seam, nothing else. */
 export interface ToolContext {
   bridge: KitBridge;
+  /** Read-only access to the catalog-contained Hoplight documentation corpus. */
+  docs?: HoplightDocs;
 }
 
 /** A tool's outcome: a one-line row for the terminal, and the full observation for the model. */
 export interface ToolResult {
   summary: string;
   output: string;
+  /** Machine-readable lifecycle result; the loop uses it instead of guessing from prose. */
+  outcome?: "draft" | "applied" | "stale" | "discarded" | "failed";
 }
+
+export type ToolExposure = "direct" | "deferred" | "hidden";
+export type ToolEffect = "read" | "draft" | "apply";
+export type ToolActivity = "discovering";
 
 export interface HarnessTool<Input = unknown> {
   /** Stable id the model calls by; unique across the folder. */
   name: string;
   /** One or two sentences the model reads to decide when to reach for this tool. */
   description: string;
+  /** Whether the model sees this tool immediately, after discovery, or never. */
+  exposure: ToolExposure;
+  /** Explicit scheduler behavior. Never infer this from the tool name. */
+  effect: ToolEffect;
+  /** Optional lifecycle specialization when effect alone cannot name the visible work. */
+  activity?: ToolActivity;
   /** Zod schema for the args; the single parse-once, fail-closed boundary. */
   input: z.ZodType<Input>;
+  /** Calls sharing a key serialize when the scheduler supports batching. */
+  concurrencyKey(args: Input): string;
   /** Run the tool over already-validated args. Read tools never mutate; write tools gate first. */
   execute(args: Input, ctx: ToolContext): Promise<ToolResult>;
 }

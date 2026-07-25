@@ -54,6 +54,7 @@ export function SettledLine({
       <BackstageRow
         moves={line.moves}
         seconds={line.seconds}
+        phase={line.phase}
         open={line.open}
         onToggle={onToggle}
       />

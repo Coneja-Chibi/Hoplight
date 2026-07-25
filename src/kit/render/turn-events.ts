@@ -14,6 +14,7 @@ import type { TurnEvent } from "../session";
 import type { TokenUsage } from "../providers/usage";
 import type { DoctorResult } from "../doctor/check";
 import { isLongSay } from "./say-fold";
+import type { LoopPhase } from "../loop/state";
 
 export type RenderLine =
   | { role: "you"; text: string }
@@ -23,7 +24,7 @@ export type RenderLine =
   | { role: "watch"; text: string }
   | { role: "doctor"; checks: DoctorResult[] }
   | { role: "thought"; text: string; seconds: number; open: boolean }
-  | { role: "backstage"; moves: string[]; seconds: number; open: boolean };
+  | { role: "backstage"; moves: string[]; seconds: number; open: boolean; phase?: LoopPhase };
 
 export type Live =
   | { phase: "idle" }
@@ -41,7 +42,7 @@ export interface TurnView {
   lines: RenderLine[];
   live: Live;
   label: string;
-  tools: { moves: ToolMove[]; since: number } | null;
+  tools: { moves: ToolMove[]; since: number; phase?: LoopPhase } | null;
   toolsSeen: boolean;
   /** The most recent API call's token usage (the meter reads .input for context fullness, the tally
    * reads in/out). Overwritten per usage event, so it reflects the turn's final context. */
@@ -68,7 +69,13 @@ const sealTools = (view: TurnView, now: number): TurnView => {
   const moves = view.tools.moves.map((move) => move.summary ?? `${move.name} (interrupted)`);
   return {
     ...view,
-    lines: [...view.lines, { role: "backstage", moves, seconds, open: false }],
+    lines: [...view.lines, {
+      role: "backstage",
+      moves,
+      seconds,
+      open: false,
+      ...(view.tools.phase ? { phase: view.tools.phase } : {}),
+    }],
     tools: null,
   };
 };
@@ -131,6 +138,10 @@ export function applyTurnEvent(view: TurnView, event: TurnEvent, now: number): T
       // Overwrite (not accumulate): .usage tracks the latest call's counts, so the meter reads the
       // current context fullness. The shell accumulates the session tally from these events separately.
       return { ...view, usage: event.usage };
+    case "state":
+      return view.tools
+        ? { ...view, tools: { ...view.tools, phase: event.phase } }
+        : view;
     case "say": {
       const settled = quiesce(view, now);
       return { ...settled, lines: [...settled.lines, { role: "say", text: event.text }], live: { phase: "waiting" } };

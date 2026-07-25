@@ -16,7 +16,10 @@ const input = z.object({
 const search: HarnessTool<z.infer<typeof input>> = {
   name: "search",
   description: "Find pieces whose name, id, or kind contains some text. Narrow to one deck with kind.",
+  exposure: "direct",
+  effect: "read",
   input,
+  concurrencyKey: ({ query, kind }) => `studio/search/${kind ?? "all"}/${query.toLowerCase()}`,
   async execute({ query, kind }, { bridge }) {
     const needle = query.toLowerCase();
     const hits = (await bridge.list(kind)).filter((summary) =>

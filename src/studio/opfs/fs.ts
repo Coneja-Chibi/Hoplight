@@ -71,6 +71,23 @@ async function writeThrough(file: OpfsFileHandle, body: string): Promise<void> {
 }
 
 export function opfsStudioFs(root: OpfsDirectory): StudioFs {
+  const writes = new Map<string, Promise<void>>();
+  const withPathLock = async <T>(path: string, task: () => Promise<T>): Promise<T> => {
+    const prior = writes.get(path) ?? Promise.resolve();
+    let release = (): void => undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const queued = prior.then(() => held);
+    writes.set(path, queued);
+    await prior;
+    try {
+      return await task();
+    } finally {
+      release();
+      if (writes.get(path) === queued) writes.delete(path);
+    }
+  };
   const dirOf = async (segments: string[], create: boolean): Promise<OpfsDirectory | null> => {
     let dir = root;
     for (const s of segments) {
@@ -123,17 +140,18 @@ export function opfsStudioFs(root: OpfsDirectory): StudioFs {
         return false;
       }
     },
-    remove: async (path) => {
-      const at = await parentOf(path, false);
-      if (!at) return false;
-      try {
-        await at.dir.removeEntry(at.name);
-        return true;
-      } catch (e) {
-        if (isNotFound(e)) return false;
-        throw new StudioWriteError("could not delete entity");
-      }
-    },
+    remove: async (path) =>
+      withPathLock(path, async () => {
+        const at = await parentOf(path, false);
+        if (!at) return false;
+        try {
+          await at.dir.removeEntry(at.name);
+          return true;
+        } catch (e) {
+          if (isNotFound(e)) return false;
+          throw new StudioWriteError("could not delete entity");
+        }
+      }),
     writeExclusive: async (path, body) => {
       const at = await parentOf(path, true);
       if (!at) throw new StudioWriteError();
@@ -149,11 +167,32 @@ export function opfsStudioFs(root: OpfsDirectory): StudioFs {
       const file = await at.dir.getFileHandle(at.name, { create: true });
       await writeThrough(file, body);
     },
-    writeAtomicReplace: async (path, body) => {
-      const at = await parentOf(path, true);
-      if (!at) throw new StudioWriteError();
-      const file = await at.dir.getFileHandle(at.name, { create: true });
-      await writeThrough(file, body);
-    },
+    writeAtomicReplace: async (path, body) =>
+      withPathLock(path, async () => {
+        const at = await parentOf(path, true);
+        if (!at) throw new StudioWriteError();
+        const file = await at.dir.getFileHandle(at.name, { create: true });
+        await writeThrough(file, body);
+      }),
+    updateAtomic: async (path, transform) =>
+      withPathLock(path, async () => {
+        const at = await parentOf(path, false);
+        let current: string | null = null;
+        if (at) {
+          try {
+            const file = await at.dir.getFileHandle(at.name);
+            current = await (await file.getFile()).text();
+          } catch (error) {
+            if (!isNotFound(error)) throw new StudioReadError();
+          }
+        }
+        const next = transform(current);
+        if (next === null) return false;
+        const target = await parentOf(path, true);
+        if (!target) throw new StudioWriteError();
+        const file = await target.dir.getFileHandle(target.name, { create: true });
+        await writeThrough(file, next);
+        return true;
+      }),
   };
 }

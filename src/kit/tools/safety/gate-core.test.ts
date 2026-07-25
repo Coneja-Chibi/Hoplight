@@ -12,6 +12,7 @@ const state = (mode: GateState["mode"], grants: string[] = []): GateState => ({
 describe("decideGate", () => {
   test("locked allows only safe and denies everything else", () => {
     expect(decideGate("read", verdict("safe", "read"), state("locked"))).toBe("allow");
+    expect(decideGate("draft", verdict("safe", "draft"), state("locked"))).toBe("allow");
     expect(decideGate("write", verdict("caution", "write"), state("locked"))).toBe("deny");
     expect(decideGate("del", verdict("danger", "delete"), state("locked"))).toBe("deny");
   });
@@ -53,5 +54,6 @@ describe("decideGate", () => {
     expect(isFloor("delete")).toBe(false);
     expect(isFloor("egress")).toBe(false);
     expect(isFloor("read")).toBe(false);
+    expect(isFloor("draft")).toBe(false);
   });
 });

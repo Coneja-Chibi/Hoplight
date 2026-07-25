@@ -50,6 +50,9 @@ import { copyText, type CopyResult } from "./clipboard";
 import type { DoctorResult } from "../doctor/check";
 import { watchSummary } from "../watch/watch-core";
 import type { StudioWatchSource } from "../watch/watcher";
+import { GatePrompt } from "./primitives/safety/gate-prompt";
+import { useGateController } from "./safety/use-gate";
+import { ToolsScreen } from "./tools/tools-screen";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -92,6 +95,7 @@ export function App({
   const [studioTotal, setStudioTotal] = useState(totalPieces);
   const [watchNotices, setWatchNotices] = useState(0);
   const [copyNotice, setCopyNotice] = useState<string | null>(null);
+  const gate = useGateController();
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(
     () => () => {
@@ -123,7 +127,7 @@ export function App({
     toolsSeen: false,
   });
   const [startedAt, setStartedAt] = useState(0);
-  const [view, setView] = useState<"session" | "settings" | "sessions" | "help">(
+  const [view, setView] = useState<"session" | "settings" | "sessions" | "help" | "tools">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
   );
   const [searching, setSearching] = useState(false);
@@ -242,7 +246,6 @@ export function App({
     openRail: () => setRewinding(true),
   };
 
-  // Wrap any event-producing work in the turn lifecycle (busy guard, waiting -> settle). One at a time.
   const startTurn = (
     produce: (
       signal: AbortSignal,
@@ -289,7 +292,7 @@ export function App({
   function runPrompt(prompt: string): boolean {
     const accepted = startTurn(async (signal, onEvent) => {
       const before = history.current;
-      const nextHistory = await session.runTurn(prompt, before, onEvent, signal);
+      const nextHistory = await session.runTurn(prompt, before, onEvent, signal, gate.seam());
       history.current = nextHistory;
       const delta = nextHistory.slice(before.length);
       if (delta.length > 0) {
@@ -313,6 +316,7 @@ export function App({
         decks: studioDecks,
         openSettings: () => setView("settings"),
         openHelp: () => setView("help"),
+        openTools: () => setView("tools"),
         quit: onQuit,
         probe: () => startTurn((signal, onEvent) => session.probe(onEvent, signal)),
         doctor: async () => {
@@ -355,7 +359,7 @@ export function App({
 
   useKeyboard((event: KeyEvent) => {
     // While the search card is open it owns the keyboard (esc/enter/up/down); the shell stays out of the way.
-    if (view !== "session" || searching || rewinding) return;
+    if (view !== "session" || searching || rewinding || gate.prompt) return;
     if (event.name === "escape" && activeTurn.current) {
       event.preventDefault();
       activeTurn.current.controller.abort();
@@ -403,7 +407,6 @@ export function App({
       />
     );
   }
-
   if (view === "sessions") {
     return (
       <ResumePlaybill
@@ -413,9 +416,11 @@ export function App({
       />
     );
   }
-
   if (view === "help") {
     return <HelpScreen commands={commands} studioName={studioName} onClose={() => setView("session")} />;
+  }
+  if (view === "tools") {
+    return <ToolsScreen pieces={studioPieces} capabilities={session.capabilities?.() ?? []} studioName={studioName} onClose={() => setView("session")} />;
   }
 
   return (
@@ -453,7 +458,7 @@ export function App({
             onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
           />
         ))}
-        {turn.tools ? <BackstageBox moves={turn.tools.moves} /> : null}
+        {turn.tools ? <BackstageBox moves={turn.tools.moves} phase={turn.tools.phase} /> : null}
         {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
         {turn.live.phase === "thinking" ? (
           <ThoughtBox text={turn.live.text} startedAt={startedAt} />
@@ -469,9 +474,16 @@ export function App({
         onSnap={scroll.snapToBottom}
       />
       <StatusToast text={copyNotice} />
+      {gate.prompt ? (
+        <GatePrompt
+          req={gate.prompt}
+          mode={gate.mode}
+          onChoice={gate.choose}
+        />
+      ) : null}
       <Composer
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
-        enabled={!searching}
+        enabled={!searching && !gate.prompt}
         provider={provider}
         busy={busy}
         commands={commands}

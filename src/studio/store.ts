@@ -2,6 +2,7 @@
  * The studio store - Hoplight local-first entity storage with path containment and atomic writes.
  */
 import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/runtime-schema";
+import { entityRevision } from "../entities/canonical-revision";
 import { StudioConflictError, StudioWriteError } from "./atomic-file";
 import { nodeStudioFs, type StudioFs } from "./fs-backend";
 import { StudioNotFoundError, StudioReadError, StudioValidationError } from "./errors";
@@ -30,6 +31,10 @@ export interface EntitySummary {
   sourceFormat?: string;
   sourceVariant?: string;
 }
+
+export type CompareSaveResult =
+  | { status: "saved"; summary: EntitySummary }
+  | { status: "stale" | "missing" };
 
 const HEX6 = /^#[0-9a-f]{6}$/i;
 
@@ -60,6 +65,34 @@ function entityName(entity: AnyEntity): string {
   if (typeof identity?.name === "string" && identity.name) return identity.name;
   if (typeof body.name === "string" && body.name) return body.name;
   return entity.id;
+}
+
+function parseStoredEntity(
+  text: string,
+  kind: string,
+  id: string,
+): AnyEntity {
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text) as unknown;
+  } catch {
+    throw new StudioReadError("corrupt entity file");
+  }
+  if (!isRecord(raw)) throw new StudioReadError("corrupt entity file");
+  const { escrow: legacy, ...withoutLegacy } = raw;
+  const migrated = legacy !== undefined && raw.original === undefined
+    ? { ...withoutLegacy, original: legacy }
+    : withoutLegacy;
+  let parsed: AnyEntity;
+  try {
+    parsed = parseCanonicalEntity(migrated);
+  } catch {
+    throw new StudioReadError("corrupt entity file");
+  }
+  if (parsed.kind !== kind || parsed.id !== id) {
+    throw new StudioReadError("corrupt entity file");
+  }
+  return parsed;
 }
 
 
@@ -120,30 +153,7 @@ export class StudioStore {
     const path = resolveStudioPath(this.dir, kind, id);
     const text = await this.io.readText(path);
     if (text === null) return null;
-    let raw: unknown;
-    try {
-      raw = JSON.parse(text) as unknown;
-    } catch {
-      throw new StudioReadError("corrupt entity file");
-    }
-    if (!isRecord(raw)) throw new StudioReadError("corrupt entity file");
-    const { escrow: legacy, ...withoutLegacy } = raw;
-    const migrated = legacy !== undefined && raw.original === undefined
-      ? { ...withoutLegacy, original: legacy }
-      : withoutLegacy;
-    let parsed: AnyEntity;
-    try {
-      parsed = parseCanonicalEntity(migrated);
-    } catch {
-      throw new StudioReadError("corrupt entity file");
-    }
-    if (typeof parsed.kind !== "string" || parsed.kind !== kind) {
-      throw new StudioReadError("corrupt entity file");
-    }
-    if (typeof parsed.id !== "string" || parsed.id !== id) {
-      throw new StudioReadError("corrupt entity file");
-    }
-    return parsed;
+    return parseStoredEntity(text, kind, id);
   }
 
   /** Remove one entity file (same containment as read). True when a file was actually removed. */
@@ -241,5 +251,80 @@ export class StudioStore {
     }
 
     return { id, kind, name: entityName(stamped), importedAt, accent };
+  }
+
+  /**
+   * Replace one existing entity only when its complete canonical revision still matches.
+   * The comparison and publish execute under the backend's per-path write lock.
+   */
+  async compareAndSave(
+    raw: unknown,
+    expectedRevision: string,
+  ): Promise<CompareSaveResult> {
+    let entity: AnyEntity;
+    try {
+      entity = parseCanonicalEntity(raw);
+    } catch {
+      throw new StudioValidationError("invalid canonical entity");
+    }
+    const kind = assertStudioEntityKind(entity.kind);
+    const id = assertSafeStudioId(entity.id);
+    const filePath = resolveStudioPath(this.dir, kind, id);
+    const now = new Date().toISOString();
+    let outcome: CompareSaveResult = { status: "missing" };
+
+    await this.io.updateAtomic(filePath, (text) => {
+      if (text === null) {
+        outcome = { status: "missing" };
+        return null;
+      }
+      const existing = parseStoredEntity(text, kind, id);
+      if (entityRevision(existing) !== expectedRevision) {
+        outcome = { status: "stale" };
+        return null;
+      }
+
+      const priorUnmapped = {
+        ...(existing.original?.["vaud-studio"]?.unmapped ?? {}),
+      };
+      const importedAt = typeof priorUnmapped["importedAt"] === "string"
+        ? priorUnmapped["importedAt"] as string
+        : now;
+      const priorAccent = priorUnmapped["accent"];
+      let accent = typeof priorAccent === "string" ? priorAccent : undefined;
+      if (!accent) {
+        const art = portraitBytes(entity);
+        if (art?.mime === "image/png") accent = signatureFromPng(art.bytes) ?? undefined;
+      }
+
+      const stamped: AnyEntity = {
+        ...entity,
+        original: {
+          ...(entity.original ?? {}),
+          "vaud-studio": {
+            raw: entity.original?.["vaud-studio"]?.raw ?? null,
+            unmapped: {
+              ...priorUnmapped,
+              importedAt,
+              ...(accent ? { accent } : {}),
+              updatedAt: now,
+            },
+          },
+        },
+      };
+      outcome = {
+        status: "saved",
+        summary: {
+          id,
+          kind,
+          name: entityName(stamped),
+          importedAt,
+          accent,
+        },
+      };
+      return JSON.stringify(stamped, null, 2);
+    });
+
+    return outcome;
   }
 }
