@@ -91,7 +91,7 @@ starting.
 ## 4. Gates: run before you claim anything is done
 
 ```bash
-bun run verify:ci     # the whole wall: everything below, in order
+bun run verify:ci     # the complete Bun/TypeScript wall: everything below, in order
 ```
 
 Or individually while iterating:
@@ -113,7 +113,9 @@ Or individually while iterating:
 | `bun run license:audit` | no copyleft/restricted dependencies |
 
 Pre-commit runs fast checks against staged files. Pre-push runs the full typecheck and supported test
-suite. CI remains authoritative and runs `verify:ci`.
+suite. CI remains authoritative: its required `test` check runs `verify:ci` and independently vets,
+tests, and builds the Go sidecar with the version pinned in `sidecar/go.mod`. The Go gate stays outside
+`verify:ci` so contributors working outside the remote-access sidecar do not need a Go toolchain.
 
 If a gate fails, fix the cause. Don't modify the gate.
 

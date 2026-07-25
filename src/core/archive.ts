@@ -16,7 +16,7 @@ export class ArchiveLimitError extends Error {
 export interface UnzipBounds {
   /** Max compressed archive length (input bytes). */
   maxArchiveBytes: number;
-  /** Max number of selected entries to inflate. */
+  /** Max total entries in the archive, including entries skipped by a filter. */
   maxEntries: number;
   /** Max compressed size of one entry (fflate `size`). */
   maxEntryCompressed: number;
@@ -48,7 +48,7 @@ export interface UnzipBoundedOptions {
   bounds?: UnzipBounds;
   /** When set, only this entry name is selected (detection path). */
   only?: string;
-  /** Extra filter; runs after bound checks. Deny by returning false. */
+  /** Extra selection filter; deny inflation by returning false. */
   filter?: (file: UnzipFileInfo) => boolean;
 }
 
@@ -60,8 +60,8 @@ const entryOriginal = (f: UnzipFileInfo): number => {
 };
 
 /**
- * Unzip with pre-inflate budgets. Throws ArchiveLimitError when a selected entry or the
- * archive would exceed limits (never silently drop a required entry).
+ * Unzip with pre-inflate budgets. Throws ArchiveLimitError when the archive entry count,
+ * a selected entry, or the selected aggregate would exceed limits.
  */
 export function unzipBounded(
   bytes: Uint8Array,
@@ -72,13 +72,18 @@ export function unzipBounded(
     throw new ArchiveLimitError("archive exceeds safety limits");
   }
 
-  let selected = 0;
+  let entries = 0;
   let aggregate = 0;
 
   let files: Record<string, Uint8Array>;
   try {
     files = unzipSync(bytes, {
       filter: (f) => {
+        entries += 1;
+        if (entries > bounds.maxEntries) {
+          throw new ArchiveLimitError("archive has too many entries");
+        }
+
         if (options.only !== undefined && f.name !== options.only) return false;
         if (options.filter && !options.filter(f)) return false;
 
@@ -87,13 +92,9 @@ export function unzipBounded(
         if (compressed > bounds.maxEntryCompressed || original > bounds.maxEntryOriginal) {
           throw new ArchiveLimitError("archive entry exceeds safety limits");
         }
-        if (selected + 1 > bounds.maxEntries) {
-          throw new ArchiveLimitError("archive has too many entries");
-        }
         if (aggregate + original > bounds.maxAggregateOriginal) {
           throw new ArchiveLimitError("archive aggregate size exceeds safety limits");
         }
-        selected += 1;
         aggregate += original;
         return true;
       },
