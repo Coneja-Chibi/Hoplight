@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/risu",
+  "sourcePath": "docs/guide/platforms/risu.md",
+  "sourceHash": "sha256:80c97b1df348be0ae2f6a53518ff468f8f62a72f35a6d9e3a2a0fe50b4d3ab9c",
+  "summary": "RisuAI exports a character as .charx zip with card.json assets and sometimes module.risum of regex trigger and lorebook rows. What Hoplight reads: .charx cards lorebook .json or .lorebook and regex as .risum or bare JSON rows; detect by zip and card.json not filename. What comes across cleanly keeps the original and lifts core fields greetings group-only Risu additional text creator notes dates display settings bias words image-gen voice scripts as data never run privileged flag as warning only embedded lorebook; images ride as bytes and may not preview live because of internal refs. What changes when you convert to another app keeps same-app fields assets scripts though not guaranteed identical archive bytes; cross-app drops Risu behavior surface scripts display package ids. Editing on the Workbench has Workshop tab for script data; bundled .risum is look do not touch and edit blocks export. Exporting back out writes .charx with linked lorebook in character_book; media only survives same-app Risu round trip not foreign pictures yet. Common questions cover semantic exactness not byte identity preview scripts risum edit block and lorebook put-back.",
+  "topics": [
+    "Risu charx archive",
+    "scripts data never run",
+    "Workshop risum sealed",
+    "same-app not byte-identical",
+    "cross-app private drop",
+    "media same-app only",
+    "Press charx export"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:16cf901056be4b65ca36413a30bb9238d864a7af20fd6260239d690b8d6aa170",
+      "summary": "Hoplight reads RisuAI cards as .charx a zip holding card.json plus assets folder of images and sometimes a bundled module.risum package. Lorebooks export as plain .json or .lorebook. Regex scripts arrive as a .risum module with rule rows or a bare .json list of rows. Drop on the Library for a plain-words receipt. Recognition uses zip signature and card.json entry not filename so renamed exports still import. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "charx zip card.json",
+        "lorebook JSON",
+        "risum or JSON regex",
+        "detect by content",
+        "Library receipt"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:fd3da2507580bf78df702f0f63cf7e13de12ba02095ea252c24cafe94692ef65",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original then lifts name nickname description personality scenario first message alternate and group-only greetings examples system post-history Risu additional text creator notes including per-language source license tags dates display settings view screen large portrait inlay utility bot lore plus bias words image-gen hints voice config regex trigger virtual script background HTML/CSS default variables module toggles prebuilt-asset config privileged flag as warning marker never executed and embedded lorebook. Script rows never run; Hoplight parses edits and writes them as plain data. Every image rides as background bytes; Risu internal image refs mean live Workbench preview is not always available though bytes export back. Bundled .risum package is kept whole.",
+      "topics": [
+        "core and Risu fields",
+        "scripts data only",
+        "privileged warning only",
+        "images bytes may not preview",
+        "embedded lorebook risum"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:f2596167150333714c48517688e0a0f579ab8daa2413a7faef57bba06797ff59",
+      "summary": "Same-app round-trip keeps everything you can see and touch though not necessarily the same bytes: fields assets and script rows come back when exported to RisuAI. Converting to another app drops Risu private extras on purpose: display settings additional text and the whole behavior surface regex trigger virtual script background HTML/CSS default variables module toggles prebuilt-asset config privileged flag plus bundled .risum package internal ids bookkeeping. Core character and embedded lorebook come across as far as the target holds; bias image-gen voice only if matching slots. Another app means SillyTavern Agnai Backyard RoleCall Pygmalion. Never blind-copy scripts; they stay where they work. Fewer target slots drop on their side not yours.",
+      "topics": [
+        "same-app semantic keep",
+        "behavior surface drop",
+        "risum package private",
+        "shared core crosses",
+        "never blind-copy scripts"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:0b4d5912224127f2b8f9e7248733328d1a0d3ae7f4addeff5f85784a31c1dd72",
+      "summary": "Send a piece to the Workbench as a tab and edit name description personality scenario first message and example messages like any card. Save writes the whole card so untouched parts stay. Cards with Risu scripts get a second tab Workshop for regex rows trigger rows virtual script background HTML/CSS and default variables as data you read and edit never run. If a separate .risum package is bundled Workshop shows its contents as look do not touch for now: editing the package and exporting is currently blocked rather than risk a broken write-back. Leave it as imported and it exports whole.",
+      "topics": [
+        "core fields whole save",
+        "Workshop scripts data",
+        "never run scripts",
+        "risum look do not touch",
+        "edit blocks export"
+      ],
+      "children": []
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:83de5ea880942bd2abf6b15c58ae6cc32946e7b22afa594f1da6723f5aeb70b1",
+      "summary": "Stage for the Press; each run exports staged pieces to one target. Hoplight writes RisuAI cards as .charx the same zip container Risu exports so it loads like any Risu export. A linked lorebook rides written into character_book the slot Risu reads on import. Plain .txt or .md available for reading text. Other app targets apply the drop story. Gap: if a piece picture came from a different app exporting to RisuAI currently leaves .charx with no images; media only survives same-app Risu round trip where original archive files ride untouched. A picture from elsewhere has nowhere to land in a Risu export yet.",
+      "topics": [
+        "write charx container",
+        "lorebook character_book",
+        "txt md text copy",
+        "media same-app only",
+        "foreign picture gap"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:7f2393e5ad852bee48dcfcc5e0d9939c129ed10f7720432c44978599288574fe",
+      "summary": "Will the card come back exactly as it was? In every way that matters yes on export to RisuAI: every field asset and script row survives but exact .charx bytes are not guaranteed because Hoplight rebuilds the archive and re-prints JSON so spacing compression and entry order can shift. Imported .charx returns as .charx. Picture bytes always ride on same-app round trip; live Workbench preview depends on Risu internal refs. Regex and trigger scripts stay on the Risu card and are not copied cross-app; on Workbench they are data never run. Bundled .risum can be opened and looked at; leave alone to export whole; edit currently blocks export so change packages in RisuAI for now. Embedded worldbook is pulled for solo edit and put back into character_book on export to apps that read one.",
+      "topics": [
+        "semantic not byte-identical",
+        "charx always",
+        "preview vs bytes",
+        "scripts data only",
+        "risum edit blocked",
+        "lorebook put-back"
+      ],
+      "children": []
+    }
+  ]
+}

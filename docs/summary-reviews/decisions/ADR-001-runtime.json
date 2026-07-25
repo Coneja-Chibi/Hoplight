@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-001-runtime",
+  "sourcePath": "docs/decisions/ADR-001-runtime.md",
+  "sourceHash": "sha256:15c2e3188c6c0523fe2c8d312dfa690b0ef683b7e5dbdab9ed2509a7e09d4b9a",
+  "semanticSummaryHash": "sha256:794b1cb8a57620f17f2cbe85e59d685b9321e008c0cdab1bafd03ad15370986f",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:55.392Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/marinara",
+  "sourcePath": "docs/reference/formats/marinara.md",
+  "sourceHash": "sha256:afa9c09813b7a4e9576c4d463b79518457bb40a8ac582b8391998c3d96185839",
+  "semanticSummaryHash": "sha256:f4af0a475072aa3211f6e448bad2aa6d20dd35a564bf5cbd78b0b6992443ac34",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:58.799Z"
+}

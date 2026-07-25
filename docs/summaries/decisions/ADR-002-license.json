@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-002-license",
+  "sourcePath": "docs/decisions/ADR-002-license.md",
+  "sourceHash": "sha256:479e218a50eaa70ac180e58d1d98ab6ca7921e548e889c0374f071e3ca2b4808",
+  "summary": "Accepted ADR selecting AGPL-3.0-or-later for the whole repo to keep code genuinely open while preventing closed commercial exploitation. Context forced the choice because openness and anti-enclosure pull against each other under a permissive license. Decision allows the copyright holder to sell commercial licenses to parties who cannot comply with AGPL, following Grafana, Qt, and pre-SSPL MongoDB dual-licensing. Why AGPL fits: OSI-approved open source without source-available stigma; forks and hosted services must publish complete source under same terms so commercial actors stay away or negotiate; copyright holder is not bound by their own license for other closed projects. Rejected PolyForm-NC FSL BUSL as source-available, MIT Apache as allowing closed forks, and MIT core plus AGPL app as weaker where it matters most though revisitable. Consequences: LICENSE verbatim AGPL text, LICENSING.md plain explanation and commercial contact, license audit fails build on copyleft restricted deps, no CLA is a live constraint so outside contributions cannot merge without forfeiting commercial dual-license option, no per-file SPDX headers.",
+  "topics": [
+    "AGPL-3.0-or-later",
+    "dual commercial license",
+    "OSI open source",
+    "rejected MIT Apache FSL",
+    "no CLA constraint",
+    "license audit gate",
+    "LICENSING.md",
+    "ADR-002 accepted"
+  ],
+  "sections": [
+    {
+      "slug": "context",
+      "title": "Context",
+      "level": 2,
+      "sourceHash": "sha256:55999fa6c0cfaeb0883a68b0acc377fceb4046e5cf84048fb1219828e04a7e34",
+      "summary": "The project needed a license that keeps the code genuinely open and usable by anyone while preventing a third party from closing it up and selling it. Those two goals pull against each other under a permissive license, which forced a deliberate decision rather than a default choice.",
+      "topics": [
+        "open and anti enclosure",
+        "permissive license tension",
+        "forced decision"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:733396c78d956830f06d6db8fb7ab901d2624c35a56476732d7d820d51da8679",
+      "summary": "AGPL-3.0-or-later applies to the whole repository. The copyright holder retains the right to sell commercial licenses to anyone who cannot or will not comply with the AGPL. This dual-licensing model is the same pattern Grafana, Qt, and pre-SSPL MongoDB used for open core plus commercial terms.",
+      "topics": [
+        "AGPL whole repo",
+        "commercial license right",
+        "Grafana Qt MongoDB model"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "why-agpl-fits",
+      "title": "Why AGPL fits",
+      "level": 2,
+      "sourceHash": "sha256:e61aeffb12eb15d6e1feb1b5b259b35d8fd44b12312d2d2a8024f92eeb10ad8a",
+      "summary": "AGPL is a real OSI-approved open-source license without source-available stigma. It prevents closed commercial exploitation in practice because any fork or hosted service must publish its complete source under the same terms, which commercial actors rarely accept; they either stay away or negotiate a separate license. The copyright holder is not bound by their own license, so the same code can still be used in their other closed projects.",
+      "topics": [
+        "OSI approved",
+        "network copyleft pressure",
+        "holder not bound by own license",
+        "negotiate commercial"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "rejected-alternatives",
+      "title": "Rejected alternatives",
+      "level": 2,
+      "sourceHash": "sha256:e21d6bdff39543ed6ddfc5e8125eb6153f0e8566c387eb092bd3fc2c8f2c3035",
+      "summary": "PolyForm-NC, FSL, and BUSL are closer to the literal anti-commercial requirement but are source-available rather than open source and invite community suspicion this choice exists to avoid. MIT and Apache allow closed commercial forks outright. MIT core plus AGPL app is a cleaner engine adoption story but weakens the guarantee where it matters most; revisitable per-package later because relicensing toward MIT stays open to the copyright holder while the reverse is not.",
+      "topics": [
+        "reject source-available FSL",
+        "reject MIT Apache closed forks",
+        "MIT core AGPL app weaker",
+        "relicense toward MIT possible"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:6639a2166bfc0b144ff009a059b6f5546049cac98829d99ded19723c292071b8",
+      "summary": "LICENSE carries verbatim AGPL-3.0 text; LICENSING.md explains it in plain terms and carries the commercial contact. bun run license:audit fails the build if a copyleft or restricted dependency is introduced. No CLA is in place and this is a live constraint: dual licensing depends on the copyright holder owning all code; the first merged outside contribution without a contributor agreement ends that option. Until a CLA exists, outside contributions cannot be merged without forfeiting commercial licensing. Per-file SPDX headers were considered and are not adopted; the repo-level LICENSE governs.",
+      "topics": [
+        "LICENSE LICENSING.md",
+        "license audit fails build",
+        "no CLA live constraint",
+        "outside contributions blocked",
+        "no per-file SPDX"
+      ],
+      "children": []
+    }
+  ]
+}

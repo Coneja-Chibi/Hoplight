@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/detection",
+  "sourcePath": "docs/reference/concepts/detection.md",
+  "sourceHash": "sha256:fde4f93e0bc14ad261ea9e81f9f3b855c57af1e560b1e3a606e3344b6f589728",
+  "summary": "Detection and the registry explain how Hoplight sniffs file content rather than trusting extensions. Every adapter scores AdapterInput confidence; registry.detect keeps the single best score at or above DETECT_THRESHOLD 0.5 or returns undefined. Content, not extension builds bytes always and text only for valid UTF-8 json or txt. The registry pass is one winner with strict-greater selection and deliberate score spread so order does not decide ties. Confidence scores ladder specific readers over generic shared shapes, with weak in-band and sub-threshold soft nos. Not detection: the origin labeler is a separate hoplight label pass after format choice. The cross-kind firewall forces zero on other kinds so worldbooks never steal character readers, backed by detection.test.ts and kind-discriminated convert. Adding a format never edits detection: folders-as-schema registers each detect locally without core changes. Source of truth maps registry adapter loader tests CLI and provenance ownership.",
+  "topics": [
+    "content sniff not extension",
+    "registry detect threshold",
+    "confidence score ladder",
+    "origin labeler separate",
+    "cross-kind firewall",
+    "folders-as-schema detect",
+    "DETECT_THRESHOLD 0.5",
+    "one winner no match"
+  ],
+  "sections": [
+    {
+      "slug": "content-not-extension",
+      "title": "Content, not extension",
+      "level": 2,
+      "sourceHash": "sha256:fff2329c8c4210c204877abc0d6034e0ae47ff79c953bbc418666cf8a6ce7556",
+      "summary": "Adapters receive AdapterInput with bytes for binary, text for JSON, and optional filename. Reads always fill bytes and decode text only for valid UTF-8 .json or .txt; extension never picks the winner. Binary detectors use magic and chunks; JSON needs text or returns 0. sniffContainer is a separate wrapper sniff under provenance.",
+      "topics": [
+        "AdapterInput bytes text",
+        "extension only decode gate",
+        "binary vs JSON detect",
+        "sniffContainer separate"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-registry-pass",
+      "title": "The registry pass",
+      "level": 2,
+      "sourceHash": "sha256:71de6236c2891e5843511ef999b016e7ae77845d3df0ba72c6c228db9a89c0c3",
+      "summary": "registry.ts is the pure in-memory adapter table. detect walks every registered adapter, tracks the highest score, and returns that adapter only if score clears DETECT_THRESHOLD 0.5 inclusive; otherwise undefined. One pass one winner against the same input with no format-to-format probing. No match is real: callers report unrecognized rather than guess. Selection uses strict greater so equal later scores never displace earlier ones, which is why confidence ladders are deliberately spread. convert inspect validate and label CLI commands plus studio inspect all call registry.detect first.",
+      "topics": [
+        "DETECT_THRESHOLD 0.5",
+        "one pass one winner",
+        "undefined no match",
+        "strict-greater scores",
+        "CLI and studio callers"
+      ],
+      "children": []
+    },
+    {
+      "slug": "confidence-scores",
+      "title": "Confidence scores",
+      "level": 2,
+      "sourceHash": "sha256:dc3f465d06ee22db104845dd9075ac32a45714f13436cb134f37d5fc808433b3",
+      "summary": "detect returns 0 to 1; zero means not mine. Scores are hand-chosen so specific readers outrank generic ones on shared wire shapes. SillyTavern generic Tavern reader scores 0.9; RoleCall claims 1.0 only with extensions.rolecall and returns 0 on plain CCv3 so sillytavern wins. Backyard scores 0.9 on legacy cards but 0.55 on bare persona objects, a weak but intentional clear of the floor. vaud-json returns 1 for real canonical entities and 0.1 for other JSON, which never clears 0.5 and cannot win. Per-adapter rosters live on FORMAT-SUPPORT and format pages.",
+      "topics": [
+        "0 to 1 confidence",
+        "specific outranks generic",
+        "RoleCall vs SillyTavern",
+        "weak in-band scores",
+        "sub-threshold soft no"
+      ],
+      "children": []
+    },
+    {
+      "slug": "not-detection-the-origin-labeler",
+      "title": "Not detection: the origin labeler",
+      "level": 2,
+      "sourceHash": "sha256:dcb82290e73c06838030953d219330d1964f9d82619fa6d5acff518efb8b07c5",
+      "summary": "hoplight label runs a second scoring pass after detection already chose the format. labelCard guesses which app likely authored the card by testing app-namespaced extension blocks and reports the winning rule weight as 0 to 1 confidence. That answers origin heuristic where detect confidence answers which adapter reads the file. They are different numbers from different passes and must not be conflated.",
+      "topics": [
+        "labelCard separate pass",
+        "origin vs routing confidence",
+        "extension block rules"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-cross-kind-firewall",
+      "title": "The cross-kind firewall",
+      "level": 2,
+      "sourceHash": "sha256:7857d3ca209164bdb5d4d072439f7b8a30b7e110548f678948dab87d0183b9ec",
+      "summary": "Character lorebook persona and regex adapters share one registry pass, so each detector must return 0 on other kinds. Character-versus-lorebook is load-bearing: ST worldbooks are name-shaped JSON that would false-positive a naive V1 character path. The flat/v1 branch therefore requires real character signals description personality scenario first_mes or mes_example so worldbooks route to sillytavern-lorebook. detection.test.ts registers every format and asserts samples route correctly; new folders may add detectors but must not steal. A type-level complement is FormatAdapter kind-discriminated union with convertFile throwing on cross-kind pairs.",
+      "topics": [
+        "zero on other kinds",
+        "character lorebook collision",
+        "detection.test.ts property",
+        "kind union convert guard"
+      ],
+      "children": []
+    },
+    {
+      "slug": "adding-a-format-never-edits-detection",
+      "title": "Adding a format never edits detection",
+      "level": 2,
+      "sourceHash": "sha256:44a84c9156ff5cb416a964d34cc72135b7f5d0e13e2f9b3cc96cc6b9395db7e1",
+      "summary": "Each format folder owns detect. The registry never hardcodes formats; the loader discovers src/formats/*/index.ts default exports. Adding a format means writing detect in the new folder and choosing a score that fits the confidence gradient with no core edits. The firewall test is the safety net against scores that invade another format territory.",
+      "topics": [
+        "folders-as-schema loader",
+        "local detect ownership",
+        "no core detection edits",
+        "firewall test safety net"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:2b9fdbafb9cee08abe81d39d0c7de54393ae0e9c6211170f870993e11caa1bd3",
+      "summary": "registry.ts owns the table detect and threshold. adapter.ts owns detect contract and kind union. loader.ts registers folders. detection.test.ts is the firewall property. convert.ts guards kind on conversion. CLI and server-engine build AdapterInput. provenance.ts owns the origin labeler. FORMAT-SUPPORT.md lists the generated adapter roster.",
+      "topics": [
+        "registry adapter loader",
+        "detection tests convert",
+        "CLI studio input build",
+        "FORMAT-SUPPORT roster"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

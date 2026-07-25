@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/README",
+  "sourcePath": "docs/reference/formats/README.md",
+  "sourceHash": "sha256:9cca6f2c68cf1ef67c75b3a6ebf97d4b1547b5c5363c7a9dee557444e04088e0",
+  "summary": "Index of every format hoplight reads and writes. A format is a folder in src/formats name discovered automatically by the loader; each format family gets one reference page under this directory with architecture for discovery context. Coverage matrix points exclusively to generated FORMAT-SUPPORT.md from the live registry via bun run matrix with matrix:check failing CI on drift; a hand-maintained matrix here rotted once by missing three shipped adapters and will not be repeated. Reference pages table ships dedicated docs for SillyTavern RoleCall RisuAI Backyard Agnai NovelAI vaud-json and Marinara with their covered kinds; adapters without a dedicated page yet such as pygmalion lumiverse and chub live in source folders and the matrix. Detection scores are detect confidence with higher winning and more-specific formats outranking generic Tavern; recognition threshold is 0.5. Cross-cutting links character-book extraction and re-embed. Not yet built planned tracks honesty gaps: Wyvern lorebook needs no codec because there is no verifiable standalone wire, only CCv2 PNG character export with Lexicon either in extensions.wyvern escrow or in-app only; wire-gate forbids codecs from wiki-inferred zero-byte formats. Lumiverse World Books need no dedicated codec either: import accepts only Risu-native and CCv3 entries shapes already emitted by risu-lorebook and sillytavern-lorebook; export is the same; rich LumiWorldBookEntry is a database row not a portable file except inside .lvbak account backup as a separate multi-entity concern.",
+  "topics": [
+    "formats index hub",
+    "FORMAT-SUPPORT matrix",
+    "reference page table",
+    "detect score 0.5",
+    "character-book cross-cut",
+    "Wyvern no lorebook codec",
+    "Lumiverse world book reuse",
+    "wire-gate doctrine"
+  ],
+  "sections": [
+    {
+      "slug": "coverage-matrix",
+      "title": "Coverage matrix",
+      "level": 2,
+      "sourceHash": "sha256:8c37730f7cf1abce52c5860c835c5fd43cf3925166ba614ce21b24e74ac7e087",
+      "summary": "The exhaustive adapter list lives only in FORMAT-SUPPORT.md, generated from the live registry with bun run matrix; CI fails if it drifts under matrix:check. A hand copy in this README rotted once by missing three shipped adapters and does not get a second chance.",
+      "topics": [
+        "FORMAT-SUPPORT generated",
+        "matrix:check CI",
+        "no hand matrix copy"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "reference-pages",
+      "title": "Reference pages",
+      "level": 2,
+      "sourceHash": "sha256:b3b2412d5d6219e02feb9ad8b4d1955ff662f8c64797a106afe1b6034c38c7c4",
+      "summary": "Family table links dedicated pages: SillyTavern for character v2/v3 png/json world info personas; RoleCall for character lorebook regex persona; RisuAI for charx native lorebook risum modules regex; Backyard Faraday for legacy json and byaf archive; Agnai for character and memory book; NovelAI for lorebook; Vaudeville native vaud-json for the canonical wrapper; Marinara for native lorebook prompt preset persona regex and characters as CCv3 plus extension fields. Adapters without a dedicated page yet, pygmalion lumiverse chub, are documented by source under src/formats and appear in the generated matrix. Detection scores are confidence each detect returns for its own format: higher wins; more-specific formats outrank the generic Tavern reader on the same card; threshold to be recognized at all is 0.5.",
+      "topics": [
+        "family page table",
+        "ST RoleCall Risu Backyard",
+        "Agnai NovelAI vaud Marinara",
+        "undocumented folder adapters",
+        "detect threshold 0.5"
+      ],
+      "children": []
+    },
+    {
+      "slug": "cross-cutting",
+      "title": "Cross-cutting",
+      "level": 2,
+      "sourceHash": "sha256:13c222b6849fc55310dee05cbbe37e7ff7050895f0059b10e91adca3471f6a4a",
+      "summary": "Points to concepts/character-book.md as the single cross-cutting reference for an embedded character_book: how a card lorebook is extracted on import and re-embedded on export. That shared bundle concern is not restated on every family page, so adapters that ship cards with inline books should follow the character-book concept doc rather than inventing a second path.",
+      "topics": [
+        "character-book concept",
+        "extract and re-embed",
+        "shared bundle concern"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "not-yet-built-planned",
+      "title": "Not yet built (planned)",
+      "level": 2,
+      "sourceHash": "sha256:5e12bfdece56adb0e0ec196613be85afd6145438fb98209ed3a20df452072b84",
+      "summary": "Tracks planned honesty so the matrix separates exists from coming. Wyvern lorebook: no standalone wire format and no dedicated codec; Wyvern character export is CCv2 PNG already readable; Lexicon is character-attached so it rides extensions.wyvern escrow via CCv2 or stays in-app like Janitor with no serialized file; zero real public export means wiki-inferred codecs would violate the wire-gate doctrine that a codec exists only when a real wire serializes it; revisit only if a real standalone export lands with open questions on standalone serialization and CCv2 extensions. Lumiverse World Books: already covered by risu-lorebook and CCv3/ST worldbook codecs; LumiRealm parseDirectLorebook accepts only Risu type risu data array and CCv3 entries object; export returns Risu-shaped loreBook arrays; rich LumiWorldBookEntry is a database row not a portable file; only .lvbak full-account backup would carry it as multi-entity restore, not a lorebook codec. A native LumiWorldBookEntry file codec would be dead surface.",
+      "topics": [
+        "Wyvern closed verdict",
+        "wire-gate no codec",
+        "Lumiverse reuse Risu ST",
+        "LumiWorldBookEntry DB row",
+        ".lvbak not lorebook codec"
+      ],
+      "children": []
+    }
+  ]
+}

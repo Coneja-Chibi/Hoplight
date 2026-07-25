@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/components",
+  "sourcePath": "docs/reference/components.md",
+  "sourceHash": "sha256:56d60659b3714a3ff14b9f16bfaa444c23912a9846f8bd1ab5d2682d885355ad",
+  "semanticSummaryHash": "sha256:3b430efae9290c138a27c028c7a7ad339b54c8e9114695f5ff5eb244f0992c71",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:27.765Z"
+}

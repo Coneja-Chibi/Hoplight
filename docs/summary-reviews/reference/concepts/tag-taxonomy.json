@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/tag-taxonomy",
+  "sourcePath": "docs/reference/concepts/tag-taxonomy.md",
+  "sourceHash": "sha256:99c348c9078c3cc68d65e3f33f86aec3f9b955fbf38eaff451b1a9345184ff7b",
+  "semanticSummaryHash": "sha256:3722d2de52fd493ef64ba7345cd40490551efa6441504483acd1954708868ff0",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:29.673Z"
+}

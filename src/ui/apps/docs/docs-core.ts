@@ -106,15 +106,31 @@ export function groupDocs(docs: DocRecord[]): DocNavGroup[] {
   });
 }
 
+const flattenAnchors = (anchors: DocRecord["anchors"]): DocRecord["anchors"] => {
+  const out: DocRecord["anchors"] = [];
+  for (const anchor of anchors) {
+    out.push(anchor);
+    if (anchor.children?.length) out.push(...flattenAnchors(anchor.children));
+  }
+  return out;
+};
+
 export function searchDocs(docs: DocRecord[], rawQuery: string): DocRecord[] {
   const query = rawQuery.trim().toLowerCase();
   if (!query) return docs;
-  return docs.filter((doc) => [
-    doc.title,
-    doc.summary,
-    ...doc.tags,
-    ...doc.anchors.map((anchor) => anchor.text),
-  ].join(" ").toLowerCase().includes(query));
+  return docs.filter((doc) => {
+    const flat = flattenAnchors(doc.anchors);
+    return [
+      doc.title,
+      doc.summary,
+      doc.semanticSummary ?? "",
+      ...doc.tags,
+      ...(doc.topics ?? []),
+      ...flat.map((anchor) => anchor.text),
+      ...flat.map((anchor) => anchor.summary ?? ""),
+      ...flat.flatMap((anchor) => anchor.topics ?? []),
+    ].join(" ").toLowerCase().includes(query);
+  });
 }
 
 export function stripFrontmatter(raw: string): string {

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/tag-taxonomy",
+  "sourcePath": "docs/reference/concepts/tag-taxonomy.md",
+  "sourceHash": "sha256:99c348c9078c3cc68d65e3f33f86aec3f9b955fbf38eaff451b1a9345184ff7b",
+  "summary": "The tag taxonomy concept page defines how free-string character tags from discovery.tags become KIND-colored chips without any wire format carrying a category. Authority is pure categorizeTag in src/core/tag-taxonomy.ts with tests in the sibling test file; presentation colors and icons live only in workbench Editor TAG_CATEGORY_STYLE. Categories lists the eleven TagCategory values identity trait role genre theme setting pov mood kink warning and meta, each with coverage and editor color, after normalize folds hash lowercase and separators. Deliberately a seed, not the full taxonomy states the dictionary is a curated RoleCall-mirrored seed, unrecognized tags fall to meta slate, and the Open Tagsheet milestone widens SEED rows only never code branches so lookup stays one normalized Map.",
+  "topics": [
+    "tag taxonomy categories",
+    "categorizeTag pure",
+    "discovery.tags free strings",
+    "TAG_CATEGORY_STYLE",
+    "SEED dictionary",
+    "meta fallback",
+    "Open Tagsheet"
+  ],
+  "sections": [
+    {
+      "slug": "categories",
+      "title": "Categories",
+      "level": 2,
+      "sourceHash": "sha256:715317fdcda9572125f48fe66afd8d0dcc3fc2009e9ee61fe78b1493833b1ee0",
+      "summary": "categorizeTag takes a tag string and returns TagCategory after folding to a lookup key by dropping a leading hash, lowercasing, and collapsing underscore hyphen slash and whitespace to single spaces, then reading a seed dictionary. Categories are identity for gender sexuality species cyan, trait for personality dere archetype violet, role for occupation dynamic relationship rose, genre indigo, theme for trope theme pink, setting for place era environment emerald, pov for narrative POV sky, mood for mood tone amber, kink red, warning for trigger content warning orange, and meta for authoring provenance plus the unrecognized fallback slate. Editor colors are presentation only; the pure classifier returns the category token.",
+      "topics": [
+        "TagCategory eleven kinds",
+        "normalize lookup key",
+        "identity trait role",
+        "genre theme setting",
+        "pov mood kink warning meta"
+      ],
+      "children": []
+    },
+    {
+      "slug": "deliberately-a-seed-not-the-full-taxonomy",
+      "title": "Deliberately a seed, not the full taxonomy",
+      "level": 2,
+      "sourceHash": "sha256:0c164b112d51702e29520ab0d8d178673b4c0b45afe666cbbace4a74adec8c53",
+      "summary": "The dictionary is a curated seed of common tags mirroring RoleCall display categories, not the full roughly thousand-tag taxonomy. Unrecognized tags resolve to meta with neutral slate and are never mis-colored. The discovery milestone Open Tagsheet widens coverage only by adding SEED rows, never by adding code branches, so lookup remains a single normalized Map.",
+      "topics": [
+        "curated SEED not full",
+        "unrecognized becomes meta",
+        "Open Tagsheet rows",
+        "single Map lookup"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/agnai",
+  "sourcePath": "docs/reference/formats/agnai.md",
+  "sourceHash": "sha256:627986d812ab05d9e29b5af3a4cfda80996c67b248ebc7f3bc2ab37c603ba477",
+  "summary": "Developer reference for the Agnai Agnaistic adapter family: native JSON character shape and memory-book lorebooks, not Tavern-lineage. Persona is structured kind plus attribute map, preserved in canonical persona.structured. Folder src/formats/agnai default-exports agnai character and agnai-lorebook codecs, both .json; schema facts come from Agnai source under AGPL as interop only with no code copied. Detection covers character score 1.0 when kind character persona object greeting string and schemaVersion body both absent to firewall vaud-json; lorebook scores 1.0 kind memory, 0.9 kind-less native entry keywords array, 0.7 standalone CCv3 character_book soft import, else 0. Field map Character maps name through settings.responseSchema and original.agnai.raw including culture appearance voice imagePrompt prefill single insert depth slot sprite visualKind and structured persona decode encode rules. Field map Lorebook maps MemoryEntry entry keywords weight priority and book-level scan fields with hardcoded lorebookType other. Escrow and round-trip details two-state character set overlay, always-rebuild persona multi-text collapse, three-state lorebook entryToWire, and extractLorebook applyLorebook for native characterBook MemoryBook not CCv3. Quirks list overlay differences, firewall, imageSettings per-key merge, single insert, embedded book mapper, and selectiveLogic ST residue. Source of truth tables adapter files schemas samples and Agnai interop paths.",
+  "topics": [
+    "Agnai character JSON",
+    "agnai-lorebook memory book",
+    "structured persona map",
+    "characterBook extractLorebook",
+    "detection vaud firewall",
+    "escrow original.agnai",
+    "weight priority axes",
+    "persona always rebuilt"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:caff01af9761c31fbe8ad3f8375a14351bf91a7e29bdd4764979280c9863883c",
+      "summary": "Registry keeps the single highest detect score above 0.5 so specific formats outrank generic ones. Character detect parses JSON and returns 1.0 only when kind is character, persona is a non-null object, greeting is a string, schemaVersion is undefined, and body is undefined; otherwise 0. The last two clauses firewall vaud-json which carries schemaVersion and body so Agnai never fights the native wrapper on the same file. Parse failure or missing text returns 0. Agnai scores 1.0 not 0.9 as a self-identifying shape no other adapter supersets. Lorebook agnai-lorebook uses coerceMemoryBook: 1.0 for kind memory, 0.9 for kind-less books whose entries array first entry still has native entry plus keywords, 0.7 for standalone CCv3 Chub character_book with keys or content re-exported as MemoryBook, else 0 including SillyTavern keyed-object worldbooks and Risu envelopes without top-level entries array.",
+      "topics": [
+        "character detect 1.0",
+        "vaud schemaVersion firewall",
+        "memory kind 1.0",
+        "native entry keywords 0.9",
+        "CCv3 soft import 0.7"
+      ],
+      "children": [
+        {
+          "slug": "character",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:4eb39403ffa94211336b00f967916fcc13edb19a9ced3e703f33492a47de5f10",
+          "summary": "detect requires kind character, non-null persona object, string greeting, and both schemaVersion and body undefined. Those absences block vaud-json collision. Failure or missing text yields 0; success is 1.0 as a specific self-identifying shape.",
+          "topics": [
+            "five detect gates",
+            "vaud-json firewall",
+            "score 1.0 specific"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "lorebook",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:a73d6bc7101b699a211b19e4c2608de74b5e8f1f372808b02309933f8108f8f9",
+          "summary": "coerceMemoryBook scoring: 1.0 with kind memory; 0.9 kind-less array entries whose first row has entry and keywords distinguishing native Agnai from CCv3 content keys; 0.7 standalone character_book soft import via shared mapper; 0 for ST object entries and Risu envelopes.",
+          "topics": [
+            "kind memory 1.0",
+            "entry keywords 0.9",
+            "character_book 0.7",
+            "reject ST Risu shapes"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:846aa241d246e823b2065601d114a51af403c34e7914a461bc35d832590d272d",
+      "summary": "Decode uses cardToBody and bookToCanonical; encode uses applyBodyToCard and canonicalToMemoryBook. Only string values survive character decode via tolerant str and strList; only defined values write back. Character maps name description characterVersion culture persona scenario appearance voice imageSettings affixes system postHistory prefill insert greeting alternates sampleChat avatar sprite visualType creator tags json and whole card to original.agnai.raw. Persona kind text lands personality plus structured text; boostyle wpp sbf attributes keep structured attributes with personality unset; encode rebuilds from structured unless text. Lorebook maps MemoryEntry entry keywords weight priority distinct from CCv3 content keys, book-level scanDepth tokenBudget recursiveScanning, lorebookType hardcoded other, and documents weight to sortOrder priority to priority matching Agnai memoryEntryToNative interop comments.",
+      "topics": [
+        "cardToBody applyBodyToCard",
+        "structured persona kinds",
+        "MemoryEntry field names",
+        "weight sortOrder priority",
+        "book-level scan fields"
+      ],
+      "children": [
+        {
+          "slug": "character-1",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:134a1ad4a16463dc23803aa701a2da0e563a9e8a93159ec1f0695e5fde622604",
+          "summary": "Full character table: identity name description characterVersion culture; persona personality structured scenario appearance voice imagePrompt; prompts system postHistory prefill and insert as depthInjections zero only; greetings first and alternate text only; sampleChat examples; avatar portrait sprite visualKind; creator tags responseSchema; raw escrow. Persona decode encode rules preserve attribute maps and collapse multi-element text attributes to first element. applyBodyToCard always rebuilds persona from canonical.",
+          "topics": [
+            "identity persona prompts",
+            "single insert slot",
+            "sprite visualKind",
+            "toStructured toAgnaiPersona",
+            "text array collapse"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook-1",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:6805903eda491e7388f7dac41a7155f25187881e72adb280f40cfcfb41aa15a0",
+          "summary": "MemoryEntry uses entry not content, keywords array not CSV, and explicit weight placement plus priority eviction. Maps title content comment enabled constant triggers secondaryTriggers selectiveLogic position sortOrder priority probability excludeRecursion and book scanDepth tokenBudget globalRecursion. lorebookType is other; per-entry caseSensitive matchWholeWords scanDepth are null. weight to sortOrder and priority to priority match Agnai memoryEntryToNative interop comments verified locally for the local mapping.",
+          "topics": [
+            "entry keywords axes",
+            "weight vs priority",
+            "selectiveLogic ST residue",
+            "book-level scanDepth",
+            "lorebookType other"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:1031d84f5d162766ec1666966c88c5423d4040095c8be2c3a63d214b15b64efd",
+      "summary": "Escrow is original keyed by format id: original.agnai for character and original agnai-lorebook for books. Export deep-clones raw or baseCard then applyBodyToCard and pretty JSON; unmapped keys like extensions _id userId survive the clone. Character set is two-state unconditional write or delete string array without twin decode compare; malformed non-string skipped values stay. Persona always rebuilds so multi-element text attributes collapse to first element even same-format. Lorebook entryToWire is three-state diff by id Map so untouched entries re-emit byte-for-byte including selectiveLogic; optional book fields preserve twin presence. Embedded characterBook is Agnai MemoryBook not CCv3: extractLorebook uses memoryBookToCanonical identically to standalone; fromCanonical re-embeds via applyLorebook twin-overlay; no book means no key; empty bundle deletes stale characterBook; inspectBundle uses this override not shared CCv3 extractor.",
+      "topics": [
+        "original.agnai raw twin",
+        "two-state set helper",
+        "persona rebuild collapse",
+        "three-state entryToWire",
+        "extractLorebook MemoryBook",
+        "bundle inspectBundle override"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:c867e30f8f3ddcdb60d933e759b2ea49df9d4639a1ec24c8934470534896fb85",
+      "summary": "Two-state character overlay versus three-state lorebook overlay: same well-formed result different mechanism. Persona always rebuilt; multi-element text persona collapses on every round-trip. Detection firewall is absence of schemaVersion and body not their presence. imageSettings affixes reconcile per key with sampler provider knobs surviving from twin clone. insert is single fixed-depth slot; only depthInjections zero re-encodes; role origin enabled stay undefined on decode. Embedded characterBook is Agnai-native MemoryBook via adapter extract apply not shared character-book mapper. selectiveLogic is ST-import residue on ST numeric convention never authored by Agnai editor so fresh cross-format encode never emits it.",
+      "topics": [
+        "overlay mechanism split",
+        "persona multi-text collapse",
+        "imageSettings per-key",
+        "single insert slot",
+        "native characterBook",
+        "selectiveLogic residue"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:c9a217fa0bbdff8931511e67935710643db609871efcb8276d17d9308156f4b0",
+      "summary": "Authoritative files: character adapter index.ts for detect toCanonical fromCanonical extractLorebook; memory book lorebook.ts and shared mappers; coverage.ts; shared character-book soft-import path and lore-enums selectiveLogic; convert and adapter extractLorebook EmitContext for bundles; character and lorebook entity schemas; canonical escrow; samples/agnai and samples/lorebooks/agnai; Agnai common types paths cited as AGPL interop facts only with no code copied.",
+      "topics": [
+        "index lorebook coverage",
+        "shared character-book",
+        "entity schemas",
+        "samples fixtures",
+        "Agnai interop facts"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

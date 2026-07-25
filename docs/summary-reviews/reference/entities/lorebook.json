@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/lorebook",
+  "sourcePath": "docs/reference/entities/lorebook.md",
+  "sourceHash": "sha256:30d30107eea0a9c2004645a3f605d196e0f5dac4db034c3bf39e61b535015c0c",
+  "semanticSummaryHash": "sha256:cfa6fbc4b118b14288a7b835a9040ea6344f9b194170a70e396675dadabacd4f",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:30.261Z"
+}

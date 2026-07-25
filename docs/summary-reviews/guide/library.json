@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/library",
+  "sourcePath": "docs/guide/library.md",
+  "sourceHash": "sha256:2bbc205e5175b83d57b0656f02cd329128f1fa5a57df3e9ea303ee914e7b240a",
+  "semanticSummaryHash": "sha256:62d78d7c99a6c8b6cf37f00b5ae076074e7e1349ef43f08f3c7715a58ea93705",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:24.174Z"
+}

@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/library",
+  "sourcePath": "docs/guide/library.md",
+  "sourceHash": "sha256:2bbc205e5175b83d57b0656f02cd329128f1fa5a57df3e9ea303ee914e7b240a",
+  "summary": "Browse the Library covers shelves of pieces already in the studio: six decks by kind, view modes, and staging one piece or a batch to the Workbench. Import is covered separately. The short version is pick a deck chip with live count among Characters Lorebooks Personas Sprite packs Presets Regex sets; pick Grid Show List or a deck-specific view and drag the art slider to resize cards live; stage by click for tray accent ring and check, click again to drop, tray survives deck switches; send bar Send it to the Workbench or Send all N, or right-click one piece to send without staging or stage for the Press. The decks and their views keep every chip visible even at count 0; status line reports active deck share; empty Lorebooks Regex Personas Presets offer New while Characters and Sprite packs are import-only; Grid Show List and Shelf run everywhere with Lorebook on/off Split Copy drag-merge and Regex rule count description slow flags, and off books or sets are skipped on export. Staging and sending never opens on tap; open Workbench pieces refuse restage; send bar has count Send and Clear; sending opens tabs and may navigate per Settings. Tips cover tray clear rules, Grid fallback, Shelf search scope, Personas dual Shelf icons, and import-only decks.",
+  "topics": [
+    "Library six decks",
+    "Grid Show List Shelf",
+    "stage tray send bar",
+    "deck chips live count",
+    "New empty decks",
+    "right-click Workbench Press",
+    "off skipped on export"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:008c38b9fcd7cfdeb4b7f24c457dcd65cb50ff7c39c319352dd39f53f888939d",
+      "summary": "Pick a deck chip among Characters Lorebooks Personas Sprite packs Presets Regex sets; each chip shows a live count. Pick a view: Grid Show and List sit in the toolbar on every deck and some decks add one more suited to their contents; the art slider beside them resizes cards live as you drag in Grid List and Show. Stage what you want by clicking a piece, or in Show click Stage for the Workbench, to add it to the tray with accent ring and corner check; click again to drop it; switch decks and the tray stays full so a persona and characters can travel together. Send it to the Workbench from the send bar for one piece or Send all N for a batch; right-click a single piece instead to send without staging first or to stage it for the Press.",
+      "topics": [
+        "pick deck chip",
+        "Grid Show List views",
+        "stage tray toggle",
+        "send bar batch",
+        "right-click Press"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-decks-and-their-views",
+      "title": "The decks and their views",
+      "level": 2,
+      "sourceHash": "sha256:47335607327895310ddd722994c4ae345747d8a75b45e334e80b5724641821a6",
+      "summary": "Every deck chip shows even when empty at count 0 so the full studio shape stays visible. The status line reports active deck share of everything in the studio. Empty Lorebooks Regex sets Personas Presets offer a New button on the shelf; Characters and Sprite packs are import-only with no blank start. Grid Show and List behave the same on every deck: Grid is portrait cards, Show is one piece with tagline and description, List is dense rows. Shelf also runs everywhere as spine cards with name-or-key search; Lorebooks spines add on/off Split Copy and drag-to-merge onto another book; Regex Sets view adds rule count, a computed one-line description, and a quiet slow-rule flag. Turning a book or set off is not cosmetic; an off one is skipped on export.",
+      "topics": [
+        "chips always visible",
+        "status line share",
+        "New vs import-only",
+        "Grid Show List Shelf",
+        "Lorebook merge Split",
+        "Regex slow flags",
+        "off skipped export"
+      ],
+      "children": []
+    },
+    {
+      "slug": "staging-and-sending",
+      "title": "Staging and sending",
+      "level": 2,
+      "sourceHash": "sha256:33da181a113fcf525091541ba91bbcba4c08b93fb2a7d728fd48f0f531be5b21",
+      "summary": "Tapping a piece anywhere in the Library stages it and does not open it. A staged piece wears an accent ring; a piece already open on the Workbench wears a quiet on the workbench tag instead, and tapping that one only repeats the tag rather than toggling. The tray survives switching decks so you can pick a character from one chip and a lorebook from another before sending. The send bar appears only once something is staged; it carries the live count, the Send button, and Clear that empties the tray without sending. Sending opens every staged piece as its own tab and, depending on Workbench follow setting changeable in Settings, may take you there right away. You do not have to stage to move a single piece: right-click Send to the Workbench opens immediately, or Stage for the Press queues it for export on a separate queue from this tray, covered in Convert a card.",
+      "topics": [
+        "tap stages not open",
+        "workbench tag no toggle",
+        "tray survives decks",
+        "send bar Clear",
+        "Workbench follow Settings",
+        "right-click Press queue"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:f584045048f7b212ab9cdb16c47ceb8f903b155bd99359aad393d15c7e920b52",
+      "summary": "A piece already open on the Workbench cannot be re-staged; tapping it only tells you it is already there. The staged tray persists across deck switches and only empties when you send it or click Clear. Switch to a deck your current view does not support and the toolbar falls back to Grid, not the prior view. The Shelf view search box narrows what is on screen; it does not touch the chip count or the deck actual total. Personas carry two toolbar buttons that both read Shelf; go by the icon not the label, person icon for the persona-tailored view and bookcase icon for plain spine search. Characters and Sprite packs have no New button on an empty deck; import is the only way in for those two.",
+      "topics": [
+        "no re-stage open",
+        "tray clear or send",
+        "view fallback Grid",
+        "Shelf search screen only",
+        "Personas dual Shelf icons",
+        "import-only decks"
+      ],
+      "children": []
+    }
+  ]
+}

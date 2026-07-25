@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/cli",
+  "sourcePath": "docs/reference/cli.md",
+  "sourceHash": "sha256:b8dad02e7a521e8491695879d9ec4f73cfd52b7f0740c3f7ea2505530f9ceeff",
+  "semanticSummaryHash": "sha256:f65c44179a841caff51d4a80ed131b537ef5d26c499dd815c3583c9de77d2d9a",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:27.573Z"
+}

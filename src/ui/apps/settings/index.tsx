@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import type { AppContext, HoplightApp } from "../../app-contract";
+import { parseLaunchTarget } from "../../_shared/launch-target";
 import { settingsSections } from "./sections/registry";
 import styles from "./styles.module.css";
 
@@ -19,7 +20,12 @@ const MARK_SVG =
 
 function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
   const sections = settingsSections();
-  const [activeId, setActiveId] = useState<string>(sections[0]?.id ?? "");
+  const launch = parseLaunchTarget(window.location.hash);
+  const requestedId = launch?.appId === "settings" ? launch.sectionId : undefined;
+  const initialId = sections.some((section) => section.id === requestedId)
+    ? requestedId!
+    : sections[0]?.id ?? "";
+  const [activeId, setActiveId] = useState<string>(initialId);
   const active = sections.find((s) => s.id === activeId) ?? sections[0];
 
   useEffect(() => {

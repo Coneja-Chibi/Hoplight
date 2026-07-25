@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/lumiverse",
+  "sourcePath": "docs/reference/formats/lumiverse.md",
+  "sourceHash": "sha256:5050631a19e4d04ede81df56b10beda2b537289429b005acd006c1e2d1cc0f5e",
+  "semanticSummaryHash": "sha256:50a8e60d9fd692565b2ab00e5700e77ff93193ddf8e50b3eda90a46ab3b28afe",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:58.442Z"
+}

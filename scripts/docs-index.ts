@@ -1,160 +1,156 @@
 /**
- * Emit the docs retrieval catalog from the docs corpus, so a future in-app agent can find and answer
- * from the docs: docs/generated/docs-index.json (one record per page: id, audience, summary, tags,
- * related, heading anchors) plus docs/llms.txt (the llmstxt.org index: title, blurb, per-section links).
- * Frontmatter is the source of truth; pages without it fall back to path-derived id and the first
- * heading/paragraph, so the whole corpus is covered. Same docs-as-code contract as docs-fields.ts.
+ * Emit the docs retrieval catalog from the docs corpus: docs/generated/docs-index.json,
+ * docs/llms.txt, and docs/generated/PAGE-INDEX.md.
+ * Semantic sidecars merge only when the sidecar and a current APPROVE receipt both validate.
+ * Discovery is folder-derived (shared with docs-summaries).
  *
  * Run:   bun run scripts/docs-index.ts
- * Check: bun run scripts/docs-index.ts --check   (fail if committed output differs)
+ * Check: bun run scripts/docs-index.ts --check
  */
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import {
+  discoverDocPages,
+  reviewPathFor,
+  sidecarPathFor,
+  toPosix,
+} from "../src/docs/discover";
+import { parseReviewReceipt, validateReviewReceipt } from "../src/docs/review-receipt";
+import {
+  hashSemanticSummary,
+  splitDocSections,
+  validateSemanticSummary,
+} from "../src/docs/summary-corpus";
+import type { SemanticDocSummary, SemanticSectionSummary } from "../src/docs/summary-types";
+import type { DocAnchor, DocRecord } from "../src/docs/types";
+import {
+  formatRepairGuidance,
+  inventoryPage,
+  type SummaryCorpusPage,
+} from "./docs-summaries-core";
 
 const ROOT = join(import.meta.dir, "..");
 const DOCS = join(ROOT, "docs");
 const OUT_DIR = join(DOCS, "generated");
 const checkOnly = process.argv.includes("--check");
 
-// Corpus = every .md under docs/ except the generated tables and the media folder.
-const SKIP_DIRS = new Set(["generated", "media"]);
+const sectionToAnchor = (section: SemanticSectionSummary): DocAnchor => ({
+  text: section.title,
+  slug: section.slug,
+  level: section.level,
+  summary: section.summary,
+  topics: section.topics,
+  children: section.children.map(sectionToAnchor),
+});
 
-interface Anchor {
-  text: string;
-  slug: string;
-  level: number;
+function loadJson(abs: string): unknown | null {
+  if (!existsSync(abs)) return null;
+  try {
+    return JSON.parse(readFileSync(abs, "utf8")) as unknown;
+  } catch {
+    return null;
+  }
 }
-interface DocRecord {
-  id: string;
-  path: string;
-  title: string;
-  audience: string;
-  summary: string;
-  tags: string[];
-  related: string[];
-  anchors: Anchor[];
+
+interface MergeResult {
+  record: DocRecord;
+  page: SummaryCorpusPage;
+  merged: boolean;
+  incompleteReason: string | null;
 }
 
-/** GitHub-style heading slug: lowercase, drop punctuation, spaces to hyphens. */
-const slugify = (s: string): string =>
-  s
-    .toLowerCase()
-    .replace(/`/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .trim()
-    .replace(/\s+/g, "-");
+function buildPage(
+  record: DocRecord,
+  markdown: string,
+): MergeResult {
+  const relSidecar = sidecarPathFor(record.path);
+  const relReview = reviewPathFor(record.path);
+  const sidecarAbs = join(ROOT, relSidecar);
+  const reviewAbs = join(ROOT, relReview);
 
-const toPosix = (p: string): string => p.split("\\").join("/");
+  let sidecar: SemanticDocSummary | null = null;
+  let reviewRaw: unknown | null = null;
+  let review: ReturnType<typeof parseReviewReceipt> = null;
+  let reviewParseError: string | undefined;
 
-function walk(dir: string, acc: string[]): string[] {
-  for (const name of readdirSync(dir)) {
-    const abs = join(dir, name);
-    const st = statSync(abs);
-    if (st.isDirectory()) {
-      if (!SKIP_DIRS.has(name)) walk(abs, acc);
-    } else if (name.endsWith(".md")) {
-      acc.push(abs);
+  if (existsSync(sidecarAbs)) {
+    const raw = loadJson(sidecarAbs);
+    if (raw && typeof raw === "object") {
+      const parsed = splitDocSections(markdown);
+      const valid = validateSemanticSummary(record, parsed, raw);
+      if (valid.ok) sidecar = raw as SemanticDocSummary;
     }
   }
-  return acc;
-}
 
-/** Split a leading `---` frontmatter block from the body. Returns [frontmatterText|null, body]. */
-function splitFrontmatter(text: string): [string | null, string] {
-  if (!text.startsWith("---")) return [null, text];
-  const end = text.indexOf("\n---", 3);
-  if (end === -1) return [null, text];
-  const fmEnd = text.indexOf("\n", end + 1);
-  return [text.slice(text.indexOf("\n") + 1, end), text.slice(fmEnd + 1)];
-}
-
-/** Tiny YAML-subset parser for our flat frontmatter: `key: scalar` and `key: [a, b, c]`. */
-function parseFrontmatter(fm: string): Record<string, string | string[]> {
-  const out: Record<string, string | string[]> = {};
-  for (const line of fm.split("\n")) {
-    const m = /^([A-Za-z0-9_]+):\s*(.*)$/.exec(line);
-    if (!m) continue;
-    const key = m[1]!;
-    const raw = m[2]!.trim();
-    if (raw.startsWith("[") && raw.endsWith("]")) {
-      out[key] = raw
-        .slice(1, -1)
-        .split(",")
-        .map((s) => s.trim().replace(/^["']|["']$/g, ""))
-        .filter(Boolean);
-    } else {
-      out[key] = raw.replace(/^["']|["']$/g, "");
+  if (existsSync(reviewAbs)) {
+    try {
+      reviewRaw = JSON.parse(readFileSync(reviewAbs, "utf8")) as unknown;
+      review = parseReviewReceipt(reviewRaw);
+      if (!review) {
+        reviewParseError = `malformed review receipt ${relReview}`;
+      }
+    } catch (err) {
+      reviewParseError = `unreadable review receipt ${relReview}: ${
+        err instanceof Error ? err.message : String(err)
+      }`;
     }
   }
-  return out;
-}
 
-/** Heading anchors from the body, skipping fenced code blocks. */
-function anchorsOf(body: string): Anchor[] {
-  const out: Anchor[] = [];
-  let inFence = false;
-  for (const line of body.split("\n")) {
-    if (/^\s*```/.test(line)) {
-      inFence = !inFence;
-      continue;
+  const page: SummaryCorpusPage = {
+    record,
+    markdown,
+    sidecarPath: relSidecar,
+    reviewPath: relReview,
+    sidecar,
+    reviewRaw,
+    review,
+    reviewParseError,
+  };
+
+  const inv = inventoryPage(page);
+  if (inv.status === "APPROVED" && sidecar) {
+    const bound = validateReviewReceipt(review, {
+      docId: record.id,
+      sourcePath: record.path,
+      sourceHash: sidecar.sourceHash,
+      semanticSummaryHash: hashSemanticSummary(sidecar),
+    });
+    if (bound.ok && review?.verdict === "APPROVE") {
+      return {
+        record: {
+          ...record,
+          semanticSummary: sidecar.summary,
+          topics: sidecar.topics,
+          anchors: sidecar.sections.map(sectionToAnchor),
+        },
+        page,
+        merged: true,
+        incompleteReason: null,
+      };
     }
-    if (inFence) continue;
-    const m = /^(#{2,3})\s+(.+?)\s*$/.exec(line);
-    if (m) out.push({ text: m[2]!, slug: slugify(m[2]!), level: m[1]!.length });
   }
-  return out;
-}
 
-const firstHeading = (body: string): string => {
-  const m = /^#\s+(.+?)\s*$/m.exec(body);
-  return m ? m[1]!.trim() : "";
-};
-
-/** First real paragraph after the H1: a fallback summary for pages with no frontmatter summary. */
-function firstParagraph(body: string): string {
-  const lines = body.split("\n");
-  let seenH1 = false;
-  const buf: string[] = [];
-  for (const line of lines) {
-    if (/^#\s+/.test(line)) {
-      seenH1 = true;
-      continue;
-    }
-    if (!seenH1) continue;
-    if (line.trim() === "") {
-      if (buf.length) break;
-      continue;
-    }
-    if (/^[#>`|-]/.test(line.trim())) continue; // skip headings/quotes/tables/lists/fences
-    buf.push(line.trim());
-    if (buf.join(" ").length > 200) break;
+  // Present invalid sidecar is an incomplete reason, not a silent success.
+  let incompleteReason: string | null = null;
+  if (existsSync(sidecarAbs) && !sidecar) {
+    incompleteReason = "invalid or stale semantic sidecar";
+  } else if (inv.status !== "APPROVED") {
+    incompleteReason = `status ${inv.status}`;
   }
-  return buf.join(" ").slice(0, 240);
-}
 
-function recordFor(abs: string): DocRecord {
-  const rel = toPosix(relative(DOCS, abs));
-  const text = readFileSync(abs, "utf8");
-  const [fmText, body] = splitFrontmatter(text);
-  const fm = fmText ? parseFrontmatter(fmText) : {};
-  const asStr = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] ?? "" : (v ?? ""));
-  const asArr = (v: string | string[] | undefined): string[] => (Array.isArray(v) ? v : v ? [v] : []);
-  const id = asStr(fm.id) || rel.replace(/\.md$/, "");
-  const audience = asStr(fm.audience) || (rel.startsWith("guide/") ? "user" : "dev");
   return {
-    id,
-    path: "docs/" + rel,
-    title: asStr(fm.title) || firstHeading(body) || id,
-    audience,
-    summary: asStr(fm.summary) || firstParagraph(body),
-    tags: asArr(fm.tags),
-    related: asArr(fm.related),
-    anchors: anchorsOf(body),
+    record,
+    page,
+    merged: false,
+    incompleteReason,
   };
 }
 
-const files = walk(DOCS, []).sort();
-const records = files.map(recordFor);
+const discovered = discoverDocPages(DOCS);
+const builds = discovered.map(({ record, markdown }) => buildPage(record, markdown));
+const records = builds.map((b) => b.record);
+const semanticCount = builds.filter((b) => b.merged).length;
+const incomplete = builds.filter((b) => !b.merged);
 
 const indexJson =
   JSON.stringify(
@@ -167,11 +163,54 @@ const indexJson =
     2,
   ) + "\n";
 
-// llms.txt (llmstxt.org): sections are DERIVED from the directory tree (folders-as-schema), so adding
-// or removing a doc or a whole doc folder flows through with nothing to maintain by hand. The site
-// blurb comes from docs/README.md's summary when present.
+function pageIndexMd(): string {
+  const lines: string[] = [
+    "# Hoplight page index",
+    "",
+    "Generated catalogue of documentation collections, pages, and nested sections.",
+    "Semantic summaries are navigation aids; read the source page before relying on a detail.",
+    "Only independently APPROVED semantic sidecars are merged into this catalogue.",
+    "",
+  ];
+  const collectionOf = (r: DocRecord): string => {
+    const rel = r.path.replace(/^docs\//, "");
+    const slash = rel.lastIndexOf("/");
+    return slash === -1 ? "" : rel.slice(0, slash);
+  };
+  const byCollection = new Map<string, DocRecord[]>();
+  for (const r of records) {
+    const c = collectionOf(r);
+    if (!byCollection.has(c)) byCollection.set(c, []);
+    byCollection.get(c)!.push(r);
+  }
+  const collections = [...byCollection.keys()].sort((a, b) => a.localeCompare(b));
+  const writeSections = (anchors: DocAnchor[], depth: number): void => {
+    for (const anchor of anchors) {
+      const pad = "  ".repeat(depth);
+      const label = anchor.level === 3 ? "H3" : "H2";
+      lines.push(`${pad}- **${label} ${anchor.text}** (\`${anchor.slug}\`)`);
+      if (anchor.summary) lines.push(`${pad}  ${anchor.summary}`);
+      if (anchor.children.length > 0) writeSections(anchor.children, depth + 1);
+    }
+  };
+  for (const collection of collections) {
+    const title = collection === "" ? "(root)" : collection;
+    lines.push(`## ${title}`, "");
+    for (const r of byCollection.get(collection)!.sort((a, b) => a.path.localeCompare(b.path))) {
+      lines.push(`### ${r.title}`, "");
+      lines.push(`- id: \`${r.id}\``);
+      lines.push(`- path: \`${r.path}\``);
+      const overview = r.semanticSummary || r.summary;
+      if (overview) lines.push(`- ${overview}`);
+      lines.push("");
+      writeSections(r.anchors, 0);
+      lines.push("");
+    }
+  }
+  return lines.join("\n");
+}
+
 function llmsTxt(): string {
-  // Section = first path segment under docs/ ("" means a root-level docs file).
   const sectionOf = (r: DocRecord): string => {
     const seg = r.path.replace(/^docs\//, "").split("/");
     return seg.length > 1 ? seg[0]! : "";
@@ -185,7 +224,6 @@ function llmsTxt(): string {
     if (!groups.has(k)) groups.set(k, []);
     groups.get(k)!.push(r);
   }
-  // Alphabetical, root-level files last: a stable order that needs no per-section upkeep.
   const keys = [...groups.keys()].sort((a, b) => (a === "" ? 1 : b === "" ? -1 : a.localeCompare(b)));
 
   const blurb =
@@ -196,7 +234,8 @@ function llmsTxt(): string {
   for (const k of keys) {
     lines.push(`## ${prettify(k)}`, "");
     for (const r of groups.get(k)!.sort((a, b) => a.path.localeCompare(b.path))) {
-      lines.push(`- [${r.title}](${r.path})${r.summary ? ": " + r.summary : ""}`);
+      const pageBlurb = r.summary || r.semanticSummary;
+      lines.push(`- [${r.title}](${r.path})${pageBlurb ? ": " + pageBlurb : ""}`);
     }
     lines.push("");
   }
@@ -205,6 +244,7 @@ function llmsTxt(): string {
 
 const artifacts: Array<[string, string]> = [
   [join(OUT_DIR, "docs-index.json"), indexJson],
+  [join(OUT_DIR, "PAGE-INDEX.md"), pageIndexMd()],
   [join(DOCS, "llms.txt"), llmsTxt()],
 ];
 
@@ -230,17 +270,52 @@ for (const [path, body] of artifacts) {
   }
 }
 
+if (incomplete.length > 0) {
+  console.error(
+    `docs-index: ${incomplete.length} page(s) lack approved semantic metadata `
+    + `(structural records still emitted; CI must stay red):`,
+  );
+  for (const item of incomplete.slice(0, 12)) {
+    const inv = inventoryPage(item.page);
+    console.error(
+      `  ${item.record.id}  ${item.record.path}  [${inv.status}]`
+      + (item.incompleteReason ? `  ${item.incompleteReason}` : ""),
+    );
+    for (const line of formatRepairGuidance(inv).slice(0, 8)) {
+      console.error(`    ${line}`);
+    }
+  }
+  if (incomplete.length > 12) {
+    console.error("  ... run bun run docs:summaries:inventory for the full list");
+  }
+  stale = true;
+}
+
 if (checkOnly) {
   if (stale) {
-    console.error("docs-index:check: run `bun run scripts/docs-index.ts` and commit.");
+    console.error(
+      "docs-index:check: fix incomplete pages (scaffold/author/stamp/review), then "
+      + "`bun run docs:index` and commit.",
+    );
     process.exit(1);
   }
-  console.log("docs-index:check: catalog is current");
-} else {
-  const byAud = records.reduce<Record<string, number>>((a, r) => ((a[r.audience] = (a[r.audience] ?? 0) + 1), a), {});
   console.log(
-    `wrote docs/generated/docs-index.json + docs/llms.txt: ${records.length} pages ` +
-      `(${Object.entries(byAud).map(([k, v]) => `${v} ${k}`).join(", ")}), ` +
-      `${records.reduce((n, r) => n + r.anchors.length, 0)} anchors`,
+    `docs-index:check: catalog is current (${semanticCount}/${records.length} approved semantic)`,
+  );
+} else if (incomplete.length > 0) {
+  console.error(
+    `wrote docs catalog with ${records.length} pages but ${incomplete.length} incomplete; `
+    + "docs-index:check will fail until they are APPROVED.",
+  );
+  process.exit(1);
+} else {
+  const byAud = records.reduce<Record<string, number>>(
+    (a, r) => ((a[r.audience] = (a[r.audience] ?? 0) + 1), a),
+    {},
+  );
+  console.log(
+    `wrote docs/generated/docs-index.json + PAGE-INDEX.md + docs/llms.txt: ${records.length} pages `
+    + `(${Object.entries(byAud).map(([k, v]) => `${v} ${k}`).join(", ")}), `
+    + `${semanticCount} approved semantic`,
   );
 }

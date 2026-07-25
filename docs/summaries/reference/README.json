@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/README",
+  "sourcePath": "docs/reference/README.md",
+  "sourceHash": "sha256:7dbd642af1b49a077686908344f662ee152e434e16a76495a20bea214af3e035",
+  "summary": "Reference documentation index for hoplight, the Vaudeville Studios converter for AI-roleplay content. Docs-as-code: lives in the repo, versioned with the code, updated in the same change that adds or alters a feature. If a doc and the code disagree the code is right and the doc is a bug to file. The contract: based in truth with claims checked against source field tables detect scores and mapping quirks, planned-but-not-built labeled, updated per feature in the same commit, one concept per file mirroring house code rules. Map routes to architecture engine start page, entities character and lorebook supersets, concepts character-book embed extract, formats README coverage matrix and per-format family pages. How to read the field tables: Field is canonical name in vaud-json output, Type is TypeScript from entities schema, Meaning is roleplay client use, Formats lists producers and consumers; a field with no producer would not exist as a canonical slot per escrow rule in architecture. Schema file is type truth; this doc is meaning truth.",
+  "topics": [
+    "docs-as-code truth",
+    "contract per feature",
+    "architecture map start",
+    "entities formats concepts",
+    "field table columns",
+    "schema type vs meaning"
+  ],
+  "sections": [
+    {
+      "slug": "the-contract",
+      "title": "The contract",
+      "level": 2,
+      "sourceHash": "sha256:04b6b30c83b351d0cb3c567d2d093aa93760a37927465f476a59bdb1597eaa4e",
+      "summary": "Based in truth: claims checked against source; field tables detect scores and quirks mirror real code; no aspirational behavior; planned-but-not-built labeled. Updated per feature in the same commit: new format needs formats page plus matrix row; new field needs entities row; new concept needs concepts page. One concept per file, mirroring the code house rule.",
+      "topics": [
+        "truth not aspirational",
+        "planned labeled",
+        "same-commit docs",
+        "one concept per file"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "map",
+      "title": "Map",
+      "level": 2,
+      "sourceHash": "sha256:f4c3ac8026a25000d30f34816584010c4f41754bd9db4b02503d6661386a9f43",
+      "summary": "Start at architecture for the engine: canonical escrow adapters kinds registry folders bundles CLI. entities character and lorebook document supersets. concepts character-book covers embed extract re-embed. formats README is the coverage matrix; formats star pages cover detection maps escrow quirks and sources of truth.",
+      "topics": [
+        "architecture start here",
+        "character lorebook entities",
+        "character-book concept",
+        "formats matrix and pages"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "how-to-read-the-field-tables",
+      "title": "How to read the field tables",
+      "level": 2,
+      "sourceHash": "sha256:36877f97bef9205f50a9d8bac9f272ff41dd587b41446e74db063422d500a974",
+      "summary": "Field is the canonical name in vaud-json output. Type is TypeScript from entities kind schema. Meaning is roleplay client use. Formats lists producers and consumers. No producer means no canonical slot per architecture escrow. Schema is type truth; this doc is meaning truth.",
+      "topics": [
+        "Field Type Meaning Formats",
+        "no producer no slot",
+        "schema type truth",
+        "doc meaning truth"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

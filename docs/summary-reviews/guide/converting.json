@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/converting",
+  "sourcePath": "docs/guide/converting.md",
+  "sourceHash": "sha256:8829b0d150ed48f1751136ec2125087d4cf0dfa9518c9c13a4a93336562587da",
+  "semanticSummaryHash": "sha256:2f068bdbfbfc9b0b2351e13ad46ec9311a834d5bce68a16e4303057ef37bf1e2",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:23.010Z"
+}

@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/archives",
+  "sourcePath": "docs/reference/security/archives.md",
+  "sourceHash": "sha256:df4aa670193d7c422340d70ab967d94b8cbe390cdf50b40daf8b4e0caa885e5b",
+  "summary": "Safe archive handling covers how Hoplight bounds .charx and .byaf ZIP bytes as untrusted until parsed with two properties proven to different degrees. Decompression limits against a zip bomb are real shared and unit-tested via unzipBounded and CARD_ARCHIVE_BOUNDS used by Risu and BYAF thin safeUnzip wrappers: reject before unzip pre-inflate per entry post-inflate backstop fail closed error wrap detection-only selection and module.risum RPack non-expansion. Path-traversal safety on entry names notes fflate does not sanitize names ingestion never turns a name into a filesystem write the one checked BYAF greeting id path via resolveGreetingPath and two unchecked re-export name carriers for BYAF images and Risu assets. What is not yet proven lists the untested lying-header backstop and the two unguarded export name paths so archive handling must not be called fully sandboxed against hostile archives.",
+  "topics": [
+    "unzipBounded zip bomb",
+    "CARD_ARCHIVE_BOUNDS",
+    "charx byaf shared",
+    "path traversal honesty",
+    "resolveGreetingPath",
+    "re-export name gaps",
+    "ArchiveLimitError",
+    "module.risum RPack"
+  ],
+  "sections": [
+    {
+      "slug": "decompression-limits-against-a-zip-bomb",
+      "title": "Decompression limits against a zip bomb",
+      "level": 2,
+      "sourceHash": "sha256:0f9014af9aab5a7a28f10a6da6458fbc2b5f27f68b5a0d3978481575359af53b",
+      "summary": "Decompression limits against a zip bomb share one helper. The shared bound is CARD_ARCHIVE_BOUNDS 96 MiB archive 512 entries 64 MiB per entry 96 MiB aggregate used by Risu and BYAF safeUnzip wrappers. Reject before any unzip call checks full compressed length first. Pre-inflate per entry uses fflate filter for total-entry compressed original and aggregate checks with missing originalSize falling back to compressed. Post-inflate as a backstop rechecks actual bytes but cannot undo allocation already done and lacks a lying-header test. Fail closed on any read error rewraps non-limit throws as ArchiveLimitError with Risu detect soft and toCanonical hard while BYAF open returns null. Detection is bounded too via only card.json or manifest.json. The module.risum aside is ordinary ZIP entry then fixed RPack substitution that cannot expand.",
+      "topics": [
+        "the shared bound",
+        "reject before unzip",
+        "pre-inflate per entry",
+        "post-inflate backstop",
+        "fail closed errors",
+        "detection bounded",
+        "module.risum aside"
+      ],
+      "children": [
+        {
+          "slug": "the-shared-bound",
+          "title": "The shared bound",
+          "level": 3,
+          "sourceHash": "sha256:029954f588c30806a3f367425893132b3dccdc3566385bca60d2120abe59202f",
+          "summary": "CARD_ARCHIVE_BOUNDS is the budget both charx and byaf unzip under: 96 MiB max archive size 512 total entries 64 MiB max per selected entry compressed or inflated and 96 MiB max aggregate inflated across selected entries. Risu safeUnzip and BYAF container safeUnzip are thin wrappers that pin bounds CARD_ARCHIVE_BOUNDS and forward to the same unzipBounded. Neither format reimplements the check; both call the one helper in core archive.ts.",
+          "topics": [
+            "CARD_ARCHIVE_BOUNDS",
+            "96 MiB 512 entries",
+            "Risu BYAF wrappers",
+            "one shared helper"
+          ],
+          "children": []
+        },
+        {
+          "slug": "reject-before-any-unzip-call",
+          "title": "Reject before any unzip call",
+          "level": 3,
+          "sourceHash": "sha256:03a71d3f6de4d23efb3e3589515cc1542959cfa92cf5504c3a441c9e40681a9a",
+          "summary": "The full compressed archive length is checked first against maxArchiveBytes before unzipSync is called at all. An archive over 96 MiB never reaches fflate so hostile bulk payloads die at the outer gate without decompression work.",
+          "topics": [
+            "maxArchiveBytes first",
+            "before unzipSync",
+            "96 MiB never fflate"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "pre-inflate-per-entry",
+          "title": "Pre-inflate, per entry",
+          "level": 3,
+          "sourceHash": "sha256:cb93a10655a2560993ab803b1cd0a3dae3e5e14b37efa44c16e3d007468ca12e",
+          "summary": "unzipBounded passes fflate an UnzipFileInfo filter that runs during extraction. Inside the callback before inflate: running total-entry count against maxEntries before selection so hostile directory counts still bound; compressed size and declared original size via entryOriginal fallback against maxEntryCompressed and maxEntryOriginal for selected entries; running sum of declared originals against maxAggregateOriginal. only-filter misses skip size budgets but already consumed total-entry budget and never inflate.",
+          "topics": [
+            "fflate filter gate",
+            "maxEntries always",
+            "entryOriginal fallback",
+            "only filter skip inflate"
+          ],
+          "children": []
+        },
+        {
+          "slug": "post-inflate-as-a-backstop",
+          "title": "Post-inflate, as a backstop",
+          "level": 3,
+          "sourceHash": "sha256:12a115ccaeb75cc5ed8da20810a8850b537e9244a4f3ba1144787bc5007edb28",
+          "summary": "After unzipSync returns unzipBounded rechecks actual byteLength against maxEntryOriginal and actual aggregate against maxAggregateOriginal and maxEntries to catch understated originalSize. By then inflate already allocated; recheck discards and throws but cannot stop the spike. maxEntryCompressed plus practical DEFLATE ratio bounds the worst case. No streaming mid-decompress reject. No archive.test constructs a lying originalSize so this path is review-proven not test-proven.",
+          "topics": [
+            "actual byte recheck",
+            "allocation already done",
+            "compressed bounds spike",
+            "no lying-header test"
+          ],
+          "children": []
+        },
+        {
+          "slug": "fail-closed-on-any-read-error",
+          "title": "Fail closed on any read error",
+          "level": 3,
+          "sourceHash": "sha256:cf80826b1c5b9903b21970678011fb238437938ea28c524972f5a5e455daf15c",
+          "summary": "Anything unzipSync throws that is not already ArchiveLimitError is rewrapped as ArchiveLimitError archive could not be read safely. No partial-success path: fully bounded Record or throw. Risu detect catches everything as not this format while toCanonical lets ArchiveLimitError propagate. BYAF openByaf catches and returns null so bombs surface as generic not a valid byaf Error not ArchiveLimitError. Both fail closed under different error shapes.",
+          "topics": [
+            "rewrap ArchiveLimitError",
+            "no partial success",
+            "Risu detect soft",
+            "BYAF null shape"
+          ],
+          "children": []
+        },
+        {
+          "slug": "detection-is-bounded-too",
+          "title": "Detection is bounded too",
+          "level": 3,
+          "sourceHash": "sha256:08b9702038c9895c602c183ea5a94a8c3bf63a45ec0b28b8ed0300f1b6c9d938",
+          "summary": "Format detection never inflates a whole archive to check shape. Risu detect calls safeUnzip with only card.json so every other entry is skipped before inflation while directory entries still consume total-entry budget and the match passes size checks. BYAF detection reads only manifest.json the same way through readManifestBytes. A large hostile archive being probed cannot force full inflate or unbounded directory scan.",
+          "topics": [
+            "only card.json",
+            "only manifest.json",
+            "total-entry still counts",
+            "no full inflate detect"
+          ],
+          "children": []
+        },
+        {
+          "slug": "the-modulerisum-aside",
+          "title": "The module.risum aside",
+          "level": 3,
+          "sourceHash": "sha256:a4d046dcc52aa10a88d1e7cb5e075cef1f4b2f53b7fe5144db8c246fe4b2895f",
+          "summary": "A charx can carry module.risum as one ordinary ZIP entry under the same CARD_ARCHIVE_BOUNDS with no separate inflate step. Extracted bytes run only through RPack byte substitution a fixed 256-entry table one byte at a time into a same-length output buffer not a compression codec. It cannot expand so it adds no zip-bomb surface beyond the entry cap it already sits under.",
+          "topics": [
+            "ordinary ZIP entry",
+            "RPack substitution",
+            "cannot expand",
+            "no extra bomb surface"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "path-traversal-safety-on-entry-names",
+      "title": "Path-traversal safety on entry names",
+      "level": 2,
+      "sourceHash": "sha256:8b12e039ab456f6310fdf2149249f79d54a9f9c5fbb2c819c41d4c28a35529ff",
+      "summary": "Path-traversal safety on entry names is proven unevenly. fflate does not sanitize names so unzipBounded can return literal ../ keys within size budgets. Ingestion never turns a name into a filesystem write: entries become original twin base64 maps or basename-only sprite labels with no writeFile using zip names. The one place a name becomes a fresh write and it is checked is BYAF greeting ids through resolveGreetingPath byaf prefix no dots no leading slash no backslash plus knownPaths membership with hostile-id tests. Two places that are not checked the same way are BYAF image row paths returned verbatim into pack entry keys and Risu charx asset filenames re-emitted unmodified. Residual risk is downstream tools unzipping re-exports not same-process zip-slip.",
+      "topics": [
+        "fflate raw names",
+        "no disk extract path",
+        "resolveGreetingPath tested",
+        "BYAF image row gap",
+        "Risu asset name gap"
+      ],
+      "children": [
+        {
+          "slug": "fflate-does-not-sanitize-names",
+          "title": "fflate does not sanitize names",
+          "level": 3,
+          "sourceHash": "sha256:6e26187092de61111d5ac28c3525abf0bd8ee3e2528e9fa56167bc2eb630836d",
+          "summary": "fflate unzipSync returns each entry name exactly as stored in the ZIP directory. There is no dot-dot backslash or absolute-path filtering in unzipBounded or fflate. A charx or byaf can legally contain ../../../evil.json and unzipBounded returns it under that literal key if size and count budgets pass.",
+          "topics": [
+            "literal ZIP names",
+            "no .. filter",
+            "budget only gate"
+          ],
+          "children": []
+        },
+        {
+          "slug": "ingestion-never-turns-a-name-into-a-filesystem-write",
+          "title": "Ingestion never turns a name into a filesystem write",
+          "level": 3,
+          "sourceHash": "sha256:ced0d0fa161d23ee9eed87783efea18a49e1f856b714cbed10d77a3c31955be1",
+          "summary": "Nothing in core archive Risu or backyard joins an entry name onto a real OS path and writes it. Names are keys into in-memory Records base64-encoded onto original twin assetFiles or BYAF files map or reduced to basename for sprite-pack image checks so a ../ prefix is inert. No Bun.write writeFileSync or fs.writeFile in src takes a zip entry name as target path. Classic zip-slip has no extract-to-disk code path today.",
+          "topics": [
+            "in-memory original twin",
+            "basename sprite labels",
+            "no zip-slip path",
+            "no entry-name writes"
+          ],
+          "children": []
+        },
+        {
+          "slug": "the-one-place-a-name-becomes-a-fresh-write-and-it-is-checked",
+          "title": "The one place a name becomes a fresh write, and it is checked",
+          "level": 3,
+          "sourceHash": "sha256:061a03c631c4d1bee31554bb0ece667c78d4ce3ff3255bbe1f381b0b6eada61d",
+          "summary": "Export can write a new file into a re-packed byaf. Alternate greeting ids can name archive-internal scenario paths. resolveGreetingPath is the only function allowed to turn an id into a path: requires byaf prefix non-empty remainder no .. no leading slash no backslash and membership in knownPaths from the twin. Hostile ids cannot mint new paths; freshScenarioPath never derives from user input. Test hostile greeting id is never used as an archive path feeds ../../../evil.json cases and asserts clean scenarios/ outputs.",
+          "topics": [
+            "resolveGreetingPath gate",
+            "byaf prefix knownPaths",
+            "freshScenarioPath pure",
+            "hostile-id test"
+          ],
+          "children": []
+        },
+        {
+          "slug": "two-places-that-are-not-checked-the-same-way",
+          "title": "Two places that are not checked the same way",
+          "level": 3,
+          "sourceHash": "sha256:bf05a0dd6401c71a3938de3ce135ccacc67484954ee71ed74a179e6263b5bdbe",
+          "summary": "Two spots carry untrusted archive names into freshly-built output entry tables without resolveGreetingPath or hostile tests. BYAF pathForLabel returns existing image row path verbatim into arc.files then packByaf zips keys unmodified; only fallback filenames are sanitized. Risu charx assetFiles import path is written back unmodified then zipSync. Neither becomes a real filesystem write here; residual risk is a less careful downstream tool unzipping the re-export. Call it verified unguarded and untested not safe by design.",
+          "topics": [
+            "BYAF image paths",
+            "Risu asset filenames",
+            "no traversal check",
+            "downstream residual risk"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "what-is-not-yet-proven",
+      "title": "What is not yet proven",
+      "level": 2,
+      "sourceHash": "sha256:3c433bb14558fe3db50b73c308f53e59fa61156b14147252bb149e3367449797",
+      "summary": "Proven and enforced: pre-inflate archive-size selected-entry size total-entry count and selected aggregate caps in unzipBounded exercised by archive.test.ts; fail-closed wrapping of unzip errors into ArchiveLimitError; only-mode selection plus total-entry cap for cheap detection on hostile archives; and resolveGreetingPath traversal-and-known-path gate on the one BYAF export write path with a hostile-id test. Not yet proven: post-inflate size backstop has no test fabricating understated originalSize; BYAF image-row path and Risu charx asset filename carry no traversal check before export entry names and no hostile tests. Do not describe archive handling as fully sandboxed against a hostile archive or as path traversal solved in general; it is solved and tested for one specific write path.",
+      "topics": [
+        "proven unzipBounded suite",
+        "proven greeting-id gate",
+        "untested lying header",
+        "unguarded re-export names",
+        "not fully sandboxed"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -9,11 +9,22 @@ interface DocTocProps {
   onJump(slug: string): void;
 }
 
+/** Depth-first flatten so nested catalogue anchors keep existing level styling. */
+const flattenAnchors = (anchors: readonly DocAnchor[]): DocAnchor[] => {
+  const out: DocAnchor[] = [];
+  for (const anchor of anchors) {
+    out.push(anchor);
+    if (anchor.children?.length) out.push(...flattenAnchors(anchor.children));
+  }
+  return out;
+};
+
 export function DocToc({ anchors, activeSlug, onJump }: DocTocProps): JSX.Element {
+  const flat = flattenAnchors(anchors);
   return (
     <aside className={styles.toc} aria-label="On this page" data-tour="toc">
-      {anchors.length > 0 && <div className={styles.tocHead}>On this page</div>}
-      {anchors.map((anchor) => (
+      {flat.length > 0 && <div className={styles.tocHead}>On this page</div>}
+      {flat.map((anchor) => (
         <button
           key={`${anchor.slug}-${anchor.level}`}
           type="button"

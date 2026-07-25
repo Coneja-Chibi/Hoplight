@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/faq",
+  "sourcePath": "docs/guide/faq.md",
+  "sourceHash": "sha256:a0052845dd33b1430a7650ba6d60d6ec69d8652677e78eec9a4c597386f5001d",
+  "summary": "FAQ for privacy, convert survival, supported apps, and whether convert or edit can damage cards. Content is private: local loopback server 127.0.0.1, plain JSON studio folder default Documents/Hoplight Studio, no account cloud or telemetry; scripts import as text never run; deep access refused; fail-closed parse with zip-bomb caps. What converts: plain card fields and lorebook entries keys placement; private extras only on same-app round-trip; different app keeps shared model only and drops scripts when target cannot run them with Risu .charx keeping full rule pack; honesty view before export. Supported apps: SillyTavern RoleCall RisuAI Backyard/Faraday Agnai NovelAI Pygmalion Lumiverse Marinara and Chub with kind gaps; Chub is ST-shaped with extensions.chub; NovelAI lorebook only; Marinara regex and personas only; native JSON is studio storage not a convert target. Convert cannot damage cards: writes new files only, originals kept, import never overwrites, Workbench save is only overwrite path, whole-piece save preserves untouched fields, broken lorebooks heal on import, cross-app drops are named not corrupted.",
+  "topics": [
+    "local first privacy",
+    "no telemetry no account",
+    "what converts what drops",
+    "supported apps list",
+    "cannot damage card",
+    "same-app lossless",
+    "honesty view",
+    "Risu full rule pack"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:cbc1f256bb3bf3f7360a52229f34b820527490e425ad87295882f6c455fddeab",
+      "summary": "Four short answers. Content is private via local server plain JSON on disk no account cloud or telemetry. Converts keep plain card and lorebook structure; private extras only on same-app round-trip. Supported apps are SillyTavern RoleCall RisuAI Backyard/Faraday Agnai NovelAI Pygmalion Lumiverse Marinara and Chub though not every app carries every kind. Convert cannot damage a card: only writes new files, original kept, export shows travel before commit.",
+      "topics": [
+        "private local",
+        "what converts short",
+        "apps list short",
+        "no damage short"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "is-my-content-private",
+      "title": "Is my content private?",
+      "level": 2,
+      "sourceHash": "sha256:25207d77b80659a57ee5090b7738fbad571ec5bcad597af0a0ae999bd834e8d6",
+      "summary": "Yes. hoplight ui starts a local server bound to 127.0.0.1 loopback only. Pieces store as plain JSON one file per piece in a studio folder default Documents/Hoplight Studio unless pointed elsewhere. No sign-up or account; interface requests go only to that local server; no telemetry is collected. Import does not trust files: trigger scripts and regex are saved as text never run; deep access requests are refused with receipt notice. Uploads parse through fail-closed readers with caps against zip bombs so hostile files stop at we could not read this.",
+      "topics": [
+        "127.0.0.1 loopback",
+        "plain JSON studio folder",
+        "no account telemetry",
+        "scripts not executed",
+        "fail-closed zip caps"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-converts-and-what-stays-behind",
+      "title": "What converts, and what stays behind?",
+      "level": 2,
+      "sourceHash": "sha256:3b981fbe67d2c35d004f293752cd787cb17184a93da6b263d0050a345c5db0d6",
+      "summary": "Every convert goes through one shared middle model never direct app to app. Same-app round-trip is lossless via kept original including private extensions layout ids. Different app only shared part crosses: name description personality scenario greetings example messages for characters; lorebook entries keys placement. Target without a place drops trigger scripts regex virtual script and backdrop HTML on purpose never as inert baggage. Risu .charx keeps the full rule pack; plainer Agnai or legacy Backyard keep words not machinery. Export honesty view lists keep note drop before download; Press readiness shows filled target fields instead.",
+      "topics": [
+        "shared middle model",
+        "same-app lossless",
+        "cross-app shared only",
+        "scripts drop on purpose",
+        "honesty and readiness"
+      ],
+      "children": []
+    },
+    {
+      "slug": "which-apps-are-supported",
+      "title": "Which apps are supported?",
+      "level": 2,
+      "sourceHash": "sha256:0d51683bb38de207b3f6ccfcf4eb089f19b836fb8450ecfbdb8c3db9eb8ea552",
+      "summary": "Nine apps covering four kinds character lorebook persona and regex set; the support figure is ground truth not a wishlist. Chub has no own wire format and is SillyTavern CCv2/v3 with extensions.chub. NovelAI has no character-card concept only lorebook. Marinara ships regex and personas only. Hoplight native JSON is local studio storage for every kind lossless by construction and is not a convert target in the table because pieces already are that format before converting elsewhere. Formats are drop-in folders so the list can grow without touching existing formats.",
+      "topics": [
+        "nine apps four kinds",
+        "Chub is ST shaped",
+        "NovelAI lorebook only",
+        "Marinara regex persona",
+        "native JSON storage",
+        "drop-in formats grow"
+      ],
+      "children": []
+    },
+    {
+      "slug": "can-a-convert-damage-my-card",
+      "title": "Can a convert damage my card?",
+      "level": 2,
+      "sourceHash": "sha256:3dee1e7a86dbc5f5c38e82c96a42cd2eee8f23248c19293e82fc39a5fd10854a",
+      "summary": "No. Worst case is leaving something out and telling you before export. Original is never overwritten by convert or import; Library keeps whole file; re-import makes a second piece with -2 id not a refresh; only Workbench edit and save overwrites on purpose. Editor saves whole piece so untouched fields escrow behavior media stay byte-identical; save is explicit Save or Ctrl+S with dirty flag. Slightly broken lorebooks heal on import with receipt listing fixes. Cross-app conversion drops fields it does not corrupt them; honesty names lines before commit. Original file in Library is the safety net.",
+      "topics": [
+        "no overwrite import convert",
+        "re-import second copy",
+        "Workbench only overwrite",
+        "heal lorebook import",
+        "drops not corruption",
+        "original safety net"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:0846e91fb5f4af668716c1bed1c5ed7a7a2d969fb165c069df9734c86730991c",
+      "summary": "Prefer same-app round-trip for full keep via original file. Read honesty view or readiness line before export for exact keep note drop. Studio folder is plain JSON one file per piece easy to back up. If scripts matter pick Risu .charx; leaner formats keep words not machinery. Lorebook entries without keywords never fire; Press flags red before export so fix keywords first.",
+      "topics": [
+        "prefer same-app",
+        "read honesty first",
+        "backup plain JSON",
+        "Risu for scripts",
+        "keywords before export"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

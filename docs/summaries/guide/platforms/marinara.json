@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/marinara",
+  "sourcePath": "docs/guide/platforms/marinara.md",
+  "sourceHash": "sha256:32b82ce374625c5b7e6c2958d2c618d3929f5c798fdf0efea8edcc24dc2869c4",
+  "summary": "Marinara-Engine has no import export screen of its own; Hoplight takes server dumps of regex scripts and personas. Character cards are SillyTavern-shaped and go through the SillyTavern page with a Marinara tab not this page. What Hoplight reads: bare .json regex arrays matching GET regex-scripts and persona objects with sections theming and stats; detect by Marinara-only marks like targetCharacterIds order ai_output or nameColor personaStats. What comes across cleanly lifts full regex row fields with timestamps escrowed and persona name description sections comment avatar while theming stat bars crop tags scenario ride sealed. What changes when you convert to another app keeps same-app everything; regex crosses to apps with regex slots ST RoleCall Risu Lumiverse and skips Agnai Backyard; personas to ST RoleCall Lumiverse only with theming stats dropped. Editing on the Workbench narrows Writing for Marinara and flags Hoplight-only regex controls. Exporting back out writes .json only. Common questions cover exact return character path sealed theming Writing for hide and character targets.",
+  "topics": [
+    "Marinara regex personas",
+    "server dump JSON",
+    "characters via SillyTavern",
+    "sealed theming stats",
+    "regex slot targets",
+    "Writing for Marinara",
+    "Press JSON only"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:dec0154595bb6b8cfcbb39f402efa6e76cda8be0c7bd5ee6cb3ececbbc4a7809",
+      "summary": "Hoplight reads two bare .json file types from Marinara-Engine. Regex scripts as an array one row per script matching GET /regex-scripts. Personas as an object with sections comment avatar theming and stat bars. A Marinara character card is different: SillyTavern-shaped so it comes and goes through the SillyTavern page with Marinara-only fields like stat bars and tracker colors under a dedicated Marinara tab not here. Recognition looks inside not name: regex dumps need targetCharacterIds order or placement values like ai_output or user_input that SillyTavern regex never has; personas need id name description personality plus at least one theming or stat key like nameColor or personaStats. Drop on the Library. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "regex array dump",
+        "persona object dump",
+        "characters via ST page",
+        "detect Marinara marks",
+        "Library drop"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:7146c20d2838db9918a33476875e63378a81d6de9bcbbfd02e14a597eb0f79ce",
+      "summary": "Importing loses nothing. For a regex script Hoplight lifts pattern replacement flags trim strings where it runs input output or both prompt-only depth window character limits on/off and order; row created and updated timestamps ride in the background only. For a persona it lifts name description first-person voice comment as short blurb appearance personality backstory sections and avatar. Marinara persona extras per-persona chat theming name dialogue box colors stat bars avatar crop tags and scenario have no shared home so they ride sealed in the background and return exactly on export back to Marinara rather than being dropped.",
+      "topics": [
+        "regex full row fields",
+        "timestamps escrowed",
+        "persona sections avatar",
+        "theming stats sealed",
+        "round-trip extras keep"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:2047d796676f5cb6dc893724131f612358c9fb3f635eb0a2e7e0b57d46d57fdd",
+      "summary": "Same-app round-trip keeps everything for both kinds because Hoplight kept the original and only rewrites changed fields. Regex scripts cross as far as the target regex engine holds; timestamps drop cross-app. A regex only lands if the target has a regex slot: SillyTavern RoleCall Risu Lumiverse do; Agnai or Backyard do not so Press skips the piece for that run. Personas keep name description sections comment avatar on cross-app as far as the target holds; chat theming stat bars avatar crop tags scenario and Marinara persona id drop. Fewer apps take personas: only SillyTavern RoleCall Lumiverse; converting to Risu Agnai Backyard skips the piece. The drop is deliberate never blind-copy theming stats or scripts.",
+      "topics": [
+        "same-app full keep",
+        "regex slot or skip",
+        "persona slot few apps",
+        "theming stats drop",
+        "never blind-copy"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:27dc57311964088cd89fe5127c88b34bb0195f5f7da26a1d6f481f0563ce89ad",
+      "summary": "A regex set opens as one rule per page in a table of contents with pattern replacement flags where it fires and fine print for the rest. Writing for Marinara narrows fine print to depth window and character targets and hides controls with no place like macro substitution and run-on-edit. Three Hoplight-only controls show under every lens flagged not portable: first match only overlay and conditional chaining. A persona opens with name portrait section tiles appearance personality History for backstory full first-person text and live injection preview. Writing for Marinara narrows to name sections avatar and hides color palette and injection-position picker because Marinara wire has no place for them; sealed theming and stats only reappear on export back to Marinara. Save writes the whole set or persona so untouched parts stay.",
+      "topics": [
+        "regex TOC pages",
+        "Writing for Marinara",
+        "Hoplight-only flags",
+        "persona sections preview",
+        "sealed theming hidden"
+      ],
+      "children": []
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:ce69103b063c3e10c7605b3cf09b8ebff304677dd2d2d1cde6caf91d2faa8021",
+      "summary": "Stage for the Press via right-click or rail; each run exports staged pieces to one target. Hoplight writes both Marinara regex sets and personas as .json the only shape Marinara understands. Plain .txt or .md copies are available for reading text. Choosing a different app applies the drop story: regex to apps with regex slots personas to apps with persona slots each dropping what the target cannot hold.",
+      "topics": [
+        "Press JSON only",
+        "regex and persona",
+        "txt md text copy",
+        "slot or drop story"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:fed386d4b959cb8574d14b397cd5a8d4a63d4d8ce198ddccf74012f446fccff6",
+      "summary": "Will regex or persona come back exactly as it was? Yes on export to Marinara-Engine same app in same app out. Marinara character cards go through the SillyTavern page not this one including stat bars and tracker colors under a Marinara tab. Persona colors and stat bars still ride sealed in the background and return untouched on export to Marinara. Writing for strip narrows the editor to what the platform wire carries so you never fill fields thrown away on export; switch to Hoplight lens for every field. Character targets on regex are kept; empty list means applies to everyone same as the wire.",
+      "topics": [
+        "exact Marinara return",
+        "characters via ST",
+        "sealed theming keep",
+        "Writing for hide only",
+        "character targets list"
+      ],
+      "children": []
+    }
+  ]
+}

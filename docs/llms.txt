@@ -12,6 +12,7 @@
 - [ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)](docs/decisions/ADR-007-renderer-policy.md): **Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces
 - [ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
 - [ADR-009: Distinct origin for test-bench execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
+- [ADR-010: Shared semantic content capabilities](docs/decisions/ADR-010-content-capabilities.md): **Status:** accepted, 2026-07-25
 
 ## Guide
 
@@ -38,7 +39,7 @@
 - [User guide](docs/guide/README.md): A map of Hoplight's rooms and links to every guide page, setup, importing, browsing, editing, personas, lorebooks, regex sets, converting, exporting, and platform notes.
 - [Edit a regex set](docs/guide/regex.md): Write find-and-replace rules into a set, choose where and in what order each one runs, and check what a rule actually does before you save it.
 - [Security and privacy](docs/guide/security.md): What keeps your content and your keys on your machine, why a downloaded card cannot run code on its own, and the few places where a protection is partial and we say so.
-- [Troubleshoot common problems](docs/guide/troubleshooting.md): Work out why a card would not import, why a convert dropped something, or why an export looks wrong, using the plain-words messages the studio already gave you.
+- [Troubleshoot common problems](docs/guide/troubleshooting.md): Work out why the Studio would not open, why a card would not import, why a convert dropped something, or why an export looks wrong, using plain recovery steps.
 
 ## Reference
 
@@ -75,6 +76,8 @@
 - [RoleCall format](docs/reference/formats/rolecall.md): How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.
 - [SillyTavern format](docs/reference/formats/sillytavern.md): How the SillyTavern adapter family detects, maps, and round-trips Character Card V1/V2/V3 cards and world info books through the canonical model.
 - [vaud-json format](docs/reference/formats/vaud-json.md): How the vaud-json adapter serializes the canonical character entity straight to plain JSON with no wire translation, and why it always wins detection on its own files.
+- [Kit reference](docs/reference/kit/README.md): Kit's conversational runtime, semantic content capabilities, and change-draft lifecycle.
+- [Kit content tools](docs/reference/kit/tools.md): Kit's shared workflow discovery, traversable results, semantic drafts, and Hoplight docs query.
 - [Platform native fields (verified research)](docs/reference/platform-native-fields.md): Source of truth for building each platform's native-field schema (platforms/<key>.ts). Fields verified against each platform's REAL format (their own source/types/API), 2026-07-07, via the platform-format-research workflow. Confidence + ope
 - [hoplight documentation](docs/reference/README.md): This is the reference documentation for **hoplight**, the Vaudeville Studios converter for AI-roleplay content. It is **docs-as-code**: it lives in the repo, is versioned with the code, and is kept true by
 - [Safe archive handling: .charx and .byaf](docs/reference/security/archives.md): How hoplight bounds a .charx or .byaf ZIP before and after inflation to resist a zip bomb, and where entry names are (and are not yet) checked for path traversal before they can become a filesystem write or a re-exported archive path.

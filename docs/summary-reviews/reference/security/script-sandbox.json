@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/script-sandbox",
+  "sourcePath": "docs/reference/security/script-sandbox.md",
+  "sourceHash": "sha256:db19fe6d971f8112b36999219f6a286fb70807ee38837fd94a6abd877607761c",
+  "semanticSummaryHash": "sha256:9d2e1bd10cb710ac7b99b24cb5429f60fffc8913a2fb23fe642362bb72c85b0a",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:49.945Z"
+}

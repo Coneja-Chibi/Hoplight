@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/rolecall",
+  "sourcePath": "docs/guide/platforms/rolecall.md",
+  "sourceHash": "sha256:6ba92ea1e266ae651715dbb5635d3a05f571a66eae0d9f0ad7d79cb17c018233",
+  "semanticSummaryHash": "sha256:85b970594aad1cc679546a320d4994e6572bb0cbeef7c2fc902746b87d7d460a",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.805Z"
+}

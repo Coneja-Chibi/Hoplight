@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/canonical-model",
+  "sourcePath": "docs/reference/concepts/canonical-model.md",
+  "sourceHash": "sha256:f4eef355484b7e9ff460542f9b229ba6354d2209bb437e378d6ab21f02552d5d",
+  "semanticSummaryHash": "sha256:5bc72a7564201daa7f76deba01ce6afcece44ecea34ecfdd464c1fefff0bd436",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:28.133Z"
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-007-renderer-policy",
+  "sourcePath": "docs/decisions/ADR-007-renderer-policy.md",
+  "sourceHash": "sha256:908afc9b205adead23f9066ea344cc8b5fb7c114c38ee8fbc684e287a5bc22bf",
+  "summary": "Accepted ADR on renderer policy dated 2026-07-05. Context: shell and then-current surfaces were vanilla TS plus DOM with five runtime dependencies and one compiled exe per ADR-001 and ADR-003, while roadmap chat surfaces M4 Table Read and agent packages are classically React-shaped. Two facts prevent a stack war: Table Read and agent engines are UI-agnostic with zero rendering code and one event protocol; the app contract manifest plus mount is renderer-agnostic so an app folder may bundle its own library. Decision: shell and editor shelf-class surfaces stay vanilla TS plus DOM; every app folder has renderer freedom; when Table Read and agent chat surfaces reach implementation their specs must include a renderer assessment with React on the table against streaming updates, virtualized long lists, deep interactive state webs, and component-ecosystem needs; if two or more criteria hold React is the default for that surface otherwise vanilla; engines never acquire a renderer dependency. Consequences: no restart of prior layers; two rendering idioms may coexist bounded by folders-as-schema; this is the standing answer that React is decided per-surface at spec time. Note ADR-008 later supersedes the deferral of chat-surface choice while keeping the engine rule.",
+  "topics": [
+    "shell vanilla TS DOM",
+    "app folder renderer freedom",
+    "per-surface React assessment",
+    "engines never renderer dep",
+    "Table Read UI-agnostic",
+    "folders as schema",
+    "ADR-007 accepted",
+    "superseded deferral ADR-008"
+  ],
+  "sections": [
+    {
+      "slug": "context",
+      "title": "Context",
+      "level": 2,
+      "sourceHash": "sha256:679a69a48c0d3ff8615961b90a4393c16b353b4ea88b03d2fbac6e000efb67b4",
+      "summary": "Shell and then-current Library Workbench Press Settings setup surfaces were hand-built vanilla TS plus DOM with five runtime dependencies and one compiled exe. Roadmap also promises chat-shaped surfaces: M4 Table Read conversational interview and agent system packages agent REPL test chat with Studio later at M6. Chat runtimes are classically React-shaped for streaming state and live lists, and comparable apps RoleCall Marinara Lumiverse frontend render chat with React 19. Two facts avoid a stack war: Table Read spec locks the engine as UI-agnostic with zero rendering code and one event protocol shared by CLI and Studio; agent packages follow the same rule so studio may not own private engine capabilities; renderer choice never touches engine design. App contract of manifest plus mount is renderer-agnostic; an app folder may bundle its own rendering library and the shell neither knows nor cares.",
+      "topics": [
+        "vanilla shell five deps",
+        "chat surfaces roadmap",
+        "UI-agnostic engines",
+        "manifest mount contract",
+        "no private studio engine"
+      ],
+      "children": []
+    },
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:4d68f6e4d03d899727ae3e2f917c9f1dec7639d74a514171361b1c1d319eafa4",
+      "summary": "Shell and editor shelf-class surfaces stay vanilla TS plus DOM because form and card complexity does not justify a framework runtime. Every app folder has renderer freedom: bundling a framework inside one app is an add not a rewrite and needs no shell change. When Table Read and agent chat surfaces reach implementation their specs must include a renderer assessment against sustained streaming updates, long virtualized lists, deep interactive state webs, and concrete component-ecosystem needs, with React explicitly on the table. If two or more criteria hold, default for that surface is React with Bun-native TSX baked into the exe; otherwise vanilla, with the event protocol keeping a later swap cheap. Engines never acquire a renderer dependency under any outcome.",
+      "topics": [
+        "shell stays vanilla",
+        "renderer freedom per app",
+        "assessment criteria React",
+        "two of four criteria",
+        "engines no renderer"
+      ],
+      "children": []
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:079a2736db9e2b3c61bc01e280469c2348356fb4b8130e459eef7c8168470802",
+      "summary": "No restart scenario exists: converter, canonical model, engines, shell, editors, and tokens CSS serve both renderer outcomes unchanged. The repo may eventually carry two rendering idioms isolated per app folder; that cost is accepted and bounded by folders-as-schema. This ADR is the standing answer to whether Studio should be React: the question is only ever asked per-surface with written criteria at the moment the surface is specced.",
+      "topics": [
+        "no stack restart",
+        "two idioms bounded",
+        "per-surface at spec time",
+        "folders as schema"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-003-distribution",
+  "sourcePath": "docs/decisions/ADR-003-distribution.md",
+  "sourceHash": "sha256:d4450b0d40a1207819c77cc9602fadcc4904b608889d6b0457f887e6d06e0f06",
+  "semanticSummaryHash": "sha256:435248a3263ba29773711c0c03fcf555ebfb735a5c90c0064c7bc15cc3082738",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:55.775Z"
+}

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-003-distribution",
+  "sourcePath": "docs/decisions/ADR-003-distribution.md",
+  "sourceHash": "sha256:d4450b0d40a1207819c77cc9602fadcc4904b608889d6b0457f887e6d06e0f06",
+  "summary": "Accepted ADR for distribution strategy. Primary v0.1 path is single-file executables per OS win x64, mac arm64 and x64, linux x64 built by bun build --compile and attached to GitHub Releases so users download one file and run with no Node, git, or install steps. Self-updater vaud upgrade checks Releases, downloads the new binary, verifies SHA-256 via a minisign-signed checksums file, and swaps atomically; later app face reuses the mechanism with UI; passive behavior is at most one non-blocking new-version notice per day and never auto-install without consent. Later signed desktop installers via Tauri bundler when apps/studio ships at M6, and package managers winget scoop brew when asked. npm publishes core packages for embedders and npx vaud works as secondary path not the documented default. Why: SillyTavern node plus git install is the top onboarding pain so download one file must be engineering truth; GitHub Releases provides free bandwidth where the audience already is. Consequences: release CI builds binary matrix checksums and signature on every tag; Windows SmartScreen will complain about unsigned exes until a code-signing cert is bought; binary size about 50-90MB from Bun runtime is accepted and documented.",
+  "topics": [
+    "single executable GitHub Releases",
+    "vaud upgrade self-updater",
+    "minisign checksums",
+    "no auto install without consent",
+    "Tauri installers M6 later",
+    "npm secondary path",
+    "SmartScreen unsigned",
+    "ADR-003 accepted"
+  ],
+  "sections": [
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:9eb9ed718104b0d5d4e00886194b0993d54a11862babe98bfaff55aff8b87011",
+      "summary": "Primary v0.1 distribution is single-file executables for win x64, mac arm64 and x64, and linux x64 via bun build --compile on GitHub Releases with download-one-file run and no Node git or install steps. Self-updater vaud upgrade checks Releases, downloads, verifies SHA-256 from a minisign-signed checksums file, and swaps atomically; UI reuses later; at most one non-blocking new-version notice per day and never auto-install without consent. Later: signed Tauri installers when studio ships M6; winget scoop brew manifests when someone asks. npm core packages and npx vaud are secondary not the documented default.",
+      "topics": [
+        "single-file per OS",
+        "GitHub Releases",
+        "vaud upgrade atomic",
+        "minisign signed checksums",
+        "Tauri installers later",
+        "npm secondary"
+      ],
+      "children": []
+    },
+    {
+      "slug": "why",
+      "title": "Why",
+      "level": 2,
+      "sourceHash": "sha256:5c49a2b97ba4d045acc77a5befb7882fd53ad7f770aa19316a9e4480d0a6d2df",
+      "summary": "SillyTavern's node plus git install is the single most cited onboarding pain in this hobby. Download one file is the marketing headline so it must be the engineering truth. GitHub Releases offers free bandwidth and the audience already lives there.",
+      "topics": [
+        "anti ST install pain",
+        "download one file truth",
+        "GitHub Releases audience"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:5fc454fb95c3b26ea5ac8580402e19c0dbfba1669b9745932b5c94dcb9763020",
+      "summary": "Release CI builds a matrix of binaries plus checksums plus signature on every tag. Windows SmartScreen will complain about unsigned exes; buy a code-signing cert when budget allows and document the More info Run anyway path until then as an M1 ticket. Binary size of roughly 50-90MB because Bun embeds its runtime is accepted and must be documented.",
+      "topics": [
+        "release CI matrix",
+        "SmartScreen unsigned",
+        "code signing cert later",
+        "50-90MB binary size"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

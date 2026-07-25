@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/pygmalion",
+  "sourcePath": "docs/guide/platforms/pygmalion.md",
+  "sourceHash": "sha256:4e9e3fbc1aa83c7574c17f29b261a0731f8c5403616f49d1985e3786e6b3294f",
+  "semanticSummaryHash": "sha256:7cedf6f252b10d2a07eed401c4da8dcc3d5ded2c334ecc605f50c2313a224bc9",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.428Z"
+}

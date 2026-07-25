@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/README",
+  "sourcePath": "docs/reference/security/README.md",
+  "sourceHash": "sha256:874f888234e091e5a9985be477d40e2de3efabfd8960f426b853b563a13a4fc6",
+  "semanticSummaryHash": "sha256:15826baa6f973705823736d28a03ae44abcdb3d79eccd85c669737f9a1ff2889",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:49.232Z"
+}

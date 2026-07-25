@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/untrusted-content",
+  "sourcePath": "docs/reference/security/untrusted-content.md",
+  "sourceHash": "sha256:da373a2c7e6b29d60c40f4b8236bb61bd2a8fcc48a73173d241e270d475ad51c",
+  "summary": "Layer 1 of the threat model: cards lorebooks regex sets and zip containers charx byaf risum are author-controlled content the user opens never something Hoplight fetches. Guarantee: each file is read by exactly one tolerant parser into the canonical model; nothing on that path evaluates a script; cross-format conversion carries only the portable body so one app scripts never reach another app file. Boundary: this page covers getting content past the door import inspect convert export; deliberate run isolation lives on script-sandbox and running is never automatic. Parsed once into a known type: JSON PNG and zip readers are total functions returning null or empty on bad input never throw or eval; unzipBounded caps archives; risum decode returns null without executing. Two script surfaces neither runs on import: declarative triggers classified as data pure TS runDataTriggers only on Test Bench Run; real Lua opaque text only via runLuaSandboxed on explicit click; privileged lowLevelAccess is warning never trigger with deny-by-absence host. Escrow never blind-copies scripts across formats: only Risu adapter emits body.behavior and export honesty names drops; original twin never crosses. What this page does not claim: regex hang safety sandbox isolation completeness decompression tuning details. Source of truth maps concerns to files.",
+  "topics": [
+    "parse not execute",
+    "tolerant total parsers",
+    "never auto-run scripts",
+    "cross-format no script copy",
+    "body.behavior Risu only",
+    "escrow original twin",
+    "export honesty drops",
+    "privileged warning only",
+    "unzipBounded archive caps"
+  ],
+  "sections": [
+    {
+      "slug": "parsed-once-into-a-known-type",
+      "title": "Parsed once, into a known type",
+      "level": 2,
+      "sourceHash": "sha256:aaf0d03892324f13c7540184d061bcf58965071b089713894c34a62754fc13b0",
+      "summary": "Every import reader is a total function over untrusted bytes: parse into a known shape or fail to a known empty value. None throw on bad input and none evaluate what they read. JSON readers readCardJson readJsonAny readJsonObject wrap JSON.parse in try catch and return null on non-parse or wrong shape; no eval or lenient parser. PNG extractCharacterJson only reads tEXt iTXt after the 8-byte signature; safeExtract catches corrupt chunks and returns empty array; ccv3 preferred over chara so V3 is never silently downgraded. Zip containers charx byaf risum go through unzipBounded checking compressed size per-entry size entry count and aggregate inflated size before and after inflation; card caps 96 MiB archive 512 entries 64 MiB per entry 96 MiB aggregate with ArchiveLimitError on breach not silent truncate. risum openRisumModule decodes into typed records with script bodies as plain strings and returns null on any decode failure never throwing; nothing executes script bodies; raw module bytes kept for lossless export so failed structural decode never loses the source file.",
+      "topics": [
+        "total function readers",
+        "JSON null not throw",
+        "PNG safeExtract",
+        "unzipBounded ArchiveLimitError",
+        "risum null no execute"
+      ],
+      "children": []
+    },
+    {
+      "slug": "two-script-surfaces-neither-runs-on-import",
+      "title": "Two script surfaces, neither runs on import",
+      "level": 2,
+      "sourceHash": "sha256:f4681586eca246f03a86dde6d48643d9d3e2171415f0d6ea25434bda0142d62c",
+      "summary": "Two authored script kinds treated the same at the door: classified as data never evaluated until an operator explicitly stages one. Declarative trigger rows become TriggerScript arrays of event conditions effects; classifyCondition and classifyEffect only sort shapes; nothing executes. The only interpreter runDataTriggers is pure TypeScript comparisons calc arithmetic and setvar with no eval Function or wasmoon; impersonate and command effects are only console text lines. It runs only when the operator clicks Run on the Workshop Test Bench; import convert and export never call it. Real Lua virtualscript triggerlua and risum script bodies ride as opaque text or bytes; CharacterBehavior states converter editor NEVER executes any of this no eval require or DOM injection. Only explicit onRunPackage hands code to runLuaSandboxed; execution never on import never during conversion never without opening Test Bench and clicking Run. lowLevelAccess becomes privileged boolean warning marker never an execution trigger; receipt says deep access not granted; no sandbox file reads privileged and host bridge never implements network filesystem or app access deny-by-absence.",
+      "topics": [
+        "triggers data not execute",
+        "runDataTriggers Test Bench only",
+        "Lua only onRunPackage",
+        "never auto-run import convert",
+        "privileged never trigger",
+        "deny-by-absence host"
+      ],
+      "children": []
+    },
+    {
+      "slug": "escrow-never-blind-copies-scripts-across-formats",
+      "title": "Escrow never blind-copies scripts across formats",
+      "level": 2,
+      "sourceHash": "sha256:9d4e0eef28c5f4410398a6751c7d29b8fe856825cbb921e9a1d7cecabfb4f997",
+      "summary": "Every canonical entity keeps a lossless twin keyed by source format; cross-format conversion hands the target only the canonical body never that twin. Scripts use two mechanisms. Body carries scripts but only the RisuAI adapter emits them: applyRisuToBody lifts triggerscript virtualscript backgroundHTML CSS defaultVariables and lowLevelAccess onto body.behavior and convertFile hands that body to targets so scripts exist in memory; only risu-fields reads body.behavior while SillyTavern RoleCall Agnai Backyard BYAF Lumiverse Pygmalion never look so triggers virtual script backdrop and privileged flag are never written to their wire. Declared not accidental: only Risu coverage lists behavior with scripts ride as DATA never executed here. Export honesty buildExportHonesty names what will not travel for targets that omit behavior and drops packaged risum module contents; import receipt says scripts saved as text never run unless staged. The raw twin never crosses: original is keyed per source format and a target only reads its own key; on fresh cross-format that key is empty so source raw payload and risum bytes under original.risu never reach the output even if a future adapter read body.behavior.",
+      "topics": [
+        "canonical body only convert",
+        "body.behavior Risu only emit",
+        "coverage honesty drops",
+        "import receipt scripts text",
+        "original twin never crosses",
+        "original.risu sealed"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-this-page-does-not-claim",
+      "title": "What this page does not claim",
+      "level": 2,
+      "sourceHash": "sha256:2a39278c7f0b7f7f12bf1a0dbf6377e3e4c02eca776f3dff376b4019df94f002",
+      "summary": "Regex execution safety: card-embedded regex is a plain find replace data row never compiled or applied on import; applying is a regex replace never an eval; whether a pattern can hang at runtime is a separate question covered by regex-safety. Sandbox isolation completeness: this page states execution requires explicit operator action and makes no claim about isolation once staged; origin separation is tested at Bun HTTP layer only; packaged WebView2 is not measured and ADR-009 acceptance is BLOCKED Plan 017; do not read this page as fully isolated or cannot be exploited; see script-sandbox. Decompression-bomb tuning: exact archive size caps and rationale live in archive.ts and security README; this page only relies on enforcement before card JSON is read out of a zip.",
+      "topics": [
+        "regex hang not here",
+        "no full isolate claim",
+        "ADR-009 BLOCKED",
+        "archive caps elsewhere",
+        "explicit action only claim"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:0c8bd0d85363a9e73de0d7f717f623e3d3b3e8e0ee9f90544c56182aa9ac3b2b",
+      "summary": "Maps each concern to its authority file. Tolerant JSON is card-io.ts; PNG chunks png.ts; bounded zip archive.ts; risum structural decode open-module and rpack module; trigger classification behavior.ts; TriggerScript CharacterBehavior privileged schema.ts; pure TypeScript trigger interpreter run-data-trigger.ts; Risu import hasExecutableContent isPrivileged module decode index.ts; scripts onto body risu-fields.ts; Risu behavior coverage coverage.ts; only canonical body crosses convert.ts; escrow envelope canonical.ts; export honesty honesty.ts; import receipt receipt.ts; Test Bench run wiring workshop view.tsx; deny-by-absence host bridge risu-api.ts.",
+      "topics": [
+        "card-io png archive",
+        "behavior schema triggers",
+        "risu-fields coverage convert",
+        "honesty receipt view",
+        "risu-api deny absence"
+      ],
+      "children": []
+    }
+  ]
+}

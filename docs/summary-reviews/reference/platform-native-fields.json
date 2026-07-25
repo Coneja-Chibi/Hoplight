@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platform-native-fields",
+  "sourcePath": "docs/reference/platform-native-fields.md",
+  "sourceHash": "sha256:3408d078d1408fce187cdcf62ca0d15c85a65a779bcb80f15f5bb7e3d9cc3172",
+  "semanticSummaryHash": "sha256:6aebb678f0619caf0433828906319527b484fac93875aa89f0c48eea17c55718",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:59.501Z"
+}

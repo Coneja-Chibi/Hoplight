@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/untrusted-content",
+  "sourcePath": "docs/reference/security/untrusted-content.md",
+  "sourceHash": "sha256:da373a2c7e6b29d60c40f4b8236bb61bd2a8fcc48a73173d241e270d475ad51c",
+  "semanticSummaryHash": "sha256:766eb801899fe831c718f871843bcae18fb189d941a0b78eb663f82536c58160",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:49.690Z"
+}

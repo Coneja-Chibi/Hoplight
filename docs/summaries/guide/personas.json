@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/personas",
+  "sourcePath": "docs/guide/personas.md",
+  "sourceHash": "sha256:97e7e2da1c40d62496df5ccd3e50a2e8232bea4bde546ddeec749dff26e020b7",
+  "summary": "Create and manage personas covers building your side of the fiction, the identity a target app shows as user. Only name and text are required; tagline pronouns portrait colors linked lorebook and injection are optional. The short version is New persona on the Personas deck saves Untitled persona and opens Workbench; fill name tagline pronouns height age plus sections Appearance Body Personality Quirks History or flat Identity Text; Write for defaults Hoplight and can narrow the form without deleting; set Prompt Injection and Knowledge lorebook; Save; star as default and stage for Press to ship. What actually reaches the model treats Content as fallback: any filled section ignores Identity Text; Body folds into Appearance; Identity always leads; Brief never crosses; labeled colors compile as tags; Live Preview is the real compiler. Where it's injected, and what travels with it lists RoleCall or SillyTavern stops under Write for; platforms with no wire hide the card; foreign stops show dashed kept; Knowledge attaches lorebooks but export carries only the top reference as an id not entries, and staging a persona never pulls the book as a rider; default star is studio shelf only. Converting and exporting a persona has no editor Export button; stage and run Press as solo row; Agnai skips; SillyTavern backup keeps sealed siblings. Tips restate sections beat flat text, Brief shelf only, Write for hide not delete, first lorebook only, Press for files.",
+  "topics": [
+    "persona Workbench editor",
+    "sections vs Identity Text",
+    "Write for host lens",
+    "Prompt Injection stops",
+    "Knowledge lorebook top only",
+    "Press solo export",
+    "SillyTavern sealed backup"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:c5a29322044630dac264fbb62f5b9de33ae0f8f8dbd3e71c6c4694d7b0d6b7c1",
+      "summary": "On the Personas deck click New persona from the shelf tile or empty deck button; it saves immediately as Untitled persona and opens on the Workbench. Fill who you are with name tagline pronouns height and age, then write section fields Appearance Body Personality Quirks History or, if you have no use for sections, flat Identity Text. Narrow to one host if building for one: Write for in the header defaults to Hoplight the full card; pick a platform and the form drops to only what that wire carries without deleting. Set where it is injected and link a lorebook if needed in the right-hand Prompt Injection card and the Knowledge card on the left. Save with Ctrl+s or Save like any piece. Star it as default if you want the shelf to flag it, then stage for the Press when ready to ship as a file.",
+      "topics": [
+        "New persona Workbench",
+        "sections or Identity Text",
+        "Write for narrow form",
+        "Prompt Injection Knowledge",
+        "Save star Press"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-actually-reaches-the-model",
+      "title": "What actually reaches the model",
+      "level": 2,
+      "sourceHash": "sha256:96cafab0ab5bfc425dd159586381c26e6b34475dabb5c8394da4b00469fe44d8",
+      "summary": "Content is the fallback not a second copy. Fill even one section and the compiler ignores Identity Text entirely; it only wakes once every section is empty. Body has its own card for physical specifics but folds into the Appearance tag when compiled and never gets a tag of its own. Identity always leads: pronouns tagline height and age are not a section; they compile first ahead of whatever section order you set every time. Brief never crosses: it is the library-card blurb on the Personas shelf only and never enters the injected block; voice lines belong in a section or Identity Text. Full sections leave old Identity Text inert not deleted. Switch Write for to Agnai and sections traits palette and injection leave the form; switch back and everything remains. Labeled colors compile one tag per color from the label. Live Preview always shows this exact output as the real compiler not a mock.",
+      "topics": [
+        "sections beat Identity Text",
+        "Body into Appearance",
+        "Identity always leads",
+        "Brief never injects",
+        "Write for hide not delete",
+        "colors Live Preview"
+      ],
+      "children": []
+    },
+    {
+      "slug": "where-its-injected-and-what-travels-with-it",
+      "title": "Where it's injected, and what travels with it",
+      "level": 2,
+      "sourceHash": "sha256:bc43b134fe38b04100946c8182238c68d528377b416d3c0b5509792ce573e5d5",
+      "summary": "The Prompt Injection card lists stops your Write for lens carries: RoleCall four World Character Scene Depth or SillyTavern five In prompt Note top Note bottom In chat None; a platform with no injection wire such as Lumiverse or Marinara hides the card. Depth and In chat both ask for a depth number; In chat also asks role system user or assistant. A stop set under a different lens shows dashed amber disabled labeled kept not carried here so foreign choices stay visible. None of this makes Vaud chat; it decides where the target app places the block on export. Knowledge attaches reorders and detaches linked lorebooks like a character; SillyTavern RoleCall and Lumiverse each carry a single lorebook reference not a list so only the top one crosses as an id the target should already have; entries do not ride in the persona file and staging a persona for Press never pulls the book as a rider. The star Set as default persona only flags the gilt Default badge on the shelf; nothing else in Vaud reads it automatically.",
+      "topics": [
+        "Prompt Injection stops",
+        "foreign kept dashed",
+        "Knowledge attach books",
+        "top lorebook id only",
+        "no rider on Press",
+        "default star shelf only"
+      ],
+      "children": []
+    },
+    {
+      "slug": "converting-and-exporting-a-persona",
+      "title": "Converting and exporting a persona",
+      "level": 2,
+      "sourceHash": "sha256:a42718ce2819693b90b55f745390022a09e1e5608934e1a34f1de500ae7dcf7e",
+      "summary": "A persona editor carries no Export button unlike a character. To get a file out right-click Stage for the Press or click it on the Press left rail pick a target and run the press as in Convert a card. A staged persona always runs as its own solo row; it never bundles the way a character and linked lorebooks do. A target with no persona wire such as Agnai prints a skip row because Agnai has no persona format; its structured persona lives on a character card not as its own file. SillyTavern keeps every persona in a single Personas backup file not one file each. Import that backup and Vaud reads the default persona or the first if none marked as the editable piece; every other persona stays whole and sealed inside not shown as its own Library piece. Export back from that piece re-emits sealed ones untouched alongside your edit. There is currently no way to pull one sealed persona out on its own.",
+      "topics": [
+        "no editor Export",
+        "Press solo row",
+        "Agnai skip no wire",
+        "SillyTavern backup",
+        "sealed siblings re-emit",
+        "no unseal alone"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:5f0129279f93e7f5ad8f99490f811b56f72dd725ada68280c837f08375463c5e",
+      "summary": "Sections beat Identity Text the moment any one of them has text; clear every section if you want old flat text gone not just hidden. Brief lives on the shelf only; keep the one-line blurb there and put real voice in a section or Identity Text. A Write for pick only narrows what you see; nothing is deleted; click Hoplight to see the whole card again. Only the first linked lorebook crosses on export; reorder the Knowledge card if a different book should travel. There is no Export button on a persona own editor; stage it and run it through the Press when you want a file out.",
+      "topics": [
+        "clear sections for flat",
+        "Brief shelf only",
+        "Write for hide only",
+        "first lorebook export",
+        "Press for file out"
+      ],
+      "children": []
+    }
+  ]
+}

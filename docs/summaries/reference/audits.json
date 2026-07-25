@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/audits",
+  "sourcePath": "docs/reference/audits.md",
+  "sourceHash": "sha256:c303400d45cece42de17250cfd223b3b9b7ea4535612861d0b18fdf44c52a46c",
+  "summary": "Reference for the runnable UI audit suite under scripts audit. Audits drive the real app in a real browser against a scratch studio seeded through real adapters and enumerate the live app at runtime: room list from the dock, deck and view lists from Library chip rows, lens lists from the editor select. Add an app deck view or lens and the next run walks it with no script edits. The one hand-grown file is walks promises.ts because behavior expectations are human knowledge; every new feature adds a row there act then observable effect. Runs table: audit everything in order; audit rooms every dock catalog app both themes; library every deck times view staging delete context; editors every kind write-for lens binder export book-rules folder inspector; setup first-run wizard steps theme accent; promises act-effect table; clicks every visible enabled clickable flagging dead-click suspects not auto-fail with Quit Restart external blocklisted; legibility dark light style only; watch reruns rooms plus promises on src ui change. The style audit every visited state checks tiny-text low-contrast naked-control plus page errors. Artifacts under audit-out run screenshots and ledger.json as coverage claim; non-zero on findings for CI. Honest boundaries: unrendered never audited; dead-click heuristic; unit suite carries non-promise behavior.",
+  "topics": [
+    "live app enumeration",
+    "promises hand table",
+    "rooms library editors setup",
+    "clicks dead suspects",
+    "style audit DOM checks",
+    "ledger coverage claim",
+    "honest boundaries"
+  ],
+  "sections": [
+    {
+      "slug": "runs",
+      "title": "Runs",
+      "level": 2,
+      "sourceHash": "sha256:dd898ccc95df31697cdcc54477633eff5bf04d2ae7a00a63381d5bbcb127f78d",
+      "summary": "bun run audit walks everything below in order. audit rooms walks every dock and catalog app both themes for style audit per room. audit library walks every deck times every view staging bar delete confirm context menu for style per state. audit editors opens one piece of every kind every write-for lens binder views export and book-rules dialogs and folder inspector. audit setup walks first-run wizard every step live theme flip custom accent final. audit promises walks the promise table act then observable effect covering import picker drop count delete staging lenses search updates theme create duplicate rename. audit clicks every visible enabled clickable flags no-effect as dead-click suspects eyeball list not auto-fail; Quit Restart and external links blocklisted. audit legibility dark or light pins theme for style only. audit watch reruns the quick set rooms plus promises whenever src ui changes.",
+      "topics": [
+        "audit full suite",
+        "rooms library editors",
+        "setup wizard promises",
+        "clicks dead suspects",
+        "legibility watch"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-style-audit-every-visited-state",
+      "title": "The style audit (every visited state)",
+      "level": 2,
+      "sourceHash": "sha256:35744dd8d2e5f837f5c74ead447df529671edd18415943a0555fbd7bf54398dd",
+      "summary": "Three exhaustive checks over the full DOM from page-audit.ts deliberately DOM-bound: the whole function is serialized into the page and runs there. tiny-text flags any text node under the 10px floor. low-contrast flags text under WCAG AA against effective background 4.5 to 1 or 3 to 1 for large bold text. naked-control flags any button or select wearing browser-default fonts instead of house tokens the unstyled-component regression class. Page errors thrown during a walk are ledgered too.",
+      "topics": [
+        "page-audit DOM in page",
+        "tiny-text 10px",
+        "low-contrast WCAG AA",
+        "naked-control tokens",
+        "page errors ledgered"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "artifacts",
+      "title": "Artifacts",
+      "level": 2,
+      "sourceHash": "sha256:a699f55adcd6d3a249c7a8aa046a78efeadaa0239885d9f86a461d8c41f2aee9",
+      "summary": "Each run writes audit-out run folder: one screenshot per visited state theme-stop png and ledger.json holding the visited-state list and every finding. The visited list is the coverage claim: anything not on it was not audited. A run exits non-zero when it found anything so runs can gate CI.",
+      "topics": [
+        "audit-out screenshots",
+        "ledger visited list",
+        "coverage claim",
+        "non-zero CI gate"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "honest-boundaries",
+      "title": "Honest boundaries",
+      "level": 2,
+      "sourceHash": "sha256:e708628cbb6d37fdc4298689b3ce406f10d1306983aa2f2e68d905b9f29475e4",
+      "summary": "A state never rendered is never audited; coverage grows with the walkers and the ledger names exactly what was walked. Dead-click detection is heuristic because some no-ops are legitimate; its output is a suspect list for review. Behavior beyond the promise table is carried by the unit suite not these walks.",
+      "topics": [
+        "unrendered not audited",
+        "dead-click heuristic",
+        "unit suite beyond promises"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

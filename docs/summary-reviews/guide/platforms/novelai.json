@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/novelai",
+  "sourcePath": "docs/guide/platforms/novelai.md",
+  "sourceHash": "sha256:7968a541e031823117e88f85f03f722bc7ca01581643039e30a1a37ccc49966b",
+  "semanticSummaryHash": "sha256:c5a2fcf9c338e54226bb1363ff0476ea9085724de423bed63a3f27ad9eb80e7b",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.238Z"
+}

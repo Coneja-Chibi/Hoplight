@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/agnai",
+  "sourcePath": "docs/guide/platforms/agnai.md",
+  "sourceHash": "sha256:e40c0e228c2d4307de7e783d70855de0a787f27da318254e3f7ef22198d19b5e",
+  "summary": "Agnai also known as Agnaistic stores characters in its own JSON shape with a structured persona map, not SillyTavern shape. What Hoplight reads: character .json only no png option, and memory books as standalone or embedded .json; drop on Library for a plain-words receipt recognized by structured persona plus greeting shape. What comes across cleanly keeps the original whole and lifts name description version culture personality structured or plain scenario appearance greetings examples system post-history prefill one depth injection creator tags voice avatar or sprite recipe image-gen affixes structured response schema as data only and embedded memory book. What changes when you convert to another app: same-app round-trip keeps untouched fields byte for byte except persona always rebuilt from the editor so multi-block plain personality collapses to first; cross-app keeps shared character and drops sampler provider account layout private settings; no regex feature either way. Editing on the Workbench has dedicated controls for structured persona voice sprite image-gen and schema. Exporting back out stages through the Press as .json with embedded book riding; txt md available. Common questions cover round-trip exception no png structured persona location sprite voice and memory book pull-edit-put-back.",
+  "topics": [
+    "Agnai character JSON",
+    "memory book lorebook",
+    "structured persona map",
+    "same-app round-trip",
+    "cross-app private drop",
+    "Workbench dedicated editors",
+    "Press JSON export"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:89fcca272f360bc070d6f0dec073c16f9140c547ad4031ce80b530f14938249e",
+      "summary": "Hoplight reads the two file types Agnai gives you. Characters as a .json file; Agnai does not embed a card inside a picture the way SillyTavern does so there is no .png option to bring in. Memory books Agnai name for lorebook or worldbook as a .json file either standalone or embedded inside a character. Drag the file onto the Library and drop anywhere; Hoplight shows a plain-words receipt of what it read and kept. It recognizes an Agnai character by its own shape a structured persona plus a greeting not by the file name. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "character JSON only",
+        "memory book JSON",
+        "Library drop receipt",
+        "shape not filename",
+        "no PNG import"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:4cedc46e9aa30f66ffcf291aee42bbca80011f72ee53a945652a039562cb0803",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original card then lifts editable fields: name description version label; culture or language for default voice; personality as plain text or Agnai structured persona map via W++ boostyle square-bracket or attribute list; scenario and separate appearance for image generation; first message alternate greetings example messages; system prompt post-history instructions assistant prefill; one depth injection with more editable on Workbench but only first travels to Agnai; creator tags voice selection; avatar image or layered sprite recipe; image-generation prefix suffix negative template; structured response schema as data only never run; embedded memory book entries keywords placement. Card picture when present is the piece portrait. Listed fields ready to edit; the rest held safely in the background.",
+      "topics": [
+        "original complete keep",
+        "structured persona map",
+        "depth injection one slot",
+        "sprite voice image-gen",
+        "schema data only",
+        "embedded memory book"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:5b6b406953d2c54ad2297035d3c0e30120f1c4eaae2ab6527c1ce1014a40d5f8",
+      "summary": "Same-app round-trip keeps everything you did not touch byte for byte because Hoplight kept the original and only rewrites changed fields. One exception: Agnai persona is always rebuilt fresh from the editor so multi-block plain-text personality collapses to the first block even on straight Agnai round trip. Converting to another app drops Agnai-only extras on purpose. Core character name description personality scenario appearance greetings examples system post-history prefill creator tags come across as far as the target holds. Structured persona voice sprite image-gen affixes schema memory book and depth injection come across only if the target has matching slots. Sampler provider settings inside image config account id and saved layout stay on same-app and drop cross-app. Another app means SillyTavern RoleCall Risu Backyard Pygmalion and similar. Agnai has no regex-key feature so nothing carries either way.",
+      "topics": [
+        "byte round-trip keep",
+        "persona rebuild exception",
+        "cross-app shared only",
+        "private settings drop",
+        "no regex either way"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:a42c6da4a78cf9ca74b928ff06e7b762eccfb38d8509cfad3230d6e7644a38bf",
+      "summary": "Send a piece from the Library to the Workbench and it opens as a tab. Edit name description personality scenario first message and example messages the same as any character. Agnai extras get dedicated controls too: structured persona map voice sprite recipe image-generation affixes and response schema each have an editor so you are never stuck hand-editing raw JSON. When you save Hoplight writes the whole card back so parts you did not touch stay exactly as they were.",
+      "topics": [
+        "Workbench tab edit",
+        "dedicated Agnai controls",
+        "whole card save",
+        "untouched parts stay"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:6c64ca613e93e1b858a79bab8fe71561a0afd9e65d35888ee9d704f98674bbd3",
+      "summary": "Stage a ready piece for the Press via right-click Stage for the Press or the Press rail. The Press works only staged pieces and each run exports to one target format you pick. Hoplight writes Agnai cards as .json the same shape Agnai exports. An embedded memory book rides along with the character automatically. You can also ask for plain .txt or .md when you just want to read the text. Choosing a different app as target applies the convert drop story above.",
+      "topics": [
+        "Press stage one target",
+        "Agnai JSON write",
+        "memory book rides",
+        "txt md text copy",
+        "other app drop story"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:4804f8a7e8c21cd271457e7188a4cb153c9e841ca85b8516b5cdbf6265c7a09e",
+      "summary": "Will the card come back exactly as it was? Yes on export to Agnai except multi-entry plain-text persona collapses to first because persona is rebuilt from the editor. Agnai does not give a .png card; native export is JSON only so Hoplight never offers a picture for it. Structured persona still there: W++ boostyle or attribute map goes to structured persona editor while plain text lands in ordinary personality. Sprite voice and image-generation settings keep full on same-app round-trip and are editable; cross-app only if matching slots exist. Agnai has no regex scripts like SillyTavern so nothing carries either way. Embedded memory book is pulled for solo edit and put back on export to apps that support memory books or worldbooks.",
+      "topics": [
+        "round-trip persona exception",
+        "JSON only no PNG",
+        "structured persona editor",
+        "sprite voice keep",
+        "no regex",
+        "memory book put-back"
+      ],
+      "children": []
+    }
+  ]
+}

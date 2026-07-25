@@ -27,6 +27,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | BlockContent | src/ui/apps/workbench/preset/block-content.tsx | ({ block, onPatch }: BlockContentProps) |  |  |
 | BlockList | src/ui/apps/workbench/preset/block-list.tsx | ({ blocks, groups = [], collapsedGroups, onToggleGroup, totalBlocks, tab, query, onClearQuery, onShowAll, selectedId,... |  |  |
 | BlockRow | src/ui/apps/workbench/preset/block-row.tsx | ({ block, index, active, selected, expanded, onSelectRow, onToggleCheck, onToggleExpand, onToggle, onDelete, onPatch,... |  |  |
+| BootErrorScreen | src/ui/shell/BootErrorScreen.tsx | ({ problem }: { problem: BootProblem \| null }) |  |  |
 | BottomSheet | src/ui/components/bottom-sheet/index.tsx | ({ title, ariaLabel, onDismiss, titleAction, footerAction, children }: BottomSheetProps) | A scrim + grab-handle sheet docked to the pane's bottom; clicking the scrim dismisses. | .overlay .sheet .grab .titleRow .title .closeX .body .footer |
 | BulkBar | src/ui/apps/workbench/preset/bulk-bar.tsx | ({ count, onClear, onEnable, onDisable, onDuplicate, onDelete }: BulkBarProps) |  |  |
 | CardsView | src/ui/apps/workbench/lore/cards-view.tsx | ({ entries, writeFor, onSelect, onPatch, onAdd, }: CardsViewProps) |  |  |

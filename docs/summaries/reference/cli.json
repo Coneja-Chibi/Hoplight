@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/cli",
+  "sourcePath": "docs/reference/cli.md",
+  "sourceHash": "sha256:b8dad02e7a521e8491695879d9ec4f73cfd52b7f0740c3f7ea2505530f9ceeff",
+  "summary": "CLI reference for hoplight the same engine as Studio: canonical model and adapters from formats. src cli.ts dispatches; cli-io holds pure convert IO policy. Invocation via bun run src cli.ts or package bin or build compile dist; bun run dev is ui 8321. Commands table covers convert inspect validate label formats ui version help no-args and unknown. Global flags version help json to yes y strict. hoplight convert in out six pre-write steps path guard detect resolve convertFile container agreement atomic publish with strict drop refuse and json success only. hoplight inspect file human fields by kind no json. hoplight validate file ok invalid json shapes exit 0 or 1. hoplight label file provenance spec container origin signals. hoplight formats lists adapters and matrix path. hoplight ui port studiodir loopback forever. hoplight version and hoplight help banners. Quirks: json command set differs from HELP text; convert json success only; y alias unmentioned; exit 0 or 1 stdout only; inspect label vs validate path position; label format is card spec inspect format is adapter id. Source of truth maps cli cli-io registry loader convert provenance server package.json.",
+  "topics": [
+    "cli.ts cli-io policy",
+    "convert six-step atomic",
+    "inspect validate label",
+    "formats ui version help",
+    "json flag quirks",
+    "exit 0 1 stdout only",
+    "source of truth files"
+  ],
+  "sections": [
+    {
+      "slug": "invocation",
+      "title": "Invocation",
+      "level": 2,
+      "sourceHash": "sha256:bf3a98506e5eda6ebd11794ed8f713e70d0404c3559aa9483bf1876b093cf7a3",
+      "summary": "In the repo run bun run src cli.ts command args or package script bun run hoplight command args. package.json bin maps the hoplight command straight to src cli.ts so an installed or linked package exposes it directly. bun run build cli compiles a standalone binary to dist hoplight via bun build compile src cli.ts. bun run dev is hoplight ui 8321.",
+      "topics": [
+        "bun run cli.ts",
+        "package bin map",
+        "build compile dist",
+        "dev is ui 8321"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "commands",
+      "title": "Commands",
+      "level": 2,
+      "sourceHash": "sha256:b0e0f8e6cf6e8301104e9d6b8921cb9d94025183bbfe64c37603acedd3010a98",
+      "summary": "convert with optional to yes y strict converts and prints a loss report. inspect validate label formats cover file dump pass fail provenance and adapter list. ui launches loopback Studio. version and help print their banners. No arguments equals help. Unknown first arg names the error and exits 1.",
+      "topics": [
+        "convert inspect validate",
+        "label formats ui",
+        "version help",
+        "unknown exits 1"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "global-flags",
+      "title": "Global flags",
+      "level": 2,
+      "sourceHash": "sha256:f30a3619d6fd9525d9299fe732101ae3ea20340426c1c98b565e62a416a1affd",
+      "summary": "Standalone v version and h help map to version and help commands. json works on version formats validate convert only; inspect label ui help stay human. convert-only to forces adapter id; yes y allows replace of existing out never input; strict refuses when dropped paths are reported.",
+      "topics": [
+        "version help standalone",
+        "json subset commands",
+        "to yes strict convert",
+        "never overwrite input"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-convert-in-out",
+      "title": "`hoplight convert <in> <out>`",
+      "level": 2,
+      "sourceHash": "sha256:b7aad896b1d5fbfcd8a8b3f581f78d07bea556560c55c88bef398fe0b82cc7c4",
+      "summary": "Flags may appear anywhere after convert; parseConvertFlags scans the tail for yes y strict and to value leaving exactly two positionals; duplicates bad to unknown flags or wrong positional count exit 1 with usage. Six checked steps before a byte is written: guardConvertOutput refuses same-file out as in and requires yes when out exists; registry detect fails listing known ids when unrecognized; resolveTarget prefers to format or extension via targetsForExtension never guessing ambiguous multi matches; convertFile import export with bundled lorebook extract re-embed; assertContainerAgreement checks adapter suggested extension magic or JSON or non-empty; publishAtomic temp sibling fsync rename leaving prior destination on failure. strict refuses when report lists dropped paths before write. Only success honors json with ok from to paths extension lorebooks count bytes textChars and report counts lists; every failure prints plain text regardless of json. Plain report prints from to paths extension lorebook count four counts every dropped path and every warning.",
+      "topics": [
+        "parseConvertFlags anywhere",
+        "six pre-write steps",
+        "strict drop refuse",
+        "atomic publishAtomic",
+        "json success only",
+        "container agreement"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight-inspect-file",
+      "title": "`hoplight inspect <file>`",
+      "level": 2,
+      "sourceHash": "sha256:4f6b6b0ffa3ff962d11acac84b244cd8da36c57d54e81c6c1b2ee4153070a0ba",
+      "summary": "Detects the source adapter converts to canonical and prints format id adapter label entity kind and kind-specific fields. character prints name greeting first sixty alts count tags. lorebook prints name type entries budget mode. persona prints name brief content count section keys. regex prints name rules count. Does not honor json always human-readable. file is args1 the literal second token so a flag before the path is read as the path.",
+      "topics": [
+        "kind field dump",
+        "character lorebook persona regex",
+        "no json always human",
+        "args1 path caveat"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-validate-file",
+      "title": "`hoplight validate <file>`",
+      "level": 2,
+      "sourceHash": "sha256:3f083fe14f955de7740dd37de096463c639c2efc1f012e03e87d564ac44e5c91",
+      "summary": "Same detect-convert path as inspect but pass fail. Unrecognized or toCanonical throw is INVALID; else OK with format kind name. Exit 0 or 1. Path is first non-validate non-json arg. json shapes: ok true path format kind name; ok false unrecognized; ok false format plus error message.",
+      "topics": [
+        "OK vs INVALID",
+        "exit 0 or 1",
+        "json three shapes",
+        "path any side of json"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-label-file",
+      "title": "`hoplight label <file>`",
+      "level": 2,
+      "sourceHash": "sha256:7bc9c900663a1efd0f8dc1dc23e4bc3951311429463a67c70cf5427eac26c74c",
+      "summary": "Guesses a card spec and likely origin app without fully parsing into the canonical model via labelCard sniffContainer in character provenance. Source is best available: detected adapter escrowed raw else JSON parse of decoded text else undefined so label can still report unknown none on unrecognized files. Prints format as card spec chara_card_v3 v2 v1 agnai backyard or unknown not an adapter id; container png charx json or unknown; origin likely authoring app plus confidence or unknown; signals every fingerprint or none. Does not honor json. file is args1 same positional caveat as inspect.",
+      "topics": [
+        "provenance without full parse",
+        "format is card spec",
+        "container origin signals",
+        "no json args1 path"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight-formats",
+      "title": "`hoplight formats`",
+      "level": 2,
+      "sourceHash": "sha256:b8ecbe764c1ffc2e6725954729d717ad3b5bfb266b1bcdaead086343f8b1bc3e",
+      "summary": "Loads every adapter the loader discovers under formats star index and lists each id kind label and output extensions. Plain text also prints the doc path for the generated coverage matrix docs FORMAT-SUPPORT.md regenerated with bun run matrix and a reminder that a new format is a folder drop-in copy of formats template. json shape is schema 1 with adapters array of id kind label outputExtensions.",
+      "topics": [
+        "loadFormats list",
+        "matrix doc path",
+        "template drop-in reminder",
+        "json adapters array"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-ui-port-studiodir",
+      "title": "`hoplight ui [port] [studioDir]`",
+      "level": 2,
+      "sourceHash": "sha256:1287a2bc92bd5e44c8d2bd30f533ddf76beb746182cacbb2b6e20e65f35cbdf4",
+      "summary": "Starts loopback-only Studio via startUi and blocks until interrupt. port is Number args1 or 8321; missing non-numeric or 0 fall back. studioDir is args2 default home Documents Hoplight Studio and requires a port first because it is the third token. Does not honor json.",
+      "topics": [
+        "loopback Studio forever",
+        "port default 8321",
+        "studioDir needs port first",
+        "no json"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-version",
+      "title": "`hoplight version`",
+      "level": 2,
+      "sourceHash": "sha256:4a678826801ae89e3e81fcc0d9b124ea59403514bcfa85bfb76dd8ff76d66eb6",
+      "summary": "hoplight version v and version flag forms are equivalent; the short and long version flags are checked before any other command match ahead of no-arguments and help fallback. Plain form prints just the version string. json shape is version string and schema 1.",
+      "topics": [
+        "version v flags first",
+        "plain version string",
+        "json version schema"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight-help",
+      "title": "`hoplight help`",
+      "level": 2,
+      "sourceHash": "sha256:c307cffad94389a5d9bb7fbb55ebad6324f747a660aee98945a47a27134e051e",
+      "summary": "help h help flag and bare no-arguments all print the same built-in HELP banner: usage line command table flag list one example block and a status line naming schema version and format-matrix doc path. No arguments falls through to the same branch as help. Does not honor json.",
+      "topics": [
+        "HELP banner shared",
+        "no-args is help",
+        "no json"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:775fea4744e4421615c9e8443f7189ac7709203088626c0ad0e20d53503d1116",
+      "summary": "json is honored by version formats validate and convert. Built-in HELP text json line names inspect validate formats; code wins and the actual set differs both ways omitting convert and version while wrongly including inspect. Convert json only covers the success report; every failure branch prints plain text regardless of the flag. y is a working alias of yes that HELP does not mention. Every exit path is 0 or 1; there is no exit code 2 and no command writes to stderr; all output success or failure goes through console.log to stdout. Positional resolution differs: validate accepts path any side of json; inspect and label take args1 literally so a flag before the path is read as the path. label format column is the card spec from labelCard; inspect format column is the adapter id; same column name different value on two commands.",
+      "topics": [
+        "json set vs HELP",
+        "convert json success only",
+        "y alias unmentioned",
+        "exit 0 1 stdout only",
+        "path position differ",
+        "format column two meanings"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:c6a704e800e190a54ecd7c5393d5a9c289a36c18fb83570e33b46b26d285031d",
+      "summary": "Command dispatch bodies and HELP banner live in src cli.ts. Convert flag parse path-identity guard container-agreement and atomic publish live in cli-io.ts. Registry detection and extension resolution live in core registry.ts. Canonical wrapper and schema version live in canonical.ts. Folder discovery loadFormats lives in loader.ts. Bundle extract re-embed on convert lives in convert.ts. Card provenance labeler lives in entities character provenance.ts. Studio server for ui lives in ui server.ts. Invocation surfaces bin and scripts live in package.json.",
+      "topics": [
+        "cli.ts cli-io.ts",
+        "registry loader convert",
+        "provenance server",
+        "package.json bin"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

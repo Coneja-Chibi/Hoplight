@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "01-VISION",
+  "sourcePath": "docs/01-VISION.md",
+  "sourceHash": "sha256:57a09c6be0c5ce2cb97494955e729f64be39608a7415605aef12e23fea4afd2a",
+  "semanticSummaryHash": "sha256:db06c94c2242639d96fb9b2140edcbcae0a1329a0925293b56f1631e3db13d17",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:21.888Z"
+}

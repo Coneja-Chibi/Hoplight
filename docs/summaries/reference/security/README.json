@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/README",
+  "sourcePath": "docs/reference/security/README.md",
+  "sourceHash": "sha256:874f888234e091e5a9985be477d40e2de3efabfd8960f426b853b563a13a4fc6",
+  "summary": "Security states the assets Hoplight protects the untrusted inputs it faces and each defense layer with honest tested or scaffolded status because overclaiming in a security document is a defect worse than a gap. Threat model covers provider API keys local filesystem studio folder session token and machine availability against adversary content the user opens on a loopback-only local forge never an exposed service with trust ending at every file and request. The layers are eight: parse not execute through canonical model and escrow; decompression caps on archives via unzipBounded; ReDoS-guarded regex validateRule plus budgets; sanitized rendering marked DOMPurify and pure policy; Lua sandbox capability by absence worker kill and value-only wire; distinct-origin sandbox isolation with packaged-host proof BLOCKED; loopback-only token-gated local server; and BYOK key vault designed not yet built. Status at a glance points at the status figure. What this document does not claim lists not fully isolated not cannot be exploited regex timeout limits key vault unbuilt and same-origin degraded fallback.",
+  "topics": [
+    "threat model assets",
+    "parse not execute",
+    "archive zip bounds",
+    "ReDoS validateRule",
+    "sanitized rendering",
+    "Lua sandbox budgets",
+    "ADR-009 BLOCKED",
+    "loopback token server",
+    "BYOK vault unbuilt"
+  ],
+  "sections": [
+    {
+      "slug": "threat-model",
+      "title": "Threat model",
+      "level": 2,
+      "sourceHash": "sha256:cca3be15dba77a598a678e53229c769a61ff675e073b598de9aa8b312960786f",
+      "summary": "Assets are the user's provider API keys and connection secrets the local filesystem and studio folder the trusted UI origin and per-launch session token and the user's machine attention availability. Adversary is content authored by someone else and opened by the user: cards with embedded scripts PNG or ZIP decompression bombs catastrophic regex Risu Lua. Transport is import edit preview or run never a remote attacker on an exposed port; the server is loopback only. Trust boundary: trust ends at every file and request parse once into canonical deny capabilities by absence fail closed. Two known-soft edges: packaged-host origin isolation is not yet measured ADR-009 and the key vault is a draft spec with no implementation in the tree.",
+      "topics": [
+        "keys filesystem token",
+        "content adversary local",
+        "loopback never exposed",
+        "parse once fail closed",
+        "ADR-009 vault soft"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-layers",
+      "title": "The layers",
+      "level": 2,
+      "sourceHash": "sha256:62ad400ddf365b832da6df0587994e3c6f854423eaa10ea42532eade482f1408",
+      "summary": "Eight defense layers with honest status. Parse not execute routes every format through one canonical model with scripts as escrow data and cross-format carrying only the body. Decompression caps on archives use unzipBounded pre and post inflate with card and pack budgets throwing ArchiveLimitError. ReDoS-guarded regex refuses dangerous patterns before compile and adds match timeouts that cannot interrupt one native match. Sanitized rendering runs marked then DOMPurify last with pure policy allowlists and sealed CSP. The Lua sandbox and its resource budgets open pure libs only strip host globals kill workers on deadline and use value-only protocol. Distinct-origin sandbox isolation is HTTP-proven with packaged WebView2 proof BLOCKED and same-origin degraded fallback. Loopback-only token-gated local server binds 127.0.0.1 with Host Origin timingSafeEqual Sec-Fetch-Site and body caps. BYOK key vault is designed only not built.",
+      "topics": [
+        "parse not execute",
+        "decompression caps",
+        "ReDoS-guarded regex",
+        "sanitized rendering",
+        "Lua sandbox budgets",
+        "origin isolation BLOCKED",
+        "loopback token server",
+        "BYOK key vault"
+      ],
+      "children": [
+        {
+          "slug": "1-parse-not-execute",
+          "title": "1. Parse, not execute",
+          "level": 3,
+          "sourceHash": "sha256:49791c3ce3e62bc4cea0d395028a86f41812c98585ed23cb8841e1d01cf96d83",
+          "summary": "Every format converts through one canonical superset never format to format. Import reads into the model; conversion is import then export. App-specific scripts extension blocks and layout ride escrow as opaque data. Server evaluates nothing server-side. Cross-format is contained-loss: only the canonical body crosses so private junk and executable payloads are not copied. Adapter contract makes cross-kind unrepresentable. Status: enforced by adapter contract and escrow in core held by Round-Trip Law; the one place code runs is the Lua Test Bench layer 5.",
+          "topics": [
+            "canonical only path",
+            "escrow opaque scripts",
+            "contained cross-format",
+            "cross-kind unrepresentable",
+            "bench only execute"
+          ],
+          "children": []
+        },
+        {
+          "slug": "2-decompression-caps-on-archives",
+          "title": "2. Decompression caps on archives",
+          "level": 3,
+          "sourceHash": "sha256:c4e005d79bb3df4b401bdaf39753dd73561e17f0d520db4c6234723ce7fec94b",
+          "summary": "core archive.ts inflates untrusted ZIP charx byaf lumiverse sprite packs through unzipBounded checking total entry count then selected compressed original and aggregate sizes before inflation where fflate filter allows and rechecking actual lengths after. Card containers cap 96 MiB archive 512 entries 64 MiB per entry 96 MiB aggregate; packs tighter 48 MiB and 256 entries. Missing originalSize is a lower bound so lying headers still cap on compressed size. Any breach throws ArchiveLimitError and required entries are never silently dropped. Status: enforced pre and post inflate; suite archive.test.ts.",
+          "topics": [
+            "unzipBounded helper",
+            "card pack budgets",
+            "ArchiveLimitError",
+            "lying header bound",
+            "archive.test.ts"
+          ],
+          "children": []
+        },
+        {
+          "slug": "3-redos-guarded-regex",
+          "title": "3. ReDoS-guarded regex",
+          "level": 3,
+          "sourceHash": "sha256:22d2c9b1f0cd4e5ecfa0d8043859bfac0bc2827c3f9d3c5a9696908e4df0f192",
+          "summary": "Synchronous JS RegExp cannot be interrupted mid-execution so defense is refusing dangerous patterns before compile. validateRule rejects complexity over 50 and proven-dangerous AST shapes nested unbounded quantifiers overlapping alternation under star quantified backreferences. apply never runs a rejected pattern. Engine adds per-rule timeout 100ms default 500ms max match cap 1000 and set-level budget; timeout guards between matches not inside one native call so pre-compile refusal is load-bearing. ast redos is a precision warning lens not the gate. Status: enforced by validateRule plus budgets with validate apply and redos test suites.",
+          "topics": [
+            "validateRule pre-compile",
+            "complexity cap 50",
+            "timeout not interrupt",
+            "match cap budget",
+            "redos warning lens"
+          ],
+          "children": []
+        },
+        {
+          "slug": "4-sanitized-rendering",
+          "title": "4. Sanitized rendering",
+          "level": 3,
+          "sourceHash": "sha256:845c898245ab5d4826898d7a50a40f9fe8240498a02311b48bfebd01803125f0",
+          "summary": "Stored field markup renders through marked then DOMPurify sanitizing last straight to innerHTML with no post-sanitize mutation. Active form embedding and auto-fetch tags are forbidden; data attributes off; anchors re-hardened with scheme allowlist rel target; fetch attributes stripped. Pure DOM-free policy holds 200k input cap http https mailto schemes inline-style property allowlist and value filter blocking url var import expression. Sealed previews carry restrictive CSP; untrusted portrait bytes get default-src none sandbox and nosniff. Status: pure policy suite and DOM markup suite client-side.",
+          "topics": [
+            "marked then DOMPurify",
+            "forbid active tags",
+            "pure render-policy",
+            "sealed preview CSP",
+            "portrait nosniff"
+          ],
+          "children": []
+        },
+        {
+          "slug": "5-the-lua-sandbox-and-its-resource-budgets",
+          "title": "5. The Lua sandbox and its resource budgets",
+          "level": 3,
+          "sourceHash": "sha256:a930c99895ba15f6f2072e9c73afc94786d94da7460b9c05f8b457c7e055b430",
+          "summary": "Lua is the one untrusted input executed and only when the user opens the Risu Test Bench never on import. Capability by absence: wasmoon opens pure libs only never io os debug package and strips load loadfile dofile require collectgarbage. Resource budgets cover wall-clock heap source wire and host-state with release defaults 5s 64 MiB heap 2 MiB source and 2 MiB host-state; higher requests clamp down. Real kill switch is Worker hard deadline termination. Value-only wire is versioned tagged union forbidding token cookie authorization session and non-plain prototypes; API token never enters messages. Status: limits worker protocol suites in Bun; packaged-host origin is layer 6 not proven here.",
+          "topics": [
+            "bench only execute",
+            "pure libs strip globals",
+            "5s 64MiB budgets",
+            "worker kill switch",
+            "value-only protocol"
+          ],
+          "children": []
+        },
+        {
+          "slug": "6-distinct-origin-sandbox-isolation-packaged-host-proof-blocked",
+          "title": "6. Distinct-origin sandbox isolation (packaged-host proof BLOCKED)",
+          "level": 3,
+          "sourceHash": "sha256:4ea548057b2131da8329362729c375a0fdc39c3dc56a004f5fe40c3ee7ee72cb",
+          "summary": "ADR-009 adds defense-in-depth origin boundary: second loopback listener on ephemeral port serves only worker bundle and glue.wasm with no api session token index or studio paths. Same-origin Worker is availability not origin boundary so this reduces blast radius on future engine bundler or WebView bugs. Origin separation is implemented and tested at HTTP handler layer in Bun; packaged WebView2 origin probe crossOriginIsolated storage visibility and credentialed API fetch from sandbox origin are not measured. Plan 017 is BLOCKED for full Done; release notes must not claim full sandbox isolation. If sandbox listener fails to bind UI falls back to same-origin worker degraded not isolated. Status: HTTP automated; packaged proof BLOCKED.",
+          "topics": [
+            "ephemeral sandbox host",
+            "HTTP layer proven",
+            "WebView2 not measured",
+            "Plan 017 BLOCKED",
+            "same-origin fallback"
+          ],
+          "children": []
+        },
+        {
+          "slug": "7-loopback-only-token-gated-local-server",
+          "title": "7. Loopback-only, token-gated local server",
+          "level": 3,
+          "sourceHash": "sha256:072c889044c89494062618af6874b485594758c695367f59034b1030bc9f1eb3",
+          "summary": "UI server binds 127.0.0.1 only. server-security holds per-launch bearer from randomBytes 32 Host check on every api method Origin plus token on every POST with timingSafeEqual against DNS-rebinding. GET HEAD cannot demand token so Sec-Fetch-Site refuses cross-site; missing Origin on POST fails closed. Bodies capped 64 MiB inspect 32 MiB JSON with streaming 413. External links are POST-only safeExternalUrl http https and argv spawn not shell. Status: enforced unit-testable extraction re-exported from server.",
+          "topics": [
+            "127.0.0.1 bind",
+            "bearer timingSafeEqual",
+            "Host Origin gates",
+            "Sec-Fetch-Site GET",
+            "body caps 413"
+          ],
+          "children": []
+        },
+        {
+          "slug": "8-byok-key-vault-designed-not-yet-built",
+          "title": "8. BYOK key vault (designed, not yet built)",
+          "level": 3,
+          "sourceHash": "sha256:6b55ef1b49f7c170b5f5170431890afb519064d8d990c350a2c010bd2f4ebdf8",
+          "summary": "Everything in this layer is specification not shipped code. specs engine key-vault is M2 draft describing packages ai that does not exist; KeyVault getApiKey redactSecrets search returns nothing. Design keeps keys local per ADR-006 BYOK with OS keychain or AES-256-GCM file owner-only atomic writes never-log via redactSecrets and type split ProviderConfig safe versus ProviderSecret. Status: designed only not implemented not measured; no present-tense key storage protection until M2 vault ships with its test plan suites.",
+          "topics": [
+            "spec only M2",
+            "no packages/ai yet",
+            "keychain or AES file",
+            "redactSecrets intent",
+            "not measured"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "status-at-a-glance",
+      "title": "Status at a glance",
+      "level": 2,
+      "sourceHash": "sha256:9cfaa2527206c150754a8edce36909e6423ce42bb911a78f206795f9a0cdbf73",
+      "summary": "Status at a glance is the status figure summarizing each defense layer as enforced measured scaffolded or blocked so readers can scan honest readiness without re-reading every layer section. It does not add new claims beyond the layer writeups and the non-claim list that follows.",
+      "topics": [
+        "status figure",
+        "layer readiness scan",
+        "no new claims"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-this-document-does-not-claim",
+      "title": "What this document does not claim",
+      "level": 2,
+      "sourceHash": "sha256:2c9a66f68c7d83423c7dc0e0c438092d7f50d9314b0db2168d6890795af95793",
+      "summary": "Not fully isolated or fully sandboxed: Lua origin boundary is proven at HTTP layer not packaged WebView2 host and that proof is BLOCKED. Not cannot be exploited or completely safe: layers reduce blast radius and fail closed as defense in depth not impossibility proof. The regex per-rule timeout does not interrupt a single catastrophic native RegExp match; pre-compile refusal is the actual defense. The key vault protections are specified not implemented and nothing in the tree stores keys yet. Where the sandbox listener cannot bind the same-origin fallback is degraded and not isolated.",
+      "topics": [
+        "not fully sandboxed",
+        "not unexploitable",
+        "timeout not kill",
+        "vault unbuilt",
+        "degraded fallback"
+      ],
+      "children": []
+    }
+  ]
+}

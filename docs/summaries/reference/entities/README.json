@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/entities/README",
+  "sourcePath": "docs/reference/entities/README.md",
+  "sourceHash": "sha256:25d7f39501b62fbb7ae24a5c646235b1ee497362b9186c71dca16b9e9e575e5b",
+  "summary": "Entities indexes the six closed canonical kinds every Hoplight convert path and studio path uses: CanonicalEntity Kind Body wrappers where body is the superset for one kind. STUDIO_ENTITY_KINDS in path-policy names character lorebook pack persona preset and regex alphabetically and grows only by union member plus src/entities kind folder. Four kinds have format adapters character lorebook persona regex while pack and preset are studio-authored only without toCanonical fromCanonical or formats matrix rows. All six store at studio kind id json via resolveStudioPath. Generated field tables explains each entity page embeds docs generated fields kind md from schema JSDoc via docs-fields.ts never hand-edited cells. Reference pages table links character lorebook pack persona preset and regex with what each covers. Cross-cutting ties sprite pack hub shape RegexScript twin knowledgeRefs behaviorRefs and persona as opposite-voice counterpart.",
+  "topics": [
+    "six entity kinds",
+    "STUDIO_ENTITY_KINDS",
+    "CanonicalEntity wrapper",
+    "adapter vs studio-only",
+    "generated field tables",
+    "character lorebook pack",
+    "persona preset regex",
+    "cross-cutting refs"
+  ],
+  "sections": [
+    {
+      "slug": "generated-field-tables",
+      "title": "Generated field tables",
+      "level": 2,
+      "sourceHash": "sha256:196a1cb51483b7801cf1f54ce2a00c2e6175c481d313cdba4d71aac5c0a19a42",
+      "summary": "Each entity page embeds its field table verbatim from docs/generated/fields.<kind>.md. That file is generated from live schema JSDoc by scripts/docs-fields.ts via bun run scripts/docs-fields.ts and verified with --check. Do not hand-edit a table cell on an entity page; improve the doc comment in src/entities/<kind>/schema.ts and regenerate so the published table stays the schema truth.",
+      "topics": [
+        "fields kind md",
+        "docs-fields.ts",
+        "schema JSDoc source",
+        "no hand-edit cells"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "reference-pages",
+      "title": "Reference pages",
+      "level": 2,
+      "sourceHash": "sha256:28672ce87c64586c0ba4b021d92f29ab5b8fcb10eff99e150450e65366c0e27b",
+      "summary": "Index table of the six entity field references. Character covers identity persona voice prompts injections greetings examples media presentation settings behavior attribution and discovery. Lorebook covers world info entry set triggers position depth and per-entry per-book settings. Pack is a reusable expression sprite pack attachable to multiple characters with no format adapter. Persona is the user identity counterpart with name content sections and chat injection. Preset is a chat-completion prompt-manager preset with ordered blocks samplers and behavior studio-only. Regex is a named ordered find replace rule set covering the character-card twin and standalone script files.",
+      "topics": [
+        "character field reference",
+        "lorebook world info",
+        "pack sprite pack",
+        "persona user identity",
+        "preset prompt manager",
+        "regex script set"
+      ],
+      "children": []
+    },
+    {
+      "slug": "cross-cutting",
+      "title": "Cross-cutting",
+      "level": 2,
+      "sourceHash": "sha256:3ba7fe4c7d2f1a387c1ba87aa40785c6567cba066eabc099fb7c6d9244c4dec1",
+      "summary": "Shared shapes span kinds. SpritePackValue and SpritePackItem in core media pack.ts are the hub for Character media.assets role emotion and Pack pack groups. RegexScript makes Character behavior.regexScripts the card-embedded twin of the standalone Regex set. knowledgeRefs and behaviorRefs let Character link standalone Lorebook or Regex entities by canonical id. Persona is Character opposite-voice counterpart sharing prompt-injection machinery as first person user versus third person char.",
+      "topics": [
+        "SpritePackValue hub",
+        "RegexScript twin",
+        "knowledgeRefs behaviorRefs",
+        "persona opposite voice"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

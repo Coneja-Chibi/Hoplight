@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/backyard",
+  "sourcePath": "docs/guide/platforms/backyard.md",
+  "sourceHash": "sha256:b23218aed147a574ac732411c6007be3bb659713f8b597e7e885c4f675567af8",
+  "summary": "Backyard.ai formerly Faraday ships two character shapes and Hoplight reads and writes both. What Hoplight reads: older flat JSON with aiName aiPersona customDialogue keys, and modern .byaf zip of character scenarios and images; two separate adapters tell them apart by content not rename. What comes across cleanly keeps the original and lifts display name nickname description personality scenario system first message examples creator tags from flat JSON; from .byaf also alternate greetings portrait gallery background content rating as explicit or all-ages source dates; flat JSON rewrites single-brace placeholders to double braces while .byaf text is untouched. What changes when you convert to another app treats same-shape round-trip as full keep but moving between Backyard shapes counts as conversion like a different app so personality does not travel flat-to-byaf and byaf-only media rating dates drop on legacy; lore items not yet lifted to editable lorebook. Editing on the Workbench covers core fields with whole-card save. Exporting back out offers Backyard .byaf and Backyard legacy JSON as two Press targets. Common questions cover same-shape exact return, picture only on byaf, placeholder rewrite rules, and lore items stay escrowed.",
+  "topics": [
+    "Backyard two shapes",
+    "flat JSON and byaf",
+    "same-shape round-trip",
+    "cross-shape is convert",
+    "placeholder brace rewrite",
+    "lore items not lifted",
+    "Press dual targets"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:76835fbc840b7be08b6194783ba2f6a115c3486475c2586b506e4f1bfb665d6a",
+      "summary": "Hoplight reads both shapes Backyard has shipped. The older flat JSON export from Faraday-era versions is a plain .json with keys like aiName aiPersona and customDialogue. The modern .byaf archive is a zip that bundles the character one or more scenarios and any images together. These are not two names for the same thing; each has its own vocabulary and two separate adapters. Drop either on the Library; Hoplight looks inside a .byaf by zip signature and manifest shape and flat JSON by Backyard-only keys so renaming does not confuse it. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "flat JSON Faraday",
+        "byaf zip archive",
+        "two separate adapters",
+        "detect by content",
+        "Library drop"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:a9e4581f295690ae8b18d8c86271fa7a158700e2f9efc8d5fd181b25a5e64daf",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original then lifts editable parts. From older flat JSON: display name and separate nickname when short char name differs; description and personality as two fields; scenario system prompt first message example messages creator tags and optional version tag. From a .byaf archive: display name nickname single description no separate personality; scenario from primary narrative; system first message alternate greetings examples; avatar-labeled or first image as portrait other images as gallery; scenario background; creator source URL created and updated dates; content rating as explicit or all-ages only because byaf stores a plain NSFW switch so mature never comes from Backyard import. Across both shapes Backyard placeholders are single braces; flat JSON rewrites to double braces on the way in while .byaf text comes across exactly as written without rewrite.",
+      "topics": [
+        "flat JSON fields",
+        "byaf fields media",
+        "explicit or all-ages",
+        "single-brace placeholders",
+        "byaf no rewrite"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:465db41173e5667244232a4dc7af1d37af819322d1b16d18dfb81be766f30f48",
+      "summary": "Same-shape round-trip keeps everything: flat JSON to flat JSON or .byaf to .byaf because Hoplight kept the original and only rewrites changed fields. Moving between the two Backyard shapes counts as conversion not same-app: only listed shared fields cross. Personality is the clearest case; flat JSON keeps it but .byaf has one persona field so personality does not travel on export to byaf. Alternate greetings portrait gallery background content rating source dates keep on byaf round-trip and drop on flat JSON which has none of them. Lore items sampler generation settings prompt template grammar chat transcript and other Backyard extras without a canonical slot stay on same-shape and drop elsewhere. Lore items stay on the twin but are not yet lifted into an editable lorebook so they do not cross into another app lore fields. Another app includes SillyTavern RoleCall Agnai Risu and the other Backyard shape.",
+      "topics": [
+        "same-shape full keep",
+        "cross-shape is convert",
+        "personality byaf gap",
+        "byaf media drop legacy",
+        "lore items not lifted"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:b1ae07526bdeeff3063dec2268fe54a464a6ce979f8d7dde0bc801f76571e236",
+      "summary": "Send a piece from the Library to the Workbench and it opens as a tab. Edit name nickname description personality scenario first message and any alternate greetings and example messages. When you save Hoplight writes the whole card back so parts you did not touch stay exactly as they were.",
+      "topics": [
+        "Workbench tab edit",
+        "core character fields",
+        "whole card save"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:d08a6beeb527183908ce877e920b70f7cfeb352b6309251bb9f52c30ecf7976a",
+      "summary": "Stage a ready piece for the Press via right-click or the Press rail. Each run exports staged pieces to one target you pick. Backyard shows as two targets: Backyard for modern .byaf and Backyard legacy for flat JSON. Hoplight writes .byaf as a zip and legacy as .json. Pick the target that matches where the card is going; the other applies the drop story like a different app. Plain .txt or .md copies are available for reading text only.",
+      "topics": [
+        "Press dual targets",
+        "byaf and legacy JSON",
+        "wrong shape drops",
+        "txt md text copy"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:a8c240ee644206ee565ff0b2fa2be91a3414b1de62fac68237c8c7372ea3a89c",
+      "summary": "Will the card come back exactly as it was? Yes only when exported to the exact import shape; switching shapes follows the same crossing rule as a different app. Imported .byaf returns as .byaf only if you pick Backyard; Backyard legacy writes flat JSON and drops alternate greetings images background and content rating. Pictures ride on .byaf round-trip including gallery; flat JSON has no image archive. Flat JSON single-brace placeholders convert to double braces on read and only re-convert if you edited the field; .byaf text is never touched that way. Archive lore items stay attached on .byaf round-trip but are not yet lifted into an editable lorebook so they will not cross into another app lore fields.",
+      "topics": [
+        "same-shape exact return",
+        "byaf vs legacy pick",
+        "pictures byaf only",
+        "placeholder rewrite rules",
+        "lore items escrowed"
+      ],
+      "children": []
+    }
+  ]
+}

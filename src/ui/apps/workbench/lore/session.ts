@@ -3,6 +3,14 @@
  * entry CRUD, book settings, dirty/reconcile.
  */
 import type { LorebookBody, LorebookEntry } from "../../../../entities/lorebook/schema";
+import {
+  removeLorebookEntries,
+  reorderLorebookEntry,
+  setLorebookEntriesEnabled,
+  updateLorebookEntry,
+  updateLorebookSettings,
+  type LorebookSettingsPatch,
+} from "../../../../entities/lorebook/capabilities/operations";
 import { emptyLoreEntry } from "../../../../core/lore";
 import { newUiId } from "../../../_shared/new-id";
 import { deepEq, reconcileAfterSave } from "../editor-core";
@@ -106,8 +114,8 @@ export function duplicateEntry(session: LoreSession, id: string): LoreSession {
 }
 
 export function deleteEntry(session: LoreSession, id: string): LoreSession {
-  const entries = session.body.entries.filter((e) => e.id !== id);
-  const body = { ...session.body, entries };
+  const body = removeLorebookEntries(session.body, [id]);
+  const entries = body.entries;
   const open = pruneOpen(body, session.openIds, session.focusedId);
   // a fully cleared desk reopens on the first remaining entry (never a blank stage with content)
   if (open.openIds.length === 0 && entries[0]) {
@@ -117,13 +125,8 @@ export function deleteEntry(session: LoreSession, id: string): LoreSession {
 }
 
 export function reorderEntry(session: LoreSession, id: string, toIndex: number): LoreSession {
-  const from = session.body.entries.findIndex((e) => e.id === id);
-  if (from < 0) return session;
-  const entries = [...session.body.entries];
-  const [row] = entries.splice(from, 1);
-  const clamped = Math.max(0, Math.min(toIndex, entries.length));
-  entries.splice(clamped, 0, row!);
-  return { ...session, body: { ...session.body, entries } };
+  const body = reorderLorebookEntry(session.body, id, toIndex);
+  return body === session.body ? session : { ...session, body };
 }
 
 export function updateEntry(
@@ -131,20 +134,16 @@ export function updateEntry(
   id: string,
   patch: Partial<LorebookEntry>,
 ): LoreSession {
-  const entries = session.body.entries.map((e) =>
-    e.id === id ? { ...e, ...patch, id: e.id } : e,
-  );
-  return { ...session, body: { ...session.body, entries } };
+  const body = updateLorebookEntry(session.body, id, patch);
+  return body === session.body ? session : { ...session, body };
 }
 
 export function updateBook(
   session: LoreSession,
-  patch: Partial<Pick<LorebookBody, "name" | "description" | "tags" | "lorebookType" | "genre" | "fandom" | "globalCaseSensitive" | "globalMatchWholeWords" | "globalScanDepth" | "globalRecursion" | "tokenBudget" | "budgetMode" | "entryBudget">>,
+  patch: LorebookSettingsPatch,
 ): LoreSession {
-  return {
-    ...session,
-    body: { ...session.body, ...patch },
-  };
+  const body = updateLorebookSettings(session.body, patch);
+  return body === session.body ? session : { ...session, body };
 }
 
 /** Bulk enable/disable. Empty selection = no-op. Pushes undo. */
@@ -155,15 +154,9 @@ export function setEntriesEnabled(
 ): LoreSession {
   if (ids.length === 0) return session;
   const base = pushUndo(session);
-  const want = new Set(ids);
   return {
     ...base,
-    body: {
-      ...base.body,
-      entries: base.body.entries.map((e) =>
-        want.has(e.id) ? { ...e, enabled: on } : e,
-      ),
-    },
+    body: setLorebookEntriesEnabled(base.body, ids, on),
   };
 }
 
@@ -174,9 +167,8 @@ export function setEntriesEnabled(
 export function deleteEntries(session: LoreSession, ids: readonly string[]): LoreSession {
   if (ids.length === 0) return session;
   const base = pushUndo(session);
-  const want = new Set(ids);
-  const entries = base.body.entries.filter((e) => !want.has(e.id));
-  const body = { ...base.body, entries };
+  const body = removeLorebookEntries(base.body, ids);
+  const entries = body.entries;
   const open = pruneOpen(body, base.openIds, base.focusedId);
   if (open.openIds.length === 0 && entries[0]) {
     return { ...base, body, openIds: [entries[0].id], focusedId: entries[0].id };

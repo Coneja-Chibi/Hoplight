@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/marinara",
+  "sourcePath": "docs/reference/formats/marinara.md",
+  "sourceHash": "sha256:afa9c09813b7a4e9576c4d463b79518457bb40a8ac582b8391998c3d96185839",
+  "summary": "Marinara format is the developer authority for how Hoplight's marinara folder adapters detect, map, and round-trip Marinara-Engine API dumps for regex scripts and personas through the canonical model. Marinara has no file import UI, so each codec reads and writes the bare API dump shape without inventing an envelope. The folder exports marinara-regex for bare MarinaraRegexScript arrays as .json and marinara-persona for persona objects with sections and theming as .json. There is no marinara character adapter: Tavern-shaped Marinara cards read through sillytavern, with platform extras declared only for the Marinara editor lens. Detection scores both codecs at 0.95 with gates that hard-reject SillyTavern dialect regex and require persona theming signals. Field map tables wire regex rows to RegexRule fields and personas to PersonaBody, with set name from filename and unmapped fields escrowed. Escrow and round-trip diverge: regex seals raw rows but rebuilds purely from rules, while persona overlays mapped fields onto the sealed twin for byte-lossless unedited trips. Quirks cover ST detection firewall, empty section omit versus clear-to-empty export, nullable avatarPath, character-side extensions outside this folder, and no design spec. Source of truth lists adapter files, shared helpers, entity schemas, and tests.",
+  "topics": [
+    "Marinara-Engine API dump",
+    "marinara-regex codec",
+    "marinara-persona codec",
+    "no character adapter",
+    "detect 0.95 ST firewall",
+    "regex field map",
+    "persona field map",
+    "escrow original twin",
+    "round-trip inverse vs overlay",
+    "Marinara lens extensions"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:b8ba09257786f979c95d1e0f502b03e3c5ca67a0e2f8766e25d27a359c7cbdf3",
+      "summary": "Detection follows the registry rule that every adapter's detect runs and the single highest score above 0.5 wins so specific formats outrank generic ones. The Detection section splits into Regex and Persona gates that both bid 0.95. Regex uses four ordered gates over a non-empty object array: hard-reject any ST scriptName, require id and findRegex on every row, and require at least one Marinara-distinct signal among targetCharacterIds, order, or placement strings ai_output or user_input, because ST placement is numeric. Persona requires string id name description personality plus at least one theming or stat signal nameColor boxColor or personaStats, a combination the codec calls disjoint from Lumi ST and RoleCall plain objects.",
+      "topics": [
+        "registry detect threshold",
+        "regex 0.95 gates",
+        "scriptName hard reject",
+        "persona theming signals",
+        "outbid ST 0.9"
+      ],
+      "children": [
+        {
+          "slug": "regex",
+          "title": "Regex",
+          "level": 3,
+          "sourceHash": "sha256:97b76e70ed5b45e03c04e53f472baf7e8611cbe2f79ef91822f61ac00fe387e7",
+          "summary": "detect returns 0.95 for a recognizable Marinara dump and 0 otherwise. The score is 0.95 not lower because SillyTavern's regex codec claims 0.9 on the shared findRegex replaceString shape, and even the ST-form fixture is named marinara-essentials. readMarinaraRows fails closed on the first of four gates: non-empty plain-object array; any scriptName rejects the whole file as ST dialect; every row needs string id and findRegex; at least one row needs targetCharacterIds, order, or placement ai_output or user_input. Real ST rows always carry scriptName so this adapter scores 0 and ST keeps its files.",
+          "topics": [
+            "detect 0.95",
+            "four gates null",
+            "scriptName ST reject",
+            "placement string signal",
+            "findRegex replaceString"
+          ],
+          "children": []
+        },
+        {
+          "slug": "persona",
+          "title": "Persona",
+          "level": 3,
+          "sourceHash": "sha256:24a72aa990269a77e11bd5c506839cadd715ba75c53d1084a100b7cf5492dc7b",
+          "summary": "detect returns 0.95 for a recognizable Marinara persona object and 0 otherwise. readMarinaraPersona requires all three: string id and name; string description and personality; and at least one theming or stat signal among nameColor, boxColor, or personaStats. The codec comment calls this combination disjoint from Lumi ST and RoleCall so a plain id name description object fails before any name-based disambiguation is needed.",
+          "topics": [
+            "detect 0.95 persona",
+            "id name description personality",
+            "nameColor boxColor personaStats",
+            "disjoint from Lumi ST RC"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:132d418b2f1086e0292949e2f0da95da38533578666617f8ad7e94f0807b4ccd",
+      "summary": "Field map covers Regex then Persona wire shapes. Regex maps each MarinaraRegexScript row to one RegexRule: id label find flags replace trimStrings phases from placement, targets from promptOnly, depths characterIds enabled sortOrder, with timestamps only in extras. The set has no Marinara container; RegexSetBody.name comes from the filename via setNameFromFilename while description and set-level enabled never read or write. Persona maps name description comment appearance personality backstory and avatarPath into PersonaBody fields and always stamps attribution.source as marinara. Wire id scenario theming stats crop tags and timestamps have no canonical slot and ride sealed in escrow as detailed under Escrow and round-trip.",
+      "topics": [
+        "MarinaraRegexScript map",
+        "placement to phases",
+        "set name from filename",
+        "PersonaBody sections",
+        "attribution.source marinara"
+      ],
+      "children": [
+        {
+          "slug": "regex-1",
+          "title": "Regex",
+          "level": 3,
+          "sourceHash": "sha256:41deff27fb8a372a0e305265fb91562073ec8eb97377499c0d43b565f2f3e59c",
+          "summary": "The wire row is MarinaraRegexScript, one row per canonical RegexRule. id maps to id, name to label, findRegex to find as bare pattern without delimiters, flags and replaceString to flags and replace, trimStrings empty as undefined, placement ai_output user_input to phases output input with dedup order preserved, promptOnly true to targets prompt, depths passthrough, targetCharacterIds to characterIds empty as undefined, enabled and order to enabled and sortOrder, createdAt updatedAt to extras only. The regex set itself has no Marinara wire home: name derives from filename; description and set-level enabled never touch a Marinara file.",
+          "topics": [
+            "findRegex bare pattern",
+            "placement phases map",
+            "promptOnly targets",
+            "extras timestamps",
+            "setNameFromFilename"
+          ],
+          "children": []
+        },
+        {
+          "slug": "persona-1",
+          "title": "Persona",
+          "level": 3,
+          "sourceHash": "sha256:619e19c6fdc1e4dc2841be8cc96f59f42e24ccc9f0388e69b0b6ce51879b4e23",
+          "summary": "The wire object has no spec or envelope name; shape recognition is the Detection gate. name maps to name, description to content as the full first-person user voice, comment to brief when non-empty after trim, appearance personality backstory to sections appearance personality history when non-empty, avatarPath to presentation.imageUrl when truthy, and attribution.source is always synthesized as the literal marinara because the wire has no attribution field. id scenario theming stats crop tags timestamps have no canonical slot and ride sealed in escrow.",
+          "topics": [
+            "description to content",
+            "backstory sections.history",
+            "trim non-empty sections",
+            "attribution.source stamp",
+            "unmapped escrow fields"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:85344169d9f53941cea371f8e72549c4a8c998262ce92642c27ca9f7b1b7c33d",
+      "summary": "Escrow is the canonical wrapper original field keyed by format id. Regex seals the entire imported row array as original marinara-regex raw on import but does not read it on export: fromCanonical builds rows from entity.body.rules via rulesToMarinaraScripts so fidelity is the total inverse of marinaraScriptToRule, with every field either canonical or in extras. Persona seals the whole object under marinara-persona and on export clones the twin first then overwrites only mapped fields so unedited trips are byte-lossless for theming stats crop tags scenario timestamps; from-scratch with no twin falls back to empty base and omits unmapped fields. Canonical entity id is canonicalId of name and never equals Marinara wire id; wire id rides the twin and falls back to canonicalId only without a twin.",
+      "topics": [
+        "original format keyed",
+        "regex no twin overlay",
+        "persona twin overlay",
+        "byte-lossless persona",
+        "wire id vs hub id"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:b65373568d3e00d585c0eb33e68bfb5bca54c6ebf90b0ffe502f8d42a44507ff",
+      "summary": "Quirks pin behavioral edges. Detection firewall against SillyTavern: shared findRegex replaceString means ST bids 0.9 so Marinara closes with four gates and outbids at 0.95. Empty persona sections are omitted not blanked on import when whitespace-only after trim. Clearing a section on export as empty string is real empty not twin revert because nullish coalescing does not fall through on empty string. avatarPath is always emitted nullable defaulting to null. Character-side Marinara dialect is not this folder: cards read via sillytavern and extras like backstory rpgStats avatarCrop colors live only in extension-platforms for the Marinara lens. No design spec exists under specs formats; this page sources from src formats marinara and tests.",
+      "topics": [
+        "ST detection firewall",
+        "omit empty sections",
+        "clear section empty string",
+        "avatarPath null key",
+        "character lens not codec"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:9747583bbad3e22f38ba120c7bf7daa6c40bc37b492392a7c09ed971466a7311",
+      "summary": "Source of truth table maps concerns to files. Regex adapter detect toCanonical fromCanonical live in formats marinara index.ts; persona adapter in persona.ts. Shared Marinara regex-script mapping is formats shared marinara-regex.ts; set filename naming is regex-set-name.ts; JSON boundary readers are card-io.ts. Character-side Marinara extensions lens is extension-platforms.ts not this folder. Canonical wrapper escrow original and id policy are core canonical.ts. Regex entity schema and docs are entities regex; persona entity is entities persona schema with no dedicated page yet. Tests are marinara.test.ts and persona.test.ts; ST-dialect regression fixture is fixtures regex marinara-essentials.json.",
+      "topics": [
+        "marinara index.ts",
+        "persona.ts adapter",
+        "marinara-regex shared",
+        "extension-platforms lens",
+        "marinara tests fixtures"
+      ],
+      "children": []
+    }
+  ]
+}

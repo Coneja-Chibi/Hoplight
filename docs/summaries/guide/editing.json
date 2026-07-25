@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/editing",
+  "sourcePath": "docs/guide/editing.md",
+  "sourceHash": "sha256:64360fedb6f55277a6fe3b1ea44e0254ec48bcbfc0c254098351d92691e40172",
+  "summary": "User guide for editing pieces on the Workbench. A piece opens as its own tab filled from import or a blank template and stays a private draft until save. Characters get the deepest editor with Grid or Steps fill modes, platform lens preview of what a target keeps, and a scripts workshop; pack lorebook regex persona and preset use simpler editors with the same save mechanics. Short version: open from Library via Send to Workbench; choose Grid direct fields or Steps quiz style with Bento all-at-once or Playbill paged acts; change fields knowing platform tabs only change view not saved data; Save or ctrl+s with dirty-dot warning; close discards without confirm so save first. Editor panels cover Hoplight full card vs platform tabs with Lens count, Hide and Dim currently both hide fields, completion chips, Sealed Cargo read-only original, Variables macros, Fields/Workshop for scripts, and simpler pack lorebook binder regex persona preset forms. Save requires a name except packs fallback Untitled pack; whole draft write; close does not confirm. Tips cover dirty dot, platform tabs view-only, Sealed Cargo for lossless round-trip, toggles moving to Settings after tour, and Workshop only when scripts exist.",
+  "topics": [
+    "Workbench edit draft",
+    "Grid Steps Bento Playbill",
+    "platform lens preview",
+    "Save ctrl+s dirty dot",
+    "Sealed Cargo read-only",
+    "Workshop scripts",
+    "name required to save",
+    "close discards unsaved"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:1a0d085efb3493297fc79a11e8b04fa761619e8ea7d18d7b0276cdb8aea6d30b",
+      "summary": "Open from Library by right-click Send to the Workbench or stage and send bar; each piece is its own tab and already-open pieces do not reopen. Pick Grid for every field or Steps as a quiz, with Bento all fields at once or Playbill acts. Change fields; platform tabs preview what a target keeps and only change what you see never what is saved. Save or ctrl+s; dirty tab dot means unsaved. Close never confirms so save first.",
+      "topics": [
+        "Send to Workbench",
+        "Grid Steps toggle",
+        "Bento Playbill layouts",
+        "platform tabs view only",
+        "save before close"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "the-editor-panels",
+      "title": "The editor panels",
+      "level": 2,
+      "sourceHash": "sha256:a53f8af7a6c96979a356dd80ab2b16fdd11f7cea993a878ca4e4e50785265422",
+      "summary": "Character editor has platform tabs above fields; Hoplight is full card; selecting platforms hides fields that platform cannot carry with a Lens count of surviving fields. Hide and Dim currently both drop fields; dim half is not built yet. Header has name scale Grid Steps Bento Playbill Save Export; toggles move to Settings under Workbench after tour once. Six completion chips track Portrait Name Core Prompts Greeting Tags Lens Check. Body cards include portrait with sprite links, Sealed Cargo holding original platform file whole read-only for lossless round-trip, Variables counting macros, and Fields/Workshop switch for scripting that does not retire to Settings. Other kinds: pack is name brief sprite grid; lorebook binder one entry at a time with TOC keys timing placement; regex personas presets closer to single form; all save the same way.",
+      "topics": [
+        "platform tabs Lens count",
+        "Hide Dim not built dim",
+        "completion chips",
+        "Sealed Cargo original",
+        "lorebook binder editor",
+        "Fields Workshop switch"
+      ],
+      "children": []
+    },
+    {
+      "slug": "saving-and-what-happens-if-you-dont",
+      "title": "Saving, and what happens if you don't",
+      "level": 2,
+      "sourceHash": "sha256:db6e8997bea7dcec74daec4b20a18e16aec3f23187a6aa685871f0d7322c122d",
+      "summary": "Every editor requires a name before Save does anything; blank name makes Save quietly do nothing with status a name is required before saving. Packs fall back to Untitled pack instead of blocking. Save writes the whole draft not just changes so untouched fields round-trip byte-for-byte. Ctrl+s saves from anywhere. While save is in flight you can keep typing; if you outrun it status says newer changes not yet saved. In Steps last Next becomes Complete and saves. Closing a tab with X or Delete does not ask first and discards unsaved work; the dirty tab dot is the only warning.",
+      "topics": [
+        "name required save",
+        "Untitled pack exception",
+        "whole draft save",
+        "outrun save status",
+        "close discards no confirm",
+        "dirty tab dot"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:bac458d5e749b1d1cff04da08ca9ccba47131d8012fa2048973adb01521a2dce",
+      "summary": "Watch the dirty tab dot as the unsaved work signal. Platform tabs change what you see not what you save; click Hoplight to clear selection and see the whole card. Sealed Cargo is read-only on purpose for same-app lossless round-trip. After first-run tour, layout and mode toggles move to Settings under Workbench; right-click Replay tutorials to restore header toggles. A piece with no scripts never shows the Workshop toggle.",
+      "topics": [
+        "dirty dot watch",
+        "Hoplight tab full card",
+        "Sealed Cargo purpose",
+        "Replay tutorials",
+        "Workshop only with scripts"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

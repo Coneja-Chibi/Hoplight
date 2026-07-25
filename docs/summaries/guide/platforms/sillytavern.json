@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/sillytavern",
+  "sourcePath": "docs/guide/platforms/sillytavern.md",
+  "sourceHash": "sha256:0c18e5ebf0a6ebd3ada5570a6dd4c96af87ba6aa9898b7c7a5a0bceab947b42b",
+  "summary": "User guide for SillyTavern, the local AI roleplay app where most character cards worldbooks and personas live, covering bring-in edit and send-out in Hoplight. What Hoplight reads: character cards as PNG with text inside the image or plain JSON both the same content, and worldbooks as JSON World Info. Drop on Library for a plain-words receipt; recognition looks inside the file not the name. What comes across cleanly: complete original kept, editable name description personality scenario greetings examples prompts creator notes tags talkativeness linked world name and embedded worldbook with portrait. What changes when you convert to another app: same-app SillyTavern round-trip keeps everything byte-level; cross-app keeps shared character and conditional worldbook talkativeness while dropping extension settings Chub Marinara Lumiverse add-ons regex scripts internal ids layout and embedding vectors on purpose never blind-copy. Editing on the Workbench opens a tab and whole-card save leaves untouched parts alone. Exporting back out stages through the Press as SillyTavern JSON with embedded worldbook riding along; other targets apply the drop story. Common questions cover exact return JSON not PNG portrait retention regex stay-private and embedded worldbook pull-edit-put-back.",
+  "topics": [
+    "SillyTavern card worldbook",
+    "PNG JSON World Info",
+    "same-app round-trip keep",
+    "cross-app private drop",
+    "regex scripts stay",
+    "Workbench whole-card save",
+    "Press ST JSON export",
+    "embedded worldbook ride"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:25a109a7464345e53d7d151dd8d20c9b7dcc736cb921b39c5eeb87c21a428625",
+      "summary": "Hoplight reads the two file types SillyTavern gives you. Character cards arrive as PNG where the picture is the card with character text tucked inside the image or as plain JSON; both hold the same thing. Worldbooks, which SillyTavern calls World Info, arrive as JSON. Drag the file onto the Library and drop anywhere in the room; Hoplight reads and shows a plain-words receipt of what it read and kept. It recognizes a card by looking inside the file not by the name, so renaming a card does not confuse it. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "PNG or JSON character",
+        "worldbook World Info JSON",
+        "Library drop receipt",
+        "inside-file recognition"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:7d2e3695d96b41f99489651a7157e300af284e507ec3e7d1fa52a7bf009adecd",
+      "summary": "Importing loses nothing. Hoplight keeps a complete copy of the original card, then lifts editable parts into fields you see directly: name and description; personality and scenario; first message and alternate greetings; example messages; system prompt and post-history instructions; creator name creator notes and tags; talkativeness and the linked world name; an embedded worldbook with its entries keywords and placement. The card picture is kept and shown as the piece portrait. After import everything that was in the card is still there: listed fields ready to edit and the rest held safely in the background including SillyTavern private extras that are not surfaced as first-class fields.",
+      "topics": [
+        "original card complete",
+        "core character fields",
+        "talkativeness world name",
+        "embedded worldbook",
+        "portrait kept"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:46fafe3d8092c1944155fd5f590b234934b69fae441b22c16a7b043ea2e75f65",
+      "summary": "Same-app round-trip keeps everything: import SillyTavern, edit, export to SillyTavern returns everything down to the byte because Hoplight kept the original and only rewrote changed fields. Converting to a different app drops SillyTavern private extras: extension settings and app add-ons like Chub Marinara or Lumiverse, regex find-and-replace scripts, internal ids saved layout and embedding vectors. Core character name description personality scenario greetings examples system prompt notes tags come across as far as the other app can hold them. Embedded worldbook and talkativeness linked world name come across only if the target has matching places. Another app means Agnai Backyard RoleCall Risu Pygmalion and similar. The drop is deliberate: Hoplight never blind-copies one app private settings or scripts into another app file. Your regex stays where it was written which is where it actually works. Where the other app has fewer slots whatever it cannot hold is dropped on its side not yours.",
+      "topics": [
+        "same-app byte keep",
+        "cross-app shared only",
+        "regex scripts drop",
+        "extensions add-ons drop",
+        "never blind-copy private",
+        "worldbook conditional"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:775c862acf3750bb7814fe60c8b56d3df30132832fc8be5dab352514e49f7284",
+      "summary": "Send a piece from the Library to the Workbench and it opens as a tab. There you can edit name description personality scenario first message and example messages. When you save Hoplight writes the whole card back so the parts you did not touch stay exactly as they were including worldbook escrow and SillyTavern-private layers.",
+      "topics": [
+        "Workbench tab edit",
+        "whole card save",
+        "untouched parts stay"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:19e2a3816ca095cd490418381895048c777c226e16dbcba90d0639c99648e042",
+      "summary": "When a piece is ready to leave stage it for the Press: right-click Stage for the Press or drop from the Press rail. The Press works only staged pieces and each run exports to one target format you pick. Hoplight writes SillyTavern cards as JSON; SillyTavern loads JSON the same as PNG so import is fine. Embedded worldbook rides with the character automatically. You can also ask for plain txt or md when you only want to read the text. Choosing a different app as target applies the convert drop story: shared character only SillyTavern private settings and regex left behind.",
+      "topics": [
+        "Press stage one target",
+        "SillyTavern JSON write",
+        "worldbook rides along",
+        "txt md text copy",
+        "other app drop story"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:a337930237d156d10007894d36e8009338c63c12052b1319ce38d2b306db920e",
+      "summary": "Will the card come back exactly as it was? Yes when exported back to SillyTavern: same app in same app out nothing lost. Imported PNG returns as JSON; SillyTavern reads JSON like a picture so it loads fine you just get a file not an image. Character picture comes along: Hoplight keeps card art as piece portrait and holds the original imported file. Regex scripts stay with the SillyTavern card and are not copied into another app file because Hoplight does not move one app scripts into another. Worldbook inside the card is still there: Hoplight pulls the embedded worldbook for solo edit and puts it back when exporting to an app that supports worldbooks.",
+      "topics": [
+        "exact SillyTavern return",
+        "JSON not PNG write",
+        "portrait original kept",
+        "regex stay private",
+        "embedded worldbook put-back"
+      ],
+      "children": []
+    }
+  ]
+}

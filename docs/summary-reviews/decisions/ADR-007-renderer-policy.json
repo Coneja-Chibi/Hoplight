@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-007-renderer-policy",
+  "sourcePath": "docs/decisions/ADR-007-renderer-policy.md",
+  "sourceHash": "sha256:908afc9b205adead23f9066ea344cc8b5fb7c114c38ee8fbc684e287a5bc22bf",
+  "semanticSummaryHash": "sha256:fa63b879c282d3cfa3f9dfbfeb8b17d48d8e3b3521b115d8bc2d7350c1bf6ecf",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:22.281Z"
+}

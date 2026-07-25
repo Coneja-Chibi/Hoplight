@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/audits",
+  "sourcePath": "docs/reference/audits.md",
+  "sourceHash": "sha256:c303400d45cece42de17250cfd223b3b9b7ea4535612861d0b18fdf44c52a46c",
+  "semanticSummaryHash": "sha256:9a944273993747114accb64cce350cc9583f52cdc895199b118e6f9ec9ea4dce",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:27.379Z"
+}

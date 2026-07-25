@@ -4,6 +4,103 @@
 `127.0.0.1:8321`) serving the shell and a JSON API that is a thin skin over the same engine the CLI
 uses. One engine, two shells - no format logic exists in the UI layer.
 
+## Kit terminal shell
+
+Kit is Hoplight's conversational terminal shell. Its composer accepts multiline text and up to five
+large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
+transcript search without discarding the current draft, and Escape stops an active turn. A rejected
+submission remains in the composer. Plain messages submitted during an active turn enter a bounded
+FIFO follow-up queue; a compact receipt shows the next message and folded remainder count, then Kit
+runs each message in order as the previous turn settles. The queue survives stopping the active turn
+but is intentionally session-local and is not restored after relaunch. Typing `/` opens a
+registry-driven command palette containing
+every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
+runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. A
+trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
+and resolved markers in replies render as compact name-and-kind cards. When the composer is empty,
+its placeholder suggests a deterministic next move from the live studio shape, such as auditing
+lorebook triggers or comparing two named characters; it disappears as normal placeholder text as
+soon as typing starts and is never submitted implicitly. If a provider stops after
+streaming part of a reply, Kit keeps
+that partial reply visible before showing the stop or error. The input and connection state form one
+fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
+thin seam joins the quieter provider, model, and ready or working register below. Transcript
+scrolling remains available by mouse wheel and navigation keys without painting a second,
+application-owned scrollbar beside the terminal's own window chrome. Home and End jump to the oldest
+or newest transcript content, and Page Up/Page Down move by a viewport. When new rows arrive while
+the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
+pressing End returns to the latest row and clears the count.
+
+`/help` opens a full-screen, registry-driven reference stage instead of writing a long help message
+into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
+with navigation keys, and Escape or `q` returns to the untouched session view.
+
+While Kit is open, a bounded read-only stage watcher polls the canonical studio listing and compares
+it with the prior snapshot. Outside imports, edits, and removals coalesce into one searchable
+`NOTICED` transcript cue with a suggested next question; Kit never acts on the change by itself.
+Temporary unreadable states are skipped until the next poll, the live piece/deck counts and composer
+suggestion refresh from the new snapshot, and the watcher stops with the Kit process. Watch notices
+are live-session context and are not written into saved conversation history.
+
+Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
+live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove
+treatment, horizontal rules share Kit's scene seam, and error rows cap hostile or accidental floods.
+Hovering a user, assistant, or error band exposes a copy corner. Copy uses the terminal's OSC52
+support, refuses oversized payloads, and reports unsupported or rejected requests in a short status
+toast instead of claiming clipboard success.
+
+Successful turns are saved atomically as one JSON file per session under the Hoplight configuration
+directory's `sessions/` folder. `/session` opens the saved-session playbill, `/resume [name]` restores
+history and visible transcript lines, `/rewind` can truncate or fork at an earlier turn, and
+`/export [md|json]` writes a transcript with a session-specific filename. Search, resume, and rewind
+lists keep the selected row inside a terminal-height-based visible window.
+
+`/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
+previous model result before another lookup. Lookup and save failures remain visible and can be
+retried; activating or removing a provider refreshes the shell's provider and model state.
+`/doctor` discovers and concurrently runs four independently timed, read-only checks: vault sealing,
+a real provider proof-of-life, canonical studio enumeration, and the exact Hoplight/Bun build. One
+timeout or failure becomes its own warning/failure row without hiding the other completed results.
+`/decks` (also `/inventory`) prints the current canonical deck counts on demand. `/privacy` reports
+the session's provider sends and token counts on demand. Wide terminals show the animated NOW
+PLAYING theatre marquee without a persistent telemetry strip;
+inventory stays out of persistent chrome. Narrow terminals use a purpose-drawn miniature rainbow
+`V KIT` lockup but retain the complete greeting and stage cues, wrapping the copy instead of
+replacing it with a terse fallback. Extremely short windows can scroll that opening while the
+composer and connection commands remain reachable. On roomy terminals, the large `V KIT` lockup
+and its welcome script share one centered stage block instead of clinging to the left edge of an
+ultrawide canvas. The shell inherits OpenTUI's live canvas instead of copying a
+dimension snapshot. Kit also matches the terminal emulator's default background to the stage while
+it is open, then restores it on exit, so fractional-cell and profile-padding gutters visually belong
+to the same surface.
+
+Kit's live model tool belt includes `studio_list`, `studio_read`, and `studio_search`; bounded
+Hoplight documentation query; bounded capability discovery; draft discard; and revision-checked
+apply. Documentation
+query lazily ranks catalog-declared Markdown sections with a local full-text scorer and reads only
+catalog-declared pages or heading sections.
+Capability discovery can search, browse a collapsed target to area to action hierarchy, or describe
+one exact operation. Search replaces the deferred set with no more than five typed operations;
+describe reveals exactly one. The set resets on the next user turn. Capability calls preview without
+save. Kit keeps composing preview operations while the model still needs tools. When the model
+finishes a composed draft, the shell replaces any model-authored save question with a semantic
+`REVIEW CHANGE` panel. The panel shows up to five field-level before/after rows, the target, hidden
+change and warning counts, and clickable Apply & save or Discard controls. Enter or `y` applies;
+Escape, `n`, or `d` discards. Apply pauses in this interactive Gate, saves once
+only if the stored canonical revision still matches, then re-reads the piece before reporting an
+applied, stale, or failed receipt. Read-only tool batches may run concurrently, but their
+observations retain provider order; drafts and applies always serialize. Loop stops name the
+model-round, tool-call, elapsed-time, no-progress, or cancellation budget and offer a recovery
+action. `/tools` opens the keyboard-and-mouse Panel Deck browser for piece, area, action, platform
+applicability, and preview behavior. Compact terminals show one active pane at a time. See
+[Kit content tools](kit/tools.md) for the exact implementation boundary.
+
+The Backstage header reflects scheduler-owned lifecycle state. Its sealed trace keeps the final
+verified, stale, discarded, failed, cancelled, or stopped receipt beside the ordered tool moves.
+Reasoning fragments from consecutive tool rounds accumulate into one rehearsal receipt instead of
+adding one nearly identical collapsed row per model round. Provider-authored tool preambles remain
+in model history but do not interrupt the user transcript; Backstage owns in-progress narration.
+
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
@@ -66,14 +163,17 @@ it shows the official applications in the running build and cannot drift from th
 roster. CSS Workshop is the first `catalogOnly` tool: it remains fully bundled and mountable while
 staying off the everyday Dock. Help / Docs is another catalog-only app and renders the committed
 `docs/` corpus inside the Studio. Its left navigation and search derive from
-`docs/generated/docs-index.json`, then present it as **User Docs** and **Developer Docs** with
-human-facing workflow, platform, application/API, architecture, data-model, format, security,
-extension, and technical-decision sections. Decision records keep their canonical ADR filenames on
-disk while the reader uses plain titles without ADR codes. The center pane renders Markdown through the shared sanitizer and
-mounts only generated figures or committed `docs/media/` images; the right rail derives from the
-current page's heading anchors. The desktop build bakes the same Markdown and assets that are visible
-on GitHub, so there is one source rather than an in-app copy. Each page's **view on GitHub** action
-uses the existing leaving gate and `/api/open` URL allowlist.
+`docs/generated/docs-index.json`, including short frontmatter summaries, optional semantic page
+summaries, retrieval topics, and nested H2/H3 anchors when sidecars are merged. The reader presents
+the index as **User Docs** and **Developer Docs** with human-facing workflow, platform,
+application/API, architecture, data-model, format, security, extension, and technical-decision
+sections. Decision records keep their canonical ADR filenames on disk while the reader uses plain
+titles without ADR codes. The center pane renders Markdown through the shared sanitizer and mounts
+only generated figures or committed `docs/media/` images; the right rail derives from the current
+page's heading anchors (nested anchors flatten depth-first while preserving H3 styling). The
+desktop build bakes the same Markdown and assets that are visible on GitHub, so there is one source
+rather than an in-app copy. Each page's **view on GitHub** action uses the existing leaving gate and
+`/api/open` URL allowlist.
 
 ## Dev live-reload
 `hoplight ui` (or `bun run dev`) watches `src/ui/` and pushes a reload over SSE (`/dev/reload`) to
@@ -170,6 +270,8 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
   the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in
   `workbench/Editor.tsx`. Other kinds keep the read-only inspector until their editors land.
+  Canonical path writes and variant lifecycle/override writes now delegate to the same entity-layer
+  operations used by Kit's typed character capabilities, so base and variant semantics cannot drift.
 - **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
   (`splitKey`, never equal to `activeKey`); "Open beside" on the `entity` menu pins any piece into
   a second pane next to the active one (opening it first if needed - the explicit gesture skips the

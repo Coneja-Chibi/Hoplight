@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/importing",
+  "sourcePath": "docs/guide/importing.md",
+  "sourceHash": "sha256:2e14f2d1948577adb7afd8971d39b12c6dbcfa40fd56c85b9d750a2eee46ddaf",
+  "semanticSummaryHash": "sha256:e194884ae003c260176b73379874cdee8caa43d37bf35c42432e4d5eb3730afd",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:23.994Z"
+}

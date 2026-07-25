@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/kit",
+  "sourcePath": "docs/reference/kit/README.md",
+  "sourceHash": "sha256:7e314940feba900fe400a846d6607b4df64dd49ea9744b3c63d33ded8d8014d3",
+  "summary": "Kit reference is the short index for Hoplight's conversational terminal surface. Kit uses the same canonical entities and Studio store as the Web UI, so terminal and browser share one model of truth. Content tools documents the capability catalog, progressive model exposure, and the implemented canonical content bundles. Kit can search and read catalog-declared Hoplight user and developer documentation through the read-only docs_query model tool without arbitrary filesystem paths. UI reference covers terminal shell behavior users can run today. Architecture documents semantic content capability ownership and dependency direction between entity pure layers and Kit runtime adapters.",
+  "topics": [
+    "kit terminal surface",
+    "shared studio store",
+    "content tools catalog",
+    "docs_query read-only",
+    "capability ownership"
+  ],
+  "sections": [],
+  "shortSource": true
+}

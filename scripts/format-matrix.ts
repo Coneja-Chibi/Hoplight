@@ -23,6 +23,7 @@ const KIND_TITLES: Record<string, string> = {
   pack: "Sprite packs",
 };
 const KIND_ORDER = ["character", "lorebook", "persona", "preset", "regex", "pack"];
+const ENTITY_INFRA_FOLDERS = new Set(["capabilities"]);
 
 /**
  * Every kind this matrix must SHOW = every kind the studio models (src/entities/<kind>/,
@@ -103,7 +104,10 @@ export async function runFormatMatrix(args: string[] = process.argv.slice(2)): P
   const checkOnly = args.includes("--check");
   const found = await loadFormats();
   const entityKinds = readdirSync(join(import.meta.dir, "../src/entities"), { withFileTypes: true })
-    .filter((d) => d.isDirectory())
+    .filter((d) =>
+      d.isDirectory()
+      && !d.name.startsWith("_")
+      && !ENTITY_INFRA_FOLDERS.has(d.name))
     .map((d) => d.name);
 
   const body = renderFormatMatrix(

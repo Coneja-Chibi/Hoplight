@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/pygmalion",
+  "sourcePath": "docs/guide/platforms/pygmalion.md",
+  "sourceHash": "sha256:4e9e3fbc1aa83c7574c17f29b261a0731f8c5403616f49d1985e3786e6b3294f",
+  "summary": "Pygmalion is the classic five-field flat character format before Character Card V2: name persona scenario greeting example dialogue as .json or text inside .png. What Hoplight reads: either container by true Pygmalion shape so SillyTavern PNG cards are not mistaken. What comes across cleanly keeps the original and lifts the five fields with persona also shown as description; PNG portrait kept; tool bookkeeping version timestamp tool name rides in background. What changes when you convert to another app keeps same-app everything including folding edits into a fresh PNG when imported as PNG; cross-app has little private extras to drop beyond tool stamps. Editing on the Workbench: description mirrors persona but edit personality to change how the character reads on export. Exporting back out writes .json or folds into PNG only from a Pygmalion PNG you gave it; fold failure falls back to JSON. Common questions cover exact return PNG rules recognition thresholds and bookkeeping drop.",
+  "topics": [
+    "Pygmalion five fields",
+    "JSON or PNG container",
+    "persona as description",
+    "same-app PNG fold",
+    "little private extras",
+    "edit personality not description",
+    "Press JSON or PNG"
+  ],
+  "sections": [
+    {
+      "slug": "what-hoplight-reads",
+      "title": "What Hoplight reads",
+      "level": 2,
+      "sourceHash": "sha256:bf4c7cd25743a61989dda2bc0fd870d09ac2e739a51f7b6cad8697cf5de557c3",
+      "summary": "Hoplight reads Pygmalion classic cards in either container: a .json five-field document alone or a .png with the same text tucked inside the picture like SillyTavern cards. Drop on the Library for a plain-words receipt. Recognition looks inside not filename. A picture can hide several card shapes so Hoplight checks the tucked text is genuinely Pygmalion before claiming the file and never mistakes a real SillyTavern card for Pygmalion just because both hide text the same way. Full walkthrough lives in the importing guide.",
+      "topics": [
+        "JSON five fields",
+        "PNG embedded text",
+        "shape not filename",
+        "not ST misdetect",
+        "Library receipt"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-comes-across-cleanly",
+      "title": "What comes across cleanly",
+      "level": 2,
+      "sourceHash": "sha256:5f8a8222cfd13e85f5a89767ee21166169feddb0fba2efe8bce9dff4c7df772e",
+      "summary": "Importing loses nothing. Hoplight keeps a complete original then lifts name; persona the one blob of who they are and how they act also shown as description so description-only views still have text; scenario; greeting opening line; example dialogue. If the card arrived as .png the picture is the piece portrait. Some exporters stamp version timestamp tool name bookkeeping with no field so it rides untouched in the background. After import the five fields are ready to edit and the rest is held safely.",
+      "topics": [
+        "five field lift",
+        "persona as description",
+        "PNG portrait keep",
+        "tool bookkeeping escrow"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-changes-when-you-convert-to-another-app",
+      "title": "What changes when you convert to another app",
+      "level": 2,
+      "sourceHash": "sha256:f0fabf410bac7006f485a1ba636d9be55e689f3ce80a92851a263215925cc4e6",
+      "summary": "Same-app round-trip keeps everything because Hoplight kept the original and only rewrote changed fields. If the card came as .png exporting back to Pygmalion folds possibly edited fields into a fresh copy of that same picture. Converting to another app drops little: classic wire never carried extensions scripts tags or system prompt so there is no large private pile. Core five fields come across as far as the target holds. Tool bookkeeping drops cross-app. Picture comes across if the target has a slot. Another app means SillyTavern Agnai Backyard RoleCall Risu. The drop is deliberate though for Pygmalion there is rarely much private to drop.",
+      "topics": [
+        "same-app full keep",
+        "PNG fold back",
+        "few private extras",
+        "tool stamps drop",
+        "picture if slot"
+      ],
+      "children": []
+    },
+    {
+      "slug": "editing-on-the-workbench",
+      "title": "Editing on the Workbench",
+      "level": 2,
+      "sourceHash": "sha256:880a2d7bed0c503e920d31803941a07c24d83c89eb2c94c401a61588c15695d5",
+      "summary": "Send a piece to the Workbench as a tab and edit name personality scenario first message and example messages. Description mirrors persona for display but on a Pygmalion piece is read-only in effect: editing description alone without personality will not reach the card on export so edit personality when you mean to change how the character reads. Save writes the whole card so tool bookkeeping and untouched parts stay.",
+      "topics": [
+        "Workbench core fields",
+        "description mirror only",
+        "edit personality export",
+        "whole card save"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "exporting-back-out",
+      "title": "Exporting back out",
+      "level": 2,
+      "sourceHash": "sha256:96d16cb6ef62004dfe307d3eed87698d5cd301506dbcf0efb47943ec9a5e4915",
+      "summary": "Stage for the Press; each run exports staged pieces to one target. Hoplight writes Pygmalion as .json five fields plus whatever rode along. If the piece history includes an imported .png exporting to Pygmalion folds current fields into a fresh picture; if fold fails it falls back to plain .json rather than a broken file. Converting a piece that started elsewhere to Pygmalion writes plain .json with no picture; Hoplight only produces Pygmalion .png from a Pygmalion .png you actually gave it. Other app targets apply the drop story.",
+      "topics": [
+        "Press JSON default",
+        "PNG fold if history",
+        "fold fail JSON fallback",
+        "no invent PNG",
+        "other app drop"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-questions",
+      "title": "Common questions",
+      "level": 2,
+      "sourceHash": "sha256:0d0a5cf0bae1fb17662202c0367f587ec0e26c49eacf80f2f42f5925cbcf096b",
+      "summary": "Will the card come back exactly as it was? Yes on export to Pygmalion. Imported .png returns as .png only when fold into a fresh picture succeeds; otherwise plain .json not a broken file; other targets write JSON fields without picture. Portrait is kept on import and returns on Pygmalion export; cross-app picture only if target has a slot; converting a card that never had a picture never invents one. Name and greeting alone without persona or scenario is not enough: Hoplight needs at least two of persona greeting and scenario or name plus persona specifically. Tool bookkeeping rides on round-trip and drops cross-app.",
+      "topics": [
+        "exact Pygmalion return",
+        "PNG fold rules",
+        "recognition thresholds",
+        "no invent picture",
+        "bookkeeping drop"
+      ],
+      "children": []
+    }
+  ]
+}

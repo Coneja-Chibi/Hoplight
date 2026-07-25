@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "docId": "03-CONVENTIONS",
+  "sourcePath": "docs/03-CONVENTIONS.md",
+  "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
+  "summary": "Binding conventions for all code and docs in the product repo; deviations fail review. Code rules require TypeScript strict mode, no any except at codec boundaries immediately narrowed by zod, zod as the single source of truth with types via z.infer, core packages free of Bun-only APIs and import-time side effects, typed error classes with userMessage fields, no emojis anywhere, no em dashes in user-facing copy, and kebab-case files with PascalCase types and camelCase values. Testing law treats the fixture corpus as sacred, enforces the Round-Trip Law as CI-blocking from M0, demands a green baseline before fixes, and allows only deterministic tests. CLI conventions require --json and meaningful exit codes, --yes or confirmation for destructive ops, and plain-first output vocabulary. Git and repo practice uses conventional commits, one ticket per branch and PR, and CI gates covering typecheck, lint, Bun plus Node core tests, round-trip suite, and binary-build smoke. Docs require every package README to state purpose, public API sketch, and spec links; specs are law and must be updated before implementation diverges.",
+  "topics": [
+    "binding conventions",
+    "TypeScript strict zod",
+    "no any codec boundary",
+    "Round-Trip Law fixtures",
+    "CLI --json exit codes",
+    "conventional commits",
+    "no emoji no em dash",
+    "package README specs law",
+    "deterministic tests",
+    "typed error classes"
+  ],
+  "sections": [
+    {
+      "slug": "code",
+      "title": "Code",
+      "level": 2,
+      "sourceHash": "sha256:18213a18df33db8de91a3878bbfbe00b1a7eac3dc9405f5d18a63e98b62568da",
+      "summary": "TypeScript strict mode is required. No any except at codec boundaries when parsing untrusted input, and then immediately narrowed by a zod schema. zod schemas are the single source of truth for shapes; TypeScript types derive via z.infer with no hand-written interface that duplicates a schema. Core packages must use no Bun-only APIs per ADR-001, no side effects at import time, and no singletons; everything is injectable and testable. Errors use typed error classes per package such as FormatError, CodecError, and ProviderError, each with a userMessage field written for humans; never throw strings. No emojis anywhere in code, comments, CLI output, docs, or UI copy; house glyphs are Unicode ornaments; no em dashes in user-facing copy. File naming is kebab-case files, PascalCase types, camelCase values.",
+      "topics": [
+        "TypeScript strict",
+        "zod single source of truth",
+        "no Bun-only APIs",
+        "typed error userMessage",
+        "no emoji no em dash",
+        "kebab-case file naming"
+      ],
+      "children": []
+    },
+    {
+      "slug": "testing-law",
+      "title": "Testing law",
+      "level": 2,
+      "sourceHash": "sha256:6b70b2f2a6c0a76914b6bcce24f3fb998b13cfcd2a2415c47e94a24f3126500c",
+      "summary": "Test runner is bun test; core packages must also pass under Node in CI. The fixture corpus is sacred: fixtures under format and case hold a real input file, expected.json for the canonical parse, and notes. New codec behavior requires a fixture demonstrating it; never edit a fixture input to make a test pass. The Round-Trip Law requires every codec to have property-style tests asserting parse then serialize of the same format is semantically identical for every fixture of that format, CI-blocking from M0 onward. Regression firewall: capture a green baseline before any fix; a fix that turns any passing test red is rejected. Deterministic tests only: no network, no clock, no randomness without a seed.",
+      "topics": [
+        "bun test Node CI",
+        "sacred fixture corpus",
+        "Round-Trip Law",
+        "regression firewall",
+        "deterministic tests only",
+        "never edit fixture input"
+      ],
+      "children": []
+    },
+    {
+      "slug": "cli-conventions",
+      "title": "CLI conventions",
+      "level": 2,
+      "sourceHash": "sha256:93e548d1da85965d500ec68c2affafec27fb9a23367c75a0b7e447c9d143296a",
+      "summary": "Every command must support --json for machine-readable results on stdout with logs on stderr, plus meaningful exit codes: 0 ok, 1 user error, 2 internal error. Destructive operations require --yes or interactive confirmation. Output vocabulary is plain first, theatrical second: report facts like converted three files rather than stagey phrasing. Flavor belongs in agent personas, not in scriptable command output.",
+      "topics": [
+        "--json stdout stderr",
+        "exit codes 0 1 2",
+        "destructive --yes",
+        "plain first output",
+        "persona flavor not CLI"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "git-repo",
+      "title": "Git & repo",
+      "level": 2,
+      "sourceHash": "sha256:afa743949169faf41dcec635511e1eafecf69e29384e000339a014297268ae4c",
+      "summary": "Use conventional commits with scoped types such as feat formats or fix lore. One ticket equals one branch equals one PR, and the PR description links the ticket file. CI gates cover typecheck, lint, core tests under Bun and Node, the round-trip suite, and a binary-build smoke test.",
+      "topics": [
+        "conventional commits",
+        "one ticket one PR",
+        "CI typecheck lint",
+        "Bun Node core tests",
+        "round-trip binary smoke"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "docs",
+      "title": "Docs",
+      "level": 2,
+      "sourceHash": "sha256:3a64836eeca8538b90067ebf9ff27cf4c79822878c392a070ab037193af2986f",
+      "summary": "Every package must have a README that states its purpose, sketches the public API, and links the governing specs. Specs are law for the product: when implementation must diverge from a written contract, the spec change lands first as its own PR, then code follows. Docs and code stay aligned under that order rather than retrofitting specs after shipping a divergence.",
+      "topics": [
+        "package README required",
+        "public API sketch",
+        "specs are law",
+        "spec PR first"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

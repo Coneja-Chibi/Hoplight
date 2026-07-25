@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "docId": "01-VISION",
+  "sourcePath": "docs/01-VISION.md",
+  "sourceHash": "sha256:57a09c6be0c5ce2cb97494955e729f64be39608a7415605aef12e23fea4afd2a",
+  "summary": "Founding product vision for Hoplight covering who it's for, the five pillars, what we are not, and the taste bar. It is the authority for product intent, not as-built implementation detail. Who it's for names four personas: the first-timer needing a five-minute fix, the multi-platform botmaker, the large-worldbook lore architect, and the archivist of uncarded RP logs. The five pillars require lossless multi-format conversion with escrowed platform fields, interview-driven creation, an honest offline Doctor with optional staged AI fixes, local-first privacy with no account or telemetry, and an agent that works on frontier and weak local models with user-chosen personas. What we are not rules out being a chat frontend, card host, community platform, or RoleCall-only funnel; every platform is first-class. The taste bar demands Table Read or Doctor output that beats skilled unaided work, with specific over generic, playable over poetic, and anti-slop as a core mechanic rather than marketing language.",
+  "topics": [
+    "product vision",
+    "five pillars",
+    "local first privacy",
+    "lossless format conversion",
+    "interview editor",
+    "honest Doctor",
+    "agent personas",
+    "taste bar anti-slop",
+    "not a chat frontend",
+    "first-timer botmaker lore architect"
+  ],
+  "sections": [
+    {
+      "slug": "who-its-for",
+      "title": "Who it's for",
+      "level": 2,
+      "sourceHash": "sha256:90e9f393ce9a3ff684e32f668adfde0ee98c36f08e2f5f5f53ce2af0a46dc61c",
+      "summary": "Defines four concrete user personas the product must serve without forcing power-user complexity on beginners. The first-timer found a broken Discord card and must succeed in under five minutes without reading docs. The botmaker publishes community cards and currently juggles multiple platform formats, token budgets, and slop avoidance by hand. The lore architect maintains roughly three-hundred-entry worldbooks and needs trigger debugging, consistency checks, and real version history. The archivist holds years of RP logs with characters that were never formalized as cards. The framing is simple for simple folk and powerful for advanced users.",
+      "topics": [
+        "user personas",
+        "first-timer",
+        "botmaker",
+        "lore architect",
+        "archivist",
+        "five minute success"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-five-pillars",
+      "title": "The five pillars",
+      "level": 2,
+      "sourceHash": "sha256:0b936b4e3150adb94c501c2ad45eabc14c0af6120563f1a28f50f38c13c24b4b",
+      "summary": "States five non-negotiable product pillars. Every format must import and export losslessly with semantic round-trip equivalence and platform-specific fields held in escrow rather than dropped, aiming to be the reference implementation other tools test against. Creation is interview-driven with adaptive depth, quick-pick chips, freeform input, visible assembly, and temperament modes. The Doctor runs free offline deterministic checks for token waste, format errors, contradictions, and slop banks, while AI treatment is optional, staged, and approved fix by fix with plain-language proof. Local first means readable disk files, encrypted local keys, no account, no server, no telemetry, and a single executable as the whole product. The agent must run well on frontier models and acceptably on small local models, with user-chosen working styles such as collaborator, terse, detail-hound, challenger, or hype.",
+      "topics": [
+        "lossless conversion",
+        "escrow fields",
+        "interview is the editor",
+        "deterministic Doctor",
+        "local first",
+        "BYOK agent range",
+        "persona working styles"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-we-are-not",
+      "title": "What we are not",
+      "level": 2,
+      "sourceHash": "sha256:c1d2d44c30dd48041667fb0c2fd7ee45d0157e7237187531d0ea3597c5bb5b01",
+      "summary": "Explicit non-goals that bound the product. Hoplight is not a chat frontend; the Test Stage auditions content and does not replace SillyTavern or RoleCall as play hosts. It is not a card hosting site or community platform; files are the social layer and people share where they already gather. It is not a RoleCall funnel: lineage may be RC-branded, but every platform is a first-class export target, and favoritism toward RoleCall would lose SillyTavern users. Winning is defined as making the content, not hosting the show.",
+      "topics": [
+        "not a chat app",
+        "Test Stage audition",
+        "not a hosting platform",
+        "not RoleCall funnel",
+        "first-class export targets"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-taste-bar",
+      "title": "The taste bar",
+      "level": 2,
+      "sourceHash": "sha256:f9055d865ada42a0dbed7b575594b2efa58d51b54354bde9240b2809cc9a4f6a",
+      "summary": "Sets the craft quality bar for generated or treated content. A card from the Table Read or treated by the Doctor should be visibly better than what a skilled human produces unaided in an hour. Preferences are specific over generic, playable over poetic, and every token must earn its place. Anti-slop is a core mechanic implemented through banks, detectors, and rewrite passes, not merely marketing language about quality.",
+      "topics": [
+        "taste bar",
+        "Table Read quality",
+        "Doctor treatment quality",
+        "anti-slop",
+        "specific over generic",
+        "playable over poetic"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

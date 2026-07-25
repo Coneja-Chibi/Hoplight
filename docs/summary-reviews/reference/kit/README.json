@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/kit",
+  "sourcePath": "docs/reference/kit/README.md",
+  "sourceHash": "sha256:7e314940feba900fe400a846d6607b4df64dd49ea9744b3c63d33ded8d8014d3",
+  "semanticSummaryHash": "sha256:caaed927aa2102e5e422bd7bd22db9f9bc616bb4fc390bd917f7c0512a294360",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:57.186Z"
+}

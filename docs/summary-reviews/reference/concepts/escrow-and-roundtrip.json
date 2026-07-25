@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/escrow-and-roundtrip",
+  "sourcePath": "docs/reference/concepts/escrow-and-roundtrip.md",
+  "sourceHash": "sha256:f762c56b669c684339b0382a9bac3ee29ff26848670e2a5750a949b300767da0",
+  "semanticSummaryHash": "sha256:58733e7d2027c6366686fcd6ac2c1f22c8ad3f12c4890571db5b36d786e69070",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:28.712Z"
+}

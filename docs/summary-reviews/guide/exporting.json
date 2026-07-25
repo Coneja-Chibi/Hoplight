@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/exporting",
+  "sourcePath": "docs/guide/exporting.md",
+  "sourceHash": "sha256:e60eb34d2ed7c04111db4b18d76977472eafa18e700a753141fde401920040c6",
+  "semanticSummaryHash": "sha256:3c09dc54fe95a41110fa73681c2eab06ad615eebe7952947b7fc0cf7be752be3",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:23.395Z"
+}

@@ -239,9 +239,18 @@ async function main(argv: string[]): Promise<number> {
     // Default matches the compiled exe: the user's own Documents. A repo-relative "studio" default
     // scattered entities into whatever cwd the command ran from.
     const studioDir = args[2] ?? resolveDefaultStudioDir(homedir());
-    const { url } = startUi(port, studioDir, PACKAGED_ASSETS ?? undefined);
+    const { url, sandboxUrl } = startUi(port, studioDir, PACKAGED_ASSETS ?? undefined);
+    const { forwardingGuide } = await import("./ui/forwarding");
+    const guide = forwardingGuide(
+      new URL(url).port,
+      sandboxUrl ? new URL(sandboxUrl).port : undefined,
+    );
     console.log(`\n  Hoplight. is up: ${url}`);
     console.log(`  studio folder: ${studioDir} (your entities live there as plain canonical json)\n`);
+    console.log("  Opening it from another computer or a container host?");
+    console.log(`  1. Run: ${guide.sshCommand}`);
+    console.log(`  2. Open: ${guide.localUrl}`);
+    console.log("  Replace user@server with your SSH login. Keep this terminal and the tunnel open.\n");
     // Bun.serve keeps the process alive; ctrl-c to close the studio.
     return await new Promise<number>(() => {});
   }

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/persona-editor",
+  "sourcePath": "docs/reference/concepts/persona-editor.md",
+  "sourceHash": "sha256:0c6c9f4ba23153842ed477b2225ebe1cd0ad92b7336054e337c9fcc91fbe0e18",
+  "semanticSummaryHash": "sha256:0536d7fc63f6225fab5f303b49baf28694ffbdf9da64b3816d08bdb489dafd72",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:28.895Z"
+}

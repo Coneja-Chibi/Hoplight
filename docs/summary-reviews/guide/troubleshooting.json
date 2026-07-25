@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/troubleshooting",
+  "sourcePath": "docs/guide/troubleshooting.md",
+  "sourceHash": "sha256:1df5f7f8edfd1d600e4585114178d4635ebb1fb10f53fd9295559a3fce3b0f92",
+  "semanticSummaryHash": "sha256:840b4a576954e793cac8889a0b6d1c66a29f62d6f7ec6edf3f2b34c4c17cfb43",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:24.930Z"
+}

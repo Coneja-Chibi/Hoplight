@@ -13,6 +13,7 @@ import {
 } from "../../../core/media";
 import type { PackBody } from "../../../entities/pack/schema";
 import { SpritePack } from "../../components/sprite-pack";
+import { packEditorDocument } from "./pack-editor-core";
 import styles from "./PackEditor.module.css";
 
 export interface PackEditorProps {
@@ -22,29 +23,15 @@ export interface PackEditorProps {
   topRight?: ReactNode;
 }
 
-const isRec = (v: unknown): v is Record<string, unknown> =>
-  typeof v === "object" && v !== null && !Array.isArray(v);
-
-function bodyFromEntity(entity: unknown): PackBody {
-  const e = isRec(entity) ? entity : {};
-  const b = isRec(e.body) ? e.body : {};
-  const name = typeof b.name === "string" && b.name.trim() ? b.name.trim() : "Untitled pack";
-  const brief = typeof b.brief === "string" ? b.brief : "";
-  const pack = normalizePack(b.pack);
-  return {
-    name,
-    ...(brief ? { brief } : {}),
-    pack,
-  };
-}
-
 export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): JSX.Element {
-  const init = bodyFromEntity(entity);
-  const [name, setName] = useState(init.name);
-  const [brief, setBrief] = useState(init.brief ?? "");
-  const [pack, setPack] = useState<SpritePackValue>(() => init.pack);
+  const init = packEditorDocument(entity);
+  const [name, setName] = useState(init.body.name);
+  const [brief, setBrief] = useState(init.body.brief ?? "");
+  const [pack, setPack] = useState<SpritePackValue>(() => init.body.pack);
+  const [groups] = useState(() => init.body.groups);
+  const [original] = useState(() => init.original);
   const [baseline, setBaseline] = useState(() =>
-    JSON.stringify({ name: init.name, brief: init.brief ?? "", pack: init.pack }),
+    JSON.stringify({ name: init.body.name, brief: init.body.brief ?? "", pack: init.body.pack }),
   );
   const [saving, setSaving] = useState(false);
 
@@ -58,6 +45,7 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
       const body: PackBody = {
         name: name.trim() || "Untitled pack",
         pack: normalizePack(pack),
+        ...(groups ? { groups } : {}),
       };
       if (brief.trim()) body.brief = brief.trim();
       await ctx.api.saveEntity(
@@ -66,6 +54,7 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
           kind: "pack",
           id: piece.id,
           body,
+          original,
         },
         { overwrite: true },
       );
@@ -76,7 +65,7 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
     } finally {
       setSaving(false);
     }
-  }, [saving, name, brief, pack, ctx, piece.id]);
+  }, [saving, name, brief, pack, groups, original, ctx, piece.id]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {

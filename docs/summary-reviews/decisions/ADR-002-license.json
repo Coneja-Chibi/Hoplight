@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-002-license",
+  "sourcePath": "docs/decisions/ADR-002-license.md",
+  "sourceHash": "sha256:479e218a50eaa70ac180e58d1d98ab6ca7921e548e889c0374f071e3ca2b4808",
+  "semanticSummaryHash": "sha256:b47960e3f0ae74a9b80c822bd0405b05113f4259e265acb0aa6c3a36ff7fdac5",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:55.596Z"
+}

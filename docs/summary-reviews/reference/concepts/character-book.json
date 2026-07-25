@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/concepts/character-book",
+  "sourcePath": "docs/reference/concepts/character-book.md",
+  "sourceHash": "sha256:353be50f0c22ed0b78ca23ce893dad5a1e3bd991f1ec7ab2bcf3111b99285b72",
+  "semanticSummaryHash": "sha256:655fd6dca59259f7e93f69b346e6d24c613112f28c98648208daa5302acd5d51",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:28.318Z"
+}

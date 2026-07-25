@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/security/archives",
+  "sourcePath": "docs/reference/security/archives.md",
+  "sourceHash": "sha256:df4aa670193d7c422340d70ab967d94b8cbe390cdf50b40daf8b4e0caa885e5b",
+  "semanticSummaryHash": "sha256:11f8bfbbdf2ad7669686c602b8da6bd7907f4ada494552df070111a095b538ac",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
+  "reviewedAt": "2026-07-25T15:30:49.452Z"
+}

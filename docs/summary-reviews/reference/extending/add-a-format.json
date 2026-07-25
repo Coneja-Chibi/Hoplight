@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/extending/add-a-format",
+  "sourcePath": "docs/reference/extending/add-a-format.md",
+  "sourceHash": "sha256:d46c17999be844685d5b035069b253a6d993b7f22e141b4632ef07615e798b73",
+  "semanticSummaryHash": "sha256:fc11d2db0d6d7eedc73ee26ada6e052436e833b091d401425be29a1dfbf01ae4",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:59.686Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/rolecall",
+  "sourcePath": "docs/reference/formats/rolecall.md",
+  "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
+  "semanticSummaryHash": "sha256:d08f42eae2921e542f3ec4a0c28c08b2b1bd9e7b5d75ce778abcee2a0a62ceba",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:57.880Z"
+}

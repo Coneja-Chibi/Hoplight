@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platform-native-fields",
+  "sourcePath": "docs/reference/platform-native-fields.md",
+  "sourceHash": "sha256:3408d078d1408fce187cdcf62ca0d15c85a65a779bcb80f15f5bb7e3d9cc3172",
+  "summary": "Platform native fields is verified research source of truth for building each platforms key.ts native-field schema against real platform formats as of 2026-07-07 with honest confidence and open questions. A native field is a dot path into entity.original plus a control under rule buckets authored-editor executable-opaque db-social-readonly link-out and canonical-skip. Storage reality explains how Marinara Lumiverse and Chub ride SillyTavern CCv2 under original.sillytavern.raw while Default CCv3 is the thin-host interop shape without fake host extension bags. Marinara HIGH re-audit maps bare extensions rpgStats colors and persona bars not character pools. Chub HIGH maps namespaced extensions.chub including custom_css CssWorkshop and sealed Stages. Lumiverse MEDIUM traces bare extensions plus first-class portable Character LoRA. Character.AI is DROPPED; Crushon SKIPPED; Janitor thin optional; Pygmalion HIGH with landed flat adapter. Default CCv3 interop shape lists portable data fields. New components this research calls for include color CssWorkshop and expression stubs.",
+  "topics": [
+    "entity.original native paths",
+    "rule buckets five",
+    "ST-riding platforms",
+    "Default CCv3 interop",
+    "Marinara Chub Lumiverse",
+    "Character.AI dropped",
+    "Pygmalion adapter landed",
+    "portable LoRA first-class"
+  ],
+  "sections": [
+    {
+      "slug": "storage-reality-how-each-reaches-entityoriginal",
+      "title": "Storage reality (how each reaches entity.original)",
+      "level": 2,
+      "sourceHash": "sha256:3debccedec910f85b8041d4146dc294ca493dd6c2c75eab4aff5fe62de9e50c8",
+      "summary": "Marinara Lumiverse and Chub ride a SillyTavern or CCv2 card so their data lives under original.sillytavern.raw.data.extensions and for Chub the .chub namespace, buildable and verifiable now. Default CCv3 is the portable interop shape for thin hosts such as C.AI Tools dumps Crushon drop-import and Janitor PNG: read and write only via formats sillytavern with no fake extensions host bag and a single default-ccv3 Default tab from extension-platforms.ts. Character.AI is dropped as a native platform with no official export and definition usually withheld. Crushon is skipped as import sink only. Janitor is optional thin later preferring ST Default CCv3. None of those get their own lens tab. Pygmalion has its own flat adapter under formats pygmalion.",
+      "topics": [
+        "ST-riding original paths",
+        "Default CCv3 thin hosts",
+        "no fake host bags",
+        "C.AI dropped Crushon skip",
+        "pygmalion own adapter"
+      ],
+      "children": []
+    },
+    {
+      "slug": "marinara-high---re-audited-2026-07-09-vs-marinara-engine-clone",
+      "title": "Marinara (HIGH - re-audited 2026-07-09 vs Marinara-Engine clone)",
+      "level": 2,
+      "sourceHash": "sha256:b1c7ebab5981a9d571b671181c98691eef13000d32ef268ce5e57d96552348c1",
+      "summary": "Root is sillytavern.raw.data.extensions not a fabricated .marinara sub-key, verified against Marinara-Engine CharacterExtensions and CharacterEditor. Exportable CCv2 card carries rpgStats with enabled attributes and hp only no pools array; backstory appearance textareas; nameColor dialogueColor boxColor as CSS color or gradient via SwatchRow; avatarCrop and trackerCardColors on card but not yet in platforms marinara.ts; conversationStatus read-only if present; fav talkativeness depth_prompt world are ST-owned and not re-declared. Colored resource bars are real but different entity: persona personaStats bars name value max color not character pools, and runtime tracker is chat session state. Host-local comment avatarPath spriteFolderPath sprites CharacterRegex personaStats quests stay off V2 extensions. No own catch-all; ST catch-all covers leftover keys.",
+      "topics": [
+        "bare extensions root",
+        "rpgStats no pools",
+        "personaStats bars",
+        "color gradient fields",
+        "ST-owned skip"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chub-high---verified-vs-live-chub-api-re-audit-2026-07-09-for-jewel",
+      "title": "Chub (HIGH - verified vs live Chub API; re-audit 2026-07-09 for jewel)",
+      "level": 2,
+      "sourceHash": "sha256:935292c4a52157a33ac6cf39b3699e3d30173be17120734daf7d7fbddfc1bcde",
+      "summary": "Root is sillytavern.raw.data.extensions.chub namespaced not bare extensions, verified against live Chub API. id and full_path are read-only hub identity. custom_css is CssWorkshop editable plain CSS with sealed preview only never applied in Hoplight chrome. background_image is editable URL. expressions and alt_expressions are sprites milestone stubs with twin kept often empty on download. related_lorebooks refs are read-only link-out without book bytes. preset and Chub Stages extensions are read-only never run. ST core name description greetings character book depth_prompt map to body or ST native. vectorized is a lorebook entry field not a chub-block field.",
+      "topics": [
+        "extensions.chub namespace",
+        "custom_css CssWorkshop",
+        "background_image URL",
+        "Stages never run",
+        "lorebook refs RO"
+      ],
+      "children": []
+    },
+    {
+      "slug": "lumiverse-medium---traced-from-app-source-expressions-key-still-unverified-lora-verified-against-source",
+      "title": "Lumiverse (MEDIUM - traced from app source; expressions KEY still unverified; LoRA verified against source)",
+      "level": 2,
+      "sourceHash": "sha256:32a04c325c54842baac49b4c41677c370858f71d0d1fbd4e9f84c583688b0050",
+      "summary": "Root is sillytavern.raw.data.extensions bare keys with no lumiverse namespace, traced from Lumiverse editor surfaces with unverified keys marked not guessed. expressions enabled defaultExpression mappings are asset-manager plus toggle with KEY still unverified versus expression_config. expression_groups are ListEditor of asset-managers. alternate_fields per description personality scenario are ListEditor of label content. alternate_avatars are asset-manager. world_book_ids and databank_ids are lorebook-link or read-only. Character LoRA is first-class portable card mirror under extensions.lumiverse_image_gen_lora distinct from host-local runtime binding; never auto-fetch source_url. catch-all covers remaining unknown extension keys flagged script-like opaque and character_loras is not the canonical LoRA path.",
+      "topics": [
+        "bare extensions bag",
+        "expressions key open",
+        "alternate fields avatars",
+        "Character LoRA portable",
+        "catch-all opaque"
+      ],
+      "children": [
+        {
+          "slug": "character-lora-first-class---was-wrongly-buried-as-catch-all",
+          "title": "Character LoRA (FIRST-CLASS - was wrongly buried as catch-all)",
+          "level": 3,
+          "sourceHash": "sha256:d4d6e5f3eb9d829c15f9458cdd467777f592915d5d64a16f38a5d8480e9f4ac9",
+          "summary": "Lumiverse attaches image-gen LoRA via Character editor LoRA tab with dual storage. Runtime binding is per-user app settings characterLora characterId with weight_model weight_clip and is not on the card. Portable card mirror is character.extensions.lumiverse_image_gen_lora PortableLoraReference v1 with lora_filename weight base_tags source_url written when bound and cleared when unbound. Importers surface expected LoRA but never auto-fetch source_url for safetensors phishing risk. Control is structured form not catch-all. character_loras name is wrong. Runtime weight_clip is not mirrored into portable single weight. ComfyUI pipeline uses runtime binding only.",
+          "topics": [
+            "runtime vs portable",
+            "lumiverse_image_gen_lora",
+            "never fetch source_url",
+            "not character_loras key",
+            "weight_model only"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "characterai---dropped",
+      "title": "Character.AI - DROPPED",
+      "level": 2,
+      "sourceHash": "sha256:3f6c3d70f00d4f2516a7d4913af120db9d63145108f032b6605a9ea727495b23",
+      "summary": "No official card export. Community scrapers expose a flat API object but definition is usually withheld unless the creator set copyable. Building platforms characterai or formats characterai would pretend at a surface C.AI does not give users. Interop if the user already has a Tavern CCv2 or CCv3 file from CAI Tools or converters is open as Default CCv3 via SillyTavern. Honesty: shallow imports when definition was locked are C.AI's gate not ours. Do not invent original.characterai or starter-prompts native jewel. Archaeology lists scraper fields that are not build targets including name title greeting description definition categories avatar visibility copyable starter_prompts img_gen songs voices external_id.",
+      "topics": [
+        "no official export",
+        "definition often withheld",
+        "Default CCv3 interop",
+        "no characterai original",
+        "scraper archaeology only"
+      ],
+      "children": []
+    },
+    {
+      "slug": "crushon---skipped",
+      "title": "Crushon - SKIPPED",
+      "level": 2,
+      "sourceHash": "sha256:3c82d1bd25b1e949f27e617835896d96e2ad6670c4375d2e742c219fb220c81f",
+      "summary": "Import sink only: Create page drops PNG or JSON and fills a short form. No verified first-party export. Gender visibility and rating are site DB not a portable bag. Do not fabricate paths. Interop is emit Default CCv3 or flat V1 subset from the ST path so Crushon can ingest. Rich CCv3 features book alts and extensions are lossy on that host which is export honesty not a native schema.",
+      "topics": [
+        "import sink only",
+        "no first-party export",
+        "site DB not portable",
+        "Default CCv3 emit",
+        "lossy rich CCv3"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "janitor-medium---thin-optional-not-a-bag-jewel",
+      "title": "Janitor (MEDIUM - thin optional; not a bag jewel)",
+      "level": 2,
+      "sourceHash": "sha256:a83cd456c954e68d94cd5cf6706fce20030772b1805deefdc4f85937dd1bc54d",
+      "summary": "Root is flat snake_case scrape when someone has a JSON dump; many users only have ST PNG. Prefer Default CCv3 or ST PNG already covered. If a scrape adapter ever lands map name personality scenario first_message first_messages example_dialogs allow_proxy custom_tags with read-only id creator catalog tags visibility flags. Advanced Scripts ES5 are sealed never-run and path often a separate entity do not invent. Profile CSS is not the character bag; use CssWorkshop janitor-profile pack for profile work.",
+      "topics": [
+        "prefer Default CCv3",
+        "scrape optional later",
+        "scripts sealed separate",
+        "profile CSS not bag",
+        "not bag jewel"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "pygmalion-high---classic-flat-adapter-landed-formatspygmalion",
+      "title": "Pygmalion (HIGH - classic flat; **adapter landed** `formats/pygmalion/`)",
+      "level": 2,
+      "sourceHash": "sha256:16e2d78dd662f396d94de874f4fa4d8902d6c70ddff88ca2ff07538caefc7ddf",
+      "summary": "Root is flat document bare keys such as char_name. Adapter coverage and sample exist under formats pygmalion and samples pygmalion classic.native.json. Do not claim no import adapter. Map char_name text and char_persona world_scenario char_greeting example_dialogue textareas as the five classic prose fields. metadata version created modified source tool is original only. PNG carrier flat JSON in chara chunk is supported via shared card-io. There is no pygmalion_id that lead was wrong. No scripts lorebook assets or social on classic wire. ooba multi-alias and YAML cousins are other format rows not this adapter.",
+      "topics": [
+        "adapter landed high",
+        "five classic prose",
+        "metadata original only",
+        "no pygmalion_id",
+        "PNG chara chunk"
+      ],
+      "children": []
+    },
+    {
+      "slug": "default-ccv3-interop-shape",
+      "title": "Default CCv3 (interop shape)",
+      "level": 2,
+      "sourceHash": "sha256:c83f250206e93f5f2570d8554f60ef141799caf33d2b42b23496525e3cc606be",
+      "summary": "Portable card for thin hosts and I have a PNG from somewhere uses spec chara_card_v3 version 3.0 with data name description personality scenario first_mes mes_example creator_notes system_prompt post_history_instructions tags alternate_greetings optional character_book and empty extensions object. Read and write through src formats sillytavern. Empty extensions is fine. Do not invent host namespaces under extensions for dropped or skipped platforms.",
+      "topics": [
+        "chara_card_v3 3.0",
+        "portable data fields",
+        "empty extensions fine",
+        "sillytavern read write",
+        "no host namespaces"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "new-components-this-research-calls-for",
+      "title": "New components this research calls for",
+      "level": 2,
+      "sourceHash": "sha256:7c1ecd44f1d5a7d25c684f3609932feddb6a53a1801170e7cc6a7c1a891a82e3",
+      "summary": "Research calls for a color native control reusing SwatchRow compact hex for Marinara. CssWorkshop assisted CSS for Chub cards and optional Janitor profile with no starter-prompts-list for dropped Character.AI. SealedContent only if a verified Janitor script path ever lands never invent. expression-map and groups remain sprites milestone stubs for Lumiverse and Chub until then.",
+      "topics": [
+        "SwatchRow color",
+        "CssWorkshop Chub",
+        "no C.AI starters",
+        "SealedContent later",
+        "sprites milestone stubs"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

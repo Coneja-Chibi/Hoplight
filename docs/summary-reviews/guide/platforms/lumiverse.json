@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/lumiverse",
+  "sourcePath": "docs/guide/platforms/lumiverse.md",
+  "sourceHash": "sha256:eff2eeaa2172b16c167cedade2d240fd063d4682a0452586c1066e86009fa419",
+  "semanticSummaryHash": "sha256:f4cb12f14d7ef05887d62a32c838f1157739f2737585c71cf53d9dc357eb94fc",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:25.876Z"
+}

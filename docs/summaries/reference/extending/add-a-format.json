@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/extending/add-a-format",
+  "sourcePath": "docs/reference/extending/add-a-format.md",
+  "sourceHash": "sha256:d46c17999be844685d5b035069b253a6d993b7f22e141b4632ef07615e798b73",
+  "summary": "Developer how-to for adding one format adapter under hub-and-spoke: every format converts through the canonical model, never format to format; one new adapter touches no other format and no core. A format is a folder under src/formats name; the loader scans the filesystem and skips underscore-prefixed folders such as _template and _shared; index.ts default-exports one adapter or an array for multi-codec families like SillyTavern. The contract in adapter.ts defines AdapterBase id label outputExtensions detect optional native generic coverage lens, then CharacterAdapter LorebookAdapter PersonaAdapter RegexAdapter with toCanonical fromCanonical and optional extractLorebook, discriminated as FormatAdapter on kind; AdapterInput and AdapterOutput are plain bytes text filename data not streams. Steps: copy _template so name is folder id and original escrow key; implement detect returning 0..1 with registry highest at or above 0.5 and reject sibling markers first; implement toCanonical with canonicalId and original raw or sourceMedia under the superset rule; implement fromCanonical clone-overlay twin or minimal object plus extractLorebook and context.lorebooks; declare coverage; done with loadFormats register and matrix regeneration. Declaring coverage explains CoverageDecl carries notes and path-prefix matching for honest platform lenses. Testing copies the Pygmalion suite shape. Non-negotiables ban core edits, demand the cross-kind firewall, escrow not blind-copy, and underscore only for inert folders. Source of truth tables the key core and template files.",
+  "topics": [
+    "add format adapter",
+    "folders-as-schema loader",
+    "AdapterBase detect contract",
+    "toCanonical fromCanonical",
+    "CoverageDecl lens honesty",
+    "copy _template steps",
+    "no core edits",
+    "cross-kind firewall",
+    "Pygmalion test shape",
+    "matrix:check registry"
+  ],
+  "sections": [
+    {
+      "slug": "the-contract",
+      "title": "The contract",
+      "level": 2,
+      "sourceHash": "sha256:5a1ebf95011f2bf157afe3ac5f7b33303e9d40a32fa05763139d3aef59e2eec6",
+      "summary": "src/core/adapter.ts defines every format plugin. AdapterBase carries id as FormatId and escrow key, label, outputExtensions without dots, detect returning 0..1 confidence, optional native for hoplight storage never a publish target, optional generic for the plain family reader shown as Default, optional CoverageDecl, and optional lens false to hide from the editor platform strip. CharacterAdapter extends with kind character, toCanonical to CanonicalCharacter, fromCanonical with optional EmitContext, and optional extractLorebook. LorebookAdapter PersonaAdapter and RegexAdapter mirror the same shape for their kinds; FormatAdapter is the kind-discriminated union. AdapterInput is optional bytes text filename; AdapterOutput is optional bytes text plus suggestedExtension. Binary formats read bytes; text or JSON read text; fromCanonical returns what it writes plus an extension normally from its outputExtensions list.",
+      "topics": [
+        "AdapterBase fields",
+        "CharacterAdapter hooks",
+        "kind discriminated union",
+        "AdapterInput Output",
+        "native generic lens flags"
+      ],
+      "children": []
+    },
+    {
+      "slug": "steps",
+      "title": "Steps",
+      "level": 2,
+      "sourceHash": "sha256:2107f531521d2c008f379578aa7e1fe268b52d2c123b0f25dd14d01c3b37fabb",
+      "summary": "Six steps complete an adapter. Copy src/formats/_template to src/formats name so name is folder, adapter id, and original name escrow key; pick kind default character. Implement detect 0..1: registry keeps the single highest score at or above 0.5 so specifics must outrank generics; reject sibling known markers before positive signals as Pygmalion does; wrong shape returns 0 never throws. Implement toCanonical: map to canonical body, mint id with canonicalId, stash parsed source at original name raw and PNG pixels in sourceMedia; only first-class wire-serialized fields under the superset rule. Implement fromCanonical: clone escrow twin when present, overlay edited body, fall back to minimal object for cross-format; optional extractLorebook for non-shared embedded books; re-embed via context.lorebooks. Declare coverage in a later section. Done with no core edits: loadFormats globs index.ts files and registers exports; bun run hoplight formats lists it; bun run matrix and matrix:check keep FORMAT-SUPPORT.md honest.",
+      "topics": [
+        "copy _template folder",
+        "detect score 0.5",
+        "toCanonical escrow raw",
+        "fromCanonical twin overlay",
+        "extractLorebook EmitContext",
+        "loadFormats no core edits"
+      ],
+      "children": []
+    },
+    {
+      "slug": "declaring-coverage",
+      "title": "Declaring coverage",
+      "level": 2,
+      "sourceHash": "sha256:8263a4707d7e17c8c0c69535f3ba61c8a4b6227006dd8945a126e3900a1142b0",
+      "summary": "src/core/coverage.ts makes per-platform editor lenses honest: the editor knows zero platforms, so each format folder declares which canonical body path prefixes its wire reads and re-emits, and every lens state is computed from that claim. CoverageDecl has carries string path prefixes and optional notes as per-path tooltip remarks. Path prefixes match on dot boundaries only so greetings covers greetings.firstMessage never greetingsX. Add coverage.ts default-exporting CoverageDecl and set coverage on the adapter; Pygmalion is the whole pattern with identity persona greetings examples media paths and honest notes. Absent coverage is not an error: the lens marks the tab not declared and dims nothing, deny-by-absence. In this codebase every non-native character adapter declares coverage; lorebook persona regex codecs and native vaud-json do not. Coverage also feeds export dialog honesty lines, so undeclared coverage understates that dialog for your format.",
+      "topics": [
+        "CoverageDecl carries notes",
+        "dot-boundary path prefixes",
+        "editor platform lens",
+        "absent coverage ok",
+        "export honesty lines"
+      ],
+      "children": []
+    },
+    {
+      "slug": "testing",
+      "title": "Testing",
+      "level": 2,
+      "sourceHash": "sha256:b86457f1abdcfb3caca02c61ed6b4aff2995317c3f97b4d6178eaed6d76b05b2",
+      "summary": "Format tests live beside the adapter as src/formats name name.test.ts under bun:test. Copy the Pygmalion suite shape: shape guard accepts the real form and rejects every sibling; detect scores your format high and siblings zero on your fixture; toCanonical maps every field; same-format unedited round-trip is byte-identical; an edit reaches the wire; cross-format conversion to one other format keeps core text. bun run test covers formats; scope with bun test src/formats name. A lorebook-kind format additionally earns a round-trip fixture under samples/lorebooks name with real input plus expected canonical parse.",
+      "topics": [
+        "pygmalion.test.ts shape",
+        "detect reject siblings",
+        "byte-identical round-trip",
+        "cross-format core text",
+        "lorebook sample fixtures"
+      ],
+      "children": []
+    },
+    {
+      "slug": "non-negotiables",
+      "title": "Non-negotiables",
+      "level": 2,
+      "sourceHash": "sha256:3f8bdc487ff8e0a811157db2c0891cb3df9ee7fd4ac327bc0248899498ea13b5",
+      "summary": "No core edits: adding a format changes only its own folder; if src/core or another format folder seems necessary the design is not drop-in. The cross-kind firewall holds: a character detector must never claim lorebook bytes or vice versa because both share one registry. Escrow not blind copy: only the canonical body crosses formats; extensions scripts and internal ids stay under the source escrow key and never copy into another format file. The underscore prefix means inert only for shared helpers fixtures or the template, never to half-ship a real format.",
+      "topics": [
+        "no core edits",
+        "cross-kind firewall",
+        "escrow not blind copy",
+        "underscore inert folders"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:819ab50b7c610acac950bdc59b65b882a55438a7605a68849e26c3b6742f815b",
+      "summary": "Authoritative files: _template/index.ts as starting copy; adapter.ts for contract kinds input output EmitContext; loader.ts for folders-as-schema discovery; registry.ts for detection 0.5 threshold and lookup; coverage.ts for CoverageDecl; canonical.ts for wrapper escrow and canonicalId; pygmalion index coverage and test as smallest worked example; format-matrix.ts for matrix and matrix:check; cli.ts for hoplight formats; architecture.md for whole-engine hub-and-spoke escrow and detection context.",
+      "topics": [
+        "template and adapter.ts",
+        "loader registry coverage",
+        "canonicalId escrow",
+        "pygmalion example",
+        "matrix CLI architecture"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

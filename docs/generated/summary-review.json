@@ -1,0 +1,694 @@
+{
+  "generated": "2026-07-25",
+  "count": 86,
+  "pages": [
+    {
+      "docId": "01-VISION",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:57a09c6be0c5ce2cb97494955e729f64be39608a7415605aef12e23fea4afd2a",
+      "semanticSummaryHash": "sha256:db06c94c2242639d96fb9b2140edcbcae0a1329a0925293b56f1631e3db13d17"
+    },
+    {
+      "docId": "02-ARCHITECTURE",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:1823d3aee566322a39dded96dc7cc0d1b6b1271be654b640c7ead0902a7f444f",
+      "semanticSummaryHash": "sha256:431b201712ef5752ea2e81506c89875d38af5a1181009868d7f54945620433e6"
+    },
+    {
+      "docId": "03-CONVENTIONS",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
+      "semanticSummaryHash": "sha256:f5f0f06e293af33839ade282eedbd6445d88636b002cf653eee668a1baf370d8"
+    },
+    {
+      "docId": "decisions/ADR-001-runtime",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:15c2e3188c6c0523fe2c8d312dfa690b0ef683b7e5dbdab9ed2509a7e09d4b9a",
+      "semanticSummaryHash": "sha256:794b1cb8a57620f17f2cbe85e59d685b9321e008c0cdab1bafd03ad15370986f"
+    },
+    {
+      "docId": "decisions/ADR-002-license",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:479e218a50eaa70ac180e58d1d98ab6ca7921e548e889c0374f071e3ca2b4808",
+      "semanticSummaryHash": "sha256:b47960e3f0ae74a9b80c822bd0405b05113f4259e265acb0aa6c3a36ff7fdac5"
+    },
+    {
+      "docId": "decisions/ADR-003-distribution",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:d4450b0d40a1207819c77cc9602fadcc4904b608889d6b0457f887e6d06e0f06",
+      "semanticSummaryHash": "sha256:435248a3263ba29773711c0c03fcf555ebfb735a5c90c0064c7bc15cc3082738"
+    },
+    {
+      "docId": "decisions/ADR-005-canonical-model",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:a58ed95c8f60d3e8e822b03d1f3a3ec90c58627c536478ce645b2a0b55fefd1c",
+      "semanticSummaryHash": "sha256:171ae483008f3ebe52700ab8c07a6c56f7a93004c32df84e4a74b13ea390b1f5"
+    },
+    {
+      "docId": "decisions/ADR-006-ai-and-agent",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:78242aec9197bcfdae86f80f175dcf87667bb1206a6d3825ec1b373b9a108fe2",
+      "semanticSummaryHash": "sha256:41dafb20c4d3314e57895d126354a9ef89371d10ab2166bab32fc487cd9132dd"
+    },
+    {
+      "docId": "decisions/ADR-007-renderer-policy",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:908afc9b205adead23f9066ea344cc8b5fb7c114c38ee8fbc684e287a5bc22bf",
+      "semanticSummaryHash": "sha256:fa63b879c282d3cfa3f9dfbfeb8b17d48d8e3b3521b115d8bc2d7350c1bf6ecf"
+    },
+    {
+      "docId": "decisions/ADR-008-react-ui",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:02eda3c403e50a852276795401a9515ee6e84459feb1aab09f8e22818cfb8ba5",
+      "semanticSummaryHash": "sha256:1d2ed27a83a1d7214ad0f3679615db4f1cf69a056e9a05c991750ee98dd50317"
+    },
+    {
+      "docId": "decisions/ADR-009-sandbox-origin",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:362b50642e31292048098c942d0d671cf8bc9a4eaa0f78203676ac7f776c7d9b",
+      "semanticSummaryHash": "sha256:4c0c31b0674cbf371c4fbcdbb3186d49a7a9920e4ac1370d012b28a6ba7ccfdb"
+    },
+    {
+      "docId": "decisions/ADR-010-content-capabilities",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:8c65b8a658a10350a7d3a45d02cc2b9458e784ef39678a95a7003174bd50630e",
+      "semanticSummaryHash": "sha256:05dd170393d7ff0ce8b88b5802e0b96a108dadefdadd63b6d8a4a87feac73e65"
+    },
+    {
+      "docId": "FORMAT-SUPPORT",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:f087b8c2ace64e59b2cd7a4697266148413762184336eb4d7596089ecde62d8f",
+      "semanticSummaryHash": "sha256:fe91b69be7e92bad9cda50101de3396ad281b16e87409a9cd14d83dec54b9e06"
+    },
+    {
+      "docId": "guide/converting",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:8829b0d150ed48f1751136ec2125087d4cf0dfa9518c9c13a4a93336562587da",
+      "semanticSummaryHash": "sha256:2f068bdbfbfc9b0b2351e13ad46ec9311a834d5bce68a16e4303057ef37bf1e2"
+    },
+    {
+      "docId": "guide/editing",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:64360fedb6f55277a6fe3b1ea44e0254ec48bcbfc0c254098351d92691e40172",
+      "semanticSummaryHash": "sha256:d576284e9523c0a948d400eb0626937902ba8b0bef3e2e6185d3cd196e4fd8b1"
+    },
+    {
+      "docId": "guide/exporting",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:e60eb34d2ed7c04111db4b18d76977472eafa18e700a753141fde401920040c6",
+      "semanticSummaryHash": "sha256:3c09dc54fe95a41110fa73681c2eab06ad615eebe7952947b7fc0cf7be752be3"
+    },
+    {
+      "docId": "guide/faq",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:a0052845dd33b1430a7650ba6d60d6ec69d8652677e78eec9a4c597386f5001d",
+      "semanticSummaryHash": "sha256:2fc6b76cb25b9a7d312daa9c63551eb5ab45675b24f11aef3ab960c6cc02ccca"
+    },
+    {
+      "docId": "guide/getting-started",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:3f0de5d84adfdc09731f91b676e83d79571f7349b845c442430a3b6935423a30",
+      "semanticSummaryHash": "sha256:571f394b6ede8ea7a7435b2f7dcede3e473dc7276f278b53aec6b3c5e3cf1158"
+    },
+    {
+      "docId": "guide/importing",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:2e14f2d1948577adb7afd8971d39b12c6dbcfa40fd56c85b9d750a2eee46ddaf",
+      "semanticSummaryHash": "sha256:e194884ae003c260176b73379874cdee8caa43d37bf35c42432e4d5eb3730afd"
+    },
+    {
+      "docId": "guide/library",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:2bbc205e5175b83d57b0656f02cd329128f1fa5a57df3e9ea303ee914e7b240a",
+      "semanticSummaryHash": "sha256:62d78d7c99a6c8b6cf37f00b5ae076074e7e1349ef43f08f3c7715a58ea93705"
+    },
+    {
+      "docId": "guide/lorebooks",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:2980b2995a88a45f72315be397a9961029d012a0ec3b586f70c98cbe2ed946ce",
+      "semanticSummaryHash": "sha256:9fa5ab2d9b8dab38b9816ab2ca34a5cced6f84dc538a5fed099e1250aeafe2ef"
+    },
+    {
+      "docId": "guide/personas",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:97e7e2da1c40d62496df5ccd3e50a2e8232bea4bde546ddeec749dff26e020b7",
+      "semanticSummaryHash": "sha256:3bd342661e9e482743df162efe913d90925c7ca5ecd85dda32b5c1f20ec39ecf"
+    },
+    {
+      "docId": "guide/platforms/agnai",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:e40c0e228c2d4307de7e783d70855de0a787f27da318254e3f7ef22198d19b5e",
+      "semanticSummaryHash": "sha256:61db205c63fefd424055729c8489762a6db7b8edf4f42c6a5aebe4e550c838c3"
+    },
+    {
+      "docId": "guide/platforms/backyard",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:b23218aed147a574ac732411c6007be3bb659713f8b597e7e885c4f675567af8",
+      "semanticSummaryHash": "sha256:bab27f8ad66b719e9c9b88f510cda76b406b1583e6da6c8825b057dab074f2df"
+    },
+    {
+      "docId": "guide/platforms/chub",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:cbcb24f811659742194823328edac5f008dccc1b3e0b3b238410efdbc499f80e",
+      "semanticSummaryHash": "sha256:540825c551d8dd62da558786810575f4a49bcced6038d77555df1d48ba9c3c21"
+    },
+    {
+      "docId": "guide/platforms/lumiverse",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:eff2eeaa2172b16c167cedade2d240fd063d4682a0452586c1066e86009fa419",
+      "semanticSummaryHash": "sha256:f4cb12f14d7ef05887d62a32c838f1157739f2737585c71cf53d9dc357eb94fc"
+    },
+    {
+      "docId": "guide/platforms/marinara",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:32b82ce374625c5b7e6c2958d2c618d3929f5c798fdf0efea8edcc24dc2869c4",
+      "semanticSummaryHash": "sha256:6d6e0a280f7ec5283c99498952a755de6ae21f1e0e92b2b605f9b22e13a21540"
+    },
+    {
+      "docId": "guide/platforms/novelai",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:7968a541e031823117e88f85f03f722bc7ca01581643039e30a1a37ccc49966b",
+      "semanticSummaryHash": "sha256:c5a2fcf9c338e54226bb1363ff0476ea9085724de423bed63a3f27ad9eb80e7b"
+    },
+    {
+      "docId": "guide/platforms/pygmalion",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:4e9e3fbc1aa83c7574c17f29b261a0731f8c5403616f49d1985e3786e6b3294f",
+      "semanticSummaryHash": "sha256:7cedf6f252b10d2a07eed401c4da8dcc3d5ded2c334ecc605f50c2313a224bc9"
+    },
+    {
+      "docId": "guide/platforms/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:64da6f2e35bfe71f8083a53a312f24ccdd004b9364a9cc7dd5abf970113b1495",
+      "semanticSummaryHash": "sha256:fc78d141cf205c569eba9c98e204a831bf68ce426f4029492c799c406cc3b695"
+    },
+    {
+      "docId": "guide/platforms/risu",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:80c97b1df348be0ae2f6a53518ff468f8f62a72f35a6d9e3a2a0fe50b4d3ab9c",
+      "semanticSummaryHash": "sha256:3a3ad45932bf24867487f2c5762c9b740bca9e7d6ca34719cc6e9ba2f965c1f7"
+    },
+    {
+      "docId": "guide/platforms/rolecall",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:6ba92ea1e266ae651715dbb5635d3a05f571a66eae0d9f0ad7d79cb17c018233",
+      "semanticSummaryHash": "sha256:85b970594aad1cc679546a320d4994e6572bb0cbeef7c2fc902746b87d7d460a"
+    },
+    {
+      "docId": "guide/platforms/sillytavern",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:0c18e5ebf0a6ebd3ada5570a6dd4c96af87ba6aa9898b7c7a5a0bceab947b42b",
+      "semanticSummaryHash": "sha256:29e2a42c1ef93130163c9cc726cf35e97a00e9562bfeddbadbcc9bc92c7923c9"
+    },
+    {
+      "docId": "guide/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:d6329fe0da58769f2470641fdfea81c5ec516c8441cdeb4e647c9f75956f0685",
+      "semanticSummaryHash": "sha256:0c6bc406dbf269f8f75f1dfea7a7e871b0a9eaf7b69cae607c1e71fde1fb8302"
+    },
+    {
+      "docId": "guide/regex",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:f454344fd0111656350fb236bd9e8486bcf4ada539013bbef328df3377cf96e9",
+      "semanticSummaryHash": "sha256:584a26fbc7e7cc5b972f5bc8375312e08caaadd167bc7e286850ca12a92c0dbd"
+    },
+    {
+      "docId": "guide/security",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:52c2a4e5d19304896fce17789379aadb804be95281641ec0ebbde4020878bad1",
+      "semanticSummaryHash": "sha256:5f00392001f6615270390a621071181c1eb1e214e363fd8b979a774efc0f1c8b"
+    },
+    {
+      "docId": "guide/troubleshooting",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:1df5f7f8edfd1d600e4585114178d4635ebb1fb10f53fd9295559a3fce3b0f92",
+      "semanticSummaryHash": "sha256:840b4a576954e793cac8889a0b6d1c66a29f62d6f7ec6edf3f2b34c4c17cfb43"
+    },
+    {
+      "docId": "README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:521f5f4971fcee4f1f5e8134ccbe797dfed65261ce84302b5b1abed9c2514f06",
+      "semanticSummaryHash": "sha256:c1f4fb6348b032ed7601409840c3a68db130075f31673ad5480d4542a470558a"
+    },
+    {
+      "docId": "reference/architecture",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-reviewer",
+      "sourceHash": "sha256:10572d70e0b13e9b045261f2331904999acd36a0f266c043146312385547ce82",
+      "semanticSummaryHash": "sha256:25e48f87a12dbf62d16670b8c11d4b3fca89e16122d1f4519dba3987cf2d5ee7"
+    },
+    {
+      "docId": "reference/audits",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:c303400d45cece42de17250cfd223b3b9b7ea4535612861d0b18fdf44c52a46c",
+      "semanticSummaryHash": "sha256:9a944273993747114accb64cce350cc9583f52cdc895199b118e6f9ec9ea4dce"
+    },
+    {
+      "docId": "reference/cli",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:b8dad02e7a521e8491695879d9ec4f73cfd52b7f0740c3f7ea2505530f9ceeff",
+      "semanticSummaryHash": "sha256:f65c44179a841caff51d4a80ed131b537ef5d26c499dd815c3583c9de77d2d9a"
+    },
+    {
+      "docId": "reference/components",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:56d60659b3714a3ff14b9f16bfaa444c23912a9846f8bd1ab5d2682d885355ad",
+      "semanticSummaryHash": "sha256:3b430efae9290c138a27c028c7a7ad339b54c8e9114695f5ff5eb244f0992c71"
+    },
+    {
+      "docId": "reference/concepts/bundles",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
+      "semanticSummaryHash": "sha256:f7bd60397ca7457d52dbcfa8ac724c4c21d1f58dd62d7381b8cc34dfcc937fc0"
+    },
+    {
+      "docId": "reference/concepts/canonical-model",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:f4eef355484b7e9ff460542f9b229ba6354d2209bb437e378d6ab21f02552d5d",
+      "semanticSummaryHash": "sha256:5bc72a7564201daa7f76deba01ce6afcece44ecea34ecfdd464c1fefff0bd436"
+    },
+    {
+      "docId": "reference/concepts/character-book",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:353be50f0c22ed0b78ca23ce893dad5a1e3bd991f1ec7ab2bcf3111b99285b72",
+      "semanticSummaryHash": "sha256:655fd6dca59259f7e93f69b346e6d24c613112f28c98648208daa5302acd5d51"
+    },
+    {
+      "docId": "reference/concepts/detection",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:fde4f93e0bc14ad261ea9e81f9f3b855c57af1e560b1e3a606e3344b6f589728",
+      "semanticSummaryHash": "sha256:ecba976bc18c6260a1bc009225679eca4a5589501ec7a012a4d4fea695ff9ba2"
+    },
+    {
+      "docId": "reference/concepts/escrow-and-roundtrip",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:f762c56b669c684339b0382a9bac3ee29ff26848670e2a5750a949b300767da0",
+      "semanticSummaryHash": "sha256:58733e7d2027c6366686fcd6ac2c1f22c8ad3f12c4890571db5b36d786e69070"
+    },
+    {
+      "docId": "reference/concepts/persona-editor",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:0c6c9f4ba23153842ed477b2225ebe1cd0ad92b7336054e337c9fcc91fbe0e18",
+      "semanticSummaryHash": "sha256:0536d7fc63f6225fab5f303b49baf28694ffbdf9da64b3816d08bdb489dafd72"
+    },
+    {
+      "docId": "reference/concepts/regex-editor",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:1bee7bf94d05562a87fe5fa2b28c20e31ba28d546acda11d4884fdfec8e3e9c7",
+      "semanticSummaryHash": "sha256:f8da1d2b975d273b358d542fbc50d61a75cc4e29576fb20484eec71d446b3f9b"
+    },
+    {
+      "docId": "reference/concepts/regex-engine",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:465911e7775ce821753f182ddd78ea138b722a65a42e4fcbddbe81f47651ae2d",
+      "semanticSummaryHash": "sha256:8b47792de73e654c80f593654108b08b0fad9e50cc0ca4d7ef72400ce2f993ce"
+    },
+    {
+      "docId": "reference/concepts/safe-rendering",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:142456a7f07bfe4a5c09fe46d8e463ec21b735de239d7fba9823a795a04356f0",
+      "semanticSummaryHash": "sha256:f7bd387b5838f37709dd8dc3b20f3d213d59a0b0354165bf96b4a8192486354e"
+    },
+    {
+      "docId": "reference/concepts/tag-taxonomy",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:99c348c9078c3cc68d65e3f33f86aec3f9b955fbf38eaff451b1a9345184ff7b",
+      "semanticSummaryHash": "sha256:3722d2de52fd493ef64ba7345cd40490551efa6441504483acd1954708868ff0"
+    },
+    {
+      "docId": "reference/entities/character",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:c5902ada0d8026f625b89b86931f2e1c7c65ca9665c406a446f9af6789f7c5a5",
+      "semanticSummaryHash": "sha256:2b3ef43c3a66c210254127e5620e28858bf37c98c183fb53f0e669fde0276f1a"
+    },
+    {
+      "docId": "reference/entities/lorebook",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:30d30107eea0a9c2004645a3f605d196e0f5dac4db034c3bf39e61b535015c0c",
+      "semanticSummaryHash": "sha256:cfa6fbc4b118b14288a7b835a9040ea6344f9b194170a70e396675dadabacd4f"
+    },
+    {
+      "docId": "reference/entities/pack",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:76d0edc05f6ac4c287497670598aa93a96ddef600f8fb33673b93c5c357e68bd",
+      "semanticSummaryHash": "sha256:78b1504f1ad1abffdef6380a74ec5e31ca125cba82c9bafbd5b7ec47d1f6b8d6"
+    },
+    {
+      "docId": "reference/entities/persona",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:e68eb05a83b6201fd5a2b3d5efb0616b581bc4fe4532eb7a3204048261636538",
+      "semanticSummaryHash": "sha256:80a1c99a34fd2bb22c140f3ab20f5741e379a25373ce5d86129168ade8e2381d"
+    },
+    {
+      "docId": "reference/entities/preset",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:fdbf2e9f60fe534c8774792d79d9d54d905e582c61011feb5527907ac3f2618b",
+      "semanticSummaryHash": "sha256:bfe0a13631a3cac751dca341a34e528089a8f71cfe7df1f0d9f3e3ae4e5d4ebb"
+    },
+    {
+      "docId": "reference/entities/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:25d7f39501b62fbb7ae24a5c646235b1ee497362b9186c71dca16b9e9e575e5b",
+      "semanticSummaryHash": "sha256:2af6c201dcf4e18dac53dae157863b94f6648eb5cbf05d5b47c63bd84fcd367e"
+    },
+    {
+      "docId": "reference/entities/regex",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:9f651e2d9a54ad51e1c3589195d4d5f9230ca3f19c96da6bf388268f6f6cf9ef",
+      "semanticSummaryHash": "sha256:d604b7025cd79ba3d2f4bb65d20f926060f8dd63ed5c0cb0eb002964d35e029a"
+    },
+    {
+      "docId": "reference/extending/add-a-format",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:d46c17999be844685d5b035069b253a6d993b7f22e141b4632ef07615e798b73",
+      "semanticSummaryHash": "sha256:fc11d2db0d6d7eedc73ee26ada6e052436e833b091d401425be29a1dfbf01ae4"
+    },
+    {
+      "docId": "reference/formats/agnai",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:627986d812ab05d9e29b5af3a4cfda80996c67b248ebc7f3bc2ab37c603ba477",
+      "semanticSummaryHash": "sha256:336cff11a0cbfd57c749eb37cad4c9fba4be5dfdfd8deb3a427c3cdff166536b"
+    },
+    {
+      "docId": "reference/formats/backyard",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:60b4863eb7cebded92c23b9c6cd1624c876c4adc20482e4ecc0bdf639a25558d",
+      "semanticSummaryHash": "sha256:72e10f5762f638e8ac55ccd97c9a1c20e65687f778efcc21be67fd14cef6cd7e"
+    },
+    {
+      "docId": "reference/formats/lumiverse",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:5050631a19e4d04ede81df56b10beda2b537289429b005acd006c1e2d1cc0f5e",
+      "semanticSummaryHash": "sha256:50a8e60d9fd692565b2ab00e5700e77ff93193ddf8e50b3eda90a46ab3b28afe"
+    },
+    {
+      "docId": "reference/formats/marinara",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:afa9c09813b7a4e9576c4d463b79518457bb40a8ac582b8391998c3d96185839",
+      "semanticSummaryHash": "sha256:f4af0a475072aa3211f6e448bad2aa6d20dd35a564bf5cbd78b0b6992443ac34"
+    },
+    {
+      "docId": "reference/formats/novelai",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:77452b37e0802b8431f1cbd7a029a441ce8a3acba241102d47e2efb7e2b84319",
+      "semanticSummaryHash": "sha256:895cc177fc22a6ae0d24ed8a537c1b1c0737dd32466b8064215e606c099cf803"
+    },
+    {
+      "docId": "reference/formats/pygmalion",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:043788268dd54fd50c4bf2c4bead1407fed89b19f557685b5cfde07996fa33bb",
+      "semanticSummaryHash": "sha256:b0c174aef41fb073f3fcaf1e2c031e1ad7ba82c0a80f0a80816e1e0e51c08201"
+    },
+    {
+      "docId": "reference/formats/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:9cca6f2c68cf1ef67c75b3a6ebf97d4b1547b5c5363c7a9dee557444e04088e0",
+      "semanticSummaryHash": "sha256:43b0d9083715e254a083362cba04a13b08bc82c5fa8fa2e5e2a4a66ac9432815"
+    },
+    {
+      "docId": "reference/formats/risu",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:0595208177c34967e26a9d0a82152e5b47b45513c73a309c155601c42ae7fd3a",
+      "semanticSummaryHash": "sha256:d05ddda4e026dce0a650759b760fcf890115e8ae72527df8a3d7ae85a31ead21"
+    },
+    {
+      "docId": "reference/formats/rolecall",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
+      "semanticSummaryHash": "sha256:d08f42eae2921e542f3ec4a0c28c08b2b1bd9e7b5d75ce778abcee2a0a62ceba"
+    },
+    {
+      "docId": "reference/formats/sillytavern",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:8ee4b8068941e3b7eda988a0a5f3f356315e149e34f32643cb220104e417b61c",
+      "semanticSummaryHash": "sha256:8e84a85b79cdd55e39dccf4bae88bf853054b52a12c3c3b448bdc0aafec7509d"
+    },
+    {
+      "docId": "reference/formats/vaud-json",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:130be9bc3b97679e7ac628d0665b322ca602b80703e2a04ffbd45248e45c0031",
+      "semanticSummaryHash": "sha256:974da90a50e919fd021289c38d4bab875f6ea0f74fdd1df44088dc9ca29626f6"
+    },
+    {
+      "docId": "reference/kit",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:7e314940feba900fe400a846d6607b4df64dd49ea9744b3c63d33ded8d8014d3",
+      "semanticSummaryHash": "sha256:caaed927aa2102e5e422bd7bd22db9f9bc616bb4fc390bd917f7c0512a294360"
+    },
+    {
+      "docId": "reference/kit/tools",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-reviewer-2",
+      "sourceHash": "sha256:07c444dfc0c0b925346ec70027bda8738112e3d0d306836544b75713a6f28c3d",
+      "semanticSummaryHash": "sha256:13ee6d1369e9e1ff59887bc73898944b08db39a50568b32df03edaf2ac69ca10"
+    },
+    {
+      "docId": "reference/platform-native-fields",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:3408d078d1408fce187cdcf62ca0d15c85a65a779bcb80f15f5bb7e3d9cc3172",
+      "semanticSummaryHash": "sha256:6aebb678f0619caf0433828906319527b484fac93875aa89f0c48eea17c55718"
+    },
+    {
+      "docId": "reference/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:7dbd642af1b49a077686908344f662ee152e434e16a76495a20bea214af3e035",
+      "semanticSummaryHash": "sha256:33372b5283785f4dd26229fb66d859899c1648a524989e508500030be0cada5b"
+    },
+    {
+      "docId": "reference/security/archives",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:df4aa670193d7c422340d70ab967d94b8cbe390cdf50b40daf8b4e0caa885e5b",
+      "semanticSummaryHash": "sha256:11f8bfbbdf2ad7669686c602b8da6bd7907f4ada494552df070111a095b538ac"
+    },
+    {
+      "docId": "reference/security/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:874f888234e091e5a9985be477d40e2de3efabfd8960f426b853b563a13a4fc6",
+      "semanticSummaryHash": "sha256:15826baa6f973705823736d28a03ae44abcdb3d79eccd85c669737f9a1ff2889"
+    },
+    {
+      "docId": "reference/security/regex-safety",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:3fff3f463fffcf9fdef82daf0ee27d36e54aa69197257df9c0a92c751dffe58b",
+      "semanticSummaryHash": "sha256:732d04c9975ccc3735660ebeb9c52fbff52bdb12bdbf6c9d8d0f044c1df4c7da"
+    },
+    {
+      "docId": "reference/security/remote-access",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:d611c620c806cf7845724c34f07e7f4c06d750de31bb56e05cbcefec5b60fa7d",
+      "semanticSummaryHash": "sha256:133c22579d39024955fac5ca506b466abcf5a4d730f0508079acd9db825fc035"
+    },
+    {
+      "docId": "reference/security/safe-rendering",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:3f55785152dab0f7d3f0154b4041c9312232e4c6af8c329d549b12447a80b0f1",
+      "semanticSummaryHash": "sha256:e0cb958ef9b008837cdd6775256090734678b218a2a1a8ea10b7bf57b270af42"
+    },
+    {
+      "docId": "reference/security/script-sandbox",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:db19fe6d971f8112b36999219f6a286fb70807ee38837fd94a6abd877607761c",
+      "semanticSummaryHash": "sha256:9d2e1bd10cb710ac7b99b24cb5429f60fffc8913a2fb23fe642362bb72c85b0a"
+    },
+    {
+      "docId": "reference/security/secrets-and-keys",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:7aab43d5646cfcd722cb475511b15e84a31bac98c66a347737bc496304687d39",
+      "semanticSummaryHash": "sha256:ba86ec207716a636ebf7c03add0b49da2e400a266ec9d135eddb33f910ed6847"
+    },
+    {
+      "docId": "reference/security/untrusted-content",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:da373a2c7e6b29d60c40f4b8236bb61bd2a8fcc48a73173d241e270d475ad51c",
+      "semanticSummaryHash": "sha256:766eb801899fe831c718f871843bcae18fb189d941a0b78eb663f82536c58160"
+    },
+    {
+      "docId": "reference/ui",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-reviewer-2",
+      "sourceHash": "sha256:5125016f561b37d77db0a43e92fcafcb06d75943b454792a13ea0fedfbc81c82",
+      "semanticSummaryHash": "sha256:cda086aefd750e4c503f9ebbdadb6c722dd386c6edaa6f248e65ae1be3698582"
+    },
+    {
+      "docId": "reference/updates",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:f499785b3c49b53560afc7c400be17e684c856d379df3df861c42b27b01b6f2a",
+      "semanticSummaryHash": "sha256:bd509077ce84b3bcd0aede0cfc2b8479ea13e8d31cb774b084c18a8630037129"
+    },
+    {
+      "docId": "ROADMAP",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "independent-reviewer-1",
+      "sourceHash": "sha256:255089237cfb6b49e4ee3290f7eba4ed676cd6c38a5997c340eceeaba4ce4194",
+      "semanticSummaryHash": "sha256:b18eb2cefc9905b0778b34ffa03d0427c63fbe4f307547f675704ce27b35fbf7"
+    }
+  ]
+}

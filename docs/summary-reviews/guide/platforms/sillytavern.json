@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/platforms/sillytavern",
+  "sourcePath": "docs/guide/platforms/sillytavern.md",
+  "sourceHash": "sha256:0c18e5ebf0a6ebd3ada5570a6dd4c96af87ba6aa9898b7c7a5a0bceab947b42b",
+  "semanticSummaryHash": "sha256:29e2a42c1ef93130163c9cc726cf35e97a00e9562bfeddbadbcc9bc92c7923c9",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
+  "reviewedAt": "2026-07-25T15:35:26.995Z"
+}

@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "docId": "guide/importing",
+  "sourcePath": "docs/guide/importing.md",
+  "sourceHash": "sha256:2e14f2d1948577adb7afd8971d39b12c6dbcfa40fd56c85b9d750a2eee46ddaf",
+  "summary": "User guide for importing cards lorebooks personas or regex sets into the Library. Nothing is written until confirmed; each file shows as a receipt first. Short flow: drop files on shelves or use Import to be guided to drop; read per-file receipt of name kind platform or failure reason without blocking others; uncheck unwanted then Import with live count; find piece on matching deck. Brand-new empty studio drop zone is also a clickable file browser, the only place outside active import that opens a browser; once pieces exist Import does not open a file browser. What gets kept: original file whole with unmapped private layout ids escrowed; slightly broken lorebooks heal with receipt listing fixes; scripts saved as text never run; deep access refused on receipt; personas not filed as characters; import never overwrites so re-import makes second piece with -2 id while Workbench save overwrites on purpose. Batch import reports each file alone; Add more files accumulates before one write; shelves route by kind not open deck. Tips: Import button only navigates to shelves; failed reads can retry after fix; uncheck before Import; read extras for embedded lorebook scripts deep access; update via Workbench not re-import.",
+  "topics": [
+    "import Library receipt",
+    "drop shelves Import",
+    "escrow original whole",
+    "scripts saved not run",
+    "import never overwrites",
+    "heal broken lorebook",
+    "batch Add more files",
+    "route by kind deck"
+  ],
+  "sections": [
+    {
+      "slug": "the-short-version",
+      "title": "The short version",
+      "level": 2,
+      "sourceHash": "sha256:78eb22afef9591e0393ad447bfd8ce261742600401a6cc4c313af88451672a80",
+      "summary": "Drop one or more files on Library shelves; from elsewhere click Import or right-click Import files to go to shelves and drop; once studio has pieces Import does not open a file browser. Each file returns a receipt with name kind and platform or failure reason without blocking others. Uncheck unwanted; click Import with live count; Select all resets batch; Add more files reads another round into same overlay. Saved pieces land on kind decks character lorebook persona or regex. Empty studio drop zone is also a file browser button, the only place that happens outside active import.",
+      "topics": [
+        "drop on shelves",
+        "receipt per file",
+        "Import live count",
+        "kind decks",
+        "empty studio browser"
+      ],
+      "children": []
+    },
+    {
+      "slug": "what-gets-kept",
+      "title": "What gets kept",
+      "level": 2,
+      "sourceHash": "sha256:13a8645d7705481b9d5a938d81d49f0d90b078af864b4da2b9013cef654b9fad",
+      "summary": "Import reads into the shared studio model so the receipt knows the piece before write. Original file is kept whole; private layout ids and unmapped fields stay alongside for same-app export later. Slightly broken lorebooks with missing name or wrong entry shape are healed not rejected; receipt lists fixes and entry counts. Scripts on cards are saved as text never executed; deep access requests are refused with plain receipt; personas are shelved as personas not characters. Import never overwrites: same file twice yields two pieces with -2 on the second id; update via Workbench save which overwrites on purpose.",
+      "topics": [
+        "shared model intake",
+        "original file escrow",
+        "heal lorebook",
+        "scripts text only",
+        "deep access refused",
+        "never overwrite -2"
+      ],
+      "children": []
+    },
+    {
+      "slug": "importing-many-at-once",
+      "title": "Importing many at once",
+      "level": 2,
+      "sourceHash": "sha256:ef0a62d3b0a2eaafae562748fbb78d3017b9e842aab6cbac135604135536dffa",
+      "summary": "Drop many files and each is read alone. Overlay is Pick what to keep when all clean or Here is what we read when some fail; failures never block successes. Add more files appends into the same overlay so you accumulate before one Import. Route is by kind: a lorebook dropped on Characters still lands on Lorebooks.",
+      "topics": [
+        "per file report",
+        "Pick what to keep",
+        "Add more files batch",
+        "route by kind"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "tips",
+      "title": "Tips",
+      "level": 2,
+      "sourceHash": "sha256:5edf03645f3e3a4b2518aff750c243b01d0d91cd6c14f435031865b721bf324e",
+      "summary": "Corner Import only takes you to shelves to drop; it does not browse files. Failed read is not final: fix in the source app and retry or check unsupported format. Uncheck receipt rows to skip without blocking the rest. Read character receipt extras for embedded lorebook scripts or deep access lines. To update an existing piece edit and save on the Workbench; re-import always makes a second copy never a refresh.",
+      "topics": [
+        "Import no browser",
+        "retry failed format",
+        "uncheck skip",
+        "receipt extras",
+        "Workbench update path"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

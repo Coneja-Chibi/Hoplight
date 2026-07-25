@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/sillytavern",
+  "sourcePath": "docs/reference/formats/sillytavern.md",
+  "sourceHash": "sha256:8ee4b8068941e3b7eda988a0a5f3f356315e149e34f32643cb220104e417b61c",
+  "summary": "SillyTavern format is the developer authority for how Hoplight's sillytavern family detects, maps, and round-trips Character Card V1 V2 and V3 cards plus standalone world info through the canonical model. The card rides JSON or a PNG base64 text chunk; adapters always write JSON. One folder exports four codecs: sillytavern character PNG or JSON, sillytavern-lorebook JSON, sillytavern-regex bare RegexScriptData arrays or card extensions.regex_scripts, and sillytavern-persona ST personas backup files. This page documents character and lorebook in full; regex and persona are summarized under Quirks. Detection scores character 0.9 not 1.0 so RoleCall can outrank on extensions.rolecall, with PNG chara or ccv3 chunks and JSON V3 V2 or flat v1 paths plus a cross-kind firewall requiring a real character signal beside name. Lorebook scores native entries object 0.9 and character_book 0.85. Field map uses shared tavern-fields for CCv2 V3 data, lore-enums for integer selectiveLogic role position, and character_book as bundle extract. Escrow and round-trip seals original.sillytavern raw variant and sourceMedia with three-state overlay so same-format is byte-lossless while cross-format carries only the canonical body. Quirks cover V2 versus V3 drops, dual PNG chunks, talkativeness tolerance, world by name, displayIndex, and the regex and persona codecs. Source of truth lists adapters shared helpers coverage and samples.",
+  "topics": [
+    "sillytavern character 0.9",
+    "sillytavern-lorebook native",
+    "shared tavern-fields map",
+    "PNG chara ccv3 chunks",
+    "cross-kind worldbook firewall",
+    "character_book bundle layer",
+    "original.sillytavern twin",
+    "three-state overlay",
+    "regex and persona codecs",
+    "lore-enums integer coding"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:392ff49bdb0a5ae6e11078a0dc628cf193408ba60f157ce6f3c8338ae03eaf9b",
+      "summary": "Detection follows registry highest score above 0.5 so more specific formats outrank generic ones. Character detect returns 0.9 for a recognizable card and 0 otherwise, not 1.0, because SillyTavern is the generic Tavern reader and RoleCall claims 1.0 on CCv3 with extensions.rolecall. Two recognition paths: PNG with chara V2 or ccv3 V3 text chunks scores 0.9 and non-card PNG falls through to JSON; JSON detectCard accepts chara_card_v3 or v2 with data, or flat objects with name plus a real character signal for V1 flat. Flat v1 is the cross-kind firewall so a worldbook name object never false-positives as a character. Lorebook returns 0.9 for native top-level entries object keyed by string index with entry-shaped values, 0.85 for portable character_book with entries array, and 0 otherwise so native wins any tie.",
+      "topics": [
+        "character detect 0.9",
+        "RoleCall outrank 1.0",
+        "PNG chara ccv3",
+        "flat v1 character signal",
+        "lorebook 0.9 and 0.85"
+      ],
+      "children": [
+        {
+          "slug": "character",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:e2f6f1b2cef7744d64e8d800e0b9d68dc8d9b736bbef4247c33ade5cb4fba1d6",
+          "summary": "detect returns 0.9 for a recognizable card and 0 otherwise. Score is 0.9 not 1.0 so RoleCall on extensions.rolecall wins when present; plain CCv3 without that block is read by sillytavern. PNG path scores 0.9 when bytes carry chara V2 or ccv3 V3 text chunks; a non-card PNG falls through because real JSON reads carry both bytes and text. JSON detectCard recognizes chara_card_v3 with data, chara_card_v2 with data, or flat with name plus V1 core fields description personality scenario first_mes mes_example or V2-era alternate_greetings system_prompt post_history_instructions creator_notes extensions character_version. V2-era fields mark variant flat otherwise v1; worldbooks carry none so they never score positive.",
+          "topics": [
+            "detect 0.9 generic",
+            "PNG chunk versions",
+            "JSON V3 V2 flat",
+            "name plus character signal"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:8c11295ea3b3d4d13788f3ae0ee240f1182c1b9d5630379cea19c36db1abe29e",
+          "summary": "sillytavern-lorebook returns 0.9 for a native worldbook, 0.85 for a portable character_book, and 0 otherwise. Score 0.9 requires top-level entries as an object keyed by string index not an array, which would be RoleCall or Agnai, whose first value looks like an entry via key keysecondary comment or content. Score 0.85 is a Chub-style or card-extracted character_book object with an entries array, portable as ST but scored below native so the native file wins any tie.",
+          "topics": [
+            "entries object 0.9",
+            "character_book 0.85",
+            "not array entries",
+            "native outranks extract"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:1aee98108b8184f9596e42c95a954ba3e3f9fbbc9e8d404ad8425dc007ef41f8",
+      "summary": "Field map covers Character shared Tavern data then Lorebook enums and entry wires. Character data mapping lives in tavern-fields dataToBody and applyBodyToData shared with Risu: identity name nickname description characterVersion, persona personality scenario, greetings first alternate group-only, examples mes_example, prompts system post_history depth_prompt, attribution creator notes source multilingual dates, discovery tags, settings talkativeness, worldName, assets to media, character_book via bundle knowledgeRefs, and PNG pixels in original.sillytavern.sourceMedia. depth_prompt talkativeness and world are first-classed from extensions; empty depth prompt maps to no injection. Lorebook uses lore-enums for selectiveLogic role position integers; entries map comment content disable keys order group match toggles vectorized automationId displayIndex; embedded character_book uses CCv3 dialect with ST extensions bag.",
+      "topics": [
+        "shared tavern-fields",
+        "depth_prompt first-class",
+        "character_book bundle",
+        "lore-enums integers",
+        "embedded book dialect"
+      ],
+      "children": [
+        {
+          "slug": "character-1",
+          "title": "Character",
+          "level": 3,
+          "sourceHash": "sha256:4d483a7118bcbfc2047fc301eb65096dcdfc76dbfd1e04341c462bf563b7e16f",
+          "summary": "Shared Tavern data mapping covers data.name nickname description character_version to identity, personality scenario to persona, first_mes alternate_greetings group_only_greetings to greetings, mes_example system_prompt post_history_instructions, extensions.depth_prompt as origin depth_prompt, creator creator_notes source creator_notes_multilingual dates, tags, extensions.talkativeness with tolerant string or number, extensions.world as worldName not embedded book, assets to portrait and media, and character_book via bundle extract into knowledgeRefs not tavern-fields. PNG carrier pixels live in original.sillytavern.sourceMedia. Empty depth_prompt.prompt maps to no injection so depth and role ride the twin; role is carried only when authored. Resolved empty knowledgeRefs removes both primary character_book and legacy extensions.character_book so clearing a link cannot resurrect the twin book.",
+          "topics": [
+            "identity persona greetings",
+            "depth_prompt origin",
+            "worldName not knowledgeRefs",
+            "bundle re-embed books",
+            "tolerant talkativeness"
+          ],
+          "children": []
+        },
+        {
+          "slug": "lorebook-1",
+          "title": "Lorebook",
+          "level": 3,
+          "sourceHash": "sha256:0e734a5b663ca431fa49dcbbcb4769284867dc1beaea74ddf68666c5fc7fa4d1",
+          "summary": "ST world info encodes selectiveLogic role and position as integers via shared lore-enums: selectiveLogic 0-3 and_any through and_all, role 0-2 system user assistant, position 0-4 world character before_example after_example depth. Entry highlights map title from comment, content, enabled as not disable, triggers from key with inline regex decode, secondaryTriggers keysecondary, sortOrder from order, priority defaults 100 with no ST eviction axis, groupName group, scan match toggles including depth prompt and creator notes, vectorized groupOverride useGroupScoring automationId displayIndex. Embedded character_book uses CCv3 top-level keys secondary_keys insertion_order use_regex coarse before_char after_char with ST-extended fields in extensions, extensions winning when both present.",
+          "topics": [
+            "selectiveLogic role position",
+            "comment to title",
+            "priority default 100",
+            "displayIndex distinct",
+            "character_book dialect"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:19bff8e3a94310ff4f7ca3e91bd1abb28dff215b04f8cce2bf75c8fa8d4657bd",
+      "summary": "Escrow is the wrapper original Record keyed by format id; the character twin lives at original.sillytavern with raw entire parsed card, unmapped variant v2 v3 v1 or flat, and sourceMedia b64 png only for PNG input. Same-format round-trip is byte-lossless: fromCanonical overlays the body onto a clone of raw and preserves the original variant wrapper. Overlay is three-state against the twin decode via applyBodyToData: equal leaves raw untouched, changed writes, missing clears at the exact wire home; unknown keys and non-representable raw stay. Cross-format carries only the canonical body; raw extensions unknown keys and PNG stay in escrow uncopied. Lorebook collapses richer positions append append_bottom to depth 4, prepend_top to 0, scene to before_example 2; triggerMode always simple on read. Unedited entries re-project from raw twin by id so ST to ST stays byte-lossless; only edited entries re-encode and take the collapse. Raw-only uid vectors loreCache ride escrow untouched.",
+      "topics": [
+        "original.sillytavern raw",
+        "variant preserve V3 V2",
+        "three-state overlay",
+        "position collapse ST",
+        "twin re-project unedited"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:0350916c49f3fb999c43b8984ac0291e75cc699e668b43887795e1c36c3b5096",
+      "summary": "Quirks pin ST edges and summarize regex and persona codecs. CCv2 versus V3: V3-only nickname source multilingual dates group_only_greetings assets round-trip only in V3; V2 export drops group_only and multilingual; media present upgrades non-V3 twin to V3 because V2 has no portable assets. PNG embedding uses chara V2 or ccv3 V3 tEXt; V3 normally writes both with reader preferring ccv3 wherever present. Flat v1 needs name plus character signal as the cross-kind firewall. Talkativeness tolerates string or number on read and writes number while three-state leaves unchanged string twin. World is by name not knowledgeRefs; embedded book is character_book. displayIndex is a distinct axis never fabricated from sortOrder. Regex codec scores 0.9 for bare RegexScriptData array and 0.85 for card extensions.regex_scripts with findWrapped extras for delimiter style. Persona codec scores 0.95 on personas backup, imports default or first, and seals the entire backup so export overlays only the edited persona.",
+      "topics": [
+        "V2 V3 field drops",
+        "dual PNG chunks",
+        "talkativeness string number",
+        "worldName scalar",
+        "regex findWrapped",
+        "persona multi backup"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:90393332c148bad310f0cc40584f2bb41d4d4bf2dd4bf7ce35809d45cbcb99f0",
+      "summary": "Source of truth maps concerns to files. Character adapter detect toCanonical fromCanonical is formats sillytavern index.ts. World info codec is lorebook.ts; regex and persona codecs are sibling regex.ts and persona.ts. Shared Tavern field map is tavern-fields.ts; lore int-enum decoders are lore-enums.ts; embedded character_book mapper is character-book.ts; CCv3 assets to media is assets.ts; PNG chunk read write is png.ts. Coverage declaration is coverage.ts. Canonical wrapper escrow original and id policy live in core canonical.ts. Samples under samples sillytavern include CCv2 and v3 JSON plus Seraphina.png.",
+      "topics": [
+        "sillytavern index.ts",
+        "lorebook regex persona",
+        "shared tavern assets png",
+        "coverage.ts declaration",
+        "samples sillytavern"
+      ],
+      "children": []
+    }
+  ]
+}

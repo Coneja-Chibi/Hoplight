@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-005-canonical-model",
+  "sourcePath": "docs/decisions/ADR-005-canonical-model.md",
+  "sourceHash": "sha256:a58ed95c8f60d3e8e822b03d1f3a3ec90c58627c536478ce645b2a0b55fefd1c",
+  "summary": "Accepted ADR establishing one internal canonical model per content type as zod schemas designed as a superset so parsing any supported format loses nothing that has a canonical home. Fields without a canonical home survive in an escrow envelope keyed by origin format. Parse yields Canonical data, Escrow, and ParseReport; serialize takes Canonical, Escrow, and target to file plus SerializeReport. Same-format round-trip merges escrow for semantic identity under the Round-Trip Law. Different-format conversion expresses what it can, honestly lists escrowed or dropped fields, and preserves escrow in extension fields where the target tolerates them such as V2 V3 extensions. Rejects using chara_card_v3 alone because V3 is card-only and still lossy against RoleCall, Risu, and Backyard fields while lorebooks presets and personas need models V3 does not define. Precedents include RoleCall unsupportedFields and origin and VAUDEVILLE normalizers. Consequences: every codec ships a capabilities table powering honest reports and auto-generated format-support matrix; core schema changes are the most expensive changes requiring migration note, fixture sweep, and design review.",
+  "topics": [
+    "canonical superset model",
+    "escrow envelope",
+    "Round-Trip Law",
+    "honest conversion reports",
+    "not chara_card_v3 only",
+    "codec capabilities table",
+    "expensive core schema changes",
+    "ADR-005 accepted"
+  ],
+  "sections": [
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:237a85c8bd766f3f25975d55d0b49c8d9a33d795bfc237afdeaf8c78ee054885",
+      "summary": "One internal canonical model per content type defined as zod schemas in packages/core as a superset rich enough that parsing any supported format loses nothing with a canonical home. Fields with no canonical home survive in an escrow envelope keyed by origin format. Parse maps SourceFile to Canonical data, Escrow, and ParseReport. Serialize maps Canonical, Escrow, and target to file and SerializeReport. Round-trip to the same format merges escrow for semantic identity under the Round-Trip Law. Conversion to a different format expresses what the codec can and the report honestly lists escrowed or dropped fields; escrow is preserved where the target tolerates extension fields such as V2 V3 extensions so cross-format trips stay recoverable.",
+      "topics": [
+        "superset zod schemas",
+        "escrow by origin",
+        "parse serialize reports",
+        "same format Round-Trip Law",
+        "cross format honesty",
+        "extensions preserve escrow"
+      ],
+      "children": []
+    },
+    {
+      "slug": "why-not-just-use-chara_card_v3-internally",
+      "title": "Why not \"just use chara_card_v3 internally\"",
+      "level": 2,
+      "sourceHash": "sha256:afa864018e8e66fccf6deac3f25aa71da01e6ecddbb64123cae679697a787210",
+      "summary": "V3 is card-only and still lossy against RoleCall details palette sprites and depth-injections, Risu extensions, and Backyard fields. Lorebooks, presets, and personas need models V3 does not define. A superset with escrow means the project never argues with a format author about whose fields matter.",
+      "topics": [
+        "V3 card only lossy",
+        "RC Risu Backyard fields",
+        "lorebook preset persona models",
+        "superset avoids field fights"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "precedents-in-the-authors-own-earlier-code",
+      "title": "Precedents in the author's own earlier code",
+      "level": 2,
+      "sourceHash": "sha256:9e2bc7f97c790f7543cdd9fbc3a79791c094c212d766f6b6d22b6f02750f4825",
+      "summary": "RoleCall LorebookEntry unsupportedFields and origin fields are this escrow pattern in miniature. VAUDEVILLE normalizers already unify V1 V2 V3 rcpersona and RoleOut into a common shape. This ADR promotes that established habit into a system-wide law rather than inventing a new approach.",
+      "topics": [
+        "RoleCall unsupportedFields",
+        "VAUDEVILLE normalizers",
+        "system-wide law"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:4a63c3c3d017e7549f1b0209ecd9b59ff1c21ac17f6a17af57f6e7cea08be4f1",
+      "summary": "Every codec ships a capabilities table mapping canonical field to native, escrow, or dropped that powers honest conversion reports and the docs format-support matrix which is auto-generated and never hand-maintained. core schema changes are the most expensive changes in the repo: they require a migration note, a fixture sweep, and explicit design review.",
+      "topics": [
+        "capabilities table",
+        "auto-generated matrix",
+        "expensive core changes",
+        "migration fixture review"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

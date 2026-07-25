@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/pygmalion",
+  "sourcePath": "docs/reference/formats/pygmalion.md",
+  "sourceHash": "sha256:043788268dd54fd50c4bf2c4bead1407fed89b19f557685b5cfde07996fa33bb",
+  "summary": "Pygmalion format is the developer authority for how Hoplight's single pygmalion character codec detects, maps, and round-trips the classic flat five-field character JSON and its PNG chara chunk through the canonical model. The wire is legacy snake_case char_name char_persona char_greeting world_scenario example_dialogue as standalone .json or PNG tEXt, not Tavern-lineage CCv2. Detection scores 1.0 after rejecting CCv2 vaud-json Agnai and Backyard shapes, then requiring classic field counts or char_name plus char_persona, with registry 1 beating SillyTavern's PNG chunk-only 0.9. Field map places persona into personality with description mirror, scenario greeting and examples, portrait from PNG carrier, empty prompts attribution discovery, and export overlay that prefers personality over description. Escrow and round-trip seals whole raw plus optional sourceMedia under original.pygmalion with no unmapped block, clones for lossless five-key overlay, and treats inline PNG portrait as carrier authority. Quirks cover display-only description mirror, never-invented name alias, overlay never clears, persona-required minimal detect, metadata in raw only, narrow PNG output, and no sibling codecs. Source of truth lists adapter coverage shared PNG helpers samples and tests.",
+  "topics": [
+    "classic flat five-field",
+    "pygmalion character codec",
+    "PNG chara chunk",
+    "detect 1.0 reject peers",
+    "char_persona personality",
+    "description mirror only",
+    "original.pygmalion raw",
+    "overlay never clears",
+    "no lorebook sibling"
+  ],
+  "sections": [
+    {
+      "slug": "detection",
+      "title": "Detection",
+      "level": 2,
+      "sourceHash": "sha256:b7c08fd465e7fd8d61f1d85e0466386b063ac1f5c94995e459a153e512153a04",
+      "summary": "Detection follows registry highest score above 0.5. detectPygmalion returns 1 for a recognizable classic card and 0 otherwise, claiming full confidence because no sibling shares its wire vocabulary. isPygmalionCard rejects known shapes first: spec or data for CCv2 v3, schemaVersion or body for vaud-json, kind character for Agnai, aiName or aiPersona for Backyard. Positive signal needs at least two of char_persona char_greeting world_scenario or the minimal char_name plus char_persona; name plus greeting alone is not enough. readCardJson decodes PNG chara ccv3 or raw JSON so the same scan applies to both carriers. ST PNG scores 0.9 from chunk presence alone so registry 1 beats 0.9 on real Pygmalion PNGs; reverse path returns 0 when decoded payload is not Pygmalion shape so real ST PNGs are never misclaimed.",
+      "topics": [
+        "detect score 1",
+        "reject CCv2 Agnai BY",
+        "classic field count",
+        "char_name plus persona",
+        "PNG registry 1 beats 0.9"
+      ],
+      "children": []
+    },
+    {
+      "slug": "field-map",
+      "title": "Field map",
+      "level": 2,
+      "sourceHash": "sha256:a0e0b2c8c32c018b234c440b70eb86615f583fbc18a97a800180050f283915f6",
+      "summary": "Field map wires the five classic keys into CharacterBody. char_name with name fallback becomes identity.name defaulting empty. char_persona maps to persona.personality and is mirrored into identity.description on import only for description-only UIs. world_scenario becomes persona.scenario, char_greeting greetings.firstMessage, example_dialogue examples.exampleMessages. PNG carrier pixels become media.portrait and may re-export as the PNG container when the portrait is inline PNG; metadata has no canonical slot and rides original raw. prompts attribution and discovery are always empty objects. Export applyBodyToCard writes only when canonical is not undefined; char_persona prefers personality and falls back to description only if personality is undefined so description-only edits after import do not reach the wire. Legacy name alias is written back only if the source already had a name key.",
+      "topics": [
+        "five field mapping",
+        "personality description mirror",
+        "empty prompts attribution",
+        "export set helper",
+        "name alias conditional"
+      ],
+      "children": []
+    },
+    {
+      "slug": "escrow-and-round-trip",
+      "title": "Escrow and round-trip",
+      "level": 2,
+      "sourceHash": "sha256:fe978f509083f441828090ba105947214db2cf399e34ce94744b78b0dbd15b83",
+      "summary": "Escrow stores under original.pygmalion the whole parsed card as raw plus sourceMedia b64 for PNG input only. There is no unmapped entry because Pygmalion has one wire shape. fromCanonical clones raw when escrow exists or starts from baseCard five empty strings then overlays via applyBodyToCard so unedited same-format trips are byte-for-byte including metadata. Portrait authority is the current canonical media.portrait: inline PNG becomes chara-embedded .png output; clearing produces JSON; explicit JSON drops portrait; unsupported refs fall back to honest JSON; explicit PNG without usable inline PNG fails. Cross-format carries prose and usable inline PNG only; metadata stays escrowed and is not copied into other apps; remote non-PNG portraits are reported dropped not fetched.",
+      "topics": [
+        "raw plus sourceMedia",
+        "no unmapped twin",
+        "byte-for-byte five keys",
+        "portrait carrier authority",
+        "cross-format prose only"
+      ],
+      "children": []
+    },
+    {
+      "slug": "quirks",
+      "title": "Quirks",
+      "level": 2,
+      "sourceHash": "sha256:6b94a82a9939f9fad1fdd72e8ce6f50d7da10ae87da02d06fee6b98f08dc39cc",
+      "summary": "Quirks pin behavioral edges. Description mirror is display-only: import sets both personality and description from char_persona but export prefers personality so description-only edits never reach the wire. name alias is never invented; classic char_name-only cards stay that way. Overlay writes never clear: undefined canonical leaves the last wire value unlike Tavern three-state overlay. Minimal detection needs persona specifically so name plus greeting alone fails. metadata tool provenance rides raw only. PNG output is deliberately narrow with no remote fetch or non-PNG transcode. One codec only: no Pygmalion lorebook persona or regex sibling because the classic wire never carried those concepts.",
+      "topics": [
+        "description not edit path",
+        "name never invented",
+        "overlay never clears",
+        "persona required detect",
+        "narrow PNG output"
+      ],
+      "children": []
+    },
+    {
+      "slug": "source-of-truth",
+      "title": "Source of truth",
+      "level": 2,
+      "sourceHash": "sha256:077fe84d6f7593482053843b6561bc9ef83cd4735031f357011603d225791a8a",
+      "summary": "Source of truth maps concerns to files. Character adapter detect toCanonical fromCanonical live in formats pygmalion index.ts; coverage declaration is coverage.ts. Shared card JSON reader for PNG chara ccv3 or raw text is formats shared card-io.ts; shared PNG chunk read write is png.ts. Canonical wrapper escrow original and id policy are core canonical.ts. Samples live under samples pygmalion classic.native.json. Tests are pygmalion.test.ts. Research provenance is reference platform-native-fields.md under the Pygmalion heading.",
+      "topics": [
+        "pygmalion index.ts",
+        "card-io png helpers",
+        "coverage declaration",
+        "classic.native sample",
+        "pygmalion.test.ts"
+      ],
+      "children": []
+    }
+  ]
+}

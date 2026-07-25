@@ -6,12 +6,14 @@
   "description": "The forge for AI-roleplay content. Convert, edit, and ship any format.",
   "license": "AGPL-3.0-or-later",
   "bin": {
-    "hoplight": "./src/cli.ts"
+    "hoplight": "./src/cli.ts",
+    "kit": "./src/kit/index.tsx"
   },
   "scripts": {
     "hoplight": "bun run src/cli.ts",
+    "kit": "bun run src/kit/index.tsx",
     "dev": "bun run src/cli.ts ui 8321",
-    "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox scripts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
+    "test": "bun test src/core src/entities src/formats src/studio src/ui src/sandbox src/docs src/kit scripts/format-matrix.test.ts ./scripts/docs-summaries-core.test.ts scripts/hooks/catalog-lib.test.ts scripts/hooks/doctrine-core.test.ts scripts/hooks/lib.test.ts scripts/hooks/pre-commit-core.test.ts src/cli-io.test.ts src/convert.test.ts src/m0.smoke.test.ts src/m1.convert.smoke.test.ts --timeout 120000",
     "test:m0": "bun test src/m0.smoke.test.ts src/formats/sillytavern/sillytavern.test.ts src/core --timeout 60000",
     "test:m1": "bun test src/m1.convert.smoke.test.ts src/convert.test.ts --timeout 60000",
     "test:node-core": "bun run scripts/node-core-smoke.ts",
@@ -22,8 +24,16 @@
     "docs:fields:check": "bun run scripts/docs-fields.ts --check",
     "docs:index": "bun run scripts/docs-index.ts",
     "docs:index:check": "bun run scripts/docs-index.ts --check",
+    "docs:summaries:inventory": "bun run scripts/docs-summaries.ts inventory",
+    "docs:summaries:scaffold": "bun run scripts/docs-summaries.ts scaffold",
+    "docs:summaries:stamp": "bun run scripts/docs-summaries.ts stamp",
+    "docs:summaries:check": "bun run scripts/docs-summaries.ts check",
+    "docs:summaries:queue": "bun run scripts/docs-summaries.ts queue",
+    "docs:summaries:review": "bun run scripts/docs-summaries.ts review",
     "docs:figures": "bun run scripts/docs-figures.ts",
     "docs:figures:check": "bun run scripts/docs-figures.ts --check",
+    "capabilities": "bun run scripts/capability-manifest.ts",
+    "capabilities:check": "bun run scripts/capability-manifest.ts --check",
     "license:audit": "bun run scripts/license-audit.ts",
     "build:cli": "bun build --compile src/cli.ts --outfile dist/hoplight",
     "scan:colors": "bun run scripts/hooks/no-hardcode-colors.ts --scan",
@@ -38,7 +48,7 @@
     "lint:ui": "bunx eslint \"src/ui/**/*.tsx\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
-    "verify:ci": "bun run typecheck && bun run test:node-core && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:emoji && bun run scan:headers && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:figures:check",
+    "verify:ci": "bun run typecheck && bun run test:node-core && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:emoji && bun run scan:headers && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:summaries:check && bun run docs:figures:check && bun run capabilities:check",
     "gate": "bun run scripts/hooks/gate.ts --worktree",
     "audit": "bun scripts/audit/run.ts all",
     "audit:rooms": "bun scripts/audit/run.ts rooms",
@@ -66,6 +76,16 @@
     "typescript-eslint": "^8.62.1"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.18",
+    "@ai-sdk/google": "^4.0.22",
+    "@ai-sdk/groq": "^4.0.13",
+    "@ai-sdk/mistral": "^4.0.14",
+    "@ai-sdk/openai": "^4.0.18",
+    "@ai-sdk/openai-compatible": "^3.0.14",
+    "@openrouter/ai-sdk-provider": "^3.0.0",
+    "@opentui/core": "^0.4.5",
+    "@opentui/react": "^0.4.5",
+    "ai": "^7.0.35",
     "dompurify": "^3.4.11",
     "fflate": "^0.8.3",
     "lucide-react": "^1.24.0",
@@ -77,7 +97,7 @@
     "react-dom": "^19.2.7",
     "wasmoon": "1.16.0",
     "webview-bun": "^2.4.0",
-    "zustand": "^5.0.14",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "zustand": "^5.0.14"
   }
 }

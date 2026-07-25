@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/novelai",
+  "sourcePath": "docs/reference/formats/novelai.md",
+  "sourceHash": "sha256:77452b37e0802b8431f1cbd7a029a441ce8a3acba241102d47e2efb7e2b84319",
+  "semanticSummaryHash": "sha256:895cc177fc22a6ae0d24ed8a537c1b1c0737dd32466b8064215e606c099cf803",
+  "verdict": "APPROVE",
+  "reviewer": "independent-reviewer-1",
+  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
+  "reviewedAt": "2026-07-25T15:32:58.975Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/ui",
+  "sourcePath": "docs/reference/ui.md",
+  "sourceHash": "sha256:5125016f561b37d77db0a43e92fcafcb06d75943b454792a13ea0fedfbc81c82",
+  "semanticSummaryHash": "sha256:cda086aefd750e4c503f9ebbdadb6c722dd386c6edaa6f248e65ae1be3698582",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-reviewer-2",
+  "notes": "Re-read all 375 source lines and the entire sidecar. Page and section summaries materially cover every H2, including the updated Kit semantic review panel, Apply/Discard controls, composed draft handoff, provider-preamble suppression, and accumulated reasoning, while preserving current versus deferred UI distinctions. Focused implementation evidence passed 37/37 tests.",
+  "reviewedAt": "2026-07-25T23:37:05.047Z"
+}
