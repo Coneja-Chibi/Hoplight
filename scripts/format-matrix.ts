@@ -7,12 +7,10 @@ import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { loadFormats, CANONICAL_SCHEMA_VERSION } from "../src/core";
 
-const outPath = join(import.meta.dir, "../docs/FORMAT-SUPPORT.md");
-const checkOnly = process.argv.includes("--check");
+type FormatAdapters = Awaited<ReturnType<typeof loadFormats>>;
+type FormatAdapter = FormatAdapters[number];
 
-const found = await loadFormats();
-
-const row = (a: (typeof found)[number]): string =>
+const row = (a: FormatAdapter): string =>
   `| \`${a.id}\` | ${a.kind} | .${a.outputExtensions.join(", .")} | ${a.label.replace(/\|/g, "/")} |`;
 
 /** Display names for known kinds; an unlisted kind still renders (Title-cased) - open by design. */
@@ -40,7 +38,7 @@ export function matrixKinds(entityKinds: string[], adapters: { kind: string }[])
 
 /** Pure render of the matrix body (date uses a fixed stamp for check stability within a day). */
 export function renderFormatMatrix(
-  adapters: typeof found,
+  adapters: FormatAdapters,
   schemaVersion: string,
   generatedDate: string,
   entityKinds: string[],
@@ -99,30 +97,44 @@ ${sections}
 `;
 }
 
-const entityKinds = readdirSync(join(import.meta.dir, "../src/entities"), { withFileTypes: true })
-  .filter((d) => d.isDirectory())
-  .map((d) => d.name);
+/** Run the generator CLI. Importing this module remains read-only for tests and other tooling. */
+export async function runFormatMatrix(args: string[] = process.argv.slice(2)): Promise<number> {
+  const outPath = join(import.meta.dir, "../docs/FORMAT-SUPPORT.md");
+  const checkOnly = args.includes("--check");
+  const found = await loadFormats();
+  const entityKinds = readdirSync(join(import.meta.dir, "../src/entities"), { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name);
 
-const body = renderFormatMatrix(found, CANONICAL_SCHEMA_VERSION, new Date().toISOString().slice(0, 10), entityKinds);
+  const body = renderFormatMatrix(
+    found,
+    CANONICAL_SCHEMA_VERSION,
+    new Date().toISOString().slice(0, 10),
+    entityKinds,
+  );
 
-if (checkOnly) {
-  let existing = "";
-  try {
-    existing = readFileSync(outPath, "utf8");
-  } catch {
-    console.error(`matrix:check: missing ${outPath}`);
-    process.exit(1);
+  if (checkOnly) {
+    let existing = "";
+    try {
+      existing = readFileSync(outPath, "utf8");
+    } catch {
+      console.error(`matrix:check: missing ${outPath}`);
+      return 1;
+    }
+    const normalize = (s: string): string => s.replace(/^Generated: .+$/m, "Generated: <date>");
+    if (normalize(existing) !== normalize(body)) {
+      console.error("matrix:check: docs/FORMAT-SUPPORT.md is stale. Run `bun run matrix` and commit.");
+      return 1;
+    }
+    console.log("matrix:check: docs/FORMAT-SUPPORT.md is current");
+    return 0;
   }
-  // Compare without the Generated: date line so same-day drift is content-only...
-  // Actually plan wants fail if regen changes file. Compare full body after regenerating date-normalized.
-  const normalize = (s: string): string => s.replace(/^Generated: .+$/m, "Generated: <date>");
-  if (normalize(existing) !== normalize(body)) {
-    console.error("matrix:check: docs/FORMAT-SUPPORT.md is stale. Run `bun run matrix` and commit.");
-    process.exit(1);
-  }
-  console.log("matrix:check: docs/FORMAT-SUPPORT.md is current");
-  process.exit(0);
+
+  writeFileSync(outPath, body, "utf8");
+  console.log(`wrote ${outPath} (${found.length} adapters)`);
+  return 0;
 }
 
-writeFileSync(outPath, body, "utf8");
-console.log(`wrote ${outPath} (${found.length} adapters)`);
+if (import.meta.main) {
+  process.exitCode = await runFormatMatrix();
+}

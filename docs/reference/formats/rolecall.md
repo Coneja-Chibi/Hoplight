@@ -99,6 +99,11 @@ superseded by `content_rating`), `image_url`/`thumbnail_url`, `loadout`, `recomm
 `trackerPreset`, and `linkedLorebooks`/`linkedRegexScripts` have no canonical slot on this codec today and
 ride the whole-card escrow untouched; see [Escrow and round-trip](#escrow-and-round-trip).
 
+The portable `data.character_book` relationship is owned by the shared bundle layer rather than the
+RoleCall extension block. Export re-embeds the resolved canonical lorebooks, while an explicitly empty
+resolution removes a stale book inherited from the cloned card twin (`index.ts:394-395`,
+`character-book.ts:462-478`).
+
 ### Lorebook
 
 The canonical lorebook entry is flat, but the RC v1 wire nests each entry into named groups

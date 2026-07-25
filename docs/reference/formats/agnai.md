@@ -209,7 +209,8 @@ arrives standalone or embedded, container-invariance by construction. `fromCanon
 lorebook via `applyLorebook` / `canonicalToMemoryBook`, twin-overlaying its own `original["agnai-lorebook"]`
 so a same-format round-trip with a book stays byte-identical; a foreign lorebook with no Agnai twin
 full-encodes into a clean MemoryBook (`index.ts:291-303`). No book present means no `characterBook` key is
-written, never an empty one (`index.ts:299-300`). The bundle layer's `inspectBundle` calls this override
+written, never an empty one. An explicitly resolved empty bundle also deletes a stale `characterBook`
+from the cloned card twin (`index.ts:298-304`). The bundle layer's `inspectBundle` calls this override
 instead of the shared CCv3 extractor used by Tavern-lineage formats (`convert.ts:44-49`).
 
 ## Quirks

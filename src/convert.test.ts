@@ -134,3 +134,24 @@ test("emitBundle re-embeds resolved lorebooks into ST", () => {
   const back = JSON.parse(out.text ?? "");
   expect(back.data.character_book).toEqual(card.data.character_book);
 });
+
+test("emitBundle removes the stale embedded book after its canonical link is cleared", () => {
+  const { entity } = inspectBundle(stCharacter, asText(makeCardWithBook()));
+  entity.body.knowledgeRefs = [];
+
+  const out = emitBundle(stCharacter, entity, []);
+  const back = JSON.parse(out.text ?? "");
+
+  expect(back.data.character_book).toBeUndefined();
+  expect(back.data.extensions?.character_book).toBeUndefined();
+});
+
+test("emitBundle preserves the twin when lorebook resolution was not supplied", () => {
+  const { entity } = inspectBundle(stCharacter, asText(makeCardWithBook()));
+
+  const omitted = JSON.parse(emitBundle(stCharacter, entity).text ?? "");
+  const requestedOnly = JSON.parse(emitBundle(stCharacter, entity, undefined, "json").text ?? "");
+
+  expect(omitted.data.character_book).toBeDefined();
+  expect(requestedOnly.data.character_book).toBeDefined();
+});

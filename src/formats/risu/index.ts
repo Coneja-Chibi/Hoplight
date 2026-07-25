@@ -162,7 +162,9 @@ const adapter: CharacterAdapter = {
     if (rawModified !== undefined) card.data.modification_date = rawModified;
 
     // Risu's card.json is CCv3, so a referenced lorebook re-embeds into its character_book slot.
-    if (context?.lorebooks?.length) embedCharacterBook(card.data as Record<string, unknown>, context.lorebooks);
+    if (context?.lorebooks !== undefined) {
+      embedCharacterBook(card.data as Record<string, unknown>, context.lorebooks);
+    }
 
     const files: Record<string, Uint8Array> = {
       "card.json": strToU8(JSON.stringify(card, null, 4)),

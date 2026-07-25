@@ -123,8 +123,9 @@ at read time, never fabricated back on export (`tavern-fields.ts:77-87`).
 `data.character_book` is not mapped by `tavern-fields`. An embedded book is a bundle concern: on import a
 shared layer extracts it into a standalone `CanonicalLorebook` and links it from the character via
 `knowledgeRefs`, and on export the adapter re-embeds referenced books into the single `data.character_book`
-slot via the `EmitContext` it receives (`index.ts:128`, `character-book.ts:466-472`,
-`architecture.md`, "Bundles").
+slot via the `EmitContext` it receives. A resolved empty list removes both the primary slot and the
+legacy `data.extensions.character_book` fallback, so clearing or disabling a link cannot resurrect the
+source twin's old book (`index.ts:128-142`, `character-book.ts:462-478`, `architecture.md`, "Bundles").
 
 ### Lorebook
 

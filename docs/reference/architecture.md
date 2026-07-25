@@ -167,7 +167,9 @@ as a **reference** to a canonical lorebook, not an inlined blob:
 - On **import**, a shared layer extracts the embedded book into a standalone `CanonicalLorebook` and
   links it from the character via `knowledgeRefs`. This is format-agnostic (any CCv2/v3 card).
 - On **export**, the target character adapter re-embeds the referenced lorebook into that format's own
-  book slot, via the `EmitContext` it receives. This is format-specific.
+  book slot, via the `EmitContext` it receives. This is format-specific. The resolved list is
+  authoritative even when empty: clearing a link or disabling every linked book removes any stale
+  embedded book inherited from the source twin instead of resurrecting it.
 
 `src/convert.ts` `convertFile` ties it together: extract on import, re-embed on export, for same-kind
 conversions. Details in [concepts/character-book.md](concepts/character-book.md).

@@ -17,7 +17,7 @@ import type {
   PresetAdapter,
 } from "./core";
 import { primaryOriginalRaw } from "./core";
-import { buildSerializeReport } from "./core";
+import { buildSerializeReport, lossReport } from "./core";
 import type { CanonicalEntity } from "./core/canonical";
 import type { CanonicalCharacter } from "./entities/character/schema";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
@@ -84,23 +84,37 @@ export function inspectPresetBundle(
 
 /**
  * Write a character through a target adapter, re-embedding resolved lorebooks via EmitContext.
- * Callers that have no linked books may pass an empty array (equivalent to omitting context).
+ * Omitted lorebooks mean the relationship was not resolved and preserve the adapter's twin. An
+ * explicit empty array is authoritative and removes a stale embedded book.
  */
 export function emitBundle(
   target: CharacterAdapter,
   entity: CanonicalCharacter,
-  lorebooks: CanonicalLorebook[] = [],
+  lorebooks?: CanonicalLorebook[],
   requestedExtension?: string,
 ): AdapterOutput {
   const ctx =
-    lorebooks.length > 0 || requestedExtension
+    lorebooks !== undefined || requestedExtension
       ? {
-          ...(lorebooks.length > 0 ? { lorebooks } : {}),
+          ...(lorebooks !== undefined ? { lorebooks } : {}),
           ...(requestedExtension ? { requestedExtension } : {}),
         }
       : undefined;
   const out = target.fromCanonical(entity, ctx);
-  return { ...out, report: out.report ?? buildSerializeReport(entity, target) };
+  const report = out.report ?? buildSerializeReport(entity, target);
+  if (lorebooks === undefined) return { ...out, report };
+  const resolvedIds = new Set(lorebooks.map((book) => book.id));
+  const omittedRef = entity.body.knowledgeRefs?.some((id) => !resolvedIds.has(id)) ?? false;
+  if (!omittedRef) return { ...out, report };
+  return {
+    ...out,
+    report: lossReport({
+      escrowed: report.escrowed,
+      dropped: [...report.dropped, "knowledgeRefs"],
+      escrowShadowed: report.escrowShadowed,
+      warnings: report.warnings,
+    }),
+  };
 }
 
 /** Attach the required serialize report to a non-character adapter output. */
