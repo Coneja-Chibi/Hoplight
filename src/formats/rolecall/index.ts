@@ -392,7 +392,7 @@ const adapter: CharacterAdapter = {
     applyBodyToRcExt(ext.rolecall as RcExtension, entity.body);
 
     // Re-embed any referenced lorebook into the CCv3 character_book slot (RC reads it on import).
-    if (context?.lorebooks?.length) embedCharacterBook(data as Rec, context.lorebooks);
+    if (context?.lorebooks !== undefined) embedCharacterBook(data as Rec, context.lorebooks);
 
     return { text: JSON.stringify(card, null, 2), suggestedExtension: "json" };
   },

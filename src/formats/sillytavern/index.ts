@@ -136,7 +136,9 @@ const adapter: CharacterAdapter = {
 
     // Re-embed referenced lorebooks into the card's one character_book slot (shared by every CCv3
     // card writer), sourcing each book's twin from ITS OWN original, not this card's stale copy.
-    if (context?.lorebooks?.length) embedCharacterBook(base as Record<string, unknown>, context.lorebooks);
+    if (context?.lorebooks !== undefined) {
+      embedCharacterBook(base as Record<string, unknown>, context.lorebooks);
+    }
 
     const hasAssets = Array.isArray(base.assets) && base.assets.length > 0;
     // V2 has no portable assets[] contract: carry media in a V3 envelope when assets are present.

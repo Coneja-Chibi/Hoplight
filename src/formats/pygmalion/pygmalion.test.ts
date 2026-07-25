@@ -5,6 +5,14 @@ import { test, expect } from "bun:test";
 import { characterAdapter as adapter, isPygmalionCard, detectPygmalion } from "./index";
 import { characterAdapter as sillytavern } from "../sillytavern/index";
 import { characterAdapter as agnai } from "../agnai/index";
+import { emitBundle } from "../../convert";
+import { embedCharacterJson } from "../_shared/png";
+import { loadFormats, registry } from "../../core";
+
+const TINY_PNG =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=";
+const REPLACEMENT_PNG =
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";
 
 function classicCard() {
   return {
@@ -105,4 +113,123 @@ test("cross-format: Pygmalion -> SillyTavern keeps core text", () => {
   expect(card.data.name).toBe("Mira");
   expect(card.data.first_mes).toBe("You found the attic again.");
   expect(card.data.personality).toBe("A quiet cartographer who inks maps by lamplight.");
+});
+
+test("export honesty reports a portrait that JSON cannot carry", () => {
+  const ent = adapter.toCanonical(asInput(classicCard()));
+  ent.body.media.portrait = {
+    role: "portrait",
+    ref: "https://cdn.example/mira.jpg",
+    mime: "image/jpeg",
+    primary: true,
+  };
+
+  const out = emitBundle(adapter, ent);
+  expect(out.suggestedExtension).toBe("json");
+  expect(out.report?.dropped.some((path) => path.startsWith("media.portrait"))).toBe(true);
+});
+
+test("a canonical PNG portrait becomes the carrier unless JSON was requested", () => {
+  const ent = adapter.toCanonical(asInput(classicCard()));
+  ent.body.media.portrait = {
+    role: "portrait",
+    ref: `data:image/png;base64,${TINY_PNG}`,
+    mime: "image/png",
+    primary: true,
+  };
+
+  const png = emitBundle(adapter, ent);
+  expect(png.suggestedExtension).toBe("png");
+  expect(png.bytes).toBeDefined();
+  expect(png.report?.dropped.some((path) => path.startsWith("media.portrait"))).toBe(false);
+
+  const json = emitBundle(adapter, ent, [], "json");
+  expect(json.suggestedExtension).toBe("json");
+  expect(json.report?.dropped.some((path) => path.startsWith("media.portrait"))).toBe(true);
+});
+
+test("PNG round-trip preserves its carrier, while clearing the portrait emits JSON", () => {
+  const source = embedCharacterJson(
+    new Uint8Array(Buffer.from(TINY_PNG, "base64")),
+    JSON.stringify(classicCard()),
+    "chara",
+  );
+  const ent = adapter.toCanonical({ bytes: source });
+
+  const kept = emitBundle(adapter, ent);
+  expect(kept.suggestedExtension).toBe("png");
+  expect(adapter.detect({ bytes: kept.bytes })).toBe(1);
+
+  ent.body.media.portrait = undefined;
+  const cleared = emitBundle(adapter, ent);
+  expect(cleared.suggestedExtension).toBe("json");
+  expect(cleared.bytes).toBeUndefined();
+});
+
+test("replacing an imported portrait replaces the PNG carrier", () => {
+  const source = embedCharacterJson(
+    new Uint8Array(Buffer.from(TINY_PNG, "base64")),
+    JSON.stringify(classicCard()),
+    "chara",
+  );
+  const ent = adapter.toCanonical({ bytes: source });
+  ent.body.media.portrait = {
+    role: "portrait",
+    ref: `data:image/png;base64,${REPLACEMENT_PNG}`,
+    mime: "image/png",
+    primary: true,
+  };
+
+  const out = emitBundle(adapter, ent);
+  const expected = embedCharacterJson(
+    new Uint8Array(Buffer.from(REPLACEMENT_PNG, "base64")),
+    JSON.stringify(classicCard(), null, 2),
+    "chara",
+  );
+  expect(out.bytes).toEqual(expected);
+});
+
+test("explicit PNG export fails when no valid inline PNG portrait exists", () => {
+  const missing = adapter.toCanonical(asInput(classicCard()));
+  expect(() => emitBundle(adapter, missing, [], "png")).toThrow(
+    "pygmalion: PNG export requires a valid inline PNG portrait",
+  );
+
+  missing.body.media.portrait = {
+    role: "portrait",
+    ref: `data:image/png;base64,${TINY_PNG}=`,
+    mime: "image/png",
+    primary: true,
+  };
+  expect(() => emitBundle(adapter, missing, [], "png")).toThrow(
+    "pygmalion: PNG export requires a valid inline PNG portrait",
+  );
+
+  missing.body.media.portrait.ref = "data:image/png;base64,bm90IGEgcG5n";
+  expect(() => emitBundle(adapter, missing, [], "png")).toThrow(
+    "pygmalion: PNG export requires a valid inline PNG portrait",
+  );
+});
+
+test("a signature-only corrupt carrier falls back to JSON or fails an explicit PNG request", () => {
+  const corrupt = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00]);
+  const ent = adapter.toCanonical(asInput(classicCard()));
+  ent.body.media.portrait = {
+    role: "portrait",
+    ref: `data:image/png;base64,${corrupt.toString("base64")}`,
+    mime: "image/png",
+    primary: true,
+  };
+
+  const fallback = emitBundle(adapter, ent);
+  expect(fallback.suggestedExtension).toBe("json");
+  expect(fallback.report?.dropped.some((path) => path.startsWith("media.portrait"))).toBe(true);
+  expect(() => emitBundle(adapter, ent, [], "PNG")).toThrow(
+    "pygmalion: PNG export requires a valid inline PNG portrait",
+  );
+});
+
+test("the registry advertises Pygmalion as a PNG target", async () => {
+  await loadFormats();
+  expect(registry.targetsForExtension("png").map((target) => target.id)).toContain("pygmalion");
 });

@@ -24,4 +24,10 @@ const coverage: CoverageDecl = {
   },
 };
 
+/** Flat JSON cannot carry pixels; use this declaration when no PNG carrier is emitted. */
+export const jsonCoverage: CoverageDecl = {
+  ...coverage,
+  carries: coverage.carries.filter((path) => path !== "media.portrait"),
+};
+
 export default coverage;

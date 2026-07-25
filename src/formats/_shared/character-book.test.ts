@@ -6,6 +6,7 @@ import {
   findCharacterBook,
   extractCharacterBook,
   characterBookToLorebook,
+  embedCharacterBook,
   lorebooksToCharacterBook,
 } from "./character-book";
 import { characterAdapter as stCharacter } from "../sillytavern/index";
@@ -138,6 +139,22 @@ test("findCharacterBook locates the CCv3 data.character_book slot", () => {
   // CCv2 convention: the book under data.extensions.character_book
   const v2 = { data: { name: "y", extensions: { character_book: { entries: [] } } } };
   expect(findCharacterBook(v2)?.entries).toEqual([]);
+});
+
+test("an explicitly resolved empty bundle clears both character_book slots", () => {
+  const data = {
+    character_book: { name: "stale primary", entries: [] },
+    extensions: {
+      character_book: { name: "stale fallback", entries: [] },
+      untouched: true,
+    },
+  };
+
+  embedCharacterBook(data, []);
+
+  expect(data.character_book).toBeUndefined();
+  expect(data.extensions.character_book).toBeUndefined();
+  expect(data.extensions.untouched).toBe(true);
 });
 
 test("characterBookToLorebook maps CCv3 names + reads ST extras from extensions (extensions wins)", () => {

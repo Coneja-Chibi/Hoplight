@@ -192,7 +192,6 @@ const adapter: CharacterAdapter = {
           : {};
     applyBodyToData(base, entity.body);
     applyMediaToTavernData(base, entity.body.media, "lumiverse");
-    if (context?.lorebooks?.length) embedCharacterBook(base as Rec, context.lorebooks);
 
     // Preserve extensions from twin (native UI edits write here via originalDraft)
     if (isRec(rawCard?.data) && isRec((rawCard!.data as Rec).extensions)) {
@@ -206,6 +205,7 @@ const adapter: CharacterAdapter = {
       isRec(base.extensions) ? (base.extensions as Rec) : {},
       entity.body,
     );
+    if (context?.lorebooks !== undefined) embedCharacterBook(base as Rec, context.lorebooks);
 
     let outCard: unknown;
     if (rawCard && (variant === "v2" || variant === "v3")) {

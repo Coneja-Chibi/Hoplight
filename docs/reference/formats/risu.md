@@ -112,7 +112,8 @@ asset bytes are not at the mapped `ref`; they ride escrow separately (see
 a shared layer extracts it into a standalone `CanonicalLorebook` and links it via `knowledgeRefs`
 (`src/convert.ts:49`, format-agnostic for any CCv2/v3 card); on export `fromCanonical(entity, context)`
 re-embeds a referenced lorebook into `data.character_book` via the same `embedCharacterBook` helper
-SillyTavern and RoleCall use (`index.ts:165`, `character-book.ts:466-472`).
+SillyTavern and RoleCall use. A resolved empty list removes both possible `character_book` slots instead
+of preserving the archive twin's stale copy (`index.ts:164-168`, `character-book.ts:462-478`).
 
 ### Lorebook
 

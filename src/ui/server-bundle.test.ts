@@ -220,6 +220,24 @@ describe("bundle inspect/export/save", () => {
     expect(wire.data.character_book).toBeDefined();
     expect(wire.data.character_book.entries[0].keys).toEqual(["skyport"]);
 
+    // A disabled linked book is an explicit empty bundle, not permission to resurrect the raw twin.
+    const disabledBook = await store.read(saved.related[0]!.kind, saved.related[0]!.id);
+    expect(disabledBook).not.toBeNull();
+    (disabledBook!.body as { enabled?: boolean }).enabled = false;
+    await store.save(disabledBook, { overwrite: true });
+    const disabledRes = await handler(
+      apiReq("/api/export", {
+        method: "POST",
+        token: sec.token,
+        contentType: "application/json",
+        body: JSON.stringify({ entity, targetId: "sillytavern" }),
+      }),
+    );
+    expect(disabledRes.status).toBe(200);
+    const disabled = await disabledRes.json() as { text?: string; report: { dropped: string[] } };
+    expect(JSON.parse(disabled.text!).data.character_book).toBeUndefined();
+    expect(disabled.report.dropped).toContain("knowledgeRefs");
+
     // missing ref fails closed
     const broken = structuredClone(entity!);
     (broken.body as { knowledgeRefs: string[] }).knowledgeRefs = ["does-not-exist"];

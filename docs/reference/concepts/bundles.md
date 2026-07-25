@@ -66,8 +66,11 @@ Extraction is shared and format-agnostic; re-embedding is the target adapter's o
 owns the registry (the CLI, the Studio), never by core (`adapter.ts:22-35`). A character adapter for a
 format that embeds knowledge reads `context.lorebooks` and writes it into its own slot; an adapter for a
 format with no embedding concept, or one that only links a book by name like ST's `worldName`, simply
-ignores the field. SillyTavern's `fromCanonical` is the concrete case: `if (context?.lorebooks?.length)
-embedCharacterBook(base, context.lorebooks)` (`formats/sillytavern/index.ts:126-128`).
+ignores the field. The context preserves a deliberate three-way contract: omitted `lorebooks` means the
+caller did not resolve the relationship and the adapter leaves its twin alone; a nonempty list replaces
+the embedded book; an explicitly empty list removes both possible CCv2/v3 slots. This keeps direct
+same-format adapter round trips lossless while making Studio and CLI bundle resolution authoritative
+(`convert.ts`, `emitBundle`; `formats/sillytavern/index.ts`, `fromCanonical`).
 
 More than one linked book cannot survive as separate books in a format with a single book slot.
 `lorebooksToCharacterBook` (`character-book.ts:480-495`) collapses N books to one: a single ref overlays or
@@ -95,8 +98,10 @@ independent Library entries: the lorebook can be opened, edited, or attached to 
 own. Export (`handleExport`, `server-engine.ts:126-159`) therefore has to resolve `knowledgeRefs` back into
 lorebook bodies before it can call `emitBundle`: `resolveLorebooksFromStore` (`server-engine.ts:92-124`)
 reads each ref from the store and fails closed, a 422 response naming every missing id, rather than silently
-exporting a book-less card. A book the creator switched off (`body.enabled === false`) is dropped silently,
-not an error: `filterEnabledBooks` (`core/lore/book-ops.ts:121-126`).
+exporting a book-less card. A book the creator switched off (`body.enabled === false`) is omitted rather
+than treated as an error; the serialize report names `knowledgeRefs` as not carried so the result is not a
+false-success export (`filterEnabledBooks` in `core/lore/book-ops.ts`, report reconciliation in
+`convert.ts`).
 
 ## Source of truth
 

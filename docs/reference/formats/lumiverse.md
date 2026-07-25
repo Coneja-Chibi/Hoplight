@@ -184,12 +184,13 @@ On export, `fromCanonical` (`index.ts:179-258`):
 
 1. Clones the base card data from `original.sillytavern.raw` (its `.data` for v2/v3, the object itself
    for flat/v1), overlays it with `applyBodyToData` and `applyMediaToTavernData(..., "lumiverse")`, and
-   re-embeds any linked lorebook via `context.lorebooks` (`index.ts:186-194`).
+   prepares the current canonical fields (`index.ts:186-194`).
 2. Merges `extensions`: the twin's raw `extensions` first, then the canonical-derived `extensions`
    spread on top, current values winning on key collision (`index.ts:196-202`).
 3. Folds `body.variants` back onto that merged `extensions` via `applyVariantsToExtensions`
-   (`index.ts:204-207`), see [Variants bridge](#variants-bridge). This runs last, so an edited variant
-   always overwrites whatever `alternate_fields`/`alternate_avatars` the twin or step 2 produced.
+   (`index.ts:204-207`), see [Variants bridge](#variants-bridge), then applies the resolved lorebook
+   bundle. Doing that after the raw-extension merge ensures an empty resolution removes both stale
+   `character_book` slots instead of reviving the twin's fallback.
 4. Picks the container: the caller's `requestedExtension` wins if given, otherwise the source container is
    preserved, a ZIP twin re-emits `.charx`, a non-ZIP twin re-emits `.json` (`index.ts:223-227`).
 5. For a `.charx` emit, `packModulesFromExtensions` (`modules.ts:200-286`) rebuilds

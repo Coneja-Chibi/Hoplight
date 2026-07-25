@@ -86,10 +86,11 @@ lorebook codec so a book reads identically whether it arrives embedded or as a f
 Extraction is shared and format-agnostic; **re-embedding is the target format's job**. A character
 adapter that embeds knowledge receives the resolved lorebooks in its `EmitContext.lorebooks`
 (`src/core/adapter.ts:28-35`) and calls `embedCharacterBook(data, lorebooks)`
-(`character-book.ts:466-472`), which writes the single book to `data.character_book` and clears any
-stale `data.extensions.character_book` fallback. Four writers call it today: SillyTavern, RoleCall,
-Risu, and Lumiverse (`sillytavern/index.ts:128`, `rolecall/index.ts:394`, `risu/index.ts:165`,
-`lumiverse/index.ts:194`).
+(`character-book.ts`, `embedCharacterBook`), which writes the single book to `data.character_book` and
+clears any stale `data.extensions.character_book` fallback. An explicitly resolved empty list clears
+both slots; an omitted context means no resolution was performed and leaves the raw twin intact. Four
+writers call the shared helper today: SillyTavern, RoleCall, Risu, and Lumiverse. Agnai applies the same
+three-way rule to its native `characterBook` slot in its own adapter.
 
 `lorebookToCharacterBook(body, rawBook?)` (`character-book.ts:443-458`, entry-level in `entryToBook`,
 `:355-436`) handles two cases:

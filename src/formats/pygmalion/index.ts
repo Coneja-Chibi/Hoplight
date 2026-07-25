@@ -5,12 +5,13 @@
  * Research: docs/reference/platform-native-fields.md, design/FORMATS-LANDSCAPE.md Family 3.
  * Lossless: whole card rides in original.pygmalion.raw; PNG pixels in sourceMedia when present.
  */
-import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
+import type { CharacterAdapter, AdapterInput, AdapterOutput, EmitContext } from "../../core/adapter";
 import type { CanonicalCharacter, CharacterBody, MediaAsset } from "../../entities/character/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { buildSerializeReport } from "../../core/reports";
 import { readCardJson } from "../_shared/card-io";
 import { getVersion, pngSourceMedia, embedCharacterJson } from "../_shared/png";
-import coverage from "./coverage";
+import coverage, { jsonCoverage } from "./coverage";
 
 type Rec = Record<string, unknown>;
 
@@ -111,10 +112,43 @@ function portraitFromPng(bytes: Uint8Array | undefined): MediaAsset | undefined 
   };
 }
 
+const CANONICAL_BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+/** A Pygmalion PNG carrier can use only an inline PNG portrait; no fetching or transcoding. */
+function portraitPngBytes(body: CharacterBody): Uint8Array | null {
+  const ref = body.media.portrait?.ref;
+  if (typeof ref !== "string") return null;
+  const match = /^data:image\/png;base64,(.+)$/i.exec(ref);
+  const encoded = match?.[1];
+  if (!encoded || encoded.length % 4 !== 0 || !CANONICAL_BASE64.test(encoded)) return null;
+  try {
+    const decoded = Buffer.from(encoded, "base64");
+    if (decoded.toString("base64") !== encoded) return null;
+    const bytes = new Uint8Array(decoded);
+    return pngSourceMedia(bytes) ? bytes : null;
+  } catch {
+    return null;
+  }
+}
+
+function reportedOutput(
+  entity: CanonicalCharacter,
+  output: Omit<AdapterOutput, "report">,
+  carriesPortrait: boolean,
+): AdapterOutput {
+  return {
+    ...output,
+    report: buildSerializeReport(entity, {
+      id: "pygmalion",
+      coverage: carriesPortrait ? coverage : jsonCoverage,
+    }),
+  };
+}
+
 const adapter: CharacterAdapter = {
   id: "pygmalion",
   label: "Pygmalion character (flat JSON / PNG)",
-  outputExtensions: ["json"],
+  outputExtensions: ["json", "png"],
   kind: "character",
   coverage,
   // Real codec; not a host-product lens tab (5 flat fields, no bag). Export/import only.
@@ -147,25 +181,29 @@ const adapter: CharacterAdapter = {
     };
   },
 
-  fromCanonical(entity: CanonicalCharacter): AdapterOutput {
+  fromCanonical(entity: CanonicalCharacter, context?: EmitContext): AdapterOutput {
     const esc = entity.original?.pygmalion;
     const raw = esc?.raw as Rec | undefined;
     const card = raw ? structuredClone(raw) : baseCard();
     applyBodyToCard(card, entity.body);
     const text = JSON.stringify(card, null, 2);
 
-    // Re-embed into PNG carrier when we kept source pixels (same pattern as ST lineage).
-    const sm = esc?.sourceMedia as { b64?: string; mime?: string } | undefined;
-    if (sm && typeof sm.b64 === "string" && sm.mime === "image/png") {
+    // The current canonical portrait owns output. It may preserve source pixels, replace them with
+    // another inline PNG, or clear them. Remote/archive refs stay data and are reported as dropped.
+    const requestedExtension = context?.requestedExtension?.toLowerCase();
+    const portrait = requestedExtension === "json" ? null : portraitPngBytes(entity.body);
+    if (portrait) {
       try {
-        const png = Buffer.from(sm.b64, "base64");
-        const bytes = embedCharacterJson(new Uint8Array(png), text, "chara");
-        return { bytes, suggestedExtension: "png" };
+        const bytes = embedCharacterJson(portrait, text, "chara");
+        return reportedOutput(entity, { bytes, suggestedExtension: "png" }, true);
       } catch {
         // fall through to JSON
       }
     }
-    return { text, suggestedExtension: "json" };
+    if (requestedExtension === "png") {
+      throw new Error("pygmalion: PNG export requires a valid inline PNG portrait");
+    }
+    return reportedOutput(entity, { text, suggestedExtension: "json" }, false);
   },
 };
 

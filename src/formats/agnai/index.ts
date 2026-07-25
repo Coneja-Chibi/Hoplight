@@ -296,8 +296,12 @@ function baseCard(): AgnaiCard {
  * passes N will need deliberate merge semantics (split boundaries) - it adds them then, not here.
  */
 function applyLorebook(card: AgnaiCard, lorebooks?: CanonicalLorebook[]): void {
+  if (lorebooks === undefined) return;
   const book = lorebooks?.[0];
-  if (!book) return;
+  if (!book) {
+    delete card.characterBook;
+    return;
+  }
   const twin = book.original?.["agnai-lorebook"]?.raw as MemoryBook | undefined;
   card.characterBook = canonicalToMemoryBook(book.body, twin);
 }

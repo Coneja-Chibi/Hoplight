@@ -97,3 +97,12 @@ test("a card with no characterBook extracts nothing and never gets an empty book
   expect(lorebooks.length).toBe(0);
   expect("characterBook" in JSON.parse(out.text ?? "")).toBe(false);
 });
+
+test("an explicitly resolved empty bundle removes the stale native characterBook", () => {
+  const entity = adapter.toCanonical(asText(cardWithBook()));
+  entity.body.knowledgeRefs = [];
+
+  const out = adapter.fromCanonical(entity, { lorebooks: [] });
+
+  expect("characterBook" in JSON.parse(out.text ?? "")).toBe(false);
+});
