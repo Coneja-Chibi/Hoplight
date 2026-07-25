@@ -8,7 +8,7 @@
 import { assertNever } from "./assert-never";
 import type { RiskVerdict, ToolAccess } from "./risk";
 
-export type PermissionMode = "guarded" | "autopilot" | "locked";
+export type PermissionMode = "guarded" | "autopilot" | "full" | "locked";
 export type GateDecision = "allow" | "confirm" | "deny";
 
 /** The standing policy the decision reads and the reducer evolves. grants are session-remembered allows,
@@ -34,6 +34,10 @@ export function decideGate(name: string, verdict: RiskVerdict, state: GateState)
     case "autopilot":
       if (verdict.level === "safe" || verdict.level === "caution") return "allow";
       return granted ? "allow" : "confirm";
+    case "full":
+      // Full control (Chi's "nothing asks"): everything auto-allows EXCEPT the hard floor
+      // (unknown/exec), which is never auto-run in any mode and is never covered by a grant.
+      return isFloor(verdict.access) ? "confirm" : "allow";
     default:
       return assertNever("decideGate", state.mode);
   }

@@ -30,6 +30,7 @@ describe("applyGateChoice", () => {
     expect(applyGateChoice(initGate(), { type: "set-mode", mode: "autopilot" }, "x").mode).toBe(
       "autopilot",
     );
+    expect(applyGateChoice(initGate(), { type: "set-mode", mode: "full" }, "x").mode).toBe("full");
     const bad = applyGateChoice(initGate(), { type: "set-mode", mode: "bogus" as never }, "x");
     expect(bad.mode).toBe("guarded");
   });

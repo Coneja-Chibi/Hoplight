@@ -33,6 +33,14 @@ describe("decideGate", () => {
     expect(decideGate("del", verdict("danger", "delete"), state("autopilot"))).toBe("confirm");
   });
 
+  test("full control auto-allows everything but the danger floor", () => {
+    expect(decideGate("write", verdict("caution", "write"), state("full"))).toBe("allow");
+    expect(decideGate("del", verdict("danger", "delete"), state("full"))).toBe("allow");
+    expect(decideGate("send", verdict("danger", "egress"), state("full"))).toBe("allow");
+    expect(decideGate("x", verdict("danger", "exec"), state("full"))).toBe("confirm");
+    expect(decideGate("x", verdict("danger", "unknown"), state("full"))).toBe("confirm");
+  });
+
   test("the floor (unknown/exec) is never opened by a grant, in any mode", () => {
     expect(decideGate("x", verdict("danger", "unknown"), state("guarded", ["x"]))).toBe("confirm");
     expect(decideGate("x", verdict("danger", "exec"), state("autopilot", ["x"]))).toBe("confirm");
