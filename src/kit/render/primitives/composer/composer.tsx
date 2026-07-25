@@ -1,25 +1,30 @@
 /** @jsxImportSource @opentui/react */
 /**
  * Composer: the multiline input (replaces input-bar). Owns the OpenTUI <textarea> (uncontrolled), a
- * heavy frame + rose cap + searchlight sweep. Text lives in the textarea's own buffer; Kit reads
- * plainText and writes setText only at four discrete moments (submit, history recall, ghost restore,
- * clear), never per keystroke. Wires the pure cores: history recall + draft ghost (up/down at the
- * buffer edge, suppressing native cursor move only there), and paste-as-card (a big/multi-line paste
- * is held above and spliced in at submit). Editing shortcuts: Enter submits / Shift+Enter newlines,
- * plus the Windows-standard ctrl+z/y/a the textarea defaults skip, and double-escape to clear. The
- * caret is a color-shifting underscore. Grows up to MAX_ROWS lines then scrolls.
+ * fused prompter rail: one open heavy rule, a rose cap, the input plate, and its quiet provider
+ * register. Text lives in the textarea's own buffer; Kit reads plainText and writes setText only at
+ * four discrete moments (submit, history recall, ghost restore, clear), never per keystroke. Wires
+ * the pure cores: history recall + draft ghost (up/down at the buffer edge, suppressing native
+ * cursor move only there), and paste-as-card (a big/multi-line paste is held above and spliced in at
+ * submit). Editing shortcuts: Enter submits / Shift+Enter newlines, plus the Windows-standard
+ * ctrl+z/y/a the textarea defaults skip, and double-escape to clear. The caret is a color-shifting
+ * underscore. Grows up to MAX_ROWS lines then scrolls.
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import { decodePasteBytes, defaultTextareaKeyBindings } from "@opentui/core";
 import type { KeyBinding, KeyEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
+import type { KitCommand } from "../../../commands/command";
 import { theme } from "../../theme";
 import { rampAt } from "../../colors";
 import { SweepLine } from "../sweep-line";
+import { StatusBar, type ProviderStatus } from "../status-bar";
 import { PasteCard } from "./paste-card";
 import { commit, initRecall, recallNext, recallPrev, type RecallState } from "./recall";
 import { buildSubmission, classifyPaste, type PasteCard as Card } from "./paste-classify";
+import { matchingCommands } from "./command-menu-core";
+import { CommandMenu } from "./command-menu";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -46,10 +51,16 @@ const KEYS: KeyBinding[] = [
 export function Composer({
   active,
   enabled = true,
+  provider,
+  busy,
+  commands,
   onSubmit,
 }: {
   active: boolean;
   enabled?: boolean;
+  provider: ProviderStatus;
+  busy: boolean;
+  commands: readonly KitCommand[];
   onSubmit: (value: string) => boolean;
 }): ReactNode {
   const ref = useRef<TextareaRenderable | null>(null);
@@ -59,6 +70,11 @@ export function Composer({
   const cardsRef = useRef<Card[]>([]);
   const [notice, setNotice] = useState("");
   const [rows, setRows] = useState(1);
+  const [slashDraft, setSlashDraft] = useState("");
+  const [commandIndex, setCommandIndex] = useState(0);
+  const [menuDismissed, setMenuDismissed] = useState(false);
+  const commandMatches = matchingCommands(commands, slashDraft);
+  const menuOpen = !menuDismissed && commandMatches.length > 0;
 
   const replaceCards = (next: Card[]): void => {
     cardsRef.current = next;
@@ -95,7 +111,31 @@ export function Composer({
     if (!enabled) return;
     const ta = ref.current;
     if (!ta) return;
-    if (e.name === "up" && ta.logicalCursor.row === 0) {
+    if (menuOpen && (e.name === "up" || e.name === "down")) {
+      e.preventDefault();
+      const delta = e.name === "up" ? -1 : 1;
+      setCommandIndex((index) =>
+        (index + delta + commandMatches.length) % commandMatches.length
+      );
+    } else if (menuOpen && e.name === "tab") {
+      e.preventDefault();
+      const command = commandMatches[commandIndex] ?? commandMatches[0];
+      if (!command) return;
+      ta.setText(`${command.name} `);
+      setSlashDraft("");
+      setMenuDismissed(true);
+    } else if (menuOpen && e.name === "return") {
+      e.preventDefault();
+      const command = commandMatches[commandIndex] ?? commandMatches[0];
+      if (!command || !onSubmit(command.name)) return;
+      recall.current = commit(recall.current, command.name);
+      ta.setText("");
+      setSlashDraft("");
+      setRows(1);
+    } else if (menuOpen && e.name === "escape") {
+      e.preventDefault();
+      setMenuDismissed(true);
+    } else if (e.name === "up" && ta.logicalCursor.row === 0) {
       e.preventDefault();
       const r = recallPrev(recall.current, ta.plainText);
       recall.current = r.state;
@@ -155,29 +195,50 @@ export function Composer({
           <text fg={theme.gold}>{notice}</text>
         </box>
       ) : null}
+      {menuOpen ? (
+        <CommandMenu
+          commands={commandMatches}
+          activeIndex={Math.min(commandIndex, commandMatches.length - 1)}
+          onChoose={(command) => {
+            ref.current?.setText(`${command.name} `);
+            setSlashDraft("");
+            setMenuDismissed(true);
+          }}
+        />
+      ) : null}
       {active ? <SweepLine /> : <box height={1} />}
       <box
-        flexDirection="row"
-        height={boxRows + 2}
-        border
+        flexDirection="column"
+        border={["top"]}
         borderStyle="heavy"
         borderColor={theme.line}
         backgroundColor={theme.panel}
-        paddingRight={1}
       >
-        <box backgroundColor={theme.roseDeep} paddingLeft={1} paddingRight={1}>
-          <text fg={theme.white}>{">"}</text>
+        <box flexDirection="row" height={boxRows} backgroundColor={theme.panel} paddingRight={1}>
+          <box backgroundColor={theme.roseDeep} width={4} alignItems="center" justifyContent="center">
+            <text fg={theme.white}>{">"}</text>
+          </box>
+          <box width={1} backgroundColor={theme.edge} />
+          <box width={1} />
+          <textarea
+            ref={ref}
+            focused={enabled}
+            flexGrow={1}
+            placeholder="talk to your studio"
+            keyBindings={KEYS}
+            onSubmit={submit}
+            onContentChange={() => {
+              const text = ref.current?.plainText ?? "";
+              setRows(ref.current?.lineCount ?? 1);
+              setCommandIndex(0);
+              setMenuDismissed(false);
+              setSlashDraft(
+                text.startsWith("/") && !text.includes("\n") && !/\s/.test(text) ? text : "",
+              );
+            }}
+          />
         </box>
-        <box width={1} />
-        <textarea
-          ref={ref}
-          focused={enabled}
-          flexGrow={1}
-          placeholder="talk to your studio"
-          keyBindings={KEYS}
-          onSubmit={submit}
-          onContentChange={() => setRows(ref.current?.lineCount ?? 1)}
-        />
+        <StatusBar provider={provider} busy={busy} />
       </box>
     </box>
   );

@@ -410,13 +410,15 @@ describe("App turn lifecycle", () => {
       await tick();
       const frame = t.captureCharFrame();
       expect(frame).toContain("Kit.");
-      expect(frame).toContain("Welcome to Kit.");
+      expect(frame).toContain("Ready?");
+      expect(frame).toContain("Go make something you love.");
       expect(frame).toContain("/model");
       expect(frame).not.toContain("Kitstudio");
     } finally {
       await t.renderer.destroy();
     }
   });
+
 });
 
 describe("widgets", () => {

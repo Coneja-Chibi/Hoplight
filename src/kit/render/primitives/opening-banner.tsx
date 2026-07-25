@@ -4,7 +4,8 @@
  * chat. The real Hoplight illuminated-V mark (two crossed searchlight beams with white slits, ears
  * splayed up, tails crossed below) rasterized straight from hoplight-v.svg's polygons, BESIDE the
  * big "Kit" wordmark (also polygon-rasterized so it scales cleanly), the wordmark centered against
- * the mark's height. A rainbow FLOWS across it all on a timer, Gemini's horizontal-gradient idea
+ * the mark's height. The whole lockup and welcome script sit as one centered stage block on roomy
+ * terminals. A rainbow FLOWS across it all on a timer, Gemini's horizontal-gradient idea
  * hand-rendered per column and animated because OpenTUI's ascii-font can do neither. Friendly stage
  * cues and a warm note live only in this welcome; the chrome stays rose.
  */
@@ -63,6 +64,21 @@ const GAP = "    ";
 const pad = (line: string, w: number): string => line + " ".repeat(Math.max(0, w - line.length));
 const ART = LOGO.map((line, r) => `${pad(line, LOGO_W)}${GAP}${KIT[r - KIT_OFFSET] ?? ""}`);
 const WIDTH = Math.max(...ART.map((l) => l.length));
+const COMPACT_ART = [
+  "██       ██    ██  ██   █████   ███████",
+  " ██     ██     ██ ██      ██       ██",
+  "  ██   ██      ████       ██       ██",
+  "   ██ ██       ██ ██      ██       ██",
+  "    ███        ██  ██   █████      ██",
+  "    █ █",
+];
+const TINY_ART = [
+  "█   █  █ █  ███  ███",
+  " █ █   ██    █    █",
+  "  █    █ █  ███   █",
+  "  █",
+  " █ █",
+];
 
 // A full rainbow, made cyclic (first color repeated) so the flow wraps seamlessly.
 const RAMP = [
@@ -82,6 +98,23 @@ const STAGE_CUES = {
   promises: String.fromCodePoint(0x1f512),
   ready: String.fromCodePoint(0x1f407),
 } as const;
+const COPY = {
+  welcome: "Hey, welcome in. I'm really glad you're here.",
+  studio: (studioName: string): string =>
+    `This is Kit: your whole ${studioName}, living right here in the terminal.`,
+  everything: (totalPieces: number): string =>
+    `Everything you've made lives here, all ${totalPieces} pieces. No menus, no forms to fill.`,
+  talk: "You just talk to it, like a friend who already knows where all of it is.",
+  samples: [
+    '"make me a grumpy tavern keeper who hates adventurers"',
+    '"add a hidden secret to Mira\'s lorebook"',
+    '"bring in this character card from another app"',
+  ],
+  promises:
+    "Two promises: nothing leaves your machine until you send it, and the scripts inside your pieces stay sealed as text. Kit never runs them.",
+  ready: "Ready? /model connects a provider, /test checks it's awake, then just talk.",
+  closing: "Go make something you love.",
+} as const;
 
 /** One line of the welcome; height 1 so stacked rows do not pile onto one another. */
 const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode => (
@@ -89,6 +122,74 @@ const Row = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode =
     <text fg={fg}>{children}</text>
   </box>
 );
+
+const WrapRow = ({ fg, children }: { fg: string; children: ReactNode }): ReactNode => (
+  <text width="100%" wrapMode="word" fg={fg}>{children}</text>
+);
+
+function RainbowArt({
+  lines,
+  tick,
+  availableWidth,
+}: {
+  lines: readonly string[];
+  tick: number;
+  availableWidth: number;
+}): ReactNode {
+  const artWidth = Math.max(...lines.map((line) => line.length));
+  const offset = tick * FLOW;
+  const cols = Array.from({ length: artWidth }, (_, col) =>
+    rampAt(RAMP, col / artWidth - offset)
+  );
+  const shadowCols = cols.map((color) => darken(color, SHADOW_DARKEN));
+  return (
+    <box
+      flexDirection="column"
+      paddingLeft={Math.max(0, Math.floor((availableWidth - artWidth) / 2))}
+    >
+      {lines.map((line, row) => (
+        <box key={row} flexDirection="row" height={1}>
+          <text>
+            {[...line].map((character, col) =>
+              character === " " ? (
+                <span key={col}> </span>
+              ) : character === "S" ? (
+                <span key={col} fg={shadowCols[Math.max(0, col - SHADOW_DX)]}>█</span>
+              ) : (
+                <span key={col} fg={cols[col]}>{character}</span>
+              ),
+            )}
+          </text>
+        </box>
+      ))}
+    </box>
+  );
+}
+
+function CompactGreeting({
+  studioName,
+  totalPieces,
+}: {
+  studioName: string;
+  totalPieces: number;
+}): ReactNode {
+  return (
+    <>
+      <WrapRow fg={theme.bright}>{STAGE_CUES.welcome}  {COPY.welcome}</WrapRow>
+      <WrapRow fg={theme.soft}>    {COPY.studio(studioName)}</WrapRow>
+      <WrapRow fg={theme.text}>{STAGE_CUES.studio}  {COPY.everything(totalPieces)}</WrapRow>
+      <WrapRow fg={theme.text}>    {COPY.talk}</WrapRow>
+      <WrapRow fg={theme.bright}>{STAGE_CUES.ideas}  Try saying:</WrapRow>
+      {COPY.samples.map((sample) => (
+        <WrapRow key={sample} fg={theme.teal}>    {sample}</WrapRow>
+      ))}
+      <WrapRow fg={theme.soft}>{STAGE_CUES.promises}  {COPY.promises}</WrapRow>
+      <WrapRow fg={theme.soft}>{STAGE_CUES.ready}  {COPY.ready}</WrapRow>
+      <WrapRow fg={theme.bright}>{COPY.closing}</WrapRow>
+      <WrapRow fg={theme.mut}>- Chi</WrapRow>
+    </>
+  );
+}
 
 export function OpeningBanner({
   studioName,
@@ -100,68 +201,50 @@ export function OpeningBanner({
   /** Flow the rainbow only while the banner is the whole screen; freeze once a turn scrolls it away. */
   animate?: boolean;
 }): ReactNode {
-  const { width, height } = useTerminalDimensions();
+  const { width } = useTerminalDimensions();
   const [tick, setTick] = useState(0);
   useEffect(() => {
     if (!animate) return;
     const id = setInterval(() => setTick((x) => x + 1), STEP_MS);
     return () => clearInterval(id);
   }, [animate]);
-  const offset = tick * FLOW;
-  const cols = Array.from({ length: WIDTH }, (_, c) => rampAt(RAMP, c / WIDTH - offset));
-  const shadowCols = cols.map((c) => darken(c, SHADOW_DARKEN)); // darker variant of each column, flows too
-
-  if (height < 32 || width < 110) {
+  if (width < 110) {
+    const art = width >= 48 ? COMPACT_ART : TINY_ART;
+    const stageWidth = Math.max(1, Math.min(88, width - 2));
+    const stageInset = Math.max(0, Math.floor((width - stageWidth) / 2));
     return (
-      <box flexDirection="column" paddingTop={1} paddingLeft={1}>
-        <Row fg={theme.bright}>Welcome to Kit.</Row>
-        <Row fg={theme.soft}>{String(totalPieces)} pieces in {studioName}.</Row>
-        {width >= 50 ? (
-          <Row fg={theme.text}>Talk to your studio in plain language; /help lists local commands.</Row>
-        ) : null}
-        <Row fg={theme.mut}>/model connects a provider. /test checks it.</Row>
+      <box
+        flexDirection="column"
+        width={stageWidth}
+        paddingTop={1}
+        marginLeft={stageInset}
+      >
+        <RainbowArt lines={art} tick={tick} availableWidth={stageWidth} />
+        <CompactGreeting studioName={studioName} totalPieces={totalPieces} />
       </box>
     );
   }
 
+  const stageInset = Math.max(0, Math.floor((width - WIDTH) / 2));
   return (
-    <box flexDirection="column" paddingTop={1}>
-      {ART.map((line, row) => (
-        <box key={row} flexDirection="row" height={1}>
-          <text>
-            {[...line].map((ch, col) =>
-              ch === " " ? (
-                <span key={col}> </span>
-              ) : ch === "S" ? (
-                <span key={col} fg={shadowCols[Math.max(0, col - SHADOW_DX)]}>
-                  █
-                </span>
-              ) : (
-                <span key={col} fg={cols[col]}>
-                  {ch}
-                </span>
-              ),
-            )}
-          </text>
-        </box>
-      ))}
+    <box flexDirection="column" paddingTop={1} paddingLeft={stageInset}>
+      <RainbowArt lines={ART} tick={tick} availableWidth={WIDTH} />
 
       <box height={1} />
-      <Row fg={theme.bright}>{STAGE_CUES.welcome}  Hey, welcome in. I&apos;m really glad you&apos;re here.</Row>
-      <Row fg={theme.soft}>    This is Kit: your whole {studioName}, living right here in the terminal.</Row>
+      <Row fg={theme.bright}>{STAGE_CUES.welcome}  {COPY.welcome}</Row>
+      <Row fg={theme.soft}>    {COPY.studio(studioName)}</Row>
 
       <box height={1} />
       <Row fg={theme.text}>
-        {STAGE_CUES.studio}  Everything you&apos;ve made lives here, all {String(totalPieces)} pieces. No menus,
-        no forms to fill.
+        {STAGE_CUES.studio}  {COPY.everything(totalPieces)}
       </Row>
-      <Row fg={theme.text}>    You just talk to it, like a friend who already knows where all of it is.</Row>
+      <Row fg={theme.text}>    {COPY.talk}</Row>
 
       <box height={1} />
       <Row fg={theme.bright}>{STAGE_CUES.ideas}  Try saying:</Row>
-      <Row fg={theme.teal}>      &quot;make me a grumpy tavern keeper who hates adventurers&quot;</Row>
-      <Row fg={theme.teal}>      &quot;add a hidden secret to Mira&apos;s lorebook&quot;</Row>
-      <Row fg={theme.teal}>      &quot;bring in this character card from another app&quot;</Row>
+      {COPY.samples.map((sample) => (
+        <Row key={sample} fg={theme.teal}>      {sample}</Row>
+      ))}
 
       <box height={1} />
       <box flexDirection="row" height={1}>
@@ -185,7 +268,7 @@ export function OpeningBanner({
       </box>
 
       <box height={1} />
-      <Row fg={theme.bright}>Go make something you love.</Row>
+      <Row fg={theme.bright}>{COPY.closing}</Row>
       <Row fg={theme.mut}>- Chi</Row>
     </box>
   );

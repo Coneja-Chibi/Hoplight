@@ -9,8 +9,15 @@ uses. One engine, two shells - no format logic exists in the UI layer.
 Kit is Hoplight's conversational terminal shell. Its composer accepts multiline text and up to five
 large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
-submission remains in the composer. If a provider stops after streaming part of a reply, Kit keeps
-that partial reply visible before showing the stop or error.
+submission remains in the composer. Typing `/` opens a registry-driven command palette containing
+every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
+runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. If a
+provider stops after streaming part of a reply, Kit keeps
+that partial reply visible before showing the stop or error. The input and connection state form one
+fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
+thin seam joins the quieter provider, model, and ready or working register below. Transcript
+scrolling remains available by mouse wheel and navigation keys without painting a second,
+application-owned scrollbar beside the terminal's own window chrome.
 
 Successful turns are saved atomically as one JSON file per session under the Hoplight configuration
 directory's `sessions/` folder. `/session` opens the saved-session playbill, `/resume [name]` restores
@@ -20,11 +27,19 @@ lists keep the selected row inside a terminal-height-based visible window.
 
 `/model` opens provider settings. Credential, endpoint, or provider-option edits invalidate any
 previous model result before another lookup. Lookup and save failures remain visible and can be
-retried; activating or removing a provider refreshes the shell's provider, model, and context-meter
-state. `/decks` (also `/inventory`) prints the current canonical deck counts on demand. Wide terminals
-show the animated NOW PLAYING theatre marquee with provider, context, and token status beneath it;
-small terminals use compact opening, playbill, and status layouts so the composer and connection
-commands remain reachable.
+retried; activating or removing a provider refreshes the shell's provider and model state.
+`/decks` (also `/inventory`) prints the current canonical deck counts on demand. `/privacy` reports
+the session's provider sends and token counts on demand. Wide terminals show the animated NOW
+PLAYING theatre marquee without a persistent telemetry strip;
+inventory stays out of persistent chrome. Narrow terminals use a purpose-drawn miniature rainbow
+`V KIT` lockup but retain the complete greeting and stage cues, wrapping the copy instead of
+replacing it with a terse fallback. Extremely short windows can scroll that opening while the
+composer and connection commands remain reachable. On roomy terminals, the large `V KIT` lockup
+and its welcome script share one centered stage block instead of clinging to the left edge of an
+ultrawide canvas. The shell inherits OpenTUI's live canvas instead of copying a
+dimension snapshot. Kit also matches the terminal emulator's default background to the stage while
+it is open, then restores it on exit, so fractional-cell and profile-padding gutters visually belong
+to the same surface.
 
 ## Hyper-modularity (the build's spine)
 - **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`

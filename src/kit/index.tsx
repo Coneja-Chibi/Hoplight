@@ -14,6 +14,8 @@ import { createBridge } from "./bridge";
 import { createSession } from "./session";
 import { discoverCommands } from "./commands/discover";
 import { App } from "./render/app";
+import { theme } from "./render/theme";
+import { restoreTerminalBackground, setTerminalBackground } from "./terminal-surface";
 
 async function main(): Promise<void> {
   const bridge = createBridge();
@@ -23,24 +25,33 @@ async function main(): Promise<void> {
   const session = await createSession(bridge);
   const commands = await discoverCommands();
 
-  const renderer = await createCliRenderer({
-    screenMode: "alternate-screen",
-    exitOnCtrlC: true,
-    useMouse: true,
-  });
-  const root = createRoot(renderer);
-  const quit = (): void => {
-    root.unmount();
-    process.exit(0);
-  };
+  setTerminalBackground(process.stdout, theme.well);
+  try {
+    const renderer = await createCliRenderer({
+      screenMode: "alternate-screen",
+      exitOnCtrlC: true,
+      useMouse: true,
+      backgroundColor: theme.well,
+    });
+    const root = createRoot(renderer);
+    const quit = (): void => {
+      root.unmount();
+      renderer.destroy();
+      restoreTerminalBackground(process.stdout);
+      process.exit(0);
+    };
 
-  root.render(
-    <App studioName={studioName} totalPieces={total} decks={decks} session={session} commands={commands} onQuit={quit} />,
-  );
+    root.render(
+      <App studioName={studioName} totalPieces={total} decks={decks} session={session} commands={commands} onQuit={quit} />,
+    );
 
-  if (process.env.KIT_SMOKE) {
-    console.error(`kit-smoke: mounted; studio=${studioName} pieces=${total}`);
-    setTimeout(quit, 500);
+    if (process.env.KIT_SMOKE) {
+      console.error(`kit-smoke: mounted; studio=${studioName} pieces=${total}`);
+      setTimeout(quit, 500);
+    }
+  } catch (error) {
+    restoreTerminalBackground(process.stdout);
+    throw error;
   }
 }
 

@@ -16,10 +16,12 @@ export function Scrollback({ children }: { children: ReactNode }): ReactNode {
   return (
     <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0}>
       <scrollbox
+        id="kit-scrollback"
         height="100%"
         scrollY
         stickyScroll
         stickyStart="bottom"
+        verticalScrollbarOptions={{ visible: false }}
         paddingLeft={1}
         paddingRight={1}
         paddingTop={1}

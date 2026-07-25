@@ -7,7 +7,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { join } from "node:path";
-import { useKeyboard, useTerminalDimensions } from "@opentui/react";
+import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import type { DeckCount } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
@@ -16,7 +16,6 @@ import { matchCommand, type KitCommand } from "../commands/command";
 import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
 import { Playbill } from "./primitives/playbill";
-import { StatusBar } from "./primitives/status-bar";
 import { Scrollback } from "./primitives/scrollback";
 import { YouLine } from "./primitives/you-line";
 import { SayLine } from "./primitives/say-line";
@@ -31,9 +30,7 @@ import { BackstageRow } from "./primitives/backstage-row";
 import { SearchCard } from "./primitives/nav/search-card";
 import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
-import { addUsage, EMPTY_USAGE, type TokenUsage } from "../providers/usage";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
-import { knownContext } from "../providers/known-context";
 import { useNotify } from "./notify/use-notify";
 import { useFocus } from "./notify/focus";
 import type { NotifySettings } from "./notify/plan";
@@ -77,7 +74,6 @@ export function App({
 }: AppProps): ReactNode {
   const [busy, setBusy] = useState(false);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
-  const [sessionUsage, setSessionUsage] = useState<TokenUsage>(EMPTY_USAGE);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   useEffect(() => {
     session.activeProvider().then(setProvider);
@@ -95,7 +91,6 @@ export function App({
   );
   const [searching, setSearching] = useState(false);
   const [rewinding, setRewinding] = useState(false);
-  const { width, height } = useTerminalDimensions();
   const history = useRef<ModelMessage[]>([]);
   const activeTurn = useRef<{ controller: AbortController } | null>(null);
   const store = useRef<SessionStore | null>(null);
@@ -194,9 +189,8 @@ export function App({
     setStartedAt(Date.now());
     setTurn((prev) => ({ ...prev, live: { phase: "waiting" } }));
     const onEvent = (event: Parameters<typeof applyTurnEvent>[1]): void => {
-      // Every call's usage is one send: accumulate the session tally and record it in the egress ledger.
+      // Every call's usage is one send: retain it for the on-demand privacy ledger.
       if (event.type === "usage") {
-        setSessionUsage((prev) => addUsage(prev, event.usage));
         setLedger((prev) =>
           recordEgress(prev, {
             at: Date.now(),
@@ -322,15 +316,8 @@ export function App({
   }
 
   return (
-    <box flexDirection="column" backgroundColor={theme.well} width={width} height={height}>
-      <Playbill
-        studioName={studioName}
-        totalPieces={totalPieces}
-        provider={provider}
-        turnUsage={turn.usage ?? EMPTY_USAGE}
-        sessionUsage={sessionUsage}
-        contextMax={provider?.context ?? knownContext(provider?.model)}
-      />
+    <box id="kit-root" flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
+      <Playbill studioName={studioName} />
       {rewinding ? (
         <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0} padding={1}>
           <RewindRail actions={sessionActions} busy={busy} onClose={() => setRewinding(false)} />
@@ -397,12 +384,14 @@ export function App({
       <Composer
         active={turn.live.phase === "waiting" || turn.live.phase === "thinking" || turn.tools != null}
         enabled={!searching}
+        provider={provider}
+        busy={busy}
+        commands={commands}
         onSubmit={submit}
       />
       </box>
         </>
       )}
-      <StatusBar provider={provider} busy={busy} />
     </box>
   );
 }
