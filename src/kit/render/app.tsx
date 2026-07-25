@@ -4,7 +4,7 @@
  * render/primitives widgets. Typing runs a turn through the session; its events (say / tool / stopped
  * / error) stream in as the matching widget. No chrome is drawn inline; the look lives in primitives/.
  */
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { join } from "node:path";
 import { useKeyboard, useRenderer } from "@opentui/react";
@@ -17,22 +17,18 @@ import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
 import { Playbill } from "./primitives/playbill";
 import { Scrollback } from "./primitives/scrollback";
-import { YouLine } from "./primitives/you-line";
 import { SayLine } from "./primitives/say-line";
-import { ToolRow } from "./primitives/tool-row";
-import { ErrorRow } from "./primitives/error-row";
 import { Composer } from "./primitives/composer/composer";
 import { QueueTicket } from "./primitives/composer/queue-ticket";
 import { useQueuedWhispers } from "./primitives/composer/use-queued-whispers";
 import { StatusRow } from "./primitives/status-row";
 import { StatusToast } from "./primitives/status-toast";
-import { DoctorCard } from "./primitives/doctor-card";
 import { ThoughtBox } from "./primitives/thought-box";
-import { ThoughtRow } from "./primitives/thought-row";
 import { BackstageBox } from "./primitives/backstage-box";
-import { BackstageRow } from "./primitives/backstage-row";
+import { SettledLine } from "./primitives/settled-line";
 import { SearchCard } from "./primitives/nav/search-card";
 import { SnapPill } from "./primitives/nav/snap-pill";
+import { HelpScreen } from "./primitives/nav/help-screen";
 import { useScrollSeam } from "./primitives/nav/use-scroll-seam";
 import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
 import { SettingsScreen } from "./settings/settings-screen";
@@ -119,7 +115,7 @@ export function App({
     toolsSeen: false,
   });
   const [startedAt, setStartedAt] = useState(0);
-  const [view, setView] = useState<"session" | "settings" | "sessions">(
+  const [view, setView] = useState<"session" | "settings" | "sessions" | "help">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
   );
   const [searching, setSearching] = useState(false);
@@ -293,6 +289,7 @@ export function App({
         commands,
         decks,
         openSettings: () => setView("settings"),
+        openHelp: () => setView("help"),
         quit: onQuit,
         probe: () => startTurn((signal, onEvent) => session.probe(onEvent, signal)),
         doctor: async () => {
@@ -394,6 +391,10 @@ export function App({
     );
   }
 
+  if (view === "help") {
+    return <HelpScreen commands={commands} studioName={studioName} onClose={() => setView("session")} />;
+  }
+
   return (
     <box id="kit-root" flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
       <Playbill studioName={studioName} />
@@ -419,47 +420,16 @@ export function App({
       >
       <Scrollback scrollRef={scroll.ref}>
         <OpeningBanner studioName={studioName} totalPieces={totalPieces} animate={turn.lines.length === 0} />
-        {turn.lines.map((line, index) =>
-          line.role === "you" ? (
-            // A blank row before each new your-line: the breathing room falls BETWEEN turns, while a
-            // turn's own traces + reply stay grouped tight (scrollback gap is 0). The first line skips it.
-            <Fragment key={index}>
-              {index > 0 ? <box height={1} /> : null}
-              <YouLine text={line.text} onCopy={() => copy(line.text)} />
-            </Fragment>
-          ) : line.role === "tool" ? (
-            <ToolRow key={index} summary={line.text} />
-          ) : line.role === "error" ? (
-            <ErrorRow key={index} text={line.text} onCopy={() => copy(line.text)} />
-          ) : line.role === "thought" ? (
-            <ThoughtRow
-              key={index}
-              text={line.text}
-              seconds={line.seconds}
-              open={line.open}
-              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
-            />
-          ) : line.role === "backstage" ? (
-            <BackstageRow
-              key={index}
-              moves={line.moves}
-              seconds={line.seconds}
-              open={line.open}
-              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
-            />
-          ) : line.role === "doctor" ? (
-            <DoctorCard key={index} checks={line.checks} />
-          ) : (
-            <SayLine
-              key={index}
-              text={line.text}
-              open={line.open}
-              onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
-              onCopy={() => copy(line.text)}
-              pieces={pieces}
-            />
-          ),
-        )}
+        {turn.lines.map((line, index) => (
+          <SettledLine
+            key={index}
+            line={line}
+            index={index}
+            pieces={pieces}
+            onCopy={copy}
+            onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
+          />
+        ))}
         {turn.tools ? <BackstageBox moves={turn.tools.moves} /> : null}
         {turn.live.phase === "typing" ? <SayLine text={turn.live.text} streaming /> : null}
         {turn.live.phase === "thinking" ? (
@@ -482,6 +452,7 @@ export function App({
         provider={provider}
         busy={busy}
         commands={commands}
+        decks={decks}
         pieces={pieces}
         onSubmit={submit}
       />

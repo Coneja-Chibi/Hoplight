@@ -10,6 +10,7 @@ test("/doctor runs the diagnostic playbill", async () => {
     commands: [doctor],
     decks: [],
     openSettings: () => {},
+    openHelp: () => {},
     quit: () => {},
     probe: () => false,
     doctor: async () => {

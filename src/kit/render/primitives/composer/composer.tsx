@@ -15,7 +15,7 @@ import type { ReactNode } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
 import { decodePasteBytes, defaultTextareaKeyBindings } from "@opentui/core";
 import type { KeyBinding, KeyEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
-import type { EntitySummary } from "../../../bridge";
+import type { DeckCount, EntitySummary } from "../../../bridge";
 import type { KitCommand } from "../../../commands/command";
 import { theme } from "../../theme";
 import { rampAt } from "../../colors";
@@ -28,6 +28,7 @@ import { matchingCommands } from "./command-menu-core";
 import { CommandMenu } from "./command-menu";
 import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core";
 import { MentionMenu } from "./mention-menu";
+import { draftSuggestion } from "./suggestion";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -57,6 +58,7 @@ export function Composer({
   provider,
   busy,
   commands,
+  decks = [],
   pieces = [],
   onSubmit,
 }: {
@@ -65,6 +67,7 @@ export function Composer({
   provider: ProviderStatus;
   busy: boolean;
   commands: readonly KitCommand[];
+  decks?: readonly DeckCount[];
   pieces?: readonly EntitySummary[];
   onSubmit: (value: string) => boolean;
 }): ReactNode {
@@ -263,7 +266,7 @@ export function Composer({
             ref={ref}
             focused={enabled}
             flexGrow={1}
-            placeholder="talk to your studio"
+            placeholder={draftSuggestion(decks, pieces)}
             keyBindings={KEYS}
             onSubmit={submit}
             onContentChange={() => {

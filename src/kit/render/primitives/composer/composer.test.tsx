@@ -111,3 +111,23 @@ test("typing at opens studio pieces and enter inserts a stable marker", async ()
     await t.renderer.destroy();
   }
 });
+
+test("an empty composer suggests a move grounded in the studio", async () => {
+  const t = await testRender(
+    <Composer
+      active={false}
+      provider={null}
+      busy={false}
+      commands={[]}
+      decks={[{ kind: "lorebook", label: "Lorebooks", count: 2 }]}
+      onSubmit={() => true}
+    />,
+    { width: 72, height: 8 },
+  );
+  try {
+    await tick();
+    expect(t.captureCharFrame()).toContain("try: which lorebook entries never fire?");
+  } finally {
+    await t.renderer.destroy();
+  }
+});

@@ -14,6 +14,7 @@ test("/decks prints the total and every canonical deck count", () => {
       { label: "Regex", count: 0 },
     ],
     openSettings: () => {},
+    openHelp: () => {},
     quit: () => {},
     probe: () => false,
     doctor: async () => {},

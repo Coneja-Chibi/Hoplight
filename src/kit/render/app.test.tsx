@@ -429,4 +429,31 @@ describe("App turn lifecycle", () => {
     }
   });
 
+  test("/help opens the full reference stage and escape returns to the composer", async () => {
+    const session: Session = {
+      async runTurn(_input, history) {
+        return history;
+      },
+      async probe() {},
+      async activeProvider() {
+        return null;
+      },
+    };
+    const t = await renderApp(session, { commands: await discoverCommands() });
+    try {
+      await tick();
+      await t.mockInput.typeText("/help");
+      t.mockInput.pressEnter();
+      await tick();
+      expect(t.captureCharFrame()).toContain("Kit.");
+      expect(t.captureCharFrame()).toContain("help");
+      expect(t.captureCharFrame()).toContain("MOVING AROUND");
+      t.mockInput.pressEscape();
+      await tick();
+      expect(t.captureCharFrame()).toContain("talk to your studio");
+    } finally {
+      await t.renderer.destroy();
+    }
+  });
+
 });

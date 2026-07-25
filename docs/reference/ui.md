@@ -17,7 +17,10 @@ registry-driven command palette containing
 every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
 runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. A
 trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
-and resolved markers in replies render as compact name-and-kind cards. If a provider stops after
+and resolved markers in replies render as compact name-and-kind cards. When the composer is empty,
+its placeholder suggests a deterministic next move from the live studio shape, such as auditing
+lorebook triggers or comparing two named characters; it disappears as normal placeholder text as
+soon as typing starts and is never submitted implicitly. If a provider stops after
 streaming part of a reply, Kit keeps
 that partial reply visible before showing the stop or error. The input and connection state form one
 fused prompter rail: an open heavy top rule and rose prompt cap lead into the input plate, while a
@@ -27,6 +30,10 @@ application-owned scrollbar beside the terminal's own window chrome. Home and En
 or newest transcript content, and Page Up/Page Down move by a viewport. When new rows arrive while
 the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
 pressing End returns to the latest row and clears the count.
+
+`/help` opens a full-screen, registry-driven reference stage instead of writing a long help message
+into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
+with navigation keys, and Escape or `q` returns to the untouched session view.
 
 Settled replies longer than 1,200 characters fold to a one-line cue and reopen by click or Ctrl+O;
 live streaming text never folds mid-answer. Fenced unified diffs receive counted add/remove

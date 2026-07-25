@@ -21,7 +21,7 @@ const COL = 24; // the keys column width; notes align to its right
 
 const sectionNodes = (section: HelpSection, key: string): ReactNode[] => {
   const nodes: ReactNode[] = [
-    <text key={`${key}-h`} fg={theme.mut}>
+    <text key={`${key}-h`} fg={theme.quiet}>
       {section.title}
     </text>,
   ];
@@ -29,7 +29,7 @@ const sectionNodes = (section: HelpSection, key: string): ReactNode[] => {
     const keys = row.keys.length >= COL ? `${row.keys}  ` : row.keys.padEnd(COL, " ");
     nodes.push(
       <text key={`${key}-r${index}`}>
-        <span fg={theme.mut}>{"   "}</span>
+        <span fg={theme.quiet}>{"   "}</span>
         <span fg={theme.text}>{keys}</span>
         <span fg={theme.soft}>{row.note}</span>
       </text>,
@@ -66,17 +66,17 @@ export function HelpScreen({
       <box flexDirection="row" backgroundColor={theme.panel} paddingLeft={1} paddingRight={1}>
         <text>
           <span fg={theme.text}>Kit</span>
-          <span fg={theme.rose}>.</span> <span fg={theme.mut}>help</span>
+          <span fg={theme.rose}>.</span> <span fg={theme.quiet}>help</span>
         </text>
         <box flexGrow={1} />
-        <text fg={theme.mut}>{studioName}</text>
+        <text fg={theme.quiet}>{studioName}</text>
       </box>
       <box height={1} backgroundColor={theme.edge} />
 
       <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0}>
         <scrollbox ref={scrollRef} height="100%" scrollY paddingLeft={1} paddingRight={1} paddingTop={1} gap={1}>
           {model.sections.length === 0 ? (
-            <text fg={theme.mut}>No commands or keys are registered yet.</text>
+            <text fg={theme.quiet}>No commands or keys are registered yet.</text>
           ) : (
             model.sections.flatMap((section, index) => sectionNodes(section, `s${index}`))
           )}
