@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:1b98ba5b81ba2b6acb7ebb4346f001a9d4d5e415e5ce44aca407e6cab6af581b",
-  "semanticSummaryHash": "sha256:1cbc1f5a65ffedeaa5ab9ffdd780419e786d5df895c7b67d290071905bdf00e0",
+  "sourceHash": "sha256:7539b5559c3959eaf074658e82271816c8e2c59691bf7d9504d4b4ea1ec6da9a",
+  "semanticSummaryHash": "sha256:dbc1268494078af88b1d05f64e4203c36253192538dca25b8748ae319d14c230",
   "verdict": "APPROVE",
-  "reviewer": "semantic-reviewer-2",
-  "notes": "Re-read all 312 source lines and the complete semantic sidecar after the whole-card read and six-kind creation changes. Page and section summaries materially and truthfully cover compact discovery inference, content-kind shorthand, six deferred studio lifecycle create tools, selected typed schemas and media guidance, preview-only drafting, exact-name draft safety, create/update validation, atomic occupied-ID refusal, post-create verification, 64000-character whole-piece reads, oversized result traversal, repeated identical-read stopping, existing capability bundles, docs_query, and the live-terminal verification caveat. Focused proof passed 54/54 tests; capabilities:check and typecheck also passed.",
-  "reviewedAt": "2026-07-26T05:52:16.958Z"
+  "reviewer": "codex-doc-review-surfaces-r3",
+  "notes": "APPROVE: re-read all 314 source lines and all 202 semantic-sidecar lines after the final prose repair. The source and top-level summary now agree with the runtime: broad search replaces exposure with up to five matching deferred tools/schemas, collapsed browse exposes none, and exact describe replaces exposure with one; selected schemas appear on the next provider snapshot. Authorization is qualified correctly: guarded/default mode pauses change_apply on the application semantic review card, autopilot may auto-allow caution/write access, and full control auto-allows non-floor access while unknown/exec remains confirmation-only. The rest of the page/sidecar remains deep and current, including six creation workflows, exact-name safety, bounded reads/results, draft evidence, verified create/update apply, docs_query, and the live-terminal verification caveat. Focused exposure and gate proof passed 47/47 tests; focused docs summary check passed.",
+  "reviewedAt": "2026-07-26T20:29:31.779Z"
 }

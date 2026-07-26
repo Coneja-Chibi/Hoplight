@@ -1,6 +1,6 @@
 /** Rendered-frame proof for transcript Markdown's terminal-native diff playbill. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import { MarkdownText } from "./markdown-text";
 
 test("renders a fenced patch as a counted diff playbill", async () => {

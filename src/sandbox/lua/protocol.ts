@@ -1,11 +1,11 @@
 /**
- * Versioned value-only protocol for the Lua sandbox worker boundary (ADR-009 / Plan 017).
+ * Versioned value-only protocol for the Lua sandbox worker boundary (ADR-009).
  *
  * Only JSON-like primitives, arrays, and plain records cross the wire. No functions, DOM handles,
  * ports other than the Worker channel, proxies, object URLs, paths, API tokens, or app objects.
  * Every received message is runtime-validated before use; fail closed.
  *
- * Size ceilings reuse Plan 016 budgets (caller must apply assertWireWithinBudget before encode).
+ * Callers apply assertWireWithinBudget before encoding.
  */
 
 import type { LuaResourceReason } from "./limits";

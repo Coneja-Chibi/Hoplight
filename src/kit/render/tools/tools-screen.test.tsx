@@ -3,7 +3,7 @@
  * Render proof for the wide and compact capability browser plus its real keyboard path.
  */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import type { ContentCapability } from "../../../entities/capabilities";
 import { ToolsScreen } from "./tools-screen";
 

@@ -47,6 +47,8 @@ Out of scope: issues requiring an attacker who already runs code on the same mac
 The technical safety model is summarized in the README's FAQ ("What's been done to keep this
 thing safe?"). Short version: loopback bind, per-launch session token, fetch-metadata refusal,
 hashed-script CSP, path containment, atomic writes, fail-closed parsing, bounded decompression,
-no execution of card payloads, no outbound network calls. ~2,000 tests run in CI on every
+no automatic execution of card payloads, no telemetry or background content upload. Deliberate
+network access is limited to the model-provider endpoint the user configures, fixed GitHub release
+endpoints used for update operations, and remote access the user explicitly enables. ~2,000 tests run in CI on every
 commit, including the path-containment, server-security, sandbox, round-trip, and Go sidecar
 authorization suites.

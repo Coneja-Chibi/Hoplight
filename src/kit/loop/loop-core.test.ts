@@ -406,6 +406,7 @@ test("tool-call, elapsed, and cancellation budgets stop with recovery guidance",
     { maxToolCalls: 1, effectFor: () => "read" },
   )));
   expect(toolBudget.events.at(-1)).toMatchObject({ type: "stopped", budget: "tool-calls" });
+  expect(toolBudget.history.some((message) => message.toolCalls?.length)).toBe(false);
 
   let tick = 0;
   const elapsed = await drain(runTurn("go", [], deps(
@@ -421,6 +422,32 @@ test("tool-call, elapsed, and cancellation budgets stop with recovery guidance",
     { signal: controller.signal },
   )));
   expect(cancelled.events.at(-1)).toMatchObject({ type: "stopped", budget: "cancelled" });
+});
+
+test("cancellation pairs every declared tool call without running later mutations", async () => {
+  const controller = new AbortController();
+  let dispatches = 0;
+  const calls: ModelToolCall[] = [
+    { id: "first", name: "change_apply", args: {} },
+    { id: "second", name: "change_apply", args: {} },
+  ];
+  const result = await drain(runTurn("apply", [], deps(
+    async () => ({ kind: "use", text: "", calls }),
+    {
+      signal: controller.signal,
+      effectFor: () => "apply",
+      dispatch: async () => {
+        dispatches += 1;
+        controller.abort();
+        return { summary: "checked", output: "checked" };
+      },
+    },
+  )));
+
+  expect(dispatches).toBe(1);
+  expect(result.history.filter((message) => message.role === "tool").map((message) => message.toolCallId))
+    .toEqual(["first", "second"]);
+  expect(result.history.at(-1)?.content).toContain("cancelled");
 });
 
 test("a stale apply state cannot later become completed", async () => {

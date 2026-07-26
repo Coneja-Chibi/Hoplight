@@ -4,7 +4,7 @@
  * the matches are lifted up through onView, and that esc restores the composer (calls onClose).
  */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../../test-render";
 import { SearchBar, type SearchView } from "./search-bar";
 import type { RenderLine } from "../../turn-events";
 
@@ -12,8 +12,6 @@ const lines: RenderLine[] = [
   { role: "you", text: "how many characters do I have" },
   { role: "say", text: "You have 13 characters. Newest is Basil." },
 ];
-
-const tick = (ms = 15): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 test("typing a query draws the bar, the count, and the hint row, and lifts the matches", async () => {
   const views: SearchView[] = [];

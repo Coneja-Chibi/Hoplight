@@ -7,7 +7,7 @@
  * Fallback: same-origin /sandbox/worker.js when the meta is absent (degraded; not claimed isolated).
  * Bun tests: local worker.ts.
  *
- * Wire: versioned value-only protocol (protocol.ts). The Plan 005 API token never enters messages.
+ * Wire: versioned value-only protocol (protocol.ts). The API token never enters messages.
  * Resource budgets: source and wire state are validated before postMessage; timeout/memory are clamped
  * to release ceilings so callers cannot request 60s/256MiB past the authoritative policy.
  */

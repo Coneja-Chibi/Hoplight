@@ -9,7 +9,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rm } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../test-render";
 import { SettingsScreen } from "./settings-screen";
 import { loadChoices } from "./providers-data";
 import type { SettingsVaultApi } from "./settings-screen";
@@ -17,7 +17,7 @@ import type { ProviderConfig } from "../../providers/config";
 
 const HOME = join(tmpdir(), `kit-settings-test-${randomUUID()}`);
 
-// Saving seals through real DPAPI (a PowerShell spawn, ~1s cold); give the drive room.
+// Renderer drives can take several seconds under the full suite.
 setDefaultTimeout(30000);
 
 beforeAll(async () => {
@@ -49,13 +49,14 @@ test("renders the Panel Deck with the providers section and the add row", async 
 
 // React commits on a real macrotask the harness's pass-pumping does not reliably yield; a short
 // real-timer tick after each press makes the drive deterministic (a live renderer has real timers).
-const tick = (ms = 15): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
-test("real keys drive the whole RC flow: masked key, live model list, pick, save", async () => {
+test("provider setup masks the key, lists models, selects one, and saves", async () => {
   const saved: unknown[] = [];
-  // The picked provider in this drive is DeepSeek (one arrow down in the picker); its prefilled
-  // default is deepseek-chat, so the stub list contains it: the exact-match rule must keep the
-  // whole list browsable with the highlight landed on the default.
+  const vaultApi: SettingsVaultApi = {
+    read: async () => ({ providers: [], activeId: null }),
+    save: async (config) => ({ ...config, id: "saved" }),
+    activate: async () => {},
+    remove: async () => {},
+  };
   const stubModels = async (): Promise<{ id: string; context?: number }[]> => [
     { id: "deepseek-chat", context: 128000 },
     { id: "deepseek-reasoner", context: 64000 },
@@ -67,6 +68,7 @@ test("real keys drive the whole RC flow: masked key, live model list, pick, save
       onSaved={(config) => saved.push(config)}
       listModels={stubModels}
       modelsDebounceMs={10}
+      vaultApi={vaultApi}
     />,
     { width: 100, height: 34 },
   );
@@ -93,7 +95,7 @@ test("real keys drive the whole RC flow: masked key, live model list, pick, save
     expect(listFrame).toContain("128K");
 
     t.mockInput.pressKey("ARROW_DOWN"); // highlight moves off the default onto deepseek-reasoner
-    t.mockInput.pressEnter(); // pick it and save (seals through real DPAPI, so poll with patience)
+    t.mockInput.pressEnter();
     for (let i = 0; i < 200 && saved.length === 0; i++) await tick(50);
     expect(saved.length).toBe(1);
     expect((saved[0] as { model: string }).model).toBe("deepseek-reasoner");
@@ -137,7 +139,7 @@ test("activating an existing provider notifies App and rejected mutations stay v
     await t.waitForFrame((frame) => frame.includes("Second"), { maxPasses: 300 });
     t.mockInput.pressKey("ARROW_DOWN");
     t.mockInput.pressKey("d");
-    await tick(60);
+    await t.waitFor(() => activeId === "two");
     expect(activeId).toBe("two");
     expect(changes).toBe(1);
 
@@ -145,8 +147,11 @@ test("activating an existing provider notifies App and rejected mutations stay v
       throw new Error("provider switch failed");
     };
     t.mockInput.pressKey("d");
-    await tick(60);
-    expect(t.captureCharFrame()).toContain("provider switch failed");
+    const failedFrame = await t.waitForFrame(
+      (frame) => frame.includes("provider switch failed"),
+      { maxPasses: 300 },
+    );
+    expect(failedFrame).toContain("provider switch failed");
   } finally {
     await t.renderer.destroy();
   }

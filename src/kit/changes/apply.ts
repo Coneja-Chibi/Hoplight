@@ -2,6 +2,7 @@
  * One-shot draft apply: compare revision, save once, re-read, and emit a truthful receipt.
  */
 import type { KitBridge } from "../bridge";
+import { safeParseCanonicalEntity } from "../../entities/runtime-schema";
 import type { ChangeSession } from "./session";
 import type { ChangeDraft, ChangeReceipt } from "./types";
 import { verifySavedEntity } from "./verify";
@@ -29,6 +30,19 @@ export async function applyChangeDraft(
   bridge: KitBridge,
   draftId: string,
 ): Promise<ChangeReceipt> {
+  const pending = changes.get(draftId);
+  if (pending?.status === "draft") {
+    const parsed = safeParseCanonicalEntity(pending.proposed);
+    if (!parsed.ok) {
+      changes.fail(draftId);
+      return receipt(
+        pending,
+        "failed",
+        "Draft is not a valid canonical piece; nothing was written.",
+      );
+    }
+  }
+
   const draft = changes.startApply(draftId);
   if (!draft) {
     const found = changes.get(draftId);

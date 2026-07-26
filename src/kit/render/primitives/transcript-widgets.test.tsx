@@ -1,13 +1,11 @@
 /** @jsxImportSource @opentui/react */
 /** Rendered-frame proofs for the transcript's foldable and live status widgets. */
 import { describe, expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../test-render";
 import { BackstageRow } from "./backstage-row";
 import { SayLine } from "./say-line";
 import { StatusRow } from "./status-row";
 import { ThoughtRow } from "./thought-row";
-
-const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe("transcript widgets", () => {
   test("SayLine renders the reply text", async () => {

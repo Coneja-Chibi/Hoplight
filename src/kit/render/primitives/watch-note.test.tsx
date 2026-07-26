@@ -1,6 +1,6 @@
 /** Rendered-frame proof for an unprompted, non-modal studio change notice. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import { WatchNote } from "./watch-note";
 
 test("distinguishes a noticed outside change from a requested tool move", async () => {

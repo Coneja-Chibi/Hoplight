@@ -4,8 +4,13 @@
  * stubbed SessionActions (no store, no clock coupling). The navigation + derivation logic itself is
  * covered by the pure-core tests; this only guards the view wiring (nesting, tokens, async list load).
  */
-import { afterEach, expect, setDefaultTimeout, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { afterEach, expect, setDefaultTimeout, spyOn, test } from "bun:test";
+import {
+  runRenderUpdate,
+  settleRender as tick,
+  testRender,
+} from "../../render/test-render";
+import { useState } from "react";
 import type { ModelMessage } from "../../providers/provider";
 import { appendTurn, buildTurn, emptySession, renameSession, type Session } from "../session-model";
 import { summarize, type SessionSummary } from "../projection";
@@ -34,8 +39,6 @@ const manyTurns = (id: string, count: number): Session => {
   }
   return session;
 };
-
-const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const stubActions = (summaries: SessionSummary[], current: Session): SessionActions => ({
   list: async () => summaries,
@@ -80,6 +83,31 @@ test("ResumePlaybill shows the empty state when nothing is saved", async () => {
   expect(frame).toContain("new one");
 });
 
+test("ResumePlaybill ignores a pending list after it unmounts", async () => {
+  let resolveList: ((summaries: SessionSummary[]) => void) | undefined;
+  const pendingList = new Promise<SessionSummary[]>((resolve) => {
+    resolveList = resolve;
+  });
+  const actions = {
+    ...stubActions([], emptySession("x", 1000)),
+    list: () => pendingList,
+  };
+  const error = spyOn(console, "error").mockImplementation(() => {});
+  const t = await testRender(
+    <ResumePlaybill actions={actions} busy={false} onClose={() => {}} />,
+    { width: 90, height: 20 },
+  );
+
+  await t.renderer.destroy();
+  error.mockClear();
+  resolveList?.([summarize(twoTurns("late", "too late"))]);
+  await pendingList;
+  await tick();
+
+  expect(error).not.toHaveBeenCalled();
+  error.mockRestore();
+});
+
 test("RewindRail renders the current session's turns and the branch action", async () => {
   const t = await testRender(
     <RewindRail actions={stubActions([], twoTurns("a", "combat math"))} busy={false} onClose={() => {}} />,
@@ -113,6 +141,68 @@ test("ResumePlaybill keeps a long-list selection visible and opens that row", as
   t.mockInput.pressEnter();
   await tick();
   expect(opened).toEqual(["s15"]);
+});
+
+test("ResumePlaybill loads once but mutations and refreshes use the latest actions", async () => {
+  const summaries = [summarize(twoTurns("a", "combat math"))];
+  const firstCalls = { list: 0, rename: 0, remove: 0 };
+  const secondCalls = { list: 0, rename: 0, remove: 0 };
+  const first = {
+    ...stubActions(summaries, twoTurns("a", "combat math")),
+    list: async () => {
+      firstCalls.list += 1;
+      return summaries;
+    },
+    rename: async () => {
+      firstCalls.rename += 1;
+    },
+    remove: async () => {
+      firstCalls.remove += 1;
+    },
+  };
+  const second = {
+    ...stubActions(summaries, twoTurns("a", "combat math")),
+    list: async () => {
+      secondCalls.list += 1;
+      return summaries;
+    },
+    rename: async () => {
+      secondCalls.rename += 1;
+    },
+    remove: async () => {
+      secondCalls.remove += 1;
+    },
+  };
+  let useSecond = (): void => {
+    throw new Error("harness not mounted");
+  };
+  const Harness = () => {
+    const [actions, setActions] = useState<SessionActions>(first);
+    useSecond = () => setActions(second);
+    return <ResumePlaybill actions={actions} busy={false} onClose={() => {}} />;
+  };
+
+  const t = await testRender(<Harness />, { width: 90, height: 20 });
+  destroy = () => t.renderer.destroy();
+  await t.waitForFrame((frame) => frame.includes("combat math"), { maxPasses: 300 });
+  expect(firstCalls.list).toBe(1);
+
+  runRenderUpdate(() => useSecond());
+  await t.flush();
+  expect(firstCalls.list).toBe(1);
+  expect(secondCalls.list).toBe(0);
+
+  t.mockInput.pressKey("r");
+  t.mockInput.pressEnter();
+  await t.waitFor(() => secondCalls.list === 1);
+  expect(firstCalls.rename).toBe(0);
+  expect(secondCalls.rename).toBe(1);
+
+  t.mockInput.pressKey("d");
+  t.mockInput.pressEnter();
+  await t.waitFor(() => secondCalls.list === 2);
+  expect(firstCalls.remove).toBe(0);
+  expect(secondCalls.remove).toBe(1);
 });
 
 test("RewindRail burst navigation forks the row selected by the key burst", async () => {

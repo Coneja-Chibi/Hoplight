@@ -1,9 +1,4 @@
-/**
- * Vault round-trip: a saved provider must come back byte-exact through real encryption, the key must
- * NOT appear in the file on disk, and with no active provider the resolver falls back to a familiar
- * env var. Runs against a throwaway HOPLIGHT_HOME so it never touches the real vault. On Windows the
- * sealing goes through the DPAPI backend for real.
- */
+/** Provider-vault round trips and environment fallback against isolated storage. */
 import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -19,6 +14,7 @@ import {
 } from "./vault";
 
 const HOME = join(tmpdir(), `kit-vault-test-${randomUUID()}`);
+const UNLOCK = { passphrase: "kit-vault-test-passphrase" };
 
 // DPAPI seals spawn PowerShell (~1s cold); give the write-heavy cases room.
 setDefaultTimeout(30000);
@@ -34,14 +30,17 @@ afterAll(async () => {
 
 describe("vault", () => {
   test("no vault yet reads empty", async () => {
-    expect(await readVault()).toEqual({ providers: [], activeId: null });
+    expect(await readVault(UNLOCK)).toEqual({ providers: [], activeId: null });
   });
 
   test("save then read returns the provider, and the key is not on disk in the clear", async () => {
-    const saved = await saveProvider({ kind: "anthropic", model: "claude-opus-4-8", apiKey: "sk-secret-xyz" });
+    const saved = await saveProvider(
+      { kind: "anthropic", model: "claude-opus-4-8", apiKey: "sk-secret-xyz" },
+      UNLOCK,
+    );
     expect(saved.id).toBeTruthy();
 
-    const active = await activeProvider();
+    const active = await activeProvider(UNLOCK);
     expect(active?.kind).toBe("anthropic");
     expect(active?.apiKey).toBe("sk-secret-xyz");
 
@@ -51,12 +50,15 @@ describe("vault", () => {
   });
 
   test("a second provider replaces active; remove reassigns it", async () => {
-    const first = (await activeProvider())!;
-    const second = await saveProvider({ kind: "openai", model: "gpt-4o", apiKey: "sk-two" });
-    expect((await activeProvider())?.id).toBe(second.id);
+    const first = (await activeProvider(UNLOCK))!;
+    const second = await saveProvider(
+      { kind: "openai", model: "gpt-4o", apiKey: "sk-two" },
+      UNLOCK,
+    );
+    expect((await activeProvider(UNLOCK))?.id).toBe(second.id);
 
-    await removeProvider(second.id!);
-    expect((await activeProvider())?.id).toBe(first.id);
+    await removeProvider(second.id!, UNLOCK);
+    expect((await activeProvider(UNLOCK))?.id).toBe(first.id);
   });
 
   test("with no active provider, resolve falls back to an env var", async () => {

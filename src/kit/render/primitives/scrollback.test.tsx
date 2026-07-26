@@ -1,7 +1,7 @@
 /** @jsxImportSource @opentui/react */
 /** Proves the transcript keeps native-feeling scrolling without painting an internal scrollbar. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import type { ScrollBoxRenderable } from "@opentui/core";
 import { Scrollback } from "./scrollback";
 

@@ -1,6 +1,6 @@
 /** Rendered-frame proof that an unbounded provider failure cannot flood the transcript. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import { ErrorRow, ERROR_ROW_CHARS } from "./error-row";
 
 test("caps very long errors and marks the truncation", async () => {

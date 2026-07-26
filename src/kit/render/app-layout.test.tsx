@@ -1,11 +1,9 @@
 /** @jsxImportSource @opentui/react */
 /** Proves Kit's top-level shell follows the renderer's live terminal canvas. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "./test-render";
 import { App } from "./app";
 import type { Session } from "../session";
-
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 60));
 
 test("the shell follows the renderer canvas after a live resize", async () => {
   const session: Session = {
@@ -30,7 +28,7 @@ test("the shell follows the renderer canvas after a live resize", async () => {
   );
   try {
     rendered.resize(111, 37);
-    await tick();
+    await tick(60);
     const shell = rendered.renderer.root.findDescendantById("kit-root") as {
       width: number;
       height: number;

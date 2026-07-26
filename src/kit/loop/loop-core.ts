@@ -207,12 +207,6 @@ export async function* runTurn(
       return messages;
     }
 
-    // reply.kind === "use": the model wants tools. Record the assistant turn with its calls so an
-    // adapter can rebuild proper tool_use/tool_result pairs on the next round.
-    // Preserve provider-authored tool preambles in model history, but do not promote them into the
-    // user transcript. Backstage and the Gate own in-progress status and approval language.
-    messages.push({ role: "assistant", content: reply.text, toolCalls: reply.calls });
-
     if (toolCalls + reply.calls.length > maxToolCalls) {
       lifecycle = transitionLoop(lifecycle, { type: "stopped" });
       yield { type: "state", phase: lifecycle.phase };
@@ -226,6 +220,9 @@ export async function* runTurn(
       };
       return messages;
     }
+
+    // Keep provider history valid: record tool calls only when this turn can answer all of them.
+    messages.push({ role: "assistant", content: reply.text, toolCalls: reply.calls });
 
     const effectFor = (call: ModelToolCall): ToolEffect =>
       deps.effectFor?.(call) ?? "apply";
@@ -246,8 +243,17 @@ export async function* runTurn(
         effectFor,
       }));
     } else {
-      for (const call of reply.calls) {
-        if (deps.signal?.aborted) break;
+      for (const [index, call] of reply.calls.entries()) {
+        if (deps.signal?.aborted) {
+          settled.push(...reply.calls.slice(index).map((pending) => ({
+            call: pending,
+            result: {
+              summary: "cancelled",
+              output: "cancelled before execution",
+            },
+          })));
+          break;
+        }
         yield { type: "tool-start", name: call.name };
         const effect = effectFor(call);
         const next = deps.activityFor?.(call) === "discovering"

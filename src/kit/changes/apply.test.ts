@@ -6,7 +6,8 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import type { KitBridge } from "../bridge";
 import { discoverCapabilities } from "../capabilities/discover";
 import { applyChangeDraft } from "./apply";
-import { createChangeSession } from "./session";
+import { createChangeSession, type ChangeSession } from "./session";
+import type { ChangeDraft } from "./types";
 
 const baseline = (): ParsedCanonicalEntity => ({
   schemaVersion: CANONICAL_SCHEMA_VERSION,
@@ -94,7 +95,7 @@ describe("applyChangeDraft", () => {
       async compareAndSave(raw) {
         saves += 1;
         current = structuredClone(raw as ParsedCanonicalEntity);
-        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "Aetheria" } };
+        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "Aetheria" }, revision: "next" };
       },
       async read() { return current; },
     };
@@ -105,6 +106,73 @@ describe("applyChangeDraft", () => {
     expect(first.detail).toContain("verified");
     expect(second.status).toBe("failed");
     expect(saves).toBe(1);
+  });
+
+  test("returned draft snapshots cannot mutate the session's proposed entity", async () => {
+    const { changes, draft } = await drafted();
+    (draft.proposed.body as { entries: unknown }).entries = "wrong";
+    let saved: ParsedCanonicalEntity | null = null;
+    let savedEntriesArray = false;
+    const bridge: KitBridge = {
+      ...bridgeBase(),
+      async compareAndSave(raw) {
+        saved = structuredClone(raw as ParsedCanonicalEntity);
+        savedEntriesArray = Array.isArray((raw as ParsedCanonicalEntity & {
+          body: { entries?: unknown };
+        }).body.entries);
+        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "Aetheria" }, revision: "next" };
+      },
+      async read() { return saved; },
+    };
+
+    const result = await applyChangeDraft(changes, bridge, draft.id);
+    expect(result.status).toBe("applied");
+    expect(savedEntriesArray).toBe(true);
+  });
+
+  test("rejects a malformed stored draft before the apply or write seams", async () => {
+    const { draft } = await drafted();
+    const malformed = {
+      ...draft,
+      proposed: {
+        ...draft.proposed,
+        body: { ...draft.proposed.body, entries: "wrong" },
+      },
+    } as unknown as ChangeDraft;
+    let starts = 0;
+    let failures = 0;
+    let writes = 0;
+    const changes: ChangeSession = {
+      create() { throw new Error("unexpected create"); },
+      draft() { throw new Error("unexpected draft"); },
+      get() { return malformed; },
+      list() { return [malformed]; },
+      forTarget() { return malformed; },
+      discard() { return null; },
+      fail() {
+        failures += 1;
+        return { ...malformed, status: "failed" };
+      },
+      startApply() {
+        starts += 1;
+        return { ...malformed, status: "applying" };
+      },
+      finishApply() { return null; },
+    };
+    const bridge: KitBridge = {
+      ...bridgeBase(),
+      async compareAndSave() {
+        writes += 1;
+        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "World" }, revision: "next" };
+      },
+    };
+
+    const result = await applyChangeDraft(changes, bridge, malformed.id);
+    expect(result.status).toBe("failed");
+    expect(result.detail).toContain("nothing was written");
+    expect(starts).toBe(0);
+    expect(writes).toBe(0);
+    expect(failures).toBe(1);
   });
 
   test("a stale revision performs no save and reports stale", async () => {
@@ -128,7 +196,7 @@ describe("applyChangeDraft", () => {
     const bridge: KitBridge = {
       ...bridgeBase(),
       async compareAndSave() {
-        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "wrong" } };
+        return { status: "saved", summary: { id: "world", kind: "lorebook", name: "wrong" }, revision: "next" };
       },
       async read() { return baseline(); },
     };

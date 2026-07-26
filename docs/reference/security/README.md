@@ -21,20 +21,22 @@ a defense is proven at only one layer, that is said in the same breath.
 
 ## Threat model
 
-**Assets.** The user's provider API keys and connection secrets; the local filesystem and the studio
-folder the user owns; the trusted UI origin and its per-launch session token; the user's machine and its
-attention (availability).
+**Assets.** The user's provider API keys and connection secrets; remote join secrets, device approvals,
+and host-only controls; the local filesystem and the studio folder the user owns; the trusted UI origin
+and its per-launch session token; the user's machine and its attention (availability).
 
 **Adversary.** Content authored by someone else and opened by the user: a card whose fields carry
 embedded scripts, a PNG or ZIP that may be a decompression bomb, a regex rule that may backtrack
-catastrophically, a Risu Lua script. The transport is the user importing, editing, previewing, or
-running that content, never a remote attacker reaching an exposed port. The server is loopback only, a
-local forge, never an exposed service (`src/ui/server.ts:411`).
+catastrophically, a Risu Lua script. The usual transport is the user importing, editing, previewing, or
+running that content. When the user explicitly enables Remote access, approved remote clients and the
+remote listener become additional trust boundaries; see
+[the remote-access threat model](remote-access.md). The primary Studio listener remains a local
+loopback forge.
 
 **Trust boundary.** Trust ends at every file and every request. Untrusted input is parsed once into the
 canonical model, capabilities are denied by absence, and every gate fails closed. The two known-soft
-edges are named explicitly below: packaged-host origin isolation is not yet measured (ADR-009), and the
-key vault is a draft spec with no implementation in the tree.
+edges are named explicitly below: packaged-host origin isolation is not yet measured (ADR-009), and
+Kit's provider vault has shipped code but still has open recovery and non-Windows setup work.
 
 @fig routes
 
@@ -56,8 +58,9 @@ blind-copies one app's fields or executable payloads into another
 so a lorebook can never be handed to a character writer (`docs/reference/architecture.md:104-111`).
 
 Status: enforced by the adapter contract and the escrow envelope in `src/core`, and held by the
-project-wide Round-Trip Law that same-format re-emit is byte-for-byte. This layer covers import and
-conversion; the one place code does run is the Lua Test Bench, layer 5.
+project-wide Round-Trip Law that same-format re-emit preserves semantic authored meaning. Byte identity
+is required only for a format whose specification declares and fixtures prove a byte-level tier. This
+layer covers import and conversion; the one place code does run is the Lua Test Bench, layer 5.
 
 ### 2. Decompression caps on archives
 
@@ -154,8 +157,9 @@ is the packaged-host origin boundary, layer 6.
 ### 6. Distinct-origin sandbox isolation (packaged-host proof BLOCKED)
 
 ADR-009 adds a defense-in-depth origin boundary: a second loopback listener on an ephemeral port serves
-only the worker bundle and `glue.wasm`, with no `/api`, no session token, no index HTML, and no studio
-paths (`docs/decisions/ADR-009-sandbox-origin.md:45-62`; `src/ui/sandbox-host.ts:1-7`, `:30`, `:162-164`).
+only the Lua worker, regex worker, and `glue.wasm`, with no `/api`, no session token, no index HTML, and
+no studio paths (`docs/decisions/ADR-009-sandbox-origin.md:45-62`;
+`src/ui/sandbox-host.ts:1-7`, `:30`, `:162-164`).
 A same-origin Worker is an availability boundary, not an origin boundary, so this reduces blast radius if
 a future engine, bundler, or WebView bug exposes web capabilities
 (`docs/decisions/ADR-009-sandbox-origin.md:14-20`).
@@ -175,9 +179,9 @@ That mode is degraded and is explicitly not claimed isolated (`docs/decisions/AD
 Status: HTTP-layer authority, allowlist, CSP, and CORS are automated; the packaged WebView2 origin proof
 is not measured and remains BLOCKED.
 
-### 7. Loopback-only, token-gated local server
+### 7. Token-gated local server and opt-in remote access
 
-The UI server binds `127.0.0.1` only (`src/ui/server.ts:425`). Security lives in
+The primary UI server binds `127.0.0.1` (`src/ui/server.ts:425`). Security lives in
 `src/ui/server-security.ts`: a per-launch bearer token from `randomBytes(32)`
 (`src/ui/server-security.ts:26-32`); a Host check on every `/api` method and an Origin plus token check on
 every POST, compared with `timingSafeEqual` (`src/ui/server-security.ts:200-230`, `:131-135`). The
@@ -190,27 +194,38 @@ streaming reader that returns 413 on overflow (`src/ui/server-security.ts:14-15`
 external link is POST-only, re-validated to http or https via `safeExternalUrl`, and spawned with an argv
 array rather than a shell string (`src/ui/server.ts:347-360`; `src/ui/server-security.ts:264-276`).
 
-Status: enforced in `server-security.ts`, extracted from the server specifically so the gate is unit
-testable; the security surface is re-exported for tests (`src/ui/server.ts:56-68`).
+Remote tunnel and LAN modes are separate, explicitly enabled boundaries with their own join secret,
+device approval, and host-only control routes. Their detailed threats and controls live in
+[the remote-access reference](remote-access.md).
 
-### 8. BYOK key vault (designed, not yet built)
+Status: the primary listener is enforced in `server-security.ts`, extracted from the server so the
+gate is unit testable; the security surface is re-exported for tests (`src/ui/server.ts:56-68`).
+Remote access is opt-in and must not be generalized from the primary listener's loopback claim.
 
-Everything in this layer is specification, not shipped code. `specs/engine/key-vault.md` is a draft for
-milestone M2 (`specs/engine/key-vault.md:3-4`), it describes a `packages/ai` component that does not exist
-in the current tree, and a search for its public surface (`KeyVault`, `getApiKey`, `redactSecrets`)
-returns nothing. Treat the following as intent, measured by no test.
+### 8. BYOK provider vault (shipping in Kit)
 
-The design keeps keys local per ADR-006 (BYOK, no vaud-operated inference or proxy,
-`docs/decisions/ADR-006-ai-and-agent.md:7-10`). It calls for two backends, the OS keychain where
-available, else an AES-256-GCM encrypted file with a random local secret
-(`specs/engine/key-vault.md:22-24`, `:84-101`), with owner-only file permissions and atomic writes. It
-specifies a never-log-keys invariant enforced by a `redactSecrets` helper applied at the spill boundary,
-and a type-level split between `ProviderConfig` (safe) and `ProviderSecret` (never logged)
-(`specs/engine/key-vault.md:134-167`).
+Kit stores provider configurations, including credentials, in one encrypted vault file
+(`src/kit/providers/vault.ts`). The plaintext provider list exists only after the process opens the
+vault. Writes seal the complete document, write a private temporary file, and atomically replace the
+previous vault.
 
-Status: designed only. Not implemented, not measured. No present-tense protection should be claimed for
-key storage until the M2 vault ships with the redaction and never-log suites its own test plan names
-(`specs/engine/key-vault.md:338-367`).
+`src/kit/keystore/registry.ts` selects the first available sealing backend. Windows uses DPAPI when
+available. A portable passphrase backend is implemented, and each sealed blob records the backend that
+created it; opening consults that exact backend and does not silently try another one. The current Kit
+settings flow does not yet collect or supply the passphrase, so non-Windows first-run setup and unlock
+are incomplete.
+
+Provider egress is constrained separately in `src/kit/providers/egress.ts`: the configured endpoint is
+normalized and the initial request URL must match its host. The current fetch path does not revalidate
+runtime redirects, so the gate is not an end-to-end redirect policy. Credentials authenticate to that
+provider but are not inserted into model messages, tool observations, canonical pieces, exports,
+transcripts, or the privacy ledger.
+
+Status: encryption, backend selection, atomic replacement, provider resolution, and egress locking
+ship with Kit and have focused suites under `src/kit/keystore` and `src/kit/providers`. The current
+outer-file reader still treats malformed or unreadable envelope JSON as an absent vault before
+decryption; recovery must be repaired before the vault is described as fully fail-closed. Kit is also
+a source-checkout preview rather than a current GitHub release artifact.
 
 ## Status at a glance
 
@@ -224,5 +239,8 @@ key storage until the M2 vault ships with the redaction and never-log suites its
   are defense in depth, not a proof of impossibility.
 - The regex per-rule timeout does not interrupt a single catastrophic native `RegExp` match. The
   pre-compile refusal is the actual defense (`src/core/regex/validate.ts:6-9`).
-- The key vault's protections are specified, not implemented. Nothing in the tree stores keys yet.
+- The provider vault does not yet have a complete malformed-envelope recovery path, and Kit is not
+  distributed in current release binaries.
+- The portable vault backend does not yet have a settings-driven passphrase setup and unlock flow.
+- Provider egress checks the initial configured host but does not revalidate runtime redirects.
 - Where the sandbox listener cannot bind, the same-origin fallback is degraded and not isolated.

@@ -23,6 +23,7 @@ export interface ChangeSession {
   list(): readonly ChangeDraft[];
   forTarget(kind: ContentKind, id: string): ChangeDraft | null;
   discard(id: string): ChangeDraft | null;
+  fail(id: string): ChangeDraft | null;
   startApply(id: string): ChangeDraft | null;
   finishApply(id: string, status: "applied" | "stale" | "failed"): ChangeDraft | null;
 }
@@ -38,6 +39,7 @@ const targetFrom = (input: unknown): { id: string } | null => {
 const targetKey = (kind: string, id: string): string => `${kind}/${id}`;
 const jsonEqual = (a: unknown, b: unknown): boolean =>
   JSON.stringify(a) === JSON.stringify(b);
+const cloneDraft = (draft: ChangeDraft): ChangeDraft => structuredClone(draft);
 
 /** Build an isolated in-memory draft store. No state survives the owning Kit session. */
 export function createChangeSession(): ChangeSession {
@@ -70,7 +72,7 @@ export function createChangeSession(): ChangeSession {
       };
       drafts.set(draft.id, draft);
       activeByTarget.set(key, draft.id);
-      return draft;
+      return cloneDraft(draft);
     },
 
     draft(capability, input, entity) {
@@ -140,20 +142,22 @@ export function createChangeSession(): ChangeSession {
 
       drafts.set(draft.id, draft);
       activeByTarget.set(key, draft.id);
-      return draft;
+      return cloneDraft(draft);
     },
 
     get(id) {
-      return drafts.get(id) ?? null;
+      const draft = drafts.get(id);
+      return draft ? cloneDraft(draft) : null;
     },
 
     list() {
-      return [...drafts.values()];
+      return [...drafts.values()].map(cloneDraft);
     },
 
     forTarget(kind, id) {
       const draftId = activeByTarget.get(targetKey(kind, id));
-      return draftId ? drafts.get(draftId) ?? null : null;
+      const draft = draftId ? drafts.get(draftId) : undefined;
+      return draft ? cloneDraft(draft) : null;
     },
 
     discard(id) {
@@ -162,7 +166,16 @@ export function createChangeSession(): ChangeSession {
       const discarded: ChangeDraft = { ...draft, status: "discarded" };
       drafts.set(id, discarded);
       activeByTarget.delete(targetKey(draft.target.kind, draft.target.id));
-      return discarded;
+      return cloneDraft(discarded);
+    },
+
+    fail(id) {
+      const draft = drafts.get(id);
+      if (!draft || draft.status !== "draft") return null;
+      const failed: ChangeDraft = { ...draft, status: "failed" };
+      drafts.set(id, failed);
+      activeByTarget.delete(targetKey(draft.target.kind, draft.target.id));
+      return cloneDraft(failed);
     },
 
     startApply(id) {
@@ -171,7 +184,7 @@ export function createChangeSession(): ChangeSession {
       const applying: ChangeDraft = { ...draft, status: "applying" };
       drafts.set(id, applying);
       activeByTarget.delete(targetKey(draft.target.kind, draft.target.id));
-      return applying;
+      return cloneDraft(applying);
     },
 
     finishApply(id, status) {
@@ -179,7 +192,7 @@ export function createChangeSession(): ChangeSession {
       if (!draft || draft.status !== "applying") return null;
       const finished: ChangeDraft = { ...draft, status };
       drafts.set(id, finished);
-      return finished;
+      return cloneDraft(finished);
     },
   };
 }

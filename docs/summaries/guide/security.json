@@ -2,31 +2,35 @@
   "schemaVersion": 1,
   "docId": "guide/security",
   "sourcePath": "docs/guide/security.md",
-  "sourceHash": "sha256:52c2a4e5d19304896fce17789379aadb804be95281641ec0ebbde4020878bad1",
-  "summary": "Security and privacy for a local-only studio that also opens untrusted cards scripts PNGs zips and stranger regex. Honesty over comfort: real protections named with backing; partial ones said so. Your content stays on your machine: loopback 127.0.0.1 bind default 8321 no outbound calls no accounts pieces as plain JSON in studio folder; limit is not encrypted at rest so guard the folder. A card cannot run itself: regex is budgeted find-replace never eval with refuse-dangerous then time backstop; macros and triggers analyzed not evaluated including hand-written calc parser; Lua only in Risu Test Bench you open on purpose caged in wasm worker separate loopback origin two files no session token; origin boundary proven at HTTP tests not yet measured in packaged Windows app per ADR-009 so not claimed fully isolated. Other files stay bounded: size caps zip PNG bomb caps parse fail closed path containment. Converting never copies one apps code into another: portable content only private extras escrowed for same-format round-trip never blind-copied so payloads cannot smuggle. About API keys: none needed or stored today no AI; planned BYOK local vault ADR-006 not yet measured; session token minted per launch never disk-logged. What we do not claim: unsigned binaries checksum verify; Test Bench pack measure open; no at-rest encryption. Report holes privately to chibiconeja@gmail.com.",
+  "sourceHash": "sha256:eca35bfb5ef9f238367b00b073da9d231e4afd98feef09f2e69a2b7adf49cce9",
+  "summary": "User-facing security and privacy guide for a local-first Studio that opens untrusted cards, scripts, regex sets, PNGs, and archives. Your content stays under your control through a primary loopback listener, no accounts or telemetry, and plain inspectable studio files, while the guide names three deliberate network boundaries: provider-backed Kit turns, user-opened update and version-switch information, and explicitly enabled remote access. A card cannot run itself because regex is validated and budgeted, macros and triggers are analyzed, and Lua runs only in the opt-in Risu Test Bench with worker, WebAssembly, resource, and separate-origin defenses whose packaged-host isolation is not yet proven. The sandbox origin serves only the Lua worker, regex worker, and glue.wasm. Other files stay bounded by body, archive, parsing, and path rules. Converting never copies one app's code into another because only portable canonical content crosses formats while private fields stay escrowed. About API keys describes optional BYOP Kit vault storage, hop-by-hop provider destination checks, the missing non-Windows passphrase setup flow, and Studio's ephemeral mutation token.",
   "topics": [
-    "loopback local-first privacy",
-    "no outbound no accounts",
-    "card scripts inert default",
-    "Lua Test Bench cage",
-    "fail closed bounded parse",
-    "convert never copy code",
-    "API keys none today BYOK planned",
-    "honest partial claims"
+    "local-first content control",
+    "deliberate network boundaries",
+    "scripts inert by default",
+    "Lua Test Bench limits",
+    "bounded untrusted files",
+    "escrowed cross-format conversion",
+    "BYOP provider credentials",
+    "session mutation token",
+    "honest security nonclaims"
   ],
   "sections": [
     {
-      "slug": "your-content-stays-on-your-machine",
-      "title": "Your content stays on your machine",
+      "slug": "your-content-stays-under-your-control",
+      "title": "Your content stays under your control",
       "level": 2,
-      "sourceHash": "sha256:4d14128b115889f4fc66c807586d495d1232813b175da9070a3ec3ed875c3da8",
-      "summary": "The server is loopback only: studio binds 127.0.0.1 the local-only address and prints it default 127.0.0.1:8321 so nothing outside your machine can reach it. There are no outbound calls: no phone home upload card or remote preview fetch; no network client aims at anything but your own loopback and the safety FAQ invites a codebase grep check. There are no accounts: no sign-in no cloud nothing to breach elsewhere. Pieces are plain files: import and edit live as JSON in a studio folder you open read and back up yourself Documents Hoplight Studio unless pointed elsewhere. Honest limit: local means not uploaded not encrypted at rest; readable JSON on disk on purpose so anyone who can already read your files can read pieces. Guard the folder the way you guard other documents.",
+      "sourceHash": "sha256:dff99e2b2b80269e521de47f0787ba4147109cbe5da06effce71ee949636b159",
+      "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. Import, editing, conversion, and deterministic analysis make no provider request.",
       "topics": [
-        "loopback 127.0.0.1 bind",
-        "no outbound network",
-        "no accounts cloud",
-        "plain JSON studio folder",
-        "not encrypted at rest"
+        "127.0.0.1 local listener",
+        "no accounts telemetry proxy",
+        "plain JSON studio files",
+        "not encrypted at rest",
+        "provider model sends",
+        "GitHub update checks",
+        "explicit remote access",
+        "offline deterministic workflows"
       ],
       "children": []
     },
@@ -34,15 +38,16 @@
       "slug": "a-card-cannot-run-itself",
       "title": "A card cannot run itself",
       "level": 2,
-      "sourceHash": "sha256:21497022d3205fdbaf3c8b5c550439c329a7dd7b3b800183ee372d2f5725a192",
-      "summary": "A downloaded card is read not run. Scripts go three ways and only one executes. Regex is budgeted find-replace never eval; dangerous patterns are refused first; time limit is a backstop so a rare slip could still hang. Macros and triggers are analyzed not evaluated; calc uses a hand-written number parser not the language runtime. Lua runs only in the Risu Test Bench you open on purpose never on import preview or background. Opened bench is caged: Lua in WebAssembly VM in a worker with timeouts and memory caps on a separate loopback origin that serves only worker and wasm glue 404s every api path and carries no session token. Separate-origin is proven at the HTTP test layer but not yet measured in the packaged Windows app ADR-009 check still open. We claim opt-in and limited not fully isolated until that measurement exists.",
+      "sourceHash": "sha256:279fb90e6bbb341339ebf30a9bbcb9c26404c28dff1673e542d9a353171ef2d6",
+      "summary": "Downloaded content is parsed rather than automatically executed. Regex rules are budgeted find-and-replace data, never eval; structurally dangerous patterns are rejected before execution because a timeout cannot reliably interrupt one pathological native match. Macros and Risu-style triggers are analyzed without evaluation, including calc expressions handled by a small numeric parser. Lua executes only after the user opens the Risu Test Bench, never during import, preview, or background work. The bench uses real Lua in WebAssembly inside a killable worker with time and memory limits, served from a second loopback origin that exposes only the Lua worker, regex worker, and glue.wasm, with no session token or API. HTTP-layer tests prove that boundary, but packaged Windows-host isolation remains unmeasured, so the guide claims opt-in limitation rather than complete isolation.",
       "topics": [
-        "regex data not eval",
-        "macros analyzed not run",
-        "Lua Test Bench only",
-        "wasm worker separate origin",
-        "ADR-009 pack measure open",
-        "opt-in limited not full isolate claim"
+        "regex preflight and budgets",
+        "macros triggers analysis only",
+        "Lua opt-in bench",
+        "WebAssembly worker limits",
+        "separate sandbox origin",
+        "no token or API",
+        "packaged isolation unmeasured"
       ],
       "children": []
     },
@@ -50,44 +55,48 @@
       "slug": "other-files-stay-bounded",
       "title": "Other files stay bounded",
       "level": 2,
-      "sourceHash": "sha256:e19d7327de5bd84fc71ac423960ce53d9ba68a82c029f008165cf263aea6ea82",
-      "summary": "Untrusted input cannot exhaust the machine on the way in. Uploads and bodies are size-capped at the door. Zip and PNG reads are bounded so archive bombs hit the cap and stop. Parsing fails closed: malformed cards are rejected not half-read; unreadable saves are refused. Piece ids resolve only inside the studio folder so crafted escape names are blocked before any file is touched.",
+      "sourceHash": "sha256:f18c9d4822cce03205cc89cc3d61acc3fdc574dd58c1d93590aca0f7607f5fe0",
+      "summary": "Untrusted files are constrained before they can consume unbounded memory, corrupt state, or escape storage. Uploads and request bodies have hard size ceilings. ZIP and PNG readers enforce bounded extraction so compressed archive bombs stop at configured limits rather than expanding indefinitely. Parsers fail closed on malformed content instead of producing partially trusted entities. Kit's gated apply saves and re-reads its target to verify intended canonical content, while Studio editors send expected revisions so stale writes are rejected. Piece identifiers are validated and resolved strictly beneath the selected studio directory; crafted traversal names fail before filesystem access can escape that root.",
       "topics": [
-        "size-capped uploads",
-        "zip PNG bomb cap",
-        "parse fail closed",
-        "path containment ids"
+        "request body caps",
+        "ZIP PNG expansion limits",
+        "malformed input rejected",
+        "Kit read-back and Studio revision checks",
+        "piece id validation",
+        "studio path containment"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     },
     {
       "slug": "converting-never-copies-one-apps-code-into-another",
       "title": "Converting never copies one app's code into another",
       "level": 2,
       "sourceHash": "sha256:6e1e0afedec6954709810e023ad4979f9136ca48de5e68c215f40ed92298f7ee",
-      "summary": "Cross-format convert carries portable content only. Private extras extension blocks trigger scripts and layout stay in escrow so same-format round-trip loses nothing but are never blind-copied into another app file. On purpose: conversion cannot smuggle one app executable payload into another. Shared core crosses; drops are reported.",
+      "summary": "Cross-format conversion carries only the portable canonical content understood by both sides. Source-specific extension blocks, layout data, triggers, and executable-looking payloads remain in the saved piece's escrow rather than being copied into another platform's output. That escrow allows same-format re-export to preserve source-owned information while preventing a conversion from smuggling one application's private code into a different application's file. Hoplight reports content that cannot cross instead of silently pretending it was portable. The rule is structural: the shared readable core converts, while platform-private material remains attached to its source format.",
       "topics": [
-        "portable content only",
-        "escrow same-format keep",
-        "never blind-copy code",
-        "no payload smuggle",
-        "drops reported"
+        "portable canonical content",
+        "source-private escrow",
+        "same-format preservation",
+        "no blind script copying",
+        "cross-format loss reported"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     },
     {
       "slug": "about-api-keys",
       "title": "About API keys",
       "level": 2,
-      "sourceHash": "sha256:e7b7bedb5a5d8130e8f4f13ee5a1b68508c309ddc2a2bf0bc9c6dfdd3cc2aecc",
-      "summary": "Today there is nothing to leak because today Hoplight calls no AI. No key is needed and none is stored: converter inspection validation editing and deterministic checks work with zero keys and there is no key field in settings the app writes. AI is planned as bring-your-own-key: when AI features ship they are designed opt-in BYOK entered at first AI moment not install kept in local vault OS keychain or encrypted file if no keychain with no Vaudeville server proxy or account in the path. That is design of record ADR-006 not a shipped-and-measured guarantee; this page will update once enforcement lands. One secret the app holds today: studio mints a fresh session token each launch uses it to gate every change and never logs or saves it to disk.",
+      "sourceHash": "sha256:4ba6300616e3b9de18830dd87b9ced0acca64464d58ddf3fe0d1df6f6f0be10e",
+      "summary": "Provider-backed Kit is optional and uses bring-your-own-provider credentials; import, conversion, inspection, validation, editing, and deterministic checks continue without a key. Windows uses the operating-system credential backend. A portable passphrase-encrypted backend exists, but the current settings flow does not collect or supply the passphrase, so first-run setup and unlock remain incomplete on non-Windows systems. Credentials authenticate the configured provider and stay out of messages, tool observations, canonical pieces, exports, transcripts, and privacy accounting. Provider requests validate the configured host before every hop and refuse cross-host redirects, HTTPS downgrades, and chains beyond five redirects. Separately, Studio creates a fresh local session token at launch to authorize mutations and does not persist it.",
       "topics": [
-        "no AI no keys today",
-        "planned BYOK vault",
-        "ADR-006 design not measured",
-        "session token per launch"
+        "optional BYOP Kit",
+        "offline core workflows",
+        "local encrypted vault",
+        "configured provider endpoint",
+        "hop-by-hop redirect validation",
+        "credentials excluded from content",
+        "no Hoplight inference proxy",
+        "ephemeral Studio token"
       ],
       "children": []
     },
@@ -95,16 +104,16 @@
       "slug": "what-we-do-not-claim",
       "title": "What we do not claim",
       "level": 2,
-      "sourceHash": "sha256:8df8872b2c9674ef20ddaffbf2a2beb7aea17a3d91e5183c37b156fab3821deb",
-      "summary": "Binaries are unsigned so SmartScreen and Gatekeeper warn on first run; missing paid cert not tampering; verify release SHA-256 checksums. Test Bench origin is not measured in the packaged app yet. Studio folder is not encrypted at rest. Report holes privately to chibiconeja@gmail.com also in SECURITY.md for reply fix and optional credit.",
+      "sourceHash": "sha256:173ba22275d6816e6fd0a5dda6ff261d96bcf59f7782eb82a80cc4cb352ef167",
+      "summary": "The guide avoids reassuring but unsupported claims. Current desktop binaries are unsigned, so SmartScreen or Gatekeeper warnings are expected; users should verify the SHA-256 checksums shipped with releases rather than treating the warning alone as evidence of tampering. The separate Test Bench origin has automated HTTP-layer proof but has not been measured inside the packaged desktop host. Canonical studio files are intentionally readable and are not encrypted at rest. Kit's portable vault still lacks a settings-driven passphrase setup and unlock flow. Security reports should go privately to chibiconeja@gmail.com, also listed in SECURITY.md.",
       "topics": [
-        "unsigned binaries checksums",
-        "Test Bench pack open",
-        "no at-rest encryption",
-        "private report email"
+        "unsigned desktop binaries",
+        "verify release checksums",
+        "packaged sandbox proof open",
+        "studio files plaintext",
+        "private vulnerability report"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     }
   ]
 }

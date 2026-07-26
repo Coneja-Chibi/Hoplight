@@ -1,10 +1,7 @@
 /** Rendered-frame regression proof that the large opening monologue keeps its five stage cues. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../test-render";
 import { OpeningBanner } from "./opening-banner";
-
-const tick = (ms = 60): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 test("large opening banner renders every friendly stage cue", async () => {
   const renderer = await testRender(

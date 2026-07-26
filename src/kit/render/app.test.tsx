@@ -5,7 +5,7 @@
  * for real (the status row shows who is thinking; markdown renders bold WITHOUT its ** markers).
  */
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "./test-render";
 import { applyTurnEvent, settleTurn, toggleTrace, type TurnView } from "./turn-events";
 import { App } from "./app";
 import type { Session } from "../session";
@@ -20,8 +20,6 @@ setDefaultTimeout(30000);
 
 // React commits on a real macrotask the harness pumping does not reliably yield (see the settings
 // tests); a short real-timer tick after mount lets the widget paint before we read frames.
-const tick = (ms = 120): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
 const view = (): TurnView => ({
   lines: [],
   live: { phase: "waiting" },

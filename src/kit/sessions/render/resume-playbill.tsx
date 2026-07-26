@@ -7,7 +7,7 @@
  * this shell only holds cursor + mode state. Every mutating key is guarded by busy so nothing changes
  * mid-turn. Keyboard reads a ref mirror of state so a burst of keys never chains off a stale closure.
  */
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useKeyboard, useTerminalDimensions } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
@@ -51,21 +51,23 @@ export function ResumePlaybill({
   ref.current = view;
   const busyRef = useRef(busy);
   busyRef.current = busy;
+  const actionsRef = useRef(actions);
+  actionsRef.current = actions;
   const alive = useRef(true);
 
-  const apply = (next: PlaybillView): void => {
+  const apply = useCallback((next: PlaybillView): void => {
     ref.current = next;
     setView(next);
-  };
+  }, []);
 
-  const refresh = async (keepIndex: number): Promise<void> => {
-    const summaries = await actions.list();
+  const refresh = useCallback(async (keepIndex: number): Promise<void> => {
+    const summaries = await actionsRef.current.list();
     if (!alive.current) return;
     apply({ summaries, index: clamp(keepIndex, 0, Math.max(0, summaries.length - 1)), mode: { kind: "browse" } });
-  };
+  }, [apply]);
 
   // Load once on mount; later list changes come from the shell's own refresh() after a rename/delete.
-  // Depending on the actions identity here would refetch on every parent render if it is not memoized.
+  // actionsRef keeps this mount load stable even when a parent rebuilds the action object.
   useEffect(() => {
     alive.current = true;
     void refresh(0);
@@ -73,7 +75,7 @@ export function ResumePlaybill({
       alive.current = false;
     };
 
-  }, []);
+  }, [refresh]);
 
   useKeyboard((event: KeyEvent) => {
     const current = ref.current;

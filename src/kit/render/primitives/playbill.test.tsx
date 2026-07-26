@@ -1,10 +1,7 @@
 /** Real-frame proof for the restored marquee and its compact fallback. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../test-render";
 import { Playbill } from "./playbill";
-
-const tick = (ms = 60): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 test("wide terminals render the NOW PLAYING marquee without persistent inventory copy", async () => {
   const renderer = await testRender(

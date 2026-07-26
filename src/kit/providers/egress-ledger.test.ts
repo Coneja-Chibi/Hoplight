@@ -57,5 +57,6 @@ test("formatLedger: lists each send with provider and compact tokens", () => {
   expect(out).toContain("1 send ");
   expect(out).toContain("claude");
   expect(out).toContain("3.1k in / 840 out");
-  expect(out).toContain("Keys never travel");
+  expect(out).toContain("Credentials authenticate only to your configured provider");
+  expect(out).not.toContain("Keys never travel");
 });

@@ -1,6 +1,6 @@
 /** Rendered-frame proof for the compact queued-whisper ticket. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../../test-render";
 import { QueueTicket } from "./queue-ticket";
 
 test("shows the next whisper and folds the remaining count", async () => {

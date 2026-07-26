@@ -5,7 +5,7 @@
  * rows, and the keybinding rows beside them; esc must close it.
  */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../../test-render";
 import { HelpScreen } from "./help-screen";
 import type { HelpCommand } from "./help-model";
 
@@ -14,8 +14,6 @@ const commands: HelpCommand[] = [
   { name: "/help", summary: "this stage", group: "moving", aliases: ["/?"] },
   { name: "/quit", summary: "leave Kit", group: "session" },
 ];
-
-const tick = (ms = 15): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 test("draws the grouped sections, command rows, and keybinding rows", async () => {
   const t = await testRender(<HelpScreen commands={commands} onClose={() => {}} />, { width: 80, height: 30 });

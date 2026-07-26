@@ -3480,29 +3480,33 @@
         "guide/regex",
         "reference/architecture"
       ],
-      "semanticSummary": "Security and privacy for a local-only studio that also opens untrusted cards scripts PNGs zips and stranger regex. Honesty over comfort: real protections named with backing; partial ones said so. Your content stays on your machine: loopback 127.0.0.1 bind default 8321 no outbound calls no accounts pieces as plain JSON in studio folder; limit is not encrypted at rest so guard the folder. A card cannot run itself: regex is budgeted find-replace never eval with refuse-dangerous then time backstop; macros and triggers analyzed not evaluated including hand-written calc parser; Lua only in Risu Test Bench you open on purpose caged in wasm worker separate loopback origin two files no session token; origin boundary proven at HTTP tests not yet measured in packaged Windows app per ADR-009 so not claimed fully isolated. Other files stay bounded: size caps zip PNG bomb caps parse fail closed path containment. Converting never copies one apps code into another: portable content only private extras escrowed for same-format round-trip never blind-copied so payloads cannot smuggle. About API keys: none needed or stored today no AI; planned BYOK local vault ADR-006 not yet measured; session token minted per launch never disk-logged. What we do not claim: unsigned binaries checksum verify; Test Bench pack measure open; no at-rest encryption. Report holes privately to chibiconeja@gmail.com.",
+      "semanticSummary": "User-facing security and privacy guide for a local-first Studio that opens untrusted cards, scripts, regex sets, PNGs, and archives. Your content stays under your control through a primary loopback listener, no accounts or telemetry, and plain inspectable studio files, while the guide names three deliberate network boundaries: provider-backed Kit turns, user-opened update and version-switch information, and explicitly enabled remote access. A card cannot run itself because regex is validated and budgeted, macros and triggers are analyzed, and Lua runs only in the opt-in Risu Test Bench with worker, WebAssembly, resource, and separate-origin defenses whose packaged-host isolation is not yet proven. The sandbox origin serves only the Lua worker, regex worker, and glue.wasm. Other files stay bounded by body, archive, parsing, and path rules. Converting never copies one app's code into another because only portable canonical content crosses formats while private fields stay escrowed. About API keys describes optional BYOP Kit vault storage, hop-by-hop provider destination checks, the missing non-Windows passphrase setup flow, and Studio's ephemeral mutation token.",
       "topics": [
-        "loopback local-first privacy",
-        "no outbound no accounts",
-        "card scripts inert default",
-        "Lua Test Bench cage",
-        "fail closed bounded parse",
-        "convert never copy code",
-        "API keys none today BYOK planned",
-        "honest partial claims"
+        "local-first content control",
+        "deliberate network boundaries",
+        "scripts inert by default",
+        "Lua Test Bench limits",
+        "bounded untrusted files",
+        "escrowed cross-format conversion",
+        "BYOP provider credentials",
+        "session mutation token",
+        "honest security nonclaims"
       ],
       "anchors": [
         {
-          "text": "Your content stays on your machine",
-          "slug": "your-content-stays-on-your-machine",
+          "text": "Your content stays under your control",
+          "slug": "your-content-stays-under-your-control",
           "level": 2,
-          "summary": "The server is loopback only: studio binds 127.0.0.1 the local-only address and prints it default 127.0.0.1:8321 so nothing outside your machine can reach it. There are no outbound calls: no phone home upload card or remote preview fetch; no network client aims at anything but your own loopback and the safety FAQ invites a codebase grep check. There are no accounts: no sign-in no cloud nothing to breach elsewhere. Pieces are plain files: import and edit live as JSON in a studio folder you open read and back up yourself Documents Hoplight Studio unless pointed elsewhere. Honest limit: local means not uploaded not encrypted at rest; readable JSON on disk on purpose so anyone who can already read your files can read pieces. Guard the folder the way you guard other documents.",
+          "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. Import, editing, conversion, and deterministic analysis make no provider request.",
           "topics": [
-            "loopback 127.0.0.1 bind",
-            "no outbound network",
-            "no accounts cloud",
-            "plain JSON studio folder",
-            "not encrypted at rest"
+            "127.0.0.1 local listener",
+            "no accounts telemetry proxy",
+            "plain JSON studio files",
+            "not encrypted at rest",
+            "provider model sends",
+            "GitHub update checks",
+            "explicit remote access",
+            "offline deterministic workflows"
           ],
           "children": []
         },
@@ -3510,14 +3514,15 @@
           "text": "A card cannot run itself",
           "slug": "a-card-cannot-run-itself",
           "level": 2,
-          "summary": "A downloaded card is read not run. Scripts go three ways and only one executes. Regex is budgeted find-replace never eval; dangerous patterns are refused first; time limit is a backstop so a rare slip could still hang. Macros and triggers are analyzed not evaluated; calc uses a hand-written number parser not the language runtime. Lua runs only in the Risu Test Bench you open on purpose never on import preview or background. Opened bench is caged: Lua in WebAssembly VM in a worker with timeouts and memory caps on a separate loopback origin that serves only worker and wasm glue 404s every api path and carries no session token. Separate-origin is proven at the HTTP test layer but not yet measured in the packaged Windows app ADR-009 check still open. We claim opt-in and limited not fully isolated until that measurement exists.",
+          "summary": "Downloaded content is parsed rather than automatically executed. Regex rules are budgeted find-and-replace data, never eval; structurally dangerous patterns are rejected before execution because a timeout cannot reliably interrupt one pathological native match. Macros and Risu-style triggers are analyzed without evaluation, including calc expressions handled by a small numeric parser. Lua executes only after the user opens the Risu Test Bench, never during import, preview, or background work. The bench uses real Lua in WebAssembly inside a killable worker with time and memory limits, served from a second loopback origin that exposes only the Lua worker, regex worker, and glue.wasm, with no session token or API. HTTP-layer tests prove that boundary, but packaged Windows-host isolation remains unmeasured, so the guide claims opt-in limitation rather than complete isolation.",
           "topics": [
-            "regex data not eval",
-            "macros analyzed not run",
-            "Lua Test Bench only",
-            "wasm worker separate origin",
-            "ADR-009 pack measure open",
-            "opt-in limited not full isolate claim"
+            "regex preflight and budgets",
+            "macros triggers analysis only",
+            "Lua opt-in bench",
+            "WebAssembly worker limits",
+            "separate sandbox origin",
+            "no token or API",
+            "packaged isolation unmeasured"
           ],
           "children": []
         },
@@ -3525,12 +3530,14 @@
           "text": "Other files stay bounded",
           "slug": "other-files-stay-bounded",
           "level": 2,
-          "summary": "Untrusted input cannot exhaust the machine on the way in. Uploads and bodies are size-capped at the door. Zip and PNG reads are bounded so archive bombs hit the cap and stop. Parsing fails closed: malformed cards are rejected not half-read; unreadable saves are refused. Piece ids resolve only inside the studio folder so crafted escape names are blocked before any file is touched.",
+          "summary": "Untrusted files are constrained before they can consume unbounded memory, corrupt state, or escape storage. Uploads and request bodies have hard size ceilings. ZIP and PNG readers enforce bounded extraction so compressed archive bombs stop at configured limits rather than expanding indefinitely. Parsers fail closed on malformed content instead of producing partially trusted entities. Kit's gated apply saves and re-reads its target to verify intended canonical content, while Studio editors send expected revisions so stale writes are rejected. Piece identifiers are validated and resolved strictly beneath the selected studio directory; crafted traversal names fail before filesystem access can escape that root.",
           "topics": [
-            "size-capped uploads",
-            "zip PNG bomb cap",
-            "parse fail closed",
-            "path containment ids"
+            "request body caps",
+            "ZIP PNG expansion limits",
+            "malformed input rejected",
+            "Kit read-back and Studio revision checks",
+            "piece id validation",
+            "studio path containment"
           ],
           "children": []
         },
@@ -3538,13 +3545,13 @@
           "text": "Converting never copies one app's code into another",
           "slug": "converting-never-copies-one-apps-code-into-another",
           "level": 2,
-          "summary": "Cross-format convert carries portable content only. Private extras extension blocks trigger scripts and layout stay in escrow so same-format round-trip loses nothing but are never blind-copied into another app file. On purpose: conversion cannot smuggle one app executable payload into another. Shared core crosses; drops are reported.",
+          "summary": "Cross-format conversion carries only the portable canonical content understood by both sides. Source-specific extension blocks, layout data, triggers, and executable-looking payloads remain in the saved piece's escrow rather than being copied into another platform's output. That escrow allows same-format re-export to preserve source-owned information while preventing a conversion from smuggling one application's private code into a different application's file. Hoplight reports content that cannot cross instead of silently pretending it was portable. The rule is structural: the shared readable core converts, while platform-private material remains attached to its source format.",
           "topics": [
-            "portable content only",
-            "escrow same-format keep",
-            "never blind-copy code",
-            "no payload smuggle",
-            "drops reported"
+            "portable canonical content",
+            "source-private escrow",
+            "same-format preservation",
+            "no blind script copying",
+            "cross-format loss reported"
           ],
           "children": []
         },
@@ -3552,12 +3559,16 @@
           "text": "About API keys",
           "slug": "about-api-keys",
           "level": 2,
-          "summary": "Today there is nothing to leak because today Hoplight calls no AI. No key is needed and none is stored: converter inspection validation editing and deterministic checks work with zero keys and there is no key field in settings the app writes. AI is planned as bring-your-own-key: when AI features ship they are designed opt-in BYOK entered at first AI moment not install kept in local vault OS keychain or encrypted file if no keychain with no Vaudeville server proxy or account in the path. That is design of record ADR-006 not a shipped-and-measured guarantee; this page will update once enforcement lands. One secret the app holds today: studio mints a fresh session token each launch uses it to gate every change and never logs or saves it to disk.",
+          "summary": "Provider-backed Kit is optional and uses bring-your-own-provider credentials; import, conversion, inspection, validation, editing, and deterministic checks continue without a key. Windows uses the operating-system credential backend. A portable passphrase-encrypted backend exists, but the current settings flow does not collect or supply the passphrase, so first-run setup and unlock remain incomplete on non-Windows systems. Credentials authenticate the configured provider and stay out of messages, tool observations, canonical pieces, exports, transcripts, and privacy accounting. Provider requests validate the configured host before every hop and refuse cross-host redirects, HTTPS downgrades, and chains beyond five redirects. Separately, Studio creates a fresh local session token at launch to authorize mutations and does not persist it.",
           "topics": [
-            "no AI no keys today",
-            "planned BYOK vault",
-            "ADR-006 design not measured",
-            "session token per launch"
+            "optional BYOP Kit",
+            "offline core workflows",
+            "local encrypted vault",
+            "configured provider endpoint",
+            "hop-by-hop redirect validation",
+            "credentials excluded from content",
+            "no Hoplight inference proxy",
+            "ephemeral Studio token"
           ],
           "children": []
         },
@@ -3565,12 +3576,13 @@
           "text": "What we do not claim",
           "slug": "what-we-do-not-claim",
           "level": 2,
-          "summary": "Binaries are unsigned so SmartScreen and Gatekeeper warn on first run; missing paid cert not tampering; verify release SHA-256 checksums. Test Bench origin is not measured in the packaged app yet. Studio folder is not encrypted at rest. Report holes privately to chibiconeja@gmail.com also in SECURITY.md for reply fix and optional credit.",
+          "summary": "The guide avoids reassuring but unsupported claims. Current desktop binaries are unsigned, so SmartScreen or Gatekeeper warnings are expected; users should verify the SHA-256 checksums shipped with releases rather than treating the warning alone as evidence of tampering. The separate Test Bench origin has automated HTTP-layer proof but has not been measured inside the packaged desktop host. Canonical studio files are intentionally readable and are not encrypted at rest. Kit's portable vault still lacks a settings-driven passphrase setup and unlock flow. Security reports should go privately to chibiconeja@gmail.com, also listed in SECURITY.md.",
           "topics": [
-            "unsigned binaries checksums",
-            "Test Bench pack open",
-            "no at-rest encryption",
-            "private report email"
+            "unsigned desktop binaries",
+            "verify release checksums",
+            "packaged sandbox proof open",
+            "studio files plaintext",
+            "private vulnerability report"
           ],
           "children": []
         }
@@ -8539,7 +8551,7 @@
         "reference/architecture",
         "reference/ui"
       ],
-      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, semantic Gate review, documentation query, whole-piece reads, and bounded result handles. Nine direct tools begin each turn. Compact capability calls infer search, browse, or describe and accept a flat content kind. Search reveals at most five deferred descriptors. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without requiring an existing target. Only the selected creation JSON Schema enters the next provider round, carrying field descriptions and defaults; media arguments explain refs, MIME types, roles, labels, and default selection. Normal pieces up to 64,000 characters return in one read. Drafts reach application-owned review. Atomic create-only apply refuses occupied IDs and verifies the stored result. Existing-content capabilities remain available for every kind. Repeated identical reads stop early. docs_query supplies bounded documentation traversal. Unit and integration proof exists; live terminal verification remains required.",
+      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Nine direct tools begin each turn. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target. Selected JSON Schemas carry field descriptions, defaults, and media reference rules. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application's review card; autopilot may auto-allow caution writes and full-auto may auto-allow access above the safety floor. Atomic create-only apply refuses occupied IDs and verifies storage. Repeated identical reads stop early. docs_query supplies bounded traversal. Unit and integration proof exists; live terminal verification remains required.",
       "topics": [
         "runtime tools vs slash",
         "workflow discovery lifecycle",
@@ -8557,7 +8569,7 @@
           "text": "Built lifecycle",
           "slug": "built-lifecycle",
           "level": 2,
-          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract. kit capabilities adapts content and non-content descriptors into one unique-name registry. capability_find accepts inferred actions and flat kinds. Six studio lifecycle tools create character, lorebook, persona, preset, regex, or media-pack drafts without existing targets or writes. Each has exact-name draft safety. Selected schemas describe required fields, defaults, and media reference conventions only after discovery. kit changes retains baseline, escrow, warnings, platform impact, and create or update mode. Review remains application-owned. Update apply compares revisions; create apply atomically refuses occupied IDs; both verify. studio_read returns one normal whole piece, result_query handles genuinely oversized observations, and nearby identical reads stop early. docs_query remains catalog-only. Reads overlap while mutations serialize. /tools is the target-aware Panel Deck. Backstage owns lifecycle receipts.",
+          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract. kit capabilities adapts content and non-content descriptors into one unique-name registry. capability_find accepts inferred actions and flat kinds. Six studio lifecycle tools create character, lorebook, persona, preset, regex, or media-pack drafts without existing targets or writes. Each has exact-name draft safety. Selected schemas describe required fields, defaults, and media reference conventions only after discovery. kit changes retains baseline, escrow, warnings, platform impact, and create or update mode. Review remains application-owned. Update apply compares revisions; create apply atomically refuses occupied IDs; both verify. studio_read returns one normal whole piece, result_query handles genuinely oversized observations, and nearby identical reads stop early. Tool-budget and cancellation exits preserve provider tool-call/result pairing without running cancelled mutations. docs_query remains catalog-only. Reads overlap while mutations serialize. /tools is the target-aware Panel Deck. Backstage owns lifecycle receipts.",
           "topics": [
             "six content bundles",
             "pure entity previews",
@@ -12305,30 +12317,33 @@
         "loopback"
       ],
       "related": [],
-      "semanticSummary": "Security states the assets Hoplight protects the untrusted inputs it faces and each defense layer with honest tested or scaffolded status because overclaiming in a security document is a defect worse than a gap. Threat model covers provider API keys local filesystem studio folder session token and machine availability against adversary content the user opens on a loopback-only local forge never an exposed service with trust ending at every file and request. The layers are eight: parse not execute through canonical model and escrow; decompression caps on archives via unzipBounded; ReDoS-guarded regex validateRule plus budgets; sanitized rendering marked DOMPurify and pure policy; Lua sandbox capability by absence worker kill and value-only wire; distinct-origin sandbox isolation with packaged-host proof BLOCKED; loopback-only token-gated local server; and BYOK key vault designed not yet built. Status at a glance points at the status figure. What this document does not claim lists not fully isolated not cannot be exploited regex timeout limits key vault unbuilt and same-origin degraded fallback.",
+      "semanticSummary": "Developer threat model for a local content forge that protects provider credentials, remote join secrets and approvals, filesystem state, trusted UI authority, and machine availability from hostile files and explicitly approved remote clients. The layers document canonical parse-not-execute conversion with semantic Round-Trip guarantees, bounded archives, pre-compile ReDoS rejection plus runtime budgets, sanitized rendering and CSP, capability-starved Lua with worker termination and value-only messages, a three-asset sandbox origin whose packaged proof is blocked, the primary loopback API plus separately gated remote listeners, and Kit's encrypted BYOK vault. Honest gaps include packaged-host sandbox measurement, malformed-vault recovery, the absent non-Windows passphrase flow, and provider redirects that are not revalidated after the initial host check. Each layer names its enforcement and test boundary so scaffolded behavior is not presented as packaged proof.",
       "topics": [
-        "threat model assets",
-        "parse not execute",
-        "archive zip bounds",
-        "ReDoS validateRule",
-        "sanitized rendering",
-        "Lua sandbox budgets",
-        "ADR-009 BLOCKED",
-        "loopback token server",
-        "BYOK vault unbuilt"
+        "local content threat model",
+        "canonical parse not execute",
+        "bounded archives and regex",
+        "sanitized rendering CSP",
+        "Lua worker budgets",
+        "sandbox origin proof blocked",
+        "loopback API authority",
+        "shipping Kit vault",
+        "provider egress boundary",
+        "explicit security nonclaims"
       ],
       "anchors": [
         {
           "text": "Threat model",
           "slug": "threat-model",
           "level": 2,
-          "summary": "Assets are the user's provider API keys and connection secrets the local filesystem and studio folder the trusted UI origin and per-launch session token and the user's machine attention availability. Adversary is content authored by someone else and opened by the user: cards with embedded scripts PNG or ZIP decompression bombs catastrophic regex Risu Lua. Transport is import edit preview or run never a remote attacker on an exposed port; the server is loopback only. Trust boundary: trust ends at every file and request parse once into canonical deny capabilities by absence fail closed. Two known-soft edges: packaged-host origin isolation is not yet measured ADR-009 and the key vault is a draft spec with no implementation in the tree.",
+          "summary": "Protected assets are provider credentials and connection secrets, remote join secrets and device approvals, host-only controls, the local filesystem and user-owned studio folder, the trusted UI origin and per-launch bearer, and machine availability. The adversary includes untrusted imported content and, when Remote access is explicitly enabled, approved remote clients and the remote listener. The primary server remains a loopback forge. Trust ends at every file and request, so input is parsed once, capabilities are absent unless deliberately supplied, and gates fail closed. Named soft edges at this boundary are unmeasured packaged-host origin separation plus Kit vault recovery and non-Windows setup; provider redirect limits remain documented with the provider egress layer.",
           "topics": [
-            "keys filesystem token",
-            "content adversary local",
-            "loopback never exposed",
-            "parse once fail closed",
-            "ADR-009 vault soft"
+            "credentials filesystem bearer",
+            "untrusted imported content",
+            "local loopback assumption",
+            "file and request boundaries",
+            "capability denial",
+            "packaged origin soft edge",
+            "vault recovery setup gaps"
           ],
           "children": []
         },
@@ -12336,29 +12351,29 @@
           "text": "The layers",
           "slug": "the-layers",
           "level": 2,
-          "summary": "Eight defense layers with honest status. Parse not execute routes every format through one canonical model with scripts as escrow data and cross-format carrying only the body. Decompression caps on archives use unzipBounded pre and post inflate with card and pack budgets throwing ArchiveLimitError. ReDoS-guarded regex refuses dangerous patterns before compile and adds match timeouts that cannot interrupt one native match. Sanitized rendering runs marked then DOMPurify last with pure policy allowlists and sealed CSP. The Lua sandbox and its resource budgets open pure libs only strip host globals kill workers on deadline and use value-only protocol. Distinct-origin sandbox isolation is HTTP-proven with packaged WebView2 proof BLOCKED and same-origin degraded fallback. Loopback-only token-gated local server binds 127.0.0.1 with Host Origin timingSafeEqual Sec-Fetch-Site and body caps. BYOK key vault is designed only not built.",
+          "summary": "The layers combine structural prevention with bounded execution and explicitly scoped evidence. 1. Parse, not execute keeps private payloads opaque and conversion canonical. 2. Decompression caps on archives bound selection and inflation. 3. ReDoS-guarded regex rejects dangerous AST shapes before native execution. 4. Sanitized rendering applies DOMPurify, pure policy, and CSP. 5. The Lua sandbox and its resource budgets remove host capabilities, cap state, and kill workers. 6. Distinct-origin sandbox isolation adds a second HTTP-tested listener whose packaged proof remains blocked. 7. The token-gated primary local server and separately enabled remote listeners protect API authority with request gates, join secrets, device approval, and host-only controls. 8. The BYOK provider vault encrypts configurations while documenting passphrase, redirect, and recovery limits.",
           "topics": [
-            "parse not execute",
-            "decompression caps",
-            "ReDoS-guarded regex",
-            "sanitized rendering",
-            "Lua sandbox budgets",
-            "origin isolation BLOCKED",
-            "loopback token server",
-            "BYOK key vault"
+            "parse and escrow",
+            "archive inflation budgets",
+            "regex structural rejection",
+            "render sanitizer policy",
+            "Lua capabilities quotas",
+            "sandbox second origin",
+            "loopback request gates",
+            "Kit vault and egress"
           ],
           "children": [
             {
               "text": "1. Parse, not execute",
               "slug": "1-parse-not-execute",
               "level": 3,
-              "summary": "Every format converts through one canonical superset never format to format. Import reads into the model; conversion is import then export. App-specific scripts extension blocks and layout ride escrow as opaque data. Server evaluates nothing server-side. Cross-format is contained-loss: only the canonical body crosses so private junk and executable payloads are not copied. Adapter contract makes cross-kind unrepresentable. Status: enforced by adapter contract and escrow in core held by Round-Trip Law; the one place code runs is the Lua Test Bench layer 5.",
+              "summary": "Every format enters and leaves through the canonical superset rather than converting directly to another platform. Source-specific scripts, extension blocks, and layout remain opaque escrow data. Cross-format exports carry only canonical content, preventing one application's executable payload from being copied into another, while typed adapter contracts prevent cross-kind writers. The engine and server do not evaluate imported scripts; the user-invoked Lua Test Bench is the sole execution exception. Same-format Round-Trip requires semantic preservation unless a format specification explicitly declares and fixtures prove a byte-level tier.",
               "topics": [
-                "canonical only path",
-                "escrow opaque scripts",
-                "contained cross-format",
-                "cross-kind unrepresentable",
-                "bench only execute"
+                "hub and spoke conversion",
+                "opaque source escrow",
+                "contained cross-format loss",
+                "typed kind boundary",
+                "Test Bench exception"
               ],
               "children": []
             },
@@ -12366,13 +12381,14 @@
               "text": "2. Decompression caps on archives",
               "slug": "2-decompression-caps-on-archives",
               "level": 3,
-              "summary": "core archive.ts inflates untrusted ZIP charx byaf lumiverse sprite packs through unzipBounded checking total entry count then selected compressed original and aggregate sizes before inflation where fflate filter allows and rechecking actual lengths after. Card containers cap 96 MiB archive 512 entries 64 MiB per entry 96 MiB aggregate; packs tighter 48 MiB and 256 entries. Missing originalSize is a lower bound so lying headers still cap on compressed size. Any breach throws ArchiveLimitError and required entries are never silently dropped. Status: enforced pre and post inflate; suite archive.test.ts.",
+              "summary": "unzipBounded handles untrusted charx, byaf, Lumiverse, and sprite archives with checks before and after inflation. It limits total entries, selected compressed and declared sizes, per-entry output, and aggregate output; missing originalSize remains bounded by compressed size and actual post-inflate length. Card containers allow 96 MiB archives, 512 entries, 64 MiB per selected entry, and 96 MiB selected total, while packs use tighter 48 MiB and 256-entry ceilings. Violations throw ArchiveLimitError and required entries are never silently omitted.",
               "topics": [
-                "unzipBounded helper",
-                "card pack budgets",
+                "unzipBounded",
+                "pre and post inflate checks",
+                "card archive ceilings",
+                "pack archive ceilings",
                 "ArchiveLimitError",
-                "lying header bound",
-                "archive.test.ts"
+                "required entry integrity"
               ],
               "children": []
             },
@@ -12380,13 +12396,14 @@
               "text": "3. ReDoS-guarded regex",
               "slug": "3-redos-guarded-regex",
               "level": 3,
-              "summary": "Synchronous JS RegExp cannot be interrupted mid-execution so defense is refusing dangerous patterns before compile. validateRule rejects complexity over 50 and proven-dangerous AST shapes nested unbounded quantifiers overlapping alternation under star quantified backreferences. apply never runs a rejected pattern. Engine adds per-rule timeout 100ms default 500ms max match cap 1000 and set-level budget; timeout guards between matches not inside one native call so pre-compile refusal is load-bearing. ast redos is a precision warning lens not the gate. Status: enforced by validateRule plus budgets with validate apply and redos test suites.",
+              "summary": "Because one synchronous native RegExp call cannot be interrupted, validateRule is the primary defense: it rejects excessive complexity and dangerous structures such as nested unbounded quantifiers, star-overlapping alternation, and quantified backreferences before compilation. Runtime execution adds per-rule and set budgets plus a 1,000-match ceiling, but its timeout observes only between native calls and cannot rescue a pathological match already running. The editor's structural ReDoS lens is advisory rather than authoritative. Validation, application, and AST warning behavior have separate suites.",
               "topics": [
-                "validateRule pre-compile",
-                "complexity cap 50",
-                "timeout not interrupt",
-                "match cap budget",
-                "redos warning lens"
+                "pre-compile validateRule",
+                "dangerous regex AST",
+                "complexity hard cap",
+                "match and time budgets",
+                "native call not interruptible",
+                "warning lens not gate"
               ],
               "children": []
             },
@@ -12394,13 +12411,14 @@
               "text": "4. Sanitized rendering",
               "slug": "4-sanitized-rendering",
               "level": 3,
-              "summary": "Stored field markup renders through marked then DOMPurify sanitizing last straight to innerHTML with no post-sanitize mutation. Active form embedding and auto-fetch tags are forbidden; data attributes off; anchors re-hardened with scheme allowlist rel target; fetch attributes stripped. Pure DOM-free policy holds 200k input cap http https mailto schemes inline-style property allowlist and value filter blocking url var import expression. Sealed previews carry restrictive CSP; untrusted portrait bytes get default-src none sandbox and nosniff. Status: pure policy suite and DOM markup suite client-side.",
+              "summary": "Stored markup passes through marked and then DOMPurify as the final transformation before innerHTML. Active, form, embedding, style, media-fetching, and script tags are forbidden; data attributes and surviving fetch attributes are removed, and links receive scheme, target, and rel hardening. A DOM-free policy independently enforces a 200k input limit, http/https/mailto links, constrained inline-style properties, and rejection of url, var, import, and expression indirection. Sealed previews and portrait responses add restrictive CSP, sandbox, and nosniff headers. Pure policy and DOM rendering tests cover separate halves.",
               "topics": [
                 "marked then DOMPurify",
-                "forbid active tags",
-                "pure render-policy",
+                "active tags forbidden",
+                "link scheme hardening",
+                "inline style allowlist",
                 "sealed preview CSP",
-                "portrait nosniff"
+                "portrait sandbox nosniff"
               ],
               "children": []
             },
@@ -12408,13 +12426,14 @@
               "text": "5. The Lua sandbox and its resource budgets",
               "slug": "5-the-lua-sandbox-and-its-resource-budgets",
               "level": 3,
-              "summary": "Lua is the one untrusted input executed and only when the user opens the Risu Test Bench never on import. Capability by absence: wasmoon opens pure libs only never io os debug package and strips load loadfile dofile require collectgarbage. Resource budgets cover wall-clock heap source wire and host-state with release defaults 5s 64 MiB heap 2 MiB source and 2 MiB host-state; higher requests clamp down. Real kill switch is Worker hard deadline termination. Value-only wire is versioned tagged union forbidding token cookie authorization session and non-plain prototypes; API token never enters messages. Status: limits worker protocol suites in Bun; packaged-host origin is layer 6 not proven here.",
+              "summary": "Lua executes only when the user invokes the Risu Test Bench. Wasmoon opens a deliberately small pure-library set, excludes io, os, debug, and package, then removes loaders and host-reaching globals. Typed ceilings cover wall time, heap, source, wire data, and host state; release maxima include five seconds, 64 MiB heap, and 2 MiB source and state budgets, and callers cannot raise them. Each run occurs in a Worker that is terminated at deadline. Its versioned value-only protocol accepts plain data, rejects functions, exotic prototypes, forbidden keys, and secret-shaped fields, and never receives the API bearer.",
               "topics": [
-                "bench only execute",
-                "pure libs strip globals",
-                "5s 64MiB budgets",
-                "worker kill switch",
-                "value-only protocol"
+                "opt-in Lua execution",
+                "capability by absence",
+                "resource ceiling clamps",
+                "worker termination",
+                "value-only protocol",
+                "bearer excluded"
               ],
               "children": []
             },
@@ -12422,41 +12441,47 @@
               "text": "6. Distinct-origin sandbox isolation (packaged-host proof BLOCKED)",
               "slug": "6-distinct-origin-sandbox-isolation-packaged-host-proof-blocked",
               "level": 3,
-              "summary": "ADR-009 adds defense-in-depth origin boundary: second loopback listener on ephemeral port serves only worker bundle and glue.wasm with no api session token index or studio paths. Same-origin Worker is availability not origin boundary so this reduces blast radius on future engine bundler or WebView bugs. Origin separation is implemented and tested at HTTP handler layer in Bun; packaged WebView2 origin probe crossOriginIsolated storage visibility and credentialed API fetch from sandbox origin are not measured. Plan 017 is BLOCKED for full Done; release notes must not claim full sandbox isolation. If sandbox listener fails to bind UI falls back to same-origin worker degraded not isolated. Status: HTTP automated; packaged proof BLOCKED.",
+              "summary": "ADR-009 places sandbox assets on a second ephemeral loopback listener that serves only the Lua worker, regex worker, and glue.wasm, with no API, index, studio paths, or session token. This adds an origin boundary beyond a killable same-origin Worker. Bun tests prove the HTTP allowlist, CORS, protocol rejection, and token absence, but do not measure how packaged WebView2 treats the two authorities, storage, crossOriginIsolated, or credentialed API access. Plan 017 therefore remains blocked for full proof. Bind failure falls back to a degraded same-origin worker and must not be called isolated.",
               "topics": [
-                "ephemeral sandbox host",
-                "HTTP layer proven",
-                "WebView2 not measured",
-                "Plan 017 BLOCKED",
-                "same-origin fallback"
+                "second loopback listener",
+                "asset allowlist only",
+                "Bun HTTP proof",
+                "WebView2 unmeasured",
+                "Plan 017 blocked",
+                "degraded fallback"
               ],
               "children": []
             },
             {
-              "text": "7. Loopback-only, token-gated local server",
-              "slug": "7-loopback-only-token-gated-local-server",
+              "text": "7. Token-gated local server and opt-in remote access",
+              "slug": "7-token-gated-local-server-and-opt-in-remote-access",
               "level": 3,
-              "summary": "UI server binds 127.0.0.1 only. server-security holds per-launch bearer from randomBytes 32 Host check on every api method Origin plus token on every POST with timingSafeEqual against DNS-rebinding. GET HEAD cannot demand token so Sec-Fetch-Site refuses cross-site; missing Origin on POST fails closed. Bodies capped 64 MiB inspect 32 MiB JSON with streaming 413. External links are POST-only safeExternalUrl http https and argv spawn not shell. Status: enforced unit-testable extraction re-exported from server.",
+              "summary": "The primary Studio listener binds 127.0.0.1 and creates a random per-launch bearer. API requests receive Host validation against DNS rebinding; mutations require an allowed Origin and constant-time token comparison, while GET and HEAD use Sec-Fetch-Site cross-site refusal because browser subresource reads cannot attach the bearer. Missing mutation Origin fails closed. Streaming readers cap inspect bodies at 64 MiB and JSON at 32 MiB with 413 on overflow. Remote tunnel and LAN modes are separate, explicitly enabled boundaries with join secrets, device approval, and host-only control routes documented in the remote-access threat model.",
               "topics": [
-                "127.0.0.1 bind",
-                "bearer timingSafeEqual",
-                "Host Origin gates",
-                "Sec-Fetch-Site GET",
-                "body caps 413"
+                "127.0.0.1 listener",
+                "per-launch bearer",
+                "Host DNS-rebinding check",
+                "Origin token mutation gate",
+                "Sec-Fetch-Site reads",
+                "streaming body caps",
+                "safe external links"
               ],
               "children": []
             },
             {
-              "text": "8. BYOK key vault (designed, not yet built)",
-              "slug": "8-byok-key-vault-designed-not-yet-built",
+              "text": "8. BYOK provider vault (shipping in Kit)",
+              "slug": "8-byok-provider-vault-shipping-in-kit",
               "level": 3,
-              "summary": "Everything in this layer is specification not shipped code. specs engine key-vault is M2 draft describing packages ai that does not exist; KeyVault getApiKey redactSecrets search returns nothing. Design keeps keys local per ADR-006 BYOK with OS keychain or AES-256-GCM file owner-only atomic writes never-log via redactSecrets and type split ProviderConfig safe versus ProviderSecret. Status: designed only not implemented not measured; no present-tense key storage protection until M2 vault ships with its test plan suites.",
+              "summary": "Kit encrypts the complete provider configuration list, credentials included, into one vault file and holds plaintext only after opening it in process. Saves seal a private temporary file and atomically replace the previous document. Windows uses DPAPI. A portable passphrase backend exists and sealed blobs retain backend identity, but current settings do not collect or supply the passphrase, leaving non-Windows first-run setup incomplete. Provider egress normalizes the endpoint and validates the initial request host, but runtime redirects are not revalidated. Credentials stay out of messages, tools, content, exports, transcripts, and privacy receipts. Malformed outer-file recovery is also incomplete, and Kit remains source-preview only.",
               "topics": [
-                "spec only M2",
-                "no packages/ai yet",
-                "keychain or AES file",
-                "redactSecrets intent",
-                "not measured"
+                "whole provider vault encryption",
+                "atomic sealed replacement",
+                "recorded backend opening",
+                "DPAPI passphrase backends",
+                "configured endpoint egress",
+                "credentials excluded",
+                "malformed file recovery gap",
+                "source-preview distribution"
               ],
               "children": []
             }
@@ -12466,11 +12491,12 @@
           "text": "Status at a glance",
           "slug": "status-at-a-glance",
           "level": 2,
-          "summary": "Status at a glance is the status figure summarizing each defense layer as enforced measured scaffolded or blocked so readers can scan honest readiness without re-reading every layer section. It does not add new claims beyond the layer writeups and the non-claim list that follows.",
+          "summary": "The generated status figure condenses the preceding defense layers into a scan of what is enforced, what has automated code-layer evidence, what remains scaffolded, and what is blocked on packaged-host measurement. It is a navigation aid rather than a substitute for each layer's caveats and source references.",
           "topics": [
-            "status figure",
-            "layer readiness scan",
-            "no new claims"
+            "generated status figure",
+            "enforced versus scaffolded",
+            "packaged proof visibility",
+            "layer caveats remain authoritative"
           ],
           "children": []
         },
@@ -12478,13 +12504,14 @@
           "text": "What this document does not claim",
           "slug": "what-this-document-does-not-claim",
           "level": 2,
-          "summary": "Not fully isolated or fully sandboxed: Lua origin boundary is proven at HTTP layer not packaged WebView2 host and that proof is BLOCKED. Not cannot be exploited or completely safe: layers reduce blast radius and fail closed as defense in depth not impossibility proof. The regex per-rule timeout does not interrupt a single catastrophic native RegExp match; pre-compile refusal is the actual defense. The key vault protections are specified not implemented and nothing in the tree stores keys yet. Where the sandbox listener cannot bind the same-origin fallback is degraded and not isolated.",
+          "summary": "The document does not call the Lua environment fully isolated because its second-origin behavior is proven at the Bun HTTP layer, not inside packaged WebView2. It does not claim exploitation is impossible; controls reduce blast radius as defense in depth. Regex time budgets cannot interrupt one catastrophic native call, so structural rejection remains essential. Kit's vault lacks complete malformed-envelope recovery and a settings-driven portable passphrase flow, Kit is absent from current release binaries, and provider redirects are not revalidated after the initial host check. A same-origin sandbox fallback is explicitly degraded and receives no isolation claim.",
           "topics": [
             "not fully sandboxed",
-            "not unexploitable",
-            "timeout not kill",
-            "vault unbuilt",
-            "degraded fallback"
+            "no exploit impossibility",
+            "regex timeout limitation",
+            "vault recovery incomplete",
+            "Kit not release packaged",
+            "same-origin fallback degraded"
           ],
           "children": []
         }
@@ -13093,9 +13120,9 @@
     {
       "id": "reference/security/secrets-and-keys",
       "path": "docs/reference/security/secrets-and-keys.md",
-      "title": "Secrets and keys",
+      "title": "Secrets, provider credentials, and local API authority",
       "audience": "dev",
-      "summary": "How Vaudeville Studios is designed to hold BYOK provider keys, keep them out of logs and exports, and how the shipping loopback server gates its API with a per-launch bearer plus Host and Origin checks.",
+      "summary": "How Kit encrypts BYOK provider configurations, constrains provider egress, and how the Studio gates its local API with a per-launch bearer plus Host and Origin checks.",
       "tags": [
         "security",
         "byok",
@@ -13109,97 +13136,89 @@
         "reference/concepts/safe-rendering",
         "reference/cli"
       ],
-      "semanticSummary": "Two maturity levels that must not be blurred. Where keys live the vault is draft M2 packages/ai design only not shipping; BYOK with no Vaudeville-operated inference; non-secret vault.json metadata apart from secret material in OS keychain or AES-256-GCM file; never logged never in export; open binding and CI questions remain. The loopback server is shipping: binds 127.0.0.1 only, entity scripts never evaluated server-side; per-launch bearer in vaude-session meta never logged or persisted never handed to sandbox; api gate checkApiRequest fails closed before bind, Host DNS-rebinding defense, GET HEAD no token but refuse Sec-Fetch-Site cross-site, POST demands Origin and timingSafeEqual token; gate does not reject loopback aliases and is weaker on reads; body caps 64MB inspect 32MB JSON fail closed. Sandbox origin shipping code with packaged proof BLOCKED: second loopback allowlist only worker wasm, CORS to UI origin, no token; proven at Bun HTTP layer not measured in WebView2; do not claim full isolation; same-origin fallback degraded.",
+      "semanticSummary": "Three current authority boundaries with limitations stated beside them. Kit is a source-checkout BYOP preview, not a release artifact. Its implemented vault encrypts the complete provider list and active id in ~/.hoplight/kit-vault.json rather than splitting metadata and secrets. Windows uses CurrentUser DPAPI end to end; a portable scrypt plus AES-256-GCM passphrase backend is unit-proven but the settings flow does not yet collect or pass a passphrase on macOS or Linux. Environment-variable providers remain cross-platform and unpersisted. Vault writes use temp plus rename and best-effort mode 0600 but no fsync; valid sealed envelopes fail loudly on backend or authentication errors, while malformed outer JSON or an invalid envelope is currently treated as no vault; there is no recovery, export, backend migration, or rotation flow. Provider egress rejects unknown or unkeyed providers and initial request URLs outside the one fixed or configured host; redirects are runtime-managed rather than hop-validated. Credentials go only as provider authentication, while conversation and tool observations are the model payload; privacy receipts retain provider and token counts, not bodies or keys. The Studio server binds loopback, mints a per-launch bearer, checks Host on every API method, rejects cross-site reads, requires Origin plus token for POST and PATCH, and caps bodies. Ordinary assets are ungated, but the ungated index HTML also contains the bearer and relies on loopback reachability rather than bearer authentication for confidentiality. Its second sandbox listener allowlists worker assets and withholds the bearer; Bun HTTP behavior is proven, packaged WebView separation remains unmeasured, and same-origin fallback is degraded.",
       "topics": [
-        "BYOK key vault draft",
-        "never log never export keys",
+        "Kit source preview distribution",
+        "encrypted provider vault",
+        "DPAPI and passphrase backends",
+        "vault recovery limitations",
+        "provider host egress gate",
         "loopback 127.0.0.1 bind",
         "per-launch bearer token",
+        "ungated token-bearing index HTML",
         "checkApiRequest Host Origin",
-        "timingSafeEqual token",
         "sandbox origin ADR-009",
         "packaged proof BLOCKED",
         "body caps fail closed"
       ],
       "anchors": [
         {
-          "text": "Where keys live (the vault, spec only)",
-          "slug": "where-keys-live-the-vault-spec-only",
+          "text": "Kit provider vault (shipping source preview)",
+          "slug": "kit-provider-vault-shipping-source-preview",
           "level": 2,
-          "summary": "Draft vault only: key-vault.md status draft milestone M2 package packages/ai which does not exist yet; future-tense design not running code. BYOK per ADR-006: user supplies Anthropic OpenRouter OpenAI Gemini or OpenAI-compatible credentials with no Vaudeville-operated inference account or proxy. Vault is packages/ai zero UI consumed by CLI and agent loop never on a server. Two kinds of state kept apart: non-secret metadata in vault.json versus secret material only in backends. Two backends chosen at first use: OS keychain when canary succeeds else encrypted file vault.key plus vault.enc AES-256-GCM with DECRYPT_FAILED refuse never silent regenerate. Never logged is a hard invariant; never in an export because keys are outside the entity graph. Not yet decided covers binding single-exe CI env override and size limits.",
+          "summary": "Current Kit BYOP boundary, not the obsolete packages/ai design. Offline import edit inspect validate convert and deterministic analysis need no key. Provider-backed turns use a discovered built-in or OpenAI-compatible endpoint; unknown providers and keyed providers without keys fail before request. Kit runs from a source checkout with bun run kit. The private package exposes that entry, but current GitHub Releases contain Hoplight.exe and hoplight CLI binaries only. The implemented vault, its platform backends, host-locked egress, and explicit recovery gaps are shipping source-preview behavior.",
           "topics": [
-            "draft M2 not shipping",
-            "BYOK no hosted inference",
-            "metadata vs secret split",
-            "OS keychain or AES file",
-            "never log never export",
-            "open decisions remain"
+            "BYOP no hosted proxy",
+            "bun run kit source preview",
+            "no Kit release binary",
+            "implemented vault and egress",
+            "current limitations"
           ],
           "children": [
             {
-              "text": "Two kinds of state, kept apart",
-              "slug": "two-kinds-of-state-kept-apart",
+              "text": "What the vault seals",
+              "slug": "what-the-vault-seals",
               "level": 3,
-              "summary": "Only one half is ever secret. Non-secret metadata in ~/.hoplight/vault.json holds provider kind label base URL organization id and names of extra headers never values that could carry a token; plain JSON safe to read. Secret material is the API key string plus any extraHeaders values which can carry a bearer, keyed by provider config id, only in one of the two backends never in vault.json. Types enforce the split: ProviderConfig safe versus ProviderSecret apiKey and optional extraHeaders never logged; only getApiKey plus backend internals hold a ProviderSecret.",
+              "summary": "Saved providers live in ~/.hoplight/kit-vault.json or HOPLIGHT_HOME. Current code does not split public metadata from secret state: it encrypts the complete Vault object, including every ProviderConfig API key base URL headers options and label plus activeId. Disk holds only version backend and opaque payload; round-trip coverage proves neither key nor provider name appears in plaintext. The decrypted vault is cached in process memory. Writes seal a temporary sibling, attempt mode 0600, then rename over the vault, protecting the prior file from a partial write but without fsync of file or directory.",
               "topics": [
-                "vault.json metadata only",
-                "secrets never in vault.json",
-                "ProviderConfig vs ProviderSecret",
-                "extraHeaders are secret"
+                "kit-vault.json sealed blob",
+                "whole provider config encrypted",
+                "plaintext process cache",
+                "temp rename atomicity",
+                "best effort mode 0600 no fsync"
               ],
               "children": []
             },
             {
-              "text": "Two backends, chosen at first use",
-              "slug": "two-backends-chosen-at-first-use",
+              "text": "Backends and present platform boundary",
+              "slug": "backends-and-present-platform-boundary",
               "level": 3,
-              "summary": "First use probes OS keychain and records the choice. OS keychain Windows Credential Manager macOS Keychain Linux Secret Service when a native binding loads and a canary write-then-read succeeds; one entry per config service hoplight account providerConfig.id secret JSON of apiKey and optional extraHeaders. Encrypted file elsewhere with one-time stderr warning: vault.key 32 bytes crypto.randomBytes once chmod 600 or Windows ACL is the local secret not a passphrase not KDF-stretched; vault.enc AES-256-GCM fresh 96-bit IV per write auth tag appended atomic temp fsync rename. Corrupted vault.enc fails GCM auth; vault must refuse load with DECRYPT_FAILED never silently regenerate a key or proceed with an empty vault.",
+              "summary": "The explicit registry prefers Windows DPAPI then the always-available master-passphrase backend. Opening follows the backend tag on the blob and never silently falls back. DPAPI uses ProtectedData CurrentUser and pipes base64 plaintext through hidden noninteractive PowerShell stdin, binding recovery to the same Windows user. The portable backend derives a 256-bit key with scrypt using fresh salt and encrypts with AES-256-GCM using fresh IV and authenticated tag. It is unit-proven, but Kit settings supplies no Unlock and has no passphrase prompt, so saved-provider UI is end-to-end only on Windows today. Familiar provider environment variables work cross-platform without vault persistence.",
               "topics": [
-                "OS keychain canary first",
-                "vault.key randomBytes 32",
-                "AES-256-GCM vault.enc",
-                "atomic write fsync rename",
-                "DECRYPT_FAILED refuse"
+                "DPAPI CurrentUser Windows",
+                "scrypt AES-256-GCM",
+                "backend tag no fallback",
+                "passphrase UI not wired",
+                "environment variable provider fallback"
               ],
               "children": []
             },
             {
-              "text": "Never logged",
-              "slug": "never-logged",
+              "text": "Provider egress boundary",
+              "slug": "provider-egress-boundary",
               "level": 3,
-              "summary": "Hard invariant because vault consumers include the agent loop whose traces users paste into bug reports. Exactly three functions return raw key material: getApiKey getSecret and resolveRole. Every other read path omits apiKey and extraHeaders values entirely not masked with a partial suffix because a masked suffix is still key material. Shared redactSecrets deep-strips key-shaped fields at the agent spill store boundary rather than trusted to each caller. VaultError carries providerConfigId and label never the key even on DECRYPT_FAILED. CLI reads through hidden non-echoing input and never prints it back including in --json output.",
+              "summary": "All provider spokes receive guarded fetch. Built-in spokes fix a host; custom and local spokes derive one host from configured baseURL. Unknown providers, missing required keys, and request URLs outside that host fail before network; model discovery uses the same gate. Credentials necessarily travel to the configured endpoint as authentication but are not inserted in conversations tools transcripts canonical entities or exports. The model receives conversation plus tool and docs observations needed for the request. Privacy records provider and token counts only. The current gate validates the initial request URL but delegates redirects to runtime and does not revalidate each hop.",
               "topics": [
-                "three functions return keys",
-                "omit not mask",
-                "redactSecrets spill boundary",
-                "VaultError never key",
-                "CLI non-echo never print"
+                "guarded provider fetch",
+                "one initial allowed host",
+                "credential authentication only",
+                "model payload content",
+                "privacy token ledger",
+                "redirect hops not revalidated"
               ],
               "children": []
             },
             {
-              "text": "Never in an export",
-              "slug": "never-in-an-export",
+              "text": "Recovery limitations",
+              "slug": "recovery-limitations",
               "level": 3,
-              "summary": "The vault is structurally outside the export path, stronger than a scrub pass. It is a packages/ai component for CLI and agent loop; the UI export route operates on canonical entities and a canonical entity has no key field. Keys are not filtered out at export time; they were never in the entity graph an export walks. redactSecrets guards the agent loop spill store, a different boundary.",
+              "summary": "Valid sealed envelopes fail loudly on an unknown backend, DPAPI failure, wrong passphrase, or GCM authentication failure. DPAPI binds the blob to the Windows user. There is no vault export recovery key backend migration or credential rotation flow, so a lost Windows profile or passphrase requires re-entering providers. The outer read boundary is weaker: unreadable files malformed JSON and objects that are not sealed envelopes are currently treated as no vault; only a well-shaped envelope reaches loud decrypt failure. Users must not be promised that every corruption form is surfaced.",
               "topics": [
-                "outside export path",
-                "no key on entity",
-                "not scrub at export",
-                "redactSecrets other boundary"
-              ],
-              "children": []
-            },
-            {
-              "text": "Not yet decided",
-              "slug": "not-yet-decided",
-              "level": 3,
-              "summary": "Open questions from the draft spec unresolved at writing. Which native keychain binding ships and whether a native .node addon loads inside bun build --compile single-executable; the fallback-to-file path must work regardless. Whether an environment-variable key override for CI is supported in v1. Per-platform keychain size limits and whether an oversize secret forces file mode.",
-              "topics": [
-                "native binding open",
-                "single-exe .node load",
-                "CI env override open",
-                "keychain size limits"
+                "exact backend failure",
+                "DPAPI profile binding",
+                "no recovery or migration UI",
+                "malformed outer vault treated empty",
+                "re-enter provider credentials"
               ],
               "children": []
             }
@@ -13209,13 +13228,14 @@
           "text": "The loopback server (shipping)",
           "slug": "the-loopback-server-shipping",
           "level": 2,
-          "summary": "Shipping code with automated Bun tests. Visual app binds Bun.serve hostname 127.0.0.1 only; thin shell over the same engine as CLI; nothing in an uploaded entity is evaluated server-side and scripts inside cards are data. Per-launch bearer is randomBytes base64url never log or persist, injected as escaped meta vaude-session for trusted apiFetch, never handed to the sandbox origin. The api gate checkApiRequest runs before every api handler; static assets ungated. Gate order: fail closed 503 if Host Origin or token unset; Host every method for DNS-rebinding; GET HEAD no token but refuse Sec-Fetch-Site cross-site; POST demands loopback Origin fail closed on null and timingSafeEqual token; other methods 405. What the gate does not do: accepts localhost and ::1 on correct port; GET HEAD not token-gated so header-less clients pass reads. Body caps INSPECT 64MB JSON 32MB with early Content-Length and running total.",
+          "summary": "Shipping code with automated Bun tests. The default visual app binds 127.0.0.1 only, and uploaded scripts remain data. A random per-launch bearer is injected into index HTML for trusted apiFetch and never handed to the sandbox. The api gate runs before every api handler, checks Host on every method, refuses cross-site GET and HEAD, and requires Origin plus token for POST and PATCH. JavaScript wasm CSS and icons are non-secret ungated assets. Index HTML is also ungated but contains the bearer, so its confidentiality relies on loopback reachability; any client that reaches the listener can read it. Reads remain weaker than mutations. Body caps are 64MB inspect and 32MB JSON.",
           "topics": [
             "127.0.0.1 bind only",
             "per-launch bearer meta",
+            "ungated index contains bearer",
             "checkApiRequest order",
             "Host DNS-rebinding",
-            "POST Origin token",
+            "POST PATCH Origin token",
             "body caps 64 32 MB"
           ],
           "children": [
@@ -13223,11 +13243,13 @@
               "text": "The per-launch bearer",
               "slug": "the-per-launch-bearer",
               "level": 3,
-              "summary": "A fresh bearer is minted once per launch as randomBytes(32).toString base64url in createSecurityContext marked never log or persist. injectSessionMeta puts it into served HTML as an escaped meta name vaude-session which the trusted UI reads to authenticate its own API calls. The token stays in that meta tag and the trusted apiFetch path; it is never handed to the sandbox origin.",
+              "summary": "A fresh bearer is minted once per launch as randomBytes(32).toString base64url in createSecurityContext marked never log or persist. injectSessionMeta puts it into served index HTML as an escaped meta name vaude-session which trusted apiFetch reads for API authentication. The token is never handed to the sandbox origin. The index document itself is not bearer-gated, so the default listener's loopback bind limits which machines can fetch it; any local client that reaches the listener can read the bearer.",
               "topics": [
                 "randomBytes base64url",
                 "never log or persist",
                 "vaude-session meta",
+                "index HTML not bearer-gated",
+                "confidentiality relies on loopback",
                 "not on sandbox origin"
               ],
               "children": []
@@ -13236,12 +13258,14 @@
               "text": "The /api/* gate",
               "slug": "the-api-gate",
               "level": 3,
-              "summary": "Every api route runs through checkApiRequest before any handler; static assets serve ungated because they are not secret. Order: if expected Host Origin or token is not yet filled return 503 fail closed before bind. Host on every method: hostAllowed exact host port or loopback-equivalent spelling 127.0.0.1 localhost ::1 on the same port else 403; DNS-rebinding defense against attacker hostnames resolved to loopback. GET and HEAD carry no token; they are refused only when Sec-Fetch-Site is cross-site a browser-set header a page cannot forge so img loads cannot be a blind existence oracle if token were required. POST demands Origin loopback-equivalent and null Origin fails closed; token compared with crypto.timingSafeEqual and zero-length compares false. Any other method returns 405.",
+              "summary": "Every api route runs through checkApiRequest before its handler. JavaScript wasm CSS and icons are non-secret and ungated. Index HTML is also ungated but is not non-secret: createHandler injects the bearer before serving it, so confidentiality relies on the default loopback bind and any client reaching the listener can read it. The api gate returns 503 before security context completion, checks Host on every method, and rejects attacker hostnames resolved to loopback. GET and HEAD carry no token but reject Sec-Fetch-Site cross-site. POST and PATCH require a loopback-equivalent non-null Origin and a timingSafeEqual token. Other methods return 405.",
               "topics": [
                 "503 before bind ready",
+                "token-bearing index ungated",
+                "index relies on loopback bind",
                 "hostAllowed DNS-rebind",
                 "GET HEAD Sec-Fetch-Site",
-                "POST Origin fail closed",
+                "POST PATCH Origin fail closed",
                 "timingSafeEqual token"
               ],
               "children": []

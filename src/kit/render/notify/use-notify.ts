@@ -26,9 +26,11 @@ export interface UseNotifyArgs {
 }
 
 export const useNotify = (args: UseNotifyArgs): void => {
+  const { busy, focused, notice, settings, studio } = args;
   const channels = useRef<Map<string, NotifyChannel>>(new Map());
   const prevBusy = useRef(false);
-  const prevNotice = useRef(args.notice ?? 0);
+  const prevNotice = useRef(notice ?? 0);
+  const initialTitleEnabled = useRef(settings.title).current;
 
   // Mount: gather the drop-in channels and save the terminal title. Unmount: restore it (paired).
   useEffect(() => {
@@ -36,44 +38,44 @@ export const useNotify = (args: UseNotifyArgs): void => {
     void discoverChannels().then((found) => {
       if (alive) channels.current = new Map(found.map((c) => [c.name, c]));
     }).catch(() => {});
-    if (args.settings.title) saveTitle();
+    if (initialTitleEnabled) saveTitle();
     return () => {
       alive = false;
       restoreTitle();
     };
     // Mount-only: the title is saved once and restored once for the hook's lifetime.
-  }, []);
+  }, [initialTitleEnabled]);
 
   // The busy edge drives everything: rising -> "working" title, falling -> the full settle plan once.
   useEffect(() => {
     const was = prevBusy.current;
-    prevBusy.current = args.busy;
-    if (args.busy && !was) {
-      if (args.settings.title) setTitle("working");
+    prevBusy.current = busy;
+    if (busy && !was) {
+      if (settings.title) setTitle("working");
       return;
     }
-    if (!args.busy && was) {
-      const actions = planNotifications({ summary: args.studio, focused: args.focused }, args.settings);
+    if (!busy && was) {
+      const actions = planNotifications({ summary: studio, focused }, settings);
       for (const action of actions) {
         if (action.channel === "title") setTitle(action.text);
         else channels.current.get(action.channel)?.emit(action);
       }
     }
     // Gated on the busy transition; focused/studio/settings are read at the settle render.
-  }, [args.busy]);
+  }, [busy, focused, settings, studio]);
 
   useEffect(() => {
-    const current = args.notice ?? 0;
+    const current = notice ?? 0;
     const previous = prevNotice.current;
     prevNotice.current = current;
     if (current <= previous) return;
     const actions = planNotifications(
-      { summary: args.studio, focused: args.focused },
-      args.settings,
+      { summary: studio, focused },
+      settings,
     );
     for (const action of actions) {
       if (action.channel === "title") setTitle(action.text);
       else channels.current.get(action.channel)?.emit(action);
     }
-  }, [args.notice]);
+  }, [focused, notice, settings, studio]);
 };

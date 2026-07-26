@@ -37,19 +37,53 @@ export function allowedHost(config: ProviderConfig, spoke: ProviderSpoke): strin
   return new URL(url).host;
 }
 
-const requestHost = (input: RequestInfo | URL): string => {
-  const href = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-  return new URL(href).host;
-};
+type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+const REDIRECTS = new Set([301, 302, 303, 307, 308]);
+const MAX_REDIRECTS = 5;
 
-/** A fetch that only reaches `host`; any other destination is blocked before the network. */
-export function guardedFetch(host: string): FetchFunction {
+function assertDestination(url: URL, host: string, previous?: URL): void {
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new EgressBlocked(`refused ${url.protocol} provider URL.`);
+  }
+  if (url.host !== host) {
+    throw new EgressBlocked(`refused to reach ${url.host}; Kit only talks to ${host}.`);
+  }
+  if (previous?.protocol === "https:" && url.protocol !== "https:") {
+    throw new EgressBlocked("refused to downgrade a provider redirect from HTTPS.");
+  }
+}
+
+function redirectedRequest(request: Request, url: URL, status: number): Request {
+  const becomesGet =
+    (status === 303 && request.method !== "HEAD") ||
+    ((status === 301 || status === 302) && request.method === "POST");
+  if (!becomesGet) return new Request(url, request);
+  const headers = new Headers(request.headers);
+  headers.delete("content-length");
+  headers.delete("content-type");
+  return new Request(url, { method: "GET", headers, signal: request.signal });
+}
+
+/** A fetch that validates the configured host before every network hop. */
+export function guardedFetch(host: string, fetchImpl: FetchLike = globalThis.fetch): FetchFunction {
   const wrapped = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const target = requestHost(input);
-    if (target !== host) {
-      throw new EgressBlocked(`refused to reach ${target}; Kit only talks to ${host}.`);
+    let request = new Request(input, init);
+    let previous: URL | undefined;
+    for (let redirects = 0; ; redirects += 1) {
+      const target = new URL(request.url);
+      assertDestination(target, host, previous);
+      const response = await fetchImpl(request.clone(), { redirect: "manual" });
+      if (!REDIRECTS.has(response.status)) return response;
+      const location = response.headers.get("location");
+      if (!location) return response;
+      if (redirects >= MAX_REDIRECTS) {
+        throw new EgressBlocked(`refused more than ${MAX_REDIRECTS} provider redirects.`);
+      }
+      const next = new URL(location, target);
+      assertDestination(next, host, target);
+      request = redirectedRequest(request, next, response.status);
+      previous = target;
     }
-    return fetch(input, init);
   };
   // Bun's `typeof fetch` requires a `preconnect` method the AI SDK request path never calls.
   return wrapped as unknown as FetchFunction;

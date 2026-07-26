@@ -3,11 +3,9 @@
  * App-to-gate integration: confirmed writes visibly pause and resume only after a user choice.
  */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "./test-render";
 import type { Session } from "../session";
 import { App } from "./app";
-
-const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 test("a confirmed write pauses in GatePrompt before the session continues", async () => {
   let choice = "";
@@ -55,10 +53,10 @@ test("a confirmed write pauses in GatePrompt before the session continues", asyn
     { width: 80, height: 24 },
   );
   try {
-    await tick();
+    await tick(60);
     await rendered.mockInput.typeText("apply it");
     rendered.mockInput.pressEnter();
-    await tick();
+    await tick(60);
     expect(rendered.captureCharFrame()).toContain("REVIEW CHANGE");
     expect(rendered.captureCharFrame()).toContain("character / aphrodite");
     expect(rendered.captureCharFrame()).toContain("name");
@@ -68,7 +66,7 @@ test("a confirmed write pauses in GatePrompt before the session continues", asyn
     expect(rendered.captureCharFrame()).toContain("Discard");
     expect(choice).toBe("");
     rendered.mockInput.pressKey("y");
-    await tick();
+    await tick(60);
     expect(choice).toBe("allow-once");
     expect(rendered.captureCharFrame()).not.toContain("GATE");
   } finally {

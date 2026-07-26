@@ -24,18 +24,14 @@ export function stopReason(state: StopState): string | null {
     return `reached the ${state.maxSteps}-step limit for one turn`;
   }
   const keys = state.recentObservationKeys ?? state.recentCallKeys ?? [];
-  if (keys.length >= STUCK_RUN) {
-    const tail = keys.slice(-STUCK_WINDOW);
-    const newest = tail.at(-1);
-    if (
-      newest?.startsWith("studio_read:")
-      && tail.filter((key) => key === newest).length >= 2
-    ) {
-      return "the same read returned the same observation twice";
-    }
-    if (newest && tail.filter((key) => key === newest).length >= STUCK_RUN) {
-      return "the same tool returned the same observation three times";
-    }
+  const tail = keys.slice(-STUCK_WINDOW);
+  const newest = tail.at(-1);
+  const repeats = newest ? tail.filter((key) => key === newest).length : 0;
+  if (newest?.startsWith("studio_read:") && repeats >= 2) {
+    return "the same read returned the same observation twice";
+  }
+  if (repeats >= STUCK_RUN) {
+    return "the same tool returned the same observation three times";
   }
   return null;
 }

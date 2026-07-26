@@ -1,11 +1,9 @@
 /** @jsxImportSource @opentui/react */
 /** Verifies the composer and provider state render as one fused, terminal-native prompter rail. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../../test-render";
 import type { KitCommand } from "../../../commands/command";
 import { Composer } from "./composer";
-
-const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 60));
 
 test("composer fuses input and provider state under one open heavy rule", async () => {
   const t = await testRender(

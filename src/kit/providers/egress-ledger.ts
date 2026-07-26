@@ -77,5 +77,9 @@ export const formatLedger = (ledger: EgressLedger): string => {
   const rows = ledger.entries.map(
     (e) => `- \`${clockOf(e.at)}\`  ${e.provider}  ${compact(e.input)} in / ${compact(e.output)} out`,
   );
-  return [head, ...rows, "\nKeys never travel. Only what you sent, and the reads it carried."].join("\n");
+  return [
+    head,
+    ...rows,
+    "\nCredentials authenticate only to your configured provider; they are not included in this context.",
+  ].join("\n");
 };

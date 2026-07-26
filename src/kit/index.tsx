@@ -2,9 +2,9 @@
 /** @jsxImportSource @opentui/react */
 /**
  * Kit's entry: bind to the studio, bring up the alt-screen renderer, mount the chrome.
- * Typing `kit` in a terminal lands here. This is the imperative shell; pure logic stays in the
- * engine and (next) the loop and tools. The `import "@opentui/react/runtime-plugin-support"` line
- * is what lets the same code run both under `bun run` and as an installed binary.
+ * `bun run kit` from a source checkout lands here. This is the imperative shell; pure logic stays
+ * in the engine, loop, and tools. Runtime plugin support also keeps a future compiled Kit entrypoint
+ * possible, but current GitHub release artifacts do not ship one.
  */
 import "@opentui/react/runtime-plugin-support";
 import { basename } from "node:path";

@@ -1,12 +1,10 @@
 /** @jsxImportSource @opentui/react */
 import { expect, setDefaultTimeout, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { settleRender as tick, testRender } from "../../test-render";
 import type { RenderLine } from "../../turn-events";
 import { SearchCard } from "./search-card";
 
 setDefaultTimeout(30000);
-const tick = (ms = 60): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
-
 test("a long result set keeps the query header and active result visible", async () => {
   const lines: RenderLine[] = Array.from({ length: 100 }, (_, index) => ({
     role: "say",

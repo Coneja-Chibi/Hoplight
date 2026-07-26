@@ -39,9 +39,9 @@ test("stops after a second identical full piece read", () => {
     id: "aphrodite",
   }, "same");
   expect(stopReason({
-    step: 4,
+    step: 2,
     maxSteps: 20,
-    recentObservationKeys: [read, observationKey("capability_find", {}, "none"), read],
+    recentObservationKeys: [read, read],
   })).toContain("same read");
 });
 

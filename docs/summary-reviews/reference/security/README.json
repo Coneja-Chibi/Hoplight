@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/security/README",
   "sourcePath": "docs/reference/security/README.md",
-  "sourceHash": "sha256:874f888234e091e5a9985be477d40e2de3efabfd8960f426b853b563a13a4fc6",
-  "semanticSummaryHash": "sha256:15826baa6f973705823736d28a03ae44abcdb3d79eccd85c669737f9a1ff2889",
+  "sourceHash": "sha256:d3f543829af7ef42a0bde37ced9ca277204775e4bcaf3fe4c968e94cfc462d46",
+  "semanticSummaryHash": "sha256:c5764128a96a7bd8a1dd6c44c48e7097de4c6a5431dd31a056c5f185caaf2667",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
-  "reviewedAt": "2026-07-25T15:30:49.232Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Second independent repair review: APPROVE. Read the complete source, sidecar, prior REVISE receipt, and current remote, sandbox, provider-egress, and keystore owners. The parent 'The layers' summary now scopes loopback to the token-gated primary server and explicitly names separately enabled remote listeners, join secrets, device approval, and host-only controls. The Threat model summary keeps its named soft edges to packaged-origin proof plus vault recovery/non-Windows setup and explicitly leaves redirect limits with layer 8. Detailed layer 7 and layer 8 summaries remain aligned. Author validation passed; focused remote/sandbox/egress/keystore suites passed 47 tests.",
+  "reviewedAt": "2026-07-26T09:43:27.377Z"
 }

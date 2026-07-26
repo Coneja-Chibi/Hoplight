@@ -77,7 +77,9 @@ The scheduler is live. Read-only batches run concurrently while retaining provid
 returned observations. Any batch containing a draft, apply, or unknown effect runs serially. The
 loop has model-round, tool-call, elapsed-time, no-progress, and cancellation stops with recovery
 guidance. An identical full-piece read repeating in nearby exploration stops after the second
-observation instead of consuming the turn. The `/tools` command opens a target-aware Panel Deck:
+observation instead of consuming the turn. A batch that exceeds the tool budget is not added to
+provider history; cancellation records no-op results for declared calls it did not execute, preserving
+tool-call/result pairing. The `/tools` command opens a target-aware Panel Deck:
 choose a piece, an available semantic area, then an action. Its detail pane names platform
 applicability and the preview-before-apply boundary. Compact terminals show one active pane at a
 time instead of crushing three columns.
@@ -156,8 +158,8 @@ the direct query, apply, or discard tools.
 This keeps a future catalog of more than one hundred semantic operations out of every prompt while
 preserving typed inputs for the selected operation.
 
-Creation discovery does not burden the opening prompt with six large schemas. Search or describe
-reveals one selected tool, and the next provider round receives its exact JSON Schema with field
+Creation discovery does not burden the opening prompt with six large schemas. Search reveals up to
+five matching tools while an exact describe reveals one; the next provider round receives each selected JSON Schema with field
 descriptions and defaults. Character creation documents portrait and additional-media roles.
 Persona creation keeps the shelf-only brief distinct from injected first-person content and
 documents its portrait. Pack creation documents item IDs, expression labels, resolvable references,

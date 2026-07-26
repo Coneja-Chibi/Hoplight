@@ -1,6 +1,6 @@
 /** Rendered-frame proof for the four-row doctor diagnostic playbill. */
 import { expect, test } from "bun:test";
-import { testRender } from "@opentui/react/test-utils";
+import { testRender } from "../test-render";
 import { DoctorCard } from "./doctor-card";
 
 test("renders every check and its honest status", async () => {
