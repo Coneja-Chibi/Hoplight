@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:07c444dfc0c0b925346ec70027bda8738112e3d0d306836544b75713a6f28c3d",
-  "semanticSummaryHash": "sha256:13ee6d1369e9e1ff59887bc73898944b08db39a50568b32df03edaf2ac69ca10",
+  "sourceHash": "sha256:1b98ba5b81ba2b6acb7ebb4346f001a9d4d5e415e5ce44aca407e6cab6af581b",
+  "semanticSummaryHash": "sha256:1cbc1f5a65ffedeaa5ab9ffdd780419e786d5df895c7b67d290071905bdf00e0",
   "verdict": "APPROVE",
   "reviewer": "semantic-reviewer-2",
-  "notes": "Re-read all 279 source lines and the entire sidecar. Page and section summaries materially cover the current tool contract, progressive exposure, result and draft evidence, content bundles, docs traversal, semantic Gate handoff, denial discard, provider-preamble suppression, accumulated rehearsal receipt, and the live-terminal verification caveat. Focused implementation evidence passed 37/37 tests.",
-  "reviewedAt": "2026-07-25T23:37:04.827Z"
+  "notes": "Re-read all 312 source lines and the complete semantic sidecar after the whole-card read and six-kind creation changes. Page and section summaries materially and truthfully cover compact discovery inference, content-kind shorthand, six deferred studio lifecycle create tools, selected typed schemas and media guidance, preview-only drafting, exact-name draft safety, create/update validation, atomic occupied-ID refusal, post-create verification, 64000-character whole-piece reads, oversized result traversal, repeated identical-read stopping, existing capability bundles, docs_query, and the live-terminal verification caveat. Focused proof passed 54/54 tests; capabilities:check and typecheck also passed.",
+  "reviewedAt": "2026-07-26T05:52:16.958Z"
 }

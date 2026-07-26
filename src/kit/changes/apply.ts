@@ -46,12 +46,34 @@ export async function applyChangeDraft(
     };
   }
 
-  if (!bridge.compareAndSave) {
-    changes.finishApply(draft.id, "failed");
-    return receipt(draft, "failed", "The Studio does not support revision-checked saves.");
-  }
-
   try {
+    if (draft.mode === "create") {
+      if (!bridge.compareAndCreate) {
+        changes.finishApply(draft.id, "failed");
+        return receipt(draft, "failed", "The Studio does not support collision-safe creates.");
+      }
+      const result = await bridge.compareAndCreate(draft.proposed);
+      if (result.status === "exists") {
+        changes.finishApply(draft.id, "stale");
+        return receipt(draft, "stale", "That piece id now exists; nothing was written.");
+      }
+      const saved = await bridge.read(draft.target.kind, draft.target.id);
+      if (!saved || !verifySavedEntity(draft.proposed, saved)) {
+        changes.finishApply(draft.id, "failed");
+        return receipt(
+          draft,
+          "failed",
+          "The create returned but post-save verification did not match. Re-read before retrying.",
+        );
+      }
+      changes.finishApply(draft.id, "applied");
+      return receipt(draft, "applied", "Created once and verified against the canonical piece.");
+    }
+
+    if (!bridge.compareAndSave) {
+      changes.finishApply(draft.id, "failed");
+      return receipt(draft, "failed", "The Studio does not support revision-checked saves.");
+    }
     const result = await bridge.compareAndSave(draft.proposed, draft.target.revision);
     if (result.status === "stale") {
       changes.finishApply(draft.id, "stale");

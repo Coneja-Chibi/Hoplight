@@ -16,6 +16,8 @@ export type ChangeDraftStatus =
   | "discarded"
   | "failed";
 
+export type ChangeDraftMode = "create" | "update";
+
 export interface ChangeTarget {
   kind: ContentKind;
   id: string;
@@ -32,6 +34,7 @@ export interface ChangeOperation {
 
 export interface ChangeDraft {
   id: string;
+  mode: ChangeDraftMode;
   target: ChangeTarget;
   baseline: ParsedCanonicalEntity;
   proposed: ParsedCanonicalEntity;

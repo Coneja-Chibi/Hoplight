@@ -9,6 +9,7 @@ import { createChangeQueryTool } from "./change-query";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import { emptyLorebookBody } from "../../core/lore";
 import { createResultStore } from "../results/store";
+import characterCreate from "./character-create";
 
 describe("change lifecycle tools", () => {
   test("capability_find reveals only bounded matching typed tools", async () => {
@@ -60,6 +61,67 @@ describe("change lifecycle tools", () => {
     expect(detailOutput.capability.id).toBe("character.identity.update");
     expect(runtime.toolSnapshot().map((spec) => spec.name))
       .toEqual([detailOutput.capability.tool]);
+  });
+
+  test("capability_find accepts compact model calls and treats a content area kind as a kind", async () => {
+    const runtime = createCapabilityRuntime({
+      capabilities: await discoverCapabilities(),
+      directTools: [characterCreate],
+      changes: createChangeSession(),
+    });
+    const tool = createCapabilityFindTool(runtime);
+    const searchArgs = tool.input.parse({
+      kind: "character",
+      query: "create a new character",
+    });
+    const search = JSON.parse((await tool.execute(
+      searchArgs,
+      { bridge: null as never },
+    )).output) as { matches: Array<{ id: string; kind?: string }> };
+    expect(search.matches.every((item) => item.kind === "character")).toBe(true);
+    expect(search.matches.map((item) => item.id)).toContain("studio.character.create");
+    expect(runtime.toolSnapshot().map((item) => item.name))
+      .toContain("studio_character_create");
+
+    const browseArgs = tool.input.parse({
+      domain: "content",
+      area: "character",
+    });
+    const browsed = JSON.parse((await tool.execute(
+      browseArgs,
+      { bridge: null as never },
+    )).output) as { areas: Array<{ area: string }> };
+    expect(browsed.areas.some((item) => item.area === "identity")).toBe(true);
+  });
+
+  test("character creation produces a structured create draft without writing", async () => {
+    const changes = createChangeSession();
+    let writes = 0;
+    const bridge = {
+      studioDir: "/fake",
+      async deckCounts() { return []; },
+      async list() { return []; },
+      async read() { return null; },
+      async save() {
+        writes += 1;
+        throw new Error("creation preview must not write");
+      },
+      async delete() { return false; },
+    };
+    const args = characterCreate.input.parse({
+      name: "Eros",
+      tagline: "Son of Aphrodite",
+      description: "A young god learning what love asks of him.",
+      personality: "Earnest, mischievous, and brave.",
+      tags: ["mythology", "romance"],
+    });
+    const result = await characterCreate.execute(args, { bridge, changes });
+    expect(result.outcome).toBe("draft");
+    expect(result.review).toMatchObject({
+      target: { kind: "character", id: "eros" },
+    });
+    expect(result.review?.changes.map((item) => item.label)).toContain("new character");
+    expect(writes).toBe(0);
   });
 
   test("change_discard is one-shot and never needs a bridge", async () => {

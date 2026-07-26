@@ -7,6 +7,7 @@
 import { homedir } from "node:os";
 import {
   StudioStore,
+  type CompareCreateResult,
   type CompareSaveResult,
   type EntitySummary,
 } from "../studio/store";
@@ -38,6 +39,8 @@ export interface KitBridge {
    * write failure throws (the dispatch turns it into a readable tool result). Every write reaches the
    * studio only after the safety gate has allowed it, upstream in gated-dispatch. */
   save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary>;
+  /** Create only when the requested id is absent, under the backend's per-path write lock. */
+  compareAndCreate?(raw: unknown): Promise<CompareCreateResult>;
   /** Overwrite only when the stored entity still has the expected complete canonical revision. */
   compareAndSave?(raw: unknown, expectedRevision: string): Promise<CompareSaveResult>;
   /** Delete one entity; true when a file was actually removed. Tolerant: a bad kind/id resolves false. */
@@ -87,6 +90,9 @@ export function createBridge(
     },
     async save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary> {
       return store.save(raw, opts);
+    },
+    async compareAndCreate(raw: unknown): Promise<CompareCreateResult> {
+      return store.compareAndCreate(raw);
     },
     async compareAndSave(raw: unknown, expectedRevision: string): Promise<CompareSaveResult> {
       return store.compareAndSave(raw, expectedRevision);

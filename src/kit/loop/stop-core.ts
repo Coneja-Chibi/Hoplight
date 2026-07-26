@@ -16,6 +16,7 @@ export interface StopState {
 }
 
 const STUCK_RUN = 3;
+const STUCK_WINDOW = 8;
 
 /** A human reason to stop, or null to keep going. */
 export function stopReason(state: StopState): string | null {
@@ -24,8 +25,15 @@ export function stopReason(state: StopState): string | null {
   }
   const keys = state.recentObservationKeys ?? state.recentCallKeys ?? [];
   if (keys.length >= STUCK_RUN) {
-    const tail = keys.slice(-STUCK_RUN);
-    if (tail.every((key) => key === tail[0])) {
+    const tail = keys.slice(-STUCK_WINDOW);
+    const newest = tail.at(-1);
+    if (
+      newest?.startsWith("studio_read:")
+      && tail.filter((key) => key === newest).length >= 2
+    ) {
+      return "the same read returned the same observation twice";
+    }
+    if (newest && tail.filter((key) => key === newest).length >= STUCK_RUN) {
       return "the same tool returned the same observation three times";
     }
   }

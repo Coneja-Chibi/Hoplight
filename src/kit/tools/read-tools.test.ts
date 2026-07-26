@@ -27,6 +27,12 @@ const LARGE = {
   body: { identity: { name: "Large" }, description: "x".repeat(9_000) },
 } as unknown as KitEntity;
 
+const OVERSIZED = {
+  id: "oversized",
+  kind: "character",
+  body: { identity: { name: "Oversized" }, description: "x".repeat(70_000) },
+} as unknown as KitEntity;
+
 const fakeBridge: KitBridge = {
   studioDir: "/fake",
   async deckCounts() {
@@ -39,6 +45,7 @@ const fakeBridge: KitBridge = {
     if (kind !== "character") return null;
     if (id === "nyx") return NYX;
     if (id === "large") return LARGE;
+    if (id === "oversized") return OVERSIZED;
     return null;
   },
   async save() {
@@ -99,8 +106,23 @@ describe("read", () => {
     expect(read.input.safeParse({ kind: "character", id: "" }).success).toBe(false);
   });
 
-  test("spills a large default read without losing its continuation", async () => {
+  test("returns a normal large card in one complete default read", async () => {
     const result = await read.execute({ kind: "character", id: "large" }, ctx);
+    const output = JSON.parse(result.output) as {
+      spilled: boolean;
+      content: string;
+      totalChars: number;
+      nextOffset: number | null;
+    };
+
+    expect(output.spilled).toBe(false);
+    expect(output.content.length).toBe(output.totalChars);
+    expect(output.totalChars).toBeGreaterThan(9_000);
+    expect(output.nextOffset).toBeNull();
+  });
+
+  test("spills only a genuinely oversized default read without losing continuation", async () => {
+    const result = await read.execute({ kind: "character", id: "oversized" }, ctx);
     const output = JSON.parse(result.output) as {
       spilled: boolean;
       handle: string;
@@ -110,11 +132,11 @@ describe("read", () => {
 
     expect(output.spilled).toBe(true);
     expect(output.peek.length).toBe(4_096);
-    expect(output.totalChars).toBeGreaterThan(9_000);
+    expect(output.totalChars).toBeGreaterThan(70_000);
     const tail = await resultQuery.execute({
       action: "read",
       handle: output.handle,
-      offset: 8_500,
+      offset: 69_500,
       limit: 2_000,
     }, ctx);
     expect(JSON.parse(tail.output).content).toContain("xxxxx");
@@ -192,8 +214,14 @@ describe("discovery", () => {
     expect(names).toEqual([
       "docs_query",
       "result_query",
+      "studio_character_create",
       "studio_list",
+      "studio_lorebook_create",
+      "studio_pack_create",
+      "studio_persona_create",
+      "studio_preset_create",
       "studio_read",
+      "studio_regex_create",
       "studio_search",
     ]);
   });

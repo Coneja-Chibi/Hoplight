@@ -18,6 +18,12 @@ const TRUST = new Map<string, ToolAccess>([
   ["change_query", "read"],
   ["change_discard", "draft"],
   ["change_apply", "write"],
+  ["studio_character_create", "draft"],
+  ["studio_lorebook_create", "draft"],
+  ["studio_persona_create", "draft"],
+  ["studio_preset_create", "draft"],
+  ["studio_regex_create", "draft"],
+  ["studio_pack_create", "draft"],
 ]);
 
 export type AccessResolver = (name: string) => ToolAccess;

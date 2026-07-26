@@ -22,11 +22,13 @@ const input = z.strictObject({
   limit: z.number().int().min(1).max(12_000).optional(),
 });
 
+const MAX_WHOLE_ENTITY_CHARS = 64_000;
+
 const read: HarnessTool<z.infer<typeof input>> = {
   name: "studio_read",
   description:
-    "Outline or read one piece's canonical content by JSON Pointer, with offsets, continuation, "
-    + "and an opaque result handle for oversized observations.",
+    "Read one complete canonical piece by default. Use outline, JSON Pointer paths, offsets, or an "
+    + "opaque result handle only when a genuinely oversized piece needs narrower traversal.",
   exposure: "direct",
   effect: "read",
   input,
@@ -72,6 +74,21 @@ const read: HarnessTool<z.infer<typeof input>> = {
 
     const content = stringifyJsonValue(selected.value);
     const requestedPage = args.offset !== undefined || args.limit !== undefined;
+    if (!requestedPage && content.length <= MAX_WHOLE_ENTITY_CHARS) {
+      return {
+        summary: `read ${kind}/${id}`,
+        output: JSON.stringify({
+          target: { kind, id },
+          path,
+          spilled: false,
+          content,
+          offset: 0,
+          limit: content.length,
+          totalChars: content.length,
+          nextOffset: null,
+        }),
+      };
+    }
     if (!requestedPage && results) {
       try {
         const captured = results.capture(`${kind}/${id}${path || "/"}`, content);

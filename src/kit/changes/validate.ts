@@ -29,8 +29,14 @@ export async function validateChangeDraft(
     errors.push(error instanceof Error ? error.message : String(error));
   }
   const stored = await bridge.read(draft.target.kind, draft.target.id);
-  const current = stored !== null && entityRevision(stored) === draft.target.revision;
-  if (!current) errors.push("The stored piece no longer matches the draft baseline revision.");
+  const current = draft.mode === "create"
+    ? stored === null
+    : stored !== null && entityRevision(stored) === draft.target.revision;
+  if (!current) {
+    errors.push(draft.mode === "create"
+      ? "The requested piece id now exists."
+      : "The stored piece no longer matches the draft baseline revision.");
+  }
   if (draft.status !== "draft") {
     errors.push(`Draft status is ${draft.status}; only an active draft can be applied.`);
   }

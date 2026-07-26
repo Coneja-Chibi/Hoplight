@@ -16,6 +16,12 @@ describe("resolveAccess", () => {
   test("draft lifecycle tools have explicit least-privilege classes", () => {
     expect(resolveAccess("change_discard")).toBe("draft");
     expect(resolveAccess("change_apply")).toBe("write");
+    expect(resolveAccess("studio_character_create")).toBe("draft");
+    expect(resolveAccess("studio_lorebook_create")).toBe("draft");
+    expect(resolveAccess("studio_persona_create")).toBe("draft");
+    expect(resolveAccess("studio_preset_create")).toBe("draft");
+    expect(resolveAccess("studio_regex_create")).toBe("draft");
+    expect(resolveAccess("studio_pack_create")).toBe("draft");
   });
 
   test("only catalog-supplied capability names become safe drafts", () => {

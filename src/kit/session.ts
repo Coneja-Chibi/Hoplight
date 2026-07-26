@@ -82,6 +82,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   const tools = [...runtime.registeredTools(), ...lifecycleTools];
   const dispatch = makeDispatch(tools, {
     bridge,
+    changes,
     docs: createHoplightDocs(),
     results,
   });

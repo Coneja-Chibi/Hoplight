@@ -7,9 +7,13 @@ import {
 } from "../../entities/runtime-schema";
 import type { ContentCapability, ContentKind } from "../../entities/capabilities";
 import { entityRevision } from "./revision";
-import type { ChangeDraft } from "./types";
+import type { ChangeDraft, ChangeOperation } from "./types";
 
 export interface ChangeSession {
+  create(
+    entity: ParsedCanonicalEntity,
+    operation: ChangeOperation,
+  ): ChangeDraft;
   draft(
     capability: ContentCapability,
     input: unknown,
@@ -42,6 +46,33 @@ export function createChangeSession(): ChangeSession {
   let sequence = 0;
 
   return {
+    create(entity, operation) {
+      const proposed = parseCanonicalEntity(entity);
+      const kind = proposed.kind as ContentKind;
+      const key = targetKey(kind, proposed.id);
+      if (activeByTarget.has(key)) {
+        throw new Error(`studio.create: an active draft already exists for ${key}`);
+      }
+      const draft: ChangeDraft = {
+        id: `draft-${++sequence}`,
+        mode: "create",
+        target: {
+          kind,
+          id: proposed.id,
+          revision: "missing",
+        },
+        baseline: structuredClone(proposed),
+        proposed,
+        operations: [operation],
+        warnings: [...operation.warnings],
+        platformImpact: [...operation.platformImpact],
+        status: "draft",
+      };
+      drafts.set(draft.id, draft);
+      activeByTarget.set(key, draft.id);
+      return draft;
+    },
+
     draft(capability, input, entity) {
       const target = targetFrom(input);
       if (!target) throw new Error(`${capability.id}: missing target id`);
@@ -89,6 +120,7 @@ export function createChangeSession(): ChangeSession {
           }
         : {
             id: `draft-${++sequence}`,
+            mode: "update",
             target: { kind: capability.kind, id: target.id, revision },
             baseline: structuredClone(entity),
             proposed,

@@ -37,6 +37,54 @@ const bridgeBase = (): KitBridge => ({
 });
 
 describe("applyChangeDraft", () => {
+  test("creates a new character once through the create-only bridge seam", async () => {
+    const entity: ParsedCanonicalEntity = {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "character",
+      id: "eros",
+      body: {
+        identity: { name: "Eros" },
+        persona: { personality: "Warm and impulsive." },
+        prompts: {},
+        greetings: {},
+        examples: {},
+        media: {},
+        attribution: {},
+        discovery: { tags: ["mythology"] },
+      },
+    };
+    const changes = createChangeSession();
+    const draft = changes.create(entity, {
+      capabilityId: "studio.character.create",
+      input: { name: "Eros" },
+      changes: [{
+        path: "/",
+        label: "new character",
+        before: null,
+        after: "Eros",
+      }],
+      warnings: [],
+      platformImpact: [],
+    });
+    let current: ParsedCanonicalEntity | null = null;
+    let creates = 0;
+    const bridge: KitBridge = {
+      ...bridgeBase(),
+      async compareAndCreate(raw) {
+        creates += 1;
+        current = structuredClone(raw as ParsedCanonicalEntity);
+        return { status: "saved", summary: { id: "eros", kind: "character", name: "Eros" } };
+      },
+      async read() { return current; },
+    };
+
+    const first = await applyChangeDraft(changes, bridge, draft.id);
+    const second = await applyChangeDraft(changes, bridge, draft.id);
+    expect(first.status).toBe("applied");
+    expect(second.status).toBe("failed");
+    expect(creates).toBe(1);
+  });
+
   test("saves once, verifies, and refuses a second apply", async () => {
     const { changes, draft } = await drafted();
     let current = baseline();

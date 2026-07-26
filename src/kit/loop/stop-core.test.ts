@@ -18,6 +18,33 @@ test("does not stop on fewer than three, or on varied calls", () => {
   expect(stopReason({ step: 3, maxSteps: 20, recentCallKeys: [k, callKey("read", {}), k] })).toBeNull();
 });
 
+test("stops when the same observation recurs three times among nearby exploration calls", () => {
+  const read = observationKey("studio_read", { kind: "character", id: "aphrodite" }, "same");
+  const find = observationKey("capability_find", { query: "rename" }, "bad args");
+  const outline = observationKey("studio_read", {
+    kind: "character",
+    id: "aphrodite",
+    action: "outline",
+  }, "outline");
+  expect(stopReason({
+    step: 7,
+    maxSteps: 20,
+    recentObservationKeys: [read, find, read, outline, read],
+  })).toContain("same read");
+});
+
+test("stops after a second identical full piece read", () => {
+  const read = observationKey("studio_read", {
+    kind: "character",
+    id: "aphrodite",
+  }, "same");
+  expect(stopReason({
+    step: 4,
+    maxSteps: 20,
+    recentObservationKeys: [read, observationKey("capability_find", {}, "none"), read],
+  })).toContain("same read");
+});
+
 test("callKey is stable and distinguishes args", () => {
   expect(callKey("list", { a: 1 })).toBe(callKey("list", { a: 1 }));
   expect(callKey("list", { a: 1 })).not.toBe(callKey("list", { a: 2 }));

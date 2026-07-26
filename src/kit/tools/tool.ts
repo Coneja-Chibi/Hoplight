@@ -11,12 +11,15 @@ import type {
   ContentKind,
 } from "../../entities/capabilities";
 import type { KitBridge } from "../bridge";
+import type { ChangeSession } from "../changes/session";
 import type { HoplightDocs } from "../docs/repository";
 import type { ResultStore } from "../results/store";
 
 /** What a tool is handed at dispatch time: the one engine seam, nothing else. */
 export interface ToolContext {
   bridge: KitBridge;
+  /** Session-local preview drafts; present in the live Kit dispatch context. */
+  changes?: ChangeSession;
   /** Read-only access to the catalog-contained Hoplight documentation corpus. */
   docs?: HoplightDocs;
   /** Bounded, opaque session-local storage for oversized tool observations. */

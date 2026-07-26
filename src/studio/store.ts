@@ -36,6 +36,10 @@ export type CompareSaveResult =
   | { status: "saved"; summary: EntitySummary }
   | { status: "stale" | "missing" };
 
+export type CompareCreateResult =
+  | { status: "saved"; summary: EntitySummary }
+  | { status: "exists" };
+
 const HEX6 = /^#[0-9a-f]{6}$/i;
 
 function authoredSignature(entity: AnyEntity): string | undefined {
@@ -251,6 +255,60 @@ export class StudioStore {
     }
 
     return { id, kind, name: entityName(stamped), importedAt, accent };
+  }
+
+  /**
+   * Create one entity at its exact requested id only when absent.
+   * The check and publish execute under the backend's per-path write lock.
+   */
+  async compareAndCreate(raw: unknown): Promise<CompareCreateResult> {
+    let entity: AnyEntity;
+    try {
+      entity = parseCanonicalEntity(raw);
+    } catch {
+      throw new StudioValidationError("invalid canonical entity");
+    }
+    const kind = assertStudioEntityKind(entity.kind);
+    const id = assertSafeStudioId(entity.id);
+    const filePath = resolveStudioPath(this.dir, kind, id);
+    const now = new Date().toISOString();
+    let outcome: CompareCreateResult = { status: "exists" };
+
+    await this.io.updateAtomic(filePath, (text) => {
+      if (text !== null) {
+        outcome = { status: "exists" };
+        return null;
+      }
+      let accent: string | undefined;
+      const art = portraitBytes(entity);
+      if (art?.mime === "image/png") accent = signatureFromPng(art.bytes) ?? undefined;
+      const stamped: AnyEntity = {
+        ...entity,
+        original: {
+          ...(entity.original ?? {}),
+          "vaud-studio": {
+            raw: entity.original?.["vaud-studio"]?.raw ?? null,
+            unmapped: {
+              importedAt: now,
+              ...(accent ? { accent } : {}),
+              updatedAt: now,
+            },
+          },
+        },
+      };
+      outcome = {
+        status: "saved",
+        summary: {
+          id,
+          kind,
+          name: entityName(stamped),
+          importedAt: now,
+          accent,
+        },
+      };
+      return JSON.stringify(stamped, null, 2);
+    });
+    return outcome;
   }
 
   /**

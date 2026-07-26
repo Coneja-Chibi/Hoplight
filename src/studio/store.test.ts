@@ -176,4 +176,33 @@ describe("StudioStore containment", () => {
     ]);
     expect(result.map((item) => item.status).sort()).toEqual(["saved", "stale"]);
   });
+
+  test("compareAndCreate saves the requested id once and refuses a collision", async () => {
+    const store = new StudioStore(root);
+    const created = await store.compareAndCreate(ent("eros"));
+    const collision = await store.compareAndCreate({
+      ...ent("eros"),
+      body: { ...ent("eros").body, identity: { name: "Replacement" } },
+    });
+
+    expect(created.status).toBe("saved");
+    expect(collision.status).toBe("exists");
+    expect(((await store.read("character", "eros"))!.body as {
+      identity: { name: string };
+    }).identity.name).toBe("eros");
+    expect(await store.read("character", "eros-2")).toBeNull();
+  });
+
+  test("two concurrent compareAndCreate calls for one id have exactly one winner", async () => {
+    const [first, second] = await Promise.all([
+      store.compareAndCreate(ent("single")),
+      store.compareAndCreate({
+        ...ent("single"),
+        body: { ...ent("single").body, identity: { name: "Other" } },
+      }),
+    ]);
+    expect([first.status, second.status].sort()).toEqual(["exists", "saved"]);
+    expect(await store.read("character", "single")).not.toBeNull();
+    expect(await store.read("character", "single-2")).toBeNull();
+  });
 });

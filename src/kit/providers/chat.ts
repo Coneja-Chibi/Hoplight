@@ -9,6 +9,7 @@ import type { ChatFn, ModelMessage, ModelReply, ModelToolCall, ToolSpec } from "
 import type { ProviderConfig } from "./config";
 import { buildModel } from "./adapters";
 import { readUsage, type TokenUsage } from "./usage";
+import { KIT_TOOL_PROTOCOL } from "./tool-protocol";
 
 /** Map the AI SDK's ragged usage object into a clean TokenUsage. Field names have drifted across SDK
  * majors (promptTokens/inputTokens, cachedInputTokens/cacheReadInputTokens), so we read tolerantly and
@@ -37,6 +38,7 @@ export function makeChat(config: ProviderConfig, abortSignal?: AbortSignal): Cha
     const cap = AbortSignal.timeout(HANG_CAP_MS);
     const result = streamText({
       model,
+      system: KIT_TOOL_PROTOCOL,
       messages: messages.map(toAiMessage),
       tools: toAiTools(tools),
       toolChoice: "auto",

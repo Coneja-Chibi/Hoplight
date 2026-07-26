@@ -45,7 +45,13 @@ session:
 - The loop asks for a fresh tool snapshot before every model request.
 - `capability_find` searches and reveals up to five relevant typed workflows, browses a collapsed
   domain to area to action hierarchy without revealing schemas, or describes and reveals one exact
-  operation for the next model step. An existing piece target is optional during discovery.
+  operation for the next model step. An existing piece target is optional during discovery. Compact
+  calls may omit `action`: a query means search, an exact ID means describe, and other calls browse.
+  A flat content `kind` is accepted, and `content/character` browse shorthand resolves to the
+  character kind rather than an empty area.
+- `studio.<kind>.create` reveals a typed creation workflow for every canonical kind: character,
+  lorebook, persona, preset, regex, and pack. Each builds a canonical preview and does not write
+  during composition.
 - A selected capability creates or composes a preview draft without saving. Its result also carries
   a structured semantic review projection; the loop never parses a draft ID or field diff from
   prose or JSON output.
@@ -62,17 +68,19 @@ session:
   dispatches `change_discard` without another model round.
 - `docs_query` searches the generated Hoplight documentation catalog, then reads only a
   catalog-declared page or heading section. It cannot accept filesystem paths.
-- `studio_read` outlines or reads any canonical JSON Pointer with character offsets and bounded
-  continuation.
+- `studio_read` returns one complete normal canonical piece by default. Outline, JSON Pointer paths,
+  offsets, and bounded continuation remain available for genuinely oversized content.
 - `result_query` stats, reads, or literally searches an oversized observation through an opaque
   session handle.
 
 The scheduler is live. Read-only batches run concurrently while retaining provider order in the
 returned observations. Any batch containing a draft, apply, or unknown effect runs serially. The
 loop has model-round, tool-call, elapsed-time, no-progress, and cancellation stops with recovery
-guidance. The `/tools` command opens a target-aware Panel Deck: choose a piece, an available semantic
-area, then an action. Its detail pane names platform applicability and the preview-before-apply
-boundary. Compact terminals show one active pane at a time instead of crushing three columns.
+guidance. An identical full-piece read repeating in nearby exploration stops after the second
+observation instead of consuming the turn. The `/tools` command opens a target-aware Panel Deck:
+choose a piece, an available semantic area, then an action. Its detail pane names platform
+applicability and the preview-before-apply boundary. Compact terminals show one active pane at a
+time instead of crushing three columns.
 
 Backstage labels come from the loop state machine, not model prose. Live and sealed traces retain
 capability discovery, reads, drafting, preview readiness, one-shot apply, verification, and the final
@@ -106,10 +114,12 @@ the default guarded mode. General workflow tools retain the writable Studio brid
 metadata cannot classify them as safe; they remain unknown until a separate safety-owned exact-name
 policy grants the appropriate access.
 
-The Studio backend compares and publishes under one per-path write lock. A stale revision writes
-nothing. After a successful publish, Kit re-reads the entity and verifies all capability-owned
-canonical fields and non-Studio escrow before reporting `applied`. A save with an unreadable or
-mismatched verification result reports failure and is not retried automatically.
+The Studio backend compares and publishes under one per-path write lock. Updates require the
+expected revision. Creation uses a separate create-only comparison that refuses an occupied ID
+rather than overwriting it or silently minting a sibling. A stale revision or create collision
+writes nothing. After a successful publish, Kit re-reads the entity and verifies all
+capability-owned canonical fields and non-Studio escrow before reporting `applied`. A save with an
+unreadable or mismatched verification result reports failure and is not retried automatically.
 
 The guarded-mode draft Gate is a semantic review card, not a generic tool confirmation and not a
 verbal contract with the model. It shows the target and bounded before/after rows. Mouse controls
@@ -125,13 +135,15 @@ resolve a selected operation. Each user turn starts with nine direct tools: `stu
 
 One provider-discovery catalog accepts `content`, `studio`, `transfer`, and `diagnostics` domains.
 Content capability metadata projects into that catalog; a non-content `HarnessTool` supplies the
-same validated discovery metadata beside its implementation. The current live deferred inventory is
-the content catalog. Lifecycle, transfer, and diagnostic workflows can join the same router as their
-engines land instead of adding another meta-tool. Only restricted pure-content capabilities derive
-safe read or draft access from catalog metadata. General workflow tools remain unknown to the Gate
-until separately classified. A deferred `apply` workflow is rejected until its plan supplies an
-explicit safety-owned access contract, so discovery metadata cannot quietly downgrade a write. The
-complete tool registry also rejects duplicate provider names before dispatch or schema publication.
+same validated discovery metadata beside its implementation. The live deferred inventory includes
+the content catalog and typed creation for all six canonical kinds under `studio/lifecycle`.
+Lifecycle, transfer, and diagnostic workflows join the same router instead of adding another
+meta-tool. Only restricted pure-content capabilities derive safe read or draft access from catalog
+metadata. General workflow tools remain unknown to the Gate until separately classified. Each
+creation tool has a separate safety-owned exact-name draft classification. A deferred `apply`
+workflow is rejected until its plan supplies an explicit safety-owned access contract, so discovery
+metadata cannot quietly downgrade a write. The complete tool registry also rejects duplicate
+provider names before dispatch or schema publication.
 
 A catalog search replaces the current deferred set with no more than five deterministically ranked
 matches. A collapsed browse lists domains, areas, or the actions under one area without exposing
@@ -144,16 +156,28 @@ the direct query, apply, or discard tools.
 This keeps a future catalog of more than one hundred semantic operations out of every prompt while
 preserving typed inputs for the selected operation.
 
+Creation discovery does not burden the opening prompt with six large schemas. Search or describe
+reveals one selected tool, and the next provider round receives its exact JSON Schema with field
+descriptions and defaults. Character creation documents portrait and additional-media roles.
+Persona creation keeps the shelf-only brief distinct from injected first-person content and
+documents its portrait. Pack creation documents item IDs, expression labels, resolvable references,
+optional MIME types such as `image/png`, and default-face selection. A media ref may be a data URI,
+an HTTP(S) URL, or an existing asset or archive reference. Lorebook creation accepts typed initial
+entries and triggers. Preset creation accepts typed initial prompt blocks, samplers, and media
+inlining settings. Regex creation accepts stored rule data and never executes it.
+
 ### Canonical reads and result handles
 
-`studio_read` defaults to the complete canonical entity. `outline` returns the selected value's
-immediate children as RFC 6901 JSON Pointers. `read` accepts one returned pointer plus character
-offset and limit, so a model can read one field or page through the whole value without guessing a
-path. Missing and malformed pointers fail closed.
+`studio_read` defaults to the complete canonical entity. A normal piece up to 64,000 characters is
+returned in that one observation. `outline` returns the selected value's immediate children as RFC
+6901 JSON Pointers. `read` accepts one returned pointer plus character offset and limit, so a model
+can traverse genuinely oversized content without guessing a path. Missing and malformed pointers
+fail closed.
 
-An unpaged observation over 4,096 characters is stored in the owning Kit session and returned as an
-opaque `result-N` handle plus a 4,096-character peek. `result_query` provides `stat`, bounded `read`,
-and literal case-insensitive `search`. Handles contain no path and disappear with the session.
+An unpaged piece over 64,000 characters is stored in the owning Kit session and returned as an
+opaque `result-N` handle plus a 4,096-character peek. Other result-producing tools retain the shared
+4,096-character inline threshold. `result_query` provides `stat`, bounded `read`, and literal
+case-insensitive `search`. Handles contain no path and disappear with the session.
 Storage is capped at 24 results, 1,000,000 UTF-8 bytes per entry, and 4,000,000 UTF-8 bytes total.
 Oldest entries are evicted first. Character counts remain available for paging. A value too large
 for the store remains recoverable through direct `studio_read` offsets. Result reads cap at 12,000
@@ -171,7 +195,14 @@ writing. Operation rollback remains deliberately absent until deterministic repl
 
 ## Character slice
 
-The canonical character bundle is:
+`studio.character.create` is the character creation entry point. A query such as
+`create new character` with
+`kind: character` reveals it without requiring a pre-existing target. It accepts a safe optional ID
+or derives one from the name, then previews a complete minimal canonical card with any supplied
+tagline, description, personality, scenario, first message, examples, and tags. Applying uses an
+atomic create-only write and a post-create verification read.
+
+The existing-character bundle is:
 
 | Capability | Previewed change |
 | --- | --- |
@@ -204,18 +235,19 @@ The current drop-ins are:
 | `lorebook.entries.enable` | Enabled state for one or more entries |
 | `lorebook.entries.remove` | Removal of one or more entries |
 
-Create, duplicate, trigger-specific, placement-specific, and broad bulk-operation capabilities
-remain future additions. The Web UI keeps its selection, focus, generated-ID, and undo behavior
-locally.
+`studio.lorebook.create` creates the book and may include initial entries with literal or regex
+triggers, activation mode, insertion position, depth, and role. Duplicate, separate entry-create,
+trigger-specific update, placement-specific update, and broad bulk-operation capabilities remain
+future additions. The Web UI keeps its selection, focus, generated-ID, and undo behavior locally.
 
 ## Other canonical bundles
 
 | Kind | Capabilities |
 | --- | --- |
-| Persona | Identity text, structured profile, injection, and presentation |
-| Preset | Settings and samplers, prompt blocks, and groups |
-| Regex | Set settings and stored rule lifecycle |
-| Pack | Pack settings, media items, and named groups |
+| Persona | Create, identity text, structured profile, injection, and presentation |
+| Preset | Create, settings and samplers, prompt blocks, and groups |
+| Regex | Create, set settings, and stored rule lifecycle |
+| Pack | Create, pack settings, media items, and named groups |
 
 These operations share pure entity-layer reducers with the Workbench where the corresponding editor
 already exists. Regex and embedded behavior payloads remain sealed data and are never executed by a
@@ -272,8 +304,9 @@ network call. The Studio docs reader and Kit use the same path-containment imple
 
 ## Verification status
 
-Unit and integration proof covers catalog parity, all discovery domains, progressive exposure,
-bounded result storage, JSON Pointer reads, complete draft evidence, read-effect isolation, canonical
-draft composition, escrow preservation, stale refusal, one-save apply, post-save verification, and
-a full fake-provider rename journey through the real Studio store. Live terminal verification
-remains required before this milestone is called shippable.
+Unit and integration proof covers catalog parity, all discovery domains, compact discovery calls,
+progressive exposure, six-kind creation discovery and preview, media schema descriptions, whole-card
+reads, bounded oversized result storage, JSON Pointer traversal, complete draft evidence,
+read-effect isolation, canonical draft composition, create collision refusal, stale update refusal,
+one-save apply, post-save verification, and a full fake-provider rename journey through the real
+Studio store. Live terminal verification remains required before this milestone is called shippable.
