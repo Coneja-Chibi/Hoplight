@@ -6,7 +6,7 @@
  * inject.ts output + the shared token convention) + the default star. Save preserves the sealed
  * `original` so imported personas round-trip byte-true.
  */
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
 import { accentVars } from "../../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
@@ -38,9 +38,11 @@ import {
 } from "./persona-cards";
 import { personaDirty, setPortrait } from "./session";
 import s from "./persona.module.css";
+import { useEditorGuards } from "../use-editor-guards";
 
 export interface PersonaEditorViewProps {
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   topRight?: ReactNode;
@@ -59,7 +61,8 @@ function bodyFromEntity(entity: unknown): PersonaBody {
   return { name: "Untitled persona", content: "" };
 }
 
-export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEditorViewProps): JSX.Element {
+export function PersonaEditorView({ entity, revision, ctx, piece, topRight }: PersonaEditorViewProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const initBody = useMemo(() => bodyFromEntity(entity), [entity]);
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [body, setBody] = useState(() => structuredClone(initBody));
@@ -95,30 +98,21 @@ export function PersonaEditorView({ entity, ctx, piece, topRight }: PersonaEdito
     setSaving(true);
     try {
       const original = isRec(entity) && isRec(entity.original) ? entity.original : {};
-      await ctx.api.saveEntity(
+      const saved = await ctx.api.saveEditedEntity(
         { schemaVersion: CANONICAL_SCHEMA_VERSION, kind: "persona", id: piece.id, body, original },
-        { overwrite: true },
+        revisionRef.current,
       );
+      revisionRef.current = saved.revision;
       setBaseline(structuredClone(body));
       ctx.setStatus(`saved persona · ${body.name}`);
-    } catch {
-      ctx.setStatus("could not save the persona");
+    } catch (e) {
+      ctx.setStatus(e instanceof Error ? e.message : "could not save the persona");
     } finally {
       setSaving(false);
     }
   }, [saving, dirty, body, ctx, entity, piece.id]);
 
-  // ctrl/cmd+S saves (the house editor reflex)
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void doSave();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [doSave]);
+  useEditorGuards(ctx, piece, dirty, doSave);
 
   const mobileMenu: MobileMenuItem[] = PERSONA_WRITE_FOR_PROFILES.map((p) => ({
     label: `${writeFor === p ? "● " : "○ "}Writing for: ${PERSONA_WRITE_FOR_LABELS[p]}`,

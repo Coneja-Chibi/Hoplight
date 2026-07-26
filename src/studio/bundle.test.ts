@@ -93,6 +93,23 @@ describe("preflightBundle", () => {
 });
 
 describe("saveBundle", () => {
+  test("rejects a malformed related entity before writing the batch", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-bundle-preflight-"));
+    const store = new StudioStore(dir);
+    const malformed = {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "lorebook",
+      id: "broken",
+      body: { name: "Broken" },
+    } as CanonicalLorebook;
+
+    await expect(saveBundle(store, {
+      entity: char("aria"),
+      lorebooks: [book("valid"), malformed],
+    })).rejects.toThrow("bundle: invalid lorebook");
+    expect(await store.list()).toEqual([]);
+  });
+
   test("persists character and lorebook; knowledgeRefs match saved book id", async () => {
     const dir = await mkdtemp(join(tmpdir(), "vaude-bundle-"));
     const store = new StudioStore(dir);

@@ -1,5 +1,4 @@
-/** Tests for the version-history pure core: commit-block parsing, timeline shape, behind-count, the
- *  data-change classifier, and the two version-comparison traps Fable flagged (bare vs v-prefixed). */
+/** Version-history parsing, timeline, behind-count, and data-change regressions. */
 import { describe, expect, test } from "bun:test";
 import {
   buildTimeline,
@@ -11,8 +10,7 @@ import {
 
 const FENCE = "```";
 
-// A REAL v0.1.11 release body: install-guide prose + the fenced commit block (Fable B4: prove prose is
-// never parsed as commits and the fence is read exactly).
+// A real release body: install prose plus the fenced commit block.
 const REAL_BODY = [
   "## Install",
   "| **Windows** | `Hoplight.exe` | Double-click it |",

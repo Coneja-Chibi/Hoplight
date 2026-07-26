@@ -2,35 +2,36 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:5125016f561b37d77db0a43e92fcafcb06d75943b454792a13ea0fedfbc81c82",
-  "summary": "Developer authority for the visual Studio: hoplight ui boots a loopback Bun server and JSON API as a thin skin over the same engine the CLI uses, with no format logic in the UI layer. Kit terminal shell covers composer queue palette piece markers stage watcher sessions tools and a semantic Gate review path that replaces model save prose with before/after Apply or Discard controls. Tool preambles stay out of the transcript and consecutive reasoning folds into one rehearsal receipt. Hyper-modularity is the build spine: drop-in apps tokens and deep accent pairs. First-run setup is the wizard of drop-in steps and settings-first boot. The right-click system is attach-and-register menus. Apps catalog and documentation open catalogOnly tools and the docs corpus from the generated index. Dev live-reload is SSE on src/ui in development only. The card-type chip labels sourceFormat from the live registry. The studio store is one vaud-json file per entity with keep-both on id collision. Endpoints list shell setup settings docs formats inspect export coverage and studio routes. Library deep-browses deck views and staging. Workbench is the tabbed IDE with container-fluid editors. Press batch-exports staged bundles. Settings, components, and security remain drop-in, shared, and fail-closed.",
+  "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
+  "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
-    "hoplight ui loopback studio",
-    "Kit terminal shell tools",
-    "drop-in apps wizard menus",
-    "Library Workbench Press rooms",
-    "studio store vaud-json",
-    "endpoints inspect export",
-    "character lorebook editors",
-    "fluid law container queries",
-    "settings sections tokens",
-    "loopback security sanitize"
+    "Kit conversational terminal",
+    "drop-in UI architecture",
+    "first-run settings",
+    "in-app documentation",
+    "Studio HTTP endpoints",
+    "Library browse staging",
+    "Workbench content editors",
+    "Press batch export",
+    "shared color paint controls",
+    "loopback UI security"
   ],
   "sections": [
     {
       "slug": "kit-terminal-shell",
       "title": "Kit terminal shell",
       "level": 2,
-      "sourceHash": "sha256:0cd565a76f58e0a7db293b213962dacc3272b4a836a5c70d47d8204031642ee3",
-      "summary": "Kit is the conversational terminal shell: multiline composer with paste cards, edge-only history, Ctrl+F search, Escape stop, rejected text kept, and a session-local follow-up queue. Slash opens a command palette; at-query inserts stable kind-id markers. Empty placeholder suggests a studio move but never submits. Partial streams stay visible. The prompter rail uses native terminal scroll behavior, navigation keys, and a new-below pill. Help is a full-screen stage. Stage watcher coalesces external changes into one NOTICED cue never acted on or saved. Sessions support resume, rewind, and export. Provider and inventory commands plus the Panel Deck cover setup and navigation. Capability discovery searches up to five schemas, browses collapsed areas/actions, or describes one operation; deferred tools reset while drafts persist. Several draft operations may compose. When the model finishes, Kit suppresses save prose and opens a semantic REVIEW CHANGE card with bounded before/after rows. Click or y/Enter applies and verifies; click or n/d/Escape discards. Tool preambles stay in provider history but out of the transcript. Consecutive tool-loop reasoning becomes one rehearsal receipt, while Backstage owns lifecycle status.",
+      "sourceHash": "sha256:f40085a5dd25ed58d5baf26da00f97e8d6268c40c65cb581b99985fc1a9d8579",
+      "summary": "Kit is a source-checkout terminal preview with a multiline composer, paste cards, bounded follow-up queue, draft-preserving history and search, interruptible streaming, command palette, studio-piece mentions, and context-sensitive suggestions. Native scrolling, foldable long replies, copy feedback, responsive rainbow branding, and a session-local stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork, and export. Model settings, doctor checks, inventory, and privacy are command surfaces. Its tool loop performs bounded studio and documentation reads, discovers only a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. Applies and discards serialize, receipts retain lifecycle truth in Backstage, provider preambles stay out of the user transcript, and explicit stop reasons expose budget or progress limits.",
       "topics": [
-        "composer queue palette",
-        "stage watcher NOTICED",
-        "sessions resume export",
-        "docs query capabilities",
-        "Gate apply revision check",
-        "Panel Deck tools",
-        "provider model doctor"
+        "composer queue and search",
+        "slash palette mentions",
+        "terminal scrolling folding copy",
+        "session resume rewind export",
+        "provider doctor privacy",
+        "bounded docs capability tools",
+        "REVIEW CHANGE gate",
+        "Backstage lifecycle receipts"
       ],
       "children": []
     },
@@ -38,14 +39,15 @@
       "slug": "hyper-modularity-the-builds-spine",
       "title": "Hyper-modularity (the build's spine)",
       "level": 2,
-      "sourceHash": "sha256:ac4804ea9bf90189bb7b3fc24b8ce0ae75b3748ae59a7bf40dc99ecf75e32b62",
-      "summary": "Apps are drop-in folders under src/ui/apps exporting HoplightApp: manifest with tile title flat-ink SVG mark accent order and optional comingSoon catalogOnly appCatalog plus Component. Server discovers via Bun.Glob skipping underscore folders and bundles on demand. Normal apps get Dock tiles; catalogOnly apps open only from the Apps catalog; no central list, same doctrine as formats. Apps never touch engine or filesystem; AppContext.api is the only door for inspect export studio formats while the shell owns theme Workbench tabs and status bar. Tokens live only in theme/tokens.css from design decisions; hardcoding colors or layout pixels in an app is a review rejection under the fluid law. Bright accents never carry small text: every accent has a deep companion always paired with stage-white ink for labeled fills so contrast clears AA; bright originals keep borders spines and marks. Pairs include rose accent deck and per-piece a/a-deep minted by accentVars and deepAccent unit-tested against tokens.",
+      "sourceHash": "sha256:94757d4aba9729188b8a14fd42cef7b14a89dc4df64f5f119a495b6da933d63b",
+      "summary": "UI applications are drop-in folders exporting a HoplightApp manifest and component. Bun discovery skips private underscore folders, bundles apps on demand, puts ordinary apps on the Dock, and keeps catalogOnly tools available through the catalog without a central roster. Apps receive AppContext and may reach engine or filesystem behavior only through its API; the shell owns global navigation, tabs, theme, and status. Visual law comes from one token sheet rather than app-local colors or fixed layout. Bright accents remain marks, borders, and spines; any labeled accent fill uses a generated deep companion with stage-white text. Rose, house accent, deck, and per-piece pairs share tested deepening logic.",
       "topics": [
-        "drop-in HoplightApp",
-        "catalogOnly dock tiles",
-        "AppContext api only",
-        "tokens.css fluid law",
-        "deep accent pairs AA"
+        "folder-derived HoplightApp",
+        "Dock versus catalogOnly",
+        "AppContext API boundary",
+        "single token sheet",
+        "fluid layout law",
+        "deep accent contrast pairs"
       ],
       "children": []
     },
@@ -54,13 +56,15 @@
       "title": "First-run setup (the wizard)",
       "level": 2,
       "sourceHash": "sha256:0ce89bf6be168268d4e05a93b68cc11879474b85778f8961f7ca5cea45383a6a",
-      "summary": "Locked vs-setup-hybrid flow asks one plain question per screen. Steps are drop-in folders under setup/steps exporting SetupStep with manifest options optional widgets stage zones direct effects and phrase recap fragments. Wizard derives progress dots N of M defaults skip-all stage summary sentence and recap chips from the sorted step list; pure selection defaults and sentence assembly live in wizard-core unit-tested. Settings shape is open record with fail-closed per-key parsers and SETTING_KEYS theme firstDeck publishTargets houseAccent stored in studioDir settings.json. Shell boots settings-first: missing setupComplete runs the wizard; after OPEN VAUDE applies theme and house accent and lands on firstRunLanding app; later boots open lowest-order app. Top-strip theme button uses View Transitions when allowed else immediate switch and persists to settings with localStorage only as pre-paint cache. Controls use serialized PATCH so overlapping edits compose instead of clobbering stale snapshots.",
+      "summary": "First run is assembled from drop-in SetupStep folders, each declaring its question, options, settings key, optional widget and stage treatment, and recap language. The wizard derives order, progress, defaults, skipping, stage zones, and final summary from discovery; pure selection and sentence logic is tested separately. Settings are an open record parsed fail-closed per known key and persisted under the studio directory. Missing setupComplete opens the wizard; completion applies theme and house accent and follows the manifest-selected first landing, while later starts choose the lowest-order app. Theme changes use View Transitions when appropriate, retain an immediate reduced-motion fallback, persist server-side, and use localStorage only for pre-paint. Serialized PATCH operations ensure concurrent control changes merge rather than overwrite stale documents.",
       "topics": [
         "drop-in SetupStep",
-        "wizard-core progress",
-        "settings.json keys",
-        "setupComplete first boot",
-        "theme transitions PATCH"
+        "derived wizard progress",
+        "fail-closed settings shape",
+        "settings-first boot",
+        "manifest landing app",
+        "View Transition theme",
+        "serialized PATCH updates"
       ],
       "children": []
     },
@@ -69,12 +73,14 @@
       "title": "The right-click system",
       "level": 2,
       "sourceHash": "sha256:39029e048c7a803a8225ff318f2f29aace0cafe676f6b31aa1a9c072a02f6092",
-      "summary": "One context menu for the whole app in context-menu.ts extended only by registration. Surfaces mark targets with menus.attach so the deepest attached element wins and a document-level shell target is always the fallback. Features contribute items with menus.register per type; any number of providers per type form sections and empty or null denies by absence; register returns unregister for cleanup. Shell-owned providers cover entity actions Send Show Open beside Close the split Remove on the Workbench as the one-shot path in every room, app dock tiles, and shell Go home Import files Switch theme. Future menu items need only one register call; nothing central is edited when menus grow.",
+      "summary": "One shared context-menu service grows through registration. Surfaces attach typed targets and data to elements, with the deepest matching element winning and a shell-level target always available. Features register any number of item providers for a target type; each provider contributes a section, an empty result denies by absence, and cleanup receives an unregister function. Shell providers currently cover entity actions such as send, show, open beside, split close, and Workbench removal, plus Dock-app and shell navigation actions. A new feature contributes one provider instead of editing a central switch, preserving room-independent behavior for common entity operations.",
       "topics": [
-        "attach target deepest",
-        "register providers sections",
+        "shared menu service",
+        "typed attached targets",
+        "deepest target wins",
+        "provider registration sections",
         "deny by absence",
-        "entity app shell menus"
+        "entity app shell actions"
       ],
       "children": []
     },
@@ -83,13 +89,15 @@
       "title": "Apps catalog and documentation",
       "level": 2,
       "sourceHash": "sha256:56a3a069cb626f3c436b75bc972dd0de10f6d2c1717c76d4ce680ec4b5e9ce0e",
-      "summary": "Dock Add app finds the one manifest with appCatalog true and opens that surface without hardcoding an app id. Catalog cards come from ctx.apps so they cannot drift from the packaged roster. CSS Workshop is the first catalogOnly tool fully bundled and mountable but off the everyday Dock. Help Docs is also catalog-only and renders the committed docs corpus inside Studio. Left navigation and search derive from docs-generated docs-index.json including short frontmatter summaries optional semantic page summaries retrieval topics and nested H2 H3 anchors when sidecars are merged presented as User Docs and Developer Docs with workflow platform application architecture data-model format security extension and decision sections. ADR files keep canonical filenames on disk while the reader shows plain titles without ADR codes. Center pane Markdown goes through the shared sanitizer and mounts only generated figures or committed docs media; right rail uses heading anchors flattened depth-first with H3 styling preserved. Desktop build bakes the same Markdown and assets as GitHub for one source. View on GitHub uses the leaving gate and open URL allowlist.",
+      "summary": "The Dock's Add app control discovers the manifest-marked catalog instead of naming an id, and the catalog derives cards from the running app roster. catalogOnly tools such as CSS Workshop and Help/Docs remain bundled without occupying everyday Dock space. Help/Docs reads the committed corpus through the generated docs index, which can merge frontmatter, semantic page summaries, retrieval topics, and nested section anchors. Navigation separates user workflows and platforms from developer API, architecture, data, format, security, extension, and decision material; ADR filenames remain canonical while titles are reader-friendly. Markdown uses the shared sanitizer, figures and images are restricted to generated or committed docs assets, the right rail follows current headings, and packaged content matches GitHub. External GitHub viewing passes through the leaving gate and URL allowlist.",
       "topics": [
-        "appCatalog Add app",
-        "catalogOnly CSS Workshop",
-        "docs-index User Developer",
-        "sanitizer docs media",
-        "view on GitHub allowlist"
+        "manifest-discovered app catalog",
+        "catalogOnly applications",
+        "generated semantic docs index",
+        "User and Developer Docs",
+        "sanitized Markdown assets",
+        "heading-derived right rail",
+        "GitHub leaving gate"
       ],
       "children": []
     },
@@ -98,11 +106,12 @@
       "title": "Dev live-reload",
       "level": 2,
       "sourceHash": "sha256:0f84363876a0a402531d403d698eb5fbe96b06382446ef1dc86402a96096eaf2",
-      "summary": "hoplight ui or bun run dev watches src/ui and pushes reload over SSE at /dev/reload to every open page. Bundles build fresh per request so edits appear on save. The packaged executable serves baked bundles and 404s the stream so the client goes quiet. Zero extra dependencies for this path.",
+      "summary": "Development Studio watches src/ui and broadcasts changes to every open page over the /dev/reload server-sent-event stream. Browser bundles are rebuilt per request, so a save produces fresh code instead of a cached build. Packaged executables serve baked assets, return 404 for the development stream, and let the client become quiet without a separate dependency.",
       "topics": [
-        "SSE /dev/reload",
-        "fresh bundles per request",
-        "packaged 404 stream"
+        "src/ui watcher",
+        "SSE reload stream",
+        "fresh request bundles",
+        "packaged stream disabled"
       ],
       "children": [],
       "shortSource": true
@@ -112,11 +121,13 @@
       "title": "The card-type chip",
       "level": 2,
       "sourceHash": "sha256:5e5c58bcfcf71f67234e23990e2e7c12da10ab9b6d54af6688a5b437b4ea982d",
-      "summary": "Summaries carry sourceFormat and sourceVariant from the first non-hoplight escrow entry. Library maps ids to chip labels from the live registry: platform name for platform-specific adapters such as RoleCall V3, Default when the adapter declares generic as the plain Tavern CC reader, and no chip when there is no source because the piece was made from scratch.",
+      "summary": "Library summaries derive sourceFormat and sourceVariant from the first non-Hoplight escrow record. Labels come from the live format registry rather than a duplicated UI map: platform-specific adapters show platform and variant, generic Tavern/CC content shows Default, and pieces authored without a source adapter display no chip. The badge therefore describes provenance without inventing one for native drafts.",
       "topics": [
-        "sourceFormat sourceVariant",
-        "live registry chip labels",
-        "generic Default no chip"
+        "escrow source provenance",
+        "live registry labels",
+        "platform variant chip",
+        "generic Default label",
+        "no chip for native draft"
       ],
       "children": [],
       "shortSource": true
@@ -125,12 +136,15 @@
       "slug": "the-studio-store",
       "title": "The studio store",
       "level": 2,
-      "sourceHash": "sha256:f1ae14afdd09475e27130b1f80a845d3066fbeed8143046e6a93eedb51f00452",
-      "summary": "studio/store.ts is local-first storage where canonical vaud-json is the database: studioDir kind id.json one file per entity portable and versionable by construction. Saving never silently overwrites; an occupied id gets a numbered sibling so the import journey Keep both default is enforced at the storage floor.",
+      "sourceHash": "sha256:89766fca8358a93f219c27ca4d8ae49ac9865cbb9a1100c174b278193eaf5ad4",
+      "summary": "Canonical Hoplight JSON is the local database: each entity lives at studioDir/kind/id.json as a portable file. Storage never replaces a different piece at the same id; it creates a numbered sibling, enforcing Keep both at persistence. One inventory pass returns healthy summaries and separate bounded records for safe-id JSON files that fail parsing, canonical schema, kind, or id checks. Damaged files are never modified or quarantined.",
       "topics": [
-        "vaud-json per entity",
-        "kind id.json paths",
-        "keep-both numbered sibling"
+        "canonical JSON database",
+        "one file per entity",
+        "portable versionable storage",
+        "no silent overwrite",
+        "numbered keep-both sibling",
+        "damaged file classification"
       ],
       "children": [],
       "shortSource": true
@@ -140,11 +154,13 @@
       "title": "The receipt",
       "level": 2,
       "sourceHash": "sha256:c1823a87230f91d3d9b86b2fc55b1c865c4c57db807214e86dbc7b70b9383d1d",
-      "summary": "receipt.ts renders the plain-words import receipt server-side so both shells say identical sentences. It uses platform names only, we-read we-kept voice, and lines only when true for embedded book scripts-as-data notice and privileged warning plus a warm unknown-file message. It is a rendering of what the engine already knows with no new format logic.",
+      "summary": "The server renders one plain-language import receipt for both shells, ensuring terminal and visual users receive the same explanation. It uses recognizable platform names, a we-read/we-kept voice, and emits conditional lines only when engine evidence supports embedded books, scripts-as-data, or privileged warnings. Unknown files receive a warm failure message. Receipt rendering adds presentation, not new detection or format logic.",
       "topics": [
-        "server-side plain words",
-        "we-read we-kept voice",
-        "no new format logic"
+        "shared shell receipt",
+        "plain-language platform names",
+        "conditional evidence lines",
+        "scripts-as-data warning",
+        "no duplicate format logic"
       ],
       "children": [],
       "shortSource": true
@@ -153,14 +169,17 @@
       "slug": "endpoints",
       "title": "Endpoints",
       "level": 2,
-      "sourceHash": "sha256:272bc41a94550f8d6b688273a3c236a2ce3e5aef134fd0498c51e1461f5916b0",
-      "summary": "Shell routes serve index tokens.css boot.js api apps manifests and per-app bundles. Setup exposes step ids and bundled steps. Settings support GET POST replace and PATCH validate-merge. Docs endpoints serve generated index figures catalog-declared Markdown only and committed media or generated figure assets only. Formats includes native. Inspect posts bytes with filename for receipt and canonical entity. Export takes entity and targetId and fails closed cross-kind. Coverage returns per-platform canonical-path claims used by editor lens and Press. Studio list get portrait save and save-bundle cover entities art and character plus related lorebooks with keep-both renames rewriting knowledgeRefs.",
+      "sourceHash": "sha256:b2cc43b200aaaebe6a2bc78550126304a993651bc9aa945fe9cb343292c4571e",
+      "summary": "The HTTP surface serves the shell, token sheet, boot code, discovered app manifests and bundles, and setup-step modules. Settings supports read, replacement, and validated partial merge. Documentation routes expose the generated index, figures, catalog-declared Markdown, and committed assets. Formats, inspect, export, coverage, and Studio routes remain thin engine and storage boundaries. `/api/studio/inventory` returns healthy entities and bounded damaged-file records from one filesystem scan; `/api/studio/list` remains the healthy-only compatibility read. Editor reads can return the complete entity with its revision, and editor saves atomically compare that revision, returning 409 without overwriting newer data. Bundle saves validate the complete canonical batch before any write, then report genuine storage partials honestly. Host-only `/api/remote/*` routes control tunnel and LAN setup, devices, and approvals; `/api/updates/*` routes read release information and perform version switching.",
       "topics": [
-        "apps setup settings docs",
-        "inspect export coverage",
-        "studio list get save",
-        "portrait save-bundle",
-        "fail closed cross-kind"
+        "shell app setup routes",
+        "settings GET POST PATCH",
+        "bounded docs routes",
+        "inspect canonical receipt",
+        "cross-kind export rejection",
+        "coverage claims",
+        "revision-checked editor saves",
+        "bundle reference rewrite"
       ],
       "children": []
     },
@@ -168,14 +187,17 @@
       "slug": "the-library-room-the-shelves---deep-browse",
       "title": "The Library room (the shelves - deep browse)",
       "level": 2,
-      "sourceHash": "sha256:dad7ed4e66ad3ebdef394eb9bde4aa67d4abf93de41d56bbd0f400e9fa5165d7",
-      "summary": "Empty studio shows locked first-run doors; populated shows deck chips with live per-kind counts a proscenium stage through a drop-in view and continuous art-size dial opening on setup firstDeck. Import drop-anywhere with plain-words receipts lives here; covers use portrait API art when carried. Deck views are drop-in modules under library/views exporting DeckView; registry.ts is the stated browser-bundle seam. Shipped views grid showcase list all render open and selected piece states. Multi-select is staging that persists across deck switches; Send bar commits via workbench.sendMany with one follow dialog for the real newly-opened count while entity menu keeps one-shot Send. Open pieces are annotation-only on tap. Art size is a continuous dial SIZE_RANGE 4 to 36rem with fail-closed clampSize; drag repaints via card-w and release persists. View and size prefs persist as library.view and library.size.",
+      "sourceHash": "sha256:ee477b2f83a26b77ee0df01cf566fab3b85ae5f0fad9b77d4f5697748530175e",
+      "summary": "Library presents first-run doors when empty and, when populated, live per-kind deck counts, a drop-in proscenium view, portrait-backed covers, drop-anywhere import receipts, and the configured initial deck. It loads healthy summaries and damaged records together through one `/api/studio/inventory` filesystem pass and renders an expandable notice even when no readable pieces remain. The notice names each file and bounded reason, states that Hoplight did not change it, includes the local studio path when available, and offers manual restore-or-remove guidance. Grid, showcase, and list are DeckView modules behind the one browser registry seam; each receives consistent open and staged states. Tapping ordinary pieces toggles a staging set that survives deck switches, then sendMany moves the batch through one follow decision reporting the true newly opened count. Already-open pieces remain annotation-only, while the context menu preserves one-shot Send. A continuous, fail-closed 4-to-36rem art-size control updates CSS live and persists on release. View choice and size live in per-user Library preferences.",
       "topics": [
-        "drop-in deck views",
-        "staging sendMany batch",
-        "grid showcase list",
-        "art size dial prefs",
-        "import drop receipts"
+        "empty and populated Library",
+        "damaged file notice",
+        "drop-in grid showcase and list views",
+        "persistent multi-select staging",
+        "sendMany follow dialog",
+        "open-piece annotation",
+        "continuous art size",
+        "Library preferences and recovery"
       ],
       "children": []
     },
@@ -183,15 +205,17 @@
       "slug": "the-workbench-room-home-by-default---the-ide",
       "title": "The Workbench room (home by default - the IDE)",
       "level": 2,
-      "sourceHash": "sha256:d0daf0beb880c52ddb5b6defba382f97a3fe185b4d0806912510c6a2378ae8b2",
-      "summary": "Pieces sent from the Library open as shell-owned tabs via AppContext.workbench so they persist across apps. send and sendMany share one follow path; follow setting ask always never drives dialog jump or stay. workbench.open lands on the editor without prompt for create flows. Recents rail ranks later-of importedAt and last-opened map capped at 60 excluding open pieces pure-tested. Character edit slice one has fixed Identity card reorderable prose cards fieldOrder RC ids explicit Save Ctrl+S dirty beforeunload whole-body round-trip and one mounted CharacterEditor draft per open tab. Canonical and variant writes use entity-layer ops shared with Kit. Split view uses splitKey Open beside pure focus remove beside rules; any kind inherits. Fluid law uses container-type inline-size and pane container queries never viewport media. Lorebook binder one entry owns the screen with TOC entry-page platform cards entry-rail session pure; RC codec is field checklist; tokens use honest ~ estimates. Dock can collapse marks-only via shell.dockSlim.",
+      "sourceHash": "sha256:bb266bed162b09ddbccd0407dcf240bd7a69eea48acd0eb606b5089e18565aa8",
+      "summary": "Workbench is the shell-owned tabbed IDE for character, lorebook, persona, preset, regex, and pack entities; editors retain local drafts and save explicitly. Each editor loads a complete-entity revision and saves only against that revision, so an external write leaves the draft dirty and reports a conflict instead of being overwritten. One shared editor-guard hook publishes dirty state, owns Ctrl+S and window-close protection, and routes tab, keyboard, editor-back, and context-menu closes through a shell-owned discard-or-keep dialog. send and sendMany share ask/always/never follow behavior, while create and open-beside gestures navigate directly. Recents combines import and open times, excludes current tabs, caps history, and can collapse. Character editing preserves untouched body fields, persistent prose order, dirty state, and variant semantics shared with Kit operations. Split view supports any two kinds with tested focus, promotion, and close rules. Pane container queries, not viewport queries, drive responsive collapse. Lorebook editing centers one entry with searchable groups, trigger modes, timing, placement, passage, platform-specific cards, fine controls, match testing, and honest token estimates. The shell also persists a marks-only Dock mode.",
       "topics": [
-        "shell workbench tabs",
-        "follow send openBeside",
-        "character editor save",
-        "lorebook binder entry",
-        "split view fluid law",
-        "recents rail ranking"
+        "shell-owned editor tabs",
+        "follow and direct-open paths",
+        "recents ranking rail",
+        "revision-checked explicit saves",
+        "dirty close confirmation",
+        "universal split view",
+        "pane container queries",
+        "single-entry lorebook editor"
       ],
       "children": []
     },
@@ -199,14 +223,17 @@
       "slug": "the-press-room-batch-export---the-staged-set-prints",
       "title": "The Press room (batch export - the staged set prints)",
       "level": 2,
-      "sourceHash": "sha256:3166c1d067133700c448a1a45bb4a9e54d61d9e46608435eee4327ee9f4ee574",
-      "summary": "Press applies staging grammar to export: Library browse then Stage for the Press via right-click or left rail of unstaged stamps; the room works only its staged queue with no in-room studio browser. Queue is shell-store pressQueue surviving app switches. Bundles pure-tested: staged characters travel with knowledgeRefs lorebooks resolved against the whole studio even if never staged droppable per run and not doubled when already staged solo. Readiness pure-tested: characters against coverage claims with open-in-editor fix links; lorebooks via lorebookKeyGap for entries with no triggers and not constant; no claims means honest nothing never fake green. One target per run groups extension-map hosts per-card filename and flavor skip rows before run per-row printed skipped failed results and one zip out. Deferred stated work includes delivery ledger saved jobs drag reorder rehearse-bytes drawer and offer-rail readiness dots.",
+      "sourceHash": "sha256:aa0f8873b03f4c94cc33502ee32b8da17afb1d3786442eb35aa38e49b3ae238d",
+      "summary": "Press exports only a shell-owned staged queue assembled from Library or its unstaged-piece rail, so queue state survives app switches and the room does not duplicate a studio browser. Characters automatically gather referenced lorebooks from the whole studio; riders may be dropped for one run, and an already staged riding book is not exported twice. Readiness compares characters with the target's live field-coverage claims and identifies lorebook entries that cannot fire, offering editor repair links without manufacturing green status when claims are absent. Export reports preserve that distinction: undeclared coverage is unknown with a null dropped count rather than false zero loss. Each run chooses one grouped platform target, declares filenames, text flavors, and skips before work, reports printed, skipped, or failed outcomes per row, and emits one zip. Delivery history, saved jobs, reorder, byte rehearsal, and readiness dots remain explicitly deferred.",
       "topics": [
-        "pressQueue staged export",
+        "shell-owned press queue",
         "character lorebook bundles",
-        "coverage readiness gaps",
-        "one target one zip",
-        "deferred ledger jobs"
+        "per-run rider removal",
+        "coverage readiness",
+        "lorebook trigger gaps",
+        "single target runs",
+        "one zip receipts",
+        "deferred press features"
       ],
       "children": []
     },
@@ -214,28 +241,33 @@
       "slug": "settings-drop-in-sections",
       "title": "Settings (drop-in sections)",
       "level": 2,
-      "sourceHash": "sha256:a48ea35f9280fa15750321ef0a161d857ff04d7f26d80acb94c8da9a5ed20d28",
-      "summary": "Settings is built from section modules under settings/sections exporting SettingsSection id label order Component. sections/registry.ts is the stated seam; tabs derive from the registry and every control is call-and-response against live settings so theme and accent repaint instantly. Shipped sections are Appearance theme and house accent via SwatchRow, Studio home app Library first deck publish targets from live registry, and Workbench follow behavior.",
+      "sourceHash": "sha256:f43bd559213946da90f20803e4a5877740fe8dbf4799cf8b66207991b7e48eda",
+      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
       "topics": [
         "drop-in SettingsSection",
         "registry-derived tabs",
-        "Appearance Studio Workbench"
+        "live call-and-response controls",
+        "Appearance theme accent",
+        "Studio home deck targets",
+        "Workbench follow behavior"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     },
     {
       "slug": "shared-components-srcui_shared-and-srcuicomponents",
       "title": "Shared components (`src/ui/_shared/` and `src/ui/components/`)",
       "level": 2,
       "sourceHash": "sha256:8bf8510db6ef0a8819dd8599376dde99f7fdec6c41f5313527d1347afc62ac9a",
-      "summary": "Extracted-once UI layered so one implementation serves every consumer. SwatchRow plus HOUSE_PALETTE is the house color-swatch row; preset tiles are fast path and allowCustom opens PaintPicker solid mode; controlled value and onChange hex. ColorPicker is on-brand HSV surface with square hue strip and hex field no OS dialog; HSV not hex is internal state because hex is lossy at zero saturation or value. color-math.ts pure normalizeHex hexToHsv hsvToHex fail-closed and dragFraction shared by SV square hue strip and gradient stop rail unit-tested. paint.ts pure solid or gradient linear radial union with paintToCss and fail-closed normalizePaint needing at least two valid stops. PaintPicker composes ColorPicker for solid or each gradient stop with allow gating modes; solid mode is live for accent custom tile; gradient stop rail angle and true-curve preview are built and model-tested awaiting first fill consumer for per-entity or pack backgrounds.",
+      "summary": "Shared visual controls are extracted once for setup, settings, and future editors. SwatchRow exposes the house palette as quick choices and optionally opens PaintPicker for a custom solid color. ColorPicker provides a branded saturation/value square, hue strip, and hex input while retaining HSV internally to avoid grayscale-state loss. Pure color math normalizes and converts values fail-closed and shares pointer fractions across color and gradient controls. The Paint model is a validated discriminated union for solid, linear, and radial output; gradients require at least two valid stops. PaintPicker composes color editing, stop add/drag/remove, angle adjustment, and curved previews behind allowed-mode gates. Solid accent use is live; tested gradient editing awaits its first entity or pack background consumer.",
       "topics": [
-        "SwatchRow HOUSE_PALETTE",
-        "ColorPicker HSV state",
-        "color-math dragFraction",
-        "Paint solid gradient",
-        "PaintPicker allow modes"
+        "SwatchRow house palette",
+        "HSV ColorPicker",
+        "fail-closed color math",
+        "shared dragFraction",
+        "validated Paint union",
+        "gradient stop editing",
+        "mode-gated PaintPicker",
+        "gradient consumer pending"
       ],
       "children": []
     },
@@ -243,13 +275,14 @@
       "slug": "security",
       "title": "Security",
       "level": 2,
-      "sourceHash": "sha256:aed5967691c00433ab9f67da6cf3ec9d4796fc2cae12806082e20024885fd556",
-      "summary": "Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI including zip-bomb caps. Scripts inside entities remain data everywhere. App-manifest SVGs are sanitized before insertion in both Dock and catalog stripping scripts foreignObject and handlers because the shell invites third-party drop-ins.",
+      "sourceHash": "sha256:9ac235300c69858b2860693e9d54117cfb75e5de60790b8d5e2da1cff20102fa",
+      "summary": "The primary Studio listener binds loopback. Optional remote listeners are separate, explicitly enabled boundaries with join secrets, device approval, and host-only controls. Uploads use the CLI engine's fail-closed format parsers and archive-expansion limits rather than a permissive UI parser. Scripts stored inside entities remain data throughout Studio workflows. Third-party manifest SVG marks are sanitized before Dock or catalog insertion, removing scripts, foreignObject content, and event handlers.",
       "topics": [
-        "loopback bind only",
-        "fail-closed uploads",
-        "scripts as data",
-        "sanitize app SVGs"
+        "loopback Studio bind",
+        "shared fail-closed adapters",
+        "archive bomb limits",
+        "entity scripts remain data",
+        "manifest SVG sanitization"
       ],
       "children": [],
       "shortSource": true

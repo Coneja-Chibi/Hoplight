@@ -16,6 +16,7 @@ import { saveBundle } from "../studio/bundle";
 import type { CanonicalEntity } from "../core/canonical";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
+import { entityRevision } from "../entities/canonical-revision";
 import { StudioStore } from "../studio/store";
 import type { StudioStoreLike, SettingsStoreLike } from "../studio/contracts";
 import { SettingsStore } from "../studio/settings";
@@ -39,6 +40,7 @@ import { makeSwitchManager } from "./switch/setup";
 import type { SwitchManager } from "./switch/manager";
 import { handleUpdatesRoutes } from "./switch/routes";
 import { handleStudioDelete, handleStudioSave } from "./server-studio-write";
+import { handleStudioRead } from "./server-studio-read";
 import { handleRestart, handleShutdown, realSpawnSelf, type LifecycleDeps } from "./server-lifecycle";
 import {
   type UiSecurityContext,
@@ -323,13 +325,8 @@ export function createHandler(
       return handleExport(store, parsed.value);
     }
 
-    if (p === "/api/studio/list") {
-      try {
-        return json(await store.list(url.searchParams.get("kind") ?? undefined));
-      } catch (e) {
-        return studioErr(e);
-      }
-    }
+    const studioRead = await handleStudioRead(p, url, store);
+    if (studioRead) return studioRead;
     if (p === "/api/studio/portrait") {
       try {
         const entity = await store.read(
@@ -359,7 +356,10 @@ export function createHandler(
         const kind = url.searchParams.get("kind") ?? "";
         const id = url.searchParams.get("id") ?? "";
         const entity = await store.read(kind, id);
-        return entity ? json(entity) : err("not found", 404);
+        if (!entity) return err("not found", 404);
+        return json(url.searchParams.get("revision") === "1"
+          ? { entity, revision: entityRevision(entity) }
+          : entity);
       } catch (e) {
         return studioErr(e);
       }

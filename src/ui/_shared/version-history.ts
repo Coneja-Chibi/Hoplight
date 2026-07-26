@@ -3,8 +3,7 @@
  * renders (how far behind you are, every release's commits, and per-row update/rollback direction). All
  * pure and directly tested; the fetch + apply live in the shell (server-updates.ts, updates section).
  *
- * Two hard-won rules baked in (see the Fable review): compare versions with compareVersions (installed is
- * bare "0.1.8", tags are "v0.1.8", so string equality NEVER matches), and read commit data ONLY from the
+ * Compare normalized versions because installed versions omit the tag's "v" prefix. Read commits only from the
  * fenced ```commits block a release ships (see release.yml). Absence -> "commit log unavailable", never a
  * guess from the install-guide prose above it.
  */

@@ -1,8 +1,8 @@
 /**
  * Pure extraction logic for the component catalog (component-catalog.ts's functional core). Given a
  * file's path and its source text, finds exported UI entries: React components (any .tsx export whose
- * name starts uppercase and is typed or shaped as a component) and legacy widget factories (today's
- * vanilla src/ui/_shared idiom ADR-008 is replacing: create/build/swatch/inject exports). No fs, no
+ * name starts uppercase and is typed or shaped as a component) and shared UI helpers (exported
+ * create/build/swatch/inject functions under src/ui/_shared). No fs, no
  * TypeScript compiler: a crude text scan over our own small, well-formed source, same doctrine as
  * scripts/hooks/lib.ts. component-catalog.ts is the imperative shell that walks the tree and writes
  * docs/reference/components.md from these entries.
@@ -11,7 +11,7 @@
 export interface CatalogEntry {
   name: string;
   file: string;
-  kind: "component" | "legacy-widget";
+  kind: "component" | "shared-helper";
   /** props type text or param list, single line, truncated */
   signature: string;
   /** first line of the preceding /** *\/ block, "" if none */
@@ -42,7 +42,7 @@ export function cssClassNames(cssSource: string): string[] {
 
 const norm = (path: string): string => path.replace(/\\/g, "/");
 
-const LEGACY_NAME_RE = /^(create|build|swatch|inject)[A-Z]/;
+const SHARED_HELPER_NAME_RE = /^(create|build|swatch|inject)[A-Z]/;
 const UPPER_NAME_RE = /^[A-Z]/;
 const COMPONENT_TYPE_RE = /\bFC\s*<|\bFunctionComponent\s*<|JSX\.Element|React\.ReactElement|ReactElement|ReactNode/;
 
@@ -181,20 +181,20 @@ function parseArrowConst(source: string, afterName: number): ParsedDecl | null {
   };
 }
 
-const isLegacySharedFile = (file: string): boolean => /(^|\/)src\/ui\/_shared\/[^/]+\.ts$/.test(file);
+const isSharedHelperFile = (file: string): boolean => /(^|\/)src\/ui\/_shared\/[^/]+\.ts$/.test(file);
 const isComponentFile = (file: string): boolean => file.endsWith(".tsx");
 
 /**
- * Exported UI entries in one file. `file` should be repo-relative (used both to route legacy vs.
+ * Exported UI entries in one file. `file` should be repo-relative (used both to route shared-helper vs.
  * component rules and to stamp into the entry). Returns [] for files neither rule applies to, and for
  * test files (a *.test.ts(x) carries no catalog surface of its own).
  */
 export function extractCatalogEntries(filePath: string, source: string): CatalogEntry[] {
   const file = norm(filePath);
   if (/\.test\.tsx?$/.test(file)) return [];
-  const legacy = isLegacySharedFile(file);
+  const shared = isSharedHelperFile(file);
   const component = isComponentFile(file);
-  if (!legacy && !component) return [];
+  if (!shared && !component) return [];
 
   const lines = source.split("\n");
   const lineStarts: number[] = [];
@@ -230,14 +230,14 @@ export function extractCatalogEntries(filePath: string, source: string): Catalog
     const parsed = keyword === "function" ? parseFunctionDecl(source, afterName) : parseArrowConst(source, afterName);
     if (!parsed) continue;
 
-    const isLegacyName = LEGACY_NAME_RE.test(name);
+    const isSharedName = SHARED_HELPER_NAME_RE.test(name);
     const isUpperName = UPPER_NAME_RE.test(name);
-    if (legacy && isLegacyName) {
+    if (shared && isSharedName) {
       seen.add(name);
       entries.push({
         name,
         file,
-        kind: "legacy-widget",
+        kind: "shared-helper",
         signature: oneLine(parsed.params),
         doc: docAbove(lines, lineIndexAt(m.index)),
       });

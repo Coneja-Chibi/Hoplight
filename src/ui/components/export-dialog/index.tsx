@@ -103,7 +103,12 @@ export function ExportDialog({
       const { blob, filename } = exportBlob(out, name);
       triggerDownload(blob, filename);
       const loss = out.report.dropped.length;
-      ctx.setStatus(`exported ${filename}${loss > 0 ? ` · ${loss} field${loss === 1 ? "" : "s"} not carried` : ""}`);
+      const lossLine = out.report.coverage === "unknown"
+        ? " · loss unknown"
+        : loss > 0
+          ? ` · ${loss} field${loss === 1 ? "" : "s"} not carried`
+          : "";
+      ctx.setStatus(`exported ${filename}${lossLine}`);
       onClose();
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));

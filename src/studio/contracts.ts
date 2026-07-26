@@ -5,15 +5,17 @@
  * structurally; no implements clause, no import cycle.
  */
 import type { ParsedCanonicalEntity } from "../entities/runtime-schema";
-import type { EntitySummary } from "./store";
+import type { CompareSaveResult, EntitySummary, StudioInventory } from "./store";
 import type { StudioSettings } from "./settings-shape";
 
 export interface StudioStoreLike {
   studioPath(): string;
+  inventory(kind?: string): Promise<StudioInventory>;
   list(kind?: string): Promise<EntitySummary[]>;
   read(kind: string, id: string): Promise<ParsedCanonicalEntity | null>;
   delete(kind: string, id: string): Promise<boolean>;
   save(raw: unknown, opts?: { overwrite?: boolean }): Promise<EntitySummary>;
+  compareAndSave(raw: unknown, expectedRevision: string): Promise<CompareSaveResult>;
 }
 
 export interface SettingsStoreLike {

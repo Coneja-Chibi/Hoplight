@@ -1,7 +1,4 @@
-/**
- * Character editor save orchestration (Plan 015 reconcile-after-save).
- * Pure of React JSX; takes setter/api deps so Editor stays under the line cap.
- */
+/** Character-editor save and reconciliation orchestration. */
 import {
   KNOWN_FIELD_ORDER,
   readPath,
@@ -25,7 +22,9 @@ export interface EditorSaveDeps {
   setBaseDraft(fn: (live: Record<string, unknown>) => Record<string, unknown>): void;
   setOriginalDraft(fn: (live: Record<string, unknown>) => Record<string, unknown>): void;
   orderBaselineRef: { current: string[] };
-  saveEntity(entity: unknown, opts: { overwrite: boolean }): Promise<unknown>;
+  expectedRevision: string;
+  saveEntity(entity: unknown, expectedRevision: string): Promise<{ revision: string }>;
+  setRevision(revision: string): void;
   setStatus(msg: string): void;
 }
 
@@ -51,7 +50,8 @@ export async function runEditorSave(d: EditorSaveDeps): Promise<void> {
   };
   d.setSaving(true);
   try {
-    await d.saveEntity(submittedEntity, { overwrite: true });
+    const saved = await d.saveEntity(submittedEntity, d.expectedRevision);
+    d.setRevision(saved.revision);
     // Accepted baselines describe exactly what was persisted (this request's snapshot).
     d.setBaseline(structuredClone(submittedBaseDraft));
     d.setNativeBaseline(structuredClone(submittedOriginalDraft));

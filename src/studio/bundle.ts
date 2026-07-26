@@ -7,6 +7,10 @@ import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import type { CanonicalEntity } from "../core/canonical";
+import {
+  safeParseCanonicalEntity,
+  type ParsedCanonicalEntity,
+} from "../entities/runtime-schema";
 import { rewriteKnowledgeRefs } from "../convert";
 import type { EntitySummary } from "./store";
 import type { StudioStoreLike } from "./contracts";
@@ -37,42 +41,27 @@ export interface BundleSaveResult {
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Preflight: reject before any write when the payload is not a savable character bundle. */
+function requireEntity(raw: unknown, label: string): ParsedCanonicalEntity {
+  const parsed = safeParseCanonicalEntity(raw);
+  if (!parsed.ok) {
+    throw new StudioValidationError(`bundle: invalid ${label}: ${parsed.issues[0] ?? "unknown error"}`);
+  }
+  return parsed.entity;
+}
+
+/** Reject an invalid batch before its first write. */
 export function preflightBundle(input: BundleSaveInput): void {
-  const e = input.entity;
-  if (!e || typeof e !== "object") throw new StudioValidationError("bundle: missing entity");
-  if (typeof e.kind !== "string" || !e.kind) {
-    throw new StudioValidationError("bundle: entity kind required");
-  }
-  if (typeof e.id !== "string" || !e.id) {
-    throw new StudioValidationError("bundle: entity id required");
-  }
-  if (e.body === null || typeof e.body !== "object" || Array.isArray(e.body)) {
-    throw new StudioValidationError("bundle: entity body required");
-  }
-  const books = input.lorebooks ?? [];
-  for (const lb of books) {
-    if (!lb || typeof lb !== "object") throw new StudioValidationError("bundle: invalid lorebook");
-    if (lb.kind !== "lorebook") {
-      throw new StudioValidationError(`bundle: related entity kind must be lorebook, got ${String(lb.kind)}`);
-    }
-    if (typeof lb.id !== "string" || !lb.id) {
-      throw new StudioValidationError("bundle: lorebook id required");
-    }
-    if (lb.body === null || typeof lb.body !== "object" || Array.isArray(lb.body)) {
-      throw new StudioValidationError("bundle: lorebook body required");
+  requireEntity(input.entity, "primary entity");
+  for (const raw of input.lorebooks ?? []) {
+    const lorebook = requireEntity(raw, "lorebook");
+    if (lorebook.kind !== "lorebook") {
+      throw new StudioValidationError(`bundle: related entity kind must be lorebook, got ${lorebook.kind}`);
     }
   }
-  for (const rs of input.regexSets ?? []) {
-    if (!rs || typeof rs !== "object") throw new StudioValidationError("bundle: invalid regex set");
-    if (rs.kind !== "regex") {
-      throw new StudioValidationError(`bundle: related entity kind must be regex, got ${String(rs.kind)}`);
-    }
-    if (typeof rs.id !== "string" || !rs.id) {
-      throw new StudioValidationError("bundle: regex set id required");
-    }
-    if (rs.body === null || typeof rs.body !== "object" || Array.isArray(rs.body)) {
-      throw new StudioValidationError("bundle: regex set body required");
+  for (const raw of input.regexSets ?? []) {
+    const regex = requireEntity(raw, "regex set");
+    if (regex.kind !== "regex") {
+      throw new StudioValidationError(`bundle: related entity kind must be regex, got ${regex.kind}`);
     }
   }
 }

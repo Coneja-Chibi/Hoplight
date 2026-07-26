@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "guide/getting-started",
   "sourcePath": "docs/guide/getting-started.md",
-  "sourceHash": "sha256:3f0de5d84adfdc09731f91b676e83d79571f7349b845c442430a3b6935423a30",
-  "semanticSummaryHash": "sha256:571f394b6ede8ea7a7435b2f7dcede3e473dc7276f278b53aec6b3c5e3cf1158",
+  "sourceHash": "sha256:ef81a5bcdcbe5f0aee6fa77b252344715f55efd156bc1f1a073bfd95d1c51a0e",
+  "semanticSummaryHash": "sha256:b58aa054b2fc7cfa9a2fd84017f23ee8b25389e1d84765a507b5f92730e5cf22",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:23.806Z"
+  "reviewer": "codex-doc-review-core-r3",
+  "notes": "Verified against wizard and Settings implementation plus 15 wizard-core tests. The page now distinguishes the complete ordered make selection from the retained first-deck setting and accurately describes the blank-character start path.",
+  "reviewedAt": "2026-07-26T20:30:11.881Z"
 }

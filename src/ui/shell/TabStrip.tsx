@@ -1,8 +1,5 @@
 /**
- * TabStrip - the ONE chrome row above the canvas: open-piece tabs left, global actions right
- * (search, import, theme - absorbed from the deleted TopBar, whose other jobs duplicated the dock
- * and Settings; a second full-height row bought nothing). Clicking a tab focuses its editor; the
- * close glyph removes it; "+" walks to the shelves.
+ * Open-piece tabs and global import/theme actions above the canvas.
  */
 import type { CSSProperties, JSX, MouseEvent } from "react";
 import type { StudioEntitySummary } from "../app-contract";
@@ -15,7 +12,7 @@ import { useContextMenu, useShellStore } from "./store";
 
 function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: boolean; beside: boolean }): JSX.Element {
   const focusPiece = useShellStore((s) => s.focusPiece);
-  const removePiece = useShellStore((s) => s.removePiece);
+  const requestPieceClose = useShellStore((s) => s.requestPieceClose);
   const dirty = useShellStore((s) => s.dirtyPieces[keyOf(piece.id, piece.kind)] === true);
   const menuRef = useContextMenu(() => ({ type: "entity", label: piece.name, data: piece }));
   const focusHint = piece.params?.focusEntry;
@@ -23,7 +20,7 @@ function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: bo
 
   const onClose = (e: MouseEvent): void => {
     e.stopPropagation();
-    removePiece(piece.id, piece.kind, focusHint);
+    requestPieceClose(piece.id, piece.kind, focusHint);
   };
 
   return (
@@ -38,7 +35,7 @@ function Tab({ piece, active, beside }: { piece: StudioEntitySummary; active: bo
       onKeyDown={(e) => {
         if (e.key === "Delete") {
           e.stopPropagation();
-          removePiece(piece.id, piece.kind, focusHint);
+          requestPieceClose(piece.id, piece.kind, focusHint);
         }
       }}
       title={`${focusHint ? `${piece.name} (focused entry)` : piece.name} · Delete closes`}
@@ -91,13 +88,6 @@ export function TabStrip(): JSX.Element {
         +
       </button>
       <span className="tabfill" />
-      <label id="search">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.3-4.3" />
-        </svg>
-        <input placeholder="Search your whole studio" aria-label="Search your whole studio" />
-      </label>
       <span id="topact">
         <Stamp id="importBtn" onClick={goImport}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">

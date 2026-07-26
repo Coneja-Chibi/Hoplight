@@ -51,7 +51,6 @@ beforeAll(() => {
     Node: dom.window.Node,
     CustomEvent: dom.window.CustomEvent,
     requestAnimationFrame: (callback: FrameRequestCallback) => setTimeout(callback, 0),
-    IS_REACT_ACT_ENVIRONMENT: true,
     fetch: async (input: string | URL | Request) => {
       const url = String(input);
       if (url === "/api/docs/index") {
@@ -65,39 +64,36 @@ beforeAll(() => {
   });
 });
 
-afterAll(() => {
-  dom.window.close();
-});
+afterAll(() => dom.window.close());
 
 describe("DocsRoom stability", () => {
   test("keeps the selected page when AppContext identity changes", async () => {
-    const { act } = await import("react");
+    const { flushSync } = await import("react-dom");
     const { createRoot } = await import("react-dom/client");
     const { DocsRoom } = await import("./room");
     root = createRoot(document.getElementById("root")!);
-    await act(async () => {
-      root.render(<DocsRoom ctx={context()} />);
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    });
+    flushSync(() => root.render(<DocsRoom ctx={context()} />));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    flushSync(() => undefined);
 
     const developerButton = [...document.querySelectorAll("button")].find(
       (button) => button.textContent === "Developer Docs",
     )!;
-    await act(async () => developerButton.click());
+    flushSync(() => developerButton.click());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    flushSync(() => undefined);
     const uiButton = [...document.querySelectorAll("button")].find(
       (button) => button.textContent === "Studio application & local API",
     )!;
-    await act(async () => {
-      uiButton.click();
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    });
-    await act(async () => {
-      root.render(<DocsRoom ctx={context()} />);
-      await new Promise((resolve) => setTimeout(resolve, 20));
-    });
+    flushSync(() => uiButton.click());
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    flushSync(() => undefined);
+    flushSync(() => root.render(<DocsRoom ctx={context()} />));
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    flushSync(() => undefined);
 
     expect(document.querySelector('button[aria-current="page"]')?.textContent).toBe("Studio application & local API");
     expect(indexRequests).toBe(1);
-    await act(async () => root.unmount());
+    flushSync(() => root.unmount());
   });
 });

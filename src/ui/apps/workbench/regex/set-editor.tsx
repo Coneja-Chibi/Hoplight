@@ -1,7 +1,7 @@
 /**
  * SetEditor - the regex set-editor chassis (design/vs-regex-editor.html, 1:1): header with the spine
  * chip, the Write-for tab strip, and a state-honest Save; the toc | page | rail columns; the mobile
- * Contents sheet. Pure session ops (session.ts); save via the Studio API overwrite, preserving the
+ * Contents sheet. Pure session ops (session.ts); save through the revision-checked Studio API, preserving the
  * sealed `original` so an imported set still round-trips byte-true. Exported as RegexSetEditor so the
  * workbench mount point re-exports it unchanged.
  */
@@ -10,6 +10,7 @@ import {
   useDeferredValue,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type JSX,
@@ -55,9 +56,11 @@ import {
   updateSet,
   type RegexSession,
 } from "./session";
+import { useEditorGuards } from "../use-editor-guards";
 
 export interface RegexSetEditorProps {
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   topRight?: ReactNode;
@@ -76,7 +79,8 @@ function bodyFromEntity(entity: unknown): RegexSetBody {
 
 const WRITE_FOR_PREF = "regex.writeFor";
 
-export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorProps): JSX.Element {
+export function RegexSetEditor({ entity, revision, ctx, piece, topRight }: RegexSetEditorProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const initBody = useMemo(() => bodyFromEntity(entity), [entity]);
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [session, setSession] = useState<RegexSession>(() => normalizeSession(initBody));
@@ -151,7 +155,8 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
             ? (entity.original as CanonicalRegexSet["original"])
             : {},
       };
-      await ctx.api.saveEntity(payload, { overwrite: true });
+      const saved = await ctx.api.saveEditedEntity(payload, revisionRef.current);
+      revisionRef.current = saved.revision;
       setBaseline(structuredClone(submitted));
       setSession((live) => {
         const r = reconcileRegexAfterSave({ live: live.body, submitted });
@@ -165,21 +170,7 @@ export function RegexSetEditor({ entity, ctx, piece, topRight }: RegexSetEditorP
     }
   }, [saving, dirty, session.body, ctx, piece.id, entity]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void doSave();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [doSave]);
-
-  useEffect(() => {
-    ctx.workbench.setDirty(piece.id, piece.kind, dirty);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dirty, piece.id, piece.kind]);
+  useEditorGuards(ctx, piece, dirty, doSave);
 
   useEffect(() => {
     ctx.setStatus(`${count} rule${count === 1 ? "" : "s"} · ${enabledCount} on`);

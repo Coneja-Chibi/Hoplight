@@ -51,9 +51,17 @@ export interface AppContext {
   /** authenticated-local API base (loopback server) */
   api: {
     listEntities(kind?: string): Promise<StudioEntitySummary[]>;
+    studioInventory(kind?: string): Promise<{
+      entities: StudioEntitySummary[];
+      damaged: StudioDamagedEntry[];
+    }>;
     getEntity(id: string): Promise<unknown>;
-    /** Persist an entity. `overwrite: true` for editor re-saves; omit for import keep-both. */
+    /** Load an editor baseline with the revision required for an atomic re-save. */
+    getEditableEntity(id: string): Promise<EditableEntity>;
+    /** Persist a create/import. Omit overwrite for keep-both; administrative flows may replace. */
     saveEntity(entity: unknown, opts?: { overwrite?: boolean }): Promise<StudioEntitySummary>;
+    /** Replace an editor baseline only when no other writer changed it first. */
+    saveEditedEntity(entity: unknown, expectedRevision: string): Promise<EditedEntitySave>;
     /** Remove one entity from the studio. True when a file was actually removed. */
     deleteEntity(kind: string, id: string): Promise<{ deleted: boolean }>;
     /** Persist a primary entity plus its bundled relations (a character's lorebooks, a preset's
@@ -201,6 +209,22 @@ export interface StudioEntitySummary {
    * on two different entries (pane key is kind:id@focusEntry; dirty stays kind:id).
    */
   params?: { focusEntry?: string };
+}
+
+export interface StudioDamagedEntry {
+  kind: string;
+  id: string;
+  reason: "unreadable-json" | "schema-mismatch" | "kind-mismatch" | "id-mismatch";
+}
+
+export interface EditableEntity {
+  entity: unknown;
+  revision: string;
+}
+
+export interface EditedEntitySave {
+  summary: StudioEntitySummary;
+  revision: string;
 }
 
 export interface InspectResult {

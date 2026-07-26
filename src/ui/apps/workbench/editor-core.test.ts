@@ -198,7 +198,7 @@ test("writeOverridePath keeps blanks; inheritOverridePath deletes; hasOverridePa
   expect(hasOverridePath(inherited, "identity.description")).toBe(false);
 });
 
-// ===== async save reconciliation (ASYNC-001 / plan 015) =====
+// Async save reconciliation.
 
 test("reconcileAfterSave: no concurrent edit adopts accepted and is clean", () => {
   const submitted = { identity: { name: "Ada", description: "tall" } };

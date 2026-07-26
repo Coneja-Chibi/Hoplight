@@ -1,12 +1,14 @@
 # The visual app (hoplight ui)
 
-`hoplight ui [port] [studioDir]` boots the local studio: a loopback-only Bun server (default
+`hoplight ui [port] [studioDir]` boots the primary local studio: a loopback Bun server (default
 `127.0.0.1:8321`) serving the shell and a JSON API that is a thin skin over the same engine the CLI
-uses. One engine, two shells - no format logic exists in the UI layer.
+uses. Optional remote listeners are separately enabled and gated. One engine, two shells - no format
+logic exists in the UI layer.
 
 ## Kit terminal shell
 
-Kit is Hoplight's conversational terminal shell. Its composer accepts multiline text and up to five
+Kit is Hoplight's conversational terminal preview. Run it from a source checkout with `bun run kit`;
+current GitHub release binaries do not include a Kit executable. Its composer accepts multiline text and up to five
 large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
 submission remains in the composer. Plain messages submitted during an active turn enter a bounded
@@ -102,7 +104,7 @@ adding one nearly identical collapsed row per model round. Provider-authored too
 in model history but do not interrupt the user transcript; Backstage owns in-progress narration.
 
 ## Hyper-modularity (the build's spine)
-- **Apps are drop-in folders**: `src/ui/apps/<name>/index.ts` default-exports a `HoplightApp`
+- **Apps are drop-in folders**: `src/ui/apps/<name>/index.{ts,tsx}` default-exports a `HoplightApp`
   (`src/ui/app-contract.ts`): a manifest (tile title, flat-ink SVG mark, accent, order, optional
   `comingSoon` / `catalogOnly` / `appCatalog`) plus `Component(ctx)`. The server discovers them with
   `Bun.Glob` (`_`-prefixed folders skipped) and bundles each for the browser on demand. A normal app
@@ -191,6 +193,9 @@ Tavern/CC reader); no source = no chip (made from scratch).
 `<studioDir>/<kind>/<id>.json`, one file per entity, portable and versionable by construction.
 Saving never silently overwrites: an occupied id gets a numbered sibling (the import journey's
 "Keep both" default enforced at the storage floor).
+`inventory()` returns readable summaries and separate records for safe-id JSON files that fail
+parsing, canonical schema, kind, or id checks. Damage records use bounded reasons; Hoplight does not
+modify or quarantine those files.
 
 ## The receipt
 `src/ui/receipt.ts` renders the plain-words import receipt server-side (both shells say identical
@@ -199,6 +204,10 @@ scripts-as-data notice, privileged warning), and the warm unknown-file message. 
 what the engine already knows - no new format logic.
 
 ## Endpoints
+
+The Library's primary read is `GET /api/studio/inventory`, which returns healthy entities and
+bounded damaged-file records from one filesystem scan. `GET /api/studio/list` remains the
+healthy-only read for existing clients.
 `GET /` shell · `GET /tokens.css` · `GET /boot.js` · `GET /api/apps` manifests ·
 `GET /apps/<id>.js` bundled app · `GET /api/setup/steps` step ids · `GET /setup/steps/<id>.js`
 bundled step · `GET|POST|PATCH /api/settings` (POST replaces the document; PATCH validates and merges a partial update) ·
@@ -207,16 +216,25 @@ Markdown only · `GET /api/docs/asset?path=` committed docs media and generated 
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
 canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
 `GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
-truth) · `GET /api/studio/list|get` · `GET /api/studio/portrait?kind&id` (the entity's art: the
+truth) · `GET /api/studio/list|get|inventory` (`get&revision=1` returns an editor baseline and its
+revision) · `GET /api/studio/portrait?kind&id` (the entity's art: the
 escrowed PNG carrier, else a data-URI `body.media.portrait`; 404 when none) ·
-`POST /api/studio/save` · `POST /api/studio/save-bundle` (character + related lorebooks; keep-both
-renames rewrite `knowledgeRefs`).
+`POST /api/studio/save` (editor saves compare the loaded revision and return 409 when stale) ·
+`POST /api/studio/save-bundle` (the complete canonical batch is validated
+before writing; keep-both lorebook renames rewrite `knowledgeRefs`) · host-only `/api/remote/*` routes for tunnel/LAN status, setup,
+join secrets, devices, approvals, and host controls · host-only `/api/updates/*` routes for release
+information and version switching. Remote clients do not receive either control family.
 
 ## The Library room (the shelves - deep browse)
 Empty studio = the locked first-run doors; populated = the browse room: deck chips with LIVE
 per-kind counts, a proscenium stage presenting the active deck through a DROP-IN VIEW, and the
 continuous art-size dial. Opens on the setup wizard's `firstDeck`. Import (drop anywhere,
 plain-words receipts) lives here. Covers use `/api/studio/portrait` art when carried.
+- **Damaged files stay visible**: the Library loads `/api/studio/inventory`, which returns healthy
+  entities and damage records from one filesystem pass. When any safe-id JSON file fails closed, an
+  expandable notice names the file and bounded reason,
+  confirms that Hoplight did not change it, shows the local studio path when available, and gives
+  manual restore-or-remove guidance. The notice also appears when no readable pieces remain.
 - **Deck views are drop-in modules**: one file in `src/ui/apps/library/views/` default-exporting
   a `DeckView` (`view-contract.ts`: label, icon, css, render(ctx)); `views/registry.ts` is the one
   stated seam (a browser bundle cannot glob), one import line per view. Shipped: `grid` (default,
@@ -236,9 +254,11 @@ plain-words receipts) lives here. Covers use `/api/studio/portrait` art when car
   per-user through `AppContext.prefs` (`library.view`, `library.size`).
 
 ## The Workbench room (home by default - the IDE)
-Pieces are SENT from the Library and open as TABS: the shell's tab strip is the tab bar, and this
-room shows the active piece's editor pane (today a truthful read-only inspector: real art, real
-tagline/description/personality; the writable editor replaces the pane's body next slice).
+Pieces are sent from the Library and open as tabs. The Workbench mounts a writable editor for every
+canonical kind: character, lorebook, persona, preset, regex set, and sprite pack. The shell owns tabs,
+split view, recents, and focus; each editor owns its unsaved local draft and explicit save flow.
+Editor loads include a revision of the complete canonical entity. A save replaces that exact revision
+atomically; a newer disk write leaves the draft dirty and reports the conflict instead of overwriting it.
 - Open pieces are shell-owned (`AppContext.workbench`: pieces/active/send/sendMany/remove/isOpen/
   focus/onChange) so tabs persist across app switches; the "on the workbench" marks in every Library
   view read the same state. `send` (single) and `sendMany` (batch) share one follow path so the
@@ -259,7 +279,7 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   Currently-open pieces are excluded. Ranking is pure and unit-tested (`workbench/recents-core.ts`);
   the rail reads `workbench.recents()` off the shell store. The rail collapses from its label
   (hide/show, persisted as `workbench.recentsOpen`) so the editor pane can take the room.
-- CHARACTERS EDIT (slice 1). Bones transcribed from RoleCall's CharacterEditorBento, skin is house:
+- **Character editor.** The character editor provides:
   a fixed Identity card (name/tagline/full name/title/age/pronouns) plus reorderable prose cards
   (description, personality, scenario, first message, example messages) whose order persists to
   `presentation.fieldOrder` using RC's ids verbatim (cross-app order interop; unrendered ids keep
@@ -267,9 +287,13 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   saving round-trips the WHOLE body so untouched fields (escrow, behavior, media) survive
   structurally unchanged, pinned by editor-core tests. Fields the editor does not write yet stay visible
   in a read-only tail. One `CharacterEditor` stays mounted (hidden via CSS) per open character, so
-  its React state IS the unsaved draft across tab switches; closing the tab unmounts it, which is
-  the discard. Pure logic in `workbench/editor-core.ts` (tested), the React component in
-  `workbench/Editor.tsx`. Other kinds keep the read-only inspector until their editors land.
+  its React state IS the unsaved draft across tab switches. Every editor publishes dirty state
+  through the shared `useEditorGuards` hook, which also owns Ctrl+S and the window-close warning.
+  Closing a dirty tab from the tab strip, keyboard, editor back button, or context menu opens one
+  shell-owned Discard changes / Keep editing dialog; only explicit discard unmounts the draft.
+  Pure logic in `workbench/editor-core.ts` (tested), the React component in
+  `workbench/Editor.tsx`. Lorebook, persona, preset, regex, and pack pieces dispatch to their own
+  writable editors from `workbench/index.tsx`.
   Canonical path writes and variant lifecycle/override writes now delegate to the same entity-layer
   operations used by Kit's typed character capabilities, so base and variant semantics cannot drift.
 - **SPLIT VIEW - anything can sit beside anything.** The shell store carries a second visible key
@@ -285,7 +309,7 @@ tagline/description/personality; the writable editor replaces the pane's body ne
   collapses via `@container` queries against the PANE, never `@media` against the viewport - a
   half-width split, a future drawer, and a phone all compose the same way (design/DECISIONS.md,
   the fluid law). A stage too narrow for two readable panes stacks the split vertically.
-- **LOREBOOKS EDIT (the binder, vs-lorebook-binder-2 1:1 - LOCKED).** The
+- **Lorebook editor.** The
   character editor's sibling: ONE ENTRY OWNS THE SCREEN. `workbench/LorebookEditor.tsx` merges
   one-concept skins (chassis + `lore/entry-page` + `lore/entry-toc` + `lore/entry-rail` + the dial/
   key skins; a class name lives in exactly ONE module). Header: the book's SPINE CHIP (monogram,
@@ -333,6 +357,8 @@ room works only its staged queue - no studio browser inside. The queue is shell-
   editor lens): "8 of 23 filled - empty: nickname, personality, +12 more" with an
   open-in-the-editor fix link. Lorebooks get the can-it-ever-fire check (`lorebookKeyGap`: entries
   with no triggers and not constant). No claims = an honest nothing, never fake green.
+- Export results keep the same distinction: undeclared target coverage reports loss as unknown
+  (`counts.dropped: null`) instead of presenting an empty confirmed-drop list as zero loss.
 - **One target per run** (`press/press-core.ts`: `groupPlatforms` folds extension-map hosts -
   Marinara/Chub print characters as a CCv3 card, their native character file), per-card filename +
   flavor (.json/.txt/.md only where the wire format is text), skip rows declared before the run,
@@ -346,8 +372,13 @@ Settings is built from section modules: one file in `src/ui/apps/settings/sectio
 `SettingsSection` (id, label, order, `Component: (props: { ctx }) => JSX.Element`);
 `sections/registry.ts` is the one stated seam. Tabs derive from the registry (`src/ui/apps/settings/
 index.tsx`); every control is call-and-response against live settings (theme/accent repaint
-instantly). Shipped sections: Appearance (theme, house accent via the shared SwatchRow), Studio
-(home app, Library first deck, publish targets from the live registry), Workbench (follow behavior).
+instantly). Shipped sections: Appearance (theme and house accent), Studio (home app, Library first
+deck, and publish targets), Workbench (follow behavior), Remote access (tunnel and LAN setup, devices,
+and host controls), Updates (release checks and version switching), and About.
+
+Remote-access host controls use `/api/remote/*`; release information and version switching use
+`/api/updates/*`. Both route families are host-only and remain distinct from ordinary remote-client
+content access.
 
 ## Shared components (`src/ui/_shared/` and `src/ui/components/`)
 Extracted-once UI, layered so a single implementation serves every consumer:
@@ -369,7 +400,8 @@ Extracted-once UI, layered so a single implementation serves every consumer:
   model-tested, awaiting its first fill consumer (per-entity/pack background in the editor).
 
 ## Security
-Loopback bind only. Uploads parse through the same fail-closed adapters as the CLI (zip-bomb caps
-included). Scripts inside entities remain data everywhere. App-manifest SVGs are sanitized before
-insertion in both the Dock and catalog (scripts/foreignObject/handlers stripped) because the shell
-invites third-party drop-ins.
+The primary listener binds loopback. Optional remote listeners are separate, explicitly enabled
+boundaries with join secrets, device approval, and host-only controls. Uploads parse through the same
+fail-closed adapters as the CLI (zip-bomb caps included). Scripts inside entities remain data
+everywhere. App-manifest SVGs are sanitized before insertion in both the Dock and catalog
+(scripts/foreignObject/handlers stripped) because the shell invites third-party drop-ins.

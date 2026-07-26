@@ -24,6 +24,7 @@ import { StatusBar } from "./StatusBar";
 import { DropVeil } from "./DropVeil";
 import { requestImport } from "../_shared/import-signal";
 import { FollowDialog } from "./FollowDialog";
+import { ClosePieceDialog } from "./ClosePieceDialog";
 import { Menu } from "./Menu";
 import { LeavingGate } from "../components/leaving-gate";
 import { TourGuide } from "../components/tour-guide";
@@ -248,7 +249,7 @@ export function App(): JSX.Element | null {
           items.push({ label: "Open beside", onPick: () => wb.openBeside(e) });
         }
         items.push({ label: "Stage for the Press", onPick: () => wb.stageForPress([e]) });
-        items.push({ label: "Remove from the Workbench", onPick: () => wb.removePiece(e.id, e.kind) });
+        items.push({ label: "Remove from the Workbench", onPick: () => wb.requestPieceClose(e.id, e.kind) });
         return items;
       }
       const items = [{ label: "Send to the Workbench", onPick: () => wb.sendMany([e]) }];
@@ -327,7 +328,7 @@ export function App(): JSX.Element | null {
         sendMany: (pieces) => useShellStore.getState().sendMany(pieces),
         openBeside: (s) => useShellStore.getState().openBeside(s),
         closeSplit: () => useShellStore.getState().closeSplit(),
-        remove: (id, kind) => useShellStore.getState().removePiece(id, kind),
+        remove: (id, kind) => useShellStore.getState().requestPieceClose(id, kind),
         isOpen: (id, kind) => useShellStore.getState().isOpen(id, kind),
         setDirty: (id, kind, dirty) => useShellStore.getState().setPieceDirty(id, kind, dirty),
         recents: () => workbenchRecents(),
@@ -391,6 +392,7 @@ export function App(): JSX.Element | null {
       <StatusBar />
       <DropVeil />
       <FollowDialog />
+      <ClosePieceDialog />
       <Menu />
       <LeavingGate />
       {tour && isRunnable(tour) && !tourOpen && (

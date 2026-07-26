@@ -4,7 +4,7 @@
  * block manuscript. The settings card, the row expansion, the toolbar and the right rail land in
  * the following P4 slices; this one makes a real, editable preset where the P1 stub was.
  */
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../../app-contract";
 import { accentVars } from "../../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../../core/canonical";
@@ -44,9 +44,11 @@ import {
   toggleBlock,
 } from "./session";
 import s from "./preset.module.css";
+import { useEditorGuards } from "../use-editor-guards";
 
 export interface PresetEditorViewProps {
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   topRight?: ReactNode;
@@ -71,7 +73,8 @@ function bodyFromEntity(entity: unknown): PresetBody {
   return { name: "Untitled preset", prompts: [] };
 }
 
-export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorViewProps): JSX.Element {
+export function PresetEditorView({ entity, revision, ctx, piece, topRight }: PresetEditorViewProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const initBody = useMemo(() => bodyFromEntity(entity), [entity]);
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [body, setBody] = useState(() => structuredClone(initBody));
@@ -143,29 +146,21 @@ export function PresetEditorView({ entity, ctx, piece, topRight }: PresetEditorV
     setSaving(true);
     try {
       const original = isRec(entity) && isRec(entity.original) ? entity.original : {};
-      await ctx.api.saveEntity(
+      const saved = await ctx.api.saveEditedEntity(
         { schemaVersion: CANONICAL_SCHEMA_VERSION, kind: "preset", id: piece.id, body, original },
-        { overwrite: true },
+        revisionRef.current,
       );
+      revisionRef.current = saved.revision;
       setBaseline(structuredClone(body));
       ctx.setStatus(`saved preset · ${body.name}`);
-    } catch {
-      ctx.setStatus("could not save the preset");
+    } catch (e) {
+      ctx.setStatus(e instanceof Error ? e.message : "could not save the preset");
     } finally {
       setSaving(false);
     }
   }, [saving, dirty, body, ctx, entity, piece.id]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void doSave();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [doSave]);
+  useEditorGuards(ctx, piece, dirty, doSave);
 
   const monogram = (body.name.trim().charAt(0) || "P").toUpperCase();
   const meta = `preset · ${weight.totalCount} block${weight.totalCount === 1 ? "" : "s"} · ${weight.enabledCount} on · ~${weight.tokens} tokens`;

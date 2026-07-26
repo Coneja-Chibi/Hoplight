@@ -6,6 +6,7 @@ import { mkdtemp, rm, writeFile, mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { CANONICAL_SCHEMA_VERSION } from "../core/canonical";
+import { emptyLorebookBody } from "../core/lore";
 import { StudioValidationError } from "./errors";
 import { StudioStore } from "./store";
 import { entityRevision } from "../kit/changes/revision";
@@ -70,6 +71,14 @@ describe("StudioStore containment", () => {
     expect(s2.id).toBe("twin-2");
   });
 
+  test("concurrent keep-both saves all receive unique ids", async () => {
+    const results = await Promise.all(
+      Array.from({ length: 8 }, () => store.save(ent("same"))),
+    );
+    expect(new Set(results.map((result) => result.id)).size).toBe(results.length);
+    expect(await store.list("character")).toHaveLength(results.length);
+  });
+
   test("delete removes the file, reports absence honestly, refuses traversal", async () => {
     await store.save(ent("gone"));
     expect(await store.delete("character", "gone")).toBe(true);
@@ -96,6 +105,42 @@ describe("StudioStore containment", () => {
     await expect(store.read("character", "bad")).rejects.toThrow();
   });
 
+  test("lists every safe damaged file with an exact user-safe reason", async () => {
+    await store.save(ent("healthy"));
+    const characterDir = join(root, "character");
+    await writeFile(join(characterDir, "truncated.json"), '{"schemaVersion":');
+    await writeFile(join(characterDir, "primitive.json"), "42");
+    await writeFile(
+      join(characterDir, "wrong-schema.json"),
+      JSON.stringify({ ...ent("wrong-schema"), body: { identity: { name: "Incomplete" } } }),
+    );
+    await writeFile(
+      join(characterDir, "wrong-kind.json"),
+      JSON.stringify({
+        schemaVersion: CANONICAL_SCHEMA_VERSION,
+        kind: "lorebook",
+        id: "wrong-kind",
+        body: emptyLorebookBody("Wrong kind"),
+      }),
+    );
+    await writeFile(
+      join(characterDir, "wrong-id.json"),
+      JSON.stringify(ent("different-id")),
+    );
+    await writeFile(join(characterDir, ".tmp-orphan.json"), '{"broken":');
+
+    const inventory = await store.inventory("character");
+    expect(inventory.entities.map((entry) => entry.id)).toEqual(["healthy"]);
+    expect(inventory.damaged).toEqual([
+      { kind: "character", id: "primitive", reason: "schema-mismatch" },
+      { kind: "character", id: "truncated", reason: "unreadable-json" },
+      { kind: "character", id: "wrong-id", reason: "id-mismatch" },
+      { kind: "character", id: "wrong-kind", reason: "kind-mismatch" },
+      { kind: "character", id: "wrong-schema", reason: "schema-mismatch" },
+    ]);
+    expect((await store.list("character")).map((entry) => entry.id)).toEqual(["healthy"]);
+  });
+
   test("rejects an entity whose schemaVersion read() would refuse (no invisible files)", async () => {
     // Without this gate, save() writes a file that read()/list() then treat as corrupt forever:
     // the piece exists on disk but never appears in the studio again.
@@ -115,6 +160,15 @@ describe("StudioStore containment", () => {
     };
     await expect(store.save(malformed)).rejects.toBeInstanceOf(StudioValidationError);
     expect(await store.read("character", "wrong-shape")).toBeNull();
+  });
+
+  test("rejects malformed optional canonical data before writing", async () => {
+    const malformed = {
+      ...ent("wrong-optional"),
+      body: { ...ent("wrong-optional").body, settings: "not an object" },
+    };
+    await expect(store.save(malformed)).rejects.toBeInstanceOf(StudioValidationError);
+    expect(await store.read("character", "wrong-optional")).toBeNull();
   });
 
   test("overwrite preserves importedAt", async () => {
@@ -146,6 +200,15 @@ describe("StudioStore containment", () => {
     expect(saved.status).toBe("saved");
     expect(((await store.read("character", "revision"))!.body as { identity: { name: string } })
       .identity.name).toBe("new");
+    if (saved.status !== "saved") throw new Error("expected save");
+    const next = await store.compareAndSave({
+      ...changed,
+      body: {
+        ...changed.body,
+        identity: { ...(changed.body as { identity: object }).identity, name: "newer" },
+      },
+    }, saved.revision);
+    expect(next.status).toBe("saved");
 
     const stale = await store.compareAndSave({
       ...changed,
@@ -156,7 +219,7 @@ describe("StudioStore containment", () => {
     }, expectedRevision);
     expect(stale.status).toBe("stale");
     expect(((await store.read("character", "revision"))!.body as { identity: { name: string } })
-      .identity.name).toBe("new");
+      .identity.name).toBe("newer");
   });
 
   test("two concurrent compareAndSave calls from one revision have exactly one winner", async () => {

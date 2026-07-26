@@ -21,6 +21,7 @@ import { EditorDialogs } from "./presenters/editor-dialogs";
 import { buildEditorBodyViews } from "./presenters/editor-body-views";
 import { EditorLeftCard, mediaBundle, resolveArtUrl } from "./presenters/editor-left";
 import { runEditorSave } from "./editor-save";
+import { useEditorGuards } from "./use-editor-guards";
 import styles from "./editor-styles";
 
 const PREF_TARGETS = "editor.targets";
@@ -35,6 +36,7 @@ const SCALE_STEP = 0.1;
 export interface CharacterEditorProps {
   /** the fetched entity (summary fields + canonical body) - fetched once by the caller */
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   /** room chrome hoisted into the editor's own tab strip (the focus toggle) - no crumb bar exists */
@@ -42,7 +44,8 @@ export interface CharacterEditorProps {
 }
 
 /** Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). */
-export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEditorProps): JSX.Element {
+export function CharacterEditor({ entity, revision, ctx, piece, topRight }: CharacterEditorProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const [init] = useState(() => {
     const ent = rec(entity);
     const baseline = structuredClone(rec(ent.body));
@@ -225,18 +228,16 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
       setBaseDraft,
       setOriginalDraft,
       orderBaselineRef,
-      saveEntity: (entity, opts) => ctx.api.saveEntity(entity, opts),
+      expectedRevision: revisionRef.current,
+      saveEntity: (entity, expectedRevision) => ctx.api.saveEditedEntity(entity, expectedRevision),
+      setRevision: (next) => {
+        revisionRef.current = next;
+      },
       setStatus: (msg) => ctx.setStatus(msg),
     });
   }, [ctx, dirty, baseDraft, originalDraft, init.ent, init.hadOrder, order, saving]);
 
-  // the shell tab wears THE dirty dot (row-3's "saved locally" pill is dead - one indicator, one
-  // home). ctx stays OUT of these deps: it is a stable adapter whose identity churns on every
-  // store write, and identity-retriggered writers are how the status ping-pong loop was born.
-  useEffect(() => {
-    ctx.workbench.setDirty(piece.id, piece.kind, dirty);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dirty, piece.id, piece.kind]);
+  useEditorGuards(ctx, piece, dirty, doSave);
 
   // completion reports in the STATUS BAR (passive status does not rent space in a control row);
   // only what is MISSING is worth words
@@ -245,24 +246,6 @@ export function CharacterEditor({ entity, ctx, piece, topRight }: CharacterEdito
     ctx.setStatus(missingChips === "" ? `${doneCount}/${chips.length} · piece complete` : `${doneCount}/${chips.length} · needs ${missingChips}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doneCount, missingChips]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault(); // the shell owns no save; without this the browser offers to save the page
-        void doSave();
-      }
-    };
-    const onBeforeUnload = (e: BeforeUnloadEvent): void => {
-      if (dirty) e.preventDefault(); // the standard unsaved-changes prompt
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("beforeunload", onBeforeUnload);
-    };
-  }, [doSave, dirty]);
 
   const toggleTarget = (id: string): void => {
     setTargets((prev) => {

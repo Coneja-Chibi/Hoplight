@@ -5,7 +5,12 @@ import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/ru
 import { entityRevision } from "../entities/canonical-revision";
 import { StudioConflictError, StudioWriteError } from "./atomic-file";
 import { nodeStudioFs, type StudioFs } from "./fs-backend";
-import { StudioNotFoundError, StudioReadError, StudioValidationError } from "./errors";
+import {
+  StudioNotFoundError,
+  StudioReadError,
+  StudioValidationError,
+  type StudioDamageReason,
+} from "./errors";
 import {
   assertSafeStudioId,
   assertStudioEntityKind,
@@ -32,8 +37,19 @@ export interface EntitySummary {
   sourceVariant?: string;
 }
 
+export interface DamagedEntry {
+  kind: string;
+  id: string;
+  reason: StudioDamageReason;
+}
+
+export interface StudioInventory {
+  entities: EntitySummary[];
+  damaged: DamagedEntry[];
+}
+
 export type CompareSaveResult =
-  | { status: "saved"; summary: EntitySummary }
+  | { status: "saved"; summary: EntitySummary; revision: string }
   | { status: "stale" | "missing" };
 
 export type CompareCreateResult =
@@ -63,7 +79,7 @@ function sourceOf(entity: AnyEntity): { format?: string; variant?: string } {
 }
 
 function entityName(entity: AnyEntity): string {
-  const body = entity.body as Record<string, unknown> | undefined;
+  const body = isRecord(entity.body) ? entity.body : undefined;
   if (!body) return entity.id;
   const identity = body.identity as { name?: string } | undefined;
   if (typeof identity?.name === "string" && identity.name) return identity.name;
@@ -80,9 +96,9 @@ function parseStoredEntity(
   try {
     raw = JSON.parse(text) as unknown;
   } catch {
-    throw new StudioReadError("corrupt entity file");
+    throw new StudioReadError("corrupt entity file", "unreadable-json");
   }
-  if (!isRecord(raw)) throw new StudioReadError("corrupt entity file");
+  if (!isRecord(raw)) throw new StudioReadError("corrupt entity file", "schema-mismatch");
   const { escrow: legacy, ...withoutLegacy } = raw;
   const migrated = legacy !== undefined && raw.original === undefined
     ? { ...withoutLegacy, original: legacy }
@@ -91,11 +107,10 @@ function parseStoredEntity(
   try {
     parsed = parseCanonicalEntity(migrated);
   } catch {
-    throw new StudioReadError("corrupt entity file");
+    throw new StudioReadError("corrupt entity file", "schema-mismatch");
   }
-  if (parsed.kind !== kind || parsed.id !== id) {
-    throw new StudioReadError("corrupt entity file");
-  }
+  if (parsed.kind !== kind) throw new StudioReadError("corrupt entity file", "kind-mismatch");
+  if (parsed.id !== id) throw new StudioReadError("corrupt entity file", "id-mismatch");
   return parsed;
 }
 
@@ -112,11 +127,13 @@ export class StudioStore {
     return this.dir;
   }
 
-  async list(kind?: string): Promise<EntitySummary[]> {
+  /** One filesystem pass for healthy summaries and fail-closed damage records. */
+  async inventory(kind?: string): Promise<StudioInventory> {
     const kinds: StudioEntityKind[] = kind
       ? [assertStudioEntityKind(kind)]
       : [...STUDIO_ENTITY_KINDS];
-    const out: EntitySummary[] = [];
+    const entities: EntitySummary[] = [];
+    const damaged: DamagedEntry[] = [];
     for (const k of kinds) {
       const kindDir = resolveStudioPath(this.dir, k);
       const files = await this.io.listDir(kindDir);
@@ -135,7 +152,7 @@ export class StudioStore {
           const cached = studioMeta?.["accent"];
           const artAccent = typeof cached === "string" && HEX6.test(cached) ? cached : undefined;
           const source = sourceOf(entity);
-          out.push({
+          entities.push({
             id,
             kind: k,
             name: entityName(entity),
@@ -145,12 +162,22 @@ export class StudioStore {
             sourceFormat: source.format,
             sourceVariant: source.variant,
           });
-        } catch {
-          continue;
+        } catch (error) {
+          damaged.push({
+            kind: k,
+            id,
+            reason: error instanceof StudioReadError && error.reason
+              ? error.reason
+              : "unreadable-json",
+          });
         }
       }
     }
-    return out;
+    return { entities, damaged };
+  }
+
+  async list(kind?: string): Promise<EntitySummary[]> {
+    return (await this.inventory(kind)).entities;
   }
 
   async read(kind: string, id: string): Promise<AnyEntity | null> {
@@ -195,27 +222,18 @@ export class StudioStore {
       } catch {
         /* missing/corrupt on overwrite: still write */
       }
-    } else {
-      let n = 2;
-      let candidate = id;
-      while (await this.io.exists(resolveStudioPath(this.dir, kind, candidate))) {
-        candidate = `${id}-${n++}`;
-        assertSafeStudioId(candidate);
-      }
-      id = candidate;
     }
 
     const priorAccent = priorUnmapped["accent"];
     let accent = typeof priorAccent === "string" ? priorAccent : undefined;
     if (!accent) {
-      const art = portraitBytes({ ...entity, id, kind });
+      const art = portraitBytes({ ...entity, id });
       if (art?.mime === "image/png") accent = signatureFromPng(art.bytes) ?? undefined;
     }
 
     const importedAt = priorImportedAt ?? now;
     const stamped: AnyEntity = {
       ...entity,
-      kind,
       id,
       original: {
         ...(entity.original ?? {}),
@@ -240,15 +258,22 @@ export class StudioStore {
       if (e instanceof StudioConflictError && !opts?.overwrite) {
         let n = 2;
         const base = assertSafeStudioId(entity.id);
-        let candidate = base;
-        while (await this.io.exists(resolveStudioPath(this.dir, kind, candidate))) {
-          candidate = `${base}-${n++}`;
+        for (;;) {
+          const candidate = `${base}-${n++}`;
           assertSafeStudioId(candidate);
+          const retry: AnyEntity = { ...stamped, id: candidate };
+          try {
+            await this.io.writeExclusive(
+              resolveStudioPath(this.dir, kind, candidate),
+              JSON.stringify(retry, null, 2),
+            );
+            return { id: candidate, kind, name: entityName(retry), importedAt, accent };
+          } catch (retryError) {
+            if (retryError instanceof StudioConflictError) continue;
+            if (retryError instanceof StudioWriteError) throw retryError;
+            throw new StudioWriteError();
+          }
         }
-        id = candidate;
-        const retry: AnyEntity = { ...stamped, id };
-        await this.io.writeExclusive(resolveStudioPath(this.dir, kind, id), JSON.stringify(retry, null, 2));
-        return { id, kind, name: entityName(retry), importedAt, accent };
       }
       if (e instanceof StudioWriteError || e instanceof StudioConflictError) throw e;
       throw new StudioWriteError();
@@ -379,6 +404,7 @@ export class StudioStore {
           importedAt,
           accent,
         },
+        revision: entityRevision(stamped),
       };
       return JSON.stringify(stamped, null, 2);
     });

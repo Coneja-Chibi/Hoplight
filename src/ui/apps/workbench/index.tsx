@@ -52,15 +52,15 @@ function EditablePane({
   beside?: boolean;
   topRight?: ReactNode;
 }): JSX.Element {
-  const [entity, setEntity] = useState<unknown | null>(null);
+  const [source, setSource] = useState<{ entity: unknown; revision: string } | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void ctx.api
-      .getEntity(`kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`)
-      .then((e) => {
-        if (!cancelled) setEntity(e);
+      .getEditableEntity(`kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`)
+      .then((loaded) => {
+        if (!cancelled) setSource(loaded);
       })
       .catch(() => {
         if (cancelled) return;
@@ -74,19 +74,19 @@ function EditablePane({
   }, [piece.id, piece.kind]);
 
   const editor =
-    entity == null ? null
+    source == null ? null
     : piece.kind === "pack" ? (
-      <PackEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <PackEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "lorebook" ? (
-      <LorebookEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <LorebookEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "regex" ? (
-      <RegexSetEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <RegexSetEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "persona" ? (
-      <PersonaEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <PersonaEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : piece.kind === "preset" ? (
-      <PresetEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <PresetEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     ) : (
-      <CharacterEditor entity={entity} ctx={ctx} piece={piece} topRight={topRight} />
+      <CharacterEditor entity={source.entity} revision={source.revision} ctx={ctx} piece={piece} topRight={topRight} />
     );
 
   return (

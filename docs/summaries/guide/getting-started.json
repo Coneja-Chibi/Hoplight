@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "guide/getting-started",
   "sourcePath": "docs/guide/getting-started.md",
-  "sourceHash": "sha256:3f0de5d84adfdc09731f91b676e83d79571f7349b845c442430a3b6935423a30",
-  "summary": "Getting started covers install, one-time first-run wizard, Dock rooms, and first Library import. None of the wizard answers are permanent; all change later in Settings. Install requires Bun 1.3+ then git clone install and bun run dev for loopback server default 127.0.0.1:8321 with studio folder Documents/Hoplight Studio or custom path via hoplight ui. Wizard asks light or dark default dark, first content kind default characters for first Library deck only, publish targets multi-select default not sure, accent color default Rose; Skip all uses defaults. Dock rooms open today: Workbench editing and home after first boot, Library six decks and import door, Press staged export one target, CSS Workshop token restyle; Company dimmed not open; Settings pinned. First file: empty studio primary door drop or click browse; later drop on Library; receipt Pick what to keep or Here is what we read; Import N writes checked only; Not now writes nothing. Empty studio start fresh door is unwired beyond status bar. Tips note single exe planned later, wizard skip is fine, formats list via hoplight formats, studio path not baked into install.",
+  "sourceHash": "sha256:ef81a5bcdcbe5f0aee6fa77b252344715f55efd156bc1f1a073bfd95d1c51a0e",
+  "summary": "Getting started covers release or source installation, the one-time first-run wizard, everyday Dock rooms, specialist catalog apps, and the Library's import and blank-character paths. Release builds are the shortest install; source use requires Bun 1.3+, clone, install, and bun run dev for the primary loopback server at 127.0.0.1:8321. Optional remote listeners stay off until enabled. The studio folder defaults to Documents/Hoplight Studio or a custom hoplight ui path. Wizard asks theme, one or more kinds to make, publish targets, and a palette or custom accent; Skip all uses defaults. Settings retains theme, the first selected kind as the initial Library deck, publish targets, and accent rather than the complete ordered make selection. Dock rooms are Workbench, Library, and Press with Settings pinned below; Docs and CSS Workshop are catalog tools. Import receipts write only checked pieces, while Start fresh creates, saves, and opens a blank character.",
   "topics": [
-    "install Bun clone dev",
+    "release or Bun source install",
     "first-run wizard four questions",
     "Dock Workbench Library Press",
     "loopback 8321 studio folder",
@@ -18,10 +18,10 @@
       "slug": "the-short-version",
       "title": "The short version",
       "level": 2,
-      "sourceHash": "sha256:4aa65dc75145c841ad3084928b7c7627c569b518a2b1a04845473f904d3c2bd5",
-      "summary": "Install Bun 1.3+ then clone Hoplight, bun install, bun run dev for loopback address default 127.0.0.1:8321 and studio JSON under Documents/Hoplight Studio or custom path. Answer the four-question wizard or skip for defaults. Land on Library doors once when empty; drag or click to browse; check receipt then Import for checked pieces only.",
+      "sourceHash": "sha256:c34a80c99fc0a5d0a87aef56325bf1eec0d9e69129ac51184f788247aef59c9c",
+      "summary": "Download a platform build from GitHub Releases, or install Bun 1.3+, clone Hoplight, and run bun install for source use. Open the app or use bun run dev for the primary loopback address at 127.0.0.1:8321. Studio JSON defaults under Documents/Hoplight Studio or a custom path. Complete or skip the wizard, then import through the Library door or create a blank character through Start fresh.",
       "topics": [
-        "Bun install clone",
+        "release or Bun install",
         "bun run dev",
         "wizard or skip",
         "Library first import"
@@ -33,8 +33,8 @@
       "slug": "the-first-run-wizard",
       "title": "The first-run wizard",
       "level": 2,
-      "sourceHash": "sha256:daa0b36c9d0d4ce3adc812d12ecd0f14509ad161e6be6336522ecb0e34612889",
-      "summary": "Wizard appears once when bun run dev finds no completed setup; after finish or skip it never returns on its own. Four questions: light or dark default Dark; what to make first among Characters Lorebooks Personas Sprite packs Presets default Characters setting only first Library deck; where you publish multi-select live from known formats default Not sure keeps every slot; pick accent from house palette default Rose, custom only in Settings or piece editor. Skip all fills remaining defaults and jumps to You're set recap then Open Hoplight. Theme first deck publish targets and accent live in Settings afterward; only the first-launch moment is permanent.",
+      "sourceHash": "sha256:b4ebb3632538ed28c968d884cec2bc4a9c54945f3a4a7b177698515f1775a93c",
+      "summary": "Wizard appears once when the Studio finds no completed setup; after finish or skip it never returns on its own. Four questions: light or dark, default Dark; one or more kinds to make, where the first pick controls the first Library deck and an empty choice falls back to Characters; publish targets as a multi-select populated from known formats, with Not sure as default; and a house-palette or custom accent, default Rose. Skip all fills remaining defaults and jumps to the You're set recap. Theme, the initial Library deck, publish targets, and accent remain editable afterward; the complete ordered kind selection is not a Settings field.",
       "topics": [
         "wizard once only",
         "theme first deck",
@@ -48,15 +48,15 @@
       "slug": "the-dock",
       "title": "The Dock",
       "level": 2,
-      "sourceHash": "sha256:b8ca16a6ee4ffcee94e71ad2ccd599fe2c54686eeb016a9a8c2fa612b84107fc",
-      "summary": "Dock is the side column of app tiles. Four open rooms: Workbench edits character lorebook persona regex preset or pack and is home after first boot or last location; Library browses six decks Characters Lorebooks Personas Sprite packs Presets Regex sets with chips counts view modes and import door; Press ships only staged queue stage pick one target run download; CSS Workshop restyles via tokens. Dimmed Company tile installs later not open. Settings pinned in foot always reachable. Dock collapses to marks-only and auto-collapses while editing a piece.",
+      "sourceHash": "sha256:ed8c49cd7651c7a5965c9d607c2547ec984494c79fe561b4a46fc42008133ec4",
+      "summary": "Dock is the side column of everyday app tiles. Workbench edits character lorebook persona regex preset or pack; Library browses six decks with counts views and the import door; Press ships only a staged queue to one selected target. Settings is pinned in the foot. The app catalog exposes included specialist tools such as Docs and CSS Workshop plus future apps such as Company; catalog-only tools are not ordinary Dock tiles. The configured home app controls normal launch, while a reload restores the active room when possible.",
       "topics": [
-        "Workbench home",
+        "configurable home app",
         "Library six decks",
         "Press staged export",
         "CSS Workshop",
-        "Company dimmed",
-        "Dock collapse"
+        "catalog specialists and future apps",
+        "reload restores active room"
       ],
       "children": []
     },
@@ -64,14 +64,14 @@
       "slug": "bringing-in-your-first-file",
       "title": "Bringing in your first file",
       "level": 2,
-      "sourceHash": "sha256:99d1d838f0f844f21d62c8fbe40af6ac26a82364fbdc65970df3f6cfd759ed99",
-      "summary": "Empty studio primary door accepts drop or click file picker; after pieces exist drop anywhere on Library for the same flow. Files are read before write. Headings are Pick what to keep when all clean or Here is what we read when some fail. Readable files show receipt with name kind checkbox default checked; unreadable show plain reason no checkbox. Add more files appends batch; Import N writes still-checked; Not now closes without write. Second empty-studio door Click here to start fresh is not wired beyond a status-bar line; bringing in a file is the working path.",
+      "sourceHash": "sha256:c729c0d6ad7cb3093a29a1ad3fc79dde5817ae4cd85815c6933224733f848db6",
+      "summary": "Empty studio primary door accepts drop or click file picker; after pieces exist drop anywhere on Library for the same flow. Files are read before write. Headings are Pick what to keep when all clean or Here is what we read when some fail. Readable files show receipt with name, kind, and default-checked checkbox; unreadable files show a plain reason without a checkbox. Add more files appends the batch, Import N writes only checked pieces, and Not now writes nothing. The second empty-studio door creates and saves a blank character, then opens it in the Workbench.",
       "topics": [
         "empty studio door",
         "receipt before write",
         "Import N checked",
         "Add more files",
-        "start fresh unwired"
+        "start fresh blank character"
       ],
       "children": []
     },
@@ -79,10 +79,10 @@
       "slug": "tips",
       "title": "Tips",
       "level": 2,
-      "sourceHash": "sha256:0eccec777be927fc2856d2f977b13405a6cb9cfe95a33ca7039e3dce10f5e2ff",
-      "summary": "Bun 1.3+ is the only prerequisite; single downloaded executable is planned later; today is clone bun install bun run dev. Wizard Skip all is fine because every question is a Settings field. Library opens on the first-make deck once then remembers last deck. Attached character lorebook arrives as one bundle receipt with entry count. Unreadable receipt means unrecognized format not necessarily broken; hoplight formats lists support. Point studio elsewhere with hoplight ui port path; path is not baked into install.",
+      "sourceHash": "sha256:62c7e9fea322b79c4303c370f5434af3a7367323509068945672032fce724612",
+      "summary": "Release builds are the shortest installation path; Bun 1.3+ is required only for a source checkout. Skip all fills defaults, and retained setup choices remain editable. The first selected make kind chooses the initial Library deck; later the Library remembers the last open deck. Attached character lorebooks arrive in one bundle receipt. An unreadable receipt means safe parsing failed because the file may be unsupported, malformed, or damaged; hoplight formats lists adapters. hoplight ui port path selects another studio folder.",
       "topics": [
-        "Bun only prerequisite",
+        "release build or Bun source",
         "Skip all fine",
         "remember last deck",
         "hoplight formats",

@@ -26,7 +26,7 @@ import {
   paneKeyOf,
   parseRecents,
   recentsPatch,
-  removeKeys,
+  removePieceState,
   stagePressBatch,
   unstagePressPiece,
 } from "./store-core";
@@ -78,6 +78,7 @@ interface ShellState {
   studioCount: number;
   dockSlim: boolean;
   followPrompt: FollowPrompt | null;
+  pendingClose: StudioEntitySummary | null;
   openMenu: OpenMenu | null;
   /** "kind:id" -> has unsaved edits; the shell tab wears the dot (the ONE dirty indicator) */
   dirtyPieces: Record<string, boolean>;
@@ -122,6 +123,8 @@ interface ShellState {
   stageForPress(batch: StudioEntitySummary[]): void;
   unstagePress(id: string, kind: string): void;
   clearPress(): void;
+  requestPieceClose(id: string, kind: string, focusEntry?: string): void;
+  answerPieceClose(discard: boolean): void;
   removePiece(id: string, kind: string, focusEntry?: string): void;
   focusPiece(id: string, kind: string, focusEntry?: string): void;
   setPieceDirty(id: string, kind: string, dirty: boolean): void;
@@ -158,6 +161,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
   studioCount: 0,
   dockSlim: false,
   followPrompt: null,
+  pendingClose: null,
   openMenu: null,
   dirtyPieces: {},
 
@@ -375,28 +379,29 @@ export const useShellStore = create<ShellState>((set, get) => ({
   },
 
   removePiece(id, kind, focusEntry) {
-    const { openPieces, activeKey, splitKey, dirtyPieces } = get();
+    const next = removePieceState({ ...get(), id, kind, focusEntry });
+    if (next) set(next);
+  },
+
+  requestPieceClose(id, kind, focusEntry) {
+    const { openPieces, dirtyPieces } = get();
     const want = paneKeyOf({ id, kind, params: focusEntry ? { focusEntry } : undefined });
-    const at = openPieces.findIndex((p) => paneKeyOf(p) === want);
-    // Fallback: first matching id+kind when no focusEntry (legacy callers).
-    const idx =
-      at >= 0
-        ? at
-        : openPieces.findIndex((p) => p.id === id && p.kind === kind);
-    if (idx < 0) return;
-    const removed = openPieces[idx]!;
-    const removedKey = paneKeyOf(removed);
-    const next = [...openPieces.slice(0, idx), ...openPieces.slice(idx + 1)];
-    const stillOpen = next.some((p) => p.id === id && p.kind === kind);
-    const fallback = next[0] ? paneKeyOf(next[0]) : "";
-    const nextDirty = { ...dirtyPieces };
-    // Dirty is entity-level: only clear when no pane of this entity remains.
-    if (!stillOpen) delete nextDirty[keyOf(id, kind)];
-    set({
-      openPieces: next,
-      ...removeKeys({ activeKey, splitKey }, removedKey, fallback),
-      dirtyPieces: nextDirty,
-    });
+    const piece =
+      openPieces.find((candidate) => paneKeyOf(candidate) === want) ??
+      openPieces.find((candidate) => candidate.id === id && candidate.kind === kind);
+    if (!piece) return;
+    if (dirtyPieces[keyOf(id, kind)] === true) {
+      set({ pendingClose: piece });
+      return;
+    }
+    get().removePiece(id, kind, piece.params?.focusEntry);
+  },
+
+  answerPieceClose(discard) {
+    const pending = get().pendingClose;
+    if (!pending) return;
+    set({ pendingClose: null });
+    if (discard) get().removePiece(pending.id, pending.kind, pending.params?.focusEntry);
   },
 
   focusPiece(id, kind, focusEntry) {

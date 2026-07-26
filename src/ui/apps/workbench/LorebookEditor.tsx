@@ -2,9 +2,9 @@
  * LorebookEditor - the binder (vs-lorebook-binder-2, 1:1): header with the book's spine chip and
  * the Writing-for select, a quiet searchable table of contents, ONE entry owning the page as
  * dossier cards, and the fine-print rail. Book rules live behind a dialog. Pure session ops;
- * save via Studio API overwrite. Marinara lens swaps in the folder forest (useMarinaraFolders).
+ * save via revision-checked Studio API. Marinara lens swaps in the folder forest (useMarinaraFolders).
  */
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type JSX, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import { accentVars } from "../../_shared/decks";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
@@ -57,9 +57,10 @@ import {
 import { BottomSheet } from "../../components/bottom-sheet";
 import { InkDialog } from "../../components/ink-dialog";
 import { EditorEhead } from "../../components/editor-ehead";
-
+import { useEditorGuards } from "./use-editor-guards";
 export interface LorebookEditorProps {
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   topRight?: ReactNode;
@@ -88,7 +89,8 @@ function bodyFromEntity(entity: unknown): LorebookBody {
 
 const WRITE_FOR_PREF = "lorebook.writeFor";
 
-export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorProps): JSX.Element {
+export function LorebookEditor({ entity, revision, ctx, piece, topRight }: LorebookEditorProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const initBody = useMemo(() => bodyFromEntity(entity), [entity]);
   const [baseline, setBaseline] = useState(() => structuredClone(initBody));
   const [session, setSession] = useState<LoreSession>(() => normalizeSession(initBody));
@@ -169,7 +171,8 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         body: submitted,
         original,
       };
-      await ctx.api.saveEntity(payload, { overwrite: true });
+      const saved = await ctx.api.saveEditedEntity(payload, revisionRef.current);
+      revisionRef.current = saved.revision;
       setBaseline(structuredClone(submitted));
       folders.markEdgesSaved();
       setSession((live) => {
@@ -184,13 +187,10 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
     }
   }, [saving, dirty, session.body, ctx, piece.id, entity, folders]);
 
+  useEditorGuards(ctx, piece, dirty, doSave);
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void doSave();
-        return;
-      }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
         const t = e.target as HTMLElement | null;
         const tag = t?.tagName?.toLowerCase();
@@ -201,21 +201,9 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
         ctx.setStatus("undid last bulk change");
       }
     };
-    const onBeforeUnload = (e: BeforeUnloadEvent): void => {
-      if (dirty) e.preventDefault();
-    };
     window.addEventListener("keydown", onKey);
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("beforeunload", onBeforeUnload);
-    };
-  }, [doSave, dirty, session, ctx]);
-
-  useEffect(() => {
-    ctx.workbench.setDirty(piece.id, piece.kind, dirty);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dirty, piece.id, piece.kind]);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [session, ctx]);
 
   useEffect(() => {
     const warn = health.filter((h) => h.level === "warn").length;
@@ -477,10 +465,11 @@ export function LorebookEditor({ entity, ctx, piece, topRight }: LorebookEditorP
             setSelectMode(false);
             void (async () => {
               try {
-                const raw = await ctx.api.getEntity(
+                const loaded = await ctx.api.getEditableEntity(
                   `kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`,
                 );
-                const body = bodyFromEntity(raw);
+                revisionRef.current = loaded.revision;
+                const body = bodyFromEntity(loaded.entity);
                 setSession(normalizeSession(body));
                 setBaseline(structuredClone(body));
                 ctx.setStatus("book updated after split");

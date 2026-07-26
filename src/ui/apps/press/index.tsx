@@ -201,9 +201,12 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
         const original = isRec(entity) ? entity.original : undefined;
         const chips = row.kind === "character" ? mediaExportSummary(body, original).chips : [];
         const carries = chips.length > 0 ? `carries: ${chips.join(" · ")}` : undefined;
-        const reportLine = out.report.dropped.length > 0
-          ? `${out.report.dropped.length} field${out.report.dropped.length === 1 ? "" : "s"} not carried`
-          : out.report.warnings[0];
+        const droppedCount = out.report.dropped.length;
+        const reportLine = out.report.coverage === "unknown"
+          ? `loss unknown${droppedCount > 0 ? `; at least ${droppedCount} field${droppedCount === 1 ? "" : "s"} not carried` : ""}`
+          : droppedCount > 0
+            ? `${droppedCount} field${droppedCount === 1 ? "" : "s"} not carried`
+            : out.report.warnings[0];
         plan[i] = {
           ...row,
           status: reportLine ? "warn" : "ok",

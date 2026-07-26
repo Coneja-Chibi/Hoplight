@@ -18,9 +18,18 @@ export class StudioNotFoundError extends Error {
   }
 }
 
+export type StudioDamageReason =
+  | "unreadable-json"
+  | "schema-mismatch"
+  | "kind-mismatch"
+  | "id-mismatch";
+
 export class StudioReadError extends Error {
   readonly code = "studio_read" as const;
-  constructor(message = "could not read file") {
+  constructor(
+    message = "could not read file",
+    readonly reason?: StudioDamageReason,
+  ) {
     super(message);
     this.name = "StudioReadError";
   }

@@ -76,7 +76,7 @@ export const CloseGlyph: React.FC<CloseGlyphProps> = (props) => {
   ]);
 });
 
-test("finds a legacy create*/swatch*/inject* factory in src/ui/_shared", () => {
+test("finds a create*/swatch*/inject* helper in src/ui/_shared", () => {
   const src = `
 /** One swatch button. No selection logic: the host toggles .on. */
 export function swatchButton(choice: { hex: string; label: string }): HTMLButtonElement {
@@ -89,19 +89,19 @@ export function swatchButton(choice: { hex: string; label: string }): HTMLButton
     {
       name: "swatchButton",
       file: "src/ui/_shared/swatches.ts",
-      kind: "legacy-widget",
+      kind: "shared-helper",
       signature: "(choice: { hex: string; label: string })",
       doc: "One swatch button. No selection logic: the host toggles .on.",
     },
   ]);
 });
 
-test("ignores non-component and non-factory exports", () => {
+test("ignores exports that are neither components nor shared UI helpers", () => {
   const src = `
 /** Not a component: lowercase name, plain object. */
 export const HOUSE_PALETTE = [{ id: "rose", hex: "#e11d48" }];
 
-/** Not a factory: uppercase but not create/build/swatch/inject, and this file is legacy-scoped. */
+/** Not a shared helper: uppercase but not create/build/swatch/inject. */
 export function Deck(): void {
   doSomething();
 }

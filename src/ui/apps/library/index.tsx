@@ -8,7 +8,12 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, JSX } from "react";
-import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
+import type {
+  AppContext,
+  StudioDamagedEntry,
+  StudioEntitySummary,
+  HoplightApp,
+} from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
 import { deckCounts } from "./deck-core";
 import {
@@ -43,6 +48,7 @@ import { loadPersonaMeta, makePersonaShelf, type PersonaMeta } from "./persona-s
 import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "./styles";
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
+import { DamageNotice } from "./damage-notice";
 
 // -- the browse room --------------------------------------------------------------------------------
 
@@ -64,6 +70,8 @@ function Icon({ svg }: { svg: string }): JSX.Element {
 function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const firstDeck = ctx.prefs.get(PREF_FIRST_DECK);
   const [entities, setEntities] = useState<StudioEntitySummary[]>([]);
+  const [damaged, setDamaged] = useState<StudioDamagedEntry[]>([]);
+  const [studioDir, setStudioDir] = useState<string>();
   /** an unreachable studio is NOT an empty one; without this the two render identically */
   const [loadFailed, setLoadFailed] = useState(false);
   const [activeKind, setActiveKind] = useState(typeof firstDeck === "string" && firstDeck ? firstDeck : "character");
@@ -82,13 +90,17 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const reload = useCallback(() => {
     // apiFetchJson throws on any non-2xx by design, so an un-caught reload turned a dev-server
     // restart or a storage hiccup into an unhandled rejection. Worse, entities stayed [] and an
-    // EMPTY list is indistinguishable from a FAILED one - the room then showed the brand-new-user
-    // first landing, i.e. told a user with 32 pieces that their studio was gone. Track the failure
-    // instead of inferring emptiness from it. (audit ASYNC-002)
+    // A failed read is not an empty studio.
     void (async () => {
       try {
-        const list = await ctx.api.listEntities();
+        const [inventory, version] = await Promise.all([
+          ctx.api.studioInventory(),
+          ctx.api.version().catch(() => ({ version: "", studioDir: undefined })),
+        ]);
+        const list = inventory.entities;
         setEntities(list);
+        setDamaged(inventory.damaged);
+        setStudioDir(version.studioDir);
         setLoadFailed(false);
         setLoreMeta(await loadLoreMeta(ctx, list));
         setRegexMeta(await loadRegexMeta(ctx, list));
@@ -103,8 +115,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     // the workbench-driven repaint: sending/removing/focusing pieces elsewhere flips the "on the
     // workbench" marks here without this room ever calling render itself (see the sendbar handler)
     const unsub = ctx.workbench.onChange(() => setWorkbenchTick((t) => t + 1));
-    // format labels are decoration: if the call fails the shelves still work, so swallow it rather
-    // than let it reject unhandled (audit ASYNC-002)
+    // Format labels are decorative; shelves still work when this request fails.
     void ctx.api
       .formats()
       .then((formats) => {
@@ -146,10 +157,12 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
       loadFailed
         ? "could not reach the studio · your pieces are still on disk"
         : entities.length === 0
-          ? "empty studio"
+          ? damaged.length > 0
+            ? `no readable pieces · ${damaged.length} unreadable ${damaged.length === 1 ? "file" : "files"}`
+            : "empty studio"
           : `${deck.plural.toLowerCase()} · ${inDeck.length} of ${entities.length} pieces`,
     );
-  }, [ctx, entities.length, deck, inDeck.length, loadFailed]);
+  }, [ctx, damaged.length, entities.length, deck, inDeck.length, loadFailed]);
 
   const { runImport, commitImport, cancelImport } = makeImportRunners({ ctx, importState, setImportState, reload });
 
@@ -178,6 +191,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     return (
       <div className="lib">
         <style>{allCss}</style>
+        <DamageNotice entries={damaged} studioDir={studioDir} />
         <div className="stagezone seam">
           <p className="voice">Could not reach the studio. Your pieces are still on disk.</p>
           <button className="doorcard stamp" onClick={reload}>
@@ -193,6 +207,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     return (
       <div className="lib" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
         <style>{allCss}</style>
+        <DamageNotice entries={damaged} studioDir={studioDir} />
         <div className="stagezone seam">
           <button className="doorcard primary stamp" onClick={() => pickFiles(runImport)}>
             Drag and drop to import asset
@@ -285,6 +300,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
       onDrop={onDrop}
     >
       <style>{allCss}</style>
+      <DamageNotice entries={damaged} studioDir={studioDir} />
       <div className="wbbar">
         <div className="deckchips" data-tour="decks">
           {decks.map(({ kind, count }) => {

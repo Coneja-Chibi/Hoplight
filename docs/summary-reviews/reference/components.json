@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:56d60659b3714a3ff14b9f16bfaa444c23912a9846f8bd1ab5d2682d885355ad",
-  "semanticSummaryHash": "sha256:3b430efae9290c138a27c028c7a7ad339b54c8e9114695f5ff5eb244f0992c71",
+  "sourceHash": "sha256:f640f760bd6fb59059dd2d3ff8c467dd0da4e978191828393473ba008fb35493",
+  "semanticSummaryHash": "sha256:703c5bbb7b84440c7ab2ac8bed9b42a4549ca26a1db7340793ba5a5617232f87",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:27.765Z"
+  "reviewer": "codex-doc-review-core-r3",
+  "notes": "Verified against the catalog generator and extractor plus catalog drift and 7 extractor tests. The page and sidecar now describe the full src/ui React scan and the scoped src/ui/_shared helper scan, including buildTimeline without an unsupported deprecation claim.",
+  "reviewedAt": "2026-07-26T20:30:13.243Z"
 }

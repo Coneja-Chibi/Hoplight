@@ -1,5 +1,5 @@
 /**
- * Sandbox-only loopback host (ADR-009 / Plan 017).
+ * Sandbox-only loopback host (ADR-009).
  *
  * Distinct origin (ephemeral port on 127.0.0.1). Serves ONLY immutable sandbox bootstrap assets:
  * worker module + wasmoon glue.wasm. No /api, no session token, no studio paths, no index HTML.

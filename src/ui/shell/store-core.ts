@@ -3,8 +3,9 @@
  * shell/store.ts). No DOM, no fetch, no zustand: unit-tested directly.
  */
 
-// Piece identity moved to _shared/piece-key so apps can use it without touching shell modules;
-// re-exported here so shell consumers keep one import site.
+import { keyOf, paneKeyOf } from "../_shared/piece-key";
+
+// Piece identity moved to _shared/piece-key so apps can use it without touching shell modules.
 export { keyOf, paneKey, paneKeyOf } from "../_shared/piece-key";
 
 /** Fail-closed reader: only "key" -> finite-number pairs survive an untrusted persisted blob. */
@@ -82,6 +83,52 @@ export function recentsPatch(
 export interface PieceRef {
   id: string;
   kind: string;
+}
+
+interface PanePiece extends PieceRef {
+  params?: { focusEntry?: string };
+}
+
+/** Remove one exact pane and reconcile active, split, and entity-level dirty state. */
+export function removePieceState<T extends PanePiece>(args: {
+  openPieces: readonly T[];
+  activeKey: string;
+  splitKey: string;
+  dirtyPieces: Record<string, boolean>;
+  id: string;
+  kind: string;
+  focusEntry?: string;
+}): {
+  openPieces: T[];
+  activeKey: string;
+  splitKey: string;
+  dirtyPieces: Record<string, boolean>;
+} | null {
+  const want = paneKeyOf({
+    id: args.id,
+    kind: args.kind,
+    params: args.focusEntry ? { focusEntry: args.focusEntry } : undefined,
+  });
+  const exact = args.openPieces.findIndex((piece) => paneKeyOf(piece) === want);
+  const index = exact >= 0
+    ? exact
+    : args.openPieces.findIndex((piece) => piece.id === args.id && piece.kind === args.kind);
+  if (index < 0) return null;
+  const removedKey = paneKeyOf(args.openPieces[index]!);
+  const openPieces = [...args.openPieces.slice(0, index), ...args.openPieces.slice(index + 1)];
+  const dirtyPieces = { ...args.dirtyPieces };
+  if (!openPieces.some((piece) => piece.id === args.id && piece.kind === args.kind)) {
+    delete dirtyPieces[keyOf(args.id, args.kind)];
+  }
+  return {
+    openPieces,
+    ...removeKeys(
+      { activeKey: args.activeKey, splitKey: args.splitKey },
+      removedKey,
+      openPieces[0] ? paneKeyOf(openPieces[0]) : "",
+    ),
+    dirtyPieces,
+  };
 }
 
 /** Merge a staged batch into the press queue, deduped by kind:id, existing order preserved. */

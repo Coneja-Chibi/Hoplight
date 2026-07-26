@@ -348,9 +348,7 @@ export function SpritePackDialog({
                       Object.entries(groups).map(([k, v]) => [k, normalizePack(v)]),
                     )
                   : undefined;
-              // .then() alone skips its callback on rejection, so a failed save said NOTHING at all
-              // and left an unhandled rejection behind. Report the failure instead of shrugging.
-              // (audit ASYNC-001)
+              // Report save failures instead of leaving an unhandled rejection.
               setSaving(true);
               void Promise.resolve(onSaveAsLibraryPack?.(normalizePack(flat), g))
                 .then(() => {

@@ -12,13 +12,25 @@ export const api: AppContext["api"] = {
     apiFetchJson(`/api/studio/list${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`, {
       requireToken: false,
     }),
+  studioInventory: async (kind) =>
+    apiFetchJson(`/api/studio/inventory${kind ? `?kind=${encodeURIComponent(kind)}` : ""}`, {
+      requireToken: false,
+    }),
   getEntity: async (id) =>
     apiFetchJson(`/api/studio/get?${id}`, { requireToken: false }),
+  getEditableEntity: async (id) =>
+    apiFetchJson(`/api/studio/get?${id}&revision=1`, { requireToken: false }),
   saveEntity: async (entity, opts) =>
     apiFetchJson("/api/studio/save", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(opts?.overwrite ? { entity, overwrite: true } : entity),
+    }),
+  saveEditedEntity: async (entity, expectedRevision) =>
+    apiFetchJson("/api/studio/save", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ entity, expectedRevision }),
     }),
   deleteEntity: async (kind, id) =>
     apiFetchJson("/api/studio/delete", {

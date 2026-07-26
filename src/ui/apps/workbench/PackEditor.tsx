@@ -2,7 +2,7 @@
  * PackEditor - open a library pack entity as a "folder": name, brief, full sprite grid.
  * Same SpritePack leaf as Manage Sprites; save writes the pack entity.
  */
-import { useCallback, useEffect, useState, type JSX, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type JSX, type ReactNode } from "react";
 import type { AppContext, StudioEntitySummary } from "../../app-contract";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import {
@@ -14,16 +14,19 @@ import {
 import type { PackBody } from "../../../entities/pack/schema";
 import { SpritePack } from "../../components/sprite-pack";
 import { packEditorDocument } from "./pack-editor-core";
+import { useEditorGuards } from "./use-editor-guards";
 import styles from "./PackEditor.module.css";
 
 export interface PackEditorProps {
   entity: unknown;
+  revision: string;
   ctx: AppContext;
   piece: StudioEntitySummary;
   topRight?: ReactNode;
 }
 
-export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): JSX.Element {
+export function PackEditor({ entity, revision, ctx, piece, topRight }: PackEditorProps): JSX.Element {
+  const revisionRef = useRef(revision);
   const init = packEditorDocument(entity);
   const [name, setName] = useState(init.body.name);
   const [brief, setBrief] = useState(init.body.brief ?? "");
@@ -48,7 +51,7 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
         ...(groups ? { groups } : {}),
       };
       if (brief.trim()) body.brief = brief.trim();
-      await ctx.api.saveEntity(
+      const saved = await ctx.api.saveEditedEntity(
         {
           schemaVersion: CANONICAL_SCHEMA_VERSION,
           kind: "pack",
@@ -56,8 +59,9 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
           body,
           original,
         },
-        { overwrite: true },
+        revisionRef.current,
       );
+      revisionRef.current = saved.revision;
       setBaseline(JSON.stringify({ name: body.name, brief: body.brief ?? "", pack: body.pack }));
       ctx.setStatus(`saved pack · ${body.name}`);
     } catch (e) {
@@ -67,23 +71,7 @@ export function PackEditor({ entity, ctx, piece, topRight }: PackEditorProps): J
     }
   }, [saving, name, brief, pack, groups, original, ctx, piece.id]);
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent): void => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        void doSave();
-      }
-    };
-    const onBeforeUnload = (e: BeforeUnloadEvent): void => {
-      if (dirty) e.preventDefault();
-    };
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("beforeunload", onBeforeUnload);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("beforeunload", onBeforeUnload);
-    };
-  }, [doSave, dirty]);
+  useEditorGuards(ctx, piece, dirty, doSave);
 
   useEffect(() => {
     ctx.setStatus(
