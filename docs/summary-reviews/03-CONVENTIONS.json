@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "03-CONVENTIONS",
   "sourcePath": "docs/03-CONVENTIONS.md",
-  "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
-  "semanticSummaryHash": "sha256:f5f0f06e293af33839ade282eedbd6445d88636b002cf653eee668a1baf370d8",
+  "sourceHash": "sha256:0f25c4be0869e9741b335fdd75336cbae239da1708d1ace916cd0b8029766ce1",
+  "semanticSummaryHash": "sha256:6c76b7ae98967412d8750c2b9f4f23b8858ccea1d3ac9e8811ab66f14edbe6fa",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:54.684Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Current source and sidecar match enforced practice. The repaired runtime-shape guard checks true extends ContainsAny for both schema input and output, and compile-only proofs cover direct, nested object, record, array, optional, nullable, array-union, and discriminated-union any escapes plus never, coercion, narrowed unions, missing keys, and extra keys. bun run typecheck passes; runtime boundary tests pass. The page truthfully labels the CLI automation contract as a target and points current behavior to reference/cli.",
+  "reviewedAt": "2026-07-26T10:36:52.459Z"
 }

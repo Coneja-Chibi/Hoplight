@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "README",
   "sourcePath": "docs/README.md",
-  "sourceHash": "sha256:521f5f4971fcee4f1f5e8134ccbe797dfed65261ce84302b5b1abed9c2514f06",
-  "semanticSummaryHash": "sha256:c1f4fb6348b032ed7601409840c3a68db130075f31673ad5480d4542a470558a",
+  "sourceHash": "sha256:c31f954476c3dfa095e2e53e1d5ba748fd7cc1028d86a96d30629bc4b3c33c5d",
+  "semanticSummaryHash": "sha256:1ff22921ff91f42f7cc40d55ba5efc02d6cd06ede3a4a0737573e8976da5d2c7",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:22.086Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Independent full-source and full-sidecar review: APPROVE. The map accurately covers every listed user guide, platform guide roster, contributor reference family, canonical entity kinds, concepts, UI/components/native-field references, Chub's stated no-dedicated-reference limitation, ADR and required-spine authority, roadmap and live-registry matrix roles, specification maturity, and non-browsable generated support directories. Referenced pages and platform/entity rosters were checked on disk; no invented destination or material omission was found.",
+  "reviewedAt": "2026-07-26T09:08:26.191Z"
 }

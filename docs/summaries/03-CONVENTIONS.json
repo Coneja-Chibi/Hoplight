@@ -2,99 +2,115 @@
   "schemaVersion": 1,
   "docId": "03-CONVENTIONS",
   "sourcePath": "docs/03-CONVENTIONS.md",
-  "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
-  "summary": "Binding conventions for all code and docs in the product repo; deviations fail review. Code rules require TypeScript strict mode, no any except at codec boundaries immediately narrowed by zod, zod as the single source of truth with types via z.infer, core packages free of Bun-only APIs and import-time side effects, typed error classes with userMessage fields, no emojis anywhere, no em dashes in user-facing copy, and kebab-case files with PascalCase types and camelCase values. Testing law treats the fixture corpus as sacred, enforces the Round-Trip Law as CI-blocking from M0, demands a green baseline before fixes, and allows only deterministic tests. CLI conventions require --json and meaningful exit codes, --yes or confirmation for destructive ops, and plain-first output vocabulary. Git and repo practice uses conventional commits, one ticket per branch and PR, and CI gates covering typecheck, lint, Bun plus Node core tests, round-trip suite, and binary-build smoke. Docs require every package README to state purpose, public API sketch, and spec links; specs are law and must be updated before implementation diverges.",
+  "sourceHash": "sha256:0f25c4be0869e9741b335fdd75336cbae239da1708d1ace916cd0b8029766ce1",
+  "summary": "This page states Hoplight's binding current implementation rules. Code requires strict TypeScript boundary narrowing, exact per-kind runtime decoders for handwritten canonical interfaces, explicitly declared open escrow bags, UI-independent core logic, typed errors, consistent naming, and the scoped TS/TSX pictograph gate. defineExhaustiveShape<T>() rejects missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never during typecheck. Tests use Bun across authored src and scripts, begin bug fixes at a failing public boundary, prove semantic same-format round trips, remain deterministic, and do not treat synchronization warnings as clean proof. CLI defines the unfinished automation target for convert, inspect, validate, label, formats, and version. Repository requires useful release-history subjects and behavioral evidence while forbidding gate bypasses. Documentation separates built reference behavior from labeled plans and moves with source. Working method requires inspecting the owning system and Git state, fixing the real owner, reporting verification limits, and obtaining independent review without self-approval.",
   "topics": [
-    "binding conventions",
-    "TypeScript strict zod",
-    "no any codec boundary",
-    "Round-Trip Law fixtures",
-    "CLI --json exit codes",
-    "conventional commits",
-    "no emoji no em dash",
-    "package README specs law",
-    "deterministic tests",
-    "typed error classes"
+    "strict TypeScript boundaries",
+    "exhaustive runtime decoders",
+    "public-boundary regression tests",
+    "CLI JSON contract",
+    "repository evidence",
+    "truthful documentation",
+    "authority-led working method",
+    "independent review"
   ],
   "sections": [
     {
       "slug": "code",
       "title": "Code",
       "level": 2,
-      "sourceHash": "sha256:18213a18df33db8de91a3878bbfbe00b1a7eac3dc9405f5d18a63e98b62568da",
-      "summary": "TypeScript strict mode is required. No any except at codec boundaries when parsing untrusted input, and then immediately narrowed by a zod schema. zod schemas are the single source of truth for shapes; TypeScript types derive via z.infer with no hand-written interface that duplicates a schema. Core packages must use no Bun-only APIs per ADR-001, no side effects at import time, and no singletons; everything is injectable and testable. Errors use typed error classes per package such as FormatError, CodecError, and ProviderError, each with a userMessage field written for humans; never throw strings. No emojis anywhere in code, comments, CLI output, docs, or UI copy; house glyphs are Unicode ornaments; no em dashes in user-facing copy. File naming is kebab-case files, PascalCase types, camelCase values.",
+      "sourceHash": "sha256:9a7b4f0339a1061ed4be3ee5bc2a8b7e8c396ee384892fd33a55d1c26a5650c7",
+      "summary": "TypeScript runs in strict mode, and untrusted values are narrowed at entry. Handwritten domain interfaces may remain rich internal contracts, but separate fail-closed runtime schemas must exhaust their canonical types. defineExhaustiveShape<T>() infers concrete schemas before demanding exact input and output parity, rejecting missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never during typecheck. src/entities/runtime-schema.ts composes the strict per-kind decoders used by storage, HTTP, format-corpus verification, and Kit draft validation. Unknown keys are accepted only inside extension or escrow bags whose contracts explicitly declare openness. Core logic cannot depend on UI, perform effects at import, or conceal authority in a singleton. Code throws Error objects or typed errors, and user-facing boundaries translate failures plainly.",
       "topics": [
-        "TypeScript strict",
-        "zod single source of truth",
-        "no Bun-only APIs",
-        "typed error userMessage",
-        "no emoji no em dash",
-        "kebab-case file naming"
+        "strict TypeScript",
+        "exhaustive runtime decoders",
+        "ExhaustiveShape",
+        "shared canonical boundary",
+        "pure injectable core",
+        "typed errors",
+        "naming and emoji scan"
       ],
       "children": []
     },
     {
-      "slug": "testing-law",
-      "title": "Testing law",
+      "slug": "tests",
+      "title": "Tests",
       "level": 2,
-      "sourceHash": "sha256:6b70b2f2a6c0a76914b6bcce24f3fb998b13cfcd2a2415c47e94a24f3126500c",
-      "summary": "Test runner is bun test; core packages must also pass under Node in CI. The fixture corpus is sacred: fixtures under format and case hold a real input file, expected.json for the canonical parse, and notes. New codec behavior requires a fixture demonstrating it; never edit a fixture input to make a test pass. The Round-Trip Law requires every codec to have property-style tests asserting parse then serialize of the same format is semantically identical for every fixture of that format, CI-blocking from M0 onward. Regression firewall: capture a green baseline before any fix; a fix that turns any passing test red is rejected. Deterministic tests only: no network, no clock, no randomness without a seed.",
+      "sourceHash": "sha256:846b487c9ffb80a68342b1033bf179a680b25734c51f359c6340d497fc55b127",
+      "summary": "Bun is the test runner, and bun run test discovers every authored test under src and scripts. Bug fixes begin with a regression at the public boundary that reproduces the reported behavior before the repair. Same-format adapter fixtures must parse, serialize, and reparse without semantic loss, protecting the Round-Trip Law at the format boundary. Tests remain deterministic by avoiding live network access, uncontrolled clocks, and unseeded randomness. A nominally green result that still prints framework synchronization warnings is not clean verification and must not be represented as such.",
       "topics": [
-        "bun test Node CI",
-        "sacred fixture corpus",
-        "Round-Trip Law",
-        "regression firewall",
-        "deterministic tests only",
-        "never edit fixture input"
+        "Bun test coverage",
+        "red-green public boundary",
+        "same-format round trip",
+        "deterministic tests",
+        "synchronization warnings"
       ],
       "children": []
     },
     {
-      "slug": "cli-conventions",
-      "title": "CLI conventions",
+      "slug": "cli",
+      "title": "CLI",
       "level": 2,
-      "sourceHash": "sha256:93e548d1da85965d500ec68c2affafec27fb9a23367c75a0b7e447c9d143296a",
-      "summary": "Every command must support --json for machine-readable results on stdout with logs on stderr, plus meaningful exit codes: 0 ok, 1 user error, 2 internal error. Destructive operations require --yes or interactive confirmation. Output vocabulary is plain first, theatrical second: report facts like converted three files rather than stagey phrasing. Flavor belongs in agent personas, not in scriptable command output.",
+      "sourceHash": "sha256:a312c44120c93d83005f2255cacf813a4c25e6f54f2ce101398effb1954bf3ed",
+      "summary": "The target automation contract covers the non-interactive data commands convert, inspect, validate, label, formats, and version. JSON mode must emit exactly one JSON value to stdout, while human diagnostics go to stderr. Exit code 0 means success, 1 means invalid user input or invalid content, and 2 means an unexpected internal failure. help and the long-running ui server are outside this JSON contract. The section explicitly says implementation is incomplete: until all commands comply and command-matrix tests land, docs/reference/cli.md remains the authority for current syntax and behavior rather than this target being treated as shipped proof.",
       "topics": [
-        "--json stdout stderr",
-        "exit codes 0 1 2",
-        "destructive --yes",
-        "plain first output",
-        "persona flavor not CLI"
+        "data command contract",
+        "single JSON stdout",
+        "stderr diagnostics",
+        "exit codes",
+        "incomplete implementation",
+        "current CLI reference"
+      ],
+      "children": []
+    },
+    {
+      "slug": "repository",
+      "title": "Repository",
+      "level": 2,
+      "sourceHash": "sha256:211b2138ca71fee7d90dafcc915ed0236d200f15d899449587926d44b2eca145",
+      "summary": "Commit subjects must name the affected area and remain useful in Mainstage release history; WIP, misc, and context-free fix subjects are rejected. Conventional prefixes are welcome but optional. The exact [skip release] text is the only machine-read commit marker. User-facing behavioral changes carry tests or recorded live verification. Hooks and gates are repository policy: contributors repair the underlying failure rather than bypassing a hook or weakening a check to force passage.",
+      "topics": [
+        "release-history commits",
+        "optional Conventional Commits",
+        "skip release marker",
+        "changes carry proof",
+        "do not bypass gates"
       ],
       "children": [],
       "shortSource": true
     },
     {
-      "slug": "git-repo",
-      "title": "Git & repo",
+      "slug": "documentation",
+      "title": "Documentation",
       "level": 2,
-      "sourceHash": "sha256:afa743949169faf41dcec635511e1eafecf69e29384e000339a014297268ae4c",
-      "summary": "Use conventional commits with scoped types such as feat formats or fix lore. One ticket equals one branch equals one PR, and the PR description links the ticket file. CI gates cover typecheck, lint, core tests under Bun and Node, the round-trip suite, and a binary-build smoke test.",
+      "sourceHash": "sha256:ca2966ae03fa134b361b7abf50d42f2555a7ec218d8719a94fe89498d20795f0",
+      "summary": "Reference pages state built behavior only. Planned work belongs under specs or in a roadmap section that labels it as planned, preventing intent from masquerading as a shipped surface. Documentation changes in the same change as its source so contracts and user guidance stay aligned. Generated indexes and semantic summaries are navigation aids, not authority: they cannot transform an inaccurate source page into truth.",
       "topics": [
-        "conventional commits",
-        "one ticket one PR",
-        "CI typecheck lint",
-        "Bun Node core tests",
-        "round-trip binary smoke"
+        "built reference truth",
+        "planned specifications",
+        "docs move with code",
+        "indexes are not authority"
       ],
       "children": [],
       "shortSource": true
     },
     {
-      "slug": "docs",
-      "title": "Docs",
+      "slug": "working-method",
+      "title": "Working method",
       "level": 2,
-      "sourceHash": "sha256:3a64836eeca8538b90067ebf9ff27cf4c79822878c392a070ab037193af2986f",
-      "summary": "Every package must have a README that states its purpose, sketches the public API, and links the governing specs. Specs are law for the product: when implementation must diverge from a written contract, the spec change lands first as its own PR, then code follows. Docs and code stay aligned under that order rather than retrofitting specs after shipping a divergence.",
+      "sourceHash": "sha256:47365aab3948ae110f62966083cb0bf2e125b1e6a01b3e2d69c31db531505eb1",
+      "summary": "Before editing, inspect the implementation, its callers and tests, release configuration, documentation, and Git state, then name both the governing authority and user-visible outcome. Bugs and known contracts begin with an honest failing test at the nearest public boundary. A genuinely novel design may use a bounded spike until its contract is understood, but completion still requires behavioral proof. Repair the owning boundary rather than creating a parallel schema, registry, state authority, or compatibility path. When code and docs disagree, classify the claim as IMPLEMENT, REWRITE, DELETE, or RETAIN. Verification progresses through focused, adjacent, and complete supported checks, with warnings and skips reported rather than counted as clean. Substantial or high-risk work receives independent adversarial review; authors cannot approve their own semantic summaries, security claims, migrations, or release evidence.",
       "topics": [
-        "package README required",
-        "public API sketch",
-        "specs are law",
-        "spec PR first"
+        "inspect owning system",
+        "observable outcome",
+        "red test or bounded spike",
+        "fix owning boundary",
+        "mismatch classification",
+        "proportionate verification",
+        "independent adversarial review",
+        "no self-approval"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     }
   ]
 }

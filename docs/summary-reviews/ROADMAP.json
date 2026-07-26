@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "ROADMAP",
   "sourcePath": "docs/ROADMAP.md",
-  "sourceHash": "sha256:255089237cfb6b49e4ee3290f7eba4ed676cd6c38a5997c340eceeaba4ce4194",
-  "semanticSummaryHash": "sha256:b18eb2cefc9905b0778b34ffa03d0427c63fbe4f307547f675704ce27b35fbf7",
+  "sourceHash": "sha256:6a25cc964cab0f78368f98b3882fa9b31ec2c8f2bf5630b1bee7bfc5fdbedee2",
+  "semanticSummaryHash": "sha256:cfed68145e331acbadef858f915d76a15fb30fdca50811cdbdcb769f835fbfe7",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:55.196Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Independent repair review: APPROVE. Read the complete current roadmap, semantic sidecar, prior receipt, package gates, and release workflow. Already-shipping test discovery, React lint scope, semantic-summary checks, canonical validation, and checksum publication are treated as foundation rather than future work. Remaining items are accurately scoped to warning cleanup, real artifact smoke proof, claimed round-trip fidelity, exact action/tool pins, checksum authentication/signatures, sidecar packaging, and Kit distribution. Focused author validation passed.",
+  "reviewedAt": "2026-07-26T09:37:17.806Z"
 }

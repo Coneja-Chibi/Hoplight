@@ -29,12 +29,14 @@ export function parseNameStatusZ(raw: string): StagedPath[] {
   return paths;
 }
 
-/** Live staged UI TSX paths, normalized, deduplicated, and sorted for deterministic lint input. */
-export function stagedUiTsx(paths: readonly StagedPath[]): string[] {
+/** Live staged Studio/Kit TypeScript, normalized, deduplicated, and sorted for lint input. */
+export function stagedUiTypeScript(paths: readonly StagedPath[]): string[] {
   return [...new Set(paths
     .filter((entry) => !entry.status.startsWith("D"))
     .map((entry) => normalize(entry.path))
-    .filter((path) => path.startsWith("src/ui/") && path.endsWith(".tsx")))].sort();
+    .filter((path) =>
+      (path.startsWith("src/ui/") || path.startsWith("src/kit/")) &&
+      (path.endsWith(".ts") || path.endsWith(".tsx"))))].sort();
 }
 
 const CATALOG_INFRA = new Set([

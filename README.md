@@ -342,10 +342,13 @@ The CLI is another shell over the same engine.
 | `hoplight formats` | List installed adapters |
 | `hoplight ui [port] [studioDir]` | Start the visual Studio |
 
-Add `--json` to inspect, validate, formats, or convert for machine-readable output.
+Add `--json` to validate, formats, or convert for machine-readable output. Inspect currently prints
+human-readable detail; [the CLI reference](docs/reference/cli.md) records the exact current contract.
 
-Kit, the interactive TUI, is under active development. It uses progressively disclosed tools,
-preview-before-apply changes, and the same Studio backend rather than a parallel agent filesystem.
+Kit, the interactive TUI, is an active-development preview available from a source checkout with
+`bun run kit`. It uses progressively disclosed tools, preview-before-apply changes, and the same
+Studio backend rather than a parallel agent filesystem. Kit is not included in the current GitHub
+release binaries.
 
 ## 📡 Supported formats
 
@@ -417,9 +420,9 @@ So the community can keep improvements to the Studio available. See
 
 ### How much of the code was AI-assisted?
 
-A substantial portion. AI-assisted pull requests are held to the same tests, round-trip rules, and
-review gates. Contributors must disclose the model used so reviewers can account for its likely
-failure modes.
+Roughly 60/30. The 60 is AI writing code. The 30 is me: drafting, planning, project management,
+design, and testing. Everything merges through the same gates regardless of who typed it: the test
+suite, the round-trip law, and the CI guards. Bugs get fixed the same way too.
 
 ## 🗺️ Project status
 

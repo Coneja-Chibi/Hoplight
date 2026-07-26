@@ -2,18 +2,18 @@
 id: README
 title: Documentation
 audience: dev
-summary: Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
+summary: Where every Hoplight document lives, from user guides and current references to accepted decisions, future specifications, and generated navigation.
 tags: [docs, index, guide, reference, map]
 related: [guide/getting-started, reference/README, reference/architecture, ROADMAP]
 ---
 
 # Documentation
 
-This is the documentation for Hoplight, the Vaudeville Studios desktop app for AI-roleplay content:
-characters, lorebooks, personas, presets, and regex sets. Its engine and CLI are called vaud, and its
-UI is a Bun and React app. The docs split by audience: `docs/guide` teaches someone using the app, one
-task per page; `docs/reference` documents the engine and the UI for someone building on it. Decision
-records and the founding planning docs sit alongside both.
+This is the documentation for Hoplight, a local-first tool for AI-roleplay characters, lorebooks,
+personas, presets, regex sets, and related assets. `docs/guide` teaches someone using the product, one
+task per page. `docs/reference` documents the shipping engine and surfaces for contributors.
+`docs/decisions` records accepted architecture choices, while `specs/` describes planned or
+load-bearing contracts without implying that every specification already ships.
 
 ## Guide
 
@@ -36,7 +36,7 @@ records and the founding planning docs sit alongside both.
 | `reference/entities/*.md` | The canonical schema for each entity kind: character, lorebook, pack, persona, preset, regex. |
 | [reference/formats/README.md](reference/formats/README.md) | The coverage matrix, and one reference page per format family. |
 | `reference/concepts/*.md` | Cross-cutting engine concepts: the embedded character_book, the persona editor, the regex editor, the regex engine, safe rendering, the tag taxonomy. |
-| [reference/ui.md](reference/ui.md) | The visual app: `vaud ui`, the local server, the React shell. |
+| [reference/ui.md](reference/ui.md) | The visual app: `hoplight ui`, the local server, the React shell, and Kit. |
 | [reference/components.md](reference/components.md) | The UI component catalog, auto-generated from source. |
 | [reference/platform-native-fields.md](reference/platform-native-fields.md) | Verified native-field research behind each platform's native field bag. |
 
@@ -45,14 +45,12 @@ matrix and its source folder, same as any adapter without a reference page of it
 
 ## Decisions and planning
 
-`docs/decisions/` holds nine ADRs, ADR-001 through ADR-009, the consequential choices and why they went
-the way they did; read them in order, later ones supersede earlier ones where their heading says so.
-`01-VISION.md`, `02-ARCHITECTURE.md`, and `03-CONVENTIONS.md` are the founding planning docs: who
-Hoplight is for, the originally planned repo layout, and the binding code and process conventions.
-`02-ARCHITECTURE.md`'s own heading calls its layout "the future `vaudeville-studios` code repo"; the
-as-built architecture is [reference/architecture.md](reference/architecture.md). `ROADMAP.md` carries the
-current milestones and exit criteria. `FORMAT-SUPPORT.md` is the per-field format matrix, generated from
-the live adapter registry (`bun run matrix`).
+`docs/decisions/` holds the accepted ADRs; read them in order, and follow explicit supersession notes.
+`01-VISION.md`, `02-ARCHITECTURE.md`, and `03-CONVENTIONS.md` are the required product, architecture,
+and implementation spine. The detailed source map is
+[reference/architecture.md](reference/architecture.md). `ROADMAP.md` carries milestones and exit
+criteria. `FORMAT-SUPPORT.md` is the per-field format matrix generated from the live adapter registry
+with `bun run matrix`.
 
 `docs/generated/`, `docs/figures/`, and `docs/media/` hold the field tables, diagram data, and
 screenshots the pages above embed. They are not pages to browse on their own.

@@ -2,10 +2,12 @@
  * Lint law, scoped tight ON PURPOSE: only the failure classes that types and tests cannot catch -
  * React dispatcher corruption (rules-of-hooks, effect-dependency echo loops) and reinvention of a
  * house primitive an app should compose, not hand-roll. This is a GATE, not a style tool: style
- * stays the house doctrine, enforced by review and the scripts/hooks detectors. Runs on src/ui .tsx
- * via pre-commit, and lights up in-editor (the reason it survives what the catalog --digest cannot:
+ * stays the house doctrine, enforced by review and the scripts/hooks detectors. Runs on authored
+ * TypeScript across the Studio and Kit via pre-commit, and lights up in-editor (the reason it
+ * survives what the catalog --digest cannot:
  * a linter rule lives outside the agent's context, so compaction can't wipe it and it can't be
- * walked past without an explicit, reviewable eslint-disable).
+ * walked past without an explicit, reviewable eslint-disable). The Studio and Kit are both React
+ * surfaces, so the dispatcher rules cover both trees.
  */
 import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
@@ -40,7 +42,7 @@ const NATIVE_REINVENTIONS = [
 
 export default [
   {
-    files: ["src/ui/**/*.tsx"],
+    files: ["src/ui/**/*.{ts,tsx}", "src/kit/**/*.{ts,tsx}"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: { ecmaFeatures: { jsx: true } },

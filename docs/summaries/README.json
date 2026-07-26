@@ -2,19 +2,18 @@
   "schemaVersion": 1,
   "docId": "README",
   "sourcePath": "docs/README.md",
-  "sourceHash": "sha256:521f5f4971fcee4f1f5e8134ccbe797dfed65261ce84302b5b1abed9c2514f06",
-  "summary": "Documentation map for Hoplight, the Vaudeville Studios desktop app for AI-roleplay content including characters, lorebooks, personas, presets, and regex sets. The engine and CLI are vaud; the UI is a Bun and React app. Docs split by audience: guide teaches app users one task per page; reference documents the engine and UI for builders; decisions and founding planning docs sit alongside both. The Guide section indexes getting-started, importing, converting, editing, exporting, lorebooks, and per-platform pages under guide/platforms for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern. The Reference section indexes the reference contract, architecture, entity schemas, format families, cross-cutting concepts, UI, components catalog, and platform-native fields; Chub has a guide page but no dedicated reference page yet. Decisions and planning covers nine ADRs ADR-001 through ADR-009, founding docs 01-VISION, 02-ARCHITECTURE, and 03-CONVENTIONS, ROADMAP milestones, FORMAT-SUPPORT generated from the live matrix, and notes that docs/generated, figures, and media are embeds not browse pages. As-built architecture lives in reference/architecture.md; 02-ARCHITECTURE describes the future vaudeville-studios layout.",
+  "sourceHash": "sha256:c31f954476c3dfa095e2e53e1d5ba748fd7cc1028d86a96d30629bc4b3c33c5d",
+  "summary": "Complete documentation map for Hoplight's user guidance, contributor references, accepted decisions, future contracts, and generated support material. Guide lists task pages for setup, importing, converting, editing, exporting, and lorebooks, plus platform pages for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern. Reference points builders to the reference-tree contract, as-built architecture, canonical entity schemas, format coverage, cross-cutting concepts, the Studio and Kit UI, generated component catalog, and platform-native field research; Chub is represented through its guide, coverage matrix, and adapter source rather than a dedicated reference page. Decisions and planning separates accepted ADRs, the required vision/architecture/conventions spine, the detailed source map, roadmap exit criteria, and the live-registry FORMAT-SUPPORT matrix. It also distinguishes generated field tables, figure data, and media assets from browsable prose pages, and warns that specifications describe planned or load-bearing contracts without proving every feature ships.",
   "topics": [
     "documentation map",
-    "guide vs reference",
-    "vaud engine CLI",
-    "decisions ADRs",
-    "founding planning docs",
-    "FORMAT-SUPPORT matrix",
-    "ROADMAP milestones",
-    "entity format concepts",
-    "as-built architecture",
-    "guide platforms"
+    "user task guides",
+    "builder reference tree",
+    "platform guide pages",
+    "canonical entity schemas",
+    "format support matrix",
+    "accepted ADRs",
+    "specification maturity",
+    "generated docs assets"
   ],
   "sections": [
     {
@@ -22,13 +21,15 @@
       "title": "Guide",
       "level": 2,
       "sourceHash": "sha256:768c2408d8bfe3ea57b4be59c1c21ba37e0d08ac5aa8bdd26942ddd0abfdc681",
-      "summary": "User-facing task pages under docs/guide. getting-started covers install, first-run wizard, Dock, and first file. importing brings a file into the Library and explains the import receipt. converting moves a card between platform formats. editing opens a piece on the Workbench, edits, and saves the draft. exporting sends a piece out through the character editor or a staged batch. lorebooks covers entries, keywords, triggers, and position. guide/platforms has one page per source platform: Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, SillyTavern.",
+      "summary": "Guide is the task-oriented user path. Getting started covers installation, first-run setup, the Dock, and the first imported file. Importing explains bringing files into the Library and interpreting receipts. Converting covers moving a card between platform formats. Editing follows a piece onto the Workbench and through explicit draft saving. Exporting covers both the character editor's send-out flow and staged batch output. Lorebooks teaches entries, keywords, triggers, and placement. The platform directory then supplies one source-platform page for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern.",
       "topics": [
-        "getting started Dock",
-        "import convert edit export",
-        "lorebooks guide",
-        "platform guide pages",
-        "Workbench Library"
+        "installation and first run",
+        "Library importing receipts",
+        "conversion and editing",
+        "Workbench save flow",
+        "single and batch export",
+        "lorebook authoring",
+        "platform-specific guides"
       ],
       "children": []
     },
@@ -36,16 +37,17 @@
       "slug": "reference",
       "title": "Reference",
       "level": 2,
-      "sourceHash": "sha256:b4f2014ef04610a8de7aa5fef7a7b5531e63e0e3f3bb70dbf0f520751eb7e19b",
-      "summary": "Builder-facing reference tree. reference/README is the tree contract and how to read a field table. architecture covers canonical model, escrow, adapter contract, entity kinds, registry, and CLI. entities/*.md hold canonical schemas for character, lorebook, pack, persona, preset, and regex. formats/README is the coverage matrix plus one page per format family. concepts cover character_book, persona editor, regex editor, regex engine, safe rendering, and tag taxonomy. ui.md documents vaud ui, local server, and React shell. components.md is the auto-generated UI catalog. platform-native-fields.md holds verified native-field research. Chub has a guide page but no dedicated reference page; its format lives in the coverage matrix and source folder.",
+      "sourceHash": "sha256:faca1f036404f41cf0d1d44605386817cb20ee2583f71c99d11de508c4ccade8",
+      "summary": "Reference is the contributor-facing statement of shipping behavior. Its root explains the tree contract and field tables; architecture maps the canonical model, escrow, adapters, entity kinds, registry, and CLI. Entity pages define character, lorebook, pack, persona, preset, and regex schemas. Format pages pair the coverage matrix with family-specific behavior, while concept pages cover embedded character books, persona and regex editors, regex execution, safe rendering, and tags. The UI page covers the visual Studio and Kit, components is generated from source, and platform-native-fields records verified native research. Chub has no dedicated reference page yet, so its current format truth remains in the matrix and adapter folder.",
       "topics": [
-        "reference architecture",
+        "reference tree contract",
+        "canonical architecture",
         "entity schemas",
-        "format coverage matrix",
-        "concepts character_book regex",
-        "UI components catalog",
-        "platform native fields",
-        "Chub no reference page"
+        "format family coverage",
+        "cross-cutting concepts",
+        "Studio and Kit UI",
+        "generated component catalog",
+        "native field research"
       ],
       "children": []
     },
@@ -53,15 +55,16 @@
       "slug": "decisions-and-planning",
       "title": "Decisions and planning",
       "level": 2,
-      "sourceHash": "sha256:ca567a33c95e2d3fa76ba1b956e628727084225804e613e994c82ab4cc03eb5f",
-      "summary": "docs/decisions holds nine ADRs from ADR-001 through ADR-009; read them in order, later ones supersede earlier ones where their heading says so. 01-VISION, 02-ARCHITECTURE, and 03-CONVENTIONS are founding planning docs for audience, planned repo layout, and binding conventions. 02-ARCHITECTURE's layout is the future vaudeville-studios code repo; as-built architecture is reference/architecture.md. ROADMAP carries current milestones and exit criteria. FORMAT-SUPPORT is the per-field format matrix generated from the live adapter registry via bun run matrix. docs/generated, figures, and media hold field tables, diagram data, and screenshots for embeds and are not pages to browse alone.",
+      "sourceHash": "sha256:36c13c8c65e30a16f019c4e73e34f859bcc8ab8310133c09490294d65ca29eed",
+      "summary": "Decisions and planning explains which documents carry authority. Accepted ADRs live under docs/decisions and must be read in order with explicit supersession honored. The required spine is 01-VISION for product intent, 02-ARCHITECTURE for canonical structure, and 03-CONVENTIONS for implementation rules; reference/architecture is the detailed current source map. ROADMAP holds milestones and release exit criteria. FORMAT-SUPPORT is generated from the live adapter registry with bun run matrix and records per-field format coverage. Detailed specs remain contracts for planned or load-bearing areas, not automatic shipping evidence. Generated field tables, figure data, and media screenshots support other pages and are not standalone navigation destinations.",
       "topics": [
-        "nine ADRs",
-        "founding vision architecture conventions",
-        "as-built vs planned layout",
-        "ROADMAP exit criteria",
-        "FORMAT-SUPPORT bun run matrix",
-        "generated figures media"
+        "ADR authority order",
+        "vision architecture conventions",
+        "current source map",
+        "roadmap exit criteria",
+        "live format matrix",
+        "specification maturity",
+        "generated supporting assets"
       ],
       "children": []
     }

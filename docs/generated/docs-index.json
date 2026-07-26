@@ -197,91 +197,107 @@
       "path": "docs/03-CONVENTIONS.md",
       "title": "Conventions",
       "audience": "dev",
-      "summary": "Binding for all code and docs in the product repo. Deviations fail review.",
+      "summary": "These are the repository's binding implementation rules. They describe current enforced practice, not an idealized future toolchain.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Binding conventions for all code and docs in the product repo; deviations fail review. Code rules require TypeScript strict mode, no any except at codec boundaries immediately narrowed by zod, zod as the single source of truth with types via z.infer, core packages free of Bun-only APIs and import-time side effects, typed error classes with userMessage fields, no emojis anywhere, no em dashes in user-facing copy, and kebab-case files with PascalCase types and camelCase values. Testing law treats the fixture corpus as sacred, enforces the Round-Trip Law as CI-blocking from M0, demands a green baseline before fixes, and allows only deterministic tests. CLI conventions require --json and meaningful exit codes, --yes or confirmation for destructive ops, and plain-first output vocabulary. Git and repo practice uses conventional commits, one ticket per branch and PR, and CI gates covering typecheck, lint, Bun plus Node core tests, round-trip suite, and binary-build smoke. Docs require every package README to state purpose, public API sketch, and spec links; specs are law and must be updated before implementation diverges.",
+      "semanticSummary": "This page states Hoplight's binding current implementation rules. Code requires strict TypeScript boundary narrowing, exact per-kind runtime decoders for handwritten canonical interfaces, explicitly declared open escrow bags, UI-independent core logic, typed errors, consistent naming, and the scoped TS/TSX pictograph gate. defineExhaustiveShape<T>() rejects missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never during typecheck. Tests use Bun across authored src and scripts, begin bug fixes at a failing public boundary, prove semantic same-format round trips, remain deterministic, and do not treat synchronization warnings as clean proof. CLI defines the unfinished automation target for convert, inspect, validate, label, formats, and version. Repository requires useful release-history subjects and behavioral evidence while forbidding gate bypasses. Documentation separates built reference behavior from labeled plans and moves with source. Working method requires inspecting the owning system and Git state, fixing the real owner, reporting verification limits, and obtaining independent review without self-approval.",
       "topics": [
-        "binding conventions",
-        "TypeScript strict zod",
-        "no any codec boundary",
-        "Round-Trip Law fixtures",
-        "CLI --json exit codes",
-        "conventional commits",
-        "no emoji no em dash",
-        "package README specs law",
-        "deterministic tests",
-        "typed error classes"
+        "strict TypeScript boundaries",
+        "exhaustive runtime decoders",
+        "public-boundary regression tests",
+        "CLI JSON contract",
+        "repository evidence",
+        "truthful documentation",
+        "authority-led working method",
+        "independent review"
       ],
       "anchors": [
         {
           "text": "Code",
           "slug": "code",
           "level": 2,
-          "summary": "TypeScript strict mode is required. No any except at codec boundaries when parsing untrusted input, and then immediately narrowed by a zod schema. zod schemas are the single source of truth for shapes; TypeScript types derive via z.infer with no hand-written interface that duplicates a schema. Core packages must use no Bun-only APIs per ADR-001, no side effects at import time, and no singletons; everything is injectable and testable. Errors use typed error classes per package such as FormatError, CodecError, and ProviderError, each with a userMessage field written for humans; never throw strings. No emojis anywhere in code, comments, CLI output, docs, or UI copy; house glyphs are Unicode ornaments; no em dashes in user-facing copy. File naming is kebab-case files, PascalCase types, camelCase values.",
+          "summary": "TypeScript runs in strict mode, and untrusted values are narrowed at entry. Handwritten domain interfaces may remain rich internal contracts, but separate fail-closed runtime schemas must exhaust their canonical types. defineExhaustiveShape<T>() infers concrete schemas before demanding exact input and output parity, rejecting missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never during typecheck. src/entities/runtime-schema.ts composes the strict per-kind decoders used by storage, HTTP, format-corpus verification, and Kit draft validation. Unknown keys are accepted only inside extension or escrow bags whose contracts explicitly declare openness. Core logic cannot depend on UI, perform effects at import, or conceal authority in a singleton. Code throws Error objects or typed errors, and user-facing boundaries translate failures plainly.",
           "topics": [
-            "TypeScript strict",
-            "zod single source of truth",
-            "no Bun-only APIs",
-            "typed error userMessage",
-            "no emoji no em dash",
-            "kebab-case file naming"
+            "strict TypeScript",
+            "exhaustive runtime decoders",
+            "ExhaustiveShape",
+            "shared canonical boundary",
+            "pure injectable core",
+            "typed errors",
+            "naming and emoji scan"
           ],
           "children": []
         },
         {
-          "text": "Testing law",
-          "slug": "testing-law",
+          "text": "Tests",
+          "slug": "tests",
           "level": 2,
-          "summary": "Test runner is bun test; core packages must also pass under Node in CI. The fixture corpus is sacred: fixtures under format and case hold a real input file, expected.json for the canonical parse, and notes. New codec behavior requires a fixture demonstrating it; never edit a fixture input to make a test pass. The Round-Trip Law requires every codec to have property-style tests asserting parse then serialize of the same format is semantically identical for every fixture of that format, CI-blocking from M0 onward. Regression firewall: capture a green baseline before any fix; a fix that turns any passing test red is rejected. Deterministic tests only: no network, no clock, no randomness without a seed.",
+          "summary": "Bun is the test runner, and bun run test discovers every authored test under src and scripts. Bug fixes begin with a regression at the public boundary that reproduces the reported behavior before the repair. Same-format adapter fixtures must parse, serialize, and reparse without semantic loss, protecting the Round-Trip Law at the format boundary. Tests remain deterministic by avoiding live network access, uncontrolled clocks, and unseeded randomness. A nominally green result that still prints framework synchronization warnings is not clean verification and must not be represented as such.",
           "topics": [
-            "bun test Node CI",
-            "sacred fixture corpus",
-            "Round-Trip Law",
-            "regression firewall",
-            "deterministic tests only",
-            "never edit fixture input"
+            "Bun test coverage",
+            "red-green public boundary",
+            "same-format round trip",
+            "deterministic tests",
+            "synchronization warnings"
           ],
           "children": []
         },
         {
-          "text": "CLI conventions",
-          "slug": "cli-conventions",
+          "text": "CLI",
+          "slug": "cli",
           "level": 2,
-          "summary": "Every command must support --json for machine-readable results on stdout with logs on stderr, plus meaningful exit codes: 0 ok, 1 user error, 2 internal error. Destructive operations require --yes or interactive confirmation. Output vocabulary is plain first, theatrical second: report facts like converted three files rather than stagey phrasing. Flavor belongs in agent personas, not in scriptable command output.",
+          "summary": "The target automation contract covers the non-interactive data commands convert, inspect, validate, label, formats, and version. JSON mode must emit exactly one JSON value to stdout, while human diagnostics go to stderr. Exit code 0 means success, 1 means invalid user input or invalid content, and 2 means an unexpected internal failure. help and the long-running ui server are outside this JSON contract. The section explicitly says implementation is incomplete: until all commands comply and command-matrix tests land, docs/reference/cli.md remains the authority for current syntax and behavior rather than this target being treated as shipped proof.",
           "topics": [
-            "--json stdout stderr",
-            "exit codes 0 1 2",
-            "destructive --yes",
-            "plain first output",
-            "persona flavor not CLI"
+            "data command contract",
+            "single JSON stdout",
+            "stderr diagnostics",
+            "exit codes",
+            "incomplete implementation",
+            "current CLI reference"
           ],
           "children": []
         },
         {
-          "text": "Git & repo",
-          "slug": "git-repo",
+          "text": "Repository",
+          "slug": "repository",
           "level": 2,
-          "summary": "Use conventional commits with scoped types such as feat formats or fix lore. One ticket equals one branch equals one PR, and the PR description links the ticket file. CI gates cover typecheck, lint, core tests under Bun and Node, the round-trip suite, and a binary-build smoke test.",
+          "summary": "Commit subjects must name the affected area and remain useful in Mainstage release history; WIP, misc, and context-free fix subjects are rejected. Conventional prefixes are welcome but optional. The exact [skip release] text is the only machine-read commit marker. User-facing behavioral changes carry tests or recorded live verification. Hooks and gates are repository policy: contributors repair the underlying failure rather than bypassing a hook or weakening a check to force passage.",
           "topics": [
-            "conventional commits",
-            "one ticket one PR",
-            "CI typecheck lint",
-            "Bun Node core tests",
-            "round-trip binary smoke"
+            "release-history commits",
+            "optional Conventional Commits",
+            "skip release marker",
+            "changes carry proof",
+            "do not bypass gates"
           ],
           "children": []
         },
         {
-          "text": "Docs",
-          "slug": "docs",
+          "text": "Documentation",
+          "slug": "documentation",
           "level": 2,
-          "summary": "Every package must have a README that states its purpose, sketches the public API, and links the governing specs. Specs are law for the product: when implementation must diverge from a written contract, the spec change lands first as its own PR, then code follows. Docs and code stay aligned under that order rather than retrofitting specs after shipping a divergence.",
+          "summary": "Reference pages state built behavior only. Planned work belongs under specs or in a roadmap section that labels it as planned, preventing intent from masquerading as a shipped surface. Documentation changes in the same change as its source so contracts and user guidance stay aligned. Generated indexes and semantic summaries are navigation aids, not authority: they cannot transform an inaccurate source page into truth.",
           "topics": [
-            "package README required",
-            "public API sketch",
-            "specs are law",
-            "spec PR first"
+            "built reference truth",
+            "planned specifications",
+            "docs move with code",
+            "indexes are not authority"
+          ],
+          "children": []
+        },
+        {
+          "text": "Working method",
+          "slug": "working-method",
+          "level": 2,
+          "summary": "Before editing, inspect the implementation, its callers and tests, release configuration, documentation, and Git state, then name both the governing authority and user-visible outcome. Bugs and known contracts begin with an honest failing test at the nearest public boundary. A genuinely novel design may use a bounded spike until its contract is understood, but completion still requires behavioral proof. Repair the owning boundary rather than creating a parallel schema, registry, state authority, or compatibility path. When code and docs disagree, classify the claim as IMPLEMENT, REWRITE, DELETE, or RETAIN. Verification progresses through focused, adjacent, and complete supported checks, with warnings and skips reported rather than counted as clean. Substantial or high-risk work receives independent adversarial review; authors cannot approve their own semantic summaries, security claims, migrations, or release evidence.",
+          "topics": [
+            "inspect owning system",
+            "observable outcome",
+            "red test or bounded spike",
+            "fix owning boundary",
+            "mismatch classification",
+            "proportionate verification",
+            "independent adversarial review",
+            "no self-approval"
           ],
           "children": []
         }
@@ -3719,7 +3735,7 @@
       "path": "docs/README.md",
       "title": "Documentation",
       "audience": "dev",
-      "summary": "Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.",
+      "summary": "Where every Hoplight document lives, from user guides and current references to accepted decisions, future specifications, and generated navigation.",
       "tags": [
         "docs",
         "index",
@@ -3733,31 +3749,32 @@
         "reference/architecture",
         "ROADMAP"
       ],
-      "semanticSummary": "Documentation map for Hoplight, the Vaudeville Studios desktop app for AI-roleplay content including characters, lorebooks, personas, presets, and regex sets. The engine and CLI are vaud; the UI is a Bun and React app. Docs split by audience: guide teaches app users one task per page; reference documents the engine and UI for builders; decisions and founding planning docs sit alongside both. The Guide section indexes getting-started, importing, converting, editing, exporting, lorebooks, and per-platform pages under guide/platforms for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern. The Reference section indexes the reference contract, architecture, entity schemas, format families, cross-cutting concepts, UI, components catalog, and platform-native fields; Chub has a guide page but no dedicated reference page yet. Decisions and planning covers nine ADRs ADR-001 through ADR-009, founding docs 01-VISION, 02-ARCHITECTURE, and 03-CONVENTIONS, ROADMAP milestones, FORMAT-SUPPORT generated from the live matrix, and notes that docs/generated, figures, and media are embeds not browse pages. As-built architecture lives in reference/architecture.md; 02-ARCHITECTURE describes the future vaudeville-studios layout.",
+      "semanticSummary": "Complete documentation map for Hoplight's user guidance, contributor references, accepted decisions, future contracts, and generated support material. Guide lists task pages for setup, importing, converting, editing, exporting, and lorebooks, plus platform pages for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern. Reference points builders to the reference-tree contract, as-built architecture, canonical entity schemas, format coverage, cross-cutting concepts, the Studio and Kit UI, generated component catalog, and platform-native field research; Chub is represented through its guide, coverage matrix, and adapter source rather than a dedicated reference page. Decisions and planning separates accepted ADRs, the required vision/architecture/conventions spine, the detailed source map, roadmap exit criteria, and the live-registry FORMAT-SUPPORT matrix. It also distinguishes generated field tables, figure data, and media assets from browsable prose pages, and warns that specifications describe planned or load-bearing contracts without proving every feature ships.",
       "topics": [
         "documentation map",
-        "guide vs reference",
-        "vaud engine CLI",
-        "decisions ADRs",
-        "founding planning docs",
-        "FORMAT-SUPPORT matrix",
-        "ROADMAP milestones",
-        "entity format concepts",
-        "as-built architecture",
-        "guide platforms"
+        "user task guides",
+        "builder reference tree",
+        "platform guide pages",
+        "canonical entity schemas",
+        "format support matrix",
+        "accepted ADRs",
+        "specification maturity",
+        "generated docs assets"
       ],
       "anchors": [
         {
           "text": "Guide",
           "slug": "guide",
           "level": 2,
-          "summary": "User-facing task pages under docs/guide. getting-started covers install, first-run wizard, Dock, and first file. importing brings a file into the Library and explains the import receipt. converting moves a card between platform formats. editing opens a piece on the Workbench, edits, and saves the draft. exporting sends a piece out through the character editor or a staged batch. lorebooks covers entries, keywords, triggers, and position. guide/platforms has one page per source platform: Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, SillyTavern.",
+          "summary": "Guide is the task-oriented user path. Getting started covers installation, first-run setup, the Dock, and the first imported file. Importing explains bringing files into the Library and interpreting receipts. Converting covers moving a card between platform formats. Editing follows a piece onto the Workbench and through explicit draft saving. Exporting covers both the character editor's send-out flow and staged batch output. Lorebooks teaches entries, keywords, triggers, and placement. The platform directory then supplies one source-platform page for Agnai, Backyard, Chub, Lumiverse, Marinara, NovelAI, Pygmalion, RisuAI, RoleCall, and SillyTavern.",
           "topics": [
-            "getting started Dock",
-            "import convert edit export",
-            "lorebooks guide",
-            "platform guide pages",
-            "Workbench Library"
+            "installation and first run",
+            "Library importing receipts",
+            "conversion and editing",
+            "Workbench save flow",
+            "single and batch export",
+            "lorebook authoring",
+            "platform-specific guides"
           ],
           "children": []
         },
@@ -3765,15 +3782,16 @@
           "text": "Reference",
           "slug": "reference",
           "level": 2,
-          "summary": "Builder-facing reference tree. reference/README is the tree contract and how to read a field table. architecture covers canonical model, escrow, adapter contract, entity kinds, registry, and CLI. entities/*.md hold canonical schemas for character, lorebook, pack, persona, preset, and regex. formats/README is the coverage matrix plus one page per format family. concepts cover character_book, persona editor, regex editor, regex engine, safe rendering, and tag taxonomy. ui.md documents vaud ui, local server, and React shell. components.md is the auto-generated UI catalog. platform-native-fields.md holds verified native-field research. Chub has a guide page but no dedicated reference page; its format lives in the coverage matrix and source folder.",
+          "summary": "Reference is the contributor-facing statement of shipping behavior. Its root explains the tree contract and field tables; architecture maps the canonical model, escrow, adapters, entity kinds, registry, and CLI. Entity pages define character, lorebook, pack, persona, preset, and regex schemas. Format pages pair the coverage matrix with family-specific behavior, while concept pages cover embedded character books, persona and regex editors, regex execution, safe rendering, and tags. The UI page covers the visual Studio and Kit, components is generated from source, and platform-native-fields records verified native research. Chub has no dedicated reference page yet, so its current format truth remains in the matrix and adapter folder.",
           "topics": [
-            "reference architecture",
+            "reference tree contract",
+            "canonical architecture",
             "entity schemas",
-            "format coverage matrix",
-            "concepts character_book regex",
-            "UI components catalog",
-            "platform native fields",
-            "Chub no reference page"
+            "format family coverage",
+            "cross-cutting concepts",
+            "Studio and Kit UI",
+            "generated component catalog",
+            "native field research"
           ],
           "children": []
         },
@@ -3781,14 +3799,15 @@
           "text": "Decisions and planning",
           "slug": "decisions-and-planning",
           "level": 2,
-          "summary": "docs/decisions holds nine ADRs from ADR-001 through ADR-009; read them in order, later ones supersede earlier ones where their heading says so. 01-VISION, 02-ARCHITECTURE, and 03-CONVENTIONS are founding planning docs for audience, planned repo layout, and binding conventions. 02-ARCHITECTURE's layout is the future vaudeville-studios code repo; as-built architecture is reference/architecture.md. ROADMAP carries current milestones and exit criteria. FORMAT-SUPPORT is the per-field format matrix generated from the live adapter registry via bun run matrix. docs/generated, figures, and media hold field tables, diagram data, and screenshots for embeds and are not pages to browse alone.",
+          "summary": "Decisions and planning explains which documents carry authority. Accepted ADRs live under docs/decisions and must be read in order with explicit supersession honored. The required spine is 01-VISION for product intent, 02-ARCHITECTURE for canonical structure, and 03-CONVENTIONS for implementation rules; reference/architecture is the detailed current source map. ROADMAP holds milestones and release exit criteria. FORMAT-SUPPORT is generated from the live adapter registry with bun run matrix and records per-field format coverage. Detailed specs remain contracts for planned or load-bearing areas, not automatic shipping evidence. Generated field tables, figure data, and media screenshots support other pages and are not standalone navigation destinations.",
           "topics": [
-            "nine ADRs",
-            "founding vision architecture conventions",
-            "as-built vs planned layout",
-            "ROADMAP exit criteria",
-            "FORMAT-SUPPORT bun run matrix",
-            "generated figures media"
+            "ADR authority order",
+            "vision architecture conventions",
+            "current source map",
+            "roadmap exit criteria",
+            "live format matrix",
+            "specification maturity",
+            "generated supporting assets"
           ],
           "children": []
         }
@@ -13781,182 +13800,195 @@
       "path": "docs/ROADMAP.md",
       "title": "Roadmap",
       "audience": "dev",
-      "summary": "Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.",
+      "summary": "This roadmap separates code that exists in the repository from work that has passed a release bar. Detailed future designs live under `specs/`; a spec is not evidence that its feature ships.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Product roadmap authority: milestones are strictly ordered and DONE only when every exit criterion passes live in a real install, not when tickets close. Status as of 2026-07-09: M0 Foundation and M1 Converter jewels DONE at v0.1; character-card forge CLOSED; Media jewel largely landed; Lorebook studio jewel planned next; Risu Workshop jewel DONE; Studio usable ahead of formal M6 packaging. Character-card forge closed platforms include SillyTavern Default CCv3, RoleCall, Backyard, Agnai, Pygmalion, Lumiverse, Marinara schema, Chub, Risu Workshop; Character.AI dropped, Crushon skipped, Janitor thin defer, NovelAI not a character jewel. Studio content types table tracks character, media, lorebook, sprite pack, and regex/persona/preset status. Numbered milestones: M0 and M1 jewel done; M2 Brain, M3 Script Doctor, M4 Table Read, and M7 Archives not started; M5 Test Stage partial with sealed Test Bench but productions open; M6 Studio ahead of plan and usable but packaging not formal DONE. What now recommends content-type editors, sprites media, NovelAI lorebook, M3, M2, packaging polish, then M6 packaging; do not reopen C.AI or Crushon native bags. Ground truth is this file plus M0 and M1 jewel docs.",
+      "semanticSummary": "Roadmap organized around evidence rather than historical milestone labels: repository code and detailed specs do not count as released behavior until the release bar is met. Current foundation inventories the canonical model and escrow, live format adapters, CLI and Studio import/edit/validation/conversion/export, local storage and editors, sealed script analysis and opt-in benches, and source-preview Kit with providers, staged changes, sessions, content capabilities, and indexed docs retrieval; Kit is run with bun run kit and is absent from current release binaries. Near-term release work covers quiet artifact-level verification, exact public contracts, authenticated and signed release artifacts, and making Kit distributable with complete content lifecycles and real-terminal tests. Product work after the release foundation sequences Script Doctor, Table Read, Test Stage and productions, and Archives and World Forge while preserving canonical storage, staged edits, sealed scripts, citations, and deterministic foundations. Release bars require real public behavior, boundary and regression tests, live installed-flow proof, current reference documentation, and smoke-tested release artifacts before any milestone is called complete.",
       "topics": [
-        "milestone exit criteria live",
-        "M0 M1 jewel done",
-        "character card forge closed",
-        "content types lorebook media",
-        "M2 Brain not started",
-        "M3 Script Doctor",
-        "M5 partial M6 ahead",
-        "recommended order next",
-        "no reopen C.AI Crushon",
-        "Risu Workshop done"
+        "shipping evidence versus specs",
+        "current canonical foundation",
+        "source-preview Kit",
+        "verification and contracts",
+        "reproducible releases",
+        "Kit distribution lifecycle",
+        "Script Doctor Table Read",
+        "Test Stage productions",
+        "Archives World Forge",
+        "release completion bars"
       ],
       "anchors": [
         {
-          "text": "Character-card forge (workstream, not a numbered M)",
-          "slug": "character-card-forge-workstream-not-a-numbered-m",
+          "text": "Current foundation",
+          "slug": "current-foundation",
           "level": 2,
-          "summary": "Closed workstream, not a numbered milestone. Platform statuses: SillyTavern Default CCv3 done; RoleCall done; Backyard done with .byaf lens and legacy JSON export-only; Agnai jewel accepted; Pygmalion done adapter and export only with no lens tab; Lumiverse jewel accepted; Marinara native schema landed; Chub jewel accepted; Risu Workshop jewel done on approved bar; Character.AI dropped for no export or locked definition; Crushon skipped emit Default CCv3 only no strip tab; Janitor thin defer prefer ST Default CCv3 no strip tab; Default lens is one strip tab for portable CCv3 thin-host interop; NovelAI is not a character-card jewel, lorebook and scenario later. Exit met: open edit re-export real cards for every host with a portable shape; thin hosts use Default CCv3; dropped hosts named honestly. Historical note: full lore and regex editors were listed here while forge closed; Media jewel has since landed; Lorebook studio authoring is the next content-type jewel with codecs already present and editor plus attach as the remaining gap.",
+          "summary": "The implemented foundation includes a canonical content model with escrowed source data, live format detection and adapters represented by FORMAT-SUPPORT, and import, validation, conversion, and export through both CLI and Studio. Studio provides local storage and the editors documented in the UI reference. Lua and regex payloads remain sealed during normal work and are analyzed or run only in user-invoked benches. Source-preview Kit already includes provider setup, staged mutations, sessions, content capabilities, and indexed documentation retrieval. Exact behavior belongs to the support matrix and CLI/UI references. Kit currently starts from source with bun run kit and is not included in GitHub release binaries.",
           "topics": [
-            "character forge closed",
-            "Default CCv3 thin hosts",
-            "Character.AI dropped",
-            "Crushon skipped",
-            "Risu Workshop jewel done",
-            "next lorebook studio",
-            "platform jewel statuses"
+            "canonical model escrow",
+            "format adapters matrix",
+            "CLI and Studio workflows",
+            "local editors storage",
+            "sealed script benches",
+            "Kit providers sessions tools",
+            "indexed docs retrieval",
+            "Kit not release packaged"
           ],
           "children": []
         },
         {
-          "text": "Studio content types (after character forge)",
-          "slug": "studio-content-types-after-character-forge",
+          "text": "Near-term release work",
+          "slug": "near-term-release-work",
           "level": 2,
-          "summary": "Tracks content types after character forge. Character codecs and editor jewel closed, shipped. Media face pack named codecs done and jewel largely landed, shipped. Lorebook codecs done for ST RC Agnai Risu NAI and character_book; full binder editor shipped. Sprite pack entity is hub pack model with Library pack folder under MEDIA, pack entity landed. Regex persona preset codecs done; editors shipped; preset codecs in progress. Lore locked decisions: one RC-shaped editor; Write for equals single host profile with no multi-select lens; knowledgeRefs attach; no per-platform full editors; M5 activation engine is separate. Lore jewel bar requires open edit save book, new book, attach to character, export re-embeds, honesty, and no empty native lore boxes.",
+          "summary": "Near-term work is release engineering rather than a claim that repository features are already product-complete. Make verification complete and quiet by removing OpenTUI warning noise and exercising real Node and packaged artifacts. Make public contracts exact by synchronizing documentation and proving the round-trip fidelity each adapter claims. Make releases reproducible by embedding the sidecar, running the full wall, auditing dependencies, pinning build inputs, authenticating existing checksums, and adding signatures. Finish Kit as a distributable product by packaging it, completing native content lifecycles, retaining staged approval and validation, and testing providers, recovery, docs retrieval, and editing in supported terminals.",
           "topics": [
-            "character media lorebook shipped",
-            "sprite pack entity",
-            "regex persona preset progress",
-            "Write for single host",
-            "lore jewel bar",
-            "knowledgeRefs attach"
+            "complete quiet verification",
+            "exact public contracts",
+            "round-trip proof",
+            "reproducible artifacts",
+            "checksums signatures",
+            "Kit packaged entry",
+            "native content lifecycles",
+            "real terminal verification"
           ],
-          "children": []
+          "children": [
+            {
+              "text": "Make verification complete and quiet",
+              "slug": "make-verification-complete-and-quiet",
+              "level": 3,
+              "summary": "Verification already discovers tests across src and scripts and lints both React surfaces. Remaining work removes noisy React act warnings from the OpenTUI harness so genuine regressions stand out, then makes Node and packaged-binary smoke checks execute the actual artifacts users receive. The goal is to close the gap between source-tree confidence and release confidence without listing already-shipped gates as future work.",
+              "topics": [
+                "explicit test discovery",
+                "Studio and Kit lint",
+                "OpenTUI warning cleanup",
+                "artifact smoke tests"
+              ],
+              "children": []
+            },
+            {
+              "text": "Make public contracts exact",
+              "slug": "make-public-contracts-exact",
+              "level": 3,
+              "summary": "Architecture, security, CLI, and UI references must move with implementation. Canonical boundary validation and semantic-summary freshness are current foundation rather than future roadmap items. Remaining contract work centers on proving same-format semantic round trips at the fidelity tier each adapter advertises instead of relying on generic tests or broad claims.",
+              "topics": [
+                "docs match implementation",
+                "canonical boundary validation",
+                "fidelity-tier round trips",
+                "semantic indexes in CI"
+              ],
+              "children": []
+            },
+            {
+              "text": "Make releases reproducible",
+              "slug": "make-releases-reproducible",
+              "level": 3,
+              "summary": "Supported release artifacts must contain the remote-access sidecar instead of depending on a checkout. Tagging follows the complete verification wall and a transitive production-dependency audit. Build actions and tools are pinned exactly to prevent moving inputs. Releases already publish checksums; remaining work must authenticate those checksum records and add signatures, giving users verifiable identity and making a release repeatable rather than merely buildable on one maintainer's machine.",
+              "topics": [
+                "embedded remote sidecar",
+                "pre-tag verification",
+                "dependency audit",
+                "pinned build inputs",
+                "checksums and signatures"
+              ],
+              "children": []
+            },
+            {
+              "text": "Finish Kit as a distributable product",
+              "slug": "finish-kit-as-a-distributable-product",
+              "level": 3,
+              "summary": "Kit must move from bun run kit in a source checkout to a supported packaged entry point. Native create and edit flows must cover every supported content kind. Mutations must retain composed previews, explicit user approval, revision checks, and deterministic validation. Provider setup and recovery, documentation retrieval, and complete content lifecycles need live testing in real terminals across supported operating systems before distribution is claimed complete.",
+              "topics": [
+                "packaged Kit entry",
+                "all content create edit",
+                "staged approved mutations",
+                "provider setup recovery",
+                "cross-platform terminal tests"
+              ],
+              "children": []
+            }
+          ]
         },
         {
-          "text": "M0 - Foundation",
-          "slug": "m0---foundation",
+          "text": "Product work after the release foundation",
+          "slug": "product-work-after-the-release-foundation",
           "level": 2,
-          "summary": "Foundation milestone: repo scaffold with Bun workspace, CI, lint, LICENSE and CLA bot; fixture corpus seeded with at least forty real files across formats; packages/core canonical schemas; escrow envelope; PNG chunk codec; Round-Trip Law harness in CI. Code reality notes engine fixtures and round-trip culture live under src/ as monorepo shape evolved past pure packages; treat effectively green when tsc, bun test, and color and line scans pass. Exit requires bun test green under Bun and Node; a V2 PNG card parses to canonical and round-trips at declared fidelity; CI blocks a deliberately broken round-trip and a deliberately added AGPL dependency. Status: JEWEL DONE as of 2026-07-09.",
+          "summary": "Product expansion follows the release foundation and reuses existing contracts instead of creating parallel systems. Script Doctor starts with deterministic field-cited analysis and keeps model treatments staged. Table Read turns interviews into ordinary canonical edits through the same validation, storage, and history paths as direct editing. Test Stage and productions extend assembly, replay, history, and multi-piece workspaces while leaving imported scripts sealed outside existing benches. Archives and World Forge derive characters and continuity knowledge from large conversation collections, with evidence attached to every derived claim. Their detailed designs live under feature and engine specs, but those specs are not shipping evidence.",
           "topics": [
-            "M0 foundation jewel done",
-            "fixture corpus Round-Trip Law",
-            "escrow PNG codec",
-            "CI blocks AGPL",
-            "src monorepo reality"
+            "deterministic Script Doctor",
+            "staged treatment edits",
+            "interview Table Read",
+            "shared canonical pathways",
+            "Test Stage replay",
+            "production workspaces",
+            "archive extraction citations",
+            "World Forge continuity"
           ],
-          "children": []
+          "children": [
+            {
+              "text": "Script Doctor",
+              "slug": "script-doctor",
+              "level": 3,
+              "summary": "Script Doctor begins with deterministic content analysis so useful findings do not require a provider. Every finding identifies the affected canonical field. Optional model assistance may propose treatment plans, but edits remain staged for review rather than silently applied. The contracts under specs/features govern the future implementation and must be reconciled with the same validation and mutation paths used elsewhere.",
+              "topics": [
+                "deterministic analysis first",
+                "field-cited findings",
+                "optional model treatment",
+                "staged proposed edits"
+              ],
+              "children": []
+            },
+            {
+              "text": "Table Read",
+              "slug": "table-read",
+              "level": 3,
+              "summary": "Table Read is an interview-led authoring experience whose output is not a special conversational document. Answers become ordinary canonical edits, then use the same local storage, validation, and history mechanisms as direct Workbench changes. That shared path prevents interview-created characters and lore from drifting into a second content model or bypassing established mutation safeguards.",
+              "topics": [
+                "interview-led authoring",
+                "ordinary canonical edits",
+                "shared validation storage",
+                "no second content model"
+              ],
+              "children": []
+            },
+            {
+              "text": "Test Stage and productions",
+              "slug": "test-stage-and-productions",
+              "level": 3,
+              "summary": "Test Stage and productions extend prompt assembly, replay, content history, and multi-piece workspace behavior. They must remain extensions of the canonical model rather than introducing production-only entity shapes. Imported Lua, macros, regex, and other executable-looking payloads stay sealed as content throughout those workflows, with execution permitted only through the already isolated, explicitly invoked Lua and regex test benches.",
+              "topics": [
+                "prompt assembly replay",
+                "content history",
+                "multi-piece workspaces",
+                "canonical model reuse",
+                "scripts remain sealed"
+              ],
+              "children": []
+            },
+            {
+              "text": "Archives and World Forge",
+              "slug": "archives-and-world-forge",
+              "level": 3,
+              "summary": "Archives and World Forge target evidence-backed extraction from large conversation histories and continuity work across multiple pieces. Summaries, character facts, lore, and contradiction findings derived from archives must retain citations to the source material that supports them. The citation requirement is part of the product contract, preventing generated continuity claims from becoming unattributed canonical facts.",
+              "topics": [
+                "large archive extraction",
+                "cross-piece continuity",
+                "evidence-backed claims",
+                "source citations retained"
+              ],
+              "children": []
+            }
+          ]
         },
         {
-          "text": "M1 - The Converter (v0.1, first public release)",
-          "slug": "m1---the-converter-v01-first-public-release",
+          "text": "Release bars",
+          "slug": "release-bars",
           "level": 2,
-          "summary": "First public converter release scope: all codecs for V2 V3 JSON PNG, charx, Backyard, ST worldbook, RC lorebook, ST preset, Lumiverse preset, personas, regex scripts; content-type detection; vaud convert inspect validate import --bundle export --all-formats; honest conversion reports; single-exe builds checksums and vaud upgrade; README and auto-generated format-support matrix. Code reality: strong ST Risu BYAF Agnai Pygmalion Lumi paths exist; CLI public packaging and full matrix were formal exit items; Studio convert export dialog covers most M1 intent. Exit: mixed ZIP from five platforms converts both ways with zero same-format data loss; binaries on win mac linux; stranger converts a card from GitHub in under three minutes. Status: JEWEL DONE 2026-07-09 for convert inspect validate formats multi-platform smoke matrix and CLI compile; GitHub multi-OS Releases and vaud upgrade remain packaging polish not jewel blockers.",
+          "summary": "A milestone is complete only when behavior exists outside fixtures, boundary and regression coverage plus adjacent tests pass, user-facing flows work live in a real installation, reference pages describe the implementation without substituting future tense, and the actual release artifact passes smoke testing. Repository code, passing unit tests, or a detailed specification is insufficient alone. Historical jewel names and dates remain available through Git history for archaeology, but this roadmap deliberately does not use them as evidence of current status.",
           "topics": [
-            "M1 converter jewel done",
-            "vaud convert inspect validate",
-            "honest conversion reports",
-            "format-support matrix",
-            "packaging polish remaining",
-            "v0.1 first public"
-          ],
-          "children": []
-        },
-        {
-          "text": "M2 - The Brain",
-          "slug": "m2---the-brain",
-          "level": 2,
-          "summary": "Planned agent milestone, NOT STARTED. packages/ai for providers, streaming, weak-model tool fallback, and key vault built on the Vercel AI SDK without a forked agent base. packages/agent for loop, resource tools over vaud://, spill store, staged edits, and personas implementing ADR-006 as product code. Includes vaud bare REPL and agent eval harness with golden tasks. Exit: REPL performs a staged multi-file edit on a production via a frontier model and via a local 7-8B model; eval harness reports success-rate and tokens-per-task for both. Product still treats BYOK as optional later; convert works offline.",
-          "topics": [
-            "M2 Brain not started",
-            "Vercel AI SDK",
-            "ADR-006 agent constraints",
-            "vaud REPL",
-            "eval harness golden tasks",
-            "weak model 7-8B"
-          ],
-          "children": []
-        },
-        {
-          "text": "M3 - The Script Doctor (v0.2)",
-          "slug": "m3---the-script-doctor-v02",
-          "level": 2,
-          "summary": "Planned Script Doctor milestone, NOT STARTED though specs exist under specs/features/. Scope includes deterministic passes for format errors, token waste, contradiction candidates, slop banks, speaks-for-user, and W++ relics; health score; AI treatment planner with fix-by-fix staged approval; vaud doctor plus batch mode and markdown ward reports. Exit: doctor a known-bad public card to health at least 85 with every fix approved individually; deterministic pass runs with no key configured.",
-          "topics": [
-            "M3 Script Doctor not started",
-            "deterministic audit passes",
-            "health score 85",
-            "staged AI treatment",
-            "vaud doctor batch",
-            "specs features"
-          ],
-          "children": []
-        },
-        {
-          "text": "M4 - The Table Read (v0.3)",
-          "slug": "m4---the-table-read-v03",
-          "level": 2,
-          "summary": "Planned interview milestone, NOT STARTED. Interview engine as a UI-agnostic event stream of question, chips, answer, and field-patch events; three tempos Cold Read, Deep Dive, and Rapid Fire; adaptive depth; settings; persona voices; deliverable bundles of card plus starter lorebook plus alt greetings. Exit: Cold Read produces a playable card in under five minutes in the terminal; Deep Dive produces a card that beats a hand-written baseline in a blind vibe-check by the owner.",
-          "topics": [
-            "M4 Table Read not started",
-            "Cold Read Deep Dive Rapid Fire",
-            "interview event stream",
-            "deliverable bundles",
-            "five minute Cold Read"
-          ],
-          "children": []
-        },
-        {
-          "text": "M5 - The Test Stage + Productions (v0.4)",
-          "slug": "m5---the-test-stage-productions-v04",
-          "level": 2,
-          "summary": "Partial milestone. Planned scope: packages/assembly with full prompt trace, CLI test chat with lorebook activation readout rigging view, productions as workspace folders with manifest, content-addressed history and restore, and library mode. Code reality: Risu Workshop Test Bench runs sealed triggers and scripts as a card-local test stage; full production workspaces and assembly package still open. Exit: edit a card field, replay the same test line, watch output change; vaud history restore recovers a deleted lorebook entry. Status PARTIAL: sealed Test Bench exists; full M5 productions open.",
-          "topics": [
-            "M5 partial",
-            "Test Bench sealed",
-            "productions open",
-            "prompt assembly trace",
-            "vaud history restore",
-            "rigging view"
-          ],
-          "children": []
-        },
-        {
-          "text": "M6 - The Studio (v0.5)",
-          "slug": "m6---the-studio-v05",
-          "level": 2,
-          "summary": "Desktop app face planned as Tauri shell over the engine, originally blocked on visual-direction re-exploration while code ran ahead. Code reality: local studio shell already runs via bun run dev and desktop-dev with Workbench, Library, Press, Settings, CSS Workshop, Character Fields, Risu Workshop, and platform native bags. Revised exit: studio is the daily driver for forge and convert; formal Tauri packaging polish and public v0.5 packaging still TBD. Status AHEAD OF PLAN: in progress and usable, not formal DONE until packaging exit.",
-          "topics": [
-            "M6 Studio ahead of plan",
-            "bun run dev usable",
-            "Workbench Library Press",
-            "Tauri packaging TBD",
-            "not formal DONE"
-          ],
-          "children": []
-        },
-        {
-          "text": "M7 - The Archives + The World Forge (v0.6+)",
-          "slug": "m7---the-archives-the-world-forge-v06",
-          "level": 2,
-          "summary": "Later planned milestone, NOT STARTED. Distill-from-logs with per-claim citations and evidence review; world forge with interview-grown worlds, corkboard data model, and continuity desk as a standing Doctor pass over a whole production. Exit: distill a real character from at least twenty thousand words of logs where every field cites real scenes; continuity desk catches a planted cross-file contradiction.",
-          "topics": [
-            "M7 Archives not started",
-            "distill from logs citations",
-            "world forge corkboard",
-            "continuity desk",
-            "twenty thousand words"
-          ],
-          "children": []
-        },
-        {
-          "text": "What now (recommended order)",
-          "slug": "what-now-recommended-order",
-          "level": 2,
-          "summary": "With M0 and M1 jewels closed and character cards closed, recommended next order is: full Lorebook and Regex content-type editors to unlock link-outs; Sprites and media milestone Manage Sprites with Lumi and Chub stubs; NovelAI lorebook adapter; M3 Script Doctor deterministic audits without a key; M2 Brain agent loop; packaging polish multi-OS GitHub Releases and vaud upgrade as optional M1 plus; M6 packaging for formal studio release when ready. Do not reopen Character.AI or Crushon native bags. Ground truth is this roadmap file plus M0 and M1 jewel docs.",
-          "topics": [
-            "recommended order",
-            "lorebook regex editors next",
-            "NovelAI lorebook adapter",
-            "M3 before M2",
-            "packaging polish",
-            "do not reopen C.AI Crushon"
+            "behavior outside fixtures",
+            "boundary regression tests",
+            "live installed verification",
+            "truthful reference docs",
+            "artifact smoke proof",
+            "history not status evidence"
           ],
           "children": []
         }

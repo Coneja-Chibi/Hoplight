@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-26",
-  "count": 110,
+  "count": 111,
   "pages": [
     {
       "docId": "01-VISION",
@@ -14,17 +14,17 @@
       "docId": "02-ARCHITECTURE",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:1823d3aee566322a39dded96dc7cc0d1b6b1271be654b640c7ead0902a7f444f",
-      "semanticSummaryHash": "sha256:431b201712ef5752ea2e81506c89875d38af5a1181009868d7f54945620433e6"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:88d3b030b435301c094e572a92bac65726035f01f67d6870fee55e4ca69c46c5",
+      "semanticSummaryHash": "sha256:6ab58f49691b3c0705682a670d992531a6e614460fe0414386419fff1a2647d7"
     },
     {
       "docId": "03-CONVENTIONS",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:779e6eb2b3f94e62f51efdc2b9071b11c524fb73280283320fe453731e30a844",
-      "semanticSummaryHash": "sha256:f5f0f06e293af33839ade282eedbd6445d88636b002cf653eee668a1baf370d8"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:0f25c4be0869e9741b335fdd75336cbae239da1708d1ace916cd0b8029766ce1",
+      "semanticSummaryHash": "sha256:6c76b7ae98967412d8750c2b9f4f23b8858ccea1d3ac9e8811ab66f14edbe6fa"
     },
     {
       "docId": "decisions/ADR-001-runtime",
@@ -54,9 +54,9 @@
       "docId": "decisions/ADR-005-canonical-model",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:a58ed95c8f60d3e8e822b03d1f3a3ec90c58627c536478ce645b2a0b55fefd1c",
-      "semanticSummaryHash": "sha256:171ae483008f3ebe52700ab8c07a6c56f7a93004c32df84e4a74b13ea390b1f5"
+      "reviewer": "codex-plan17-semantic-reviewer",
+      "sourceHash": "sha256:7005e4a6cfbc6c62ccc8fb8bfe4f84ca2c1e64147dc300d018347b54db342b12",
+      "semanticSummaryHash": "sha256:545776e12fb44ba054aa1d9c64d5d34599eea8521ef0e4c2ffa939e57b826c04"
     },
     {
       "docId": "decisions/ADR-006-ai-and-agent",
@@ -99,12 +99,20 @@
       "semanticSummaryHash": "sha256:05dd170393d7ff0ce8b88b5802e0b96a108dadefdadd63b6d8a4a87feac73e65"
     },
     {
+      "docId": "decisions/ADR-011-runtime-boundary-schemas",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:c69aa427a5e987c6dc7a085a58f2485056e033d57b47a1c8c3d83bc6da79174c",
+      "semanticSummaryHash": "sha256:29a9010c07897acfe107c88d669463d67ec0666abdb7caa29751e954e0be20a5"
+    },
+    {
       "docId": "FORMAT-SUPPORT",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:f087b8c2ace64e59b2cd7a4697266148413762184336eb4d7596089ecde62d8f",
-      "semanticSummaryHash": "sha256:fe91b69be7e92bad9cda50101de3396ad281b16e87409a9cd14d83dec54b9e06"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:4f7cb1ea08b0413679c5f6ef55becb5524ba3dc114dabce00d15dcccddb319b2",
+      "semanticSummaryHash": "sha256:ae9e66a01a596c2cae72199993266124d019870dad6ea8eeb3ad99c7d3f1a5cb"
     },
     {
       "docId": "guide/converting",
@@ -142,9 +150,9 @@
       "docId": "guide/getting-started",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:3f0de5d84adfdc09731f91b676e83d79571f7349b845c442430a3b6935423a30",
-      "semanticSummaryHash": "sha256:571f394b6ede8ea7a7435b2f7dcede3e473dc7276f278b53aec6b3c5e3cf1158"
+      "reviewer": "codex-doc-review-core-r3",
+      "sourceHash": "sha256:ef81a5bcdcbe5f0aee6fa77b252344715f55efd156bc1f1a073bfd95d1c51a0e",
+      "semanticSummaryHash": "sha256:b58aa054b2fc7cfa9a2fd84017f23ee8b25389e1d84765a507b5f92730e5cf22"
     },
     {
       "docId": "guide/importing",
@@ -286,9 +294,9 @@
       "docId": "guide/security",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:52c2a4e5d19304896fce17789379aadb804be95281641ec0ebbde4020878bad1",
-      "semanticSummaryHash": "sha256:5f00392001f6615270390a621071181c1eb1e214e363fd8b979a774efc0f1c8b"
+      "reviewer": "codex-doc-review-core-r2",
+      "sourceHash": "sha256:eca35bfb5ef9f238367b00b073da9d231e4afd98feef09f2e69a2b7adf49cce9",
+      "semanticSummaryHash": "sha256:50a6f0fc2ca9925c892a22d6f1958ab7c329e6f9196d52e101dce8e812f5b7b3"
     },
     {
       "docId": "guide/troubleshooting",
@@ -302,17 +310,17 @@
       "docId": "README",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:521f5f4971fcee4f1f5e8134ccbe797dfed65261ce84302b5b1abed9c2514f06",
-      "semanticSummaryHash": "sha256:c1f4fb6348b032ed7601409840c3a68db130075f31673ad5480d4542a470558a"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:c31f954476c3dfa095e2e53e1d5ba748fd7cc1028d86a96d30629bc4b3c33c5d",
+      "semanticSummaryHash": "sha256:1ff22921ff91f42f7cc40d55ba5efc02d6cd06ede3a4a0737573e8976da5d2c7"
     },
     {
       "docId": "reference/architecture",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "semantic-reviewer",
-      "sourceHash": "sha256:10572d70e0b13e9b045261f2331904999acd36a0f266c043146312385547ce82",
-      "semanticSummaryHash": "sha256:25e48f87a12dbf62d16670b8c11d4b3fca89e16122d1f4519dba3987cf2d5ee7"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:763c94ed8f9ebc966347a9c782e7efc90795a41d5c170255e1131cd34b80fe52",
+      "semanticSummaryHash": "sha256:da1fa4453b27a9220c3b32f93720f0b76c5397837de56436938ab8e4765086f5"
     },
     {
       "docId": "reference/audits",
@@ -326,17 +334,17 @@
       "docId": "reference/cli",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:b8dad02e7a521e8491695879d9ec4f73cfd52b7f0740c3f7ea2505530f9ceeff",
-      "semanticSummaryHash": "sha256:f65c44179a841caff51d4a80ed131b537ef5d26c499dd815c3583c9de77d2d9a"
+      "reviewer": "codex-doc-review-core-r3",
+      "sourceHash": "sha256:b7099492fca28367019408827a27aee943e584bf5a463f76a8eab2f448a6ebdc",
+      "semanticSummaryHash": "sha256:32d230710b031d7bb4aeed38f14442efb5db2d5e828d7cfb637666e0fb1af0a6"
     },
     {
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:56d60659b3714a3ff14b9f16bfaa444c23912a9846f8bd1ab5d2682d885355ad",
-      "semanticSummaryHash": "sha256:3b430efae9290c138a27c028c7a7ad339b54c8e9114695f5ff5eb244f0992c71"
+      "reviewer": "codex-doc-review-core-r3",
+      "sourceHash": "sha256:f640f760bd6fb59059dd2d3ff8c467dd0da4e978191828393473ba008fb35493",
+      "semanticSummaryHash": "sha256:703c5bbb7b84440c7ab2ac8bed9b42a4549ca26a1db7340793ba5a5617232f87"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -502,17 +510,17 @@
       "docId": "reference/formats/lumiverse",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:5050631a19e4d04ede81df56b10beda2b537289429b005acd006c1e2d1cc0f5e",
-      "semanticSummaryHash": "sha256:50a8e60d9fd692565b2ab00e5700e77ff93193ddf8e50b3eda90a46ab3b28afe"
+      "reviewer": "codex-doc-review-formats-r3",
+      "sourceHash": "sha256:a88e53bdefe5d5b42d1d8b4f65a7921a32edda1e77835fb3c64f89154ce06e4c",
+      "semanticSummaryHash": "sha256:a289bf51f7beafd79acbe7f63c597e095b0e3553a11259e199d738938bc5ac75"
     },
     {
       "docId": "reference/formats/marinara",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:afa9c09813b7a4e9576c4d463b79518457bb40a8ac582b8391998c3d96185839",
-      "semanticSummaryHash": "sha256:f4af0a475072aa3211f6e448bad2aa6d20dd35a564bf5cbd78b0b6992443ac34"
+      "reviewer": "codex-doc-review-formats-r2",
+      "sourceHash": "sha256:4c3c60838aef7932303894b292a2ca50f212a41b8320cb59efb7988deb12272d",
+      "semanticSummaryHash": "sha256:5346e7603775ba74b01d874494c4ef9d838fc425cf109e5a621b819cf36793da"
     },
     {
       "docId": "reference/formats/novelai",
@@ -550,9 +558,9 @@
       "docId": "reference/formats/rolecall",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
-      "semanticSummaryHash": "sha256:d08f42eae2921e542f3ec4a0c28c08b2b1bd9e7b5d75ce778abcee2a0a62ceba"
+      "reviewer": "codex-doc-review-formats-r2",
+      "sourceHash": "sha256:5823963f6b0d1ccb2a5cf6b14d4722016fe697ecd65d4955b20c62e2d93b6383",
+      "semanticSummaryHash": "sha256:6939d3be0cdd8b5481567b8ed32d57255bfb3ec4bc22e4fae0be0ab746f3cf49"
     },
     {
       "docId": "reference/formats/sillytavern",
@@ -566,9 +574,9 @@
       "docId": "reference/formats/vaud-json",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:130be9bc3b97679e7ac628d0665b322ca602b80703e2a04ffbd45248e45c0031",
-      "semanticSummaryHash": "sha256:974da90a50e919fd021289c38d4bab875f6ea0f74fdd1df44088dc9ca29626f6"
+      "reviewer": "codex-doc-review-formats",
+      "sourceHash": "sha256:5ef1cdba0aa9f2560ef475ce970ec04509d525795a9271d35de59d65270c22a0",
+      "semanticSummaryHash": "sha256:73973fe36e042a6d2f5c1abff7953e8baed7eba33c9a4f8d385d4c012c7f0782"
     },
     {
       "docId": "reference/kit",
@@ -582,9 +590,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "semantic-reviewer-2",
-      "sourceHash": "sha256:1b98ba5b81ba2b6acb7ebb4346f001a9d4d5e415e5ce44aca407e6cab6af581b",
-      "semanticSummaryHash": "sha256:1cbc1f5a65ffedeaa5ab9ffdd780419e786d5df895c7b67d290071905bdf00e0"
+      "reviewer": "codex-doc-review-surfaces-r3",
+      "sourceHash": "sha256:7539b5559c3959eaf074658e82271816c8e2c59691bf7d9504d4b4ea1ec6da9a",
+      "semanticSummaryHash": "sha256:dbc1268494078af88b1d05f64e4203c36253192538dca25b8748ae319d14c230"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -806,9 +814,9 @@
       "docId": "reference/security/README",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:874f888234e091e5a9985be477d40e2de3efabfd8960f426b853b563a13a4fc6",
-      "semanticSummaryHash": "sha256:15826baa6f973705823736d28a03ae44abcdb3d79eccd85c669737f9a1ff2889"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:d3f543829af7ef42a0bde37ced9ca277204775e4bcaf3fe4c968e94cfc462d46",
+      "semanticSummaryHash": "sha256:c5764128a96a7bd8a1dd6c44c48e7097de4c6a5431dd31a056c5f185caaf2667"
     },
     {
       "docId": "reference/security/regex-safety",
@@ -846,9 +854,9 @@
       "docId": "reference/security/secrets-and-keys",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:7aab43d5646cfcd722cb475511b15e84a31bac98c66a347737bc496304687d39",
-      "semanticSummaryHash": "sha256:ba86ec207716a636ebf7c03add0b49da2e400a266ec9d135eddb33f910ed6847"
+      "reviewer": "codex-security-summary-reviewer",
+      "sourceHash": "sha256:1363d8c7da029ea82a6e87a53ad60a5247b10bbed3d11b9b01c3ee0c5bbe8ded",
+      "semanticSummaryHash": "sha256:55e7185e6417e9926fcab4b8339afb0104f071c5aed6cc121fd4a910a9f3f447"
     },
     {
       "docId": "reference/security/untrusted-content",
@@ -862,9 +870,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "semantic-reviewer-2",
-      "sourceHash": "sha256:5125016f561b37d77db0a43e92fcafcb06d75943b454792a13ea0fedfbc81c82",
-      "semanticSummaryHash": "sha256:cda086aefd750e4c503f9ebbdadb6c722dd386c6edaa6f248e65ae1be3698582"
+      "reviewer": "codex-doc-review-surfaces",
+      "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
+      "semanticSummaryHash": "sha256:bd71661c73695d584e12b34e15b5a4bbaeb7ecfd1a49180b765968b37cfb35ea"
     },
     {
       "docId": "reference/updates",
@@ -878,9 +886,9 @@
       "docId": "ROADMAP",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:255089237cfb6b49e4ee3290f7eba4ed676cd6c38a5997c340eceeaba4ce4194",
-      "semanticSummaryHash": "sha256:b18eb2cefc9905b0778b34ffa03d0427c63fbe4f307547f675704ce27b35fbf7"
+      "reviewer": "codex-credibility-semantic-reviewer",
+      "sourceHash": "sha256:6a25cc964cab0f78368f98b3882fa9b31ec2c8f2bf5630b1bee7bfc5fdbedee2",
+      "semanticSummaryHash": "sha256:cfed68145e331acbadef858f915d76a15fb30fdca50811cdbdcb769f835fbfe7"
     }
   ]
 }

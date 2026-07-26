@@ -28,7 +28,7 @@ writing any code.
 | 5 | [docs/reference/components.md](docs/reference/components.md) | **Before building ANY UI control.** If a control exists, you reuse it |
 | 6 | [docs/reference/ui.md](docs/reference/ui.md) | Every studio surface, documented truthfully |
 | 7 | [docs/reference/architecture.md](docs/reference/architecture.md) | The reference map of the source tree |
-| 8 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | ADR-001 through ADR-009: the consequential choices and their reasoning. If you disagree with one, raise it in an issue rather than coding around it |
+| 8 | [docs/decisions/](docs/decisions/ADR-001-runtime.md) | Every accepted ADR under `docs/decisions/`: consequential choices and their reasoning. If you disagree with one, raise it in an issue rather than coding around it |
 
 ## 2. Specs: which ones govern your work
 
@@ -107,7 +107,7 @@ Or individually while iterating:
 | `bun run scan:headers` | every authored TS/TSX file opens with a purpose docblock |
 | `bun run scan:emoji` | no emoji pictographs in authored TS/TSX code |
 | `bun run scan:links` | no dead markdown links |
-| `bun run lint:ui` | eslint on the React shell, zero warnings |
+| `bun run lint:ui` | eslint on all authored Studio and Kit TS/TSX, zero warnings |
 | `bun run catalog:check` | docs/reference/components.md matches the component folders |
 | `bun run matrix:check` | docs/FORMAT-SUPPORT.md matches the live format registry |
 | `bun run license:audit` | no copyleft/restricted dependencies |
@@ -127,7 +127,25 @@ If a gate fails, fix the cause. Don't modify the gate.
 - Claims about behavior are labeled honestly: code-read, unit-proven, or live-proven. Only the
   last one counts as done for user-facing behavior.
 
-## 6. Repo layout
+## 6. Working method
+
+1. Inspect the current implementation, callers, tests, release configuration, documentation, and Git
+   state before editing. Name the authority and user-visible outcome.
+2. For a bug or known contract, capture an honest failing test at the nearest public boundary before
+   fixing it. For novel design, a bounded spike may come first, but contract proof is required before
+   completion.
+3. Fix the owning boundary. Do not add a parallel schema, registry, state authority, or compatibility
+   path merely to avoid changing the real owner.
+4. When docs and code disagree, classify the claim as `IMPLEMENT`, `REWRITE`, `DELETE`, or `RETAIN`.
+   Specifications are planned until implementation evidence exists.
+5. A substantial or high-risk change gets an independent adversarial review. Authors do not approve
+   their own semantic summaries, security claims, migrations, or release evidence.
+6. Warnings, skipped checks, and source-only proof are reported honestly. They are not clean,
+   live-proven, or packaged-artifact-proven.
+7. Commit, push, merge, release, deploy, migrate, and external messages require explicit authorization
+   for that action and destination.
+
+## 7. Repo layout
 
 ```
 src/core        engine: canonical model, detection, coverage, lore/regex/macro
@@ -143,7 +161,7 @@ specs/          engine and feature specs for planned milestones
 samples/        real platform files the tests chew on
 ```
 
-## 7. Security posture
+## 8. Security posture
 
 Read [SECURITY.md](SECURITY.md). If your change touches the server, paths, parsing, archives, or
 anything sandbox-adjacent, the relevant tests (`src/ui/server.test.ts`, `src/studio/path-policy.test.ts`,

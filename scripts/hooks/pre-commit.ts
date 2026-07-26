@@ -1,5 +1,10 @@
 /** Fast pre-commit orchestration: structural guards plus only relevant catalog and lint work. */
-import { needsComponentCatalog, needsDocsIndex, parseNameStatusZ, stagedUiTsx } from "./pre-commit-core";
+import {
+  needsComponentCatalog,
+  needsDocsIndex,
+  parseNameStatusZ,
+  stagedUiTypeScript,
+} from "./pre-commit-core";
 
 const run = (name: string, command: string[]): number => {
   const result = Bun.spawnSync(command, { stdout: "inherit", stderr: "inherit" });
@@ -93,7 +98,7 @@ function main(): number {
   if (needsComponentCatalog(paths)) {
     checks.push(["component-catalog", ["bun", "run", "scripts/hooks/component-catalog.ts", "--check"]]);
   }
-  const uiTsx = stagedUiTsx(paths);
+  const uiTsx = stagedUiTypeScript(paths);
   if (uiTsx.length > 0) checks.push(["ui-eslint", ["bunx", "eslint", ...uiTsx, "--max-warnings", "0"]]);
   for (const [name, command] of checks) {
     const code = run(name, command);

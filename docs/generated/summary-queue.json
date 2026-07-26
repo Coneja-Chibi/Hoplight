@@ -1,12 +1,12 @@
 {
   "generated": "2026-07-26",
   "targetChars": 90000,
-  "totalPages": 110,
-  "totalSourceChars": 954695,
+  "totalPages": 111,
+  "totalSourceChars": 963531,
   "batches": [
     {
       "id": "batch-001",
-      "sourceChars": 83880,
+      "sourceChars": 88213,
       "pages": [
         {
           "docId": "01-VISION",
@@ -21,15 +21,15 @@
           "sourcePath": "docs/02-ARCHITECTURE.md",
           "sidecarPath": "docs/summaries/02-ARCHITECTURE.json",
           "sectionCount": 6,
-          "sourceChars": 5314,
+          "sourceChars": 4537,
           "status": "APPROVED"
         },
         {
           "docId": "03-CONVENTIONS",
           "sourcePath": "docs/03-CONVENTIONS.md",
           "sidecarPath": "docs/summaries/03-CONVENTIONS.json",
-          "sectionCount": 5,
-          "sourceChars": 2501,
+          "sectionCount": 6,
+          "sourceChars": 4033,
           "status": "APPROVED"
         },
         {
@@ -61,7 +61,7 @@
           "sourcePath": "docs/decisions/ADR-005-canonical-model.md",
           "sidecarPath": "docs/summaries/decisions/ADR-005-canonical-model.json",
           "sectionCount": 4,
-          "sourceChars": 2038,
+          "sourceChars": 2421,
           "status": "APPROVED"
         },
         {
@@ -105,11 +105,19 @@
           "status": "APPROVED"
         },
         {
+          "docId": "decisions/ADR-011-runtime-boundary-schemas",
+          "sourcePath": "docs/decisions/ADR-011-runtime-boundary-schemas.md",
+          "sidecarPath": "docs/summaries/decisions/ADR-011-runtime-boundary-schemas.json",
+          "sectionCount": 3,
+          "sourceChars": 3217,
+          "status": "APPROVED"
+        },
+        {
           "docId": "FORMAT-SUPPORT",
           "sourcePath": "docs/FORMAT-SUPPORT.md",
           "sidecarPath": "docs/summaries/FORMAT-SUPPORT.json",
           "sectionCount": 9,
-          "sourceChars": 4372,
+          "sourceChars": 4392,
           "status": "APPROVED"
         },
         {
@@ -149,7 +157,7 @@
           "sourcePath": "docs/guide/getting-started.md",
           "sidecarPath": "docs/summaries/guide/getting-started.json",
           "sectionCount": 5,
-          "sourceChars": 6482,
+          "sourceChars": 6440,
           "status": "APPROVED"
         },
         {
@@ -282,7 +290,7 @@
     },
     {
       "id": "batch-003",
-      "sourceChars": 65961,
+      "sourceChars": 68299,
       "pages": [
         {
           "docId": "guide/README",
@@ -305,7 +313,7 @@
           "sourcePath": "docs/guide/security.md",
           "sidecarPath": "docs/summaries/guide/security.json",
           "sectionCount": 6,
-          "sourceChars": 6640,
+          "sourceChars": 7483,
           "status": "APPROVED"
         },
         {
@@ -321,7 +329,7 @@
           "sourcePath": "docs/README.md",
           "sidecarPath": "docs/summaries/README.json",
           "sectionCount": 3,
-          "sourceChars": 3996,
+          "sourceChars": 3683,
           "status": "APPROVED"
         },
         {
@@ -329,7 +337,7 @@
           "sourcePath": "docs/reference/architecture.md",
           "sidecarPath": "docs/summaries/reference/architecture.json",
           "sectionCount": 12,
-          "sourceChars": 15937,
+          "sourceChars": 17041,
           "status": "APPROVED"
         },
         {
@@ -345,21 +353,21 @@
           "sourcePath": "docs/reference/cli.md",
           "sidecarPath": "docs/summaries/reference/cli.json",
           "sectionCount": 13,
-          "sourceChars": 13867,
+          "sourceChars": 14571,
           "status": "APPROVED"
         }
       ]
     },
     {
       "id": "batch-004",
-      "sourceChars": 85397,
+      "sourceChars": 85713,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 32085,
+          "sourceChars": 32401,
           "status": "APPROVED"
         },
         {
@@ -500,7 +508,7 @@
     },
     {
       "id": "batch-006",
-      "sourceChars": 89932,
+      "sourceChars": 77235,
       "pages": [
         {
           "docId": "reference/entities/regex",
@@ -539,23 +547,23 @@
           "sourcePath": "docs/reference/formats/lumiverse.md",
           "sidecarPath": "docs/summaries/reference/formats/lumiverse.json",
           "sectionCount": 10,
-          "sourceChars": 18778,
-          "status": "APPROVED"
-        },
-        {
-          "docId": "reference/formats/marinara",
-          "sourcePath": "docs/reference/formats/marinara.md",
-          "sidecarPath": "docs/summaries/reference/formats/marinara.json",
-          "sectionCount": 9,
-          "sourceChars": 13214,
+          "sourceChars": 19295,
           "status": "APPROVED"
         }
       ]
     },
     {
       "id": "batch-007",
-      "sourceChars": 75997,
+      "sourceChars": 71889,
       "pages": [
+        {
+          "docId": "reference/formats/marinara",
+          "sourcePath": "docs/reference/formats/marinara.md",
+          "sidecarPath": "docs/summaries/reference/formats/marinara.json",
+          "sectionCount": 13,
+          "sourceChars": 16316,
+          "status": "APPROVED"
+        },
         {
           "docId": "reference/formats/novelai",
           "sourcePath": "docs/reference/formats/novelai.md",
@@ -587,21 +595,21 @@
           "sectionCount": 9,
           "sourceChars": 21143,
           "status": "APPROVED"
-        },
-        {
-          "docId": "reference/formats/rolecall",
-          "sourcePath": "docs/reference/formats/rolecall.md",
-          "sidecarPath": "docs/summaries/reference/formats/rolecall.json",
-          "sectionCount": 9,
-          "sourceChars": 20424,
-          "status": "APPROVED"
         }
       ]
     },
     {
       "id": "batch-008",
-      "sourceChars": 86828,
+      "sourceChars": 89702,
       "pages": [
+        {
+          "docId": "reference/formats/rolecall",
+          "sourcePath": "docs/reference/formats/rolecall.md",
+          "sidecarPath": "docs/summaries/reference/formats/rolecall.json",
+          "sectionCount": 9,
+          "sourceChars": 20962,
+          "status": "APPROVED"
+        },
         {
           "docId": "reference/formats/sillytavern",
           "sourcePath": "docs/reference/formats/sillytavern.md",
@@ -615,7 +623,7 @@
           "sourcePath": "docs/reference/formats/vaud-json.md",
           "sidecarPath": "docs/summaries/reference/formats/vaud-json.json",
           "sectionCount": 5,
-          "sourceChars": 9526,
+          "sourceChars": 6960,
           "status": "APPROVED"
         },
         {
@@ -631,7 +639,7 @@
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
           "sectionCount": 11,
-          "sourceChars": 20152,
+          "sourceChars": 20366,
           "status": "APPROVED"
         },
         {
@@ -657,7 +665,13 @@
           "sectionCount": 9,
           "sourceChars": 5050,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-009",
+      "sourceChars": 86862,
+      "pages": [
         {
           "docId": "reference/platforms/marinara/chats-and-interchange",
           "sourcePath": "docs/reference/platforms/marinara/chats-and-interchange.md",
@@ -673,13 +687,7 @@
           "sectionCount": 8,
           "sourceChars": 9767,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-009",
-      "sourceChars": 89032,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/marinara/data-and-interop",
           "sourcePath": "docs/reference/platforms/marinara/data-and-interop.md",
@@ -775,7 +783,13 @@
           "sectionCount": 9,
           "sourceChars": 8119,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-010",
+      "sourceChars": 74968,
+      "pages": [
         {
           "docId": "reference/platforms/sillytavern/macro-reference",
           "sourcePath": "docs/reference/platforms/sillytavern/macro-reference.md",
@@ -791,13 +805,7 @@
           "sectionCount": 4,
           "sourceChars": 5503,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-010",
-      "sourceChars": 71839,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/sillytavern/personas-and-data-bank",
           "sourcePath": "docs/reference/platforms/sillytavern/personas-and-data-bank.md",
@@ -861,21 +869,21 @@
           "sectionCount": 14,
           "sourceChars": 14956,
           "status": "APPROVED"
-        },
-        {
-          "docId": "reference/security/README",
-          "sourcePath": "docs/reference/security/README.md",
-          "sidecarPath": "docs/summaries/reference/security/README.json",
-          "sectionCount": 12,
-          "sourceChars": 14777,
-          "status": "APPROVED"
         }
       ]
     },
     {
       "id": "batch-011",
-      "sourceChars": 84586,
+      "sourceChars": 87243,
       "pages": [
+        {
+          "docId": "reference/security/README",
+          "sourcePath": "docs/reference/security/README.md",
+          "sidecarPath": "docs/summaries/reference/security/README.json",
+          "sectionCount": 12,
+          "sourceChars": 16139,
+          "status": "APPROVED"
+        },
         {
           "docId": "reference/security/regex-safety",
           "sourcePath": "docs/reference/security/regex-safety.md",
@@ -912,10 +920,16 @@
           "docId": "reference/security/secrets-and-keys",
           "sourcePath": "docs/reference/security/secrets-and-keys.md",
           "sidecarPath": "docs/summaries/reference/security/secrets-and-keys.json",
-          "sectionCount": 13,
-          "sourceChars": 13025,
+          "sectionCount": 12,
+          "sourceChars": 13917,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-012",
+      "sourceChars": 55709,
+      "pages": [
         {
           "docId": "reference/security/untrusted-content",
           "sourcePath": "docs/reference/security/untrusted-content.md",
@@ -923,19 +937,13 @@
           "sectionCount": 5,
           "sourceChars": 14374,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-012",
-      "sourceChars": 43545,
-      "pages": [
+        },
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 30664,
+          "sourceChars": 33268,
           "status": "APPROVED"
         },
         {
@@ -950,8 +958,8 @@
           "docId": "ROADMAP",
           "sourcePath": "docs/ROADMAP.md",
           "sidecarPath": "docs/summaries/ROADMAP.json",
-          "sectionCount": 11,
-          "sourceChars": 8336,
+          "sectionCount": 12,
+          "sourceChars": 3522,
           "status": "APPROVED"
         }
       ]

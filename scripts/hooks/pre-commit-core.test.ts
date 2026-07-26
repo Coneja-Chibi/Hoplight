@@ -1,6 +1,12 @@
 /** Regression coverage for staged pre-commit parsing and routing decisions. */
 import { expect, test } from "bun:test";
-import { needsComponentCatalog, needsDocsIndex, parseNameStatusZ, stagedUiTsx, type StagedPath } from "./pre-commit-core";
+import {
+  needsComponentCatalog,
+  needsDocsIndex,
+  parseNameStatusZ,
+  stagedUiTypeScript,
+  type StagedPath,
+} from "./pre-commit-core";
 
 const staged = (status: string, path: string): StagedPath => ({ status, path });
 
@@ -12,15 +18,25 @@ test("parseNameStatusZ reads ordinary paths and keeps rename destinations", () =
   ]);
 });
 
-test("stagedUiTsx selects live UI files with deterministic unique output", () => {
-  expect(stagedUiTsx([
+test("stagedUiTypeScript selects every live React surface with deterministic unique output", () => {
+  expect(stagedUiTypeScript([
     staged("M", "docs/ui.md"),
     staged("D", "src/ui/apps/gone/index.tsx"),
+    staged("D", "src/kit/render/gone.tsx"),
     staged("M", "src\\ui\\shell\\App.tsx"),
+    staged("M", "src\\ui\\shell\\menus.ts"),
+    staged("M", "src\\kit\\render\\app.tsx"),
+    staged("A", "src/kit/render/notify/use-notify.ts"),
     staged("A", "src/ui/apps/new/index.tsx"),
     staged("R100", "src/ui/shell/App.tsx"),
     staged("M", "src/core/example.tsx"),
-  ])).toEqual(["src/ui/apps/new/index.tsx", "src/ui/shell/App.tsx"]);
+  ])).toEqual([
+    "src/kit/render/app.tsx",
+    "src/kit/render/notify/use-notify.ts",
+    "src/ui/apps/new/index.tsx",
+    "src/ui/shell/App.tsx",
+    "src/ui/shell/menus.ts",
+  ]);
 });
 
 test("needsComponentCatalog ignores unrelated files", () => {
