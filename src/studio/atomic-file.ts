@@ -3,7 +3,7 @@
  * Keep-both: exclusive create (no replace). Overwrite: write temp then rename over target.
  */
 import { open, rename, unlink } from "node:fs/promises";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { randomBytes } from "node:crypto";
 import { StudioValidationError } from "./errors";
 
@@ -53,6 +53,7 @@ export async function writeExclusive(finalPath: string, body: string): Promise<v
  * closed. Live repro before the retry existed: 3 of 8 rapid settings saves 500 d. */
 const RENAME_ATTEMPTS = 12;
 const RETRYABLE_RENAME_CODES: ReadonlySet<string> = new Set(["EPERM", "EACCES", "EBUSY"]);
+const renameQueues = new Map<string, Promise<void>>();
 
 async function renameWithRetry(tmp: string, finalPath: string): Promise<void> {
   for (let attempt = 1; ; attempt++) {
@@ -67,6 +68,26 @@ async function renameWithRetry(tmp: string, finalPath: string): Promise<void> {
   }
 }
 
+/** Serialize same-process renames per destination; external share violations still use the retry. */
+async function publishRename(tmp: string, finalPath: string): Promise<void> {
+  const resolved = resolve(finalPath);
+  const key = process.platform === "win32" ? resolved.toLowerCase() : resolved;
+  const previous = renameQueues.get(key) ?? Promise.resolve();
+  let release = (): void => undefined;
+  const turn = new Promise<void>((done) => {
+    release = done;
+  });
+  const tail = previous.catch(() => undefined).then(() => turn);
+  renameQueues.set(key, tail);
+  await previous.catch(() => undefined);
+  try {
+    await renameWithRetry(tmp, finalPath);
+  } finally {
+    release();
+    if (renameQueues.get(key) === tail) renameQueues.delete(key);
+  }
+}
+
 /** Atomic replace: temp sibling then rename over destination. */
 export async function writeAtomicReplace(finalPath: string, body: string): Promise<void> {
   const tmp = tmpName(finalPath);
@@ -77,7 +98,7 @@ export async function writeAtomicReplace(finalPath: string, body: string): Promi
     await handle.sync();
     await handle.close();
     handle = undefined;
-    await renameWithRetry(tmp, finalPath);
+    await publishRename(tmp, finalPath);
   } catch {
     try {
       await unlink(tmp);
