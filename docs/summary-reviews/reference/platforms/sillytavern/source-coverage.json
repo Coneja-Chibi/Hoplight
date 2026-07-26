@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/source-coverage",
+  "sourcePath": "docs/reference/platforms/sillytavern/source-coverage.md",
+  "sourceHash": "sha256:75a1efff1f2a07514e38e42aea125b2b67c0e2358505fdd5bb939098f42539e2",
+  "semanticSummaryHash": "sha256:a6a272a2fd74698b12f7491282a6f44709550b7da6bb431bc4d8034f2171468a",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full manifest and sidecar reviewed. All 21 included and 71 excluded Markdown paths resolve at the exact pin, totals reconcile to 92, reasons are path-specific, dynamic authorities remain bounded, and the summary does not turn upstream coverage into Hoplight support.",
+  "reviewedAt": "2026-07-26T06:53:15.453Z"
+}

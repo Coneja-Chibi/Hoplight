@@ -1,6 +1,6 @@
 {
-  "generated": "2026-07-25",
-  "count": 86,
+  "generated": "2026-07-26",
+  "count": 110,
   "pages": [
     {
       "docId": "01-VISION",
@@ -583,8 +583,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "semantic-reviewer-2",
-      "sourceHash": "sha256:07c444dfc0c0b925346ec70027bda8738112e3d0d306836544b75713a6f28c3d",
-      "semanticSummaryHash": "sha256:13ee6d1369e9e1ff59887bc73898944b08db39a50568b32df03edaf2ac69ca10"
+      "sourceHash": "sha256:1b98ba5b81ba2b6acb7ebb4346f001a9d4d5e415e5ce44aca407e6cab6af581b",
+      "semanticSummaryHash": "sha256:1cbc1f5a65ffedeaa5ab9ffdd780419e786d5df895c7b67d290071905bdf00e0"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -593,6 +593,198 @@
       "reviewer": "independent-reviewer-1",
       "sourceHash": "sha256:3408d078d1408fce187cdcf62ca0d15c85a65a779bcb80f15f5bb7e3d9cc3172",
       "semanticSummaryHash": "sha256:6aebb678f0619caf0433828906319527b484fac93875aa89f0c48eea17c55718"
+    },
+    {
+      "docId": "reference/platforms/marinara/agents-and-tools",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:6a5372e4a8d86f18ef9603184cbf0e5463fa90e058f9d1eebe2146cf6bd922f1",
+      "semanticSummaryHash": "sha256:210697d9d13dd1a2e6f7a4ed0f0a9e633fa9e7c010eb7c9a4abec06449bbc171"
+    },
+    {
+      "docId": "reference/platforms/marinara/characters",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:9d3da2fae379df8380a284e098c008a97b463272baffcf78373046e1154db776",
+      "semanticSummaryHash": "sha256:a697f75415ad2582da1b2039addb282a25f39ce17e135cbac9b5696911bde8ac"
+    },
+    {
+      "docId": "reference/platforms/marinara/chats-and-interchange",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:aaca8866bac234512a5ab84720f741ceaa481c814d948e346b6333453fcf6ca3",
+      "semanticSummaryHash": "sha256:97260b1027d5ea50d7fdb288ef592316d63ac319445707f728c055d13554d9b2"
+    },
+    {
+      "docId": "reference/platforms/marinara/conversation-mode",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:4df37db3f1ebee020a97538c4d9e3738ef096c61dda942d85379febec43053c4",
+      "semanticSummaryHash": "sha256:9c5a94133d60e161f6d9d4074c25914a142d5a55d0c43c41c83c41f691b4ed31"
+    },
+    {
+      "docId": "reference/platforms/marinara/data-and-interop",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:76b48d9e2827578fa890c7df70c672f607957ca364edd914b1a35197cd71dcc6",
+      "semanticSummaryHash": "sha256:f04cbec30ed132c5e95383f970c5c9e77517f932074311776b8a5cba0e6241ae"
+    },
+    {
+      "docId": "reference/platforms/marinara/lorebooks",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:31b34b31576c791a4ae3baa771981952c5c3917bdbc3b11f50efa41c1b53f8ed",
+      "semanticSummaryHash": "sha256:3227c4532d5f1da4ee348d83143f7b42b82b58df719b686e29e2bd44c8afd96b"
+    },
+    {
+      "docId": "reference/platforms/marinara/macro-reference",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-independent-review-2026-07-26-r3",
+      "sourceHash": "sha256:733b6f7756be6d779ec50c5904a8fa1faff4938d65ef4a6c210a72e567a28e2d",
+      "semanticSummaryHash": "sha256:be62c7e6f10f80aacbde8c3a892631155b576f8cec11f1f60eee01a6f28d686b"
+    },
+    {
+      "docId": "reference/platforms/marinara/maps-and-game-content",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:b7a4c7b67960aefd601876be5acb13a526e8e20b7fd2b01ad753c7850f02aef7",
+      "semanticSummaryHash": "sha256:e53d7545d3555abc07ffb4295aef0785a636a35a4425fc7e94144432755ed24c"
+    },
+    {
+      "docId": "reference/platforms/marinara/prompts-and-macros",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:6fd2169f59d0f7b6dcc615bdcacf6e08c4e71bab0747e46542c57ea625386b77",
+      "semanticSummaryHash": "sha256:86c21c861da821f4d8edf11cc71d72d8b30af5c42d5111e9f5e21566d4e28cc9"
+    },
+    {
+      "docId": "reference/platforms/marinara/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:4524de821338d3a29b56713da420557286afc6beda38ef2aa4effa58164d08a1",
+      "semanticSummaryHash": "sha256:fa05b2165d391878baa9ffa6628cc6440243727f88c10bbbc7596f3b9e907bbf"
+    },
+    {
+      "docId": "reference/platforms/marinara/source-coverage",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:d5da9f82d984d46b951bb7e0f6b1a28c0f1cae559bdf3498bfbfd77a6ee2b249",
+      "semanticSummaryHash": "sha256:3a77c14fdd1e210b5ec96ddf5f74ccdf1a965dcb45977d8786dd4cbd1a6051d8"
+    },
+    {
+      "docId": "reference/platforms/marinara/sprites-and-galleries",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:4eb0e151a70e9c6964039145360b7ffde4c2eb09de41ce78e11cae4fc6ffe853",
+      "semanticSummaryHash": "sha256:75a7b3ed98404894b4714d805fd3358bdec62e4e7ef4a03386518aedfa97d6d4"
+    },
+    {
+      "docId": "reference/platforms/marinara/visual-and-css",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:6d17ddc994f39a73498c49f68cc984d3ffd9abcdcd6c6b3ed023fa8f3fc413cd",
+      "semanticSummaryHash": "sha256:7051902dee17013fcd82d437bbebd9fe4bec6fc9386f3b1daccd0c72ff59ad67"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/characters",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-independent-review-2026-07-26-r2",
+      "sourceHash": "sha256:7066107d5f2934c808b9a6afd5c722e650cd4d40eb004c54a8c9355495c1840a",
+      "semanticSummaryHash": "sha256:b0cf24d99b2087390d76d0299ccf4abc6d86b79065ae91e16845f35faa899495"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/chats-and-groups",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-independent-review-2026-07-26-r2",
+      "sourceHash": "sha256:9902751f04004b3934b7cea0af77eb3704ebff398fbea76c57b002731551a18a",
+      "semanticSummaryHash": "sha256:e5530d0b818c66608cbf07b8b06cb73fb3d82d6525c08111ba5e6d20a75f8170"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/macro-operators",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-primary-self-review",
+      "sourceHash": "sha256:886cb75293e8d05b1df0b1e3bf27a0c5afcde96f2ea05fad8fece2c5865a5515",
+      "semanticSummaryHash": "sha256:bc6f50916fea446390ac28a66498f17d2a947dac6f53888b89c29d3f40d036d5"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/macro-reference",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-primary-self-review",
+      "sourceHash": "sha256:3bcc6cbf8f17d91741227f114c4e9e188299d5e2a68dde286112a27713758041",
+      "semanticSummaryHash": "sha256:22bebd4507a51a1f1127e2d2f3c336ab755d098df9b99d6bd8d5a21fff08150f"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/macros",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-primary-self-review",
+      "sourceHash": "sha256:918ed4f10ece3b541f7117a66015cbbf6bec54dcb5a6f13bddc53380ca2f5f15",
+      "semanticSummaryHash": "sha256:e38971d5af2d0a215b6c390b8ecb5671c17c9c53e8d317c28f01fbc8b3a30a44"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/personas-and-data-bank",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-primary-self-review",
+      "sourceHash": "sha256:e1bd77243be82daaf880f1cd8ba41bfb409633376da8d235844aa2bf0d7ba24d",
+      "semanticSummaryHash": "sha256:29038926323b2638358267972ccd6eb5c30076b95c75ba5092ca89b0752559b3"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/prompts-and-presets",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:db3511d25c87e74f90d53c648b53d92f5c315ffdc38ef05156d4a3ae22695579",
+      "semanticSummaryHash": "sha256:3633d42ec53565ce1a48e54af08df049e032b6c9dd3f8dfca2e5a7618a5906b6"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/README",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-independent-review-2026-07-26-r3",
+      "sourceHash": "sha256:af42cd8edbfbd2c7acb981ebb7141aae4a78f9373e529698fc17530378bb40b4",
+      "semanticSummaryHash": "sha256:e69149bc168dd2b995ce0a7785a1cbd62b46b091b1350a36e8c67c9af0f9bf23"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/regex-and-automation",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-independent-review-2026-07-26-r2",
+      "sourceHash": "sha256:1a3fcce90228f9044abe243c9b1a1d57d0805d69632bba34a292bf3f9881d3a5",
+      "semanticSummaryHash": "sha256:8266940854bd458122e8798a2ad5a332fc6361987c0b3fdb1075677020125f73"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/source-coverage",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+      "sourceHash": "sha256:75a1efff1f2a07514e38e42aea125b2b67c0e2358505fdd5bb939098f42539e2",
+      "semanticSummaryHash": "sha256:a6a272a2fd74698b12f7491282a6f44709550b7da6bb431bc4d8034f2171468a"
+    },
+    {
+      "docId": "reference/platforms/sillytavern/world-info",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "codex-primary-self-review",
+      "sourceHash": "sha256:0c1a90472bd570459e10bfa7a2f34b402377e18ae9cb3ed2005442c61feb2a81",
+      "semanticSummaryHash": "sha256:63a878b6574443894713b249bf8105d043675ab891855c0483f016df64a2caf1"
     },
     {
       "docId": "reference/README",

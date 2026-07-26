@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/characters",
+  "sourcePath": "docs/reference/platforms/marinara/characters.md",
+  "sourceHash": "sha256:9d3da2fae379df8380a284e098c008a97b463272baffcf78373046e1154db776",
+  "summary": "Documents Marinara character and persona authoring at the pinned Engine revision. Character creation and editing covers required name, optional avatar, Metadata, Card, Convo, Lorebook, Sprites, Gallery, Colors, Stats, Advanced, save states, version history, and reversible agent Keep or Restore updates. Convo semantics include display name and declare-on-card behavior, About Me defaults and chat-specific overrides, update_about_me Public versus Chat scopes, Convo Behavior insertion modes, and Conversation-only macros. Personas cover library filtering, one active global persona, per-chat override precedence, equivalent editor tabs, and user-name fallback. Import and export distinguishes JSON CCv2, embedded PNG, charx, richest Marinara native packages, batch tag and regex choices, embedded-lorebook promotion, compatible loss, and native-only bulk ZIP. Hoplight has no dedicated Marinara character codec; adapter claims and sprite or gallery fidelity must come from implemented format support.",
+  "topics": [
+    "character editor tabs",
+    "Convo Display Name About Me Behavior",
+    "personas active and chat override",
+    "native vs compatible export",
+    "tag regex lorebook import options",
+    "agent Keep Restore updates",
+    "Hoplight adapter boundary"
+  ],
+  "sections": [
+    {
+      "slug": "character-create-and-editor",
+      "title": "Character create and editor",
+      "level": 2,
+      "sourceHash": "sha256:327e875419400539ff2d7bb20f30e54b263f58d07cb421d7ea6b5caacd6f2078",
+      "summary": "Character create and editor requires Name and optional avatar with tabs Metadata Card Convo Lorebook Sprites Gallery Colors Stats Advanced. Unsaved leave offers Keep editing Discard or Save and close. Save disabled until dirty with Uploading Embedding Saving states. Header Favorite Export Import as persona Duplicate Delete. Metadata child covers identity talkativeness tags Creator Notes never AI version history avatar crop. Card child holds permanent prose greetings and examples. Convo tab Conversation Mode only child documents Convo Display Name declare-on-card About Me auto-list and chat override popout update_about_me Public versus Chat Convo Behavior insertion modes Constant after before Append Prepend Replace post-history or Only where convo_behavior is placed and Conversation-only macros without deferring required semantics to unclassified upstream pages. Advanced child System Prompt PHI Depth Prompt mode apply flags. Version history and agent updates Keep Restore.",
+      "topics": [
+        "editor tabs and save states",
+        "Metadata Card fields",
+        "Convo tab full semantics",
+        "Advanced PHI Depth",
+        "version history agent updates"
+      ],
+      "children": [
+        {
+          "slug": "metadata",
+          "title": "Metadata",
+          "level": 3,
+          "sourceHash": "sha256:4a7ea6779638e34274945a2658b166de5946b84ff2c83edee4d1a8e09ae907be",
+          "summary": "Metadata includes Character ID copyable after save, Name for the char macro, Phonetic name for TTS and macros, Creator, Version, Talkativeness 0-100 percent default 50 for group speak rate, Tags with comma multi-add and remove all, Creator Notes never sent to the AI, Version history panel, and avatar crop.",
+          "topics": [
+            "Character ID and Name",
+            "Phonetic and Creator",
+            "Talkativeness 0-100",
+            "Tags and Creator Notes",
+            "version history avatar crop"
+          ],
+          "children": []
+        },
+        {
+          "slug": "card",
+          "title": "Card",
+          "level": 3,
+          "sourceHash": "sha256:8c7f3bb666118582a39c9cc861d6e8e74f8c9d36e863d2d5e5684ceb3bc959a3",
+          "summary": "Card holds Description, Personality, Backstory, Appearance which also seeds the AI avatar prompt, Scenario, First Message, Alternate Greetings with reorder and remove, and Example Dialogue using START blocks plus user and char labels.",
+          "topics": [
+            "Description Personality Backstory",
+            "Appearance avatar seed",
+            "Scenario First Message",
+            "Alternate Greetings",
+            "Example Dialogue START"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "convo-tab-conversation-mode-only",
+          "title": "Convo tab (Conversation Mode only)",
+          "level": 3,
+          "sourceHash": "sha256:9c603ec3fcea2afd762e5c6f74fabc87503cc3b29ede9ca0db47a2da5f61a269",
+          "summary": "Convo tab Conversation Mode only is never used in Roleplay or Game. Convo Display Name blanks use card name and update messages immediately; characters may declare the name on the card with a mapping line. About Me auto-lists into Conversation prompts with Professor Mari Keep Restore and chat-specific override popout Default versus Chat-specific badges plus status. update_about_me needs Tool Use with Public global approval versus Chat private scope. Convo Behavior insertion modes Constant after or before card Append Prepend Replace post-history or Only where convo_behavior is placed. Macros convo_display char_about persona_about convo_behavior. Auto list and Behavior run without macros.",
+          "topics": [
+            "Convo Display Name declare",
+            "About Me default and override",
+            "update_about_me scopes",
+            "Behavior insertion modes",
+            "Conversation-only macros"
+          ],
+          "children": []
+        },
+        {
+          "slug": "advanced",
+          "title": "Advanced",
+          "level": 3,
+          "sourceHash": "sha256:04179d94e0db1fc934ca45ca75ae25366761b026db6a1ded569073a8a380d639",
+          "summary": "Advanced holds System Prompt which does not replace the main system prompt and uses mode-specific insertion, Post-History Instructions near generation, and Depth Prompt default depth 4 with roles System User Assistant. Apply flags cover Conversation, Roleplay, VN, and Game; presets do not disable PHI or Depth.",
+          "topics": [
+            "System Prompt insertion",
+            "Post-History Instructions",
+            "Depth Prompt roles",
+            "mode apply flags",
+            "presets never disable PHI Depth"
+          ],
+          "children": []
+        },
+        {
+          "slug": "version-history-and-agent-updates",
+          "title": "Version history and agent updates",
+          "level": 3,
+          "sourceHash": "sha256:c782f3233c40b4969e331bed309d28c137fe37445c04128fa419e259fbb8895e",
+          "summary": "Version history and agent updates stores prior saves for restore. Agents including Professor Mari may propose card updates that apply then expose Keep or Restore review. Treat the flow as a reversible product workflow, never as silent irreversible overwrite of author content.",
+          "topics": [
+            "prior save restore",
+            "agent proposed updates",
+            "Professor Mari",
+            "Keep or Restore",
+            "no silent overwrite"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "personas",
+      "title": "Personas",
+      "level": 2,
+      "sourceHash": "sha256:9d63393ccd52d5f95a2cbee7a3ae7df137605190278ac96c3796d9a4835b6b28",
+      "summary": "Personas panel is a full library with New, Import, Select bulk, search, sort A-Z Z-A Newest Oldest Tokens, folders, All Active Inactive and tags filters. At most one active global persona; new import and duplicate never auto-activate. Chat can override persona separately per choosing-your-persona. Persona editor tabs are Metadata with Persona ID crop Name Creator Phonetic Title Comment Version default 1.0 Tags Creator Notes Version history, Card with the same five prose fields and macros, Convo, Lorebook, Sprites, Gallery, Colors, Stats. Header offers Export persona, Add persona as character, Duplicate, Delete. Unsaved leave banner matches characters. The user macro uses chat persona if set else active persona else generic User with no persona details.",
+      "topics": [
+        "persona library filters",
+        "one active global",
+        "chat override",
+        "editor tabs and header",
+        "user macro resolution"
+      ],
+      "children": []
+    },
+    {
+      "slug": "import-export",
+      "title": "Import / export",
+      "level": 2,
+      "sourceHash": "sha256:c2440a9644600ec31953750ab97cd68a61e3a4bba1c6a2e633b6d7e4a344f11e",
+      "summary": "Import / export supports formats json CCv2, png embedded, charx CCv3 zip, and marinara or marinara.json richest. Batch drop is supported. Whole-batch import options are Tags All default, No tags, or Existing only; Regex Character only default or Global Presets then Regexes; Embedded lorebook Import Lorebook as standalone linked or No Import keep only in card. Single export choices are Marinara Native with metadata sprites gallery attached lorebooks, Compatible JSON CCv2, and Compatible PNG; Compatible drops Marinara-only extras. Bulk select exports a zip of Native only named marinara-characters.zip. ST folder import is Settings Imports documented under data-and-interop.",
+      "topics": [
+        "json png charx marinara",
+        "Tags Regex lorebook options",
+        "Native vs Compatible export",
+        "bulk Native zip",
+        "ST folder import path"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:63b8247fa3f563a0667f1132c123c1f014487678da4c61084c145a29687d2e07",
+      "summary": "Hoplight has no dedicated marinara character codec; Tavern-shaped cards often use SillyTavern adapters. Persona and regex Marinara codecs exist. Do not invent sprite or gallery fidelity on compatible PNG export. Report losses honestly when Marinara-only assets leave the native package format.",
+      "topics": [
+        "no marinara character codec",
+        "SillyTavern adapters for cards",
+        "persona regex codecs",
+        "no invented PNG fidelity",
+        "honest loss reporting"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

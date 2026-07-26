@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/prompts-and-presets",
+  "sourcePath": "docs/reference/platforms/sillytavern/prompts-and-presets.md",
+  "sourceHash": "sha256:db3511d25c87e74f90d53c648b53d92f5c315ffdc38ef05156d4a3ae22695579",
+  "summary": "Explains SillyTavern prompt construction as layered runtime assembly rather than one universal preset file. Prompt layers and precedence covers main or system instructions, character definitions and overrides, persona, World Info, Data Bank, examples, history, Author's Note, current input, and post-history instructions. Text Completion separates Context Template Story String from Instruct wrapping, while Chat Completion Prompt Manager models ordered role-bearing messages. Preset boundaries distinguish sampler presets, Context and Instruct templates, system prompts, Prompt Manager configurations, Quick Replies, and extension settings. CFG is multi-scope generation control. Tokenizer selection distinguishes overridable Text Completion from provider-bound Chat Completion, downloadable fallback, and Token Padding including negative values and trimming risk. Reasoning coverage includes token cost, display, acquisition, reinsertion, regex ephemerality, and provider effort controls. These are upstream product semantics; current Hoplight adapter capabilities remain governed by the format reference.",
+  "topics": [
+    "SillyTavern prompt assembly",
+    "Text and Chat Completion",
+    "preset artifact boundaries",
+    "CFG generation control",
+    "tokenizer selection padding",
+    "reasoning chain-of-thought",
+    "loss-aware interoperability"
+  ],
+  "sections": [
+    {
+      "slug": "prompt-layers-and-precedence",
+      "title": "Prompt layers and precedence",
+      "level": 2,
+      "sourceHash": "sha256:eacc68a201bb5be7e699df861f7c5be33068360022d91f83d4a31852a84388b2",
+      "summary": "Prompt layers and precedence inventories the runtime request: general instructions, character and persona definitions, World Info, Data Bank retrieval, summaries, external results, example dialogue, chat history, the current user message, and final instructions. Position and role affect priority as much as prose. Main Prompt or System Prompt supplies broad behavior, while Post-History Instructions near generation commonly exert stronger immediate pressure. Character cards may replace either when user preferences permit, and the original macro composes the global value into a character override rather than fully replacing it. Author's Note can sit after Scenario or inside history at a selected depth and frequency. When a distant system change fails against established history, authors should open a new chat, repair contradictory turns, use examples, or place a narrow reminder closer to the generation boundary.",
+      "topics": [
+        "runtime prompt layers",
+        "system and post-history instructions",
+        "character prompt overrides",
+        "original composition",
+        "Author's Note placement"
+      ],
+      "children": []
+    },
+    {
+      "slug": "text-completion-templates",
+      "title": "Text Completion templates",
+      "level": 2,
+      "sourceHash": "sha256:3edbe972d11192033118bc56528a50e08899bdc4b1b605ec17b97819aca04f2c",
+      "summary": "Text Completion templates are governed by Advanced Formatting. A Context Template Story String arranges system prompt, character description, personality, scenario, persona, and other macro-expanded components. Instruct Mode wraps story, system, user, and assistant content in model-specific sequences and can define story-string prefix and suffix, role prefixes and suffixes, first or last message variants, separators, stop sequences, and alignment filler. Include Names and wrapping options decide whether participant labels are authored into the serialized request. These values describe wire formatting for a model, not character identity. Custom stopping strings and reply prefill are adjacent generation controls: a stop array may be provider-limited, while Start Reply With may become a final text prefix or assistant-role prefill. A portable preset must keep these controls typed rather than concatenating them into one prompt block.",
+      "topics": [
+        "Context Template Story String",
+        "Instruct Mode sequences",
+        "role prefixes and separators",
+        "stop strings and reply prefill",
+        "typed portable controls"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chat-completion-prompt-manager",
+      "title": "Chat Completion Prompt Manager",
+      "level": 2,
+      "sourceHash": "sha256:198c2add0ab82c3932683db81526f3dfa55eeb89f7b2f49d6bb01ad843acd147",
+      "summary": "Chat Completion Prompt Manager represents context as ordered messages with roles rather than one flat string. Utility prompts include format templates, new-chat and new-example markers, group nudges, continuation nudges, and empty-message replacements. Editable entries carry a name, role, trigger conditions, enabled state, position, depth, and order, and may sit at a relative position or an in-chat depth. The manager also controls character-name handling, continuation postfix or prefill, system-message squashing, inline media, reasoning requests, function calling, and provider-dependent system-role use. The visible list is an assembly plan: removing, disabling, or reordering one entry changes the request even when every prose block stays identical. Hoplight must preserve ordered prompt blocks and their roles rather than flattening a Chat Completion preset into a single string.",
+      "topics": [
+        "ordered role-bearing messages",
+        "utility prompts and triggers",
+        "position depth and order",
+        "continuation media reasoning tools",
+        "preserve ordered blocks"
+      ],
+      "children": []
+    },
+    {
+      "slug": "preset-and-interoperability-boundaries",
+      "title": "Preset and interoperability boundaries",
+      "level": 2,
+      "sourceHash": "sha256:a8cefa249f86eea87f9426041d8b01d7d9c938212df91386691cedb150b203a0",
+      "summary": "Preset and interoperability boundaries separates sampler presets, Context Templates, Instruct templates, system prompts, Prompt Manager configurations, Quick Reply presets, and extension-specific settings as distinct artifacts even when the UI groups them. Similar UI adjacency does not make them one file format. Hoplight's canonical preset models sampler settings, prompt blocks, and groups where adapters provide a semantic mapping. Platform-only ordering or provider controls may remain in escrow for same-format export. When converting to another platform, report unsupported roles, triggers, template sequences, and extension settings instead of presenting a partially flattened prompt as lossless. Inspect the final prompt when diagnosing behavior: an authored block may be valid but absent because its trigger did not fire, its position was disabled, context budget removed it, or a character override replaced the global value.",
+      "topics": [
+        "sampler vs template artifacts",
+        "Prompt Manager configurations",
+        "canonical mapping and escrow",
+        "report unsupported settings",
+        "final prompt diagnosis"
+      ],
+      "children": []
+    },
+    {
+      "slug": "classifier-free-guidance-cfg",
+      "title": "Classifier-free guidance (CFG)",
+      "level": 2,
+      "sourceHash": "sha256:c378d505536a10f67b2d79f326fbed82a32119e0cab36e3019e0bd18460edda4",
+      "summary": "Classifier-free guidance (CFG) mixes differences between positive and negative guidance streams as LLM prompt mixing, not Stable Diffusion negative tags. Supported backends named by the pin include oobabooga textgen WebUI, NovelAI, and TabbyAPI. VRAM rises because more than one prompt is ingested; OOM recovery is reduce context, use a smaller model, or disable CFG. Access sits alongside Author's Note. Four scopes are Chat CFG, Character CFG, Global CFG (overrides model preset CFG), and CFG Advanced Settings (formerly Prompt Cascading) to combine scopes and set insertion depth. Guidance scale 1 is off and sends nothing CFG-related; scale above 1 increases strength; scale below 1 inverts emphasis toward the negative stream; about 1.5 is a suggested start. Positive and negative prompts are optional. Group chats remove Character CFG and add Use Character CFG Scales and Character Negatives. Insertion depth defaults to 1; depth 0 can dominate and is not recommended with cascading. Treat CFG as runtime generation control, not character-card prose, unless a format explicitly stores it.",
+      "topics": [
+        "positive and negative streams",
+        "supported CFG backends",
+        "chat character global scopes",
+        "guidance scale semantics",
+        "group CFG and depth"
+      ],
+      "children": []
+    },
+    {
+      "slug": "tokenizer-selection-and-padding",
+      "title": "Tokenizer selection and padding",
+      "level": 2,
+      "sourceHash": "sha256:a7775a625c9f20c6289f358eabda4e7ab011df21612159e5057ffb81fa5aa2d6",
+      "summary": "Tokenizer selection and padding sources Usage Prompts tokenizer at the pin. Tokenizers split text into tokens roughly three to four characters. Best match follows API family. Text Completion is overridable NovelAI Clio NerdStash Kayra NerdStash v2 API tokenizer if supported else Llama KoboldAI Classic AI Horde Llama KoboldCpp model API. Chat Completion is non-overridable OpenAI tiktoken Claude WebTokenizers OpenRouter families Gemma downloadable models fallback GPT-3.5 turbo. Text Completion overrides include None rounded up Llama Llama 3 NerdStash Mistral Yi Gemma DeepSeek API tokenizer ooba koboldcpp TabbyAPI Aphrodite. Downloadable Qwen2 Command-R Mistral V3 Nemo DeepSeek chat download once unless enableDownloadableTokenizers false with manual JSON under data cache Llama 3 fallback when uncached downloads disabled. Token Padding is Text Completion only; Chat Completion always matches its tokenizer. Padding reserves room near max context so definitions are not truncated. Negative padding can exceed stated max tokens and raise prompt-trimming risk.",
+      "topics": [
+        "Best match selection",
+        "overridable Text Completion",
+        "non-overridable Chat Completion",
+        "downloadable tokenizer fallback",
+        "Token Padding negative values"
+      ],
+      "children": []
+    },
+    {
+      "slug": "reasoning-and-chain-of-thought-blocks",
+      "title": "Reasoning and chain-of-thought blocks",
+      "level": 2,
+      "sourceHash": "sha256:3ad1b6aab3b6495e28d67136f5006ca5fae276f53e95f50e1a70a6b6179e3869",
+      "summary": "Reasoning and chain-of-thought blocks notes that hidden reasoning can consume Max Response Length, so incomplete or empty answers often need 1024 to 4096 response tokens on reasoning models. Blocks appear collapsible; Auto-Expand and Show Hidden are Advanced Formatting options; edit and copy work when expanded. Adding reasoning covers manual lightbulb edits, extensions writing extra.reasoning, the reasoning-set command, backend Request model reasoning for named sources, and Auto-Parse with Prefix and Suffix for unparsed streams. Prompting with reasoning defaults to not resending thoughts, describes Add to Prompts wrapping with Max Additions, and notes Continue may resend incomplete reasoning-only messages. Regex and effort covers Regex Affects Reasoning, ephemerality modes, and Reasoning Effort Auto through Maximum as connection configuration mapped to provider budgets, never a character-card field.",
+      "topics": [
+        "response token cost",
+        "collapsible reasoning display",
+        "Adding reasoning sources",
+        "Prompting with reasoning",
+        "Regex and effort"
+      ],
+      "children": [
+        {
+          "slug": "adding-reasoning",
+          "title": "Adding reasoning",
+          "level": 3,
+          "sourceHash": "sha256:c4cd2be6c609641dbe8de0ba734e69e6cf51ee6fcb38dfcf13fff76e581efe55",
+          "summary": "Adding reasoning can be Manual via the message edit lightbulb or extensions writing extra.reasoning; Command via reasoning-set with optional at message id defaulting to the last message; Backend via Request model reasoning in AI Response Configuration when the source supports it (for most sources this only toggles request where the API allows and does not fully disable thinking). Named pin sources include Claude, DeepSeek, Google AI Studio/Vertex, OpenRouter, xAI, AI/ML API, Z.AI, Pollinations, MistralAI, Electron Hub, Chutes, NanoGPT, and Moonshot, with source-specific disable and effort caveats. Parse uses Auto-Parse with Prefix and Suffix (DeepSeek-style think defaults) for unparsed streams such as MiniMax or Perplexity.",
+          "topics": [
+            "manual extra.reasoning",
+            "reasoning-set command",
+            "backend request toggle",
+            "named provider sources",
+            "Auto-Parse prefix suffix"
+          ],
+          "children": []
+        },
+        {
+          "slug": "prompting-with-reasoning",
+          "title": "Prompting with reasoning",
+          "level": 3,
+          "sourceHash": "sha256:b0e61bc0d050d767f8136a34be0f3a5bbd2c507ebcbbe2184dc91829cbac224f",
+          "summary": "Prompting with reasoning defaults to not resending prior reasoning into later turns. Add to Prompts wraps content with Prefix, Suffix, and Separator; Max Additions counts from the end of the prompt. Providers often discourage multi-turn chain-of-thought resend. Continue may resend incomplete reasoning-only messages without requiring Add to Prompts so the model can finish thinking and then emit content. Authors must treat reinsertion as an explicit opt-in with token cost rather than an automatic memory of all hidden thoughts.",
+          "topics": [
+            "default no resend",
+            "Add to Prompts wrap",
+            "Max Additions",
+            "Continue incomplete reasoning",
+            "token cost of reinsertion"
+          ],
+          "children": []
+        },
+        {
+          "slug": "regex-and-effort",
+          "title": "Regex and effort",
+          "level": 3,
+          "sourceHash": "sha256:002ae178000f0daba5a9444e12c60007176ae7fcf8f8aa8060c6f1115aa93406",
+          "summary": "Regex and effort notes that Regex Affects can include Reasoning. Ephemerality modes are none for permanent rewrite, run-on-edit to re-apply, alter display only, and alter outgoing prompts only. Reasoning Effort in the Chat Completion AI Response panel maps Auto, Minimum, Low, Medium, High, and Maximum to provider-specific budgets or keywords (Claude token budgets or adaptive thinking; OpenAI, OpenRouter, xAI, Perplexity, and NanoGPT keywords; Google thinkingBudget or thinkingLevel tables for 2.5 and 3.x models). Auto usually omits the parameter. Effort is connection configuration, not a character-card field.",
+          "topics": [
+            "Regex Affects Reasoning",
+            "ephemerality modes",
+            "Reasoning Effort levels",
+            "provider budget mapping",
+            "not a card field"
+          ],
+          "children": []
+        }
+      ]
+    }
+  ]
+}

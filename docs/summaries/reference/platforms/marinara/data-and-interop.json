@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/data-and-interop",
+  "sourcePath": "docs/reference/platforms/marinara/data-and-interop.md",
+  "sourceHash": "sha256:76b48d9e2827578fa890c7df70c672f607957ca364edd914b1a35197cd71dcc6",
+  "summary": "Documents Marinara data layout backup restore and SillyTavern import at the pinned Engine docs. DATA_DIR layout lists storage plus asset folders and the encryption key file or ENCRYPTION_KEY env for API secrets. Backup versus profile contrasts Download Backup full zip restorable via Import Profile Export Profile Native restorable and Export Profile Compatible non-restorable. Restore scans then confirms irreversible import with identity match re-import updates media warnings and secrets stripped requiring re-entered keys and webhooks. SillyTavern single-file import covers Character Chat Preset Lorebook carriers and embedded book prompts. Folder wizard access requires loopback free path remote admin secret or IMPORT_ALLOWED_ROOTS. Folder wizard stages path scan seven categories built-in preset default unchecked tag and regex modes progress and results. Wizard handling rules are best-effort branch grouping group Roleplay import and source date preservation. What does not transfer enumerates global settings Quick Replies non-selected categories and failed items. Hoplight hub conversion is not this wizard.",
+  "topics": [
+    "DATA_DIR and encryption key",
+    "backup vs profile export",
+    "restore and secrets",
+    "ST single-file import",
+    "folder wizard access stages",
+    "non-transfer list",
+    "Hoplight not the wizard"
+  ],
+  "sections": [
+    {
+      "slug": "data_dir-layout",
+      "title": "DATA_DIR layout",
+      "level": 2,
+      "sourceHash": "sha256:e39630b8412c5a3d32882699fa0e700ad618f81a428bb3f9021909d8a63781cc",
+      "summary": "DATA_DIR layout holds all user content default data beside the server or Docker app data with a storage log line showing the resolved path after restart. Storage holds characters chats messages lorebooks presets connections as structured records. Asset folders include avatars sprites backgrounds gallery fonts knowledge-sources game-assets custom-emojis custom-stickers for media that is not row storage. The encryption-key file decrypts stored API keys and must travel with data or keys are re-entered; ENCRYPTION_KEY env can replace the file when operators prefer env injection. Mobile backup download includes the key when present so restores stay decryptable on device handoff.",
+      "topics": [
+        "DATA_DIR storage root",
+        "asset folders",
+        "encryption-key file",
+        "ENCRYPTION_KEY env",
+        "mobile backup key"
+      ],
+      "children": []
+    },
+    {
+      "slug": "backup-versus-profile",
+      "title": "Backup versus profile",
+      "level": 2,
+      "sourceHash": "sha256:7f009d821ec513177c780810afe86efd03712baacddc2789fa05bee84d9f8f04",
+      "summary": "Backup versus profile contrasts three Advanced Backup and Export actions under remote Admin Access when needed. Download Backup is a full zip of storage settings media RESTORE text and encryption key when present and is restorable via Import Profile accepting backup zip. Export Profile Native yields account plus media as marinara-profile json or zip if large and is restorable through the same Import Profile path. Export Profile Compatible is a zip of plain character persona lore for other tools and is not Import Profile restorable so operators must not expect full account recovery from Compatible alone.",
+      "topics": [
+        "Download Backup full zip",
+        "Export Profile Native",
+        "Export Profile Compatible",
+        "restorable versus not"
+      ],
+      "children": []
+    },
+    {
+      "slug": "restore",
+      "title": "Restore",
+      "level": 2,
+      "sourceHash": "sha256:ff6696b2349e7b3ab9072146c335b69e4efd03bcfe9911217dfb18061f13c2a7",
+      "summary": "Restore uses Imports Import Profile for JSON or ZIP packages. Scan then confirm because the step cannot undo once applied. Recent profiles match by item identity so re-import updates in place; very old profiles can duplicate objects instead of merging. Missing media yields amber warning while the rest of the profile still imports. Secrets are stripped from profile exports so authors must re-enter API keys and webhooks after restore before connections work again.",
+      "topics": [
+        "Import Profile scan confirm",
+        "identity match updates",
+        "missing media warning",
+        "re-enter keys webhooks"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "sillytavern-single-file-import",
+      "title": "SillyTavern single-file import",
+      "level": 2,
+      "sourceHash": "sha256:68c0a5a2efb032398bf85d8b46647fb9eccc33c558f711e8846d4f55df9f404c",
+      "summary": "SillyTavern single-file import under Settings Imports accepts Character JSON or PNG Chat JSONL always as Roleplay with switch Preset JSON and Lorebook JSON carriers. Embedded character books may prompt standalone lorebook import after card intake. Quick buttons set all tags and regex Character only for batch convenience. Characters panel Import exposes tag mode and regex scope for finer control. Chat list import uses the open mode tab for CONVO RP or GM rather than a mode field inside the JSONL file.",
+      "topics": [
+        "Character Chat Preset Lorebook",
+        "embedded book prompt",
+        "tag and regex quick options",
+        "chat list open mode tab"
+      ],
+      "children": []
+    },
+    {
+      "slug": "folder-wizard-access",
+      "title": "Folder wizard access",
+      "level": 2,
+      "sourceHash": "sha256:ac411d760636435d9b83ebc1d1c0ae1803be4728ef49fec701d50a4dbc48cbdf",
+      "summary": "Folder wizard access is free on loopback. A remote browser needs the server admin secret plus Settings Advanced Admin Access. IMPORT_ALLOWED_ROOTS rejects typed paths outside configured roots while Browse and in-app picker paths remain allowed. Disallowed typed roots fail closed.",
+      "topics": [
+        "loopback free access",
+        "remote admin secret",
+        "IMPORT_ALLOWED_ROOTS",
+        "picker always allowed"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "folder-wizard-stages",
+      "title": "Folder wizard stages",
+      "level": 2,
+      "sourceHash": "sha256:25ff2f1e61aa1adc1d5039f65c9dd5b7c4f902d50aef6696c0067739cc877096",
+      "summary": "Folder wizard stages begin with path to ST root data or public inside then Scan Folder. Authors choose categories Characters Chats Group Chats Presets Lorebooks Backgrounds Personas with built-in ST presets default deterministic neutral universal star starting unchecked so bulk import does not silently take stock templates. Tag mode is All No or Existing only default All and Regex is Character only or Global. Progress runs per item then results show counts per-item failure lines and Done.",
+      "topics": [
+        "path and scan",
+        "seven categories",
+        "built-in presets unchecked",
+        "tag regex modes",
+        "progress and results"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "wizard-handling-rules",
+      "title": "Wizard handling rules",
+      "level": 2,
+      "sourceHash": "sha256:871279779a00d11b6d6801e683287ecd353e0aca6871ab5e4f1e726c0e7a2fb6",
+      "summary": "Wizard handling is best-effort, so one failure records a warning and continues. Several chat files for one character import as branches of one chat. Group chats always import as Roleplay. Imported items retain the source last-changed date rather than the import time.",
+      "topics": [
+        "best-effort continue",
+        "chat files as branches",
+        "group chats Roleplay",
+        "source date preserved"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "what-does-not-transfer",
+      "title": "What does not transfer",
+      "level": 2,
+      "sourceHash": "sha256:47db67e4f7f44bcacbc10ba0e60979169c3593ca5d883ea4e1ce5d7279bcbdf8",
+      "summary": "What does not transfer enumerates the documented non-transfer list without deferring to vague upstream prose. Only the seven scanned categories are read by the wizard. Global app settings and Quick Replies are not read and not imported under any category toggle. Built-in ST presets stay out unless the author explicitly checks them. Failed conversion items are skipped and listed in warnings rather than aborting the whole batch. Secrets and non-selected categories do not come over into Marinara storage.",
+      "topics": [
+        "seven categories only",
+        "no global settings",
+        "no Quick Replies",
+        "built-in presets opt-in",
+        "failed items skipped"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:4ca6d7fd68130ffc01b6151dbdbfc266dee9cbc76c049e71e7d035d11bbdfa14",
+      "summary": "Hoplight hub-and-spoke conversion is not Marinara's folder-import wizard. Kit must not claim that Hoplight runs this ST bulk importer, restores Marinara profiles, or preserves DATA_DIR encryption keys without a dedicated implemented path and tests. The wizard's categories, access rules, and loss boundaries describe upstream Marinara behavior only.",
+      "topics": [
+        "not Hoplight conversion",
+        "no invented wizard parity",
+        "DATA_DIR not studio"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/source-coverage",
+  "sourcePath": "docs/reference/platforms/marinara/source-coverage.md",
+  "sourceHash": "sha256:d5da9f82d984d46b951bb7e0f6b1a28c0f1cae559bdf3498bfbfd77a6ee2b249",
+  "summary": "Path-by-path inventory for all 118 Markdown files at Pasta-Devs/Marinara-Engine commit b7545a63e7e264a1cd9eeea1a5490d50c08ddb29, retrieved 2026-07-26 under AGPL-3.0. Fifty-seven included sources route characters and personas, all seven Conversation guides, sprites and galleries, card CSS and visual assets, every lorebook and prompt guide, agent and memory material, custom tools and regex, Professor Mari, chat interchange and groups, maps and selected Game or Roleplay authored state, data storage, backup, and SillyTavern import to explicit destinations. Sixty-one individually named exclusions cover installation, providers, ordinary app chrome and chat runtime, development internals, integrations, destructive maintenance, onboarding, and media-provider setup with a reason per file. No wildcard substitutes remain, and every Conversation file is included.",
+  "topics": [
+    "conversation seven pages included",
+    "characters sprites visual lore",
+    "prompts agents chats maps",
+    "data ST import",
+    "path-level exclusions",
+    "pin and license"
+  ],
+  "sections": [
+    {
+      "slug": "included",
+      "title": "Included",
+      "level": 2,
+      "sourceHash": "sha256:1797bde5d98f31eb33ddd1389c6bbc1a7a3e3e4e0adfb714eb1e254f855d09a2",
+      "summary": "Included classifies 57 files explicitly. Character creation, personas, selection, interchange, colors, sprites, and galleries route to character or media references. Every Conversation guide is named and routed. Card CSS, style profiles, scene backgrounds, animated expressions, and Roleplay backgrounds route to visual assets. All six lorebook files, seven prompt files, and seven agent files receive individual destinations, with hierarchical maps routed to maps rather than agents. Custom tools, regex, Professor Mari, four chat guides, five Game guides, three Roleplay state guides, and three data or import guides complete the selected authoring corpus. These upstream destinations do not imply Hoplight codec support.",
+      "topics": [
+        "conversation seven paths",
+        "characters sprites visuals",
+        "lore prompts agents",
+        "chats game data"
+      ],
+      "children": []
+    },
+    {
+      "slug": "excluded-path-level",
+      "title": "Excluded (path-level)",
+      "level": 2,
+      "sourceHash": "sha256:0e4204c4279e1ead1416f41a76cef92840e72b7e3a26f717cdfbcd00454a6998",
+      "summary": "Excluded classifies 61 files one row at a time with no directory wildcards. The list names installation and upgrade guides, remote and operator configuration, every provider-connection guide, the settings shell, development and Noodle internals, runtime integrations, destructive data clearing, catalog browsing and library navigation, application appearance, routine chat and live-command UX, runtime Game and Roleplay play guides, onboarding, and media-provider integrations. Each path carries a reason, while all seven Conversation files remain included rather than hidden in a folder bucket.",
+      "topics": [
+        "install connections settings",
+        "app chrome exclusions",
+        "chat UX exclusions",
+        "conversation all classified"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/conversation-mode",
+  "sourcePath": "docs/reference/platforms/marinara/conversation-mode.md",
+  "sourceHash": "sha256:4df37db3f1ebee020a97538c4d9e3738ef096c61dda942d85379febec43053c4",
+  "semanticSummaryHash": "sha256:9c5a94133d60e161f6d9d4074c25914a142d5a55d0c43c41c83c41f691b4ed31",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and all section summaries reviewed against all seven pinned Conversation guides. Profiles, automation gates, schedule limits, custom media validation, call pipeline and clips, selfie settings, six table games, failure modes, and product-versus-adapter boundaries are detailed and source-faithful.",
+  "reviewedAt": "2026-07-26T06:53:16.616Z"
+}

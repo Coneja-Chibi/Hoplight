@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/README",
+  "sourcePath": "docs/reference/platforms/marinara/README.md",
+  "sourceHash": "sha256:4524de821338d3a29b56713da420557286afc6beda38ef2aa4effa58164d08a1",
+  "semanticSummaryHash": "sha256:fa05b2165d391878baa9ffa6628cc6440243727f88c10bbbc7596f3b9e907bbf",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full collection map and sidecar reviewed. It routes every owning authoring page, pins provenance precisely, directs narrow-page traversal, and states the critical Marinara adapter and no-SillyTavern-macro boundaries without synthetic detail.",
+  "reviewedAt": "2026-07-26T06:53:15.698Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/macro-reference",
+  "sourcePath": "docs/reference/platforms/marinara/macro-reference.md",
+  "sourceHash": "sha256:733b6f7756be6d779ec50c5904a8fa1faff4938d65ef4a6c210a72e567a28e2d",
+  "semanticSummaryHash": "sha256:be62c7e6f10f80aacbde8c3a892631155b576f8cec11f1f60eee01a6f28d686b",
+  "verdict": "APPROVE",
+  "reviewer": "codex-independent-review-2026-07-26-r3",
+  "notes": "Exhaustive pinned macro names and lifecycle rules are present; pin tests cover catalog names, operators, setvar random prepass, and agent empty-before-output. Source and sidecar are accurate; warnings are nonblocking length bands.",
+  "reviewedAt": "2026-07-26T06:26:27.911Z"
+}

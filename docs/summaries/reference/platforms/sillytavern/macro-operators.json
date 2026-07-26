@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/macro-operators",
+  "sourcePath": "docs/reference/platforms/sillytavern/macro-operators.md",
+  "sourceHash": "sha256:886cb75293e8d05b1df0b1e3bf27a0c5afcde96f2ea05fad8fece2c5865a5515",
+  "summary": "Complete operational model of the pinned SillyTavern macro parser. It specifies case-insensitive brace tokens, single and multi-argument separators, legacy colon syntax, ignored definition whitespace, inner-first nesting, scoped final arguments, trimming and dedenting, preserved whitespace, truthiness, inversion, else branches, implemented and planned flags, comments, and literal-brace escaping. Variable sections distinguish chat-local and installation-global prefixes, identifier restrictions, nested assigned values, and every shorthand operator with mutation, comparison, fallback, lazy evaluation, and return behavior. Full-form equivalence covers get, set, add, increment, and decrement, while existence and deletion remain named macros. Legacy angle markers map to modern forms without authoring-time normalization. The safety contract makes field registry and processing stage part of semantics and keeps all macro payloads sealed during Hoplight import and conversion.",
+  "topics": [
+    "macro parser syntax",
+    "nested and scoped evaluation",
+    "conditional truthiness",
+    "macro flags and escaping",
+    "variable shorthand operators",
+    "lazy fallback behavior",
+    "legacy markers",
+    "sealed execution contract"
+  ],
+  "sections": [
+    {
+      "slug": "tokens-arguments-whitespace-and-nesting",
+      "title": "Tokens, arguments, whitespace, and nesting",
+      "level": 2,
+      "sourceHash": "sha256:02f91e66daf24a246aa972cc40439ee46f8f03e8542a5c41c8ecde09d21daf3f",
+      "summary": "Tokens, arguments, whitespace, and nesting defines case-insensitive double-brace names, space-separated single arguments, recommended double-colon multiple arguments, and backward-compatible single-colon syntax. Whitespace around names, separators, and arguments does not affect parsing. Nested expressions resolve from the inside outward, allowing a computed character name or other result to become an outer variable key or value. That order is behaviorally important because nested random choices or state-changing macros can affect the consumer rather than remaining inert text.",
+      "topics": [
+        "double brace tokens",
+        "space argument",
+        "double colon arguments",
+        "legacy single colon",
+        "ignored definition whitespace",
+        "inner-first nesting"
+      ],
+      "children": []
+    },
+    {
+      "slug": "scoped-blocks-and-whitespace-preservation",
+      "title": "Scoped blocks and whitespace preservation",
+      "level": 2,
+      "sourceHash": "sha256:38289231cb85e388910a35b6ff2131ee5004912badf22412dd65d9dbbec25449",
+      "summary": "Scoped blocks and whitespace preservation lets any argument-taking macro receive its final argument from text between opening and closing tags. The slash flag closes the named block. Default processing trims leading and trailing whitespace and removes shared indentation based on the first non-empty line, making multiline prose readable in source. The hash flag on the opening form preserves every newline and indentation character. Scoped content is semantically equivalent to an inline final argument after any earlier arguments and is appropriate for long or multiline values.",
+      "topics": [
+        "scoped final argument",
+        "slash closing flag",
+        "trim and dedent",
+        "hash whitespace preservation",
+        "multiline values"
+      ],
+      "children": []
+    },
+    {
+      "slug": "conditions-inversion-and-else",
+      "title": "Conditions, inversion, and else",
+      "level": 2,
+      "sourceHash": "sha256:3fe750e36859e49c6aeb482b134403294a1e4a708a4b232ebec507c77661e98f",
+      "summary": "Conditions, inversion, and else specifies `if` blocks over no-argument macro names, nested expressions, variable shorthands, or literal values. Empty text, false, zero, off, and no are falsy. Prefixing the tested value with exclamation inverts the result, while `else` selects an alternate block when the first branch is false. The exclamation inside an `if` condition is logically distinct from the separately documented but unimplemented immediate flag, so parser context must be retained when explaining or editing the expression.",
+      "topics": [
+        "if block",
+        "truthy and falsy values",
+        "nested conditions",
+        "condition inversion",
+        "else branch",
+        "exclamation context"
+      ],
+      "children": []
+    },
+    {
+      "slug": "flags-comments-and-escaping",
+      "title": "Flags, comments, and escaping",
+      "level": 2,
+      "sourceHash": "sha256:5c5bdf92982379add6cfa7b36377230cdb1b6809adb18e040e269d4b713debe6",
+      "summary": "Flags, comments, and escaping separates two implemented flags from four planned forms. Slash closes a scoped block and hash preserves whitespace. Immediate exclamation, delayed question mark, re-evaluate tilde, and filter greater-than are documented plans, not current syntax. Single-line and scoped comments produce no output, with the scoped closing form using three slashes. Backslashes escape literal braces so authored text can display a macro-shaped token without resolving it. Kit must not advertise planned flags or accidentally unescape literal source.",
+      "topics": [
+        "implemented slash flag",
+        "implemented hash flag",
+        "planned flags unavailable",
+        "single and block comments",
+        "escaped literal braces"
+      ],
+      "children": []
+    },
+    {
+      "slug": "variable-scopes-and-identifier-rules",
+      "title": "Variable scopes and identifier rules",
+      "level": 2,
+      "sourceHash": "sha256:78aff690785b453b09c8a1691f912b58901e87309b44b229fb572bf86e36331d",
+      "summary": "Variable scopes and identifier rules assigns dot-prefixed shorthand to chat-local storage and dollar-prefixed shorthand to installation-global storage. The characters are prefixes rather than flags or parts of the stored name. Standard identifiers begin with a letter, continue with letters, digits, underscores, or hyphens, and cannot end in underscore or hyphen. Nonconforming keys require full variable macros. Assigned values may contain nested macros, and whitespace around operators is ignored. Both scopes support the same operators but differ materially in persistence and reach.",
+      "topics": [
+        "local dot prefix",
+        "global dollar prefix",
+        "identifier grammar",
+        "nonconforming full syntax",
+        "nested assigned values",
+        "storage scope"
+      ],
+      "children": []
+    },
+    {
+      "slug": "variable-shorthand-operator-table",
+      "title": "Variable shorthand operator table",
+      "level": 2,
+      "sourceHash": "sha256:c3a7966d0b5553ae05326dc0353c9d4b0b490ad42106a42346b3dbb4fd8d26fd",
+      "summary": "Variable shorthand operator table records all operations and return rules. Get returns the value; set, add, and subtract mutate and return empty text; increment and decrement return the new value. Add performs numeric addition or non-numeric string concatenation, while subtract requires numbers. Falsy and undefined fallbacks differ, as do their assignment variants, and fallback expressions evaluate lazily. Equality uses strings and treats missing, null, and empty alike; greater and less comparisons are numeric. Every comparison returns literal true or false text suitable for `if`.",
+      "topics": [
+        "get and assignment",
+        "increment add subtract",
+        "falsy vs undefined fallback",
+        "conditional assignment",
+        "string equality",
+        "numeric comparisons",
+        "lazy evaluation"
+      ],
+      "children": []
+    },
+    {
+      "slug": "full-variable-macros-and-shorthand-equivalence",
+      "title": "Full variable macros and shorthand equivalence",
+      "level": 2,
+      "sourceHash": "sha256:27b2e6d9ed1ec0ddd2b3c2ea46ac5b3babaae49087c9c0c0c192df720ac2cfa6",
+      "summary": "Full variable macros and shorthand equivalence maps dot and dollar get, set, add, increment, and decrement expressions to their named local and global macro forms. It preserves return behavior while showing that the prefix selects storage scope. Existence and deletion use `hasvar`, `deletevar`, `hasglobalvar`, and `deleteglobalvar`, since no shorthand operator replaces them. Comparison, fallback, and conditional-assignment shorthand also lack a one-token full-macro counterpart and should not be rewritten through an assumed mechanical equivalence.",
+      "topics": [
+        "local full forms",
+        "global full forms",
+        "get set add equivalence",
+        "increment decrement equivalence",
+        "existence and deletion",
+        "no mechanical rewrite"
+      ],
+      "children": []
+    },
+    {
+      "slug": "legacy-markers",
+      "title": "Legacy markers",
+      "level": 2,
+      "sourceHash": "sha256:b5433ef0b90a534f52c1320caa6844ea954091c915c49e9a74e3b6c75c04c868",
+      "summary": "Legacy markers maps USER to the user macro, BOT and CHAR to character, GROUP to group, and CHARIFNOTGROUP to the solo-character form. SillyTavern still recognizes these angle-bracket forms during processing for backward compatibility, but current authoring should use braces. Hoplight preserves legacy source during same-format round trips instead of performing cosmetic rewrites, because exact or tiered source stability may matter and another platform may interpret the text differently.",
+      "topics": [
+        "legacy USER marker",
+        "legacy character markers",
+        "legacy group markers",
+        "modern brace equivalents",
+        "round-trip preservation"
+      ],
+      "children": []
+    },
+    {
+      "slug": "evaluation-and-safety-contract",
+      "title": "Evaluation and safety contract",
+      "level": 2,
+      "sourceHash": "sha256:89bebdd56652eb95e3d5b39945d6a8c9f4041303b6586b68e61f1864deeab51d",
+      "summary": "Evaluation and safety contract states that grammar validity does not prove a macro is registered in a particular field or processed at the expected stage. Variables, deletion, random choice, banned-word controls, and extension macros can alter state or generation behavior rather than merely returning text. Hoplight therefore treats every macro payload as sealed during import, inspection, conversion, and export and never runs it to infer meaning. Cross-format conversion preserves supported literal text, reports unrepresentable dialect behavior, and refuses name-only substitutions between superficially similar languages.",
+      "topics": [
+        "field-specific registration",
+        "processing stage",
+        "stateful macro effects",
+        "sealed content",
+        "cross-format loss reporting",
+        "no name-only translation"
+      ],
+      "children": []
+    }
+  ]
+}

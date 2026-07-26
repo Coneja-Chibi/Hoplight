@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/conversation-mode",
+  "sourcePath": "docs/reference/platforms/marinara/conversation-mode.md",
+  "sourceHash": "sha256:4df37db3f1ebee020a97538c4d9e3738ef096c61dda942d85379febec43053c4",
+  "summary": "Complete Marinara Conversation Mode authoring reference at the pinned Engine revision. Profiles route to Convo Display Name, About Me defaults and chat overrides, update_about_me scopes, Behavior insertion modes, and Conversation-only macros. The four-step new-chat wizard owns name and connection, prompt preset, participants, and Automation with autonomous messages, schedules, and package-contributed command families. Schedules include chat and character caps, tuning, timing, daily blocks, AI draft actions, temporary status, and user presence. Custom media covers portable emoji export, sticker send modes, Giphy limits, gallery scope, and semantic/random/tool-call selection. Calls document required audio pipeline, four input modes, per-chat versus global settings, answer lifecycle, soundboard, reusable video clips, and history summary. Selfies define every chat setting and reviewed manual generation. Six table games include install, start paths, participant limits, defaults, enforced state, autonomous invitation gates, and early-end deletion. These are upstream product surfaces, not automatic Hoplight adapter capabilities.",
+  "topics": [
+    "Conversation Mode vs Roleplay Game",
+    "Convo profiles and About Me",
+    "schedules and autonomous messaging",
+    "custom emoji sticker GIF rules",
+    "calls clips selfies table games",
+    "Hoplight product boundary"
+  ],
+  "sections": [
+    {
+      "sourceHash": "sha256:439e3e3be292f56461362c7d611a79c0cf7c67614605b51f45b009393f8bf4a5",
+      "slug": "profiles-display-name-about-me-behavior",
+      "children": [],
+      "level": 2,
+      "topics": [
+        "Convo Display Name",
+        "About Me override scopes",
+        "Behavior insertion modes",
+        "Conversation-only macros",
+        "Characters Convo tab"
+      ],
+      "summary": "Profiles Display Name About Me Behavior defers full field semantics to Characters Convo tab Conversation Mode only. That destination owns Convo Display Name with declare-on-card checkbox for characters, About Me auto-list defaults and per-chat override popout badges, update_about_me Public versus Chat scopes with Tool Use, Convo Behavior insertion modes Constant after or before card Append Prepend Replace post-history or Only where convo_behavior is placed, and Conversation-only macros convo_display char_about persona_about convo_behavior. Auto About listing and Behavior insertion run without macros; macros place values in custom prompts. Fields never apply in Roleplay or Game.",
+      "title": "Profiles (Display Name, About Me, Behavior)"
+    },
+    {
+      "children": [],
+      "level": 2,
+      "title": "Getting started boundary",
+      "summary": "Getting started defines Conversation as messenger-style continuing relationship state whose profiles, presence, autonomous messages, schedules, reactions, selfies, calls, and table games do not apply in Roleplay or Game. Its four-step wizard assigns Name and Connection, Prompt Preset, Persona and Characters, then Automation. Autonomous Messages starts on and Generate Schedules off. Optional packages add a master Commands gate plus up to seventeen families for schedule updates, cross-post, selfies, memories, scenes, music, haptics, connected-chat influence or notes, calls, reactions, and six games. User presence is global Active, Idle, Do Not Disturb, or Invisible with a 120-character activity; DND suppresses autonomous messages while Idle does not.",
+      "slug": "getting-started-boundary",
+      "topics": [
+        "getting-started UX only",
+        "authoring on Convo tabs",
+        "chat settings ownership",
+        "install out of scope"
+      ],
+      "sourceHash": "sha256:4baaf8ca5578dbd40f217b44dbb80c81f21c47da2894f496a78dd26804e0558f"
+    },
+    {
+      "sourceHash": "sha256:d59e61e0bb963586ae142ad28b3cd2171e3f90ea67d88459683d1c428cceafc8",
+      "slug": "schedules-and-autonomous-messaging",
+      "children": [],
+      "level": 2,
+      "topics": [
+        "Autonomous Messages default",
+        "Chat Check-In Cap tiers",
+        "Schedules weekly routines",
+        "per-character caps",
+        "presence and talkativeness"
+      ],
+      "summary": "Schedules and autonomous messaging live in Conversation Chat Settings. Autonomous Messages defaults on. Chat Check-In Cap uses talkativeness ceilings of eight, six, five, three, or two daily, or a positive whole-number chat ceiling; character limits only lower it. Schedules default off and provide generated weekly routines, per-character day editors, and stale-aware routine summaries. Tuning selects five talkativeness levels, 15-360 minute wait with 120 default, and five enabled check-in moments. Advanced timing sets Default or 1-8 daily safety, optional Away 0-120 delay with random 1-3 blank default, and Busy 0-120 with random 2-5. Rewrite, Adjust, Vary, or Repair changes a draft only until Save. Daily Online/Away/Busy/Offline blocks affect initiation; temporary status does not rewrite the schedule. Manual user presence disables automatic Idle until Active returns.",
+      "title": "Schedules and autonomous messaging"
+    },
+    {
+      "sourceHash": "sha256:9f28bf62ac308f9a2686eca813a04fc7bc6ebec73e10f2761902d34ed20019f7",
+      "slug": "custom-emojis-stickers-and-gifs",
+      "children": [],
+      "level": 2,
+      "topics": [
+        "Conversation-only media panel",
+        "emoji name and size limits",
+        "sticker packs",
+        "GIF search",
+        "reply scope settings"
+      ],
+      "summary": "Custom emojis, stickers, and GIFs are Conversation-only beyond the plain emoji picker. Emoji names are one to thirty-two lowercase letters, numbers, or underscores, unique, at most 256 by 256, and may be animated GIFs. Edit mode renames, deletes, exports a self-contained marinara-custom-emojis JSON, and imports while skipping invalid or colliding items; deleted shortcodes remain text in history. Stickers use a parallel lifecycle with 512 by 512 limit and Send and reply versus Add to message. Giphy search needs a key, has fixed mature rating, and no offline safe-only source. Gallery assets can receive profile-scoped tags without copying. Per-chat selection is Semantic with local/random fallback, Random, or Tool-call with semantic fallback and multi-speaker skip; Max offered defaults twenty in range one to one hundred. Reactions use only global emoji.",
+      "title": "Custom emojis, stickers, and GIFs"
+    },
+    {
+      "children": [],
+      "level": 2,
+      "title": "Calls and clips",
+      "summary": "Calls require the optional package, per-chat Audio/Video Calls, and global Call Audio Pipeline even for typed use; TTS is optional and unresolved voices become text-only. Input modes are Local Whisper recording default, browser speech with fallback, manual dictation, and provider-native audio/video, the only mode allowing camera or screen. Per-chat defaults are calls off, character Calls command on, and voice cues on; pipeline, camera, video presence, automatic clips, and custom clips are global and off. Incoming calls always need Answer or Decline; active calls persist in a popout. Soundboard has four immutable built-ins plus mp3/wav/ogg/webm/m4a uploads to 8 MB. Video Presence uses per-character Idle, Talking, Laughing, Angry, Crying, and Sighing Clips, distinct from Gallery Videos; automation creates only missing Idle and Talking. Disabling video presence disables its two child toggles. Call-end summary enters chat history.",
+      "slug": "calls-and-clips",
+      "topics": [
+        "audio video calls",
+        "Sprites Clips category",
+        "per-character call media",
+        "not still sprites"
+      ],
+      "sourceHash": "sha256:65cee3c9a4c30f2f1c10b7352f72a82744732aca23b15e9b1bf7a8afff6e0da6"
+    },
+    {
+      "children": [],
+      "level": 2,
+      "title": "Selfies",
+      "summary": "Selfies are Conversation-only Illustrator image events. Commands and Generated Selfies must be enabled. Per-chat settings are required Selfie Connection initially None, Prompt Model default Main chat model, Image Style default global profile, Send Avatar References off and provider-dependent, Attach Card Appearance off, and Resolution default 896x1152 with five alternate presets. A character may invoke the hidden command, while the user can request from Gallery and choose a group member. Expose media prompts before sending allows review and editing; Cancel sends no image request. Each completed selfie consumes one selected-connection request and is not a Roleplay scene background.",
+      "slug": "selfies",
+      "topics": [
+        "Conversation selfie events",
+        "not Roleplay backgrounds",
+        "authored media",
+        "distinct from galleries"
+      ],
+      "sourceHash": "sha256:35d3d8ec91d0a437773cd6e9fe0ed77cddb5fe9d56bec147645f3617ec55fe29"
+    },
+    {
+      "children": [],
+      "level": 2,
+      "title": "Table games",
+      "summary": "Table games are six optional Conversation packages: UNO, Chess, Poker, 8-Ball Pool, Tic-Tac-Toe, and Rock-Paper-Scissors. Installation immediately exposes slash, chat-phrase, and separately gated character-invitation paths. One game may exist per chat and at least one character is required. UNO seats two to ten with hand seven and missed-UNO penalty on; Chess is one-on-one with Random color; Poker seats two to eight with silent house dealer, stack 1000, small blind 10, and zero-valued no-doubling/no-hand-limit defaults; Pool is one-on-one Race to 1/3/5; Tic-Tac-Toe selects X/O/Random; RPS is best of 3/5/7. Boards enforce legality and use the chat connection for narration. Early End or Resign deletes state and records no winner. Command toggles stop autonomous invitations but not slash or phrase starts.",
+      "slug": "table-games",
+      "topics": [
+        "Conversation table games",
+        "participation state",
+        "not Game Mode party",
+        "not Roleplay group membership"
+      ],
+      "sourceHash": "sha256:6f3a7c4d18e19ec2f55d23573c0a56b17b191acc28ca4466dbfd0ab5342f0764"
+    },
+    {
+      "children": [],
+      "level": 2,
+      "title": "Hoplight",
+      "summary": "Hoplight treats Conversation Mode as a Marinara product surface. Schedules, call media, emoji libraries, and table-game state are not hosted or converted unless a future adapter proves that support with canonical mappings and fixtures. Kit must not infer codec support from this product guide alone.",
+      "slug": "hoplight",
+      "shortSource": true,
+      "topics": [
+        "Marinara product surface",
+        "no schedule codec",
+        "no invented adapter support",
+        "format proof required"
+      ],
+      "sourceHash": "sha256:cf0d502e325b0ab2b04ead559b9ccb555ff5c24423191449b1782dcb4e324d62"
+    }
+  ]
+}

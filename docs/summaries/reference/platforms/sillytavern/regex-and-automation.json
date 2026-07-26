@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/regex-and-automation",
+  "sourcePath": "docs/reference/platforms/sillytavern/regex-and-automation.md",
+  "sourceHash": "sha256:1a3fcce90228f9044abe243c9b1a1d57d0805d69632bba34a292bf3f9881d3a5",
+  "summary": "Defines SillyTavern regex scripts and STscript as authored content with executable effects inside SillyTavern while Hoplight only inspects, edits, and round-trips their text as data. Regex script records cover display name, find expression, replacement with complete match and capture groups, trim strings, enabled state, source scopes, macro-substitution mode, depth bounds, run-on-edit, ephemerality, JavaScript-style flags, global versus character scope, export JSON portability, Affects selectors for user input AI response slash values World Info and reasoning, and empty-selector plus depth constraints. Ephemerality and visible truth separates persistent chat JSONL rewrites from display-only and prompt-only modes, creating three truths of stored, rendered, and model-bound messages that both ephemerality flags must preserve, plus find-expression macro modes disabled raw or regex-escaped and the requirement for bounded terminable testing. STscript and Quick Replies describes pipe-batched slash commands, variables, conditions, generation, World Info mutation, QR presets and qrset, properties, a.b cross-preset calls, management commands, auto-execute triggers including World Info Automation ID, and installation-dependent extension commands. Hoplight safety and interoperability seals imported payloads, forbids execution during import or conversion, limits regex testing to the isolated user-invoked terminable worker, escrows same-format script fields, requires explicit semantic mapping for cross-format movement, and routes execution-condition edits through Gate review.",
+  "topics": [
+    "regex script records",
+    "scope and Affects selectors",
+    "ephemerality and three truths",
+    "STscript pipe language",
+    "Quick Reply presets",
+    "Automation ID triggers",
+    "sealed Hoplight payloads",
+    "terminable regex test bench"
+  ],
+  "sections": [
+    {
+      "slug": "regex-script-records",
+      "title": "Regex script records",
+      "level": 2,
+      "sourceHash": "sha256:32081871eeb1ad1e09139fe7f6428077c9c2964aab4ada01ed45f7bd5d06c125",
+      "summary": "Regex script records include a display name, find expression, replacement, optional trim strings, enabled state, source scopes, macro-substitution mode, depth bounds, run-on-edit behavior, and ephemerality settings. Replacement supports the complete match and capture groups. JavaScript-style flags control global, case-insensitive, dot-all, multiline, and Unicode behavior. Global scripts live in installation settings; scoped scripts live in the active character card. Exported JSON can move a script between installations, and scripts can move between global and character scope. Name is operational because slash commands and STscript may target it. Affects selectors include user input, AI response, slash-command values, World Info content, and reasoning. An empty selector set prevents normal chat activation but may still allow an explicit script call. Min and max depth constrain eligible chat messages and do not apply to utility or system prompts in the same way.",
+      "topics": [
+        "script field inventory",
+        "JS-style flags",
+        "global vs character scope",
+        "Affects selectors",
+        "depth bounds"
+      ],
+      "children": []
+    },
+    {
+      "slug": "ephemerality-and-visible-truth",
+      "title": "Ephemerality and visible truth",
+      "level": 2,
+      "sourceHash": "sha256:f5541210396facdfb00252c409bc14320bcf7846611cc07241c0aaf4a02cd00f",
+      "summary": "Ephemerality and visible truth states that with neither ephemerality option selected, a regex script can rewrite values stored in the chat JSONL, a persistent and possibly irreversible mutation. Display-only changes alter what the user sees without changing the outgoing prompt. Prompt-only changes alter what the model receives without changing display. Selecting both changes display and prompt while leaving stored chat text untouched. This creates three distinct truths: stored message, rendered message, and model-bound message. An editor must preserve both ephemerality flags rather than reducing them to one enabled switch. World Info scope also depends on outgoing-prompt behavior. Macro substitution in the find expression may be disabled, raw, or regex-escaped; raw values can change pattern meaning when names contain metacharacters, while escaped substitution treats the value literally. Testing must use bounded, terminable execution because user-authored patterns can be computationally expensive.",
+      "topics": [
+        "persistent JSONL rewrite",
+        "display-only vs prompt-only",
+        "three message truths",
+        "preserve both ephemerality flags",
+        "macro find modes and ReDoS"
+      ],
+      "children": []
+    },
+    {
+      "slug": "stscript-and-quick-replies",
+      "title": "STscript and Quick Replies",
+      "level": 2,
+      "sourceHash": "sha256:f5564856285ba755f8de637ba2d9f5ee54c936a8cad13e5d80eafa45f443b6a0",
+      "summary": "STscript and Quick Replies describes STscript as pipe-separated slash command batches executed sequentially with pipe-passed values. The language includes named and unnamed arguments, macros, local and global variables, arrays and objects, conditions, closures, loops, math, generation calls, prompt injections, message access, character navigation, World Info mutation, text processing, and extension commands. Quick Replies store scripts behind buttons or hidden procedures; presets group replies and switch via qrset by name. From the pinned STscript reference: autocomplete on chat input and the large QR editor, slash-colon listing scoped variables and QRs, QR properties label message/script tool tip and debugger with breakpoint, cross-preset procedure calls as a.b with literal labels winning first, management commands including qr-create qr-delete qr-update qr-get and preset and context-menu helpers, and auto-execute at app startup user message AI message chat load group reply or matching World Info Automation ID. Extensions add installation-dependent commands. Scripts can call a model, modify messages and lore, change variables, navigate UI, or invoke extensions and are not static macro templates. Official docs warn users to inspect scripts before execution.",
+      "topics": [
+        "pipe-batched STscript",
+        "Quick Reply presets",
+        "management commands",
+        "auto-execute triggers",
+        "Automation ID",
+        "installation-dependent commands"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight-safety-and-interoperability",
+      "title": "Hoplight safety and interoperability",
+      "level": 2,
+      "sourceHash": "sha256:051d844a155f93f377352b002eed69157505fdc82d42379d20f4657a0d657762",
+      "summary": "Hoplight safety and interoperability requires that imported regex, macro, Lua, and STscript payloads remain sealed text. Hoplight does not execute STscript, resolve Quick Reply procedures, follow Automation IDs, or apply a regex during import or conversion. Regex testing is available only through Hoplight's isolated, user-invoked test bench and its terminable worker. Same-format export can restore platform-native script fields from escrow. Cross-format movement is allowed only when a target adapter has an explicit semantic mapping; a target that merely has scripts does not prove compatible scope, lifecycle, persistence, or command semantics. Kit should describe executable consequences before proposing an edit. It must not imply that a disabled list switch, an internal disabled field, an empty Affects set, and ephemerality are interchangeable. Changes to any execution condition belong in the semantic Gate review even though the payload remains sealed.",
+      "topics": [
+        "sealed import payloads",
+        "no execution on convert",
+        "terminable test bench only",
+        "escrow and explicit mapping",
+        "Gate review for conditions"
+      ],
+      "children": []
+    }
+  ]
+}

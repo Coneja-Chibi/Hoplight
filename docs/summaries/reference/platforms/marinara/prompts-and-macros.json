@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/prompts-and-macros",
+  "sourcePath": "docs/reference/platforms/marinara/prompts-and-macros.md",
+  "sourceHash": "sha256:6fd2169f59d0f7b6dcc615bdcacf6e08c4e71bab0747e46542c57ea625386b77",
+  "summary": "Documents Marinara macro rules, conditionals, preset variables, the full prompt-preset lifecycle, media prompt overrides, Chat Settings Presets, and generation controls at the pinned Engine docs. It routes exact built-in names to the macro catalog while preserving evaluation rules and live /macros authority. Prompt presets cover panel organization, explicit save and dirty-exit behavior, Overview Sections Prompts tabs, live markers, groups, wrap formats, depth placement, assignment, Conversation and Game single-prompt differences, and Peek Prompt verification. Media overrides cover registered image and video templates, variables, preview, active paused default states, and reset. Chat Settings Presets bundle connection, prompt source, agents, tools, translation, memory, and advanced parameters while excluding chat content, with mode defaults and JSON interchange. Generation controls give ranges, Send defaults, provider extras, and baseline to connection to chat precedence. Hoplight preserves macro text without executing it.",
+  "topics": [
+    "macro system rules",
+    "conditionals and operators",
+    "preset variables lifecycle",
+    "preset editor and overrides",
+    "chat-settings presets",
+    "exact generation parameters",
+    "Send toggles and precedence"
+  ],
+  "sections": [
+    {
+      "slug": "macro-system-rules",
+      "title": "Macro system rules",
+      "level": 2,
+      "sourceHash": "sha256:76aebe314887335960fb56928b5745ac0cbbcc9534fbdc06c8d217b508a1cdeb",
+      "summary": "Macro system rules use syntax double-brace tags; built-ins are case-insensitive and always on in macro-enabled fields. Fields include character and persona prose and advanced prompts, lorebook Description and Content, preset sections, regex Find Replace Trim, agent templates, and chat input. Nested macros resolve. Custom Tools do not resolve macros. Reply-scoped variables reset every generation; setvar inside random options runs for all options. Unknown NAME becomes a preset variable if defined else left literal under the literal braces strategy. The prompt tag alone opens Peek Prompt rather than expansion. Impersonate templates use a restricted placeholder set. Huge nested expansions may be silently truncated. Live Macro Reference UI and slash macros and macro commands are engine-generated authorities that outrank static documentation for installation-specific discovery.",
+      "topics": [
+        "tag syntax fields",
+        "nested resolution",
+        "Custom Tools no macros",
+        "reply-scoped variables",
+        "literal braces Peek Prompt",
+        "engine Macro Reference"
+      ],
+      "children": []
+    },
+    {
+      "slug": "conditionals",
+      "title": "Conditionals",
+      "level": 2,
+      "sourceHash": "sha256:225b96a1e3d2a1e348d23ad053dacefb27a420ca7419ea76fe6a2b3ca963892e",
+      "summary": "Conditionals use if cond, else if, else, and end-if blocks. Operators are equality double-equals equals is, inequality not-equals is not, numeric greater less greater-or-equal less-or-equal, and contains or includes with not-forms. Equality uses numbers if both numeric else case-insensitive text. Numeric compares are false if non-numeric. Logical and binds before or; parentheses are allowed. Compact equality allows character equals A or B style lists. Group blocks iterate multi-character contexts per conditional-prompts. Truthy checks without operator are supported. First true branch wins; discarded branches are not resolved.",
+      "topics": [
+        "if else if else end-if",
+        "equality and numeric ops",
+        "contains includes",
+        "and before or",
+        "first true branch wins"
+      ],
+      "children": []
+    },
+    {
+      "slug": "preset-variables",
+      "title": "Preset variables",
+      "level": 2,
+      "sourceHash": "sha256:b3c21c3d1fe4c4ac91a2a8d76de5b47b402c31c93437590d8fc552b35b7f5491",
+      "summary": "Preset variables exist on section-based presets only, not Conversation single-override mode. Names use letters numbers underscores. Kinds are single-choice, boolean toggle with one option, multi-select, and multi-select plus random pick. Options have Label and Value. Configure modal on assign offers Save as default, Skip, or Confirm; Confirm requires every single-choice filled. Edit preset variables from chat settings. Switching presets clears choices. Do not treat preset variables as free global env for every chat mode.",
+      "topics": [
+        "section-based presets only",
+        "name charset",
+        "single boolean multi random",
+        "Confirm fill rules",
+        "switch clears choices"
+      ],
+      "children": []
+    },
+    {
+      "slug": "preset-editor",
+      "title": "Preset editor",
+      "level": 2,
+      "sourceHash": "sha256:1bb88f341b9e40dacd4ef48305cc311e0fb5cfe74da979dd80cd30069764b0ac",
+      "summary": "The Presets panel supports create, JSON import, multi-select export or delete, search, four sort orders, folders, and a starred default. New presets require a name; edits do not autosave and dirty exit offers Keep editing, Discard, or Save and close. Overview holds name, description, author, and XML Markdown or None wrap format. Sections combine macro-aware Prompt Blocks with live Character Info, Persona, Chat History, Chat Summary, Dialogue Examples, and Lorebook markers. Missing lore markers warn; examples append to Character Info only when no explicit examples marker exists. Sections expose role, enable, duplicate, delete, order, group, and ordered or depth placement. Agent Sections insert the matching agent result. Prompts holds Conversation and Game single prompts while Roleplay uses assembled sections. Roleplay presets require chat assignment. Conversation and Game choose a source, may become chat-local Custom, and Game adds 2000 characters of instructions. Peek Prompt reveals the final request.",
+      "topics": [
+        "sections order roles",
+        "Agent Sections",
+        "import export packages",
+        "library vs chat assignment"
+      ],
+      "children": []
+    },
+    {
+      "slug": "prompt-overrides",
+      "title": "Prompt overrides",
+      "level": 2,
+      "sourceHash": "sha256:18079a6dc50f0d957589c300c21607b16828aa07ee06ec86aa066b4873cafd75",
+      "summary": "Prompt Overrides are reusable image and video generation templates under Settings Generations, not chat-prompt section patches. The image registry covers selfies, portraits, sprites, scenes, storyboards, Game NPCs, Noodle images, and other image builders; video covers scenes, Conversation Call clips, and animated expressions. Each editor selects a registered template, shows Default, Custom active, or Custom paused, inserts only listed dollar-brace variables, renders example values, and warns about unknown variables. Save activates the override, Apply this override off preserves but pauses it, and Reset to Default removes it after confirmation. It has no effect unless the corresponding media feature and generation connection run.",
+      "topics": [
+        "image and video templates",
+        "registered variables and preview",
+        "Default active paused states",
+        "media connection required"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chat-settings-presets",
+      "title": "Chat-settings presets",
+      "level": 2,
+      "sourceHash": "sha256:5c30f6bcbae042c9b79cb00adc71f595b0567789701faafb6916e2ac2eda5c81",
+      "summary": "Chat Settings Presets work in Conversation and Roleplay, not Game. They bundle connection, prompt preset or Conversation source, agents, tools, translation, Memory Recall, Advanced Parameters, and related behavior, while excluding characters, persona, lorebooks, sprites, summary, tags, and scene prompt. Applying updates the chat immediately and the picker reports a matching preset, Custom settings, or Missing preset. Actions save into, rename, Save As, JSON import and export, and delete. Import adds a non-default copy without overwrite. One preset per mode can be starred for new chats. Each mode also has an immutable empty Default preset that resets preset-controlled settings to system defaults.",
+      "topics": [
+        "Conversation and Roleplay only",
+        "included and excluded fields",
+        "apply save import export lifecycle",
+        "starred and immutable defaults"
+      ],
+      "children": []
+    },
+    {
+      "slug": "generation-parameters",
+      "title": "Generation parameters",
+      "level": 2,
+      "sourceHash": "sha256:2f4597b2242a1300d7a067e7b520c8fe43a513130bab97ac7227324ce8a4460a",
+      "summary": "Generation parameters live under Chat Settings Advanced Parameters all modes. Temperature 0-2 start 1 sent No. Max Output Tokens unbounded box start 4096 Conversation 8192 Roleplay Game sent Yes. Top P 0-1 start 1 sent No. Top K 0-500 zero off start 0 sent No. Frequency and Presence -2 to 2 start 0 sent No. Reasoning Effort None Low Medium High Xhigh Maximum start Maximum sent Yes. Verbosity None Low Medium High start High sent No. Send switch off omits the field; only Max Output Tokens and Reasoning Effort start sent. Assistant Prefill optional. Thinking Tags one wrapper per line. Custom Parameters JSON with connection-level then per-chat override. OpenRouter Service Tier Default Flex Priority. Limit Context Messages off default last N start 50 range 1-9999. Exclude Past Reasoning on default. Image Captioning off default. Save as Connection Default writes to connection. Precedence baseline then connection then chat custom keys chat wins.",
+      "topics": [
+        "exact ranges and defaults",
+        "Send switch per parameter",
+        "Prefill Thinking Tags",
+        "Custom Parameters precedence",
+        "Service Tier context reasoning captioning"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:9fa118f175b52b347f619928bb5455b84b40850bc3595d5e65c17848032b33f9",
+      "summary": "Hoplight maps canonical presets only when adapters define them. Macros are not executed at import or conversion. Preserve sealed macro text as data, report unsupported preset sections, and never invent execution or silent expansion during interchange merely because another platform has template syntax.",
+      "topics": [
+        "adapter-defined preset mapping",
+        "macros not executed at import",
+        "sealed macro text",
+        "report unsupported sections"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

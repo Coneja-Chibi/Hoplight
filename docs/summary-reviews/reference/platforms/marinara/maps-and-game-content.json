@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/maps-and-game-content",
+  "sourcePath": "docs/reference/platforms/marinara/maps-and-game-content.md",
+  "sourceHash": "sha256:b7a4c7b67960aefd601876be5acb13a526e8e20b7fd2b01ad753c7850f02aef7",
+  "semanticSummaryHash": "sha256:e53d7545d3555abc07ffb4295aef0785a636a35a4425fc7e94144432755ed24c",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against pinned map, Game, Roleplay, HUD, scene, and Narrative Director sources. Draft versus save, one-move travel, asset limits, session privacy, distinct HUD systems, scene write-back choices, irreversible plot boundaries, and no unproven Hoplight game conversion are accurately preserved.",
+  "reviewedAt": "2026-07-26T06:53:17.282Z"
+}

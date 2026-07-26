@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/source-coverage",
+  "sourcePath": "docs/reference/platforms/sillytavern/source-coverage.md",
+  "sourceHash": "sha256:75a1efff1f2a07514e38e42aea125b2b67c0e2358505fdd5bb939098f42539e2",
+  "summary": "Auditable path-by-path coverage map for all 92 Markdown files at SillyTavern-Docs commit 70e5e4d3c239253fca4692fe82e3936cb9c4b1b1, retrieved 2026-07-26 under AGPL-3.0. Twenty-one included authoring sources route character cards, tags, chat interchange, groups, personas, Data Bank, World Info, prompt assembly, CFG, reasoning, tokenizers, macros, regex, STscript, Quick Replies, and expression images to owning Hoplight references. Seventy-one individually named exclusions cover provider setup, installation, administration, ordinary navigation and settings, runtime-only extensions, contributor workflows, and repository metadata with a reason per path. Dynamic installation authorities remain live macro help, field autocomplete, extension slash commands, and expression classifiers; Hoplight never executes imported automation to discover them. Refresh requires pin comparison, destination updates, macro coverage tests, fresh semantic summaries, and independent review.",
+  "topics": [
+    "pinned SillyTavern-Docs commit",
+    "included authoring pages",
+    "tokenizer included",
+    "path-level exclusions",
+    "dynamic installation boundaries",
+    "refresh policy"
+  ],
+  "sections": [
+    {
+      "slug": "pinned-source",
+      "title": "Pinned source",
+      "level": 2,
+      "sourceHash": "sha256:569e52b8258e3711ee74aee36ceb8ee25838f12ac12ee1e987caa77ea1de94ee",
+      "summary": "Pinned source identifies the exact upstream documentation snapshot: SillyTavern/SillyTavern-Docs at commit 70e5e4d3c239253fca4692fe82e3936cb9c4b1b1, retrieved 2026-07-26, licensed AGPL-3.0. Paths in the coverage tables are repository-relative to that tree so audits can open the same files the Hoplight authoring corpus claimed to evaluate. The pin is the authority for inclusion and exclusion decisions on this page; later docs commits require an explicit refresh rather than silent drift. License and commit together make provenance reproducible for Kit and human maintainers.",
+      "topics": [
+        "SillyTavern-Docs pin",
+        "commit hash",
+        "retrieval date",
+        "AGPL-3.0 license",
+        "repository-relative paths"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "included-authoring-pages",
+      "title": "Included authoring pages",
+      "level": 2,
+      "sourceHash": "sha256:a8fa8122387ca477d1f4b7c32b16509aed3c302ad4c35c1ce4fb8563bb21c366",
+      "summary": "Included authoring pages table maps Characters index design Author Note tags chatfilemanagement groupchats personas data-bank worldinfo Prompts index advancedformatting context-template instructmode prompt-manager CFG reasoning tokenizer macros Regex STscript and Expression-Images to Characters Chats Personas World Info Prompts Macros Regex destinations. Tokenizer selection and padding routes to Prompts and presets. The claim that every markdown file is classified depends on tokenizer remaining in this include table or a defensible exclusion which this corpus does not use. Preserve these rules in Kit answers without inventing adapter support.",
+      "topics": [
+        "characters chats personas",
+        "world info prompts",
+        "tokenizer included",
+        "macros regex expressions"
+      ],
+      "children": []
+    },
+    {
+      "slug": "evaluated-exclusions-path-level",
+      "title": "Evaluated exclusions (path-level)",
+      "level": 2,
+      "sourceHash": "sha256:4af62f0dee64a87bbf36f7a3ed59b9b197ab7e484a5e5a011f6e82d6902dcb3d",
+      "summary": "Evaluated exclusions classifies 71 pinned files one row at a time with no directory wildcards. The table names chat navigation and branch UX, every provider-connection page, ordinary settings and onboarding, each installation and migration guide, every administration page, runtime-only audio image retrieval translation avatar and utility extensions, contributor workflows, and repository metadata. Each row states why it does not define a selected portable authoring contract. Together with the 21 inclusion rows, the manifest accounts for all 92 Markdown files. Macro names and operators remain governed by the stronger exhaustive catalogs rather than inferred from this coverage table.",
+      "topics": [
+        "path-level exclusion reasons",
+        "providers settings install",
+        "non-authoring extensions",
+        "no silent gaps",
+        "macro catalog rule"
+      ],
+      "children": []
+    },
+    {
+      "slug": "dynamic-boundaries",
+      "title": "Dynamic boundaries",
+      "level": 2,
+      "sourceHash": "sha256:0c6958fc27e77dcb40578c85090a0681200b3dba34b539fba332aa72bf38f727",
+      "summary": "Dynamic boundaries states that live slash macros queries, field autocomplete, extension slash commands, and installed expression classifiers remain installation authorities outside the pinned markdown inventory. Hoplight never executes imported automation, STscript, or sealed scripts merely to discover what an installation can do. Capability claims must not be reverse-engineered by running untrusted content; they come from static documentation, adapters, and user-invoked sandboxed benches only.",
+      "topics": [
+        "live installation authorities",
+        "macros autocomplete slash",
+        "expression classifiers",
+        "never execute to discover",
+        "sealed automation"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "refresh",
+      "title": "Refresh",
+      "level": 2,
+      "sourceHash": "sha256:f71ea5052035318fbe38dc13ec09ac6573369f49022244efdd87c4ec71a95164",
+      "summary": "Refresh requires comparing the next SillyTavern-Docs commit to the pinned hash, updating inclusion and exclusion destinations, re-running macro coverage tests, rewriting affected semantic summaries, and obtaining independent review after those summary rewrites. Do not advance the pin without reconciling every path-level verdict and regenerating author-valid sidecars for changed pages.",
+      "topics": [
+        "compare next commit",
+        "update destinations",
+        "macro coverage tests",
+        "summary rewrite",
+        "independent review"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

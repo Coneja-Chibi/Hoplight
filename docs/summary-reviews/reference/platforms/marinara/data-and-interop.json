@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/data-and-interop",
+  "sourcePath": "docs/reference/platforms/marinara/data-and-interop.md",
+  "sourceHash": "sha256:76b48d9e2827578fa890c7df70c672f607957ca364edd914b1a35197cd71dcc6",
+  "semanticSummaryHash": "sha256:f04cbec30ed132c5e95383f970c5c9e77517f932074311776b8a5cba0e6241ae",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against the three pinned data guides. DATA_DIR and key ownership, backup versus profile restore, remote path authorization, exact wizard stages, best-effort handling, non-transfer list, and distinction from Hoplight hub conversion are substantive and accurate.",
+  "reviewedAt": "2026-07-26T06:53:16.842Z"
+}

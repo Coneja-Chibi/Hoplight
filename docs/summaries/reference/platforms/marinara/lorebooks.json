@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/lorebooks",
+  "sourcePath": "docs/reference/platforms/marinara/lorebooks.md",
+  "sourceHash": "sha256:31b34b31576c791a4ae3baa771981952c5c3917bdbc3b11f50efa41c1b53f8ed",
+  "summary": "Documents complete Marinara lorebook lifecycle at the pinned Engine docs. What a lorebook is defines keyword injection without API plus opt-in semantic matching. Library panel covers create import multi-export folders OFF badge and categories World Character NPC Spellbook Other. Activation how a book becomes active separates Global mutually exclusive with links Linked character or persona activation and Chat-pinned books plus Enabled kill switch. Overview defaults list Scan Depth Token Budget Entry Limit Max Depth Recursive and Vectors with defaults. Entries cover keys types Selective logic position depth order probability timing flags folders and recursion. Budgets and skips name per-book and chat-wide caps Entry Limit trim order and Active Context skip reasons. Semantic search covers embedding sources query score vector limits and quiet failures. Linking and ownership separates shared linked embedded promoted and chat-pinned books. Import export names native marinara json compatible folderless JSON bulk native zip date preservation and required re-vectorization after import. Hoplight mapping is adapter-specific.",
+  "topics": [
+    "lorebook activation modes",
+    "overview defaults",
+    "entry types and timing",
+    "budgets and skip reasons",
+    "semantic search vectors",
+    "linked vs embedded ownership",
+    "native vs compatible export",
+    "re-vectorize after import"
+  ],
+  "sections": [
+    {
+      "slug": "what-a-lorebook-is",
+      "title": "What a lorebook is",
+      "level": 2,
+      "sourceHash": "sha256:42851cdc92601de5bb01d2d178738b9926bdcbabe9d2c75ed591aefef6100439",
+      "summary": "A lorebook or World Info holds entries with keys and content. Matching recent chat injects eligible content into the prompt. Keyword matching needs no API. Semantic matching is opt-in per book and requires embeddings when enabled. This runtime behavior does not by itself prove cross-format conversion.",
+      "topics": [
+        "World Info injection",
+        "keyword no API",
+        "semantic opt-in",
+        "prompt content"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "library-panel",
+      "title": "Library panel",
+      "level": 2,
+      "sourceHash": "sha256:d5148686495bbf2171d8023745742f9643642c352088cc9355e959ef920fff90",
+      "summary": "Library panel provides New Import Select multi-export delete search by name description linked names tags sort A-Z Z-A Newest Oldest Token Budget Copy Delete library folders separate from in-book entry folders OFF badge when disabled and picture upload. Categories child documents World Character NPC Spellbook Other labels and All Active per-category tabs. Category does not change activation rules; Active means relevant to the open chat.",
+      "topics": [
+        "library CRUD and search",
+        "categories World Character NPC",
+        "Active tab relevance",
+        "library folders"
+      ],
+      "children": [
+        {
+          "slug": "categories",
+          "title": "Categories",
+          "level": 3,
+          "sourceHash": "sha256:c23c7071c15f425e24d87fed0ffc7b2a9692ad51020e85e9eb24295630a7a12c",
+          "summary": "Categories assign each book one label World Character NPC Spellbook or Other. Overview may label Other as Uncategorized. Tabs are All Active relevant to open chat and per-category filters. Category is organizational and never changes activation rules by itself.",
+          "topics": [
+            "World Character NPC Spellbook Other",
+            "All Active category tabs",
+            "category not activation"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ],
+      "shortSource": true
+    },
+    {
+      "slug": "activation-how-a-book-becomes-active",
+      "title": "Activation (how a book becomes active)",
+      "level": 2,
+      "sourceHash": "sha256:07c975075b5b59812910c8e75dd545d562f0c08568f8a3bbc408efe4ea701bae",
+      "summary": "Activation how a book becomes active uses three paths. Global Overview switch applies every chat while enabled and is mutually exclusive with character or persona links so enabling Global clears links on save. Linked books auto-activate in chats that include that entity. Pinned books attach to one chat via chat Settings Lorebooks. Enabled must be on or no entries fire even if global or linked. Chat Settings can edit the active list.",
+      "topics": [
+        "Global mutual exclusion",
+        "Linked entity activation",
+        "Chat-pinned books",
+        "Enabled kill switch"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "overview-defaults",
+      "title": "Overview defaults",
+      "level": 2,
+      "sourceHash": "sha256:d3d74df102fd8d502e3df834357ea5fda4788a2d6a9bbd482589fc0b847951c7",
+      "summary": "Overview defaults are Scan Depth two for recent messages zero whole chat Token Budget two thousand forty-eight zero unlimited Entry Limit one hundred range one to one thousand Max Depth three recursive passes range one to ten Enabled on Recursive off Vectors off for semantic embeddings. Treat these as book-level starting values not chat-wide caps.",
+      "topics": [
+        "Scan Depth default two",
+        "Token Budget 2048",
+        "Entry Limit Max Depth",
+        "Recursive Vectors off"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "entries",
+      "title": "Entries",
+      "level": 2,
+      "sourceHash": "sha256:0ab5e7e04e3dfe68c3d41f7512405d1c1731260dffa635030119c19e9f33608b",
+      "summary": "Entries autosave with states and require a name. Content and keys cover Primary Keys Secondary Keys Description matching toggles and token estimates. Types are Normal Constant Selective with secondary AND Any All NOT Any NOT All. Position depth order probability set injection placement and chance. Timing covers Sticky Cooldown Delay Ephemeral. Additional entry flags from entries guide include Role at Depth group tag filters Locked No Vector context filters and per-entry Recursion. Folders group entries with folder enable clone delete multi-select.",
+      "topics": [
+        "keys content description",
+        "Normal Constant Selective",
+        "position depth order probability",
+        "timing and recursion flags",
+        "folders multi-select"
+      ],
+      "children": [
+        {
+          "slug": "content-and-keys",
+          "title": "Content and keys",
+          "level": 3,
+          "sourceHash": "sha256:7bbd11b1cb2b1c9821ecdec30428fcd3649540716a288187c3b629da0a470c49",
+          "summary": "Content and keys use Primary Keys as chip keywords default case-insensitive substring. Content is injected text with macros and live token estimate. Secondary Keys are Selective only. Description is Knowledge Router only never main AI content. Matching toggles Whole Words Case Sensitive Regex with safety timeout and slow pattern failure for that scan.",
+          "topics": [
+            "Primary Secondary Keys",
+            "Content macros tokens",
+            "Description Knowledge Router",
+            "Whole Words Case Regex"
+          ],
+          "children": []
+        },
+        {
+          "slug": "types",
+          "title": "Types",
+          "level": 3,
+          "sourceHash": "sha256:e33f98470fd24f1be9feaaf02bfb39a0d917014999327bcde6149cf3ea4d0854",
+          "summary": "Types are Normal primary keys match Constant no keyword still respecting timing probability filters budgets and Selective primary plus secondary logic AND Any AND All NOT Any NOT All. Type choice changes activation cost and should match author intent.",
+          "topics": [
+            "Normal Constant Selective",
+            "secondary logic modes",
+            "Constant still budgeted"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "position-depth-order-probability",
+          "title": "Position, depth, order, probability",
+          "level": 3,
+          "sourceHash": "sha256:97092ab487c5f1bfc16ee9408ab2e03e729569b67969b7ab95e8efce6d473127",
+          "summary": "Position depth order probability set Position Before chat After chat or at Depth default depth four Order default one hundred lower earlier and Probability default one hundred percent. Depth placement interacts with Role flags when using at Depth insertion.",
+          "topics": [
+            "Before After Depth",
+            "Order default 100",
+            "Probability default 100"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "timing",
+          "title": "Timing",
+          "level": 3,
+          "sourceHash": "sha256:e33e7bbe120dc299b764a9a0ab83a06c17a5ee3e046f596b7ca60903f7669465",
+          "summary": "Timing fields are Sticky Cooldown Delay in messages and Ephemeral in activations with zero meaning off. They gate how often Constant or matched entries reappear across the chat window.",
+          "topics": [
+            "Sticky Cooldown Delay",
+            "Ephemeral activations",
+            "zero means off"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "additional-entry-flags-from-entries-guide",
+          "title": "Additional entry flags (from entries guide)",
+          "level": 3,
+          "sourceHash": "sha256:c34b192ee0d44e76df9d767ed321d6e95543ae9914f9fc92256dd116624c1e40",
+          "summary": "Additional entry flags from entries guide include Role for at Depth insertion group or tag filters Locked No Vector skip semantic context filters and per-entry Recursion whether this entry text can chain. These are distinct from book-level Recursive switch.",
+          "topics": [
+            "Role at Depth",
+            "Locked No Vector",
+            "per-entry Recursion",
+            "group tag filters"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ]
+    },
+    {
+      "slug": "budgets-and-skips",
+      "title": "Budgets and skips",
+      "level": 2,
+      "sourceHash": "sha256:18c08392f7b30743c26300e1bdef0c9660d03b70d0cc957dda4e325a0778a8f1",
+      "summary": "Budgets and skips use per-book Token Budget and chat-wide Lorebook Token Budget chat Settings default eight thousand one hundred ninety-two zero unlimited. Entry Limit is a count cap separate from tokens. Trim order Constants first then matches on latest message then remaining injection order. After a skip later smaller entries may still fit. Active Context lists skips with reasons lorebook budget chat budget or both shows keywords size budget used and may suggest Knowledge Retrieval or Router agents. Recursion does not bypass budgets or Entry Limit.",
+      "topics": [
+        "per-book and chat budgets",
+        "Entry Limit count cap",
+        "trim order Constants first",
+        "Active Context skip reasons"
+      ],
+      "children": []
+    },
+    {
+      "slug": "semantic-search",
+      "title": "Semantic search",
+      "level": 2,
+      "sourceHash": "sha256:0e9af9418454ca2b2c42cbc1c507e1317db506ab1ead1ef6403592cc8d70924c",
+      "summary": "Semantic search requires an embedding source connection embedding model example text-embedding-3-small or Local Model sidecar when installed Lite may hide local. Vectors switch per book. Settings Query Messages default ten zero full history Score Threshold default zero point three Vector Limit default ten semantic matches only. Vectorize missing or re-vectorize with confirm. Dimension mismatch or missing vectors fail quietly for those entries while keywords still work. Semantic and keyword matches share budget priority with configured order breaking ties.",
+      "topics": [
+        "embedding source required",
+        "Vectors per book",
+        "query score vector limits",
+        "quiet vector failures"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "linking-and-ownership",
+      "title": "Linking and ownership",
+      "level": 2,
+      "sourceHash": "sha256:8aaa7890f31599220cd57767e853b5aede153d8afacfe99617aeb17b10b722d5",
+      "summary": "Linking and ownership separates shared linked library books attached to characters or personas from embedded books that travel inside a character card when export includes them. Character import can promote an embedded book to a standalone linked Marinara lorebook or leave it only inside the card. Chat-pinned books are chat-owned activation not library membership. Global versus linked mutual exclusion remains. Manage embedded books from character Lorebook tab and Native export which keeps attached lorebooks.",
+      "topics": [
+        "shared linked library books",
+        "embedded vs promoted",
+        "chat-pinned activation",
+        "Native keeps attached books"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "import-export",
+      "title": "Import / export",
+      "level": 2,
+      "sourceHash": "sha256:178c81a97c900ebde9f56356c6f8bd86fc0fb9909f4c5aecea857d5a822b6fe2",
+      "summary": "Import export detects Marinara native versus foreign World Info or V2 character-book JSON automatically. Import single or bulk drop shows per-file success or error rows and preserves created date from the source file. Export Marinara Native marinara json includes folders and every field or Compatible JSON folderless World Info drops Marinara-only details. Bulk export Select Export marinara-lorebooks zip always Native. ST folder wizard can pull lorebooks with other categories. After import child documents re-vectorization requirements for semantic search.",
+      "topics": [
+        "native marinara json",
+        "compatible folderless JSON",
+        "bulk native zip",
+        "date preservation",
+        "re-vectorize after import"
+      ],
+      "children": [
+        {
+          "slug": "after-import",
+          "title": "After import",
+          "level": 3,
+          "sourceHash": "sha256:cc0bdea9a723fa1358d7245e659af4009de01476380bcaf1893c8ff05798e0d1",
+          "summary": "After import keywords work immediately. Semantic search requires re-vectorization after import using Vectors plus Vectorize missing or Re-vectorize. Old vectors from another install are not assumed valid for the new embedding model.",
+          "topics": [
+            "keywords immediate",
+            "re-vectorize required",
+            "old vectors invalid"
+          ],
+          "children": [],
+          "shortSource": true
+        }
+      ],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:54d806a607341362d827f5cb8aa16b50cfe8b7ea3027d9042b86327e93495660",
+      "summary": "Hoplight canonical lorebook mapping is adapter-specific. Marinara token budgets, recursive controls, semantic vectors, folder structure, timing fields, and activation ownership do not automatically round-trip through every target. Kit must consult the active format adapter and report unsupported fields instead of presenting cross-format export as silently lossless.",
+      "topics": [
+        "adapter-specific mapping",
+        "no universal budget round-trip",
+        "report losses"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

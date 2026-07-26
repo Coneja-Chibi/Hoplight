@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/agents-and-tools",
+  "sourcePath": "docs/reference/platforms/marinara/agents-and-tools.md",
+  "sourceHash": "sha256:6a5372e4a8d86f18ef9603184cbf0e5463fa90e058f9d1eebe2146cf6bd922f1",
+  "summary": "Documents Marinara agents, Memory Recall and summaries, custom Functions, regex scripts, Professor Mari, and the map boundary at the pinned Engine docs for Kit retrieval. Agents cover activation, phases, abilities, result types, tools, and dynamic package inventory. Memory distinguishes semantic message chunks from Roleplay and Conversation summarization. Functions cover names, parameters, Static Result, Webhook, Script, hidden context, enable lists, import and export, and server restrictions. Regex covers placement, mode, scope, order, depth, import, and safety blocks. Professor Mari covers supported creation and editing, guided chips, selected connections, attachments, Skills, separate history, reversible saved-data edits, and its powerful install-folder command boundary. Hierarchical map semantics route to the dedicated page. Hoplight imports codecs and sealed data without executing Marinara assistants, tools, scripts, or maps.",
+  "topics": [
+    "agent phases abilities results",
+    "Memory Recall and summaries",
+    "Static Result Webhook Script",
+    "regex apply modes depth",
+    "Professor Mari Keep Restore",
+    "maps pointer",
+    "Hoplight codec boundary"
+  ],
+  "sections": [
+    {
+      "slug": "agents",
+      "title": "Agents",
+      "level": 2,
+      "sourceHash": "sha256:f7e5ee1785480e7cfbd609de86061e6d86ed89b758fdda1f03f3c8ab038262e1",
+      "summary": "Agents are per-chat helpers enabled in Chat Settings. Official packages are mode-limited while custom agents run in all modes. Copy official packages to edit rather than mutating stock. Import export packages where documented. Phases are Pre-Generation Parallel and Post-Processing and result types may force phase. Post may optionally read Turn Data Access of pre-generation injections and parallel results. Abilities opt-in include create edit lorebooks target one book edit messages trackers frontend styling image generation vectors embeddings and main prompt edits. Result types include Context Injection Text Rewrite Lorebook Update Character Tracker Persona Stats Custom Tracker Game State Image Prompt Prompt Patch Frontend Style. Activation keywords skip irrelevant turns. Attach custom tools. Built-in inventory is dynamic from built-in agents docs and Marinara-Agents repo so static Hoplight pages must not freeze the list.",
+      "topics": [
+        "per-chat enable modes",
+        "Pre Parallel Post phases",
+        "abilities and result types",
+        "keywords tools",
+        "dynamic built-in inventory"
+      ],
+      "children": []
+    },
+    {
+      "slug": "memory-systems-two",
+      "title": "Memory systems (two)",
+      "level": 2,
+      "sourceHash": "sha256:950cea8eb31a276d39711c1baea4c20d962bfa1f5cdb10fc0a8aaab31610986f",
+      "summary": "Memory systems two are distinct product features not short-lived agent notes. Memory Recall works in all modes and is the only memory system in Game with no summaries. It runs semantic search over past messages with per-chat enable defaults on in Conversation and on in Roleplay or Game with active Scene else off. Embedding source is on the connection or local sidecar. Memories for This Chat modal shows Vectorized Waiting or Embedding unavailable chunks with export marinara json import merge rebuild clear and per-chunk forget. Chunks need at least five new messages similarity may return none and rebuild after model change. Storage can continue when the toggle is off if embedding is available. Lite may hide Memory Recall. Summaries are Roleplay Chat Summary compressing old messages and Conversation Automatic Summarization. Different jobs that can combine with Memory Recall.",
+      "topics": [
+        "Memory Recall semantic chunks",
+        "Roleplay Chat Summary",
+        "Conversation automatic summarization",
+        "not short-lived agent notes",
+        "export rebuild forget"
+      ],
+      "children": []
+    },
+    {
+      "slug": "custom-tools-functions",
+      "title": "Custom tools (Functions)",
+      "level": 2,
+      "sourceHash": "sha256:ba07bd1522ea7c39dce6077ad6da1c1210d3064b44edb6aaabf6b9064306d2a9",
+      "summary": "Custom tools Functions live under Presets Functions. Name is lowercase snake_case one to one hundred characters description one to five hundred for the model unique with reserved built-in names blocked. Admin secret required for remote manage. Export ZIP import ZIP or JSON. Parameters are name type string number boolean array object Required description empty names dropped and invalid imported params can skip the tool at generation with server log only. Execution types exact are Static Result fixed string empty becomes OK Webhook POST JSON tool and arguments to URL reply at most five hundred twelve KB default sixty seconds https only private localhost blocked unless admin allows failures return error result and Script server JS with args JSON Math Date must return off by default until CUSTOM_TOOL_SCRIPT_ENABLED true greyed when disabled. Include hidden chat context default off for Webhook and Script adds mode persona characters chat variables game state without AI-passed args. Chat Settings Enable Tool Use off default. No explicit list means all globally enabled tools adding any tool restricts to that set.",
+      "topics": [
+        "name description limits",
+        "parameter builder fields",
+        "Static Result Webhook Script",
+        "hidden chat context",
+        "Tool Use enable list"
+      ],
+      "children": []
+    },
+    {
+      "slug": "regex-scripts",
+      "title": "Regex scripts",
+      "level": 2,
+      "sourceHash": "sha256:84b86fc3e7a8d9dd0bef9e127241b665b8093bc27824689686a955bfb11775b3",
+      "summary": "Regex scripts live under Presets Regexes. Find without slashes Replace with dollar captures and case transforms flags g i m s u y d Trim Strings after replace Live Test pattern only not placement enable scope or depth. Macros allowed in find replace trim. Apply To AI Output and or User Input at least one. Apply Mode Only Display default Only Prompt or Both. User Input plus Only Display or Both rewrites the saved or sent message with no pure display-only for outbound user text. Execution Order lower first default auto-assigned. Depth Min Max from newest zero empty means any min greater than max blocks save. Specific Characters toggle or character Advanced Regex Scripts after save. Per-chat Scoped Regex Scripts Disabled default Exclusive or Chat with per-script toggles. Prompt-side scripts follow generating character. ST card import Character only or Global empty or unsafe patterns skipped. Safety blocks nested quantifiers ambiguous quantified alternatives oversized patterns over one thousand chars and multi broad wildcards slow run skips that message only.",
+      "topics": [
+        "Trim Strings live test",
+        "Only Display Prompt Both",
+        "depth order scoped chats",
+        "Specific Characters",
+        "safety blocks"
+      ],
+      "children": []
+    },
+    {
+      "slug": "professor-mari",
+      "title": "Professor Mari",
+      "level": 2,
+      "sourceHash": "sha256:4436d24da944d7255129d73efeefc3f737b95bc0af46110c84c6522c95fc00fd",
+      "summary": "Professor Mari is Marinara's Home-screen assistant for explanation, agent-catalog comparison, and creation or editing of characters, personas, lorebooks, themes, agents, prompt presets, avatars, sprites, and backgrounds. Guided chips ask one focused question and fill editable drafts. Existing-data edits save then show a ten-minute Review Mari's changes card: Keep confirms and Restore reinstates the previous snapshot; new items usually skip it, and character or persona history is a second recovery path. It remembers a selected text connection, opens Connections when absent, accepts images PDFs and common text up to 20 MB, and needs vision for image reading. Custom Skills have upload, edit, enable, and delete lifecycle. Restart archives separate Mari chat history; Stop cancels work. Its repair authority may inspect or modify only the install folder and run short-lived commands there, never directly write saved data through that path. Remote edits require remote access. Hoplight does not import that command ability.",
+      "topics": [
+        "home create edit",
+        "Keep Restore",
+        "install-folder boundary",
+        "needs connection"
+      ],
+      "children": []
+    },
+    {
+      "slug": "maps",
+      "title": "Maps",
+      "level": 2,
+      "sourceHash": "sha256:ca8f78d681a3ae07c8c6e1a27d4f08356aaf6f4e215b17cbec389edaad6acf29",
+      "summary": "The dedicated Maps and game content page owns the full Hierarchical Maps authoring, draft, enable, save, exact-location lore, one-move travel, import, archive, and Game-binding lifecycle. Agent Game State and tracker result types cannot bypass the map's current-location or save rules.",
+      "topics": [
+        "pointer to maps page",
+        "no duplicate map schema",
+        "agent game state updates"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:5909ad2b25dd5b923049e00278797e15498007ff38afa4b6ef7be246688e6958",
+      "summary": "Hoplight currently provides Marinara regex and persona codecs for this cluster. Imported scripts remain sealed data. Hoplight does not run Marinara custom Functions, agent pipelines, Professor Mari install commands, or map updates during import or conversion. Unsupported behavior stays platform-owned and must not be inferred from documentation coverage.",
+      "topics": [
+        "marinara-regex persona codecs",
+        "scripts sealed",
+        "no invented execution"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

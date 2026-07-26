@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/macro-reference",
+  "sourcePath": "docs/reference/platforms/marinara/macro-reference.md",
+  "sourceHash": "sha256:733b6f7756be6d779ec50c5904a8fa1faff4938d65ef4a6c210a72e567a28e2d",
+  "summary": "Exhaustive catalog of every built-in prompt macro named by Pasta-Devs/Marinara-Engine prompts/macros.md at commit b7545a63e7e264a1cd9eeea1a5490d50c08ddb29. Built-ins are case-insensitive; unknown letter-number-underscore names resolve as preset variables or remain literal; the page does not invent extension macros; live Macro Reference and slash macros are engine authorities. Identity and card macros list user userName userNamePhonetic char charName charNamePhonetic characters group persona personaDescription personaPersonality personaBackstory personaAppearance personaScenario description personality backstory appearance scenario example charSysInfo charPostHistory with defaults and group first-character behavior. Conversation Mode only covers convo_display char_about persona_about convo_behavior emptying outside that mode. Conversation placement move suppress auto-insert covers context status commands commandList reactRules emojiReact replyRules memories memoryRecall lorebook lore and singular about placement rules. Context and request macros list input model chatId lastGenerationType idle_duration gameStoryboardKeyframeCount agent type resolved last. Time macros share one browser-timezone timestamp for date time datetime isotime weekday timezone. Random and dice cover random ranges weighted options and roll XdY. Reply-scoped variables setvar getvar addvar incvar decvar reset each generation with setvar-in-random failure mode. Formatting macros cover newline trim case wrap noop comment banned. Non-macros and failure modes plus Conditionals pointer complete the contract.",
+  "topics": [
+    "exhaustive built-in macro names",
+    "identity and card macros",
+    "Conversation Mode macros",
+    "placement suppress auto-insert",
+    "context request time random",
+    "reply-scoped variables",
+    "formatting and failure modes"
+  ],
+  "sections": [
+    {
+      "slug": "identity-and-card-macros",
+      "title": "Identity and card macros",
+      "level": 2,
+      "sourceHash": "sha256:98949fb87028c0fd6cbff0eb36928c049dd7f8fbfb4ad2942dba653d020bc5a2",
+      "summary": "Identity and card macros: user and userName return active user or persona display name defaulting to User; userNamePhonetic falls back to user when empty. char and charName return current character name defaulting to Character; charNamePhonetic falls back to char. characters is all chat characters comma-joined; group is other active group characters excluding current responder and excludes persona, following current speaker during group generations. persona joins Description Personality Backstory Appearance Scenario by newlines; personaDescription personaPersonality personaBackstory personaAppearance personaScenario return single persona fields. description personality backstory appearance scenario example return character fields with solo current character or group first character by default unless group blocks iterate. charSysInfo is Character System Prompt; charPostHistory is Character Post-History Instructions.",
+      "topics": [
+        "user and char aliases",
+        "phonetic fallbacks",
+        "characters and group roster",
+        "persona multi-field block",
+        "character field macros",
+        "charSysInfo charPostHistory"
+      ],
+      "children": []
+    },
+    {
+      "slug": "conversation-mode-only",
+      "title": "Conversation Mode only",
+      "level": 2,
+      "sourceHash": "sha256:ce9d06467cd0801f2c5ea69fee4dfdce23900f803c03af8d8352e5676ad7873f",
+      "summary": "Conversation Mode only macros are convo_display char_about persona_about and convo_behavior. They resolve only in Conversation Mode authoring surfaces and remain empty or unused in Roleplay and Game. Pair them with Convo tab fields on characters and personas rather than inventing Roleplay injection paths.",
+      "topics": [
+        "convo_display char_about",
+        "persona_about convo_behavior",
+        "Conversation only",
+        "not Roleplay Game"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "conversation-placement-move-suppress-auto-insert",
+      "title": "Conversation placement (move + suppress auto-insert)",
+      "level": 2,
+      "sourceHash": "sha256:305c20d401f816f40c42c5984f1524c05e91ac070110b98f5d6f6a4917cd6148",
+      "summary": "Conversation placement (move + suppress auto-insert) macros render a block at the macro site and skip automatic insertion to avoid duplication, Conversation Mode only. context and status place conversation context or status block. commands and commandList place available-commands reminder. reactRules and emojiReact place custom-emoji reaction rules. replyRules places custom-emoji and sticker reply rules. memories and memoryRecall place memory-recall block. lorebook and lore place lorebook injections. In one-character Conversation, placing char_about or persona_about yourself similarly skips the automatic participant About block. Group Conversation keeps the automatic participant block because a singular about macro covers only one participant.",
+      "topics": [
+        "suppress auto-insert",
+        "context status commands",
+        "reactRules replyRules",
+        "memories lorebook",
+        "about placement group rule"
+      ],
+      "children": []
+    },
+    {
+      "slug": "context-and-request-macros",
+      "title": "Context and request macros",
+      "level": 2,
+      "sourceHash": "sha256:a299a266f286c3f84f18f0ef6fd72a7f26fe9ba36ded035edcb3b9b3237cfea9",
+      "summary": "Context and request macros: input is the most recent user message available to the prompt. model is current model name when selected. chatId is current chat ID. lastGenerationType labels generation reason with documented examples normal continue regenerate impersonate guided autonomous turn_game preview game_setup lorebook_scan retry_agents as an open set. idle_duration is human-readable idle time such as 8 minutes. gameStoryboardKeyframeCount is Game Mode keyframes-per-turn target 1-6 default 3 as narrative target not a hard paragraph quota. agent double-colon TYPE returns saved output of agent type TYPE and is resolved last so agent text cannot inject further macros.",
+      "topics": [
+        "input model chatId",
+        "lastGenerationType open set",
+        "idle_duration",
+        "gameStoryboardKeyframeCount",
+        "agent TYPE last resolve"
+      ],
+      "children": []
+    },
+    {
+      "slug": "time-macros",
+      "title": "Time macros",
+      "level": 2,
+      "sourceHash": "sha256:4cacb81da5374e56aa2f6784e04985293e4e4eb997954c2800303705157df26d",
+      "summary": "Time macros all share one resolution timestamp with timezone from the browser. date is YYYY-MM-DD. time is HH:MM 24-hour. datetime and isotime are full timestamps with timezone offset and the same meaning. weekday is weekday name. timezone is timezone name. Do not invent per-macro clock skew; treat them as one snapshot.",
+      "topics": [
+        "shared resolution timestamp",
+        "browser timezone",
+        "date time datetime isotime",
+        "weekday timezone"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "random-and-dice",
+      "title": "Random and dice",
+      "level": 2,
+      "sourceHash": "sha256:6c2946265f0e2ba13cb2f6a4747199c6fd2d8ae8d560e4c728ef0d73cf505733",
+      "summary": "Random and dice: random alone is integer 0-100 inclusive. random colon X colon Y is integer between X and Y inclusive. random double-colon A double-colon B double-colon C picks one option and macros resolve only inside the chosen option. Weighted form uses option at weight with missing weight equal 1, decimal weights allowed, weight 0 never selected, all weights 0 yields empty, and only a final at-number is a weight. roll colon XdY returns dice total such as 2d6.",
+      "topics": [
+        "random 0-100",
+        "random range X Y",
+        "option pick and weighted",
+        "macros only in chosen option",
+        "roll XdY"
+      ],
+      "children": []
+    },
+    {
+      "slug": "reply-scoped-variables",
+      "title": "Reply-scoped variables",
+      "level": 2,
+      "sourceHash": "sha256:107ebb551d2ee7a48062ed21f40b6aa34189e895d52aeb7515ba62f47273ebdb",
+      "summary": "Reply-scoped variables exist only for one reply generation and reset every turn. setvar name value stores and emits empty. getvar name reads or empty if unset. addvar name value appends to stored value. incvar name adds 1 to numeric variable. decvar name subtracts 1 from numeric variable. Do not put setvar inside random options because setvar runs for every option before the pick.",
+      "topics": [
+        "per-generation reset",
+        "setvar getvar addvar",
+        "incvar decvar",
+        "setvar not in random options"
+      ],
+      "children": []
+    },
+    {
+      "slug": "formatting-macros",
+      "title": "Formatting macros",
+      "level": 2,
+      "sourceHash": "sha256:64d60ef3ff057fdc83ec3e5c40ad6cd09ae6767e6d683cc37571705cbe080118",
+      "summary": "Formatting macros: newline and escaped-n insert a line break. trim removes itself and trims surrounding whitespace. trimStart and trimEnd trim start or end of surrounding text. uppercase and lowercase wrap text for case conversion. noop is removed as a harmless placeholder. double-slash comment is an author note removed from output. banned quoted text is removed and does not filter or ban model output.",
+      "topics": [
+        "newline trim family",
+        "uppercase lowercase wraps",
+        "noop and comments",
+        "banned not a filter"
+      ],
+      "children": []
+    },
+    {
+      "slug": "lifecycle-rules-pinned",
+      "title": "Lifecycle rules (pinned)",
+      "level": 2,
+      "sourceHash": "sha256:21bfaf8048f45ea88477444a23d2889e48fb556666ae8639f97c3d8b7cd905a8",
+      "summary": "Lifecycle rules pinned state that built-in macros need no API key and resolve inside Marinara while preset variables need a defining preset. Agent type macros stay empty until that agent has produced saved output and resolve last so agent text cannot inject further macros. Variables evaluate left to right in one prompt build so early lore setvar can be read later. Random resolves macros only inside the chosen option except setvar addvar incvar decvar which run for every option before the pick. Reply-scoped variables reset every generation. Weighted random missing weight equals one weight zero never selected all-zero weights yield empty.",
+      "topics": [
+        "no API key built-ins",
+        "agent empty before output",
+        "left-to-right variables",
+        "setvar random prepass exception",
+        "reply-scoped reset"
+      ],
+      "children": []
+    },
+    {
+      "slug": "non-macros-and-failure-modes",
+      "title": "Non-macros and failure modes",
+      "level": 2,
+      "sourceHash": "sha256:0fdd7ff5081358c6ce7d603b08d6663a96f3acf36c834d58ac32e8e2f4c08382",
+      "summary": "Non-macros and failure modes: prompt alone opens Peek Prompt and is not a resolving macro. No escape character for braces; unknown names stay literal unless a preset variable matches. Custom Tools do not resolve macros. Impersonate templates accept only a restricted placeholder set, not the full list. Very large or deeply nested expansions are cut off silently. Live slash macros and Macro Reference may update with the engine; this catalog is the pinned static floor and must not invent extension macros.",
+      "topics": [
+        "Peek Prompt non-macro",
+        "literal unknown names",
+        "Custom Tools no resolve",
+        "impersonate restricted set",
+        "silent truncation",
+        "static floor vs live"
+      ],
+      "children": []
+    },
+    {
+      "slug": "conditionals",
+      "title": "Conditionals",
+      "level": 2,
+      "sourceHash": "sha256:96cc14cffe8491a7ace3f01c31581574e73a6ba3a844b07d7a2ebf3072497d83",
+      "summary": "Conditionals: operators live on Prompts and macros including if blocks, else, equality and comparison operators, and logical and or. They are part of the macro system and apply wherever macros work. This catalog does not re-list operator tables; treat that page as the normative operator reference and this page as the exhaustive name catalog.",
+      "topics": [
+        "operators on prompts page",
+        "if else system",
+        "apply wherever macros work",
+        "no operator re-list here"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

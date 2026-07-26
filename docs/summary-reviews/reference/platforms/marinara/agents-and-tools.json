@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/agents-and-tools",
+  "sourcePath": "docs/reference/platforms/marinara/agents-and-tools.md",
+  "sourceHash": "sha256:6a5372e4a8d86f18ef9603184cbf0e5463fa90e058f9d1eebe2146cf6bd922f1",
+  "semanticSummaryHash": "sha256:210697d9d13dd1a2e6f7a4ed0f0a9e633fa9e7c010eb7c9a4abec06449bbc171",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and every section summary reviewed against pinned agent, tool, regex, memory, and Professor Mari sources. Phases, result types, exact function modes, regex safety, reversible edits, install-folder authority, map routing, and sealed Hoplight execution boundaries are concrete and accurate.",
+  "reviewedAt": "2026-07-26T06:53:15.924Z"
+}

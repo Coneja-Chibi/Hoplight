@@ -4,6 +4,33 @@
 import { expect, test } from "bun:test";
 import { createHoplightDocs } from "./repository";
 
+const DOCUMENTED_SILLYTAVERN_MACROS = [
+  "user", "char", "group", "groupNotMuted", "charIfNotGroup", "notChar",
+  "description", "personality", "scenario", "persona", "charPrompt", "charInstruction",
+  "charDepthPrompt", "charCreatorNotes", "charVersion", "mesExamples", "mesExamplesRaw",
+  "charFirstMessage", "original", "lastMessage", "lastMessageId", "lastUserMessage",
+  "lastCharMessage", "firstIncludedMessageId", "firstDisplayedMessageId", "lastSwipeId",
+  "currentSwipeId", "allChatRange", "summary", "time", "date", "weekday", "isotime",
+  "isodate", "datetimeformat", "idleDuration", "timeDiff", "getvar", "setvar", "addvar",
+  "incvar", "decvar", "hasvar", "deletevar", "getglobalvar", "setglobalvar",
+  "addglobalvar", "incglobalvar", "decglobalvar", "hasglobalvar", "deleteglobalvar",
+  "random", "pick", "roll", "maxPrompt", "maxContextTokens", "maxResponseTokens", "model",
+  "isMobile", "lastGenerationType", "hasExtension", "systemPrompt", "defaultSystemPrompt",
+  "authorsNote", "charAuthorsNote", "defaultAuthorsNote", "instructStoryStringPrefix",
+  "instructStoryStringSuffix", "instructUserPrefix", "instructUserSuffix",
+  "instructAssistantPrefix", "instructAssistantSuffix", "instructSeparator",
+  "instructSystemPrefix", "instructSystemSuffix", "instructFirstAssistantPrefix",
+  "instructLastAssistantPrefix", "instructFirstUserPrefix", "instructLastUserPrefix",
+  "instructStop", "instructUserFiller", "instructSystemInstructionPrefix", "chatSeparator",
+  "chatStart", "reasoningPrefix", "reasoningSuffix", "reasoningSeparator", "charPrefix",
+  "charNegativePrefix", "newline", "space", "noop", "trim", "reverse", "input", "banned",
+  "outlet",
+] as const;
+
+const VARIABLE_SHORTHAND_OPERATORS = [
+  "=", "++", "--", "+=", "-=", "||", "??", "||=", "??=", "==", "!=", ">", ">=", "<", "<=",
+] as const;
+
 test("full-text search returns the best catalog section for body-only wording", async () => {
   const docs = createHoplightDocs();
   const hits = await docs.search("shared secret world readable process table");
@@ -51,4 +78,47 @@ test("whole-document reads can continue until the complete source is consumed", 
   expect(second).not.toBeNull();
   expect(second!.offset).toBe(first!.nextOffset!);
   expect(second!.body).not.toBe(first!.body);
+});
+
+test("SillyTavern authoring references are searchable and readable by section", async () => {
+  const docs = createHoplightDocs();
+  const hits = await docs.search("World Info outlet recursion timed effects");
+  expect(hits.some((hit) => hit.id === "reference/platforms/sillytavern/world-info")).toBe(true);
+
+  const section = await docs.read("reference/platforms/sillytavern/macros", {
+    section: "variables-and-state",
+  });
+  expect(section).not.toBeNull();
+  expect(section!.section).toBe("variables-and-state");
+  expect(section!.body).toContain("Local variables belong to the current chat");
+  expect(section!.body).toContain("keeps macros sealed during conversion");
+  expect(section!.body).toContain("evaluates them while importing");
+});
+
+test("SillyTavern reference enumerates every macro and operator in the pinned manual", async () => {
+  const catalog = await Bun.file(
+    "docs/reference/platforms/sillytavern/macro-reference.md",
+  ).text();
+  for (const name of DOCUMENTED_SILLYTAVERN_MACROS) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    expect(catalog).toMatch(new RegExp(`\\{\\{${escaped}(?=[}: ])`));
+  }
+
+  const operators = await Bun.file(
+    "docs/reference/platforms/sillytavern/macro-operators.md",
+  ).text();
+  for (const operator of VARIABLE_SHORTHAND_OPERATORS) {
+    expect(operators).toContain(`| \`${operator}\` |`);
+  }
+  expect(operators).toContain("`/` | Closes a scoped block");
+  expect(operators).toContain("`#` | Preserves all whitespace");
+  expect(operators).toContain("planned but not");
+
+  const docs = createHoplightDocs();
+  const macroHits = await docs.search("charNegativePrefix image generation macro");
+  expect(macroHits[0]?.id).toBe("reference/platforms/sillytavern/macro-reference");
+  const operatorHits = await docs.search("nullish coalescing assign lazy fallback macro");
+  expect(operatorHits.some(
+    (hit) => hit.id === "reference/platforms/sillytavern/macro-operators",
+  )).toBe(true);
 });

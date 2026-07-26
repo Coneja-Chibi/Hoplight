@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/macros",
+  "sourcePath": "docs/reference/platforms/sillytavern/macros.md",
+  "sourceHash": "sha256:918ed4f10ece3b541f7117a66015cbbf6bec54dcb5a6f13bddc53380ca2f5f15",
+  "summary": "Explains SillyTavern macros as a runtime expression language used across prompts, cards, World Info, Quick Replies, regex configuration, and scripts, with availability depending on field and evaluation stage. It routes exhaustive lookup to the companion documented-name catalog and complete operator reference. Core syntax covers double-brace names, arguments, nesting, scoped blocks, whitespace, conditionals, comments, escaping, and implemented versus planned flags. Variables describes chat-local and installation-global stores, full and shorthand operations, lazy fallbacks, and state mutation. Value families span participants, card and persona fields, runtime and random values, prompt templates, utilities, and extension-provided registrations. Portability hazards include order-dependent outlets, persona role reversal, regex substitution, script contexts, legacy markers, and platform semantic differences. Hoplight preserves exact source and keeps macros sealed rather than evaluating or translating them through superficial replacement.",
+  "topics": [
+    "SillyTavern macro language",
+    "nested scoped conditional macros",
+    "local and global variables",
+    "state mutation",
+    "runtime macro families",
+    "complete macro catalog",
+    "complete operator reference",
+    "evaluation order",
+    "sealed portability"
+  ],
+  "sections": [
+    {
+      "slug": "core-syntax-and-composition",
+      "title": "Core syntax and composition",
+      "level": 2,
+      "sourceHash": "sha256:f1c69487fccdf8d8c79aef281206f21ee353d5537b8d286266fb9740b44a2d35",
+      "summary": "Core syntax and composition defines modern case-insensitive double-brace macros, a space for one argument, and `::` for multiple arguments; single-colon syntax is legacy. Whitespace around names and separators is ignored, inner expressions resolve before outer consumers, and scoped blocks provide a final dedented argument unless `#` preserves whitespace. `{{if}}` supports truthiness, inversion, and else branches; comments and backslash escapes preserve non-output or literal braces. Only closing `/` and whitespace-preserving `#` flags are implemented in the pinned source, so Kit must not present documented future immediate, delayed, re-evaluate, or filter flags as available.",
+      "topics": [
+        "double brace syntax",
+        "single and multiple arguments",
+        "nested and scoped blocks",
+        "conditionals comments escapes",
+        "implemented macro flags",
+        "planned syntax exclusion"
+      ],
+      "children": []
+    },
+    {
+      "slug": "variables-and-state",
+      "title": "Variables and state",
+      "level": 2,
+      "sourceHash": "sha256:a813e0daaf246f4e0c2f09d1944fffd52c039ed0f8d87a715e342083ce0b84b0",
+      "summary": "Variables and state separates chat-local variables from installation-global variables. Full macros can get, set, add, increment, decrement, test existence, and delete values in either scope, with values sometimes containing JSON-like data. The experimental shorthand uses `.name` locally and `$name` globally and supports assignment, arithmetic or string addition, fallbacks, conditional assignment, equality, inequality, and numeric comparisons; fallback operands resolve lazily. Because expressions such as setvar mutate stored state during expansion, macro-bearing text is not necessarily passive. Hoplight never expands it while importing, inspecting, summarizing, converting, or exporting.",
+      "topics": [
+        "chat local variables",
+        "installation global variables",
+        "get set arithmetic delete",
+        "shorthand operators",
+        "lazy fallback",
+        "sealed state mutation"
+      ],
+      "children": []
+    },
+    {
+      "slug": "common-value-families",
+      "title": "Common value families",
+      "level": 2,
+      "sourceHash": "sha256:a854f49a52533688d0adc5e85457bb5cab142bf23c609334e049c1978534a545",
+      "summary": "Common value families groups macros by purpose. Participant values identify user, character, groups, and speakers. Card and persona values expose definitions, prompt overrides, notes, versions, examples, and greetings. Runtime values expose messages, swipes, time, model limits, generation type, extension state, and summaries. Random forms provide rerolled choice, stable chat choice, and dice. Template values expose active system and Author's Note text plus Instruct wrappers, stops, and reasoning markers, while utilities manipulate whitespace, strings, input, banned words, or named World Info outlets. Extensions can register more, so runtime help and field autocomplete remain authoritative for one installation.",
+      "topics": [
+        "participant macros",
+        "card and persona fields",
+        "runtime and random values",
+        "template wrapper macros",
+        "utility and outlet macros",
+        "runtime extension registry"
+      ],
+      "children": []
+    },
+    {
+      "slug": "evaluation-and-portability-hazards",
+      "title": "Evaluation and portability hazards",
+      "level": 2,
+      "sourceHash": "sha256:c594c47677b22c9529150a9470b216f471e054729069830c64eb954f0f004e9e",
+      "summary": "Evaluation and portability hazards explains that the same valid macro may behave differently by processing phase. World Info outlets do not resolve within early character fields, World Info content, or Author's Note. Character-to-persona conversion may reverse user and character roles, regex fields choose disabled, raw, or escaped macro substitution, and scripts provide pipe or variable contexts absent from prompt prose. Platforms that share brace syntax can still disagree on names, arguments, truthiness, and timing. Hoplight preserves same-format text exactly, reports unsupported cross-format behavior, avoids execution, and retains escaped, nested, or legacy markers required by the source round-trip tier.",
+      "topics": [
+        "field evaluation phases",
+        "World Info outlet limits",
+        "persona role reversal",
+        "regex substitution modes",
+        "cross-platform semantic mismatch",
+        "exact text preservation"
+      ],
+      "children": []
+    }
+  ]
+}

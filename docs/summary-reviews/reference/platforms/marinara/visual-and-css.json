@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/visual-and-css",
+  "sourcePath": "docs/reference/platforms/marinara/visual-and-css.md",
+  "sourceHash": "sha256:6d17ddc994f39a73498c49f68cc984d3ffd9abcdcd6c6b3ed023fa8f3fc413cd",
+  "semanticSummaryHash": "sha256:7051902dee17013fcd82d437bbebd9fe4bec6fc9386f3b1daccd0c72ff59ad67",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against all five pinned visual guides. Card CSS scoping and export ownership, style-profile grammar and precedence, generated versus selected backgrounds, prompt review, animated-expression prerequisites and partial failure, and Hoplight non-execution boundaries are accurate and useful.",
+  "reviewedAt": "2026-07-26T06:53:18.193Z"
+}

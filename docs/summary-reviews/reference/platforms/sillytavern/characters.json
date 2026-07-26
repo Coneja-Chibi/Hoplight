@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/characters",
+  "sourcePath": "docs/reference/platforms/sillytavern/characters.md",
+  "sourceHash": "sha256:7066107d5f2934c808b9a6afd5c722e650cd4d40eb004c54a8c9355495c1840a",
+  "semanticSummaryHash": "sha256:b0cf24d99b2087390d76d0299ccf4abc6d86b79065ae91e16845f35faa899495",
+  "verdict": "APPROVE",
+  "reviewer": "codex-independent-review-2026-07-26-r2",
+  "notes": "Reviewed complete page and sidecar against character index, characterdesign, tags, and Expression-Images at the pinned commit. Field roles, tag portability, sprite ZIP import, classifier modes, custom/default/multiple expressions, naming, folder override, and PNG portability are all represented without invented adapter support.",
+  "reviewedAt": "2026-07-26T05:07:26.331Z"
+}

@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/chats-and-groups",
+  "sourcePath": "docs/reference/platforms/sillytavern/chats-and-groups.md",
+  "sourceHash": "sha256:9902751f04004b3934b7cea0af77eb3704ebff398fbea76c57b002731551a18a",
+  "summary": "Treats SillyTavern chats and group chats as re-importable creative artifacts documented at pin 70e5e4d3c239253fca4692fe82e3936cb9c4b1b1 via chatfilemanagement and groupchats sources. Solo versus group chats contrasts one-card solo chats with Create New Chat Group multi-member shared history. Chat import and export covers Import sources from Character.AI and other tools, Export as JSONL as re-importable metadata-bearing files excluding images, Export as TXT as human-readable non-reimportable dumps, and Checkpoints and rename including Create Branch, Create Checkpoint, parent links, and rename breakage. Group reply order strategies enumerates Manual, Natural Order with talkativeness and self-response rules, List Order, and Pooled Order. Group generation handling always shares history and selects Swap character cards or Join character cards with mute force auto, Allow Self Responses, Group Chat Scenario Override, Peek Character Definitions, and membership edits. Hoplight boundary states Hoplight does not host SillyTavern chat runtime, documents interchange for Kit understanding, keeps chat JSONL conversion out of scope without a future adapter, and leaves talkativeness on the character card.",
+  "topics": [
+    "solo vs group chats",
+    "JSONL vs TXT export",
+    "checkpoints and rename",
+    "group reply strategies",
+    "swap vs join cards",
+    "mute force auto modes",
+    "Hoplight chat boundary"
+  ],
+  "sections": [
+    {
+      "slug": "solo-versus-group-chats",
+      "title": "Solo versus group chats",
+      "level": 2,
+      "sourceHash": "sha256:62b374c1fcbc8fde80aba14c7337fca1077f609e1991768814d34ef8811f5622",
+      "summary": "Solo versus group chats states a solo chat opens from one character card. A group chat is created with Create New Chat Group and holds multiple member cards that share history while reply drafting and card-assembly rules apply. The distinction is structural: group mode introduces reply order strategies, generation handling, mute force auto controls, and scenario overrides that do not apply to a single-card solo conversation. Authors must treat group membership and shared history as part of the stored chat artifact, not mere temporary UI selection.",
+      "topics": [
+        "solo one-card chat",
+        "Create New Chat Group",
+        "shared multi-member history",
+        "reply drafting rules",
+        "structural group features"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chat-import-and-export",
+      "title": "Chat import and export",
+      "level": 2,
+      "sourceHash": "sha256:ae3b76f13887d40bf92f25f00619225d489e3be22750114c57ed005cfa349edc",
+      "summary": "Chat import and export separates re-importable structured interchange from lossy human dumps and branching clones. Import sources lists Character.AI via CAI Tools plus TavernAI, oobabooga text-generation-webui, Agnai, KoboldAI Lite, and RisuAI with source-dependent fidelity. Export as JSONL produces re-importable files with metadata but excluding images and file attachments, leaving privacy scrubbing to the sharer. Export as TXT is human-readable and cannot be re-imported; metadata is lost. Checkpoints and rename covers Create Branch (clone and switch), Create Checkpoint (clone name without switch), parent links by chat file name, Back to parent chat, and the failure mode that renaming breaks checkpoint links that stored the old file name. Default names use start date and time; rename via the pencil control.",
+      "topics": [
+        "Import sources",
+        "Export as JSONL",
+        "Export as TXT",
+        "Checkpoints and rename",
+        "parent link breakage"
+      ],
+      "children": [
+        {
+          "slug": "import-sources",
+          "title": "Import sources",
+          "level": 3,
+          "sourceHash": "sha256:4bbacc1ec07126ee998adf793677626e047016da40b63c1da7f949fa7c9104d1",
+          "summary": "Import sources states SillyTavern can import chats from Character.AI via the CAI Tools extension and from tools including TavernAI, oobabooga text-generation-webui, Agnai, KoboldAI Lite, and RisuAI. Import formats and fidelity depend on the source tool. Do not assume byte-identical or field-complete transfer across every origin.",
+          "topics": [
+            "Character.AI CAI Tools",
+            "TavernAI oobabooga",
+            "Agnai KoboldAI RisuAI",
+            "source-dependent fidelity"
+          ],
+          "children": []
+        },
+        {
+          "slug": "export-as-jsonl",
+          "title": "Export as JSONL",
+          "level": 3,
+          "sourceHash": "sha256:91675a81eec48eb512430e1c5f9e6274a8e92fb554724734af295aa0b0319938",
+          "summary": "Export as JSONL is available from Manage chat files for each chat. The export produces a re-importable .jsonl including metadata but excluding images and file attachments. Privacy scrubbing before share is the user's responsibility. Treat JSONL as the portable chat interchange format when re-import is required.",
+          "topics": [
+            "Manage chat files export",
+            "re-importable jsonl",
+            "metadata included",
+            "images excluded",
+            "privacy scrubbing"
+          ],
+          "children": []
+        },
+        {
+          "slug": "export-as-txt",
+          "title": "Export as TXT",
+          "level": 3,
+          "sourceHash": "sha256:75aca3e9d1ad6f10a7a7e2c003ea3aa5097c8a80ca30d28764874d6493fe83b7",
+          "summary": "Export as TXT is a plain-text download intended for human reading. It cannot be re-imported into SillyTavern as a chat. Metadata is lost. Never present TXT as a lossless interchange path for chat history, checkpoints, or group configuration.",
+          "topics": [
+            "plain-text download",
+            "cannot re-import",
+            "metadata lost",
+            "not lossless interchange"
+          ],
+          "children": [],
+          "shortSource": true
+        },
+        {
+          "slug": "checkpoints-and-rename",
+          "title": "Checkpoints and rename",
+          "level": 3,
+          "sourceHash": "sha256:2aaaf0d38fec5287319ce93c37fa6b854b35ef7bbc44c42eb27472bd988d30c0",
+          "summary": "Checkpoints and rename defines Create Branch as cloning the chat up to a message and switching to the clone, and Create Checkpoint as cloning up to a message, naming it, without switching. Checkpoints link to the parent by chat file name; Back to parent chat returns from a checkpoint. Renaming a chat breaks checkpoint links that stored the old file name. Default chat file names use start date and time; rename via the pencil control.",
+          "topics": [
+            "Create Branch",
+            "Create Checkpoint",
+            "parent by file name",
+            "rename breaks links",
+            "default date-time names"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "group-reply-order-strategies",
+      "title": "Group reply order strategies",
+      "level": 2,
+      "sourceHash": "sha256:fa6e51f6196eacf8f0fa93fe277b567c3178ebb0e5519fa577f6cec07c851691",
+      "summary": "Group reply order strategies enumerates four stored modes. Manual: the user picks the speaker via menu or trigger; empty user input can trigger a random unmuted member; user messages do not auto-trigger replies. Natural Order: extract whole-word name mentions from the last message (self-mentions ignored unless Allow Self Responses); then activate by Talkativeness where 0 percent never unless mentioned, 100 percent always, default 50 percent; if none activated, pick random. List Order: draft strictly by member list order. Pooled Order: pick a random member who has not spoken since the last user message; when all have spoken, pick randomly until the next user message. These strategies are group configuration, not character prose.",
+      "topics": [
+        "Manual reply pick",
+        "Natural Order talkativeness",
+        "List Order",
+        "Pooled Order",
+        "stored group configuration"
+      ],
+      "children": []
+    },
+    {
+      "slug": "group-generation-handling",
+      "title": "Group generation handling",
+      "level": 2,
+      "sourceHash": "sha256:b7f6938d2384214dac8828f68247696309dd973c9b5eded05a26e07d6dcbd0fb",
+      "summary": "Group generation handling always shares history among members. Card assembly modes are Swap character cards (default: only the active speaker's card enters context) and Join character cards (combine all members' cards in list order, hurting isolation and risking identity confusion). Join sub-modes include or exclude muted members. Combined fields are Description; Scenario unless chat override; Personality; Message examples; Character notes and Depth prompts. Join Prefix and Suffix can separate fields; macros and char and FIELDNAME replacement apply. Mute disables replies; Force Talk triggers one member even if muted; Auto-mode chains generations with a five-second delay and disables when the user types though queued gens may continue; Allow Self Responses affects Natural Order self-mentions; Group Chat Scenario Override replaces each card's scenario for the group and branches inherit then can diverge; Peek Character Definitions edits the card itself; members can be added, removed, or reordered.",
+      "topics": [
+        "shared history",
+        "Swap vs Join cards",
+        "combined field set",
+        "mute force auto",
+        "scenario override"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight-boundary",
+      "title": "Hoplight boundary",
+      "level": 2,
+      "sourceHash": "sha256:dd0ae3406a3154a133bb60c5a1b2fe20c946f447fe26ec1dd13e5a0680f5015e",
+      "summary": "Hoplight boundary states Hoplight does not host SillyTavern chat runtime. The page documents interchange and group configuration so Kit understands what stored artifacts mean. Conversion of chat JSONL is out of scope unless a future adapter exists. Character talkativeness remains a card field documented on Characters rather than a free-floating group-only value. Do not claim Hoplight can run group generation, auto-mode chains, or re-import ST chats without an explicit adapter contract.",
+      "topics": [
+        "no ST chat runtime",
+        "document for Kit understanding",
+        "JSONL conversion out of scope",
+        "talkativeness on card",
+        "no invented runtime claims"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

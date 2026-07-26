@@ -15,6 +15,8 @@ folder-derived; global check and index merge require current approval; Kit tests
 Plans 09 through 12 record the 2026-07-25 creative-studio tool-surface audit. Plan 09 was completed
 and regression-tested on 2026-07-25. Plans 10 and 11 are now unblocked and may proceed
 independently. Plan 12 remains blocked until the production history engine exists.
+Plan 13 is the serial-worker and independent-review contract for complete SillyTavern and Marinara
+authoring compendiums using the existing folder-derived semantic catalogue.
 
 ## Recommended order
 
@@ -30,6 +32,7 @@ independently. Plan 12 remains blocked until the production history engine exist
 10. [10-add-lifecycle-publishing-tools.md](10-add-lifecycle-publishing-tools.md)
 11. [11-add-diagnostics-and-editor-parity.md](11-add-diagnostics-and-editor-parity.md)
 12. [12-build-history-backed-batch-tools.md](12-build-history-backed-batch-tools.md)
+13. [13-build-platform-authoring-compendiums.md](13-build-platform-authoring-compendiums.md)
 
 Plans 1 and 2 both touch `src/kit/render/app.tsx` and composer integration tests, so execute them
 in order. Plans 3 and 4 both touch the application view controller and should also be serialized.
@@ -46,6 +49,8 @@ Plan 9 generalized the existing progressive-disclosure catalog, made reads trave
 composed drafts inspectable. Plans 10 and 11 add lifecycle, publishing, deterministic diagnostics,
 and remaining semantic editor parity. Plan 12 must not begin until the production snapshot and
 history contracts have a real implementation and recovery tests.
+Plan 13 is independent of Plans 10-12. Its lower-cost serial worker authors source-grounded platform
+pages and sidecars only; a different reviewer must approve them before regeneration and full CI.
 
 The evidence and prioritization are in [AUDIT.md](AUDIT.md).
 The external research and Orison comparison for Plan 6 are in

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/chats-and-groups",
+  "sourcePath": "docs/reference/platforms/sillytavern/chats-and-groups.md",
+  "sourceHash": "sha256:9902751f04004b3934b7cea0af77eb3704ebff398fbea76c57b002731551a18a",
+  "semanticSummaryHash": "sha256:e5530d0b818c66608cbf07b8b06cb73fb3d82d6525c08111ba5e6d20a75f8170",
+  "verdict": "APPROVE",
+  "reviewer": "codex-independent-review-2026-07-26-r2",
+  "notes": "Reviewed all page and H2 summaries against chatfilemanagement.md and groupchats.md. JSONL versus TXT fidelity, attachment loss, checkpoint rename breakage, all four reply strategies, card assembly modes, mute/force/auto behavior, scenario override, and Hoplight boundary are complete and accurate.",
+  "reviewedAt": "2026-07-26T05:07:26.601Z"
+}

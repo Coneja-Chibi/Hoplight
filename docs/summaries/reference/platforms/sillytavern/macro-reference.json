@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/macro-reference",
+  "sourcePath": "docs/reference/platforms/sillytavern/macro-reference.md",
+  "sourceHash": "sha256:3bcc6cbf8f17d91741227f114c4e9e188299d5e2a68dde286112a27713758041",
+  "summary": "Complete pinned catalog of every macro named in SillyTavern's official macro manual rather than a family-level sample. Authority and limits distinguishes the static documented set from extension-provided runtime registrations and field-specific availability. The catalog then enumerates participant, card, persona, message, swipe, clock, variable, random, model-state, prompt-template, Instruct, reasoning, image-generation, whitespace, input, banned-word, and World Info outlet macros with signatures, values, mutation behavior, and scope qualifications. Structural `if`, `else`, comment, block, and flag behavior routes to the operator reference. Runtime discovery requires `/? macros` or autocomplete for one live installation while using this page for pinned documented semantics. It warns that a known name is not proof of universal field support and that state-changing expressions remain sealed in Hoplight during import, inspection, conversion, and export.",
+  "topics": [
+    "complete documented macro catalog",
+    "macro signatures and values",
+    "card and chat macros",
+    "variable mutation macros",
+    "prompt and Instruct macros",
+    "utility and outlet macros",
+    "runtime extension boundary",
+    "field-specific availability"
+  ],
+  "sections": [
+    {
+      "slug": "catalog-authority-and-limits",
+      "title": "Catalog authority and limits",
+      "level": 2,
+      "sourceHash": "sha256:44c073c6db60884513466057e697baf0f4a140b6efcd19ac0130036bacb0f70d",
+      "summary": "Catalog authority and limits defines completeness against the pinned official macro page, not against every future extension or local installation. SillyTavern's runtime registry can add names, while `/? macros` and autocomplete expose the live set and arguments. The tables use recommended modern signatures and qualify scope, return value, or mutation. Because fields are processed at different stages, catalog membership does not guarantee resolution everywhere. Hoplight treats state-changing or otherwise executable macro text as sealed and does not evaluate it during content operations.",
+      "topics": [
+        "pinned catalog authority",
+        "runtime extensibility",
+        "live registry discovery",
+        "field processing stages",
+        "sealed state changes"
+      ],
+      "children": []
+    },
+    {
+      "slug": "names-participants-cards-and-personas",
+      "title": "Names, participants, cards, and personas",
+      "level": 2,
+      "sourceHash": "sha256:880778ecf5bf2f1f0adc96150e4fa266248165581da59cac9aa515a16b7f48a7",
+      "summary": "Names, participants, cards, and personas individually catalogs user, character, group, non-muted group, solo-character, and other-participant values, then all documented card and persona fields. It distinguishes description, personality, scenario, persona, character prompt overrides, depth note, creator notes, version, formatted and raw examples, greetings, alternate greeting index, and original override composition. Scope notes preserve group and solo behavior, metadata distinctions, and empty-value cases. The section also warns that character-to-persona conversion may reverse `user` and `char` roles rather than safely retaining literal tokens.",
+      "topics": [
+        "participant names",
+        "group and solo behavior",
+        "card field macros",
+        "prompt override values",
+        "greetings and examples",
+        "persona role reversal"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chat-history-messages-time-and-date",
+      "title": "Chat history, messages, time, and date",
+      "level": 2,
+      "sourceHash": "sha256:dde2f0b277d2d734ef8a5f2f1fe7499bb4243566adc9b5c354e5b695bd9bea65",
+      "summary": "Chat history, messages, time, and date enumerates latest message, latest user or character message, message indexes, context-window start, displayed-window start, current and final swipe indexes, full chat range, and extension-provided summary. Clock values cover local and UTC-offset time, short date, weekday, ISO time and date, custom formatting, idle duration, and two-value time difference. These results are runtime state rather than portable card data and can change across previews, branches, generations, installations, context fitting, display windows, and local clocks.",
+      "topics": [
+        "message and speaker history",
+        "context and display indexes",
+        "swipe state",
+        "chat range and summary",
+        "time and date formats",
+        "runtime variability"
+      ],
+      "children": []
+    },
+    {
+      "slug": "variables-randomization-and-runtime-state",
+      "title": "Variables, randomization, and runtime state",
+      "level": 2,
+      "sourceHash": "sha256:0fc409665f0d35db3b98bf45db71f572975403399027300a166ad174efc8abf4",
+      "summary": "Variables, randomization, and runtime state catalogs complete local and global variable operations: get, set, add or append, increment, decrement, existence, and delete, with mutation and return behavior. Random rerolls from a list, pick stays stable for its chat position until rerolled, and roll evaluates dice syntax. Runtime lookups expose prompt, context, and response token limits, selected model, mobile state, latest generation kind, and extension availability. The section stresses that random is not a numeric range and that global writes affect installation state beyond one conversation.",
+      "topics": [
+        "local variable operations",
+        "global variable operations",
+        "mutation and returns",
+        "random pick and dice",
+        "token and model state",
+        "extension availability"
+      ],
+      "children": []
+    },
+    {
+      "slug": "prompt-instruct-reasoning-and-image-templates",
+      "title": "Prompt, Instruct, reasoning, and image templates",
+      "level": 2,
+      "sourceHash": "sha256:5f5e18f03cb78fb33e021f33eded41fc44205c33a2f7033799b7cbbc1ef48080",
+      "summary": "Prompt, Instruct, reasoning, and image templates catalogs the active and default system prompts, active, character, and default Author's Notes, Story String wrappers, user, assistant, and system role wrappers, separator, first and last role variants, stop sequence, filler, system-instruction prefix, example-chat separator, and chat-start marker. It also names reasoning prefix, suffix, and separator plus character positive and negative image-generation prompt prefixes. These values belong to model assembly stages and cannot be flattened into character identity or assumed equivalent to similarly named fields on another platform.",
+      "topics": [
+        "system and Author's Note",
+        "Story String wrappers",
+        "role prefixes and suffixes",
+        "first and last variants",
+        "reasoning wrappers",
+        "image prompt prefixes"
+      ],
+      "children": []
+    },
+    {
+      "slug": "utility-and-world-info-values",
+      "title": "Utility and World Info values",
+      "level": 2,
+      "sourceHash": "sha256:b5fb6a2120574871ebd94fbcc87101ecef964a1e4b39703dafa07ffd492c9f13",
+      "summary": "Utility and World Info values enumerates single and counted newlines, single and counted spaces, empty noop output, newline trimming, string reversal, current input, backend-dependent banned words, and named World Info outlets. It distinguishes text-returning utilities from actions with backend effects. Outlet lookup is case-sensitive and evaluation-stage dependent: content remains withheld until a compatible later field requests its exact key, and the form does not resolve inside World Info content, early card fields, or Author's Note. Outlet keys are therefore not automatically portable.",
+      "topics": [
+        "newline and space counts",
+        "noop trim and reverse",
+        "current input",
+        "banned word effect",
+        "World Info outlet",
+        "outlet stage limits"
+      ],
+      "children": []
+    },
+    {
+      "slug": "conditional-and-structural-forms",
+      "title": "Conditional and structural forms",
+      "level": 2,
+      "sourceHash": "sha256:fb946e24bb2cca6dca17c7611c3d5b0b9aaf10282ced13feb204c376a250e94f",
+      "summary": "Conditional and structural forms identifies `if`, `else`, and comment expressions as language control forms rather than value lookups. Their complete truthiness, inversion, block, whitespace, and escape rules live in the operator reference. The section distinguishes implemented closing and preserve-whitespace flags from planned immediate, delayed, re-evaluate, and filter flags. Kit must not infer that planned syntax works merely because the official manual names it, and must keep structural meaning alongside the ordinary macro catalog.",
+      "topics": [
+        "if and else forms",
+        "macro comments",
+        "block structure",
+        "implemented flags",
+        "planned flags warning"
+      ],
+      "children": []
+    },
+    {
+      "slug": "runtime-discovery-rule",
+      "title": "Runtime discovery rule",
+      "level": 2,
+      "sourceHash": "sha256:145800270691b9858433c27d8eb3007b15e06404d9542fd2440753629f5977f2",
+      "summary": "Runtime discovery rule tells Kit how to answer without confusing a pinned manual with live installation state. For a cataloged name, the reference supplies documented semantics. For existence or support in the user's installation or field, Kit should direct them to `/? macros` or field autocomplete because extensions and field registries change the available set. Claims must be labeled as pinned documentation or observed runtime behavior, and absent snapshot evidence must not be converted into certainty about a user's environment.",
+      "topics": [
+        "pinned semantics",
+        "live installation registry",
+        "slash help discovery",
+        "field autocomplete",
+        "claim labeling"
+      ],
+      "children": []
+    }
+  ]
+}

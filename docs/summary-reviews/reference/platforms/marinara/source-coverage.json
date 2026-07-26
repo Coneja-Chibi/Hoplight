@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/source-coverage",
+  "sourcePath": "docs/reference/platforms/marinara/source-coverage.md",
+  "sourceHash": "sha256:d5da9f82d984d46b951bb7e0f6b1a28c0f1cae559bdf3498bfbfd77a6ee2b249",
+  "semanticSummaryHash": "sha256:3a77c14fdd1e210b5ec96ddf5f74ccdf1a965dcb45977d8786dd4cbd1a6051d8",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full manifest and sidecar reviewed. All 57 included and 61 excluded paths resolve at the exact pin, totals reconcile to 118, every Conversation guide is included, exclusions are individually reasoned, and the sidecar correctly avoids implying codec support.",
+  "reviewedAt": "2026-07-26T06:53:17.726Z"
+}

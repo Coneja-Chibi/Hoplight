@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/characters",
+  "sourcePath": "docs/reference/platforms/sillytavern/characters.md",
+  "sourceHash": "sha256:7066107d5f2934c808b9a6afd5c722e650cd4d40eb004c54a8c9355495c1840a",
+  "summary": "Defines a SillyTavern character as both a portable Character Card and a runtime prompt component, with character name as the only required authoring field. Identity and permanent definitions separates always-sent name, description, personality, and scenario from conditional material, explains their context cost, and preserves authored prose rather than normalizing writing styles. Greetings and dialogue examples covers First Message as a style demonstration, Alternate Greetings as opening swipes, and START example blocks that may leave context as budget tightens. Advanced definitions and metadata distinguishes Main Prompt and Post-History Instructions overrides composed with original, depth-based Character's Note, group talkativeness, and non-prompt attribution fields. Lore, attachments, and platform links separates embedded books, named World Info links, chat lore, Data Bank attachments, tags, and installation state. Character expressions (sprites) documents per-emotion files under the character folder, ZIP packs, classifiers, custom labels, multi-sprite naming, folder override, and the rule that PNG cards do not carry the full expression grid. Import, export, and Hoplight boundaries explains JSON and PNG card layers, canonical mapping plus escrow, cross-format loss reporting, and the rule that scripts and installation-specific links remain sealed rather than transplanted or executed.",
+  "topics": [
+    "Character Card fields",
+    "permanent prompt tokens",
+    "first and alternate greetings",
+    "example dialogue blocks",
+    "prompt overrides and metadata",
+    "embedded vs linked lore",
+    "expression sprites and packs",
+    "PNG and JSON carriers",
+    "canonical escrow boundaries"
+  ],
+  "sections": [
+    {
+      "slug": "identity-and-permanent-definitions",
+      "title": "Identity and permanent definitions",
+      "level": 2,
+      "sourceHash": "sha256:490bdc4cb94eed3b5caf8cf005556cfa2e8dad8e860878ed1a368e6079b17c67",
+      "summary": "Identity and permanent definitions states that name supplies character identity and the char macro, description carries broad durable facts, personality summarizes traits, and scenario establishes circumstances. SillyTavern sends all four on every generation, so their tokens reduce space available for history, examples, World Info, and retrieved documents. Authors should reserve them for stable required facts and move conditional material into lore, Author's Note, or depth-based injections. The prose fields accept free text, structured lists, and pseudo-dialogue without a mandated mini-language; actual effect depends on the model and surrounding template. Hoplight preserves authored strings without converting one writing method into another.",
+      "topics": [
+        "name description personality scenario",
+        "always sent prompt content",
+        "context budget cost",
+        "stable vs conditional facts",
+        "preserve authored prose"
+      ],
+      "children": []
+    },
+    {
+      "slug": "greetings-and-dialogue-examples",
+      "title": "Greetings and dialogue examples",
+      "level": 2,
+      "sourceHash": "sha256:16eb1ba5be5c22aa69f444d72c9d6ba36567e75458070eef605cac721eda46be",
+      "summary": "Greetings and dialogue examples distinguishes three teaching layers. First Message starts a new chat as the initial assistant turn and strongly demonstrates voice, markdown or HTML markup, pacing, and desired response length. Alternate Greetings provide additional opening swipes and may be selected when initiating group conversations so one card can host several entry scenarios. Example Messages use START blocks plus user and char labels; SillyTavern replaces the marker with the active example separator or utility prompt. Examples are budget-sensitive and can fall out block by block unless settings force retention, so they should demonstrate style rather than contain indispensable facts.",
+      "topics": [
+        "first message style anchor",
+        "alternate greeting swipes",
+        "group openings",
+        "START example blocks",
+        "budget-sensitive examples"
+      ],
+      "children": []
+    },
+    {
+      "slug": "advanced-definitions-and-metadata",
+      "title": "Advanced definitions and metadata",
+      "level": 2,
+      "sourceHash": "sha256:cc7a988e7a24737eb83a5d374715d24d82ebc86c4cb86fa8352060ab58190a06",
+      "summary": "Advanced definitions and metadata separates behavioral instructions from attribution. Main Prompt and Post-History Instructions may override global values when the corresponding preference is enabled, while the original macro composes the default into an override instead of fully replacing it. Character's Note is a role-tagged static injection whose depth controls recency (depth zero after the most recent message; larger values earlier), and talkativeness changes natural-order group response probability rather than prose style. Creator, character version, creator notes, source references, and embedded tags support attribution or discovery and are normally not inserted into the model prompt, so conversion must not fold them into description prose merely because another platform has fewer metadata slots.",
+      "topics": [
+        "main prompt override",
+        "post-history instructions",
+        "original composition",
+        "depth note and role",
+        "talkativeness",
+        "creator metadata separation"
+      ],
+      "children": []
+    },
+    {
+      "slug": "lore-attachments-and-platform-links",
+      "title": "Lore, attachments, and platform links",
+      "level": 2,
+      "sourceHash": "sha256:bbfae52dbfe366dff16b87c3f5685dabfc37422101148c22b0b6c57a8fda9a77",
+      "summary": "Lore, attachments, and platform links distinguishes an embedded character book that travels inside a compatible card, a named World Info link that depends on a separate book in the receiving installation, and chat lore owned by one conversation. Character-scoped Data Bank attachments are stored locally and do not export with the card. Tags may be assigned on the card, imported from embedded Tags to Embed, or bulk-edited; Manage Tags holds local colors, order, and bogus folder modes, while tag backup JSON is installation-specific. Import can create local tags, attach matches, import all, or import none. Filtering toggles include, exclude, or ignore tags. Character locks, chat history, favorites, and UI layout remain installation state and must not be rewritten into description prose during conversion.",
+      "topics": [
+        "embedded character book",
+        "named World Info link",
+        "chat lore ownership",
+        "local Data Bank attachments",
+        "tags vs installation state"
+      ],
+      "children": []
+    },
+    {
+      "slug": "character-expressions-sprites",
+      "title": "Character expressions (sprites)",
+      "level": 2,
+      "sourceHash": "sha256:a85403b614959fd62964828fc1a2d39b3e85b0fe2a136963158cc9be9df5c6c8",
+      "summary": "Character expressions (sprites) stores per-emotion images under data user-handle characters character_name, separate from the single card avatar. Authors upload per emotion or a flat ZIP sprite pack that does not rename files to match emotions. Manual display uses click, expression-set, or Quick Reply; automatic change uses Local classifier (one-time model download; 28-label default or 6-label via extensions.models.classification), Main API LLM classification (Limited or Full Context), WebLLM, or deprecated Extras classify. Custom Expressions add author-named labels; Local and Extras classifiers know fixed sets unless trained or LLM sees defaults plus customs. Formats include PNG, webp, and animated gifs. Fallback may be an expression, No Fallback, or Default emojis. Multi-sprite naming uses expression name then a suffix after a dot or hyphen. Sprite Folder Override or costume command selects image sets. Portable PNG cards must not claim to carry the full expression grid.",
+      "topics": [
+        "per-emotion sprite files",
+        "ZIP sprite pack import",
+        "classifier and LLM selection",
+        "custom expressions and multi-sprite",
+        "folder override and portability"
+      ],
+      "children": []
+    },
+    {
+      "slug": "import-export-and-hoplight-boundaries",
+      "title": "Import, export, and Hoplight boundaries",
+      "level": 2,
+      "sourceHash": "sha256:b7fc00f07af6fa1518fe9f8540e45ba5874f109f59eec7dc17573ad6f755e6f1",
+      "summary": "Import, export, and Hoplight boundaries describes portable Character Card JSON and PNG carriers imported from files or URLs. Image pixels are presentation while encoded card data is the semantic record. Hoplight maps supported fields into a canonical character while retaining the complete source snapshot in escrow for same-format restoration of SillyTavern-specific fields that lack a canonical editing surface. Cross-format output carries only target-supported semantics and must report losses. Regex scripts, automation identifiers, local World Info names, and other installation-specific links cannot be copied merely because another platform offers a vaguely similar field. Imported scripts remain sealed data and never execute during import or conversion.",
+      "topics": [
+        "JSON and PNG cards",
+        "image vs encoded data",
+        "canonical mapping plus escrow",
+        "cross-format loss report",
+        "sealed scripts and local links"
+      ],
+      "children": []
+    }
+  ]
+}

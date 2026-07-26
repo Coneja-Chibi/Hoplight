@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/visual-and-css",
+  "sourcePath": "docs/reference/platforms/marinara/visual-and-css.md",
+  "sourceHash": "sha256:6d17ddc994f39a73498c49f68cc984d3ffd9abcdcd6c6b3ed023fa8f3fc413cd",
+  "summary": "Documents Marinara card CSS, image style profiles, scene and Roleplay background lifecycles, and animated expression generation at the pinned Engine docs. Card CSS covers Creator Notes ownership, active-character control visibility, Disabled Exclusive Chat scopes, sanitizer boundaries, layout-specific selectors, and Native versus Tavern export. Style Profiles covers ten built-ins, clone reset delete, four prompt grammars, per-kind tags, validation, cleaning, and app to connection to chat precedence. Backgrounds distinguish Gallery generation from library selection and the non-generating Background agent, including modes, connection fallback, prompt review, upload formats and ownership, per-image actions, chat pinning, cross-fade, and solid-color fallback. Animated expressions cover video plus ffmpeg requirements, per-expression partial success, fixed 9:16 GIF output, duration, missing cleanup and transparency guarantee, and explicit failure modes. Hoplight does not claim visual round-trip fidelity it has not proven.",
+  "topics": [
+    "card CSS Exclusive Chat modes",
+    "supported forbidden surfaces",
+    "style profile built-ins",
+    "grammar test bench precedence",
+    "scene Roleplay backgrounds",
+    "animated expressions",
+    "Native CSS ownership"
+  ],
+  "sections": [
+    {
+      "slug": "card-css-theming",
+      "title": "Card CSS theming",
+      "level": 2,
+      "sourceHash": "sha256:d3a9bda9949d21b6df3acaa90d1cf1a3d3d659a5da6f491b9918c67f5da78519",
+      "summary": "Card CSS theming embeds style blocks in character or persona Creator Notes. Chat Settings Card Theming appears only when an active character in the chat has CSS persona CSS alone does not show the control. Modes Disabled default Exclusive each character CSS only its messages Chat all card CSS affects whole chat area. Engine sanitizes dangerous CSS scopes to chat and injects over app message styles. Selectors must stay under data-card-css chat surfaces message bubble name content. Linear Conversation layout has no mari-message-bubble while Bubbles and Roleplay do. Forbidden styling outside chat breakout to app chrome unsafe constructs stripped. Export ownership CSS rides Creator Notes on Marinara Native character persona export compatible CCv2 PNG does not preserve custom CSS as a first-class field.",
+      "topics": [
+        "Creator Notes style blocks",
+        "Disabled Exclusive Chat",
+        "data-card-css surfaces",
+        "forbidden app chrome",
+        "Native export ownership"
+      ],
+      "children": []
+    },
+    {
+      "slug": "style-profiles",
+      "title": "Style profiles",
+      "level": 2,
+      "sourceHash": "sha256:1ab7dea74ef41e71c05ea4707a7d0504cd4e6bd066dc25d6f88c7842b58a6480",
+      "summary": "Style profiles live under Settings Generations Image Generation Style Profiles. Ten built-ins Off Auto default Anime Danbooru Illustrious Realistic SDXL Photorealistic Cinematic Digital Painting Painterly Fantasy Z-Image Turbo Narrative. Clone creates editable copy and sets it default Reset restores built-ins Delete user clones only when more than one profile exists. Prompt grammar Hybrid Danbooru tags Tags Natural language. Style text positive negative tags per-image-kind tags avatar portrait selfie background illustration sprite. Test bench validates. Precedence app default connection override chat override later wins. Cleaning regenerates tags from style text.",
+      "topics": [
+        "ten built-in profiles",
+        "clone customize reset",
+        "grammar Hybrid Tags Natural",
+        "test bench cleaning",
+        "app connection chat precedence"
+      ],
+      "children": []
+    },
+    {
+      "slug": "scene-backgrounds-and-roleplay-backgrounds",
+      "title": "Scene backgrounds and Roleplay backgrounds",
+      "level": 2,
+      "sourceHash": "sha256:6c793539418ef24ae152fadba9cf1b64a8de5be4a8091cee6089ee196afded03",
+      "summary": "Scene background generation works in Roleplay and Game, not Conversation. Gallery Background builds a 1280 by 720 default prompt from current setting, location, weather, and time, uses the Illustrator connection or image default, saves to the background library, and applies immediately; missing connection fails. Gallery conditionally exposes Illustrate, Selfie, Background, Video, storyboard, and image browsing. Per-image actions open, pin, download, animate, copy saved prompt, and confirm delete. Expose media prompts opens editable positive and negative prompt review with kind, size, count, required non-empty text, Cancel, and Generate. The library accepts JPG PNG GIF WebP and AVIF up to 20 MB; user assets can rename tag delete while built-ins are read-only. Roleplay may pin a chat background or let the optional Background agent select existing library images after replies. That agent never generates. Backdrops cross-fade and fall back to solid color.",
+      "topics": [
+        "upload agent generation",
+        "reviewed prompts",
+        "Roleplay library lifecycle",
+        "backgrounds folder"
+      ],
+      "children": []
+    },
+    {
+      "slug": "animated-expressions",
+      "title": "Animated expressions",
+      "level": 2,
+      "sourceHash": "sha256:29111dcb3981c20ba6f6a1e6b13cad8ff27e0b6ae9bcbab463c8eb65e26b4819",
+      "summary": "Animated expressions are looping GIF portrait sprites selected like still expressions by Expression Engine. Generation requires a Video Generation connection and ffmpeg. Character or persona Facial Expressions switches to animated mode, takes appearance and selected expressions, generates one fixed 9:16 clip at a time, converts locally, and preserves successful results when another expression fails. Duration is 1 to 8 seconds default 3 and output is 512 pixels wide. GIF output skips sheet slicing, cropping, and background cleanup; the transparent-style option is only a prompt hint and cannot guarantee transparency. Prompt exposure reviews every expression. Missing ffmpeg or video connection fails explicitly, and platforms unable to load the image library disable the generator.",
+      "topics": [
+        "duration shape transparency",
+        "video connection required",
+        "gallery animated assets",
+        "not still PNG fidelity"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:f1aab4e2ca958681facabfb34027582e074e5ed96b0c5774310cf5d10d24e767",
+      "summary": "Native Marinara export may carry CSS in Creator Notes and media folders. Compatible Tavern PNG does not prove preservation of Marinara-specific CSS, background libraries, animated expressions, style profiles, or generation settings. Hoplight reports unsupported visual ownership rather than executing media or claiming a silent full-fidelity round trip.",
+      "topics": [
+        "Native CSS media",
+        "PNG fidelity loss",
+        "report visual losses"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

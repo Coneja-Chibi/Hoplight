@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/characters",
+  "sourcePath": "docs/reference/platforms/marinara/characters.md",
+  "sourceHash": "sha256:9d3da2fae379df8380a284e098c008a97b463272baffcf78373046e1154db776",
+  "semanticSummaryHash": "sha256:a697f75415ad2582da1b2039addb282a25f39ce17e135cbac9b5696911bde8ac",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against pinned character, persona, profile, and interchange guides. Summaries preserve editor fields, Convo-only semantics, persona precedence, import choices, native versus compatible losses, reversible update review, and the truthful lack of a dedicated Hoplight character codec.",
+  "reviewedAt": "2026-07-26T06:53:16.154Z"
+}

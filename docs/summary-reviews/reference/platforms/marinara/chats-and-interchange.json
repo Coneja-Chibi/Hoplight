@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/chats-and-interchange",
+  "sourcePath": "docs/reference/platforms/marinara/chats-and-interchange.md",
+  "sourceHash": "sha256:aaca8866bac234512a5ab84720f741ceaa481c814d948e346b6333453fcf6ca3",
+  "semanticSummaryHash": "sha256:97260b1027d5ea50d7fdb288ef592316d63ac319445707f728c055d13554d9b2",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against the four pinned chat sources. JSONL versus Text, mode-tab and branch import ownership, reasoning privacy default, Roleplay versus Conversation group behavior, asymmetric connected chats, preset exclusions, and no-codec Hoplight boundary are complete and accurate.",
+  "reviewedAt": "2026-07-26T06:53:16.385Z"
+}

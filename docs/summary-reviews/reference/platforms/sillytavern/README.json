@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/README",
+  "sourcePath": "docs/reference/platforms/sillytavern/README.md",
+  "sourceHash": "sha256:af42cd8edbfbd2c7acb981ebb7141aae4a78f9373e529698fc17530378bb40b4",
+  "semanticSummaryHash": "sha256:e69149bc168dd2b995ce0a7785a1cbd62b46b091b1350a36e8c67c9af0f9bf23",
+  "verdict": "APPROVE",
+  "reviewer": "codex-independent-review-2026-07-26-r3",
+  "notes": "Complete collection map, provenance, claim-boundary rules, traversal guidance, and refresh policy; source and all section summaries are accurate and substantive.",
+  "reviewedAt": "2026-07-26T06:26:25.680Z"
+}

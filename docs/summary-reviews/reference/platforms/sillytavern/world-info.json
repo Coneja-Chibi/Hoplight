@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/world-info",
+  "sourcePath": "docs/reference/platforms/sillytavern/world-info.md",
+  "sourceHash": "sha256:0c1a90472bd570459e10bfa7a2f34b402377e18ae9cb3ed2005442c61feb2a81",
+  "semanticSummaryHash": "sha256:63a878b6574443894713b249bf8105d043675ab891855c0483f016df64a2caf1",
+  "verdict": "APPROVE",
+  "reviewer": "codex-primary-self-review",
+  "notes": "Self-review: scopes, activation, selection, placement, recursion, timing, automation, and lossy interoperability are represented without shallow compression.",
+  "reviewedAt": "2026-07-26T02:02:24.564Z"
+}

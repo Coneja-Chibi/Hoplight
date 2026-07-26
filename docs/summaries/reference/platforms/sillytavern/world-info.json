@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/world-info",
+  "sourcePath": "docs/reference/platforms/sillytavern/world-info.md",
+  "sourceHash": "sha256:0c1a90472bd570459e10bfa7a2f34b402377e18ae9cb3ed2005442c61feb2a81",
+  "summary": "Models SillyTavern World Info as conditional knowledge and prompt injection rather than a passive dictionary. Books, links, and entry identity distinguishes global, character, chat, embedded, and named-link scopes, organizational memos, content, enabled state, character filters, generation filters, and extra scan sources. Activation and selection covers constants, primary and secondary keywords, selective logic, probability, inclusion groups, group scoring, and vector similarity with remaining eligibility checks. Placement, order, and prompt budget separates insertion position, chat depth, order, outlets, scan depth, minimum activations, and context budget. Recursion, timing, and automation covers recursive activation controls, sticky, cooldown, delay, branch state, and executable Automation IDs. Interoperability rules distinguishes portable character books from standalone World Info dialects, requires canonical mapping plus original escrow, and demands explicit loss reporting when another platform lacks recursion, grouping, timing, vectors, outlets, trigger filters, or scan-source controls.",
+  "topics": [
+    "World Info book scopes",
+    "keyword selective activation",
+    "probability and groups",
+    "prompt placement and budget",
+    "outlet macro",
+    "recursion and timed effects",
+    "vector matching",
+    "lorebook interoperability"
+  ],
+  "sections": [
+    {
+      "slug": "books-links-and-entry-identity",
+      "title": "Books, links, and entry identity",
+      "level": 2,
+      "sourceHash": "sha256:e96be2e0c0f28d44a586b60edca6e0a327cc3e0b2a9464d61e2feaa9df755f21",
+      "summary": "Books, links, and entry identity distinguishes availability from activation. Books may be global, character-linked, chat-linked, embedded in a card, or referenced by an installed name. Entries retain a memo for humans, model-bound content, enabled state, and ordering metadata; memo and keys are not stable identity substitutes. Character or tag filters narrow eligible speakers, generation filters distinguish Normal, Continue, Impersonate, Swipe, Regenerate, and Quiet, and optional scan sources extend matching into character, persona, and creator fields.",
+      "topics": [
+        "book availability scopes",
+        "embedded vs named link",
+        "memo content enabled order",
+        "character and tag filters",
+        "generation trigger filters",
+        "additional scan sources"
+      ],
+      "children": []
+    },
+    {
+      "slug": "activation-and-selection",
+      "title": "Activation and selection",
+      "level": 2,
+      "sourceHash": "sha256:de83b4c0ed41d4cdf64493a807e00dc7fb6bf676afcabd7452db6c69d3e5ada4",
+      "summary": "Activation and selection covers constant entries, primary keys, secondary keys, selective any, all, not-any, or not-all logic, and global or per-entry case and whole-word behavior. Probability filters an otherwise qualified entry. Inclusion groups then resolve competing entries using weight, deterministic order priority, or matched-key group scoring. Vector similarity can replace keyword qualification but does not bypass probability, filters, groups, or token budget; retained keywords still permit ordinary activation, and embedding retrieval is less deterministic than explicit keys.",
+      "topics": [
+        "constant and keyword entries",
+        "secondary selective logic",
+        "case and whole word",
+        "trigger probability",
+        "inclusion group selection",
+        "vector qualification"
+      ],
+      "children": []
+    },
+    {
+      "slug": "placement-order-and-prompt-budget",
+      "title": "Placement, order, and prompt budget",
+      "level": 2,
+      "sourceHash": "sha256:8222d945b9f5deb5930aa70bf6c189ff3c912962eddcb97fbcca5b5e83e76e29",
+      "summary": "Placement, order, and prompt budget keeps insertion position, chat depth, and sort order as independent axes. Entries may land around definitions, examples, Author's Note, or a role-tagged chat depth. Outlet entries wait for an exact case-sensitive `{{outlet::Name}}` in a compatible later-processed prompt field; outlets cannot nest or resolve in early card fields, World Info content, or Author's Note. Context percentage or token budget limits combined entries, scan depth defines recent key input, and Min Activations may search farther within Max Depth.",
+      "topics": [
+        "insertion position",
+        "chat depth and role",
+        "sort order",
+        "outlet evaluation limits",
+        "context token budget",
+        "scan depth and minimum activations"
+      ],
+      "children": []
+    },
+    {
+      "slug": "recursion-timing-and-automation",
+      "title": "Recursion, timing, and automation",
+      "level": 2,
+      "sourceHash": "sha256:731f3c73de1eaf6394cad38b97d6422ac4d60b7a2bb768e7d1a54f48173212c2",
+      "summary": "Recursion, timing, and automation explains entry chains activated by keywords inside other entry content. Per-entry controls may block recursive activation, stop further propagation, or delay eligibility to a recursion level, while Max Recursion Steps bounds passes and conflicts with Min Activations. Sticky, cooldown, and delay create message-counted chat-local state that branches inherit and edits clear. Automation IDs can execute matched Quick Reply or STscript behavior, so Hoplight treats those bindings as sealed executable metadata and never follows them during import.",
+      "topics": [
+        "recursive entry chains",
+        "recursion level controls",
+        "maximum scan steps",
+        "sticky cooldown delay",
+        "chat-local timed state",
+        "Automation ID sealed"
+      ],
+      "children": []
+    },
+    {
+      "slug": "interoperability-rules",
+      "title": "Interoperability rules",
+      "level": 2,
+      "sourceHash": "sha256:9b9a5693a3d9810fc652dec2af99b79edb4fdf577a4d6da9f4e5a13945b3f48b",
+      "summary": "Interoperability rules distinguishes the portable character-book schema from SillyTavern's richer standalone World Info wire dialect, including extension-carried settings. Hoplight maps represented behavior into canonical lorebook entries and retains the complete source for same-format restoration. A cross-format target may lack recursion, inclusion groups, timed effects, vectors, outlets, generation filters, or alternative scan sources. Conversion must report each unsupported behavior rather than flattening it silently, with the format adapter reference governing the exact supported field and enum map.",
+      "topics": [
+        "character book vs standalone",
+        "extension-carried settings",
+        "canonical lorebook mapping",
+        "source escrow",
+        "unsupported behavior report",
+        "adapter field map authority"
+      ],
+      "children": []
+    }
+  ]
+}

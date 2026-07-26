@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/prompts-and-macros",
+  "sourcePath": "docs/reference/platforms/marinara/prompts-and-macros.md",
+  "sourceHash": "sha256:6fd2169f59d0f7b6dcc615bdcacf6e08c4e71bab0747e46542c57ea625386b77",
+  "semanticSummaryHash": "sha256:86c21c861da821f4d8edf11cc71d72d8b30af5c42d5111e9f5e21566d4e28cc9",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against all seven pinned prompt guides plus the macro authority. Evaluation rules, conditionals, preset variables and lifecycle, media overrides, chat-setting bundle exclusions, exact generation ranges and precedence, live macro authority, and no-execution Hoplight boundary are substantive and accurate.",
+  "reviewedAt": "2026-07-26T06:53:17.504Z"
+}

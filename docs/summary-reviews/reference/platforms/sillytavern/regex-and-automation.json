@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/regex-and-automation",
+  "sourcePath": "docs/reference/platforms/sillytavern/regex-and-automation.md",
+  "sourceHash": "sha256:1a3fcce90228f9044abe243c9b1a1d57d0805d69632bba34a292bf3f9881d3a5",
+  "semanticSummaryHash": "sha256:8266940854bd458122e8798a2ad5a332fc6361987c0b3fdb1075677020125f73",
+  "verdict": "APPROVE",
+  "reviewer": "codex-independent-review-2026-07-26-r2",
+  "notes": "Reviewed complete page and automation summaries against Regex.md and st-script.md. Script fields, three message truths, ephemerality, macro modes, QR properties and management commands, auto-execute triggers, dynamic extension command boundary, sealed import behavior, and isolated testing are accurately preserved; no static slash inventory is falsely claimed.",
+  "reviewedAt": "2026-07-26T05:07:26.819Z"
+}

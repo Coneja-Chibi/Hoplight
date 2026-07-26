@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/chats-and-interchange",
+  "sourcePath": "docs/reference/platforms/marinara/chats-and-interchange.md",
+  "sourceHash": "sha256:aaca8866bac234512a5ab84720f741ceaa481c814d948e346b6333453fcf6ca3",
+  "summary": "Documents Marinara chat interchange, group behavior, connected-chat relationships, and per-chat setting ownership. JSONL is re-importable while Text is not; single export offers either, bulk export is JSONL-only, new-chat import takes the open mode tab, and branch import reuses the open chat's characters, persona, connection, and prompt preset. Hidden reasoning is excluded from all exports by default. Group chats form at two characters: Roleplay provides Merged or Individual generation with Sequential, Smart, or Manual order, while Conversation provides Reply When Mentioned and Character Exchanges. Disabling every member reactivates all as a safety fallback. Connected Chats is a one-to-one asymmetric Conversation-to-story link, distinct from automatic Cross-Chat Awareness, with influence, durable note, and ooc transfer tags plus disconnect cleanup. Chat Settings and reusable Chat Settings Presets own bounded per-chat configuration without rewriting library artifacts. Hoplight requires an implemented adapter before claiming chat conversion.",
+  "topics": [
+    "JSONL vs Text export",
+    "single and bulk export",
+    "mode-tab import rules",
+    "branch import reuse",
+    "reasoning export privacy",
+    "group Roleplay Conversation modes",
+    "connected chats and ownership",
+    "Hoplight chat boundary"
+  ],
+  "sections": [
+    {
+      "slug": "file-formats",
+      "title": "File formats",
+      "level": 2,
+      "sourceHash": "sha256:78324fa2fc796ca77e18a8303d429e2b83e4911d9f2931d8966ee331297a1388",
+      "summary": "File formats state that JSONL is the default re-importable chat form accepted for Marinara and SillyTavern JSONL interchange, while Text txt is a human-readable transcript that cannot be re-imported. There is no separate undocumented Marinara-native chat container beyond JSONL and Text as documented. Kit must not invent binary or proprietary chat carriers when advising export paths.",
+      "topics": [
+        "JSONL re-importable",
+        "Text non-reimportable",
+        "no other native chat container",
+        "ST JSONL accepted"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "single-export",
+      "title": "Single export",
+      "level": 2,
+      "sourceHash": "sha256:0d9f78cfbf12c884cd49569a1cdda00e788fae039d1bb5379f5c2019550f6574",
+      "summary": "Single export uses the open chat Switch branch panel to download JSONL or Text for the open chat including its messages. Authors choose format per download. This per-chat export surface is separate from the mode-tab bulk selection path and ZIP workflow.",
+      "topics": [
+        "branch panel export",
+        "JSONL or Text choice",
+        "open chat messages",
+        "not bulk zip"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "bulk-export",
+      "title": "Bulk export",
+      "level": 2,
+      "sourceHash": "sha256:a20a1421755c6a07813abe73a485b67dc9ec56f6cc8793c8aa4b23ca67d109c4",
+      "summary": "Bulk export runs from the mode tab CONVO RP or GM after selecting chats then Export. The result is a zip of JSONL only with one file per selected chat of that mode. Text bulk export is not this path. Mode membership of the selection follows the open tab not a mode field inside each file itself.",
+      "topics": [
+        "mode tab selection",
+        "JSONL-only zip",
+        "one file per chat",
+        "mode from open tab"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "import-as-new-chat",
+      "title": "Import as new chat",
+      "level": 2,
+      "sourceHash": "sha256:f24d54d72ecb9dbe83bfda5b3d0c3110adcaff3a8036b17d5a36a1dd32d91a11",
+      "summary": "Import as new chat uses the chat list import control whose tooltip names SillyTavern or Marinara chat JSONL. Import creates a new chat in the currently open mode tab CONVO RP or GM rather than reading a mode encoded in the file. Success reports imported message count and switches into the chat. Wrong open tab yields the wrong mode for the new chat container.",
+      "topics": [
+        "chat list JSONL import",
+        "open mode tab owns mode",
+        "new chat not branch",
+        "success message count"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "import-as-branch",
+      "title": "Import as branch",
+      "level": 2,
+      "sourceHash": "sha256:4063b67afb6f7b0f14f0ed4a9dd9a18ec412c42b5384d366c32d11dc02769956",
+      "summary": "Import as branch uses Branch panel Import of JSONL to create a new branch of the open chat. The branch reuses that chat characters persona connection and prompt preset rather than inventing new membership from the file alone. Use this path when continuing an existing chat container rather than starting a new mode-tab chat session.",
+      "topics": [
+        "branch panel JSONL",
+        "reuse characters persona",
+        "reuse connection preset",
+        "not new chat list import"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "reasoning-in-exports",
+      "title": "Reasoning in exports",
+      "level": 2,
+      "sourceHash": "sha256:bddfb4d27c54ed214ce4e1fd981a25dafce714eb293c829dead2fd1b28537aea",
+      "summary": "Reasoning in exports is controlled by Settings Advanced Message Tools Include reasoning in exports which defaults off. Off strips hidden thinking from both JSONL and Text for single and bulk exports. On includes reasoning; leave the toggle off before sharing exports that must not leak chain-of-thought content.",
+      "topics": [
+        "Include reasoning toggle",
+        "defaults off",
+        "strips JSONL and Text",
+        "single and bulk"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "group-chats",
+      "title": "Group chats",
+      "level": 2,
+      "sourceHash": "sha256:aa3edeac90bf801f11c66194f7e694d36a101185bd6fe1392c2650451ef8b9ca",
+      "summary": "Group chats form when two or more characters are present without a separate group button. Conversation and Roleplay support them; Game uses its party system. Creation may select several characters, add a folder roster, or use Dice pick. Chat Settings supports add, remove, drag reorder, and per-chat eye-disable; disabling every character re-enables all as a zero-speaker fallback. Roleplay provides Merged Narrator or Individual with Sequential, Smart, and Manual response orders, Color Dialogues, Add Turn To Prompt, Name Prefix History, and chat-local Scenario Override. Conversation instead defaults to multi-character replies and provides Reply When Mentioned plus Character Exchanges under Autonomous Messaging.",
+      "topics": [
+        "two or more characters",
+        "disabled member re-enable",
+        "Roleplay group settings",
+        "Conversation group speaking",
+        "per-chat membership"
+      ],
+      "children": [
+        {
+          "slug": "roleplay-group-settings",
+          "title": "Roleplay group settings",
+          "level": 3,
+          "sourceHash": "sha256:3db4964132e4ef34c3b0244cb3825cfe0482982a4e2f6e1142b5745dee9c7392",
+          "summary": "Roleplay group settings choose Merged Narrator default versus Individual. Merged optional Color Dialogues uses character Colors tab. Individual Response Order is Sequential list order Smart hidden AI pick with mention override and possible multi-queue or Manual Trigger Response only. Individual toggles Add Turn To Prompt default on and Name Prefix History default off. Scenario Override can replace card scenarios when present.",
+          "topics": [
+            "Merged vs Individual",
+            "Sequential Smart Manual",
+            "Color Dialogues",
+            "Scenario Override"
+          ],
+          "children": []
+        },
+        {
+          "slug": "conversation-group-speaking",
+          "title": "Conversation group speaking",
+          "level": 3,
+          "sourceHash": "sha256:97dc53c537746dbf5f90a2ee15021661d6110b42fae1be6cafa7c34ea7345a37",
+          "summary": "Conversation group speaking does not use Roleplay's Group Chat panel. Default replies may voice several characters with automatic speaker coloring. Reply When Mentioned makes members wait for an at-name mention or manual Trigger Response selection. Character Exchanges, off by default, allows members to talk to one another only while the browser app remains open and consumes the autonomous daily-message allowance. Schedules, presence, and per-chat member disable state further constrain participation without creating Sequential, Smart, or Manual Roleplay order.",
+          "topics": [
+            "Conversation membership",
+            "autonomous schedules",
+            "not Roleplay order modes"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
+      "slug": "connected-chats",
+      "title": "Connected chats",
+      "level": 2,
+      "sourceHash": "sha256:b32c0429e59d5d98b7b58195ebc5a050a0b641e4aac0777ce4b0fcae0b0fab1f",
+      "summary": "Connected Chats is a deliberate one-to-one link between one Conversation and one Roleplay or Game chat. Conversation automatically reads recent story messages; the story side does not automatically read Conversation. Character-emitted influence sends one-turn steering, note stores durable story-side prompt notes, and ooc posts Roleplay text back to Conversation. This differs from default-on Cross-Chat Awareness among sibling Conversations sharing a character. Links start from Conversation or Game, exclude already-linked chats, add bidirectional toolbar switching, and disconnect or chat deletion clears pending influences and saved notes. Story Chat Settings provides per-note deletion and confirmed Clear all.",
+      "topics": [
+        "stored chat links",
+        "context membership transfer",
+        "not UI tabs only",
+        "product rules ownership"
+      ],
+      "children": []
+    },
+    {
+      "slug": "chat-settings-ownership",
+      "title": "Chat settings ownership",
+      "level": 2,
+      "sourceHash": "sha256:1e50ca57bdcfabbd836a778cd55990a1e5aac04ccd763ebfcd02b68612aeccb5",
+      "summary": "Chat settings ownership places lorebook pins, agent enables, budgets, persona override, group modes, scoped regex, tool use, autonomous messaging, and Advanced Parameters on one chat. Reusable Chat Settings Presets may capture connection, prompt preset, agents, tools, translation, memory, and generation overrides, but omit characters, persona, lorebooks, sprites, summary, tags, scene prompt, and Roleplay Scenario Override. Library cards and prompt presets remain separate; the built-in Default preset cannot be renamed, overwritten, or deleted.",
+      "topics": [
+        "per-chat pins and enables",
+        "persona override",
+        "group modes regex tools",
+        "library defaults separate"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:b6facd321efac1fb449c4874ae693950577ff8f3b6f0f2aa30a3138b2c254bc6",
+      "summary": "Hoplight does not convert Marinara chat JSONL unless an adapter exists. Kit must not invent chat codecs from this interchange page. Export privacy and mode-tab import rules describe upstream product behavior, not proven canonical interchange or round-trip support inside Hoplight.",
+      "topics": [
+        "no chat JSONL adapter claim",
+        "upstream product behavior",
+        "export privacy rules"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

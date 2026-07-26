@@ -1,8 +1,8 @@
 {
-  "generated": "2026-07-25",
+  "generated": "2026-07-26",
   "targetChars": 90000,
-  "totalPages": 86,
-  "totalSourceChars": 795626,
+  "totalPages": 110,
+  "totalSourceChars": 954695,
   "batches": [
     {
       "id": "batch-001",
@@ -600,7 +600,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 88630,
+      "sourceChars": 86828,
       "pages": [
         {
           "docId": "reference/formats/sillytavern",
@@ -631,7 +631,7 @@
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
           "sectionCount": 11,
-          "sourceChars": 17350,
+          "sourceChars": 20152,
           "status": "APPROVED"
         },
         {
@@ -640,6 +640,210 @@
           "sidecarPath": "docs/summaries/reference/platform-native-fields.json",
           "sectionCount": 11,
           "sourceChars": 11017,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/agents-and-tools",
+          "sourcePath": "docs/reference/platforms/marinara/agents-and-tools.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/agents-and-tools.json",
+          "sectionCount": 7,
+          "sourceChars": 6956,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/characters",
+          "sourcePath": "docs/reference/platforms/marinara/characters.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/characters.json",
+          "sectionCount": 9,
+          "sourceChars": 5050,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/chats-and-interchange",
+          "sourcePath": "docs/reference/platforms/marinara/chats-and-interchange.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/chats-and-interchange.json",
+          "sectionCount": 12,
+          "sourceChars": 5969,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/conversation-mode",
+          "sourcePath": "docs/reference/platforms/marinara/conversation-mode.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/conversation-mode.json",
+          "sectionCount": 8,
+          "sourceChars": 9767,
+          "status": "APPROVED"
+        }
+      ]
+    },
+    {
+      "id": "batch-009",
+      "sourceChars": 89032,
+      "pages": [
+        {
+          "docId": "reference/platforms/marinara/data-and-interop",
+          "sourcePath": "docs/reference/platforms/marinara/data-and-interop.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/data-and-interop.json",
+          "sectionCount": 9,
+          "sourceChars": 3746,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/lorebooks",
+          "sourcePath": "docs/reference/platforms/marinara/lorebooks.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/lorebooks.json",
+          "sectionCount": 17,
+          "sourceChars": 6520,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/macro-reference",
+          "sourcePath": "docs/reference/platforms/marinara/macro-reference.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/macro-reference.json",
+          "sectionCount": 11,
+          "sourceChars": 8069,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/maps-and-game-content",
+          "sourcePath": "docs/reference/platforms/marinara/maps-and-game-content.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/maps-and-game-content.json",
+          "sectionCount": 9,
+          "sourceChars": 7982,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/prompts-and-macros",
+          "sourcePath": "docs/reference/platforms/marinara/prompts-and-macros.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/prompts-and-macros.json",
+          "sectionCount": 8,
+          "sourceChars": 6688,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/README",
+          "sourcePath": "docs/reference/platforms/marinara/README.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/README.json",
+          "sectionCount": 2,
+          "sourceChars": 1299,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/source-coverage",
+          "sourcePath": "docs/reference/platforms/marinara/source-coverage.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/source-coverage.json",
+          "sectionCount": 2,
+          "sourceChars": 7691,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/sprites-and-galleries",
+          "sourcePath": "docs/reference/platforms/marinara/sprites-and-galleries.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/sprites-and-galleries.json",
+          "sectionCount": 5,
+          "sourceChars": 2955,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/marinara/visual-and-css",
+          "sourcePath": "docs/reference/platforms/marinara/visual-and-css.md",
+          "sidecarPath": "docs/summaries/reference/platforms/marinara/visual-and-css.json",
+          "sectionCount": 5,
+          "sourceChars": 4924,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/characters",
+          "sourcePath": "docs/reference/platforms/sillytavern/characters.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/characters.json",
+          "sectionCount": 6,
+          "sourceChars": 9075,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/chats-and-groups",
+          "sourcePath": "docs/reference/platforms/sillytavern/chats-and-groups.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/chats-and-groups.json",
+          "sectionCount": 9,
+          "sourceChars": 4058,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/macro-operators",
+          "sourcePath": "docs/reference/platforms/sillytavern/macro-operators.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/macro-operators.json",
+          "sectionCount": 9,
+          "sourceChars": 8119,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/macro-reference",
+          "sourcePath": "docs/reference/platforms/sillytavern/macro-reference.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/macro-reference.json",
+          "sectionCount": 8,
+          "sourceChars": 12403,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/macros",
+          "sourcePath": "docs/reference/platforms/sillytavern/macros.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/macros.json",
+          "sectionCount": 4,
+          "sourceChars": 5503,
+          "status": "APPROVED"
+        }
+      ]
+    },
+    {
+      "id": "batch-010",
+      "sourceChars": 71839,
+      "pages": [
+        {
+          "docId": "reference/platforms/sillytavern/personas-and-data-bank",
+          "sourcePath": "docs/reference/platforms/sillytavern/personas-and-data-bank.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/personas-and-data-bank.json",
+          "sectionCount": 4,
+          "sourceChars": 4904,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/prompts-and-presets",
+          "sourcePath": "docs/reference/platforms/sillytavern/prompts-and-presets.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/prompts-and-presets.json",
+          "sectionCount": 10,
+          "sourceChars": 10451,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/README",
+          "sourcePath": "docs/reference/platforms/sillytavern/README.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/README.json",
+          "sectionCount": 4,
+          "sourceChars": 4733,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/regex-and-automation",
+          "sourcePath": "docs/reference/platforms/sillytavern/regex-and-automation.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/regex-and-automation.json",
+          "sectionCount": 4,
+          "sourceChars": 5493,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/source-coverage",
+          "sourcePath": "docs/reference/platforms/sillytavern/source-coverage.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/source-coverage.json",
+          "sectionCount": 5,
+          "sourceChars": 7877,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/platforms/sillytavern/world-info",
+          "sourcePath": "docs/reference/platforms/sillytavern/world-info.md",
+          "sidecarPath": "docs/summaries/reference/platforms/sillytavern/world-info.json",
+          "sectionCount": 5,
+          "sourceChars": 6035,
           "status": "APPROVED"
         },
         {
@@ -669,7 +873,7 @@
       ]
     },
     {
-      "id": "batch-009",
+      "id": "batch-011",
       "sourceChars": 84586,
       "pages": [
         {
@@ -723,7 +927,7 @@
       ]
     },
     {
-      "id": "batch-010",
+      "id": "batch-012",
       "sourceChars": 43545,
       "pages": [
         {

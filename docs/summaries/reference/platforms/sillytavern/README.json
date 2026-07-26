@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/README",
+  "sourcePath": "docs/reference/platforms/sillytavern/README.md",
+  "sourceHash": "sha256:af42cd8edbfbd2c7acb981ebb7141aae4a78f9373e529698fc17530378bb40b4",
+  "summary": "Curated entry point for Kit's SillyTavern authoring knowledge. The collection covers portable and behaviorally significant content rather than installation, hosting, providers, or ordinary chat controls. Collection map routes character cards including sprites, chats and groups with JSONL versus TXT, World Info, personas and Data Bank, prompts and presets including CFG and reasoning, macro language semantics, an exhaustive pinned macro catalog, complete macro operators, regex and STscript automation, and an auditable source-coverage contract to focused pages, requiring whole-page reading around a search hit because prompt order, scope, and timing qualify isolated matches. Authority and provenance identifies independently organized Hoplight text, pins official SillyTavern-Docs commit 70e5e4d3c239253fca4692fe82e3936cb9c4b1b1 retrieved 2026-07-26 with the same pin as 2026-07-25, and preserves AGPL license and contributor links. How Kit should apply it separates upstream behavior, current adapter behavior, and authoring advice, making the format adapter page authoritative for implementation claims and forbidding invented adapter support from upstream alone. Refresh policy limits updates to content types, workflows, prompt contracts, or interoperability and requires revision comparison, regenerated semantic summaries, and independent review while excluding routine UI, install, and provider churn.",
+  "topics": [
+    "SillyTavern authoring corpus",
+    "content type collection map",
+    "official source provenance",
+    "AGPL documentation license",
+    "upstream vs adapter authority",
+    "whole page traversal",
+    "revision refresh policy"
+  ],
+  "sections": [
+    {
+      "slug": "collection-map",
+      "title": "Collection map",
+      "level": 2,
+      "sourceHash": "sha256:03c75647819d0ee6c0473647fc05f0e6e797792237eba28595ef8bfa8546cc39",
+      "summary": "Collection map routes Characters card fields greetings advanced definitions metadata tags expression sprites permanent versus conditional prompt content Chats and groups re-importable chat JSONL versus lossy TXT checkpoints group reply strategies join modes mute force auto scenario overrides World Info lorebooks activation insertion recursion grouping timed effects outlets vector matching Personas and Data Bank user identities prompt placement connections backups attachment scopes retrieval documents Prompts and presets final request Text Completion templates Chat Completion Prompt Manager Author Note CFG reasoning blocks tokenizer selection and padding portable preset boundaries Macros evaluation Documented macro catalog Macro operators Regex and automation scripts STscript Quick Replies and Source coverage for every evaluated upstream authoring page. Use the narrow owning page then read surrounding constraints because features interact through prompt order scope or evaluation timing.",
+      "topics": [
+        "characters chats world info",
+        "personas Data Bank",
+        "prompts CFG reasoning tokenizer",
+        "macros regex automation",
+        "source coverage contract"
+      ],
+      "children": []
+    },
+    {
+      "slug": "authority-and-provenance",
+      "title": "Authority and provenance",
+      "level": 2,
+      "sourceHash": "sha256:5dd5aa3050c8858288366d130c25529980a7561934aa9442dc93b3f5806eb2ba",
+      "summary": "Authority and provenance declares these pages independently organized Hoplight documentation rather than a verbatim mirror or upstream replacement. It pins SillyTavern/SillyTavern-Docs to commit 70e5e4d3c239253fca4692fe82e3936cb9c4b1b1 retrieved on 2026-07-26 (same pin as 2026-07-25), and states every page links its principal upstream sources. Upstream documentation is licensed under AGPL-3.0; Hoplight is also AGPL-3.0-or-later. Upstream copyright and contributor credits remain available in the official documentation repository, including its license file and LicenseCredits document. The pin, retrieval date, and attribution together make later audits and refreshes reproducible for Kit and maintainers.",
+      "topics": [
+        "independent Hoplight organization",
+        "pinned upstream commit",
+        "retrieval date",
+        "AGPL license and credits",
+        "reproducible provenance"
+      ],
+      "children": []
+    },
+    {
+      "slug": "how-kit-should-apply-it",
+      "title": "How Kit should apply it",
+      "level": 2,
+      "sourceHash": "sha256:7f73943992c4d783df472253467aaa9b9d617b28f26d51cc3e6e8988c713c6bc",
+      "summary": "How Kit should apply it requires distinguishing three claim kinds. Upstream behavior describes what SillyTavern does with a field or artifact. Hoplight format behavior describes what the current adapter can preserve or emit. Authoring advice explains how fields interact but does not prove every target format can carry them. For interoperability decisions, read this collection with the SillyTavern format page; if they differ, the format page governs current Hoplight implementation and this collection governs upstream meaning. Kit must never invent adapter support from an upstream feature description alone.",
+      "topics": [
+        "upstream behavior claims",
+        "Hoplight adapter claims",
+        "authoring advice limits",
+        "format page wins on impl",
+        "never invent support"
+      ],
+      "children": []
+    },
+    {
+      "slug": "refresh-policy",
+      "title": "Refresh policy",
+      "level": 2,
+      "sourceHash": "sha256:a5c7d4dbeb623d5d532187b9201514a2077a13de4ad1ac958a6b149993dc65bd",
+      "summary": "Refresh policy states SillyTavern evolves quickly. A future refresh should compare the pinned upstream revision, update only the affected Hoplight pages, regenerate their semantic sidecars, and obtain a new independent review. New upstream features should join this collection only when they change a content type, authoring workflow, prompt contract, or interoperability decision. Routine UI rearrangements, installation changes, provider lists, and transient defaults stay outside the collection. When exact current UI labels matter, follow the linked official page rather than treating this corpus as a live UI screenshot.",
+      "topics": [
+        "compare pinned revision",
+        "update affected pages only",
+        "regenerate semantic sidecars",
+        "independent review",
+        "exclude UI install provider churn"
+      ],
+      "children": []
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/sprites-and-galleries",
+  "sourcePath": "docs/reference/platforms/marinara/sprites-and-galleries.md",
+  "sourceHash": "sha256:4eb0e151a70e9c6964039145360b7ffde4c2eb09de41ce78e11cae4fc6ffe853",
+  "summary": "Documents Marinara sprites, galleries, exact color fields, and roleplay statistics at the pinned Engine revision. Sprites distinguish Facial Expressions, Full-body poses, and call Clips, then cover single and folder upload naming, AI generation prerequisites, transparent-background cleanup, replacement, download, deletion, and arrangement. Galleries are ordered character or persona media with image or optional video lifecycle plus scoped custom-emoji and sticker tagging and validation limits. Color fields are Name Display Color with gradient support, Dialogue Highlight Color, and semi-transparent Message Box Color, including where each renders. Character stats define HP or MP pools and six RPG attributes; persona stats add four status bars and optional RPG attributes, with defaults, visibility, prompt injection, and Character Tracker versus Persona Stats agent ownership. Compatible exports omit these Marinara-only surfaces unless a native package or proven adapter carries them.",
+  "topics": [
+    "expression full-body clips",
+    "gallery formats lifecycle",
+    "Name Display Dialogue Message colors",
+    "pools attributes status bars",
+    "agent tracker ownership",
+    "compatible export loss"
+  ],
+  "sections": [
+    {
+      "slug": "sprites",
+      "title": "Sprites",
+      "level": 2,
+      "sourceHash": "sha256:9201e0c881ae2fe69ac19dc7993d358d3b8bd03f78d180a956d6f8ec909023c4",
+      "summary": "Sprites (Roleplay and Game display) defines two kinds: Facial Expressions for moods and Full-body for poses. Clips are call media and are not this page. Sprites display in Roleplay and Game while assets can still attach in any mode. Upload covers single name upload preferring transparent PNG, quick-add suggested expression names, Upload Folder basenames with happy_01 and happy_blush as variants of happy, and Manage Frame Download Replace Delete plus multi-delete All Expressions or All Full-Body. AI generation needs an image connection and video for animated portraits, with Generate Sprite dialog fields and Android disable reasons. Cleanup and export offers erase paint undo reset previews and file download without assuming PNG card export embeds the full set. Placement shows floating sprites in Roleplay and Game with arrange mode; Conversation does not show sprite art.",
+      "topics": [
+        "Facial Expressions Full-body",
+        "Upload",
+        "AI generation",
+        "Cleanup and export",
+        "Placement Roleplay Game"
+      ],
+      "children": []
+    },
+    {
+      "slug": "galleries",
+      "title": "Galleries",
+      "level": 2,
+      "sourceHash": "sha256:e467e81639e89a683330dea570a94f07ee56193ff805f7074fa872085a08ef9a",
+      "summary": "Galleries are ordered media for character or persona with upload of common image formats optional video download and delete per item. Custom emoji and sticker tagging from gallery uses scope profile versus chat and naming size rules matching Conversation custom media limits one to thirty-two char lowercase names max two hundred fifty-six pixels. Failure rejects oversized or invalid format at upload. Galleries are not expression grids and not scene backgrounds. Preserve these rules in Kit answers without inventing adapter support.",
+      "topics": [
+        "upload download delete",
+        "image and video formats",
+        "emoji sticker scope limits",
+        "reject invalid upload"
+      ],
+      "children": []
+    },
+    {
+      "slug": "colors-exact-fields",
+      "title": "Colors (exact fields)",
+      "level": 2,
+      "sourceHash": "sha256:a8c8a49e6c88f3b79c91d0903886338f806f39f4ac31b60262b78698a9272f79",
+      "summary": "Colors exact fields leave empty for theme defaults. Extract Colors from Avatar disabled until avatar exists. Name Display Color colors the name and supports CSS gradients such as linear-gradient ninety deg amber to red and also tints sidebar tabs or persona pickers. Dialogue Highlight Color colors quoted dialogue text example gold and works with quote styles optional bold from Settings. Message Box Color is bubble background prefer semi-transparent rgba. Message box applies Conversation and Roleplay. Preserve these rules in Kit answers without inventing adapter support.",
+      "topics": [
+        "Name Display Color gradients",
+        "Dialogue Highlight Color",
+        "Message Box Color rgba",
+        "theme defaults empty"
+      ],
+      "children": []
+    },
+    {
+      "slug": "stats",
+      "title": "Stats",
+      "level": 2,
+      "sourceHash": "sha256:3bb4b2fcdfce6ee1439df735f389ea2294c4578b8ce44859995960c40b105206",
+      "summary": "Stats values are starting defaults for new chats while agents change them during play. Character Enable RPG Stats adds Pools HP MP one hundred of one hundred default add remove color and Attributes STR DEX CON INT WIS CHA default ten. Off shows nothing and sends nothing. Persona Enable Persona Stats status bars Satiety Energy Hygiene Mood one hundred of one hundred and Enable RPG Attributes same pools attributes as characters. Agents Character Tracker updates character RPG and persona RPG attributes Persona Stats agent updates status bars. Without agents defaults stay fixed. HUD shows enabled stats as gradient bars.",
+      "topics": [
+        "Pools HP MP defaults",
+        "Attributes six stats",
+        "persona status bars",
+        "Character Tracker Persona Stats agents",
+        "HUD gradient bars"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:fda420c597422558fbbede76ba6814a63b2e52e1f667688b99dfea57a6e68939",
+      "summary": "Hoplight: cross-format cards usually lose sprites, galleries, colors, and stats unless a native Marinara pack is used. Report those losses honestly during conversion. Do not invent PNG or CCv2 fidelity for Marinara-only media grids, emoji scopes, color fields, or game stats that only travel in native packages.",
+      "topics": [
+        "cross-format loss",
+        "native Marinara pack",
+        "honest loss reporting",
+        "no invented PNG fidelity"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

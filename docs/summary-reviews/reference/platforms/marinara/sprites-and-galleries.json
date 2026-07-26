@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/sprites-and-galleries",
+  "sourcePath": "docs/reference/platforms/marinara/sprites-and-galleries.md",
+  "sourceHash": "sha256:4eb0e151a70e9c6964039145360b7ffde4c2eb09de41ce78e11cae4fc6ffe853",
+  "semanticSummaryHash": "sha256:75a7b3ed98404894b4714d805fd3358bdec62e4e7ef4a03386518aedfa97d6d4",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against pinned sprite, gallery, and color-stat guides. Folder variant naming, generation and cleanup, scoped gallery media, exact color ownership, stat defaults and agent updates, and compatible-export losses are specific, source-backed, and bounded from Hoplight claims.",
+  "reviewedAt": "2026-07-26T06:53:17.967Z"
+}

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/prompts-and-presets",
+  "sourcePath": "docs/reference/platforms/sillytavern/prompts-and-presets.md",
+  "sourceHash": "sha256:db3511d25c87e74f90d53c648b53d92f5c315ffdc38ef05156d4a3ae22695579",
+  "semanticSummaryHash": "sha256:3633d42ec53565ce1a48e54af08df049e032b6c9dd3f8dfca2e5a7618a5906b6",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and sidecar reviewed against all seven cited pinned prompt sources. Summaries substantively preserve layered precedence, Text versus Chat completion boundaries, CFG, tokenizer padding, reasoning acquisition and resend rules, and the adapter versus upstream boundary without filler.",
+  "reviewedAt": "2026-07-26T06:53:15.132Z"
+}

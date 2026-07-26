@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/maps-and-game-content",
+  "sourcePath": "docs/reference/platforms/marinara/maps-and-game-content.md",
+  "sourceHash": "sha256:b7a4c7b67960aefd601876be5acb13a526e8e20b7fd2b01ad753c7850f02aef7",
+  "summary": "Documents Marinara hierarchical maps, Game assets, sessions, HUD widgets, party and NPC state, storyboards, Conversation-branched scenes, Roleplay trackers, and Narrative Director at the pinned Engine docs. Maps cover package and per-chat activation, authoring fields, AI draft review, explicit enable and save, exact-location lore, one-move travel, bindings, import, archive, and history-safe IDs. Game assets cover five categories, browser lifecycle, exact formats and limits, music path grammar, protected starter content, per-game folder selection, and local/admin device folders. Sessions cover immutable setup sharing, conclude and resume, read-only replay, editable history, spoiler state, autosave, and non-restorable checkpoints. Game and Roleplay HUDs remain distinct. Party, Scene, storyboard, and Secret Plot sections preserve their separate ownership and destructive boundaries. Hoplight makes no unproven game-state conversion claim.",
+  "topics": [
+    "hierarchical map nodes lifecycle",
+    "game assets and sessions",
+    "eight HUD widget types",
+    "party NPC GM modes",
+    "storyboard keyframes",
+    "scenes trackers Secret Plot",
+    "Hoplight game boundary"
+  ],
+  "sections": [
+    {
+      "slug": "hierarchical-maps-roleplay-and-game",
+      "title": "Hierarchical maps (Roleplay and Game)",
+      "level": 2,
+      "sourceHash": "sha256:bd99a4a33248d99cd23a3d4d0c7e70837fd0a31c2c9411dbe65de9faafeb9bbe",
+      "summary": "Hierarchical maps Roleplay and Game require package install via Download Agents restart and per-chat enable not global. Limits are up to five hundred locations and twenty hierarchy levels preferring wide sibling floors. Each location has parent children siblings type Region Settlement Place Building Floor Room public description private AI notes lorebook entries on exact location and one-way or two-way links any-to-any with children as list positioned map or ordered layers. Workflow Create map Draft with AI Draft preview search select regenerate Continue to editor set start location Enabled plus Save. Draft and import only change working copy until enable and save. Travel Story map set destination next message commits move; AI cannot relocate by narration alone. Path details nearby destinations and eligible lore can enter context. Import export of map files is chat-owned map state.",
+      "topics": [
+        "per-chat map package",
+        "node fields and types",
+        "AI draft enable save",
+        "start location movement",
+        "import export chat-owned"
+      ],
+      "children": []
+    },
+    {
+      "slug": "game-assets",
+      "title": "Game assets",
+      "level": 2,
+      "sourceHash": "sha256:6443c66b53428b2af684f7bb14b4ab5724bceee7f25364d4c862286c22257297",
+      "summary": "Game assets have Music Ambient Sound Effects Sprites and Backgrounds categories. Asset Browser offers folder tree and breadcrumbs, grid or list, search, upload and drop, subfolders, rename, move, copy, delete, download, multi-select, notes, pagination, and rescan. Bundled CC0 starter assets are protected from move and delete; backgrounds start empty. Audio accepts MP3 OGG WAV FLAC M4A AAC WebM; sprites accept PNG JPG JPEG GIF WebP AVIF SVG; backgrounds exclude SVG. Audio and images cap at 50 MB, text at 10 MB. Music requires state genre intensity with four states, ten genres, and three intensities. Each Game may exclude folders without deleting them. Music DJ can use a Game Assets path or local device folder, with local or admin gating for device access. This is separate from Roleplay and Conversation media.",
+      "topics": [
+        "game-assets folder",
+        "formats and limits",
+        "Game Mode selection",
+        "not Roleplay media"
+      ],
+      "children": []
+    },
+    {
+      "slug": "sessions-and-saves",
+      "title": "Sessions and saves",
+      "level": 2,
+      "sourceHash": "sha256:101f9ebc04ae43a2a9b279e81bb309c41ee28e8cef1fb3b028cd32f69f9842bc",
+      "summary": "Game campaigns use numbered sessions. End Session accepts an optional next-session direction up to 5000 characters and generates a conclusion; New Session resumes from its summary and direction. Initial Game Setup is an immutable shareable snapshot of adventure, cast, model, prompt, effective parameters, visuals, storyboards, and world tools, excluding credentials endpoints keys database IDs and bundled content. Completed entries can include summaries, resume, party dynamics, discoveries, character moments, recall details, NPC updates, requested continuation, stats, and party status. Replay is read-only and recorded-choice only. Edit Details changes notes; Regenerate replaces them; Update Plot Arcs revises hidden plans. Show Spoilers reveals and edits hidden world and campaign state with invalid JSON rejected. State autosaves and checkpoints at session and combat boundaries, but checkpoints have no restore UI. Custom HUDs are reviewed before session start.",
+      "topics": [
+        "shared world packages",
+        "replay edit save",
+        "widget prep modal",
+        "resume session state"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hud-widgets-game",
+      "title": "HUD widgets (Game)",
+      "level": 2,
+      "sourceHash": "sha256:2d4e899d0665b4bb44440df25b2b1a54d0ba72f78096841bb185475dc08e7067",
+      "summary": "HUD widgets Game default on in setup wizard with up to four left and right. Types are Progress Bar Gauge Relationship Meter Counter Stat Block List Inventory Grid Timer. Pre-session Review Starting Widgets edit or remove before Start Game and Prepare Next Session Widgets on continue. During play GM updates manual edit collapse lock unlock drag double-click lock or R resets position. Layout is per game with import export of widget layouts where documented. Roleplay uses separate HUD trackers not the Game widget set.",
+      "topics": [
+        "eight widget types",
+        "four left right slots",
+        "pre-session review",
+        "layout import export",
+        "Roleplay trackers separate"
+      ],
+      "children": []
+    },
+    {
+      "slug": "party-and-npcs",
+      "title": "Party and NPCs",
+      "level": 2,
+      "sourceHash": "sha256:6429c63c9d03170e61f68e84fb0bfb9ac8d34c48b18f1bf2b893417e1f81d4dd",
+      "summary": "Party bar sheets hold identity, level, class, HP, status, attributes, abilities, and inventory, with AI regenerate and manual edit. Recruit and remove change Game membership rather than Roleplay group-chat membership. Adventure Journal separates generated story records from Player Notes. NPC reputation has seven ordered labels from Hostile to Ally, with detail and meter views. Game Master modes govern NPC visibility and private notes without converting NPCs into user-controlled party members.",
+      "topics": [
+        "party roster",
+        "NPC reputation",
+        "character sheets journal",
+        "GM visibility modes"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "storyboards-game-only",
+      "title": "Storyboards (Game only)",
+      "level": 2,
+      "sourceHash": "sha256:7301c722d31a9b8938ff3eb44756bd0869fa522b758e4137ea31400988eb660a",
+      "summary": "Storyboards Game only run after GM narration turn producing one to six keyframes default three from stripped GM tags. Stills go to Gallery Images and clips to Videos. Requires Game Illustrator image connection with error if missing. Manual Create storyboard and Automatic Storyboard Illustrations after each turn wizard default on when Visual Generation on. Expose prompts means manual reviews each keyframe while automatic does not pause. Send Avatar References improves consistency. gameStoryboardKeyframeCount supplies target count to GM prompts.",
+      "topics": [
+        "one to six keyframes",
+        "stills and clips galleries",
+        "manual vs automatic",
+        "expose prompts",
+        "avatar references"
+      ],
+      "children": [],
+      "shortSource": true
+    },
+    {
+      "slug": "scenes",
+      "title": "Scenes",
+      "level": 2,
+      "sourceHash": "sha256:fd6d5221098f832e4b66df2a2e562ab6d7d3fd6300c88e7a58e1845b1e957b20",
+      "summary": "A Scene is a temporary Roleplay branched from Conversation with slash scene or slash rp, POV, tense, instructions, its own background, stage, opening, and messages. The origin retains an active-scene link. End Scene writes a generated memory summary to the origin; Discard deletes without write-back; Convert detaches it into a permanent Roleplay without summary or memory. Clone from here copies through one message while keeping the original active. Scenes deliberately exclude Connected Chat steering and history so they remain self-contained; use Connected Chats for continuous influence. Gallery media stays owned by the Scene chat and is distinct from its backdrop.",
+      "topics": [
+        "clone convert",
+        "context boundary",
+        "reviewed prompts",
+        "not chat backgrounds"
+      ],
+      "children": []
+    },
+    {
+      "slug": "trackers-and-secret-plot",
+      "title": "Trackers and Secret Plot",
+      "level": 2,
+      "sourceHash": "sha256:4fac60de148941f63cf9c3a7b2479eb9ca21444c6967c7e808a71a94354e5a9a",
+      "summary": "Roleplay has World State, Persona Stats, Present Characters, Inventory, Active Quests, and Custom Tracker widgets. Popovers save manual edits immediately. Lock mode protects chosen values; schedules and refresh rerun one or all trackers; Clear Trackers is irreversible. The larger Tracker Panel adds custom field structure, add delete lock and hide modes. Hiding Mood Look Outfit or Thoughts clears and locks it; omitted agent output does not erase author fields. Narrative Director is Roleplay-only. Push Story arms one Natural or Random Event instruction for the next reply. Secret Plot is off by default and updates a hidden arc every 1 to 100 assistant replies, default 8. Reveal supports arc, protagonist, one character, completion, save, and confirmed regenerate. Clearing runs or memory retains the arc; removing Narrative Director deletes it irreversibly.",
+      "topics": [
+        "Roleplay trackers",
+        "Secret Plot interval reveal",
+        "approval when enabled",
+        "agent tracker updates"
+      ],
+      "children": []
+    },
+    {
+      "slug": "hoplight",
+      "title": "Hoplight",
+      "level": 2,
+      "sourceHash": "sha256:0e9a01149e13a3af7800ee46b6023130dae3eeec7a6a862e4a92f2c8d661330e",
+      "summary": "Hoplight makes no claim of full Marinara game-state conversion. Hierarchical maps, asset selection, sessions, widgets, storyboards, scenes, party state, trackers, and Secret Plot remain platform-owned unless a future adapter maps each field and lifecycle through the canonical model with round-trip fixtures. Unknown state must be escrowed or reported rather than silently flattened.",
+      "topics": [
+        "no full game-state conversion",
+        "product surface boundary",
+        "future adapter required"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}

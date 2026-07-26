@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/sillytavern/personas-and-data-bank",
+  "sourcePath": "docs/reference/platforms/sillytavern/personas-and-data-bank.md",
+  "sourceHash": "sha256:e1bd77243be82daaf880f1cd8ba41bfb409633376da8d235844aa2bf0d7ba24d",
+  "summary": "Explains two user-controlled SillyTavern context systems that differ in ownership and portability: personas represent the user's chat identity, while Data Bank documents provide retrievable reference material. Persona identity and description covers display metadata, prompt-bearing description, placement choices, and the limited character-to-persona conversion with macro-role reversal. Persona connections and backups describes chat locks, character associations, defaults, temporary selection, immutable historical attribution, explicit synchronization, backup omissions, and Hoplight's selected-persona import plus whole-source escrow. Data Bank documents and scopes distinguishes global, character, chat, and message-level material, inventories extractable text sources, and rejects the assumption that local attachments travel with a card. Vectorization and retrieval separates authored documents from generated, model-specific embedding indexes and identifies chunking, overlap, thresholds, query window, and insertion limits as retrieval controls. Hoplight can explain these systems and preserve supported persona semantics, but Data Bank is not yet a canonical entity and neither system should be silently folded into a character.",
+  "topics": [
+    "SillyTavern personas",
+    "persona prompt placement",
+    "persona locks and backups",
+    "Data Bank attachment scopes",
+    "retrieval augmented generation",
+    "vector index lifecycle",
+    "character portability boundaries"
+  ],
+  "sections": [
+    {
+      "slug": "persona-identity-and-description",
+      "title": "Persona identity and description",
+      "level": 2,
+      "sourceHash": "sha256:456ac310fa4e1eb2db25dd1816433edc0111735d07c0a3573e6237c1e97025b3",
+      "summary": "Persona identity and description defines a persona as display name, avatar, optional title, and optional prompt-bearing description. The title remains UI metadata. Description placement is saved per persona and may be disabled, expanded through Story String or Prompt Manager, placed around Author's Note, or injected into chat history at a chosen depth and role; therefore position must remain structured metadata. Character-to-persona conversion copies only useful identity fields, not scenario, personality, or greetings, and may require swapping `{{user}}` with `{{char}}` because their roles reverse.",
+      "topics": [
+        "persona identity fields",
+        "title vs prompt description",
+        "description position and role",
+        "character to persona conversion",
+        "user character macro swap"
+      ],
+      "children": []
+    },
+    {
+      "slug": "persona-connections-and-backups",
+      "title": "Persona connections and backups",
+      "level": 2,
+      "sourceHash": "sha256:3fe5dfeaa0e48f3b6d6c98933373cd05be75499313bd7f39671d8f6453868113",
+      "summary": "Persona connections and backups defines selection precedence: a chat lock wins, then character association, then default persona, while a temporary choice lasts only until reopening. Past user messages retain their original persona attribution; switching identity does not rewrite history, and synchronization is a separate action. Optional multiple connections require a choice. Backups include names, descriptions, and character connections but omit images and chat connections, carry internal links, and are not public interchange packages. Hoplight imports one selected persona while escrowing the complete backup for same-format restoration.",
+      "topics": [
+        "chat lock precedence",
+        "character persona association",
+        "default and temporary selection",
+        "historical attribution",
+        "backup omissions",
+        "selected import plus escrow"
+      ],
+      "children": []
+    },
+    {
+      "slug": "data-bank-documents-and-scopes",
+      "title": "Data Bank documents and scopes",
+      "level": 2,
+      "sourceHash": "sha256:f0efb52f979feebd0b537ac3d833655657d433c145c24cd07547897097c437d0",
+      "summary": "Data Bank documents and scopes treats documents as retrieval sources rather than card fields. Global attachments apply everywhere, character attachments apply while that character participates, and chat attachments belong only to the active conversation; character attachments remain local and do not export with the card. Sources may be authored notes, extractable local files, readable web pages, video transcripts, or extension scrapers. PDF text, HTML, Markdown, ePUB, structured text, and source code can be converted when plain text is extractable, while unreadable binary input is rejected. A one-message file attachment does not imply a durable Data Bank entry.",
+      "topics": [
+        "global character chat scopes",
+        "local character attachments",
+        "extractable text sources",
+        "binary rejection",
+        "message attachment distinction"
+      ],
+      "children": []
+    },
+    {
+      "slug": "vectorization-and-retrieval",
+      "title": "Vectorization and retrieval",
+      "level": 2,
+      "sourceHash": "sha256:77ce7e0460077814ab5799be3490dfb9bdebe52e16d7ee9ee597296b6571e24f",
+      "summary": "Vectorization and retrieval describes Vector Storage as a generated index over document chunks. A selected embedding provider turns chunks into model-specific vectors, and recent messages form a query that retrieves related chunks for prompt insertion. Chunk size, overlap, score threshold, query-message count, and insertion limits affect recall, precision, and context cost; changing source content or embedding model requires recalculation. Vectors are cached indexes stored separately from authored documents, not portable source truth. Hoplight should preserve source documents and supported retrieval settings separately, and must not claim current character import includes Data Bank because no dedicated canonical Data Bank entity exists.",
+      "topics": [
+        "document chunk embeddings",
+        "query message window",
+        "retrieval thresholds and limits",
+        "embedding recalculation",
+        "generated index vs source",
+        "no canonical Data Bank entity"
+      ],
+      "children": []
+    }
+  ]
+}

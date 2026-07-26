@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/lorebooks",
+  "sourcePath": "docs/reference/platforms/marinara/lorebooks.md",
+  "sourceHash": "sha256:31b34b31576c791a4ae3baa771981952c5c3917bdbc3b11f50efa41c1b53f8ed",
+  "semanticSummaryHash": "sha256:3227c4532d5f1da4ee348d83143f7b42b82b58df719b686e29e2bd44c8afd96b",
+  "verdict": "APPROVE",
+  "reviewer": "semantic-summary-reviewer-2026-07-26-r4",
+  "notes": "APPROVE: Full page and every section summary reviewed against all six pinned lorebook guides. Activation ownership, defaults, entry semantics, timing and recursion, budget trim order, vector prerequisites and quiet failures, native versus compatible loss, re-vectorization, and adapter boundaries are complete and truthful.",
+  "reviewedAt": "2026-07-26T06:53:17.065Z"
+}

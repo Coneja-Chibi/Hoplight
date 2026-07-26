@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/platforms/marinara/README",
+  "sourcePath": "docs/reference/platforms/marinara/README.md",
+  "sourceHash": "sha256:4524de821338d3a29b56713da420557286afc6beda38ef2aa4effa58164d08a1",
+  "summary": "Entry map for Kit's Marinara Engine authoring corpus. The collection routes characters, personas, and Convo profiles; Conversation schedules and custom media; sprites, galleries, colors, and stats; visual assets and card CSS; lorebooks; prompts, macros, and the exhaustive macro catalog; agents, custom tools, regex, memory, and Professor Mari; chat interchange and group behavior; maps, game state, HUDs, scenes, and storyboards; data layout, backup, and SillyTavern import; and the source-coverage manifest. Authority pins Pasta-Devs/Marinara-Engine commit b7545a63e7e264a1cd9eeea1a5490d50c08ddb29 retrieved 2026-07-26 under AGPL-3.0. Questions should open the narrow owning page and read the complete surrounding section. Upstream behavior never proves Hoplight adapter support: the Marinara format page governs implemented preservation, and SillyTavern macro behavior must not be projected onto Marinara.",
+  "topics": [
+    "collection map destinations",
+    "Conversation Mode destination",
+    "characters lore prompts agents",
+    "chats maps data coverage",
+    "pinned Engine authority",
+    "adapter vs upstream meaning"
+  ],
+  "sections": [
+    {
+      "slug": "collection-map",
+      "title": "Collection map",
+      "level": 2,
+      "sourceHash": "sha256:5aa62725b6d3da7407d9f702c8a64715d9afbac1e556a70f17286317693fac82",
+      "summary": "Collection map lists Characters and personas including Convo profiles Conversation Mode for schedules emojis stickers GIFs calls selfies and table games Sprites and galleries colors and stats Visual assets and card CSS Lorebooks Prompts and macros with Macro catalog Agents tools and regex Chats and groups Maps and game content Data and SillyTavern import and Source coverage. Open the narrow owning page for each artifact type rather than treating the README as the full field contract. Preserve these rules in Kit answers without inventing adapter support.",
+      "topics": [
+        "Conversation Mode page",
+        "characters sprites visuals",
+        "lore prompts agents chats",
+        "maps data coverage"
+      ],
+      "children": []
+    },
+    {
+      "slug": "authority",
+      "title": "Authority",
+      "level": 2,
+      "sourceHash": "sha256:71ca0cfe70fd15519a583113fa46016012116007b7b86a28d5a208ebd62f33fc",
+      "summary": "Authority pins Pasta-Devs/Marinara-Engine at commit b7545a63e7e264a1cd9eeea1a5490d50c08ddb29, retrieved 2026-07-26, licensed AGPL-3.0. The Hoplight pages are independently worded rather than a verbatim mirror. Implementation claims about what Hoplight can preserve belong to the Marinara format adapter reference. Do not copy SillyTavern macro semantics onto Marinara macros, conditionals, or preset variables; the platforms differ and false equivalence is a conversion bug.",
+      "topics": [
+        "Marinara-Engine pin",
+        "commit and retrieval date",
+        "AGPL-3.0",
+        "independent wording",
+        "format adapter authority",
+        "no ST macro copy"
+      ],
+      "children": [],
+      "shortSource": true
+    }
+  ]
+}
