@@ -1,6 +1,5 @@
 /**
  * Pure core for the semantic-docs summary CLI: inventory, queue, status, paths, diagnostics.
- * Provenance: audit-plans/07 and 08 semantic docs enforcement.
  */
 import type { DocRecord } from "../src/docs/types";
 import {

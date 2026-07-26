@@ -1,6 +1,5 @@
 /**
  * Pure folder, page, and outline projections over the docs catalog index.
- * Provenance: audit-plans/07-build-semantic-docs-catalogue.md.
  */
 import type { DocAnchor, DocRecord } from "../../docs/types";
 

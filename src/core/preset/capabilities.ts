@@ -2,12 +2,9 @@
  * Preset Write-for profiles: which first-class controls the editor shows under each lens. Full =
  * union of every authoring wire; other profiles hide only what that platform cannot serialize;
  * hiding never deletes body data. Same shape + function names as core/persona and core/regex
- * capabilities (PRESET-JEWEL-PLAN.md P0). Ownership matrix: platform-fields.ts (survey-grounded).
+ * capabilities. Ownership matrix: platform-fields.ts (survey-grounded).
  *
- * LUMIVERSE IS A LENS as of the primary-source clone (C:\Users\chiev\Documents\Lumiverse, staging
- * branch). The earlier refusal here was correct in method: everything known before came secondhand
- * (RC's reverse-engineered import converter, LumiRealm's Risu-compat port), and a lens built on
- * that would have been invented. Read from the engine itself:
+ * The Lumiverse lens is grounded in its upstream engine rather than secondhand import behavior:
  * - The app's own preset export is FLAT ST GRAMMAR (frontend loom service, exportToSTPreset), with
  *   category blocks, marker mapping, and `lumiverse_character_tag_trigger` on triggered prompts.
  *   The `{type:"lumiverse_preset"}` wrapper is what LumiHub serves; the app reads both. So our

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "decisions/ADR-008-react-ui",
   "sourcePath": "docs/decisions/ADR-008-react-ui.md",
-  "sourceHash": "sha256:02eda3c403e50a852276795401a9515ee6e84459feb1aab09f8e22818cfb8ba5",
-  "summary": "Accepted ADR dated 2026-07-05 that supersedes ADR-007's deferral of chat-surface renderer choice while carrying forward and hardening the engine rule. Context: the codebase is primarily AI-authored and 2025 evidence shows XSS is the dominant AI failure class, with models most fluent in React; auto-escaping closes that class structurally. Roadmap chat and agent surfaces plus agent-context plans require serializable UI state; closure-held vanilla DOM is agent-opaque while store-driven React matches comparable production apps. Decision: UI layer is React 19 plus TSX transpiled natively by Bun with no Vite or Next, bundled into the same single exe; Zustand for shell store plus one store per app; no URL router; CSS Modules over tokens with no Tailwind; whole UI converts to one idiom; app contract v2 is React component export plus manifest including agentSurface descriptor; engine rule forbids renderer imports in converter canonical model engines and star-core files; react react-dom zustand join vetted set with further deps commit-declared; dangerouslySetInnerHTML and raw HTML sinks banned outside allowlist. Consequences: rewrite bounded by pure cores as spec; XSS closed by default; agent fluency; framework churn risk accepted with engine immune.",
+  "sourceHash": "sha256:d62567066699330dbfbbee1322b135955c37aac6aaaade43cce53b58e7ebbe04",
+  "summary": "Accepted ADR dated 2026-07-05 that supersedes ADR-007's deferral of chat-surface renderer choice while carrying forward and hardening the engine rule. Context: Hoplight renders untrusted card and extension text, so direct DOM construction makes HTML-sink safety depend on caller convention; React escapes text by default and repository gates ban explicit escape hatches. Roadmap chat and agent surfaces plus agent-context plans require serializable UI state; closure-held vanilla DOM is agent-opaque while store-driven React matches comparable production apps. Decision: UI layer is React 19 plus TSX transpiled natively by Bun with no Vite or Next, bundled into the same single exe; Zustand for shell store plus one store per app; no URL router; CSS Modules over tokens with no Tailwind; whole UI converts to one idiom; app contract v2 is React component export plus manifest including agentSurface descriptor; engine rule forbids renderer imports in converter canonical model engines and star-core files; react react-dom and zustand are direct dependencies covered by license audit while new dependencies follow normal review without a special commit trailer; dangerouslySetInnerHTML and raw HTML sinks are banned outside an allowlist. Consequences: rewrite bounded by pure cores as spec; ordinary text is escaped by default and the sink gate enforces escape-hatch policy; established tooling lowers maintenance cost; framework churn risk accepted with engine immune.",
   "topics": [
     "React 19 TSX Bun",
     "supersedes ADR-007 deferral",
@@ -12,7 +12,7 @@
     "engine rule pure TS",
     "agentSurface descriptor",
     "ban dangerouslySetInnerHTML",
-    "XSS auto-escape",
+    "text escaped by default",
     "ADR-008 accepted"
   ],
   "sections": [
@@ -20,11 +20,11 @@
       "slug": "context",
       "title": "Context",
       "level": 2,
-      "sourceHash": "sha256:d932c0c78de3211e00b449090c514feed1d2d8c5941ddd900bbf855160a2b5f6",
-      "summary": "Two constraints crystallized after ADR-007. The codebase is primarily AI-authored vibecoded, and 2025 evidence shows XSS is the dominant AI failure class at roughly 86 percent of relevant samples failing XSS defenses at 2.74 times the human rate, while models are most fluent in React; an auto-escaping renderer closes that class structurally. Roadmap chat and agent surfaces M4 Table Read packages agent and Studio plus per-surface agent-context plans require UI state to be serializable data an agent can read and act through; closure-held vanilla DOM state is agent-opaque while store-driven React is the pattern comparable production apps ship.",
+      "sourceHash": "sha256:1c8f542eacce004d7f905b2fcd6450112792b417fb53ba24cfc3a481e97f1087",
+      "summary": "Two constraints crystallized after ADR-007. Hoplight renders untrusted card and extension text, so direct DOM construction makes HTML-sink safety depend on every caller; React escapes text by default and gates ban explicit escape hatches. Roadmap chat and agent surfaces plus per-surface context require serializable UI state; closure-held vanilla DOM is agent-opaque while store-driven React matches comparable production applications.",
       "topics": [
-        "vibecoded XSS evidence",
-        "React fluency models",
+        "untrusted rendered text",
+        "escaped text by default",
         "serializable agent UI state",
         "vanilla DOM agent-opaque"
       ],
@@ -34,8 +34,8 @@
       "slug": "decision",
       "title": "Decision",
       "level": 2,
-      "sourceHash": "sha256:179e18056cd109d35495dc77ae29a8a4147774450d2949c2a4f810f45d5b3599",
-      "summary": "UI layer is React 19 plus TSX transpiled natively by Bun without Vite or Next and bundled into the same single exe. State is Zustand with one shell store plus one store per app surface; navigation is state-driven with no URL router. Styling is CSS Modules over the existing token system with no Tailwind. The UI converts whole shell and every app folder to one idiom; until conversion lands, vanilla surfaces remain the behavioral spec. App contract v2 is a React component export plus manifest including an agentSurface descriptor of state selector and offered actions so every surface is agent-readable by construction. Engine rule unchanged and hardened: converter, canonical model, engines, and every star-core.ts stay pure framework-less TS; a renderer import there is a guardrail violation. Dependency posture adds react react-dom zustand to the vetted set; further dependencies must be declared in the commit message and are mechanically gated. dangerouslySetInnerHTML and raw HTML-injection sinks are banned by repo gates outside an explicit sanctioned allowlist.",
+      "sourceHash": "sha256:c0799e4ca80676b026f36798bcbd322569b323599f2c8bbd40b72dc6e2a9ea89",
+      "summary": "UI layer is React 19 plus TSX transpiled natively by Bun without Vite or Next and bundled into the same single exe. State is Zustand with one shell store plus one store per app surface; navigation is state-driven with no URL router. Styling is CSS Modules over the existing token system with no Tailwind. The UI converts whole shell and every app folder to one idiom; until conversion lands, vanilla surfaces remain the behavioral spec. App contract v2 is a React component export plus manifest including an agentSurface descriptor of state selector and offered actions so every surface is agent-readable by construction. Engine rule unchanged and hardened: converter, canonical model, engines, and every star-core.ts stay pure framework-less TS; a renderer import there is a guardrail violation. React, react-dom, and zustand are direct dependencies covered by license audit; new dependencies follow normal review without a special commit trailer. dangerouslySetInnerHTML and raw HTML-injection sinks are banned by repo gates outside an explicit sanctioned allowlist.",
       "topics": [
         "React 19 Bun no Vite",
         "Zustand state-driven nav",
@@ -51,12 +51,12 @@
       "slug": "consequences",
       "title": "Consequences",
       "level": 2,
-      "sourceHash": "sha256:b1c143a3aa49e2d29af764f44f481f7f883df1ba4c73c28cc61e3bc3f1b5a301",
-      "summary": "Editor slice 1 and the current shell are rebuilt in React during conversion; their behavior and pure tested cores are the spec so the rewrite is bounded. The XSS class is closed by default rendering behavior; gates enforce the escape-hatch ban and the dependency ledger. Agent fluency and OSS contributor familiarity align with the codebase authoring mode. Framework-churn risk of React major versions is accepted and bounded: the engine layer is immune and surfaces are isolated per app folder.",
+      "sourceHash": "sha256:7f4a98234f40eba561300906231a7a31965a14cf03ed6b2dc2134a065edc071c",
+      "summary": "Editor slice 1 and the current shell are rebuilt in React during conversion; their behavior and pure tested cores are the spec so the rewrite is bounded. Ordinary text rendering is escaped by default, while repository gates separately enforce the raw-HTML escape-hatch ban. Established tooling and contributor familiarity reduce maintenance cost. React version churn is accepted and bounded because the engine remains isolated.",
       "topics": [
         "bounded React rewrite",
-        "XSS closed by default",
-        "dependency ledger gates",
+        "raw HTML sink gate",
+        "license-audited dependencies",
         "engine immune to churn"
       ],
       "children": [],

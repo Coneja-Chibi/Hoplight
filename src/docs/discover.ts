@@ -1,6 +1,5 @@
 /**
  * Folder-derived Markdown documentation discovery and base DocRecord construction.
- * Provenance: audit-plans/08-fix-semantic-docs-enforcement.md.
  */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";

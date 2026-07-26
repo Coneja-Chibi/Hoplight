@@ -1,6 +1,5 @@
 /**
  * Fail-closed validation of authored semantic documentation sidecars.
- * Provenance: audit-plans/07-build-semantic-docs-catalogue.md.
  */
 import type { DocRecord } from "./types";
 import type {

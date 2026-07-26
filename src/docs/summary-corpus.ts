@@ -1,6 +1,5 @@
 /**
  * Pure Markdown section boundaries, hashing, scaffold, and stamp for semantic docs.
- * Provenance: audit-plans/07-build-semantic-docs-catalogue.md.
  */
 import { createHash } from "node:crypto";
 import type { DocRecord } from "./types";

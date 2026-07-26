@@ -78,9 +78,9 @@
       "docId": "decisions/ADR-008-react-ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:02eda3c403e50a852276795401a9515ee6e84459feb1aab09f8e22818cfb8ba5",
-      "semanticSummaryHash": "sha256:1d2ed27a83a1d7214ad0f3679615db4f1cf69a056e9a05c991750ee98dd50317"
+      "reviewer": "independent-adr008-cleanup-r3",
+      "sourceHash": "sha256:d62567066699330dbfbbee1322b135955c37aac6aaaade43cce53b58e7ebbe04",
+      "semanticSummaryHash": "sha256:bb397b78ae54df94c39949cc98a22141dcbd088c8c6a6172b16a857eb3c9b829"
     },
     {
       "docId": "decisions/ADR-009-sandbox-origin",

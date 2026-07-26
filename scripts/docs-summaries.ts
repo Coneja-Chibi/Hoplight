@@ -3,7 +3,6 @@
  * Modes: inventory | scaffold | stamp | check | queue | review.
  * Discovery is folder-derived (not the generated index).
  * Global check requires current APPROVE receipts; focused --author validates sidecar only.
- * Provenance: audit-plans/07 and 08.
  *
  * bun run docs:summaries:inventory
  * bun run docs:summaries:scaffold -- <doc-id>

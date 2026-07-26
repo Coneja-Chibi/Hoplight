@@ -1,6 +1,5 @@
 /**
  * Inventory reporting and status-specific repair guidance for semantic docs.
- * Provenance: audit-plans/08-fix-semantic-docs-enforcement.md.
  */
 import type { CorpusInventory, PageInventory, SummaryCorpusPage } from "./docs-summaries-core";
 import { inventoryPage } from "./docs-summaries-core";

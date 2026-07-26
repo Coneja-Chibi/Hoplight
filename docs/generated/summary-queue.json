@@ -2,11 +2,11 @@
   "generated": "2026-07-26",
   "targetChars": 90000,
   "totalPages": 111,
-  "totalSourceChars": 963531,
+  "totalSourceChars": 963390,
   "batches": [
     {
       "id": "batch-001",
-      "sourceChars": 88213,
+      "sourceChars": 88072,
       "pages": [
         {
           "docId": "01-VISION",
@@ -85,7 +85,7 @@
           "sourcePath": "docs/decisions/ADR-008-react-ui.md",
           "sidecarPath": "docs/summaries/decisions/ADR-008-react-ui.json",
           "sectionCount": 3,
-          "sourceChars": 2863,
+          "sourceChars": 2722,
           "status": "APPROVED"
         },
         {

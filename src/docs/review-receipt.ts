@@ -1,6 +1,5 @@
 /**
  * Fail-closed parsing and binding validation for semantic summary review receipts.
- * Provenance: audit-plans/08-fix-semantic-docs-enforcement.md.
  */
 import type {
   SummaryReviewReceipt,

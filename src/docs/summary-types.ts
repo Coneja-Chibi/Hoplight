@@ -1,6 +1,5 @@
 /**
  * Wire types for authored semantic documentation sidecars and review receipts.
- * Provenance: audit-plans/07-build-semantic-docs-catalogue.md.
  */
 
 export interface SemanticSummary {

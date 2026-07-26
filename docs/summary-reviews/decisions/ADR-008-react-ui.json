@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "decisions/ADR-008-react-ui",
   "sourcePath": "docs/decisions/ADR-008-react-ui.md",
-  "sourceHash": "sha256:02eda3c403e50a852276795401a9515ee6e84459feb1aab09f8e22818cfb8ba5",
-  "semanticSummaryHash": "sha256:1d2ed27a83a1d7214ad0f3679615db4f1cf69a056e9a05c991750ee98dd50317",
+  "sourceHash": "sha256:d62567066699330dbfbbee1322b135955c37aac6aaaade43cce53b58e7ebbe04",
+  "semanticSummaryHash": "sha256:bb397b78ae54df94c39949cc98a22141dcbd088c8c6a6172b16a857eb3c9b829",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:22.464Z"
+  "reviewer": "independent-adr008-cleanup-r3",
+  "notes": "APPROVE: corrected topic labels now precisely reflect the reviewed mechanisms: text is escaped by default, raw HTML sinks are separately blocked by the repository gate, and direct dependencies are license-audited without commit-trailer enforcement. Source and sidecar are complete, technically consistent, and author-valid.",
+  "reviewedAt": "2026-07-26T21:40:34.293Z"
 }

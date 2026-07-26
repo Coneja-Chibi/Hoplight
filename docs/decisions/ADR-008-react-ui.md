@@ -1,4 +1,4 @@
-# ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)
+# ADR-008: React UI layer for structural rendering safety
 
 **Status:** accepted · 2026-07-05
 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried
@@ -8,11 +8,9 @@ forward unchanged and hardened here.
 
 Two constraints crystallized after ADR-007:
 
-1. This codebase is primarily AI-authored ("vibecoded"), and the 2025 evidence on
-   AI-generated code is specific: XSS is the dominant AI failure class (~86% of relevant
-   samples fail XSS defenses; 2.74x human rate), and models are measurably most fluent in
-   the largest-corpus UI framework (React). An auto-escaping renderer closes the top
-   vulnerability class structurally instead of by convention.
+1. Hoplight renders untrusted card text and extension fields. Direct DOM construction makes
+   HTML-sink safety depend on every caller following convention. React escapes text by default,
+   while repository gates can ban the small set of explicit escape hatches.
 2. The roadmap's chat/agent surfaces (M4 Table Read, packages/agent, Studio app) plus the
    per-surface agent-context plan require UI state to be serializable data an agent can
    read and act through. Closure-held vanilla DOM state is agent-opaque; store-driven
@@ -34,8 +32,9 @@ Two constraints crystallized after ADR-007:
 - ENGINE RULE (unchanged, hardened): the converter, canonical model, engines, and every
   `*-core.ts` stay pure framework-less TS. A renderer import in that layer is a guardrail
   violation, not a style choice.
-- Dependency posture: react, react-dom, zustand join the vetted set. Every further
-  dependency addition must be declared in the commit message (mechanically gated).
+- Dependency posture: react, react-dom, and zustand are direct dependencies covered by the
+  repository's license audit. New dependencies follow normal review; no special commit trailer is
+  enforced.
 - `dangerouslySetInnerHTML` and raw HTML-injection sinks are banned by the repo gates
   outside an explicit sanctioned allowlist.
 
@@ -43,8 +42,8 @@ Two constraints crystallized after ADR-007:
 
 - Editor slice 1 and the current shell are rebuilt in React during the conversion; their
   behavior and their pure cores (tested) are the spec, so the rewrite is bounded.
-- The XSS class is closed by default rendering behavior; the gates enforce the escape
-  hatch ban and the dependency ledger.
-- Agent fluency and OSS contributor familiarity align with the codebase's authoring mode.
+- Ordinary text rendering is escaped by default; repository gates separately enforce the raw-HTML
+  escape-hatch ban.
+- React's established tooling and contributor familiarity reduce the cost of maintaining the UI.
 - The framework-churn risk (React major versions) is accepted and bounded: the engine
   layer is immune, and surfaces are isolated per app folder.

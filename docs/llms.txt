@@ -10,7 +10,7 @@
 - [ADR-005: Canonical superset model + escrow envelope](docs/decisions/ADR-005-canonical-model.md): **Status:** accepted
 - [ADR-006: AI - BYOK + local, and an agent built for weak models](docs/decisions/ADR-006-ai-and-agent.md): **Status:** accepted
 - [ADR-007: Renderer policy (shell vanilla, per-app freedom, chat surfaces re-evaluated at spec time)](docs/decisions/ADR-007-renderer-policy.md): **Status:** accepted · 2026-07-05 **Context owners:** the shell (`src/ui/`), every app folder, the future Table Read and agent surfaces
-- [ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
+- [ADR-008: React UI layer for structural rendering safety](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
 - [ADR-009: Distinct origin for test-bench execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
 - [ADR-010: Shared semantic content capabilities](docs/decisions/ADR-010-content-capabilities.md): **Status:** accepted, 2026-07-25
 - [ADR-011: Exhaustive runtime schemas at canonical boundaries](docs/decisions/ADR-011-runtime-boundary-schemas.md): **Status:** accepted, 2026-07-26
