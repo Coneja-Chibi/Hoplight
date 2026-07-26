@@ -2,17 +2,19 @@
   "schemaVersion": 1,
   "docId": "decisions/ADR-005-canonical-model",
   "sourcePath": "docs/decisions/ADR-005-canonical-model.md",
-  "sourceHash": "sha256:a58ed95c8f60d3e8e822b03d1f3a3ec90c58627c536478ce645b2a0b55fefd1c",
-  "summary": "Accepted ADR establishing one internal canonical model per content type as zod schemas designed as a superset so parsing any supported format loses nothing that has a canonical home. Fields without a canonical home survive in an escrow envelope keyed by origin format. Parse yields Canonical data, Escrow, and ParseReport; serialize takes Canonical, Escrow, and target to file plus SerializeReport. Same-format round-trip merges escrow for semantic identity under the Round-Trip Law. Different-format conversion expresses what it can, honestly lists escrowed or dropped fields, and preserves escrow in extension fields where the target tolerates them such as V2 V3 extensions. Rejects using chara_card_v3 alone because V3 is card-only and still lossy against RoleCall, Risu, and Backyard fields while lorebooks presets and personas need models V3 does not define. Precedents include RoleCall unsupportedFields and origin and VAUDEVILLE normalizers. Consequences: every codec ships a capabilities table powering honest reports and auto-generated format-support matrix; core schema changes are the most expensive changes requiring migration note, fixture sweep, and design review.",
+  "sourceHash": "sha256:7005e4a6cfbc6c62ccc8fb8bfe4f84ca2c1e64147dc300d018347b54db342b12",
+  "summary": "Accepted ADR establishing Hoplight's canonical superset and escrow model. Its schema-authority note records that ADR-011 supersedes the original Zod-under-packages/core wording: current domain contracts are handwritten interfaces in src/entities/<kind>/schema.ts paired with exhaustive adjacent runtime decoders. The Decision retains one canonical model per content type, carries fields without a canonical home in origin-keyed escrow, merges escrow for semantically identical same-format round trips, and requires honest reports for cross-format loss or recovery through tolerated extension fields. Why not \"just use chara_card_v3 internally\" explains that V3 covers cards only and cannot represent all RoleCall, Risu, Backyard, lorebook, preset, or persona meaning. Precedents in the author's own earlier code identifies RoleCall unsupportedFields and origin plus VAUDEVILLE normalizers as earlier forms of the pattern. Consequences requires codec capability tables to drive conversion reporting and the generated support matrix, while changes to canonical domain contracts demand a migration note, fixture sweep, and explicit design review. ADR-005's superset, escrow envelope, and Round-Trip Law remain accepted even though ADR-011 now owns runtime schema authority.",
   "topics": [
     "canonical superset model",
+    "ADR-011 schema authority",
+    "handwritten domain interfaces",
+    "exhaustive runtime decoders",
     "escrow envelope",
     "Round-Trip Law",
     "honest conversion reports",
     "not chara_card_v3 only",
     "codec capabilities table",
-    "expensive core schema changes",
-    "ADR-005 accepted"
+    "expensive domain changes"
   ],
   "sections": [
     {
@@ -20,9 +22,11 @@
       "title": "Decision",
       "level": 2,
       "sourceHash": "sha256:237a85c8bd766f3f25975d55d0b49c8d9a33d795bfc237afdeaf8c78ee054885",
-      "summary": "One internal canonical model per content type defined as zod schemas in packages/core as a superset rich enough that parsing any supported format loses nothing with a canonical home. Fields with no canonical home survive in an escrow envelope keyed by origin format. Parse maps SourceFile to Canonical data, Escrow, and ParseReport. Serialize maps Canonical, Escrow, and target to file and SerializeReport. Round-trip to the same format merges escrow for semantic identity under the Round-Trip Law. Conversion to a different format expresses what the codec can and the report honestly lists escrowed or dropped fields; escrow is preserved where the target tolerates extension fields such as V2 V3 extensions so cross-format trips stay recoverable.",
+      "summary": "The decision text defines one canonical superset per content type and an origin-keyed escrow envelope for fields without a canonical home. Its parse and serialize equations require reports at both boundaries. Same-format serialization merges escrow so the result remains semantically identical under the Round-Trip Law. Cross-format serialization expresses supported meaning, reports escrowed or dropped fields, and preserves escrow where the target permits extension fields, allowing later recovery. The section's historical statement places Zod schemas in packages/core, but the document's schema-authority note explicitly supersedes that detail through ADR-011. Current authority is handwritten domain interfaces under src/entities/<kind>/schema.ts paired with exhaustive runtime decoders; the superset and escrow behavior itself is unchanged.",
       "topics": [
-        "superset zod schemas",
+        "canonical superset",
+        "ADR-011 supersession",
+        "handwritten interfaces and decoders",
         "escrow by origin",
         "parse serialize reports",
         "same format Round-Trip Law",

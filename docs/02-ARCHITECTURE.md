@@ -1,90 +1,87 @@
 # Architecture
 
-## Product repo layout (the future `vaudeville-studios` code repo)
+Hoplight is a Bun and TypeScript application rooted in `src/`. The canonical engine is shared by
+three surfaces: the command-line interface, the loopback React Studio, and Kit's terminal interface.
+No surface owns a private format conversion path.
 
-```
-vaudeville-studios/
-  packages/
-    core/          Canonical model: zod schemas for character, lorebook, preset,
-                   persona, regex-script, world/compendium. Escrow envelope. IDs,
-                   token counting interfaces. ZERO deps on other packages.
-    formats/       Codecs. One module per external format, all implementing the
-                   Codec interface (detect / parse / serialize / capabilities).
-                   Includes the PNG tEXt chunk reader/writer.
-    lore/          Lorebook engine: trigger matching, recursion, budgets, activation
-                   trace. Extracted from VAUDEVILLE packages/lorebook.
-    presets/       Preset parse/serialize + Lumiverse converter. Extracted from
-                   VAUDEVILLE packages/presets-core.
-    macros/        Macro tokenizer/parser (parseNodesV2 lineage) + evaluator subset.
-    regexkit/      Regex builder-core + regex-utils (NL trigger builder, describe,
-                   diagnose). Extracted from VAUDEVILLE.
-    assembly/      Prompt assembly for the Test Stage: preset + card + persona +
-                   lorebook + history -> messages payload, with a full trace object.
-    ai/            Provider adapters (Anthropic, OpenRouter, OpenAI, Gemini, Ollama,
-                   OpenAI-compatible), streaming, native/prompted tool-calling with
-                   weak-model fallback, key vault (OS keychain + encrypted file).
-    agent/         The agent loop: turn driver, tool registry with deferred schemas,
-                   spill store for oversized results, context compaction, staged-edit
-                   envelope (draft -> validate -> approve -> commit), persona loader.
-    doctor/        Audit passes (deterministic + AI-backed), health scoring, slop
-                   banks, treatment planner.
-    interview/     Table Read engine: question planner, modes/depth, chip generation,
-                   living-document event stream. UI-agnostic.
-  apps/
-    cli/           `vaud`. Commands + the agent REPL. Compiled via bun build --compile.
-    studio/        The app face (M6). Tauri shell rendering a local UI over the same
-                   engine. Layout TBD.
-  fixtures/        The corpus: real cards/lorebooks/presets in every format, with
-                   expected parse results. The Round-Trip Law lives here.
-  docs/            This planning suite, moved in.
+For the detailed source map and current contracts, read
+[the architecture reference](reference/architecture.md).
+
+## Source boundaries
+
+```text
+src/core        canonical wrapper, adapters, detection, conversion reports, shared engines
+src/entities    one rich canonical body and semantic capability family per content kind
+src/formats     discovered platform adapters; every format maps through canonical entities
+src/studio      local JSON persistence, path containment, atomic writes, settings
+src/sandbox     opt-in Lua and regex test benches with bounded worker execution
+src/ui          loopback server, HTTP boundary, React Studio, desktop shell
+src/kit         provider-backed terminal agent, tools, sessions, staged changes
+src/cli.ts      scriptable command-line surface over the same engine
 ```
 
-Dependency rule: `core <- formats <- everything`. `ai` and `agent` never import UI.
-Apps import packages, never each other. No package imports from `apps/`.
+Dependencies point inward. Core and entity logic do not import UI or persistence. Formats depend on
+canonical contracts. CLI, Studio, and Kit orchestrate those contracts and own their effects.
 
-## The canonical model + escrow (ADR-005, spec: specs/formats/canonical-model.md)
+## Canonical model and formats
 
-Internal model is a superset of every supported format. Every codec parse produces
-`{ data: CanonicalX, escrow: EscrowEnvelope }` where escrow holds source format,
-version, and any fields with no canonical home, keyed by origin. Serializing back to
-the origin format merges escrow back in. This is the mechanism behind the Round-Trip
-Law. Codecs declare `capabilities` (which canonical fields they can express) so
-`vaud convert` can print an honest "2 fields escrowed" report.
+Every supported format maps to and from one canonical superset model. There are no format-to-format
+converters. An imported piece stores:
 
-## The agent (lessons imported from RoleCall's Orison work)
+- its canonical body, where portable authored meaning lives;
+- an escrowed source snapshot and unmapped fields, where format-specific material survives;
+- optional profiles for sparse per-application differences.
 
-- **Tiny always-on tool surface.** A handful of meta-tools; everything else deferred,
-  schemas revealed on demand (accuracy collapses past ~50 loaded tools).
-- **Resource model over noun-tools.** `ls/read/write/search` over a `vaud://` URI
-  space (production files, fixtures, settings) instead of fifty bespoke read_* tools.
-  Weak models can drive four verbs.
-- **Spill store.** Tool results above ~1k tokens go to disk with a handle + peek;
-  the agent navigates with grep/read over handles. Context stays small.
-- **Staged edits only.** The agent never mutates a user file directly: it stages a
-  diff envelope, validation runs, the user approves (auto-approve configurable),
-  then commit. Every commit is a version in the production's history.
-- **Model capability profiles.** Native tool-calling when available, prompted XML
-  fallback otherwise; explicit samplers; one tool call per turn on weak models.
-- **Eval harness early (M2).** Golden tasks replayed against a model matrix; every
-  agent change must move tokens-per-task or success-rate, not vibes.
+Same-format export reprojects canonical edits onto the escrowed source. Cross-format export carries
+only fields the target can represent and reports what remains escrowed, shadowed, or dropped.
 
-## Productions (project workspaces)
+Format adapters are folder-discovered under `src/formats/`. Adding a format means adding one adapter
+folder and its tests, fixtures, coverage declaration, and reference documentation. The live registry
+drives detection, CLI listings, Studio format choices, Press targets, and the generated support
+matrix.
 
-A production is a folder: human-readable JSON/MD files, a `vaud.json` manifest, and a
-`.vaud/history/` of content-addressed snapshots (no git dependency; git-friendly).
-Library mode (a managed default production) covers loose-file users; `vaud` commands
-accept bare file paths too.
+## Storage and mutation
 
-## Faces
+The Studio folder is the database: one canonical JSON file per entity under
+`<studio>/<kind>/<id>.json`. `src/studio` owns path policy, atomic replacement, keep-both naming, and
+revision-checked compare-and-save.
 
-- **CLI:** plain commands (scriptable, JSON output flags) + `vaud` bare = agent REPL.
-- **Studio (M6):** Tauri + local UI over the same engine via a thin IPC layer.
-  Every studio action maps to an engine call that the CLI can also express; the studio
-  is forbidden from having private engine capabilities.
+Editors and Kit capabilities preview pure canonical changes first. Durable apply is separate: it
+checks the stored revision, writes atomically, re-reads the result, and reports success only after the
+saved entity validates.
 
-## Security & privacy invariants
+## The three surfaces
 
-- No network calls except: model providers the user configured, and the updater
-  hitting GitHub Releases (checksum-verified). Both auditable in source.
-- Keys: OS keychain where available, else AES-encrypted file with local secret.
-- No telemetry of any kind. Crash reports are local files the user can choose to share.
+- `hoplight`: inspect, validate, label, convert, enumerate formats, and start the Studio.
+- Studio: the packaged React UI served by a loopback Bun server and wrapped by the desktop executable
+  on Windows. Remote listeners exist only through the separately enabled remote-access flow.
+- Kit: an active-development terminal interface available from a source checkout with
+  `bun run kit`. Kit can call a user-configured model provider, discover bounded tools, stage changes,
+  and require explicit apply.
+
+Kit is not included in the current GitHub release binaries. It becomes a release surface only when
+cross-platform build and live terminal smoke gates ship with it.
+
+## Effects and trust boundaries
+
+Untrusted files are parsed at storage, HTTP, and conversion boundaries. Imported scripts remain data.
+Lua and regex execution occur only inside the user-invoked, bounded test benches.
+
+Network access is deliberate and scoped:
+
+- Studio HTTP stays on loopback unless the user explicitly enables remote access.
+- Provider-backed Kit requests check their initial URL against the configured endpoint host. The
+  current fetch path does not revalidate runtime redirects, so this is not an end-to-end redirect
+  policy.
+- Update checks and version switches use fixed GitHub release endpoints.
+- Hoplight has no account, telemetry service, inference proxy, or background content upload.
+
+Provider credentials are encrypted at rest by Kit's local vault and used only as authentication to
+the configured endpoint. They are excluded from canonical pieces, prompts, tool observations,
+exports, transcripts, and the privacy ledger.
+
+## Decisions and future systems
+
+Accepted decisions start with [ADR-001](decisions/ADR-001-runtime.md). Detailed future behavior belongs in
+`specs/` and remains planned until source, tests, and a user entry point exist. A specification is not
+evidence that a feature ships.

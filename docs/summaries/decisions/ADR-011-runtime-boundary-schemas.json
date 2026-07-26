@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-011-runtime-boundary-schemas",
+  "sourcePath": "docs/decisions/ADR-011-runtime-boundary-schemas.md",
+  "sourceHash": "sha256:c69aa427a5e987c6dc7a085a58f2485056e033d57b47a1c8c3d83bc6da79174c",
+  "summary": "Accepted on 2026-07-26, ADR-011 makes exhaustive runtime decoding the canonical boundary contract while preserving handwritten domain interfaces. TypeScript alone cannot validate JSON from disk, HTTP, adapters, or Kit drafts, and the former central decoder accepted only a required floor. The decision adds one adjacent runtime decoder per content kind and routes every decoded object through defineExhaustiveShape<T>(), which infers concrete Zod schemas before demanding exact domain-compatible inputs and outputs. Missing or extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. Six strict bodies compose the public discriminated union; unknown same-version keys fail outside declared open record bags; profiles validate as kind-matched shallow partial bodies. Adapter-corpus tests, fully populated fixtures, malformed-family matrices, and storage, HTTP, Kit validation, and final-apply tests prove adoption. Strictness forces explicit schema evolution while leaving declared escrow and extension bags lossless and inert. ADR-005's canonical superset, escrow envelope, and Round-Trip Law remain in force.",
+  "topics": [
+    "exhaustive runtime schemas",
+    "handwritten domain interfaces",
+    "ExhaustiveShape typecheck",
+    "strict six-kind union",
+    "closed same-version keys",
+    "open escrow record bags",
+    "kind-matched profiles",
+    "shared public boundary",
+    "ADR-005 supersession"
+  ],
+  "sections": [
+    {
+      "slug": "context",
+      "title": "Context",
+      "level": 2,
+      "sourceHash": "sha256:bb68158678357c38621d7a7be683c296eaaefa52e450b1bc27f80b8a628bf74d",
+      "summary": "Canonical entities use rich handwritten TypeScript interfaces under src/entities/<kind>/schema.ts, but TypeScript types disappear at runtime and cannot validate JSON arriving from storage, HTTP, format adapters, or Kit drafts. The former central decoder checked the common envelope and only a required subset of each entity body. Because loose objects did not exhaust optional field families, a parse could succeed while carrying values that contradicted the domain interface into durable storage or editing logic. Replacing every interface with a schema-inferred type would cause broad disruption and still would not prove that every producer and consumer crosses one shared validation boundary. The problem is therefore boundary completeness and adoption, not merely the syntax used to declare types.",
+      "topics": [
+        "erased TypeScript types",
+        "untrusted JSON sources",
+        "required-floor decoder",
+        "optional field drift",
+        "shared boundary adoption"
+      ],
+      "children": []
+    },
+    {
+      "slug": "decision",
+      "title": "Decision",
+      "level": 2,
+      "sourceHash": "sha256:48eae25219f73451a5b56a7e433ded3819bcdfca0c4b5027aacf72a28f40e8c5",
+      "summary": "Handwritten domain interfaces remain the internal semantic contracts. Each content kind owns an adjacent decoder at src/entities/<kind>/runtime-schema.ts. Every decoded object uses defineExhaustiveShape<T>(), which infers each concrete schema before requiring exact domain-compatible input and output types. Missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. src/entities/runtime-schema.ts composes six strict body decoders into the public discriminated canonical union. Canonical envelopes, bodies, profiles, and authored nested objects reject unknown current-version keys outside explicitly declared open carriers. Profiles use their kind's shallow partial body decoder. Adapter-corpus tests, fully populated per-kind fixtures, malformed-family matrices, and public-boundary tests prove adoption by format output, storage, HTTP save, Kit draft validation, and final Kit apply.",
+      "topics": [
+        "adjacent per-kind decoders",
+        "ExhaustiveShape",
+        "six-kind discriminated union",
+        "strict unknown keys",
+        "declared open carriers",
+        "typed partial profiles",
+        "cross-boundary proof"
+      ],
+      "children": []
+    },
+    {
+      "slug": "consequences",
+      "title": "Consequences",
+      "level": 2,
+      "sourceHash": "sha256:5c9f17603aaa90a1e302569cd1ce85ba84e9fb7a32b6b51fd955d9219f9b1c96",
+      "summary": "A successful canonical parse now proves the complete known shape rather than a required floor. Interface and decoder drift, including narrowed unions and coercing inputs, becomes a compile-time error, while malformed external values fail at one shared runtime boundary with bounded messages. Storage, HTTP, adapters, and Kit no longer need competing ad hoc validators. Adding a canonical field requires the interface, adjacent decoder, positive fixture, and malformed-value regression to change together. Rejecting unknown same-version keys makes evolution deliberate. Declared escrow, metadata, extension, and other record bags remain lossless and inert. ADR-005's canonical superset, escrow envelope, and Round-Trip Law remain accepted.",
+      "topics": [
+        "complete parse proof",
+        "compile-time schema drift",
+        "single runtime validator",
+        "field change proof set",
+        "explicit schema evolution",
+        "lossless inert record bags",
+        "ADR-005 remains"
+      ],
+      "children": []
+    }
+  ]
+}

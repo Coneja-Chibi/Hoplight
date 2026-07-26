@@ -32,10 +32,25 @@ test("declares .json as its output extension", () => {
 test("rejects malformed input at the boundary instead of passing a fake domain object downstream", () => {
   // valid JSON, wrong shape (no body) -> must throw here, not crash later
   expect(() => adapter.toCanonical({ text: JSON.stringify({ kind: "character", schemaVersion: "1" }) })).toThrow(
-    "vaud-json: malformed canonical character",
+    "vaud-json: invalid canonical character",
   );
   // not a canonical character at all
   expect(() => adapter.toCanonical({ text: JSON.stringify({ hello: "world" }) })).toThrow(
-    "vaud-json: not a canonical character",
+    "vaud-json: invalid canonical character",
   );
+});
+
+test("rejects unsupported schemas and incomplete canonical bodies", () => {
+  const unsupported = { ...sample, schemaVersion: "999" };
+  const incomplete = {
+    schemaVersion: CANONICAL_SCHEMA_VERSION,
+    kind: "character",
+    id: "incomplete",
+    body: { identity: { name: "Incomplete" } },
+  };
+
+  expect(() => adapter.toCanonical({ text: JSON.stringify(unsupported) })).toThrow();
+  expect(() => adapter.toCanonical({ text: JSON.stringify(incomplete) })).toThrow();
+  expect(adapter.detect({ text: JSON.stringify(unsupported) })).toBe(0);
+  expect(adapter.detect({ text: JSON.stringify(incomplete) })).toBe(0);
 });

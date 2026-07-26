@@ -210,7 +210,7 @@ const isUrlOrDataRef = (ref: string): boolean =>
  * Write the canonically-editable scalars back onto a cloned raw RC extension block. Only the exact
  * 1:1 mappings are re-applied so an untouched card round-trips byte-identical. Presentation fields
  * the reader promotes (gradient/palette/background/fieldOrder) get a matching inverse write with
- * Plan 009 three-state clear semantics.
+ * three-state clear semantics.
  */
 function applyBodyToRcExt(ext: RcExtension, body: CharacterBody): void {
   const set = <K extends keyof RcExtension>(k: K, v: RcExtension[K] | undefined): void => {

@@ -1,13 +1,10 @@
-/**
- * Cross-adapter detection firewall. With every format registered, each format's own sample must
- * route to exactly the right adapter, no collisions. This is the property that keeps the system
- * modular: adding a new format folder must not silently steal detection from an existing one.
- */
+/** Cross-adapter detection and fixture-routing regressions. */
 import { test, expect, beforeAll } from "bun:test";
 import { registry, loadFormats, CANONICAL_SCHEMA_VERSION } from "./index";
 import { zipSync, strToU8 } from "fflate";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { parseCanonicalEntity } from "../entities/runtime-schema";
 
 beforeAll(async () => {
   await loadFormats();
@@ -325,6 +322,9 @@ for (const s of sampleInputs()) {
       const allowed = FAMILY_ALLOW[s.family] ?? [s.family];
       const familyOf = adapter!.id.split("-")[0]!;
       expect(allowed).toContain(familyOf);
+      const canonical = adapter!.toCanonical(s.input);
+      const parsed = parseCanonicalEntity(canonical);
+      expect(parsed.kind).toBe(adapter!.kind);
     },
     30000, // a 23MB charx makes sixteen adapters each decode the bytes; well past bun's 5s default
   );

@@ -241,7 +241,7 @@ test("clear export: cleared description/scenario/tags do not resurrect from twin
   expect(out.data.extensions.rolecall).toBeDefined();
 });
 
-// --- Plan 010: presentation write-back (gradient, palette, background, fieldOrder) ---
+// Presentation write-back.
 
 test("presentation edit: gradient/palette/fieldOrder/background reach exact wire homes", () => {
   const ent = adapter.toCanonical({ text: realCard });

@@ -6,17 +6,22 @@
  */
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
+import { parseCanonicalEntity } from "../../entities/runtime-schema";
 
-/** Decode + validate at the boundary (parse, don't validate): fail here, not deep downstream. */
 function decodeCanonical(text: string): CanonicalCharacter {
-  const o = JSON.parse(text) as Partial<CanonicalCharacter>;
-  if (o?.kind !== "character" || typeof o.schemaVersion !== "string") {
-    throw new Error("vaud-json: not a canonical character (missing kind/schemaVersion)");
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error("vaud-json: invalid JSON");
   }
-  if (!o.body || typeof o.body !== "object" || typeof o.body.identity?.name !== "string") {
-    throw new Error("vaud-json: malformed canonical character (missing body.identity.name)");
+  try {
+    const entity = parseCanonicalEntity(parsed);
+    if (entity.kind !== "character") throw new Error();
+    return entity;
+  } catch {
+    throw new Error("vaud-json: invalid canonical character");
   }
-  return o as CanonicalCharacter;
 }
 
 const adapter: CharacterAdapter = {
@@ -29,8 +34,7 @@ const adapter: CharacterAdapter = {
   detect(input: AdapterInput): number {
     if (!input.text) return 0;
     try {
-      const o = JSON.parse(input.text) as Partial<CanonicalCharacter>;
-      return o?.kind === "character" && typeof o?.schemaVersion === "string" ? 1 : 0.1;
+      return parseCanonicalEntity(JSON.parse(input.text)).kind === "character" ? 1 : 0;
     } catch {
       return 0;
     }

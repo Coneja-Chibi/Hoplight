@@ -83,10 +83,17 @@ const adapter: PersonaAdapter = {
 
     // Twin-diff: write a mapped key back only when canonical drifts from the twin's own decode, and
     // never materialize a default for an optional field (comment/appearance/backstory/avatarPath)
-    // absent from both sides. id is Marinara bookkeeping with no canonical home: it rides the clone,
-    // and a fresh (twinless) emit leaves it absent rather than fabricating one.
+    // absent from both sides. A fresh export still needs the minimum Marinara wire identity and
+    // shape signals so Marinara, and this adapter, can read the file back.
+    if (typeof out.id !== "string") out.id = canonicalId(b.name);
     if (b.name !== str(out.name)) out.name = b.name;
-    if (b.content !== (str(out.description) ?? "")) out.description = b.content;
+    if (typeof out.description !== "string" || b.content !== out.description) {
+      out.description = b.content;
+    }
+    if (typeof out.personality !== "string") out.personality = b.sections?.personality ?? "";
+    if (!("nameColor" in out) && !("boxColor" in out) && !("personaStats" in out)) {
+      out.personaStats = { enabled: false, bars: [] };
+    }
 
     const twinBrief = str(out.comment)?.trim() || undefined; // decoded trimmed; wire keeps whitespace
     if (b.brief !== twinBrief) {

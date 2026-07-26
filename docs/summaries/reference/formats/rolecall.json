@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "docId": "reference/formats/rolecall",
   "sourcePath": "docs/reference/formats/rolecall.md",
-  "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
-  "summary": "RoleCall format is the developer authority for how Hoplight's rolecall family detects, maps, and round-trips Vaudeville's own character, lorebook, persona, and regex exports through the canonical model. RC characters are ordinary CCv2 V3 cards with extensions.rolecall; lorebook is a dedicated v1 envelope; persona and regex are separate JSON shapes covered mainly under Quirks. Four codecs export from formats rolecall: character PNG or JSON, lorebook persona and regex as JSON. Detection requires Character extensions.rolecall at 1.0 outranking ST 0.9 with a cross-kind firewall when type is persona, and Lorebook schemaVersion plus lorebook.entries envelope at 1.0 without ST collision. Field map layers RC tagline genre rating casting-card details titled greetings depth injections presentation and assets for Character, and nested triggers matching injection priority timing grouping advanced scanSources groups for Lorebook. Escrow and round-trip clone original.rolecall raw with three-state presentation overlay and document depth-injection write asymmetry; lorebook preserves exportDate and conditional budget keys. Quirks cover object-form source, greeting titles, background slots, expression sprites, full persona and regex codec summaries, and coverage as lens only. Source of truth lists adapters shared helpers specs and constructed samples.",
+  "sourceHash": "sha256:5823963f6b0d1ccb2a5cf6b14d4722016fe697ecd65d4955b20c62e2d93b6383",
+  "summary": "Developer reference for five RoleCall adapters: CCv2/v3 character cards with extensions.rolecall, a v1 lorebook envelope, persona and regex JSON exports, and a RoleCall-flavored flat preset. Character detection bids 1.0 only for the RoleCall extension and steps aside for persona exports; lorebook detection recognizes its dedicated wrapper without colliding with SillyTavern world info. Character mapping covers identity details, titled greetings, depth injections, presentation, media, and embedded lorebooks. Lorebook mapping flattens RoleCall's nested trigger, matching, injection, timing, grouping, scan-source, and advanced settings into canonical entries. Character export overlays canonical edits onto the sealed source while preserving native fields, including a documented depth-injection write asymmetry. Lorebook export preserves source dates and conditionally writes budget fields. Persona handling keeps brief and content distinct across two supported shapes. Regex handling models the live chat pipeline with open placement values. Preset handling shares the flat SillyTavern grammar but requires RoleCall fingerprint fields and preserves native YAML as sealed data. The source table identifies all five codecs, shared helpers, schemas, design specs, and constructed samples.",
   "topics": [
     "rolecall character CCv3",
     "extensions.rolecall",
@@ -13,6 +13,7 @@
     "depth injection asymmetry",
     "rolecall-persona shapes",
     "rolecall-regex placements",
+    "rolecall-preset fingerprint",
     "outbid sillytavern 0.9"
   ],
   "sections": [
@@ -20,8 +21,8 @@
       "slug": "detection",
       "title": "Detection",
       "level": 2,
-      "sourceHash": "sha256:add5103974dbe6c50cb10114e2309bd45e816c9f5e56a6db18167689ff4661bd",
-      "summary": "Detection follows registry highest score above 0.5. Character detect returns 1.0 for CCv2 or V3 cards that carry extensions.rolecall whose type is not the literal persona, outranking SillyTavern 0.9 on the same card. Cross-kind firewall: RC persona exports reuse the CCv2 V3 shape with type persona so character returns 0 and toCanonical throws pointing at rolecall-persona instead of tying. Lorebook detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion containing 1.0.0 as substring, exportDate, and lorebook object with entries array; no firewall needed versus ST because ST has top-level entries object and no lorebook wrapper.",
+      "sourceHash": "sha256:89c8ec57388f0f0ffe79a2c7a18c652ec0834aa7b8a3482b6a23e9c3cb51abc2",
+      "summary": "Detection follows registry highest score above 0.5. Character detect returns 1.0 for CCv2 or V3 cards that carry extensions.rolecall whose type is not the literal persona, outranking SillyTavern 0.9 on the same card. Cross-kind firewall: RC persona exports reuse the CCv2 V3 shape with type persona so character returns 0 and toCanonical throws pointing at rolecall-persona instead of tying. Lorebook detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion containing 1.0.0 as a substring and a lorebook object with an entries array; exportDate is optional. No firewall is needed versus ST because ST has a top-level entries object and no lorebook wrapper.",
       "topics": [
         "extensions.rolecall 1.0",
         "outbid ST 0.9",
@@ -48,8 +49,8 @@
           "slug": "lorebook",
           "title": "Lorebook",
           "level": 3,
-          "sourceHash": "sha256:e0829c7ab2b80e9b871f2f878c08d16a68b293b1b2bd12cb6e299fa1a5b8eaef",
-          "summary": "detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion, exportDate, and lorebook object whose entries is an array, else 0. isRcVersion requires schemaVersion string to contain 1.0.0 as substring not exact match so beta tags pass; unfamiliar versions are not hard-rejected, only structural parse. Envelope shape does not collide with SillyTavern worldbook top-level entries object without lorebook wrapper, so no firewall is needed between the two lorebook codecs.",
+          "sourceHash": "sha256:87524abd2c1393580eb2bcf18f3a18f7ada66ade839ec3e032b3565eee5d4cf2",
+          "summary": "detect returns 1.0 for a RoleCall v1 export envelope with a schemaVersion string containing 1.0.0 and a lorebook object whose entries is an array, else 0. exportDate is optional for detection and import. The version match is a substring rather than exact equality, so beta tags pass; a nonmatching version scores zero even though the direct structural parser does not hard-reject it. The envelope does not collide with a SillyTavern worldbook, which has a top-level entries object without a lorebook wrapper, so no firewall is needed between the two lorebook codecs.",
           "topics": [
             "v1 export envelope",
             "schemaVersion contains 1.0.0",
@@ -125,9 +126,10 @@
       "slug": "quirks",
       "title": "Quirks",
       "level": 2,
-      "sourceHash": "sha256:d63818efb62ef7c66d107f08b5c972c3f7f2fed6cce4e67425403b548b211f59",
-      "summary": "Quirks pin RC edges and summarize persona and regex codecs. V3 source as object array is unread by shared Tavern string[] decoder so object form rides twin; greeting titles omit key when all untitled; background keeps customUrl or backgroundId slot; real sprites use type expression mapped to emotion. Persona codec claims 1.0 on rcpersona envelope and chara_card_v2 lookalike with type persona; brief never swaps with content; sections compile or fold unfold description; after_dark omitted when not mature explicit; no rcpersona PNG keyword path in code despite design specs. Regex codec models live find_pattern pipeline only at 0.9 for single script with rules; placements map to phases open-union; no substituteFind on this wire; unknown keys ride extras. coverage.ts is editor lens only not round-trip.",
+      "sourceHash": "sha256:d03ccfe90a9a78c8352305964af342c55cce0a153a5f6a5de4791702655a9f9b",
+      "summary": "Quirks pin RC edges and summarize preset persona and regex codecs. rolecall-preset shares SillyTavern's flat grammar but requires native fingerprint keys; a from-scratch export writes a neutral empty choice_groups array so it stays distinguishable and self-readable. V3 source as object array is unread by shared Tavern string[] decoder so object form rides twin; greeting titles omit key when all untitled; background keeps customUrl or backgroundId slot; real sprites use type expression mapped to emotion. Persona codec claims 1.0 on rcpersona envelope and chara_card_v2 lookalike with type persona; brief never swaps with content; sections compile or fold unfold description; after_dark omitted when not mature explicit; no rcpersona PNG keyword path in code despite design specs. Regex codec models live find_pattern pipeline only at 0.9 for single script with rules; placements map to phases open-union; no substituteFind on this wire; unknown keys ride extras. coverage.ts is editor lens only not round-trip.",
       "topics": [
+        "preset neutral fingerprint",
         "object-form source twin",
         "expression not emotion wire",
         "rolecall-persona two shapes",
@@ -140,11 +142,11 @@
       "slug": "source-of-truth",
       "title": "Source of truth",
       "level": 2,
-      "sourceHash": "sha256:9c37ea40809212d1c6e8dee4e9b7c3d47301f65ff8864f94ba9abe2531c4fff8",
-      "summary": "Source of truth maps concerns to files. Character adapter is formats rolecall index.ts; lorebook persona and regex codecs are sibling files. Shared Tavern field map lore-enums assets png and card-io live under formats shared. Coverage declaration is coverage.ts; canonical escrow is core canonical.ts. Persona schema and generated fields.persona.md cover the entity without a dedicated entity page. Design intent specs rolecall-character and rolecall-lorebook must be verified against code not treated as sole authority. Samples under samples rolecall are constructed from RoleCall serializer source; no genuine RC export file was found on disk per SOURCES.md.",
+      "sourceHash": "sha256:ac68e3a346df07055af9076b34ce50d8fa19ab9b4336aa92b2d61f9418c1192f",
+      "summary": "Source of truth maps character to index.ts and lorebook, persona, regex, and preset codecs to sibling files. Shared Tavern mapping, lore enums, assets, PNG and card readers, coverage, canonical escrow, persona schema, design specs, and constructed samples are also listed.",
       "topics": [
         "rolecall index.ts",
-        "persona regex lorebook files",
+        "lorebook persona regex preset files",
         "shared tavern assets",
         "design specs verify code",
         "constructed samples"

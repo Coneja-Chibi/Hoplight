@@ -2,23 +2,23 @@
 id: reference/formats/marinara
 title: Marinara format
 audience: dev
-summary: How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.
-tags: [format, marinara, regex, persona]
-related: [reference/architecture, reference/entities/regex]
+summary: How the Marinara-Engine adapters map regex scripts, personas, lorebooks, and presets through the canonical model.
+tags: [format, marinara, regex, persona, lorebook, preset]
+related: [reference/architecture, reference/entities/lorebook, reference/entities/persona, reference/entities/preset, reference/entities/regex]
 ---
 
 # Marinara format
 
-Marinara-Engine is a roleplay platform whose server exposes regex scripts and personas over its own API
-(`GET /regex-scripts` in `packages/server/src/routes/regex-scripts.routes.ts`, `index.ts:8-9`). Marinara
-has no file import or export UI of its own, so an API dump is the only standalone file form that exists in
-reality; each codec here reads and writes that shape and invents no envelope around it (`index.ts:1-11`).
+Marinara-Engine is a roleplay platform whose server exposes regex scripts and personas as API data and
+lorebooks and prompt presets as versioned export envelopes. The adapters read those native shapes without
+adding a Hoplight wrapper.
 
-The format is one folder, `src/formats/marinara/`, whose `index.ts` default-exports two codecs
-(`index.ts:98`):
+The format is one folder, `src/formats/marinara/`, whose `index.ts` default-exports four codecs:
 
 - `marinara-regex`, kind `regex`, reads a bare `MarinaraRegexScript[]` API dump array, writes `.json`.
 - `marinara-persona`, kind `persona`, reads a Marinara persona object (sections plus theming), writes `.json`.
+- `marinara-lorebook`, kind `lorebook`, reads the `marinara_lorebook` export envelope, writes `.json`.
+- `marinara-preset`, kind `preset`, reads the `marinara_preset` export envelope, writes `.json`.
 
 There is no `marinara` character adapter. A Marinara character card is Tavern-shaped and reads through
 the `sillytavern` adapter; the Marinara-specific fields with no canonical home ride the generic CCv2/V3
@@ -26,10 +26,11 @@ the `sillytavern` adapter; the Marinara-specific fields with no canonical home r
 `src/formats/_shared/extension-platforms.ts`, not mapped by anything in this folder (`index.ts:1-5`). See
 [Quirks](#quirks) for what that lens covers.
 
-For the canonical regex fields this format maps onto, see [entities/regex.md](../entities/regex.md). There
-is no `entities/persona.md` page yet, so this page describes the canonical persona fields inline. For the
-hub-and-spoke, escrow, and detection model, see [architecture.md](../architecture.md). For the whole
-matrix of formats, see [FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md).
+For canonical field meanings, see the [lorebook](../entities/lorebook.md),
+[persona](../entities/persona.md), [preset](../entities/preset.md), and [regex](../entities/regex.md)
+entity references. For the hub-and-spoke, escrow, and detection model, see
+[architecture.md](../architecture.md). For the whole matrix of formats, see
+[FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md).
 
 @fig codecs
 
@@ -75,6 +76,19 @@ The codec's own comment calls this combination "disjoint from Lumi/ST/RC" (`pers
 `{ id, name, description }` object from another platform is missing either `personality` or a theming key,
 so it fails gate two or three before any name-based disambiguation is needed.
 
+### Lorebook
+
+`marinara-lorebook` returns `1.0` only for an object tagged `type: "marinara_lorebook"` whose `data`
+object contains an `entries` array (`lorebook.ts:433-449`). The unique envelope tag is the format
+firewall; version, book metadata, and folders remain tolerant data rather than detection requirements.
+
+### Preset
+
+`marinara-preset` returns `0.95` only for `type: "marinara_preset"` with an object at `data.preset` and
+an array at `data.sections` (`preset.ts:72-80,415-421`). Groups and choice blocks are optional. The
+codec accepts the engine's raw database-row encoding, where many booleans and nested objects are JSON
+strings rather than native JSON values.
+
 ## Field map
 
 ### Regex
@@ -106,8 +120,8 @@ object (`index.ts:77`, `_shared/regex-set-name.ts:11-18`). `RegexSetBody.descrip
 ### Persona
 
 The wire object carries no spec or envelope name; it is whatever Marinara's persona API serves and is
-recognized by the shape check in [Detection](#detection) (`persona.ts:21-27`). There is no
-`entities/persona.md` page yet, so canonical fields are described here; the type is `PersonaBody`
+recognized by the shape check in [Detection](#detection) (`persona.ts:21-27`). Canonical field meanings
+are also documented in [entities/persona.md](../entities/persona.md); the type is `PersonaBody`
 (`src/entities/persona/schema.ts`).
 
 | Marinara field | Canonical path | Notes |
@@ -126,12 +140,33 @@ recognized by the shape check in [Detection](#detection) (`persona.ts:21-27`). T
 `updatedAt`) have no canonical slot and ride sealed in escrow; see
 [Escrow and round-trip](#escrow-and-round-trip).
 
+### Lorebook
+
+The native envelope contains one book row, entry rows, and folder rows. Book fields map name,
+description, category, tags, enabled state, scan depth, recursive scanning, token budget, and entry
+limit. Each entry maps plain-string primary and secondary keys, one shared `useRegex` flag, selective
+logic, matching flags, injection position/depth/role, the single `order` axis, timing, groups, folder,
+probability, recursion, character filters, and additional matching sources
+(`lorebook.ts:84-230`). Marinara `order` maps to canonical `sortOrder`, never eviction `priority`.
+Folder rows project to flat canonical categories; their `parentFolderId` and other engine-only fields
+remain in escrow so nested trees survive an unedited round trip.
+
+### Preset
+
+The preset envelope maps section rows to canonical prompts, including role, enabled/marker state,
+group, ordered versus depth placement, XML wrapping, override refusal, and marker slot
+(`preset.ts:88-121`). Group rows map parent, order, and enabled state. Choice blocks map question,
+variable name, single versus multi-select, JSON-string options, separator, random pick, and sort order.
+The parameters JSON string supplies supported samplers plus squash-system-messages, show-thoughts, and
+reasoning-effort API options (`preset.ts:123-200`). Conversation/game prompts, variable storage,
+unmapped parameters, authoring metadata, and other engine-only fields stay in the raw twin.
+
 ## Escrow and round-trip
 
 The escrow envelope is the canonical wrapper's `original` field, a `Record<FormatId, OriginalEntry>` keyed
 by format id (`canonical.ts:39-51,80`). The architecture calls this concept "escrow"; the wrapper field is
-named `original`. Each Marinara codec stores its twin under its own adapter id, but the two codecs consult
-it differently on export.
+named `original`. Each Marinara codec stores its twin under its own adapter id, but the codecs consult
+those twins differently on export.
 
 The regex codec seals the entire imported row array verbatim on import, `original["marinara-regex"] = {
 raw: rows }` (`index.ts:85`), then does not read it back on export: `fromCanonical` builds the output rows
@@ -147,10 +182,11 @@ The persona codec, by contrast, does overlay onto the twin. `toCanonical` seals 
 `original["marinara-persona"] = { raw: w }` (`persona.ts:62`). `fromCanonical` clones that twin, spreads it
 first, then overwrites only the fields the codec maps: `id`, `name`, `comment`, `description`,
 `personality`, `appearance`, `backstory`, `avatarPath` (`persona.ts:67-80`). An unedited round trip is
-byte-lossless: every mapped field re-derives to the same value, and everything else, theming, stats, crop,
-tags, scenario, timestamps, rides the twin untouched. A from-scratch persona with no twin (`original`
-absent) falls back to an empty base object, so the unmapped fields are simply absent from the output rather
-than fabricated (`persona.ts:68`).
+structurally lossless: mapped values re-derive unchanged, and theming, stats, crop, tags, scenario, and
+timestamps ride the twin. JSON whitespace and object-key order are not preserved. A from-scratch persona has no wire twin, so export
+materializes Marinara's minimum readable shape: a derived wire `id`, `name`, `description`, a possibly
+empty `personality`, and a disabled empty `personaStats` signal. Optional authored and presentation fields
+remain absent until the canonical persona supplies them (`persona.ts`).
 
 The two ids diverge. The canonical entity's own `id` is the hub id every adapter mints the same way,
 `canonicalId(body.name)` (`canonical.ts:23`), and has no relation to Marinara's own wire `id` field.
@@ -158,6 +194,13 @@ The two ids diverge. The canonical entity's own `id` is the hub id every adapter
 the sealed twin, falling back to `canonicalId(name)` only when there is no twin (`persona.ts:60,72`). The
 canonical entity id is the storage key; the wire `id` is Marinara's own business-object id, carried through
 escrow, never derived from name on a real import.
+
+The lorebook and preset codecs both clone their complete native envelope and patch mapped values against
+the twin's own decode. Lorebook entries match by id, book scalars update only when canonical values
+change, and folder rows retain parent links and engine-only state (`lorebook.ts:232-430`). Preset
+sections, groups, and choices also match by stable id; supported parameters are merged into the original
+JSON string while unmapped keys survive (`preset.ts:202-412`). A from-scratch entity emits a minimal
+native envelope instead. These are structural JSON round trips, not byte preservation of whitespace.
 
 ## Quirks
 
@@ -172,8 +215,8 @@ escrow, never derived from name on a real import.
   fallback, because `??` only falls through on `null`/`undefined`, not `""`. A cleared section survives
   export as `""` instead of reverting to the sealed twin's old value (`persona.ts:76`, regression-pinned at
   `persona.test.ts:53-60`).
-- `avatarPath` is nullable, not optional. Export always emits the key, defaulting to `null` when neither
-  the canonical body nor the twin has an image (`persona.ts:79`).
+- `avatarPath` is optional. A fresh export does not fabricate it. On an imported twin, clearing the
+  canonical image deletes the existing key; unchanged absence remains absent (`persona.ts:109-114`).
 - The character-side Marinara dialect is not this folder. A Marinara character card reads through the
   `sillytavern` adapter; the fields with no canonical home (`backstory`, `rpgStats.enabled`,
   `rpgStats.attributes[]`, `rpgStats.hp`, `avatarCrop`, `trackerCardColors`, `nameColor`, `dialogueColor`,
@@ -188,12 +231,14 @@ escrow, never derived from name on a real import.
 | --- | --- |
 | Regex adapter (detect, toCanonical, fromCanonical) | `src/formats/marinara/index.ts` |
 | Persona adapter (detect, toCanonical, fromCanonical) | `src/formats/marinara/persona.ts` |
+| Lorebook adapter | `src/formats/marinara/lorebook.ts` |
+| Preset adapter | `src/formats/marinara/preset.ts` |
 | Shared Marinara regex-script mapping | `src/formats/_shared/marinara-regex.ts` |
 | Regex set filename-derived naming | `src/formats/_shared/regex-set-name.ts` |
 | JSON boundary readers (`readJsonAny`, `readJsonObject`) | `src/formats/_shared/card-io.ts` |
 | Character-side Marinara extensions lens (not this folder) | `src/formats/_shared/extension-platforms.ts` |
 | Canonical wrapper, escrow (`original`), id policy | `src/core/canonical.ts` |
 | Regex entity (canonical fields) | `src/entities/regex/schema.ts`, [entities/regex.md](../entities/regex.md) |
-| Persona entity (canonical fields, no dedicated page yet) | `src/entities/persona/schema.ts` |
-| Tests | `src/formats/marinara/marinara.test.ts`, `src/formats/marinara/persona.test.ts` |
+| Persona entity | `src/entities/persona/schema.ts`, [entities/persona.md](../entities/persona.md) |
+| Tests | `src/formats/marinara/*.test.ts` |
 | ST-dialect regression fixture | `src/formats/_fixtures/regex/marinara-essentials.json` |

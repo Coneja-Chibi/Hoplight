@@ -23,7 +23,10 @@ export interface LossReport {
 }
 
 export type ParseReport = LossReport;
-export type SerializeReport = LossReport;
+export interface SerializeReport extends Omit<LossReport, "counts"> {
+  coverage: "declared" | "native" | "unknown";
+  counts: Omit<ReportCounts, "dropped"> & { dropped: number | null };
+}
 
 const uniqueSorted = (values: readonly string[]): string[] => [...new Set(values)].sort();
 
@@ -44,6 +47,22 @@ export function lossReport(parts?: Partial<Omit<LossReport, "counts">>): LossRep
     dropped,
     escrowShadowed,
     warnings,
+  };
+}
+
+/** Build serialize accounting; unknown coverage uses null rather than a misleading zero count. */
+export function serializeReport(
+  parts: Partial<Omit<LossReport, "counts">> | undefined,
+  coverage: SerializeReport["coverage"],
+): SerializeReport {
+  const report = lossReport(parts);
+  return {
+    ...report,
+    coverage,
+    counts: {
+      ...report.counts,
+      dropped: coverage === "unknown" ? null : report.counts.dropped,
+    },
   };
 }
 
@@ -82,7 +101,7 @@ export function buildSerializeReport(
   entity: CanonicalEntity<string, unknown>,
   target: ReportTarget,
 ): SerializeReport {
-  if (target.native) return lossReport();
+  if (target.native) return serializeReport(undefined, "native");
   const warnings: string[] = [];
   const dropped = target.coverage
     ? populatedPaths(entity.body).filter((path) => !coversPath(target.coverage!, path))
@@ -95,5 +114,5 @@ export function buildSerializeReport(
       dropped.push(`original.${formatId}.unmapped.${key}`);
     }
   }
-  return lossReport({ dropped, warnings });
+  return serializeReport({ dropped, warnings }, target.coverage ? "declared" : "unknown");
 }

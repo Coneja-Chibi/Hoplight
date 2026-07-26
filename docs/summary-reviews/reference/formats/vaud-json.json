@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/formats/vaud-json",
   "sourcePath": "docs/reference/formats/vaud-json.md",
-  "sourceHash": "sha256:130be9bc3b97679e7ac628d0665b322ca602b80703e2a04ffbd45248e45c0031",
-  "semanticSummaryHash": "sha256:974da90a50e919fd021289c38d4bab875f6ea0f74fdd1df44088dc9ca29626f6",
+  "sourceHash": "sha256:5ef1cdba0aa9f2560ef475ce970ec04509d525795a9271d35de59d65270c22a0",
+  "semanticSummaryHash": "sha256:73973fe36e042a6d2f5c1abff7953e8baed7eba33c9a4f8d385d4c012c7f0782",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:59.326Z"
+  "reviewer": "codex-doc-review-formats",
+  "notes": "Complete, fresh, and source-grounded. Current adapter uses parseCanonicalEntity for both detect and import with character narrowing, native true, and direct two-space JSON serialization. Adapter and registry tests prove valid-object round-trip and registry detection; current Press, export-dialog, setup, and coverage filters exclude native adapters. Focused format and registry suite passed 202 tests.",
+  "reviewedAt": "2026-07-26T20:12:51.628Z"
 }

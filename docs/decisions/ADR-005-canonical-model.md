@@ -2,6 +2,11 @@
 
 **Status:** accepted
 
+**Schema-authority note:** ADR-011 supersedes this document's original statement that canonical
+models are defined as Zod schemas under `packages/core`. The superset model, escrow envelope, and
+Round-Trip Law remain accepted. Current domain contracts are handwritten interfaces under
+`src/entities/<kind>/schema.ts`, paired with exhaustive runtime decoders as specified by ADR-011.
+
 ## Decision
 
 One internal ("canonical") model per content type, defined as zod schemas in

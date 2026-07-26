@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/architecture",
   "sourcePath": "docs/reference/architecture.md",
-  "sourceHash": "sha256:10572d70e0b13e9b045261f2331904999acd36a0f266c043146312385547ce82",
-  "semanticSummaryHash": "sha256:25e48f87a12dbf62d16670b8c11d4b3fca89e16122d1f4519dba3987cf2d5ee7",
+  "sourceHash": "sha256:763c94ed8f9ebc966347a9c782e7efc90795a41d5c170255e1131cd34b80fe52",
+  "semanticSummaryHash": "sha256:da1fa4453b27a9220c3b32f93720f0b76c5397837de56436938ab8e4765086f5",
   "verdict": "APPROVE",
-  "reviewer": "semantic-reviewer",
-  "notes": "Reviewed the complete latest architecture source and sidecar after the safety and storage corrections. The semantic capability section accurately distinguishes discovery visibility from authorization: only pure content descriptors derive exact read or draft access, general workflow tools remain unknown despite claimed metadata, deferred apply fails closed, and duplicate provider names are rejected before schemas or dispatch. It also correctly distinguishes UTF-8 byte storage caps from character-based paging while preserving the broader engine, docs, draft, and apply architecture. Focused evidence passed 69 tests.",
-  "reviewedAt": "2026-07-25T22:00:51.140Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Source and sidecar accurately describe five adapter-backed kinds plus canonical pack, semantic rather than universal byte round trips, strict six-kind canonical decoding, folder discovery, bundles, capability discovery and durable apply, and the primary-loopback plus optional-remote topology. The repaired recursive-any claim is typecheck-proven, and CLI validate now crosses canonical decoding. No material semantic omission or invented claim found.",
+  "reviewedAt": "2026-07-26T10:36:52.907Z"
 }

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "FORMAT-SUPPORT",
   "sourcePath": "docs/FORMAT-SUPPORT.md",
-  "sourceHash": "sha256:f087b8c2ace64e59b2cd7a4697266148413762184336eb4d7596089ecde62d8f",
-  "semanticSummaryHash": "sha256:fe91b69be7e92bad9cda50101de3396ad281b16e87409a9cd14d83dec54b9e06",
+  "sourceHash": "sha256:4f7cb1ea08b0413679c5f6ef55becb5524ba3dc114dabce00d15dcccddb319b2",
+  "semanticSummaryHash": "sha256:ae9e66a01a596c2cae72199993266124d019870dad6ea8eeb3ad99c7d3f1a5cb",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:54.853Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "matrix:check reports the generated page current. Live hoplight formats --json returns 28 adapters matching every section count and row: 9 character, 6 lorebook, 4 persona, 4 preset, 5 regex, and 0 pack adapters. Generated usage now consistently uses bun run hoplight for executable commands, and Notes correctly names hoplight label. Author check confirms the source and semantic sidecar hashes are current; this receipt replaces the stale prior hash binding.",
+  "reviewedAt": "2026-07-26T10:09:08.147Z"
 }

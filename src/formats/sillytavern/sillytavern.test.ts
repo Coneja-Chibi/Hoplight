@@ -221,7 +221,7 @@ test("clear export: scalar and list fields write empty, not the twin original", 
   expect("depth_prompt" in (back.data.extensions ?? {})).toBe(false);
 });
 
-// --- Plan 011: canonical media ? CCv3 assets write-back ---
+// Canonical media to CCv3 assets.
 
 test("from-scratch media emits V3 envelope with assets", () => {
   const c = adapter.toCanonical({ text: JSON.stringify(v1card) });

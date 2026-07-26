@@ -32,7 +32,7 @@ publish. This page documents every command and flag exactly as the code implemen
 | `hoplight validate <file>` | Detect and parse a file against its format and the canonical schema. |
 | `hoplight label <file>` | Guess a card's format spec and its likely origin app. |
 | `hoplight formats` | List every adapter the registry discovered. |
-| `hoplight ui [port] [studioDir]` | Launch the desktop Studio: a loopback-only local server. |
+| `hoplight ui [port] [studioDir]` | Launch the desktop Studio's primary loopback server. |
 | `hoplight version` | Print the version. |
 | `hoplight help` | Print the built-in help text. |
 | (no arguments) | Same as `hoplight help`. |
@@ -47,7 +47,7 @@ publish. This page documents every command and flag exactly as the code implemen
 | `--json` | `version`, `formats`, `validate`, `convert` | Emit one JSON object to stdout instead of the human-readable form. `inspect`, `label`, `ui`, and `help` do not read this flag; they always print the human-readable form (see [Quirks](#quirks)). |
 | `--to <format>` | `convert` only | Force the output adapter id, bypassing extension resolution. |
 | `--yes`, `-y` | `convert` only | Allow replacing an existing output file. Never overwrites the input. |
-| `--strict` | `convert` only | Refuse before writing when the serialize report names any dropped field. |
+| `--strict` | `convert` only | Refuse before writing when fields are dropped or target coverage is undeclared. |
 
 ## `hoplight convert <in> <out>`
 
@@ -64,7 +64,7 @@ positional tokens as `<in>` and `<out>`. A repeated boolean flag or `--to` is an
 id`), and any other token starting with `-` is an error (`unknown flag: <token>`). Exactly two positional
 tokens are required; more or fewer print the usage line and exit 1.
 
-Six checked steps run before a byte is written (`cli.ts:299-389`):
+The conversion follows these checks before a byte is written (`cli.ts:299-414`):
 
 1. **Guard the output path** (`guardConvertOutput`, `cli-io.ts:112-132`). Refuses to run when `<out>`
    resolves to the same file as `<in>` (compares realpaths when both exist, else resolved parent directory
@@ -84,12 +84,15 @@ Six checked steps run before a byte is written (`cli.ts:299-389`):
    suggested extension must match the requested one. `.charx`/`.byaf`/`.zip` must be real ZIP-magic bytes;
    `.json`/`.lorebook`/`.txt` must be text that parses as JSON (for `.json`) or decodable UTF-8 bytes; every
    other extension just needs a non-empty payload.
-6. **Publish atomically** (`publishAtomic`, `cli-io.ts:213-239`). Writes a temp sibling file in the same
+6. **Enforce the loss contract.** Every target must return a serialize report. With `--strict`, the
+   command refuses undeclared coverage or any reported dropped path.
+7. **Publish atomically** (`publishAtomic`, `cli-io.ts:213-239`). Writes a temp sibling file in the same
    directory, fsyncs it, then renames it over the destination. A failure at any point removes the temp file
    and leaves the prior destination untouched.
 
-Before container agreement, `--strict` refuses the conversion if its structured serialize report names
-one or more dropped paths. The refusal lists those paths and occurs before the destination is written.
+After container agreement and before publication, `--strict` refuses the conversion if its structured
+serialize report names one or more dropped paths or cannot determine loss because target coverage is
+undeclared.
 
 Only the success report honors `--json`; every failure above (guard, detect, resolve, convert,
 container-agreement, write) prints the same plain-text line whether or not `--json` was passed.
@@ -97,14 +100,15 @@ container-agreement, write) prints the same plain-text line whether or not `--js
 `--json` success shape:
 
 ```json
-{ "ok": true, "from": "sillytavern", "to": "risu", "in": "vera.png", "out": "vera.charx", "extension": "charx", "lorebooks": 1, "bytes": 48213, "textChars": 0, "report": { "counts": { "escrowed": 0, "dropped": 2, "escrowShadowed": 0, "warnings": 0 }, "escrowed": [], "dropped": ["body.behavior.triggers", "original.sillytavern.raw"], "escrowShadowed": [], "warnings": [] } }
+{ "ok": true, "from": "sillytavern", "to": "risu", "in": "vera.png", "out": "vera.charx", "extension": "charx", "lorebooks": 1, "bytes": 48213, "textChars": 0, "report": { "coverage": "declared", "counts": { "escrowed": 0, "dropped": 2, "escrowShadowed": 0, "warnings": 0 }, "escrowed": [], "dropped": ["body.behavior.triggers", "original.sillytavern.raw"], "escrowShadowed": [], "warnings": [] } }
 ```
 
 `lorebooks` is a count of bundled lorebooks carried across, not the lorebooks themselves; `bytes`/
 `textChars` reflect whichever payload shape the target adapter produced (one of the two is always 0).
 
 The plain-text report prints the from/to adapter ids, paths, resolved extension, bundled lorebook count,
-the four report counts, every dropped path, and every warning.
+the report counts, every confirmed dropped path, and every warning. Undeclared coverage prints an
+unknown dropped count rather than zero; JSON uses `coverage: "unknown"` and `counts.dropped: null`.
 
 @fig convert
 
@@ -114,8 +118,9 @@ the four report counts, every dropped path, and every warning.
 hoplight inspect <file>
 ```
 
-Detects the source adapter, converts to the canonical entity, and prints the format id, the adapter's
-label, the entity kind, and kind-specific fields (`cli.ts:233-276`):
+Detects the source adapter, converts to the canonical entity, validates the complete runtime schema
+and confirms that the entity kind matches the adapter contract, then prints the format id, the adapter's
+label, the entity kind, and kind-specific fields (`cli-validation.ts`, `cli.ts`):
 
 | Kind | Extra fields printed |
 | --- | --- |
@@ -123,9 +128,12 @@ label, the entity kind, and kind-specific fields (`cli.ts:233-276`):
 | `lorebook` | name, type (`lorebookType`), entries (count), budget (`tokenBudget` and `budgetMode`) |
 | `persona` | name, brief (first 60 chars), content (character count), sections (the keys of `sections`) |
 | `regex` | name, rules (count) |
+| `preset` | name, prompts (count), groups (count), choices (count) |
 
 Does not honor `--json`; always prints the human-readable form. `<file>` is read as `args[1]`
 (`cli.ts:234`), the literal second token, so a flag placed before the path is read as the path instead.
+The canonical inspect formatter has a media-pack branch, but no live format adapter currently imports a
+pack, so that branch is not reachable from this command.
 
 ## `hoplight validate <file>`
 
@@ -133,10 +141,11 @@ Does not honor `--json`; always prints the human-readable form. `<file>` is read
 hoplight validate <file> [--json]
 ```
 
-Runs the same detect-and-convert path as `inspect`, but reports pass/fail instead of a field dump
-(`cli.ts:177-217`). No adapter recognizing `<file>` is a failure (`INVALID`, no format named); an adapter
-recognizing it but throwing on `toCanonical` is also a failure (`INVALID`, with the message); otherwise it
-is `OK` and prints the format id, kind, and name. Exit code is 0 on `OK`, 1 on either `INVALID` case.
+Detects the adapter, converts through `toCanonical`, then parses the result through the exhaustive
+canonical runtime schema and confirms that the returned kind matches the adapter contract before
+reporting pass/fail (`cli-validation.ts`). No adapter recognizing `<file>`, an adapter parse error, an
+invalid canonical result, or a kind mismatch is a failure (`INVALID`); otherwise it is `OK` and prints
+the format id, kind, and name. Exit code is 0 on `OK`, 1 on any `INVALID` case.
 
 `<file>` is resolved as the first argument that is neither `validate` nor `--json` (`cli.ts:178`), so
 `--json` may appear before or after the path.
@@ -197,7 +206,8 @@ hoplight ui 8321
 hoplight ui 8321 "C:\Users\me\Documents\Hoplight Studio"
 ```
 
-Starts the loopback-only Studio server (`startUi`, see [ui.md](ui.md)) and blocks forever: `Bun.serve`
+Starts the Studio's primary loopback server (`startUi`, see [ui.md](ui.md)) and blocks forever:
+`Bun.serve`
 keeps the process alive and `main` awaits a promise that never resolves, so the process ends only on
 interrupt (`cli.ts:219-231`).
 
@@ -233,9 +243,8 @@ arguments falls through to the same branch as `help` (`cli.ts:141`). Does not ho
 
 ## Quirks
 
-- `--json` is honored by `version`, `formats`, `validate`, and `convert`. The built-in `HELP` text's
-  `--json` line names `inspect`/`validate`/`formats` (`cli.ts:116`); code wins, and the actual set differs
-  in both directions, omitting `convert` and `version` while wrongly including `inspect`.
+- `--json` is honored by `version`, `formats`, `validate`, and `convert`; `inspect`, `label`, `ui`, and
+  `help` remain human-readable only.
 - Convert's `--json` only covers the success report; every failure branch (guard, detect, resolve,
   convertFile, container-agreement, write) prints plain text regardless of the flag.
 - `-y` is a working alias of `--yes` that the `HELP` text does not mention (`cli-io.ts:23`).
@@ -252,6 +261,7 @@ arguments falls through to the same branch as `help` (`cli.ts:141`). Does not ho
 | Concern | File |
 | --- | --- |
 | Command dispatch, every command body, the `HELP` banner | `src/cli.ts` |
+| Canonical runtime validation and adapter-kind agreement | `src/cli-validation.ts` |
 | Convert flag parse, path-identity guard, container-agreement check, atomic publish | `src/cli-io.ts` |
 | Registry (detection, extension-to-adapter resolution) | `src/core/registry.ts` |
 | Canonical wrapper, schema version | `src/core/canonical.ts` |

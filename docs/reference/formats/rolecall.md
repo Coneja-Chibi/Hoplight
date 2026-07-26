@@ -2,9 +2,9 @@
 id: reference/formats/rolecall
 title: RoleCall format
 audience: dev
-summary: How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.
-tags: [format, rolecall, character, lorebook, persona, regex, ccv2, ccv3]
-related: [reference/architecture, reference/entities/character, reference/entities/lorebook, reference/entities/regex, reference/formats/sillytavern]
+summary: How the RoleCall adapter family maps character cards, lorebooks, personas, regex scripts, and presets through the canonical model.
+tags: [format, rolecall, character, lorebook, persona, regex, preset, ccv2, ccv3]
+related: [reference/architecture, reference/entities/character, reference/entities/lorebook, reference/entities/persona, reference/entities/preset, reference/entities/regex, reference/formats/sillytavern]
 ---
 
 # RoleCall format
@@ -12,23 +12,23 @@ related: [reference/architecture, reference/entities/character, reference/entiti
 RoleCall is Vaudeville Studios' own roleplay client. It has no wire-distinct "RC character" file: an RC
 character serializes as an ordinary Character Card V2/V3 (PNG `chara`/`ccv3` chunk or bare JSON), with
 every RC-native field riding inside `data.extensions.rolecall`. Its lorebook is a dedicated v1 export
-envelope. Its persona and regex-script exports are separate JSON shapes. Because RoleCall is Vaudeville's
+envelope. Its persona, regex-script, and preset exports are separate JSON shapes. Because RoleCall is Vaudeville's
 own product, its source can be read and ported freely, unlike the GPL-licensed formats hoplight treats as
 interop-facts-only.
 
-One folder, `src/formats/rolecall/`, default-exports four codecs (`index.ts:405`):
+One folder, `src/formats/rolecall/`, default-exports five codecs:
 
 - `rolecall`, kind `character`, reads PNG or JSON, writes `.json`.
 - `rolecall-lorebook`, kind `lorebook`, reads JSON, writes `.json`.
 - `rolecall-persona`, kind `persona`, reads JSON, writes `.json`.
 - `rolecall-regex`, kind `regex`, reads JSON, writes `.json`.
+- `rolecall-preset`, kind `preset`, reads a RoleCall-flavored flat preset, writes `.json`.
 
-This page documents the character and lorebook codecs in full; the persona and regex codecs are covered
+This page documents the character and lorebook codecs in full; the persona, regex, and preset codecs are covered
 in summary under [Quirks](#quirks). For canonical field meanings, see
 [entities/character.md](../entities/character.md), [entities/lorebook.md](../entities/lorebook.md), and
-[entities/regex.md](../entities/regex.md); the persona entity has no dedicated reference page yet, so its
-fields are covered inline against `src/entities/persona/schema.ts` and
-[docs/generated/fields.persona.md](../../generated/fields.persona.md). For the hub-and-spoke, escrow, and
+[entities/regex.md](../entities/regex.md), [entities/persona.md](../entities/persona.md), and
+[entities/preset.md](../entities/preset.md). For the hub-and-spoke, escrow, and
 detection model, see [architecture.md](../architecture.md). For the whole matrix of formats, see
 [FORMAT-SUPPORT.md](../../FORMAT-SUPPORT.md).
 
@@ -57,12 +57,13 @@ adapter's `detect()` returns `0` on that discriminator, and `toCanonical` throws
 
 ### Lorebook
 
-`detect()` returns `1.0` for a RoleCall v1 export - a `{ schemaVersion, exportDate, lorebook }` envelope
-whose `lorebook.entries` is an array and `lorebook` is present as an object - `0` otherwise
+`detect()` returns `1.0` for a RoleCall v1 export - a `{ schemaVersion, lorebook }` envelope whose
+`lorebook.entries` is an array and `lorebook` is present as an object - `0` otherwise
 (`lorebook.ts:308-312`, `readExport` at `lorebook.ts:37-45`). `isRcVersion` requires `schemaVersion` to be
 a string that *contains* `"1.0.0"`, not an exact match (`lorebook.ts:27,48-49`) - a substring test, so a
 value like `"1.0.0-beta"` also passes; the codec never hard-rejects an unfamiliar version, it just parses
-structurally. This envelope shape (top-level `schemaVersion` plus a nested `lorebook` wrapper) does not
+structurally. `exportDate` is optional for detection and import. This envelope shape (top-level
+`schemaVersion` plus a nested `lorebook` wrapper) does not
 collide with the SillyTavern worldbook, which has a top-level `entries` object and no `lorebook` wrapper at
 all - no firewall is needed between the two lorebook codecs.
 
@@ -172,6 +173,11 @@ serializer, not this codec, and code wins.
 
 ## Quirks
 
+- `rolecall-preset` shares SillyTavern's flat preset grammar and is distinguished by RoleCall-native
+  keys such as `macro_engine_yaml`, `choice_groups`, or `extensions.linkedRegexScripts`. A
+  from-scratch export writes an empty `choice_groups` array when no native choices exist. That array
+  is a neutral RoleCall fingerprint, so the emitted file remains distinguishable from a generic
+  SillyTavern preset and can be read back by the same adapter (`preset.ts`).
 - RC's V3 `source` is a nonstandard OBJECT array (`[{name}]`, not the base spec's `string[]`). The shared
   Tavern reader only decodes a `string[]` shape, so RC's object-form `source` reads as canonical
   `undefined`; provenance is carried instead on `attribution.creator`. Because the shared writer's
@@ -239,6 +245,7 @@ serializer, not this codec, and code wins.
 | Lorebook codec | `src/formats/rolecall/lorebook.ts` |
 | Persona codec | `src/formats/rolecall/persona.ts` |
 | Regex codec | `src/formats/rolecall/regex.ts` |
+| Preset codec | `src/formats/rolecall/preset.ts` |
 | Shared Tavern field map (`data` <-> canonical) | `src/formats/_shared/tavern-fields.ts` |
 | Shared lore int-enum + character-filter decoders | `src/formats/_shared/lore-enums.ts` |
 | CCv3 `assets[]` <-> media | `src/formats/_shared/assets.ts` |
@@ -246,6 +253,6 @@ serializer, not this codec, and code wins.
 | Card/JSON input readers | `src/formats/_shared/card-io.ts` |
 | Coverage declaration | `src/formats/rolecall/coverage.ts` |
 | Canonical wrapper, escrow (`original`), id policy | `src/core/canonical.ts` |
-| Persona canonical schema (no dedicated entity page yet) | `src/entities/persona/schema.ts`, [fields.persona.md](../../generated/fields.persona.md) |
+| Persona canonical schema | `src/entities/persona/schema.ts`, [entities/persona.md](../entities/persona.md) |
 | Design intent (verify against code, not authoritative on its own) | `specs/formats/rolecall-character.md`, `specs/formats/rolecall-lorebook.md` |
 | Samples | `samples/rolecall/` (a character card and a lorebook export, constructed from RoleCall's own serializer source - no genuine RC export file was found on disk; see `samples/rolecall/SOURCES.md`) |

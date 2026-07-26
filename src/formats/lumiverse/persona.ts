@@ -77,7 +77,9 @@ const adapter: PersonaAdapter = {
     // the crux here: detect requires only subjective/objective, so it is the one pronoun that can be
     // genuinely absent, and comparing "" against "" keeps it absent rather than fabricating it.
     if (b.name !== str(out.name)) out.name = b.name;
-    if (b.content !== (str(out.description) ?? "")) out.description = b.content;
+    if (!("description" in out) || b.content !== (str(out.description) ?? "")) {
+      out.description = b.content;
+    }
 
     const twinTitle = str(out.title)?.trim() || undefined; // decoded trimmed; wire keeps whitespace
     const liveTitle = b.identity?.tagline;
@@ -86,12 +88,13 @@ const adapter: PersonaAdapter = {
       else delete out.title;
     }
 
-    const pronoun = (key: string, live: string): void => {
-      if (live !== (str(out[key]) ?? "")) out[key] = live;
+    const pronoun = (key: string, live: string, required = false): void => {
+      if ((required && !(key in out)) || live !== (str(out[key]) ?? "")) out[key] = live;
     };
     const set = b.identity?.pronounSet;
-    pronoun("subjective_pronoun", set?.subjective ?? "");
-    pronoun("objective_pronoun", set?.objective ?? "");
+    // These two keys are the format discriminator and are required even for a from-scratch export.
+    pronoun("subjective_pronoun", set?.subjective ?? "", true);
+    pronoun("objective_pronoun", set?.objective ?? "", true);
     pronoun("possessive_pronoun", set?.possessive ?? "");
 
     const twinBook = str(out.attached_world_book_id) || undefined;

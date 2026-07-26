@@ -63,10 +63,10 @@ Generated: ${generatedDate}.
 ## How to use
 
 \`\`\`bash
-bun run vaud formats
-bun run vaud inspect path/to/card.png
-bun run vaud convert in.png out.json --to sillytavern
-bun run vaud validate path/to/card.json
+bun run hoplight formats
+bun run hoplight inspect path/to/card.png
+bun run hoplight convert in.png out.json --to sillytavern
+bun run hoplight validate path/to/card.json
 \`\`\`
 
 Default portable character shape for thin hosts (C.AI Tools dumps, Crushon import, etc.):
@@ -76,7 +76,7 @@ ${sections}
 
 ## Notes
 
-- Detection is content-sniff, not only extension. Prefer \`vaud label\` when unsure.
+- Detection is content-sniff, not only extension. Prefer \`hoplight label\` when unsure.
 - Same-format round-trips aim for lossless where fixtures prove it (see adapter tests + samples/).
 - Cross-format convert keeps what the target can express; use export honesty in the studio UI for drop notes.
 - Dropped/skipped host-native bags (Character.AI, Crushon): use Default CCv3 via \`sillytavern\`.

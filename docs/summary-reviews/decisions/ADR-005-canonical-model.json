@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "decisions/ADR-005-canonical-model",
   "sourcePath": "docs/decisions/ADR-005-canonical-model.md",
-  "sourceHash": "sha256:a58ed95c8f60d3e8e822b03d1f3a3ec90c58627c536478ce645b2a0b55fefd1c",
-  "semanticSummaryHash": "sha256:171ae483008f3ebe52700ab8c07a6c56f7a93004c32df84e4a74b13ea390b1f5",
+  "sourceHash": "sha256:7005e4a6cfbc6c62ccc8fb8bfe4f84ca2c1e64147dc300d018347b54db342b12",
+  "semanticSummaryHash": "sha256:545776e12fb44ba054aa1d9c64d5d34599eea8521ef0e4c2ffa939e57b826c04",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:55.951Z"
+  "reviewer": "codex-plan17-semantic-reviewer",
+  "notes": "Independent full-source and full-sidecar review: APPROVE. The summary preserves the canonical superset, origin-keyed escrow, same-format Round-Trip Law, honest cross-format reporting, capability-table consequence, and costly canonical-change proof requirements. It accurately scopes ADR-011 supersession to ADR-005's obsolete Zod/packages-core schema-authority wording while retaining the model, escrow, and round-trip decisions. No invented behavior or material omission found.",
+  "reviewedAt": "2026-07-26T08:59:20.297Z"
 }

@@ -165,6 +165,9 @@ const rolecallPreset: PresetAdapter = {
     const twinChoices = (Array.isArray(twin?.choice_groups) ? twin.choice_groups.filter(isRec) : []).map(choiceFromWire);
     const liveChoices = entity.body.choices ?? [];
     if (!deepEq(liveChoices, twinChoices)) out.choice_groups = liveChoices.map(choiceToWire);
+    // An empty choice group array is RoleCall's neutral fingerprint. Without a source twin, emit it
+    // so the file remains distinguishable from a generic SillyTavern preset and self-readable.
+    if (!twin && !Array.isArray(out.choice_groups)) out.choice_groups = [];
     return { text: JSON.stringify(out, null, 2), suggestedExtension: "json" };
   },
 

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "decisions/ADR-011-runtime-boundary-schemas",
+  "sourcePath": "docs/decisions/ADR-011-runtime-boundary-schemas.md",
+  "sourceHash": "sha256:c69aa427a5e987c6dc7a085a58f2485056e033d57b47a1c8c3d83bc6da79174c",
+  "semanticSummaryHash": "sha256:29a9010c07897acfe107c88d669463d67ec0666abdb7caa29751e954e0be20a5",
+  "verdict": "APPROVE",
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "The accepted decision and semantic sidecar are now supported by primary code and proof. Six adjacent kind decoders compose the canonical union; defineExhaustiveShape rejects recursive any including optional, nullable, and mixed-union branches after the true-extends repair; profiles are kind-matched shallow partials; open carriers remain explicit. Typecheck and focused runtime-schema, storage, HTTP, and CLI boundary tests pass.",
+  "reviewedAt": "2026-07-26T10:36:52.680Z"
+}

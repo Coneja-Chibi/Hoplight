@@ -221,7 +221,7 @@ test("removing titled alt drops orphan secondary scenario from archive", () => {
   expect(again.body.greetings.alternateGreetings ?? []).toEqual([]);
 });
 
-// --- Plan 013: stable scenario greeting identities ---
+// Stable scenario greeting identities.
 
 test("import mints deterministic unique greeting ids from scenario paths", () => {
   const ent = adapter.toCanonical({ bytes: sample(3) });

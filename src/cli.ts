@@ -22,6 +22,7 @@ import { PACKAGED_ASSETS } from "./generated/packaged-assets";
 import { registerPackagedFormats } from "./generated/packaged-formats";
 import { APP_VERSION as VERSION } from "./version";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
+import { validateAdapterOutput } from "./cli-validation";
 
 /**
  * A compiled binary cannot glob src/formats, so a packaged build (PACKAGED_ASSETS baked non-null)
@@ -118,7 +119,7 @@ const HELP = `${BANNER}
     validate <file>       Detect + parse; exit 0 if hoplight can open it
     label <file>          Guess a card's format and which app it is likely from
     formats               List the formats hoplight knows about
-    ui [port] [studio]    Open the visual studio (local only; studio defaults to Documents/Hoplight Studio)
+    ui [port] [studio]    Open the Studio on loopback (remote access is configured inside the Studio)
     version               Print the version
     help                  Print this help
 
@@ -127,7 +128,7 @@ const HELP = `${BANNER}
     -h, --help            Print this help
     --to <format>         convert: force the output format (else resolved from the <out> extension)
     --yes                 convert: allow replacing an existing output file (never overwrites input)
-    --json                inspect/validate/formats: machine-readable stdout
+    --json                version/formats/validate/convert: machine-readable stdout
 
   Example
     hoplight convert vera.png vera.charx --to risu
@@ -208,7 +209,7 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
     try {
-      const ent = src.toCanonical(input);
+      const ent = validateAdapterOutput(src, input);
       const name =
         ent.kind === "character"
           ? ent.body.identity.name
@@ -269,7 +270,7 @@ async function main(argv: string[]): Promise<number> {
       console.log(`  Known formats: ${registry.all().map((a) => a.id).join(", ")}\n`);
       return 1;
     }
-    const ent = src.toCanonical(input);
+    const ent = validateAdapterOutput(src, input);
     console.log(`\n  ${path}`);
     console.log(`    format   ${src.id}  (${src.label})`);
     console.log(`    kind     ${ent.kind}`);
@@ -295,6 +296,11 @@ async function main(argv: string[]): Promise<number> {
       console.log(`    prompts  ${b.prompts.length}`);
       console.log(`    groups   ${b.groups?.length ?? 0}`);
       console.log(`    choices  ${b.choices?.length ?? 0}\n`);
+    } else if (ent.kind === "pack") {
+      const b = ent.body;
+      console.log(`    name     ${b.name || "(unnamed)"}`);
+      console.log(`    assets   ${b.pack.items.length}`);
+      console.log(`    groups   ${Object.keys(b.groups ?? {}).length}\n`);
     } else {
       const b = ent.body;
       console.log(`    name     ${b.identity.name || "(unnamed)"}`);
@@ -388,11 +394,17 @@ async function main(argv: string[]): Promise<number> {
       console.log("\n  convert: target did not produce a serialize report\n");
       return 1;
     }
-    if (flags.strict && report.dropped.length > 0) {
-      console.log(`\n  strict export refused: ${report.dropped.length} field(s) would be dropped`);
-      for (const field of report.dropped) console.log(`  - ${field}`);
-      console.log("");
-      return 1;
+    if (flags.strict) {
+      if (report.coverage === "unknown") {
+        console.log("\n  strict export refused: target coverage is not declared; loss is unknown\n");
+        return 1;
+      }
+      if (report.dropped.length > 0) {
+        console.log(`\n  strict export refused: ${report.dropped.length} field(s) would be dropped`);
+        for (const field of report.dropped) console.log(`  - ${field}`);
+        console.log("");
+        return 1;
+      }
     }
 
     try {
@@ -425,8 +437,11 @@ async function main(argv: string[]): Promise<number> {
       const total = lorebooks.reduce((n, l) => n + l.body.entries.length, 0);
       console.log(`  + embedded lorebook carried across (${total} entr${total === 1 ? "y" : "ies"})`);
     }
+    const dropped = report.coverage === "unknown"
+      ? `unknown dropped (${report.dropped.length} confirmed)`
+      : `${report.dropped.length} dropped`;
     console.log(
-      `  report: ${report.escrowed.length} escrowed, ${report.dropped.length} dropped, ` +
+      `  report: ${report.escrowed.length} escrowed, ${dropped}, ` +
         `${report.escrowShadowed.length} shadowed, ${report.warnings.length} warning(s)`,
     );
     for (const field of report.dropped) console.log(`  - dropped: ${field}`);

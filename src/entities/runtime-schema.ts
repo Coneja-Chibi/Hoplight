@@ -1,274 +1,128 @@
 /**
- * Runtime canonical schemas for every on-disk entity kind. Adapters may use rich compile-time
- * interfaces internally, but JSON crosses storage and HTTP boundaries only through these parsers.
+ * Shared strict canonical envelope. Per-kind body decoders live beside their handwritten domain
+ * interfaces; this module is the only public untrusted-JSON parse boundary.
  */
 import { z } from "zod";
-import { CANONICAL_SCHEMA_VERSION } from "../core/canonical";
-import type { CanonicalEntity } from "../core/canonical";
+import {
+  CANONICAL_SCHEMA_VERSION,
+  type OriginalEntry,
+} from "../core/canonical";
+import { defineExhaustiveShape } from "./_shared/runtime-shape";
+import {
+  characterBodySchema,
+  characterProfileSchema,
+} from "./character/runtime-schema";
+import type { CanonicalCharacter } from "./character/schema";
+import {
+  lorebookBodySchema,
+  lorebookProfileSchema,
+} from "./lorebook/runtime-schema";
+import type { CanonicalLorebook } from "./lorebook/schema";
+import { packBodySchema, packProfileSchema } from "./pack/runtime-schema";
+import type { CanonicalPack } from "./pack/schema";
+import { personaBodySchema, personaProfileSchema } from "./persona/runtime-schema";
+import type { CanonicalPersona } from "./persona/schema";
+import { presetBodySchema, presetProfileSchema } from "./preset/runtime-schema";
+import type { CanonicalPreset } from "./preset/schema";
+import { regexBodySchema, regexProfileSchema } from "./regex/runtime-schema";
+import type { CanonicalRegexSet } from "./regex/schema";
 
 const unknownRecord = z.record(z.string(), z.unknown());
-const stringArray = z.array(z.string());
-const nullableBoolean = z.boolean().nullable();
-const nullableNumber = z.number().nullable();
-const nullableString = z.string().nullable();
-
-const originalEntrySchema = z.looseObject({
+type SourceMedia = NonNullable<OriginalEntry["sourceMedia"]>;
+const sourceMediaShape = defineExhaustiveShape<SourceMedia>()({
+  b64: z.string(),
+  mime: z.string(),
+});
+const sourceMediaSchema = z.strictObject(sourceMediaShape);
+const originalEntryShape = defineExhaustiveShape<OriginalEntry>()({
   raw: z.unknown(),
   unmapped: unknownRecord.optional(),
-  sourceMedia: z.looseObject({ b64: z.string(), mime: z.string() }).optional(),
+  sourceMedia: sourceMediaSchema.optional(),
 });
-
-const wrapper = {
+const originalEntrySchema = z.strictObject(originalEntryShape);
+const originalSchema = z.record(z.string(), originalEntrySchema);
+const sharedEnvelope = {
   schemaVersion: z.literal(CANONICAL_SCHEMA_VERSION),
   id: z.string().min(1),
-  profiles: z.record(z.string(), unknownRecord).optional(),
-  original: z.record(z.string(), originalEntrySchema).optional(),
+  original: originalSchema.optional(),
 };
 
-const mediaAssetSchema = z.looseObject({
-  role: z.enum(["portrait", "emotion", "outfit", "pose", "background", "other"]),
-  ref: z.string(),
-  name: z.string().optional(),
-  label: z.string().optional(),
-  primary: z.boolean().optional(),
-  mime: z.string().optional(),
+const characterEntityShape = defineExhaustiveShape<CanonicalCharacter>()({
+  ...sharedEnvelope,
+  kind: z.literal("character"),
+  body: characterBodySchema,
+  profiles: z.record(z.string(), characterProfileSchema).optional(),
 });
-
-const characterBodySchema = z.looseObject({
-  identity: z.looseObject({
-    name: z.string(),
-    nickname: z.string().optional(),
-    tagline: z.string().optional(),
-    description: z.string().optional(),
-    characterVersion: z.string().optional(),
-    fullName: z.string().optional(),
-    title: z.string().optional(),
-    age: z.string().optional(),
-    pronouns: z.string().optional(),
-    culture: z.string().optional(),
-  }),
-  persona: z.looseObject({
-    personality: z.string().optional(),
-    scenario: z.string().optional(),
-    appearance: z.string().optional(),
-  }),
-  prompts: z.looseObject({
-    systemPrompt: z.string().optional(),
-    postHistoryInstructions: z.string().optional(),
-    prefill: z.string().optional(),
-    additionalText: z.string().optional(),
-    depthInjections: z.array(z.looseObject({
-      text: z.string(),
-      depth: z.number(),
-      role: z.enum(["system", "user", "assistant"]).optional(),
-      origin: z.enum(["depth_prompt", "rolecall_details", "worldinfo"]).optional(),
-      enabled: z.boolean().optional(),
-    })).optional(),
-  }),
-  greetings: z.looseObject({
-    firstMessage: z.string().optional(),
-    alternateGreetings: z.array(z.looseObject({ text: z.string(), title: z.string().optional(), id: z.string().optional() })).optional(),
-    groupOnlyGreetings: z.array(z.looseObject({ text: z.string(), title: z.string().optional(), id: z.string().optional() })).optional(),
-  }),
-  examples: z.looseObject({ exampleMessages: z.string().optional() }),
-  media: z.looseObject({
-    portrait: mediaAssetSchema.optional(),
-    assets: z.array(mediaAssetSchema).optional(),
-    visualKind: z.string().optional(),
-    faceLabel: z.string().optional(),
-  }),
-  attribution: z.looseObject({
-    creator: z.string().optional(),
-    originalCreator: z.string().optional(),
-    source: stringArray.optional(),
-    sourceUrl: z.string().optional(),
-    license: z.string().optional(),
-    creatorNotes: z.string().optional(),
-    creatorNotesMultilingual: z.record(z.string(), z.string()).optional(),
-    publicNote: z.string().optional(),
-    createdAt: z.number().optional(),
-    updatedAt: z.number().optional(),
-  }),
-  discovery: z.looseObject({
-    tags: stringArray.optional(),
-    genre: z.string().optional(),
-    fandom: z.string().optional(),
-    rating: z.enum(["all-ages", "mature", "explicit"]).optional(),
-    contentWarnings: stringArray.optional(),
-  }),
-  worldName: z.string().optional(),
-  knowledgeRefs: stringArray.optional(),
-  behaviorRefs: stringArray.optional(),
+const characterEntitySchema = z.strictObject(characterEntityShape);
+const lorebookEntityShape = defineExhaustiveShape<CanonicalLorebook>()({
+  ...sharedEnvelope,
+  kind: z.literal("lorebook"),
+  body: lorebookBodySchema,
+  profiles: z.record(z.string(), lorebookProfileSchema).optional(),
 });
-
-const triggerSchema = z.looseObject({
-  keyword: z.string(),
-  isRegex: z.boolean(),
-  flags: z.string().optional(),
-  frequency: z.number().optional(),
-  probability: z.number().optional(),
+const lorebookEntitySchema = z.strictObject(lorebookEntityShape);
+const personaEntityShape = defineExhaustiveShape<CanonicalPersona>()({
+  ...sharedEnvelope,
+  kind: z.literal("persona"),
+  body: personaBodySchema,
+  profiles: z.record(z.string(), personaProfileSchema).optional(),
 });
-
-const lorebookEntrySchema = z.looseObject({
-  id: z.string(),
-  title: z.string(),
-  content: z.string(),
-  comment: nullableString.optional(),
-  enabled: z.boolean(),
-  constant: z.boolean(),
-  triggerMode: z.enum(["simple", "advanced"]),
-  triggers: z.array(triggerSchema),
-  secondaryTriggers: z.array(triggerSchema),
-  selectiveLogic: z.enum(["and_any", "and_all", "not_any", "not_all"]),
-  caseSensitive: nullableBoolean,
-  matchWholeWords: nullableBoolean,
-  scanDepth: nullableNumber,
-  position: z.enum(["world", "character", "before_example", "after_example", "depth", "append", "append_bottom", "prepend_top", "scene"]),
-  depth: z.number(),
-  role: z.enum(["system", "user", "assistant"]),
-  sortOrder: z.number(),
-  priority: z.number(),
-  sticky: z.number(),
-  cooldown: z.number(),
-  delay: z.number(),
-  groupName: nullableString,
-  categoryId: nullableString,
-  groupWeight: z.number(),
-  probability: z.number(),
-  useMemo: z.boolean(),
-  excludeRecursion: z.boolean(),
-  preventRecursion: z.boolean(),
-  delayUntilRecursion: z.number(),
-  characterFilter: z.looseObject({ names: stringArray, tags: stringArray, isExclude: z.boolean() }).nullable(),
-  scanCharacterDescription: z.boolean(),
-  scanCharacterPersonality: z.boolean(),
-  scanUserPersona: z.boolean(),
-  scanScenario: z.boolean(),
-  ignoreBudget: z.boolean(),
-  sideEffects: z.looseObject({
-    effects: z.array(z.looseObject({
-      type: z.enum(["setvar", "addvar", "incvar", "decvar", "delvar"]),
-      variable: z.string(),
-      value: z.string().optional(),
-      amount: z.number().optional(),
-      scope: z.enum(["local", "global"]),
-    })),
-    onlyOnFirstTrigger: z.boolean(),
-    clearOnDeactivate: z.boolean(),
-  }).nullable(),
+const personaEntitySchema = z.strictObject(personaEntityShape);
+const presetEntityShape = defineExhaustiveShape<CanonicalPreset>()({
+  ...sharedEnvelope,
+  kind: z.literal("preset"),
+  body: presetBodySchema,
+  profiles: z.record(z.string(), presetProfileSchema).optional(),
 });
-
-const lorebookBodySchema = z.looseObject({
-  name: z.string(),
-  description: nullableString.optional(),
-  tags: stringArray,
-  globalCaseSensitive: z.boolean(),
-  globalMatchWholeWords: z.boolean(),
-  globalScanDepth: z.number(),
-  globalRecursion: z.boolean(),
-  tokenBudget: z.number(),
-  budgetMode: z.enum(["token", "entry"]),
-  entryBudget: z.number(),
-  entries: z.array(lorebookEntrySchema),
-  categories: z.array(z.looseObject({
-    id: z.string(),
-    name: z.string(),
-    sortOrder: z.number(),
-    enabled: z.boolean().optional(),
-  })).optional(),
+const presetEntitySchema = z.strictObject(presetEntityShape);
+const regexEntityShape = defineExhaustiveShape<CanonicalRegexSet>()({
+  ...sharedEnvelope,
+  kind: z.literal("regex"),
+  body: regexBodySchema,
+  profiles: z.record(z.string(), regexProfileSchema).optional(),
 });
-
-const personaBodySchema = z.looseObject({
-  name: z.string(),
-  brief: z.string().optional(),
-  content: z.string(),
-  sectionOrder: stringArray.optional(),
-  traits: stringArray.optional(),
-  knowledgeRefs: stringArray.optional(),
-  rating: z.enum(["all-ages", "mature", "explicit"]).optional(),
+const regexEntitySchema = z.strictObject(regexEntityShape);
+const packEntityShape = defineExhaustiveShape<CanonicalPack>()({
+  ...sharedEnvelope,
+  kind: z.literal("pack"),
+  body: packBodySchema,
+  profiles: z.record(z.string(), packProfileSchema).optional(),
 });
-
-const regexRuleSchema = z.looseObject({
-  id: z.string(),
-  label: z.string(),
-  find: z.string(),
-  flags: z.string(),
-  replace: z.string(),
-  phases: stringArray,
-  enabled: z.boolean(),
-  sortOrder: z.number(),
-});
-
-const regexBodySchema = z.looseObject({
-  name: z.string(),
-  description: z.string().optional(),
-  enabled: z.boolean().optional(),
-  rules: z.array(regexRuleSchema),
-});
-
-const presetPromptSchema = z.looseObject({
-  id: z.string(),
-  name: z.string(),
-  content: z.string(),
-  role: z.enum(["system", "user", "assistant"]),
-  enabled: z.boolean(),
-  systemPrompt: z.boolean(),
-  marker: z.boolean(),
-  placement: z.string(),
-  injectionDepth: z.number(),
-  injectionOrder: z.number(),
-  forbidOverrides: z.boolean(),
-});
-
-const presetBodySchema = z.looseObject({
-  name: z.string(),
-  description: z.string().optional(),
-  enabled: z.boolean().optional(),
-  prompts: z.array(presetPromptSchema),
-});
-
-const spritePackSchema = z.looseObject({
-  enabled: z.boolean().optional(),
-  defaultLabel: z.string().optional(),
-  items: z.array(z.looseObject({
-    id: z.string(),
-    label: z.string(),
-    ref: z.string(),
-    mime: z.string().optional(),
-  })),
-});
-
-const packBodySchema = z.looseObject({
-  name: z.string(),
-  brief: z.string().optional(),
-  pack: spritePackSchema,
-  groups: z.record(z.string(), spritePackSchema).optional(),
-});
+const packEntitySchema = z.strictObject(packEntityShape);
 
 export const canonicalEntitySchema = z.discriminatedUnion("kind", [
-  z.looseObject({ ...wrapper, kind: z.literal("character"), body: characterBodySchema }),
-  z.looseObject({ ...wrapper, kind: z.literal("lorebook"), body: lorebookBodySchema }),
-  z.looseObject({ ...wrapper, kind: z.literal("persona"), body: personaBodySchema }),
-  z.looseObject({ ...wrapper, kind: z.literal("preset"), body: presetBodySchema }),
-  z.looseObject({ ...wrapper, kind: z.literal("regex"), body: regexBodySchema }),
-  z.looseObject({ ...wrapper, kind: z.literal("pack"), body: packBodySchema }),
+  characterEntitySchema,
+  lorebookEntitySchema,
+  personaEntitySchema,
+  presetEntitySchema,
+  regexEntitySchema,
+  packEntitySchema,
 ]);
 
-export type ParsedCanonicalEntity = CanonicalEntity<string, unknown>;
+export type ParsedCanonicalEntity =
+  | CanonicalCharacter
+  | CanonicalLorebook
+  | CanonicalPersona
+  | CanonicalPreset
+  | CanonicalRegexSet
+  | CanonicalPack;
 
 /** Parse untrusted JSON once into the known canonical union. */
 export function parseCanonicalEntity(raw: unknown): ParsedCanonicalEntity {
-  return canonicalEntitySchema.parse(raw) as ParsedCanonicalEntity;
+  return canonicalEntitySchema.parse(raw);
 }
 
-/** Non-throwing detector for request boundaries that need a 400 response. */
+/** Non-throwing detector for request boundaries that need a bounded client error. */
 export function safeParseCanonicalEntity(raw: unknown):
   | { ok: true; entity: ParsedCanonicalEntity }
   | { ok: false; issues: string[] } {
   const parsed = canonicalEntitySchema.safeParse(raw);
-  if (parsed.success) return { ok: true, entity: parsed.data as ParsedCanonicalEntity };
+  if (parsed.success) return { ok: true, entity: parsed.data };
   return {
     ok: false,
-    issues: parsed.error.issues.map((issue) => `${issue.path.join(".") || "entity"}: ${issue.message}`),
+    issues: parsed.error.issues.map((issue) => {
+      const path = issue.path.map(String).join(".");
+      return `${path || "entity"}: ${issue.message}`;
+    }),
   };
 }

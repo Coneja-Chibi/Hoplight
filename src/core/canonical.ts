@@ -75,7 +75,7 @@ export interface CanonicalEntity<Kind extends string, Body> {
   /** The actual content, in the canonical superset shape. */
   body: Body;
   /** Optional per-app deltas. */
-  profiles?: Partial<Profiles<Body>>;
+  profiles?: Profiles<Body>;
   /** Lossless carry of source-format specifics. */
-  original?: Partial<Original>;
+  original?: Original;
 }

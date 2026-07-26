@@ -9,6 +9,7 @@ export {
   buildParseReport,
   buildSerializeReport,
   lossReport,
+  serializeReport,
   type LossReport,
   type ParseReport,
   type SerializeReport,

@@ -13,6 +13,7 @@
 - [ADR-008: React UI layer under the vibecoding constraint (supersedes ADR-007's deferral)](docs/decisions/ADR-008-react-ui.md): **Status:** accepted · 2026-07-05 **Supersedes:** ADR-007's "decide per chat surface later." ADR-007's engine rule is carried forward unchanged and hardened here.
 - [ADR-009: Distinct origin for test-bench execution](docs/decisions/ADR-009-sandbox-origin.md): **Status:** accepted in design; packaged-host proof BLOCKED; 2026-07-09 **Context owners:** `src/sandbox/lua/`, `src/sandbox/regex/`, `src/ui/server.ts`, `src/ui/sandbox-host.ts`, desktop entries **Audit IDs:** SANDBOX-001 (Plan 017)
 - [ADR-010: Shared semantic content capabilities](docs/decisions/ADR-010-content-capabilities.md): **Status:** accepted, 2026-07-25
+- [ADR-011: Exhaustive runtime schemas at canonical boundaries](docs/decisions/ADR-011-runtime-boundary-schemas.md): **Status:** accepted, 2026-07-26
 
 ## Guide
 
@@ -67,13 +68,13 @@
 - [Add a format adapter](docs/reference/extending/add-a-format.md): Every format converts through one canonical superset model, never format to format directly; adding a format is one adapter, and it touches no other format and no core code (`architecture.md`, "The one idea: hub and spoke"). This page is th
 - [Agnai format](docs/reference/formats/agnai.md): Agnai (Agnaistic) is a browser/self-hosted AI roleplay app with its own native JSON character shape. It is not Tavern-lineage: instead of a flat description block, its persona is structured, a `kind` plus an
 - [Backyard format](docs/reference/formats/backyard.md): How the Backyard.ai (Faraday) adapter family detects, maps, and round-trips legacy flat-JSON cards and modern .byaf archives through the canonical model.
-- [Lumiverse format](docs/reference/formats/lumiverse.md): How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.
-- [Marinara format](docs/reference/formats/marinara.md): How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.
+- [Lumiverse format](docs/reference/formats/lumiverse.md): How the Lumiverse adapter family maps ST-shaped character cards, regex scripts, personas, and presets through the canonical model.
+- [Marinara format](docs/reference/formats/marinara.md): How the Marinara-Engine adapters map regex scripts, personas, lorebooks, and presets through the canonical model.
 - [NovelAI format](docs/reference/formats/novelai.md): How the NovelAI lorebook adapter detects, maps, and round-trips native lorebook exports through the canonical model.
 - [Pygmalion format](docs/reference/formats/pygmalion.md): How the Pygmalion adapter detects, maps, and round-trips the classic flat five-field character JSON and its PNG chara chunk through the canonical model.
 - [Formats](docs/reference/formats/README.md): Every format hoplight reads and writes. A **format** is a folder in `src/formats/<name>/`; the loader discovers it automatically (see [../architecture.md](../architecture.md)). Each format family gets one
 - [RisuAI format](docs/reference/formats/risu.md): How the RisuAI adapter family detects, maps, and round-trips .charx character cards, a native lorebook export, and regex script sets through the canonical model.
-- [RoleCall format](docs/reference/formats/rolecall.md): How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.
+- [RoleCall format](docs/reference/formats/rolecall.md): How the RoleCall adapter family maps character cards, lorebooks, personas, regex scripts, and presets through the canonical model.
 - [SillyTavern format](docs/reference/formats/sillytavern.md): How the SillyTavern adapter family detects, maps, and round-trips Character Card V1/V2/V3 cards and world info books through the canonical model.
 - [vaud-json format](docs/reference/formats/vaud-json.md): How the vaud-json adapter serializes the canonical character entity straight to plain JSON with no wire translation, and why it always wins detection on its own files.
 - [Kit reference](docs/reference/kit/README.md): Kit's conversational runtime, semantic content capabilities, and change-draft lifecycle.
@@ -118,8 +119,8 @@
 ## Top level
 
 - [Vision](docs/01-VISION.md): Simple for simple folk, an absolute unit for power users. Concretely, four people:
-- [Architecture](docs/02-ARCHITECTURE.md): vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.
+- [Architecture](docs/02-ARCHITECTURE.md): Hoplight is a Bun and TypeScript application rooted in `src/`. The canonical engine is shared by three surfaces: the command-line interface, the loopback React Studio, and Kit's terminal interface. No surface owns a private format conversio
 - [Conventions](docs/03-CONVENTIONS.md): Binding for all code and docs in the product repo. Deviations fail review.
-- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-25.
+- [Format support matrix](docs/FORMAT-SUPPORT.md): Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-26.
 - [Documentation](docs/README.md): Where every doc lives, docs/guide teaches someone using Hoplight, docs/reference documents vaud for someone building on it, and the decision records and founding planning docs sit alongside both.
 - [Roadmap](docs/ROADMAP.md): Milestones are strictly ordered; a milestone is DONE when every exit criterion passes live in a real install, not when its tickets close.

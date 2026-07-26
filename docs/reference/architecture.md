@@ -40,7 +40,7 @@ touches no other format and no core code.**
 ```ts
 interface CanonicalEntity<Kind, Body> {
   schemaVersion: "1";
-  kind: Kind;          // "character" | "lorebook" | "persona" | "regex"
+  kind: Kind;          // "character" | "lorebook" | "persona" | "preset" | "regex" | "pack"
   id: string;          // stable slug derived from the name
   body: Body;          // the actual content, in the superset shape
   profiles?: ...;      // sparse per-app overrides (author once, differ per app)
@@ -48,10 +48,11 @@ interface CanonicalEntity<Kind, Body> {
 }
 ```
 
-Four adapter-backed kinds exist today: `character`, `lorebook`, `persona`, and `regex`. Their `Body`
+Five adapter-backed kinds exist today: `character`, `lorebook`, `persona`, `preset`, and `regex`.
+Their `Body`
 shapes are documented under [entities/](entities/), starting with
 [entities/character.md](entities/character.md) and [entities/lorebook.md](entities/lorebook.md). The
-canonical schemas also define `preset` and `pack` entities.
+canonical schemas also define `pack` entities.
 
 ### The superset rule
 
@@ -61,7 +62,7 @@ produces a field, it does not become a canonical field; at most it rides in escr
 lorebook schema, for example, drops five RoleCall in-memory-only fields to escrow (see
 [entities/lorebook.md](entities/lorebook.md)) rather than pretending they are portable.
 
-## Escrow: lossless round-trips, contained cross-format loss
+## Escrow: semantic round-trips, contained cross-format loss
 
 Each entity carries an **escrow envelope**, stored in its `original` field (`src/core/canonical.ts`),
 keyed by source format:
@@ -70,10 +71,11 @@ keyed by source format:
 original["sillytavern"] = { raw: <the original card verbatim>, unmapped: { ... } }
 ```
 
-- **Same-format round-trip is lossless.** Export re-projects the canonical body onto a clone of the
-  original `raw`, so any field the canonical model does not express (app-specific extensions, scripts,
-  layout, ids) survives byte-for-byte. Edited fields re-encode; untouched fields come straight from the
-  twin.
+- **Same-format round-trip preserves meaning and escrowed fields.** Export re-projects the canonical
+  body onto a clone of the original `raw`, so fields the canonical model does not express
+  (app-specific extensions, scripts, layout, ids) survive. Edited fields re-encode; untouched fields
+  come from the twin. Byte identity is promised only by format specifications that declare and test a
+  byte-level round-trip tier.
 - **Cross-format conversion is contained-loss by design.** Only the canonical body crosses. One app's
   private junk (its extension blocks, trigger scripts, bespoke layout) is deliberately **not** copied
   into another app's file. This is a safety guarantee, not a gap: hoplight never blind-copies one app's
@@ -116,8 +118,13 @@ interface LorebookAdapter extends AdapterBase {
   fromCanonical(entity): AdapterOutput;
 }
 
-// PersonaAdapter and RegexAdapter follow the same shape for kind "persona" and "regex".
-type FormatAdapter = CharacterAdapter | LorebookAdapter | PersonaAdapter | RegexAdapter;
+// PersonaAdapter, PresetAdapter, and RegexAdapter follow the same kind-specific shape.
+type FormatAdapter =
+  | CharacterAdapter
+  | LorebookAdapter
+  | PersonaAdapter
+  | PresetAdapter
+  | RegexAdapter;
 ```
 
 The registry stores the union heterogeneously. A converter narrows on `kind` before it ever hands an
@@ -130,7 +137,18 @@ Adapter-local reports are optional while the codecs migrate, but every orchestra
 a `SerializeReport` before output reaches the CLI, HTTP API, export dialog, or Press. Reports name
 escrowed, dropped, and shadowed paths plus warnings; their counts are derived from those lists. Canonical
 JSON is parsed through `src/entities/runtime-schema.ts` at storage and HTTP boundaries, so TypeScript
-interfaces are never treated as runtime validation.
+interfaces are not the runtime check. Each `src/entities/<kind>/runtime-schema.ts` module strictly
+decodes its complete handwritten domain type. `defineExhaustiveShape<T>()` infers each concrete schema
+before requiring exact input and output parity, so missing or extra keys, narrowed unions, coercion,
+`any` at any nesting depth, and `never` fail typecheck.
+`src/entities/runtime-schema.ts` composes those bodies into the six-kind discriminated union used by
+storage, HTTP save, format-corpus verification, and Kit draft validation.
+
+Unknown same-version keys fail instead of being stripped or carried silently. Openness is local and
+declared: escrow `raw`, `unmapped`, platform extras, structured metadata, and named record bags keep
+their unknown values. Profiles are shallow partial bodies for their matching content kind; omitted
+top-level fields are allowed, but a present field must satisfy its complete canonical type. ADR-011
+records this boundary contract.
 
 ## Detection and the registry
 
@@ -273,7 +291,7 @@ a local Bun server + React app, see [ui.md](ui.md)) now sits beside it on the sa
 | `hoplight label <file>` | Guess a card's format and likely origin app. |
 | `hoplight validate <file>` | Validate a file against its detected format and the canonical schema. |
 | `hoplight formats` | List every adapter the registry discovered (the single source of truth). |
-| `hoplight ui` | Launch the desktop Studio (local server, loopback-only). |
+| `hoplight ui` | Launch the primary loopback Studio server; optional remote listeners are enabled separately. |
 | `hoplight version` / `hoplight help` | The obvious. |
 
 ## Source of truth

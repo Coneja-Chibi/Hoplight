@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "02-ARCHITECTURE",
   "sourcePath": "docs/02-ARCHITECTURE.md",
-  "sourceHash": "sha256:1823d3aee566322a39dded96dc7cc0d1b6b1271be654b640c7ead0902a7f444f",
-  "semanticSummaryHash": "sha256:431b201712ef5752ea2e81506c89875d38af5a1181009868d7f54945620433e6",
+  "sourceHash": "sha256:88d3b030b435301c094e572a92bac65726035f01f67d6870fee55e4ca69c46c5",
+  "semanticSummaryHash": "sha256:6ab58f49691b3c0705682a670d992531a6e614460fe0414386419fff1a2647d7",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:54.508Z"
+  "reviewer": "codex-credibility-semantic-reviewer",
+  "notes": "Independent repair review: APPROVE. Read the complete current source, semantic sidecar, prior receipt, and checked the provider egress owner. The architecture now distinguishes the primary loopback Studio from separately enabled remote listeners, states that Kit validates only the initial request host, and explicitly denies end-to-end redirect enforcement. Page and section summaries preserve those boundaries without reviving the prior origin-lock overclaim. Focused author validation passed.",
+  "reviewedAt": "2026-07-26T09:37:17.570Z"
 }

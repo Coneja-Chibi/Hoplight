@@ -2,117 +2,106 @@
   "schemaVersion": 1,
   "docId": "02-ARCHITECTURE",
   "sourcePath": "docs/02-ARCHITECTURE.md",
-  "sourceHash": "sha256:1823d3aee566322a39dded96dc7cc0d1b6b1271be654b640c7ead0902a7f444f",
-  "summary": "Architecture authority for Hoplight's product shape: package layout under a future vaudeville-studios monorepo, the hub-and-spoke canonical model with escrow, agent design lessons from RoleCall Orison, productions as project workspaces, dual faces (CLI and Studio), and security and privacy invariants. The planned packages tree keeps core free of other package deps, with formats, lore, presets, macros, regexkit, assembly, ai, agent, doctor, and interview as pure engine packages, and cli plus studio apps that import packages only. Dependency rule is core left-arrow formats left-arrow everything; ai and agent never import UI; apps never import each other or get imported by packages. Canonical codecs always emit data plus EscrowEnvelope so origin-format fields round-trip; codecs declare capabilities for honest convert reports. Agent design requires a tiny always-on tool surface, resource-model verbs over vaud URIs, spill store for large tool results, staged edits only, model capability profiles, and an early eval harness. Productions are folders with readable files, vaud.json, and content-addressed history. Faces are scriptable CLI plus agent REPL, and a later Studio face over the same engine with no private engine capabilities. Network is limited to configured model providers and checksum-verified GitHub Releases updates; keys use OS keychain or encrypted file; no telemetry.",
+  "sourceHash": "sha256:88d3b030b435301c094e572a92bac65726035f01f67d6870fee55e4ca69c46c5",
+  "summary": "This page defines Hoplight's implemented architecture and the boundaries contributors must preserve. Source boundaries assign the shared engine to src/core, entity schemas to src/entities, drop-in adapters to src/formats, durable local storage to src/studio, sealed-script analysis to src/sandbox, the primary loopback React application to src/ui, Kit's agent loop to src/kit, and the command surface to src/cli.ts. Canonical model and formats explains the hub-and-spoke superset, original source escrow, sparse platform profiles, same-format re-projection, cross-format loss reports, and folder-discovered adapters. Storage and mutation describes the folder database, contained paths, atomic writes, revisions, pure previews, and verified durable application. The three surfaces are the scriptable hoplight CLI, the local desktop Studio with separately enabled remote access, and source-checkout Kit, all sharing one engine while Kit remains absent from release binaries until its build and smoke gates exist. Effects and trust boundaries require fail-closed parsing, sealed imported scripts, deliberate network paths, and encrypted provider credentials that never enter content or model-visible records. Kit checks the initial provider request host but does not yet revalidate runtime redirects. Decisions and future systems points to ADR-001 onward and says specs remain planned rather than implemented until source, tests, and a user entry point prove otherwise.",
   "topics": [
-    "package layout monorepo",
-    "canonical model escrow",
-    "hub and spoke codecs",
-    "agent staged edits",
-    "spill store tool results",
-    "productions workspaces",
-    "CLI and Studio faces",
-    "security privacy invariants",
-    "no telemetry local first",
-    "dependency rule core formats"
+    "source dependency boundaries",
+    "canonical model and escrow",
+    "folder-discovered format adapters",
+    "atomic studio storage",
+    "CLI Studio and Kit",
+    "effects and trust boundaries",
+    "provider credential isolation",
+    "ADRs and planned systems"
   ],
   "sections": [
     {
-      "slug": "product-repo-layout-the-future-vaudeville-studios-code-repo",
-      "title": "Product repo layout (the future `vaudeville-studios` code repo)",
+      "slug": "source-boundaries",
+      "title": "Source boundaries",
       "level": 2,
-      "sourceHash": "sha256:b0ad1c8e662c12c8cec31b70e4d514e07e8492d08b92e6bb0bb89b8c286ba1b0",
-      "summary": "Describes the planned vaudeville-studios monorepo layout. packages/core owns zod schemas for character, lorebook, preset, persona, regex-script, and world or compendium, plus escrow envelope, IDs, and token counting interfaces, with zero deps on other packages. packages/formats holds one codec module per external format implementing detect, parse, serialize, and capabilities, including PNG tEXt chunk IO. lore, presets, macros, and regexkit extract engine pieces from prior VAUDEVILLE work. assembly builds Test Stage prompt payloads with a full trace. ai covers provider adapters, streaming, tool-calling with weak-model fallback, and key vault. agent owns the turn loop, deferred tool schemas, spill store, compaction, staged-edit envelope, and persona loader. doctor and interview own audit and Table Read engines as UI-agnostic packages. apps/cli is vaud compiled with bun build --compile; apps/studio is the M6 Tauri face. fixtures hold the Round-Trip Law corpus. Dependency rule: core then formats then everything; ai and agent never import UI; apps import packages only and never each other; no package imports from apps.",
+      "sourceHash": "sha256:927990b0b56862bd9510542e07a48aa7eb5f85a97133f4cdf2e629cabd690892",
+      "summary": "Hoplight is a Bun and TypeScript repository rooted in src, with three user surfaces built on one shared engine. src/core owns canonical entities, detection, conversion, coverage, and semantic engines. src/entities owns per-kind schemas and pure capabilities. src/formats contains one drop-in adapter folder per external family. src/studio is the durable local folder database. src/sandbox owns sealed-script analysis and user-invoked benches. src/ui contains the loopback server and React Studio. src/kit contains the source-checkout agent loop, provider adapters, discovery, staged drafts, and transcript ledger. src/cli.ts is the command entry. Dependencies point inward: surface code may depend on engine code, while engine code must never depend on a surface.",
       "topics": [
-        "vaudeville-studios monorepo",
-        "packages core formats",
-        "agent doctor interview",
-        "apps cli studio",
-        "dependency rule",
-        "fixtures round trip",
-        "zero core deps"
-      ],
-      "children": []
-    },
-    {
-      "slug": "the-canonical-model-escrow-adr-005-spec-specsformatscanonical-modelmd",
-      "title": "The canonical model + escrow (ADR-005, spec: specs/formats/canonical-model.md)",
-      "level": 2,
-      "sourceHash": "sha256:7742512b8ed2ebbc3ea63b46bd3b4020a61599d36ee455256bba976c9042326d",
-      "summary": "Internal model is a superset of every supported format. Every codec parse must produce CanonicalX data plus EscrowEnvelope holding source format, version, and unmapped origin fields. Serializing back merges escrow in; that is the Round-Trip Law. Codecs declare capabilities so vaud convert can report escrowed fields honestly. Authority: ADR-005 and specs/formats/canonical-model.md.",
-      "topics": [
-        "canonical model superset",
-        "EscrowEnvelope",
-        "Round-Trip Law",
-        "codec capabilities",
-        "vaud convert report",
-        "ADR-005"
-      ],
-      "children": [],
-      "shortSource": true
-    },
-    {
-      "slug": "the-agent-lessons-imported-from-rolecalls-orison-work",
-      "title": "The agent (lessons imported from RoleCall's Orison work)",
-      "level": 2,
-      "sourceHash": "sha256:69eb81744d477cb9161a4d0adee427a893d53e89f5d1b178acbab059180e8c78",
-      "summary": "Agent design constraints imported from RoleCall Orison. Keep a tiny always-on tool surface of meta-tools and defer everything else, revealing schemas on demand, because accuracy collapses past roughly fifty loaded tools. Prefer a resource model of ls, read, write, and search over a vaud URI space covering production files, fixtures, and settings instead of many noun-specific tools so weak models can drive four verbs. Spill store sends tool results above about one thousand tokens to disk with a handle and peek so the agent greps and reads handles while context stays small. Staged edits only: the agent never mutates a user file directly; it stages a diff envelope, validation runs, the user approves with optional auto-approve, then commit, and every commit is a version in production history. Model capability profiles use native tool-calling when available, prompted XML fallback otherwise, explicit samplers, and one tool call per turn on weak models. Eval harness arrives early in M2 with golden tasks against a model matrix; agent changes must move tokens-per-task or success-rate, not vibes.",
-      "topics": [
-        "tiny always-on tools",
-        "deferred tool schemas",
-        "vaud URI resource model",
-        "spill store",
-        "staged edits only",
-        "weak model fallback",
-        "eval harness M2",
-        "Orison lessons"
-      ],
-      "children": []
-    },
-    {
-      "slug": "productions-project-workspaces",
-      "title": "Productions (project workspaces)",
-      "level": 2,
-      "sourceHash": "sha256:748138041688f872a478800bf25fc7d2a21c8ffdbdaafead829da4ff59026c69",
-      "summary": "A production is a folder of human-readable JSON and Markdown files, a vaud.json manifest, and a .vaud/history/ tree of content-addressed snapshots. History has no git dependency but remains git-friendly. Library mode is a managed default production for loose-file users. vaud commands also accept bare file paths so users are not forced into a full workspace to run single-file operations.",
-      "topics": [
-        "production folder",
-        "vaud.json manifest",
-        "content-addressed history",
-        "library mode",
-        "bare file paths"
-      ],
-      "children": [],
-      "shortSource": true
-    },
-    {
-      "slug": "faces",
-      "title": "Faces",
-      "level": 2,
-      "sourceHash": "sha256:b1498f8a02b774c3f754305572f99b16c15349d39eea70fe91936f11ca57f094",
-      "summary": "Two product faces share one engine. The CLI exposes plain scriptable commands with JSON output flags, and bare vaud opens the agent REPL. Studio is planned for M6 as Tauri plus a local UI over the same engine through a thin IPC layer. Every studio action must map to an engine call the CLI can also express. The studio is forbidden from having private engine capabilities that the CLI cannot reach.",
-      "topics": [
-        "CLI scriptable commands",
-        "agent REPL",
-        "Studio M6 Tauri",
         "shared engine",
-        "no private studio capabilities"
+        "source tree ownership",
+        "inward dependencies",
+        "three user surfaces"
       ],
-      "children": [],
-      "shortSource": true
+      "children": []
     },
     {
-      "slug": "security-privacy-invariants",
-      "title": "Security & privacy invariants",
+      "slug": "canonical-model-and-formats",
+      "title": "Canonical model and formats",
       "level": 2,
-      "sourceHash": "sha256:4da85cd6f4a0a674950d42be0df3f249ac51fadad2435f1c0321dcd1bc75c1d9",
-      "summary": "Binding security and privacy rules. No network calls except model providers the user configured and the updater hitting GitHub Releases with checksum verification; both paths are auditable in source. Keys live in the OS keychain where available, otherwise an AES-encrypted file with a local secret. No telemetry of any kind. Crash reports are local files the user can choose to share; nothing is uploaded automatically.",
+      "sourceHash": "sha256:c7877fd5c92f12fc3985be30a897dd171a0ce0445d6351a4025283607d233722",
+      "summary": "Every supported file maps through the canonical model in src/core/canonical.ts; no format converts directly to another format. The canonical body is a superset of interoperable wire fields. Each imported entity also retains its parsed source snapshot and unmapped fields in original escrow, while sparse profiles preserve platform-specific overrides. Same-format export re-projects edits over that source twin so untouched details survive. Cross-format export carries only supported canonical meaning and reports escrowed, dropped, shadowed, or warned paths rather than silently claiming portability. Format adapters are folders under src/formats and expose detect, toCanonical, and fromCanonical. The loader discovers those folders, and the registry, CLI formats listing, Studio import surfaces, and support matrix all consume the same live adapter set.",
       "topics": [
-        "no network except providers updater",
-        "GitHub Releases checksum",
-        "OS keychain encrypted keys",
+        "hub and spoke conversion",
+        "canonical superset",
+        "source escrow",
+        "platform profiles",
+        "serialization reports",
+        "folder discovery"
+      ],
+      "children": []
+    },
+    {
+      "slug": "storage-and-mutation",
+      "title": "Storage and mutation",
+      "level": 2,
+      "sourceHash": "sha256:35d411ef7ed267894c7dff03b8629ffde50a547db4797f6835cf52970126b909",
+      "summary": "Studio storage is a folder database rather than an opaque application database. Each piece is saved as readable JSON beneath a per-kind and per-id path. The storage layer contains paths to the studio root, writes atomically, supports keep-both collision behavior, and compares expected revisions before saving so concurrent edits fail visibly. Semantic capability operations remain pure: they produce previews and validation evidence without touching disk. A separate apply path performs the authorized durable mutation, then re-reads the saved entity to verify the result and produce trustworthy post-write evidence. This separation lets CLI, Studio, and Kit share edit logic without granting preview code an accidental write path.",
+      "topics": [
+        "folder database",
+        "path containment",
+        "atomic compare-and-save",
+        "pure previews",
+        "verified apply"
+      ],
+      "children": []
+    },
+    {
+      "slug": "the-three-surfaces",
+      "title": "The three surfaces",
+      "level": 2,
+      "sourceHash": "sha256:c67caae0e1efa8e919c5d83806215be9f96b0436da710d79e5000fb9bb1ee624",
+      "summary": "Hoplight exposes three faces over the same engine. The hoplight command is the scriptable CLI for conversion, inspection, validation, labeling, discovery, and Studio launch. Studio is the local desktop experience: a React client served by a Bun loopback server, with the remote-access sidecar remaining an explicit opt-in. Kit is the source-checkout conversational surface. It connects a configured model provider, progressively discovers content and documentation tools, accumulates staged changes with warnings and platform impact, and applies only through the same durable storage boundary. Kit is real source code but is not yet part of distributed release binaries; release claims must wait for a defined bundle, binary inclusion, and installed-artifact smoke test.",
+      "topics": [
+        "scriptable CLI",
+        "loopback React Studio",
+        "Kit agent surface",
+        "shared engine",
+        "release binary boundary"
+      ],
+      "children": []
+    },
+    {
+      "slug": "effects-and-trust-boundaries",
+      "title": "Effects and trust boundaries",
+      "level": 2,
+      "sourceHash": "sha256:bde242af4851d0394055feeb8da61d9dd73d985e120aea38475ed8d931e9a1ea",
+      "summary": "Untrusted files and requests are parsed once at their boundary and rejected when unreadable. Imported Lua, macros, and regex payloads remain inert data during import, conversion, storage, preview, and agent use. Execution exists only in the explicit Lua or regex test benches on the isolated sandbox origin, and no additional execution path is allowed. Network effects are deliberate and auditable: remote Studio access is opt-in, Kit checks the initial provider request URL against the configured host, and update checks target fixed GitHub release infrastructure. The current Kit fetch path does not revalidate runtime redirects, so its host gate is not an end-to-end redirect policy. Hoplight has no accounts, telemetry, proxying, or background upload. Provider credentials are encrypted at rest and are configuration, never content: they must not appear in canonical entities, prompts, tool observations, exports, transcripts, or the ledger.",
+      "topics": [
+        "fail-closed parsing",
+        "sealed imported scripts",
+        "isolated test benches",
+        "deliberate network effects",
         "no telemetry",
-        "local crash reports"
+        "credential isolation"
+      ],
+      "children": []
+    },
+    {
+      "slug": "decisions-and-future-systems",
+      "title": "Decisions and future systems",
+      "level": 2,
+      "sourceHash": "sha256:f4fb5130f6a4fc4e4748cd017097286185734765bb7faa244eb335a0f49ed9bf",
+      "summary": "Consequential architectural choices begin with ADR-001 in docs/decisions and continue through the repository's current decision records. Detailed contracts for implemented and future areas live under specs. A specification, roadmap entry, or design description does not by itself establish a shipped capability. Future systems remain explicitly planned until matching source code exists, tests prove the contract, and users have a real entry point. Reference documentation must describe that implemented state honestly rather than converting architectural intent into a release claim.",
+      "topics": [
+        "architecture decision records",
+        "specification contracts",
+        "planned versus implemented",
+        "truthful reference docs"
       ],
       "children": [],
       "shortSource": true

@@ -2,31 +2,31 @@
   "schemaVersion": 1,
   "docId": "reference/formats/vaud-json",
   "sourcePath": "docs/reference/formats/vaud-json.md",
-  "sourceHash": "sha256:130be9bc3b97679e7ac628d0665b322ca602b80703e2a04ffbd45248e45c0031",
-  "summary": "vaud-json is Hoplight's native format: the canonical character entity written straight to plain JSON with no wire translation. Every other adapter maps app wire shapes; this one serializes the CanonicalCharacter wrapper schemaVersion kind id body optional profiles and original and reads it back unchanged. It is the lossless local save and interchange format, the simplest registry adapter, and proof the drop-in folder pattern works end to end. One codec src formats vaud-json writes .json with native true so Press and export dialogs skip it as a publish platform while import and convert still work. Detection scores 1.0 when kind is character and schemaVersion is a string so native files always win, 0.1 for other JSON below the 0.5 threshold, and 0 for non-JSON. Field map is identity one to one with no translation table; fromCanonical is pretty-printed JSON.stringify of the whole entity. Escrow and round-trip are exact and unconditional because serialization is the entity itself; original entries from prior app imports pass through untouched. Quirks cover wrapper-only detect versus toCanonical validation, identity.name as sole body check, dead 0.1 fallback, pretty print, pure JSON media, and native exclusion from coverage. Source of truth lists adapter tests registry canonical adapter contract and UI filters.",
+  "sourceHash": "sha256:5ef1cdba0aa9f2560ef475ce970ec04509d525795a9271d35de59d65270c22a0",
+  "summary": "vaud-json is Hoplight's native character format: the canonical entity written directly to plain JSON with no wire translation. It serializes schemaVersion, kind, id, body, profiles, and original unchanged, making it the lossless local save and interchange format. The codec is native, so import and conversion use it while publish surfaces omit it. Detection parses through the exhaustive canonical runtime schema and scores 1.0 only for a valid character; invalid JSON, unsupported versions, malformed bodies, and other entity kinds score 0. Import uses the same parser and kind narrowing, eliminating a second partial validator. The field map is one-to-one, and export pretty-prints the whole entity. Existing escrow entries pass through untouched because vaud-json does not create its own twin. Quirks cover bounded parse errors, pure JSON media, and native exclusion from coverage. Source of truth lists the adapter, its tests, the shared runtime schema, registry, canonical wrapper, adapter contract, and UI publish filters.",
   "topics": [
     "vaud-json native character",
     "no wire translation",
-    "detect 1.0 wrapper",
-    "DETECT_THRESHOLD 0.5",
+    "detect 1.0 exhaustive character",
+    "shared runtime schema",
     "original pass-through",
     "native skip publish",
     "pretty JSON export",
-    "identity.name validate"
+    "complete canonical validation"
   ],
   "sections": [
     {
       "slug": "detection",
       "title": "Detection",
       "level": 2,
-      "sourceHash": "sha256:af85f903933be5dc0e7950f89d6ddb29cfbf873354dced21c29a253c97de5855",
-      "summary": "detect parses input text as JSON then scores by whether it is already a canonical character. Score 1.0 when kind equals character and schemaVersion is a string, the highest any adapter returns so a vaud-json file always wins detection over every app format on its own output. Score 0.1 when text parses as JSON but is not a canonical character wrong kind or no string schemaVersion. Score 0 when there is no text or parse fails. Registry only returns the highest scorer above DETECT_THRESHOLD 0.5 so 0.1 can never make registry.detect return vaud-json; plain JSON that fails the 1.0 check leaves no winner. Every consumer routes through gated registry.detect so today the 0.1 score has no observable pick effect. The 1.0 case keys on the wrapper not body fields. toCanonical re-checks the wrapper and requires body.identity.name string, throwing if either is missing; detect can return 1.0 on a wrapper whose body is otherwise malformed while hard validation happens on read.",
+      "sourceHash": "sha256:473d9090fb83274770a2d4a10cb81a519cc90a98a49ad06e2697283fda64c59c",
+      "summary": "detect parses input through parseCanonicalEntity and returns 1.0 only when the complete result is a character. Missing text, invalid JSON, unsupported schema versions, malformed required or optional fields, unknown authored keys, and other entity kinds return 0. toCanonical uses the same exhaustive parser and then narrows to character, so detection and import no longer maintain separate validation rules or accept a fixture-shaped partial body.",
       "topics": [
         "kind character 1.0",
-        "schemaVersion string",
-        "0.1 below threshold",
-        "wrapper not body",
-        "toCanonical name check"
+        "schemaVersion exact",
+        "complete runtime validation",
+        "shared detect import authority",
+        "malformed score zero"
       ],
       "children": []
     },
@@ -64,12 +64,11 @@
       "slug": "quirks",
       "title": "Quirks",
       "level": 2,
-      "sourceHash": "sha256:eac196baae6ff51d71956fce962de86657e32c0082e6dbad7c4ffd638e090bf9",
-      "summary": "Detection is wrapper-only; validation is on read. detect can score 1.0 when body is missing or lacks identity.name; toCanonical rejects with not a canonical character for missing kind schemaVersion or malformed for missing body.identity.name. The two checks differ by design: detect is cheap recognition and toCanonical is the trust boundary. Validation stops at identity.name: after kind schemaVersion and name check out the object is cast to CanonicalCharacter without confirming the eight required body sub-objects so a hand-edited drop still passes toCanonical. The 0.1 fallback cannot win because DETECT_THRESHOLD is 0.5 and every real caller uses gated registry.detect. Exports are two-space pretty JSON human-readable not minified. Pure JSON has no PNG or zip container; media rides as canonical media encodes it. native keeps it off Press export publish lists and the coverage API which requires coverage and not native so vaud-json never appears there while convert and Workbench editing still work.",
+      "sourceHash": "sha256:e81ab258048f566f8529898a13dcaffcfd51629b82a81136ec58046bb9a85d4a",
+      "summary": "Detection and import both use the exhaustive canonical parser. Hand-edited files with unsupported schema versions, missing required sections, invalid optional fields, unknown authored keys, or another entity kind fail at the adapter boundary. Invalid JSON and invalid canonical character failures use separate bounded messages. Exports remain two-space pretty JSON. The format has no PNG or ZIP container; media stays in canonical refs or data URIs. native keeps the adapter off Press, export publish lists, and the platform coverage API while conversion and Workbench editing still use it.",
       "topics": [
-        "detect vs toCanonical",
-        "name-only body check",
-        "0.1 never wins",
+        "shared exhaustive parser",
+        "bounded parse errors",
         "pretty print export",
         "native hide publish",
         "coverage API skip"
@@ -80,11 +79,11 @@
       "slug": "source-of-truth",
       "title": "Source of truth",
       "level": 2,
-      "sourceHash": "sha256:83f601f9a6e41c5692331ca2b942a7db2dcd35b131b2dec4831931f6ad9aa2a3",
-      "summary": "Source of truth maps concerns to files. Adapter detect toCanonical fromCanonical is formats vaud-json index.ts with adapter tests in vaud-json.test.ts covering round-trip and the two throw messages. Registry detection threshold DETECT_THRESHOLD and gated detect live in core registry.ts. Canonical wrapper escrow original and id policy are core canonical.ts. Adapter contract fields native coverage and lens are core adapter.ts. CharacterBody superset of eight required and optional slots is entities character schema.ts. Publish-surface filtering that excludes native adapters is press-core export-dialog and the setup publish step. Generated format matrix row for this format is docs FORMAT-SUPPORT.md.",
+      "sourceHash": "sha256:d28f83bb14b2f983856160b7f171461aa6b4dc4ad970d789a89864c1aa1417c7",
+      "summary": "Source of truth maps the adapter to formats vaud-json index.ts, its regressions to vaud-json.test.ts, and exhaustive parsing to entities/runtime-schema.ts. Registry selection lives in core/registry.ts; canonical wrapper and escrow in core/canonical.ts; adapter flags in core/adapter.ts; and character fields in entities/character/schema.ts. Press, export dialog, and setup publish filters exclude native adapters. FORMAT-SUPPORT.md carries the generated matrix row.",
       "topics": [
         "vaud-json index.ts",
-        "registry threshold",
+        "runtime schema registry",
         "canonical adapter contract",
         "native UI filters",
         "FORMAT-SUPPORT matrix"

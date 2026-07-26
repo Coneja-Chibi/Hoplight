@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-26",
-  "count": 110,
+  "count": 111,
   "docs": [
     {
       "id": "01-VISION",
@@ -91,110 +91,102 @@
       "path": "docs/02-ARCHITECTURE.md",
       "title": "Architecture",
       "audience": "dev",
-      "summary": "vaudeville-studios/ packages/ core/          Canonical model: zod schemas for character, lorebook, preset, persona, regex-script, world/compendium. Escrow envelope. IDs, token counting interfaces. ZERO deps on other packages.",
+      "summary": "Hoplight is a Bun and TypeScript application rooted in `src/`. The canonical engine is shared by three surfaces: the command-line interface, the loopback React Studio, and Kit's terminal interface. No surface owns a private format conversio",
       "tags": [],
       "related": [],
-      "semanticSummary": "Architecture authority for Hoplight's product shape: package layout under a future vaudeville-studios monorepo, the hub-and-spoke canonical model with escrow, agent design lessons from RoleCall Orison, productions as project workspaces, dual faces (CLI and Studio), and security and privacy invariants. The planned packages tree keeps core free of other package deps, with formats, lore, presets, macros, regexkit, assembly, ai, agent, doctor, and interview as pure engine packages, and cli plus studio apps that import packages only. Dependency rule is core left-arrow formats left-arrow everything; ai and agent never import UI; apps never import each other or get imported by packages. Canonical codecs always emit data plus EscrowEnvelope so origin-format fields round-trip; codecs declare capabilities for honest convert reports. Agent design requires a tiny always-on tool surface, resource-model verbs over vaud URIs, spill store for large tool results, staged edits only, model capability profiles, and an early eval harness. Productions are folders with readable files, vaud.json, and content-addressed history. Faces are scriptable CLI plus agent REPL, and a later Studio face over the same engine with no private engine capabilities. Network is limited to configured model providers and checksum-verified GitHub Releases updates; keys use OS keychain or encrypted file; no telemetry.",
+      "semanticSummary": "This page defines Hoplight's implemented architecture and the boundaries contributors must preserve. Source boundaries assign the shared engine to src/core, entity schemas to src/entities, drop-in adapters to src/formats, durable local storage to src/studio, sealed-script analysis to src/sandbox, the primary loopback React application to src/ui, Kit's agent loop to src/kit, and the command surface to src/cli.ts. Canonical model and formats explains the hub-and-spoke superset, original source escrow, sparse platform profiles, same-format re-projection, cross-format loss reports, and folder-discovered adapters. Storage and mutation describes the folder database, contained paths, atomic writes, revisions, pure previews, and verified durable application. The three surfaces are the scriptable hoplight CLI, the local desktop Studio with separately enabled remote access, and source-checkout Kit, all sharing one engine while Kit remains absent from release binaries until its build and smoke gates exist. Effects and trust boundaries require fail-closed parsing, sealed imported scripts, deliberate network paths, and encrypted provider credentials that never enter content or model-visible records. Kit checks the initial provider request host but does not yet revalidate runtime redirects. Decisions and future systems points to ADR-001 onward and says specs remain planned rather than implemented until source, tests, and a user entry point prove otherwise.",
       "topics": [
-        "package layout monorepo",
-        "canonical model escrow",
-        "hub and spoke codecs",
-        "agent staged edits",
-        "spill store tool results",
-        "productions workspaces",
-        "CLI and Studio faces",
-        "security privacy invariants",
-        "no telemetry local first",
-        "dependency rule core formats"
+        "source dependency boundaries",
+        "canonical model and escrow",
+        "folder-discovered format adapters",
+        "atomic studio storage",
+        "CLI Studio and Kit",
+        "effects and trust boundaries",
+        "provider credential isolation",
+        "ADRs and planned systems"
       ],
       "anchors": [
         {
-          "text": "Product repo layout (the future `vaudeville-studios` code repo)",
-          "slug": "product-repo-layout-the-future-vaudeville-studios-code-repo",
+          "text": "Source boundaries",
+          "slug": "source-boundaries",
           "level": 2,
-          "summary": "Describes the planned vaudeville-studios monorepo layout. packages/core owns zod schemas for character, lorebook, preset, persona, regex-script, and world or compendium, plus escrow envelope, IDs, and token counting interfaces, with zero deps on other packages. packages/formats holds one codec module per external format implementing detect, parse, serialize, and capabilities, including PNG tEXt chunk IO. lore, presets, macros, and regexkit extract engine pieces from prior VAUDEVILLE work. assembly builds Test Stage prompt payloads with a full trace. ai covers provider adapters, streaming, tool-calling with weak-model fallback, and key vault. agent owns the turn loop, deferred tool schemas, spill store, compaction, staged-edit envelope, and persona loader. doctor and interview own audit and Table Read engines as UI-agnostic packages. apps/cli is vaud compiled with bun build --compile; apps/studio is the M6 Tauri face. fixtures hold the Round-Trip Law corpus. Dependency rule: core then formats then everything; ai and agent never import UI; apps import packages only and never each other; no package imports from apps.",
+          "summary": "Hoplight is a Bun and TypeScript repository rooted in src, with three user surfaces built on one shared engine. src/core owns canonical entities, detection, conversion, coverage, and semantic engines. src/entities owns per-kind schemas and pure capabilities. src/formats contains one drop-in adapter folder per external family. src/studio is the durable local folder database. src/sandbox owns sealed-script analysis and user-invoked benches. src/ui contains the loopback server and React Studio. src/kit contains the source-checkout agent loop, provider adapters, discovery, staged drafts, and transcript ledger. src/cli.ts is the command entry. Dependencies point inward: surface code may depend on engine code, while engine code must never depend on a surface.",
           "topics": [
-            "vaudeville-studios monorepo",
-            "packages core formats",
-            "agent doctor interview",
-            "apps cli studio",
-            "dependency rule",
-            "fixtures round trip",
-            "zero core deps"
-          ],
-          "children": []
-        },
-        {
-          "text": "The canonical model + escrow (ADR-005, spec: specs/formats/canonical-model.md)",
-          "slug": "the-canonical-model-escrow-adr-005-spec-specsformatscanonical-modelmd",
-          "level": 2,
-          "summary": "Internal model is a superset of every supported format. Every codec parse must produce CanonicalX data plus EscrowEnvelope holding source format, version, and unmapped origin fields. Serializing back merges escrow in; that is the Round-Trip Law. Codecs declare capabilities so vaud convert can report escrowed fields honestly. Authority: ADR-005 and specs/formats/canonical-model.md.",
-          "topics": [
-            "canonical model superset",
-            "EscrowEnvelope",
-            "Round-Trip Law",
-            "codec capabilities",
-            "vaud convert report",
-            "ADR-005"
-          ],
-          "children": []
-        },
-        {
-          "text": "The agent (lessons imported from RoleCall's Orison work)",
-          "slug": "the-agent-lessons-imported-from-rolecalls-orison-work",
-          "level": 2,
-          "summary": "Agent design constraints imported from RoleCall Orison. Keep a tiny always-on tool surface of meta-tools and defer everything else, revealing schemas on demand, because accuracy collapses past roughly fifty loaded tools. Prefer a resource model of ls, read, write, and search over a vaud URI space covering production files, fixtures, and settings instead of many noun-specific tools so weak models can drive four verbs. Spill store sends tool results above about one thousand tokens to disk with a handle and peek so the agent greps and reads handles while context stays small. Staged edits only: the agent never mutates a user file directly; it stages a diff envelope, validation runs, the user approves with optional auto-approve, then commit, and every commit is a version in production history. Model capability profiles use native tool-calling when available, prompted XML fallback otherwise, explicit samplers, and one tool call per turn on weak models. Eval harness arrives early in M2 with golden tasks against a model matrix; agent changes must move tokens-per-task or success-rate, not vibes.",
-          "topics": [
-            "tiny always-on tools",
-            "deferred tool schemas",
-            "vaud URI resource model",
-            "spill store",
-            "staged edits only",
-            "weak model fallback",
-            "eval harness M2",
-            "Orison lessons"
-          ],
-          "children": []
-        },
-        {
-          "text": "Productions (project workspaces)",
-          "slug": "productions-project-workspaces",
-          "level": 2,
-          "summary": "A production is a folder of human-readable JSON and Markdown files, a vaud.json manifest, and a .vaud/history/ tree of content-addressed snapshots. History has no git dependency but remains git-friendly. Library mode is a managed default production for loose-file users. vaud commands also accept bare file paths so users are not forced into a full workspace to run single-file operations.",
-          "topics": [
-            "production folder",
-            "vaud.json manifest",
-            "content-addressed history",
-            "library mode",
-            "bare file paths"
-          ],
-          "children": []
-        },
-        {
-          "text": "Faces",
-          "slug": "faces",
-          "level": 2,
-          "summary": "Two product faces share one engine. The CLI exposes plain scriptable commands with JSON output flags, and bare vaud opens the agent REPL. Studio is planned for M6 as Tauri plus a local UI over the same engine through a thin IPC layer. Every studio action must map to an engine call the CLI can also express. The studio is forbidden from having private engine capabilities that the CLI cannot reach.",
-          "topics": [
-            "CLI scriptable commands",
-            "agent REPL",
-            "Studio M6 Tauri",
             "shared engine",
-            "no private studio capabilities"
+            "source tree ownership",
+            "inward dependencies",
+            "three user surfaces"
           ],
           "children": []
         },
         {
-          "text": "Security & privacy invariants",
-          "slug": "security-privacy-invariants",
+          "text": "Canonical model and formats",
+          "slug": "canonical-model-and-formats",
           "level": 2,
-          "summary": "Binding security and privacy rules. No network calls except model providers the user configured and the updater hitting GitHub Releases with checksum verification; both paths are auditable in source. Keys live in the OS keychain where available, otherwise an AES-encrypted file with a local secret. No telemetry of any kind. Crash reports are local files the user can choose to share; nothing is uploaded automatically.",
+          "summary": "Every supported file maps through the canonical model in src/core/canonical.ts; no format converts directly to another format. The canonical body is a superset of interoperable wire fields. Each imported entity also retains its parsed source snapshot and unmapped fields in original escrow, while sparse profiles preserve platform-specific overrides. Same-format export re-projects edits over that source twin so untouched details survive. Cross-format export carries only supported canonical meaning and reports escrowed, dropped, shadowed, or warned paths rather than silently claiming portability. Format adapters are folders under src/formats and expose detect, toCanonical, and fromCanonical. The loader discovers those folders, and the registry, CLI formats listing, Studio import surfaces, and support matrix all consume the same live adapter set.",
           "topics": [
-            "no network except providers updater",
-            "GitHub Releases checksum",
-            "OS keychain encrypted keys",
+            "hub and spoke conversion",
+            "canonical superset",
+            "source escrow",
+            "platform profiles",
+            "serialization reports",
+            "folder discovery"
+          ],
+          "children": []
+        },
+        {
+          "text": "Storage and mutation",
+          "slug": "storage-and-mutation",
+          "level": 2,
+          "summary": "Studio storage is a folder database rather than an opaque application database. Each piece is saved as readable JSON beneath a per-kind and per-id path. The storage layer contains paths to the studio root, writes atomically, supports keep-both collision behavior, and compares expected revisions before saving so concurrent edits fail visibly. Semantic capability operations remain pure: they produce previews and validation evidence without touching disk. A separate apply path performs the authorized durable mutation, then re-reads the saved entity to verify the result and produce trustworthy post-write evidence. This separation lets CLI, Studio, and Kit share edit logic without granting preview code an accidental write path.",
+          "topics": [
+            "folder database",
+            "path containment",
+            "atomic compare-and-save",
+            "pure previews",
+            "verified apply"
+          ],
+          "children": []
+        },
+        {
+          "text": "The three surfaces",
+          "slug": "the-three-surfaces",
+          "level": 2,
+          "summary": "Hoplight exposes three faces over the same engine. The hoplight command is the scriptable CLI for conversion, inspection, validation, labeling, discovery, and Studio launch. Studio is the local desktop experience: a React client served by a Bun loopback server, with the remote-access sidecar remaining an explicit opt-in. Kit is the source-checkout conversational surface. It connects a configured model provider, progressively discovers content and documentation tools, accumulates staged changes with warnings and platform impact, and applies only through the same durable storage boundary. Kit is real source code but is not yet part of distributed release binaries; release claims must wait for a defined bundle, binary inclusion, and installed-artifact smoke test.",
+          "topics": [
+            "scriptable CLI",
+            "loopback React Studio",
+            "Kit agent surface",
+            "shared engine",
+            "release binary boundary"
+          ],
+          "children": []
+        },
+        {
+          "text": "Effects and trust boundaries",
+          "slug": "effects-and-trust-boundaries",
+          "level": 2,
+          "summary": "Untrusted files and requests are parsed once at their boundary and rejected when unreadable. Imported Lua, macros, and regex payloads remain inert data during import, conversion, storage, preview, and agent use. Execution exists only in the explicit Lua or regex test benches on the isolated sandbox origin, and no additional execution path is allowed. Network effects are deliberate and auditable: remote Studio access is opt-in, Kit checks the initial provider request URL against the configured host, and update checks target fixed GitHub release infrastructure. The current Kit fetch path does not revalidate runtime redirects, so its host gate is not an end-to-end redirect policy. Hoplight has no accounts, telemetry, proxying, or background upload. Provider credentials are encrypted at rest and are configuration, never content: they must not appear in canonical entities, prompts, tool observations, exports, transcripts, or the ledger.",
+          "topics": [
+            "fail-closed parsing",
+            "sealed imported scripts",
+            "isolated test benches",
+            "deliberate network effects",
             "no telemetry",
-            "local crash reports"
+            "credential isolation"
+          ],
+          "children": []
+        },
+        {
+          "text": "Decisions and future systems",
+          "slug": "decisions-and-future-systems",
+          "level": 2,
+          "summary": "Consequential architectural choices begin with ADR-001 in docs/decisions and continue through the repository's current decision records. Detailed contracts for implemented and future areas live under specs. A specification, roadmap entry, or design description does not by itself establish a shipped capability. Future systems remain explicitly planned until matching source code exists, tests prove the contract, and users have a real entry point. Reference documentation must describe that implemented state honestly rather than converting architectural intent into a release claim.",
+          "topics": [
+            "architecture decision records",
+            "specification contracts",
+            "planned versus implemented",
+            "truthful reference docs"
           ],
           "children": []
         }
@@ -512,25 +504,29 @@
       "summary": "**Status:** accepted",
       "tags": [],
       "related": [],
-      "semanticSummary": "Accepted ADR establishing one internal canonical model per content type as zod schemas designed as a superset so parsing any supported format loses nothing that has a canonical home. Fields without a canonical home survive in an escrow envelope keyed by origin format. Parse yields Canonical data, Escrow, and ParseReport; serialize takes Canonical, Escrow, and target to file plus SerializeReport. Same-format round-trip merges escrow for semantic identity under the Round-Trip Law. Different-format conversion expresses what it can, honestly lists escrowed or dropped fields, and preserves escrow in extension fields where the target tolerates them such as V2 V3 extensions. Rejects using chara_card_v3 alone because V3 is card-only and still lossy against RoleCall, Risu, and Backyard fields while lorebooks presets and personas need models V3 does not define. Precedents include RoleCall unsupportedFields and origin and VAUDEVILLE normalizers. Consequences: every codec ships a capabilities table powering honest reports and auto-generated format-support matrix; core schema changes are the most expensive changes requiring migration note, fixture sweep, and design review.",
+      "semanticSummary": "Accepted ADR establishing Hoplight's canonical superset and escrow model. Its schema-authority note records that ADR-011 supersedes the original Zod-under-packages/core wording: current domain contracts are handwritten interfaces in src/entities/<kind>/schema.ts paired with exhaustive adjacent runtime decoders. The Decision retains one canonical model per content type, carries fields without a canonical home in origin-keyed escrow, merges escrow for semantically identical same-format round trips, and requires honest reports for cross-format loss or recovery through tolerated extension fields. Why not \"just use chara_card_v3 internally\" explains that V3 covers cards only and cannot represent all RoleCall, Risu, Backyard, lorebook, preset, or persona meaning. Precedents in the author's own earlier code identifies RoleCall unsupportedFields and origin plus VAUDEVILLE normalizers as earlier forms of the pattern. Consequences requires codec capability tables to drive conversion reporting and the generated support matrix, while changes to canonical domain contracts demand a migration note, fixture sweep, and explicit design review. ADR-005's superset, escrow envelope, and Round-Trip Law remain accepted even though ADR-011 now owns runtime schema authority.",
       "topics": [
         "canonical superset model",
+        "ADR-011 schema authority",
+        "handwritten domain interfaces",
+        "exhaustive runtime decoders",
         "escrow envelope",
         "Round-Trip Law",
         "honest conversion reports",
         "not chara_card_v3 only",
         "codec capabilities table",
-        "expensive core schema changes",
-        "ADR-005 accepted"
+        "expensive domain changes"
       ],
       "anchors": [
         {
           "text": "Decision",
           "slug": "decision",
           "level": 2,
-          "summary": "One internal canonical model per content type defined as zod schemas in packages/core as a superset rich enough that parsing any supported format loses nothing with a canonical home. Fields with no canonical home survive in an escrow envelope keyed by origin format. Parse maps SourceFile to Canonical data, Escrow, and ParseReport. Serialize maps Canonical, Escrow, and target to file and SerializeReport. Round-trip to the same format merges escrow for semantic identity under the Round-Trip Law. Conversion to a different format expresses what the codec can and the report honestly lists escrowed or dropped fields; escrow is preserved where the target tolerates extension fields such as V2 V3 extensions so cross-format trips stay recoverable.",
+          "summary": "The decision text defines one canonical superset per content type and an origin-keyed escrow envelope for fields without a canonical home. Its parse and serialize equations require reports at both boundaries. Same-format serialization merges escrow so the result remains semantically identical under the Round-Trip Law. Cross-format serialization expresses supported meaning, reports escrowed or dropped fields, and preserves escrow where the target permits extension fields, allowing later recovery. The section's historical statement places Zod schemas in packages/core, but the document's schema-authority note explicitly supersedes that detail through ADR-011. Current authority is handwritten domain interfaces under src/entities/<kind>/schema.ts paired with exhaustive runtime decoders; the superset and escrow behavior itself is unchanged.",
           "topics": [
-            "superset zod schemas",
+            "canonical superset",
+            "ADR-011 supersession",
+            "handwritten interfaces and decoders",
             "escrow by origin",
             "parse serialize reports",
             "same format Round-Trip Law",
@@ -983,20 +979,89 @@
       ]
     },
     {
+      "id": "decisions/ADR-011-runtime-boundary-schemas",
+      "path": "docs/decisions/ADR-011-runtime-boundary-schemas.md",
+      "title": "ADR-011: Exhaustive runtime schemas at canonical boundaries",
+      "audience": "dev",
+      "summary": "**Status:** accepted, 2026-07-26",
+      "tags": [],
+      "related": [],
+      "semanticSummary": "Accepted on 2026-07-26, ADR-011 makes exhaustive runtime decoding the canonical boundary contract while preserving handwritten domain interfaces. TypeScript alone cannot validate JSON from disk, HTTP, adapters, or Kit drafts, and the former central decoder accepted only a required floor. The decision adds one adjacent runtime decoder per content kind and routes every decoded object through defineExhaustiveShape<T>(), which infers concrete Zod schemas before demanding exact domain-compatible inputs and outputs. Missing or extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. Six strict bodies compose the public discriminated union; unknown same-version keys fail outside declared open record bags; profiles validate as kind-matched shallow partial bodies. Adapter-corpus tests, fully populated fixtures, malformed-family matrices, and storage, HTTP, Kit validation, and final-apply tests prove adoption. Strictness forces explicit schema evolution while leaving declared escrow and extension bags lossless and inert. ADR-005's canonical superset, escrow envelope, and Round-Trip Law remain in force.",
+      "topics": [
+        "exhaustive runtime schemas",
+        "handwritten domain interfaces",
+        "ExhaustiveShape typecheck",
+        "strict six-kind union",
+        "closed same-version keys",
+        "open escrow record bags",
+        "kind-matched profiles",
+        "shared public boundary",
+        "ADR-005 supersession"
+      ],
+      "anchors": [
+        {
+          "text": "Context",
+          "slug": "context",
+          "level": 2,
+          "summary": "Canonical entities use rich handwritten TypeScript interfaces under src/entities/<kind>/schema.ts, but TypeScript types disappear at runtime and cannot validate JSON arriving from storage, HTTP, format adapters, or Kit drafts. The former central decoder checked the common envelope and only a required subset of each entity body. Because loose objects did not exhaust optional field families, a parse could succeed while carrying values that contradicted the domain interface into durable storage or editing logic. Replacing every interface with a schema-inferred type would cause broad disruption and still would not prove that every producer and consumer crosses one shared validation boundary. The problem is therefore boundary completeness and adoption, not merely the syntax used to declare types.",
+          "topics": [
+            "erased TypeScript types",
+            "untrusted JSON sources",
+            "required-floor decoder",
+            "optional field drift",
+            "shared boundary adoption"
+          ],
+          "children": []
+        },
+        {
+          "text": "Decision",
+          "slug": "decision",
+          "level": 2,
+          "summary": "Handwritten domain interfaces remain the internal semantic contracts. Each content kind owns an adjacent decoder at src/entities/<kind>/runtime-schema.ts. Every decoded object uses defineExhaustiveShape<T>(), which infers each concrete schema before requiring exact domain-compatible input and output types. Missing and extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. src/entities/runtime-schema.ts composes six strict body decoders into the public discriminated canonical union. Canonical envelopes, bodies, profiles, and authored nested objects reject unknown current-version keys outside explicitly declared open carriers. Profiles use their kind's shallow partial body decoder. Adapter-corpus tests, fully populated per-kind fixtures, malformed-family matrices, and public-boundary tests prove adoption by format output, storage, HTTP save, Kit draft validation, and final Kit apply.",
+          "topics": [
+            "adjacent per-kind decoders",
+            "ExhaustiveShape",
+            "six-kind discriminated union",
+            "strict unknown keys",
+            "declared open carriers",
+            "typed partial profiles",
+            "cross-boundary proof"
+          ],
+          "children": []
+        },
+        {
+          "text": "Consequences",
+          "slug": "consequences",
+          "level": 2,
+          "summary": "A successful canonical parse now proves the complete known shape rather than a required floor. Interface and decoder drift, including narrowed unions and coercing inputs, becomes a compile-time error, while malformed external values fail at one shared runtime boundary with bounded messages. Storage, HTTP, adapters, and Kit no longer need competing ad hoc validators. Adding a canonical field requires the interface, adjacent decoder, positive fixture, and malformed-value regression to change together. Rejecting unknown same-version keys makes evolution deliberate. Declared escrow, metadata, extension, and other record bags remain lossless and inert. ADR-005's canonical superset, escrow envelope, and Round-Trip Law remain accepted.",
+          "topics": [
+            "complete parse proof",
+            "compile-time schema drift",
+            "single runtime validator",
+            "field change proof set",
+            "explicit schema evolution",
+            "lossless inert record bags",
+            "ADR-005 remains"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
       "id": "FORMAT-SUPPORT",
       "path": "docs/FORMAT-SUPPORT.md",
       "title": "Format support matrix",
       "audience": "dev",
-      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-25.",
+      "summary": "Auto-generated from live adapters (`bun run scripts/format-matrix.ts`). Canonical schema version: **1**. Generated: 2026-07-26.",
       "tags": [],
       "related": [],
-      "semanticSummary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows vaud formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
+      "semanticSummary": "Auto-generated format support matrix from live adapters via bun run scripts/format-matrix.ts, canonical schema version 1. It lists every registered adapter by content kind with id, writes extensions, and human labels. How to use shows Hoplight formats, inspect, convert, and validate, and names SillyTavern CCv3 as the default portable character shape for thin hosts such as C.AI Tools dumps and Crushon import. Characters currently has nine adapters including agnai, backyard, byaf, lumiverse, pygmalion, risu, rolecall, sillytavern, and vaud-json. Lorebooks has six: agnai, marinara, novelai, risu, rolecall, and sillytavern world info. Personas has four: lumiverse, marinara, rolecall, and sillytavern. Presets has four: lumiverse, marinara, rolecall, and sillytavern. Regex script sets has five: lumiverse, marinara, risu, rolecall, and sillytavern. Sprite packs has zero adapters; the studio edits the pack kind but no import or export format exists yet. Notes require content-sniff detection not extension alone, same-format lossless round-trips where fixtures prove them, honest cross-format drops, and Default CCv3 via sillytavern for skipped host-native bags. Samples lists per-platform fixture folders under samples/.",
       "topics": [
         "format support matrix",
         "live adapter registry",
         "character lorebook persona preset regex",
         "sillytavern default CCv3",
-        "vaud formats convert inspect",
+        "hoplight formats convert inspect",
         "content sniff detection",
         "round trip lossless",
         "sprite packs none yet",
@@ -1008,12 +1073,12 @@
           "text": "How to use",
           "slug": "how-to-use",
           "level": 2,
-          "summary": "Documents the primary CLI entry points for format work: bun run vaud formats to list adapters, vaud inspect on a card path, vaud convert with --to for target format such as sillytavern, and vaud validate on a card json. Default portable character shape for thin hosts including C.AI Tools dumps and Crushon import is SillyTavern CCv3 through the sillytavern adapter.",
+          "summary": "Documents the primary CLI entry points for format work: bun run hoplight formats to list adapters, hoplight inspect on a card path, hoplight convert with --to for a target such as sillytavern, and hoplight validate on card JSON. The default portable character shape for thin hosts including C.AI Tools dumps and Crushon import is SillyTavern CCv3 through the sillytavern adapter.",
           "topics": [
-            "vaud formats",
-            "vaud inspect",
-            "vaud convert --to",
-            "vaud validate",
+            "hoplight formats",
+            "hoplight inspect",
+            "hoplight convert --to",
+            "hoplight validate",
             "default sillytavern CCv3",
             "thin host portable shape"
           ],
@@ -1108,10 +1173,10 @@
           "text": "Notes",
           "slug": "notes",
           "level": 2,
-          "summary": "Detection is content-sniff, not only extension; prefer vaud label when unsure. Same-format round-trips aim for lossless where fixtures prove it, see adapter tests and samples/. Cross-format convert keeps what the target can express; use export honesty in the studio UI for drop notes. Dropped or skipped host-native bags such as Character.AI and Crushon should use Default CCv3 via the sillytavern adapter.",
+          "summary": "Detection is content-sniff, not only extension; prefer hoplight label when unsure. Same-format round-trips aim for lossless where fixtures prove it, see adapter tests and samples/. Cross-format convert keeps what the target can express; use export honesty in the studio UI for drop notes. Dropped or skipped host-native bags such as Character.AI and Crushon should use Default CCv3 via the sillytavern adapter.",
           "topics": [
             "content sniff detection",
-            "vaud label",
+            "hoplight label",
             "lossless same-format round trip",
             "cross-format export honesty",
             "Default CCv3 Character.AI Crushon"
@@ -3736,26 +3801,30 @@
         "reference/formats/sillytavern",
         "reference/concepts/canonical-model"
       ],
-      "semanticSummary": "Engine architecture for hoplight converting AI-roleplay content without losing information. Hub and spoke maps every format through one canonical superset rather than format-to-format: N adapters instead of N times N-1, with import through toCanonical and export through fromCanonical. The shared entity wrapper carries schema version, kind, stable ID, body, profiles, and original escrow for adapter-backed character, lorebook, persona, and regex plus schema-defined preset and pack. Only fields represented by real wire formats earn canonical slots. Escrow reprojects same-format edits onto the raw twin, contains cross-format loss, refuses blind copying of executable payloads, and keeps binary carriers. Kind-discriminated adapters attach SerializeReport at orchestration boundaries; detection ranks specific formats above generic ones with a cross-kind firewall. Folders are schema for formats. Bundles extract embedded lorebooks to knowledgeRefs and re-embed through EmitContext. Semantic content capabilities preview without writing. Kit combines them with studio, transfer, and diagnostics descriptors in one progressive catalog, traverses canonical JSON through bounded result handles, retains complete draft evidence, and applies through compareAndSave plus re-read verification. Its separate docs meta-tool browses, outlines, searches, and reads approved indexed documentation. Layers remain core then formats then CLI or app. CLI commands cover convert, inspect, label, validate, formats, UI, version, and help.",
+      "semanticSummary": "This reference maps Hoplight's implemented engine and tool architecture. Hub and spoke explains why every external format maps through one canonical model. The canonical entity defines the shared wrapper and superset rule; escrow preserves source twins and binary carriers without moving private or executable payloads across formats. The adapter contract uses a kind-discriminated open format system, attaches serialization-loss reports, and routes canonical JSON through strict per-kind decoders. defineExhaustiveShape<T>() demands exact schema input and output parity, rejecting drift escapes such as narrowed unions and coercion while leaving declared record bags open. Detection ranks confident kind-correct adapters, and folder discovery supplies the registry. Bundles extract and re-embed lorebook references. Semantic content capabilities define pure previews, progressive discovery, bounded reads and stored results, independently reviewed semantic docs, and explicit compare-and-save apply with re-read verification. Layering points dependencies inward; CLI remains a thin engine surface; source-of-truth links name the governing modules.",
       "topics": [
-        "hub and spoke canonical",
-        "escrow round-trip safety",
-        "adapter contract kinds",
-        "detect registry firewall",
-        "folders-as-schema load",
-        "bundles character book",
-        "capabilities Kit apply",
-        "layering CLI truth"
+        "hub and spoke conversion",
+        "canonical entity and superset",
+        "escrow and round trips",
+        "strict canonical runtime boundary",
+        "adapter detection and discovery",
+        "bundled lorebooks",
+        "semantic capability tools",
+        "per-turn exposure persistent drafts",
+        "result store eviction and paging",
+        "hash-bound summary approval",
+        "explicit durable apply",
+        "engine layering and CLI"
       ],
       "anchors": [
         {
           "text": "The one idea: hub and spoke",
           "slug": "the-one-idea-hub-and-spoke",
           "level": 2,
-          "summary": "Every format converts through one canonical superset model never format-to-format directly. With N formats a mesh needs N times N-1 converters; hub-and-spoke needs N adapters each mapping to and from the canonical model. Adding a format is plus one adapter and touches no other format and no core code. import reads a file into the canonical model via toCanonical. export writes a canonical entity out via fromCanonical. A conversion is just import then export.",
+          "summary": "Every external format maps to and from one canonical superset rather than converting directly to every other format. A pairwise mesh requires N times N minus one paths; hub and spoke needs only N adapters. Adding a format therefore adds one adapter without changing existing formats or core conversion logic. Import calls the adapter's toCanonical operation, export calls fromCanonical, and conversion composes those two steps. This is the architectural invariant behind adapter independence and honest interoperability.",
           "topics": [
-            "canonical hub only",
-            "N adapters not mesh",
+            "canonical hub",
+            "N adapters",
             "import toCanonical",
             "export fromCanonical"
           ],
@@ -3765,40 +3834,41 @@
           "text": "The canonical entity",
           "slug": "the-canonical-entity",
           "level": 2,
-          "summary": "src core canonical.ts defines the stable wrapper every entity shares: schemaVersion 1, kind, id stable slug from name, body the superset content, optional profiles sparse per-app overrides, optional original the escrow envelope. Four adapter-backed kinds exist today: character lorebook persona and regex. Body shapes live under entities starting with character and lorebook docs. Canonical schemas also define preset and pack entities. The superset rule under this section gates first-class slots: only fields some real wire format serializes earn a body home; otherwise they ride escrow so RoleCall in-memory-only lorebook fields do not pretend portability.",
+          "summary": "src/core/canonical.ts defines the shared wrapper: schemaVersion identifies the canonical revision, kind selects the entity family, id is the stable identity, body contains interoperable content, profiles hold sparse per-platform overrides, and original holds source escrow. Character, lorebook, persona, preset, and regex are adapter-backed kinds; canonical schemas also define pack entities. Body details live in their entity folders rather than in the wrapper. The superset rule limits body fields to meaning represented by at least one real wire format. Values that exist only in one application's memory or have no portable producer remain in escrow instead of acquiring a misleading canonical slot.",
           "topics": [
-            "wrapper kind body original",
-            "character lorebook persona regex",
-            "preset pack schemas",
-            "superset rule slots"
+            "canonical wrapper",
+            "adapter-backed entity kinds",
+            "profiles and original",
+            "entity body schemas",
+            "superset rule"
           ],
           "children": [
             {
               "text": "The superset rule",
               "slug": "the-superset-rule",
               "level": 3,
-              "summary": "The canonical body is a superset of what real formats express. A first-class slot requires some real wire producer; otherwise the field rides escrow only. Lorebook drops five RoleCall in-memory-only fields to escrow rather than faking portability.",
+              "summary": "Canonical bodies contain only fields serialized by real formats. A field earns a first-class slot only when a wire producer exists. Application-only values, including five RoleCall lorebook fields, stay escrowed so Hoplight does not promise unsupported portability.",
               "topics": [
-                "union of real wires",
-                "slot needs producer",
-                "else escrow only",
-                "RoleCall lorebook example"
+                "wire-backed fields",
+                "first-class slot rule",
+                "escrow fallback",
+                "RoleCall lorebook fields"
               ],
               "children": []
             }
           ]
         },
         {
-          "text": "Escrow: lossless round-trips, contained cross-format loss",
-          "slug": "escrow-lossless-round-trips-contained-cross-format-loss",
+          "text": "Escrow: semantic round-trips, contained cross-format loss",
+          "slug": "escrow-semantic-round-trips-contained-cross-format-loss",
           "level": 2,
-          "summary": "Each entity carries an escrow envelope in original keyed by source format holding raw and unmapped. Same-format round-trip is lossless: export re-projects the canonical body onto a clone of original raw so app-specific extensions scripts layout ids survive byte-for-byte; edited fields re-encode; untouched fields come from the twin. Cross-format conversion is contained-loss by design: only the canonical body crosses; private junk extension blocks trigger scripts bespoke layout are deliberately not copied into another app file. Safety guarantee not a gap: never blind-copies fields or executable payloads; future refinement is opt-in per-field extension mappers never blind copy. Binary carriers are kept: EscrowEntry may carry sourceMedia b64 mime for the file the payload arrived inside; PNG card pixels are authored art so Tavern-lineage PNG adapters store the carrier for portrait and future same-format re-emit; text sources omit it.",
+          "summary": "Each imported entity keeps an original escrow entry containing the source format, parsed raw twin, and fields not mapped into the canonical body. On same-format export, the adapter clones that twin and re-projects edited canonical fields onto it. Untouched source-specific extensions, layout, identifiers, and scripts survive while edited values are re-encoded. This is a semantic and escrow-preservation guarantee; byte identity applies only where a format specification declares and tests a byte-level tier. Cross-format conversion intentionally carries canonical meaning only. It does not blindly copy private extension blocks, bespoke layout, trigger scripts, or other executable payloads into a different application's file; future extension mapping must be explicit per field. Escrow can also retain sourceMedia with base64 bytes and MIME type. Tavern-lineage PNG adapters use it to preserve the authored portrait carrier for same-format re-emission, while text inputs omit it.",
           "topics": [
-            "original raw unmapped",
-            "same-format byte keep",
-            "cross-format body only",
-            "never blind-copy payloads",
-            "sourceMedia PNG carrier"
+            "raw source twin",
+            "same-format re-projection",
+            "contained cross-format loss",
+            "no blind executable copying",
+            "PNG sourceMedia"
           ],
           "children": []
         },
@@ -3806,13 +3876,16 @@
           "text": "The adapter contract",
           "slug": "the-adapter-contract",
           "level": 2,
-          "summary": "src core adapter.ts defines every format plugin as a kind-discriminated union. AdapterBase has id label outputExtensions and detect 0 to 1 confidence. CharacterAdapter adds toCanonical and fromCanonical with optional context for embedded lorebooks; AdapterOutput may carry text bytes extension and SerializeReport. Lorebook persona and regex adapters follow the same shape for their kinds. Registry stores the union; converters narrow on kind before fromCanonical so cross-kind calls are not representable. Formats are open drop-in folders; entity kinds are a small closed union grown only by adding a member and entities kind folder. Adapter-local reports optional while codecs migrate but every orchestration boundary attaches SerializeReport before CLI HTTP export or Press. Reports name escrowed dropped shadowed paths and warnings. Canonical JSON is parsed through entities runtime-schema at storage and HTTP so TypeScript interfaces are never runtime validation.",
+          "summary": "src/core/adapter.ts defines a kind-discriminated union of open format plugins whose character, lorebook, persona, preset, and regex branches convert to and from matching canonical entities. Adapter output carries text or bytes, extension, and a SerializeReport naming escrowed, dropped, shadowed, and warning paths. Canonical JSON crosses storage and HTTP through src/entities/runtime-schema.ts, which composes six strict per-kind decoders. Each adjacent runtime schema uses defineExhaustiveShape<T>() to infer concrete schemas before requiring exact input and output parity; missing or extra keys, narrowed unions, coercion, any at any nesting depth, and never fail typecheck. Unknown same-version keys fail except in declared open bags such as raw, unmapped, extras, and structured metadata. Kind-matched profiles are shallow partial bodies whose present fields receive complete validation. Storage, HTTP save, format-corpus verification, and Kit drafts share this ADR-011 boundary.",
           "topics": [
-            "kind-discriminated adapters",
-            "detect to fromCanonical",
+            "kind-discriminated union",
+            "toCanonical fromCanonical",
+            "EmitContext",
+            "SerializeReport",
             "open formats closed kinds",
-            "SerializeReport boundary",
-            "runtime-schema parse"
+            "exhaustive runtime decoders",
+            "strict keys and open bags",
+            "typed partial profiles"
           ],
           "children": []
         },
@@ -3820,12 +3893,12 @@
           "text": "Detection and the registry",
           "slug": "detection-and-the-registry",
           "level": 2,
-          "summary": "src core registry.ts is the pure in-memory adapter table. detect input runs every adapter detect and returns the single highest-confidence match above a 0.5 threshold. Scores make specific formats outrank generic ones: a RoleCall card scores 1.0 and beats the generic SillyTavern reader 0.9 on the same CCv3 card. Cross-kind firewall: character and lorebook share one registry so a detector must not claim another kind. Load-bearing case: SillyTavern worldbook is also name json so character flat v1 path requires a real character signal description personality scenario first_mes mes_example not bare name; a lorebook has none so it cannot be mistaken for a character.",
+          "summary": "src/core/registry.ts holds the in-memory adapter table. Detection runs every adapter, rejects scores at or below 0.5, and selects the single highest-confidence match. Scores encode specificity: a RoleCall card can score 1.0 and outrank the generic SillyTavern reader at 0.9 for the same compatible CCv3 payload. Because character and lorebook adapters share one registry, detectors also enforce a cross-kind firewall. A bare name is insufficient evidence for SillyTavern flat-v1 character data; at least one genuine character signal such as description, personality, scenario, first_mes, or mes_example is required, preventing a name-bearing worldbook from being misclassified.",
           "topics": [
-            "highest above 0.5",
-            "specificity over generic",
+            "confidence threshold",
+            "specific format priority",
             "cross-kind firewall",
-            "character signal required"
+            "character detection signals"
           ],
           "children": []
         },
@@ -3833,13 +3906,13 @@
           "text": "Folders-as-schema (the moddability promise)",
           "slug": "folders-as-schema-the-moddability-promise",
           "level": 2,
-          "summary": "src core loader.ts is the one impure edge: scans src formats star index.ts with Node filesystem primitives dynamically imports each and registers default exports. Folders whose name starts with underscore template and shared are skipped. A format is a folder; nothing central lists formats; the filesystem is the schema. index.ts default-exports one adapter or an array when a family ships more than one codec as SillyTavern and RoleCall each export character and lorebook. FormatId is an open string so a drop-in can claim any id. To add a format copy formats template fill detect toCanonical fromCanonical done with no core edits and nothing to register by hand.",
+          "summary": "src/core/loader.ts is the impure discovery edge. It scans src/formats/*/index.ts with filesystem primitives, dynamically imports each module, and registers its default export. Names beginning with an underscore, including _shared and _template, are ignored. A folder may export one adapter or an array when a format family supplies multiple entity kinds, as SillyTavern and RoleCall do for characters and lorebooks. FormatId is an open string rather than a central enum. Adding a format means copying the template, implementing detection and both canonical directions, and supplying proof; no core registry list or unrelated format file is edited.",
           "topics": [
-            "loader scan formats",
-            "skip underscore folders",
-            "array multi-codec export",
-            "open FormatId drop-in",
-            "copy template no core edit"
+            "filesystem discovery",
+            "underscore folders skipped",
+            "single or array exports",
+            "open FormatId",
+            "no central registration"
           ],
           "children": []
         },
@@ -3847,12 +3920,13 @@
           "text": "Bundles: a card plus its lorebook",
           "slug": "bundles-a-card-plus-its-lorebook",
           "level": 2,
-          "summary": "A character card can embed a lorebook data character_book in CCv2 v3. That embedded book is treated as a reference to a canonical lorebook not an inlined blob. On import a shared layer extracts the embedded book into a standalone CanonicalLorebook and links it from the character via knowledgeRefs format-agnostic for any CCv2 v3 card. On export the target character adapter re-embeds the referenced lorebook into that format book slot via EmitContext it receives format-specific. The resolved list is authoritative even when empty: clearing a link or disabling every linked book removes any stale embedded book inherited from the source twin instead of resurrecting it. convertFile ties extract on import re-embed on export for same-kind conversions. Details in concepts character-book.",
+          "summary": "CCv2 and CCv3 character cards can embed a character_book, but Hoplight models that book as a separate canonical lorebook referenced by the character rather than leaving an opaque nested blob. During import, shared bundle logic extracts the book, creates a CanonicalLorebook, and records its id in knowledgeRefs. During export, the character adapter receives resolved lorebooks through EmitContext and embeds the appropriate target-format representation. The resolved list is authoritative even when empty: removing a link or disabling all linked books clears stale embedded data from the escrowed source twin. convertFile coordinates extraction and re-embedding for ordinary same-kind conversions, keeping bundle behavior format-agnostic at the canonical layer.",
           "topics": [
-            "character_book reference",
-            "import extract knowledgeRefs",
-            "export re-embed EmitContext",
-            "empty list clears stale",
+            "embedded character book",
+            "canonical lorebook extraction",
+            "knowledgeRefs",
+            "EmitContext re-embedding",
+            "authoritative empty list",
             "convertFile orchestration"
           ],
           "children": []
@@ -3861,16 +3935,16 @@
           "text": "Semantic content capabilities",
           "slug": "semantic-content-capabilities",
           "level": 2,
-          "summary": "Semantic edits are pure drop-ins under entity capabilities; folder discovery prevents drift. Capabilities return canonical previews and never write. Kit rejects identity or original escrow changes, while Workbench owns focus and undo. Character ships ten operations, including sealed script data executed only in user benches. Kit projects content metadata into one catalog shared with studio, transfer, and diagnostics descriptors; live deferred entries remain content-only. Only pure content descriptors derive exact read or draft access. General workflows retain the writable bridge and remain unknown until separately classified; deferred apply fails closed. Duplicate provider names fail before schema or dispatch construction. Direct tools stay visible while search reveals five matches, browse returns metadata, and describe reveals one schema. Hidden descriptors never surface. studio_read traverses canonical values through RFC 6901 pointers, offsets, and limits. Oversized results use UTF-8-byte-capped opaque handles navigated by result_query, with character paging beyond the cap. Drafts retain every operation, warning, and platform impact; change_query lists shows and validates without writing. Read effects cannot change canonical content. docs_query traverses approved metadata and Markdown. Apply uses compareAndSave and re-read verification.",
+          "summary": "Capability folders provide pure operations returning previews, changes, warnings, and platform impact without writing. Kit projects content, studio, transfer, and diagnostics into one catalog. Only pure content gets exact read-or-draft access; deferred apply and writable bridges fail closed until separate safety policy grants an exact name. Search exposes five matches, browse and describe progressively, hidden or duplicate descriptors fail, and deferred exposure resets each user turn while drafts persist. studio_read uses RFC 6901 pointers and paging; oversized values use result_query handles whose store enforces per-entry and aggregate UTF-8 byte caps, a count cap, oldest-first eviction, character paging, and direct-offset recovery beyond capacity. change_query retains proposals; read-effect tools return deterministic observations and are rejected for changing content or claiming changes. docs_query searches indexed metadata and reads authoritative Markdown without arbitrary paths or network. Summaries enter generated indexes only with independent hash-bound APPROVE receipts; source or summary edits invalidate approval. Focused checks validate an author's sidecar; global checks require every approval and current projections. Security classifies only exact catalog-derived names as preview-only; durable apply remains an explicit compareAndSave write with re-read verification.",
           "topics": [
-            "pure capability previews",
-            "four-domain discovery catalog",
-            "deferred apply fail closed",
-            "JSON Pointer result handles",
-            "complete draft query",
-            "APPROVE-only semantic merge",
-            "docs browse outline search read",
-            "compareAndSave receipt"
+            "pure semantic previews",
+            "per-turn deferred exposure",
+            "fail-closed deferred apply",
+            "read-effect purity",
+            "bounded result store",
+            "persistent draft queries",
+            "hash-bound docs approval",
+            "explicit durable apply"
           ],
           "children": []
         },
@@ -3878,12 +3952,12 @@
           "text": "Layering",
           "slug": "layering",
           "level": 2,
-          "summary": "Strict inward dependencies never outward: core depends on nothing; formats depend on core plus shared helpers in formats shared; cli and app depend on formats plus core. The engine never imports UI a database or a framework. Prove the converter canonical adapters tests before any UI. The CLI was the first surface for that reason; the desktop Studio hoplight ui a local Bun server plus React app now sits beside it on the same engine.",
+          "summary": "Dependencies point inward: core has no application dependency, formats depend on core, and CLI or Studio depend on both. The engine does not import UI, database, or framework concerns. Conversion and adapters are proven before a surface wraps them. CLI, the Bun Studio server, and the React client share that engine. Studio uses a primary loopback listener, with optional remote listeners enabled separately.",
           "topics": [
-            "core formats app layers",
-            "no UI in engine",
-            "prove converter first",
-            "CLI then Studio same engine"
+            "inward dependency layers",
+            "UI-free engine",
+            "prove converters first",
+            "shared CLI and Studio engine"
           ],
           "children": []
         },
@@ -3891,12 +3965,13 @@
           "text": "The CLI",
           "slug": "the-cli",
           "level": 2,
-          "summary": "src cli.ts is the thin app layer. hoplight convert in out optional to format converts a file with target from flag or output extension. inspect shows kind name key fields. label guesses format and likely origin app. validate checks detected format and canonical schema. formats lists every adapter the registry discovered as single source of truth. ui launches the desktop Studio local loopback-only server. version and help are the obvious.",
+          "summary": "src/cli.ts is a thin layer over the shared engine. convert writes a requested or extension-inferred target; inspect reports canonical identity and key fields; label reports detected format and origin; validate checks detection and canonical decoding; formats reads the live registry. ui launches the primary loopback Studio server, while optional remote listeners are enabled separately. Version and help expose release identity and usage.",
           "topics": [
             "convert inspect label",
             "validate formats",
-            "ui version help",
-            "thin app layer"
+            "Studio launch",
+            "version and help",
+            "thin engine surface"
           ],
           "children": []
         },
@@ -3904,12 +3979,12 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Canonical wrapper escrow and id policy live in src core canonical.ts. Adapter contract entity kinds and emit context live in adapter.ts. Registry detection and lookup live in registry.ts. Loader folders-as-schema lives in loader.ts. Bundle extract re-embed orchestration lives in convert.ts. Character superset schema is entities character schema.ts; lorebook superset is entities lorebook schema.ts.",
+          "summary": "The closing map assigns authority to concrete modules. src/core/canonical.ts owns the wrapper, escrow, and id policy. adapter.ts owns adapter kinds and EmitContext. registry.ts owns detection and lookup, while loader.ts owns filesystem discovery. convert.ts coordinates bundle extraction and re-embedding. src/entities/character/schema.ts and src/entities/lorebook/schema.ts define their canonical supersets. Contributors should change these owners rather than introducing parallel definitions in a UI, command, documentation generator, or format adapter.",
           "topics": [
-            "core canonical adapter",
-            "registry loader",
-            "convert bundles",
-            "entity schemas"
+            "canonical and adapter owners",
+            "registry and loader owners",
+            "bundle conversion owner",
+            "entity schema owners"
           ],
           "children": []
         }
@@ -4003,10 +4078,10 @@
         "reference/architecture",
         "reference/ui"
       ],
-      "semanticSummary": "CLI reference for hoplight the same engine as Studio: canonical model and adapters from formats. src cli.ts dispatches; cli-io holds pure convert IO policy. Invocation via bun run src cli.ts or package bin or build compile dist; bun run dev is ui 8321. Commands table covers convert inspect validate label formats ui version help no-args and unknown. Global flags version help json to yes y strict. hoplight convert in out six pre-write steps path guard detect resolve convertFile container agreement atomic publish with strict drop refuse and json success only. hoplight inspect file human fields by kind no json. hoplight validate file ok invalid json shapes exit 0 or 1. hoplight label file provenance spec container origin signals. hoplight formats lists adapters and matrix path. hoplight ui port studiodir loopback forever. hoplight version and hoplight help banners. Quirks: json command set differs from HELP text; convert json success only; y alias unmentioned; exit 0 or 1 stdout only; inspect label vs validate path position; label format is card spec inspect format is adapter id. Source of truth maps cli cli-io registry loader convert provenance server package.json.",
+      "semanticSummary": "CLI reference for hoplight over the same canonical engine and format adapters as Studio. src/cli.ts dispatches, cli-validation enforces the exhaustive canonical runtime schema, and cli-io owns conversion I/O policy. Invocation works through source, package bin, or compiled output; bun run dev starts the primary Studio loopback listener. Commands cover convert, inspect, validate, label, formats, ui, version, help, no arguments, and unknown input. convert guards paths, detects and converts every same-kind adapter pair, checks container agreement, enforces its serialize report and optional strict-loss contract, then publishes atomically. inspect prints reachable kind-specific fields for character, lorebook, persona, regex, and preset; an internal media-pack formatter exists but no live format adapter can reach it. validate rejects unrecognized input, adapter failures, and invalid canonical output. ui blocks on the primary loopback server while remote listeners remain separately configured. Remaining JSON and positional inconsistencies are named explicitly.",
       "topics": [
         "cli.ts cli-io policy",
-        "convert six-step atomic",
+        "convert checked atomic publish",
         "inspect validate label",
         "formats ui version help",
         "json flag quirks",
@@ -4031,7 +4106,7 @@
           "text": "Commands",
           "slug": "commands",
           "level": 2,
-          "summary": "convert with optional to yes y strict converts and prints a loss report. inspect validate label formats cover file dump pass fail provenance and adapter list. ui launches loopback Studio. version and help print their banners. No arguments equals help. Unknown first arg names the error and exits 1.",
+          "summary": "convert with optional to, yes, y, and strict flags converts and prints a loss report. inspect, validate, label, and formats cover file details, pass or fail, provenance, and adapter discovery. ui launches Studio's primary loopback server; remote listeners are configured separately inside Studio. version and help print their banners. No arguments equals help. Unknown first input names the error and exits 1.",
           "topics": [
             "convert inspect validate",
             "label formats ui",
@@ -4044,7 +4119,7 @@
           "text": "Global flags",
           "slug": "global-flags",
           "level": 2,
-          "summary": "Standalone v version and h help map to version and help commands. json works on version formats validate convert only; inspect label ui help stay human. convert-only to forces adapter id; yes y allows replace of existing out never input; strict refuses when dropped paths are reported.",
+          "summary": "Standalone v version and h help map to version and help commands. json works on version formats validate convert only; inspect label ui help stay human. convert-only to forces adapter id; yes y allows replace of existing out never input; strict refuses when dropped paths are reported or target coverage is undeclared.",
           "topics": [
             "version help standalone",
             "json subset commands",
@@ -4057,11 +4132,11 @@
           "text": "`hoplight convert <in> <out>`",
           "slug": "hoplight-convert-in-out",
           "level": 2,
-          "summary": "Flags may appear anywhere after convert; parseConvertFlags scans the tail for yes y strict and to value leaving exactly two positionals; duplicates bad to unknown flags or wrong positional count exit 1 with usage. Six checked steps before a byte is written: guardConvertOutput refuses same-file out as in and requires yes when out exists; registry detect fails listing known ids when unrecognized; resolveTarget prefers to format or extension via targetsForExtension never guessing ambiguous multi matches; convertFile import export with bundled lorebook extract re-embed; assertContainerAgreement checks adapter suggested extension magic or JSON or non-empty; publishAtomic temp sibling fsync rename leaving prior destination on failure. strict refuses when report lists dropped paths before write. Only success honors json with ok from to paths extension lorebooks count bytes textChars and report counts lists; every failure prints plain text regardless of json. Plain report prints from to paths extension lorebook count four counts every dropped path and every warning.",
+          "summary": "Flags may appear anywhere after convert; parseConvertFlags scans the tail for yes y strict and to value leaving exactly two positionals; duplicates bad to unknown flags or wrong positional count exit 1 with usage. Before a byte is written, guardConvertOutput refuses same-file out as in and requires yes when out exists; registry detect fails listing known ids when unrecognized; resolveTarget prefers to format or extension via targetsForExtension and never guesses ambiguous matches; convertFile imports and exports with bundled lorebook extraction and re-embedding; assertContainerAgreement checks the adapter extension and payload shape; the command requires a serialize report; strict then refuses reported drops or undeclared coverage; publishAtomic writes a temp sibling, fsyncs, and renames while leaving the prior destination on failure. Only success honors json with ok, adapter and path fields, payload counts, and report details; undeclared coverage uses unknown with a null dropped count. Every failure prints plain text. Plain reports name confirmed drops, warnings, and unknown loss.",
           "topics": [
             "parseConvertFlags anywhere",
-            "six pre-write steps",
-            "strict drop refuse",
+            "pre-write validation sequence",
+            "strict drop or unknown refuse",
             "atomic publishAtomic",
             "json success only",
             "container agreement"
@@ -4072,10 +4147,10 @@
           "text": "`hoplight inspect <file>`",
           "slug": "hoplight-inspect-file",
           "level": 2,
-          "summary": "Detects the source adapter converts to canonical and prints format id adapter label entity kind and kind-specific fields. character prints name greeting first sixty alts count tags. lorebook prints name type entries budget mode. persona prints name brief content count section keys. regex prints name rules count. Does not honor json always human-readable. file is args1 the literal second token so a flag before the path is read as the path.",
+          "summary": "Detects the adapter, converts to canonical, validates the exhaustive runtime schema and matching adapter kind, then prints format id, adapter label, entity kind, and kind fields. Character prints greeting and tags; lorebook entries and budget; persona content and sections; regex rules; preset prompts, groups, and choices. The formatter contains a media-pack branch, but no live format adapter imports packs, so the CLI cannot currently reach it. Output is always human-readable. File is args1, so a preceding flag becomes the path.",
           "topics": [
             "kind field dump",
-            "character lorebook persona regex",
+            "character lorebook persona regex preset",
             "no json always human",
             "args1 path caveat"
           ],
@@ -4085,7 +4160,7 @@
           "text": "`hoplight validate <file>`",
           "slug": "hoplight-validate-file",
           "level": 2,
-          "summary": "Same detect-convert path as inspect but pass fail. Unrecognized or toCanonical throw is INVALID; else OK with format kind name. Exit 0 or 1. Path is first non-validate non-json arg. json shapes: ok true path format kind name; ok false unrecognized; ok false format plus error message.",
+          "summary": "Detects an adapter, converts through toCanonical, parses the result through the exhaustive canonical runtime schema, and requires the parsed kind to match the adapter contract in cli-validation before pass or fail. Unrecognized input, adapter errors, invalid canonical output, and kind mismatches are INVALID; otherwise OK prints format kind name. Exit is 0 or 1. Path is the first non-validate non-json arg. json shapes cover success, unrecognized failure, and recognized failure with format plus error.",
           "topics": [
             "OK vs INVALID",
             "exit 0 or 1",
@@ -4124,7 +4199,7 @@
           "text": "`hoplight ui [port] [studioDir]`",
           "slug": "hoplight-ui-port-studiodir",
           "level": 2,
-          "summary": "Starts loopback-only Studio via startUi and blocks until interrupt. port is Number args1 or 8321; missing non-numeric or 0 fall back. studioDir is args2 default home Documents Hoplight Studio and requires a port first because it is the third token. Does not honor json.",
+          "summary": "Starts Studio's primary loopback server through startUi and blocks until interrupt. Optional remote listeners remain a separate Studio configuration path. port is Number args1 or 8321; missing, non-numeric, or 0 values fall back. studioDir is args2, defaulting to the user's Documents/Hoplight Studio folder, and requires a port argument first because it is the third token. The command does not honor json.",
           "topics": [
             "loopback Studio forever",
             "port default 8321",
@@ -4161,7 +4236,7 @@
           "text": "Quirks",
           "slug": "quirks",
           "level": 2,
-          "summary": "json is honored by version formats validate and convert. Built-in HELP text json line names inspect validate formats; code wins and the actual set differs both ways omitting convert and version while wrongly including inspect. Convert json only covers the success report; every failure branch prints plain text regardless of the flag. y is a working alias of yes that HELP does not mention. Every exit path is 0 or 1; there is no exit code 2 and no command writes to stderr; all output success or failure goes through console.log to stdout. Positional resolution differs: validate accepts path any side of json; inspect and label take args1 literally so a flag before the path is read as the path. label format column is the card spec from labelCard; inspect format column is the adapter id; same column name different value on two commands.",
+          "summary": "json is honored by version formats validate and convert, matching the HELP banner; inspect label ui and help remain human-only. Convert json only covers the success report; every failure branch prints plain text regardless of the flag. y is a working alias of yes that HELP does not mention. Every exit path is 0 or 1; there is no exit code 2 and no command writes to stderr; all output success or failure goes through console.log to stdout. Positional resolution differs: validate accepts path any side of json; inspect and label take args1 literally so a flag before the path is read as the path. label format column is the card spec from labelCard; inspect format column is the adapter id; same column name different value on two commands.",
           "topics": [
             "json set vs HELP",
             "convert json success only",
@@ -4176,9 +4251,9 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Command dispatch bodies and HELP banner live in src cli.ts. Convert flag parse path-identity guard container-agreement and atomic publish live in cli-io.ts. Registry detection and extension resolution live in core registry.ts. Canonical wrapper and schema version live in canonical.ts. Folder discovery loadFormats lives in loader.ts. Bundle extract re-embed on convert lives in convert.ts. Card provenance labeler lives in entities character provenance.ts. Studio server for ui lives in ui server.ts. Invocation surfaces bin and scripts live in package.json.",
+          "summary": "Command dispatch and HELP live in cli.ts; runtime validation and kind agreement in cli-validation.ts; conversion parsing, guards, and atomic publish in cli-io.ts. Registry detection and extension resolution use core/registry.ts. Schema, discovery, and bundle conversion use canonical.ts, loader.ts, and convert.ts. Provenance labeling uses entities/character/provenance.ts, UI startup uses ui/server.ts, and package.json defines invocation surfaces.",
           "topics": [
-            "cli.ts cli-io.ts",
+            "cli.ts cli-validation.ts cli-io.ts",
             "registry loader convert",
             "provenance server",
             "package.json bin"
@@ -7087,30 +7162,33 @@
       "path": "docs/reference/formats/lumiverse.md",
       "title": "Lumiverse format",
       "audience": "dev",
-      "summary": "How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.",
+      "summary": "How the Lumiverse adapter family maps ST-shaped character cards, regex scripts, personas, and presets through the canonical model.",
       "tags": [
         "format",
         "lumiverse",
         "character",
         "regex",
         "persona",
+        "preset",
         "ccv3",
         "charx"
       ],
       "related": [
         "reference/architecture",
         "reference/entities/character",
+        "reference/entities/persona",
+        "reference/entities/preset",
         "reference/entities/regex",
         "reference/formats/sillytavern"
       ],
-      "semanticSummary": "Developer reference for Lumiverse adapters: ST CCv2/v3 character wire with Lumiverse extensions plus optional charx-like modules ZIP lumiverse_modules.json for expressions alt avatars alt fields world-book ids and archive-embedded regex as files not data URIs. Folder src/formats/lumiverse exports lumiverse character reading PNG JSON or modules ZIP writing json or charx, lumiverse-regex for versioned lumiverse_regex_scripts export, and lumiverse-persona for account Persona objects. No dedicated lorebook codec; embedded character_book uses shared CCv2/v3 bundle layer. Detection Character orders ZIP modules score 1, cedes module.risum to Risu with 0, fingerprinted card.json 0.96, PNG and plain JSON fingerprint 0.95, fingerprint list in hasLumiverseFingerprints; unresolved modules ZIP tie with Risu both scoring 1 is registry map order unconfirmed here. Regex envelope type score 1; persona pronoun pair 0.95 outbids ST character 0.9. Field map Character reuses tavern-fields and assets; bridges alternate_fields and alternate_avatars to body.variants and resolved expression media to assets; other extensions stay native on original.sillytavern. Modules sidecar rehydrate and pack tables document merge and 64 MiB asset resolve. Escrow and round-trip covers dual twins sillytavern hydrated plus lumiverse modules files, export merge steps, container pick packModules, and conservative json-from-zip refuse. Quirks cover unzip bounds, both regex wire shapes, persona pronoun triplet, alternate_character_name, and preset import non-goal. Source of truth lists modules variants regex persona shared core files.",
+      "semanticSummary": "Developer reference for four Lumiverse adapters: an ST CCv2/v3 character wire with Lumiverse extensions and an optional modules ZIP, a versioned regex export, an account Persona object, and a block-based preset wrapper that exports as a flat ST preset. There is no dedicated lorebook codec; embedded character_book uses the shared bundle layer. Detection, field mapping, bounded archive handling, dual escrow twins, module packing, character variants, regex and persona behavior, and the preset wrapper's import-only asymmetry are documented with their source files.",
       "topics": [
         "lumiverse CCv3 modules ZIP",
         "lumiverse_modules.json",
         "fingerprint detect scores",
         "variants bridge alts",
         "original.sillytavern lumiverse",
-        "regex persona codecs",
+        "regex persona preset codecs",
         "packModules charx emit",
         "no lorebook codec"
       ],
@@ -7119,12 +7197,12 @@
           "text": "Detection",
           "slug": "detection",
           "level": 2,
-          "summary": "Registry highest score above 0.5; ties resolve by registration order not content. Character checks ZIP first: modules json scores 1; bare module.risum scores 0 ceding to Risu; card.json with Lumiverse fingerprint scores 0.96; PNG chara ccv3 fingerprint 0.95; plain V3 V2 flat JSON fingerprint 0.95. Fingerprints include expressions expression_groups alternate_fields alternate_avatars lora name world_book_ids databank_ids ttsVoice. Fingerprinted cards outbid ST 0.9; plain ST without fingerprint scores 0 here. Unresolved genuine modules ZIP ties Risu at 1 because Risu claims any zip with card.json without checking modules; winner order not verified on this page. Regex claims only type lumiverse_regex_scripts with scripts array score 1. Persona claims name description and both subjective and objective pronoun strings score 0.95 outbidding ST character heuristic 0.9.",
+          "summary": "Registry highest score above 0.5; ties resolve by registration order not content. Character checks ZIP first: modules json scores 1; bare module.risum scores 0 ceding to Risu; card.json with Lumiverse fingerprint scores 0.96; PNG chara ccv3 fingerprint 0.95; plain V3 V2 flat JSON fingerprint 0.95. Fingerprints include expressions expression_groups alternate_fields alternate_avatars lora name world_book_ids databank_ids ttsVoice. Fingerprinted cards outbid ST 0.9; plain ST without fingerprint scores 0 here. A genuine modules ZIP ties Risu at 1 because Risu claims any ZIP with card.json, but sorted folder registration puts Lumiverse before Risu and the strictly-greater registry comparison retains Lumiverse. Regex claims only type lumiverse_regex_scripts with scripts array score 1. Persona claims name description and both subjective and objective pronoun strings score 0.95 outbidding ST character heuristic 0.9.",
           "topics": [
             "modules ZIP score 1",
             "cede module.risum",
             "fingerprint 0.95 0.96",
-            "Risu tie unresolved",
+            "Risu tie resolves Lumiverse",
             "regex envelope persona pronouns"
           ],
           "children": [
@@ -7132,7 +7210,7 @@
               "text": "Character",
               "slug": "character",
               "level": 3,
-              "summary": "Three shapes in order: modules sidecar ZIP 1, cede risum 0, fingerprinted charx card 0.96, PNG and JSON fingerprint 0.95. hasLumiverseFingerprints lists extension keys that identify authorship. Modules ZIP may still tie Risu at 1 with registry order unconfirmed.",
+              "summary": "Character detection checks modules ZIP first, cedes bare module.risum, then requires Lumiverse fingerprints for charx, PNG, or JSON. Modules ZIP ties Risu, but sorted registration and first-winner tie handling select Lumiverse.",
               "topics": [
                 "ZIP PNG JSON order",
                 "fingerprint keys",
@@ -7211,7 +7289,7 @@
           "text": "Escrow and round-trip",
           "slug": "escrow-and-round-trip",
           "level": 2,
-          "summary": "Two escrow buckets: original.sillytavern with hydrated extensions raw unmapped variant and optional PNG sourceMedia; original.lumiverse with modules fromZip and base64 files map of non-card non-modules entries. sillytavern raw extensions are hydrated not byte-identical to input card.json when from ZIP. Export clones ST twin, applyBody and media, merges extensions twin first then canonical, folds variants, applies lorebook after merge so empty clears stale books, picks container from request or source, packModulesFromExtensions for charx with deterministic asset paths and typed regex re-encode, preserves unreferenced zip files from twin files map. Emitting json from ZIP twin can refuse if original archive had extra files and modules still non-empty, a conservative not exact check. Plain-JSON same-format unedited is field-lossless; ZIP path is data-lossless not byte-lossless for regenerated asset paths. Cross-format carries only canonical body; both twins and archive files stay escrow.",
+          "summary": "Two escrow buckets: original.sillytavern with hydrated extensions raw, unmapped variant, and optional PNG sourceMedia; original.lumiverse with modules, fromZip, and a base64 files map containing every ZIP entry, including card.json and lumiverse_modules.json. SillyTavern raw extensions are hydrated and not byte-identical to input card.json when imported from ZIP. Export clones the ST twin, overlays body and media, merges current extensions, folds variants, applies lorebooks, and chooses the requested or source container. packModulesFromExtensions rewrites the two structured JSON entries, uses deterministic asset paths and typed regex encoding, and preserves other files from the complete twin map. JSON export from a ZIP can conservatively refuse when original archive content would be lost. Plain-JSON unedited round trips are field-lossless; ZIP round trips are data-lossless rather than path- or byte-identical. Cross-format output carries canonical content while both twins remain escrowed.",
           "topics": [
             "dual escrow twins",
             "hydrated extensions",
@@ -7226,7 +7304,7 @@
           "text": "Quirks",
           "slug": "quirks",
           "level": 2,
-          "summary": "All ZIP inflate uses unzipBounded CARD_ARCHIVE_BOUNDS shared with Risu and BYAF: 96 MiB archive, 512 entries, 64 MiB per entry, 96 MiB aggregate. Regex codec converges account RegexScript export and reduced archive regex_scripts on same RegexRule with extras sealing account fields; placement to phases including memory; unmapped placements and substitute modes never fabricated. Persona maps title tagline pronoun triplet knowledgeRefs imageUrl; no UI import export so API dump is only form; twin seals folder is_default is_narrator metadata. alternate_character_name is prompt override not library identity.name. Lumiverse preset type imports via preset.ts converting blocks to ST preset wire; export writes ST flat preset and never reproduces the wrapper as a stated non-goal.",
+          "summary": "All ZIP inflate uses unzipBounded CARD_ARCHIVE_BOUNDS shared with Risu and BYAF: 96 MiB archive, 512 entries, 64 MiB per entry, 96 MiB aggregate. Regex codec converges account RegexScript export and reduced archive regex_scripts on one RegexRule with extras sealing account fields; placement maps to phases including memory; unmapped placements and substitution modes are not fabricated. Persona maps title, pronouns, knowledge refs, and image URL; its twin seals folder, default, narrator, and metadata. A from-scratch persona materializes required description, subjective, and objective string keys while optional possessive stays absent. alternate_character_name is a prompt override. Lumiverse preset import converts blocks to ST preset wire; export writes ST flat preset and does not reproduce the wrapper.",
           "topics": [
             "CARD_ARCHIVE_BOUNDS",
             "two regex wire shapes",
@@ -7240,10 +7318,10 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Authoritative files: character adapter index.ts for detect toCanonical fromCanonical and container selection; modules.ts for rehydrate pack and fingerprint; variants-bridge for alternate fields and avatars to body.variants; regex.ts both wire shapes; persona.ts; coverage.ts; shared tavern-fields assets png card-io; core archive registry and canonical; samples/lumiverse rich.extensions.card.json.",
+          "summary": "Authoritative files: character adapter index.ts for detect toCanonical fromCanonical and container selection; modules.ts for rehydrate pack and fingerprint; variants-bridge for alternate fields and avatars to body.variants; regex.ts for both wire shapes; persona.ts; preset.ts; coverage.ts; shared tavern-fields assets png card-io; core archive registry and canonical; samples/lumiverse rich.extensions.card.json.",
           "topics": [
             "index modules variants",
-            "regex persona coverage",
+            "regex persona preset coverage",
             "shared tavern assets",
             "archive registry samples"
           ],
@@ -7256,22 +7334,29 @@
       "path": "docs/reference/formats/marinara.md",
       "title": "Marinara format",
       "audience": "dev",
-      "summary": "How the Marinara-Engine adapters detect, map, and round-trip regex script dumps and personas through the canonical model.",
+      "summary": "How the Marinara-Engine adapters map regex scripts, personas, lorebooks, and presets through the canonical model.",
       "tags": [
         "format",
         "marinara",
         "regex",
-        "persona"
+        "persona",
+        "lorebook",
+        "preset"
       ],
       "related": [
         "reference/architecture",
+        "reference/entities/lorebook",
+        "reference/entities/persona",
+        "reference/entities/preset",
         "reference/entities/regex"
       ],
-      "semanticSummary": "Marinara format is the developer authority for how Hoplight's marinara folder adapters detect, map, and round-trip Marinara-Engine API dumps for regex scripts and personas through the canonical model. Marinara has no file import UI, so each codec reads and writes the bare API dump shape without inventing an envelope. The folder exports marinara-regex for bare MarinaraRegexScript arrays as .json and marinara-persona for persona objects with sections and theming as .json. There is no marinara character adapter: Tavern-shaped Marinara cards read through sillytavern, with platform extras declared only for the Marinara editor lens. Detection scores both codecs at 0.95 with gates that hard-reject SillyTavern dialect regex and require persona theming signals. Field map tables wire regex rows to RegexRule fields and personas to PersonaBody, with set name from filename and unmapped fields escrowed. Escrow and round-trip diverge: regex seals raw rows but rebuilds purely from rules, while persona overlays mapped fields onto the sealed twin for byte-lossless unedited trips. Quirks cover ST detection firewall, empty section omit versus clear-to-empty export, nullable avatarPath, character-side extensions outside this folder, and no design spec. Source of truth lists adapter files, shared helpers, entity schemas, and tests.",
+      "semanticSummary": "Developer reference for four Marinara adapters: bare API data for regex scripts and personas plus native export envelopes for lorebooks and prompt presets. Tavern-shaped characters use SillyTavern while Marinara-only fields remain in the editor lens. Regex detection rejects overlapping ST rows before bidding 0.95; persona detection requires identity, authored text, and a theming/stat signal; unique lorebook and preset envelopes have structural gates. Field maps cover RegexRule, PersonaBody, native lorebook book/entry/folder semantics, and preset sections/groups/choices/parameters. Regex export rebuilds from canonical rules and extras. Persona, lorebook, and preset export overlay mapped changes onto sealed twins, retaining engine-only data. Empty persona sections are omitted on import, explicit clears survive export, and avatarPath is neither fabricated nor retained after an explicit clear. Lorebook nested folders and native entry exotica remain escrowed; preset string-encoded booleans, JSON fields, and unmapped variables/parameters survive.",
       "topics": [
         "Marinara-Engine API dump",
         "marinara-regex codec",
         "marinara-persona codec",
+        "marinara-lorebook codec",
+        "marinara-preset codec",
         "no character adapter",
         "detect 0.95 ST firewall",
         "regex field map",
@@ -7285,7 +7370,7 @@
           "text": "Detection",
           "slug": "detection",
           "level": 2,
-          "summary": "Detection follows the registry rule that every adapter's detect runs and the single highest score above 0.5 wins so specific formats outrank generic ones. The Detection section splits into Regex and Persona gates that both bid 0.95. Regex uses four ordered gates over a non-empty object array: hard-reject any ST scriptName, require id and findRegex on every row, and require at least one Marinara-distinct signal among targetCharacterIds, order, or placement strings ai_output or user_input, because ST placement is numeric. Persona requires string id name description personality plus at least one theming or stat signal nameColor boxColor or personaStats, a combination the codec calls disjoint from Lumi ST and RoleCall plain objects.",
+          "summary": "Detection follows the registry rule that every adapter's detect runs and the highest score above 0.5 wins. Regex bids 0.95 after four ordered gates over a non-empty object array: reject ST scriptName, require id and findRegex on every row, and require a Marinara signal among targetCharacterIds, order, or string placement. Persona bids 0.95 only with string identity and text plus nameColor, boxColor, or personaStats. Lorebook bids 1.0 for the unique marinara_lorebook envelope with data.entries. Preset bids 0.95 for marinara_preset with data.preset and data.sections; groups and choiceBlocks are optional, and raw database string encodings are accepted.",
           "topics": [
             "registry detect threshold",
             "regex 0.95 gates",
@@ -7320,6 +7405,32 @@
                 "disjoint from Lumi ST RC"
               ],
               "children": []
+            },
+            {
+              "text": "Lorebook",
+              "slug": "lorebook",
+              "level": 3,
+              "summary": "marinara-lorebook scores 1.0 only for the unique marinara_lorebook envelope with object data and an entries array. Version, metadata, and folders remain tolerant payload fields rather than detection requirements.",
+              "topics": [
+                "marinara_lorebook envelope",
+                "data entries array",
+                "detect 1.0",
+                "tolerant version metadata folders"
+              ],
+              "children": []
+            },
+            {
+              "text": "Preset",
+              "slug": "preset",
+              "level": 3,
+              "summary": "marinara-preset scores 0.95 only for marinara_preset with object data.preset and array data.sections. Groups and choices are optional; string booleans and JSON-string nested fields match the engine export.",
+              "topics": [
+                "marinara_preset envelope",
+                "preset object sections array",
+                "optional groups choices",
+                "database string encoding"
+              ],
+              "children": []
             }
           ]
         },
@@ -7327,7 +7438,7 @@
           "text": "Field map",
           "slug": "field-map",
           "level": 2,
-          "summary": "Field map covers Regex then Persona wire shapes. Regex maps each MarinaraRegexScript row to one RegexRule: id label find flags replace trimStrings phases from placement, targets from promptOnly, depths characterIds enabled sortOrder, with timestamps only in extras. The set has no Marinara container; RegexSetBody.name comes from the filename via setNameFromFilename while description and set-level enabled never read or write. Persona maps name description comment appearance personality backstory and avatarPath into PersonaBody fields and always stamps attribution.source as marinara. Wire id scenario theming stats crop tags and timestamps have no canonical slot and ride sealed in escrow as detailed under Escrow and round-trip.",
+          "summary": "Field map covers all four codecs. Regex maps each row to one RegexRule and derives set name from filename. Persona maps authored text, optional sections, brief, and image while sealing ids, themes, stats, crop, tags, and timestamps. Lorebook maps book budgets and recursion, plain-string keys with one useRegex flag, selective/matching/injection/timing/group/filter/source fields, order to sortOrder, and folder rows to flat categories while preserving nested parents. Preset maps sections to prompts, groups, choice blocks, supported samplers, and API options; string booleans and JSON strings are decoded, while conversation/game prompts, variables, metadata, and unmapped parameters remain in escrow.",
           "topics": [
             "MarinaraRegexScript map",
             "placement to phases",
@@ -7363,6 +7474,34 @@
                 "unmapped escrow fields"
               ],
               "children": []
+            },
+            {
+              "text": "Lorebook",
+              "slug": "lorebook-1",
+              "level": 3,
+              "summary": "The native lorebook envelope carries one book row, entry rows, and folder rows. Book mapping covers name, description, category, tags, enabled state, scan depth, recursion, token budget, and entry limit. Entries map plain primary and secondary keys plus one useRegex flag, selective logic, match settings, position/depth/role, order as canonical sortOrder rather than priority, timing, groups, folder, probability, recursion, character filters, and additional scan sources. Folder rows project to categories; nested parentFolderId and other engine-only fields survive in escrow.",
+              "topics": [
+                "book entries folders",
+                "plain keys useRegex",
+                "order to sortOrder",
+                "nested folders escrow",
+                "budgets recursion filters"
+              ],
+              "children": []
+            },
+            {
+              "text": "Preset",
+              "slug": "preset-1",
+              "level": 3,
+              "summary": "Preset section rows map to prompts with role, enable and marker state, group, ordered or depth placement, XML wrapping, override refusal, and marker slot. Group rows carry parent, order, and enabled. Choice blocks carry question, variable, cardinality, JSON-string options, separator, random pick, and sort order. The parameters JSON string maps supported samplers and squash-system, show-thoughts, and reasoning-effort API options. Conversation/game prompts, variables, author metadata, and unsupported parameters remain on the raw twin.",
+              "topics": [
+                "sections to prompts",
+                "groups and choice blocks",
+                "parameters JSON samplers",
+                "API options",
+                "unmapped twin fields"
+              ],
+              "children": []
             }
           ]
         },
@@ -7370,12 +7509,12 @@
           "text": "Escrow and round-trip",
           "slug": "escrow-and-round-trip",
           "level": 2,
-          "summary": "Escrow is the canonical wrapper original field keyed by format id. Regex seals the entire imported row array as original marinara-regex raw on import but does not read it on export: fromCanonical builds rows from entity.body.rules via rulesToMarinaraScripts so fidelity is the total inverse of marinaraScriptToRule, with every field either canonical or in extras. Persona seals the whole object under marinara-persona and on export clones the twin first then overwrites only mapped fields so unedited trips are byte-lossless for theming stats crop tags scenario timestamps; from-scratch with no twin falls back to empty base and omits unmapped fields. Canonical entity id is canonicalId of name and never equals Marinara wire id; wire id rides the twin and falls back to canonicalId only without a twin.",
+          "summary": "Escrow is the canonical wrapper original field keyed by format id. Regex seals the imported row array but rebuilds output from canonical rules and extras. Persona clones its twin and overwrites mapped fields; hub ids and Marinara business ids remain separate. Lorebook and preset also clone complete native envelopes, match rows by stable ids, and patch only mapped differences, retaining nested folder state, engine-only entry fields, preset variables, unsupported parameters, and metadata. Fresh entities emit minimal native envelopes. These are structural JSON round trips; whitespace and object-key order are not promised.",
           "topics": [
             "original format keyed",
             "regex no twin overlay",
             "persona twin overlay",
-            "byte-lossless persona",
+            "structurally lossless persona",
             "wire id vs hub id"
           ],
           "children": []
@@ -7384,12 +7523,12 @@
           "text": "Quirks",
           "slug": "quirks",
           "level": 2,
-          "summary": "Quirks pin behavioral edges. Detection firewall against SillyTavern: shared findRegex replaceString means ST bids 0.9 so Marinara closes with four gates and outbids at 0.95. Empty persona sections are omitted not blanked on import when whitespace-only after trim. Clearing a section on export as empty string is real empty not twin revert because nullish coalescing does not fall through on empty string. avatarPath is always emitted nullable defaulting to null. Character-side Marinara dialect is not this folder: cards read via sillytavern and extras like backstory rpgStats avatarCrop colors live only in extension-platforms for the Marinara lens. No design spec exists under specs formats; this page sources from src formats marinara and tests.",
+          "summary": "Quirks pin behavioral edges. Marinara regex detection outbids the overlapping SillyTavern shape through four gates. Whitespace-only persona sections are omitted on import, while an explicit empty section survives export. A fresh persona does not fabricate avatarPath; clearing an imported canonical image deletes the twin's key, while unchanged absence stays absent. Character cards still use the SillyTavern adapter and expose Marinara extras only through the editor lens. No dedicated Marinara design spec exists in this checkout.",
           "topics": [
             "ST detection firewall",
             "omit empty sections",
             "clear section empty string",
-            "avatarPath null key",
+            "avatarPath optional key",
             "character lens not codec"
           ],
           "children": []
@@ -7398,10 +7537,10 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Source of truth table maps concerns to files. Regex adapter detect toCanonical fromCanonical live in formats marinara index.ts; persona adapter in persona.ts. Shared Marinara regex-script mapping is formats shared marinara-regex.ts; set filename naming is regex-set-name.ts; JSON boundary readers are card-io.ts. Character-side Marinara extensions lens is extension-platforms.ts not this folder. Canonical wrapper escrow original and id policy are core canonical.ts. Regex entity schema and docs are entities regex; persona entity is entities persona schema with no dedicated page yet. Tests are marinara.test.ts and persona.test.ts; ST-dialect regression fixture is fixtures regex marinara-essentials.json.",
+          "summary": "Source of truth table maps regex to index.ts, persona to persona.ts, lorebooks to lorebook.ts, and presets to preset.ts. Shared regex mapping, filename naming, JSON readers, the character-side editor lens, canonical escrow, entity schemas, format tests, and the SillyTavern-dialect regression fixture are also listed.",
           "topics": [
             "marinara index.ts",
-            "persona.ts adapter",
+            "persona lorebook preset adapters",
             "marinara-regex shared",
             "extension-platforms lens",
             "marinara tests fixtures"
@@ -7924,7 +8063,7 @@
       "path": "docs/reference/formats/rolecall.md",
       "title": "RoleCall format",
       "audience": "dev",
-      "summary": "How the RoleCall adapter family detects, maps, and round-trips its character card, lorebook, persona, and regex-script exports through the canonical model.",
+      "summary": "How the RoleCall adapter family maps character cards, lorebooks, personas, regex scripts, and presets through the canonical model.",
       "tags": [
         "format",
         "rolecall",
@@ -7932,6 +8071,7 @@
         "lorebook",
         "persona",
         "regex",
+        "preset",
         "ccv2",
         "ccv3"
       ],
@@ -7939,10 +8079,12 @@
         "reference/architecture",
         "reference/entities/character",
         "reference/entities/lorebook",
+        "reference/entities/persona",
+        "reference/entities/preset",
         "reference/entities/regex",
         "reference/formats/sillytavern"
       ],
-      "semanticSummary": "RoleCall format is the developer authority for how Hoplight's rolecall family detects, maps, and round-trips Vaudeville's own character, lorebook, persona, and regex exports through the canonical model. RC characters are ordinary CCv2 V3 cards with extensions.rolecall; lorebook is a dedicated v1 envelope; persona and regex are separate JSON shapes covered mainly under Quirks. Four codecs export from formats rolecall: character PNG or JSON, lorebook persona and regex as JSON. Detection requires Character extensions.rolecall at 1.0 outranking ST 0.9 with a cross-kind firewall when type is persona, and Lorebook schemaVersion plus lorebook.entries envelope at 1.0 without ST collision. Field map layers RC tagline genre rating casting-card details titled greetings depth injections presentation and assets for Character, and nested triggers matching injection priority timing grouping advanced scanSources groups for Lorebook. Escrow and round-trip clone original.rolecall raw with three-state presentation overlay and document depth-injection write asymmetry; lorebook preserves exportDate and conditional budget keys. Quirks cover object-form source, greeting titles, background slots, expression sprites, full persona and regex codec summaries, and coverage as lens only. Source of truth lists adapters shared helpers specs and constructed samples.",
+      "semanticSummary": "Developer reference for five RoleCall adapters: CCv2/v3 character cards with extensions.rolecall, a v1 lorebook envelope, persona and regex JSON exports, and a RoleCall-flavored flat preset. Character detection bids 1.0 only for the RoleCall extension and steps aside for persona exports; lorebook detection recognizes its dedicated wrapper without colliding with SillyTavern world info. Character mapping covers identity details, titled greetings, depth injections, presentation, media, and embedded lorebooks. Lorebook mapping flattens RoleCall's nested trigger, matching, injection, timing, grouping, scan-source, and advanced settings into canonical entries. Character export overlays canonical edits onto the sealed source while preserving native fields, including a documented depth-injection write asymmetry. Lorebook export preserves source dates and conditionally writes budget fields. Persona handling keeps brief and content distinct across two supported shapes. Regex handling models the live chat pipeline with open placement values. Preset handling shares the flat SillyTavern grammar but requires RoleCall fingerprint fields and preserves native YAML as sealed data. The source table identifies all five codecs, shared helpers, schemas, design specs, and constructed samples.",
       "topics": [
         "rolecall character CCv3",
         "extensions.rolecall",
@@ -7952,6 +8094,7 @@
         "depth injection asymmetry",
         "rolecall-persona shapes",
         "rolecall-regex placements",
+        "rolecall-preset fingerprint",
         "outbid sillytavern 0.9"
       ],
       "anchors": [
@@ -7959,7 +8102,7 @@
           "text": "Detection",
           "slug": "detection",
           "level": 2,
-          "summary": "Detection follows registry highest score above 0.5. Character detect returns 1.0 for CCv2 or V3 cards that carry extensions.rolecall whose type is not the literal persona, outranking SillyTavern 0.9 on the same card. Cross-kind firewall: RC persona exports reuse the CCv2 V3 shape with type persona so character returns 0 and toCanonical throws pointing at rolecall-persona instead of tying. Lorebook detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion containing 1.0.0 as substring, exportDate, and lorebook object with entries array; no firewall needed versus ST because ST has top-level entries object and no lorebook wrapper.",
+          "summary": "Detection follows registry highest score above 0.5. Character detect returns 1.0 for CCv2 or V3 cards that carry extensions.rolecall whose type is not the literal persona, outranking SillyTavern 0.9 on the same card. Cross-kind firewall: RC persona exports reuse the CCv2 V3 shape with type persona so character returns 0 and toCanonical throws pointing at rolecall-persona instead of tying. Lorebook detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion containing 1.0.0 as a substring and a lorebook object with an entries array; exportDate is optional. No firewall is needed versus ST because ST has a top-level entries object and no lorebook wrapper.",
           "topics": [
             "extensions.rolecall 1.0",
             "outbid ST 0.9",
@@ -7985,7 +8128,7 @@
               "text": "Lorebook",
               "slug": "lorebook",
               "level": 3,
-              "summary": "detect returns 1.0 for a RoleCall v1 export envelope with schemaVersion, exportDate, and lorebook object whose entries is an array, else 0. isRcVersion requires schemaVersion string to contain 1.0.0 as substring not exact match so beta tags pass; unfamiliar versions are not hard-rejected, only structural parse. Envelope shape does not collide with SillyTavern worldbook top-level entries object without lorebook wrapper, so no firewall is needed between the two lorebook codecs.",
+              "summary": "detect returns 1.0 for a RoleCall v1 export envelope with a schemaVersion string containing 1.0.0 and a lorebook object whose entries is an array, else 0. exportDate is optional for detection and import. The version match is a substring rather than exact equality, so beta tags pass; a nonmatching version scores zero even though the direct structural parser does not hard-reject it. The envelope does not collide with a SillyTavern worldbook, which has a top-level entries object without a lorebook wrapper, so no firewall is needed between the two lorebook codecs.",
               "topics": [
                 "v1 export envelope",
                 "schemaVersion contains 1.0.0",
@@ -8057,8 +8200,9 @@
           "text": "Quirks",
           "slug": "quirks",
           "level": 2,
-          "summary": "Quirks pin RC edges and summarize persona and regex codecs. V3 source as object array is unread by shared Tavern string[] decoder so object form rides twin; greeting titles omit key when all untitled; background keeps customUrl or backgroundId slot; real sprites use type expression mapped to emotion. Persona codec claims 1.0 on rcpersona envelope and chara_card_v2 lookalike with type persona; brief never swaps with content; sections compile or fold unfold description; after_dark omitted when not mature explicit; no rcpersona PNG keyword path in code despite design specs. Regex codec models live find_pattern pipeline only at 0.9 for single script with rules; placements map to phases open-union; no substituteFind on this wire; unknown keys ride extras. coverage.ts is editor lens only not round-trip.",
+          "summary": "Quirks pin RC edges and summarize preset persona and regex codecs. rolecall-preset shares SillyTavern's flat grammar but requires native fingerprint keys; a from-scratch export writes a neutral empty choice_groups array so it stays distinguishable and self-readable. V3 source as object array is unread by shared Tavern string[] decoder so object form rides twin; greeting titles omit key when all untitled; background keeps customUrl or backgroundId slot; real sprites use type expression mapped to emotion. Persona codec claims 1.0 on rcpersona envelope and chara_card_v2 lookalike with type persona; brief never swaps with content; sections compile or fold unfold description; after_dark omitted when not mature explicit; no rcpersona PNG keyword path in code despite design specs. Regex codec models live find_pattern pipeline only at 0.9 for single script with rules; placements map to phases open-union; no substituteFind on this wire; unknown keys ride extras. coverage.ts is editor lens only not round-trip.",
           "topics": [
+            "preset neutral fingerprint",
             "object-form source twin",
             "expression not emotion wire",
             "rolecall-persona two shapes",
@@ -8071,10 +8215,10 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Source of truth maps concerns to files. Character adapter is formats rolecall index.ts; lorebook persona and regex codecs are sibling files. Shared Tavern field map lore-enums assets png and card-io live under formats shared. Coverage declaration is coverage.ts; canonical escrow is core canonical.ts. Persona schema and generated fields.persona.md cover the entity without a dedicated entity page. Design intent specs rolecall-character and rolecall-lorebook must be verified against code not treated as sole authority. Samples under samples rolecall are constructed from RoleCall serializer source; no genuine RC export file was found on disk per SOURCES.md.",
+          "summary": "Source of truth maps character to index.ts and lorebook, persona, regex, and preset codecs to sibling files. Shared Tavern mapping, lore enums, assets, PNG and card readers, coverage, canonical escrow, persona schema, design specs, and constructed samples are also listed.",
           "topics": [
             "rolecall index.ts",
-            "persona regex lorebook files",
+            "lorebook persona regex preset files",
             "shared tavern assets",
             "design specs verify code",
             "constructed samples"
@@ -8262,29 +8406,29 @@
         "reference/architecture",
         "reference/entities/character"
       ],
-      "semanticSummary": "vaud-json is Hoplight's native format: the canonical character entity written straight to plain JSON with no wire translation. Every other adapter maps app wire shapes; this one serializes the CanonicalCharacter wrapper schemaVersion kind id body optional profiles and original and reads it back unchanged. It is the lossless local save and interchange format, the simplest registry adapter, and proof the drop-in folder pattern works end to end. One codec src formats vaud-json writes .json with native true so Press and export dialogs skip it as a publish platform while import and convert still work. Detection scores 1.0 when kind is character and schemaVersion is a string so native files always win, 0.1 for other JSON below the 0.5 threshold, and 0 for non-JSON. Field map is identity one to one with no translation table; fromCanonical is pretty-printed JSON.stringify of the whole entity. Escrow and round-trip are exact and unconditional because serialization is the entity itself; original entries from prior app imports pass through untouched. Quirks cover wrapper-only detect versus toCanonical validation, identity.name as sole body check, dead 0.1 fallback, pretty print, pure JSON media, and native exclusion from coverage. Source of truth lists adapter tests registry canonical adapter contract and UI filters.",
+      "semanticSummary": "vaud-json is Hoplight's native character format: the canonical entity written directly to plain JSON with no wire translation. It serializes schemaVersion, kind, id, body, profiles, and original unchanged, making it the lossless local save and interchange format. The codec is native, so import and conversion use it while publish surfaces omit it. Detection parses through the exhaustive canonical runtime schema and scores 1.0 only for a valid character; invalid JSON, unsupported versions, malformed bodies, and other entity kinds score 0. Import uses the same parser and kind narrowing, eliminating a second partial validator. The field map is one-to-one, and export pretty-prints the whole entity. Existing escrow entries pass through untouched because vaud-json does not create its own twin. Quirks cover bounded parse errors, pure JSON media, and native exclusion from coverage. Source of truth lists the adapter, its tests, the shared runtime schema, registry, canonical wrapper, adapter contract, and UI publish filters.",
       "topics": [
         "vaud-json native character",
         "no wire translation",
-        "detect 1.0 wrapper",
-        "DETECT_THRESHOLD 0.5",
+        "detect 1.0 exhaustive character",
+        "shared runtime schema",
         "original pass-through",
         "native skip publish",
         "pretty JSON export",
-        "identity.name validate"
+        "complete canonical validation"
       ],
       "anchors": [
         {
           "text": "Detection",
           "slug": "detection",
           "level": 2,
-          "summary": "detect parses input text as JSON then scores by whether it is already a canonical character. Score 1.0 when kind equals character and schemaVersion is a string, the highest any adapter returns so a vaud-json file always wins detection over every app format on its own output. Score 0.1 when text parses as JSON but is not a canonical character wrong kind or no string schemaVersion. Score 0 when there is no text or parse fails. Registry only returns the highest scorer above DETECT_THRESHOLD 0.5 so 0.1 can never make registry.detect return vaud-json; plain JSON that fails the 1.0 check leaves no winner. Every consumer routes through gated registry.detect so today the 0.1 score has no observable pick effect. The 1.0 case keys on the wrapper not body fields. toCanonical re-checks the wrapper and requires body.identity.name string, throwing if either is missing; detect can return 1.0 on a wrapper whose body is otherwise malformed while hard validation happens on read.",
+          "summary": "detect parses input through parseCanonicalEntity and returns 1.0 only when the complete result is a character. Missing text, invalid JSON, unsupported schema versions, malformed required or optional fields, unknown authored keys, and other entity kinds return 0. toCanonical uses the same exhaustive parser and then narrows to character, so detection and import no longer maintain separate validation rules or accept a fixture-shaped partial body.",
           "topics": [
             "kind character 1.0",
-            "schemaVersion string",
-            "0.1 below threshold",
-            "wrapper not body",
-            "toCanonical name check"
+            "schemaVersion exact",
+            "complete runtime validation",
+            "shared detect import authority",
+            "malformed score zero"
           ],
           "children": []
         },
@@ -8320,11 +8464,10 @@
           "text": "Quirks",
           "slug": "quirks",
           "level": 2,
-          "summary": "Detection is wrapper-only; validation is on read. detect can score 1.0 when body is missing or lacks identity.name; toCanonical rejects with not a canonical character for missing kind schemaVersion or malformed for missing body.identity.name. The two checks differ by design: detect is cheap recognition and toCanonical is the trust boundary. Validation stops at identity.name: after kind schemaVersion and name check out the object is cast to CanonicalCharacter without confirming the eight required body sub-objects so a hand-edited drop still passes toCanonical. The 0.1 fallback cannot win because DETECT_THRESHOLD is 0.5 and every real caller uses gated registry.detect. Exports are two-space pretty JSON human-readable not minified. Pure JSON has no PNG or zip container; media rides as canonical media encodes it. native keeps it off Press export publish lists and the coverage API which requires coverage and not native so vaud-json never appears there while convert and Workbench editing still work.",
+          "summary": "Detection and import both use the exhaustive canonical parser. Hand-edited files with unsupported schema versions, missing required sections, invalid optional fields, unknown authored keys, or another entity kind fail at the adapter boundary. Invalid JSON and invalid canonical character failures use separate bounded messages. Exports remain two-space pretty JSON. The format has no PNG or ZIP container; media stays in canonical refs or data URIs. native keeps the adapter off Press, export publish lists, and the platform coverage API while conversion and Workbench editing still use it.",
           "topics": [
-            "detect vs toCanonical",
-            "name-only body check",
-            "0.1 never wins",
+            "shared exhaustive parser",
+            "bounded parse errors",
             "pretty print export",
             "native hide publish",
             "coverage API skip"
@@ -8335,10 +8478,10 @@
           "text": "Source of truth",
           "slug": "source-of-truth",
           "level": 2,
-          "summary": "Source of truth maps concerns to files. Adapter detect toCanonical fromCanonical is formats vaud-json index.ts with adapter tests in vaud-json.test.ts covering round-trip and the two throw messages. Registry detection threshold DETECT_THRESHOLD and gated detect live in core registry.ts. Canonical wrapper escrow original and id policy are core canonical.ts. Adapter contract fields native coverage and lens are core adapter.ts. CharacterBody superset of eight required and optional slots is entities character schema.ts. Publish-surface filtering that excludes native adapters is press-core export-dialog and the setup publish step. Generated format matrix row for this format is docs FORMAT-SUPPORT.md.",
+          "summary": "Source of truth maps the adapter to formats vaud-json index.ts, its regressions to vaud-json.test.ts, and exhaustive parsing to entities/runtime-schema.ts. Registry selection lives in core/registry.ts; canonical wrapper and escrow in core/canonical.ts; adapter flags in core/adapter.ts; and character fields in entities/character/schema.ts. Press, export dialog, and setup publish filters exclude native adapters. FORMAT-SUPPORT.md carries the generated matrix row.",
           "topics": [
             "vaud-json index.ts",
-            "registry threshold",
+            "runtime schema registry",
             "canonical adapter contract",
             "native UI filters",
             "FORMAT-SUPPORT matrix"

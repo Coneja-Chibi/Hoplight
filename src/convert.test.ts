@@ -1,6 +1,16 @@
 /** Regression coverage for the convert.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
 import { unzipSync, strFromU8 } from "fflate";
+import { join } from "node:path";
+import {
+  CANONICAL_SCHEMA_VERSION,
+  loadFormats,
+  registry,
+  type AdapterOutput,
+  type FormatAdapter,
+} from "./core";
+import { emptyLorebookBody } from "./core/lore";
+import type { ParsedCanonicalEntity } from "./entities/runtime-schema";
 import { convertFile, emitBundle, inspectBundle, rewriteKnowledgeRefs } from "./convert";
 import { characterAdapter as stCharacter } from "./formats/sillytavern/index";
 import { characterAdapter as rcCharacter } from "./formats/rolecall/index";
@@ -37,6 +47,51 @@ function makeCardWithBook() {
 }
 
 const asText = (c: unknown) => ({ text: JSON.stringify(c) });
+
+function minimalEntity(kind: FormatAdapter["kind"]): ParsedCanonicalEntity {
+  const envelope = { schemaVersion: CANONICAL_SCHEMA_VERSION, id: `conversion-${kind}` };
+  switch (kind) {
+    case "character":
+      return {
+        ...envelope,
+        kind,
+        body: {
+          identity: { name: "Conversion character" },
+          persona: {},
+          prompts: {},
+          greetings: {},
+          examples: {},
+          media: {},
+          attribution: {},
+          discovery: {},
+        },
+      };
+    case "lorebook":
+      return { ...envelope, kind, body: emptyLorebookBody("Conversion lorebook") };
+    case "persona":
+      return { ...envelope, kind, body: { name: "Conversion persona", content: "" } };
+    case "preset":
+      return { ...envelope, kind, body: { name: "Conversion preset", prompts: [] } };
+    case "regex":
+      return {
+        ...envelope,
+        kind,
+        body: {
+          name: "Conversion regex",
+          rules: [{
+            id: "conversion-rule",
+            label: "Conversion rule",
+            find: "before",
+            flags: "g",
+            replace: "after",
+            phases: ["output"],
+            enabled: true,
+            sortOrder: 0,
+          }],
+        },
+      };
+  }
+}
 
 test("convertCard carries an embedded lorebook across the boundary (extract -> link -> re-embed)", () => {
   const card = makeCardWithBook();
@@ -101,6 +156,70 @@ test("cross-format: an ST card with a book converts to a Risu .charx with the bo
 test("convertFile refuses a cross-kind conversion", () => {
   const card = { spec: "chara_card_v3", spec_version: "3.0", data: { name: "Bob", description: "x" } };
   expect(() => convertFile(stCharacter, rcLorebook, asText(card))).toThrow(/different entity kinds/);
+});
+
+test("convertFile routes registered regex adapters through the CLI conversion seam", async () => {
+  await loadFormats();
+  const source = registry.get("marinara-regex");
+  const target = registry.get("sillytavern-regex");
+  if (!source || !target) throw new Error("missing regex adapters");
+  const text = JSON.stringify([{
+    id: "trim",
+    name: "Strip trailing spaces",
+    enabled: true,
+    findRegex: "[ \\t]+$",
+    replaceString: "",
+    trimStrings: [],
+    placement: ["ai_output"],
+    flags: "gm",
+    promptOnly: false,
+    targetCharacterIds: [],
+    order: 0,
+    minDepth: null,
+    maxDepth: null,
+    createdAt: "",
+    updatedAt: "",
+  }]);
+
+  const { out } = convertFile(source, target, { text });
+
+  expect(out.text?.length).toBeGreaterThan(0);
+  expect(out.report).toBeDefined();
+});
+
+test("convertFile routes registered preset adapters through the CLI conversion seam", async () => {
+  await loadFormats();
+  const source = registry.get("sillytavern-preset");
+  const target = registry.get("rolecall-preset");
+  if (!source || !target) throw new Error("missing preset adapters");
+  const text = await Bun.file(
+    join(import.meta.dir, "../samples/sillytavern/presets/plain.preset.json"),
+  ).text();
+
+  const { out } = convertFile(source, target, { text });
+
+  expect(out.text?.length).toBeGreaterThan(0);
+  expect(out.report).toBeDefined();
+});
+
+test("every registered adapter can traverse the generic same-kind conversion seam", async () => {
+  await loadFormats();
+  for (const adapter of registry.all()) {
+    // This adapter intentionally imports a Lumiverse wrapper but exports portable ST-flat JSON;
+    // its output is owned by the sillytavern-preset reader, so self-read is not its wire contract.
+    if (adapter.id === "lumiverse-preset") continue;
+    const entity = minimalEntity(adapter.kind);
+    const emitted = (
+      adapter.fromCanonical as (value: ParsedCanonicalEntity) => AdapterOutput
+    )(entity);
+    const input = {
+      text: emitted.text,
+      bytes: emitted.bytes,
+      filename: `conversion.${emitted.suggestedExtension}`,
+    };
+
+    expect(() => convertFile(adapter, adapter, input)).not.toThrow();
+  }
 });
 
 

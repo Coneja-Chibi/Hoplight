@@ -17,14 +17,16 @@ import type {
   PresetAdapter,
 } from "./core";
 import { primaryOriginalRaw } from "./core";
-import { buildSerializeReport, lossReport } from "./core";
+import { buildSerializeReport, serializeReport } from "./core";
 import type { CanonicalEntity } from "./core/canonical";
 import type { CanonicalCharacter } from "./entities/character/schema";
 import type { CanonicalLorebook } from "./entities/lorebook/schema";
-import type { CanonicalPersona } from "./entities/persona/schema";
 import type { CanonicalPreset } from "./entities/preset/schema";
 import type { CanonicalRegexSet } from "./entities/regex/schema";
-import { parseCanonicalEntity } from "./entities/runtime-schema";
+import {
+  parseCanonicalEntity,
+  type ParsedCanonicalEntity,
+} from "./entities/runtime-schema";
 
 import { extractCharacterBook } from "./formats/_shared/character-book";
 
@@ -108,12 +110,12 @@ export function emitBundle(
   if (!omittedRef) return { ...out, report };
   return {
     ...out,
-    report: lossReport({
+    report: serializeReport({
       escrowed: report.escrowed,
       dropped: [...report.dropped, "knowledgeRefs"],
       escrowShadowed: report.escrowShadowed,
       warnings: report.warnings,
-    }),
+    }, report.coverage),
   };
 }
 
@@ -142,10 +144,8 @@ export function rewriteKnowledgeRefs(
 
 /**
  * Convert one file to another format of the SAME entity kind. Character conversions also carry any
- * embedded lorebook across the boundary (extract on import, re-embed on export); lorebook conversions
- * are a straight round-trip. Checking BOTH kinds against a literal narrows each adapter to its member,
- * so no cast is needed. Cross-kind (e.g. character -> standalone lorebook) is not a conversion vaud
- * makes today - it fails closed with a clear message rather than producing garbage.
+ * embedded lorebook across the boundary (extract on import, re-embed on export). Every other
+ * same-kind adapter uses the generic canonical path. Cross-kind conversion fails closed.
  */
 export function convertFile(
   src: FormatAdapter,
@@ -154,22 +154,20 @@ export function convertFile(
   opts?: { requestedExtension?: string },
 ): ConvertResult {
   const req = opts?.requestedExtension;
+  if (src.kind !== target.kind) {
+    throw new Error(`convert: cannot convert a ${src.kind} to a ${target.kind} (different entity kinds)`);
+  }
   if (src.kind === "character" && target.kind === "character") {
     const { entity, lorebooks } = inspectBundle(src, input);
     const out = emitBundle(target, entity, lorebooks, req);
     return { out, lorebooks };
   }
-  if (src.kind === "lorebook" && target.kind === "lorebook") {
-    const parsed = parseCanonicalEntity(src.toCanonical(input));
-    if (parsed.kind !== "lorebook") throw new Error("convert: lorebook adapter returned the wrong entity kind");
-    const entity = parsed as CanonicalLorebook;
-    return { out: reportedOutput(target, entity, target.fromCanonical(entity)), lorebooks: [] };
+  const parsed = parseCanonicalEntity(src.toCanonical(input));
+  if (parsed.kind !== src.kind) {
+    throw new Error(`convert: ${src.kind} adapter returned the wrong entity kind`);
   }
-  if (src.kind === "persona" && target.kind === "persona") {
-    const parsed = parseCanonicalEntity(src.toCanonical(input));
-    if (parsed.kind !== "persona") throw new Error("convert: persona adapter returned the wrong entity kind");
-    const entity = parsed as CanonicalPersona;
-    return { out: reportedOutput(target, entity, target.fromCanonical(entity)), lorebooks: [] };
-  }
-  throw new Error(`convert: cannot convert a ${src.kind} to a ${target.kind} (different entity kinds)`);
+  const out = (
+    target.fromCanonical as (entity: ParsedCanonicalEntity) => AdapterOutput
+  )(parsed);
+  return { out: reportedOutput(target, parsed, out), lorebooks: [] };
 }

@@ -2,9 +2,9 @@
 id: reference/formats/lumiverse
 title: Lumiverse format
 audience: dev
-summary: How the Lumiverse adapter family detects, maps, and round-trips ST-shaped character cards with a modules sidecar, plus its regex script and persona codecs, through the canonical model.
-tags: [format, lumiverse, character, regex, persona, ccv3, charx]
-related: [reference/architecture, reference/entities/character, reference/entities/regex, reference/formats/sillytavern]
+summary: How the Lumiverse adapter family maps ST-shaped character cards, regex scripts, personas, and presets through the canonical model.
+tags: [format, lumiverse, character, regex, persona, preset, ccv3, charx]
+related: [reference/architecture, reference/entities/character, reference/entities/persona, reference/entities/preset, reference/entities/regex, reference/formats/sillytavern]
 ---
 
 # Lumiverse format
@@ -12,20 +12,21 @@ related: [reference/architecture, reference/entities/character, reference/entiti
 Lumiverse's character card rides the SillyTavern CCv2/v3 wire shape with its own `extensions` keys, plus
 an optional charx-like ZIP container (`lumiverse_modules.json`) that carries expression images, alternate
 avatars, alternate field text, world-book ids, and archive-embedded regex scripts as separate files
-instead of inline data URIs. hoplight reads and writes both containers through one character adapter, plus two
-standalone codecs for Lumiverse's own regex export file and persona object.
+instead of inline data URIs. hoplight reads and writes both containers through one character adapter, plus
+standalone codecs for Lumiverse's regex export, persona object, and preset wrapper.
 
-The format is one folder, `src/formats/lumiverse/`, whose `index.ts` default-exports three codecs
-(`index.ts:265`):
+The format is one folder, `src/formats/lumiverse/`, whose `index.ts` default-exports four codecs:
 
 - `lumiverse`, kind `character`, reads PNG, JSON, or the modules ZIP; writes `.json` or `.charx`.
 - `lumiverse-regex`, kind `regex`, reads the versioned standalone `lumiverse_regex_scripts` export file.
 - `lumiverse-persona`, kind `persona`, reads one account `Persona` object.
+- `lumiverse-preset`, kind `preset`, reads the block-based `lumiverse_preset` wrapper and writes a flat
+  SillyTavern-compatible preset.
 
 There is no dedicated Lumiverse lorebook codec. An embedded `data.character_book` on a Lumiverse card is
 extracted and re-embedded by the same shared bundle layer every CCv2/v3-lineage format uses, SillyTavern
 and Risu included (`src/convert.ts:40-53`; see [risu.md](risu.md), "The embedded character_book"). This
-page documents the character adapter and its modules sidecar in full; the regex and persona codecs are
+page documents the character adapter and its modules sidecar in full; the regex, persona, and preset codecs are
 covered in summary under [Quirks](#quirks). For the canonical field meanings this format maps onto, see
 [entities/character.md](../entities/character.md) and [entities/regex.md](../entities/regex.md). For the
 hub-and-spoke, escrow, and detection model, see [architecture.md](../architecture.md). For the whole
@@ -70,13 +71,12 @@ fingerprint scores `0` here and `0.9` there, so ST reads it.
 array, a `lumiverse_image_gen_lora` object, a string `alternate_character_name`, a `world_book_ids` array,
 a `databank_ids` array, or a defined `ttsVoice`.
 
-**Unresolved tie on a genuine modules ZIP.** Risu's own `detect()` scores `1` for any zip containing
+**Deterministic tie on a genuine modules ZIP.** Risu's own `detect()` scores `1` for any zip containing
 `card.json`, with no check for `lumiverse_modules.json` (`risu/index.ts:87-95`); it does not reciprocate
 Lumiverse's cede on `module.risum`. So a real Lumiverse export (`card.json` plus `lumiverse_modules.json`,
-no `module.risum`) scores `1` on both adapters. The registry's tie-break is iteration order over its
-internal map (`s > score`, strictly greater, `registry.ts:30-41`), populated by the filesystem glob scan
-in `loadFormats` (`loader.ts:20-37`). This page does not verify what order that scan runs in, so which
-adapter wins this specific tie is not confirmed here.
+no `module.risum`) scores `1` on both adapters. `loadFormats` sorts folder names before registration,
+so `lumiverse` registers before `risu` (`loader.ts:20-42`). The registry replaces its winner only for a
+strictly greater score (`registry.ts:30-41`), which makes Lumiverse the winner for this tie.
 
 ### Regex
 
@@ -169,7 +169,7 @@ original.lumiverse = {
   raw: {
     modules:  <the parsed lumiverse_modules.json, or null if the input had none>,
     fromZip:  true | false,
-    files:    { "<zip path>": "<base64 bytes>", ... }   // every non-card.json, non-modules.json entry
+    files:    { "<zip path>": "<base64 bytes>", ... }   // every ZIP entry, including both JSON files
   }
 }
 ```
@@ -177,8 +177,10 @@ original.lumiverse = {
 The `sillytavern` twin's `raw.data.extensions` is the HYDRATED extensions bag: archive paths already
 resolved to data URIs where possible, the same object the canonical body's variants and media were
 derived from. It is not a byte-identical copy of the input `card.json`'s `extensions` when the input was a
-ZIP. The `lumiverse` twin carries the unhydrated modules pointers plus every other archive file, base64,
-keyed by zip path (`index.ts:150-154,168-174`); this is what lets export re-derive a working archive.
+ZIP. The `lumiverse` twin carries the unhydrated modules pointers plus every archive entry, including
+`card.json` and `lumiverse_modules.json`, base64 and keyed by zip path
+(`index.ts:150-154,168-174`). Repacking overwrites those two structured entries with current data while
+the full map preserves other files.
 
 On export, `fromCanonical` (`index.ts:179-258`):
 
@@ -242,7 +244,10 @@ into another app's file (`architecture.md`, "Escrow: lossless round-trips, conta
   `knowledgeRefs`), `avatar_path` (mapped to `presentation.imageUrl`) (`persona.ts:40-67`). Lumiverse ships
   no file import/export UI for personas, so the API object dump is the only standalone form; the whole
   object is sealed to `original["lumiverse-persona"].raw` and export overlays only the edited fields back
-  onto the twin, so `folder`/`is_default`/`is_narrator`/`metadata` round-trip untouched (`persona.ts:70-86`).
+  onto the twin, so `folder`/`is_default`/`is_narrator`/`metadata` round-trip untouched. A from-scratch
+  persona has no twin, so export materializes the required `description`, `subjective_pronoun`, and
+  `objective_pronoun` string keys, using empty strings when canonical content or pronouns are absent.
+  The optional `possessive_pronoun` remains absent unless supplied (`persona.ts`).
 - `alternate_character_name` is a prompt/macro override, not the card name. It stays on `extensions` and
   is separately editable in the Workbench's Lumiverse native-fields panel; canonical `identity.name` is
   the library name and never reads from it (`ui/apps/workbench/platforms/lumiverse.ts:42-46`).
@@ -261,6 +266,7 @@ into another app's file (`architecture.md`, "Escrow: lossless round-trips, conta
 | Variants bridge (`alternate_fields`/`alternate_avatars` <-> `body.variants`) | `src/formats/lumiverse/variants-bridge.ts` |
 | Regex codec (both wire shapes) | `src/formats/lumiverse/regex.ts` |
 | Persona codec | `src/formats/lumiverse/persona.ts` |
+| Preset codec | `src/formats/lumiverse/preset.ts` |
 | Coverage declaration | `src/formats/lumiverse/coverage.ts` |
 | Shared Tavern field map (`data` <-> canonical) | `src/formats/_shared/tavern-fields.ts` |
 | Shared CCv3 asset <-> media map | `src/formats/_shared/assets.ts` |

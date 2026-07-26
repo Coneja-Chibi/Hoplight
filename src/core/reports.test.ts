@@ -35,4 +35,11 @@ describe("loss reports", () => {
     });
     expect(report.dropped).toEqual([]);
   });
+
+  test("missing coverage reports unknown loss instead of a false zero", () => {
+    const report = buildSerializeReport(entity, { id: "undeclared" });
+    expect(report.coverage).toBe("unknown");
+    expect(report.counts.dropped).toBeNull();
+    expect(report.dropped).toContain("original.risu.raw");
+  });
 });

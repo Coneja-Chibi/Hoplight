@@ -1,5 +1,6 @@
 /** Lumiverse persona codec (P5): pronoun triplet is DATA; wire-only fields re-emit from the twin. */
 import { describe, expect, test } from "bun:test";
+import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import adapter from "./persona";
 
 const wire = () => ({
@@ -65,5 +66,22 @@ describe("round trip", () => {
     const e = adapter.toCanonical({ text: JSON.stringify(src) });
     const out = JSON.parse(adapter.fromCanonical(e).text ?? "");
     expect(out).toEqual(src);
+  });
+
+  test("from-scratch export includes the required pronoun pair and is re-readable", () => {
+    const entity = {
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "persona" as const,
+      id: "new-user",
+      body: { name: "New user", content: "" },
+    };
+    const output = adapter.fromCanonical(entity);
+    const wire = JSON.parse(output.text ?? "") as Record<string, unknown>;
+
+    expect(wire.subjective_pronoun).toBe("");
+    expect(wire.objective_pronoun).toBe("");
+    expect(wire.description).toBe("");
+    expect(adapter.detect({ text: output.text })).toBe(0.95);
+    expect(() => adapter.toCanonical({ text: output.text })).not.toThrow();
   });
 });

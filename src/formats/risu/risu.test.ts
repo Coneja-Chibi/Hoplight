@@ -306,7 +306,7 @@ test("hermetic .charx: unedited module package is byte-identical on export", () 
   expect(Array.from(outMod)).toEqual(Array.from(inMod));
 });
 
-// SAFE-BLOCK: edited module re-export is refused until RPACK_EDITED_EXPORT_VERIFIED (plan 008).
+// Edited module re-export is refused until RPACK_EDITED_EXPORT_VERIFIED.
 // Local card still proves the gate fires at the adapter boundary (skipped if sample absent).
 test("hermetic .charx: module Lua edit is blocked at export (safe-block)", () => {
   const inBytes = makeModuleCharx();

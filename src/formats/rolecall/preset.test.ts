@@ -1,9 +1,4 @@
-/**
- * RoleCall preset codec tests: the real fingerprint keys (macro_engine_yaml / choice_groups /
- * linkedRegexScripts), the native mappings (wire name, readme -> description, choice_groups ->
- * canonical choices), and the twin-diff round-trip. The shared ST wire is proven in
- * sillytavern/preset.test.ts; here we pin what is RC's own.
- */
+/** RoleCall-specific preset detection, mapping, and round-trip coverage. */
 import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -58,4 +53,17 @@ test("extractRegex still surfaces the bundle from the RC escrow key", () => {
   const set = rolecallPreset.extractRegex!(rolecallPreset.toCanonical(input));
   expect(set).not.toBeNull();
   expect(set!.body.rules.length).toBeGreaterThan(0);
+});
+
+test("from-scratch output carries a neutral RoleCall fingerprint and is self-readable", () => {
+  const output = rolecallPreset.fromCanonical({
+    schemaVersion: "1",
+    kind: "preset",
+    id: "fresh",
+    body: { name: "Fresh", prompts: [] },
+  });
+
+  expect(JSON.parse(output.text!).choice_groups).toEqual([]);
+  expect(rolecallPreset.detect(output)).toBe(0.95);
+  expect(rolecallPreset.toCanonical(output).body.name).toBe("Fresh");
 });

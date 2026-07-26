@@ -85,4 +85,24 @@ describe("round trip", () => {
     const out = JSON.parse(adapter.fromCanonical(e).text ?? "");
     expect(out).toEqual(src);
   });
+
+  test("a from-scratch canonical persona emits a wire object this adapter can read", () => {
+    const output = adapter.fromCanonical({
+      schemaVersion: "1",
+      kind: "persona",
+      id: "fresh",
+      body: { name: "Fresh", content: "" },
+    });
+    const wire = JSON.parse(output.text ?? "");
+
+    expect(wire).toEqual({
+      id: "fresh",
+      name: "Fresh",
+      description: "",
+      personality: "",
+      personaStats: { enabled: false, bars: [] },
+    });
+    expect(adapter.detect(output)).toBe(0.95);
+    expect(adapter.toCanonical(output).body.name).toBe("Fresh");
+  });
 });

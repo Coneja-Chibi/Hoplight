@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/formats/rolecall",
   "sourcePath": "docs/reference/formats/rolecall.md",
-  "sourceHash": "sha256:21884edc476991b94e8e52265d1bd3888596b8947e3544334483686654e9cc5b",
-  "semanticSummaryHash": "sha256:d08f42eae2921e542f3ec4a0c28c08b2b1bd9e7b5d75ce778abcee2a0a62ceba",
+  "sourceHash": "sha256:5823963f6b0d1ccb2a5cf6b14d4722016fe697ecd65d4955b20c62e2d93b6383",
+  "semanticSummaryHash": "sha256:6939d3be0cdd8b5481567b8ed32d57255bfb3ec4bc22e4fae0be0ab746f3cf49",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:57.880Z"
+  "reviewer": "codex-doc-review-formats-r2",
+  "notes": "Prior exportDate defect is fixed. Page and sidecar now state that detection requires schemaVersion containing 1.0.0 plus lorebook.entries while exportDate is optional, matching readExport and detect. A direct no-exportDate probe scored 1 and imported successfully. Remaining character, lorebook, persona, regex, preset, escrow, and asymmetry claims remain source-grounded. Author-fresh check passed; focused suite passed 198 tests.",
+  "reviewedAt": "2026-07-26T20:24:12.399Z"
 }

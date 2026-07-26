@@ -1,8 +1,4 @@
-/**
- * The matrix generator must be kind-BLIND-proof: every kind the studio models or any adapter
- * declares renders a section, zero-adapter kinds render an honest "(none yet)" row. The old
- * hand-partition silently hid the preset kind for weeks; this pins the fix.
- */
+/** Format-matrix coverage for registry kinds, empty kinds, and CLI examples. */
 import { expect, test } from "bun:test";
 import { matrixKinds, renderFormatMatrix } from "./format-matrix";
 
@@ -30,4 +26,7 @@ test("every declared kind renders a section; empty kinds say (none yet)", () => 
   expect(md).toContain("`marinara-preset`");
   expect(md).toContain("## Sprite packs (0)");
   expect(md).toContain("(none yet)");
+  expect(md).toContain("bun run hoplight convert");
+  expect(md).toContain("`hoplight label`");
+  expect(md).not.toContain("bun run vaud");
 });

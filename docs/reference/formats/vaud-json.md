@@ -16,7 +16,7 @@ itself (`schemaVersion` / `kind` / `id` / `body` / `profiles?` / `original?`, `c
 reads it back unchanged. That makes it the lossless local save and interchange format, the simplest real
 adapter in the registry, and proof the drop-in folder pattern works end to end.
 
-- `id: "vaud-json"`, label `Vaudeville native (.json)`, kind `character`, container JSON, writes `.json`.
+- `id: "vaud-json"`, label `Hoplight native (.json)`, kind `character`, container JSON, writes `.json`.
 - One codec, one file: `src/formats/vaud-json/index.ts:21-46`. No `lorebook` variant exists in this
   folder.
 - `native: true` (`index.ts:26`): importable and exportable like any other adapter, but never listed as
@@ -32,27 +32,10 @@ For the canonical field meanings this format carries, see
 
 ## Detection
 
-`detect()` parses the input text as JSON, then scores by whether it is already a canonical character
-(`index.ts:28-36`):
-
-- `1.0` when `kind === "character"` and `schemaVersion` is a `string`. This is the highest score any
-  adapter returns, so a vaud-json file always wins detection over every app format on its own output.
-- `0.1` when the text parses as JSON but is not a canonical character (wrong `kind`, or no string
-  `schemaVersion`).
-- `0` when there is no text, or the text does not parse as JSON.
-
-The registry only ever hands back the highest-scoring adapter, and only when that score clears
-`DETECT_THRESHOLD = 0.5` (`registry.ts:10,30-41`). Because `0.1 < 0.5`, the fallback branch can never make
-`registry.detect()` return vaud-json: a plain JSON blob that fails the `1.0` check simply leaves the whole
-registry with no winner, the same as if vaud-json were not registered at all. Every consumer routes through
-that gated `registry.detect()` (`cli.ts:185,241,286,322`, `ui/server-engine.ts:58`), so today the `0.1`
-score has no observable effect on which format is picked; see [Quirks](#quirks).
-
-The `1.0` case keys on the canonical wrapper, not on any body field, because that wrapper is what
-uniquely identifies a vaud-native file. `toCanonical()` then re-checks the wrapper and additionally
-requires a `body.identity.name` string, throwing if either is missing (parse, don't validate at the
-boundary, `index.ts:9-19`). So `detect()` can return `1.0` on a wrapper whose `body` is otherwise
-malformed; the hard validation happens on read, not on detection.
+`detect()` parses the input through the shared exhaustive canonical runtime schema. It returns `1.0`
+only for a valid canonical character and `0` for missing text, invalid JSON, unsupported schema
+versions, other entity kinds, or malformed bodies. `toCanonical()` uses the same parser and then
+narrows the result to `character`, so recognition and import share one validation authority.
 
 ## Field map
 
@@ -96,24 +79,9 @@ re-project if it is later exported back to SillyTavern.
 
 ## Quirks
 
-- Detection is wrapper-only; validation is on read. `detect()` can score `1.0` on a file whose `body` is
-  missing or has no `identity.name`; `toCanonical()` is what rejects that. It throws one of two messages
-  depending on what is missing: `"vaud-json: not a canonical character (missing kind/schemaVersion)"` when
-  the wrapper itself does not match, or `"vaud-json: malformed canonical character (missing
-  body.identity.name)"` when the wrapper matches but the body does not carry a name (`index.ts:12-17`, both
-  paths exercised in `vaud-json.test.ts:31-40`). The two checks are not identical by design: detect is
-  cheap recognition, toCanonical is the trust boundary.
-- Validation stops at `identity.name`. `toCanonical()` casts the parsed object straight to
-  `CanonicalCharacter` once `kind`, `schemaVersion`, and `body.identity.name` check out (`index.ts:18`); it
-  never confirms `persona`, `prompts`, `greetings`, `examples`, `media`, `attribution`, or `discovery` are
-  actually present, even though `CharacterBody` declares all eight required. A hand-edited file that drops
-  one of those sub-objects still passes `toCanonical()` and only breaks whatever downstream code reads the
-  missing field.
-- The `0.1` fallback cannot currently win detection. `DETECT_THRESHOLD` is `0.5` (`registry.ts:10`), so a
-  `0.1` score never clears it; every real caller goes through the gated `registry.detect()`, never through
-  a raw per-adapter score. No test exercises a plain-JSON blob winning detection as vaud-json, which
-  matches this reading. The branch exists to rank a plain JSON blob above the hard `0` non-match, but as
-  of `registry.ts:30-41`'s threshold it has no path to actually being selected. See [Detection](#detection).
+- Detection and import both use `parseCanonicalEntity()`. Hand-edited files with unsupported schema
+  versions, missing required sections, unknown authored keys, or the wrong entity kind fail at the adapter
+  boundary. Invalid JSON and invalid canonical characters return separate bounded errors.
 - Pretty-printed output. Exports are two-space-indented JSON (`JSON.stringify(entity, null, 2)`,
   `index.ts:44`), so the file is human-readable and diff-friendly, not minified.
 - No container, no images inline beyond what the body already holds. vaud-json is pure JSON text; it has
@@ -135,6 +103,7 @@ re-project if it is later exported back to SillyTavern.
 | --- | --- |
 | Adapter (detect / toCanonical / fromCanonical) | `src/formats/vaud-json/index.ts` |
 | Adapter tests | `src/formats/vaud-json/vaud-json.test.ts` |
+| Exhaustive canonical parser | `src/entities/runtime-schema.ts` |
 | Registry (detection threshold, gating) | `src/core/registry.ts` |
 | Canonical wrapper, escrow (`original`), id policy | `src/core/canonical.ts` |
 | Adapter contract (`native`, `coverage`, `lens`) | `src/core/adapter.ts` |
