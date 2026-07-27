@@ -12,6 +12,7 @@
 import type { KitBridge, KitEntity } from "../bridge";
 import type { MacroTransferReport } from "../../core/preset/macros/transfer-check";
 import type { MacroChange } from "../../core/preset/macros/translate";
+import type { StructuralFindings } from "../../core/preset/macros/structure";
 
 type ConversionKit = {
   registry: typeof import("../../core").registry;
@@ -21,15 +22,17 @@ type ConversionKit = {
   profileForPresetAdapter: typeof import("../../core/preset/macros/transfer-check").profileForPresetAdapter;
   sourceProfileOf: typeof import("../../core/preset/macros/transfer-check").sourceProfileOf;
   translatePresetBody: typeof import("../../core/preset/macros/translate").translatePresetBody;
+  readPresetStructure: typeof import("../../core/preset/macros/structure").readPresetStructure;
 };
 
 /** Pull the conversion graph in on first use, with every adapter registered for this runtime. */
 export async function loadConversionKit(): Promise<ConversionKit> {
-  const [core, convert, macros, translate, formats] = await Promise.all([
+  const [core, convert, macros, translate, structure, formats] = await Promise.all([
     import("../../core"),
     import("../../convert"),
     import("../../core/preset/macros/transfer-check"),
     import("../../core/preset/macros/translate"),
+    import("../../core/preset/macros/structure"),
     import("../../ensure-formats"),
   ]);
   await formats.ensureFormats();
@@ -41,6 +44,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     profileForPresetAdapter: macros.profileForPresetAdapter,
     sourceProfileOf: macros.sourceProfileOf,
     translatePresetBody: translate.translatePresetBody,
+    readPresetStructure: structure.readPresetStructure,
   };
 }
 
@@ -62,6 +66,11 @@ export interface ConversionSuccess {
   macros?: MacroTransferReport;
   /** Every macro actually rewritten, flattened, substituted, dropped or flagged on the way out. */
   translation?: MacroChange[];
+  /**
+   * The shape of the source's logic: arrays, closed domains, push hooks, choice groups, markers.
+   * Computed facts only. What to DO about them is judgment, which the receipt leaves to its reader.
+   */
+  structure?: StructuralFindings;
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
 }
@@ -139,17 +148,35 @@ export async function convertStoredPiece(
 
     const loss = out.report ?? kit.buildSerializeReport(subject, target);
     const text = out.text ?? null;
+    // Report macro survival against what is ACTUALLY being emitted, not the untranslated original.
+    const macros = kind === "preset"
+      ? kit.checkPresetMacroTransfer((subject as unknown as { body?: unknown }).body, to)
+      : undefined;
+
+    // A macro with no home on the target is either one the translator REMOVED or one still
+    // unresolvable in the emitted text. Both belong here: a removed token is gone from the body, so
+    // reading the findings alone would offer no marker candidate for exactly the tokens that need
+    // one most - the real preset's {{message_history}} is removed, and it is the promotion case.
+    const dead = [
+      ...(translation ?? [])
+        .filter((change) => change.kind === "absent")
+        .map((change) => ({ token: change.from, where: change.where })),
+      ...(macros?.findings ?? []).map((finding) => ({ token: finding.token, where: finding.where })),
+    ];
+
+    // Structure describes the SOURCE. The translated copy has already had its arrays lowered and its
+    // dead macros stripped, so reading structure off it would report a preset with no logic in it.
+    const structure = kind === "preset" ? kit.readPresetStructure(entity, dead) : undefined;
+
     return {
       ok: true,
       text,
       payload: text ?? `<${out.bytes?.byteLength ?? 0} bytes of ${out.suggestedExtension}>`,
       suggestedExtension: out.suggestedExtension,
       loss,
-      // Report macro survival against what is ACTUALLY being emitted, not the untranslated original.
-      ...(kind === "preset"
-        ? { macros: kit.checkPresetMacroTransfer((subject as unknown as { body?: unknown }).body, to) }
-        : {}),
+      ...(macros ? { macros } : {}),
       ...(translation ? { translation } : {}),
+      ...(structure ? { structure } : {}),
       ...(dialect ? { dialect } : {}),
     };
   } catch (error) {

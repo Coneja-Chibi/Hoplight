@@ -90,6 +90,119 @@ test("a RoleCall preset converts to a SillyTavern preset and reports the macro t
   expect(observed.note).toContain("Nothing was written");
 });
 
+/**
+ * The same journey for a preset that really came from RoleCall, escrow and all. The fixture above
+ * has no escrow, so its dialect is unknown and the translator correctly declines to guess - meaning
+ * it never exercised translation at all. This one does, and it is the shape that shipped broken:
+ * escrow is keyed `rolecall` by the codec, and while the lookup expected `rolecall-preset` the
+ * dialect resolved to null and every RoleCall preset crossed over untranslated.
+ */
+const RC_PRESET = parseCanonicalEntity({
+  schemaVersion: CANONICAL_SCHEMA_VERSION,
+  kind: "preset",
+  id: "stateful",
+  body: {
+    ...emptyPresetBody("Stateful"),
+    choices: [{
+      id: "lang",
+      key: "lang",
+      label: "Language",
+      type: "one",
+      default: "English",
+      options: [{ id: "en", label: "English" }, { id: "fr", label: "French" }],
+    }],
+    prompts: [
+      {
+        id: "main",
+        name: "Main",
+        content:
+          "{{setvar::mood::calm}}{{setvar::mood::tense}}"
+          + "{{if {{getvarkey::plan::{{getvar::i}}}} }}{{getvarkey::plan::3}}{{/if}}"
+          + "{{choice::lang}}{{message_history}}",
+        role: "system",
+        enabled: true,
+        systemPrompt: false,
+        marker: false,
+        placement: "relative",
+        injectionDepth: 4,
+        injectionOrder: 100,
+        forbidOverrides: false,
+      },
+    ],
+  },
+  original: {
+    rolecall: {
+      raw: {
+        macro_engine_yaml: [
+          "hooks:",
+          "  - id: catch-plan",
+          "    trigger: '(?<=\\[PLAN:[^\\]]*)([^,\\]]+)'",
+          "    flags: gi",
+          "    placement: [user_input, ai_output]",
+          "    actions:",
+          "      - { type: push, key: plan }",
+        ].join("\n"),
+      },
+    },
+  },
+}) as unknown as KitEntity;
+
+test("a real RoleCall preset resolves its dialect, translates, and reports its structure", async () => {
+  const rcBridge: KitBridge = {
+    ...bridge,
+    async read(kind: string, id: string) {
+      return kind === "preset" && id === "stateful" ? RC_PRESET : null;
+    },
+  };
+
+  const result = await transfer.execute(
+    { kind: "preset", id: "stateful", to: "sillytavern-preset" },
+    { bridge: rcBridge },
+  );
+  const observed = JSON.parse(result.output) as {
+    dialect?: { from: string; to: string };
+    translated: { kind: string; from: string }[];
+    structure: {
+      stateLayer: string;
+      hookCount: number;
+      pushHooks: { variable: string; trigger: string }[];
+      arrays: { name: string; literalIndices: number[]; dynamicAccesses: number }[];
+      domains: { variable: string; values: string[] }[];
+      markerCandidates: { token: string; markerSlot: string }[];
+      choices: { reference: string; label: string | null; options: unknown[] }[];
+      limits: string[];
+    };
+    payload: { content?: string };
+  };
+
+  // The crossing was recognised at all - this is what returned undefined before.
+  expect(observed.dialect).toEqual({ from: "rolecall", to: "sillytavern" });
+
+  // The indexed reads lowered, including the one used AS a condition inside a preserved block.
+  expect(observed.payload.content).toContain("{{getvar::plan_3}}");
+  expect(observed.payload.content).toContain("{{if {{getvar::plan_{{getvar::i}}}} }}");
+
+  // Structure: computed facts about the source, not the stripped-down copy being emitted.
+  expect(observed.structure.stateLayer).toBe("read");
+  expect(observed.structure.hookCount).toBe(1);
+  expect(observed.structure.pushHooks[0]?.variable).toBe("plan");
+  expect(observed.structure.pushHooks[0]?.trigger).toBe("(?<=\\[PLAN:[^\\]]*)([^,\\]]+)");
+  expect(observed.structure.arrays[0]).toMatchObject({ name: "plan", literalIndices: [3], dynamicAccesses: 1 });
+  expect(observed.structure.domains).toEqual([{ variable: "mood", values: ["calm", "tense"] }]);
+
+  // The choice group behind a dead {{choice::lang}} arrives with the options a seed would use.
+  expect(observed.structure.choices[0]?.reference).toBe("lang");
+  expect(observed.structure.choices[0]?.label).toBe("Language");
+  expect(observed.structure.choices[0]?.options).toHaveLength(2);
+
+  // {{message_history}} was REMOVED by the translator, so it is absent from the emitted body. The
+  // marker candidate must still appear, or the one finding that matters would vanish on success.
+  expect(observed.structure.markerCandidates).toEqual([
+    expect.objectContaining({ token: "{{message_history}}", markerSlot: "chatHistory" }),
+  ]);
+  expect(observed.structure.limits.length).toBeGreaterThan(0);
+});
+
 test("a lorebook transfer reports no macro section rather than an empty one", async () => {
   const book = parseCanonicalEntity({
     schemaVersion: CANONICAL_SCHEMA_VERSION,

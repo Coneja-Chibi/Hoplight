@@ -184,6 +184,34 @@ describe("translation output", () => {
     const out = rc2st("{{getvarkey::plan::{{getvar::i}}}}");
     expect(out.text).toBe("{{getvar::plan_{{getvar::i}}}}");
   });
+
+  test("a preserved block still translates the macros inside its condition", () => {
+    // Found against the real preset: keeping a block token verbatim also kept everything nested in
+    // it, so an array read used AS a condition survived as dead syntax on an engine with no arrays.
+    // Structure is preserved; the tokens inside it are still the translator's business.
+    const out = rc2st("{{if {{getvarkey::plan::{{getvar::i}}}} }}body{{/if}}");
+    expect(out.text).toBe("{{if {{getvar::plan_{{getvar::i}}}} }}body{{/if}}");
+  });
+
+  test("preserving a block does not invent changes for structure that did not move", () => {
+    const out = rc2st("{{if mood}}calm{{else}}tense{{/if}}");
+    expect(out.text).toBe("{{if mood}}calm{{else}}tense{{/if}}");
+    expect(out.changes).toEqual([]);
+  });
+
+  test("a portable macro still translates the macros passed to it as arguments", () => {
+    // The general form of the same defect: `setvar` exists on both engines, so the outer token was
+    // returned untouched - carrying an array read across to an engine with no arrays. A macro being
+    // portable says nothing about what was handed to it.
+    const out = rc2st("{{setvar::scene::{{getvarkey::plan::{{getvar::i}}}}}}");
+    expect(out.text).toBe("{{setvar::scene::{{getvar::plan_{{getvar::i}}}}}}");
+  });
+
+  test("an argument that needs no translation leaves its macro reported as unchanged", () => {
+    const out = rc2st("{{setvar::scene::{{char}}}}");
+    expect(out.text).toBe("{{setvar::scene::{{char}}}}");
+    expect(out.changes).toEqual([]);
+  });
 });
 
 describe("the annotation gate", () => {

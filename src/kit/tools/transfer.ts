@@ -97,6 +97,10 @@ const transfer: HarnessTool<z.infer<typeof input>> = {
         translated: changes,
         needsReview,
         macros: outcome.macros,
+        // The facts about the source's own logic, so a reader deciding what to do about the entries
+        // in `needsReview` has the arrays, domains, hooks and choice groups in front of them rather
+        // than having to go read the preset again to find out what a dead macro was standing in for.
+        structure: outcome.structure,
         payload: spill ?? {
           spilled: false,
           content: outcome.payload,

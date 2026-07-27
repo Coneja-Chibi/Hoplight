@@ -130,6 +130,10 @@ const exportPiece: HarnessTool<z.infer<typeof input>> = {
         translated: changes,
         needsReview,
         macros: outcome.macros,
+        // The source's own logic, in facts: arrays and their index ranges, variables with a closed
+        // set of values, hooks that append to lists, and what each choice group actually declares.
+        // These are what an entry in `needsReview` has to be reasoned about against.
+        structure: outcome.structure,
       }),
       outcome: "applied",
     };

@@ -247,36 +247,58 @@ export function translateTokens(
   return out;
 }
 
-function translateOne(
+/**
+ * Translate a token's ARGUMENTS before the token itself is judged.
+ *
+ * An argument can be a macro in its own right, and every decision below - lowering, structural
+ * preservation, the equivalence join - assumes it is looking at something already in the target's
+ * dialect. Skipping this let a PORTABLE macro carry a foreign one across inside it: `setvar` exists
+ * on both engines, so `{{setvar::k::{{getvarkey::plan::2}}}}` matched, re-rendered identically, and
+ * returned "unchanged" with an array read still nested in it.
+ *
+ * Tokens with no depth-zero `::` are returned untouched. That is what keeps block syntax out of the
+ * argument machinery: `{{if {{getvar::x}} }}` has no top-level separator, so it falls through to the
+ * structural branch, which does its own recursion without treating the condition as arguments.
+ */
+function settleArguments(
   token: string,
   from: PresetWriteForProfile,
   to: PresetWriteForProfile,
   where: string,
   changes: MacroChange[],
 ): string {
-  // Lower an indexed access into a plain get/set first, then judge THAT on its merits. Doing this
-  // before the lookup is what turns "the target has no arrays" into an ordinary variable read.
+  const inner = token.slice(2, -2);
+  if (!inner.includes("{{")) return token;
+  const parts = splitArgs(inner);
+  if (parts.length < 2) return token;
+  const [head, ...tail] = parts;
+  const settled = tail.map((argument) => translateTokens(argument, from, to, where, changes));
+  return `{{${[head, ...settled].join("::")}}}`;
+}
+
+function translateOne(
+  original: string,
+  from: PresetWriteForProfile,
+  to: PresetWriteForProfile,
+  where: string,
+  changes: MacroChange[],
+): string {
+  const token = settleArguments(original, from, to, where, changes);
+
+  // Lower an indexed access into a plain get/set, then judge THAT on its merits. Doing this before
+  // the lookup is what turns "the target has no arrays" into an ordinary variable read.
   const lowered = lowerIndexedAccess(token);
   if (lowered) {
-    const inner = lowered.slice(2, -2);
-    const target = equivalentOf(from, to, macroName(lowered), splitArgs(inner).slice(1));
+    const target = equivalentOf(from, to, macroName(lowered), splitArgs(lowered.slice(2, -2)).slice(1));
     if (target.verdict === "portable") {
-      // The value of a lowered set may itself hold an indexed read, so translate the inside too.
-      // Without this pass the outer write converts and the inner read is left as dead syntax.
-      const parts = splitArgs(inner);
-      const head = parts.slice(0, 2).join("::");
-      const tail = parts.slice(2);
-      const settled = tail.length
-        ? `{{${head}::${translateTokens(tail.join("::"), from, to, where, [])}}}`
-        : lowered;
       changes.push({
         kind: "rewrite",
-        from: token,
-        to: settled,
+        from: original,
+        to: lowered,
         where,
         why: `Indexed access lowered to a plain variable whose name carries the index, since ${to} has no arrays.`,
       });
-      return settled;
+      return lowered;
     }
   }
 
@@ -287,9 +309,13 @@ function translateOne(
 
   // Block syntax is structural, not argument-separated: `{{if mood}}` carries its condition as bare
   // text and `{{/if}}` carries nothing at all. Re-rendering either through the argument machinery
-  // collapses both to `{{if}}` and destroys the construct. When the target expresses the same
-  // operation, the only correct move is to leave the token exactly as written.
-  if (isStructuralBlockToken(name, inner) && targetHasConditionals(to)) return token;
+  // collapses both to `{{if}}` and destroys the construct. So the STRUCTURE is preserved verbatim -
+  // but only the structure. A condition can itself hold macros, and returning the whole token left
+  // those untranslated: a real preset used an array read as its condition and it survived onto an
+  // engine with no arrays, as dead syntax. Recurse through the inside, keep the shell.
+  if (isStructuralBlockToken(name, inner) && targetHasConditionals(to)) {
+    return `{{${translateTokens(inner, from, to, where, changes)}}}`;
+  }
 
   const args = splitArgs(inner).slice(1);
   const match = equivalentOf(from, to, name, args);
@@ -297,14 +323,14 @@ function translateOne(
   if (match.verdict === "portable") {
     // Identical spelling on both sides: nothing to change and nothing worth reporting.
     if (!match.rewritten || match.rewritten === token) return token;
-    changes.push({ kind: "rewrite", from: token, to: match.rewritten, where, why: match.why });
+    changes.push({ kind: "rewrite", from: original, to: match.rewritten, where, why: match.why });
     return match.rewritten;
   }
 
   if (match.verdict === "collision") {
     changes.push({
       kind: "collision",
-      from: token,
+      from: original,
       to: token,
       where,
       why: `${match.why} It was ${COLLISION_NOTE}.`,
@@ -315,7 +341,7 @@ function translateOne(
 
   changes.push({
     kind: "absent",
-    from: token,
+    from: original,
     to: null,
     where,
     why: match.candidates.length
