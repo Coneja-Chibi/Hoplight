@@ -45,6 +45,7 @@
     "scan:emoji": "bun run scripts/hooks/doctrines.ts --emoji",
     "format:no-emoji": "bun run scripts/hooks/remove-emoji.ts",
     "macros:pins": "bun run scripts/update-macro-pins.ts",
+    "macros:oracle": "bun run scripts/macro-oracle/extract.ts",
     "lint:ui": "bunx eslint \"src/ui/**/*.{ts,tsx}\" \"src/kit/**/*.{ts,tsx}\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",

@@ -1,0 +1,1636 @@
+{
+  "engine": "rolecall",
+  "provenance": "Called every register<Family>Macros() export of RoleCall's apps/rc/src/lib/macros and read getAllMacros(). Names, aliases and category labels only.",
+  "sourceEnvVar": "VAUD_RC_MACRO_SRC",
+  "capturedAt": "2026-07-27",
+  "macroCount": 253,
+  "aliasCount": 219,
+  "macros": [
+    {
+      "name": "//",
+      "aliases": [
+        "comment"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "accentcolor",
+      "aliases": [
+        "accent_color",
+        "character.accent_color",
+        "charcolor"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "addglobalvar",
+      "aliases": [
+        "addgvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "addvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "affection",
+      "aliases": [
+        "love"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "after",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "after_turn",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "allvars",
+      "aliases": [
+        "dumpvars"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "and",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "ask_in_reply",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "ask_model$",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "ask_model$!",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "banned",
+      "aliases": [
+        "ban"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "before_turn",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "block",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "calc",
+      "aliases": [
+        "math"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "char",
+      "aliases": [
+        "bot",
+        "character"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "charcreator",
+      "aliases": [
+        "cardcreator"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "charcreatornotes",
+      "aliases": [
+        "cardnotes",
+        "creatornotes"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "chardepthprompt",
+      "aliases": [
+        "characterdepthnote",
+        "depthnote"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "chardescription",
+      "aliases": [
+        "chardesc",
+        "description"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "chargroupfocused",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "chargroupfocuseddescription",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "chargroupfocusedpersonality",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "charinstruction",
+      "aliases": [
+        "characterinstruction",
+        "charjailbreak"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "charmessagecount",
+      "aliases": [
+        "aicount",
+        "charcount"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "charpersonality",
+      "aliases": [
+        "personality"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "charprompt",
+      "aliases": [
+        "characterprompt"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "chartags",
+      "aliases": [
+        "tags"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "charversion",
+      "aliases": [
+        "cardversion"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "chatid",
+      "aliases": [
+        "sessionid"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "chatstart",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "check",
+      "aliases": [
+        "roll_check",
+        "skillcheck"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "coinflip",
+      "aliases": [
+        "coin",
+        "flip"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "compare",
+      "aliases": [
+        "cmp"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "contextusage",
+      "aliases": [
+        "usage"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "costestimate",
+      "aliases": [
+        "apicost",
+        "cost"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "count",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "countvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "currentswipeid",
+      "aliases": [
+        "swipeid"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "damage",
+      "aliases": [
+        "dmg"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "date",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "datetimeformat",
+      "aliases": [
+        "dateformat",
+        "formatdate",
+        "formattime"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "day",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "decglobalvar",
+      "aliases": [
+        "decgvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "decvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "defer",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "delvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "description",
+      "aliases": [
+        "character.description",
+        "chardesc",
+        "chardescription"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "enabled",
+      "aliases": [
+        "is_enabled",
+        "prompt_enabled"
+      ],
+      "category": "preset"
+    },
+    {
+      "name": "enabled_all",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "enabled_any",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "enabled_count",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "enabled_list",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "eq",
+      "aliases": [
+        "equals"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "every",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "filter",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "first_turn",
+      "aliases": [
+        "on_first_turn"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "firstdisplayedmessageid",
+      "aliases": [
+        "firstdisplayedmsgid"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "firstincludedmessageid",
+      "aliases": [
+        "firstincludedmsgid"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "firstmessage",
+      "aliases": [
+        "greeting"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "foreach",
+      "aliases": [
+        "for_each"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "foreach_enabled",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "getglobalvar",
+      "aliases": [
+        "globalvar",
+        "gvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "getvar",
+      "aliases": [
+        "getvarkey",
+        "var"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "gold",
+      "aliases": [
+        "coins",
+        "currency",
+        "money"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "gradient",
+      "aliases": [
+        "character.gradient",
+        "chargradient"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "group",
+      "aliases": [
+        "groupname"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "groupcardmode",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "groupothers",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "has",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "hasvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "hp",
+      "aliases": [
+        "health",
+        "hitpoints"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "idle_duration",
+      "aliases": [
+        "idle",
+        "idletime"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "if",
+      "aliases": [
+        "either"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "ifset",
+      "aliases": [
+        "if_set",
+        "whenset"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "incglobalvar",
+      "aliases": [
+        "incgvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "include",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "incvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "input",
+      "aliases": [
+        "chatinput"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "inventory",
+      "aliases": [
+        "inv",
+        "items"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "is_empty",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "ismobile",
+      "aliases": [
+        "mobile"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "isnarrator",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "isodate",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "isotime",
+      "aliases": [
+        "isodatetime"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "join",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "join_enabled",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "lastcharmessage",
+      "aliases": [
+        "lastai",
+        "lastassistant",
+        "lastchar"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "lastgenerationtype",
+      "aliases": [
+        "generationtype",
+        "gentype"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "lastmessage",
+      "aliases": [
+        "lastchatmessage",
+        "lastchatmsg",
+        "lastmsg"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "lastmessageid",
+      "aliases": [
+        "lastmsgid",
+        "lastmsgindex"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "lastswipeid",
+      "aliases": [
+        "swipecount"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "lastusermessage",
+      "aliases": [
+        "lastuser"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "length",
+      "aliases": [
+        "len",
+        "strlen"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "level",
+      "aliases": [
+        "lvl"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "listvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "location",
+      "aliases": [
+        "loc",
+        "place"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "lorebook",
+      "aliases": [
+        "entry",
+        "lore"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "lorebookcount",
+      "aliases": [
+        "activeentries",
+        "lorecount"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "lorebooklist",
+      "aliases": [
+        "lorebooks"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "lorebookrandom",
+      "aliases": [
+        "lorerand",
+        "randlore"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "lorebooktokens",
+      "aliases": [
+        "loretokens"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "lower",
+      "aliases": [
+        "lowercase",
+        "tolower"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "lumiabehavior",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiacouncildeliberation",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiacouncilinst",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiacouncilmodeactive",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiadef",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "lumiaooc",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiaoocerotic",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiaooceroticbleed",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "lumiapersonality",
+      "aliases": [],
+      "category": "identity"
+    },
+    {
+      "name": "lumiastatesynthesis",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "macro",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "maxprompt",
+      "aliases": [
+        "contextsize",
+        "maxcontext"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "memories",
+      "aliases": [
+        "memory"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "mesexamples",
+      "aliases": [
+        "character.examples",
+        "exampledialogue",
+        "examples"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "mesexamplesraw",
+      "aliases": [
+        "examplesraw"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "message",
+      "aliases": [
+        "msg"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "message history",
+      "aliases": [
+        "chat_history",
+        "chatlog",
+        "history"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "messagecount",
+      "aliases": [
+        "chatlen",
+        "chatlength",
+        "msgcount"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "model",
+      "aliases": [
+        "aimodel",
+        "llm"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "month",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "mood",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "moonphase",
+      "aliases": [
+        "lunarphase",
+        "moon"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "newline",
+      "aliases": [
+        "br",
+        "nl"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "noop",
+      "aliases": [
+        "empty",
+        "nothing"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "not",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "notempty",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "once",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "or",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "orisonpreferenceblock",
+      "aliases": [
+        "orisonmemoryblock",
+        "orisonprefsblock"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "orisonpreferences",
+      "aliases": [
+        "orisonmemory",
+        "orisonprefs"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "outlet",
+      "aliases": [],
+      "category": "lorebook"
+    },
+    {
+      "name": "override",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "pad",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "palette",
+      "aliases": [
+        "character.palette",
+        "charpalette"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "percent",
+      "aliases": [
+        "pct"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "persona",
+      "aliases": [
+        "userpersona"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "personacolor",
+      "aliases": [
+        "persona.color",
+        "persona_color"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "personagradient",
+      "aliases": [
+        "persona.gradient",
+        "persona_gradient"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "personality",
+      "aliases": [
+        "character.personality",
+        "charpersonality"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "personapalette",
+      "aliases": [
+        "persona.palette",
+        "persona_palette"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "phase",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "pick",
+      "aliases": [
+        "choose",
+        "select"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "pick_in_reply",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick_in_reply_or_keep",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick_or_keep$",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick_or_keep$!",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick_when$",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick_when$!",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick$",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "pick$!",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "popvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "progress",
+      "aliases": [
+        "bar",
+        "progressbar"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "pushvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "queststatus",
+      "aliases": [
+        "quest"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "random",
+      "aliases": [
+        "rand"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "range",
+      "aliases": [],
+      "category": "random"
+    },
+    {
+      "name": "raw",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "rcounter",
+      "aliases": [
+        "runningcounter"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "reasoningprefix",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "reasoningsuffix",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "recentmessages",
+      "aliases": [
+        "recent"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "regex",
+      "aliases": [
+        "regexp"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "relationship",
+      "aliases": [
+        "rel"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "repeat",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "replace",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "responsetokens",
+      "aliases": [
+        "maxresponse",
+        "maxtokens"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "reverse",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "roll",
+      "aliases": [
+        "dice"
+      ],
+      "category": "random"
+    },
+    {
+      "name": "scenario",
+      "aliases": [
+        "character.scenario"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "season",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "sep",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "sessiontokens",
+      "aliases": [
+        "totaltokens"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "setglobalvar",
+      "aliases": [
+        "setgvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "setvar",
+      "aliases": [
+        "setvarkey"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "shiftvar",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "show",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "shuffle",
+      "aliases": [],
+      "category": "random"
+    },
+    {
+      "name": "silent",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "sim_tracker",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "space",
+      "aliases": [
+        "sp"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "split",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_album_art",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_album_name",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_artists",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_has_lyrics",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_is_playing",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_lyrics",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "spotify_track_name",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "stat",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "state.get",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "state.set",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "state.show",
+      "aliases": [
+        "showvar"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "state.unset",
+      "aliases": [
+        "state.delete"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "summary",
+      "aliases": [
+        "chatsummary"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "switch",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "template",
+      "aliases": [
+        "partial"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "tension",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "their",
+      "aliases": [
+        "his/her",
+        "hisher"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "theirs",
+      "aliases": [
+        "his/hers",
+        "hishers"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "them",
+      "aliases": [
+        "him/her",
+        "himher"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "themself",
+      "aliases": [
+        "himself/herself",
+        "himselfherself"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "they",
+      "aliases": [
+        "he/she",
+        "heshe"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "time",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "timediff",
+      "aliases": [
+        "datediff",
+        "duration"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "timeofday",
+      "aliases": [
+        "storytime",
+        "tod"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "title",
+      "aliases": [
+        "titlecase"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "tokenbudget",
+      "aliases": [
+        "contextsize",
+        "maxcontext"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "tokencount",
+      "aliases": [
+        "prompttokens",
+        "tokens"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "tokenremaining",
+      "aliases": [
+        "remainingtokens",
+        "tokensremaining"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "triggeredentries",
+      "aliases": [
+        "activeentrynames",
+        "triggered"
+      ],
+      "category": "lorebook"
+    },
+    {
+      "name": "trim",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "truncate",
+      "aliases": [
+        "cut",
+        "trunc"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "trust",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "upper",
+      "aliases": [
+        "toupper",
+        "uppercase"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "use_template",
+      "aliases": [
+        "use"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "user",
+      "aliases": [
+        "player"
+      ],
+      "category": "identity"
+    },
+    {
+      "name": "usercolormode",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "usermessagecount",
+      "aliases": [
+        "usercount"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "utheir",
+      "aliases": [
+        "userhis/her",
+        "usertheir"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "utheirs",
+      "aliases": [
+        "usertheirs"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "uthem",
+      "aliases": [
+        "userhim/her",
+        "userthem"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "uthemself",
+      "aliases": [
+        "userthemself"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "uthey",
+      "aliases": [
+        "userhe/she",
+        "userthey"
+      ],
+      "category": "pronouns"
+    },
+    {
+      "name": "vn",
+      "aliases": [],
+      "category": "chat"
+    },
+    {
+      "name": "vncast",
+      "aliases": [
+        "vncast"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vncontext",
+      "aliases": [
+        "vncontext",
+        "vnruntimecontext"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vngoals",
+      "aliases": [
+        "vngoals"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vninventory",
+      "aliases": [
+        "vninventory"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnlocation",
+      "aliases": [
+        "vnlocation"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnpresentcast",
+      "aliases": [
+        "vnpresentcast"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnscenario",
+      "aliases": [
+        "vnscenario"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnscene",
+      "aliases": [
+        "vnscene"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnstart",
+      "aliases": [
+        "vnstart"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnstate",
+      "aliases": [
+        "vnstate"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "vnstorybeats",
+      "aliases": [
+        "vnstorybeats"
+      ],
+      "category": "chat"
+    },
+    {
+      "name": "walkdown$",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "walkdown$!",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "weather",
+      "aliases": [],
+      "category": "variables"
+    },
+    {
+      "name": "weekday",
+      "aliases": [
+        "dayofweek"
+      ],
+      "category": "time"
+    },
+    {
+      "name": "weighted",
+      "aliases": [],
+      "category": "random"
+    },
+    {
+      "name": "when_all",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "when_any",
+      "aliases": [],
+      "category": "conditional"
+    },
+    {
+      "name": "when_enabled",
+      "aliases": [],
+      "category": "preset"
+    },
+    {
+      "name": "whenempty",
+      "aliases": [
+        "when_empty"
+      ],
+      "category": "conditional"
+    },
+    {
+      "name": "wi_marker",
+      "aliases": [],
+      "category": "text"
+    },
+    {
+      "name": "wordcount",
+      "aliases": [
+        "words"
+      ],
+      "category": "text"
+    },
+    {
+      "name": "xp",
+      "aliases": [
+        "exp",
+        "experience"
+      ],
+      "category": "variables"
+    },
+    {
+      "name": "year",
+      "aliases": [],
+      "category": "time"
+    },
+    {
+      "name": "zodiac",
+      "aliases": [
+        "starsign",
+        "sunsign"
+      ],
+      "category": "time"
+    }
+  ]
+}

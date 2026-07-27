@@ -1,0 +1,1493 @@
+{
+  "engine": "lumiverse",
+  "provenance": "Ran Lumiverse's own initMacros() and read MacroRegistry.getAllMacros() plus the registry alias map, from src/macros in the checkout. Names, aliases and category labels only.",
+  "sourceEnvVar": "VAUD_LUMI_MACRO_SRC",
+  "capturedAt": "2026-07-27",
+  "macroCount": 238,
+  "aliasCount": 182,
+  "macros": [
+    {
+      "name": "//",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "abs",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "addchatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "addgvar",
+      "aliases": [
+        "addglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "addvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "and",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "arc",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "avg",
+      "aliases": [
+        "average",
+        "mean"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "banned",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "blank",
+      "aliases": [
+        "isblank"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "bullets",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "calc",
+      "aliases": [
+        "evaluate",
+        "math"
+      ],
+      "category": "Math"
+    },
+    {
+      "name": "capitalize",
+      "aliases": [
+        "titlecase"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "case",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "ceil",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "char",
+      "aliases": [
+        "charname"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "charactercolors",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "charcreator",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "charcreatornotes",
+      "aliases": [
+        "creatornotes"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "chardepthprompt",
+      "aliases": [
+        "depth_prompt"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "chargroupfocused",
+      "aliases": [
+        "char_group_focused",
+        "charfocused"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "chargroupfocuseddescription",
+      "aliases": [
+        "char_group_focused_description",
+        "charfocuseddescription"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "chargroupfocusedpersonality",
+      "aliases": [
+        "char_group_focused_personality",
+        "charfocusedpersonality"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "charposthistoryinstructions",
+      "aliases": [
+        "charinstruction",
+        "charjailbreak",
+        "jailbreak"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "chartags",
+      "aliases": [
+        "char_tags",
+        "charactertags",
+        "tags"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "charversion",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "chatage",
+      "aliases": [
+        "chat_age"
+      ],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "chatid",
+      "aliases": [
+        "chat_id"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "clamp",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "comment",
+      "aliases": [
+        "note"
+      ],
+      "category": "Core"
+    },
+    {
+      "name": "cortexactive",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "count",
+      "aliases": [
+        "list_count",
+        "listlength"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "counter",
+      "aliases": [],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "currentplayer",
+      "aliases": [
+        "current_player",
+        "current_turn",
+        "currentturn"
+      ],
+      "category": "Multiplayer"
+    },
+    {
+      "name": "currentswipeid",
+      "aliases": [],
+      "category": "Chat"
+    },
+    {
+      "name": "databank",
+      "aliases": [
+        "databankmemory",
+        "documents",
+        "knowledgebank"
+      ],
+      "category": "memory"
+    },
+    {
+      "name": "databankactive",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "databankcount",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "databankraw",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "date",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "datetimeformat",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "decchatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "decgvar",
+      "aliases": [
+        "decglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "decvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "default",
+      "aliases": [
+        "coalesce",
+        "fallback"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "deletechatvar",
+      "aliases": [
+        "flushchatvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "deletegvar",
+      "aliases": [
+        "deleteglobalvar",
+        "flushglobalvar",
+        "flushgvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "deletevar",
+      "aliases": [
+        "flushvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "description",
+      "aliases": [
+        "chardescription"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "else",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "elseif",
+      "aliases": [
+        "elif"
+      ],
+      "category": "Core"
+    },
+    {
+      "name": "empty",
+      "aliases": [
+        "isempty"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "endswith",
+      "aliases": [
+        "ends_with"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "entities",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "entitycount",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "entityfacts",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "eq",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "every",
+      "aliases": [
+        "all"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "filter",
+      "aliases": [
+        "where"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "first",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "firstdisplayedmessageid",
+      "aliases": [],
+      "category": "Chat"
+    },
+    {
+      "name": "firstincludedmessageid",
+      "aliases": [],
+      "category": "Chat"
+    },
+    {
+      "name": "firstmessage",
+      "aliases": [
+        "first_message",
+        "firstmes"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "floor",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "foreach",
+      "aliases": [
+        "each",
+        "for_each"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "foreachchatvar",
+      "aliases": [
+        "for_each_chat_var"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "foreachglobalvar",
+      "aliases": [
+        "for_each_global_var",
+        "foreachgvar"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "foreachmessage",
+      "aliases": [
+        "for_each_message"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "foreachvar",
+      "aliases": [
+        "for_each_var"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "getchatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "getgvar",
+      "aliases": [
+        "getglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "getvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "group",
+      "aliases": [],
+      "category": "Names"
+    },
+    {
+      "name": "groupcardmode",
+      "aliases": [
+        "group_card_mode"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "grouplastspeaker",
+      "aliases": [
+        "group_last_speaker"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "groupmembercount",
+      "aliases": [
+        "group_member_count"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "groupnotmuted",
+      "aliases": [
+        "group_not_muted"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "groupothers",
+      "aliases": [
+        "group_others"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "gt",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "gte",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "haschatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "hasextension",
+      "aliases": [
+        "has_extension"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "hasgvar",
+      "aliases": [
+        "gvarexists",
+        "hasglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "hastag",
+      "aliases": [
+        "char_tag",
+        "chartag",
+        "has_tag",
+        "tagged"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "hasvar",
+      "aliases": [
+        "haspresetvar",
+        "haspromptvar"
+      ],
+      "category": "state"
+    },
+    {
+      "name": "hostname",
+      "aliases": [
+        "host_name"
+      ],
+      "category": "Multiplayer"
+    },
+    {
+      "name": "idleduration",
+      "aliases": [
+        "idle_duration"
+      ],
+      "category": "Time"
+    },
+    {
+      "name": "if",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "incchatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "incgvar",
+      "aliases": [
+        "incglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "includes",
+      "aliases": [
+        "contains",
+        "inlist"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "incvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "input",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "integer",
+      "aliases": [
+        "int",
+        "isinteger"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "isgroupchat",
+      "aliases": [
+        "is_group_chat"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "ismobile",
+      "aliases": [
+        "is_mobile"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "ismultiplayer",
+      "aliases": [
+        "is_multiplayer",
+        "is_multiplayer_room",
+        "ismultiplayerroom"
+      ],
+      "category": "Multiplayer"
+    },
+    {
+      "name": "isnarrator",
+      "aliases": [
+        "is_narrator"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "isodate",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "isotime",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "join",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "last",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "lastcharmessage",
+      "aliases": [
+        "last_char_message",
+        "lastbotmessage"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "lastgenerationtype",
+      "aliases": [
+        "last_generation_type"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "lastmessage",
+      "aliases": [
+        "last_message"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "lastmessageid",
+      "aliases": [
+        "last_message_id"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "lastmessagename",
+      "aliases": [],
+      "category": "Chat"
+    },
+    {
+      "name": "lastswipeid",
+      "aliases": [],
+      "category": "Chat"
+    },
+    {
+      "name": "lastusermessage",
+      "aliases": [
+        "last_user_message"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "len",
+      "aliases": [
+        "length"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "let",
+      "aliases": [
+        "scope",
+        "withvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "listmax",
+      "aliases": [
+        "list_max"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "listmin",
+      "aliases": [
+        "list_min"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "loomcontinueprompt",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomcouncilresult",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "loomlastcharmessage",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomlastmessagename",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomlastusermessage",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomretrofits",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "loomsovhand",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomsovhandactive",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomstyle",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "loomsummary",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomsummaryprompt",
+      "aliases": [],
+      "category": "Loom"
+    },
+    {
+      "name": "loomutils",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lower",
+      "aliases": [
+        "lowercase",
+        "tolower"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "lt",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "lte",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "lumiabehavior",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiacouncildeliberation",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiacouncilinst",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiacouncilmodeactive",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiacounciltoolsactive",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiacounciltoolslist",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiadef",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiamessagecount",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaooc",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaoocerotic",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaooceroticbleed",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaooctrigger",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiapersonality",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaquirks",
+      "aliases": [
+        "lumiacouncilquirks"
+      ],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiaself",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "lumiastatesynthesis",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "map",
+      "aliases": [
+        "collect"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "matches",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "max",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "maxcontext",
+      "aliases": [
+        "max_context",
+        "maxcontexttokens"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "maxprompt",
+      "aliases": [
+        "max_prompt",
+        "maxprompttokens"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "maxresponse",
+      "aliases": [
+        "max_response",
+        "maxresponsetokens"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "memories",
+      "aliases": [
+        "chatmemory",
+        "longtermmemory",
+        "ltm"
+      ],
+      "category": "memory"
+    },
+    {
+      "name": "memoriesactive",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "memoriescount",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "memoriesraw",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "memorysalience",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "mesexamples",
+      "aliases": [
+        "examplemessages",
+        "mes_examples"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "mesexamplesraw",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "messageat",
+      "aliases": [
+        "message_at",
+        "msgat"
+      ],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "messagecount",
+      "aliases": [
+        "message_count",
+        "messagecount"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "messagesby",
+      "aliases": [
+        "messages_by",
+        "msgby"
+      ],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "min",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "mod",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "model",
+      "aliases": [],
+      "category": "State"
+    },
+    {
+      "name": "ne",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "newline",
+      "aliases": [
+        "n",
+        "nl"
+      ],
+      "category": "Core"
+    },
+    {
+      "name": "noop",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "not",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "notchar",
+      "aliases": [
+        "not_char"
+      ],
+      "category": "Names"
+    },
+    {
+      "name": "nth",
+      "aliases": [
+        "at"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "number",
+      "aliases": [
+        "isnumber",
+        "numeric"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "numbered",
+      "aliases": [
+        "enumerate",
+        "ol"
+      ],
+      "category": "Formatting"
+    },
+    {
+      "name": "obj",
+      "aliases": [
+        "objectivepronoun",
+        "personaobjectivepronoun"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "or",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "original",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "outlet",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "persona",
+      "aliases": [
+        "userpersona"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "personality",
+      "aliases": [
+        "charpersonality"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "pick",
+      "aliases": [],
+      "category": "Random"
+    },
+    {
+      "name": "playercount",
+      "aliases": [
+        "player_count",
+        "players_count",
+        "playerscount"
+      ],
+      "category": "Multiplayer"
+    },
+    {
+      "name": "players",
+      "aliases": [
+        "player_names",
+        "playernames"
+      ],
+      "category": "Multiplayer"
+    },
+    {
+      "name": "poss",
+      "aliases": [
+        "personapossessivepronoun",
+        "possessivepronoun"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "presetblock",
+      "aliases": [
+        "pblock"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "promptblockdepth",
+      "aliases": [
+        "blockdepth",
+        "prompt_block_depth"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "promptblockposition",
+      "aliases": [
+        "blockposition",
+        "prompt_block_position"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "promptblockrole",
+      "aliases": [
+        "blockrole",
+        "prompt_block_role"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "random",
+      "aliases": [],
+      "category": "Random"
+    },
+    {
+      "name": "randomlumia",
+      "aliases": [],
+      "category": "Lumia"
+    },
+    {
+      "name": "randomtag",
+      "aliases": [
+        "random_tag",
+        "randomchartag"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "range",
+      "aliases": [],
+      "category": "Iteration"
+    },
+    {
+      "name": "rcounter",
+      "aliases": [],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "reasoningprefix",
+      "aliases": [],
+      "category": "Reasoning"
+    },
+    {
+      "name": "reasoningsuffix",
+      "aliases": [],
+      "category": "Reasoning"
+    },
+    {
+      "name": "regex",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "regexinstalled",
+      "aliases": [
+        "has_regex",
+        "hasregex",
+        "regex_installed"
+      ],
+      "category": "Regex"
+    },
+    {
+      "name": "rejectedswipe",
+      "aliases": [
+        "regeneratedmessage",
+        "rejectedgeneration"
+      ],
+      "category": "Chat"
+    },
+    {
+      "name": "relationships",
+      "aliases": [],
+      "category": "memory"
+    },
+    {
+      "name": "repeat",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "replace",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "reverse",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "reverselist",
+      "aliases": [
+        "reverse_list"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "roll",
+      "aliases": [],
+      "category": "Random"
+    },
+    {
+      "name": "round",
+      "aliases": [],
+      "category": "Math"
+    },
+    {
+      "name": "scenario",
+      "aliases": [
+        "charscenario"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "setchatvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "setgvar",
+      "aliases": [
+        "setglobalvar"
+      ],
+      "category": "Variables"
+    },
+    {
+      "name": "setvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "shuffle",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "slice",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "some",
+      "aliases": [
+        "any"
+      ],
+      "category": "Iteration"
+    },
+    {
+      "name": "sort",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "space",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "split",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "startswith",
+      "aliases": [
+        "starts_with"
+      ],
+      "category": "Logic"
+    },
+    {
+      "name": "sub",
+      "aliases": [
+        "personasubjectivepronoun",
+        "subjectivepronoun"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "substr",
+      "aliases": [
+        "substring"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "sum",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "switch",
+      "aliases": [],
+      "category": "Logic"
+    },
+    {
+      "name": "system",
+      "aliases": [
+        "charprompt",
+        "charsystem"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "tag",
+      "aliases": [
+        "chartagat",
+        "nthtag",
+        "tag_at",
+        "tagat"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "tagcount",
+      "aliases": [
+        "chartagcount",
+        "numtags",
+        "tag_count",
+        "tags_count"
+      ],
+      "category": "Character"
+    },
+    {
+      "name": "take",
+      "aliases": [],
+      "category": "Lists"
+    },
+    {
+      "name": "time",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "timediff",
+      "aliases": [
+        "time_diff"
+      ],
+      "category": "Time"
+    },
+    {
+      "name": "toggle",
+      "aliases": [],
+      "category": "Chat Utils"
+    },
+    {
+      "name": "tokencount",
+      "aliases": [
+        "token_count",
+        "tokens"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "trim",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "truncate",
+      "aliases": [],
+      "category": "String"
+    },
+    {
+      "name": "unique",
+      "aliases": [
+        "dedupe",
+        "distinct"
+      ],
+      "category": "Lists"
+    },
+    {
+      "name": "unless",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "upper",
+      "aliases": [
+        "toupper",
+        "uppercase"
+      ],
+      "category": "String"
+    },
+    {
+      "name": "user",
+      "aliases": [],
+      "category": "Names"
+    },
+    {
+      "name": "usercolormode",
+      "aliases": [
+        "color_mode",
+        "colormode",
+        "user_color_mode"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "userinput",
+      "aliases": [
+        "user_input"
+      ],
+      "category": "State"
+    },
+    {
+      "name": "var",
+      "aliases": [
+        "presetvar",
+        "promptvar"
+      ],
+      "category": "state"
+    },
+    {
+      "name": "vardefault",
+      "aliases": [
+        "presetvardefault",
+        "promptvardefault"
+      ],
+      "category": "state"
+    },
+    {
+      "name": "weekday",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "wi_marker",
+      "aliases": [],
+      "category": "Core"
+    },
+    {
+      "name": "wrap",
+      "aliases": [],
+      "category": "String"
+    }
+  ]
+}

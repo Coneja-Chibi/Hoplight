@@ -1,0 +1,330 @@
+{
+  "engine": "marinara",
+  "provenance": "Read the SUPPORTED_MACROS export of Marinara-Engine's packages/shared/src/utils/macro-engine.ts and derived each name from its documented syntax. Names and category labels only; Marinara expresses aliases in prose, so none are claimed here.",
+  "sourceEnvVar": "VAUD_MARINARA_MACRO_SRC",
+  "capturedAt": "2026-07-27",
+  "macroCount": 64,
+  "aliasCount": 0,
+  "macros": [
+    {
+      "name": "addvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "agent",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "appearance",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "backstory",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "banned",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "char",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "char_about",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "characters",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "charname",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "charnamephonetic",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "charposthistory",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "charsysinfo",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "chatid",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "commands",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "context",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "convo_behavior",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "convo_display",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "date",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "datetime",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "decvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "description",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "else",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "example",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "gamestoryboardkeyframecount",
+      "aliases": [],
+      "category": "Game"
+    },
+    {
+      "name": "getvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "group",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "idle_duration",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "if",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "incvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "input",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "isotime",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "lastgenerationtype",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "lorebook",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "lowercase",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "memories",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "model",
+      "aliases": [],
+      "category": "Context"
+    },
+    {
+      "name": "name",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "newline",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "noop",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "persona",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "persona_about",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "personaappearance",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "personabackstory",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "personadescription",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "personality",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "personapersonality",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "personascenario",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "random",
+      "aliases": [],
+      "category": "Random"
+    },
+    {
+      "name": "reactrules",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "replyrules",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "roll",
+      "aliases": [],
+      "category": "Random"
+    },
+    {
+      "name": "scenario",
+      "aliases": [],
+      "category": "Character"
+    },
+    {
+      "name": "setvar",
+      "aliases": [],
+      "category": "Variables"
+    },
+    {
+      "name": "status",
+      "aliases": [],
+      "category": "Conversation"
+    },
+    {
+      "name": "time",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "timezone",
+      "aliases": [],
+      "category": "Time"
+    },
+    {
+      "name": "trim",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "trimend",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "trimstart",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "uppercase",
+      "aliases": [],
+      "category": "Formatting"
+    },
+    {
+      "name": "user",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "username",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "usernamephonetic",
+      "aliases": [],
+      "category": "Identity"
+    },
+    {
+      "name": "weekday",
+      "aliases": [],
+      "category": "Time"
+    }
+  ]
+}
