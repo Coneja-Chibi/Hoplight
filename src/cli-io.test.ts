@@ -15,6 +15,7 @@ import {
   parseConvertFlags,
   pathsAreSame,
   publishAtomic,
+  shouldHoldConsole,
 } from "./cli-io";
 
 describe("parseConvertFlags", () => {
@@ -135,5 +136,30 @@ describe("publishAtomic", () => {
     await writeFile(out, "PRIOR");
     await publishAtomic(out, "NEXT");
     expect(await readFile(out, "utf8")).toBe("NEXT");
+  });
+});
+
+describe("shouldHoldConsole", () => {
+  const base = { platform: "win32", noArguments: true, stdinIsTty: true, stdoutIsTty: true };
+
+  test("holds a bare double-clicked Windows console so the help can be read", () => {
+    expect(shouldHoldConsole(base)).toBe(true);
+  });
+
+  test("never holds when a command was given, including an explicit --help", () => {
+    // `--help` was typed on purpose in a shell that outlives the process; there is nothing to hold.
+    expect(shouldHoldConsole({ ...base, noArguments: false })).toBe(false);
+  });
+
+  test("never holds without a terminal, so a pipe or CI can never block on a prompt", () => {
+    expect(shouldHoldConsole({ ...base, stdinIsTty: false })).toBe(false);
+    expect(shouldHoldConsole({ ...base, stdoutIsTty: false })).toBe(false);
+    expect(shouldHoldConsole({ ...base, stdinIsTty: false, stdoutIsTty: false })).toBe(false);
+  });
+
+  test("only Windows: elsewhere the launching shell outlives the process", () => {
+    for (const platform of ["linux", "darwin", "freebsd"]) {
+      expect(shouldHoldConsole({ ...base, platform })).toBe(false);
+    }
   });
 });

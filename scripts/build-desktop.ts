@@ -25,6 +25,10 @@ const cliTargets = (process.argv.find((a) => a.startsWith("--cli-targets="))?.sp
   .map((s) => s.trim())
   .filter(Boolean);
 const skipDesktop = process.argv.includes("--no-desktop");
+// --kit compiles the Kit terminal app for THIS runner's own platform. Unlike the CLI it cannot be
+// cross-compiled: @opentui ships a native rendering library per platform, and a --target build fails
+// to resolve the one it is not running on. So Kit is built where it will run, on each OS's runner.
+const buildKit = process.argv.includes("--kit");
 
 // -- 1. UI assets -----------------------------------------------------------------------------------
 
@@ -281,12 +285,31 @@ try {
   }
   for (const target of cliTargets) {
     const short = target.replace(/^bun-/, "");
-    const out = join(root, "dist", `hoplight-${short}${short.startsWith("windows") ? ".exe" : ""}`);
+    // "cli" is in the name on purpose. These are terminal tools, and a Windows user who
+    // double-clicks a bare `hoplight-windows-x64.exe` sees a console flash and vanish, which reads
+    // as a broken app rather than a program that wants arguments. The filename is the first and
+    // cheapest place to say what this is.
+    const out = join(root, "dist", `hoplight-cli-${short}${short.startsWith("windows") ? ".exe" : ""}`);
     const compile = Bun.spawnSync(
       ["bun", "build", "--compile", `--target=${target}`, join(root, "src", "cli.ts"), "--outfile", out],
       { cwd: root, stdout: "inherit", stderr: "inherit" },
     );
     if (compile.exitCode !== 0) throw new Error(`cli compile failed for ${target}`);
+    console.log(`${out} ready`);
+  }
+
+  if (buildKit) {
+    // Host platform only, and named for it, since this binary cannot be built anywhere else.
+    const arch = process.arch === "arm64" ? "arm64" : "x64";
+    const os = process.platform === "win32" ? "windows" : process.platform === "darwin" ? "darwin" : "linux";
+    const out = join(root, "dist", `hoplight-kit-${os}-${arch}${os === "windows" ? ".exe" : ""}`);
+    const compile = Bun.spawnSync(
+      ["bun", "build", "--compile", join(root, "src", "kit", "index.tsx"), "--outfile", out],
+      { cwd: root, stdout: "inherit", stderr: "inherit" },
+    );
+    // A cross-target opentui miss exits 0 while writing nothing, so the file is the real check.
+    if (compile.exitCode !== 0) throw new Error("kit compile failed");
+    if (!await Bun.file(out).exists()) throw new Error(`kit compile produced no binary at ${out}`);
     console.log(`${out} ready`);
   }
 } finally {

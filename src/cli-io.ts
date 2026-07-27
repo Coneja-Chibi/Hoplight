@@ -245,6 +245,35 @@ export async function publishAtomic(
 }
 
 /** True when path is absolute (for callers that care). */
+/** The signals that distinguish a double-click from a shell invocation. */
+export interface LaunchSignals {
+  platform: string;
+  /** True when no command was given at all. `--help` does not count: that was typed on purpose. */
+  noArguments: boolean;
+  stdinIsTty: boolean;
+  stdoutIsTty: boolean;
+}
+
+/**
+ * Should the CLI hold the console open before exiting?
+ *
+ * Double-clicking a console executable in Explorer creates a console FOR that process, so when the
+ * process exits the window disappears with it. The help text renders and vanishes in the same
+ * frame, which reads as "the app flickered and closed" rather than "here is the usage". Holding the
+ * window is the difference between a bug report and an answer.
+ *
+ * Narrow on purpose. It fires only with NO arguments at all, so `--help` and every real command are
+ * untouched, and only when both streams are a terminal, so a pipe, a script, or CI can never hang
+ * on a prompt nobody is there to answer. Windows only: other platforms launch from a shell that
+ * outlives the process, so there is nothing to hold.
+ */
+export function shouldHoldConsole(signals: LaunchSignals): boolean {
+  return signals.platform === "win32"
+    && signals.noArguments
+    && signals.stdinIsTty
+    && signals.stdoutIsTty;
+}
+
 export const isAbs = (p: string): boolean => isAbsolute(p);
 
 /** Path separator for tests/docs. */

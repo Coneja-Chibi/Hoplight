@@ -4,17 +4,17 @@ import { isAllowedDownloadHost, resolveAsset } from "./release-download";
 
 const ASSETS = [
   "Hoplight.exe",
-  "hoplight-windows-x64.exe",
-  "hoplight-linux-x64",
-  "hoplight-darwin-arm64",
-  "hoplight-darwin-x64",
+  "hoplight-cli-windows-x64.exe",
+  "hoplight-cli-linux-x64",
+  "hoplight-cli-darwin-arm64",
+  "hoplight-cli-darwin-x64",
   "SHA256SUMS",
 ];
 
 describe("resolveAsset", () => {
   test("matches the running binary exactly", () => {
     expect(resolveAsset(ASSETS, "Hoplight.exe")).toBe("Hoplight.exe");
-    expect(resolveAsset(ASSETS, "hoplight-linux-x64")).toBe("hoplight-linux-x64");
+    expect(resolveAsset(ASSETS, "hoplight-cli-linux-x64")).toBe("hoplight-cli-linux-x64");
   });
   test("fails closed when no asset matches (dev bun binary, or an arch with no build)", () => {
     expect(resolveAsset(ASSETS, "bun.exe")).toBeNull();

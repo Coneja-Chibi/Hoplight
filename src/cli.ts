@@ -7,7 +7,7 @@
 
 import { basename, extname, join } from "node:path";
 import { homedir } from "node:os";
-import { CANONICAL_SCHEMA_VERSION, registry, loadFormats, primaryOriginalRaw } from "./core";
+import { CANONICAL_SCHEMA_VERSION, registry, primaryOriginalRaw } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
 import {
@@ -16,25 +16,14 @@ import {
   normalizeExtension,
   parseConvertFlags,
   publishAtomic,
+  shouldHoldConsole,
 } from "./cli-io";
 import { labelCard, sniffContainer } from "./entities/character/provenance";
 import { PACKAGED_ASSETS } from "./generated/packaged-assets";
-import { registerPackagedFormats } from "./generated/packaged-formats";
+import { ensureFormats } from "./ensure-formats";
 import { APP_VERSION as VERSION } from "./version";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { validateAdapterOutput } from "./cli-validation";
-
-/**
- * A compiled binary cannot glob src/formats, so a packaged build (PACKAGED_ASSETS baked non-null)
- * uses the static registry generated in the same bake; a source checkout keeps drop-in loading.
- */
-let formatsReady = false;
-async function ensureFormats(): Promise<void> {
-  if (formatsReady) return;
-  formatsReady = true;
-  if (PACKAGED_ASSETS !== null) registerPackagedFormats();
-  else await loadFormats();
-}
 
 /** Read a file into the shape adapters expect: bytes always, text when it is UTF-8-ish. */
 async function readInput(path: string): Promise<AdapterInput> {
@@ -142,6 +131,28 @@ const HELP = `${BANNER}
 
 const wantsJson = (args: string[]): boolean => args.includes("--json");
 
+/**
+ * Keep a double-clicked console on screen long enough to read. The decision lives in cli-io.ts so it
+ * is testable; this is only the impure wait. Anything that is not an interactive Windows console
+ * returns immediately, so a pipe, a script, or CI can never block here.
+ */
+async function holdConsoleIfClicked(noArguments: boolean): Promise<void> {
+  const hold = shouldHoldConsole({
+    platform: process.platform,
+    noArguments,
+    stdinIsTty: Boolean(process.stdin.isTTY),
+    stdoutIsTty: Boolean(process.stdout.isTTY),
+  });
+  if (!hold) return;
+  console.log("  This is the command-line tool. Run it from a terminal with a command above.");
+  console.log("  Looking for the app? That is Hoplight.exe.\n");
+  console.log("  Press Enter to close.");
+  await new Promise<void>((resolve) => {
+    process.stdin.once("data", () => resolve());
+    process.stdin.resume();
+  });
+}
+
 async function main(argv: string[]): Promise<number> {
   const args = argv.slice(2);
   const first = args[0];
@@ -155,6 +166,7 @@ async function main(argv: string[]): Promise<number> {
 
   if (!first || first === "-h" || first === "--help" || first === "help") {
     console.log(HELP);
+    await holdConsoleIfClicked(!first);
     return 0;
   }
 

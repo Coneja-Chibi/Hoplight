@@ -77,8 +77,8 @@ Download the latest build from [Releases](https://github.com/Coneja-Chibi/Hoplig
 | Platform | Download | Run |
 | --- | --- | --- |
 | **Windows** | `Hoplight.exe` | Double-click it |
-| **macOS** | `hoplight-darwin-arm64` or `hoplight-darwin-x64` | `chmod +x`, run it with `ui`, open the printed address |
-| **Linux** | `hoplight-linux-x64` | `chmod +x`, run it with `ui`, open the printed address |
+| **macOS** | `hoplight-cli-darwin-arm64` or `hoplight-cli-darwin-x64` | `chmod +x`, run it with `ui`, open the printed address |
+| **Linux** | `hoplight-cli-linux-x64` or `hoplight-cli-linux-arm64` | `chmod +x`, run it with `ui`, open the printed address |
 
 Windows may show a SmartScreen warning because the binary is unsigned. Releases include
 `SHA256SUMS` if you want to verify the download. If the app starts without opening a window, install

@@ -3,7 +3,7 @@ name: release
 # Builds and publishes a GitHub Release for one tag. Two doors, same room:
 #  - push a tag like v0.1.0 by hand, or
 #  - get called by auto-release.yml (workflow_call with the tag it just cut).
-# Builds the desktop exe (Windows), the CLI binaries for four targets (the same bake, so
+# Builds the desktop exe (Windows), the CLI binaries for five targets (the same bake, so
 # `hoplight ui` serves the packaged studio anywhere), checksums everything, and publishes with the
 # install guide (.github/RELEASE-NOTES-INSTALL.md) at the top of the notes. The tag must match
 # package.json's version.
@@ -55,14 +55,15 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - name: Build Hoplight.exe + Windows CLI
-        run: bun run scripts/build-desktop.ts --cli-targets=bun-windows-x64
+      - name: Build Hoplight.exe + Windows CLI + Kit
+        run: bun run scripts/build-desktop.ts --cli-targets=bun-windows-x64 --kit
       - uses: actions/upload-artifact@v4
         with:
           name: windows
           path: |
             dist/Hoplight.exe
-            dist/hoplight-windows-x64.exe
+            dist/hoplight-cli-windows-x64.exe
+            dist/hoplight-kit-windows-x64.exe
           if-no-files-found: error
 
   build-linux:
@@ -76,12 +77,16 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - name: Build Linux CLI
-        run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-linux-x64
+      - name: Build Linux CLIs (x64 + arm64) + Kit (x64)
+        # Kit is x64 only here: this runner is x64 and Kit cannot cross-compile (native opentui).
+        run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-linux-x64,bun-linux-arm64 --kit
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: dist/hoplight-linux-x64
+          path: |
+            dist/hoplight-cli-linux-x64
+            dist/hoplight-cli-linux-arm64
+            dist/hoplight-kit-linux-x64
           if-no-files-found: error
 
   build-macos:
@@ -95,14 +100,16 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - name: Build macOS CLIs (arm64 + x64)
-        run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-darwin-arm64,bun-darwin-x64
+      - name: Build macOS CLIs (arm64 + x64) + Kit (arm64)
+        # Kit is arm64 only here: macos-14 is Apple Silicon and Kit cannot cross-compile.
+        run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-darwin-arm64,bun-darwin-x64 --kit
       - uses: actions/upload-artifact@v4
         with:
           name: macos
           path: |
-            dist/hoplight-darwin-arm64
-            dist/hoplight-darwin-x64
+            dist/hoplight-cli-darwin-arm64
+            dist/hoplight-cli-darwin-x64
+            dist/hoplight-kit-darwin-arm64
           if-no-files-found: error
 
   publish:
@@ -122,7 +129,11 @@ jobs:
       - name: Checksums
         run: |
           cd dist
-          sha256sum Hoplight.exe hoplight-windows-x64.exe hoplight-linux-x64 hoplight-darwin-arm64 hoplight-darwin-x64 > SHA256SUMS
+          sha256sum Hoplight.exe \
+            hoplight-cli-windows-x64.exe hoplight-cli-linux-x64 hoplight-cli-linux-arm64 \
+            hoplight-cli-darwin-arm64 hoplight-cli-darwin-x64 \
+            hoplight-kit-windows-x64.exe hoplight-kit-linux-x64 hoplight-kit-darwin-arm64 \
+            > SHA256SUMS
           cat SHA256SUMS
       - name: Release notes (install guide, changelog link, machine-parseable commit block)
         run: |
@@ -154,8 +165,12 @@ jobs:
             --title "Hoplight ${RELEASE_TAG}" \
             --notes-file notes.md \
             dist/Hoplight.exe \
-            dist/hoplight-windows-x64.exe \
-            dist/hoplight-linux-x64 \
-            dist/hoplight-darwin-arm64 \
-            dist/hoplight-darwin-x64 \
+            dist/hoplight-cli-windows-x64.exe \
+            dist/hoplight-cli-linux-x64 \
+            dist/hoplight-cli-linux-arm64 \
+            dist/hoplight-cli-darwin-arm64 \
+            dist/hoplight-cli-darwin-x64 \
+            dist/hoplight-kit-windows-x64.exe \
+            dist/hoplight-kit-linux-x64 \
+            dist/hoplight-kit-darwin-arm64 \
             dist/SHA256SUMS
