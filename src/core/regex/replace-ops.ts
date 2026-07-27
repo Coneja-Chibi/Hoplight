@@ -46,11 +46,25 @@ export function applyTrim(value: string, trimStrings: readonly string[]): string
   return out;
 }
 
+/** A `{{token}}`: no braces inside, so a stray `{{` cannot swallow the rest of the template. */
+const MACRO_TOKEN = /\{\{([^{}]*)\}\}/g;
+
 /**
  * Substitute {{key}} tokens from a flat macro map (case-insensitive); escape the substituted value
  * when `escapeValues` is set. A function replacer is used so a `$` inside a value is never itself
- * interpreted as a replacement token. Transcribed verbatim from apply.ts's current helper so apply
- * can delegate here losslessly.
+ * interpreted as a replacement token.
+ *
+ * ONE pass over the text, resolving each token against the map as it is met. The earlier
+ * implementation looped over the macro entries instead, running a global replace per key, which
+ * left text inserted by one key visible to every later key. That made the result depend on the
+ * map's insertion order:
+ *
+ *   { a: "{{b}}", b: "BOOM" }  ->  "[BOOM]"    // b's pass expanded what a had just inserted
+ *   { b: "BOOM", a: "{{b}}" }  ->  "[{{b}}]"   // b ran first, so a's token survived literally
+ *
+ * Same logical map, different output. A single pass makes the result depend only on the map's
+ * contents, and means a macro VALUE can never smuggle another macro token into the result: an
+ * inserted `{{b}}` is output, not input. Unknown tokens stay literal, as before.
  */
 export function substituteMacros(
   text: string,
@@ -58,13 +72,13 @@ export function substituteMacros(
   escapeValues: boolean,
 ): string {
   if (!macros) return text;
-  let out = text;
-  for (const [key, value] of Object.entries(macros)) {
-    const token = new RegExp(`\\{\\{${escapeRegexChars(key)}\\}\\}`, "gi");
-    const replacement = escapeValues ? escapeRegexChars(value) : value;
-    out = out.replace(token, () => replacement);
-  }
-  return out;
+  const lookup = new Map<string, string>();
+  for (const [key, value] of Object.entries(macros)) lookup.set(key.toLowerCase(), value);
+  return text.replace(MACRO_TOKEN, (whole, key: string) => {
+    const value = lookup.get(key.toLowerCase());
+    if (value === undefined) return whole; // not ours: leave it exactly as written
+    return escapeValues ? escapeRegexChars(value) : value;
+  });
 }
 
 /**

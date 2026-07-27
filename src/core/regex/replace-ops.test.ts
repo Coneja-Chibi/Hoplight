@@ -231,3 +231,55 @@ describe("escapeRegexChars + applyTrim primitives", () => {
     expect(applyTrim("keep", [""])).toBe("keep"); // empty fragment is a no-op, never an infinite split
   });
 });
+
+/**
+ * Macro expansion resolves in ONE pass, so the result depends only on the map's contents and never
+ * on its insertion order. The previous per-key loop left text inserted by one key visible to every
+ * later key, so the same logical map produced different output depending on how it was built.
+ */
+describe("macro substitution is order-independent", () => {
+  test("a value that looks like another token is output, not re-expanded", () => {
+    expect(substituteMacros("[{{a}}]", { a: "{{b}}", b: "BOOM" }, false)).toBe("[{{b}}]");
+  });
+
+  test("the reverse insertion order gives exactly the same answer", () => {
+    const forward = substituteMacros("[{{a}}]", { a: "{{b}}", b: "BOOM" }, false);
+    const reverse = substituteMacros("[{{a}}]", { b: "BOOM", a: "{{b}}" }, false);
+    expect(forward).toBe(reverse);
+  });
+
+  test("a self-referential value does not loop or re-expand", () => {
+    expect(substituteMacros("[{{a}}]", { a: "{{a}}" }, false)).toBe("[{{a}}]");
+  });
+
+  test("independent tokens all resolve in the single pass", () => {
+    expect(substituteMacros("{{a}}-{{b}}-{{a}}", { a: "1", b: "2" }, false)).toBe("1-2-1");
+  });
+
+  test("an unknown token is left exactly as written", () => {
+    expect(substituteMacros("{{known}} {{unknown}}", { known: "yes" }, false)).toBe("yes {{unknown}}");
+  });
+
+  test("a key whose value is empty resolves to empty, not to a literal token", () => {
+    expect(substituteMacros("[{{k}}]", { k: "" }, false)).toBe("[]");
+  });
+
+  test("regex metacharacters in a KEY are matched literally, not as a pattern", () => {
+    expect(substituteMacros("[{{a.b}}]", { "a.b": "hit" }, false)).toBe("[hit]");
+    // the "." must not behave as a regex wildcard and match "axb"
+    expect(substituteMacros("[{{axb}}]", { "a.b": "hit" }, false)).toBe("[{{axb}}]");
+  });
+
+  test("spacing inside the braces is significant, as before", () => {
+    expect(substituteMacros("{{ user }}", { user: "Ada" }, false)).toBe("{{ user }}");
+  });
+
+  /**
+   * Documented limitation rather than a regression worth code: a macro KEY containing braces is not
+   * addressable, because the token grammar stops at the first brace so a stray "{{" cannot swallow
+   * the rest of the template. No real macro map uses brace keys; pinned so the tradeoff is explicit.
+   */
+  test("a key containing braces is not addressable", () => {
+    expect(substituteMacros("[{{a{b}}]", { "a{b": "hit" }, false)).toBe("[{{a{b}}]");
+  });
+});
