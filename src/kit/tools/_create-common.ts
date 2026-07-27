@@ -21,6 +21,14 @@ interface CreateDraftRequest {
   body: unknown;
   input: unknown;
   changes?: readonly CapabilityChange[];
+  /** Escrow carried from a source piece. A copy that drops it silently loses every unmapped
+   *  platform-native field, which is the data loss rule 2 exists to prevent. Absent for
+   *  from-scratch creation, which has no source to preserve. */
+  original?: unknown;
+  /** Per-app overrides carried from a source piece, for the same reason as `original`. */
+  profiles?: unknown;
+  /** Capability id recorded on the operation; defaults to the create workflow for this kind. */
+  capabilityId?: string;
 }
 
 /** Derive and validate the requested exact Studio id without touching storage. */
@@ -55,9 +63,11 @@ export async function createEntityDraft(
     kind: request.kind,
     id,
     body: request.body,
+    ...(request.original === undefined ? {} : { original: request.original }),
+    ...(request.profiles === undefined ? {} : { profiles: request.profiles }),
   });
   const operation: ChangeOperation = {
-    capabilityId: `studio.${request.kind}.create`,
+    capabilityId: request.capabilityId ?? `studio.${request.kind}.create`,
     input: request.input,
     changes: request.changes ?? [{
       path: "/",

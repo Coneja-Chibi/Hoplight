@@ -31,6 +31,7 @@ import { createChangeQueryTool } from "./tools/change-query";
 import type { ContentCapability } from "../entities/capabilities";
 import { createHoplightDocs } from "./docs/repository";
 import { createResultStore } from "./results/store";
+import { StudioExports } from "../studio/exports";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
  * failure). begin fires once when the provider resolves (who is about to answer); delta streams live
@@ -85,6 +86,9 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     changes,
     docs: createHoplightDocs(),
     results,
+    // Bound to the same studio this session reads from, so an export always lands beside the
+    // pieces it came from and never anywhere the caller chose.
+    exports: new StudioExports(bridge.studioDir),
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));

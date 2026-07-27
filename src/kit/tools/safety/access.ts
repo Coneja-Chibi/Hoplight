@@ -24,6 +24,20 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_preset_create", "draft"],
   ["studio_regex_create", "draft"],
   ["studio_pack_create", "draft"],
+  // Lifecycle beyond creation. A copy is preview-only like every other create, so it is a draft.
+  // Removal is durable and irreversible, so it takes the dedicated `delete` class (danger floor)
+  // rather than "write" - a piece coming back is not something the Gate can offer.
+  ["studio_duplicate", "draft"],
+  ["studio_delete", "delete"],
+  // Transfer serializes to another platform's wire and returns the payload as an observation. It
+  // touches no storage and writes no file, so it is a read. Export is the tool that writes, and it
+  // gets its own name and its own class here rather than a widened meaning of transfer.
+  ["studio_transfer", "read"],
+  // Export creates a file in the studio's exports folder. `write` rather than `delete`: it is
+  // create-only and refuses an occupied name, so it can add a file but never destroy one.
+  ["studio_export", "write"],
+  // Pure catalog lookup: no storage, no filesystem, no network.
+  ["macro_lookup", "read"],
 ]);
 
 export type AccessResolver = (name: string) => ToolAccess;

@@ -14,6 +14,7 @@ import type { KitBridge } from "../bridge";
 import type { ChangeSession } from "../changes/session";
 import type { HoplightDocs } from "../docs/repository";
 import type { ResultStore } from "../results/store";
+import type { StudioExports } from "../../studio/exports";
 
 /** What a tool is handed at dispatch time: the one engine seam, nothing else. */
 export interface ToolContext {
@@ -24,6 +25,9 @@ export interface ToolContext {
   docs?: HoplightDocs;
   /** Bounded, opaque session-local storage for oversized tool observations. */
   results?: ResultStore;
+  /** Write access to the studio's exports folder. Separate from the bridge because an export is a
+   *  one-way projection into another platform's wire, not canonical content. */
+  exports?: StudioExports;
 }
 
 /** Structured preview handed from a draft tool to the application-owned review surface. */

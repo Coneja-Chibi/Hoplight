@@ -213,8 +213,12 @@ describe("discovery", () => {
     const names = (await discoverTools()).map((tool) => tool.name).sort();
     expect(names).toEqual([
       "docs_query",
+      "macro_lookup",
       "result_query",
       "studio_character_create",
+      "studio_delete",
+      "studio_duplicate",
+      "studio_export",
       "studio_list",
       "studio_lorebook_create",
       "studio_pack_create",
@@ -223,6 +227,7 @@ describe("discovery", () => {
       "studio_read",
       "studio_regex_create",
       "studio_search",
+      "studio_transfer",
     ]);
   });
 });
