@@ -34,3 +34,33 @@ export const parseCharacterFilter = (v: unknown): CharacterFilter | null => {
     tags: Array.isArray(f.tags) ? (f.tags as string[]) : [],
   };
 };
+
+/**
+ * Force entry ids unique, preserving the first claim on any id and suffixing later collisions.
+ *
+ * Formats in this family derive an id from the source file (`uid` in ST, `id` in Marinara) and fall
+ * back to the array index when the field is absent. That fallback collides two ways: a book mixing
+ * uid-bearing and uid-less entries can produce an index that some other entry already claims as its
+ * uid, and `String()` collapses the number 0 and the string "0" onto the same id.
+ *
+ * Duplicates are not cosmetic downstream. The activation engine keys its verdict map by entry id, so
+ * a collision makes one entry inherit the other's verdict and fire on keywords it does not have; and
+ * the ST/Marinara writers index their raw twin by id, so two entries sharing one resolve to the same
+ * output key and the second silently overwrites the first, losing an entry on round-trip.
+ *
+ * Pure, order-preserving, and stable: the same input always yields the same ids.
+ */
+export function ensureUniqueEntryIds<T extends { id: string }>(entries: T[]): T[] {
+  const seen = new Set<string>();
+  return entries.map((entry) => {
+    if (!seen.has(entry.id)) {
+      seen.add(entry.id);
+      return entry;
+    }
+    let suffix = 2;
+    while (seen.has(`${entry.id}-${suffix}`)) suffix += 1;
+    const id = `${entry.id}-${suffix}`;
+    seen.add(id);
+    return { ...entry, id };
+  });
+}
