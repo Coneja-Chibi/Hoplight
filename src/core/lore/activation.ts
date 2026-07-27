@@ -37,6 +37,21 @@ export type {
 export type { MatchOpts, KeywordHit } from "./match-keys";
 export { keywordMatches, resolveMatchOpts, secondaryLogicOk, firstTriggerHit } from "./match-keys";
 
+const DEFAULT_RECURSION_LOOPS = 3;
+const MAX_RECURSION_LOOPS = 10;
+
+/**
+ * Clamp the caller's recursion budget into range. Non-finite input takes the default rather than
+ * riding through: Math.max(NaN, 0) is NaN, and a NaN ceiling makes `loop <= maxLoops` false on the
+ * very first check, so the scan loop never runs at all and every entry falls through to the
+ * no-key-match default. That reads as "none of your keywords matched" when the truth is that the
+ * engine never looked, which is the worst possible verdict to show a creator debugging a book.
+ */
+function clampLoops(requested: number | undefined): number {
+  if (requested === undefined || !Number.isFinite(requested)) return DEFAULT_RECURSION_LOOPS;
+  return Math.min(Math.max(Math.trunc(requested), 0), MAX_RECURSION_LOOPS);
+}
+
 const emptyTimed = (turn = 0): TimedState => ({
   stickyLeft: {},
   cooldownLeft: {},
@@ -158,7 +173,7 @@ export function scanBook(
   lines: readonly ScanLine[],
   opts: ActivationOptions = { chanceMode: "always" },
 ): ActivationResult {
-  const maxLoops = Math.min(Math.max(opts.maxRecursionLoops ?? 3, 0), 10);
+  const maxLoops = clampLoops(opts.maxRecursionLoops);
   const rng = opts.rng ?? (() => 0.5);
   const prev = opts.turnState ?? emptyTimed(0);
   const stickyLeft: Record<string, number> = { ...prev.stickyLeft };

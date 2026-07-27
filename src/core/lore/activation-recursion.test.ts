@@ -195,3 +195,37 @@ describe("golden: workshop-export + powers line", () => {
     expect(r.fired.map((f) => f.entryId).sort()).toEqual(["ember-echo", "revival-system"]);
   });
 });
+
+/**
+ * A non-finite recursion budget used to make maxLoops NaN, which made `loop <= maxLoops` false on
+ * the first check: the scan loop never ran, and every entry fell through to the no-key-match
+ * default. The verdict was the damaging part, since it blamed the book's keywords for an engine
+ * that never looked at them.
+ */
+describe("recursion budget clamping", () => {
+  const book = bookOf([entry("a", { triggers: [{ keyword: "hello", isRegex: false }] })]);
+  const chat = [line("hello there")];
+
+  test("a non-finite budget falls back to the default instead of disabling the scan", () => {
+    for (const bad of [NaN, Infinity, -Infinity]) {
+      const r = scanBook(book, chat, { chanceMode: "always", maxRecursionLoops: bad });
+      expect(r.fired.map((f) => f.entryId)).toEqual(["a"]);
+    }
+  });
+
+  test("a fractional budget truncates rather than poisoning the comparison", () => {
+    const r = scanBook(book, chat, { chanceMode: "always", maxRecursionLoops: 2.7 });
+    expect(r.fired.map((f) => f.entryId)).toEqual(["a"]);
+  });
+
+  test("zero still means no recursion, and the first pass still runs", () => {
+    const r = scanBook(book, chat, { chanceMode: "always", maxRecursionLoops: 0 });
+    expect(r.fired.map((f) => f.entryId)).toEqual(["a"]);
+    expect(r.loops).toBe(0);
+  });
+
+  test("an over-large budget is capped, not rejected", () => {
+    const r = scanBook(book, chat, { chanceMode: "always", maxRecursionLoops: 9999 });
+    expect(r.fired.map((f) => f.entryId)).toEqual(["a"]);
+  });
+});
