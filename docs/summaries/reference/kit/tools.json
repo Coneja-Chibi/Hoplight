@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:7539b5559c3959eaf074658e82271816c8e2c59691bf7d9504d4b4ea1ec6da9a",
-  "summary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Nine direct tools begin each turn. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target. Selected JSON Schemas carry field descriptions, defaults, and media reference rules. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application's review card; autopilot may auto-allow caution writes and full-auto may auto-allow access above the safety floor. Atomic create-only apply refuses occupied IDs and verifies storage. Repeated identical reads stop early. docs_query supplies bounded traversal. Unit and integration proof exists; live terminal verification remains required.",
+  "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
+  "summary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Ten direct tools begin each turn, studio_delete among them. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
   "topics": [
     "runtime tools vs slash",
     "workflow discovery lifecycle",
     "capability contract pure",
     "apply Gate authorization",
-    "nine direct five deferred",
-    "character ten capabilities",
-    "lorebook five ops",
-    "docs_query four actions",
-    "result and change query",
-    "change_apply verify"
+    "ten direct five deferred",
+    "duplicate carries escrow",
+    "delete danger floor",
+    "transfer writes no file",
+    "macro check name level",
+    "docs_query four actions"
   ],
   "sections": [
     {
       "slug": "built-lifecycle",
       "title": "Built lifecycle",
       "level": 2,
-      "sourceHash": "sha256:9dd609fa88837e06e33c1cd4b5bce2d369404790dd9fcb1e558f78fb1ada0198",
-      "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract. kit capabilities adapts content and non-content descriptors into one unique-name registry. capability_find accepts inferred actions and flat kinds. Six studio lifecycle tools create character, lorebook, persona, preset, regex, or media-pack drafts without existing targets or writes. Each has exact-name draft safety. Selected schemas describe required fields, defaults, and media reference conventions only after discovery. kit changes retains baseline, escrow, warnings, platform impact, and create or update mode. Review remains application-owned. Update apply compares revisions; create apply atomically refuses occupied IDs; both verify. studio_read returns one normal whole piece, result_query handles genuinely oversized observations, and nearby identical reads stop early. Tool-budget and cancellation exits preserve provider tool-call/result pairing without running cancelled mutations. docs_query remains catalog-only. Reads overlap while mutations serialize. /tools is the target-aware Panel Deck. Backstage owns lifecycle receipts.",
+      "sourceHash": "sha256:f6a0734226275a6c4e691ca4fcf83972d49a104e6b039d4bf0f07ce329e0ba94",
+      "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract. kit capabilities adapts content and non-content descriptors into one unique-name registry. Six studio lifecycle tools create character, lorebook, persona, preset, regex, or media-pack drafts without existing targets or writes. studio.piece.duplicate copies a stored piece to a new id through the same create-only compare, carrying body, profiles and original escrow so a copy never silently loses platform-native fields. studio_delete removes one piece, is the only direct apply tool, carries no discovery descriptor because the runtime refuses deferred apply workflows, and reports a miss as stale without writing. studio_transfer serializes a piece through another platform adapter, reports dropped fields, escrowed fields and dead macros, writes no file, and imports the conversion graph lazily. kit changes retains baseline, escrow, warnings, platform impact, and create or update mode. Update apply compares revisions; create apply atomically refuses occupied IDs; both verify. studio_read returns one whole piece and result_query handles oversized observations. Reads overlap while mutations serialize.",
       "topics": [
         "six content bundles",
         "pure entity previews",
+        "duplicate carries escrow",
+        "delete danger floor",
+        "transfer writes no file",
         "shared workflow descriptor catalog",
-        "result and change query",
         "change_apply Gate",
-        "docs_query catalog",
-        "serial draft batches",
-        "Panel Deck /tools"
+        "serial draft batches"
       ],
       "children": []
     },
@@ -71,17 +71,16 @@
       "slug": "progressive-exposure",
       "title": "Progressive exposure",
       "level": 2,
-      "sourceHash": "sha256:9930031e4fab899e4398664dd5fc539c7fc26720aa31f03b90715655c542b404",
-      "summary": "The unique-name registry remains dispatchable while each turn starts with nine direct tools. One discovery catalog serves content, studio, transfer, and diagnostics. Deferred entries include content capabilities and six studio creation workflows. capability_find infers search from query, describe from ID, and browse otherwise; it accepts a flat kind and content-kind area shorthand. Search reveals at most five matches, browse returns collapsed metadata, and describe reveals one typed operation. The next provider snapshot receives only selected schemas. Creation schemas document lore entries, persona brief versus content, preset blocks and media flags, sealed regex rules, and portrait or pack refs with MIME guidance. Hidden descriptors never surface. studio_read returns normal pieces up to 64,000 characters in one observation; oversized pieces use handles and traversal. Repeated identical reads stop early. Draft query validates current revision or create-time absence without writing.",
+      "sourceHash": "sha256:ce07a0d698baae7927535d05567e9da8ad348c81d1295decf98a1e3cdb23f857",
+      "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and ten direct tools begin each turn including studio_delete. studio_delete is direct for a structural reason: the deferred path classifies a tool from discovery metadata, and the runtime refuses to let that path describe an apply effect, so a destructive workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would require ChangeDraftMode to grow a remove arm and proposed to become optional, a core authority change deferred to its own design pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains a declared but empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse exposes no schemas, describe reveals one. Hidden descriptors never appear. The deferred set clears each turn while drafts persist.",
       "topics": [
-        "nine direct tools",
-        "four discovery domains",
-        "apply safety fail closed",
-        "five deferred matches",
-        "hidden never exposed",
-        "JSON Pointer reads",
-        "opaque result handles",
-        "complete draft query"
+        "ten direct tools",
+        "delete granted by name",
+        "no deferred apply",
+        "transfer domain populated",
+        "diagnostics still empty",
+        "five deferred maximum",
+        "hidden never surfaces"
       ],
       "children": [
         {
@@ -164,6 +163,83 @@
       "shortSource": true
     },
     {
+      "slug": "macro-translation-across-engines",
+      "title": "Macro translation across engines",
+      "level": 2,
+      "sourceHash": "sha256:9f19f165483b2d1c4a05ec9d0fc5dd617b53a26e99c4b49cf4b1b131555f4752",
+      "summary": "Macro translation across engines states that a preset crossing to another engine is translated rather than only reported on, because refusing over one imperfect token leaves the job unfinished and authored prose outweighs a macro that was never going to fire. The engine computes every equivalence and the model explains it, never the reverse, since a model reasoning from names alone is confidently wrong when names collide but meanings do not follow them. There is no engine-pair table: project rule 1 forbids format-to-format conversion for macros as it does for codecs, because five engines would mean twenty directed pairs. Each catalog instead declares what its own macros mean through canonical operations, and every cross-engine answer is a join on that meaning. Crossings produce portable, collision, absent or flatten verdicts. A gate asserts no shared name diverges in shape without a declared operation. Risu, Agnai and unverified SillyTavern annotations are named as honest limits.",
+      "topics": [
+        "translate not report",
+        "engine computes model explains",
+        "no engine pair table",
+        "canonical operations hub",
+        "ops attach per entry",
+        "portable collision absent flatten",
+        "annotation gate empty",
+        "honest limits named"
+      ],
+      "children": [
+        {
+          "slug": "hub-and-spoke-the-same-as-formats",
+          "title": "Hub and spoke, the same as formats",
+          "level": 3,
+          "sourceHash": "sha256:6851bf8b99c04efd74d5d5f15e7fb0b4846f353d1506bd3ed3442a308cd08f1b",
+          "summary": "Hub and spoke explains why macros have no engine-pair table. Project rule 1 forbids format-to-format conversion for macros as it does for codecs, because five engines would mean twenty directed pairs and each new engine would multiply the work. Each catalog instead declares what its own macros mean through canonical operations, and every cross-engine answer is a join on that meaning. Adding an engine is one annotation pass. Operations attach per entry rather than per name, because one name can mean different things at different argument counts: RoleCall reads random as a range at two arguments and a pick at three or more. Annotation is partial by design, since unannotated entries fall back to name matching.",
+          "topics": [
+            "rule 1 applies to macros",
+            "twenty pairs avoided",
+            "catalogs describe themselves",
+            "ops per entry not name",
+            "partial annotation is correct"
+          ],
+          "children": []
+        },
+        {
+          "slug": "what-a-crossing-produces",
+          "title": "What a crossing produces",
+          "level": 3,
+          "sourceHash": "sha256:37a486363afddba9c7adb90fbdb1b1e0a2c849d3e88630fffe55accb687424a6",
+          "summary": "A crossing produces one of four verdicts. Portable means both engines perform the operation and the token is re-spelled in the target's punctuation. Collision means the same name performs a different operation, so it is left as authored and flagged rather than silently kept. Absent means the target has no macro for the operation, so it is removed with same-family candidates. Flatten means a block the target cannot express, where the body is kept and only the scaffolding removed. Random with two arguments crossing RoleCall to SillyTavern is the worked example: a range meets a pick, and the collision is derived rather than listed anywhere.",
+          "topics": [
+            "four verdicts",
+            "collision never silent",
+            "candidates offered",
+            "body kept on flatten",
+            "condition kept as comment"
+          ],
+          "children": []
+        },
+        {
+          "slug": "the-gate-that-keeps-it-honest",
+          "title": "The gate that keeps it honest",
+          "level": 3,
+          "sourceHash": "sha256:e70bc5f876c8885cc154cfc04c089f2733aab123f3164f899ffa7f55d2d6d166",
+          "summary": "The gate is a function returning any macro name that several engines share with differing argument shapes where at least one side has not declared an operation, paired with a test asserting that list stays empty. This is what keeps the hub trustworthy as engines are added: a shared name spelled differently, whose meaning nobody has written down, is exactly where a silent mistranslation hides. Because divergence is detected mechanically rather than by reading, the system reports which annotations are owed instead of leaving a person to hunt for them, and a contributor cannot introduce a silent mistranslation by adding an engine and forgetting to declare what one of its macros means.",
+          "topics": [
+            "divergence detected mechanically",
+            "list must stay empty",
+            "annotations owed are reported",
+            "cannot forget silently"
+          ],
+          "children": []
+        },
+        {
+          "slug": "honest-limits",
+          "title": "Honest limits",
+          "level": 3,
+          "sourceHash": "sha256:92fdf5a725ca6b036298b4b2451ac80abcf66ed1ae646a594989dcf55dcd9c2d",
+          "summary": "Honest limits names what the translation layer cannot currently prove. Risu with its bracket CBS dialect and Agnai with its named-slot templates are not modeled at all, so an unmodeled target reports unchecked, which a caller must render as unknown and never as clean. SillyTavern's catalog is the only one with no oracle to verify against, so its annotations are the least grounded of the four, while RoleCall, Lumiverse and Marinara are machine-checked against their real registries by the macro oracle. Flag-prefixed tokens resolve to no name and are therefore never flagged, because the same prefix character means different things on different engines and stripping it would trade a false negative for a false positive.",
+          "topics": [
+            "Risu Agnai unmodeled",
+            "unchecked never clean",
+            "SillyTavern lacks an oracle",
+            "flag prefixes stay lenient"
+          ],
+          "children": []
+        }
+      ]
+    },
+    {
       "slug": "hoplight-documentation-query",
       "title": "Hoplight documentation query",
       "level": 2,
@@ -185,15 +261,16 @@
       "slug": "verification-status",
       "title": "Verification status",
       "level": 2,
-      "sourceHash": "sha256:03e998310c64b3595d7b92baf4fab882b550250de6e19d373095b481a4e6383b",
-      "summary": "Proof covers compact discovery, all six creation descriptors and previews, selected-schema media guidance, exact-name draft safety, duplicate-name refusal, whole-card reads through 64,000 characters, oversized storage, repeated-read stopping, JSON Pointer traversal, and complete draft evidence. Creation proof includes no preview writes, canonical create mode, atomic create-only persistence, occupied-ID refusal, one-shot apply, and verification. Update proof retains composition, escrow preservation, stale refusal, one-save apply, and a fake-provider rename journey. Live terminal verification remains required.",
+      "sourceHash": "sha256:1b464326e39f566728e76d7c0207d67cd46f3e1edfe2293c5b52dc4d258ceec3",
+      "summary": "Verification status separates proof from gaps. Unit and integration tests cover discovery, creation preview, draft evidence, collision and stale refusal, one-save apply, and post-save verification. Lifecycle and transfer add delete safety, escrow-carrying duplication, structural export containment, create-only refusal, and a RoleCall to SillyTavern preset journey onto a real filesystem. An oracle checks macro catalogs against each engine registry; SillyTavern alone lacks one. Live verification against a real provider remains outstanding.",
       "topics": [
-        "unit integration proof",
-        "result and draft proof",
-        "read-effect isolation",
-        "stale one-save verify",
-        "fake-provider journey",
-        "live terminal required"
+        "proof separated from gaps",
+        "lifecycle and transfer covered",
+        "export containment structural",
+        "preset journey end to end",
+        "oracle backed macro claims",
+        "SillyTavern unverified",
+        "live session still owed"
       ],
       "children": [],
       "shortSource": true

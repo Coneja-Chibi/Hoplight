@@ -1,8 +1,8 @@
 {
-  "generated": "2026-07-26",
+  "generated": "2026-07-27",
   "targetChars": 90000,
   "totalPages": 111,
-  "totalSourceChars": 963390,
+  "totalSourceChars": 970675,
   "batches": [
     {
       "id": "batch-001",
@@ -600,7 +600,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 89702,
+      "sourceChars": 84981,
       "pages": [
         {
           "docId": "reference/formats/rolecall",
@@ -638,8 +638,8 @@
           "docId": "reference/kit/tools",
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
-          "sectionCount": 11,
-          "sourceChars": 20366,
+          "sectionCount": 16,
+          "sourceChars": 27651,
           "status": "APPROVED"
         },
         {
@@ -649,7 +649,13 @@
           "sectionCount": 11,
           "sourceChars": 11017,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-009",
+      "sourceChars": 86691,
+      "pages": [
         {
           "docId": "reference/platforms/marinara/agents-and-tools",
           "sourcePath": "docs/reference/platforms/marinara/agents-and-tools.md",
@@ -665,13 +671,7 @@
           "sectionCount": 9,
           "sourceChars": 5050,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-009",
-      "sourceChars": 86862,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/marinara/chats-and-interchange",
           "sourcePath": "docs/reference/platforms/marinara/chats-and-interchange.md",
@@ -767,7 +767,13 @@
           "sectionCount": 6,
           "sourceChars": 9075,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-010",
+      "sourceChars": 87145,
+      "pages": [
         {
           "docId": "reference/platforms/sillytavern/chats-and-groups",
           "sourcePath": "docs/reference/platforms/sillytavern/chats-and-groups.md",
@@ -783,13 +789,7 @@
           "sectionCount": 9,
           "sourceChars": 8119,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-010",
-      "sourceChars": 74968,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/sillytavern/macro-reference",
           "sourcePath": "docs/reference/platforms/sillytavern/macro-reference.md",

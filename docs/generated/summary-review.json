@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-26",
+  "generated": "2026-07-27",
   "count": 111,
   "pages": [
     {
@@ -590,9 +590,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-doc-review-surfaces-r3",
-      "sourceHash": "sha256:7539b5559c3959eaf074658e82271816c8e2c59691bf7d9504d4b4ea1ec6da9a",
-      "semanticSummaryHash": "sha256:dbc1268494078af88b1d05f64e4203c36253192538dca25b8748ae319d14c230"
+      "reviewer": "Chi",
+      "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
+      "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129"
     },
     {
       "docId": "reference/platform-native-fields",

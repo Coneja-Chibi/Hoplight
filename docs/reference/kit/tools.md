@@ -52,6 +52,29 @@ session:
 - `studio.<kind>.create` reveals a typed creation workflow for every canonical kind: character,
   lorebook, persona, preset, regex, and pack. Each builds a canonical preview and does not write
   during composition.
+- `studio.piece.duplicate` copies one stored piece to a new id. A copy is a create, so it composes a
+  preview-only draft and reaches storage through the same create-only compare. It carries `body`,
+  `profiles` and `original` forward: a copy that dropped escrow would silently lose every
+  platform-native field the canonical model does not express.
+- `studio_delete` removes one piece. It is the only Kit tool that destroys canonical content and the
+  only direct tool with an `apply` effect. It carries no discovery descriptor, because
+  `capabilities/runtime.ts` refuses any deferred workflow whose effect is `apply`; its sole
+  classification is the explicit `delete` entry in the safety-owned trust map, which sits at the
+  danger floor. It reads the target before removing it, reports a miss as `stale` without writing,
+  and states plainly that referencing pieces were not checked.
+- `studio_transfer` previews a crossing: it serializes one stored piece through another platform's
+  adapter and reports what the crossing costs, without writing anything.
+- `studio_export` performs the crossing and writes the file into `<studio>/exports`. The model
+  supplies no path component at all: it names a piece and a target format, and the filename is
+  derived from the piece id plus the adapter's own extension. Containment is therefore structural
+  rather than validated, which is what makes a model-callable file write safe. Writes are
+  create-only, because an export that silently replaced an earlier one could destroy a file already
+  sent to somebody and there is no revision history to recover it from. Binary carriers are refused
+  rather than mangled.
+- Both call one shared `convertStoredPiece`, so a preview can never report different losses than the
+  write that follows it. The conversion graph is imported lazily so it stays out of Kit's cold start.
+- `macro_lookup` answers "what does this macro do here, and what is it on that platform?" from the
+  engines' own catalogs, so a model never has to guess an equivalent.
 - A selected capability creates or composes a preview draft without saving. Its result also carries
   a structured semantic review projection; the loop never parses a draft ID or field diff from
   prose or JSON output.
@@ -131,11 +154,22 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with nine direct tools: `studio_list`,
+resolve a selected operation. Each user turn starts with twelve direct tools: `studio_list`,
 `studio_search`, `studio_read`, `docs_query`, `result_query`, `capability_find`, `change_query`,
-`change_apply`, and `change_discard`.
+`change_apply`, `change_discard`, `macro_lookup`, `studio_delete`, and `studio_export`.
+
+`studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
+convenience one. The
+deferred path classifies a tool from its discovery metadata, and the runtime refuses to let that
+path describe an `apply` effect at all, so a destructive workflow cannot be discovered into
+existence. A tool that must be granted by exact name in the trust map has no discovery descriptor to
+hide behind. Routing removal through the draft/apply path instead would require `ChangeDraftMode` to
+grow a `remove` arm and `ChangeDraft.proposed` to become optional; that is a change to a core
+authority and belongs in its own design pass.
 
 One provider-discovery catalog accepts `content`, `studio`, `transfer`, and `diagnostics` domains.
+`transfer` is populated by `studio_transfer`; `diagnostics` is a declared but still empty slot, and
+nothing should read its presence in the enum as a shipped workflow.
 Content capability metadata projects into that catalog; a non-content `HarnessTool` supplies the
 same validated discovery metadata beside its implementation. The live deferred inventory includes
 the content catalog and typed creation for all six canonical kinds under `studio/lifecycle`.
@@ -255,6 +289,67 @@ These operations share pure entity-layer reducers with the Workbench where the c
 already exists. Regex and embedded behavior payloads remain sealed data and are never executed by a
 capability.
 
+## Macro translation across engines
+
+A preset crossing to another engine is TRANSLATED, not merely reported on. Refusing because one
+token has no perfect twin leaves the job unfinished: the author asked for a preset they can load
+somewhere else, and prose they wrote is worth more than a macro that was never going to fire.
+
+The engine computes every equivalence and the model explains it, never the reverse. A model
+reasoning from macro names gets this confidently wrong, because names collide across engines while
+meanings do not follow them.
+
+### Hub and spoke, the same as formats
+
+There is no engine-pair table. Project rule 1 forbids format-to-format conversion for macros exactly
+as it does for codecs: five engines would mean twenty directed pairs, so each new engine would
+multiply the work rather than add to it.
+
+Instead each catalog declares what its OWN macros mean, using the canonical operations in
+`src/core/preset/macros/ops.ts`. Every cross-engine answer is a join on that meaning, computed in
+`equivalence.ts`. Adding an engine is one annotation pass and every direction appears for free.
+
+Ops attach per ENTRY, not per name, because one name can mean different things at different argument
+counts. RoleCall documents `{{random}}` as 0-100, `{{random::min::max}}` as a range, and three or
+more arguments as a pick; annotating the name would wrongly flag the portable three-argument form.
+
+Annotation is deliberately partial. An entry with no op falls back to name matching, which is correct
+for the majority of macros that agree across engines. Only divergence needs declaring.
+
+### What a crossing produces
+
+| Verdict | Meaning |
+| --- | --- |
+| `portable` | Both engines perform the operation; the token is re-spelled in the target's punctuation |
+| `collision` | Same NAME, different operation. Left as authored and flagged, never silently kept |
+| `absent` | The target has no macro for the operation; removed, with same-family candidates |
+| `flatten` | A block the target cannot express; the body is kept and the scaffolding removed |
+
+`{{random::1::10}}` crossing RoleCall to SillyTavern is the worked example: RoleCall declares
+`random.range`, SillyTavern declares `random.pick`, and the collision is derived. Nothing states that
+pair anywhere.
+
+Block flattening keeps the body and records the dropped condition as a `{{// ...}}` comment, which
+the target does support, so the artifact documents its own losses. The first branch is taken, since
+without an evaluator there is no basis to choose another.
+
+### The gate that keeps it honest
+
+`unannotatedDivergence()` returns any name several engines share with differing shapes where at least
+one side has not declared an op, and a test asserts that list is empty. A silent mistranslation
+cannot be introduced by adding an engine and forgetting to declare a meaning.
+
+### Honest limits
+
+- Risu (`[[name]]` CBS) and Agnai (named slots) are not modeled at all; an unmodeled target reports
+  `checked: false`, which a caller must render as "unknown" and never as "clean".
+- SillyTavern's catalog is the only one with no oracle to verify against, so its annotations are the
+  least grounded. RoleCall, Lumiverse and Marinara are machine-checked against their real registries
+  by `scripts/macro-oracle`.
+- Flag-prefixed tokens (`{{#if}}`, `{{!x}}`, `{{~x}}`) resolve to no name and are never flagged. The
+  same character means different things per engine, so stripping it would trade a false negative for
+  a false positive.
+
 ## Hoplight documentation query
 
 `docs_query` is one direct read-only meta-tool with four actions:
@@ -311,4 +406,18 @@ progressive exposure, six-kind creation discovery and preview, media schema desc
 reads, bounded oversized result storage, JSON Pointer traversal, complete draft evidence,
 read-effect isolation, canonical draft composition, create collision refusal, stale update refusal,
 one-save apply, post-save verification, and a full fake-provider rename journey through the real
-Studio store. Live terminal verification remains required before this milestone is called shippable.
+Studio store.
+
+The lifecycle and transfer surfaces add: a delete that removes nothing on a miss and is classified at
+the danger floor, a duplicate that carries `original` escrow and `profiles` onto the copy, structural
+export containment against hostile ids and invented extensions, create-only export refusal on an
+occupied name, and a RoleCall-preset-to-SillyTavern-preset journey end to end through the real
+adapter registry onto a real filesystem.
+
+Macro claims are checked rather than asserted. `scripts/macro-oracle` captures each engine's own
+registry into committed fixtures and a parity test proves no catalog claims a macro its engine does
+not have. A separate gate proves no shared name diverges in shape without a declared operation.
+SillyTavern is the one modeled engine with no oracle, so its annotations rest on transcription alone.
+
+Live terminal verification remains required: none of the above has been exercised in a running Kit
+session against a real provider.

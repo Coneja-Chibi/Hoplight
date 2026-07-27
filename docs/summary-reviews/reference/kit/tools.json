@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:7539b5559c3959eaf074658e82271816c8e2c59691bf7d9504d4b4ea1ec6da9a",
-  "semanticSummaryHash": "sha256:dbc1268494078af88b1d05f64e4203c36253192538dca25b8748ae319d14c230",
+  "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
+  "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129",
   "verdict": "APPROVE",
-  "reviewer": "codex-doc-review-surfaces-r3",
-  "notes": "APPROVE: re-read all 314 source lines and all 202 semantic-sidecar lines after the final prose repair. The source and top-level summary now agree with the runtime: broad search replaces exposure with up to five matching deferred tools/schemas, collapsed browse exposes none, and exact describe replaces exposure with one; selected schemas appear on the next provider snapshot. Authorization is qualified correctly: guarded/default mode pauses change_apply on the application semantic review card, autopilot may auto-allow caution/write access, and full control auto-allows non-floor access while unknown/exec remains confirmation-only. The rest of the page/sidecar remains deep and current, including six creation workflows, exact-name safety, bounded reads/results, draft evidence, verified create/update apply, docs_query, and the live-terminal verification caveat. Focused exposure and gate proof passed 47/47 tests; focused docs summary check passed.",
-  "reviewedAt": "2026-07-26T20:29:31.779Z"
+  "reviewer": "Chi",
+  "notes": "Verified against source: direct tool count (8 folder + 4 lifecycle = 12), six create workflows, ten character and five lorebook capabilities, export path containment tests, and oracle coverage for rolecall/lumiverse/marinara with sillytavern unverified. Corrected two stale claims: transfer described as writing no file after studio_export shipped, and a verification-status section that omitted the lifecycle, transfer and oracle coverage.",
+  "reviewedAt": "2026-07-27T06:41:32.252Z"
 }
