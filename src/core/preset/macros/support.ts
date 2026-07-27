@@ -22,9 +22,55 @@ import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
 import type { MacroEntry } from "./types";
 import { macroGroupsForProfile } from "./index";
 
-/** Every {{token}} in a chunk of prompt text, in source order, duplicates kept. */
+/**
+ * Every {{token}} in a chunk of prompt text, in source order, duplicates kept. Nested arguments are
+ * returned too, each outer token immediately before the tokens inside it.
+ *
+ * THIS USED TO BE `/\{\{[^{}]*\}\}/g`, WHICH SILENTLY LOST EVERY NESTED CONSTRUCT. That character
+ * class cannot cross a brace, so any macro carrying a macro argument was invisible to every check
+ * built on this: `{{if::{{getvar::x}}::yes::no}}` reported only `getvar`, and
+ * `{{random::{{char}}::b}}` reported only `char` while the `random` that actually differs between
+ * engines went unseen. Blocks were hit hardest, because a Lumiverse or RoleCall condition is very
+ * often a nested lookup. Under-reporting here reads as "nothing dies", which is the worst direction
+ * for a compatibility check to be wrong in.
+ *
+ * Depth counting matches the lexer contract in specs/engine/macro-engine.md: only `{{` and `}}`
+ * move depth, a lone brace is ordinary text, and an unmatched `{{` degrades to literal text rather
+ * than throwing. This scans and slices only. It never evaluates anything.
+ */
 export function scanMacroTokens(text: string): string[] {
-  return [...text.matchAll(/\{\{[^{}]*\}\}/g)].map((m) => m[0]);
+  const tokens: string[] = [];
+  let index = 0;
+  while (index < text.length) {
+    const open = text.indexOf("{{", index);
+    if (open === -1) break;
+    const close = matchingClose(text, open);
+    if (close === -1) break; // unmatched opener: the remainder is literal text
+    const token = text.slice(open, close + 2);
+    tokens.push(token);
+    // Recurse into the argument text so a nested macro is reported as well as its container.
+    tokens.push(...scanMacroTokens(text.slice(open + 2, close)));
+    index = close + 2;
+  }
+  return tokens;
+}
+
+/** Index of the `}}` closing the `{{` at `open`, or -1 when the text never closes it. */
+export function matchingClose(text: string, open: number): number {
+  let depth = 0;
+  for (let i = open; i < text.length - 1; i += 1) {
+    if (text[i] === "{" && text[i + 1] === "{") {
+      depth += 1;
+      i += 1;
+      continue;
+    }
+    if (text[i] === "}" && text[i + 1] === "}") {
+      depth -= 1;
+      if (depth === 0) return i;
+      i += 1;
+    }
+  }
+  return -1;
 }
 
 /**

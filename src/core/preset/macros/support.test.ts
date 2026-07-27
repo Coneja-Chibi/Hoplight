@@ -36,6 +36,59 @@ describe("scanMacroTokens", () => {
   test("no tokens in plain prose", () => {
     expect(scanMacroTokens("just some text")).toEqual([]);
   });
+
+  // Regression: the scanner was `/\{\{[^{}]*\}\}/g`, which cannot cross a brace, so every one of
+  // these reported ONLY the inner token and the outer construct was invisible to every check built
+  // on it. Under-reporting reads as "nothing dies", the worst direction to be wrong in.
+  describe("nested arguments (regression)", () => {
+    test("reports the container as well as the macro inside it", () => {
+      expect(scanMacroTokens("{{if::{{getvar::x}}::yes::no}}")).toEqual([
+        "{{if::{{getvar::x}}::yes::no}}",
+        "{{getvar::x}}",
+      ]);
+    });
+
+    test("the cross-engine trap macro is visible when its argument is a macro", () => {
+      // {{random::a::b}} is a list pick on SillyTavern and a numeric range on RoleCall. It is the
+      // whole reason this module exists, and it used to vanish the moment an argument nested.
+      const tokens = scanMacroTokens("{{random::{{char}}::b}}");
+      expect(tokens).toEqual(["{{random::{{char}}::b}}", "{{char}}"]);
+      expect(tokens.map(macroName)).toEqual(["random", "char"]);
+    });
+
+    test("a block opener carrying a nested condition is not lost", () => {
+      expect(scanMacroTokens("{{#if::{{getvar::mood}}}}body{{/if}}")).toEqual([
+        "{{#if::{{getvar::mood}}}}",
+        "{{getvar::mood}}",
+        "{{/if}}",
+      ]);
+    });
+
+    test("nests more than one level deep", () => {
+      expect(scanMacroTokens("{{a::{{b::{{c}}}}}}")).toEqual([
+        "{{a::{{b::{{c}}}}}}",
+        "{{b::{{c}}}}",
+        "{{c}}",
+      ]);
+    });
+
+    test("siblings after a nested token still scan", () => {
+      expect(scanMacroTokens("{{if::{{x}}}} then {{user}}")).toEqual([
+        "{{if::{{x}}}}",
+        "{{x}}",
+        "{{user}}",
+      ]);
+    });
+
+    test("an unmatched opener degrades to literal text instead of throwing", () => {
+      expect(scanMacroTokens("{{char}} then {{oops")).toEqual(["{{char}}"]);
+      expect(() => scanMacroTokens("{{{{")).not.toThrow();
+    });
+
+    test("a lone brace is ordinary text, not a delimiter", () => {
+      expect(scanMacroTokens("{ {{char}} }")).toEqual(["{{char}}"]);
+    });
+  });
 });
 
 describe("supportedMacroNames", () => {
