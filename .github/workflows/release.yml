@@ -3,7 +3,7 @@ name: release
 # Builds and publishes a GitHub Release for one tag. Two doors, same room:
 #  - push a tag like v0.1.0 by hand, or
 #  - get called by auto-release.yml (workflow_call with the tag it just cut).
-# Builds the desktop exe (Windows), the CLI binaries for five targets (the same bake, so
+# Builds the desktop exe (Windows), the CLI binaries for five targets, Kit for four (the same bake, so
 # `hoplight ui` serves the packaged studio anywhere), checksums everything, and publishes with the
 # install guide (.github/RELEASE-NOTES-INSTALL.md) at the top of the notes. The tag must match
 # package.json's version.
@@ -79,6 +79,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: Build Linux CLIs (x64 + arm64) + Kit (x64)
         # Kit is x64 only here: this runner is x64 and Kit cannot cross-compile (native opentui).
+        # The arm64 Kit is built by build-linux-arm64 below, on a runner of that architecture.
         run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-linux-x64,bun-linux-arm64 --kit
       - uses: actions/upload-artifact@v4
         with:
@@ -87,6 +88,29 @@ jobs:
             dist/hoplight-cli-linux-x64
             dist/hoplight-cli-linux-arm64
             dist/hoplight-kit-linux-x64
+          if-no-files-found: error
+
+  build-linux-arm64:
+    needs: verify
+    # Kit only. The CLIs for this architecture cross-compile fine on the x64 runner above; Kit
+    # cannot, because its terminal renderer is a native library published per platform. The label
+    # was confirmed against a real run before being trusted here: an unavailable runner does not
+    # fail, it queues forever, which would stall the release rather than break it visibly.
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref_name }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Build Kit (arm64)
+        run: bun run scripts/build-desktop.ts --no-desktop --kit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64
+          path: dist/hoplight-kit-linux-arm64
           if-no-files-found: error
 
   build-macos:
@@ -113,7 +137,7 @@ jobs:
           if-no-files-found: error
 
   publish:
-    needs: [build-windows, build-linux, build-macos]
+    needs: [build-windows, build-linux, build-linux-arm64, build-macos]
     runs-on: ubuntu-latest
     env:
       RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
@@ -132,7 +156,7 @@ jobs:
           sha256sum Hoplight.exe \
             hoplight-cli-windows-x64.exe hoplight-cli-linux-x64 hoplight-cli-linux-arm64 \
             hoplight-cli-darwin-arm64 hoplight-cli-darwin-x64 \
-            hoplight-kit-windows-x64.exe hoplight-kit-linux-x64 hoplight-kit-darwin-arm64 \
+            hoplight-kit-windows-x64.exe hoplight-kit-linux-x64 hoplight-kit-linux-arm64 hoplight-kit-darwin-arm64 \
             > SHA256SUMS
           cat SHA256SUMS
       - name: Release notes (install guide, changelog link, machine-parseable commit block)
@@ -172,5 +196,6 @@ jobs:
             dist/hoplight-cli-darwin-x64 \
             dist/hoplight-kit-windows-x64.exe \
             dist/hoplight-kit-linux-x64 \
+            dist/hoplight-kit-linux-arm64 \
             dist/hoplight-kit-darwin-arm64 \
             dist/SHA256SUMS

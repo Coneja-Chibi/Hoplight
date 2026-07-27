@@ -16,8 +16,8 @@
 - The `hoplight-cli-*` files are terminal tools with no window. Double-clicking one on Windows now
   prints the help and waits for Enter instead of flashing shut. The double-click app is `Hoplight.exe`.
 - **Kit** (`hoplight-kit-*`) is the terminal companion: your whole studio as a conversation, in a
-  terminal. Optional, and a separate download from the app. Windows x64, Linux x64 and Apple Silicon
-  for now, with more platforms to follow.
+  terminal. Optional, and a separate download from the app. Windows x64, Linux x64, Linux arm64 and
+  Apple Silicon.
 - **Renamed this release**: the CLI downloads gained a `-cli` in their names
   (`hoplight-windows-x64.exe` is now `hoplight-cli-windows-x64.exe`, and the same for macOS and
   Linux). If you update the CLI from inside itself, grab this one manually once; the desktop app is
