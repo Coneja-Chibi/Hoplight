@@ -77,6 +77,35 @@ export function resolveStudioPath(root: string, kind: string, id?: string): stri
   return fileAbs;
 }
 
+/** Where converted, foreign-format artifacts land. Not an entity kind: nothing here is canonical. */
+export const STUDIO_EXPORTS_DIR = "exports";
+
+/** Extensions an export may carry. Closed set: a target adapter cannot invent a file type here. */
+const EXPORT_EXTENSIONS = new Set(["json", "png", "charx", "byaf", "lorebook", "zip"]);
+
+/**
+ * Resolve one export artifact path under `<root>/exports`.
+ *
+ * CONTAINMENT IS STRUCTURAL, NOT VALIDATED. Callers pass an entity id and a bare extension, never a
+ * path or a filename. The id goes through the same `assertSafeStudioId` as canonical storage (no
+ * separators, no dots-dots, no controls, no reserved Windows names) and the extension must be one of
+ * a closed set, so there is no caller-supplied path segment to escape with in the first place. A
+ * model-callable export must never be handed a path; that would make it an arbitrary file write.
+ */
+export function resolveStudioExportPath(root: string, id: string, extension: string): string {
+  const safeId = assertSafeStudioId(id);
+  const ext = extension.replace(/^\./, "").toLowerCase();
+  if (!EXPORT_EXTENSIONS.has(ext)) {
+    throw new StudioValidationError("unsupported export extension");
+  }
+  const rootAbs = resolve(root);
+  const dirAbs = resolve(rootAbs, STUDIO_EXPORTS_DIR);
+  assertContained(rootAbs, dirAbs);
+  const fileAbs = resolve(dirAbs, `${safeId}.${ext}`);
+  assertContained(rootAbs, fileAbs);
+  return fileAbs;
+}
+
 function assertContained(rootAbs: string, candidateAbs: string): void {
   const rel = relative(rootAbs, candidateAbs);
   if (rel === "") return; // same path
