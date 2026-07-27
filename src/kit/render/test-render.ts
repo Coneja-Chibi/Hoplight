@@ -54,6 +54,27 @@ export const runRenderUpdate = (callback: () => void): void => actSync(callback)
 export const settleRender = (ms = 60): Promise<void> =>
   actAsync(() => new Promise((resolve) => setTimeout(resolve, ms)));
 
+/**
+ * Settle until a condition actually holds, instead of betting one fixed sleep covers the work.
+ * A flat `settleRender()` is fine when the next paint is the only thing pending, but it is a race
+ * whenever an assertion waits on async work whose duration moves with machine and suite load: a
+ * turn completing, a session persisting, a restore replaying. Those tests failed only under a
+ * loaded suite, which is the worst way to learn about a sleep. The assertion is unchanged and just
+ * as strict; only the waiting got honest. Returns as soon as `ready()` is true, gives up after
+ * `budgetMs` so a genuine regression still fails instead of hanging.
+ */
+export const settleUntil = async (
+  ready: () => boolean,
+  { budgetMs = 3_000, stepMs = 30 }: { budgetMs?: number; stepMs?: number } = {},
+): Promise<void> => {
+  const deadline = Date.now() + budgetMs;
+  for (;;) {
+    await settleRender(stepMs);
+    if (ready()) return;
+    if (Date.now() >= deadline) return;
+  }
+};
+
 export const testRender = async (
   node: ReactNode,
   options: TestRendererOptions,

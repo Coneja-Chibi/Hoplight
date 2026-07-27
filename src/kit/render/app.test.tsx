@@ -5,7 +5,7 @@
  * for real (the status row shows who is thinking; markdown renders bold WITHOUT its ** markers).
  */
 import { describe, expect, setDefaultTimeout, test } from "bun:test";
-import { settleRender as tick, testRender } from "./test-render";
+import { settleRender as tick, settleUntil, testRender } from "./test-render";
 import { applyTurnEvent, settleTurn, toggleTrace, type TurnView } from "./turn-events";
 import { App } from "./app";
 import type { Session } from "../session";
@@ -385,7 +385,7 @@ describe("App turn lifecycle", () => {
       await tick();
       await first.mockInput.typeText("hello");
       first.mockInput.pressEnter();
-      await tick();
+      await settleUntil(() => (records.get("first")?.turns?.length ?? 0) > 0);
       expect(records.get("first")?.turns).toHaveLength(1);
     } finally {
       await first.renderer.destroy();
@@ -400,7 +400,7 @@ describe("App turn lifecycle", () => {
       await tick();
       await second.mockInput.typeText("/resume");
       second.mockInput.pressEnter();
-      await tick();
+      await settleUntil(() => second.captureCharFrame().includes("reply hello"));
       expect(second.captureCharFrame()).toContain("reply hello");
     } finally {
       await second.renderer.destroy();
@@ -479,7 +479,7 @@ describe("App turn lifecycle", () => {
       const after = [{ id: "mira", kind: "character", name: "Mira" }];
       if (!watcher.emit) throw new Error("studio watcher did not mount");
       watcher.emit({ added: after, removed: [], updated: [], after });
-      await tick();
+      await settleUntil(() => t.captureCharFrame().includes("NOTICED"));
       const frame = t.captureCharFrame();
       expect(frame).toContain("NOTICED");
       expect(frame).toContain("Mira");
