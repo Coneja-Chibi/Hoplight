@@ -49,12 +49,16 @@ export type MacroOp =
   | "time.diff"
   // Card and identity fields.
   | "char.creator"
+  | "char.version"
   | "char.creator-notes"
   | "char.first-message"
   | "chat.message-count"
   | "chat.memories"
   // Control flow.
   | "flow.conditional"
+  // Instruct and reasoning wrappers.
+  | "format.reasoning-prefix"
+  | "format.reasoning-suffix"
   // Generation controls.
   | "gen.banned"
   // Presentation: engine product surface with no portable meaning.

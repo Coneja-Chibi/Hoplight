@@ -1,12 +1,22 @@
 /**
- * SillyTavern's macro reference. TOKENS + SYNTAX transcribed from SillyTavern 1.13.5's own macro
- * reference (public/scripts/templates/macros.html, cross-checked against public/scripts/macros.js).
- * Tokens are facts; the descriptions here are written fresh (ST is AGPL-3.0 and vaud is
- * AGPL-3.0-or-later, but the clean-room doctrine says don't lift their prose).
+ * SillyTavern's macro reference. TOKENS + SYNTAX are facts; the descriptions here are written fresh
+ * (ST is AGPL-3.0 and Hoplight is AGPL-3.0-or-later, but the clean-room doctrine says do not lift
+ * their prose). Group names are editorial; every TOKEN below is one SillyTavern really has.
  *
- * Group names are editorial (ST ships three long sections); every TOKEN below is one ST really has.
+ * SCOPE, AND A CORRECTION WORTH KEEPING. This catalog was first transcribed from the LEGACY macro
+ * list in `public/scripts/templates/macros.html`, which describes only the old regex-substitution
+ * engine. SillyTavern's current standard is the experimental engine under `public/scripts/macros/`,
+ * and it is a different language: it has conditionals, scoped blocks, nesting, and a full variable
+ * shorthand with comparison operators. Reading the legacy list alone produced the false claim that
+ * SillyTavern cannot express a conditional, which in turn made a RoleCall preset look unconvertible
+ * when most of it is already valid SillyTavern.
  *
- * Separators are load-bearing and differ from RoleCall's engine - do not "tidy" them:
+ * The authority for everything below is this repo's own pinned platform reference:
+ * docs/reference/platforms/sillytavern/macro-reference.md (the name list) and macro-operators.md
+ * (syntax, conditionals, and the shorthand operator table). Check a claim there before changing a
+ * token here, and prefer the docs to memory: this catalog is the thing that was wrong.
+ *
+ * Separators are load-bearing and still differ from RoleCall's engine - do not "tidy" them:
  *   {{roll:1d6}} single colon · {{datetimeformat ...}} space-separated · {{trim}} takes no argument
  *   {{random::a::b}} picks one of the LISTED items - it is NOT a min/max range.
  */
@@ -161,6 +171,55 @@ export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
       { macro: "{{instructSystemInstructionPrefix}}", description: "Instruct system instruction prefix" },
       { macro: "{{instructUserFiller}}", description: "Instruct first user message filler" },
       { macro: "{{instructStop}}", description: "Instruct stop sequence" },
+    ],
+  },
+  {
+    // Structural forms from the current engine. These are why a RoleCall preset's conditionals are
+    // largely portable: the spelling is the same. See macro-operators.md for the pinned grammar.
+    name: "Conditionals & structure",
+    description: "Blocks, branches, comments and whitespace control",
+    macros: [
+      {
+        macro: "{{if condition}}...{{/if}}",
+        description: "Emits the body when the condition is truthy. Empty, false, 0, off and no are falsy",
+        op: "flow.conditional",
+      },
+      { macro: "{{if !condition}}...{{/if}}", description: "Inverted condition" },
+      { macro: "{{else}}", description: "Alternative branch inside an if block" },
+      { macro: "{{//}}", description: "Scoped comment block, closed with a slash form; produces no output" },
+      { macro: "{{#}}", description: "Whitespace-preserving flag on a scoped block opener" },
+    ],
+  },
+  {
+    // Documented names the legacy list omitted. Sourced from macro-reference.md, which pins the
+    // official page; several of these were previously and wrongly reported as RoleCall-only.
+    name: "Card, state and runtime",
+    description: "Card fields, variable existence and deletion, and runtime values",
+    macros: [
+      { macro: "{{charVersion}}", description: "Card version string", op: "char.version" },
+      { macro: "{{charCreatorNotes}}", description: "Creator notes from the card", op: "char.creator-notes" },
+      { macro: "{{charFirstMessage}}", description: "The character's greeting", op: "char.first-message" },
+      { macro: "{{charPrefix}}", description: "Character-specific prefix" },
+      { macro: "{{charNegativePrefix}}", description: "Character-specific negative prefix" },
+      { macro: "{{charIfNotGroup}}", description: "Character name outside a group chat" },
+      { macro: "{{charAuthorsNote}}", description: "The character's Author's Note" },
+      { macro: "{{authorsNote}}", description: "The active Author's Note" },
+      { macro: "{{defaultAuthorsNote}}", description: "The default Author's Note" },
+      { macro: "{{hasvar::name}}", description: "Whether a chat-local variable exists" },
+      { macro: "{{deletevar::name}}", description: "Removes a chat-local variable" },
+      { macro: "{{hasglobalvar::name}}", description: "Whether a global variable exists" },
+      { macro: "{{deleteglobalvar::name}}", description: "Removes a global variable" },
+      { macro: "{{hasExtension::name}}", description: "Whether a named extension is installed" },
+      { macro: "{{idleDuration}}", description: "Time since the last user message" },
+      { macro: "{{allChatRange}}", description: "Range covering the whole chat" },
+      { macro: "{{maxContextTokens}}", description: "Context size limit in tokens" },
+      { macro: "{{maxResponseTokens}}", description: "Response length limit in tokens" },
+      { macro: "{{chatSeparator}}", description: "Chat separator from the context template" },
+      { macro: "{{instructSeparator}}", description: "Instruct separator" },
+      { macro: "{{reasoningPrefix}}", description: "Reasoning block prefix", op: "format.reasoning-prefix" },
+      { macro: "{{reasoningSuffix}}", description: "Reasoning block suffix", op: "format.reasoning-suffix" },
+      { macro: "{{reasoningSeparator}}", description: "Reasoning block separator" },
+      { macro: "{{space}}", description: "A literal space character" },
     ],
   },
 ];

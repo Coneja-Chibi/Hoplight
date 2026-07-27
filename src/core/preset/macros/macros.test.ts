@@ -121,11 +121,18 @@ describe("dispatch: every lens gets its OWN engine's catalog", () => {
 });
 
 describe("regression: RoleCall-only macros must never leak into another engine's lens", () => {
-  // every one of these was shown on the ST lens by the old filtered catalog; ST cannot run any.
+  // Every one of these was shown on the ST lens by the old filtered catalog. They are RoleCall
+  // spellings SillyTavern does not answer to.
+  //
+  // CORRECTED: {{charVersion}} and {{hasvar::name}} were once listed here and are wrong. Both are
+  // documented SillyTavern macros (docs/reference/platforms/sillytavern/macro-reference.md); this
+  // list was written against SillyTavern's LEGACY macro page and inherited its omissions.
+  // {{firstMessage}} stays, because SillyTavern spells that capability {{charFirstMessage}}: a
+  // different name for the same operation, which the op hub resolves rather than this list.
   const RC_ONLY = [
-    "{{firstMessage}}", "{{charVersion}}", "{{charCreator}}", "{{charTags}}", "{{accentColor}}", "{{palette}}",
+    "{{firstMessage}}", "{{charCreator}}", "{{charTags}}", "{{accentColor}}", "{{palette}}",
     "{{messageCount}}", "{{recentMessages::N}}", "{{memories}}", "{{season}}",
-    "{{hasvar::name}}", "{{pushvar::name::value}}", "{{listvar::name}}", "{{allvars}}",
+    "{{pushvar::name::value}}", "{{listvar::name}}", "{{allvars}}",
     "{{coinflip}}", "{{shuffle::a::b::c}}", "{{weighted::a::3::b::1}}",
     "{{upper::text}}", "{{title::text}}", "{{truncate::text::len}}", "{{regex::text::pattern::new}}",
     "{{compare::a::==::b}}", "{{switch::val::case1::res1}}", "{{and::a::b}}",

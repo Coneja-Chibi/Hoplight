@@ -134,6 +134,45 @@
         "{{instructUserFiller}}",
         "{{instructStop}}"
       ]
+    },
+    {
+      "name": "Conditionals & structure",
+      "tokens": [
+        "{{if condition}}...{{/if}}",
+        "{{if !condition}}...{{/if}}",
+        "{{else}}",
+        "{{//}}",
+        "{{#}}"
+      ]
+    },
+    {
+      "name": "Card, state and runtime",
+      "tokens": [
+        "{{charVersion}}",
+        "{{charCreatorNotes}}",
+        "{{charFirstMessage}}",
+        "{{charPrefix}}",
+        "{{charNegativePrefix}}",
+        "{{charIfNotGroup}}",
+        "{{charAuthorsNote}}",
+        "{{authorsNote}}",
+        "{{defaultAuthorsNote}}",
+        "{{hasvar::name}}",
+        "{{deletevar::name}}",
+        "{{hasglobalvar::name}}",
+        "{{deleteglobalvar::name}}",
+        "{{hasExtension::name}}",
+        "{{idleDuration}}",
+        "{{allChatRange}}",
+        "{{maxContextTokens}}",
+        "{{maxResponseTokens}}",
+        "{{chatSeparator}}",
+        "{{instructSeparator}}",
+        "{{reasoningPrefix}}",
+        "{{reasoningSuffix}}",
+        "{{reasoningSeparator}}",
+        "{{space}}"
+      ]
     }
   ]
 }

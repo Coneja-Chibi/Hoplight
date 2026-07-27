@@ -231,8 +231,8 @@ export const LUMIVERSE_MACRO_GROUPS: MacroGroup[] = [
     name: "Reasoning",
     description: "Chain-of-thought tags",
     macros: [
-      { macro: "{{reasoningPrefix::mode}}", description: "The reasoning opening tag from user settings; raw mode strips newlines" },
-      { macro: "{{reasoningSuffix::mode}}", description: "The reasoning closing tag from user settings; raw mode strips newlines" },
+      { macro: "{{reasoningPrefix::mode}}", description: "The reasoning opening tag from user settings; raw mode strips newlines", op: "format.reasoning-prefix" },
+      { macro: "{{reasoningSuffix::mode}}", description: "The reasoning closing tag from user settings; raw mode strips newlines", op: "format.reasoning-suffix" },
     ],
   },
   {
