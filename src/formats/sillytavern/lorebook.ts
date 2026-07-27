@@ -32,6 +32,7 @@ import {
   parseRole,
   roleToNumber,
   parseCharacterFilter,
+  ensureUniqueEntryIds,
 } from "../_shared/lore-enums";
 
 interface StBook {
@@ -261,7 +262,7 @@ function bookToCanonical(book: StBook): LorebookBody {
     tokenBudget: typeof book.token_budget === "number" ? book.token_budget : 0,
     budgetMode: "token",
     entryBudget: 0,
-    entries: Object.values(entries).map(entryToCanonical),
+    entries: ensureUniqueEntryIds(Object.values(entries).map(entryToCanonical)),
   };
 }
 
@@ -274,10 +275,22 @@ function bookToWire(body: LorebookBody, rawBook: StBook | undefined): StBook {
     twinById.set(id, { key, raw });
   }
 
+  // Never let two entries collapse onto one output key. Imports now guarantee unique ids, but a body
+  // can reach here from storage or another editor, and two entries sharing an id used to resolve to
+  // the same twin key so the second silently overwrote the first: an entry vanished from the export
+  // with no error. A renumbered key is a far smaller loss than a missing entry.
   const entries: Record<string, Record<string, unknown>> = {};
+  const usedKeys = new Set<string>();
   body.entries.forEach((e, index) => {
     const twin = twinById.get(e.id);
-    entries[twin?.key ?? String(index)] = entryToWire(e, twin?.raw);
+    let key = twin?.key ?? String(index);
+    if (usedKeys.has(key)) {
+      let next = body.entries.length;
+      while (usedKeys.has(String(next))) next += 1;
+      key = String(next);
+    }
+    usedKeys.add(key);
+    entries[key] = entryToWire(e, twin?.raw);
   });
 
   return {

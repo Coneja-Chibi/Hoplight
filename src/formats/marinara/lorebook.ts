@@ -43,6 +43,7 @@ import type {
 } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
+import { ensureUniqueEntryIds } from "../_shared/lore-enums";
 
 // -- wire shapes (deserialized storage rows; open bags so unmodelled fields ride the clone untouched) --
 
@@ -221,7 +222,7 @@ function envelopeToCanonical(env: MariEnvelope): LorebookBody {
     globalCaseSensitive: false,
     globalMatchWholeWords: false,
     budgetMode: "token",
-    entries: entries.map(entryToCanonical),
+    entries: ensureUniqueEntryIds(entries.map(entryToCanonical)),
     categories: foldersToCategories(folders),
   };
 }
