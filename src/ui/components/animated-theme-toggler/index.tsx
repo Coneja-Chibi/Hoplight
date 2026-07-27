@@ -9,7 +9,12 @@ import { useCallback, useRef } from "react";
 import type { JSX } from "react";
 import { flushSync } from "react-dom";
 import { Stamp } from "../stamp";
-import { circleTransitionClipPaths, transitionOrigin } from "./transition-core";
+import { canvasColorFor, runOverlayReveal } from "./overlay-reveal";
+import {
+  circleTransitionClipPaths,
+  themeRevealStrategy,
+  transitionOrigin,
+} from "./transition-core";
 import styles from "./styles.module.css";
 
 interface ThemeViewTransition {
@@ -44,8 +49,12 @@ export function AnimatedThemeToggler({
     (button: HTMLButtonElement): void => {
       const root = document.documentElement;
       const viewDocument = document as ThemeDocument;
-      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-      if (!viewDocument.startViewTransition || reduceMotion) {
+      const strategy = themeRevealStrategy({
+        supported: typeof viewDocument.startViewTransition === "function",
+        reduceMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true,
+        userAgent: navigator.userAgent,
+      });
+      if (strategy === "none") {
         onToggle();
         return;
       }
@@ -55,6 +64,26 @@ export function AnimatedThemeToggler({
       const rect = button.getBoundingClientRect();
       const origin = transitionOrigin(rect, viewport, fromCenter);
       const clipPath = circleTransitionClipPaths(origin, viewport);
+
+      if (strategy === "overlay") {
+        const incomingColour = canvasColorFor(isDark ? "paper" : "stage", root);
+        if (!incomingColour) {
+          // No readable page colour means no honest sweep to draw; switch rather than flash a wrong one.
+          onToggle();
+          return;
+        }
+        transitioning.current = true;
+        void runOverlayReveal({
+          origin,
+          clipPath,
+          incomingColour,
+          durationMs: duration,
+          commit: onToggle,
+        }).finally(() => {
+          transitioning.current = false;
+        });
+        return;
+      }
 
       transitioning.current = true;
       root.dataset.vaudeThemeTransition = "active";
@@ -93,7 +122,7 @@ export function AnimatedThemeToggler({
         () => undefined,
       );
     },
-    [duration, fromCenter, onToggle],
+    [duration, fromCenter, isDark, onToggle],
   );
 
   const label = isDark ? "Switch to light theme" : "Switch to dark theme";

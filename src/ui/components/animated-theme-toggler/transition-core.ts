@@ -2,6 +2,50 @@
  * Pure geometry for the animated theme reveal. View-transition clip paths use percentages because
  * Chromium can offset pixel coordinates on the first transition at fractional display scaling.
  */
+/** What the toggler needs to know about its host before it risks a View Transition. */
+export interface TransitionHost {
+  /** True when the engine exposes document.startViewTransition at all. */
+  supported: boolean;
+  /** True when the user asked for less motion. */
+  reduceMotion: boolean;
+  /** navigator.userAgent, used only to identify the embedded WebView2 host. */
+  userAgent: string;
+}
+
+/**
+ * How to animate a theme change on this host.
+ *
+ *   view-transition  the document-wide cross-fade; the richest version
+ *   overlay          the same circular sweep drawn with an ordinary element
+ *   none             switch instantly, for reduced motion
+ *
+ * WHY WEBVIEW2 GETS THE OVERLAY. Hoplight.exe is a WebView2 window, and repeated theme toggles there
+ * crashed the renderer with STATUS_BREAKPOINT, taking the whole page down. View Transitions snapshot
+ * and cross-fade the entire document through the compositor, and that crash signature is a renderer
+ * or GPU fault, which no JavaScript can catch: the page is simply gone.
+ *
+ * The answer is a different implementation, not a missing animation. The overlay sweep is one div
+ * and a clip-path, so the engine has no document snapshot to build and tear down, and the reveal
+ * still grows from the control exactly as before.
+ *
+ * Stated honestly: the crash could not be reproduced in headless Chromium, which skips the GPU
+ * compositing path the signature points at. Browsers keep the richer version because there is no
+ * evidence against it there, and the embedded host gets the version that cannot take the window
+ * down. Revisit if WebView2 fixes it; the test names exactly what to undo.
+ */
+export type ThemeRevealStrategy = "view-transition" | "overlay" | "none";
+
+export function themeRevealStrategy(host: TransitionHost): ThemeRevealStrategy {
+  if (host.reduceMotion) return "none";
+  if (isEmbeddedWebView(host.userAgent)) return "overlay";
+  return host.supported ? "view-transition" : "overlay";
+}
+
+/** WebView2 and Edge report "Edg/"; no other Chromium host does. */
+export function isEmbeddedWebView(userAgent: string): boolean {
+  return /\bEdg\//.test(userAgent);
+}
+
 export interface ButtonBounds {
   left: number;
   top: number;
