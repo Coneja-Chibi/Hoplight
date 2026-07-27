@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-27",
-  "count": 111,
+  "count": 112,
   "pages": [
     {
       "docId": "01-VISION",
@@ -555,6 +555,14 @@
       "semanticSummaryHash": "sha256:d05ddda4e026dce0a650759b760fcf890115e8ae72527df8a3d7ae85a31ead21"
     },
     {
+      "docId": "reference/formats/rolecall-to-sillytavern",
+      "status": "APPROVED",
+      "verdict": "APPROVE",
+      "reviewer": "Chi",
+      "sourceHash": "sha256:1e09af0790889be142950b495db5af23fa5f8366a4fa5bfa240e06cb502d1624",
+      "semanticSummaryHash": "sha256:31240f93e176081eea26a03d5315ab1ddca1b48d2d835d87aeda99e298d86424"
+    },
+    {
       "docId": "reference/formats/rolecall",
       "status": "APPROVED",
       "verdict": "APPROVE",
@@ -854,9 +862,9 @@
       "docId": "reference/security/secrets-and-keys",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-security-summary-reviewer",
-      "sourceHash": "sha256:1363d8c7da029ea82a6e87a53ad60a5247b10bbed3d11b9b01c3ee0c5bbe8ded",
-      "semanticSummaryHash": "sha256:55e7185e6417e9926fcab4b8339afb0104f071c5aed6cc121fd4a910a9f3f447"
+      "reviewer": "Chi",
+      "sourceHash": "sha256:b6ed2fb32e15afc92e56cf6d69914424b3e09fde512ab068904a6b69385d25a0",
+      "semanticSummaryHash": "sha256:6aaf6df3c7a4e03e002c3757623945c3e4ee5405dcb1198ae15c49d0a4e12503"
     },
     {
       "docId": "reference/security/untrusted-content",

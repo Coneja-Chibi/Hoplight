@@ -1,8 +1,8 @@
 {
   "generated": "2026-07-27",
   "targetChars": 90000,
-  "totalPages": 111,
-  "totalSourceChars": 970675,
+  "totalPages": 112,
+  "totalSourceChars": 984098,
   "batches": [
     {
       "id": "batch-001",
@@ -554,7 +554,7 @@
     },
     {
       "id": "batch-007",
-      "sourceChars": 71889,
+      "sourceChars": 82479,
       "pages": [
         {
           "docId": "reference/formats/marinara",
@@ -594,6 +594,14 @@
           "sidecarPath": "docs/summaries/reference/formats/risu.json",
           "sectionCount": 9,
           "sourceChars": 21143,
+          "status": "APPROVED"
+        },
+        {
+          "docId": "reference/formats/rolecall-to-sillytavern",
+          "sourcePath": "docs/reference/formats/rolecall-to-sillytavern.md",
+          "sidecarPath": "docs/summaries/reference/formats/rolecall-to-sillytavern.json",
+          "sectionCount": 8,
+          "sourceChars": 10590,
           "status": "APPROVED"
         }
       ]
@@ -874,7 +882,7 @@
     },
     {
       "id": "batch-011",
-      "sourceChars": 87243,
+      "sourceChars": 73326,
       "pages": [
         {
           "docId": "reference/security/README",
@@ -915,21 +923,21 @@
           "sectionCount": 8,
           "sourceChars": 13088,
           "status": "APPROVED"
-        },
-        {
-          "docId": "reference/security/secrets-and-keys",
-          "sourcePath": "docs/reference/security/secrets-and-keys.md",
-          "sidecarPath": "docs/summaries/reference/security/secrets-and-keys.json",
-          "sectionCount": 12,
-          "sourceChars": 13917,
-          "status": "APPROVED"
         }
       ]
     },
     {
       "id": "batch-012",
-      "sourceChars": 55709,
+      "sourceChars": 72459,
       "pages": [
+        {
+          "docId": "reference/security/secrets-and-keys",
+          "sourcePath": "docs/reference/security/secrets-and-keys.md",
+          "sidecarPath": "docs/summaries/reference/security/secrets-and-keys.json",
+          "sectionCount": 12,
+          "sourceChars": 16750,
+          "status": "APPROVED"
+        },
         {
           "docId": "reference/security/untrusted-content",
           "sourcePath": "docs/reference/security/untrusted-content.md",

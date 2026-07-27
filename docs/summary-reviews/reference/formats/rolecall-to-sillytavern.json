@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "docId": "reference/formats/rolecall-to-sillytavern",
+  "sourcePath": "docs/reference/formats/rolecall-to-sillytavern.md",
+  "sourceHash": "sha256:1e09af0790889be142950b495db5af23fa5f8366a4fa5bfa240e06cb502d1624",
+  "semanticSummaryHash": "sha256:31240f93e176081eea26a03d5315ab1ddca1b48d2d835d87aeda99e298d86424",
+  "verdict": "APPROVE",
+  "reviewer": "Chi",
+  "notes": "Approved by Chi. Covers the four judgment patterns for a RoleCall preset crossing to SillyTavern, what the transfer receipt computes, and the evidence labels separating proven behaviour from author recommendations.",
+  "reviewedAt": "2026-07-27T18:30:20.712Z"
+}

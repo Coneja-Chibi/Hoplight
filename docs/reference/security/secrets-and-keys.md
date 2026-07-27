@@ -46,25 +46,43 @@ the temporary file or its directory (`src/kit/providers/vault.ts:20-33, 81-92`).
 
 ### Backends and present platform boundary
 
-The security-owned registry has two explicit backends, in priority order. Opening an existing blob always
-uses the backend id recorded in that blob; it never tries a different backend after a failure
-(`src/kit/keystore/registry.ts:1-23`; `src/kit/keystore/keystore.ts:9-23`).
+The security-owned registry has three explicit backends, in seal-priority order. Opening an existing blob
+always uses the backend id recorded in that blob; it never tries a different backend after a failure
+(`src/kit/keystore/registry.ts:1-30`; `src/kit/keystore/keystore.ts:9-23`).
 
 1. **Windows DPAPI.** On Windows, the vault is sealed with `ProtectedData` in `CurrentUser` scope. The
    plaintext travels to a hidden, non-interactive PowerShell child over stdin as base64, not in process
    arguments. The result can be opened only by the same Windows user context
    (`src/kit/keystore/backends/dpapi.ts:1-6, 33-66`).
-2. **Master passphrase.** The portable backend derives a 256-bit key with scrypt, using a fresh random
-   salt, then encrypts with AES-256-GCM and a fresh random IV. Its authenticated tag makes a wrong
-   passphrase or altered ciphertext fail instead of returning plaintext
-   (`src/kit/keystore/backends/passphrase.ts:1-6, 26-64`).
+2. **Local key file.** The universal fallback, selected wherever no OS-native backend can run. Kit
+   generates a 256-bit key on first use and stores it at `~/.hoplight/kit.identity` as a versioned
+   104-byte blob with an HMAC integrity check, owner-only mode `0600` where the filesystem supports it.
+   The vault is then encrypted with AES-256-GCM under that key. The key is re-read per operation and
+   never held in memory, so a file moved or deleted underneath a running Kit is noticed rather than
+   silently sealed against a key that no longer exists on disk
+   (`src/kit/keystore/backends/identity-file.ts:1-40, 120-190`; `src/kit/keystore/aes.ts:26-42`).
+3. **Master passphrase.** Derives a 256-bit key with scrypt from a caller-supplied passphrase, using a
+   fresh random salt. It reports itself **unavailable** so it is never auto-selected, because nothing in
+   Kit collects a passphrase; it stays registered so a vault already sealed with it still opens
+   (`src/kit/keystore/backends/passphrase.ts:1-6, 41-52`).
 
-The passphrase backend exists and is unit-proven, but the current Kit settings screen calls the vault
-without an `Unlock` and has no passphrase prompt (`src/kit/render/settings/settings-screen.tsx:37-52,
-105-145`). Therefore saving providers through the current UI is wired end to end on Windows through
-DPAPI; the portable backend is not yet a usable macOS/Linux settings flow. On any platform, familiar
-provider environment variables can supply an active provider without writing it to the vault
-(`src/kit/providers/config.ts:37-55`; `src/kit/providers/vault.ts:65-68`).
+**The local key file is deliberately weaker than DPAPI and is labeled as such.** Its key sits on disk
+beside the vault it opens, so any reader of the vault can also read the key. It defends against
+exposure - a credential surviving as plaintext in a backup, a synced folder, or a casual scan - not
+against an attacker who already holds the user's account. It ranks below every OS-native backend for
+exactly that reason. macOS Keychain and Linux Secret Service backends are not implemented; on those
+platforms the local key file is what runs today.
+
+Every write verifies its own seal before committing: `writeVault` re-opens the sealed blob and compares
+it to the plaintext before renaming over the live vault, so a change of backend between saves fails as
+a rejected write rather than silently replacing readable keys with unreadable ones
+(`src/kit/providers/vault.ts:81-96`).
+
+The Kit settings screen still calls the vault without an `Unlock` and has no passphrase prompt
+(`src/kit/render/settings/settings-screen.tsx:37-52, 105-145`); with the local key file in the roster
+that is no longer a platform blocker, since selection resolves to a backend needing no input. On any
+platform, familiar provider environment variables can supply an active provider without writing it to
+the vault at all (`src/kit/providers/config.ts:37-55`; `src/kit/providers/vault.ts:65-68`).
 
 ### Provider egress boundary
 
@@ -91,8 +109,25 @@ Vault encryption is intentionally fail-closed once a valid sealed envelope reach
 unknown backend tag throws, DPAPI decryption failure throws, and a wrong passphrase or failed GCM
 authentication throws (`src/kit/keystore/keystore.ts:15-18`; `src/kit/keystore/keystore.test.ts:18-52`).
 DPAPI also binds recovery to the Windows user context. There is no vault export, recovery-key, backend
-migration, or credential-rotation flow today. Losing the Windows profile or a portable vault's
-passphrase means re-entering the provider configuration.
+migration, or credential-rotation flow today. Losing the Windows profile means re-entering the provider
+configuration.
+
+**One documented exception, and only one.** A local key file that is structurally invalid - wrong size,
+wrong magic, wrong version, or a failed HMAC - is holding a key that is already unrecoverable, so the
+vault sealed under it cannot be opened by any caller, retry, or passphrase. Failing closed there would
+protect nothing while leaving the user permanently unable to save a provider. Kit therefore moves the
+damaged file aside under a dated `.damaged-*` name, writes a fresh key, moves the now-unopenable vault
+aside as `.unopenable-*`, and returns an empty vault carrying a `notice` that names both paths. Neither
+file is deleted, so recovery from the original bytes remains possible, and the settings screen surfaces
+the notice rather than showing an unexplained empty list
+(`src/kit/keystore/backends/identity-file.ts:120-190`; `src/kit/providers/vault.ts:44-84`;
+`src/kit/providers/vault-recovery.test.ts`).
+
+This applies to structural damage only. An I/O failure such as a permissions error or a disconnected
+mount may succeed on retry, so it is surfaced rather than treated as damage - replacing a key because a
+volume was briefly unreadable would cause exactly the loss this is meant to avoid. Any other unopenable
+vault, including tampered ciphertext under a healthy key or a vault from another Windows profile, still
+throws and is left untouched on disk.
 
 One weaker edge remains: `readSealed` currently treats an unreadable file, malformed outer JSON, or an
 object that is not a sealed envelope as if no vault existed. Only a well-shaped envelope that fails to
