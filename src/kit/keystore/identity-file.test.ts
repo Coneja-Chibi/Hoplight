@@ -13,10 +13,13 @@ import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { identityFileBackend, identityPath } from "./backends/identity-file";
+import { identityFileBackend, identityPath, identityStatus } from "./backends/identity-file";
 import { passphraseBackend } from "./backends/passphrase";
 import { pickBackend, backendById } from "./registry";
 import { aesOpen, aesSeal } from "./aes";
+
+const FILE_SIZE = 104;
+const MAGIC = Buffer.from([0x89, 0x48, 0x4c, 0x4b]);
 
 const BRUTAL =
   Array.from({ length: 256 }, (_, i) => String.fromCharCode(i)).join("")
@@ -93,26 +96,41 @@ describe("identity-file backend", () => {
     expect((await readFile(identityPath())).subarray(8)).not.toEqual(first.subarray(8));
   });
 
-  test("a corrupt key file fails loudly and is NEVER silently replaced", async () => {
-    // Overwriting it would destroy the only means of opening an existing vault, so a damaged file
-    // has to stop the world rather than quietly mint a new key.
-    await identityFileBackend.seal("x", {});
-    const original = await readFile(identityPath());
-    const damaged = Buffer.from(original);
-    damaged[80] = damaged[80]! ^ 0xff; // flip a bit inside the integrity tag
-    await writeFile(identityPath(), damaged);
+  test("a damaged key file is set aside and replaced, never left blocking", async () => {
+    // The key inside a file that fails its integrity check is already gone, so refusing to continue
+    // protects nothing and leaves the user unable to save a provider ever again. Recover and report.
+    await mkdir(join(home, ".hoplight"), { recursive: true });
+    const damaged = Buffer.alloc(FILE_SIZE);
+    MAGIC.copy(damaged, 0);
+    damaged[4] = 0x01;
+    await writeFile(identityPath(), damaged); // valid header, garbage body: HMAC cannot verify
 
-    await expect(identityFileBackend.seal("y", {})).rejects.toThrow(/integrity/i);
-    expect(await readFile(identityPath())).toEqual(damaged);
+    const payload = await identityFileBackend.seal("after recovery", {});
+    expect(await identityFileBackend.open(payload, {})).toBe("after recovery");
+
+    const status = identityStatus();
+    expect(status?.source).toBe("replaced");
+    expect(status?.reason).toMatch(/integrity/i);
+
+    // The damaged bytes are preserved, not deleted: recovery from them stays possible.
+    expect(status?.quarantined).toBeDefined();
+    expect(await readFile(status!.quarantined!)).toEqual(damaged);
+    expect((await readFile(identityPath())).length).toBe(FILE_SIZE);
   });
 
-  test("a file of the wrong size or magic is rejected by name", async () => {
+  test("a file of the wrong size or magic is recovered the same way", async () => {
     await mkdir(join(home, ".hoplight"), { recursive: true });
     await writeFile(identityPath(), Buffer.alloc(50));
-    await expect(identityFileBackend.seal("x", {})).rejects.toThrow(/104/);
+    expect(await identityFileBackend.open(await identityFileBackend.seal("ok", {}), {})).toBe("ok");
+    expect(identityStatus()?.reason).toMatch(/104/);
+  });
 
-    await writeFile(identityPath(), Buffer.alloc(104));
-    await expect(identityFileBackend.seal("x", {})).rejects.toThrow(/magic/i);
+  test("an I/O failure is NOT treated as damage, since a retry may succeed", async () => {
+    // Setting aside a key because a mount was briefly unreadable would destroy a perfectly good
+    // key. Only a structural fault, which is deterministic, justifies replacement.
+    await mkdir(identityPath(), { recursive: true }); // a directory where the file should be
+    await expect(identityFileBackend.seal("x", {})).rejects.toThrow();
+    expect(identityStatus()?.source).not.toBe("replaced");
   });
 
   test("a payload sealed under one machine's key does not open under another's", async () => {

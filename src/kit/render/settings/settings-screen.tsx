@@ -108,7 +108,12 @@ export function SettingsScreen({
     void (async () => {
       try {
         const [choices, vault] = await Promise.all([loadChoices(), vaultApi.read()]);
-        if (alive.current) setState(initialState(choices, vault.providers, vault.activeId));
+        if (!alive.current) return;
+        setState(initialState(choices, vault.providers, vault.activeId));
+        // A recovered vault comes back EMPTY rather than throwing, so without this the user would
+        // see a blank provider list and no reason for it. The notice is the only account of where
+        // their saved keys went.
+        if (vault.notice) setError(vault.notice);
       } catch (caught) {
         if (alive.current) setError(caught instanceof Error ? caught.message : String(caught));
       }

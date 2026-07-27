@@ -8,11 +8,18 @@ import { chmod, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { configDir, envProvider, isProviderConfig, vaultPath, type ProviderConfig } from "./config";
 import { open, seal } from "../keystore/keystore";
+import { identityStatus } from "../keystore/backends/identity-file";
 import type { Sealed, Unlock } from "../keystore/types";
 
 export interface Vault {
   providers: ProviderConfig[];
   activeId: string | null;
+  /**
+   * Set when a previous vault could not be recovered and was set aside. Callers MUST surface it:
+   * a user whose saved providers silently vanished needs to be told why, and where the old files
+   * went, rather than finding an empty list and assuming Kit lost them.
+   */
+  notice?: string;
 }
 
 const EMPTY: Vault = { providers: [], activeId: null };
@@ -28,9 +35,49 @@ export async function readVault(unlock: Unlock = {}): Promise<Vault> {
   const path = vaultPath();
   if (cache && cache.path === path) return cache.vault;
   const sealed = await readSealed();
-  const vault = sealed ? toVault(JSON.parse(await open(sealed, unlock)) as unknown) : { ...EMPTY };
+  let vault: Vault;
+  if (!sealed) {
+    vault = { ...EMPTY };
+  } else {
+    try {
+      vault = toVault(JSON.parse(await open(sealed, unlock)) as unknown);
+    } catch (error) {
+      vault = await recoverUnopenable(sealed, error as Error);
+    }
+  }
   cache = { path, vault };
   return vault;
+}
+
+/**
+ * What to do with a vault that will not open.
+ *
+ * Exactly ONE case is safe to move past: Kit's own key file was found damaged and replaced during
+ * this very open. The vault was sealed under a key that no longer exists anywhere, so no caller,
+ * retry, or passphrase will ever recover it - and leaving the dead file in place would fail every
+ * future read, which is what would trap the user with no way to save a provider again. It is set
+ * aside beside the quarantined key, both preserved, and the run continues with an empty vault and a
+ * notice explaining it.
+ *
+ * Every other failure is rethrown untouched. A wrong passphrase, a DPAPI refusal, or a vault from
+ * another Windows profile are all states where the data is still recoverable by the right caller,
+ * and discarding them would turn a fixable problem into real loss.
+ */
+async function recoverUnopenable(sealed: Sealed, cause: Error): Promise<Vault> {
+  const identity = identityStatus();
+  if (sealed.backend !== "identity-file" || identity?.source !== "replaced") throw cause;
+
+  const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const setAside = `${vaultPath()}.unopenable-${stamp}`;
+  await rename(vaultPath(), setAside);
+  return {
+    ...EMPTY,
+    notice:
+      `Kit's key file was damaged (${identity.reason ?? "unreadable"}), so it was set aside as `
+      + `${identity.quarantined} and a new key was created. The providers saved under the old key `
+      + `could not be decrypted; that vault was kept at ${setAside}. Neither file was deleted. `
+      + "Re-enter your provider keys to continue.",
+  };
 }
 
 /** Add or replace a provider (by id) and make it active. Returns the saved provider with its id. */
