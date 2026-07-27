@@ -29,16 +29,34 @@ const tmpName = (finalPath: string): string => {
   return join(dir, `.tmp-${tag}.json`);
 };
 
-/** Write bytes to a new exclusive path (fail if exists). */
+/**
+ * Write bytes to a new exclusive path (fail if exists).
+ *
+ * The `wx` open CREATES the file, so a later failure (ENOSPC, EIO, a quota) would otherwise leave a
+ * truncated file sitting at the destination. That is worse than it sounds: the next attempt hits
+ * EEXIST and surfaces as "file already exists" for a piece the user never saved, which both misreads
+ * the situation and blocks the retry that would succeed once space is free. So a write that fails
+ * after creating the file removes it again, matching writeAtomicReplace's temp cleanup.
+ *
+ * The `created` flag is load-bearing: on the EEXIST path the file is someone else's and must NOT be
+ * unlinked, or the cleanup would destroy the very data the exclusive open was protecting.
+ */
 export async function writeExclusive(finalPath: string, body: string): Promise<void> {
   let handle: Awaited<ReturnType<typeof open>> | undefined;
+  let created = false;
   try {
     handle = await open(finalPath, "wx");
+    created = true;
     await handle.writeFile(body, "utf8");
     await handle.sync();
   } catch (e) {
     const code = (e as NodeJS.ErrnoException)?.code;
     if (code === "EEXIST") throw new StudioConflictError();
+    if (created) {
+      await handle?.close().catch(() => undefined);
+      handle = undefined;
+      await unlink(finalPath).catch(() => undefined);
+    }
     throw new StudioWriteError();
   } finally {
     await handle?.close().catch(() => undefined);
