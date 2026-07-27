@@ -184,6 +184,52 @@ function findArrays(texts: readonly { text: string; where: string }[]): ArrayFin
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+/** One state write: the variable it targets, and the literal value when it wrote a plain one. */
+interface VariableWrite {
+  variable: string;
+  /** Null whenever the written value is computed, which opens the variable's domain. */
+  literal: string | null;
+}
+
+/**
+ * The state write a token performs, across EVERY form that writes.
+ *
+ * Scanning only `{{setvar}}` is not enough and the miss is not merely incomplete, it is wrong. In one
+ * real preset three variables looked like closed domains of a single value while `{{incvar}}` and
+ * `{{addvar}}` were also driving them; reported as closed, a reader would expand a running counter
+ * into the constant zero. Any write form that is not a plain literal assignment has to open the
+ * domain, so all of them have to be recognised.
+ */
+function writeIn(token: string): VariableWrite | null {
+  const inner = token.slice(2, -2);
+
+  // Shorthand assignment: {{.x = v}}, {{$x += v}}, {{.x++}}. `=(?!=)` is what keeps the comparison
+  // `{{.x == v}}` out; it reads state and must not be mistaken for a write. Only a bare `=` can
+  // carry a literal, since every compound operator derives the new value from the current one.
+  const shorthand = /^\s*[.$]([A-Za-z_][A-Za-z0-9_]*)\s*(\+\+|--|\+=|-=|\|\|=|\?\?=|=(?!=))([\s\S]*)$/
+    .exec(inner);
+  if (shorthand) {
+    const [, variable, operator, rest] = shorthand;
+    const value = (rest ?? "").trim();
+    const plain = operator === "=" && value.length > 0 && !value.includes("{{");
+    return { variable: variable!, literal: plain ? value : null };
+  }
+
+  const name = macroName(token);
+  if (!name) return null;
+  const args = splitArgs(inner).map((part) => part.trim());
+  const variable = args[1];
+  if (!variable) return null;
+
+  if (name === "setvar" || name === "setglobalvar") {
+    const value = args.slice(2).join("::");
+    return { variable, literal: value.length > 0 && !value.includes("{{") ? value : null };
+  }
+  // Arithmetic and append forms always derive from the current value, so they can never close a set.
+  if (/^(add|inc|dec)(global)?var$/.test(name)) return { variable, literal: null };
+  return null;
+}
+
 /**
  * Variables whose written values are all literal. A single computed write disqualifies the variable
  * entirely rather than reporting a partial list, because a partial list presented as a domain is
@@ -196,13 +242,10 @@ function findDomains(
   const computed = new Set<string>();
   for (const { text } of texts) {
     for (const token of scanMacroTokens(text)) {
-      if (macroName(token) !== "setvar") continue;
-      const parts = splitArgs(token.slice(2, -2)).map((part) => part.trim());
-      const [, variable, ...rest] = parts;
-      if (!variable) continue;
-      const value = rest.join("::");
-      if (value.length === 0 || value.includes("{{")) { computed.add(variable); continue; }
-      literals.set(variable, (literals.get(variable) ?? new Set<string>()).add(value));
+      const write = writeIn(token);
+      if (!write) continue;
+      if (write.literal === null) { computed.add(write.variable); continue; }
+      literals.set(write.variable, (literals.get(write.variable) ?? new Set<string>()).add(write.literal));
     }
   }
 

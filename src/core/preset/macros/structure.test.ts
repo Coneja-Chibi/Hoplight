@@ -109,6 +109,30 @@ describe("domains", () => {
     expect(found.wideVariables).toEqual([]);
   });
 
+  test("a shorthand assignment counts as a write, and a shorthand comparison does not", () => {
+    const found = readPresetStructure(preset([
+      "{{.mood = calm}}{{.mood = tense}}{{if {{.mood == calm}}}}x{{/if}}",
+    ]));
+    expect(found.domains).toEqual([{ variable: "mood", values: ["calm", "tense"] }]);
+  });
+
+  test("an arithmetic write opens the domain of a variable that otherwise looks closed", () => {
+    // Measured against a real preset: three variables reported as the closed set {0} while incvar
+    // and addvar were also driving them. Reported closed, a running counter reads as the constant
+    // zero, which is the single most misleading thing this report could say.
+    expect(readPresetStructure(preset(["{{setvar::turns::0}}{{incvar::turns}}"])).domains).toEqual([]);
+    expect(readPresetStructure(preset(["{{setvar::score::0}}{{addvar::score::5}}"])).domains).toEqual([]);
+    expect(readPresetStructure(preset(["{{setvar::n::0}}{{.n++}}"])).domains).toEqual([]);
+    expect(readPresetStructure(preset(["{{setvar::n::0}}{{.n += 2}}"])).domains).toEqual([]);
+  });
+
+  test("a computed shorthand assignment disqualifies just like a computed setvar", () => {
+    const found = readPresetStructure(preset([
+      "{{setvar::roll::1}}{{.roll = {{random::1::6}}}}",
+    ]));
+    expect(found.domains).toEqual([]);
+  });
+
   test("values too long to expand are named, not silently dropped", () => {
     const long = "x".repeat(120);
     const found = readPresetStructure(preset([`{{setvar::essay::${long}}}`]));
