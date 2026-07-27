@@ -80,7 +80,19 @@ async function readSealed(): Promise<Sealed | null> {
 
 async function writeVault(vault: Vault, unlock: Unlock): Promise<void> {
   await mkdir(configDir(), { recursive: true });
-  const sealed = await seal(JSON.stringify(vault), unlock);
+  const plaintext = JSON.stringify(vault);
+  const sealed = await seal(plaintext, unlock);
+
+  // Prove the seal is reversible BEFORE the rename makes it the only copy. seal() re-picks the best
+  // backend every write, so a vault can legitimately change locks between saves - and if the new
+  // lock cannot open what it just wrote, the rename would replace working keys with unreadable
+  // ones. Verifying first turns silent, permanent key loss into an ordinary failed write.
+  if ((await open(sealed, unlock)) !== plaintext) {
+    throw new Error(
+      `vault: the ${sealed.backend} lock could not reopen what it just sealed; nothing was written`,
+    );
+  }
+
   const tmp = `${vaultPath()}.${randomUUID()}.tmp`;
   await writeFile(tmp, `${JSON.stringify(sealed)}\n`, "utf8");
   try {
