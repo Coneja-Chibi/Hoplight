@@ -29,24 +29,44 @@ const EMPTY: Vault = { providers: [], activeId: null };
 // OS keystore (a PowerShell DPAPI call) on every turn; the plaintext lives in process memory only.
 let cache: { path: string; vault: Vault } | null = null;
 
+/**
+ * A recovery that happened in this process, kept beside the cache rather than only on the Vault it
+ * was born in.
+ *
+ * Recovery can be triggered by ANY caller - a provider-backed turn calling resolveProviderConfig
+ * just as easily as the settings screen - and writeVault replaces the cached Vault wholesale on the
+ * next save. Carrying the notice only on that one object meant the single account of where a user's
+ * keys went could be overwritten before they ever saw it. Keyed by path so a relocated HOPLIGHT_HOME
+ * cannot inherit the previous location's incident.
+ */
+let recovery: { path: string; notice: string } | null = null;
+
+/** Attach this process's recovery notice, wherever the vault itself came from. */
+const withNotice = (vault: Vault): Vault =>
+  recovery && recovery.path === vaultPath() ? { ...vault, notice: recovery.notice } : vault;
+
 /** The decrypted vault. Empty when no vault file exists; THROWS if a present vault will not open
  * (wrong passphrase or tampering) so callers surface it rather than silently losing the keys. */
 export async function readVault(unlock: Unlock = {}): Promise<Vault> {
   const path = vaultPath();
-  if (cache && cache.path === path) return cache.vault;
+  if (cache && cache.path === path) return withNotice(cache.vault);
   const sealed = await readSealed();
   let vault: Vault;
   if (!sealed) {
     vault = { ...EMPTY };
   } else {
+    // Captured BEFORE the open so recovery keys off a replacement that happened during THIS open,
+    // not one latched earlier in the process. Quarantine paths are unique per replacement, so a
+    // changed value is proof of a fresh one.
+    const quarantinedBefore = identityStatus()?.quarantined;
     try {
       vault = toVault(JSON.parse(await open(sealed, unlock)) as unknown);
     } catch (error) {
-      vault = await recoverUnopenable(sealed, error as Error);
+      vault = await recoverUnopenable(sealed, error as Error, quarantinedBefore);
     }
   }
   cache = { path, vault };
-  return vault;
+  return withNotice(vault);
 }
 
 /**
@@ -63,21 +83,39 @@ export async function readVault(unlock: Unlock = {}): Promise<Vault> {
  * another Windows profile are all states where the data is still recoverable by the right caller,
  * and discarding them would turn a fixable problem into real loss.
  */
-async function recoverUnopenable(sealed: Sealed, cause: Error): Promise<Vault> {
+async function recoverUnopenable(
+  sealed: Sealed,
+  cause: Error,
+  quarantinedBefore: string | undefined,
+): Promise<Vault> {
   const identity = identityStatus();
-  if (sealed.backend !== "identity-file" || identity?.source !== "replaced") throw cause;
+  const replacedNow = identity?.source === "replaced" && identity.quarantined !== quarantinedBefore;
+  if (sealed.backend !== "identity-file" || !replacedNow) throw cause;
 
   const stamp = new Date().toISOString().replace(/[:.]/g, "-");
   const setAside = `${vaultPath()}.unopenable-${stamp}`;
-  await rename(vaultPath(), setAside);
-  return {
-    ...EMPTY,
+  // A rename can fail on its own (a Windows lock, a read-only mount). Failing here would re-block
+  // the very case this exists to unblock, with the key already replaced, so the move is best effort
+  // and the notice tells the truth about which outcome happened.
+  let moved = true;
+  try {
+    await rename(vaultPath(), setAside);
+  } catch {
+    moved = false;
+  }
+
+  const fate = moved
+    ? `that vault was kept at ${setAside}. Neither file was deleted.`
+    : `that vault could not be moved and remains at ${vaultPath()}; delete or rename it yourself. `
+      + "Nothing was deleted.";
+  recovery = {
+    path: vaultPath(),
     notice:
-      `Kit's key file was damaged (${identity.reason ?? "unreadable"}), so it was set aside as `
-      + `${identity.quarantined} and a new key was created. The providers saved under the old key `
-      + `could not be decrypted; that vault was kept at ${setAside}. Neither file was deleted. `
-      + "Re-enter your provider keys to continue.",
+      `Kit's key file was damaged (${identity?.reason ?? "unreadable"}), so it was set aside as `
+      + `${identity?.quarantined} and a new key was created. The providers saved under the old key `
+      + `could not be decrypted; ${fate} Re-enter your provider keys to continue.`,
   };
+  return { ...EMPTY };
 }
 
 /** Add or replace a provider (by id) and make it active. Returns the saved provider with its id. */

@@ -6,6 +6,9 @@ const check: DoctorCheck = {
   label: "Vault",
   async run(context, signal) {
     const vault = await context.vault(signal);
+    // A recovered vault also reports zero providers, so this has to come first or the incident
+    // reads as an ordinary empty vault.
+    if (vault.notice) return { status: "warn", detail: vault.notice };
     if (vault.providers === 0) {
       return { status: "warn", detail: `ready with ${vault.backend}; no saved providers` };
     }

@@ -123,6 +123,29 @@ test("an unopenable vault whose key is FINE is never swept aside", async () => {
   expect(JSON.parse(await readFile(VAULT_PATH(), "utf8"))).toEqual(tampered);
 });
 
+test("the notice survives a later save, so it is not lost before anyone reads it", async () => {
+  // Recovery can be triggered by any caller, including a provider-backed turn resolving its config.
+  // writeVault replaces the cached Vault wholesale, so a notice carried only on that one object
+  // could be overwritten before the user ever opened settings.
+  await seedIdentityVault("sk-original");
+  await writeFile(KEY_PATH(), DAMAGED());
+
+  const kit = await freshVault();
+  expect((await kit.readVault()).notice).toContain("key file was damaged");
+
+  await kit.saveProvider({ kind: "openai", model: "gpt-4o", apiKey: "sk-new" });
+  expect((await kit.readVault()).notice).toContain("key file was damaged");
+});
+
+test("a recovery triggered by resolveProviderConfig is still reported to a later reader", async () => {
+  await seedIdentityVault("sk-original");
+  await writeFile(KEY_PATH(), DAMAGED());
+
+  const kit = await freshVault();
+  await kit.resolveProviderConfig(); // the path a turn takes, not the settings screen
+  expect((await kit.readVault()).notice).toContain("key file was damaged");
+});
+
 test("a healthy vault reports no notice and keeps its providers", async () => {
   await seedIdentityVault("sk-fine");
   const vault = await (await freshVault()).readVault();

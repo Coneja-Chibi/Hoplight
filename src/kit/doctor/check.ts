@@ -24,6 +24,12 @@ export interface VaultDiagnostic {
   backend: string;
   providers: number;
   active: boolean;
+  /**
+   * Set when a previous vault could not be recovered. Without it the doctor would report a
+   * recovered vault as an ordinary "no saved providers", which is the one screen a user opens to
+   * find out what went wrong reporting nothing about the largest thing that did.
+   */
+  notice?: string;
 }
 
 export interface DoctorContext {

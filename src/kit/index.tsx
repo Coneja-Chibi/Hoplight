@@ -42,6 +42,7 @@ async function main(): Promise<void> {
           backend,
           providers: vault.providers.length,
           active: vault.activeId !== null,
+          ...(vault.notice ? { notice: vault.notice } : {}),
         };
       },
       version: APP_VERSION,
