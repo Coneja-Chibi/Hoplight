@@ -139,6 +139,7 @@ export const ROLECALL_MACRO_GROUPS: MacroGroup[] = [
     macros: [
       { macro: "{{random}}", description: "Random 0-100", op: "random.range" },
       { macro: "{{random::min::max}}", description: "Random in range", op: "random.range" },
+      { macro: "{{random::a::b::c}}", description: "Three or more arguments picks one of the listed items, not a range", op: "random.pick" },
       { macro: "{{pick::a::b::c}}", description: "Pick random item", op: "random.pick" },
       { macro: "{{roll::NdM}}", description: "Roll dice", example: "{{roll::2d6}}", op: "dice.roll" },
       { macro: "{{range::start::end::step}}", description: "Pick a random number from a stepped range" },
@@ -155,6 +156,7 @@ export const ROLECALL_MACRO_GROUPS: MacroGroup[] = [
       { macro: "{{upper::text}}", description: "UPPERCASE" },
       { macro: "{{lower::text}}", description: "lowercase" },
       { macro: "{{title::text}}", description: "Title Case" },
+      { macro: "{{trim}}", description: "Collapses the whitespace around this point; takes no argument", op: "text.trim-surrounding" },
       { macro: "{{trim::text}}", description: "Remove whitespace", op: "text.trim-argument" },
       { macro: "{{newline}}", description: "Insert newline" },
       { macro: "{{space}}", description: "Insert space" },

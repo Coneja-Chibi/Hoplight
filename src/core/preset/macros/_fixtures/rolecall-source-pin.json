@@ -123,6 +123,7 @@
       "tokens": [
         "{{random}}",
         "{{random::min::max}}",
+        "{{random::a::b::c}}",
         "{{pick::a::b::c}}",
         "{{roll::NdM}}",
         "{{range::start::end::step}}",
@@ -138,6 +139,7 @@
         "{{upper::text}}",
         "{{lower::text}}",
         "{{title::text}}",
+        "{{trim}}",
         "{{trim::text}}",
         "{{newline}}",
         "{{space}}",

@@ -23,7 +23,7 @@
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import { macroName, matchingClose } from "./support";
-import { equivalentOf } from "./equivalence";
+import { equivalentOf, formsForOp } from "./equivalence";
 
 /**
  * What happened to one macro. These come from the canonical op join in ./equivalence.ts, never from
@@ -56,6 +56,34 @@ export interface TextTranslation {
 }
 
 const COLLISION_NOTE = "left unchanged and flagged; it must be reviewed before use";
+
+/**
+ * Lower an indexed variable access into the plain get/set every engine has.
+ *
+ * `{{getvarkey::plan::3}}` is an array read, and most engines have no arrays. But an array of fixed
+ * slots is just a set of variables whose names carry the index, so the access lowers rather than
+ * dies: `{{getvar::plan_3}}`. A computed index lowers too, because a nested macro resolves before
+ * its consumer, so the composed NAME is what gets looked up.
+ *
+ * This is a desugaring into canonical primitives, not a rule about any pair of engines. It runs
+ * before the equivalence lookup, and what comes out is an ordinary get or set that the hub then
+ * carries across on its own merits.
+ *
+ * Returns null when the token is not an indexed access or is too malformed to lower safely.
+ */
+export function lowerIndexedAccess(token: string): string | null {
+  const name = macroName(token);
+  if (name !== "getvarkey" && name !== "setvarkey") return null;
+
+  const args = splitArgs(token.slice(2, -2)).slice(1).map((a) => a.trim());
+  const [array, index, ...rest] = args;
+  if (!array || index === undefined || index.length === 0) return null;
+
+  const composedKey = `${array}_${index}`;
+  if (name === "getvarkey") return `{{getvar::${composedKey}}}`;
+  // setvarkey carries a value after the index; an absent one writes empty, matching the source.
+  return `{{setvar::${composedKey}::${rest.join("::")}}}`;
+}
 
 /** Split a tag's inner content on `::` at brace depth zero, so nested macros stay whole. */
 function splitArgs(inner: string): string[] {
@@ -226,10 +254,42 @@ function translateOne(
   where: string,
   changes: MacroChange[],
 ): string {
+  // Lower an indexed access into a plain get/set first, then judge THAT on its merits. Doing this
+  // before the lookup is what turns "the target has no arrays" into an ordinary variable read.
+  const lowered = lowerIndexedAccess(token);
+  if (lowered) {
+    const inner = lowered.slice(2, -2);
+    const target = equivalentOf(from, to, macroName(lowered), splitArgs(inner).slice(1));
+    if (target.verdict === "portable") {
+      // The value of a lowered set may itself hold an indexed read, so translate the inside too.
+      // Without this pass the outer write converts and the inner read is left as dead syntax.
+      const parts = splitArgs(inner);
+      const head = parts.slice(0, 2).join("::");
+      const tail = parts.slice(2);
+      const settled = tail.length
+        ? `{{${head}::${translateTokens(tail.join("::"), from, to, where, [])}}}`
+        : lowered;
+      changes.push({
+        kind: "rewrite",
+        from: token,
+        to: settled,
+        where,
+        why: `Indexed access lowered to a plain variable whose name carries the index, since ${to} has no arrays.`,
+      });
+      return settled;
+    }
+  }
+
   const inner = token.slice(2, -2);
   const name = macroName(token);
   // Comments, dot-locals and flag-only forms invoke nothing; leave them exactly as authored.
   if (!name) return token;
+
+  // Block syntax is structural, not argument-separated: `{{if mood}}` carries its condition as bare
+  // text and `{{/if}}` carries nothing at all. Re-rendering either through the argument machinery
+  // collapses both to `{{if}}` and destroys the construct. When the target expresses the same
+  // operation, the only correct move is to leave the token exactly as written.
+  if (isStructuralBlockToken(name, inner) && targetHasConditionals(to)) return token;
 
   const args = splitArgs(inner).slice(1);
   const match = equivalentOf(from, to, name, args);
@@ -301,7 +361,15 @@ export function translatePresetBody(
   return { body: copy, changes };
 }
 
-/** Translate one chunk of prompt text: flatten blocks, then translate what remains. */
+/**
+ * Translate one chunk of prompt text.
+ *
+ * Blocks are flattened ONLY when the target cannot express a conditional. Flattening is lossy: it
+ * drops the condition and keeps one branch, so running it against an engine that has `{{if}}` would
+ * destroy working logic in the name of portability. The target's own catalog decides, through the
+ * canonical `flow.conditional` operation, so an engine that gains conditionals stops being
+ * flattened the moment its catalog says so.
+ */
 export function translateText(
   text: string,
   from: PresetWriteForProfile,
@@ -309,6 +377,18 @@ export function translateText(
   where = "text",
 ): TextTranslation {
   const changes: MacroChange[] = [];
-  const flattened = flattenBlocks(text, where, changes);
-  return { text: translateTokens(flattened, from, to, where, changes), changes };
+  const source = targetHasConditionals(to) ? text : flattenBlocks(text, where, changes);
+  return { text: translateTokens(source, from, to, where, changes), changes };
+}
+
+/** Does the target engine publish a conditional of its own? */
+function targetHasConditionals(to: PresetWriteForProfile): boolean {
+  return formsForOp("flow.conditional").some((form) => form.engine === to);
+}
+
+/** A block opener, an else, or any closing tag: forms whose text is structure, not arguments. */
+function isStructuralBlockToken(name: string, inner: string): boolean {
+  if (/^\s*\//.test(inner)) return true; // {{/if}}, {{/trim}}, any closer
+  if (name === "else") return true;
+  return (name === "if" || name === "unless") && !/^\s*\w+::/.test(inner.trim());
 }

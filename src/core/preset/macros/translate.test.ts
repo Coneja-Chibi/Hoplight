@@ -84,29 +84,44 @@ describe("equivalence is a join on the operation, never a pair table", () => {
   });
 });
 
-describe("block flattening", () => {
-  test("keeps the body and drops only the scaffolding", () => {
+describe("block flattening (only when the target lacks conditionals)", () => {
+  // SillyTavern HAS conditionals, so a RoleCall crossing must NOT flatten: doing so would drop a
+  // working condition and keep one branch. These exercise the flattener directly, which is what
+  // runs for a target that genuinely cannot express a block.
+  const flat = (t: string) => {
+    const changes: MacroChange[] = [];
+    return { text: flattenBlocks(t, "Main", changes), changes };
+  };
+
+  test("a target WITH conditionals keeps the block intact", () => {
     const out = rc2st("{{if mood}}You feel it.{{/if}}");
+    expect(out.text).toContain("{{if mood}}");
+    expect(out.text).toContain("{{/if}}");
+    expect(out.changes.some((c) => c.kind === "flatten")).toBe(false);
+  });
+
+  test("keeps the body and drops only the scaffolding", () => {
+    const out = flat("{{if mood}}You feel it.{{/if}}");
     expect(out.text).toContain("You feel it.");
     expect(out.text).not.toContain("{{if");
     expect(out.text).not.toContain("{{/if}}");
   });
 
   test("records the condition as a target-safe comment with no braces left inside", () => {
-    const out = rc2st("{{if {{getvar::mood}}}}body{{/if}}");
+    const out = flat("{{if {{getvar::mood}}}}body{{/if}}");
     const comment = /\{\{\/\/[^}]*\}\}/.exec(out.text)?.[0] ?? "";
     expect(comment).toContain("was if:");
     expect(comment.slice(2, -2)).not.toContain("{{");
   });
 
   test("takes the first branch and does not emit the else body", () => {
-    const out = rc2st("{{if x}}THEN{{else}}ELSE{{/if}}");
+    const out = flat("{{if x}}THEN{{else}}ELSE{{/if}}");
     expect(out.text).toContain("THEN");
     expect(out.text).not.toContain("ELSE");
   });
 
   test("nested same-type blocks collapse without desyncing on the first closer", () => {
-    const out = rc2st("{{if a}}OUT{{if b}}IN{{/if}}TAIL{{/if}}");
+    const out = flat("{{if a}}OUT{{if b}}IN{{/if}}TAIL{{/if}}");
     for (const part of ["OUT", "IN", "TAIL"]) expect(out.text).toContain(part);
     expect(out.text).not.toContain("{{/if}}");
   });
@@ -152,9 +167,22 @@ describe("translation output", () => {
   });
 
   test("every change carries a reason", () => {
-    const out = rc2st("{{if a}}b{{/if}}{{roll::1d6}}{{accentColor}}{{random::1::2}}");
-    expect(out.changes.length).toBeGreaterThan(3);
+    // The if-block passes through untouched now, so it is not a change and does not appear here.
+    const out = rc2st("{{if a}}b{{/if}}{{roll::1d6}}{{accentColor}}{{random::1::2}}{{getvarkey::p::2}}");
+    expect(out.changes.length).toBeGreaterThan(2);
     for (const change of out.changes) expect(change.why.length).toBeGreaterThan(10);
+  });
+
+  test("an indexed access is lowered onto a plain variable", () => {
+    // 83 of this preset family's remaining gaps are array slots with constant indices. An array of
+    // fixed slots is a set of variables whose names carry the index, so the access lowers.
+    const out = rc2st("{{getvarkey::plan::3}} and {{setvarkey::plan::4::x}}");
+    expect(out.text).toBe("{{getvar::plan_3}} and {{setvar::plan_4::x}}");
+  });
+
+  test("a computed index lowers into a composed key, since nested macros resolve first", () => {
+    const out = rc2st("{{getvarkey::plan::{{getvar::i}}}}");
+    expect(out.text).toBe("{{getvar::plan_{{getvar::i}}}}");
   });
 });
 

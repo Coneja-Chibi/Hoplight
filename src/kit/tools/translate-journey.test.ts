@@ -83,12 +83,13 @@ test("a RoleCall preset exports as a SillyTavern preset with its macros translat
   const written = JSON.parse(file) as { prompts: { name: string; content: string }[] };
   const byName = new Map(written.prompts.map((p) => [p.name, p.content]));
 
-  // 1. The block collapsed but the author's sentence survived, and the condition is documented.
+  // 1. SillyTavern has conditionals, so the block survives intact rather than being flattened.
+  // Flattening here would drop a working condition and keep one branch.
   const mood = byName.get("Mood") ?? "";
   expect(mood).toContain("You feel {{getvar::mood}} today.");
-  expect(mood).not.toContain("{{if");
-  expect(mood).not.toContain("{{/if}}");
-  expect(mood).toContain("{{// was if:");
+  expect(mood).toContain("{{if ");
+  expect(mood).toContain("{{/if}}");
+  expect(mood).toContain("{{else}}");
 
   // 2. Separators were rewritten into the forms SillyTavern actually parses.
   const dice = byName.get("Dice") ?? "";
