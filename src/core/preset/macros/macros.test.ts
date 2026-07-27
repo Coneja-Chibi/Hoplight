@@ -94,7 +94,7 @@ describe("Lumiverse source pin: the catalog matches the live engine registry exa
         ...(m.aliases ?? []).map((a) => a.toLowerCase()),
       ]),
     );
-    expect(engine.size).toBeGreaterThanOrEqual(400); // 239 macros + ~180 aliases; floor guards an empty parse
+    expect(engine.size).toBeGreaterThanOrEqual(400); // 238 macros + 182 aliases; floor guards an empty parse
     expect([...engine].filter((n) => !catalog.has(n))).toEqual([]);
     expect([...catalog].filter((n) => !engine.has(n))).toEqual([]);
   });

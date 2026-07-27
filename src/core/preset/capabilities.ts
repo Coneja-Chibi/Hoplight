@@ -15,8 +15,9 @@
  *   Its per-block promptVariables system is real but rides BLOCKS, not a preset-level walkthrough,
  *   so the `choices` control stays off this lens (the import codec maps them to guarded setvar
  *   prompts instead).
- * - The macro dialect lives in src/macros (lexer/parser/registry, 239 definitions); the catalog in
- *   ./macros/lumiverse.ts is registry-dumped and source-pinned (VAUD_LUMI_MACRO_SRC).
+ * - The macro dialect lives in src/macros (lexer/parser/registry, 238 definitions plus a separate
+ *   182-entry alias map); the catalog in ./macros/lumiverse.ts is registry-dumped and source-pinned
+ *   (VAUD_LUMI_MACRO_SRC), and machine-verified against a committed capture by scripts/macro-oracle.
  *
  * The authoring targets are the engines vaud can really serialize: RoleCall (native), SillyTavern
  * (round-trip), Marinara (sealed round-trip), Lumiverse (ST-grammar round-trip, its own app's

@@ -62,13 +62,14 @@ export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
     name: "Time & Date",
     description: "Clock and calendar. Note the separators",
     macros: [
-      { macro: "{{time}}", description: "Current time" },
+      { macro: "{{time}}", description: "Current time", op: "time.now" },
       { macro: "{{date}}", description: "Current date" },
       { macro: "{{weekday}}", description: "Current weekday" },
       { macro: "{{isotime}}", description: "Current ISO time (24-hour clock)" },
       { macro: "{{isodate}}", description: "Current ISO date (YYYY-MM-DD)" },
       {
         macro: "{{datetimeformat DD.MM.YYYY HH:mm}}",
+        op: "time.format",
         description: "Date/time in a custom format. Space separated, not ::",
         example: "{{datetimeformat DD.MM.YYYY HH:mm}}",
       },
@@ -81,13 +82,14 @@ export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
     name: "Random & Dice",
     description: "ST picks from a LIST. There is no min/max range macro here",
     macros: [
-      { macro: "{{roll:1d6}}", description: "Roll dice. Single colon", example: "{{roll:2d6}}" },
-      { macro: "{{random:a,b,c}}", description: "Random item from a comma-separated list" },
+      { macro: "{{roll:1d6}}", description: "Roll dice. Single colon", example: "{{roll:2d6}}", op: "dice.roll" },
+      { macro: "{{random:a,b,c}}", description: "Random item from a comma-separated list", op: "random.pick" },
       {
         macro: "{{random::a::b}}",
+        op: "random.pick",
         description: "Random item from the list. The :: form lets items contain commas. NOT a range",
       },
-      { macro: "{{pick::a::b}}", description: "Like random, but stays fixed for this chat once picked" },
+      { macro: "{{pick::a::b}}", description: "Like random, but stays fixed for this chat once picked", op: "random.pick-sticky" },
     ],
   },
   {
@@ -113,9 +115,9 @@ export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
     description: "Whitespace, comments, and plumbing",
     macros: [
       { macro: "{{newline}}", description: "Insert a newline" },
-      { macro: "{{trim}}", description: "Trim newlines surrounding this macro. Takes no argument" },
+      { macro: "{{trim}}", description: "Trim newlines surrounding this macro. Takes no argument", op: "text.trim-surrounding" },
       { macro: "{{noop}}", description: "Empty string" },
-      { macro: "{{reverse:(content)}}", description: "Reverse the content" },
+      { macro: "{{reverse:(content)}}", description: "Reverse the content", op: "text.reverse" },
       { macro: "{{// note}}", description: "Author comment, removed from output" },
       { macro: "{{pipe}}", description: "Result of the previous slash command. Slash-command batching only" },
       { macro: "{{original}}", description: "The global prompt from API settings. Only in prompt overrides" },
@@ -126,7 +128,7 @@ export const SILLYTAVERN_MACRO_GROUPS: MacroGroup[] = [
     description: "Backend and environment state",
     macros: [
       { macro: '{{bias "text here"}}', description: "Set a behavioral bias until the next user input. Quotes required" },
-      { macro: '{{banned "text here"}}', description: "Add to banned sequences. Text Generation WebUI backend only" },
+      { macro: '{{banned "text here"}}', description: "Add to banned sequences. Text Generation WebUI backend only", op: "gen.banned" },
       { macro: "{{isMobile}}", description: '"true" when running on mobile, otherwise "false"' },
       { macro: "{{maxPrompt}}", description: "Max allowed prompt length in tokens (context size minus response length)" },
     ],

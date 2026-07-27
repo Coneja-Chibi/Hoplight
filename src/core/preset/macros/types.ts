@@ -14,6 +14,13 @@ export interface MacroEntry {
    * otherwise get false "unsupported" warnings on perfectly valid tokens.
    */
   aliases?: readonly string[];
+  /**
+   * The canonical operation this macro performs, when a name alone would mislead. This is the spoke
+   * that connects a dialect to the hub in ./ops.ts: translation is source op to target op, never
+   * engine to engine. Absent means "the name means what it says", which is true for most macros and
+   * is why this stays optional. Annotate collisions and gaps, not everything.
+   */
+  op?: import("./ops").MacroOp;
 }
 
 export interface MacroGroup {

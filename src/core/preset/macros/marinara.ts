@@ -53,7 +53,7 @@ export const MARINARA_MACRO_GROUPS: MacroGroup[] = [
     description: "Real-world clock and calendar",
     macros: [
       { macro: "{{date}}", description: "Current real date, YYYY-MM-DD" },
-      { macro: "{{time}}", description: "Current real time, HH:MM" },
+      { macro: "{{time}}", description: "Current real time, HH:MM", op: "time.now" },
       { macro: "{{datetime}}", description: "Current ISO timestamp" },
       { macro: "{{isotime}}", description: "Current ISO timestamp" },
       { macro: "{{weekday}}", description: "Current weekday name" },
@@ -63,9 +63,9 @@ export const MARINARA_MACRO_GROUPS: MacroGroup[] = [
     name: "Random",
     description: "Dice and random numbers. Single colon, and the range form is real here",
     macros: [
-      { macro: "{{random}}", description: "Random number from 0 to 100" },
-      { macro: "{{random:X:Y}}", description: "Random number between X and Y. Single colon", example: "{{random:1:20}}" },
-      { macro: "{{roll:XdY}}", description: "Dice roll total. Single colon", example: "{{roll:2d6}}" },
+      { macro: "{{random}}", description: "Random number from 0 to 100", op: "random.range" },
+      { macro: "{{random:X:Y}}", description: "Random number between X and Y. Single colon", example: "{{random:1:20}}", op: "random.range" },
+      { macro: "{{roll:XdY}}", description: "Dice roll total. Single colon", example: "{{roll:2d6}}", op: "dice.roll" },
     ],
   },
   {
@@ -86,14 +86,14 @@ export const MARINARA_MACRO_GROUPS: MacroGroup[] = [
     macros: [
       { macro: "{{newline}}", description: "Insert a literal newline" },
       { macro: "{{\\n}}", description: "Insert a literal newline" },
-      { macro: "{{trim}}", description: "Trim the final output. Takes no argument" },
+      { macro: "{{trim}}", description: "Trim the final output. Takes no argument", op: "text.trim-surrounding" },
       { macro: "{{trimStart}}", description: "Trim whitespace at the start of the output" },
       { macro: "{{trimEnd}}", description: "Trim whitespace at the end of the output" },
       { macro: "{{uppercase}}...{{/uppercase}}", description: "Uppercase a wrapped block" },
       { macro: "{{lowercase}}...{{/lowercase}}", description: "Lowercase a wrapped block" },
       { macro: "{{noop}}", description: "No-op placeholder, removed from output" },
       { macro: "{{// comment}}", description: "Author comment, removed from output" },
-      { macro: '{{banned "text"}}', description: "Accepted, but currently stripped from output" },
+      { macro: '{{banned "text"}}', description: "Accepted, but currently stripped from output", op: "gen.banned" },
     ],
   },
 ];
