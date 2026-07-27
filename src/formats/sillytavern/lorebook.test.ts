@@ -1,7 +1,11 @@
 /** Regression coverage for the lorebook.test behavior owned beside this file. */
 import { test, expect } from "bun:test";
+import { globSync, readFileSync } from "node:fs";
+import { basename } from "node:path";
 import codec from "./lorebook";
 import rcLorebook from "../rolecall/lorebook";
+import { DEFAULT_SCAN_DEPTH } from "../../entities/lorebook/schema";
+import { scanBook } from "../../core/lore/activation";
 
 /**
  * A standard SillyTavern worldbook: entries as a keyed map, ST int enums (position/role/
@@ -206,4 +210,48 @@ test("canonical bridges an ST worldbook to a RoleCall v1 lorebook export", () =>
   // reconciliation proof: ST `order` (placement) lands in RC placement, NOT RC eviction priority
   expect(out.lorebook.entries[0].priority.sortOrder).toBe(50); // ST order -> RC sortOrder (placement)
   expect(out.lorebook.entries[0].priority.priority).toBe(100); // eviction defaults (ST has no such axis)
+});
+
+/**
+ * Scan depth is the difference between an imported book that matches and one that is inert:
+ * activation reads depth <= 0 as "scan no lines", so an absent ST `scan_depth` must land on the
+ * house default, never on a literal 0. Both shipped ST samples omit the field, and both imported
+ * dead before this was fixed.
+ */
+test("an absent scan_depth imports at the house default, not zero", () => {
+  const book = makeStWorldbook() as Record<string, unknown>;
+  delete book.scan_depth;
+  expect(codec.toCanonical(asText(book)).body.globalScanDepth).toBe(DEFAULT_SCAN_DEPTH);
+});
+
+test("an explicit scan_depth is preserved", () => {
+  const book = { ...makeStWorldbook(), scan_depth: 7 };
+  expect(codec.toCanonical(asText(book)).body.globalScanDepth).toBe(7);
+});
+
+test("a nonsense scan_depth falls back rather than importing inert", () => {
+  for (const bad of [0, -3, null, "4"]) {
+    const book = { ...makeStWorldbook(), scan_depth: bad };
+    expect(codec.toCanonical(asText(book)).body.globalScanDepth).toBe(DEFAULT_SCAN_DEPTH);
+  }
+});
+
+/**
+ * The corpus guard for the whole class: import every shipped ST worldbook, take a keyword out of
+ * the book itself, and assert it actually fires. A unit test on the default alone would not have
+ * caught this, because the bug only shows once the imported depth reaches the activation engine.
+ */
+test("every shipped ST sample worldbook actually matches its own keywords", () => {
+  const files = globSync("samples/sillytavern/lorebooks/*.json");
+  expect(files.length).toBeGreaterThan(0);
+  for (const file of files) {
+    const body = codec.toCanonical({ bytes: readFileSync(file), filename: basename(file) }).body;
+    const keyworded = body.entries.find((e) => e.triggers.length > 0 && !e.constant && e.enabled);
+    if (!keyworded) continue; // a constants-only book has nothing to prove here
+    const keyword = keyworded.triggers[0]?.keyword ?? "";
+    const fired = scanBook(body, [{ text: `talking about ${keyword} right now`, role: "user" }], {
+      chanceMode: "always",
+    }).fired;
+    expect(fired.length).toBeGreaterThan(0);
+  }
 });

@@ -253,6 +253,15 @@ export interface LorebookCategory {
 
 export type LorebookType = "world" | "character" | "scenario" | "rules" | "utility" | "other";
 
+/**
+ * House default for `globalScanDepth`, shared by the "New lorebook" factory, heal, and every
+ * importer whose source format leaves scan depth unstated. It is NOT zero on purpose: the
+ * activation engine reads a depth of zero as "scan no lines at all", so a book that lands on
+ * zero matches nothing and reports every entry as no-key-match. A format that genuinely omits
+ * the field means "use the host default", which is this.
+ */
+export const DEFAULT_SCAN_DEPTH = 4;
+
 export interface LorebookBody {
   name: string;
   description?: string | null;

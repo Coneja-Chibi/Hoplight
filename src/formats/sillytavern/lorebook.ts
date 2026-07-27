@@ -19,6 +19,7 @@ import type {
   Trigger,
   InjectionPosition,
 } from "../../entities/lorebook/schema";
+import { DEFAULT_SCAN_DEPTH } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { readJsonObject } from "../_shared/card-io";
 import {
@@ -256,7 +257,11 @@ function bookToCanonical(book: StBook): LorebookBody {
     tags: [],
     globalCaseSensitive: book.case_sensitive === true,
     globalMatchWholeWords: book.match_whole_words === true,
-    globalScanDepth: typeof book.scan_depth === "number" ? book.scan_depth : 0,
+    // ST leaves scan_depth absent (or null) to mean "use the host's global setting", so an absent
+    // field must fall back to the house default. Reading it as a literal 0 imported the book inert:
+    // activation treats depth <= 0 as "scan no lines", so every keyword entry reported no-key-match.
+    globalScanDepth:
+      typeof book.scan_depth === "number" && book.scan_depth > 0 ? book.scan_depth : DEFAULT_SCAN_DEPTH,
     globalRecursion: book.recursive_scanning === true,
     tokenBudget: typeof book.token_budget === "number" ? book.token_budget : 0,
     budgetMode: "token",
