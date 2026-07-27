@@ -63,11 +63,11 @@ const samplerShape = defineExhaustiveShape<PresetSamplers>()({
   repetitionPenalty: z.number().optional(),
   maxContext: z.number().optional(),
   maxTokens: z.number().optional(),
-  promptPostProcessing: z.enum(["none", "merge", "semi", "strict", "single"]).optional(),
+  promptPostProcessing: z.enum(["none", "merge", "merge_tools", "semi", "semi_tools", "strict", "strict_tools", "single", "claude"]).optional(),
   contextMode: z.enum(["tokens", "messages"]).optional(),
   maxMessages: z.number().optional(),
 });
-const samplerSchema = z.strictObject(samplerShape);
+export const samplerSchema = z.strictObject(samplerShape);
 
 const systemPromptShape = defineExhaustiveShape<PresetSystemPrompts>()({
   impersonation: z.string().optional(),
@@ -79,14 +79,14 @@ const systemPromptShape = defineExhaustiveShape<PresetSystemPrompts>()({
   assistantPrefill: z.string().optional(),
   assistantImpersonation: z.string().optional(),
 });
-const systemPromptSchema = z.strictObject(systemPromptShape);
+export const systemPromptSchema = z.strictObject(systemPromptShape);
 
 const templateShape = defineExhaustiveShape<PresetTemplates>()({
   worldInfoFormat: z.string().optional(),
   scenarioFormat: z.string().optional(),
   personalityFormat: z.string().optional(),
 });
-const templateSchema = z.strictObject(templateShape);
+export const templateSchema = z.strictObject(templateShape);
 
 const behaviorShape = defineExhaustiveShape<PresetBehavior>()({
   wrapInQuotes: z.boolean().optional(),
@@ -95,7 +95,7 @@ const behaviorShape = defineExhaustiveShape<PresetBehavior>()({
   continuePrefill: z.boolean().optional(),
   continuePostfix: z.string().optional(),
 });
-const behaviorSchema = z.strictObject(behaviorShape);
+export const behaviorSchema = z.strictObject(behaviorShape);
 
 const apiShape = defineExhaustiveShape<PresetApiOptions>()({
   streamResponses: z.boolean().optional(),
@@ -108,14 +108,14 @@ const apiShape = defineExhaustiveShape<PresetApiOptions>()({
   enableWebSearch: z.boolean().optional(),
   requestImages: z.boolean().optional(),
 });
-const apiSchema = z.strictObject(apiShape);
+export const apiSchema = z.strictObject(apiShape);
 
 const mediaShape = defineExhaustiveShape<PresetMedia>()({
   imageInlining: z.boolean().optional(),
   inlineImageQuality: z.string().optional(),
   videoInlining: z.boolean().optional(),
 });
-const mediaSchema = z.strictObject(mediaShape);
+export const mediaSchema = z.strictObject(mediaShape);
 
 const generationShape = defineExhaustiveShape<PresetGeneration>()({
   seed: z.number().optional(),
@@ -123,7 +123,7 @@ const generationShape = defineExhaustiveShape<PresetGeneration>()({
   maxContextUnlocked: z.boolean().optional(),
   biasPreset: z.string().optional(),
 });
-const generationSchema = z.strictObject(generationShape);
+export const generationSchema = z.strictObject(generationShape);
 
 const optionShape = defineExhaustiveShape<PresetChoiceOption>()({
   id: z.string(),

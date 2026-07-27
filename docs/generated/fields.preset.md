@@ -49,7 +49,7 @@
 | `repetitionPenalty?` | `number` | - |  |
 | `maxContext?` | `number` | - |  |
 | `maxTokens?` | `number` | - |  |
-| `promptPostProcessing?` | `"none" \| "merge" \| "semi" \| "strict" \| "single"` | - |  |
+| `promptPostProcessing?` | `\| "none" \| "merge" \| "merge_tools" \| "semi" \| "semi_tools" \| "strict" \| "strict_tools" \| "single" \| "claude"` | SillyTavern, ST | SillyTavern's `custom_prompt_post_processing`, carrying its real value space rather than a subset. The `_tools` variants are NOT the same operation as their plain twins - they keep tool definitions - so folding them together would silently change what a preset does. ST's own empty string for "none" normalizes to `none` on the way in; its deprecated `claude` is kept because discarding an authored value to satisfy a schema is exactly what this field got wrong before. |
 | `contextMode?` | `"tokens" \| "messages"` | - | how the window is bounded; default "tokens" when absent. |
 | `maxMessages?` | `number` | - | message-count budget when contextMode = "messages". |
 

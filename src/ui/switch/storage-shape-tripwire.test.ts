@@ -24,7 +24,13 @@ async function shapeFiles(): Promise<string[]> {
 }
 
 // LF normalization keeps the pin stable across Windows and CI.
-const PINNED_SHAPE_HASH = "66d5df085f45f5de6d8370210da5e5c6dd5d91a4cef45d4e88c2a6e75da9302c";
+//
+// Updated deliberately for a COMPATIBLE change: PresetSamplers.promptPostProcessing gained the
+// values SillyTavern actually writes (the `_tools` variants and the deprecated `claude`), and the
+// per-group schemas are now exported so the ST codec can read expected types off them instead of
+// restating them. Purely additive - every value that parsed before still parses, no stored file
+// becomes unreadable - so this needs no schema-version bump and no SCHEMA_BUMPS entry.
+const PINNED_SHAPE_HASH = "5cbaa9e9f6534502b0c729f9622f9b18925db268c98286deaac9bd9bfa79e09d";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");

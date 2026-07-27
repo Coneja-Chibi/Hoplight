@@ -19,6 +19,15 @@ import type {
   PromptPlacement,
   PromptRole,
 } from "../../entities/preset/schema";
+import {
+  apiSchema,
+  behaviorSchema,
+  generationSchema,
+  mediaSchema,
+  samplerSchema,
+  systemPromptSchema,
+  templateSchema,
+} from "../../entities/preset/runtime-schema";
 
 export type Rec = Record<string, unknown>;
 
@@ -56,7 +65,10 @@ export const SAMPLER_FIELDS = [
   ["presence_penalty", "presencePenalty"], ["top_p", "topP"], ["top_k", "topK"],
   ["top_a", "topA"], ["min_p", "minP"], ["repetition_penalty", "repetitionPenalty"],
   ["openai_max_context", "maxContext"], ["openai_max_tokens", "maxTokens"],
-  ["prompt_post_processing", "promptPostProcessing"],
+  // SillyTavern's key is `custom_prompt_post_processing` (openai.js settingsToUpdate). Reading
+  // `prompt_post_processing` matched nothing ST has ever written, so this setting was silently
+  // dropped on every import. The emit half shares this table, so both directions move together.
+  ["custom_prompt_post_processing", "promptPostProcessing"],
 ] as const;
 export const SYSTEM_PROMPT_FIELDS = [
   ["impersonation_prompt", "impersonation"], ["new_chat_prompt", "newChat"],
@@ -89,11 +101,88 @@ export const GENERATION_FIELDS = [
   ["bias_preset_selected", "biasPreset"],
 ] as const;
 
+/**
+ * The primitive each canonical settings key expects, READ OFF THE SCHEMA rather than restated here.
+ *
+ * Hand-annotating the field tables with types would create a second source of truth that drifts
+ * from the decoder, which is the precise failure `defineExhaustiveShape` exists to prevent. The
+ * schema already knows; ask it.
+ */
+type Primitive = "string" | "number" | "boolean";
+
+const expectedTypes = (schema: unknown): Map<string, Primitive> => {
+  const shape = (schema as { def?: { shape?: Record<string, unknown> } }).def?.shape ?? {};
+  const out = new Map<string, Primitive>();
+  for (const [key, field] of Object.entries(shape)) {
+    let node = field as { def?: { type?: string; innerType?: unknown } };
+    while (node?.def?.innerType) node = node.def.innerType as typeof node;
+    const type = node?.def?.type;
+    if (type === "string" || type === "number" || type === "boolean") out.set(key, type);
+  }
+  return out;
+};
+
+/**
+ * Bring one wire value to the type the canonical field declares, or leave it alone.
+ *
+ * WHY THIS EXISTS. SillyTavern stores preset values verbatim and re-exports them verbatim, so a
+ * setting that ever became a string stays a string forever - and every real preset carrying
+ * `"temperature": "1.0"` was rejected outright as a corrupt file. Converting at the boundary is the
+ * project's own rule (parse untrusted input once, into a known type); the decoder had been
+ * validating without ever parsing.
+ *
+ * CONVERSIONS ARE LOSSLESS OR REFUSED. An empty string is NOT zero and "yes" is NOT true: anything
+ * ambiguous passes through untouched so the decoder still reports it, rather than being guessed
+ * into a value the author never wrote.
+ */
+function coerce(value: unknown, want: Primitive | undefined): unknown {
+  if (want === undefined || typeof value === want) return value;
+  if (want === "number" && typeof value === "string") {
+    const trimmed = value.trim();
+    if (trimmed === "") return value;
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? parsed : value;
+  }
+  if (want === "boolean" && typeof value === "string") {
+    const lowered = value.trim().toLowerCase();
+    if (lowered === "true") return true;
+    if (lowered === "false") return false;
+    return value;
+  }
+  // 0 and 1 are the only numbers that mean a boolean without guessing. 2 or -1 might be a flag the
+  // author meant something by, so they stay put and get reported.
+  if (want === "boolean" && (value === 0 || value === 1)) return value === 1;
+  if (want === "string" && (typeof value === "number" || typeof value === "boolean")) {
+    return String(value);
+  }
+  return value;
+}
+
+/**
+ * Values whose canonical spelling differs from the wire's, where a plain type conversion cannot
+ * bridge the gap. SillyTavern spells "no post-processing" as the EMPTY STRING; canonical spells it
+ * `none`. Every other value of that field passes through unchanged, including the `_tools` variants
+ * and the deprecated `claude`, because they are distinct operations and folding them would change
+ * what the preset does.
+ */
+const WIRE_VALUE_ALIASES: Record<string, Record<string, string>> = {
+  promptPostProcessing: { "": "none" },
+};
+
 /** Copy present wire fields into a settings group; returns undefined when nothing was present. */
-function mapGroup<T>(raw: Rec, fields: ReadonlyArray<readonly [string, string]>): T | undefined {
+function mapGroup<T>(
+  raw: Rec,
+  fields: ReadonlyArray<readonly [string, string]>,
+  schema?: unknown,
+): T | undefined {
+  const want = schema ? expectedTypes(schema) : undefined;
   const out: Rec = {};
   for (const [wire, canon] of fields) {
-    if (wire in raw && raw[wire] !== undefined && raw[wire] !== null) out[canon] = raw[wire];
+    if (wire in raw && raw[wire] !== undefined && raw[wire] !== null) {
+      const coerced = coerce(raw[wire], want?.get(canon));
+      const alias = typeof coerced === "string" ? WIRE_VALUE_ALIASES[canon]?.[coerced] : undefined;
+      out[canon] = alias ?? coerced;
+    }
   }
   return Object.keys(out).length > 0 ? (out as T) : undefined;
 }
@@ -282,13 +371,13 @@ export function parseStPreset(raw: Rec): ParsedStPreset {
   return {
     prompts,
     groups,
-    samplers: mapGroup<PresetSamplers>(raw, SAMPLER_FIELDS),
-    systemPrompts: mapGroup<PresetSystemPrompts>(raw, SYSTEM_PROMPT_FIELDS),
-    templates: mapGroup<PresetTemplates>(raw, TEMPLATE_FIELDS),
-    behavior: mapGroup<PresetBehavior>(raw, BEHAVIOR_FIELDS),
-    apiOptions: mapGroup<PresetApiOptions>(raw, API_OPTION_FIELDS),
-    media: mapGroup<PresetMedia>(raw, MEDIA_FIELDS),
-    generation: mapGroup<PresetGeneration>(raw, GENERATION_FIELDS),
+    samplers: mapGroup<PresetSamplers>(raw, SAMPLER_FIELDS, samplerSchema),
+    systemPrompts: mapGroup<PresetSystemPrompts>(raw, SYSTEM_PROMPT_FIELDS, systemPromptSchema),
+    templates: mapGroup<PresetTemplates>(raw, TEMPLATE_FIELDS, templateSchema),
+    behavior: mapGroup<PresetBehavior>(raw, BEHAVIOR_FIELDS, behaviorSchema),
+    apiOptions: mapGroup<PresetApiOptions>(raw, API_OPTION_FIELDS, apiSchema),
+    media: mapGroup<PresetMedia>(raw, MEDIA_FIELDS, mediaSchema),
+    generation: mapGroup<PresetGeneration>(raw, GENERATION_FIELDS, generationSchema),
     dialect,
     warnings,
   };

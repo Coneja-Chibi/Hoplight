@@ -87,6 +87,39 @@ function entityName(entity: AnyEntity): string {
   return entity.id;
 }
 
+/**
+ * Bring a stored entity up to the current shape before it is decoded.
+ *
+ * TOLERATE ON READ, STAY STRICT ON WRITE. This runs only here, at the read-from-disk boundary, and
+ * deliberately NOT inside parseCanonicalEntity: that function is also called on the WRITE path by
+ * the converters and the capability preview, where a codec emitting the wrong shape is a bug in
+ * Hoplight and must still fail. Loosening it there would hide our own defects to be kind to a file.
+ *
+ * Every rule here answers real data found on disk. A file that only ever loaded on an older build
+ * is still the user's work, and refusing it outright is what turned four perfectly readable regex
+ * sets into "corrupt entity file" with nothing else to go on.
+ */
+function migrateStoredEntity(raw: Record<string, unknown>): Record<string, unknown> {
+  const { escrow: legacy, ...rest } = raw;
+  const out: Record<string, unknown> =
+    legacy !== undefined && raw["original"] === undefined ? { ...rest, original: legacy } : rest;
+
+  // schemaVersion has been the STRING "1" since the first commit, but files exist carrying the
+  // number 1. Nothing about the entity differs; only the JSON type of one field does.
+  if (typeof out["schemaVersion"] === "number") out["schemaVersion"] = String(out["schemaVersion"]);
+  return out;
+}
+
+/** Name the field that actually failed. "corrupt entity file" alone leaves a user nothing to act on. */
+function describeSchemaMismatch(error: unknown): string {
+  const issues = (error as { issues?: { path?: unknown[]; message?: string }[] }).issues;
+  const first = issues?.[0];
+  if (!first) return "corrupt entity file";
+  const where = Array.isArray(first.path) && first.path.length > 0 ? first.path.join(".") : "the entity";
+  const more = issues.length > 1 ? ` (and ${issues.length - 1} more)` : "";
+  return `corrupt entity file: ${where} ${first.message ?? "did not match the expected shape"}${more}`;
+}
+
 function parseStoredEntity(
   text: string,
   kind: string,
@@ -99,15 +132,11 @@ function parseStoredEntity(
     throw new StudioReadError("corrupt entity file", "unreadable-json");
   }
   if (!isRecord(raw)) throw new StudioReadError("corrupt entity file", "schema-mismatch");
-  const { escrow: legacy, ...withoutLegacy } = raw;
-  const migrated = legacy !== undefined && raw.original === undefined
-    ? { ...withoutLegacy, original: legacy }
-    : withoutLegacy;
   let parsed: AnyEntity;
   try {
-    parsed = parseCanonicalEntity(migrated);
-  } catch {
-    throw new StudioReadError("corrupt entity file", "schema-mismatch");
+    parsed = parseCanonicalEntity(migrateStoredEntity(raw));
+  } catch (error) {
+    throw new StudioReadError(describeSchemaMismatch(error), "schema-mismatch");
   }
   if (parsed.kind !== kind) throw new StudioReadError("corrupt entity file", "kind-mismatch");
   if (parsed.id !== id) throw new StudioReadError("corrupt entity file", "id-mismatch");

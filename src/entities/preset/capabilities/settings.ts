@@ -20,7 +20,7 @@ const patchSchema = nonEmptyPatch({
   repetitionPenalty: z.number().nullable().optional(),
   maxContext: z.number().nullable().optional(),
   maxTokens: z.number().nullable().optional(),
-  promptPostProcessing: z.enum(["none", "merge", "semi", "strict", "single"]).nullable().optional(),
+  promptPostProcessing: z.enum(["none", "merge", "merge_tools", "semi", "semi_tools", "strict", "strict_tools", "single", "claude"]).nullable().optional(),
   contextMode: z.enum(["tokens", "messages"]).nullable().optional(),
   maxMessages: z.number().nullable().optional(),
 });
