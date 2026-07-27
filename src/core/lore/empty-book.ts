@@ -2,6 +2,7 @@
  * Deterministic empty lorebook body factory for "New lorebook".
  */
 import type { LorebookBody, LorebookEntry } from "../../entities/lorebook/schema";
+import { DEFAULT_SCAN_DEPTH } from "../../entities/lorebook/schema";
 
 export function emptyLoreEntry(id: string): LorebookEntry {
   return {
@@ -50,7 +51,7 @@ export function emptyLorebookBody(name = "Untitled lorebook"): LorebookBody {
     enabled: true,
     globalCaseSensitive: false,
     globalMatchWholeWords: false,
-    globalScanDepth: 4,
+    globalScanDepth: DEFAULT_SCAN_DEPTH,
     globalRecursion: false,
     tokenBudget: 0,
     budgetMode: "token",

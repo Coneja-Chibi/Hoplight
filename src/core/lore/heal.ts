@@ -3,6 +3,7 @@
  * this covers leftovers a tolerant reader may pass through + soft coercions.
  */
 import type { LorebookBody, LorebookEntry } from "../../entities/lorebook/schema";
+import { DEFAULT_SCAN_DEPTH } from "../../entities/lorebook/schema";
 import { emptyLoreEntry, emptyLorebookBody } from "./empty-book";
 
 export interface HealNote {
@@ -164,7 +165,7 @@ export function healBook(raw: unknown): HealResult {
     enabled: root.enabled === false ? false : true,
     globalCaseSensitive: asBool(root.globalCaseSensitive, false),
     globalMatchWholeWords: asBool(root.globalMatchWholeWords, false),
-    globalScanDepth: asNum(root.globalScanDepth ?? root.scanDepth, 4),
+    globalScanDepth: asNum(root.globalScanDepth ?? root.scanDepth, DEFAULT_SCAN_DEPTH),
     globalRecursion: asBool(root.globalRecursion, false),
     tokenBudget: asNum(root.tokenBudget, 0),
     budgetMode: root.budgetMode === "entry" ? "entry" : "token",
