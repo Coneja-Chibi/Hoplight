@@ -134,6 +134,9 @@ const exportPiece: HarnessTool<z.infer<typeof input>> = {
         // set of values, hooks that append to lists, and what each choice group actually declares.
         // These are what an entry in `needsReview` has to be reasoned about against.
         structure: outcome.structure,
+        // What the parts add up to. A conversion can translate every piece correctly and still
+        // produce something inert; these name the order dependencies that would cause it.
+        explanation: outcome.explanation,
       }),
       outcome: "applied",
     };

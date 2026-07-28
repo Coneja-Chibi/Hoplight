@@ -101,6 +101,9 @@ const transfer: HarnessTool<z.infer<typeof input>> = {
         // in `needsReview` has the arrays, domains, hooks and choice groups in front of them rather
         // than having to go read the preset again to find out what a dead macro was standing in for.
         structure: outcome.structure,
+        // What the parts add up to. A conversion can translate every piece correctly and still
+        // produce something inert; these name the order dependencies that would cause it.
+        explanation: outcome.explanation,
         payload: spill ?? {
           spilled: false,
           content: outcome.payload,

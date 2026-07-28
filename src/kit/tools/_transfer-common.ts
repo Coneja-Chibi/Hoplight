@@ -13,6 +13,7 @@ import type { KitBridge, KitEntity } from "../bridge";
 import type { MacroTransferReport } from "../../core/preset/macros/transfer-check";
 import type { MacroChange } from "../../core/preset/macros/translate";
 import type { StructuralFindings } from "../../core/preset/macros/structure";
+import type { Observation } from "../../core/preset/macros/explain";
 
 type ConversionKit = {
   registry: typeof import("../../core").registry;
@@ -23,16 +24,18 @@ type ConversionKit = {
   sourceProfileOf: typeof import("../../core/preset/macros/transfer-check").sourceProfileOf;
   translatePresetBody: typeof import("../../core/preset/macros/translate").translatePresetBody;
   readPresetStructure: typeof import("../../core/preset/macros/structure").readPresetStructure;
+  explainPreset: typeof import("../../core/preset/macros/explain").explainPreset;
 };
 
 /** Pull the conversion graph in on first use, with every adapter registered for this runtime. */
 export async function loadConversionKit(): Promise<ConversionKit> {
-  const [core, convert, macros, translate, structure, formats] = await Promise.all([
+  const [core, convert, macros, translate, structure, explain, formats] = await Promise.all([
     import("../../core"),
     import("../../convert"),
     import("../../core/preset/macros/transfer-check"),
     import("../../core/preset/macros/translate"),
     import("../../core/preset/macros/structure"),
+    import("../../core/preset/macros/explain"),
     import("../../ensure-formats"),
   ]);
   await formats.ensureFormats();
@@ -45,6 +48,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     sourceProfileOf: macros.sourceProfileOf,
     translatePresetBody: translate.translatePresetBody,
     readPresetStructure: structure.readPresetStructure,
+    explainPreset: explain.explainPreset,
   };
 }
 
@@ -71,6 +75,12 @@ export interface ConversionSuccess {
    * Computed facts only. What to DO about them is judgment, which the receipt leaves to its reader.
    */
   structure?: StructuralFindings;
+  /**
+   * Stated conclusions about how the source works, computed rather than left for a reader to
+   * infer. A parts list can be fully correct while the whole is dead; these say what the parts add
+   * up to, and which of it a conversion can silently destroy.
+   */
+  explanation?: Observation[];
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
 }
@@ -171,6 +181,7 @@ export async function convertStoredPiece(
     // Structure describes the SOURCE. The translated copy has already had its arrays lowered and its
     // dead macros stripped, so reading structure off it would report a preset with no logic in it.
     const structure = kind === "preset" ? kit.readPresetStructure(entity, dead) : undefined;
+    const explanation = kind === "preset" ? kit.explainPreset(entity) : undefined;
 
     return {
       ok: true,
@@ -181,6 +192,7 @@ export async function convertStoredPiece(
       ...(macros ? { macros } : {}),
       ...(translation ? { translation } : {}),
       ...(structure ? { structure } : {}),
+      ...(explanation?.length ? { explanation } : {}),
       ...(dialect ? { dialect } : {}),
     };
   } catch (error) {
