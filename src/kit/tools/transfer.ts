@@ -110,6 +110,9 @@ const transfer: HarnessTool<z.infer<typeof input>> = {
         // Blocks split so a splice macro became a real marker block. Restructuring someone's
         // prompt list is reported, never done quietly.
         promotions: outcome.promotions,
+        // Cleanup macros removed by fixing what produced the mess, and the ones that could
+        // not be traced back, with the reason each was left alone.
+        producerFixes: outcome.producerFixes,
         payload: spill ?? {
           spilled: false,
           content: outcome.payload,

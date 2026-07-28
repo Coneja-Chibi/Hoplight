@@ -16,6 +16,7 @@ import type { StructuralFindings } from "../../core/preset/macros/structure";
 import type { Observation } from "../../core/preset/macros/explain";
 import type { HookRendering } from "../../core/preset/macros/hooks-to-regex";
 import type { Promotion } from "../../core/preset/macros/promote-markers";
+import type { ProducerFix, UnfixedCleanup } from "../../core/preset/macros/fix-producer";
 
 type ConversionKit = {
   registry: typeof import("../../core").registry;
@@ -30,11 +31,13 @@ type ConversionKit = {
   renderHooksAsRegex: typeof import("../../core/preset/macros/hooks-to-regex").renderHooksAsRegex;
   readStateMachine: typeof import("../../core/preset/macros/state-machine").readStateMachine;
   promoteMarkers: typeof import("../../core/preset/macros/promote-markers").promoteMarkers;
+  fixProducers: typeof import("../../core/preset/macros/fix-producer").fixProducers;
 };
 
 /** Pull the conversion graph in on first use, with every adapter registered for this runtime. */
 export async function loadConversionKit(): Promise<ConversionKit> {
-  const [core, convert, macros, translate, structure, explain, hooks, state, markers, formats] = await Promise.all([
+  const [core, convert, macros, translate, structure, explain, hooks, state, markers, producers, formats] =
+    await Promise.all([
     import("../../core"),
     import("../../convert"),
     import("../../core/preset/macros/transfer-check"),
@@ -44,6 +47,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     import("../../core/preset/macros/hooks-to-regex"),
     import("../../core/preset/macros/state-machine"),
     import("../../core/preset/macros/promote-markers"),
+    import("../../core/preset/macros/fix-producer"),
     import("../../ensure-formats"),
   ]);
   await formats.ensureFormats();
@@ -60,6 +64,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     renderHooksAsRegex: hooks.renderHooksAsRegex,
     readStateMachine: state.readStateMachine,
     promoteMarkers: markers.promoteMarkers,
+    fixProducers: producers.fixProducers,
   };
 }
 
@@ -103,6 +108,11 @@ export interface ConversionSuccess {
    * A restructuring of the user's prompt list is never silent.
    */
   promotions?: Promotion[];
+  /**
+   * Inline cleanup macros removed by repairing the writes that made them necessary, and the ones
+   * that could not be traced to a producer, with reasons.
+   */
+  producerFixes?: { fixed: ProducerFix[]; unfixed: UnfixedCleanup[] };
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
 }
@@ -162,6 +172,7 @@ export async function convertStoredPiece(
   let translation: MacroChange[] | undefined;
   let dialect: { from: string; to: string } | undefined;
   let promotions: Promotion[] | undefined;
+  let producerFixes: { fixed: ProducerFix[]; unfixed: UnfixedCleanup[] } | undefined;
   const fromProfile = kit.sourceProfileOf(entity);
   const toProfile = kit.profileForAdapter(to);
   if (fromProfile && toProfile && fromProfile !== toProfile) {
@@ -175,7 +186,15 @@ export async function convertStoredPiece(
     const promoted = kit.promoteMarkers((entity as unknown as { body?: unknown }).body, doomed);
     if (promoted.promotions.length > 0) promotions = promoted.promotions;
 
-    const result = kit.translatePresetBody(promoted.body, fromProfile, toProfile);
+    // Repair inline cleanup macros the same way and for the same reason: the translator would
+    // otherwise delete them as unsupported, taking the cleaning with them, and the value would
+    // render with the leading separator the macro existed to strip.
+    const repaired = kit.fixProducers(promoted.body);
+    if (repaired.fixes.length > 0 || repaired.unfixed.length > 0) {
+      producerFixes = { fixed: repaired.fixes, unfixed: repaired.unfixed };
+    }
+
+    const result = kit.translatePresetBody(repaired.body, fromProfile, toProfile);
     subject = { ...(entity as object), body: result.body } as KitEntity;
     translation = result.changes;
     dialect = { from: fromProfile, to: toProfile };
@@ -235,6 +254,7 @@ export async function convertStoredPiece(
       ...(explanation?.length ? { explanation } : {}),
       ...(hookRules ? { hookRules } : {}),
       ...(promotions ? { promotions } : {}),
+      ...(producerFixes ? { producerFixes } : {}),
       ...(dialect ? { dialect } : {}),
     };
   } catch (error) {

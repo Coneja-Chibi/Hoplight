@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/formats/rolecall-to-sillytavern",
   "sourcePath": "docs/reference/formats/rolecall-to-sillytavern.md",
-  "sourceHash": "sha256:1e09af0790889be142950b495db5af23fa5f8366a4fa5bfa240e06cb502d1624",
-  "semanticSummaryHash": "sha256:31240f93e176081eea26a03d5315ab1ddca1b48d2d835d87aeda99e298d86424",
+  "sourceHash": "sha256:791786e5784cdae2c1774695481ac10dece0fecfc8a2420040a34824f52b27ce",
+  "semanticSummaryHash": "sha256:87d71279b4d91e433d9b343bb8bc75d948c6596dc1dcb376aceea1fa1848ca9b",
   "verdict": "APPROVE",
   "reviewer": "Chi",
-  "notes": "Approved by Chi. Covers the four judgment patterns for a RoleCall preset crossing to SillyTavern, what the transfer receipt computes, and the evidence labels separating proven behaviour from author recommendations.",
-  "reviewedAt": "2026-07-27T18:30:20.712Z"
+  "notes": "Approved by Chi. Covers producer repair replacing the inline cleanup macro, why regex scripts cannot substitute for it, and the scope distinction between chat-local and global variables.",
+  "reviewedAt": "2026-07-28T21:56:40.524Z"
 }

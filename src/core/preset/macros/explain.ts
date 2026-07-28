@@ -335,6 +335,20 @@ export function explainRegex(body: unknown): Observation[] {
     });
   }
 
+  const globals = rules.filter((r) => /\{\{(set|add|inc|dec)globalvar::/i.test(String(r["replace"] ?? "")));
+  if (globals.length > 0) {
+    observations.push({
+      id: "global-state-regex",
+      severity: "critical",
+      says:
+        `${globals.length} rules write GLOBAL variables, which outlive the conversation. State set in `
+        + "one chat is still set in the next one and in every other character's chats, so these carry "
+        + "further than chat-local rules and a stale value survives starting over. Whether that is "
+        + "the intent is a decision; that it crosses chats is not in doubt.",
+      evidence: globals.slice(0, 6).map((r) => String(r["label"] ?? r["id"])).join(", "),
+    });
+  }
+
   const erasers = rules.filter((r) => String(r["replace"] ?? "").trim() === "");
   if (erasers.length > 0) {
     observations.push({

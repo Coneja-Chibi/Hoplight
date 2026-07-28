@@ -89,16 +89,40 @@ preset without a picker can offer.
 
 ## Pattern 2: fix the producer, not the consumer
 
-`{{regex::...}}` post-processes a value inline. SillyTavern has no such macro, and there is no
-expression that replaces it in place.
+`{{regex::VALUE::PATTERN::REPLACEMENT}}` rewrites a value as a prompt renders. SillyTavern has no
+such macro.
 
-The move is to stop needing it. A value that has to be cleaned before use is a value that was
-produced wrong, and the producer is almost always reachable: the hook or the write that built the
-string. Clean it there, once, instead of at every read.
+**Regex scripts are not the counterpart, and this is worth being exact about.** They run over chat
+messages and world-info entries, applied across `coreChat` while a prompt is assembled - never over
+preset prompt content. There is no surface on which a script could clean a variable being read inside
+a prompt block, so no arrangement of scripts reproduces the macro. Emitting one anyway would produce
+a rule that runs, matches nothing, and looks correct.
 
-Where the transformation genuinely belongs at the boundary, SillyTavern regex scripts can carry it.
-They are not macros and do not appear in the macro catalog, so the converter will not reach for them
-on your behalf; adding one is a deliberate act.
+So the move is to stop needing it, and **the converter now performs that repair** for the shape it
+can recognise. A list assembled by appending `separator + item` onto an empty variable comes out with
+a leading separator, and the usual fix is to strip it afterwards with exactly this macro. Guard each
+append on whether the variable already holds something and the separator never appears:
+
+```text
+{{addvar::pool::, ITEM}}
+
+  ->  {{if {{getvar::pool}}}}{{addvar::pool::, ITEM}}{{else}}{{setvar::pool::ITEM}}{{/if}}
+```
+
+The cleanup macro is then deleted rather than translated, because there is nothing left for it to
+clean. That is the whole pattern: the consumer stops needing the fix because the producer stopped
+causing it.
+
+Scope travels with the variable. SillyTavern keeps chat-local and global variables in separate
+stores, so a global list is repaired with `getglobalvar` and `setglobalvar` throughout. Guarding a
+global append with a chat-local read would test a variable that is always empty, and the list would
+never join.
+
+**Nothing is compiled.** Whether a pattern strips a separator is decided by normalising it as text,
+so an authored regex never executes. The cost is that only straightforward spellings are recognised;
+a cleanup that rewrites rather than strips, reads something other than a plain variable, or whose
+producer lives in another block comes back under `producerFixes.unfixed` with the reason. A wrong
+guess here silently changes what a preset renders, which is worse than leaving the macro alone.
 
 ## Pattern 3: a closed domain expands into a conditional
 
@@ -137,14 +161,30 @@ a variable whose values are computed.
 uses a marker prompt, a prompt-list entry with the identifier `chatHistory` that the prompt builder
 positions during assembly.
 
-So the conversion is not a rewrite. It is a deletion plus a structural edit: remove the macro, then
-enable or add a marker block at the position the macro occupied.
+So the conversion is not a rewrite. It is a structural edit, and **the converter performs it**: the
+block carrying the macro is split, so the text around the splice still surrounds it.
 
-**The converter cannot do this.** Translation rewrites text within a block; it does not add, remove,
-or reposition blocks. That is a real boundary, not an oversight, and it is why `markerCandidates`
-reports a candidate for a person to act on rather than performing the promotion. The same reasoning
-covers `dialogueExamples`, `worldInfoBefore`, `worldInfoAfter`, and the other slots in
-[preset.md](../entities/preset.md).
+```text
+"Recent events:\n{{message_history}}\nRespond in character."
+
+  ->  prompt   "Recent events:"
+      marker   chatHistory
+      prompt   "Respond in character."
+```
+
+Order of operations is the whole trick. The translator REMOVES a macro with no home on the target,
+so by the time it has run there is nothing left to promote. Promotion therefore reads the dead
+tokens off the original body and restructures before any text is rewritten.
+
+**Promotion happens only when the slot is unambiguous.** A dead macro is matched against the
+canonical marker slots by shared word; exactly one match promotes, and zero or several leave the
+token alone for a person to place. Moving authored content to the wrong part of the prompt reads as
+the preset behaving oddly rather than as a conversion error, and is far harder to trace than a macro
+that stayed put. A macro the target can still run is never touched: restructuring a working preset
+for no reason is worse than doing nothing.
+
+Every split is reported under `promotions`, because rearranging someone's prompt list is not
+something to do quietly.
 
 ## The hook machine
 
@@ -164,23 +204,48 @@ many captures as the array has slots. The receipt gives you both numbers: `pushH
 trigger verbatim, and `arrays` gives the index range the reads actually use, so the count is measured
 rather than guessed.
 
-Nothing in this section is automated. Hoplight seals `macro_engine_yaml` as escrow and never executes
-it ([architecture.md](../architecture.md)), and building the corresponding regex scripts is authoring
-work that a person signs off on.
+**The hook machine is rendered for you.** A crossing that changes dialect returns `hookRules`: the
+hooks as regex rules the target can run, in declaration order, with each trigger carried verbatim
+because both engines use the same regex syntax.
+
+The authored value goes across verbatim too, and that detail is load-bearing. RoleCall writes
+templates like `value: "$1 = $2 /// "` - literal text woven around two capture groups - and a reset
+writes `value: ""` on purpose. Guessing `$1` would silently discard the second group and the joining
+text; guessing the whole match would turn a deliberate clear into a write. Capture-group syntax is
+identical on both sides, so the template needs no rewriting.
+
+Declaration order is preserved in `sortOrder` because it is load-bearing: a hook that clears state
+must run before the hooks that write it, or it erases them. That is not hypothetical - see the
+staging cycle in the observations Kit returns.
+
+Two things are still refused rather than approximated. `push` is not rendered, for the reason above:
+one hook becomes as many rules as the array has slots, and that count comes from how the preset reads
+the array rather than from the hook, so a single plausible rule would run while keeping one value.
+Hoplight also still seals `macro_engine_yaml` as escrow and never executes it
+([architecture.md](../architecture.md)) - the rules are read as declarations and rendered as text.
+
+Placing the rendered rules into a target is a separate act. Kit hands them over; it does not write
+them into someone's regex library on their behalf.
 
 ## Evidence
 
 Claims here are backed at different strengths, and the difference matters:
 
 - **Unit-proven.** Separator rewriting, indexed-access lowering, block preservation, nested-argument
-  translation, and every field of the `structure` report. See `translate.test.ts` and
-  `structure.test.ts`.
+  translation, every field of the `structure` report, the observations in `explanation`, the rendered
+  `hookRules`, and marker promotion. See `translate.test.ts`, `structure.test.ts`, `explain.test.ts`,
+  `hooks-to-regex.test.ts` and `promote-markers.test.ts`.
 - **Integration-proven.** A RoleCall preset crossing to SillyTavern through the real adapter
-  registry, resolving its dialect from escrow and carrying structural findings into the receipt. See
-  `transfer-e2e.test.ts`.
+  registry, resolving its dialect from escrow and carrying structural findings, promotions and
+  rendered rules into the receipt. See `transfer-e2e.test.ts`.
 - **Code-read.** SillyTavern's regex replacement path calling `substituteParams`, its placement
-  values, and its marker prompt identifiers, all read from that project's source. The four patterns
-  themselves are recommendations for an author, not implemented behaviour.
+  values, and its marker prompt identifiers, all read from that project's source.
+
+Pattern 1 remains a recommendation for an author rather than implemented behaviour, and says so
+where it is described. Patterns 2 and 4 were recommendations when this page was written; producer
+repair, marker promotion and hook rendering are now performed, and the sections above were rewritten
+when that became true rather than left to imply otherwise. Pattern 3 is reported, not applied: the
+receipt tells you which variables have a closed domain, and expanding one is still your edit.
 
 Measured on one 9,286-token RoleCall preset: 86 macros unsupported by SillyTavern before translation,
 0 after, across 92 rewrites and 4 removals. The 4 removals are one instance of each pattern above.

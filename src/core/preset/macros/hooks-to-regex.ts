@@ -30,6 +30,14 @@
  *
  * ORDER IS PRESERVED because it is load-bearing: a reset hook that clears state must run before the
  * hooks that write it, and regex scripts execute in the order the array holds them.
+ *
+ * CHAT SCOPE, NOT GLOBAL, AND THAT IS A CHOICE. SillyTavern keeps two variable stores: chat-local,
+ * and global values that outlive the conversation. A replacement can reach either, so a regex rule
+ * really can set a global - which is a genuinely useful trick and the wrong default here. RoleCall
+ * hooks carry no scope of their own, and the machine these were built for stages values within a
+ * single passage and commits them in the same render. Emitting globals would leak that state into
+ * every other chat and leave stale values behind after starting over. An author who wants a value to
+ * persist can widen a rendered rule; a converter cannot widen it back down once it has escaped.
  */
 import type { HookAction, StateHook, StateMachine } from "./state-machine";
 

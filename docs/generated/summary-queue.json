@@ -1,8 +1,8 @@
 {
-  "generated": "2026-07-27",
+  "generated": "2026-07-28",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 984098,
+  "totalSourceChars": 988175,
   "batches": [
     {
       "id": "batch-001",
@@ -554,7 +554,7 @@
     },
     {
       "id": "batch-007",
-      "sourceChars": 82479,
+      "sourceChars": 86556,
       "pages": [
         {
           "docId": "reference/formats/marinara",
@@ -601,7 +601,7 @@
           "sourcePath": "docs/reference/formats/rolecall-to-sillytavern.md",
           "sidecarPath": "docs/summaries/reference/formats/rolecall-to-sillytavern.json",
           "sectionCount": 8,
-          "sourceChars": 10590,
+          "sourceChars": 14667,
           "status": "APPROVED"
         }
       ]
