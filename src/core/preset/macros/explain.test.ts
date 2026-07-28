@@ -8,7 +8,7 @@
  * silence rather than a hedge.
  */
 import { describe, expect, test } from "bun:test";
-import { explainPreset } from "./explain";
+import { explainEntity, explainPreset } from "./explain";
 
 const hook = (id: string, trigger: string, actions: string, extra = ""): string => [
   `  - id: ${id}`,
@@ -84,7 +84,73 @@ describe("hazards a conversion can silently destroy", () => {
   });
 });
 
+describe("lorebooks are explained by their activation rules, not their text", () => {
+  const book = (entries: Record<string, unknown>[]): unknown => ({ entries });
+
+  test("inclusion groups are critical, because losing them fires every alternative at once", () => {
+    const found = explainEntity(book([
+      { id: "a", title: "A", groupName: "mood" },
+      { id: "b", title: "B", groupName: "mood" },
+    ]) as never, "lorebook").find((o) => o.id === "inclusion-groups");
+    expect(found?.severity).toBe("critical");
+    expect(found?.says).toContain("every alternative arriving at once");
+  });
+
+  test("a group with a single member is not contested and is not reported", () => {
+    const found = explainEntity(book([{ id: "a", title: "A", groupName: "solo" }]) as never, "lorebook");
+    expect(found.some((o) => o.id === "inclusion-groups")).toBe(false);
+  });
+
+  test("probabilistic and timed entries are called out separately", () => {
+    const obs = explainEntity(book([
+      { id: "a", title: "A", probability: 40 },
+      { id: "b", title: "B", sticky: 3 },
+    ]) as never, "lorebook");
+    expect(obs.some((o) => o.id === "probabilistic-entries")).toBe(true);
+    expect(obs.some((o) => o.id === "timed-entries")).toBe(true);
+  });
+
+  test("full-probability entries are not mistaken for rolls", () => {
+    const obs = explainEntity(book([{ id: "a", title: "A", probability: 100 }]) as never, "lorebook");
+    expect(obs.some((o) => o.id === "probabilistic-entries")).toBe(false);
+  });
+});
+
+describe("a regex set is either cleanup or a state machine", () => {
+  test("a replacement that writes a variable makes the set load-bearing logic", () => {
+    // This is the pattern an engine without hooks uses to keep state: catch a tag the model wrote
+    // and store what it captured. Reading it as cosmetic is how such a rule gets dropped.
+    const found = explainEntity({
+      rules: [{ id: "r1", label: "Notebook", replace: "{{addvar::notes::$1}}" }],
+    } as never, "regex").find((o) => o.id === "stateful-regex");
+    expect(found?.severity).toBe("critical");
+    expect(found?.says).toContain("state machinery");
+  });
+
+  test("plain text rewrites are not called state machinery", () => {
+    const obs = explainEntity({ rules: [{ id: "r1", label: "Quotes", replace: "“$1”" }] } as never, "regex");
+    expect(obs.some((o) => o.id === "stateful-regex")).toBe(false);
+  });
+});
+
+describe("characters", () => {
+  test("a linked lorebook is critical, since the character survives and its world does not", () => {
+    const found = explainEntity({ knowledgeRefs: ["world"] } as never, "character")
+      .find((o) => o.id === "linked-lorebook");
+    expect(found?.severity).toBe("critical");
+  });
+
+  test("empty prompt overrides are not reported as overrides", () => {
+    const obs = explainEntity({ prompts: { systemPrompt: "", postHistoryInstructions: "" } } as never, "character");
+    expect(obs.some((o) => o.id === "character-prompt-overrides")).toBe(false);
+  });
+});
+
 describe("silence rather than invention", () => {
+  test("an unknown kind gets no generic paragraph", () => {
+    expect(explainEntity({ body: { anything: true } }, "persona")).toEqual([]);
+  });
+
   test("a preset with no hook machine says nothing at all", () => {
     expect(explainPreset({ body: { prompts: [] } })).toEqual([]);
     expect(explainPreset({ body: { prompts: [{ id: "a", name: "A", content: "hi {{char}}" }] } }))

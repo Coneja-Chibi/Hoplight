@@ -14,6 +14,7 @@ import type { MacroTransferReport } from "../../core/preset/macros/transfer-chec
 import type { MacroChange } from "../../core/preset/macros/translate";
 import type { StructuralFindings } from "../../core/preset/macros/structure";
 import type { Observation } from "../../core/preset/macros/explain";
+import type { HookRendering } from "../../core/preset/macros/hooks-to-regex";
 
 type ConversionKit = {
   registry: typeof import("../../core").registry;
@@ -24,18 +25,22 @@ type ConversionKit = {
   sourceProfileOf: typeof import("../../core/preset/macros/transfer-check").sourceProfileOf;
   translatePresetBody: typeof import("../../core/preset/macros/translate").translatePresetBody;
   readPresetStructure: typeof import("../../core/preset/macros/structure").readPresetStructure;
-  explainPreset: typeof import("../../core/preset/macros/explain").explainPreset;
+  explainEntity: typeof import("../../core/preset/macros/explain").explainEntity;
+  renderHooksAsRegex: typeof import("../../core/preset/macros/hooks-to-regex").renderHooksAsRegex;
+  readStateMachine: typeof import("../../core/preset/macros/state-machine").readStateMachine;
 };
 
 /** Pull the conversion graph in on first use, with every adapter registered for this runtime. */
 export async function loadConversionKit(): Promise<ConversionKit> {
-  const [core, convert, macros, translate, structure, explain, formats] = await Promise.all([
+  const [core, convert, macros, translate, structure, explain, hooks, state, formats] = await Promise.all([
     import("../../core"),
     import("../../convert"),
     import("../../core/preset/macros/transfer-check"),
     import("../../core/preset/macros/translate"),
     import("../../core/preset/macros/structure"),
     import("../../core/preset/macros/explain"),
+    import("../../core/preset/macros/hooks-to-regex"),
+    import("../../core/preset/macros/state-machine"),
     import("../../ensure-formats"),
   ]);
   await formats.ensureFormats();
@@ -48,7 +53,9 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     sourceProfileOf: macros.sourceProfileOf,
     translatePresetBody: translate.translatePresetBody,
     readPresetStructure: structure.readPresetStructure,
-    explainPreset: explain.explainPreset,
+    explainEntity: explain.explainEntity,
+    renderHooksAsRegex: hooks.renderHooksAsRegex,
+    readStateMachine: state.readStateMachine,
   };
 }
 
@@ -81,6 +88,12 @@ export interface ConversionSuccess {
    * up to, and which of it a conversion can silently destroy.
    */
   explanation?: Observation[];
+  /**
+   * The source hook machine rendered as regex rules the target can run, when the crossing needs it.
+   * Kit does not write these: they are an artifact for a person or model to place, because adding
+   * rules to a target is a structural edit this path does not own.
+   */
+  hookRules?: HookRendering;
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
 }
@@ -181,7 +194,18 @@ export async function convertStoredPiece(
     // Structure describes the SOURCE. The translated copy has already had its arrays lowered and its
     // dead macros stripped, so reading structure off it would report a preset with no logic in it.
     const structure = kind === "preset" ? kit.readPresetStructure(entity, dead) : undefined;
-    const explanation = kind === "preset" ? kit.explainPreset(entity) : undefined;
+    // Not preset-gated: a lorebook's activation rules and a regex set's state writes are exactly
+    // as load-bearing, and exactly as easy for a conversion to drop without saying so.
+    const explanation = kit.explainEntity(entity, kind);
+
+    // A hook machine has no counterpart in the emitted preset file: the target keeps its state
+    // rules somewhere else entirely. Rendering them here means the crossing arrives with the second
+    // half of itself rather than leaving the logic behind and saying nothing. Only when the dialect
+    // actually changes - a same-engine round trip already has its hooks.
+    const machine = dialect ? kit.readStateMachine(escrowedHookYaml(entity)) : null;
+    const hookRules = machine && machine.hooks.length > 0
+      ? kit.renderHooksAsRegex(machine)
+      : undefined;
 
     return {
       ok: true,
@@ -193,6 +217,7 @@ export async function convertStoredPiece(
       ...(translation ? { translation } : {}),
       ...(structure ? { structure } : {}),
       ...(explanation?.length ? { explanation } : {}),
+      ...(hookRules ? { hookRules } : {}),
       ...(dialect ? { dialect } : {}),
     };
   } catch (error) {
@@ -210,4 +235,19 @@ async function resolveKnowledge(bridge: KitBridge, entity: KitEntity): Promise<K
   const ids = Array.isArray(refs) ? refs.filter((ref): ref is string => typeof ref === "string") : [];
   const books = await Promise.all(ids.map((ref) => bridge.read("lorebook", ref)));
   return books.filter((book): book is KitEntity => book !== null);
+}
+
+/**
+ * The RoleCall hook machine out of a stored piece's escrow, which is the only place it lives: it is
+ * never lifted into the canonical body, so a caller reading the body alone finds nothing.
+ */
+function escrowedHookYaml(entity: KitEntity): unknown {
+  const original = (entity as unknown as { original?: Record<string, { raw?: unknown }> }).original ?? {};
+  for (const slot of Object.values(original)) {
+    const raw = slot?.raw;
+    if (raw && typeof raw === "object" && "macro_engine_yaml" in raw) {
+      return (raw as { macro_engine_yaml?: unknown }).macro_engine_yaml;
+    }
+  }
+  return undefined;
 }

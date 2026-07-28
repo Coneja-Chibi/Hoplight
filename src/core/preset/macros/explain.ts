@@ -174,3 +174,193 @@ export function explainPreset(entity: unknown): Observation[] {
 
   return observations;
 }
+
+const rows = (body: unknown, key: string): Record<string, unknown>[] => {
+  const value = (body as Record<string, unknown> | null)?.[key];
+  return Array.isArray(value) ? value.filter((v): v is Record<string, unknown> => !!v && typeof v === "object") : [];
+};
+
+/**
+ * What a lorebook DOES, which is decided by activation rules rather than by entry text.
+ *
+ * Two books with the same entries behave completely differently depending on whether an entry is
+ * always-on, gated behind an inclusion group, or rolled for. Those rules are the first thing an
+ * engine without the same machinery drops, and dropping them changes what the model sees every turn
+ * while every entry still converts perfectly.
+ */
+export function explainLorebook(body: unknown): Observation[] {
+  const entries = rows(body, "entries");
+  if (entries.length === 0) return [];
+
+  const observations: Observation[] = [];
+  const constant = entries.filter((e) => e["constant"] === true).length;
+  observations.push({
+    id: "activation-mix",
+    severity: "note",
+    says:
+      `${entries.length} entries: ${constant} always in context, ${entries.length - constant} `
+      + "pulled in only when their keywords appear. An engine that cannot express always-on will "
+      + "turn the first group into keyword entries that may never fire.",
+    evidence: `constant=${constant}, keyword-triggered=${entries.length - constant}`,
+  });
+
+  const groups = new Map<string, number>();
+  for (const e of entries) {
+    const name = e["groupName"];
+    if (typeof name === "string" && name.trim()) groups.set(name, (groups.get(name) ?? 0) + 1);
+  }
+  const contested = [...groups].filter(([, n]) => n > 1);
+  if (contested.length > 0) {
+    observations.push({
+      id: "inclusion-groups",
+      severity: "critical",
+      says:
+        `${contested.length} inclusion groups let only ONE of their members fire per turn. A target `
+        + "without groups fires all of them together, which is not a smaller version of the same "
+        + "behaviour - it is every alternative arriving at once.",
+      evidence: contested.map(([name, n]) => `${name} (${n} entries)`).join(", "),
+    });
+  }
+
+  const chance = entries.filter((e) => typeof e["probability"] === "number" && (e["probability"] as number) < 100);
+  if (chance.length > 0) {
+    observations.push({
+      id: "probabilistic-entries",
+      severity: "critical",
+      says:
+        `${chance.length} entries fire on a roll rather than every time they match. A target without `
+        + "probability includes them always, so text meant to be occasional becomes constant.",
+      evidence: chance.slice(0, 6).map((e) => `${String(e["title"] ?? e["id"])}=${String(e["probability"])}%`).join(", "),
+    });
+  }
+
+  const timed = entries.filter((e) => e["sticky"] || e["cooldown"] || e["delay"]);
+  if (timed.length > 0) {
+    observations.push({
+      id: "timed-entries",
+      severity: "critical",
+      says:
+        `${timed.length} entries use timed activation - staying in context after firing, or refusing `
+        + "to fire again for a while. Without it they revert to plain match-every-turn entries.",
+      evidence: timed.slice(0, 6).map((e) => String(e["title"] ?? e["id"])).join(", "),
+    });
+  }
+
+  const recursive = entries.filter(
+    (e) => e["excludeRecursion"] || e["preventRecursion"] || e["delayUntilRecursion"],
+  );
+  if (recursive.length > 0) {
+    observations.push({
+      id: "recursion-control",
+      severity: "note",
+      says:
+        `${recursive.length} entries control whether they can be triggered by other entries' text. `
+        + "Losing that changes which entries pull each other in, so the book can cascade further "
+        + "than it was written to.",
+      evidence: recursive.slice(0, 6).map((e) => String(e["title"] ?? e["id"])).join(", "),
+    });
+  }
+  return observations;
+}
+
+/** What a character carries beyond its description, and which layers a thinner target will drop. */
+export function explainCharacter(body: unknown): Observation[] {
+  const observations: Observation[] = [];
+  const greetings = (body as { greetings?: { alternateGreetings?: unknown } } | null)?.greetings;
+  const alternates = Array.isArray(greetings?.alternateGreetings) ? greetings.alternateGreetings.length : 0;
+  if (alternates > 0) {
+    observations.push({
+      id: "alternate-greetings",
+      severity: "note",
+      says:
+        `${alternates} alternate greetings beyond the first message. A format that keeps only one `
+        + "opening keeps the first and silently drops the rest, which is authored work leaving.",
+      evidence: `${alternates} alternates`,
+    });
+  }
+
+  const prompts = (body as { prompts?: Record<string, unknown> } | null)?.prompts ?? {};
+  const overrides = Object.entries(prompts).filter(([, v]) => typeof v === "string" && v.trim().length > 0);
+  if (overrides.length > 0) {
+    observations.push({
+      id: "character-prompt-overrides",
+      severity: "critical",
+      says:
+        "This character overrides prompt behaviour for any chat it enters, which is separate from "
+        + "its description and easy to lose sight of: the card changes how the model is instructed, "
+        + "not just who it plays.",
+      evidence: overrides.map(([k]) => k).join(", "),
+    });
+  }
+
+  const refs = (body as { knowledgeRefs?: unknown } | null)?.knowledgeRefs;
+  if (Array.isArray(refs) && refs.length > 0) {
+    observations.push({
+      id: "linked-lorebook",
+      severity: "critical",
+      says:
+        `${refs.length} lorebooks travel with this character. A target that cannot embed one leaves `
+        + "the character intact and its world knowledge behind, which reads as the character "
+        + "forgetting everything rather than as a failed conversion.",
+      evidence: refs.map(String).join(", "),
+    });
+  }
+  return observations;
+}
+
+/**
+ * What a regex set does, and whether it is text cleanup or a state machine.
+ *
+ * A replacement containing a variable write is not formatting - it is how an engine without a hook
+ * system stores state, by catching a tag the model emitted and writing what it captured. Such a set
+ * is program logic whose ORDER matters, and treating it as cosmetic is how it gets reordered or
+ * half-dropped.
+ */
+export function explainRegex(body: unknown): Observation[] {
+  const rules = rows(body, "rules");
+  if (rules.length === 0) return [];
+
+  const observations: Observation[] = [];
+  const writers = rules.filter((r) => /\{\{(set|add|inc|dec)(global)?var::/i.test(String(r["replace"] ?? "")));
+  if (writers.length > 0) {
+    observations.push({
+      id: "stateful-regex",
+      severity: "critical",
+      says:
+        `${writers.length} of ${rules.length} rules write variables in their replacement, so this is `
+        + "state machinery rather than text cleanup: it catches what the model emitted and stores "
+        + "it. Order and phases are load-bearing, and a rule dropped as cosmetic takes the state "
+        + "it was keeping with it.",
+      evidence: writers.slice(0, 6).map((r) => String(r["label"] ?? r["id"])).join(", "),
+    });
+  }
+
+  const erasers = rules.filter((r) => String(r["replace"] ?? "").trim() === "");
+  if (erasers.length > 0) {
+    observations.push({
+      id: "erasing-regex",
+      severity: "note",
+      says:
+        `${erasers.length} rules delete what they match rather than rewrite it, which is how `
+        + "authoring tags are kept out of what the reader sees. Lose them and the tags become "
+        + "visible in the chat.",
+      evidence: erasers.slice(0, 6).map((r) => String(r["label"] ?? r["id"])).join(", "),
+    });
+  }
+  return observations;
+}
+
+/**
+ * Explain any stored piece. Unknown kinds return nothing rather than a generic paragraph: an
+ * explanation that says nothing specific still reads as understanding, which is worse than silence.
+ */
+export function explainEntity(entity: unknown, kind: string): Observation[] {
+  const body = (entity as { body?: unknown })?.body ?? entity;
+  switch (kind) {
+    case "preset": return explainPreset(entity);
+    case "lorebook": return explainLorebook(body);
+    case "character": return explainCharacter(body);
+    case "regex": return explainRegex(body);
+    default: return [];
+  }
+}

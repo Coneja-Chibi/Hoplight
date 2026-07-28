@@ -25,6 +25,16 @@ export type HookActionType = "set" | "unset" | "append" | "push";
 export interface HookAction {
   type: HookActionType;
   key: string;
+  /**
+   * The authored template for what gets written, verbatim.
+   *
+   * NOT OPTIONAL DECORATION. RoleCall writes `value: "$1 = $2 /// "` - literal text woven around
+   * capture groups - and a reset writes `value: ""` to clear. Reading only the type and the key
+   * dropped every one of those and left anything rendering these hooks guessing at `$1`, which is
+   * wrong for a two-group template and wrong for a deliberate clear. Absent when the source omitted
+   * it, which is different from an authored empty string.
+   */
+  value?: string;
 }
 
 export interface StateHook {
@@ -51,7 +61,11 @@ export interface StateMachine {
 
 const HOOK_ID = /^\s{2,}-\s+id:\s*(\S+)/;
 const FIELD = /^\s+(trigger|flags|strip|placement):\s*(.*)$/;
-const ACTION = /\{\s*type:\s*(set|unset|append|push)\s*,\s*key:\s*([A-Za-z_][A-Za-z0-9_]*)/;
+// The trailing `value:` is what actually gets written. Capturing it is the difference between
+// replaying an author's template and inventing one: `value: "$1 = $2 /// "` is literal text woven
+// around two capture groups, and no amount of guessing reconstructs that from the key alone.
+const ACTION =
+  /\{\s*type:\s*(set|unset|append|push)\s*,\s*key:\s*([A-Za-z_][A-Za-z0-9_]*)\s*(?:,\s*value:\s*(.*?))?\s*\}/;
 
 /** Strip one layer of matching quotes from a scalar. */
 const unquote = (raw: string): string => {
@@ -123,7 +137,12 @@ export function readStateMachine(yaml: unknown): StateMachine {
 
     const action = ACTION.exec(line);
     if (action) {
-      current.actions.push({ type: action[1] as HookActionType, key: action[2]! });
+      const raw = action[3];
+      current.actions.push({
+        type: action[1] as HookActionType,
+        key: action[2]!,
+        ...(raw === undefined ? {} : { value: unquote(raw) }),
+      });
       continue;
     }
     if (/^\s+(action|- \{)/.test(line)) continue;

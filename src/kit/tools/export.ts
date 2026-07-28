@@ -137,6 +137,9 @@ const exportPiece: HarnessTool<z.infer<typeof input>> = {
         // What the parts add up to. A conversion can translate every piece correctly and still
         // produce something inert; these name the order dependencies that would cause it.
         explanation: outcome.explanation,
+        // The source hook machine as rules the target can run. Not written by Kit: placing
+        // them is a structural edit on the target, which this path does not own.
+        hookRules: outcome.hookRules,
       }),
       outcome: "applied",
     };
