@@ -15,6 +15,7 @@ import type { MacroChange } from "../../core/preset/macros/translate";
 import type { StructuralFindings } from "../../core/preset/macros/structure";
 import type { Observation } from "../../core/preset/macros/explain";
 import type { HookRendering } from "../../core/preset/macros/hooks-to-regex";
+import type { Promotion } from "../../core/preset/macros/promote-markers";
 
 type ConversionKit = {
   registry: typeof import("../../core").registry;
@@ -28,11 +29,12 @@ type ConversionKit = {
   explainEntity: typeof import("../../core/preset/macros/explain").explainEntity;
   renderHooksAsRegex: typeof import("../../core/preset/macros/hooks-to-regex").renderHooksAsRegex;
   readStateMachine: typeof import("../../core/preset/macros/state-machine").readStateMachine;
+  promoteMarkers: typeof import("../../core/preset/macros/promote-markers").promoteMarkers;
 };
 
 /** Pull the conversion graph in on first use, with every adapter registered for this runtime. */
 export async function loadConversionKit(): Promise<ConversionKit> {
-  const [core, convert, macros, translate, structure, explain, hooks, state, formats] = await Promise.all([
+  const [core, convert, macros, translate, structure, explain, hooks, state, markers, formats] = await Promise.all([
     import("../../core"),
     import("../../convert"),
     import("../../core/preset/macros/transfer-check"),
@@ -41,6 +43,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     import("../../core/preset/macros/explain"),
     import("../../core/preset/macros/hooks-to-regex"),
     import("../../core/preset/macros/state-machine"),
+    import("../../core/preset/macros/promote-markers"),
     import("../../ensure-formats"),
   ]);
   await formats.ensureFormats();
@@ -56,6 +59,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     explainEntity: explain.explainEntity,
     renderHooksAsRegex: hooks.renderHooksAsRegex,
     readStateMachine: state.readStateMachine,
+    promoteMarkers: markers.promoteMarkers,
   };
 }
 
@@ -94,6 +98,11 @@ export interface ConversionSuccess {
    * rules to a target is a structural edit this path does not own.
    */
   hookRules?: HookRendering;
+  /**
+   * Blocks that were SPLIT so a splice macro could become the structural block the target uses.
+   * A restructuring of the user's prompt list is never silent.
+   */
+  promotions?: Promotion[];
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
 }
@@ -152,14 +161,21 @@ export async function convertStoredPiece(
   let subject = entity;
   let translation: MacroChange[] | undefined;
   let dialect: { from: string; to: string } | undefined;
+  let promotions: Promotion[] | undefined;
   const fromProfile = kit.sourceProfileOf(entity);
   const toProfile = kit.profileForAdapter(to);
   if (fromProfile && toProfile && fromProfile !== toProfile) {
-    const result = kit.translatePresetBody(
-      (entity as unknown as { body?: unknown }).body,
-      fromProfile,
-      toProfile,
-    );
+    // PROMOTION RUNS FIRST, and the order is not arbitrary. A macro with no home on the target is
+    // REMOVED by the translator, so by the time translation has finished there is nothing left to
+    // promote - the transcript splice would already be gone, honestly reported as a removal and
+    // just as absent. So the dead tokens are read off the ORIGINAL body and the structural split
+    // happens before any text is rewritten.
+    const doomed = kit.checkMacroTransfer((entity as unknown as { body?: unknown }).body, to)
+      .findings.map((finding) => finding.token);
+    const promoted = kit.promoteMarkers((entity as unknown as { body?: unknown }).body, doomed);
+    if (promoted.promotions.length > 0) promotions = promoted.promotions;
+
+    const result = kit.translatePresetBody(promoted.body, fromProfile, toProfile);
     subject = { ...(entity as object), body: result.body } as KitEntity;
     translation = result.changes;
     dialect = { from: fromProfile, to: toProfile };
@@ -218,6 +234,7 @@ export async function convertStoredPiece(
       ...(structure ? { structure } : {}),
       ...(explanation?.length ? { explanation } : {}),
       ...(hookRules ? { hookRules } : {}),
+      ...(promotions ? { promotions } : {}),
       ...(dialect ? { dialect } : {}),
     };
   } catch (error) {

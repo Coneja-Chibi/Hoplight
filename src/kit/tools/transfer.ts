@@ -107,6 +107,9 @@ const transfer: HarnessTool<z.infer<typeof input>> = {
         // The source hook machine as rules the target can run. Not written by Kit: placing
         // them is a structural edit on the target, which this path does not own.
         hookRules: outcome.hookRules,
+        // Blocks split so a splice macro became a real marker block. Restructuring someone's
+        // prompt list is reported, never done quietly.
+        promotions: outcome.promotions,
         payload: spill ?? {
           spilled: false,
           content: outcome.payload,

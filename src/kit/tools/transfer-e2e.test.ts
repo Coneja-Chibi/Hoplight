@@ -172,6 +172,7 @@ test("a real RoleCall preset resolves its dialect, translates, and reports its s
       choices: { reference: string; label: string | null; options: unknown[] }[];
       limits: string[];
     };
+    promotions?: { token: string; markerSlot: string }[];
     payload: { content?: string };
   };
 
@@ -195,11 +196,13 @@ test("a real RoleCall preset resolves its dialect, translates, and reports its s
   expect(observed.structure.choices[0]?.label).toBe("Language");
   expect(observed.structure.choices[0]?.options).toHaveLength(2);
 
-  // {{message_history}} was REMOVED by the translator, so it is absent from the emitted body. The
-  // marker candidate must still appear, or the one finding that matters would vanish on success.
-  expect(observed.structure.markerCandidates).toEqual([
+  // {{message_history}} is no longer merely a CANDIDATE for promotion: the block carrying it is
+  // split so the macro becomes a real chatHistory marker block, with the surrounding text kept on
+  // either side. It therefore never reaches the translator's removal path at all.
+  expect(observed.promotions).toEqual([
     expect.objectContaining({ token: "{{message_history}}", markerSlot: "chatHistory" }),
   ]);
+  expect(observed.structure.markerCandidates).toEqual([]);
   expect(observed.structure.limits.length).toBeGreaterThan(0);
 });
 
