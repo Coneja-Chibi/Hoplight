@@ -15,7 +15,7 @@
  */
 import type { PresetWriteForProfile } from "../capabilities";
 import { PRESET_WRITE_FOR_PROFILES } from "../capabilities";
-import { scanMacroTokens, isMacroSupported, findMacro } from "./support";
+import { scanMacroTokens, isMacroSupported, findMacro, pathSegment } from "./support";
 
 /** One macro token that will not resolve on the target engine. */
 export interface MacroFinding {
@@ -39,19 +39,19 @@ export interface MacroTransferReport {
 }
 
 /**
- * Preset adapter ids to the authoring lens whose catalog describes their engine. Only engines with a
- * real transcribed catalog appear; anything else is deliberately absent and reports unmodeled.
+ * The authoring lens an adapter id implies, for ANY entity kind.
+ *
+ * WHY THIS IS DERIVED AND NOT A TABLE. It used to list the four preset adapters by hand, which is
+ * why macro checking only ever ran on presets: `sillytavern` (characters) and `rolecall-lorebook`
+ * matched nothing, so every other kind crossed engines with no dialect check at all. Adapter ids are
+ * `family` or `family-kind`, and the family IS the profile name, so reading the leading segment
+ * covers every kind and every future codec without another edit.
+ *
+ * An unmodeled engine still resolves to null, which callers must render as "unknown", never "clean".
  */
-const PROFILE_BY_ADAPTER: Record<string, PresetWriteForProfile> = {
-  "rolecall-preset": "rolecall",
-  "sillytavern-preset": "sillytavern",
-  "marinara-preset": "marinara",
-  "lumiverse-preset": "lumiverse",
-};
-
-/** The authoring lens for a preset adapter id, or null when that engine is not modeled. */
-export function profileForPresetAdapter(adapterId: string): PresetWriteForProfile | null {
-  return PROFILE_BY_ADAPTER[adapterId] ?? null;
+export function profileForAdapter(adapterId: string): PresetWriteForProfile | null {
+  const family = adapterId.split("-")[0] ?? "";
+  return PRESET_WRITE_FOR_PROFILES.find((p) => p !== "full" && p === family) ?? null;
 }
 
 /**
@@ -66,10 +66,7 @@ export function profileForPresetAdapter(adapterId: string): PresetWriteForProfil
  *
  * `full` is excluded deliberately: it is the canonical lens, not a format anything escrows under.
  */
-function profileForEscrowKey(key: string): PresetWriteForProfile | null {
-  const family = PRESET_WRITE_FOR_PROFILES.find((profile) => profile !== "full" && profile === key);
-  return family ?? profileForPresetAdapter(key);
-}
+const profileForEscrowKey = (key: string): PresetWriteForProfile | null => profileForAdapter(key);
 
 /**
  * Which engine's dialect a stored piece was authored in, read from its escrow keys, which are the
@@ -92,36 +89,56 @@ const NAME_LEVEL_LIMIT =
   + "a list on SillyTavern but is a numeric range on RoleCall).";
 
 const SCOPE_LIMIT =
-  "Only {{...}} tokens in prompt block content were scanned. Group content, system prompts, and any "
-  + "macro text living inside escrowed platform-native fields were not.";
+  "Every authored string in the canonical body was scanned. Macro text inside escrowed "
+  + "platform-native fields was not: escrow is the sealed source record and is never rewritten.";
 
-/** Every prompt block's authored text, paired with a readable location. */
-function presetTexts(body: unknown): { text: string; where: string }[] {
-  const prompts = (body as { prompts?: unknown })?.prompts;
-  if (!Array.isArray(prompts)) return [];
+/**
+ * Every authored string in a body, with the path it was found at.
+ *
+ * WHY A WALK AND NOT A FIELD LIST. This read `body.prompts[].content` only, which is why macro
+ * checking was a preset-only feature: a character's greetings, a lorebook entry's content, and a
+ * persona's description all carry macros and none of them were ever looked at. Walking the body
+ * finds them wherever an author put them, including in fields no codec has invented yet.
+ *
+ * `original` is skipped deliberately - escrow is the untouched source and must stay that way - and
+ * so are strings with no `{{`, which is the overwhelming majority and keeps the walk cheap on
+ * bodies carrying base64 media.
+ */
+export function authoredTexts(body: unknown): { text: string; where: string }[] {
   const out: { text: string; where: string }[] = [];
-  prompts.forEach((prompt, index) => {
-    const row = (prompt ?? {}) as { content?: unknown; name?: unknown; id?: unknown };
-    if (typeof row.content !== "string" || row.content.length === 0) return;
-    const label = typeof row.name === "string" && row.name
-      ? row.name
-      : typeof row.id === "string" && row.id
-        ? row.id
-        : `block ${index}`;
-    out.push({ text: row.content, where: label });
-  });
+  const seen = new Set<object>();
+
+  const walk = (node: unknown, path: string): void => {
+    if (typeof node === "string") {
+      if (node.includes("{{")) out.push({ text: node, where: path || "body" });
+      return;
+    }
+    if (node === null || typeof node !== "object") return;
+    if (seen.has(node)) return; // a cycle would otherwise walk forever
+    seen.add(node);
+    if (Array.isArray(node)) {
+      node.forEach((item, index) => walk(item, `${path}[${pathSegment(item, index)}]`));
+      return;
+    }
+    for (const [key, value] of Object.entries(node)) {
+      if (key === "original") continue;
+      walk(value, path ? `${path}.${key}` : key);
+    }
+  };
+
+  walk(body, "");
   return out;
 }
 
 /**
- * Check one canonical preset body against a target preset adapter. An unmodeled target returns
- * checked:false with no findings, which a caller must render as "unknown", never as "clean".
+ * Check one canonical body against a target adapter, for ANY entity kind. An unmodeled target
+ * returns checked:false with no findings, which a caller must render as "unknown", never "clean".
  */
-export function checkPresetMacroTransfer(
+export function checkMacroTransfer(
   body: unknown,
   targetAdapterId: string,
 ): MacroTransferReport {
-  const target = profileForPresetAdapter(targetAdapterId);
+  const target = profileForAdapter(targetAdapterId);
   if (!target) {
     return {
       target: null,
@@ -135,7 +152,7 @@ export function checkPresetMacroTransfer(
   }
   const findings: MacroFinding[] = [];
   const seen = new Set<string>();
-  for (const { text, where } of presetTexts(body)) {
+  for (const { text, where } of authoredTexts(body)) {
     for (const token of scanMacroTokens(text)) {
       // NUL joins the pair because it is the one byte neither a block name nor a macro token can
       // contain, so two different pairs can never collide on one key. Written as an ESCAPE, never

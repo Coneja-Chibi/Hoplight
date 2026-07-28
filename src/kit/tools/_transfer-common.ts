@@ -18,8 +18,8 @@ type ConversionKit = {
   registry: typeof import("../../core").registry;
   emitBundle: typeof import("../../convert").emitBundle;
   buildSerializeReport: typeof import("../../core").buildSerializeReport;
-  checkPresetMacroTransfer: typeof import("../../core/preset/macros/transfer-check").checkPresetMacroTransfer;
-  profileForPresetAdapter: typeof import("../../core/preset/macros/transfer-check").profileForPresetAdapter;
+  checkMacroTransfer: typeof import("../../core/preset/macros/transfer-check").checkMacroTransfer;
+  profileForAdapter: typeof import("../../core/preset/macros/transfer-check").profileForAdapter;
   sourceProfileOf: typeof import("../../core/preset/macros/transfer-check").sourceProfileOf;
   translatePresetBody: typeof import("../../core/preset/macros/translate").translatePresetBody;
   readPresetStructure: typeof import("../../core/preset/macros/structure").readPresetStructure;
@@ -40,8 +40,8 @@ export async function loadConversionKit(): Promise<ConversionKit> {
     registry: core.registry,
     emitBundle: convert.emitBundle,
     buildSerializeReport: core.buildSerializeReport,
-    checkPresetMacroTransfer: macros.checkPresetMacroTransfer,
-    profileForPresetAdapter: macros.profileForPresetAdapter,
+    checkMacroTransfer: macros.checkMacroTransfer,
+    profileForAdapter: macros.profileForAdapter,
     sourceProfileOf: macros.sourceProfileOf,
     translatePresetBody: translate.translatePresetBody,
     readPresetStructure: structure.readPresetStructure,
@@ -119,22 +119,27 @@ export async function convertStoredPiece(
   // actually run rather than RoleCall syntax wearing a SillyTavern filename. Only when both ends
   // are modelled and genuinely different; a same-dialect or unknown-dialect crossing is left alone
   // rather than guessed at.
+  //
+  // THIS IS NOT PRESET-ONLY, and gating it on `kind === "preset"` was a real hole rather than a
+  // scoping decision: a character's greetings and example messages, a lorebook entry's content and a
+  // persona's description all carry macros, and every one of them crossed engines with no dialect
+  // check and no translation. Fourteen characters in one real studio carry 295 macro tokens between
+  // them. They happened to be {{user}} and {{char}}, which survive anywhere - that was luck, not
+  // safety.
   let subject = entity;
   let translation: MacroChange[] | undefined;
   let dialect: { from: string; to: string } | undefined;
-  if (kind === "preset") {
-    const fromProfile = kit.sourceProfileOf(entity);
-    const toProfile = kit.profileForPresetAdapter(to);
-    if (fromProfile && toProfile && fromProfile !== toProfile) {
-      const result = kit.translatePresetBody(
-        (entity as unknown as { body?: unknown }).body,
-        fromProfile,
-        toProfile,
-      );
-      subject = { ...(entity as object), body: result.body } as KitEntity;
-      translation = result.changes;
-      dialect = { from: fromProfile, to: toProfile };
-    }
+  const fromProfile = kit.sourceProfileOf(entity);
+  const toProfile = kit.profileForAdapter(to);
+  if (fromProfile && toProfile && fromProfile !== toProfile) {
+    const result = kit.translatePresetBody(
+      (entity as unknown as { body?: unknown }).body,
+      fromProfile,
+      toProfile,
+    );
+    subject = { ...(entity as object), body: result.body } as KitEntity;
+    translation = result.changes;
+    dialect = { from: fromProfile, to: toProfile };
   }
 
   try {
@@ -149,9 +154,8 @@ export async function convertStoredPiece(
     const loss = out.report ?? kit.buildSerializeReport(subject, target);
     const text = out.text ?? null;
     // Report macro survival against what is ACTUALLY being emitted, not the untranslated original.
-    const macros = kind === "preset"
-      ? kit.checkPresetMacroTransfer((subject as unknown as { body?: unknown }).body, to)
-      : undefined;
+    // Every kind is checked; an unmodeled target still reports checked:false rather than silence.
+    const macros = kit.checkMacroTransfer((subject as unknown as { body?: unknown }).body, to);
 
     // A macro with no home on the target is either one the translator REMOVED or one still
     // unresolvable in the emitted text. Both belong here: a removed token is gone from the body, so

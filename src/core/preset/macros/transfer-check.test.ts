@@ -5,8 +5,8 @@
  */
 import { describe, expect, test } from "bun:test";
 import {
-  checkPresetMacroTransfer,
-  profileForPresetAdapter,
+  checkMacroTransfer,
+  profileForAdapter,
 } from "./transfer-check";
 
 const preset = (...contents: string[]): unknown => ({
@@ -17,23 +17,23 @@ const preset = (...contents: string[]): unknown => ({
   })),
 });
 
-describe("profileForPresetAdapter", () => {
+describe("profileForAdapter", () => {
   test("maps the four modeled preset engines", () => {
-    expect(profileForPresetAdapter("rolecall-preset")).toBe("rolecall");
-    expect(profileForPresetAdapter("sillytavern-preset")).toBe("sillytavern");
-    expect(profileForPresetAdapter("marinara-preset")).toBe("marinara");
-    expect(profileForPresetAdapter("lumiverse-preset")).toBe("lumiverse");
+    expect(profileForAdapter("rolecall-preset")).toBe("rolecall");
+    expect(profileForAdapter("sillytavern-preset")).toBe("sillytavern");
+    expect(profileForAdapter("marinara-preset")).toBe("marinara");
+    expect(profileForAdapter("lumiverse-preset")).toBe("lumiverse");
   });
 
   test("an unmodeled engine resolves to null, never a default lens", () => {
-    expect(profileForPresetAdapter("risu-preset")).toBeNull();
-    expect(profileForPresetAdapter("")).toBeNull();
+    expect(profileForAdapter("risu-preset")).toBeNull();
+    expect(profileForAdapter("")).toBeNull();
   });
 });
 
-describe("checkPresetMacroTransfer", () => {
+describe("checkMacroTransfer", () => {
   test("flags a macro the target engine has no name for", () => {
-    const report = checkPresetMacroTransfer(
+    const report = checkMacroTransfer(
       preset("Hello {{char}}, your creator is {{charCreator}}."),
       "sillytavern-preset",
     );
@@ -41,11 +41,11 @@ describe("checkPresetMacroTransfer", () => {
     expect(report.target).toBe("sillytavern");
     expect(report.findings.map((f) => f.token)).toEqual(["{{charCreator}}"]);
     expect(report.findings[0]?.status).toBe("dies");
-    expect(report.findings[0]?.where).toBe("Block 0");
+    expect(report.findings[0]?.where).toBe("prompts[Block 0].content");
   });
 
   test("leaves macros the target really carries alone", () => {
-    const report = checkPresetMacroTransfer(
+    const report = checkMacroTransfer(
       preset("{{char}} and {{user}} in {{scenario}}"),
       "sillytavern-preset",
     );
@@ -54,16 +54,16 @@ describe("checkPresetMacroTransfer", () => {
   });
 
   test("reports the location per block so a fix is actionable", () => {
-    const report = checkPresetMacroTransfer(
+    const report = checkMacroTransfer(
       preset("plain text", "{{accentColor}} here"),
       "sillytavern-preset",
     );
     expect(report.findings).toHaveLength(1);
-    expect(report.findings[0]?.where).toBe("Block 1");
+    expect(report.findings[0]?.where).toBe("prompts[Block 1].content");
   });
 
   test("an unmodeled target reports unchecked, not clean", () => {
-    const report = checkPresetMacroTransfer(
+    const report = checkMacroTransfer(
       preset("{{charCreator}} would die on most engines"),
       "risu-preset",
     );
@@ -74,13 +74,13 @@ describe("checkPresetMacroTransfer", () => {
   });
 
   test("a checked report always carries its name-level caveat", () => {
-    const report = checkPresetMacroTransfer(preset("{{char}}"), "rolecall-preset");
+    const report = checkMacroTransfer(preset("{{char}}"), "rolecall-preset");
     expect(report.checked).toBe(true);
     expect(report.limits.join(" ")).toContain("{{random::a::b}}");
   });
 
   test("a body with no prompts is empty, not an error", () => {
-    expect(checkPresetMacroTransfer({}, "sillytavern-preset").findings).toEqual([]);
-    expect(checkPresetMacroTransfer(null, "sillytavern-preset").checked).toBe(true);
+    expect(checkMacroTransfer({}, "sillytavern-preset").findings).toEqual([]);
+    expect(checkMacroTransfer(null, "sillytavern-preset").checked).toBe(true);
   });
 });

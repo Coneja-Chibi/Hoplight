@@ -142,3 +142,23 @@ export function macroSupport(token: string): PresetWriteForProfile[] {
     return name ? supportedMacroNames(p).has(name) : false;
   });
 }
+
+/**
+ * How one array element is named inside a body path.
+ *
+ * A finding reading `prompts[17].content` tells a reader almost nothing; `prompts.Director Resolve
+ * .content` tells them which block to open. Authored collections - prompt blocks, lorebook entries,
+ * greetings - carry a human name, so the walk prefers it and falls back to the index only when
+ * there is nothing better. Shared so the checker and the translator can never disagree about where
+ * a token lives.
+ */
+export function pathSegment(item: unknown, index: number): string {
+  if (item !== null && typeof item === "object") {
+    const row = item as Record<string, unknown>;
+    for (const key of ["name", "title", "label", "comment", "id"]) {
+      const value = row[key];
+      if (typeof value === "string" && value.trim().length > 0) return value.trim();
+    }
+  }
+  return String(index);
+}

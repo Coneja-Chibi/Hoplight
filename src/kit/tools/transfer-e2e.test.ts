@@ -9,7 +9,7 @@
  */
 import { expect, test } from "bun:test";
 import { emptyPresetBody } from "../../entities/preset";
-import { emptyLorebookBody } from "../../core/lore";
+import { emptyLoreEntry, emptyLorebookBody } from "../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../core/canonical";
 import { parseCanonicalEntity } from "../../entities/runtime-schema";
 import type { KitBridge, KitEntity } from "../bridge";
@@ -78,7 +78,7 @@ test("a RoleCall preset converts to a SillyTavern preset and reports the macro t
   expect(observed.macros.target).toBe("sillytavern");
   expect(observed.macros.findings.map((f) => f.token)).toEqual(["{{charCreator}}"]);
   expect(observed.macros.findings[0]?.status).toBe("dies");
-  expect(observed.macros.findings[0]?.where).toBe("Main");
+  expect(observed.macros.findings[0]?.where).toBe("prompts[Main].content");
 
   // {{char}} survives, so it must NOT be reported, and the caveat still travels with the result.
   expect(observed.macros.findings.some((f) => f.token === "{{char}}")).toBe(false);
@@ -203,12 +203,24 @@ test("a real RoleCall preset resolves its dialect, translates, and reports its s
   expect(observed.structure.limits.length).toBeGreaterThan(0);
 });
 
-test("a lorebook transfer reports no macro section rather than an empty one", async () => {
+/**
+ * Macro checking is NOT a preset feature, and this test used to assert the opposite - that a
+ * lorebook reports no macro section at all. That was the bug: entry content carries macros exactly
+ * like a prompt block does, and every non-preset kind crossed engines with no dialect check.
+ */
+test("a lorebook's entry content is macro-checked like any other authored text", async () => {
+  const body = emptyLorebookBody("World Bible") as unknown as { entries: unknown[] };
+  body.entries = [{
+    ...emptyLoreEntry("e1"),
+    id: "e1",
+    title: "Hawthorne",
+    content: "Written by {{charCreator}}, who knows {{char}}.",
+  }];
   const book = parseCanonicalEntity({
     schemaVersion: CANONICAL_SCHEMA_VERSION,
     kind: "lorebook",
     id: "world",
-    body: emptyLorebookBody("World Bible"),
+    body,
   }) as unknown as KitEntity;
   const loreBridge: KitBridge = {
     ...bridge,
@@ -221,7 +233,13 @@ test("a lorebook transfer reports no macro section rather than an empty one", as
     { kind: "lorebook", id: "world", to: "sillytavern-lorebook" },
     { bridge: loreBridge },
   );
-  const observed = JSON.parse(result.output) as { macros?: unknown };
-  expect(observed.macros).toBeUndefined();
-  expect(result.summary).not.toContain("dead macros");
+  const observed = JSON.parse(result.output) as {
+    macros?: { checked: boolean; target: string; findings: { token: string; where: string }[] };
+  };
+  expect(observed.macros?.checked).toBe(true);
+  expect(observed.macros?.target).toBe("sillytavern");
+  // {{charCreator}} has no SillyTavern equivalent and is now reported; {{char}} survives and is not.
+  expect(observed.macros?.findings.map((f) => f.token)).toEqual(["{{charCreator}}"]);
+  expect(observed.macros?.findings[0]?.where).toBe("entries[Hawthorne].content");
+  expect(result.summary).toContain("1 dead macros");
 });

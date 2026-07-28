@@ -22,7 +22,7 @@
  * depend on ADR-012.
  */
 import type { PresetWriteForProfile } from "../capabilities";
-import { macroName, matchingClose } from "./support";
+import { macroName, matchingClose, pathSegment } from "./support";
 import { equivalentOf, formsForOp } from "./equivalence";
 
 /**
@@ -353,13 +353,21 @@ function translateOne(
 }
 
 export interface PresetTranslation {
-  /** A deep copy with translated prompt content. The input is never mutated. */
+  /** A deep copy with translated text. The input is never mutated. */
   body: unknown;
   changes: MacroChange[];
 }
 
 /**
- * Translate every prompt block in a preset body. Returns a copy: the stored canonical entity is the
+ * Translate every authored string in a canonical body, for ANY entity kind.
+ *
+ * WHY A WALK AND NOT `prompts[]`. This used to translate prompt blocks only, so the whole feature
+ * was reachable by presets alone - a character's greetings and example messages, a lorebook entry's
+ * content, a persona's description all carry macros and all crossed engines untranslated. Walking
+ * the body reaches them wherever they live, and reaches fields no codec has invented yet.
+ *
+ * `original` is never entered: escrow is the sealed record of the source file and rewriting it would
+ * destroy the only proof of what was imported. Returns a copy, because the stored entity is the
  * user's authored work and an export must never edit it in place.
  */
 export function translatePresetBody(
@@ -367,23 +375,33 @@ export function translatePresetBody(
   from: PresetWriteForProfile,
   to: PresetWriteForProfile,
 ): PresetTranslation {
-  const copy = structuredClone(body) as { prompts?: unknown } | null;
+  const copy = structuredClone(body) as unknown;
   const changes: MacroChange[] = [];
-  const prompts = copy?.prompts;
-  if (!Array.isArray(prompts)) return { body: copy, changes };
+  const seen = new Set<object>();
 
-  prompts.forEach((prompt, index) => {
-    const row = prompt as { content?: unknown; name?: unknown; id?: unknown };
-    if (typeof row.content !== "string" || row.content.length === 0) return;
-    const where = typeof row.name === "string" && row.name
-      ? row.name
-      : typeof row.id === "string" && row.id
-        ? row.id
-        : `block ${index}`;
-    const result = translateText(row.content, from, to, where);
-    row.content = result.text;
-    changes.push(...result.changes);
-  });
+  const walk = (node: unknown, path: string): unknown => {
+    if (typeof node === "string") {
+      if (!node.includes("{{")) return node;
+      const result = translateText(node, from, to, path || "body");
+      changes.push(...result.changes);
+      return result.text;
+    }
+    if (node === null || typeof node !== "object") return node;
+    if (seen.has(node)) return node; // a cycle would otherwise walk forever
+    seen.add(node);
+    if (Array.isArray(node)) {
+      node.forEach((item, index) => { node[index] = walk(item, `${path}[${pathSegment(item, index)}]`); });
+      return node;
+    }
+    const row = node as Record<string, unknown>;
+    for (const key of Object.keys(row)) {
+      if (key === "original") continue;
+      row[key] = walk(row[key], path ? `${path}.${key}` : key);
+    }
+    return node;
+  };
+
+  walk(copy, "");
   return { body: copy, changes };
 }
 
