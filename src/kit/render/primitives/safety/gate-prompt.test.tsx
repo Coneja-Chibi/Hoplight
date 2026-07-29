@@ -70,6 +70,48 @@ test("the keys still answer it, because only the drawing changed", async () => {
   }
 });
 
+test("every choice is clickable, and the click picks that choice", async () => {
+  // The old gate row was plain text: there was nothing to click. Claiming a mouse target without
+  // proving it is exactly the kind of assertion this suite exists to stop.
+  for (const [label, expected] of [
+    ["Allow", "allow-once"],
+    ["Session", "allow-session"],
+    ["Deny", "deny"],
+    ["Lock down", "abort"],
+  ] as const) {
+    let picked = "";
+    const rendered = await frameOf(danger, (c) => { picked = c.type; });
+    try {
+      const rows = rendered.captureCharFrame().split("\n");
+      const y = rows.findIndex((row) => row.includes(label));
+      const x = rows[y]!.indexOf(label);
+      expect(y).toBeGreaterThan(-1);
+      await rendered.mockMouse.click(x, y);
+      await tick(60);
+      expect(picked).toBe(expected);
+    } finally {
+      await rendered.renderer.destroy();
+    }
+  }
+});
+
+test("the glyphs measure one column, so the button row cannot shear", async () => {
+  // Width is decided by the renderer, and a double-width glyph inside a fixed-column row shifts
+  // every character after it. Measuring the drawn frame is the only honest way to know.
+  const rendered = await frameOf(danger);
+  try {
+    const rows = rendered.captureCharFrame().split("\n");
+    const tops = rows.filter((row) => row.includes("┌─") && row.includes("┐"));
+    const buttons = rows.find((row) => row.includes("Allow"))!;
+    const bottoms = rows.filter((row) => row.includes("└─") && row.includes("┘"));
+    // The button row and the rules above and below it must be the same drawn width.
+    expect(buttons.length).toBe(tops[tops.length - 1]!.length);
+    expect(buttons.length).toBe(bottoms[0]!.length);
+  } finally {
+    await rendered.renderer.destroy();
+  }
+});
+
 test("escape still denies", async () => {
   let picked = "";
   const rendered = await frameOf(danger, (c) => { picked = c.type; });

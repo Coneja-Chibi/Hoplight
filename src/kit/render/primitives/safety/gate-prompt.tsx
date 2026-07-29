@@ -161,7 +161,12 @@ export function GatePrompt({
           <GateButton glyph={CROSS} label="Deny" tone={theme.red} onPress={() => onChoice({ type: "deny" })} />
           <GateButton glyph={STOP} label="Lock down" tone={theme.red} onPress={() => onChoice({ type: "abort" })} />
         </box>
-        <KeyHint hints={[{ key: CROSS, label: "esc denies" }]} />
+        {/*
+          No glyph here. CROSS already means Deny one row up, and reusing it for the escape footnote
+          made one shape stand for two different things. This is a note about a physical key, not a
+          fifth choice, so it stays quiet text.
+        */}
+        <text fg={theme.mut}>esc denies</text>
       </box>
     </box>
   );
