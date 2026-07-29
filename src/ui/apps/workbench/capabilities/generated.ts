@@ -9,24 +9,30 @@ import capabilityModule2 from "../../../../entities/character/capabilities/ident
 import capabilityModule3 from "../../../../entities/character/capabilities/links";
 import capabilityModule4 from "../../../../entities/character/capabilities/media";
 import capabilityModule5 from "../../../../entities/character/capabilities/metadata";
-import capabilityModule6 from "../../../../entities/character/capabilities/presentation";
-import capabilityModule7 from "../../../../entities/character/capabilities/prompts";
-import capabilityModule8 from "../../../../entities/character/capabilities/settings";
-import capabilityModule9 from "../../../../entities/character/capabilities/variants";
-import capabilityModule10 from "../../../../entities/lorebook/capabilities/entries";
-import capabilityModule11 from "../../../../entities/lorebook/capabilities/settings";
-import capabilityModule12 from "../../../../entities/pack/capabilities/groups";
-import capabilityModule13 from "../../../../entities/pack/capabilities/items";
-import capabilityModule14 from "../../../../entities/pack/capabilities/settings";
-import capabilityModule15 from "../../../../entities/persona/capabilities/identity";
-import capabilityModule16 from "../../../../entities/persona/capabilities/injection";
-import capabilityModule17 from "../../../../entities/persona/capabilities/presentation";
-import capabilityModule18 from "../../../../entities/persona/capabilities/profile";
-import capabilityModule19 from "../../../../entities/preset/capabilities/blocks";
-import capabilityModule20 from "../../../../entities/preset/capabilities/groups";
-import capabilityModule21 from "../../../../entities/preset/capabilities/settings";
-import capabilityModule22 from "../../../../entities/regex/capabilities/rules";
-import capabilityModule23 from "../../../../entities/regex/capabilities/settings";
+import capabilityModule6 from "../../../../entities/character/capabilities/notes";
+import capabilityModule7 from "../../../../entities/character/capabilities/presentation";
+import capabilityModule8 from "../../../../entities/character/capabilities/prompts";
+import capabilityModule9 from "../../../../entities/character/capabilities/settings";
+import capabilityModule10 from "../../../../entities/character/capabilities/variants";
+import capabilityModule11 from "../../../../entities/lorebook/capabilities/entries";
+import capabilityModule12 from "../../../../entities/lorebook/capabilities/notes";
+import capabilityModule13 from "../../../../entities/lorebook/capabilities/settings";
+import capabilityModule14 from "../../../../entities/pack/capabilities/groups";
+import capabilityModule15 from "../../../../entities/pack/capabilities/items";
+import capabilityModule16 from "../../../../entities/pack/capabilities/notes";
+import capabilityModule17 from "../../../../entities/pack/capabilities/settings";
+import capabilityModule18 from "../../../../entities/persona/capabilities/identity";
+import capabilityModule19 from "../../../../entities/persona/capabilities/injection";
+import capabilityModule20 from "../../../../entities/persona/capabilities/notes";
+import capabilityModule21 from "../../../../entities/persona/capabilities/presentation";
+import capabilityModule22 from "../../../../entities/persona/capabilities/profile";
+import capabilityModule23 from "../../../../entities/preset/capabilities/blocks";
+import capabilityModule24 from "../../../../entities/preset/capabilities/groups";
+import capabilityModule25 from "../../../../entities/preset/capabilities/notes";
+import capabilityModule26 from "../../../../entities/preset/capabilities/settings";
+import capabilityModule27 from "../../../../entities/regex/capabilities/notes";
+import capabilityModule28 from "../../../../entities/regex/capabilities/rules";
+import capabilityModule29 from "../../../../entities/regex/capabilities/settings";
 
 const capabilityModules: readonly unknown[] = [
   capabilityModule0,
@@ -53,6 +59,12 @@ const capabilityModules: readonly unknown[] = [
   capabilityModule21,
   capabilityModule22,
   capabilityModule23,
+  capabilityModule24,
+  capabilityModule25,
+  capabilityModule26,
+  capabilityModule27,
+  capabilityModule28,
+  capabilityModule29,
 ];
 
 /** Every browser-visible semantic capability, generated from the drop-in folders. */

@@ -25,12 +25,17 @@ async function shapeFiles(): Promise<string[]> {
 
 // LF normalization keeps the pin stable across Windows and CI.
 //
-// Updated deliberately for a COMPATIBLE change: PresetSamplers.promptPostProcessing gained the
-// values SillyTavern actually writes (the `_tools` variants and the deprecated `claude`), and the
-// per-group schemas are now exported so the ST codec can read expected types off them instead of
-// restating them. Purely additive - every value that parsed before still parses, no stored file
-// becomes unreadable - so this needs no schema-version bump and no SCHEMA_BUMPS entry.
-const PINNED_SHAPE_HASH = "5cbaa9e9f6534502b0c729f9622f9b18925db268c98286deaac9bd9bfa79e09d";
+// Updated deliberately for a COMPATIBLE change: the canonical envelope gained an optional `notes`
+// array, declared once on the shared envelope so every entity kind carries it. Purely additive - a
+// stored file without notes parses exactly as it did before, and a file with them was not readable
+// by any earlier build to begin with - so this needs no schema-version bump and no SCHEMA_BUMPS
+// entry. Removing the last note deletes the key rather than leaving `[]`, so an annotated piece and
+// a never-annotated one still serialize identically.
+//
+// The prior entry, also compatible: PresetSamplers.promptPostProcessing gained the values
+// SillyTavern actually writes, and the per-group schemas were exported for the ST codec to read
+// expected types off them.
+const PINNED_SHAPE_HASH = "c5805529913cd14d74fc39f108777d688bb3cca4d24407e1c26ff8867b86ffdd";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");

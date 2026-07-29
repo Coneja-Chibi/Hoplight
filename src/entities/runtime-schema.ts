@@ -5,6 +5,7 @@
 import { z } from "zod";
 import {
   CANONICAL_SCHEMA_VERSION,
+  type EntityNote,
   type OriginalEntry,
 } from "../core/canonical";
 import { defineExhaustiveShape } from "./_shared/runtime-shape";
@@ -41,10 +42,20 @@ const originalEntryShape = defineExhaustiveShape<OriginalEntry>()({
 });
 const originalEntrySchema = z.strictObject(originalEntryShape);
 const originalSchema = z.record(z.string(), originalEntrySchema);
+const noteShape = defineExhaustiveShape<EntityNote>()({
+  id: z.string(),
+  text: z.string(),
+  at: z.string(),
+  by: z.string().optional(),
+});
+const noteSchema = z.strictObject(noteShape);
+
 const sharedEnvelope = {
   schemaVersion: z.literal(CANONICAL_SCHEMA_VERSION),
   id: z.string().min(1),
   original: originalSchema.optional(),
+  // Declared once here, so every entity kind carries notes without a per-kind edit.
+  notes: z.array(noteSchema).optional(),
 };
 
 const characterEntityShape = defineExhaustiveShape<CanonicalCharacter>()({

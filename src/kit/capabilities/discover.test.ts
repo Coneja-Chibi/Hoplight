@@ -16,6 +16,7 @@ describe("discoverCapabilities", () => {
       "lorebook.entries.remove",
       "lorebook.entries.reorder",
       "lorebook.entries.update",
+      "lorebook.notes.write",
       "lorebook.settings.update",
     ]);
   });
