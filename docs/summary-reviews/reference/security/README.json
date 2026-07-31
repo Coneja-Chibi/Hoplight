@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/security/README",
   "sourcePath": "docs/reference/security/README.md",
-  "sourceHash": "sha256:d3f543829af7ef42a0bde37ced9ca277204775e4bcaf3fe4c968e94cfc462d46",
-  "semanticSummaryHash": "sha256:c5764128a96a7bd8a1dd6c44c48e7097de4c6a5431dd31a056c5f185caaf2667",
+  "sourceHash": "sha256:a240ea1a810ceaaeaf2b6e694d51b8b71b60a684d06d323944ce168d969ab31c",
+  "semanticSummaryHash": "sha256:b7e622f356f730340217528392b3ddf2c14124de95c86018bd59a84ed77e9c0d",
   "verdict": "APPROVE",
-  "reviewer": "codex-credibility-semantic-reviewer",
-  "notes": "Second independent repair review: APPROVE. Read the complete source, sidecar, prior REVISE receipt, and current remote, sandbox, provider-egress, and keystore owners. The parent 'The layers' summary now scopes loopback to the token-gated primary server and explicitly names separately enabled remote listeners, join secrets, device approval, and host-only controls. The Threat model summary keeps its named soft edges to packaged-origin proof plus vault recovery/non-Windows setup and explicitly leaves redirect limits with layer 8. Detailed layer 7 and layer 8 summaries remain aligned. Author validation passed; focused remote/sandbox/egress/keystore suites passed 47 tests.",
-  "reviewedAt": "2026-07-26T09:43:27.377Z"
+  "reviewer": "chi",
+  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
+  "reviewedAt": "2026-07-31T19:18:39.756Z"
 }

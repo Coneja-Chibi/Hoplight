@@ -124,6 +124,65 @@ The owner can remove any connected device from the host. Over Tailscale, the app
 the sidecar's stdin; the sidecar blocklists that node's stable id and denies it on the next request, even
 though it is the owner's own account (`deviceTracker`, `sidecar/main.go`). On LAN, the session is dropped.
 
+## Where the sidecar binary comes from
+
+The sidecar is compiled Go, and it is **not** inside `Hoplight.exe`. Three locations are checked, in this
+order (`sidecarCandidates`, `src/ui/server-remote.ts`):
+
+1. the repository's own `sidecar/` folder, where `bun sidecar/build.ts` writes it - the from-source path;
+2. a `sidecar/` folder beside the running executable, for anyone who places one there deliberately;
+3. the aux-package cache under the per-user support directory, where a requested download installs it.
+
+None present means the mesh path reports **`unavailable`**, its own `RemotePhase`, distinct from both `off`
+and `error`. `off` is a switch the owner can flip and `error` invites a retry; a build with no helper can do
+neither, so the panel states that up front and offers no Enable control rather than spawning a path that is
+not there. LAN mode is unaffected and needs no helper at all.
+
+> The second candidate is load-bearing. Deriving the path from `import.meta.url` alone is correct from
+> source and meaningless once compiled - inside a standalone Bun executable it resolves onto the virtual
+> filesystem (`B:\sidecar\sidecar.exe`), which cannot exist. Every packaged studio therefore failed to start
+> remote access regardless of what was installed beside it, and the failure surfaced as a raw `uv_spawn`
+> `ENOENT` in the settings panel. Pinned by `src/ui/server-remote.test.ts`.
+
+## The aux package: fetching the helper on request
+
+The helper is roughly 31 MB, so it ships as a **release asset** rather than inside the app, and the owner
+fetches it with an explicit click. This is a download-and-execute path and is built as one
+(`src/ui/remote/aux-download.ts`, `aux-install.ts`):
+
+- **A SHA-256 pin is the integrity control, and it is COMMITTED** (`src/ui/remote/sidecar-pins.ts`), pinned
+  like a dependency. `bun scripts/pin-sidecar.ts <tag>` reads that release's published `SHA256SUMS`,
+  re-downloads each asset to confirm it matches, and rewrites the module; the result is reviewed and
+  committed like any lockfile bump. An empty table offers no download.
+
+  > Computing the pin during the build was the earlier design and it quietly split the product in two: only
+  > a CI-built binary carried a hash, so the download worked for packaged users and silently did not for
+  > anyone running from source. Committing it makes the answer identical everywhere. It works because the
+  > helper is **not tied to an app version** - it is a separate process speaking one small stdio protocol, so
+  > one known-good release serves indefinitely. The coupling is to the protocol, not the version number,
+  > which is also why there is no staleness signal.
+- **Verification happens on bytes in memory**, before anything is written to the path the spawner reads, so
+  a tampered or truncated download cannot leave a runnable file behind. The install itself is a rename from
+  a sibling staging file, so a torn write never becomes the final binary. On POSIX the helper is `0o700`.
+- **HTTPS only, and the hops are inspected.** The first must be `github.com`; a redirect may only land on
+  GitHub's asset family, which is required rather than optional because release downloads really do redirect
+  to a signed, time-limited host. A relative `Location` is resolved against the current URL so it cannot
+  smuggle in a host change.
+- **The size cap is applied while reading**, not after buffering, so a response with no or an understated
+  `Content-Length` cannot cost the memory the cap exists to protect.
+- **Host-only.** `/api/remote/helper/*` sits under the `/api/remote/` prefix, so a tailed-in or LAN-approved
+  guest cannot make the host machine download and install an executable.
+
+The host allowlist is defence in depth, not the guarantee. If GitHub renames its asset host, this loses
+availability and keeps integrity, which is the correct way round.
+
+The installed helper is **not** re-hashed before each spawn. It lives in the owner's own per-account support
+directory, so anyone able to rewrite it can equally rewrite `Hoplight.exe`; re-verifying would defend
+against an attacker who already holds the account. There is deliberately no "your helper is out of date"
+signal either: the pinned hash changes on every release whether the helper changed or not, so a staleness
+warning derived from it would fire after every app update about a helper that works. The panel reports which
+release the installed helper came from and offers to fetch it again.
+
 ## Sidecar lifecycle
 
 The sidecar is a background process that speaks only over stdio pipes (status events out, kick commands
@@ -141,7 +200,19 @@ layer.
 - The Tailscale owner gate and its fail-closed cases are unit-tested (`sidecar/main_test.go`).
 - The LAN code format, per-IP throttle, pending cap, and TTL are unit-tested (`src/ui/remote/lan-host.test.ts`).
 - The trusted-port secret refusal and the host-only route block are tested at the handler
-  (`src/ui/server-remote.test.ts`).
+  (`src/ui/server-remote.test.ts`), including that a guest cannot trigger a helper download.
+- The three binary locations, the `unavailable` phase, and the refusal to spawn or to persist an "on" that
+  cannot happen are unit-tested (`src/ui/server-remote.test.ts`, `src/ui/remote/sidecar-manager.test.ts`).
+  The packaged path resolution was also confirmed against a real compiled executable.
+- Every aux-download refusal is unit-tested (`src/ui/remote/aux-download.test.ts`): pin mismatch, truncation,
+  a non-GitHub or plain-http hop, a lookalike host, a relative redirect, redirect loops, and a body that
+  exceeds the cap while streaming.
+- The checksum reader that writes the committed pins is unit-tested (`scripts/sidecar-pin-format.test.ts`):
+  it takes only the helper assets, ignores every other binary in the file, and refuses a duplicate digest
+  rather than choosing between two answers.
+- That the release builds and uploads a helper for every pinned platform, and that every committed pin names
+  an asset the release actually publishes, is pinned by `scripts/ci-sidecar.test.ts`. Those assertions cover
+  the workflow's SHAPE; that the Go cross-builds themselves succeed is proven only by a real release run.
 - The full LAN path (code -> cookie -> pending -> host approval -> served; host-only routes refused to an
   approved device) has been verified live end-to-end at the listener boundary, and the Tailscale path has
   been verified live from a phone reaching the studio.

@@ -262,6 +262,11 @@ await Bun.write(
 );
 console.log(`baked static format registry (${formatIds.length} families: ${formatIds.join(", ")})`);
 
+// The remote-access helper is NOT pinned here. Its hashes live in src/ui/remote/sidecar-pins.ts, committed
+// and updated by `bun scripts/pin-sidecar.ts <tag>`. Computing them during the build was the earlier
+// design and it quietly split the product in two: only a CI-built binary carried a pin, so the helper
+// download worked for packaged users and silently did not for anyone running from source.
+
 // -- 3. compile -------------------------------------------------------------------------------------
 
 await mkdir(join(root, "dist"), { recursive: true });

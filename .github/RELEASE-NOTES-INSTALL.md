@@ -22,5 +22,10 @@
   (`hoplight-windows-x64.exe` is now `hoplight-cli-windows-x64.exe`, and the same for macOS and
   Linux). If you update the CLI from inside itself, grab this one manually once; the desktop app is
   unaffected.
+- **You do not need to download the `sidecar-*` files yourself.** They are the optional remote-access
+  helper for the private-mesh link. Open **Settings → Remote access** and press **Download the extra
+  piece**; Hoplight picks the right one for your machine, checks it against a fingerprint built into the
+  app, and throws away anything that does not match. They are listed here so the checksums are public.
+  LAN mode is on the same page and needs no download at all.
 - Launching `Hoplight.exe` while Hoplight is already running just opens another window onto the
   same studio. Your pieces live in `Documents/Hoplight Studio` as plain files.

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
+  "sourceHash": "sha256:3d559dc4c87ba72370520bea2a999d498ba4e23f243194dbaea7c59ca7f87ae1",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -241,8 +241,8 @@
       "slug": "settings-drop-in-sections",
       "title": "Settings (drop-in sections)",
       "level": 2,
-      "sourceHash": "sha256:f43bd559213946da90f20803e4a5877740fe8dbf4799cf8b66207991b7e48eda",
-      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
+      "sourceHash": "sha256:cf5347e2b69b33a2559470b5a64c5b2f1f444fc9172569231448874785484404",
+      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access, now including the optional mesh-helper download, for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
       "topics": [
         "drop-in SettingsSection",
         "registry-derived tabs",

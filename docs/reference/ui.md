@@ -374,7 +374,8 @@ Settings is built from section modules: one file in `src/ui/apps/settings/sectio
 index.tsx`); every control is call-and-response against live settings (theme/accent repaint
 instantly). Shipped sections: Appearance (theme and house accent), Studio (home app, Library first
 deck, and publish targets), Workbench (follow behavior), Remote access (tunnel and LAN setup, devices,
-and host controls), Updates (release checks and version switching), and About.
+host controls, and the optional mesh-helper download), Updates (release checks and version switching),
+and About.
 
 Remote-access host controls use `/api/remote/*`; release information and version switching use
 `/api/updates/*`. Both route families are host-only and remain distinct from ordinary remote-client

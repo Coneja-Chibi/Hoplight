@@ -195,8 +195,10 @@ external link is POST-only, re-validated to http or https via `safeExternalUrl`,
 array rather than a shell string (`src/ui/server.ts:347-360`; `src/ui/server-security.ts:264-276`).
 
 Remote tunnel and LAN modes are separate, explicitly enabled boundaries with their own join secret,
-device approval, and host-only control routes. Their detailed threats and controls live in
-[the remote-access reference](remote-access.md).
+device approval, and host-only control routes. The tunnel additionally carries the one path that turns
+a download into an executable: the mesh helper is not bundled, and fetching it is an explicit host-only
+request verified against a committed SHA-256 before any bytes reach the path the spawner reads. Their
+detailed threats and controls live in [the remote-access reference](remote-access.md).
 
 Status: the primary listener is enforced in `server-security.ts`, extracted from the server so the
 gate is unit testable; the security surface is re-exported for tests (`src/ui/server.ts:56-68`).

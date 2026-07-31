@@ -49,6 +49,8 @@ thing safe?"). Short version: loopback bind, per-launch session token, fetch-met
 hashed-script CSP, path containment, atomic writes, fail-closed parsing, bounded decompression,
 no automatic execution of card payloads, no telemetry or background content upload. Deliberate
 network access is limited to the model-provider endpoint the user configures, fixed GitHub release
-endpoints used for update operations, and remote access the user explicitly enables. ~2,000 tests run in CI on every
-commit, including the path-containment, server-security, sandbox, round-trip, and Go sidecar
-authorization suites.
+endpoints used for update operations and for the optional remote-access helper, and remote access the
+user explicitly enables. The helper is the only download that becomes an executable: it is fetched on
+an explicit host-only request, verified against a SHA-256 pinned in the repository before any bytes
+reach disk, and discarded on mismatch. ~2,000 tests run in CI on every commit, including the
+path-containment, server-security, sandbox, round-trip, and Go sidecar authorization suites.

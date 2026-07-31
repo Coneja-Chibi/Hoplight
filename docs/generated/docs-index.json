@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-28",
+  "generated": "2026-07-31",
   "count": 112,
   "docs": [
     {
@@ -3513,7 +3513,7 @@
           "text": "Your content stays under your control",
           "slug": "your-content-stays-under-your-control",
           "level": 2,
-          "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. Import, editing, conversion, and deterministic analysis make no provider request.",
+          "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. The private-mesh link also needs a helper program that is not bundled: pressing Download the extra piece fetches it from Hoplight's own releases and checks it against a fingerprint built into the copy before writing anything, discarding a file that does not match. It is the only download Hoplight turns into a program it runs, and LAN mode needs none. Import, editing, conversion, and deterministic analysis make no provider request.",
           "topics": [
             "127.0.0.1 local listener",
             "no accounts telemetry proxy",
@@ -4317,7 +4317,7 @@
           "text": "Components (React, `.tsx`)",
           "slug": "components-react-tsx",
           "level": 2,
-          "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog, and the dirty-tab ClosePieceDialog/ClosePiecePrompt), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), and app-scoped presenters under src/ui/apps. Workbench dominates: revision-aware character, lorebook, pack, persona, preset, and regex editors plus workshop rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import and damaged-file notices plus lore and regex workshops; settings contributes LAN and update dialogs; docs contributes its room, navigation, contents, and table of contents. Each row is Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
+          "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog, and the dirty-tab ClosePieceDialog/ClosePiecePrompt), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), app-scoped presenters under src/ui/apps, and Settings sections including the remote-access helper card (HelperMissingCard, HelperInstalledLine). Workbench dominates: revision-aware character, lorebook, pack, persona, preset, and regex editors plus workshop rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import and damaged-file notices plus lore and regex workshops; settings contributes LAN and update dialogs; docs contributes its room, navigation, contents, and table of contents. Each row is Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
           "topics": [
             "React tsx exports",
             "shell Dock App",
@@ -12601,7 +12601,7 @@
           "text": "The layers",
           "slug": "the-layers",
           "level": 2,
-          "summary": "The layers combine structural prevention with bounded execution and explicitly scoped evidence. 1. Parse, not execute keeps private payloads opaque and conversion canonical. 2. Decompression caps on archives bound selection and inflation. 3. ReDoS-guarded regex rejects dangerous AST shapes before native execution. 4. Sanitized rendering applies DOMPurify, pure policy, and CSP. 5. The Lua sandbox and its resource budgets remove host capabilities, cap state, and kill workers. 6. Distinct-origin sandbox isolation adds a second HTTP-tested listener whose packaged proof remains blocked. 7. The token-gated primary local server and separately enabled remote listeners protect API authority with request gates, join secrets, device approval, and host-only controls. 8. The BYOK provider vault encrypts configurations while documenting passphrase, redirect, and recovery limits.",
+          "summary": "The layers combine structural prevention with bounded execution and explicitly scoped evidence. 1. Parse, not execute keeps private payloads opaque and conversion canonical. 2. Decompression caps on archives bound selection and inflation. 3. ReDoS-guarded regex rejects dangerous AST shapes before native execution. 4. Sanitized rendering applies DOMPurify, pure policy, and CSP. 5. The Lua sandbox and its resource budgets remove host capabilities, cap state, and kill workers. 6. Distinct-origin sandbox isolation adds a second HTTP-tested listener whose packaged proof remains blocked. 7. The token-gated primary local server and separately enabled remote listeners protect API authority with request gates, join secrets, device approval, and host-only controls. The tunnel also carries the only path that turns a download into an executable, host-only and verified against a committed SHA-256 before the bytes reach disk. 8. The BYOK provider vault encrypts configurations while documenting passphrase, redirect, and recovery limits.",
           "topics": [
             "parse and escrow",
             "archive inflation budgets",
@@ -12937,7 +12937,7 @@
         "reference/security/script-sandbox",
         "reference/architecture"
       ],
-      "semanticSummary": "Canonical security reference for reaching the studio from another device without exposing it to the open internet. Remote access is off by default, driven only from Settings greater than Remote access never a terminal, with two independent modes: Tailscale private encrypted tailnet link and LAN connect-code plus per-device approval on the local network. Containers and SSH forwarding use the printed startup receipt with Studio port and optional sandbox port; browsing the server IP is refused by the trusted Host gate; one-port is enough for ordinary Studio work but both ports are required for Lua and regex benches; this guidance does not broaden hostAllowed or weaken token Origin checks. Two listeners one trust boundary: trusted 127.0.0.1 default 8321 with Host Origin and per-launch session token; untrusted 127.0.0.1:8788 only for the Tailscale sidecar with per-boot shared secret required on untrusted and refused on trusted. Tailscale owner gate admits only the studio owner's numeric user id fail closed. LAN gate uses CSPRNG connect code argon2id hashed never sent, per-IP throttle, pending approval with caps and 15 minute TTL, self-signed TLS on 0.0.0.0:8790; session cookie is HttpOnly SameSite Lax without Secure. Host-only surface blocks remote management open shutdown restart and settings writes. Owner can kick devices; sidecar lifecycle exits on parent death and kills orphans. What is proven lists unit tests and live end-to-end verification.",
+      "semanticSummary": "Canonical security reference for reaching the studio from another device without exposing it to the open internet. Remote access is off by default, driven only from Settings greater than Remote access never a terminal, with two independent modes: Tailscale private encrypted tailnet link and LAN connect-code plus per-device approval on the local network. Containers and SSH forwarding use the printed startup receipt with Studio port and optional sandbox port; browsing the server IP is refused by the trusted Host gate; one-port is enough for ordinary Studio work but both ports are required for Lua and regex benches; this guidance does not broaden hostAllowed or weaken token Origin checks. Two listeners one trust boundary: trusted 127.0.0.1 default 8321 with Host Origin and per-launch session token; untrusted 127.0.0.1:8788 only for the Tailscale sidecar with per-boot shared secret required on untrusted and refused on trusted. Tailscale owner gate admits only the studio owner's numeric user id fail closed. LAN gate uses CSPRNG connect code argon2id hashed never sent, per-IP throttle, pending approval with caps and 15 minute TTL, self-signed TLS; session cookie is HttpOnly SameSite Lax without Secure. Host-only surface blocks remote management, open, shutdown, restart, and settings writes. Owner can kick devices. The sidecar is not bundled: three locations are checked, and none reports the unavailable phase rather than a dead Enable control. The aux package fetches it from a release asset, verified against a baked SHA-256 pin before any bytes land. Sidecar lifecycle exits on parent death and kills orphans. What is proven lists unit tests and live end-to-end verification.",
       "topics": [
         "remote access off by default",
         "Tailscale owner gate",
@@ -12945,8 +12945,8 @@
         "two listeners trust boundary",
         "sidecar shared secret",
         "host-only routes",
-        "SSH port forwarding",
-        "fail closed WhoIs",
+        "unavailable phase no helper",
+        "aux package pinned download",
         "argon2id connect code",
         "kick device sidecar"
       ],
@@ -13052,6 +13052,36 @@
           "children": []
         },
         {
+          "text": "Where the sidecar binary comes from",
+          "slug": "where-the-sidecar-binary-comes-from",
+          "level": 2,
+          "summary": "The sidecar is compiled Go and is not inside Hoplight.exe. sidecarCandidates in server-remote checks three locations in order: the repository sidecar folder that bun sidecar/build.ts writes, a sidecar folder beside the running executable, and the aux-package cache where a requested download installs it. None present reports unavailable, its own RemotePhase distinct from off and error, because off is a switch the owner can flip and error invites a retry while a build with no helper can do neither; the panel says so up front and offers no Enable control instead of spawning a path that is not there. LAN mode needs no helper. The beside-the-executable candidate is load-bearing: deriving the path from import.meta.url alone is correct from source and meaningless once compiled, resolving onto the Bun virtual filesystem, so every packaged studio failed to start remote access and surfaced a raw uv_spawn ENOENT. Pinned by server-remote.test.ts.",
+          "topics": [
+            "three candidate locations",
+            "unavailable RemotePhase",
+            "packaged path resolution bug",
+            "no Enable control offered",
+            "LAN needs no helper"
+          ],
+          "children": []
+        },
+        {
+          "text": "The aux package: fetching the helper on request",
+          "slug": "the-aux-package-fetching-the-helper-on-request",
+          "level": 2,
+          "summary": "The helper is about 31 MB, so it ships as a release asset the owner fetches with an explicit click. A SHA-256 pin is the integrity control and it is committed in sidecar-pins.ts, pinned like a dependency: scripts/pin-sidecar.ts reads a release's published SHA256SUMS, re-downloads each asset to confirm it matches, and rewrites the module for review. Computing it during the build was the earlier design and it split the product in two, because only a CI-built binary carried a hash, so the download worked for packaged users and silently did not from source. Committing it works because the helper is not tied to an app version: the coupling is to the stdio protocol, not the version number, which is also why there is no staleness signal. Verification runs on bytes in memory before anything reaches the path the spawner reads, and the install renames from a sibling staging file, so no tampered or torn download leaves a runnable binary. HTTPS only with every hop inspected, the size cap applies while reading, and the routes are host-only.",
+          "topics": [
+            "SHA-256 pin baked at build",
+            "verify before writing bytes",
+            "atomic rename install",
+            "single inspected redirect",
+            "streaming size cap",
+            "host-only download route",
+            "no staleness signal"
+          ],
+          "children": []
+        },
+        {
           "text": "Sidecar lifecycle",
           "slug": "sidecar-lifecycle",
           "level": 2,
@@ -13069,13 +13099,14 @@
           "text": "What is proven",
           "slug": "what-is-proven",
           "level": 2,
-          "summary": "The Tailscale owner gate and its fail-closed cases are unit-tested in sidecar main_test.go. The LAN code format, per-IP throttle, pending cap, and TTL are unit-tested in lan-host.test.ts. The trusted-port secret refusal and the host-only route block are tested at the handler in server-remote.test.ts. The full LAN path from code to cookie to pending to host approval to served, with host-only routes refused to an approved device, has been verified live end-to-end at the listener boundary, and the Tailscale path has been verified live from a phone reaching the studio.",
+          "summary": "The Tailscale owner gate and its fail-closed cases are unit-tested in sidecar main_test.go. The LAN code format, per-IP throttle, pending cap, and TTL are unit-tested in lan-host.test.ts. The trusted-port secret refusal and the host-only route block are tested at the handler in server-remote.test.ts, including that a guest cannot trigger a helper download. The three binary locations, the unavailable phase, and the refusal to persist an on that cannot happen are unit-tested there and in sidecar-manager.test.ts, with the packaged path resolution confirmed against a real compiled executable. Every aux-download refusal is unit-tested in aux-download.test.ts: pin mismatch, truncation, a non-GitHub or plain-http hop, a lookalike host, redirect loops, and a body exceeding the cap while streaming. The checksum reader that writes the committed pins is unit-tested in sidecar-pin-format.test.ts. That the release builds and uploads a helper for every pinned platform, and that every committed pin names an asset the release publishes, is pinned by ci-sidecar.test.ts, covering workflow shape only; the Go cross-builds succeeding is proven by a real release run. The LAN and Tailscale paths have been verified live end-to-end.",
           "topics": [
             "sidecar main_test",
             "lan-host unit tests",
             "server-remote handler tests",
-            "live LAN end-to-end",
-            "live Tailscale phone"
+            "aux-download refusal tests",
+            "release workflow shape pinned",
+            "live LAN end-to-end"
           ],
           "children": []
         }
@@ -13916,7 +13947,7 @@
           "text": "Settings (drop-in sections)",
           "slug": "settings-drop-in-sections",
           "level": 2,
-          "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
+          "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access, now including the optional mesh-helper download, for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
           "topics": [
             "drop-in SettingsSection",
             "registry-derived tabs",

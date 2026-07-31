@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
-  "semanticSummaryHash": "sha256:bd71661c73695d584e12b34e15b5a4bbaeb7ecfd1a49180b765968b37cfb35ea",
+  "sourceHash": "sha256:3d559dc4c87ba72370520bea2a999d498ba4e23f243194dbaea7c59ca7f87ae1",
+  "semanticSummaryHash": "sha256:3dc48cb7a1b0db3d39e328f41565b39c372f946a1453266ee5462f52969a7e09",
   "verdict": "APPROVE",
-  "reviewer": "codex-doc-review-surfaces",
-  "notes": "APPROVE: read all 407 source lines and all 291 sidecar lines, then checked the material additions against current implementation and tests. Release workflow/build-desktop publish Studio/CLI binaries but no Kit executable; StudioStore.inventory and /api/studio/inventory report bounded damaged records without mutation while /list remains healthy-only; all six Workbench kinds dispatch writable revision-checked editors using shared dirty/Ctrl+S guards and shell-owned close confirmation; bundle preflight validates before writes and reports partials; unknown target coverage uses dropped:null; remote/update routes are host-only; six Settings sections are registered. Focused proof passed 122/122 UI/store/server tests; typecheck passed. User-facing behavior was not live-proven in this review.",
-  "reviewedAt": "2026-07-26T20:14:15.987Z"
+  "reviewer": "chi",
+  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
+  "reviewedAt": "2026-07-31T19:18:39.969Z"
 }
