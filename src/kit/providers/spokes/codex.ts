@@ -19,6 +19,7 @@
 import type { ProviderSpoke } from "../spoke";
 import type { ModelInfo } from "../models";
 import { CODEX_CHAT_BASE, CODEX_CHAT_HOST, codexClientVersion, codexHeaders, readCodexAuth } from "../codex-auth";
+import { noteCodexHeaders } from "../plan-usage-sources";
 
 /**
  * The models a ChatGPT subscription may drive here are the service's own, not OpenAI's public API
@@ -36,6 +37,18 @@ const codex: ProviderSpoke = {
   keyless: true,
   async model({ model, headers }, fetch) {
     const [auth, clientVersion] = await Promise.all([readCodexAuth(), codexClientVersion()]);
+    /**
+     * Every reply carries this subscription's quota in its headers, so `/usage` costs nothing here:
+     * the numbers arrive with work the user already asked for. Recorded on the way past, without
+     * touching the response the adapter goes on to read.
+     */
+    // Cast for the same reason egress.ts casts: Bun's `typeof fetch` demands a `preconnect` method
+    // the AI SDK request path never calls.
+    const watched = (async (input: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+      const response = await fetch(input, init);
+      noteCodexHeaders(response.headers);
+      return response;
+    }) as typeof fetch;
     const [{ createOpenAI }, { defaultSettingsMiddleware, wrapLanguageModel }] = await Promise.all([
       import("@ai-sdk/openai"),
       import("ai"),
@@ -44,7 +57,7 @@ const codex: ProviderSpoke = {
       apiKey: auth.accessToken,
       baseURL: CODEX_CHAT_BASE,
       headers: { ...codexHeaders(auth, clientVersion), ...headers },
-      fetch,
+      fetch: watched,
     });
     /**
      * `store: false` is mandatory here, not a preference: the endpoint answers
