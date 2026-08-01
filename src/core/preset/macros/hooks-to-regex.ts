@@ -16,7 +16,7 @@
  *   placement user_input    -> 1
  *   placement ai_output     -> 2
  *   strip: true             -> the replacement omits the match, so the tag stops being visible
- *   strip: false            -> the replacement re-emits the match with $& before writing
+ *   strip: false            -> the replacement re-emits the match with {{match}} before writing
  *   action set              -> {{setvar::key::$1}}
  *   action unset            -> {{setvar::key::}}
  *   action append           -> {{addvar::key::$1}}
@@ -67,6 +67,25 @@ export interface HookRendering {
   limits: string[];
 }
 
+/**
+ * How the target names "everything that matched".
+ *
+ * NOT `$&`, and the difference is invisible until it reaches a real chat. SillyTavern does NOT hand
+ * the replacement to JavaScript's String.replace. It expands the string itself, matching only
+ * `$<digits>` and `$<name>`, and returns a finished string from the callback, so the engine never
+ * performs its own dollar expansion. `$&` therefore survives as two literal characters.
+ *
+ * The failure that costs is not the stray characters. A rule that re-emits the match to avoid
+ * deleting authored text instead CONSUMES it, so any later rule matching the same tag never fires:
+ * a catcher writes its variable, the flag rule that commits it never sees the tag, and the value is
+ * staged and never committed. Everything looks like it ran.
+ *
+ * Verified against public/scripts/extensions/regex/engine.js, which maps `{{match}}` to `$0` before
+ * expanding. Do not "simplify" this to `$&` on the reasoning that it is standard JavaScript; it is,
+ * and that is exactly why the mistake is easy to make twice.
+ */
+const WHOLE_MATCH = "{{match}}";
+
 const PHASE_BY_PLACEMENT: Record<string, string> = {
   user_input: "user_input",
   ai_output: "response",
@@ -78,9 +97,9 @@ const PHASE_BY_PLACEMENT: Record<string, string> = {
  * THE AUTHORED VALUE IS USED VERBATIM WHEREVER THERE IS ONE, and this is the whole reason hook
  * actions had to start carrying it. RoleCall writes templates like `"$1 = $2 /// "` - literal text
  * woven around two capture groups - and a reset writes `""` on purpose. Guessing `$1` would silently
- * discard the second group and the joining text; guessing `$&` would turn a deliberate clear into a
- * write of whatever matched. Capture-group syntax is identical in both engines, so the template
- * needs no rewriting.
+ * discard the second group and the joining text; guessing the whole match would turn a deliberate
+ * clear into a write of whatever matched. Capture-group syntax is identical in both engines, so the
+ * template needs no rewriting.
  *
  * The fallback only applies when the source omitted a value entirely, which is different from an
  * authored empty string and is treated as "store what matched".
@@ -118,7 +137,7 @@ function renderHook(hook: StateHook, sortOrder: number): RenderedRule | Unrender
     };
   }
 
-  const fallback = capturesSomething(hook.trigger) ? "$1" : "$&";
+  const fallback = capturesSomething(hook.trigger) ? "$1" : WHOLE_MATCH;
   const writes = hook.actions.map((a) => macroFor(a, fallback)).filter((m): m is string => m !== null);
   if (writes.length === 0) {
     return { id: hook.id, reason: "no action in this hook has a counterpart that writes state" };
@@ -135,7 +154,7 @@ function renderHook(hook: StateHook, sortOrder: number): RenderedRule | Unrender
     flags: hook.flags || "g",
     // strip drops the matched text; keeping it means re-emitting the match before the writes, or
     // the rule would silently delete authored text as a side effect of storing it.
-    replace: (hook.strip ? "" : "$&") + writes.join(""),
+    replace: (hook.strip ? "" : WHOLE_MATCH) + writes.join(""),
     phases: phases.length > 0 ? phases : ["user_input", "response"],
     enabled: true,
     sortOrder,

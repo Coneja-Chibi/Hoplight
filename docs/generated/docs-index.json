@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-31",
+  "generated": "2026-08-01",
   "count": 112,
   "docs": [
     {
@@ -5116,7 +5116,7 @@
           "text": "The pipeline (`apply.ts`)",
           "slug": "the-pipeline-applyts",
           "level": 2,
-          "summary": "applyRules runs one deterministic pass in sortOrder. Every rule compiles with the d flag so match and group spans come from the engine as TraceMatch whole and groups for bench chips. Per-rule time budget and optional setBudgetMs skip over-budget rules with plain skipReason timeout set-budget phase off or condition never crash. condition chains on whether an earlier rule applied and matched in one pass without forward references. overlay true rules match without mutating and emit spans on a separate overlays channel. firstMatchOnly replaces only the first hit under g. Replacement text goes through replace-ops for dollar groups match sugar and case transforms with escape parity between runtime and travel lint.",
+          "summary": "applyRules runs one deterministic pass in sortOrder. Every rule compiles with the d flag so match and group spans come from the engine as TraceMatch whole and groups for bench chips. Per-rule time budget and optional setBudgetMs skip over-budget rules with plain skipReason timeout set-budget phase off or condition never crash. condition chains on whether an earlier rule applied and matched in one pass without forward references. overlay true rules match without mutating and emit spans on a separate overlays channel. firstMatchOnly replaces only the first hit under g. Replacement text goes through replace-ops for dollar groups match sugar and case transforms with escape parity between runtime and travel lint. Replacement also runs JavaScript's own $& family, and those are the asymmetric tokens: this engine expands them and no other surveyed engine does, because none hands the template to String.replace, so a rule written to re-emit its match consumes it instead and every later rule keyed on that text stops firing.",
           "topics": [
             "applyRules sortOrder",
             "d flag TraceMatch spans",
@@ -5144,7 +5144,7 @@
           "text": "Travel honesty (`travel-lint.ts`)",
           "slug": "travel-honesty-travel-lintts",
           "level": 2,
-          "summary": "All five platforms execute JS RegExp so cross-platform divergence is a lint not a parser fork. travelLint reports with spans: replace and flag extensions the destination will not run such as match sugar case transforms and cbs tokens, engine-only rule fields condition overlay first-match-only, and host-age risks look-behind and v flag. The editor shows these dashed amber under Write-for; nothing is blocked or mangled.",
+          "summary": "All five platforms execute JS RegExp, so divergence is a lint, not a parser fork. travelLint reports with spans: replace and flag extensions the destination will not run, engine-only rule fields, and host-age risks. The dollar-ampersand family reports on every lens but this engine's own, because it works while a rule is edited and breaks once it travels. The editor shows these dashed amber under Write-for; nothing is blocked or mangled.",
           "topics": [
             "lint not parser fork",
             "destination extension gaps",

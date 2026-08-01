@@ -60,7 +60,9 @@ describe("strip decides whether the matched text survives", () => {
     const out = renderHooksAsRegex(machine(
       ...hook("tag", "\\[X:(.+?)\\]", "{ type: set, key: k }", ["strip: false"]),
     ));
-    expect(out.rules[0]?.replace.startsWith("$&")).toBe(true);
+    // The token is the TARGET's, not JavaScript's: SillyTavern expands the replacement itself and
+    // never learns what $& means. See the whole-match suite at the foot of this file.
+    expect(out.rules[0]?.replace.startsWith("{{match}}")).toBe(true);
   });
 });
 
@@ -106,5 +108,59 @@ describe("order and placement", () => {
     expect(out.rules[0]?.find).toBe("(?<=\\[ARC:[^\\]]*)([^,\\]]+)");
     expect(out.rules[0]?.flags).toBe("gi");
     expect(out.limits.join(" ")).toContain("not compiled or validated");
+  });
+});
+
+describe("the whole-match token is the target's, not JavaScript's", () => {
+  /**
+   * This suite exists because the bug shipped. Rendered rules used `$&`, which is correct JavaScript
+   * and wrong here: SillyTavern expands the replacement itself, understands only `$<digits>` and
+   * `$<name>`, and returns a finished string, so `$&` survives as literal text AND the matched tag is
+   * consumed. Every later rule keyed on that tag then silently stops firing.
+   */
+  const RENDERED = () => renderHooksAsRegex(machine(
+    ...hook("keep", "\[STATE:(.+?)\|(.+?)\]", '{ type: append, key: led, value: "$1 = $2 /// " }'),
+    ...hook("nocapture", "\[ARC-END\]", "{ type: set, key: ended }"),
+    ...hook("strips", "\[HIDE:(.+?)\]", "{ type: set, key: h }", ["strip: true"]),
+  ));
+
+  test("NO rendered rule may contain $&", () => {
+    for (const rule of RENDERED().rules) expect(rule.replace).not.toContain("$&");
+  });
+
+  test("a non-stripping rule re-emits the match with {{match}}", () => {
+    expect(RENDERED().rules[0]?.replace.startsWith("{{match}}")).toBe(true);
+  });
+
+  test("a stripping rule still emits no match token, because deleting the tag is the point", () => {
+    const strips = RENDERED().rules.find((r) => r.label === "strips");
+    expect(strips?.replace.includes("{{match}}")).toBe(false);
+  });
+
+  test("the fallback for a trigger with no capture group is {{match}}, not $&", () => {
+    const none = RENDERED().rules.find((r) => r.label === "nocapture");
+    expect(none?.replace).toContain("{{match}}");
+    expect(none?.replace).not.toContain("$&");
+  });
+
+  test("an authored template still crosses verbatim, capture groups untouched", () => {
+    // The fallback must not overwrite a value the source actually wrote.
+    expect(RENDERED().rules[0]?.replace).toContain("$1 = $2 /// ");
+  });
+
+  test("the emitted replacement survives the TARGET's expansion, not JavaScript's", () => {
+    // A faithful port of SillyTavern's runRegexScript: {{match}} becomes $0, then only $<digits> and
+    // $<name> are expanded, and the callback returns a finished string.
+    const stExpand = (replaceString: string, args: readonly string[]): string =>
+      replaceString
+        .replace(/{{match}}/gi, "$0")
+        .replaceAll(/\$(\d+)|\$<([^>]+)>/g, (_m, num: string) => (num ? args[Number(num)] ?? "" : ""));
+
+    const rule = RENDERED().rules[0]!;
+    const out = stExpand(rule.replace, ["[STATE: mood | wary]", " mood ", " wary "]);
+    // The tag is restored, so a later rule keyed on [STATE: still matches.
+    expect(out).toContain("[STATE: mood | wary]");
+    expect(out).not.toContain("$&");
+    expect(out).not.toContain("$0");
   });
 });

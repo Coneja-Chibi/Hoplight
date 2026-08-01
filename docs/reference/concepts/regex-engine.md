@@ -25,9 +25,17 @@ per-platform facts live in the matrix, never a UI literal).
   `overlays` channel for display-layer painting.
 - `firstMatchOnly: true` replaces only the first hit even under the `g` flag.
 
-Replacement text goes through `replace-ops.ts`: `$1`-style groups, `{{match}}` sugar, and the
-`\u \l \U \L \E` case transforms, with exact escape-handling parity between the runtime and the
-travel lint.
+Replacement text goes through `replace-ops.ts`: `$1`-style groups, `{{match}}` sugar, JavaScript's
+own `$&` / `` $` `` / `$'`, and the `\u \l \U \L \E` case transforms, with exact escape-handling
+parity between the runtime and the travel lint.
+
+The JavaScript tokens are the asymmetric ones and the lint treats them as such. This engine runs
+them; **no other surveyed engine does**, because none hands the template to `String.replace`. Each
+expands the string itself and understands only numbered and named groups, so `$&` arrives as two
+literal characters. The damage is not the stray characters: a rule written to re-emit its match
+CONSUMES it instead, and every later rule keyed on that same text silently stops firing. A rule
+using them therefore works while it is being edited and breaks the moment it travels, which is why
+`js-dollar-token` reports on every lens except this one.
 
 ## The AST layer (`ast/`)
 
@@ -46,8 +54,8 @@ with spans on every node. Everything explanatory is built on it:
 
 All five platforms execute JS RegExp, so cross-platform divergence is a LINT, not a parser fork.
 `travelLint(rule, profile)` reports, with spans: replace/flag extensions the destination engine will
-not run ({{match}}, case transforms, `<cbs>` tokens), engine-only rule fields (condition / overlay /
-first-match-only), and host-age risks (look-behind, `v` flag). The editor renders these dashed-amber
+not run ({{match}}, JavaScript's `$&` family, case transforms, `<cbs>` tokens), engine-only rule
+fields (condition / overlay / first-match-only), and host-age risks (look-behind, `v` flag). The editor renders these dashed-amber
 under the active Write-for lens; nothing is blocked or mangled.
 
 ## The builder (`builder.ts` + `word-boundary.ts` / `word-family.ts`)

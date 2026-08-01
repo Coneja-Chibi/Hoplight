@@ -233,3 +233,61 @@ describe("R2X part B: vaud-engine-only rule fields lint as unsupported on every 
     expect(travelLint(rule({}), "marinara").filter((n) => n.field === "rule")).toEqual([]);
   });
 });
+
+describe("travelLint - JavaScript's own replacement tokens (no engine runs them)", () => {
+  /**
+   * This suite exists because the mistake shipped. `$&` is correct JavaScript, so it gets written by
+   * anyone reasoning from String.replace; no surveyed engine hands the template to String.replace,
+   * so it is expanded nowhere. The damage is not the stray characters, it is that a rule meaning to
+   * put the match back consumes it, and every later rule keyed on that text quietly stops firing.
+   */
+  test("$& is flagged on every lens EXCEPT our own engine, which really does run it", () => {
+    // The asymmetry is the whole hazard: replace-ops.ts implements $& , so the rule works while it is
+    // being edited and breaks the moment it travels. Silence on "full" is correct, not an oversight.
+    for (const p of REGEX_WRITE_FOR_PROFILES) {
+      const notes = travelLint(rule({ replace: "$&{{setvar::k::$1}}" }), p);
+      const dollar = notes.filter((n) => n.feature === "js-dollar-token");
+      expect(dollar.length).toBe(p === "full" ? 0 : 1);
+      if (p !== "full") {
+        expect(dollar[0]!.severity).toBe("unsupported");
+        expect(dollar[0]!.field).toBe("replace");
+      }
+    }
+  });
+
+  test("the span points at the token, so the editor can underline exactly it", () => {
+    const r = rule({ replace: "keep $& then" });
+    const note = travelLint(r, "sillytavern").find((n) => n.feature === "js-dollar-token")!;
+    expect(r.replace.slice(note.span.start, note.span.end)).toBe("$&");
+  });
+
+  test("the message names the real consequence and offers the working token", () => {
+    const note = travelLint(rule({ replace: "$&" }), "sillytavern")
+      .find((n) => n.feature === "js-dollar-token")!;
+    expect(note.message).toContain("consumed");
+    expect(note.message).toContain("{{match}}");
+  });
+
+  test("the other JS-only tokens are caught too", () => {
+    for (const token of ["$`", "$'", "$$"]) {
+      const notes = travelLint(rule({ replace: `a ${token} b` }), "sillytavern");
+      expect(notes.some((n) => n.feature === "js-dollar-token")).toBe(true);
+    }
+  });
+
+  test("numbered and named groups are NOT flagged: every engine expands those", () => {
+    for (const replace of ["$1 = $2 /// ", "$<key> set", "$12"]) {
+      const notes = travelLint(rule({ replace }), "sillytavern");
+      expect(notes.some((n) => n.feature === "js-dollar-token")).toBe(false);
+    }
+  });
+
+  test("a lone dollar in ordinary text is not a token", () => {
+    const notes = travelLint(rule({ replace: "costs $ or 5$ each" }), "sillytavern");
+    expect(notes.some((n) => n.feature === "js-dollar-token")).toBe(false);
+  });
+
+  test("{{match}} on SillyTavern is clean, so the fixed form raises nothing", () => {
+    expect(travelLint(rule({ replace: "{{match}}{{setvar::k::$1}}" }), "sillytavern")).toEqual([]);
+  });
+});
