@@ -14,6 +14,7 @@ const local: ProviderConfig = { kind: "local", model: "llama3.1", baseURL: "http
 test("registry discovers every drop-in provider and skips the template", () => {
   expect([...registry.keys()].sort()).toEqual([
     "anthropic",
+    "codex",
     "custom",
     "deepseek",
     "google",
