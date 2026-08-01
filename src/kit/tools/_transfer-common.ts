@@ -104,6 +104,15 @@ export interface ConversionSuccess {
    */
   hookRules?: HookRendering;
   /**
+   * Rules whose replacement uses something the destination engine does not execute.
+   *
+   * THE EDITOR ALREADY SHOWS THIS AND THAT WAS NOT ENOUGH. `travelLint` was reachable only from the
+   * rule page, so a set converted by Kit crossed with nothing said. The likeliest case is also the
+   * quietest: Hoplight's own engine runs JavaScript's `$&`, so it is natural to author, works while
+   * being edited, and stops working the moment the set is written for another platform.
+   */
+  ruleNotes?: RuleTravelNote[];
+  /**
    * Blocks that were SPLIT so a splice macro could become the structural block the target uses.
    * A restructuring of the user's prompt list is never silent.
    */
@@ -117,7 +126,49 @@ export interface ConversionSuccess {
   dialect?: { from: string; to: string };
 }
 
+/** One rule carrying something the destination will not run, named for a reader. */
+export interface RuleTravelNote {
+  /** the rule's own id, so a receipt can point at which one */
+  readonly id: string;
+  /** the rule's label, because an id alone is not something a person recognises */
+  readonly label: string;
+  /** already phrased for a reader; names the consequence, not the rule violated */
+  readonly reason: string;
+}
+
 export type ConversionOutcome = ConversionRefusal | ConversionSuccess;
+
+/**
+ * Lint a regex set against the engine it is being written for.
+ *
+ * Only the crossing is reported. `travelLint` returns nothing for the "full" lens by design (a rule
+ * never travels to itself), so a same-engine round trip is silent without needing a special case
+ * here. An adapter whose family is not a modelled lens yields nothing rather than a false all-clear;
+ * the caller renders an absent field as "not checked", never as "clean".
+ */
+async function lintRegexTravel(entity: KitEntity, to: string): Promise<RuleTravelNote[]> {
+  const [{ travelLint }, { isRegexWriteForProfile }] = await Promise.all([
+    import("../../core/regex/travel-lint"),
+    import("../../core/regex/capabilities"),
+  ]);
+  const family = to.split("-")[0] ?? "";
+  if (!isRegexWriteForProfile(family)) return [];
+
+  const rules = (entity as unknown as { body?: { rules?: unknown } }).body?.rules;
+  if (!Array.isArray(rules)) return [];
+
+  const notes: RuleTravelNote[] = [];
+  for (const rule of rules) {
+    for (const note of travelLint(rule as never, family)) {
+      notes.push({
+        id: String((rule as { id?: unknown }).id ?? ""),
+        label: String((rule as { label?: unknown }).label ?? ""),
+        reason: note.message,
+      });
+    }
+  }
+  return notes;
+}
 
 /** Adapter ids that can serialize this entity kind, for a failure message worth reading. */
 export function targetsFor(kit: ConversionKit, kind: string): string {
@@ -237,6 +288,11 @@ export async function convertStoredPiece(
     // rules somewhere else entirely. Rendering them here means the crossing arrives with the second
     // half of itself rather than leaving the logic behind and saying nothing. Only when the dialect
     // actually changes - a same-engine round trip already has its hooks.
+    // A regex set is the case the editor's lint could never reach from here: Hoplight runs $& , so a
+    // rule using it works while authored and breaks on arrival. Checked on the SOURCE rules, which
+    // are what the adapter is about to write out.
+    const ruleNotes = kind === "regex" ? await lintRegexTravel(entity, to) : [];
+
     const machine = dialect ? kit.readStateMachine(escrowedHookYaml(entity)) : null;
     const hookRules = machine && machine.hooks.length > 0
       ? kit.renderHooksAsRegex(machine)
@@ -253,6 +309,7 @@ export async function convertStoredPiece(
       ...(structure ? { structure } : {}),
       ...(explanation?.length ? { explanation } : {}),
       ...(hookRules ? { hookRules } : {}),
+      ...(ruleNotes.length > 0 ? { ruleNotes } : {}),
       ...(promotions ? { promotions } : {}),
       ...(producerFixes ? { producerFixes } : {}),
       ...(dialect ? { dialect } : {}),
