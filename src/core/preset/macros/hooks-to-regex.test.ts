@@ -164,3 +164,48 @@ describe("the whole-match token is the target's, not JavaScript's", () => {
     expect(out).not.toContain("$0");
   });
 });
+
+describe("the rendering checks itself, so a caller with no screen is still told", () => {
+  /**
+   * travelLint used to be reachable only from the regex editor. Conversions are mostly run by an
+   * agent that never opens one, so a rule carrying a token the target cannot execute travelled with
+   * nothing said. These assert the finding rides on the result itself.
+   */
+  test("a clean rendering reports no warnings", () => {
+    const out = renderHooksAsRegex(machine(
+      ...hook("keep", "\[S:(.+?)\]", '{ type: set, key: k, value: "$1" }'),
+    ));
+    expect(out.rules.length).toBe(1);
+    expect(out.warnings).toEqual([]);
+  });
+
+  test("a JavaScript-only token arriving in an AUTHORED value is caught and named", () => {
+    // Hook action values cross verbatim, so this is the case that survives our own emitter being
+    // right: the source author wrote $& in a RoleCall template.
+    const out = renderHooksAsRegex(machine(
+      ...hook("carried", "\[S:(.+?)\]", '{ type: set, key: k, value: "$& seen" }'),
+    ));
+    expect(out.warnings.length).toBe(1);
+    expect(out.warnings[0]!.id).toBe("hook-carried");
+    expect(out.warnings[0]!.reason).toContain("consumed");
+    expect(out.warnings[0]!.reason).toContain("{{match}}");
+  });
+
+  test("the warning names the rule, so a receipt can point at which one", () => {
+    const out = renderHooksAsRegex(machine(
+      ...hook("ok", "\[A:(.+?)\]", '{ type: set, key: a, value: "$1" }'),
+      ...hook("bad", "\[B:(.+?)\]", '{ type: set, key: b, value: "$`" }'),
+    ));
+    expect(out.warnings.map((w) => w.id)).toEqual(["hook-bad"]);
+  });
+
+  test("the trigger is NOT linted here, because it is the source author's and already caveated", () => {
+    // A look-behind would raise a host-age note on the find field; that belongs to `limits`, not to
+    // this conversion's findings, or every RoleCall preset using one would look like our defect.
+    const out = renderHooksAsRegex(machine(
+      ...hook("lb", "(?<=\[ARC:)([^\]]+)", "{ type: set, key: k }"),
+    ));
+    expect(out.warnings).toEqual([]);
+    expect(out.limits.join(" ")).toContain("not compiled or validated");
+  });
+});

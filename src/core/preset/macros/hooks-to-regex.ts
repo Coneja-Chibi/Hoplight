@@ -39,6 +39,8 @@
  * every other chat and leave stale values behind after starting over. An author who wants a value to
  * persist can widen a rendered rule; a converter cannot widen it back down once it has escaped.
  */
+import type { RegexRule } from "../../../entities/regex/schema";
+import { travelLint } from "../../regex/travel-lint";
 import type { HookAction, StateHook, StateMachine } from "./state-machine";
 
 /** One emitted rule, in the canonical regex-rule shape a codec can serialize. */
@@ -60,11 +62,32 @@ export interface UnrenderedHook {
   reason: string;
 }
 
+/** A rendered rule carrying something the target's engine will not execute. */
+export interface RuleWarning {
+  /** the rule this is about, matching RenderedRule.id */
+  id: string;
+  /** already phrased for a reader, naming the consequence rather than the rule violated */
+  reason: string;
+}
+
 export interface HookRendering {
   rules: RenderedRule[];
   unrendered: UnrenderedHook[];
   /** Caveats that travel with the result. Never dropped by a caller. */
   limits: string[];
+  /**
+   * Per-rule findings from linting what was actually emitted against the target's engine.
+   *
+   * THIS IS CHECKED HERE RATHER THAN LEFT TO THE EDITOR because the editor is a surface a person
+   * looks at, and most conversions are run by an agent that never opens one. A guard nobody reads
+   * during the work is not a guard.
+   *
+   * Expected to be empty for anything this module builds itself. It stays because hook action values
+   * cross VERBATIM: RoleCall writes templates like `"$1 = $2 /// "`, and a source author who wrote a
+   * JavaScript-only token in one would otherwise have it carried faithfully into a rule that cannot
+   * run it.
+   */
+  warnings: RuleWarning[];
 }
 
 /**
@@ -193,5 +216,36 @@ export function renderHooksAsRegex(machine: StateMachine): HookRendering {
       + "covers only what parsed.",
     );
   }
-  return { rules, unrendered, limits };
+  return { rules, unrendered, limits, warnings: lintEmitted(rules) };
+}
+
+/**
+ * Check what was emitted against the engine that has to run it.
+ *
+ * The rules are built for SillyTavern - the placements are its `regex_placement` numbers - so that is
+ * the profile they are measured against. Only the replacement is examined: triggers are reported as
+ * uncompiled in `limits` already, and the target parses those itself.
+ */
+function lintEmitted(rules: readonly RenderedRule[]): RuleWarning[] {
+  const warnings: RuleWarning[] = [];
+  for (const rule of rules) {
+    // A deliberately inert find and flags: the trigger crossed verbatim from the source and its own
+    // caveat is already in `limits`, so linting it here would report the SOURCE author's pattern as
+    // this conversion's finding. Only what this module wrote is measured.
+    const probe: RegexRule = {
+      id: rule.id,
+      label: rule.label,
+      find: "x",
+      flags: "g",
+      replace: rule.replace,
+      phases: ["output"],
+      enabled: true,
+      sortOrder: rule.sortOrder,
+    };
+    for (const note of travelLint(probe, "sillytavern")) {
+      if (note.field !== "replace") continue;
+      warnings.push({ id: rule.id, reason: note.message });
+    }
+  }
+  return warnings;
 }
