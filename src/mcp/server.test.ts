@@ -100,8 +100,25 @@ describe("handle", () => {
     expect(reply).toEqual(fail(5, RPC.invalidParams, "tools/call needs a tool name"));
   });
 
-  test("an unimplemented method refuses cleanly instead of timing out", async () => {
-    const reply = await handle({ id: 6, method: "resources/list" }, deps()) as { error: { code: number } };
+  test("discovery probes answer EMPTY rather than erroring", async () => {
+    // Measured against the real CLI: it asks for these after initialize whatever the handshake
+    // advertised, and a methodNotFound there makes it treat the whole server as unavailable. The
+    // tools were being served correctly and the client still reported none, because discovery had
+    // already failed. "I have none of those" is survivable; "no such method" is not.
+    const probes: [string, string][] = [
+      ["resources/list", "resources"],
+      ["resources/templates/list", "resourceTemplates"],
+      ["prompts/list", "prompts"],
+    ];
+    for (const [method, key] of probes) {
+      const reply = await handle({ id: 6, method }, deps()) as { result: Record<string, unknown[]>; error?: unknown };
+      expect(reply.error).toBeUndefined();
+      expect(reply.result[key]).toEqual([]);
+    }
+  });
+
+  test("a genuinely unknown method still refuses cleanly instead of timing out", async () => {
+    const reply = await handle({ id: 6, method: "sampling/createMessage" }, deps()) as { error: { code: number } };
     expect(reply.error.code).toBe(RPC.methodNotFound);
   });
 

@@ -76,6 +76,20 @@ export async function handle(
     return answerable ? ok(id, { tools: toMcpTools(deps.tools) }) : null;
   }
 
+  /**
+   * Discovery probes for capabilities this server does not have, answered with EMPTY LISTS.
+   *
+   * Measured against the real Claude Code CLI: it asks for resources/list and prompts/list after
+   * initialize regardless of what the handshake advertised, and a methodNotFound error there makes it
+   * treat the whole server as unavailable. The tools were being served correctly and the client still
+   * reported no tools at all, because discovery had already failed.
+   *
+   * "I have none of those" is both true and survivable; "that method does not exist" is neither.
+   */
+  if (method === "resources/list") return answerable ? ok(id, { resources: [] }) : null;
+  if (method === "resources/templates/list") return answerable ? ok(id, { resourceTemplates: [] }) : null;
+  if (method === "prompts/list") return answerable ? ok(id, { prompts: [] }) : null;
+
   if (method === "tools/call") {
     if (!answerable) return null;
     const call = readToolCall(params);
