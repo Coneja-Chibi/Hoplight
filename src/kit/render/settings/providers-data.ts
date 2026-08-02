@@ -16,7 +16,9 @@ export async function loadChoices(): Promise<ProviderChoice[]> {
       brand: spoke.brand,
       defaultModel: spoke.defaultModel ?? "",
       keyless: spoke.keyless ?? false,
-      needsBaseURL: !spoke.host, // custom / local endpoints supply their own URL
+      // Custom and local endpoints supply their own URL. A spoke with its own `chat` makes no HTTP
+      // request at all, so asking for one would be a required field with nowhere to go.
+      needsBaseURL: !spoke.host && !spoke.chat,
       options: spoke.options ?? [],
     }),
   );
