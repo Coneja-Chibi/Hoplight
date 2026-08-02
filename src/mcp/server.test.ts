@@ -9,7 +9,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { fail, ok, parseLine, readToolCall, RPC, toolResult } from "./protocol";
-import { handle, toMcpTools, type ServerDeps } from "./server";
+import { asObjectSchema, handle, toMcpTools, type ServerDeps } from "./server";
 import type { ToolSpec } from "../kit/providers/provider";
 
 const SPECS: ToolSpec[] = [
@@ -142,6 +142,28 @@ describe("readToolCall", () => {
 
 describe("toMcpTools", () => {
   test("Kit's specs are already JSON Schema, so this is a rename", () => {
-    expect(toMcpTools(SPECS)[0]!.inputSchema).toBe(SPECS[0]!.schema);
+    expect(toMcpTools(SPECS)[0]!.inputSchema).toEqual(SPECS[0]!.schema);
+  });
+});
+
+describe("asObjectSchema", () => {
+  test("a union schema gains the object type MCP requires", () => {
+    // Zod emits a bare top-level oneOf for a discriminated union. Measured against the real CLI: one
+    // such tool made ALL sixteen vanish, because a client rejects the whole tools/list over it.
+    const union = { $schema: "https://json-schema.org/draft/2020-12/schema", oneOf: [{ type: "object" }] };
+    const out = asObjectSchema(union);
+    expect(out["type"]).toBe("object");
+    expect(out["oneOf"]).toEqual([{ type: "object" }]);
+  });
+
+  test("the dialect stamp is dropped, since a validator on another dialect refuses it", () => {
+    const out = asObjectSchema({ $schema: "https://json-schema.org/draft/2020-12/schema", type: "object" });
+    expect(out["$schema"]).toBeUndefined();
+    expect(out["type"]).toBe("object");
+  });
+
+  test("an ordinary object schema keeps its shape", () => {
+    const plain = { type: "object", properties: { a: { type: "string" } }, required: ["a"] };
+    expect(asObjectSchema({ ...plain })).toEqual(plain);
   });
 });

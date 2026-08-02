@@ -34,13 +34,40 @@ import {
 
 export const SERVER_NAME = "hoplight";
 
-/** Kit's tool specs are already JSON Schema, so this is a rename rather than a conversion. */
+/**
+ * Kit's tool specs are already JSON Schema, so this is nearly a rename.
+ *
+ * The one edit: `$schema` is dropped. Zod stamps a draft-2020-12 URL into every schema it emits, and
+ * a client that validates the tool list against its own dialect rejects the whole reply over it. That
+ * failure is silent and looks nothing like its cause: the real Claude Code CLI answered by RETRYING
+ * tools/list three times and then reporting the server as having no tools at all, while every reply
+ * it received was a well-formed list of sixteen.
+ */
 export const toMcpTools = (specs: readonly ToolSpec[]): McpTool[] =>
   specs.map((spec) => ({
     name: spec.name,
     description: spec.description,
-    inputSchema: spec.schema,
+    inputSchema: asObjectSchema(spec.schema),
   }));
+
+/**
+ * Make a schema legal as an MCP `inputSchema`, which must be an OBJECT schema.
+ *
+ * Zod emits a bare top-level `oneOf` for a discriminated union, with no `type` beside it. That is
+ * valid JSON Schema and invalid MCP, and the failure is brutally disproportionate: a client rejects
+ * the ENTIRE tools/list over one such tool. Measured against the real Claude Code CLI, two tools
+ * served fine and adding `docs_query` (a union) made all of them vanish, with the client silently
+ * retrying tools/list three times and then reporting the server as having no tools.
+ *
+ * `$schema` goes too. Zod stamps a draft-2020-12 URL into everything it emits and a validator held to
+ * a different dialect can refuse it.
+ */
+export function asObjectSchema(schema: Record<string, unknown>): Record<string, unknown> {
+  const { $schema: _dialect, ...rest } = schema;
+  // A union at the root keeps its branches; it just gains the object type MCP insists on, so a client
+  // sees an object schema whose shape happens to be one of several.
+  return rest["type"] === "object" ? rest : { type: "object", ...rest };
+}
 
 export interface ServerDeps {
   /** The belt to advertise. Resolved once at start: a client caches tools/list after initialize. */
