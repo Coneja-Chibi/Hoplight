@@ -17,6 +17,8 @@
  * cache-creation tokens of harness framing that nobody typed. That is the CLI defining its
  * scaffolding, it cannot be switched off, and it is charged against the plan on every turn.
  */
+import { rmSync } from "node:fs";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { ChatDelta, ChatFn, ModelMessage, ModelReply } from "./provider";
@@ -35,6 +37,9 @@ const MAX_OUTPUT_BYTES = 8 * 1024 * 1024;
  * under its own rules would put a second authority inside a Kit turn, with none of Kit's review
  * surface in front of it.
  */
+/** How the CLI namespaces a tool from our server. The allowlist is built from it. */
+export const MCP_TOOL_PREFIX = "mcp__hoplight__";
+
 const REFUSED_TOOLS = [
   "Bash", "Read", "Write", "Edit", "NotebookEdit", "Glob", "Grep",
   "WebFetch", "WebSearch", "Task", "TodoWrite",
@@ -74,26 +79,55 @@ export function foldHistory(messages: readonly ModelMessage[]): string {
  * Per process, not per turn: the CLI reads it at spawn and a stable path keeps the file count from
  * growing with the conversation. It holds no secret, only paths.
  */
-export const mcpConfigPath = (): string =>
-  join(tmpdir(), `hoplight-mcp-${process.pid}.json`);
-
 /**
  * Write the config and answer with its path, or null when the tool bridge cannot be offered.
  *
- * Null is a real outcome rather than a failure: without it the provider still answers in text, which
- * is worse but not broken, and a turn that dies because a temp file could not be written would be a
- * much poorer trade.
+ * THIS FILE NAMES A PROGRAM THE CLI WILL EXECUTE, so where it lives is a security decision rather
+ * than housekeeping. A predictable name in the shared temp directory (a pid is guessable, and tmpdir
+ * is world-writable on a multi-user machine) lets somebody else pre-place a symlink for our write to
+ * follow, or replace the file between our write and the CLI's read. Either way the `command` field
+ * becomes theirs, and it is run.
+ *
+ * So: a fresh directory from mkdtemp, whose name nobody can predict and which is owner-only, then the
+ * file created with `wx` so an existing entry is a hard failure rather than something to follow, and
+ * mode 0600. Removed when the process exits.
+ *
+ * Null is a real outcome rather than a failure: without the bridge the provider still answers in
+ * text, and losing the turn over a temp file would be the poorer trade.
  */
 export async function writeMcpConfig(serverCommand: string, serverArgs: readonly string[]): Promise<string | null> {
-  const path = mcpConfigPath();
   try {
-    await Bun.write(path, JSON.stringify({
-      mcpServers: { hoplight: { command: serverCommand, args: serverArgs } },
-    }));
+    const dir = await mkdtemp(join(tmpdir(), "hoplight-mcp-"));
+    const path = join(dir, "config.json");
+    await writeFile(
+      path,
+      JSON.stringify({ mcpServers: { hoplight: { command: serverCommand, args: serverArgs } } }),
+      { mode: 0o600, flag: "wx" },
+    );
+    cleanUpAtExit(dir);
     return path;
   } catch {
     return null;
   }
+}
+
+const scratchDirs = new Set<string>();
+let exitHooked = false;
+
+/** Remove the scratch directories on the way out; a leftover config naming an executable is litter. */
+function cleanUpAtExit(dir: string): void {
+  scratchDirs.add(dir);
+  if (exitHooked) return;
+  exitHooked = true;
+  const sweep = (): void => {
+    for (const path of scratchDirs) {
+      try { rmSync(path, { recursive: true, force: true }); } catch { /* best effort */ }
+    }
+    scratchDirs.clear();
+  };
+  process.once("exit", sweep);
+  process.once("SIGINT", sweep);
+  process.once("SIGTERM", sweep);
 }
 
 /** The argument list, built in one place so a test can assert what would actually be run. */
@@ -110,7 +144,15 @@ export function cliArgs(model: string, system: string, mcpConfig?: string | null
    * is now the only one, with no CLI backstop behind it.
    */
   const bridge = mcpConfig
-    ? ["--mcp-config", mcpConfig, "--permission-mode", "bypassPermissions"]
+    ? [
+      "--mcp-config", mcpConfig,
+      // An ALLOWLIST, not a denylist, and the distinction is load-bearing. bypassPermissions turns
+      // the CLI's own prompting off because Kit owns the gate, so whatever remains reachable runs
+      // unasked. A denylist of the CLI's built-ins would let any tool a future release adds through
+      // by default; naming only Kit's own server means the reachable set cannot grow underneath us.
+      "--allowedTools", `${MCP_TOOL_PREFIX}*`,
+      "--permission-mode", "bypassPermissions",
+    ]
     : [];
   return [
     ...bridge,

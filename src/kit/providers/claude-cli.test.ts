@@ -6,7 +6,8 @@
  * user's coding configuration. Those are what is pinned. The live half is in claude-cli.live.test.ts.
  */
 import { describe, expect, test } from "bun:test";
-import { cliArgs, foldHistory, parseCliResult } from "./claude-cli";
+import { basename, dirname } from "node:path";
+import { cliArgs, foldHistory, MCP_TOOL_PREFIX, parseCliResult, writeMcpConfig } from "./claude-cli";
 import type { ModelMessage } from "./provider";
 
 describe("foldHistory", () => {
@@ -159,5 +160,43 @@ describe("the MCP tool bridge", () => {
     // bypassPermissions turns the CLI's own prompting off. Correct, because Kit owns the gate, and
     // load-bearing, because there is then no second gate behind it.
     expect(args[args.indexOf("--permission-mode") + 1]).toBe("bypassPermissions");
+  });
+});
+
+describe("the MCP config file is a security boundary", () => {
+  test("lives in an unpredictable owner-only directory, not a guessable temp name", async () => {
+    // Its contents name a program the CLI EXECUTES. A predictable path in the world-writable temp
+    // directory lets somebody pre-place a symlink to follow, or swap the file between our write and
+    // the CLI's read, and the command field becomes theirs.
+    const path = await writeMcpConfig("bun", ["server.ts"]);
+    expect(path).not.toBeNull();
+    if (!path) return;
+    expect(path).not.toContain(String(process.pid));
+    expect(basename(path)).toBe("config.json");
+    // A second call must not reuse the first directory, or the name becomes predictable again.
+    const second = await writeMcpConfig("bun", ["server.ts"]);
+    expect(dirname(second!)).not.toBe(dirname(path));
+  });
+
+  test("the file it writes is the config the CLI will read", async () => {
+    const path = (await writeMcpConfig("bun", ["a.ts"]))!;
+    const written = JSON.parse(await Bun.file(path).text());
+    expect(written.mcpServers.hoplight).toEqual({ command: "bun", args: ["a.ts"] });
+  });
+});
+
+describe("the tool allowlist bounds what bypassPermissions grants", () => {
+  test("only Kit's own server is reachable", () => {
+    // A denylist of the CLI's built-ins would admit any tool a future release adds. Naming only our
+    // prefix means the reachable set cannot grow underneath us.
+    const args = cliArgs("sonnet", "SYS", "C:/tmp/mcp.json");
+    expect(args[args.indexOf("--allowedTools") + 1]).toBe(`${MCP_TOOL_PREFIX}*`);
+    expect(MCP_TOOL_PREFIX).toBe("mcp__hoplight__");
+  });
+
+  test("a text-only turn grants nothing at all", () => {
+    const args = cliArgs("sonnet", "SYS");
+    expect(args).not.toContain("--allowedTools");
+    expect(args).not.toContain("--permission-mode");
   });
 });
