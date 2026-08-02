@@ -34,6 +34,7 @@ import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
 import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
+import { buildContextPreview } from "../context/shell";
 import { useNotify } from "./notify/use-notify";
 import { useFocus } from "./notify/focus";
 import type { NotifySettings } from "./notify/plan";
@@ -46,7 +47,7 @@ import { RewindRail } from "../sessions/render/rewind-rail";
 import { createSessionStore, newSessionId, type SessionStore } from "../sessions/store";
 import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
-import { copyText, type CopyResult } from "./clipboard";
+import { useCopyNotice } from "./use-copy-notice";
 import type { DoctorResult } from "../doctor/check";
 import { watchSummary } from "../watch/watch-core";
 import type { StudioWatchSource } from "../watch/watcher";
@@ -94,26 +95,8 @@ export function App({
   const [studioDecks, setStudioDecks] = useState<DeckCount[]>(decks);
   const [studioTotal, setStudioTotal] = useState(totalPieces);
   const [watchNotices, setWatchNotices] = useState(0);
-  const [copyNotice, setCopyNotice] = useState<string | null>(null);
   const gate = useGateController();
-  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (copyTimer.current) clearTimeout(copyTimer.current);
-    },
-    [],
-  );
-  const copy = (text: string): void => {
-    const messages: Record<CopyResult, string> = {
-      requested: "copy requested",
-      unsupported: "clipboard unavailable in this terminal",
-      "too-large": "message too large for safe terminal copy",
-      failed: "terminal refused the copy",
-    };
-    setCopyNotice(messages[copyText(renderer, text)]);
-    if (copyTimer.current) clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopyNotice(null), 2200);
-  };
+  const { notice: copyNotice, copy } = useCopyNotice(renderer);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   useEffect(() => {
@@ -325,6 +308,7 @@ export function App({
         },
         say: (text) => add({ role: "say", text }),
         egressSummary: () => formatLedger(ledger),
+        contextPreview: () => buildContextPreview(session, history.current, provider),
         sessions: sessionActions,
       };
       try {

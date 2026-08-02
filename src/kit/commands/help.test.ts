@@ -18,6 +18,7 @@ test("/help opens the reference stage", () => {
     doctor: async () => {},
     say: () => {},
     egressSummary: () => "",
+    contextPreview: () => "",
   };
   help.run(ctx);
   expect(opened).toBe(true);

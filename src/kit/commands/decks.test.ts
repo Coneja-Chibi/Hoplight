@@ -22,6 +22,7 @@ test("/decks prints the total and every canonical deck count", () => {
       output = text;
     },
     egressSummary: () => "",
+    contextPreview: () => "",
   };
 
   decks.run(ctx);

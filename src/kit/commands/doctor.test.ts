@@ -18,6 +18,7 @@ test("/doctor runs the diagnostic playbill", async () => {
     },
     say: () => {},
     egressSummary: () => "",
+    contextPreview: () => "",
   } satisfies CommandContext;
 
   await doctor.run(ctx);

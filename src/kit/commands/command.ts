@@ -31,6 +31,9 @@ export interface CommandContext {
   /** The /privacy readout: the formatted egress ledger (what has left this machine this session). The
    * shell owns the ledger state and formats it, so a command never reaches into render or session. */
   egressSummary: () => string;
+  /** The /context readout: what the NEXT request would carry, before it is sent. Formatted by the
+   * shell for the same reason as the ledger: it holds the history and the belt, a command does not. */
+  contextPreview: () => string;
 }
 
 export interface KitCommand {

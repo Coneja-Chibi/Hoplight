@@ -19,7 +19,8 @@ import {
   createAccessResolver,
 } from "./tools/safety/access";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
-import type { ModelMessage } from "./providers/provider";
+import type { ModelMessage, ToolSpec } from "./providers/provider";
+import { KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
 import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
@@ -44,6 +45,12 @@ export type TurnEvent =
 
 export interface Session {
   capabilities?(): readonly ContentCapability[];
+  /**
+   * What a turn would carry beyond the conversation itself: the standing guidance and the tool belt
+   * as it stands right now. Read by /context so a person can see the parts of a request they did not
+   * write. Optional for the same reason capabilities() is: a stub session has no belt to report.
+   */
+  contextSnapshot?(): { system: string; tools: readonly ToolSpec[] };
   runTurn(
     input: string,
     history: ModelMessage[],
@@ -185,6 +192,13 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         model: config.model,
       };
     },
+
+    // The same belt the loop resolves immediately before each model call, so the preview reports what
+    // would actually be offered rather than a stale catalog.
+    contextSnapshot: () => ({
+      system: KIT_TOOL_PROTOCOL,
+      tools: [...runtime.toolSnapshot(), ...lifecycleSpecs],
+    }),
 
     async activeProvider() {
       const config = await resolveProviderConfig();
