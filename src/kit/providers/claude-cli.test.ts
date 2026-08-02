@@ -141,3 +141,23 @@ describe("the tool limitation is real and must stay visible", () => {
     expect(foldHistory(messages)).toContain("found 3");
   });
 });
+
+describe("the MCP tool bridge", () => {
+  test("without a config the turn is text-only, and still isolated", () => {
+    const args = cliArgs("sonnet", "SYS");
+    expect(args).not.toContain("--mcp-config");
+    // Isolation is not conditional on the bridge: a text-only turn must still not inherit the
+    // person's own MCP servers, which would appear as if Kit had offered them.
+    expect(args).toContain("--strict-mcp-config");
+    expect(args).not.toContain("--permission-mode");
+  });
+
+  test("with a config the bridge is wired and Kit's gate becomes the only one", () => {
+    const args = cliArgs("sonnet", "SYS", "C:/tmp/mcp.json");
+    expect(args[args.indexOf("--mcp-config") + 1]).toBe("C:/tmp/mcp.json");
+    expect(args).toContain("--strict-mcp-config");
+    // bypassPermissions turns the CLI's own prompting off. Correct, because Kit owns the gate, and
+    // load-bearing, because there is then no second gate behind it.
+    expect(args[args.indexOf("--permission-mode") + 1]).toBe("bypassPermissions");
+  });
+});

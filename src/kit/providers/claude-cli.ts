@@ -17,6 +17,8 @@
  * cache-creation tokens of harness framing that nobody typed. That is the CLI defining its
  * scaffolding, it cannot be switched off, and it is charged against the plan on every turn.
  */
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import type { ChatDelta, ChatFn, ModelMessage, ModelReply } from "./provider";
 import { readUsage, type TokenUsage } from "./usage";
 
@@ -66,9 +68,52 @@ export function foldHistory(messages: readonly ModelMessage[]): string {
   return turns.length > 0 ? turns.join("\n\n") : "User: [start]";
 }
 
+/**
+ * Where Kit writes the MCP config that points the CLI back at Kit's own tools.
+ *
+ * Per process, not per turn: the CLI reads it at spawn and a stable path keeps the file count from
+ * growing with the conversation. It holds no secret, only paths.
+ */
+export const mcpConfigPath = (): string =>
+  join(tmpdir(), `hoplight-mcp-${process.pid}.json`);
+
+/**
+ * Write the config and answer with its path, or null when the tool bridge cannot be offered.
+ *
+ * Null is a real outcome rather than a failure: without it the provider still answers in text, which
+ * is worse but not broken, and a turn that dies because a temp file could not be written would be a
+ * much poorer trade.
+ */
+export async function writeMcpConfig(serverCommand: string, serverArgs: readonly string[]): Promise<string | null> {
+  const path = mcpConfigPath();
+  try {
+    await Bun.write(path, JSON.stringify({
+      mcpServers: { hoplight: { command: serverCommand, args: serverArgs } },
+    }));
+    return path;
+  } catch {
+    return null;
+  }
+}
+
 /** The argument list, built in one place so a test can assert what would actually be run. */
-export function cliArgs(model: string, system: string): string[] {
+export function cliArgs(model: string, system: string, mcpConfig?: string | null): string[] {
+  /**
+   * The tool bridge, when there is one.
+   *
+   * `--strict-mcp-config` is not optional politeness: without it the CLI would also load whatever MCP
+   * servers the person has configured for their own work, and those would appear inside a Kit turn as
+   * if Kit had offered them.
+   *
+   * `bypassPermissions` turns OFF the CLI's prompting, which is correct and load-bearing. Kit owns the
+   * gate, and two gates asking about the same call would be one too many; but it does mean Kit's gate
+   * is now the only one, with no CLI backstop behind it.
+   */
+  const bridge = mcpConfig
+    ? ["--mcp-config", mcpConfig, "--permission-mode", "bypassPermissions"]
+    : [];
   return [
+    ...bridge,
     "-p",
     "--output-format", "json",
     "--model", model,
@@ -78,6 +123,8 @@ export function cliArgs(model: string, system: string): string[] {
     // Do not inherit the user's settings, CLAUDE.md, project config or MCP servers. A Kit turn must
     // carry what Kit sent, not whatever happens to be configured for their coding work.
     "--setting-sources", "",
+    // Always, bridge or no bridge. Without it the CLI loads whatever MCP servers the person has set
+    // up for their own work, and those would appear inside a Kit turn as if Kit had offered them.
     "--strict-mcp-config",
     "--disallowedTools", REFUSED_TOOLS,
   ];
@@ -171,6 +218,8 @@ export interface CliOptions {
   readonly command?: string;
   readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
+  /** Path to the MCP config that bridges Kit's tools. Absent means a text-only turn. */
+  readonly mcpConfig?: string | null;
 }
 
 /** One turn through the CLI. Every failure is a value; nothing here throws. */
@@ -183,7 +232,7 @@ export async function runClaudeCli(
   const timeoutMs = options.timeoutMs ?? TURN_TIMEOUT_MS;
   let child: ReturnType<typeof Bun.spawn>;
   try {
-    child = Bun.spawn([options.command ?? "claude", ...cliArgs(model, system)], {
+    child = Bun.spawn([options.command ?? "claude", ...cliArgs(model, system, options.mcpConfig)], {
       stdin: "pipe",
       stdout: "pipe",
       stderr: "pipe",
