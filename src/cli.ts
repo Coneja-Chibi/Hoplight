@@ -245,6 +245,35 @@ async function main(argv: string[]): Promise<number> {
     }
   }
 
+  /**
+   * `hoplight mcp` - serve the studio's tools over MCP on stdio.
+   *
+   * The subcommand exists so nothing has to know where Hoplight's source lives. Kit's Claude
+   * provider spawns this same binary, and a person can register it with their own client
+   * (`claude mcp add --transport stdio hoplight -- hoplight mcp`). A packaged build has no
+   * src/mcp/main.ts on disk to point at, so pointing at a FILE was only ever going to work from a
+   * checkout.
+   *
+   * Nothing may be written to stdout here but protocol frames: one stray line is a malformed frame
+   * and the client drops the session. That is why this branch returns before any of the console
+   * output the other subcommands print.
+   */
+  if (first === "mcp") {
+    await ensureFormats();
+    const { createBridge } = await import("./kit/bridge");
+    const { discoverTools } = await import("./kit/tools/discover");
+    const { makeDispatch, toolSpecs } = await import("./kit/loop/dispatch");
+    const { serve } = await import("./mcp/server");
+    const bridge = createBridge(args[1] ?? undefined);
+    const tools = await discoverTools();
+    const log = (message: string): void => {
+      process.stderr.write(`hoplight mcp: ${message}\n`);
+    };
+    log(`serving ${tools.length} tools from ${bridge.studioDir}`);
+    await serve({ tools: toolSpecs(tools), dispatch: makeDispatch(tools, { bridge }), log });
+    return 0;
+  }
+
   if (first === "ui") {
     await ensureFormats();
     const { startUi } = await import("./ui/server");

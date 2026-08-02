@@ -16,6 +16,7 @@
  * through the same validator and gate. The consequence worth knowing is that the CLI drives the ReAct
  * cycle for this provider, not loop-core.
  */
+import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { ProviderSpoke } from "../spoke";
 import { makeClaudeCliChat, writeMcpConfig } from "../claude-cli";
@@ -25,15 +26,25 @@ const SYSTEM = "You are Kit, the Hoplight Studio agent. Use the hoplight tools f
   + " changes. Answer the user directly and never claim a write succeeded without a receipt.";
 
 /**
- * How the tool server is started.
+ * How the tool server is started: `hoplight mcp`, this same program.
  *
- * Resolved from this module's own location so a checkout, a global install and a compiled binary all
- * find the same file without configuration. A packaged build should replace this with its own
- * subcommand; until then it runs the source through the same runtime Kit is already running under.
+ * A COMPILED BINARY HAS NO SOURCE FILES, which is what makes the subcommand necessary rather than
+ * tidy. Pointing at src/mcp/main.ts worked from a checkout and would have failed silently for anyone
+ * who installed Hoplight instead of cloning it: the server would not start, the bridge would be
+ * absent, and the turn would quietly answer without tools. That failure looks like a model choosing
+ * not to use them.
+ *
+ * Decided from the EXECUTABLE, not from whatever entry happened to start this process. A first
+ * attempt keyed on `Bun.main` and broke the moment the process was started some other way, because
+ * "the entry looks like source" is a guess and "the executable is the Hoplight binary" is a fact.
+ * When it is not our binary we are running under a runtime from source, and cli.ts is resolved from
+ * this module rather than assumed.
  */
-function serverCommand(): { command: string; args: string[] } {
-  const main = fileURLToPath(new URL("../../../mcp/main.ts", import.meta.url));
-  return { command: process.execPath, args: [main] };
+export function serverCommand(): { command: string; args: string[] } {
+  const exe = basename(process.execPath).toLowerCase();
+  if (exe.startsWith("hoplight")) return { command: process.execPath, args: ["mcp"] };
+  const cli = fileURLToPath(new URL("../../../cli.ts", import.meta.url));
+  return { command: process.execPath, args: [cli, "mcp"] };
 }
 
 const claudeSub: ProviderSpoke = {
