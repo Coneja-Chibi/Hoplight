@@ -13,6 +13,7 @@
  * from one author's idea. Nothing here reproduces anyone's prompt text; these are structural
  * descriptions and neutral skeletons written from scratch.
  */
+import { BEHAVIOUR_PATTERNS } from "./patterns-behaviour";
 
 /** Whether a block puts anything in the prompt at all. The single most load-bearing distinction. */
 export type BlockEmission =
@@ -318,7 +319,15 @@ export const BLOCK_PATTERNS: readonly BlockPattern[] = [
   },
 ];
 
-const BY_ID = new Map(BLOCK_PATTERNS.map((pattern) => [pattern.id, pattern]));
+/**
+ * The whole catalog: the structural patterns above plus the behaviour and policy ones.
+ *
+ * Split across two files because the halves answer to different rules, not because either got long.
+ * Only the structural half carries ordering constraints, so only it feeds the coherence checker.
+ */
+export const ALL_PATTERNS: readonly BlockPattern[] = [...BLOCK_PATTERNS, ...BEHAVIOUR_PATTERNS];
+
+const BY_ID = new Map(ALL_PATTERNS.map((pattern) => [pattern.id, pattern]));
 
 export const findPattern = (id: string): BlockPattern | undefined => BY_ID.get(id.trim().toLowerCase());
 

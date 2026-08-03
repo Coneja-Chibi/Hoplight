@@ -8,7 +8,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import { checkCoherence, formatCoherence, type ClassifiedBlock } from "./coherence";
-import { BLOCK_PATTERNS, findPattern, silentPatterns } from "./patterns";
+import { ALL_PATTERNS, BLOCK_PATTERNS, findPattern, silentPatterns } from "./patterns";
+import { BEHAVIOUR_PATTERNS } from "./patterns-behaviour";
+import { skeletonFor } from "./skeletons";
 
 const block = (
   identifier: string,
@@ -133,5 +135,27 @@ describe("the catalog", () => {
     expect(silentPatterns().length).toBeGreaterThan(0);
     expect(findPattern("variable-init")!.emits).toBe("nothing");
     expect(findPattern("assembler")!.emits).toBe("text");
+  });
+});
+
+describe("the behaviour half", () => {
+  test("carries no ordering rules, which is the honest split between the two files", () => {
+    // If one of these grows an ordering rule it belongs in the structural catalog instead, and this
+    // test is where that decision gets forced rather than drifting.
+    for (const pattern of BEHAVIOUR_PATTERNS) {
+      expect(pattern.ordering, `${pattern.id} has an ordering rule`).toBeUndefined();
+    }
+  });
+
+  test("is reachable through the merged catalog", () => {
+    expect(findPattern("persona-frame")).toBeDefined();
+    expect(ALL_PATTERNS.length).toBe(BLOCK_PATTERNS.length + BEHAVIOUR_PATTERNS.length);
+  });
+
+  test("compliance shaping is catalogued but ships NO starting block", () => {
+    // Knowing whether an imported preset contains one is legitimate and useful. Handing out a working
+    // template is a different thing, and the absence is deliberate rather than an oversight.
+    expect(findPattern("compliance-shaping")).toBeDefined();
+    expect(skeletonFor("compliance-shaping")).toBeNull();
   });
 });

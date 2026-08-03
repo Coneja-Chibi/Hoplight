@@ -14,7 +14,7 @@
  * Macro syntax is SillyTavern's, because that is the dialect the catalog was surveyed in. Crossing a
  * skeleton to another engine is the format layer's job, not this module's.
  */
-import { BLOCK_PATTERNS, type BlockPattern } from "./patterns";
+import { ALL_PATTERNS, type BlockPattern } from "./patterns";
 
 /** A prompt block in the shape a preset carries, before any platform's field names are applied. */
 export interface BlockSkeleton {
@@ -167,7 +167,7 @@ export const skeletonFor = (patternId: string): BlockSkeleton | null =>
 
 /** Patterns that ship a starting block. */
 export const patternsWithSkeletons = (): readonly BlockPattern[] =>
-  BLOCK_PATTERNS.filter((pattern) => skeletonFor(pattern.id) !== null);
+  ALL_PATTERNS.filter((pattern) => skeletonFor(pattern.id) !== null);
 
 /**
  * A whole starter preset: every skeleton, in an order that satisfies the catalog's own rules.
