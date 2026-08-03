@@ -35,6 +35,24 @@ import {
 export const SERVER_NAME = "hoplight";
 
 /**
+ * READ-ONLY, and this is a security clamp rather than a scoping preference.
+ *
+ * Kit's own loop wraps its dispatcher in makeGatedDispatch, which is what decides whether a write may
+ * run and what puts Apply and Discard in front of a person. This server cannot use that gate: it is a
+ * separate process, and the gate is per-turn state living in Kit's. Serving a write tool here would
+ * therefore run it with its arguments validated and nobody asked, which is worse than not offering it.
+ *
+ * So the belt is filtered to `effect: "read"`. Because makeDispatch builds its lookup from the tools
+ * it is handed, a call naming a tool that was filtered out comes back as an unknown tool rather than
+ * running, so the filter fails closed rather than relying on the caller to respect it.
+ *
+ * Lifting this needs the gate's decision to cross a process boundary, or the server to run inside
+ * Kit. Until one of those exists, a write through MCP is a gap wearing the shape of a feature.
+ */
+export const readOnlyTools = <T extends { effect: string }>(tools: readonly T[]): T[] =>
+  tools.filter((tool) => tool.effect === "read");
+
+/**
  * Kit's tool specs are already JSON Schema, so this is nearly a rename.
  *
  * The one edit: `$schema` is dropped. Zod stamps a draft-2020-12 URL into every schema it emits, and

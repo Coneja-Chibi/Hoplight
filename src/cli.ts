@@ -260,17 +260,8 @@ async function main(argv: string[]): Promise<number> {
    */
   if (first === "mcp") {
     await ensureFormats();
-    const { createBridge } = await import("./kit/bridge");
-    const { discoverTools } = await import("./kit/tools/discover");
-    const { makeDispatch, toolSpecs } = await import("./kit/loop/dispatch");
-    const { serve } = await import("./mcp/server");
-    const bridge = createBridge(args[1] ?? undefined);
-    const tools = await discoverTools();
-    const log = (message: string): void => {
-      process.stderr.write(`hoplight mcp: ${message}\n`);
-    };
-    log(`serving ${tools.length} tools from ${bridge.studioDir}`);
-    await serve({ tools: toolSpecs(tools), dispatch: makeDispatch(tools, { bridge }), log });
+    const { runMcpServer } = await import("./mcp/run");
+    await runMcpServer(args[1] ?? undefined);
     return 0;
   }
 

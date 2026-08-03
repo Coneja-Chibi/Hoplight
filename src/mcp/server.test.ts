@@ -9,7 +9,7 @@
  */
 import { describe, expect, test } from "bun:test";
 import { fail, ok, parseLine, readToolCall, RPC, toolResult } from "./protocol";
-import { asObjectSchema, handle, toMcpTools, type ServerDeps } from "./server";
+import { asObjectSchema, handle, readOnlyTools, toMcpTools, type ServerDeps } from "./server";
 import type { ToolSpec } from "../kit/providers/provider";
 
 const SPECS: ToolSpec[] = [
@@ -165,5 +165,29 @@ describe("asObjectSchema", () => {
   test("an ordinary object schema keeps its shape", () => {
     const plain = { type: "object", properties: { a: { type: "string" } }, required: ["a"] };
     expect(asObjectSchema({ ...plain })).toEqual(plain);
+  });
+});
+
+describe("the read-only clamp", () => {
+  const belt = [
+    { name: "studio_read", effect: "read" },
+    { name: "studio_delete", effect: "apply" },
+    { name: "studio_preset_create", effect: "draft" },
+  ];
+
+  test("only read tools survive, because this process has no gate", () => {
+    // Kit's own loop wraps its dispatcher in makeGatedDispatch. This server cannot: it is a separate
+    // process and the gate is per-turn state living in Kit's. Serving a write here would run it with
+    // arguments validated and nobody asked.
+    expect(readOnlyTools(belt).map((t) => t.name)).toEqual(["studio_read"]);
+  });
+
+  test("neither draft nor apply is treated as harmless", () => {
+    // A draft creates state Kit's review surface is supposed to show before anything is committed.
+    expect(readOnlyTools(belt).some((t) => t.effect !== "read")).toBe(false);
+  });
+
+  test("an empty belt stays empty rather than falling open", () => {
+    expect(readOnlyTools([])).toEqual([]);
   });
 });

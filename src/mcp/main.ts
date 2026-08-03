@@ -12,7 +12,7 @@
 import { discoverTools } from "../kit/tools/discover";
 import { makeDispatch, toolSpecs } from "../kit/loop/dispatch";
 import { createBridge } from "../kit/bridge";
-import { serve } from "./server";
+import { readOnlyTools, serve } from "./server";
 
 const log = (message: string): void => {
   process.stderr.write(`hoplight-mcp: ${message}\n`);
@@ -20,7 +20,8 @@ const log = (message: string): void => {
 
 async function main(): Promise<void> {
   const bridge = createBridge();
-  const tools = await discoverTools();
+  // Read-only: this process has no access to Kit's permission gate. See readOnlyTools.
+  const tools = readOnlyTools(await discoverTools());
   // The same dispatcher Kit's own loop uses, so a tool served here runs under exactly the rules it
   // runs under in Kit: its zod schema parses the arguments before execute ever sees them.
   const dispatch = makeDispatch(tools, { bridge });
