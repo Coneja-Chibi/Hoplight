@@ -17,6 +17,7 @@
 import { z } from "zod";
 import { join } from "node:path";
 import type { HarnessTool } from "./tool";
+import { checkGrant, grantFolder } from "./_shared/grants";
 
 /** Engines with an adapter in tools/renderers, and the env var naming each install. */
 const ENGINES = {
@@ -75,7 +76,30 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
   input,
   // One engine at a time: each render spawns a process, and two of the same engine gains nothing.
   concurrencyKey: ({ engine }) => `render/${engine}`,
-  async execute(args) {
+  async execute(args, ctx) {
+    /**
+     * The preset path is the one argument here that names a file anywhere on the machine, so it is
+     * checked against the folders the user actually shared. Reading is all this tool ever does, but
+     * "only reads" is not the same promise as "only reads what you pointed me at".
+     *
+     * The studio is always readable, since that is Kit's own working directory and every other tool
+     * reaches it freely.
+     */
+    const allowed = [grantFolder(ctx.bridge.studioDir, "studio"), ...(ctx.grants ?? [])];
+    const check = checkGrant(allowed, args.preset);
+    if (!check.ok) {
+      return { summary: `preset_verify: ${check.reason}`, output: check.detail };
+    }
+    if (!(await Bun.file(check.path).exists())) {
+      return {
+        summary: "preset_verify: preset not found",
+        output: `No file at ${check.path}.`,
+      };
+    }
+
+    // The engine comes last, because it is the only check whose answer depends on this machine rather
+    // than on the request. Asking it first let an out-of-bounds path return "engine not available"
+    // and never reach the boundary at all.
     const spec = ENGINES[args.engine];
     const root = await installRoot(args.engine);
     if (!root) {
@@ -85,18 +109,14 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
           + "try again. Nothing was checked, so do not treat this as a pass.",
       };
     }
-    if (!(await Bun.file(args.preset).exists())) {
-      return {
-        summary: "preset_verify: preset not found",
-        output: `No file at ${args.preset}.`,
-      };
-    }
 
     const { runRenderer } = await import("../../core/preset/render/runner");
     const { unresolvedCount } = await import("../../core/preset/render/contract");
     const outcome = await runRenderer(
       { command: spec.command, args: [...spec.args, `${spec.flag}=${root}`] },
-      { preset: args.preset, ...(args.state ? { state: args.state } : {}) },
+      // check.path, never args.preset. Validating one string and then using another is the gap that
+      // makes a containment check decorative.
+      { preset: check.path, ...(args.state ? { state: args.state } : {}) },
       { timeoutMs: 180_000 },
     );
 

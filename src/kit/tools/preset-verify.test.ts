@@ -9,8 +9,13 @@
 import { describe, expect, test } from "bun:test";
 import tool from "./preset-verify";
 import type { ToolContext } from "./tool";
+import { resolve } from "node:path";
+import { grantFolder } from "./_shared/grants";
 
-const ctx = {} as ToolContext;
+// Every real dispatch carries a bridge; the boundary check reads studioDir from it.
+// Every real dispatch carries a bridge; the boundary check reads studioDir from it. Rooted at the
+// repo so the engine-absent case can use a file that genuinely exists.
+const ctx = { bridge: { studioDir: resolve(".") } } as unknown as ToolContext;
 const run = (args: Record<string, unknown>) =>
   tool.execute(tool.input.parse(args), ctx);
 
@@ -23,7 +28,7 @@ describe("preset_verify", () => {
   test("an absent engine says nothing was checked, in those words", async () => {
     const result = await run({
       engine: "marinara",
-      preset: "whatever.json",
+      preset: resolve("samples/sillytavern/fixtures/minimal.preset.json"),
     });
     expect(result.output).toContain("HOPLIGHT_MARINARA_ROOT");
     // The sentence a model must not be able to misread as success.
@@ -34,7 +39,7 @@ describe("preset_verify", () => {
   test("a missing preset is reported as missing, not as resolving cleanly", async () => {
     const result = await run({
       engine: "sillytavern",
-      preset: "definitely-not-here-9f3a.json",
+      preset: resolve("definitely-not-here-9f3a.json"),
     });
     expect(result.summary).not.toContain("clean");
   });
@@ -57,5 +62,47 @@ describe("preset_verify", () => {
     const key = tool.concurrencyKey?.({ engine: "sillytavern", preset: "a.json" });
     expect(key).toBe("render/sillytavern");
     expect(tool.concurrencyKey?.({ engine: "marinara", preset: "a.json" })).not.toBe(key);
+  });
+});
+
+describe("the folder boundary", () => {
+  const ctx = { bridge: { studioDir: resolve("/studio") } } as unknown as ToolContext;
+
+  test("a path outside every shared folder is refused, not read", () => {
+    // "Only reads" is not the same promise as "only reads what you pointed me at".
+    const out = tool.execute(tool.input.parse({
+      engine: "sillytavern",
+      preset: resolve("/somewhere/else/secrets.json"),
+    }), ctx);
+    return out.then((r) => {
+      expect(r.summary).toContain("outside-grants");
+      expect(r.summary).not.toContain("clean");
+    });
+  });
+
+  test("the studio itself is always readable", async () => {
+    // Kit's own working directory; every other tool reaches it freely, so a grant would be theatre.
+    const r = await tool.execute(tool.input.parse({
+      engine: "sillytavern",
+      preset: resolve("/studio/a.json"),
+    }), ctx);
+    // Refused for a missing engine or a missing file, but NOT for the boundary.
+    expect(r.summary).not.toContain("outside-grants");
+  });
+
+  test("a granted folder is readable, and only that folder", async () => {
+    const granted = {
+      bridge: { studioDir: resolve("/studio") },
+      grants: [grantFolder("/shared", "shared")],
+    } as unknown as ToolContext;
+    const inside = await tool.execute(tool.input.parse({
+      engine: "sillytavern", preset: resolve("/shared/p.json"),
+    }), granted);
+    expect(inside.summary).not.toContain("outside-grants");
+    // The prefix-sibling case, which is how this check is usually written wrong.
+    const sibling = await tool.execute(tool.input.parse({
+      engine: "sillytavern", preset: resolve("/shared-backup/p.json"),
+    }), granted);
+    expect(sibling.summary).toContain("outside-grants");
   });
 });
