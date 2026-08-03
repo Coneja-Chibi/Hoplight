@@ -12,9 +12,17 @@
  * and still reads the plan directly.
  *
  * TOOLS WORK, through Kit serving them back. The CLI runs its own agent loop and cannot hand a call
- * back unrun, so Kit points it at Kit: an MCP server over stdio exposing the same tools, dispatched
- * through the same validator and gate. The consequence worth knowing is that the CLI drives the ReAct
- * cycle for this provider, not loop-core.
+ * back unrun, so Kit points it at Kit: an MCP server over stdio exposing Kit's tools, dispatched
+ * through the same zod validation.
+ *
+ * READ-ONLY ON THIS PATH, and the reason is not caution. Kit's permission gate is per-turn state in
+ * Kit's process and the server is a separate one, so it cannot reach across. The CLI is also started
+ * with bypassPermissions, because two gates asking about one call is worse than one, which turns off
+ * the client prompt that would otherwise stand in. Nothing would ask, so nothing may write. The
+ * standalone server a person registers with their own client keeps the full belt, because there the
+ * client's prompt is the gate.
+ *
+ * The other consequence worth knowing: the CLI drives the ReAct cycle here, not loop-core.
  */
 import { basename } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -42,9 +50,9 @@ const SYSTEM = "You are Kit, the Hoplight Studio agent. Use the hoplight tools f
  */
 export function serverCommand(): { command: string; args: string[] } {
   const exe = basename(process.execPath).toLowerCase();
-  if (exe.startsWith("hoplight")) return { command: process.execPath, args: ["mcp"] };
+  if (exe.startsWith("hoplight")) return { command: process.execPath, args: ["mcp", "--read-only"] };
   const cli = fileURLToPath(new URL("../../../cli.ts", import.meta.url));
-  return { command: process.execPath, args: [cli, "mcp"] };
+  return { command: process.execPath, args: [cli, "mcp", "--read-only"] };
 }
 
 const claudeSub: ProviderSpoke = {

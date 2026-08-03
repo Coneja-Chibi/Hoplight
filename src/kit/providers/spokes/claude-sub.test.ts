@@ -15,16 +15,19 @@ describe("serverCommand", () => {
     // silently for anyone who installed Hoplight instead of cloning it.
     const { command, args } = serverCommand();
     expect(command).toBe(process.execPath);
-    expect(args[args.length - 1]).toBe("mcp");
+    expect(args).toContain("mcp");
+    // Read-only on this path: bypassPermissions turns the client prompt off and Kit's gate cannot
+    // cross a process boundary, so nothing would ask before a write.
+    expect(args).toContain("--read-only");
   });
 
   test("under a runtime it names the CLI entry, and that entry exists", async () => {
     const { args } = serverCommand();
     if (basename(process.execPath).toLowerCase().startsWith("hoplight")) {
-      expect(args).toEqual(["mcp"]);
+      expect(args).toEqual(["mcp", "--read-only"]);
       return;
     }
-    expect(args).toHaveLength(2);
+    expect(args).toHaveLength(3);
     // A resolved path that is not on disk is the whole failure mode, so it is checked.
     expect(await Bun.file(args[0]!).exists()).toBe(true);
   });

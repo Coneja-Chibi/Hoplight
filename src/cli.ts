@@ -261,7 +261,10 @@ async function main(argv: string[]): Promise<number> {
   if (first === "mcp") {
     await ensureFormats();
     const { runMcpServer } = await import("./mcp/run");
-    await runMcpServer(args[1] ?? undefined);
+    // Full belt by default: a person registering this with their own client gets that client's
+    // permission prompt before every call. --read-only is for a caller that suppresses it.
+    const dir = args.slice(1).find((a) => !a.startsWith("--"));
+    await runMcpServer({ studioDir: dir, readOnly: args.includes("--read-only") });
     return 0;
   }
 

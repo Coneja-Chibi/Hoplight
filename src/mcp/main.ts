@@ -9,24 +9,16 @@
  * Diagnostics go to stderr without exception. stdout carries the protocol, and one stray line on it
  * is a malformed frame that ends the session.
  */
-import { discoverTools } from "../kit/tools/discover";
-import { makeDispatch, toolSpecs } from "../kit/loop/dispatch";
-import { createBridge } from "../kit/bridge";
-import { readOnlyTools, serve } from "./server";
+import { runMcpServer } from "./run";
 
 const log = (message: string): void => {
   process.stderr.write(`hoplight-mcp: ${message}\n`);
 };
 
 async function main(): Promise<void> {
-  const bridge = createBridge();
-  // Read-only: this process has no access to Kit's permission gate. See readOnlyTools.
-  const tools = readOnlyTools(await discoverTools());
-  // The same dispatcher Kit's own loop uses, so a tool served here runs under exactly the rules it
-  // runs under in Kit: its zod schema parses the arguments before execute ever sees them.
-  const dispatch = makeDispatch(tools, { bridge });
-  log(`serving ${tools.length} tools from ${bridge.studioDir}`);
-  await serve({ tools: toolSpecs(tools), dispatch, log });
+  // Full belt: whoever registered this server holds the gate, via their own client's prompt.
+  // --read-only is for a caller that suppresses that prompt; see mcp/run.ts.
+  await runMcpServer({ readOnly: process.argv.includes("--read-only") });
 }
 
 main().catch((error: Error) => {
