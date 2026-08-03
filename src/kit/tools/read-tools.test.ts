@@ -214,6 +214,7 @@ describe("discovery", () => {
     expect(names).toEqual([
       "docs_query",
       "macro_lookup",
+      "preset_verify",
       "result_query",
       "studio_character_create",
       "studio_delete",
