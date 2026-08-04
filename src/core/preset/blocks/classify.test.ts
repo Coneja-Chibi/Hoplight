@@ -72,7 +72,7 @@ describe("what it refuses to say", () => {
     // A section divider, a block somebody emptied, and an unwritten placeholder are the same shape.
     // Two rules were tried and dropped: matching the name against rule characters, then calling
     // every empty block a divider. Everyone draws them differently, so the signal was never there.
-    for (const name of ["═══ OPTIONS ═══", "── Pace · Pick One ──", "✧ ⏱ PACING ⏱ ✧", "Notes"]) {
+    for (const name of ["═══ OPTIONS ═══", "── Pace · Pick One ──", "~*~ pacing ~*~", "Notes"]) {
       expect(classifyBlock(block({ name, content: "{{trim}}" })).pattern).toBeNull();
       expect(classifyBlock(block({ name, content: "{{// a note}}" })).pattern).toBeNull();
     }

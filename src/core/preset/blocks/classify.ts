@@ -106,7 +106,7 @@ export function classifyBlock(block: ClassifiableBlock): Classification {
   //
   // TWO REJECTED RULES, both worth naming so neither comes back. Matching the NAME against rule
   // characters was folklore dressed as a rule - everyone draws them differently (`-----`,
-  // `── Pace ──`, `✧ ⏱ PACING ⏱ ✧`, nothing at all), and each corpus that missed pushed the
+  // `── Pace ──`, a row of ornament glyphs, nothing at all), and each corpus that missed pushed the
   // character list one revision wider, which is the tell that the signal was never in the
   // characters. Calling every empty block a divider was the same guess with the decoration removed.
   //
