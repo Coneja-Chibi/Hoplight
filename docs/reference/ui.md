@@ -8,7 +8,8 @@ logic exists in the UI layer.
 ## Kit terminal shell
 
 Kit is Hoplight's conversational terminal preview. Run it from a source checkout with `bun run kit`;
-current GitHub release binaries do not include a Kit executable. Its composer accepts multiline text and up to five
+release binaries also carry a Kit executable for Windows, Linux (x64 and arm64) and macOS, built by
+the same bake as the CLI. Its composer accepts multiline text and up to five
 large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
 submission remains in the composer. Plain messages submitted during an active turn enter a bounded
