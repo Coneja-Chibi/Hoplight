@@ -174,12 +174,12 @@ describe("planTableWalk", () => {
     const plan = planTableWalk(await source.list(), await readStats(source));
 
     expect(plan.mapped).toEqual([
-      "characters",
-      "images",
       "world_books",
       "world_book_entries",
-      "presets",
       "personas",
+      "images",
+      "characters",
+      "presets",
       "regex_scripts",
     ]);
     const byTable = new Map(plan.skipped.map((s) => [s.table, s.rows]));

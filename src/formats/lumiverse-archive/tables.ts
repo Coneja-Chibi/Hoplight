@@ -14,15 +14,21 @@
 /** The canonical kinds one archive fans out into. */
 export type LvbakKind = "character" | "lorebook" | "preset" | "persona" | "regex";
 
-/** Tables read by the importer. Everything else in database/ is skipped and counted. */
+/**
+ * Tables read by the importer, in import-safe order: parents before the rows that link to them
+ * (lorebooks before the personas that attach them, characters before the regex sets scoped to
+ * them), and feeder tables directly before their consumer (images and gallery rows feed
+ * characters). planTableWalk yields this order verbatim, so the orchestrator never re-sorts.
+ * Everything else in database/ is skipped and counted.
+ */
 export const MAPPED_TABLES = [
-  "characters",
-  "images",
-  "character_gallery",
   "world_books",
   "world_book_entries",
-  "presets",
   "personas",
+  "images",
+  "character_gallery",
+  "characters",
+  "presets",
   "regex_scripts",
 ] as const;
 
