@@ -17,7 +17,7 @@
 import { z } from "zod";
 import { join } from "node:path";
 import type { HarnessTool } from "./tool";
-import { checkGrant, grantFolder } from "./_shared/grants";
+import { checkGrantReal, grantFolder } from "./_shared/grants";
 
 /** Engines with an adapter in tools/renderers, and the env var naming each install. */
 const ENGINES = {
@@ -86,7 +86,7 @@ const presetVerify: HarnessTool<z.infer<typeof input>> = {
      * reaches it freely.
      */
     const allowed = [grantFolder(ctx.bridge.studioDir, "studio"), ...(ctx.grants ?? [])];
-    const check = checkGrant(allowed, args.preset);
+    const check = await checkGrantReal(allowed, args.preset);
     if (!check.ok) {
       return { summary: `preset_verify: ${check.reason}`, output: check.detail };
     }

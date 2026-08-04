@@ -14,6 +14,7 @@
  * drive. None of that needs a filesystem to test, so none of it is tested against one.
  */
 import { isAbsolute, relative, resolve, sep } from "node:path";
+import { realpath } from "node:fs/promises";
 
 /** A folder the user has pointed Kit at for this session. Read access only, always. */
 export interface Grant {
@@ -103,3 +104,54 @@ export function checkGrant(grants: readonly Grant[], candidate: string): GrantCh
  */
 export const grantFolder = (root: string, label?: string): Grant =>
   label === undefined ? { root: resolve(root) } : { root: resolve(root), label };
+
+/**
+ * Do two paths name the same folder?
+ *
+ * Uses the SAME platform-aware comparison containment uses. Comparing raw strings here instead was a
+ * real fail-open: `contains` lowercases on Windows, so `/share C:\Presets` then
+ * `/unshare c:\presets` found no match, told the user it "was not shared", and left the grant fully
+ * live. A revocation control that silently does nothing is worse than one that errors.
+ */
+export const sameRoot = (a: string, b: string): boolean =>
+  comparable(resolve(a)) === comparable(resolve(b));
+
+/**
+ * Resolve a path against the grants AND against the filesystem, so a link cannot carry it out.
+ *
+ * WHY THE LEXICAL CHECK IS NOT ENOUGH, proven on a stock Windows profile with no attacker involved.
+ * `C:\Users\chiev\Videos` is a shell junction to `D:\Videos`. Sharing `C:\Users\chiev` and asking for
+ * that path passes containment - the STRING sits under the root - and then reads another drive. The
+ * measured result was 93 files enumerated from `D:` while the tool reported a `C:` root, which is
+ * indistinguishable from a contained read.
+ *
+ * The walk already skipped symlinked ENTRIES, and that was the trap: it made the boundary look
+ * closed while the walk's own root, and every read and import target, went unchecked.
+ *
+ * Both sides are resolved, because a granted root can itself be a link. Sharing `C:\Users\chiev\Videos`
+ * means the user shared `D:\Videos`, and its real children must stay reachable.
+ *
+ * A path that does not exist keeps the lexical answer: there is nothing behind it to leak, and every
+ * caller stats it immediately and reports "not found".
+ */
+export async function checkGrantReal(
+  grants: readonly Grant[],
+  candidate: string,
+): Promise<GrantCheck> {
+  const lexical = checkGrant(grants, candidate);
+  if (!lexical.ok) return lexical;
+
+  const real = await realpath(lexical.path).catch(() => null);
+  if (real === null) return lexical;
+
+  for (const grant of grants) {
+    const realRoot = await realpath(grant.root).catch(() => grant.root);
+    // The REAL path is what comes back, so a caller can only ever open what was checked.
+    if (contains(realRoot, real)) return { ok: true, path: real, root: realRoot };
+  }
+  const shared = grants.map((g) => g.label ?? g.root).join(", ");
+  return refuse(
+    "outside-grants",
+    `${lexical.path} leads outside the folders shared with Kit (${shared}). It is a link to ${real}.`,
+  );
+}

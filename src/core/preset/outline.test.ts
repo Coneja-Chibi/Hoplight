@@ -136,7 +136,8 @@ describe("outlineSummary", () => {
 
   test("a batch is counted by kind rather than listed", () => {
     const diff = diffOutline(outlineOf(ids("a", "b", "c")), outlineOf(ids("d", "e")))!;
-    expect(outlineSummary(diff)).toContain("added");
-    expect(outlineSummary(diff)).toContain("removed");
+    // The counts ARE the point of the name. Checking only the words let a summary that always
+    // reported 1 of each pass.
+    expect(outlineSummary(diff)).toBe("2 added · 3 removed");
   });
 });

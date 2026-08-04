@@ -63,7 +63,10 @@ describe("what it refuses to say", () => {
     // option-exclusive adds "before the assembler"; option-additive does not. Guessing the weaker
     // rule can lose a finding and cannot manufacture one, and the assembler's own rule recovers it.
     const content = "{{setvar::pov::first person}}{{trim}}";
-    expect(classifyBlock(block({ content })).pattern).not.toBe("option-exclusive");
+    // Asserted positively. `.not.toBe("option-exclusive")` was true under EVERY implementation,
+    // because classifyBlock cannot return that id at all - deleting the state-writer branch
+    // entirely would have kept the test green.
+    expect(classifyBlock(block({ content })).pattern).toBe("option-additive");
     expect(findPattern("option-additive")?.ordering?.before).toBeUndefined();
     expect(findPattern("option-exclusive")?.ordering?.before).toContain("assembler");
   });

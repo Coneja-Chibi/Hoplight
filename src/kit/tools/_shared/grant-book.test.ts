@@ -92,3 +92,30 @@ describe("grant book", () => {
     expect(after.ok).toBe(true);
   });
 });
+
+describe("identity is the same comparison containment uses", () => {
+  test("revoking with different casing works, rather than silently doing nothing", async () => {
+    // A real fail-open: containment lowercases on Windows but identity compared raw strings, so
+    // /unshare with different casing reported "was not shared" and left the grant fully live.
+    // A revocation control that silently no-ops is worse than one that errors.
+    const dir = await scratch();
+    const book = createGrantBook();
+    await book.share(dir);
+
+    const variant = process.platform === "win32" ? dir.toUpperCase() : dir;
+    expect(book.revoke(variant)).toBe(true);
+    expect(book.list()).toHaveLength(0);
+  });
+
+  test("sharing a case variant does not record the same folder twice", async () => {
+    const dir = await scratch();
+    const book = createGrantBook();
+    await book.share(dir);
+    const again = await book.share(process.platform === "win32" ? dir.toUpperCase() : dir);
+
+    expect(again.ok).toBe(true);
+    if (!again.ok) return;
+    expect(again.already).toBe(true);
+    expect(book.list()).toHaveLength(1);
+  });
+});

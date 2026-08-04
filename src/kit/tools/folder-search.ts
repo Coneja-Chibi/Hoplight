@@ -15,7 +15,7 @@ import { z } from "zod";
 import { readdir, stat } from "node:fs/promises";
 import { extname, join, relative } from "node:path";
 import type { HarnessTool } from "./tool";
-import { checkGrant, grantFolder, type Grant } from "./_shared/grants";
+import { checkGrantReal, grantFolder, type Grant } from "./_shared/grants";
 
 /** Enough to see a preset or a card; small enough that a stray binary cannot flood the transcript. */
 const MAX_READ_CHARS = 60_000;
@@ -86,7 +86,7 @@ const folderSearch: HarnessTool<z.infer<typeof input>> = {
   input,
   concurrencyKey: () => "folder-search",
   async execute(args, ctx) {
-    const check = checkGrant(allowed(ctx.bridge.studioDir, ctx.grants), args.path);
+    const check = await checkGrantReal(allowed(ctx.bridge.studioDir, ctx.grants), args.path);
     if (!check.ok) return { summary: `folder_search: ${check.reason}`, output: check.detail };
 
     let info;

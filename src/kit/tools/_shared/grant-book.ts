@@ -16,7 +16,7 @@
  * forgot about. Re-sharing costs a line; a forgotten standing grant costs the boundary.
  */
 import { stat } from "node:fs/promises";
-import { grantFolder, type Grant } from "./grants";
+import { grantFolder, sameRoot, type Grant } from "./grants";
 
 /** Enough for a preset folder, a card folder and a few more; small enough to read back in one line. */
 const MAX_GRANTS = 16;
@@ -36,11 +36,11 @@ export interface GrantBook {
 
 export function createGrantBook(): GrantBook {
   const grants: Grant[] = [];
-  // Grant.root is already resolved, so identity is a root comparison and never a raw-string one.
-  const indexOf = (path: string): number => {
-    const wanted = grantFolder(path).root;
-    return grants.findIndex((grant) => grant.root === wanted);
-  };
+  // Identity uses the SAME comparison containment uses. A raw === here was a fail-open: on Windows
+  // containment lowercases, so /unshare with different casing found nothing, said "was not shared",
+  // and left the grant live - while /share of a case variant recorded a second copy of one folder.
+  const indexOf = (path: string): number =>
+    grants.findIndex((grant) => sameRoot(grant.root, path));
 
   return {
     list: () => grants,

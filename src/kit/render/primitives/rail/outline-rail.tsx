@@ -34,6 +34,8 @@ export interface OutlineRailProps {
   readonly cursor: string | null;
   /** Where a drag would land, named by the row it would land above; null means the end. */
   readonly dropBefore?: string | null;
+  /** Does the rail hold the keyboard? Shown, because an invisible mode is one people fight. */
+  readonly focused?: boolean;
   readonly dragging?: boolean;
   /** Ids whose content is open. Expanding is per-row, so several can be open at once. */
   readonly expanded: ReadonlySet<string>;
@@ -69,6 +71,7 @@ export function OutlineRail({
   selected,
   cursor,
   dropBefore,
+  focused = false,
   dragging = false,
   expanded,
   contentOf,
@@ -89,7 +92,7 @@ export function OutlineRail({
 
   return (
     <box flexDirection="column" width={width} backgroundColor={theme.lift}>
-      <box flexDirection="row" backgroundColor={theme.seam} paddingLeft={1} paddingRight={1}>
+      <box flexDirection="row" backgroundColor={focused ? theme.violetDeep : theme.seam} paddingLeft={1} paddingRight={1}>
         <text fg={theme.soft}>{clipName(title, Math.max(8, width - 18))}</text>
         <box flexGrow={1} />
         <text fg={theme.quiet}>
@@ -169,8 +172,12 @@ export function OutlineRail({
       </box>
 
       <box flexDirection="row" backgroundColor={theme.seam} paddingLeft={1} paddingRight={1}>
-        <text fg={theme.mut}>
-          {dragging ? "drop to place" : "space toggles · alt+up/down moves"}
+        <text fg={focused ? theme.teal : theme.mut}>
+          {dragging
+            ? "drop to place"
+            : focused
+              ? "space toggles · alt+up/down moves · ctrl+b back to typing"
+              : "ctrl+b to edit"}
         </text>
         <box flexGrow={1} />
         <text fg={theme.mut}>{offset + visible.length}/{String(rows.length)}</text>

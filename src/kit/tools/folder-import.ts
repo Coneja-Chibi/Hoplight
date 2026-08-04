@@ -32,7 +32,7 @@ import { entityName } from "../../studio/store";
 import type { ContentKind } from "../../entities/capabilities";
 import { createEntityDraft } from "./_create-common";
 import type { HarnessTool, ToolContext, ToolResult } from "./tool";
-import { checkGrant, grantFolder, type Grant } from "./_shared/grants";
+import { checkGrantReal, grantFolder, type Grant } from "./_shared/grants";
 
 const input = z.strictObject({
   path: z.string().trim().min(1).max(400)
@@ -82,7 +82,7 @@ const folderImport: HarnessTool<z.infer<typeof input>> = {
   async execute(args, ctx) {
     if (!ctx.changes) return refuse("folder_import: unavailable", "Importing requires a draft store.");
 
-    const check = checkGrant(allowed(ctx.bridge.studioDir, ctx.grants), args.path);
+    const check = await checkGrantReal(allowed(ctx.bridge.studioDir, ctx.grants), args.path);
     if (!check.ok) return refuse(`folder_import: ${check.reason}`, check.detail);
 
     let info;

@@ -11,7 +11,7 @@
  * write still be gated: one confirmation for a session of rearranging, rather than one per gesture
  * or none at all.
  */
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { diffOutline, type OutlineRow } from "../../../core/preset/outline";
@@ -29,6 +29,8 @@ export interface RailSession {
   readonly state: RailState;
   readonly cursor: string | null;
   readonly expanded: ReadonlySet<string>;
+  /** Does the rail have the keyboard? False means every key belongs to the composer. */
+  readonly focused: boolean;
   readonly dragging: boolean;
   readonly dropBefore: string | null;
   readonly flags: ReadonlyMap<string, RowFlag>;
@@ -37,8 +39,6 @@ export interface RailSession {
   /** Start following a preset. Replaces anything already open, discarding unapplied edits. */
   follow: (id: string, title: string, rows: readonly OutlineRow[]) => void;
   close: () => void;
-  /** A fresh reading from the watcher. Ignored while there are unapplied edits, see below. */
-  observe: (rows: readonly OutlineRow[]) => void;
   onRowDown: (id: string, modifiers: { shift: boolean; ctrl: boolean }) => void;
   onRowDrag: (id: string) => void;
   onRowDragEnd: (id: string) => void;
@@ -55,21 +55,30 @@ export function useRail(
   const [state, setState] = useState<RailState>(() => railState([]));
   const [cursor, setCursor] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
+  const [focused, setFocused] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [dropBefore, setDropBefore] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
-  /** The rows as last read from storage. Everything "pending" is measured against this. */
-  const baseline = useRef<readonly OutlineRow[]>([]);
+  /**
+   * The rows as last read from storage. Everything "pending" is measured against this.
+   *
+   * STATE, NOT A REF, and that distinction was a real bug. As a ref, adopting the written rows after
+   * a commit mutated it without re-rendering, so  - memoised on [state.rows], which the
+   * commit does not change - kept its old count forever. The badge read "3 pending" over a preset
+   * with nothing pending, and because rail_open refuses to steal the rail while edits are pending,
+   * Kit silently lost the ability to open a preset for the rest of the session.
+   */
+  const [baseline, setBaseline] = useState<readonly OutlineRow[]>([]);
 
-  const dirty = railIsDirty(baseline.current, state.rows);
+  const dirty = railIsDirty(baseline, state.rows);
   const pending = useMemo(() => {
-    const diff = diffOutline(baseline.current, state.rows);
+    const diff = diffOutline(baseline, state.rows);
     return diff ? diff.changes.length : 0;
-  }, [state.rows]);
+  }, [baseline, state.rows]);
 
   const flags = useMemo(() => {
     const map = new Map<string, RowFlag>();
-    const diff = diffOutline(baseline.current, state.rows);
+    const diff = diffOutline(baseline, state.rows);
     for (const change of diff?.changes ?? []) {
       map.set(
         change.id,
@@ -80,10 +89,10 @@ export function useRail(
       );
     }
     return map;
-  }, [state.rows]);
+  }, [baseline, state.rows]);
 
   const follow = useCallback((id: string, next: string, rows: readonly OutlineRow[]) => {
-    baseline.current = rows;
+    setBaseline(rows);
     setPresetId(id);
     setTitle(next);
     setState(railState(rows));
@@ -91,23 +100,11 @@ export function useRail(
     setExpanded(new Set());
     setOffset(0);
     setOpen(true);
+    // Opening does not steal the keyboard. Somebody who typed /rail is still mid-sentence.
+    setFocused(false);
   }, []);
 
-  const close = useCallback(() => setOpen(false), []);
-
-  /**
-   * A fresh reading from the watcher.
-   *
-   * DROPPED WHILE THERE ARE UNAPPLIED EDITS, deliberately. Kit saving a change would otherwise
-   * overwrite a rearrangement somebody is halfway through, and the work would vanish with no event
-   * to point at. Holding the local view means the two can disagree for a moment, which is visible
-   * and recoverable, rather than one silently winning.
-   */
-  const observe = useCallback((rows: readonly OutlineRow[]) => {
-    if (railIsDirty(baseline.current, rows) && dirty) return;
-    baseline.current = rows;
-    setState((current) => ({ ...current, rows }));
-  }, [dirty]);
+  const close = useCallback(() => { setOpen(false); setFocused(false); }, []);
 
   const move = useCallback((delta: number) => {
     setCursor((current) => {
@@ -131,6 +128,20 @@ export function useRail(
     if (!open) return;
     const key = event.name;
     const shift = event.shift === true;
+
+    // Ctrl+B hands the keyboard back and forth. It is the only key this handler claims while the
+    // composer has focus, and the composer does not use it.
+    if (key === "b" && event.ctrl === true) {
+      event.preventDefault();
+      setFocused((on) => !on);
+      return;
+    }
+
+    // WITHOUT THIS THE RAIL EATS THE COMPOSER. Every branch below calls preventDefault, and opentui
+    // stops dispatching a prevented key to the focused renderable - so an open rail swallowed space,
+    // backspace, enter and the arrows while somebody was typing a prompt, AND silently toggled
+    // blocks on a real preset as they typed. Returning before preventDefault is the whole fix.
+    if (!focused) return;
 
     if (key === "up" || key === "down") {
       event.preventDefault();
@@ -157,7 +168,7 @@ export function useRail(
       void onCommit?.(state.rows).then((applied) => {
         // Adopting the written rows is what clears the pending badge. Doing it only on a real
         // applied receipt means a denied or stale attempt leaves the edits exactly where they were.
-        if (applied) baseline.current = state.rows;
+        if (applied) setBaseline(state.rows);
       });
       return;
     }
@@ -207,7 +218,7 @@ export function useRail(
   }, []);
 
   return {
-    open, title, presetId, state, cursor, expanded, dragging, dropBefore, flags, pending, offset,
-    follow, close, observe, onRowDown, onRowDrag, onRowDragEnd,
+    open, title, presetId, state, cursor, expanded, focused, dragging, dropBefore, flags, pending, offset,
+    follow, close, onRowDown, onRowDrag, onRowDragEnd,
   };
 }

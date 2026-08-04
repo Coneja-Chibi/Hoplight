@@ -192,8 +192,10 @@ describe("inserting", () => {
 describe("dirty", () => {
   const before = rows("a", "b", "c");
 
-  test("an untouched list is clean", () => {
-    expect(railIsDirty(before, railState(before).rows)).toBe(false);
+  test("an equal-but-separate list is clean", () => {
+    // railState does not copy, so passing its .rows compared the array with ITSELF - a railIsDirty
+    // that ignored both arguments and returned false would have passed.
+    expect(railIsDirty(before, rows("a", "b", "c"))).toBe(false);
   });
 
   test("a reorder is dirty even though every row still exists", () => {
@@ -206,6 +208,7 @@ describe("dirty", () => {
   });
 
   test("selecting alone is not a change", () => {
-    expect(railIsDirty(before, selectAll(railState(before)).rows)).toBe(false);
+    const selected = selectAll(railState(rows("a", "b", "c")));
+    expect(railIsDirty(before, selected.rows)).toBe(false);
   });
 });

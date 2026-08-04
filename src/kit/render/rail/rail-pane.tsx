@@ -36,6 +36,7 @@ export function RailPane({
       selected={rail.state.selected}
       cursor={rail.cursor}
       dropBefore={rail.dropBefore}
+      focused={rail.focused}
       dragging={rail.dragging}
       expanded={rail.expanded}
       contentOf={contentOf}
