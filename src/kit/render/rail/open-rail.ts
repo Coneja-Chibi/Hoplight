@@ -25,7 +25,7 @@ const matches = (piece: { id: string; name: string }, needle: string): boolean =
 export async function openRail(
   source: PresetSource | undefined,
   query: string,
-  follow: (title: string, rows: readonly OutlineRow[]) => void,
+  follow: (id: string, title: string, rows: readonly OutlineRow[]) => void,
 ): Promise<OpenOutcome> {
   if (!source) return { ok: false, detail: "The preset rail is unavailable in this build." };
   const presets = await source.list();
@@ -56,6 +56,6 @@ export async function openRail(
   const piece = found[0]!;
   const body = await source.read(piece.id);
   if (!body) return { ok: false, detail: `${piece.id} could not be read.` };
-  follow(piece.name || piece.id, outlineOf(body));
+  follow(piece.id, piece.name || piece.id, outlineOf(body));
   return { ok: true };
 }

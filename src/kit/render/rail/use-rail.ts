@@ -24,6 +24,8 @@ import type { RowFlag } from "../primitives/rail/outline-rail";
 export interface RailSession {
   readonly open: boolean;
   readonly title: string;
+  /** The studio id being followed, which the commit path writes to. */
+  readonly presetId: string | null;
   readonly state: RailState;
   readonly cursor: string | null;
   readonly expanded: ReadonlySet<string>;
@@ -33,7 +35,7 @@ export interface RailSession {
   readonly pending: number;
   readonly offset: number;
   /** Start following a preset. Replaces anything already open, discarding unapplied edits. */
-  follow: (title: string, rows: readonly OutlineRow[]) => void;
+  follow: (id: string, title: string, rows: readonly OutlineRow[]) => void;
   close: () => void;
   /** A fresh reading from the watcher. Ignored while there are unapplied edits, see below. */
   observe: (rows: readonly OutlineRow[]) => void;
@@ -43,9 +45,13 @@ export interface RailSession {
 }
 
 /** How many rows the rail can draw before it needs to scroll. Passed in by the shell. */
-export function useRail(rowsVisible: () => number, onCommit?: (rows: readonly OutlineRow[]) => void): RailSession {
+export function useRail(
+  rowsVisible: () => number,
+  onCommit?: (rows: readonly OutlineRow[]) => Promise<boolean>,
+): RailSession {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
+  const [presetId, setPresetId] = useState<string | null>(null);
   const [state, setState] = useState<RailState>(() => railState([]));
   const [cursor, setCursor] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
@@ -76,8 +82,9 @@ export function useRail(rowsVisible: () => number, onCommit?: (rows: readonly Ou
     return map;
   }, [state.rows]);
 
-  const follow = useCallback((next: string, rows: readonly OutlineRow[]) => {
+  const follow = useCallback((id: string, next: string, rows: readonly OutlineRow[]) => {
     baseline.current = rows;
+    setPresetId(id);
     setTitle(next);
     setState(railState(rows));
     setCursor(rows[0]?.id ?? null);
@@ -147,7 +154,11 @@ export function useRail(rowsVisible: () => number, onCommit?: (rows: readonly Ou
     }
     if (key === "return" && dirty) {
       event.preventDefault();
-      onCommit?.(state.rows);
+      void onCommit?.(state.rows).then((applied) => {
+        // Adopting the written rows is what clears the pending badge. Doing it only on a real
+        // applied receipt means a denied or stale attempt leaves the edits exactly where they were.
+        if (applied) baseline.current = state.rows;
+      });
       return;
     }
     if (key === "a" && event.ctrl === true) {
@@ -196,7 +207,7 @@ export function useRail(rowsVisible: () => number, onCommit?: (rows: readonly Ou
   }, []);
 
   return {
-    open, title, state, cursor, expanded, dragging, dropBefore, flags, pending, offset,
+    open, title, presetId, state, cursor, expanded, dragging, dropBefore, flags, pending, offset,
     follow, close, observe, onRowDown, onRowDrag, onRowDragEnd,
   };
 }

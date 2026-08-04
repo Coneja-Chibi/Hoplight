@@ -22,8 +22,11 @@ const source = (
 });
 
 const catcher = () => {
-  const seen: { title: string; rows: readonly OutlineRow[] }[] = [];
-  return { seen, follow: (title: string, rows: readonly OutlineRow[]) => void seen.push({ title, rows }) };
+  const seen: { id: string; title: string; rows: readonly OutlineRow[] }[] = [];
+  return {
+    seen,
+    follow: (id: string, title: string, rows: readonly OutlineRow[]) => void seen.push({ id, title, rows }),
+  };
 };
 
 describe("openRail", () => {

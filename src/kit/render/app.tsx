@@ -54,9 +54,8 @@ import type { StudioWatchSource } from "../watch/watcher";
 import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
 import { ToolsScreen } from "./tools/tools-screen";
-import { useRail } from "./rail/use-rail";
+import { useRailSession } from "./rail/use-rail-session";
 import { RailPane } from "./rail/rail-pane";
-import { openRail } from "./rail/open-rail";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -99,7 +98,7 @@ export function App({
   const [studioTotal, setStudioTotal] = useState(totalPieces);
   const [watchNotices, setWatchNotices] = useState(0);
   const gate = useGateController();
-  const rail = useRail(() => 20);
+  const rail = useRailSession(session, gate, (text) => add({ role: "say", text }));
   const { notice: copyNotice, copy } = useCopyNotice(renderer);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
@@ -314,7 +313,7 @@ export function App({
         egressSummary: () => formatLedger(ledger),
         contextPreview: () => buildContextPreview(session, history.current, provider),
         folders: session.folders,
-        rail: { open: (q) => openRail(session.presets, q, rail.follow), close: rail.close },
+        rail: rail.commands,
         sessions: sessionActions,
       };
       try {

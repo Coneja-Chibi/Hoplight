@@ -25,6 +25,11 @@ import { KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
 import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
+import { applyChangeDraft } from "./changes/apply";
+import { applyRailEdits, railChangeRows } from "../core/preset/rail-apply";
+import type { OutlineRow } from "../core/preset/outline";
+import type { ChangeReceipt } from "./changes/types";
+import type { DraftReview } from "./tools/tool";
 import { reviewChangeDraft } from "./changes/review";
 import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
@@ -45,6 +50,11 @@ export type TurnEvent =
   | { type: "begin"; label: string }
   | { type: "delta"; kind: "text" | "reasoning"; text: string }
   | { type: "error"; message: string };
+
+/** What staging a rail edit answers with: a draft to confirm, or why it cannot be one. */
+export type RailStaged =
+  | { ok: true; draftId: string; review: DraftReview }
+  | { ok: false; detail: string };
 
 export interface Session {
   capabilities?(): readonly ContentCapability[];
@@ -79,6 +89,15 @@ export interface Session {
   presets?: {
     list(): Promise<EntitySummary[]>;
     read(id: string): Promise<PresetBody | undefined>;
+    /**
+     * Compose the rail's edits into a draft. Does NOT write: it returns the review the Gate shows,
+     * so the confirmation sits between staging and applying exactly as it does for a model draft.
+     */
+    stage(id: string, rows: readonly OutlineRow[]): Promise<RailStaged>;
+    /** Apply a staged draft once, revision-checked, and report a real receipt. */
+    commit(draftId: string): Promise<ChangeReceipt>;
+    /** Drop a staged draft nobody will apply, so the next attempt can stage a fresh one. */
+    discard(draftId: string): void;
   };
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
   activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
@@ -133,6 +152,36 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     folders,
     presets: {
       list: () => bridge.list("preset"),
+      async stage(id, rows) {
+        const entity = await bridge.read("preset", id);
+        if (!entity) return { ok: false, detail: `${id} is no longer in the studio.` };
+        const body = entity.body as PresetBody;
+        const applied = applyRailEdits(body, rows);
+        // A row naming no prompt means the rail and storage disagree about what exists. Refusing is
+        // the only safe answer: writing would drop that block, and inventing one would fabricate it.
+        if (applied.unknown.length > 0) {
+          return {
+            ok: false,
+            detail: `The rail is out of step with storage: ${applied.unknown.length} block(s) it`
+              + ` shows are not there. Reopen it with /rail.`,
+          };
+        }
+        const changeRows = railChangeRows(body, applied);
+        if (changeRows.length === 0) return { ok: false, detail: "Nothing to apply." };
+        const draft = changes.revise(entity, { ...entity, body: applied.body }, {
+          capabilityId: "rail.blocks.rearrange",
+          input: { id, blocks: rows.length },
+          changes: changeRows.map((row) => ({ path: "/body/prompts", ...row })),
+          // Removal is the only rail edit that destroys something, so it is the only one that warns.
+          warnings: applied.removed.length > 0
+            ? [`${applied.removed.length} block(s) will be removed: ${applied.removed.join(", ")}`]
+            : [],
+          platformImpact: [],
+        });
+        return { ok: true, draftId: draft.id, review: reviewChangeDraft(draft) };
+      },
+      commit: (draftId) => applyChangeDraft(changes, bridge, draftId),
+      discard: (draftId) => void changes.discard(draftId),
       async read(id) {
         const entity = await bridge.read("preset", id);
         return entity ? (entity.body as PresetBody) : undefined;
