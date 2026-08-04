@@ -48,7 +48,6 @@ export interface ClassifiableBlock {
 
 export type ClassifierEvidence =
   | "marker-flag"
-  | "empty-and-divider-name"
   | "blank-assignments"
   | "getvar-manifest"
   | "writes-state";
@@ -72,16 +71,25 @@ const ANY_SETVAR = /\{\{setvar::[^:}]+::/gi;
  *  (`{{getvar::{{...}}}}`) never closes cleanly, and requiring a clean close undercounted the
  *  largest manifests in the corpus by more than half - which is to say it missed real assemblers. */
 const ANY_GETVAR = /\{\{getvar::/gi;
-/** A name that is drawn rather than written: rules, box-drawing, repeated punctuation. */
-const DIVIDER_NAME = /[=\-─═▬≡•·_~*#]{3,}/;
 
 const count = (text: string, re: RegExp): number => (text.match(re) ?? []).length;
 
-/** Does this block put anything in the prompt? A comment macro is authored text that renders as
- *  nothing, so a block holding only comments is empty from the model's side, which is the side that
- *  matters. Treating it as non-empty would classify a labelled divider as prose. */
+/**
+ * Does this block put anything in the prompt?
+ *
+ * Two things are authored text that render as nothing: a comment macro, and `{{trim}}`. Both are
+ * stripped before the question is asked, because a block holding only those is empty from the
+ * model's side, and the model's side is the one that matters.
+ *
+ * MISSING `{{trim}}` COST EVERY DIVIDER. Real presets write a section header as a block whose name is
+ * the rule and whose content is exactly `{{trim}}` - the emit-nothing idiom the whole
+ * variable-driven style is built on. Checking only for comments meant that block looked like prose,
+ * so not one divider was found across the surveyed corpus, and a preset's own section structure was
+ * invisible. Stripping only these two is deliberately narrow: `{{setvar::a::1}}{{trim}}` still has
+ * a setvar left over, so it stays a state writer rather than becoming a divider.
+ */
 const rendersNothing = (content: string): boolean =>
-  content.replace(/\{\{\/\/[^}]*\}\}/g, "").trim() === "";
+  content.replace(/\{\{\/\/[^}]*\}\}/g, "").replace(/\{\{\s*trim\s*\}\}/gi, "").trim() === "";
 
 /** Classify one block. Null pattern means nothing proved one, which is not a failure. */
 export function classifyBlock(block: ClassifiableBlock): Classification {
@@ -92,14 +100,20 @@ export function classifyBlock(block: ClassifiableBlock): Classification {
   // and the only one present in every surveyed preset.
   if (block.marker) return { identifier, pattern: "engine-slot", evidence: "marker-flag" };
 
-  if (rendersNothing(content)) {
-    // Renders nothing and is NOT a marker: either a divider drawn in its name, or a block somebody
-    // emptied. Only the drawn one is claimed, because "empty with an ordinary name" says nothing
-    // about intent, and a preset carries hundreds of those.
-    return DIVIDER_NAME.test(block.name ?? "")
-      ? { identifier, pattern: "divider", evidence: "empty-and-divider-name" }
-      : { identifier, pattern: null, evidence: null };
-  }
+  // Renders nothing and is not a reserved slot. That is ALL that is known, and it is not enough to
+  // name the block: a section divider, a block somebody emptied, and a placeholder waiting to be
+  // written are the same shape.
+  //
+  // TWO REJECTED RULES, both worth naming so neither comes back. Matching the NAME against rule
+  // characters was folklore dressed as a rule - everyone draws them differently (`-----`,
+  // `── Pace ──`, `✧ ⏱ PACING ⏱ ✧`, nothing at all), and each corpus that missed pushed the
+  // character list one revision wider, which is the tell that the signal was never in the
+  // characters. Calling every empty block a divider was the same guess with the decoration removed.
+  //
+  // "Being wrong is cheap here because divider carries no ordering rule" was the argument for
+  // shipping the second one, and it is the wrong standard. This module reports what a signal
+  // PROVES. Nothing here proves a section header, so nothing here claims one.
+  if (rendersNothing(content)) return { identifier, pattern: null, evidence: null };
 
   if (count(content, BLANK_SETVAR) >= BLANK_ASSIGNMENTS_MIN) {
     return { identifier, pattern: "variable-init", evidence: "blank-assignments" };

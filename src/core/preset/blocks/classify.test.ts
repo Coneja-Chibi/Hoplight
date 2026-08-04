@@ -31,13 +31,9 @@ describe("what it will say", () => {
     expect(result.evidence).toBe("writes-state");
   });
 
-  test("a drawn name over nothing is a divider, even when it holds a comment", () => {
-    const result = classifyBlock(block({ name: "═══ OPTIONS ═══", content: "{{// a note}}" }));
-    expect(result.pattern).toBe("divider");
-  });
 
   test("every pattern it can emit exists in the catalog", () => {
-    const emitted = ["engine-slot", "variable-init", "option-additive", "divider"];
+    const emitted = ["engine-slot", "variable-init", "option-additive"];
     for (const id of emitted) expect(findPattern(id), `${id} is not a catalog pattern`).toBeDefined();
   });
 });
@@ -72,14 +68,29 @@ describe("what it refuses to say", () => {
     expect(findPattern("option-exclusive")?.ordering?.before).toContain("assembler");
   });
 
-  test("empty with an ordinary name says nothing, because presets carry hundreds of those", () => {
-    expect(classifyBlock(block({ name: "Notes", content: "   " })).pattern).toBeNull();
+  test("a block that renders nothing is never named, however it is drawn", () => {
+    // A section divider, a block somebody emptied, and an unwritten placeholder are the same shape.
+    // Two rules were tried and dropped: matching the name against rule characters, then calling
+    // every empty block a divider. Everyone draws them differently, so the signal was never there.
+    for (const name of ["═══ OPTIONS ═══", "── Pace · Pick One ──", "✧ ⏱ PACING ⏱ ✧", "Notes"]) {
+      expect(classifyBlock(block({ name, content: "{{trim}}" })).pattern).toBeNull();
+      expect(classifyBlock(block({ name, content: "{{// a note}}" })).pattern).toBeNull();
+    }
+  });
+
+  test("{{trim}} counts as rendering nothing, which is provable and is where it stops", () => {
+    // Trim really does emit nothing, so a block of only trim renders nothing. That fact is real;
+    // what the block is FOR is not derivable from it.
+    expect(classifyBlock(block({ content: "{{trim}}" })).pattern).toBeNull();
+    // Narrow on purpose: a setvar survives the strip, so the block is still a state writer.
+    expect(classifyBlock(block({ content: "{{setvar::pov::second}}{{trim}}" })).pattern)
+      .toBe("option-additive");
   });
 
   test("it reads no annotation vocabulary at all", () => {
     // Structure alone agreed with author-declared exclusivity 187 times out of 188, so reading the
     // annotation bought under one percent in exchange for depending on one community's private
-    // vocabulary. A block whose ONLY content is an annotation stays a divider-or-unknown call.
+    // vocabulary. An annotated state writer is read from its setvar, exactly like an unannotated one.
     const annotated = classifyBlock(block({
       name: "Second person",
       content: "{{// @exclusive-with-category pov}}{{setvar::pov::second}}{{trim}}",
