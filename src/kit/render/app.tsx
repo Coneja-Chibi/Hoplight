@@ -256,6 +256,7 @@ export function App({
           }),
         );
       }
+      rail.onTurnEvent(event);
       setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
     };
     void (async () => {

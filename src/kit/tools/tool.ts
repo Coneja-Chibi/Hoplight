@@ -54,6 +54,14 @@ export interface ToolResult {
   outcome?: "draft" | "applied" | "stale" | "discarded" | "failed";
   /** A complete draft preview cues application-owned review instead of model-authored permission prose. */
   review?: DraftReview;
+  /**
+   * A piece the model is asking the shell to put on screen.
+   *
+   * Structured rather than prose for the same reason `review` is: a shell that had to read
+   * "I have opened Paramnesia for you" out of a sentence would open the wrong thing eventually,
+   * and a model that could open a view by SAYING it had would be able to lie by accident.
+   */
+  show?: { kind: string; id: string };
   /** Machine-readable user decision from the Gate; never inferred from a blocked message. */
   gateDecision?: "denied" | "aborted" | "held";
 }

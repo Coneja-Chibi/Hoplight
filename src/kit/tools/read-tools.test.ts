@@ -217,6 +217,7 @@ describe("discovery", () => {
       "folder_import",
       "folder_search",
       "macro_lookup",
+      "preset_show",
       "preset_verify",
       "result_query",
       "studio_character_create",

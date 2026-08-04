@@ -20,6 +20,8 @@ import { openRail } from "./open-rail";
 import { useRail, type RailSession } from "./use-rail";
 
 export interface RailWithCommands extends RailSession {
+  /** Handed every turn event so the model can put a preset up without the shell parsing prose. */
+  readonly onTurnEvent: (event: { type: string; show?: { kind: string; id: string } }) => void;
   /** What /rail calls. Shaped for CommandContext so the shell passes it straight through. */
   readonly commands: {
     open: (query: string) => Promise<{ ok: true } | { ok: false; detail: string }>;
@@ -64,8 +66,22 @@ export function useRailSession(
   const rail = useRail(rowsVisible, commit);
   railRef.current = rail;
 
+  /**
+   * React to a turn event that asks for a piece to be shown.
+   *
+   * Only `preset` and only when nothing is unapplied. Yanking the rail to a different preset out
+   * from under somebody mid-rearrange would lose their work with no event to point at, and the model
+   * has no way to know they were busy.
+   */
+  const onTurnEvent = useCallback((event: { type: string; show?: { kind: string; id: string } }) => {
+    if (event.type !== "tool" || event.show?.kind !== "preset") return;
+    if (rail.pending > 0) return;
+    void openRail(session.presets, event.show.id, rail.follow);
+  }, [session, rail]);
+
   return {
     ...rail,
+    onTurnEvent,
     commands: {
       open: (query) => openRail(session.presets, query, rail.follow),
       close: rail.close,
