@@ -345,29 +345,34 @@ export function App({
 
   useShellKeys({
     active: view === "session" && !searching && !rewinding && !gate.prompt,
-    running: activeTurn.current,
+    running: activeTurn,
     setTurn,
     openSearch: () => setSearching(true),
     scroll,
   });
 
-  const full = FullScreen({
-    view,
-    studioName,
-    commands,
-    pieces: shelf.pieces,
-    capabilities: session.capabilities?.() ?? [],
-    sessionActions,
-    busy,
-    close: () => setView("session"),
-    onProviderChanged: () => { void session.activeProvider().then(setProvider); },
-    onProviderSaved: (name) => {
-      setView("session");
-      add({ role: "say", text: `Connected ${name}. Talk to your studio.` });
-      void session.activeProvider().then(setProvider);
-    },
-  });
-  if (full) return full;
+  // The screens that REPLACE the conversation get their own component; FullScreen returns null only
+  // for "session", which this guard has already excluded.
+  if (view !== "session") {
+    return (
+      <FullScreen
+        view={view}
+        studioName={studioName}
+        commands={commands}
+        pieces={shelf.pieces}
+        capabilities={session.capabilities?.() ?? []}
+        sessionActions={sessionActions}
+        busy={busy}
+        close={() => setView("session")}
+        onProviderChanged={() => { void session.activeProvider().then(setProvider); }}
+        onProviderSaved={(name) => {
+          setView("session");
+          add({ role: "say", text: `Connected ${name}. Talk to your studio.` });
+          void session.activeProvider().then(setProvider);
+        }}
+      />
+    );
+  }
 
   return (
     <box id="kit-root" flexDirection="row" backgroundColor={theme.well} width="100%" height="100%">
