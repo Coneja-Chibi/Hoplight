@@ -15,12 +15,22 @@
  * back unrun, so Kit points it at Kit: an MCP server over stdio exposing Kit's tools, dispatched
  * through the same zod validation.
  *
- * READ-ONLY ON THIS PATH, and the reason is not caution. Kit's permission gate is per-turn state in
+ * READ-ONLY BY DEFAULT, AND THE REASON IS NOT CAUTION. Kit's permission gate is per-turn state in
  * Kit's process and the server is a separate one, so it cannot reach across. The CLI is also started
  * with bypassPermissions, because two gates asking about one call is worse than one, which turns off
- * the client prompt that would otherwise stand in. Nothing would ask, so nothing may write. The
- * standalone server a person registers with their own client keeps the full belt, because there the
- * client's prompt is the gate.
+ * the client prompt that would otherwise stand in. Nothing would ask, so by default nothing may write.
+ *
+ * GATE MODE 1 lifts that WITHOUT inventing a channel: the setup screen asks "let Kit make changes this
+ * session", and the answer decides a flag on the server's spawn. Answering once, in advance, knowingly
+ * is a real authorisation - it is simply given at connect rather than per call. Read-only remains what
+ * happens if nobody answers, so the careless path is the careful one.
+ *
+ * Mode 2 - asked per call, mid-turn - still needs the gate's decision to cross a process boundary, and
+ * the CLI's own MCP call timeout is the constraint to measure before designing it: if that timeout is
+ * short, somebody reading a diff blows through it and the call fails rather than waits.
+ *
+ * The standalone server a person registers with their own client keeps the full belt regardless,
+ * because there the client's own prompt is the gate.
  *
  * The other consequence worth knowing: the CLI drives the ReAct cycle here, not loop-core.
  */
@@ -48,11 +58,26 @@ const SYSTEM = "You are Kit, the Hoplight Studio agent. Use the hoplight tools f
  * When it is not our binary we are running under a runtime from source, and cli.ts is resolved from
  * this module rather than assumed.
  */
-export function serverCommand(): { command: string; args: string[] } {
+export function serverCommand(writes = false): { command: string; args: string[] } {
+  /**
+   * GATE MODE 1: pre-authorised at connect, decided here on the spawn.
+   *
+   * The tool server is a GRANDCHILD - Kit spawns the CLI, the CLI spawns `hoplight mcp` - so Kit has
+   * no channel to it and cannot answer a permission question mid-call. That is why this provider ran
+   * read-only: not caution about writes, but the absence of anywhere to ask.
+   *
+   * A flag on the spawn needs no channel. Somebody who has said "let Kit make changes this session"
+   * has answered the question once, in advance, for the whole session - which is a real answer, given
+   * knowingly, rather than a silent widening. It is the mode this file could always have had.
+   *
+   * READ-ONLY STAYS THE DEFAULT, and `writes` defaults to false at the parameter, so a caller that
+   * forgets to pass anything gets the safe posture rather than the convenient one.
+   */
+  const args = ["mcp", ...(writes ? [] : ["--read-only"])];
   const exe = basename(process.execPath).toLowerCase();
-  if (exe.startsWith("hoplight")) return { command: process.execPath, args: ["mcp", "--read-only"] };
+  if (exe.startsWith("hoplight")) return { command: process.execPath, args };
   const cli = fileURLToPath(new URL("../../../cli.ts", import.meta.url));
-  return { command: process.execPath, args: [cli, "mcp", "--read-only"] };
+  return { command: process.execPath, args: [cli, ...args] };
 }
 
 const claudeSub: ProviderSpoke = {
@@ -62,11 +87,30 @@ const claudeSub: ProviderSpoke = {
   defaultModel: "sonnet",
   // There is no key to give: the credential is whatever `claude login` already left on the machine.
   keyless: true,
+  /**
+   * The one choice this provider offers, and it is the gate posture.
+   *
+   * Asked plainly at setup rather than buried, because it is the difference between Kit being able to
+   * change a piece on this provider and not. Defaults to read-only: somebody who never reads this
+   * screen gets the careful answer, and the careless direction is the one that requires a decision.
+   */
+  options: [{
+    key: "writes",
+    label: "Let Kit make changes this session",
+    choices: [
+      { value: "off", label: "Read only (default)" },
+      { value: "on", label: "Allow changes" },
+    ],
+    defaultValue: "off",
+  }],
   async chat(config, signal) {
-    const server = serverCommand();
-    // A config that cannot be written costs the tools, not the turn: the provider still answers.
-    const mcpConfig = await writeMcpConfig(server.command, server.args);
-    return makeClaudeCliChat(config.model || "sonnet", SYSTEM, { signal, mcpConfig });
+    // The posture comes from the CONFIG, so it is whatever the person chose at setup - never a
+    // default decided here, and never inferred from anything the model said.
+    const server = serverCommand(config.options?.writes === "on");
+    // Handed to the SDK directly. There is no longer a temp config file naming an executable, so the
+    // whole class of "somebody replaces that file between our write and the CLI's read" is gone.
+    const mcpServers = { hoplight: { command: server.command, args: server.args } };
+    return makeClaudeCliChat(config.model || "sonnet", SYSTEM, { signal, mcpServers });
   },
   /**
    * The aliases the CLI resolves itself, rather than a live catalog.

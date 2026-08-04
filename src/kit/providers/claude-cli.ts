@@ -1,16 +1,19 @@
 /**
  * Claude on the subscription already signed in on this machine, driven through the Claude Code CLI.
  *
- * NOT A DEPENDENCY, AND THAT IS THE POINT. The Agent SDK npm package is proprietary (its LICENSE.md
- * reserves all rights to Anthropic PBC), and Hoplight is AGPL-3.0 shipping a compiled binary, so bundling it
- * would be a licence conflict. Anthropic's own Agent SDK overview names the way out: to drive the
- * same agent loop from another language, run the CLI as a subprocess with `-p` and
- * `--output-format json`. The SDK spawns that CLI internally regardless, so this is the same
- * architecture with one fewer package and no proprietary code in our artefact.
+ * DRIVEN THROUGH `@anthropic-ai/claude-agent-sdk`, the way Marinara's provider does it
+ * (`packages/server/src/services/llm/providers/claude-subscription.provider.ts`). An earlier version
+ * spawned `claude` by name to keep the SDK out of the dependency tree. That failed in the field:
+ * spawning by name trusts PATH, PATH belongs to whichever shell or launcher started Kit, and on
+ * Windows the CLI exists only as `%APPDATA%\npm\claude.cmd`. A session that could not see that shim
+ * was indistinguishable from a machine without Claude Code, so Kit told people to install what they
+ * already had. The SDK resolves its own CLI, which removes the failure rather than describing it
+ * better.
  *
- * It also matches a pattern this repo already proved: src/core/preset/render/runner.ts spawns a
- * process, speaks a JSON contract over stdio, and returns every failure as a value rather than a
- * throw. The three preset renderers run on it.
+ * ONE THING A RELEASE HAS TO SETTLE, stated as fact rather than argument: the SDK package's
+ * LICENSE.md reserves all rights to Anthropic PBC, and Hoplight is AGPL-3.0 shipping a compiled
+ * binary. It is a runtime dependency now, so `license:audit` and the packaging lane both need to say
+ * what happens to it - bundled, peer, or optional-at-runtime.
  *
  * WHAT THIS COSTS, MEASURED, because it must not be a surprise on a bill. Even with the system
  * prompt replaced and the CLI's own tools disallowed, a single turn carries roughly 18,000
@@ -29,6 +32,13 @@ const TURN_TIMEOUT_MS = 300_000;
 
 /** Stdout is bounded: a runaway subprocess must not be able to exhaust memory. */
 const MAX_OUTPUT_BYTES = 8 * 1024 * 1024;
+
+/**
+ * How many SDK turns one Kit turn may take when the tool belt is bridged. A tool-using answer is
+ * call, result, then reply, and a real question chains several - so this is a runaway stop, not a
+ * budget. Text-only turns are capped at 1 instead, where more than one turn means nothing.
+ */
+const MAX_TOOL_TURNS = 24;
 
 /**
  * The CLI's own tools, refused.
@@ -172,6 +182,40 @@ export function cliArgs(model: string, system: string, mcpConfig?: string | null
   ];
 }
 
+/** A bridged tool server: the program the SDK will run to reach Kit's own tools. */
+export type McpServers = Record<string, { command: string; args: string[] }>;
+
+/**
+ * The SDK options, built in one place so a test can assert what would actually run - the job the old
+ * `cliArgs` did for the flag list. The isolation properties asserted against it are not cosmetic:
+ * each one is the reason a Kit turn cannot quietly acquire an authority Kit never offered.
+ */
+export function sdkOptions(model: string, system: string, bridge: McpServers | null): Record<string, unknown> {
+  return {
+    model,
+    // Replaces the default agent framing rather than appending to it. Measured: roughly halves the
+    // per-turn overhead, from about 36k tokens to about 18k.
+    systemPrompt: system,
+    // A tool-using turn is several SDK turns: call, result, answer. Capping at 1 is only correct
+    // when nothing is bridged - with the belt attached it fails every turn that uses a tool.
+    maxTurns: bridge ? MAX_TOOL_TURNS : 1,
+    // Do not inherit the user's settings, CLAUDE.md, project config or MCP servers. A Kit turn
+    // carries what Kit sent, not whatever is configured for their coding work.
+    settingSources: [],
+    // An ALLOWLIST, not a denylist. bypassPermissions turns the CLI's own prompting off because Kit
+    // owns the gate, so whatever stays reachable runs unasked; naming only Kit's own server means
+    // the reachable set cannot grow underneath us when the CLI adds built-ins.
+    ...(bridge
+      ? { mcpServers: bridge, allowedTools: [`${MCP_TOOL_PREFIX}*`], permissionMode: "bypassPermissions" }
+      : { tools: [], skills: [] }),
+    disallowedTools: REFUSED_TOOLS.split(","),
+    // Opt out of the signed-in account's claude.ai connectors (Notion/Gmail/Calendar). They ride the
+    // `claudeai` MCP scope, which `settingSources: []` does not gate, and they would otherwise appear
+    // inside a Kit turn as if Kit had offered them.
+    env: { ...process.env, CLAUDE_CODE_ENTRYPOINT: "hoplight-kit", ENABLE_CLAUDEAI_MCP_SERVERS: "false" },
+  };
+}
+
 export type CliFailure = "not-installed" | "not-logged-in" | "timeout" | "engine-error" | "bad-output";
 
 export interface CliRefusal {
@@ -233,38 +277,48 @@ export function parseCliResult(stdout: string): CliReply | CliRefusal {
   };
 }
 
-/** Turn a spawn failure into the sentence a reader can act on, rather than a Node errno. */
-function explainSpawn(error: Error): CliRefusal {
-  // Bun reports a missing binary as `code: "ENOENT"` with a message that says "not found in $PATH",
-  // so the code is checked as well as the text. Matching only the message missed this entirely.
-  const code = (error as NodeJS.ErrnoException).code;
-  if (code === "ENOENT" || /ENOENT|not found in \$PATH/i.test(error.message)) {
+/**
+ * Turn an SDK failure into the sentence a reader can act on.
+ *
+ * "Not installed" is now claimed ONLY when the SDK itself could not be loaded, because that is the
+ * one case where something really is missing. The previous version inferred it from a spawn errno,
+ * which meant a PATH that merely did not carry the shim was reported as absent software - advice to
+ * install what was already there. A wrong diagnosis is worse than a vague one, so anything the SDK
+ * does not clearly identify is reported as what it is, with its own words kept.
+ */
+export function explainSdkFailure(detail: string): CliRefusal {
+  if (/Failed to load @anthropic-ai\/claude-agent-sdk|Cannot find module/i.test(detail)) {
     return refuse(
       "not-installed",
       "Claude Code is not on this machine. Install it (npm i -g @anthropic-ai/claude-code) and run `claude login`.",
     );
   }
-  return refuse("engine-error", `could not start Claude Code: ${error.message}`);
-}
-
-/** Recognise the CLI's own way of saying nobody is signed in, so the advice names the fix. */
-function explainExit(code: number, stderr: string): CliRefusal {
-  if (/not logged in|authentication|unauthor|login/i.test(stderr)) {
+  if (/not logged in|authentication|unauthor|invalid api key|credential/i.test(detail)) {
     return refuse("not-logged-in", "Claude Code is installed but not signed in. Run `claude login`.");
   }
-  const detail = stderr.trim().split("\n").slice(-3).join(" ").slice(0, 300);
-  return refuse("engine-error", `Claude Code exited ${code}${detail ? `: ${detail}` : ""}`);
+  return refuse("engine-error", detail.trim().slice(0, 300) || "Claude Code failed without saying why");
 }
 
 export interface CliOptions {
-  readonly command?: string;
   readonly signal?: AbortSignal;
   readonly timeoutMs?: number;
-  /** Path to the MCP config that bridges Kit's tools. Absent means a text-only turn. */
-  readonly mcpConfig?: string | null;
+  /** The tool bridge, passed to the SDK directly. Absent means a text-only turn. */
+  readonly mcpServers?: Record<string, { command: string; args: string[] }> | null;
 }
 
-/** One turn through the CLI. Every failure is a value; nothing here throws. */
+/**
+ * One turn, through the Agent SDK rather than a bare `claude` spawn.
+ *
+ * WHY THE SDK AND NOT THE BINARY. Spawning `claude` by name means trusting PATH, and PATH is not a
+ * property of the machine - it is a property of whichever shell or launcher started Kit. On Windows
+ * the CLI exists only as `%APPDATA%\npm\claude.cmd`, so a session started before that shim was
+ * written, or from a shortcut, cannot see it. Kit could not tell that apart from "not installed" and
+ * told people to install software they already had. The SDK resolves its own CLI, so the failure
+ * mode disappears rather than being papered over. Marinara's provider does the same, for the same
+ * reason (`claude-subscription.provider.ts`).
+ *
+ * Every failure is a value; nothing here throws.
+ */
 export async function runClaudeCli(
   model: string,
   system: string,
@@ -272,49 +326,60 @@ export async function runClaudeCli(
   options: CliOptions = {},
 ): Promise<CliReply | CliRefusal> {
   const timeoutMs = options.timeoutMs ?? TURN_TIMEOUT_MS;
-  let child: ReturnType<typeof Bun.spawn>;
-  try {
-    child = Bun.spawn([options.command ?? "claude", ...cliArgs(model, system, options.mcpConfig)], {
-      stdin: "pipe",
-      stdout: "pipe",
-      stderr: "pipe",
-      // The CLI is asked for text, not filesystem work, and it must not inherit a project it can act on.
-      env: { ...process.env, CLAUDE_CODE_ENTRYPOINT: "hoplight-kit" },
-    });
-  } catch (error) {
-    return explainSpawn(error as Error);
-  }
-
-  const kill = (): void => { try { child.kill(); } catch { /* already gone */ } };
-  // A killed subprocess exits non-zero, so without this flag a timeout would be reported as whatever
-  // the CLI happened to print on its way out rather than as the timeout it was.
+  const abort = new AbortController();
   let timedOut = false;
-  const timer = setTimeout(() => { timedOut = true; kill(); }, timeoutMs);
-  const onAbort = (): void => kill();
+  const timer = setTimeout(() => { timedOut = true; abort.abort(); }, timeoutMs);
+  const onAbort = (): void => abort.abort();
   options.signal?.addEventListener("abort", onAbort, { once: true });
 
   try {
-    // Same narrowing runner.ts uses: Bun types these as `number | FileSink`, and a subprocess that
-    // exits before reading closes the pipe under us, which is not the failure worth reporting.
-    const stdin = child.stdin;
-    if (stdin && typeof stdin !== "number") {
-      stdin.write(foldHistory(messages));
-      await stdin.end();
+    const { query } = await import("@anthropic-ai/claude-agent-sdk");
+    const q = query({
+      prompt: foldHistory(messages),
+      options: { abortController: abort, ...sdkOptions(model, system, options.mcpServers ?? null) },
+    });
+
+    let text = "";
+    let usage: TokenUsage | null = null;
+    let costUsd: number | undefined;
+    let failure: string | null = null;
+
+    for await (const message of q) {
+      if (message.type === "assistant") {
+        for (const part of message.message.content) {
+          if (part.type === "text") text += part.text;
+        }
+        if (text.length > MAX_OUTPUT_BYTES) {
+          return refuse("bad-output", "the CLI produced more output than Kit will read");
+        }
+      } else if (message.type === "result") {
+        const record = message as unknown as Record<string, unknown>;
+        const u = (record["usage"] ?? {}) as Record<string, unknown>;
+        const num = (value: unknown): number | undefined =>
+          typeof value === "number" && Number.isFinite(value) ? value : undefined;
+        usage = readUsage({
+          input: num(u["input_tokens"]),
+          output: num(u["output_tokens"]),
+          cacheRead: num(u["cache_read_input_tokens"]),
+          cacheWrite: num(u["cache_creation_input_tokens"]),
+        });
+        costUsd = num(record["total_cost_usd"]);
+        if (message.subtype !== "success") {
+          const detail = typeof record["result"] === "string" ? record["result"] : message.subtype;
+          failure = detail;
+        }
+      }
     }
-    const [stdout, stderr, code] = await Promise.all([
-      new Response(child.stdout as ReadableStream<Uint8Array>).text(),
-      new Response(child.stderr as ReadableStream<Uint8Array>).text(),
-      child.exited,
-    ]);
-    if (stdout.length > MAX_OUTPUT_BYTES) {
-      return refuse("bad-output", "the CLI produced more output than Kit will read");
-    }
+
     if (timedOut) return refuse("timeout", `Claude Code did not answer within ${Math.round(timeoutMs / 1000)}s`);
     if (options.signal?.aborted) return refuse("engine-error", "the turn was cancelled");
-    if (code !== 0) return explainExit(code, stderr);
-    return parseCliResult(stdout);
+    if (failure !== null) return explainSdkFailure(failure);
+    if (!usage) return refuse("bad-output", "the CLI ended without a result");
+    return { ok: true, text, usage, ...(costUsd !== undefined ? { costUsd } : {}) };
   } catch (error) {
-    return refuse("engine-error", (error as Error).message);
+    if (timedOut) return refuse("timeout", `Claude Code did not answer within ${Math.round(timeoutMs / 1000)}s`);
+    if (options.signal?.aborted) return refuse("engine-error", "the turn was cancelled");
+    return explainSdkFailure((error as Error).message);
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", onAbort);
