@@ -13,6 +13,7 @@ import { copyText } from "../../../_shared/clipboard";
 import { requestExternal } from "../../../_shared/link-gate";
 import type { SettingsSection } from "../section-contract";
 import { LanCard } from "./lan-card";
+import { HelperInstalledLine, HelperMissingCard, useHelper, type HelperControls } from "./helper-card";
 import { mask } from "./redact";
 import styles from "./remote-access.module.css";
 
@@ -66,6 +67,8 @@ interface Actions {
   devices: RemoteDevice[];
   busy: boolean;
   copied: boolean;
+  /** the downloadable mesh helper: its status, and the one action that fetches it */
+  helper: HelperControls;
 }
 
 /** The Tailscale admin page where HTTPS certificates are enabled (the one-time toggle). */
@@ -95,8 +98,11 @@ function StateCard({
               Enable remote access
             </button>
           </div>
+          <HelperInstalledLine h={a.helper} />
         </div>
       );
+    case "unavailable":
+      return <HelperMissingCard detail={state.detail} h={a.helper} />;
     case "starting":
       return (
         <div className={styles.card}>
@@ -244,6 +250,8 @@ function RemoteAccessSection({ ctx }: { ctx: AppContext }): JSX.Element {
   const [managedElsewhere, setManagedElsewhere] = useState(false);
   const [devices, setDevices] = useState<RemoteDevice[]>([]);
   const [redacted, setRedacted] = useState(false);
+  // A freshly downloaded helper is picked up without a restart: the manager re-resolves on enable.
+  const helper = useHelper(ctx, () => enable());
 
   useEffect(() => {
     let alive = true;
@@ -324,9 +332,22 @@ function RemoteAccessSection({ ctx }: { ctx: AppContext }): JSX.Element {
             <EyeIcon off={redacted} />
           </button>
         </div>
+        {/* The sign-in sentence is a promise only the mesh path can keep. When that path is absent from
+            this build, LAN mode is what remains and it needs no account at all, so saying otherwise
+            would send a user looking for a sign-up they do not need. */}
         <div className={styles.blurb}>
-          Reach this studio from your phone or another computer, over a private, encrypted link. Off by
-          default. Turning it on needs a one-time free Tailscale sign-in, Hoplight opens that page for you.
+          {state.phase === "unavailable" ? (
+            <>
+              Reach this studio from your phone or another computer on the same network. Off by default,
+              and no account needed.
+            </>
+          ) : (
+            <>
+              Reach this studio from your phone or another computer, over a private, encrypted link. Off by
+              default. Turning it on needs a one-time free Tailscale sign-in, Hoplight opens that page for
+              you.
+            </>
+          )}
         </div>
       </div>
       {managedElsewhere ? (
@@ -341,7 +362,17 @@ function RemoteAccessSection({ ctx }: { ctx: AppContext }): JSX.Element {
       ) : (
         <StateCard
           state={state}
-          a={{ enable, disable, copyLink, openHttpsSettings, kick, devices, busy, copied }}
+          a={{
+            enable,
+            disable,
+            copyLink,
+            openHttpsSettings,
+            kick,
+            devices,
+            busy,
+            copied,
+            helper,
+          }}
           redacted={redacted}
         />
       )}

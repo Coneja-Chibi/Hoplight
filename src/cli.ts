@@ -7,7 +7,7 @@
 
 import { basename, extname, join } from "node:path";
 import { homedir } from "node:os";
-import { CANONICAL_SCHEMA_VERSION, registry, primaryOriginalRaw } from "./core";
+import { CANONICAL_SCHEMA_VERSION, registry, primaryOriginalRaw, toAdapterInput } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
 import {
@@ -25,21 +25,11 @@ import { APP_VERSION as VERSION } from "./version";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { validateAdapterOutput } from "./cli-validation";
 
-/** Read a file into the shape adapters expect: bytes always, text when it is UTF-8-ish. */
+/** Read a file into the shape adapters expect. Which extensions get a decoded view is core's call, so
+ *  the CLI and the studio recognise exactly the same files. */
 async function readInput(path: string): Promise<AdapterInput> {
-  const file = Bun.file(path);
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const input: AdapterInput = { bytes, filename: basename(path) };
-  // Give text adapters a decoded view when the bytes look like text (json, not png/zip).
-  const ext = extname(path).toLowerCase();
-  if (ext === ".json" || ext === ".txt") {
-    try {
-      input.text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    } catch {
-      /* not text; leave bytes only */
-    }
-  }
-  return input;
+  const bytes = new Uint8Array(await Bun.file(path).arrayBuffer());
+  return toAdapterInput(bytes, basename(path));
 }
 
 /** Write adapter output atomically after container agreement is already checked. */
@@ -243,6 +233,29 @@ async function main(argv: string[]): Promise<number> {
       else console.log(`\n  INVALID  ${path}\n  ${msg}\n`);
       return 1;
     }
+  }
+
+  /**
+   * `hoplight mcp` - serve the studio's tools over MCP on stdio.
+   *
+   * The subcommand exists so nothing has to know where Hoplight's source lives. Kit's Claude
+   * provider spawns this same binary, and a person can register it with their own client
+   * (`claude mcp add --transport stdio hoplight -- hoplight mcp`). A packaged build has no
+   * src/mcp/main.ts on disk to point at, so pointing at a FILE was only ever going to work from a
+   * checkout.
+   *
+   * Nothing may be written to stdout here but protocol frames: one stray line is a malformed frame
+   * and the client drops the session. That is why this branch returns before any of the console
+   * output the other subcommands print.
+   */
+  if (first === "mcp") {
+    await ensureFormats();
+    const { runMcpServer } = await import("./mcp/run");
+    // Full belt by default: a person registering this with their own client gets that client's
+    // permission prompt before every call. --read-only is for a caller that suppresses it.
+    const dir = args.slice(1).find((a) => !a.startsWith("--"));
+    await runMcpServer({ studioDir: dir, readOnly: args.includes("--read-only") });
+    return 0;
   }
 
   if (first === "ui") {

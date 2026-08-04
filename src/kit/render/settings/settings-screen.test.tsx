@@ -78,7 +78,15 @@ test("provider setup masks the key, lists models, selects one, and saves", async
     t.mockInput.pressEnter(); // open the picker
     await tick();
     await t.waitForFrame((frame) => frame.includes("Choose a provider"), { maxPasses: 100 });
-    t.mockInput.pressKey("ARROW_DOWN"); // move through the list, then pick
+    // Walk to DeepSeek by name rather than by a fixed number of presses. The picker is sorted by
+    // label, so adding any provider whose name sorts earlier silently moves what a count lands on,
+    // and this test needs a KEYED one for the masking it goes on to check.
+    const onDeepSeek = (frame: string): boolean => /▌\s*■\s*DeepSeek/.test(frame);
+    for (let i = 0; i < 12 && !onDeepSeek(t.captureCharFrame()); i++) {
+      t.mockInput.pressKey("ARROW_DOWN");
+      await tick();
+    }
+    expect(onDeepSeek(t.captureCharFrame())).toBe(true);
     t.mockInput.pressEnter();
     await tick();
     await t.waitForFrame((frame) => frame.includes("paste your key"), { maxPasses: 100 });

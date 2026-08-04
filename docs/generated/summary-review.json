@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-28",
+  "generated": "2026-08-04",
   "count": 112,
   "pages": [
     {
@@ -294,9 +294,9 @@
       "docId": "guide/security",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-doc-review-core-r2",
-      "sourceHash": "sha256:eca35bfb5ef9f238367b00b073da9d231e4afd98feef09f2e69a2b7adf49cce9",
-      "semanticSummaryHash": "sha256:50a6f0fc2ca9925c892a22d6f1958ab7c329e6f9196d52e101dce8e812f5b7b3"
+      "reviewer": "chi",
+      "sourceHash": "sha256:1f847d82fc6a7346e3192ddf7381c31bebfbe04ef842a75a2700c87d5c7ab725",
+      "semanticSummaryHash": "sha256:068f503c019033faeae5e65495db146dd635a8a6f86835a7a4a041dfc5e82339"
     },
     {
       "docId": "guide/troubleshooting",
@@ -342,9 +342,9 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-doc-review-core-r3",
-      "sourceHash": "sha256:f640f760bd6fb59059dd2d3ff8c467dd0da4e978191828393473ba008fb35493",
-      "semanticSummaryHash": "sha256:703c5bbb7b84440c7ab2ac8bed9b42a4549ca26a1db7340793ba5a5617232f87"
+      "reviewer": "chi",
+      "sourceHash": "sha256:f4fc5ae64df7499382773555c7cc733caf9499cd0c7b1a487d309c80ab87c738",
+      "semanticSummaryHash": "sha256:3aea8b307f7ca68164c3a2c5de935a4687d31cf1a03439334161c644362a0c1d"
     },
     {
       "docId": "reference/concepts/bundles",
@@ -406,9 +406,9 @@
       "docId": "reference/concepts/regex-engine",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:465911e7775ce821753f182ddd78ea138b722a65a42e4fcbddbe81f47651ae2d",
-      "semanticSummaryHash": "sha256:8b47792de73e654c80f593654108b08b0fad9e50cc0ca4d7ef72400ce2f993ce"
+      "reviewer": "chi",
+      "sourceHash": "sha256:8552c231719de43b2788a57077e12a396273f5cbec17297bad2239ba41c4edb9",
+      "semanticSummaryHash": "sha256:4b599516416ca220fb07fb1666de95e72695d5a5c83e438da1fec01f53425dc5"
     },
     {
       "docId": "reference/concepts/safe-rendering",
@@ -598,9 +598,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "Chi",
-      "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
-      "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129"
+      "reviewer": "chi",
+      "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
+      "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -822,9 +822,9 @@
       "docId": "reference/security/README",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-credibility-semantic-reviewer",
-      "sourceHash": "sha256:d3f543829af7ef42a0bde37ced9ca277204775e4bcaf3fe4c968e94cfc462d46",
-      "semanticSummaryHash": "sha256:c5764128a96a7bd8a1dd6c44c48e7097de4c6a5431dd31a056c5f185caaf2667"
+      "reviewer": "chi",
+      "sourceHash": "sha256:a240ea1a810ceaaeaf2b6e694d51b8b71b60a684d06d323944ce168d969ab31c",
+      "semanticSummaryHash": "sha256:b7e622f356f730340217528392b3ddf2c14124de95c86018bd59a84ed77e9c0d"
     },
     {
       "docId": "reference/security/regex-safety",
@@ -838,9 +838,9 @@
       "docId": "reference/security/remote-access",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:d611c620c806cf7845724c34f07e7f4c06d750de31bb56e05cbcefec5b60fa7d",
-      "semanticSummaryHash": "sha256:133c22579d39024955fac5ca506b466abcf5a4d730f0508079acd9db825fc035"
+      "reviewer": "chi",
+      "sourceHash": "sha256:ca9f331d9d8fa8e736bfccf34678ccab1afb3b2f52d0629aaecd2de1eadb2500",
+      "semanticSummaryHash": "sha256:c24f3bf2d0ada24a92bef51db65fdf3cf0cea57693e18bb5ece103a6a9000a8a"
     },
     {
       "docId": "reference/security/safe-rendering",
@@ -878,9 +878,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "codex-doc-review-surfaces",
-      "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
-      "semanticSummaryHash": "sha256:bd71661c73695d584e12b34e15b5a4bbaeb7ecfd1a49180b765968b37cfb35ea"
+      "reviewer": "chi",
+      "sourceHash": "sha256:4007582bb1471d4e10e471386f6d890d6ee5e6c99d3e08df7e8ba3e02b4952a5",
+      "semanticSummaryHash": "sha256:1b63f004598378b2ab5fd57f3a6af0b057ea608e4bc0d532ad6fb94da85ef6ae"
     },
     {
       "docId": "reference/updates",

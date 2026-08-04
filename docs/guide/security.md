@@ -32,6 +32,11 @@ Hoplight does make deliberate network calls at specific user-facing boundaries:
 - Updates reads fixed GitHub release endpoints when you open update information or start a version
   switch.
 - Remote access uses the listener and tunnel you explicitly enable.
+- The private-mesh link needs a helper program that is not bundled with the app. If you press
+  **Download the extra piece**, Hoplight fetches it from its own GitHub releases and checks it against
+  a fingerprint built into your copy before writing anything to disk. A file that does not match is
+  thrown away, not quarantined. This is the only download Hoplight turns into a program it runs, it
+  never happens on its own, and LAN mode needs no download at all.
 
 Importing, editing, converting, and deterministic analysis do not require a provider and make no
 provider call.

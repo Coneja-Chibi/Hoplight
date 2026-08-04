@@ -1,0 +1,161 @@
+{
+  "temperature": 1,
+  "top_p": 1,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "openai_max_context": 32000,
+  "openai_max_tokens": 1024,
+  "wi_format": "{0}",
+  "scenario_format": "{{scenario}}",
+  "names_behavior": 0,
+  "stream_openai": true,
+  "prompts": [
+    {
+      "identifier": "main",
+      "name": "Main Prompt (one of only two blocks in this file that sends text; everything between here and the bottom is an engine slot)",
+      "role": "system",
+      "content": "You are {{char}}, writing one turn of a back and forth story with {{user}}.\n\nWrite {{char}} only. Never write speech, thoughts, or actions for {{user}}.\nKeep each reply to two or three short paragraphs.\nUse third person, past tense.\nEnd at a point {{user}} can answer.",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "worldInfoBefore",
+      "name": "World Info before (engine slot: lorebook entries the host chose to place above the card)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "personaDescription",
+      "name": "Persona Description (engine slot: who the human is playing)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "charDescription",
+      "name": "Char Description (engine slot: the card's description field lands here)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "charPersonality",
+      "name": "Char Personality (engine slot: the card's personality field lands here)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "scenario",
+      "name": "Scenario (engine slot: the card's scenario field lands here)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "worldInfoAfter",
+      "name": "World Info after (engine slot: lorebook entries the host chose to place below the card)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "dialogueExamples",
+      "name": "Chat Examples (engine slot: the card's example dialogue)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "Chat History (engine slot: the transcript; its position is the only decision this block makes)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "jailbreak",
+      "name": "Post History Instructions (the second and last block that sends text; it sits after the transcript so it is the freshest thing the model reads)",
+      "role": "system",
+      "content": "Before writing: stay in {{char}}'s voice, keep it short, and leave {{user}} something to answer.",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 100001,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        },
+        {
+          "identifier": "personaDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charPersonality",
+          "enabled": true
+        },
+        {
+          "identifier": "scenario",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoAfter",
+          "enabled": true
+        },
+        {
+          "identifier": "dialogueExamples",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "jailbreak",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

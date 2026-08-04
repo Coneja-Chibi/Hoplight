@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/concepts/regex-engine",
   "sourcePath": "docs/reference/concepts/regex-engine.md",
-  "sourceHash": "sha256:465911e7775ce821753f182ddd78ea138b722a65a42e4fcbddbe81f47651ae2d",
+  "sourceHash": "sha256:8552c231719de43b2788a57077e12a396273f5cbec17297bad2239ba41c4edb9",
   "summary": "Regex engine documents how Hoplight runs a regex set in pure src/core/regex with no side effects. Rules are data executed as budgeted String.replace never eval or new Function; HTML-looking output only through SealedHtmlPreview and Risu cbs tokens stored then stripped before compile. The pipeline (`apply.ts`) runs applyRules in sortOrder with d-flag spans, per-rule and set budgets, condition chaining, overlay non-mutating matches, and firstMatchOnly, plus replace-ops group and case transforms. The AST layer (`ast/`) is a clean-room u-mode parser powering explainAst examplesFor analyzeRedos and dialect flag parsing. Travel honesty (`travel-lint.ts`) reports cross-platform lint for JS engines without forking parsers. The builder (`builder.ts` + `word-boundary.ts` / `word-family.ts`) turns word lists into verified patterns for Guided and Plain-words modes. Entity shape is entities/regex.md; platform phase truth lives in capabilities and platform-fields matrices, never as UI literals for pickers or the position-picker law itself.",
   "topics": [
     "pure core/regex engine",
@@ -19,8 +19,8 @@
       "slug": "the-pipeline-applyts",
       "title": "The pipeline (`apply.ts`)",
       "level": 2,
-      "sourceHash": "sha256:83defa95756320ede708395cd0f7acb6304ae078821906afa6502d78dae79903",
-      "summary": "applyRules runs one deterministic pass in sortOrder. Every rule compiles with the d flag so match and group spans come from the engine as TraceMatch whole and groups for bench chips. Per-rule time budget and optional setBudgetMs skip over-budget rules with plain skipReason timeout set-budget phase off or condition never crash. condition chains on whether an earlier rule applied and matched in one pass without forward references. overlay true rules match without mutating and emit spans on a separate overlays channel. firstMatchOnly replaces only the first hit under g. Replacement text goes through replace-ops for dollar groups match sugar and case transforms with escape parity between runtime and travel lint.",
+      "sourceHash": "sha256:cf2810b54fadb57cea51223e6943a5eadc85bb903a6f02caa3f91b25393353eb",
+      "summary": "applyRules runs one deterministic pass in sortOrder. Every rule compiles with the d flag so match and group spans come from the engine as TraceMatch whole and groups for bench chips. Per-rule time budget and optional setBudgetMs skip over-budget rules with plain skipReason timeout set-budget phase off or condition never crash. condition chains on whether an earlier rule applied and matched in one pass without forward references. overlay true rules match without mutating and emit spans on a separate overlays channel. firstMatchOnly replaces only the first hit under g. Replacement text goes through replace-ops for dollar groups match sugar and case transforms with escape parity between runtime and travel lint. Replacement also runs JavaScript's own $& family, and those are the asymmetric tokens: this engine expands them and no other surveyed engine does, because none hands the template to String.replace, so a rule written to re-emit its match consumes it instead and every later rule keyed on that text stops firing.",
       "topics": [
         "applyRules sortOrder",
         "d flag TraceMatch spans",
@@ -49,8 +49,8 @@
       "slug": "travel-honesty-travel-lintts",
       "title": "Travel honesty (`travel-lint.ts`)",
       "level": 2,
-      "sourceHash": "sha256:152318de52106a780bcdcd0acde4d86507a1c680bb6199e0137add805c4c83f2",
-      "summary": "All five platforms execute JS RegExp so cross-platform divergence is a lint not a parser fork. travelLint reports with spans: replace and flag extensions the destination will not run such as match sugar case transforms and cbs tokens, engine-only rule fields condition overlay first-match-only, and host-age risks look-behind and v flag. The editor shows these dashed amber under Write-for; nothing is blocked or mangled.",
+      "sourceHash": "sha256:0392460cbd83ac9e30a7e40d353ebc1277affdb92e0a1d2a2ddb5b53703edf7f",
+      "summary": "All five platforms execute JS RegExp, so divergence is a lint, not a parser fork. travelLint reports with spans: replace and flag extensions the destination will not run, engine-only rule fields, and host-age risks. The dollar-ampersand family reports on every lens but this engine's own, because it works while a rule is edited and breaks once it travels. The editor shows these dashed amber under Write-for; nothing is blocked or mangled.",
       "topics": [
         "lint not parser fork",
         "destination extension gaps",

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/security/README",
   "sourcePath": "docs/reference/security/README.md",
-  "sourceHash": "sha256:d3f543829af7ef42a0bde37ced9ca277204775e4bcaf3fe4c968e94cfc462d46",
+  "sourceHash": "sha256:a240ea1a810ceaaeaf2b6e694d51b8b71b60a684d06d323944ce168d969ab31c",
   "summary": "Developer threat model for a local content forge that protects provider credentials, remote join secrets and approvals, filesystem state, trusted UI authority, and machine availability from hostile files and explicitly approved remote clients. The layers document canonical parse-not-execute conversion with semantic Round-Trip guarantees, bounded archives, pre-compile ReDoS rejection plus runtime budgets, sanitized rendering and CSP, capability-starved Lua with worker termination and value-only messages, a three-asset sandbox origin whose packaged proof is blocked, the primary loopback API plus separately gated remote listeners, and Kit's encrypted BYOK vault. Honest gaps include packaged-host sandbox measurement, malformed-vault recovery, the absent non-Windows passphrase flow, and provider redirects that are not revalidated after the initial host check. Each layer names its enforcement and test boundary so scaffolded behavior is not presented as packaged proof.",
   "topics": [
     "local content threat model",
@@ -38,8 +38,8 @@
       "slug": "the-layers",
       "title": "The layers",
       "level": 2,
-      "sourceHash": "sha256:e7ed63fa03bf37bf05fe2ded2b0c2e4fe9c7b4a2b833bf0d02399c8aeb56fc4c",
-      "summary": "The layers combine structural prevention with bounded execution and explicitly scoped evidence. 1. Parse, not execute keeps private payloads opaque and conversion canonical. 2. Decompression caps on archives bound selection and inflation. 3. ReDoS-guarded regex rejects dangerous AST shapes before native execution. 4. Sanitized rendering applies DOMPurify, pure policy, and CSP. 5. The Lua sandbox and its resource budgets remove host capabilities, cap state, and kill workers. 6. Distinct-origin sandbox isolation adds a second HTTP-tested listener whose packaged proof remains blocked. 7. The token-gated primary local server and separately enabled remote listeners protect API authority with request gates, join secrets, device approval, and host-only controls. 8. The BYOK provider vault encrypts configurations while documenting passphrase, redirect, and recovery limits.",
+      "sourceHash": "sha256:28ef2534b416617628b33e98e0186d3bbf1eebc738548fa72f4b83c424636a0d",
+      "summary": "The layers combine structural prevention with bounded execution and explicitly scoped evidence. 1. Parse, not execute keeps private payloads opaque and conversion canonical. 2. Decompression caps on archives bound selection and inflation. 3. ReDoS-guarded regex rejects dangerous AST shapes before native execution. 4. Sanitized rendering applies DOMPurify, pure policy, and CSP. 5. The Lua sandbox and its resource budgets remove host capabilities, cap state, and kill workers. 6. Distinct-origin sandbox isolation adds a second HTTP-tested listener whose packaged proof remains blocked. 7. The token-gated primary local server and separately enabled remote listeners protect API authority with request gates, join secrets, device approval, and host-only controls. The tunnel also carries the only path that turns a download into an executable, host-only and verified against a committed SHA-256 before the bytes reach disk. 8. The BYOK provider vault encrypts configurations while documenting passphrase, redirect, and recovery limits.",
       "topics": [
         "parse and escrow",
         "archive inflation budgets",
@@ -56,7 +56,7 @@
           "title": "1. Parse, not execute",
           "level": 3,
           "sourceHash": "sha256:4cc7168450d8a969a56435711b782063cc4518ba29ed95a4ea5c1cafbd8e411a",
-      "summary": "Every format enters and leaves through the canonical superset rather than converting directly to another platform. Source-specific scripts, extension blocks, and layout remain opaque escrow data. Cross-format exports carry only canonical content, preventing one application's executable payload from being copied into another, while typed adapter contracts prevent cross-kind writers. The engine and server do not evaluate imported scripts; the user-invoked Lua Test Bench is the sole execution exception. Same-format Round-Trip requires semantic preservation unless a format specification explicitly declares and fixtures prove a byte-level tier.",
+          "summary": "Every format enters and leaves through the canonical superset rather than converting directly to another platform. Source-specific scripts, extension blocks, and layout remain opaque escrow data. Cross-format exports carry only canonical content, preventing one application's executable payload from being copied into another, while typed adapter contracts prevent cross-kind writers. The engine and server do not evaluate imported scripts; the user-invoked Lua Test Bench is the sole execution exception. Same-format Round-Trip requires semantic preservation unless a format specification explicitly declares and fixtures prove a byte-level tier.",
           "topics": [
             "hub and spoke conversion",
             "opaque source escrow",
@@ -150,7 +150,7 @@
           "slug": "7-token-gated-local-server-and-opt-in-remote-access",
           "title": "7. Token-gated local server and opt-in remote access",
           "level": 3,
-          "sourceHash": "sha256:6e252ef506b484cc9f1c8565821680e894f117d8c9fbcae116e27d80e4e81b7a",
+          "sourceHash": "sha256:5cc74ce1795d0122892bed50dbfb0006fac595f39744a39a9617981b4c198ef0",
           "summary": "The primary Studio listener binds 127.0.0.1 and creates a random per-launch bearer. API requests receive Host validation against DNS rebinding; mutations require an allowed Origin and constant-time token comparison, while GET and HEAD use Sec-Fetch-Site cross-site refusal because browser subresource reads cannot attach the bearer. Missing mutation Origin fails closed. Streaming readers cap inspect bodies at 64 MiB and JSON at 32 MiB with 413 on overflow. Remote tunnel and LAN modes are separate, explicitly enabled boundaries with join secrets, device approval, and host-only control routes documented in the remote-access threat model.",
           "topics": [
             "127.0.0.1 listener",

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:f640f760bd6fb59059dd2d3ff8c467dd0da4e978191828393473ba008fb35493",
+  "sourceHash": "sha256:f4fc5ae64df7499382773555c7cc733caf9499cd0c7b1a487d309c80ab87c738",
   "summary": "Component catalog is the generated inventory of exported Hoplight UI entries. scripts/hooks/component-catalog.ts scans React components throughout src/ui plus exported create/build/swatch/inject helpers under src/ui/_shared. Authors do not hand-edit the markdown: regenerate it with bun run scripts/hooks/component-catalog.ts, and the pre-commit --check gate fails when live exports drift. Each row records Name, source File, TypeScript Signature, optional Doc blurb, and Styles class list. Before building a control, scan this catalog and reuse an existing entry rather than inventing a twin. The two tables distinguish React `.tsx` components from shared `.ts` UI helpers; that distinction is file shape and API role, not a claim that helpers are legacy or awaiting migration. Use the catalog as lookup authority for props and file homes; behavior and layout truth remain in reference/ui and the owning source.",
   "topics": [
     "generated component catalog",
@@ -19,8 +19,8 @@
       "slug": "components-react-tsx",
       "title": "Components (React, `.tsx`)",
       "level": 2,
-      "sourceHash": "sha256:78f60490d6b1bc741fe06bd9473c6f2bc5c7f4d270fe0f9b1a1860fed833a093",
-      "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog, and the dirty-tab ClosePieceDialog/ClosePiecePrompt), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), and app-scoped presenters under src/ui/apps. Workbench dominates: revision-aware character, lorebook, pack, persona, preset, and regex editors plus workshop rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import and damaged-file notices plus lore and regex workshops; settings contributes LAN and update dialogs; docs contributes its room, navigation, contents, and table of contents. Each row is Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
+      "sourceHash": "sha256:39ac97f3b48d63e1bdcc0a1f8002dae4144a9ad3c876c0251d4246d704e75dc8",
+      "summary": "Primary table of React .tsx exports that power the studio under ADR-008. Rows span shell chrome (App, Dock, DropVeil, BootErrorScreen, FollowDialog, and the dirty-tab ClosePieceDialog/ClosePiecePrompt), shared components under src/ui/components (forms, dialogs, lens rail, export dialog, CSS workshop panes, sprite and expression tooling, write-for strip, bento cards, and many field editors), app-scoped presenters under src/ui/apps, and Settings sections including the remote-access helper card (HelperMissingCard, HelperInstalledLine). Workbench dominates: revision-aware character, lorebook, pack, persona, preset, and regex editors plus workshop rails, panes, bulk bars, health and changes surfaces, and mode chrome. Library contributes import and damaged-file notices plus lore and regex workshops; settings contributes LAN and update dialogs; docs contributes its room, navigation, contents, and table of contents. Each row is Name, source File, TypeScript Signature, optional Doc one-liner, and Styles class tokens. Prefer matching an existing name and file path over adding a parallel control; empty Doc cells still count as cataloged exports that the reuse rule covers.",
       "topics": [
         "React tsx exports",
         "shell Dock App",

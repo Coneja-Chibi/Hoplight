@@ -19,6 +19,19 @@ export interface ChangeSession {
     input: unknown,
     entity: ParsedCanonicalEntity,
   ): ChangeDraft;
+  /**
+   * An update draft from a whole proposed entity, with no capability behind it.
+   *
+   * For an edit a person made directly rather than one a model composed: the preset rail rearranging
+   * blocks has no capability id and no preview function, it simply has a before and an after. It
+   * still becomes an ordinary draft so it still meets the ordinary Gate, revision check and receipt.
+   * Without this the only paths to a write were "a model composed it" or "nothing checked it".
+   */
+  revise(
+    entity: ParsedCanonicalEntity,
+    proposed: unknown,
+    operation: ChangeOperation,
+  ): ChangeDraft;
   get(id: string): ChangeDraft | null;
   list(): readonly ChangeDraft[];
   forTarget(kind: ContentKind, id: string): ChangeDraft | null;
@@ -65,6 +78,36 @@ export function createChangeSession(): ChangeSession {
         },
         baseline: structuredClone(proposed),
         proposed,
+        operations: [operation],
+        warnings: [...operation.warnings],
+        platformImpact: [...operation.platformImpact],
+        status: "draft",
+      };
+      drafts.set(draft.id, draft);
+      activeByTarget.set(key, draft.id);
+      return cloneDraft(draft);
+    },
+
+    revise(entity, proposed, operation) {
+      const parsed = parseCanonicalEntity(proposed);
+      if (parsed.kind !== entity.kind || parsed.id !== entity.id) {
+        throw new Error("revise: the proposal is a different piece");
+      }
+      // The same guard the capability path enforces. Escrow is the sealed source record, and an edit
+      // that rewrote it would quietly discard the platform-native fields it exists to preserve.
+      if (!jsonEqual(parsed.original, entity.original)) {
+        throw new Error("revise: the proposal modified original escrow");
+      }
+      const kind = entity.kind as ContentKind;
+      const key = targetKey(kind, entity.id);
+      const existing = activeByTarget.get(key);
+      if (existing) throw new Error(`revise: an active draft already exists for ${key}`);
+      const draft: ChangeDraft = {
+        id: `draft-${++sequence}`,
+        mode: "update",
+        target: { kind, id: entity.id, revision: entityRevision(entity) },
+        baseline: structuredClone(entity),
+        proposed: parsed,
         operations: [operation],
         warnings: [...operation.warnings],
         platformImpact: [...operation.platformImpact],

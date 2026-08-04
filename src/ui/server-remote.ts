@@ -10,11 +10,17 @@
  *     handler factory is INJECTED (makeHandler) so this module never imports server.ts back.
  */
 import { randomBytes } from "node:crypto";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { SettingsStoreLike } from "../studio/contracts";
 import { SETTING_KEYS } from "../studio/settings-shape";
 import { createSidecarManager, type SidecarManager } from "./remote/sidecar-manager";
 import { createLanManager, type LanManager } from "./remote/lan-manager";
+import { AuxDownloadError, fetchPinnedAux, platformKey } from "./remote/aux-download";
+import type { AuxHelperStatus } from "./remote/sidecar-status";
+import { auxSidecarInstalled, auxSidecarPath, installAuxSidecar, readAuxMarker } from "./remote/aux-install";
+import { SIDECAR_PINS, SIDECAR_REPO } from "./remote/sidecar-pins";
 import { json, err, readJsonCapped, openInBrowser } from "./server-security";
 
 /** The UNTRUSTED loopback port the sidecar reverse-proxies remote traffic into (a second Bun.serve binds
@@ -24,11 +30,34 @@ const UNTRUSTED_UPSTREAM = `127.0.0.1:${UNTRUSTED_PORT}`;
 /** LAN mode's listener port (bound on 0.0.0.0 with a self-signed cert when the host turns LAN on). */
 const LAN_PORT = 8790;
 
-/** Resolve the bundled Tailscale sidecar binary. A missing binary fails soft: the manager reports an
- *  error state rather than crashing the server. */
-function resolveSidecarBin(): string {
+/**
+ * Locate the Tailscale sidecar binary, or null when this build does not carry one.
+ *
+ * TWO CANDIDATES, and the second one is the bug fix. `import.meta.url` is correct from source (the
+ * repo's own sidecar/ folder, where `bun sidecar/build.ts` puts the binary) and USELESS once compiled:
+ * inside a standalone Bun executable it points at the virtual filesystem, so the old single-candidate
+ * version resolved to `B:\sidecar\sidecar.exe` and could never hit. Every packaged studio therefore
+ * failed to start remote access no matter what was installed beside it. `process.execPath` is the real
+ * exe on disk, so the packaged lookup is a sibling `sidecar/` folder next to Hoplight.exe.
+ *
+ * Returns null rather than a hopeful path: the caller renders "unavailable" up front instead of
+ * offering a control that spawns a guess and translates the OS error afterwards.
+ */
+export function sidecarCandidates(execPath: string = process.execPath): string[] {
   const name = process.platform === "win32" ? "sidecar.exe" : "sidecar";
-  return fileURLToPath(new URL(`../../sidecar/${name}`, import.meta.url));
+  return [
+    // from source: the authoritative location, and the one a developer just built into
+    fileURLToPath(new URL(`../../sidecar/${name}`, import.meta.url)),
+    // packaged: beside the executable the user actually launched
+    join(dirname(execPath), "sidecar", name),
+    // downloaded on request through the aux-package button, verified against a baked hash before it was
+    // written. Last, so a helper someone deliberately placed beside the exe still wins.
+    auxSidecarPath(),
+  ];
+}
+
+function resolveSidecarBin(): string | null {
+  return sidecarCandidates().find((p) => existsSync(p)) ?? null;
 }
 
 /** Routes that are HOST-ONLY: remote-access management, version updates, plus host/app control. Refused to
@@ -43,6 +72,52 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
     p === "/api/restart" ||
     (p === "/api/settings" && method !== "GET" && method !== "HEAD")
   );
+}
+
+export function auxHelperStatus(): AuxHelperStatus {
+  // An empty pin table is the honest default (nothing published for this platform yet), so "offered" is
+  // simply whether this platform is in it. Same answer from source, from the CLI and from the packaged app,
+  // because the pins are committed rather than baked into one build.
+  const pin = SIDECAR_PINS[platformKey()];
+  const marker = readAuxMarker();
+  const installed = auxSidecarInstalled();
+  return {
+    offered: Boolean(pin),
+    installed,
+    // Reported only when a helper is actually there; a marker left behind by a removed one would name a
+    // version the user does not have.
+    ...(installed && marker ? { installedTag: marker.tag } : {}),
+    platform: platformKey(),
+  };
+}
+
+/**
+ * Fetch, verify and install the helper. Every refusal is reported as a sentence a user can act on; the
+ * AuxDownloadError reason keeps the phrasing out of string-matching.
+ */
+async function downloadHelper(): Promise<Response> {
+  const pin = SIDECAR_PINS[platformKey()];
+  if (!pin) return err("no helper is published for your platform", 501);
+  try {
+    const bytes = await fetchPinnedAux(SIDECAR_REPO, pin);
+    installAuxSidecar(bytes, pin);
+    return json({ ok: true, path: auxSidecarPath(), ...auxHelperStatus() });
+  } catch (e) {
+    if (e instanceof AuxDownloadError) {
+      // The technical detail stays on the host's console; the caller gets the actionable sentence.
+      console.warn(`remote: helper download refused (${e.reason}):`, e.message);
+      return err(
+        e.reason === "hash-mismatch"
+          ? "The downloaded helper did not match what this build expects, so it was discarded. Nothing was installed."
+          : e.reason === "wrong-host" || e.reason === "insecure-url"
+            ? "The download was refused because it did not come from the expected place. Nothing was installed."
+            : "The helper could not be downloaded. Nothing was installed.",
+        502,
+      );
+    }
+    console.warn("remote: helper download failed:", e instanceof Error ? e.message : e);
+    return err("The helper could not be downloaded. Nothing was installed.", 502);
+  }
 }
 
 export interface RemoteRouteDeps {
@@ -71,8 +146,14 @@ export async function handleRemoteRoutes(
   if (p === "/api/remote/enable" && req.method === "POST") {
     if (!remote) return err("remote access is unavailable in this build", 503);
     remote.enable();
-    await settings.update({ [SETTING_KEYS.remoteAccessEnabled]: true });
-    return json(remote.getState());
+    const state = remote.getState();
+    // Do NOT persist an "on" that did not happen. The panel hides the Enable control while the mesh
+    // helper is absent, so reaching here means a direct API call; recording intent anyway would make
+    // every later boot try to resume something this build cannot start.
+    if (state.phase !== "unavailable") {
+      await settings.update({ [SETTING_KEYS.remoteAccessEnabled]: true });
+    }
+    return json(state);
   }
   if (p === "/api/remote/disable" && req.method === "POST") {
     if (!remote) return err("remote access is unavailable in this build", 503);
@@ -82,6 +163,16 @@ export async function handleRemoteRoutes(
   }
   if (p === "/api/remote/devices") {
     return json(remote ? remote.getDevices() : []);
+  }
+
+  // The aux package: an explicit, one-off fetch of the remote-access helper this build was not shipped
+  // with. Host-only like every /api/remote/* route (isHostOnlyRoute covers the prefix), so a tailed-in
+  // guest can never make the host machine download and install an executable.
+  if (p === "/api/remote/helper/status") {
+    return json(auxHelperStatus());
+  }
+  if (p === "/api/remote/helper/download" && req.method === "POST") {
+    return await downloadHelper();
   }
   if (p === "/api/remote/kick" && req.method === "POST") {
     if (!remote) return err("remote access is unavailable in this build", 503);
@@ -158,7 +249,7 @@ export function setupRemoteAccess(deps: {
   // requires it). Never persisted; regenerated every launch.
   const sharedSecret = randomBytes(32).toString("hex");
   const remote = createSidecarManager({
-    binPath: resolveSidecarBin(),
+    resolveBin: resolveSidecarBin,
     untrustedUpstream: UNTRUSTED_UPSTREAM,
     sharedSecret,
     openUrl: openInBrowser,

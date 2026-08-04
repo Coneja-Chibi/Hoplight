@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "guide/security",
   "sourcePath": "docs/guide/security.md",
-  "sourceHash": "sha256:eca35bfb5ef9f238367b00b073da9d231e4afd98feef09f2e69a2b7adf49cce9",
-  "semanticSummaryHash": "sha256:50a6f0fc2ca9925c892a22d6f1958ab7c329e6f9196d52e101dce8e812f5b7b3",
+  "sourceHash": "sha256:1f847d82fc6a7346e3192ddf7381c31bebfbe04ef842a75a2700c87d5c7ab725",
+  "semanticSummaryHash": "sha256:068f503c019033faeae5e65495db146dd635a8a6f86835a7a4a041dfc5e82339",
   "verdict": "APPROVE",
-  "reviewer": "codex-doc-review-core-r2",
-  "notes": "Second-round independent review APPROVE. The prior save-readback overclaim is fixed in both source and sidecar: Kit gated apply is correctly scoped as save then re-read verification, while Studio editor saves are described through expected-revision stale-write rejection. Verified against src/kit/changes/apply.ts, src/studio/store.ts, src/ui/server-studio-write.ts, sandbox-host and provider egress code. Focused summary checks and 58 related tests passed, including Kit apply mismatch rejection, sandbox allowlist/token absence, and guarded redirect behavior.",
-  "reviewedAt": "2026-07-26T20:25:07.811Z"
+  "reviewer": "chi",
+  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
+  "reviewedAt": "2026-07-31T19:18:39.552Z"
 }

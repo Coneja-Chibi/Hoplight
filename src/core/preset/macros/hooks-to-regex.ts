@@ -16,7 +16,7 @@
  *   placement user_input    -> 1
  *   placement ai_output     -> 2
  *   strip: true             -> the replacement omits the match, so the tag stops being visible
- *   strip: false            -> the replacement re-emits the match with $& before writing
+ *   strip: false            -> the replacement re-emits the match with {{match}} before writing
  *   action set              -> {{setvar::key::$1}}
  *   action unset            -> {{setvar::key::}}
  *   action append           -> {{addvar::key::$1}}
@@ -39,6 +39,8 @@
  * every other chat and leave stale values behind after starting over. An author who wants a value to
  * persist can widen a rendered rule; a converter cannot widen it back down once it has escaped.
  */
+import type { RegexRule } from "../../../entities/regex/schema";
+import { travelLint } from "../../regex/travel-lint";
 import type { HookAction, StateHook, StateMachine } from "./state-machine";
 
 /** One emitted rule, in the canonical regex-rule shape a codec can serialize. */
@@ -60,12 +62,52 @@ export interface UnrenderedHook {
   reason: string;
 }
 
+/** A rendered rule carrying something the target's engine will not execute. */
+export interface RuleWarning {
+  /** the rule this is about, matching RenderedRule.id */
+  id: string;
+  /** already phrased for a reader, naming the consequence rather than the rule violated */
+  reason: string;
+}
+
 export interface HookRendering {
   rules: RenderedRule[];
   unrendered: UnrenderedHook[];
   /** Caveats that travel with the result. Never dropped by a caller. */
   limits: string[];
+  /**
+   * Per-rule findings from linting what was actually emitted against the target's engine.
+   *
+   * THIS IS CHECKED HERE RATHER THAN LEFT TO THE EDITOR because the editor is a surface a person
+   * looks at, and most conversions are run by an agent that never opens one. A guard nobody reads
+   * during the work is not a guard.
+   *
+   * Expected to be empty for anything this module builds itself. It stays because hook action values
+   * cross VERBATIM: RoleCall writes templates like `"$1 = $2 /// "`, and a source author who wrote a
+   * JavaScript-only token in one would otherwise have it carried faithfully into a rule that cannot
+   * run it.
+   */
+  warnings: RuleWarning[];
 }
+
+/**
+ * How the target names "everything that matched".
+ *
+ * NOT `$&`, and the difference is invisible until it reaches a real chat. SillyTavern does NOT hand
+ * the replacement to JavaScript's String.replace. It expands the string itself, matching only
+ * `$<digits>` and `$<name>`, and returns a finished string from the callback, so the engine never
+ * performs its own dollar expansion. `$&` therefore survives as two literal characters.
+ *
+ * The failure that costs is not the stray characters. A rule that re-emits the match to avoid
+ * deleting authored text instead CONSUMES it, so any later rule matching the same tag never fires:
+ * a catcher writes its variable, the flag rule that commits it never sees the tag, and the value is
+ * staged and never committed. Everything looks like it ran.
+ *
+ * Verified against public/scripts/extensions/regex/engine.js, which maps `{{match}}` to `$0` before
+ * expanding. Do not "simplify" this to `$&` on the reasoning that it is standard JavaScript; it is,
+ * and that is exactly why the mistake is easy to make twice.
+ */
+const WHOLE_MATCH = "{{match}}";
 
 const PHASE_BY_PLACEMENT: Record<string, string> = {
   user_input: "user_input",
@@ -78,9 +120,9 @@ const PHASE_BY_PLACEMENT: Record<string, string> = {
  * THE AUTHORED VALUE IS USED VERBATIM WHEREVER THERE IS ONE, and this is the whole reason hook
  * actions had to start carrying it. RoleCall writes templates like `"$1 = $2 /// "` - literal text
  * woven around two capture groups - and a reset writes `""` on purpose. Guessing `$1` would silently
- * discard the second group and the joining text; guessing `$&` would turn a deliberate clear into a
- * write of whatever matched. Capture-group syntax is identical in both engines, so the template
- * needs no rewriting.
+ * discard the second group and the joining text; guessing the whole match would turn a deliberate
+ * clear into a write of whatever matched. Capture-group syntax is identical in both engines, so the
+ * template needs no rewriting.
  *
  * The fallback only applies when the source omitted a value entirely, which is different from an
  * authored empty string and is treated as "store what matched".
@@ -118,7 +160,7 @@ function renderHook(hook: StateHook, sortOrder: number): RenderedRule | Unrender
     };
   }
 
-  const fallback = capturesSomething(hook.trigger) ? "$1" : "$&";
+  const fallback = capturesSomething(hook.trigger) ? "$1" : WHOLE_MATCH;
   const writes = hook.actions.map((a) => macroFor(a, fallback)).filter((m): m is string => m !== null);
   if (writes.length === 0) {
     return { id: hook.id, reason: "no action in this hook has a counterpart that writes state" };
@@ -135,7 +177,7 @@ function renderHook(hook: StateHook, sortOrder: number): RenderedRule | Unrender
     flags: hook.flags || "g",
     // strip drops the matched text; keeping it means re-emitting the match before the writes, or
     // the rule would silently delete authored text as a side effect of storing it.
-    replace: (hook.strip ? "" : "$&") + writes.join(""),
+    replace: (hook.strip ? "" : WHOLE_MATCH) + writes.join(""),
     phases: phases.length > 0 ? phases : ["user_input", "response"],
     enabled: true,
     sortOrder,
@@ -174,5 +216,36 @@ export function renderHooksAsRegex(machine: StateMachine): HookRendering {
       + "covers only what parsed.",
     );
   }
-  return { rules, unrendered, limits };
+  return { rules, unrendered, limits, warnings: lintEmitted(rules) };
+}
+
+/**
+ * Check what was emitted against the engine that has to run it.
+ *
+ * The rules are built for SillyTavern - the placements are its `regex_placement` numbers - so that is
+ * the profile they are measured against. Only the replacement is examined: triggers are reported as
+ * uncompiled in `limits` already, and the target parses those itself.
+ */
+function lintEmitted(rules: readonly RenderedRule[]): RuleWarning[] {
+  const warnings: RuleWarning[] = [];
+  for (const rule of rules) {
+    // A deliberately inert find and flags: the trigger crossed verbatim from the source and its own
+    // caveat is already in `limits`, so linting it here would report the SOURCE author's pattern as
+    // this conversion's finding. Only what this module wrote is measured.
+    const probe: RegexRule = {
+      id: rule.id,
+      label: rule.label,
+      find: "x",
+      flags: "g",
+      replace: rule.replace,
+      phases: ["output"],
+      enabled: true,
+      sortOrder: rule.sortOrder,
+    };
+    for (const note of travelLint(probe, "sillytavern")) {
+      if (note.field !== "replace") continue;
+      warnings.push({ id: rule.id, reason: note.message });
+    }
+  }
+  return warnings;
 }

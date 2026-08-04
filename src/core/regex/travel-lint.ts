@@ -288,6 +288,28 @@ function lintReplace(replace: string, profile: RegexWriteForProfile, label: stri
       i += 9;
       continue;
     }
+    // JavaScript's own replacement tokens. No surveyed engine runs String.replace on the template,
+    // so these are never expanded anywhere; the note fires on every lens. $$ is included because it
+    // means a literal dollar in JS and a plain double dollar everywhere else.
+    if (c === "$") {
+      const next = replace[i + 1];
+      if (next === "&" || next === "`" || next === "'" || next === "$") {
+        const token = `$${next}`;
+        notes.push({
+          feature: "js-dollar-token",
+          field: "replace",
+          span: { start: i, end: i + 2 },
+          severity: "unsupported",
+          message:
+            `"${token}" is a JavaScript replacement token, and ${label} does not run one. It prints `
+            + `literally, and where "${token}" was meant to put the matched text back, the match is `
+            + "consumed instead, so any later rule that looks for the same text stops firing. Use "
+            + "{{match}} for the whole match, or a numbered group such as $1.",
+        });
+        i += 2;
+        continue;
+      }
+    }
     i += 1;
   }
   return notes;

@@ -1,0 +1,161 @@
+{
+  "temperature": 0.8,
+  "top_p": 0.95,
+  "frequency_penalty": 0,
+  "presence_penalty": 0,
+  "openai_max_context": 32000,
+  "openai_max_tokens": 1024,
+  "wi_format": "[World: {0}]",
+  "scenario_format": "{{scenario}}",
+  "names_behavior": 0,
+  "stream_openai": true,
+  "prompts": [
+    {
+      "identifier": "tracker-reset",
+      "name": "Tracker Step 1 of 3 - Seed Defaults (MUST be first in the order, above even the Base Instruction; gives every tracker field a known value before any block reads one. ST variables persist across turns, so a field left unseeded could still hold a value from an earlier turn)",
+      "role": "system",
+      "content": "{{// Every field the readout prints is assigned here, so the readout can never print a blank row.}}\n{{setvar::TrackerTime::unspecified}}\n{{setvar::TrackerPlace::unspecified}}\n{{setvar::TrackerWeather::unspecified}}\n{{setvar::TrackerPresent::unspecified}}\n{{setvar::TrackerFocus::none recorded}}\n{{// setvar assigns and returns an empty string, so this block contributes no text of its own.}}\n{{trim}}",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "main",
+      "name": "Base Instruction (an ordinary content block; it prints, and it has nothing to do with the tracker - shown so the tracker blocks are visibly a separate layer)",
+      "role": "system",
+      "content": "You are {{char}}, replying to {{user}}. Write plainly, keep replies short, and stay in character.",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "tracker-scene-writer",
+      "name": "Tracker Step 2 of 3 - Scene Writer (setvar only, prints nothing; must sit BELOW step 1 or its values get overwritten by the defaults, and ABOVE step 3 or the readout prints the defaults instead)",
+      "role": "system",
+      "content": "{{// Overwrites two of the fields step 1 seeded. Two blocks writing the same name is legal; the one lower in the order wins, so ordinal position alone decides the value.}}\n{{setvar::TrackerPlace::a quiet indoor room}}\n{{setvar::TrackerWeather::not visible from here}}\n{{trim}}",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "worldInfoBefore",
+      "name": "World Info Before (engine marker - no content of its own; its whole payload is its position in the order)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "personaDescription",
+      "name": "Persona Description (engine marker - the user's persona splices in here)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "charDescription",
+      "name": "Character Description (engine marker - the card's description splices in here)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "worldInfoAfter",
+      "name": "World Info After (engine marker)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "dialogueExamples",
+      "name": "Example Messages (engine marker)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "Chat History (engine marker - the transcript splices in here; it is the last marker, which is why the readout below it is the freshest thing the model reads)",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "tracker-readout",
+      "name": "Tracker Step 3 of 3 - Status Readout (getvar only; the ONE tracker block that prints. Two separate reasons it is last: every writer must run before it, and sitting after Chat History is the post-history slot, so the readout is the freshest state the model sees)",
+      "role": "system",
+      "content": "{{// getvar only. This block prints whatever steps 1 and 2 stored, in a fixed field order.}}\nCurrent scene status. Repeat this block at the top of your reply, updating only the fields the scene actually changed.\n\n[Status]\nTime: {{getvar::TrackerTime}}\nPlace: {{getvar::TrackerPlace}}\nWeather: {{getvar::TrackerWeather}}\nPresent: {{getvar::TrackerPresent}}\nFocus: {{getvar::TrackerFocus}}\n\nKeep each field to a short phrase. If a field still reads \"unspecified\", fill it in once the scene makes it clear. {{char}} may change these fields through their actions; {{user}} may also state a change directly.",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 100000,
+      "order": [
+        {
+          "identifier": "tracker-reset",
+          "enabled": true
+        },
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "tracker-scene-writer",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        },
+        {
+          "identifier": "personaDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoAfter",
+          "enabled": true
+        },
+        {
+          "identifier": "dialogueExamples",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "tracker-readout",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

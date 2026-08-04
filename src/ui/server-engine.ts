@@ -2,8 +2,8 @@
  * UI server engine plumbing: inspect/export over the same adapters as the CLI.
  * Extracted from server.ts (behavior-preserving).
  */
-import { buildParseReport, buildSerializeReport, registry } from "../core";
-import type { AdapterInput, AdapterOutput, CharacterAdapter, FormatAdapter } from "../core";
+import { buildParseReport, buildSerializeReport, registry, toAdapterInput } from "../core";
+import type { AdapterOutput, CharacterAdapter, FormatAdapter } from "../core";
 import { emitBundle, inspectBundle, inspectPresetBundle } from "../convert";
 import type { CanonicalCharacter } from "../entities/character/schema";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
@@ -21,19 +21,6 @@ import {
 } from "./server-security";
 
 type AnyEntity = ParsedCanonicalEntity;
-
-function toAdapterInput(bytes: Uint8Array, filename: string): AdapterInput {
-  const input: AdapterInput = { bytes, filename };
-  const ext = filename.toLowerCase().split(".").pop() ?? "";
-  if (ext === "json" || ext === "txt" || ext === "lorebook") {
-    try {
-      input.text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    } catch {
-      /* binary */
-    }
-  }
-  return input;
-}
 
 export const formatMeta = (a: FormatAdapter): Record<string, unknown> => ({
   id: a.id,

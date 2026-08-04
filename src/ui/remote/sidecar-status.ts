@@ -14,7 +14,20 @@ export interface SidecarEvent {
   readonly message?: string;
 }
 
-export type RemotePhase = "off" | "starting" | "needs-login" | "needs-https" | "connected" | "error";
+/**
+ * "unavailable" is NOT an error: it means this build carries no sidecar binary, so the mesh path cannot
+ * run and nothing was ever attempted. It exists as its own phase because the two need opposite
+ * treatment in the UI - an error offers "Try again", and retrying something structurally absent just
+ * reproduces the same failure. Kept distinct from "off" too: off is a switch the user can flip.
+ */
+export type RemotePhase =
+  | "off"
+  | "unavailable"
+  | "starting"
+  | "needs-login"
+  | "needs-https"
+  | "connected"
+  | "error";
 
 /** The app-facing remote-access state the UI renders and the status API returns. */
 export interface RemoteState {
@@ -25,9 +38,19 @@ export interface RemoteState {
   readonly url?: string;
   /** human-readable detail, present only in the "error" phase. */
   readonly error?: string;
+  /**
+   * Why the mesh path is unavailable, present only in the "unavailable" phase. Its own field rather
+   * than reusing `error`: this object is returned to remote clients by /api/remote/status, and one
+   * field carrying two meanings is how "could not start" ends up rendered as a failure that never
+   * happened. Plain prose only - never a filesystem path or a spawn error (see sidecar-manager).
+   */
+  readonly detail?: string;
 }
 
 export const OFF: RemoteState = { phase: "off" };
+
+/** No sidecar binary present: the feature cannot run here, and nothing was attempted. */
+export const unavailableState = (detail: string): RemoteState => ({ phase: "unavailable", detail });
 
 const SIDECAR_STATES = new Set(["starting", "needs-login", "needs-https", "running", "stopped", "error"]);
 
@@ -83,6 +106,27 @@ export function reduceRemoteState(prev: RemoteState, event: SidecarEvent): Remot
 const assertNever = (x: never): never => {
   throw new Error(`remote: unhandled sidecar state ${JSON.stringify(x)}`);
 };
+
+/**
+ * Whether the mesh helper can be fetched for this machine, and what is already installed. Lives here with
+ * the other client-safe mirrors so the browser bundle never reaches into a server module for a shape.
+ */
+export interface AuxHelperStatus {
+  /** a pin exists for THIS platform in THIS build, so a download is possible at all */
+  readonly offered: boolean;
+  /** a helper is already on disk at the downloaded location */
+  readonly installed: boolean;
+  /**
+   * Which release the installed helper came from, when known. FACTUAL ONLY - it is not a staleness
+   * signal, and there deliberately is no such field. Go output is not byte-identical between builds, so
+   * the pinned hash changes on every release whether the helper changed or not; a "your helper is out of
+   * date" derived from that would fire after every single app update, about a helper that works fine.
+   * Shown so a user can answer "which one do I have", and paired with a re-download they can choose.
+   */
+  readonly installedTag?: string;
+  /** the `${platform}-${arch}` key this machine looked itself up by */
+  readonly platform: string;
+}
 
 /** A LAN device session as shown to the host (client-safe mirror of the server's LanSession). */
 export interface LanSessionView {

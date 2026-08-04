@@ -212,8 +212,13 @@ describe("discovery", () => {
   test("finds the drop-in tools and skips infra", async () => {
     const names = (await discoverTools()).map((tool) => tool.name).sort();
     expect(names).toEqual([
+      "block_lookup",
       "docs_query",
+      "folder_import",
+      "folder_search",
       "macro_lookup",
+      "preset_verify",
+      "rail_open",
       "result_query",
       "studio_character_create",
       "studio_delete",

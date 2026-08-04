@@ -66,6 +66,29 @@ export const primaryOriginalRaw = (original: Partial<Original> | undefined): unk
  */
 export type Profiles<Body> = Record<FormatId, Partial<Body>>;
 
+/**
+ * An author's own note about a piece.
+ *
+ * NOT PART OF THE BODY, deliberately. The body is what a codec reads and writes, so anything living
+ * there has to be carried, dropped or escrowed by every adapter in the graph. A note is about the
+ * piece rather than in it - "the reset hook must stay first or this silently does nothing" is exactly
+ * the sort of thing worth keeping and exactly the sort of thing no target format has a field for. On
+ * the envelope it belongs to the studio, survives every conversion untouched, and needs no adapter
+ * to know it exists.
+ *
+ * ON THE ENVELOPE ALSO MEANS EVERY KIND GETS IT from one declaration, and that any surface reading a
+ * canonical entity - Kit, the Workbench, the Library - already has it in hand.
+ */
+export interface EntityNote {
+  /** Stable id, so an edit or a delete can name one note without matching its text. */
+  id: string;
+  text: string;
+  /** ISO timestamp of the last write. */
+  at: string;
+  /** Who wrote it. Absent means the person at the keyboard. */
+  by?: string;
+}
+
 /** The wrapper shared by every canonical entity (character, lorebook, preset, ...). */
 export interface CanonicalEntity<Kind extends string, Body> {
   schemaVersion: typeof CANONICAL_SCHEMA_VERSION;
@@ -78,4 +101,6 @@ export interface CanonicalEntity<Kind extends string, Body> {
   profiles?: Profiles<Body>;
   /** Lossless carry of source-format specifics. */
   original?: Original;
+  /** The author's own notes about this piece. Studio-only; no format carries them. */
+  notes?: EntityNote[];
 }

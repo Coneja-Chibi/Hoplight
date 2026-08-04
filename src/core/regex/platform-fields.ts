@@ -123,6 +123,7 @@ export function phasesForProfile(profile: RegexWriteForProfile): readonly RegexP
  */
 export type RegexReplaceFeature =
   | "match-token"
+  | "js-dollar-token"
   | "case-transform"
   | "conditional-chaining"
   | "overlay"
@@ -135,6 +136,13 @@ export const REGEX_REPLACE_FEATURE_SUPPORT: Record<
   readonly RegexWriteForProfile[]
 > = {
   "match-token": ["full", "sillytavern", "rolecall"],
+  // ONLY the vaud engine, and that asymmetry is the trap. $& $` $' are standard JavaScript, and
+  // replace-ops.ts implements them, so they work while you are editing and break the moment the rule
+  // travels. No surveyed engine hands the template to String.replace: each expands the string itself
+  // and understands only numbered and named groups, so the token survives as literal characters.
+  // The cost is not the stray characters. A rule that meant to re-emit the match CONSUMES it
+  // instead, and every later rule keyed on that same text silently stops firing.
+  "js-dollar-token": ["full"],
   "case-transform": ["full"],
   "conditional-chaining": ["full"],
   "overlay": ["full"],

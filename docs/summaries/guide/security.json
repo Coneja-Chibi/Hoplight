@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "guide/security",
   "sourcePath": "docs/guide/security.md",
-  "sourceHash": "sha256:eca35bfb5ef9f238367b00b073da9d231e4afd98feef09f2e69a2b7adf49cce9",
+  "sourceHash": "sha256:1f847d82fc6a7346e3192ddf7381c31bebfbe04ef842a75a2700c87d5c7ab725",
   "summary": "User-facing security and privacy guide for a local-first Studio that opens untrusted cards, scripts, regex sets, PNGs, and archives. Your content stays under your control through a primary loopback listener, no accounts or telemetry, and plain inspectable studio files, while the guide names three deliberate network boundaries: provider-backed Kit turns, user-opened update and version-switch information, and explicitly enabled remote access. A card cannot run itself because regex is validated and budgeted, macros and triggers are analyzed, and Lua runs only in the opt-in Risu Test Bench with worker, WebAssembly, resource, and separate-origin defenses whose packaged-host isolation is not yet proven. The sandbox origin serves only the Lua worker, regex worker, and glue.wasm. Other files stay bounded by body, archive, parsing, and path rules. Converting never copies one app's code into another because only portable canonical content crosses formats while private fields stay escrowed. About API keys describes optional BYOP Kit vault storage, hop-by-hop provider destination checks, the missing non-Windows passphrase setup flow, and Studio's ephemeral mutation token.",
   "topics": [
     "local-first content control",
@@ -20,8 +20,8 @@
       "slug": "your-content-stays-under-your-control",
       "title": "Your content stays under your control",
       "level": 2,
-      "sourceHash": "sha256:dff99e2b2b80269e521de47f0787ba4147109cbe5da06effce71ee949636b159",
-      "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. Import, editing, conversion, and deterministic analysis make no provider request.",
+      "sourceHash": "sha256:553aeb71cde6588cd6b8d3adbef7ea2bd7e7308e61098dd05fafbedb3f049b51",
+      "summary": "Studio's primary listener binds the local-only 127.0.0.1 address, and Hoplight has no hosted account, telemetry, analytics, background content upload, or inference proxy. Canonical pieces remain readable JSON files under the chosen studio directory, making them portable and user-backupable but not encrypted at rest; anyone already able to read the user's files can read them. Network activity is deliberate and tied to visible actions: Kit sends model context to the configured provider when a turn is submitted, Updates reads fixed GitHub release endpoints during update or version-switch flows, and remote access creates only the separately enabled listener or tunnel after its approval flow. The private-mesh link also needs a helper program that is not bundled: pressing Download the extra piece fetches it from Hoplight's own releases and checks it against a fingerprint built into the copy before writing anything, discarding a file that does not match. It is the only download Hoplight turns into a program it runs, and LAN mode needs none. Import, editing, conversion, and deterministic analysis make no provider request.",
       "topics": [
         "127.0.0.1 local listener",
         "no accounts telemetry proxy",

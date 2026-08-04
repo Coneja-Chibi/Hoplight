@@ -7,7 +7,7 @@
 import { jsonSchema, streamText, tool, type ModelMessage as AiMessage, type TextPart, type ToolCallPart, type ToolSet } from "ai";
 import type { ChatFn, ModelMessage, ModelReply, ModelToolCall, ToolSpec } from "./provider";
 import type { ProviderConfig } from "./config";
-import { buildModel } from "./adapters";
+import { buildModel, spokeChat } from "./adapters";
 import { readUsage, type TokenUsage } from "./usage";
 import { KIT_TOOL_PROTOCOL } from "./tool-protocol";
 
@@ -34,6 +34,10 @@ const HANG_CAP_MS = 300_000;
  * assembled exactly as before, so the loop stays turn-based while the screen feels alive. */
 export function makeChat(config: ProviderConfig, abortSignal?: AbortSignal): ChatFn {
   return async (messages, tools, onDelta) => {
+    // A spoke that is not an HTTP model supplies its own chat. Asked first, because building a model
+    // for it would mean inventing a request shape it never makes.
+    const own = await spokeChat(config, abortSignal);
+    if (own) return own(messages, tools, onDelta);
     const model = await buildModel(config);
     const cap = AbortSignal.timeout(HANG_CAP_MS);
     const result = streamText({

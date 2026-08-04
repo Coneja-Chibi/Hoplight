@@ -1,0 +1,169 @@
+{
+  "temperature": 1,
+  "openai_max_context": 32000,
+  "openai_max_tokens": 1024,
+  "squash_system_messages": true,
+  "prompts": [
+    {
+      "identifier": "main",
+      "name": "Main Prompt: neutral baseline instructions, deliberately boring",
+      "role": "system",
+      "content": "You are {{char}}, in conversation with {{user}}. Stay in character and answer plainly.\n\nThis file is a teaching fixture. Every instruction in it is generic placeholder text chosen to be legible, not to be good.",
+      "system_prompt": true,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_defaults",
+      "name": "Utility Defaults: writes reply_length and reply_language, renders nothing, must stay above every block that reads them",
+      "role": "system",
+      "content": "{{// Blank slate first. Every variable this preset reads is written here, so a value left over from an earlier turn cannot leak into this one.}}\n{{setvar::reply_length::medium}}\n{{setvar::reply_language::English}}\n{{trim}}",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_formatting_toggle",
+      "name": "Formatting Toggle: the gate. Shipped disabled, so Formatting Rules renders its relaxed branch. Enable this block to switch that one to the strict branch.",
+      "role": "system",
+      "content": "{{// This block exists only to set one flag. Enabling or disabling it in the prompt list IS the toggle; it never emits text of its own.}}\n{{setvar::strict_formatting::on}}\n{{trim}}",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_output_length",
+      "name": "Output Length: reads reply_length, which Utility Defaults wrote",
+      "role": "system",
+      "content": "Reply length setting: {{getvar::reply_length}}. Aim for two or three short paragraphs and stop there.",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_output_language",
+      "name": "Output Language: reads reply_language, which Utility Defaults wrote",
+      "role": "system",
+      "content": "Write every reply in {{getvar::reply_language}}, narration and dialogue alike.",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_formatting_rules",
+      "name": "Formatting Rules: gated by Formatting Toggle. The if branch renders when the toggle is enabled, the else branch when it is not.",
+      "role": "system",
+      "content": "{{if .strict_formatting}}Use plain prose only. No headings, no bullet lists, no tables, no code blocks.{{else}}Use plain prose by default. Headings and lists are fine when they genuinely make an answer easier to read.{{/if}}",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "worldInfoBefore",
+      "name": "World Info (before): engine slot, content supplied by the host",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "personaDescription",
+      "name": "Persona Description: engine slot, content supplied by the host",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "charDescription",
+      "name": "Character Description: engine slot, content supplied by the host",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "chatHistory",
+      "name": "Chat History: engine slot for the transcript. Everything above it is read before the conversation.",
+      "role": "system",
+      "content": "",
+      "system_prompt": true,
+      "marker": true,
+      "injection_position": 0,
+      "injection_depth": 4
+    },
+    {
+      "identifier": "utility_final_reminder",
+      "name": "Final Reminder: injected into the chat at depth 0, so it lands after the transcript rather than before it",
+      "role": "system",
+      "content": "Reminder: reply in {{getvar::reply_language}} at the {{getvar::reply_length}} length set above.",
+      "system_prompt": false,
+      "marker": false,
+      "injection_position": 1,
+      "injection_depth": 0
+    }
+  ],
+  "prompt_order": [
+    {
+      "character_id": 100001,
+      "order": [
+        {
+          "identifier": "main",
+          "enabled": true
+        },
+        {
+          "identifier": "utility_defaults",
+          "enabled": true
+        },
+        {
+          "identifier": "utility_formatting_toggle",
+          "enabled": false
+        },
+        {
+          "identifier": "utility_output_length",
+          "enabled": true
+        },
+        {
+          "identifier": "utility_output_language",
+          "enabled": true
+        },
+        {
+          "identifier": "utility_formatting_rules",
+          "enabled": true
+        },
+        {
+          "identifier": "worldInfoBefore",
+          "enabled": true
+        },
+        {
+          "identifier": "personaDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "charDescription",
+          "enabled": true
+        },
+        {
+          "identifier": "chatHistory",
+          "enabled": true
+        },
+        {
+          "identifier": "utility_final_reminder",
+          "enabled": true
+        }
+      ]
+    }
+  ]
+}

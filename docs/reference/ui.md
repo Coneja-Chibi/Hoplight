@@ -8,7 +8,8 @@ logic exists in the UI layer.
 ## Kit terminal shell
 
 Kit is Hoplight's conversational terminal preview. Run it from a source checkout with `bun run kit`;
-current GitHub release binaries do not include a Kit executable. Its composer accepts multiline text and up to five
+release binaries also carry a Kit executable for Windows, Linux (x64 and arm64) and macOS, built by
+the same bake as the CLI. Its composer accepts multiline text and up to five
 large paste cards. Up and Down recall submitted drafts only at the relevant buffer edge, Ctrl+F opens
 transcript search without discarding the current draft, and Escape stops an active turn. A rejected
 submission remains in the composer. Plain messages submitted during an active turn enter a bounded
@@ -32,6 +33,27 @@ application-owned scrollbar beside the terminal's own window chrome. Home and En
 or newest transcript content, and Page Up/Page Down move by a viewport. When new rows arrive while
 the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
 pressing End returns to the latest row and clears the count.
+
+`/rail` (also `/blocks`, `/outline`) keeps a preset's block list open beside the conversation, and
+`/rail off` closes it. Order is what it exists to show: a preset evaluates top to bottom, so a block
+can be enabled, expand perfectly and never be read because something later overwrote what it wrote,
+and position is the only place that shows. Naming a preset is optional when there is only one, and
+several matches are listed rather than guessed between. Kit reaches the same view through
+`rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot pull the
+rail out from under somebody mid-rearrange.
+
+The rail is edited directly. Click, shift-click for a range in either direction, and ctrl-click to
+add or remove one; drag a selection anywhere; space toggles, delete removes, and left/right expand a
+block's content. Arrows move the cursor and alt+arrows move the blocks, so every gesture has a key
+for anyone without a mouse. Ctrl+B hands the keyboard between the composer and the rail, and the
+header and footer show which side holds it - without that, an open rail swallowed the keys it claims
+and silently toggled blocks while somebody typed a prompt.
+
+Nothing there writes as you go. Edits accumulate against the rows as last read from storage, the
+header counts them, and Enter stages the lot as one ordinary draft that pauses at the same Gate a
+model draft does. Refused, denied, stale and failed are four different sentences, because they lead
+to four different next moves. A denial keeps the edits in the rail and discards only the staged
+draft.
 
 `/help` opens a full-screen, registry-driven reference stage instead of writing a long help message
 into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
@@ -90,7 +112,28 @@ finishes a composed draft, the shell replaces any model-authored save question w
 change and warning counts, and clickable Apply & save or Discard controls. Enter or `y` applies;
 Escape, `n`, or `d` discards. Apply pauses in this interactive Gate, saves once
 only if the stored canonical revision still matches, then re-reads the piece before reporting an
-applied, stale, or failed receipt. Read-only tool batches may run concurrently, but their
+applied, stale, or failed receipt.
+
+Converting a piece to another platform gets its own panel, because a crossing is not a draft: a
+draft's honest shape is a field changing value, a crossing's is each thing meeting an engine that may
+not have it. `REVIEW CROSSING` is a two-column ledger of what each thing is and what becomes of it,
+banded by severity worst first, with the stripe carrying the weight. Removals are listed individually, each naming the block it lives in,
+up to a cap of six with one overflow row carrying the rest of the count; rewrites are grouped by
+macro family, because a hundred respellings say what one row and a number say. A fixed line at the foot carries the key, and
+carries one row's own note while that row is hovered, so the explanation never depends on owning a
+mouse and never moves the buttons underneath it. The source's own escrow is reported under the rule
+as reassurance rather than as damage: it is absent from the exported file and still held by Hoplight.
+The panel is built by re-running the conversion at gate time; a preview that fails leaves the
+ordinary confirm rather than denying the write.
+
+That panel offers a third answer. `Talk it through` neither runs the call nor denies it: nothing is
+written, no permission is granted or widened, and the model is told the user wants to understand the
+call before deciding, so its next move is to explain rather than to apologise or to try another route
+to the same effect. It is reported as `held` rather than `denied`, so a paused apply would keep
+its draft rather than discarding it. That third answer is offered on the crossing panel only; the
+change panel still answers apply or discard.
+
+Read-only tool batches may run concurrently, but their
 observations retain provider order; drafts and applies always serialize. Loop stops name the
 model-round, tool-call, elapsed-time, no-progress, or cancellation budget and offer a recovery
 action. `/tools` opens the keyboard-and-mouse Panel Deck browser for piece, area, action, platform
@@ -374,7 +417,8 @@ Settings is built from section modules: one file in `src/ui/apps/settings/sectio
 index.tsx`); every control is call-and-response against live settings (theme/accent repaint
 instantly). Shipped sections: Appearance (theme and house accent), Studio (home app, Library first
 deck, and publish targets), Workbench (follow behavior), Remote access (tunnel and LAN setup, devices,
-and host controls), Updates (release checks and version switching), and About.
+host controls, and the optional mesh-helper download), Updates (release checks and version switching),
+and About.
 
 Remote-access host controls use `/api/remote/*`; release information and version switching use
 `/api/updates/*`. Both route families are host-only and remain distinct from ordinary remote-client

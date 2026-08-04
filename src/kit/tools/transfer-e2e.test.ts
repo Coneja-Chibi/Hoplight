@@ -246,3 +246,55 @@ test("a lorebook's entry content is macro-checked like any other authored text",
   expect(observed.macros?.findings[0]?.where).toBe("entries[Hawthorne].content");
   expect(result.summary).toContain("1 dead macros");
 });
+
+/**
+ * The case the regex editor's lint could never reach: a set converted by Kit.
+ *
+ * Hoplight's own engine runs JavaScript's `$&`, so it is natural to author, works while being
+ * edited, and stops working the moment the set is written for another platform. Before this, the
+ * crossing was silent.
+ */
+const REGEX_SET = parseCanonicalEntity({
+  schemaVersion: CANONICAL_SCHEMA_VERSION,
+  kind: "regex",
+  id: "catchers",
+  body: {
+    name: "Catchers",
+    rules: [
+      {
+        id: "keeps", label: "keeps the tag", find: "\[S:(.+?)\]", flags: "g",
+        replace: "$&{{setvar::k::$1}}", phases: ["output"], enabled: true, sortOrder: 0,
+      },
+      {
+        id: "clean", label: "plain groups only", find: "\[T:(.+?)\]", flags: "g",
+        replace: "{{match}}{{setvar::t::$1}}", phases: ["output"], enabled: true, sortOrder: 1,
+      },
+    ],
+  },
+}) as unknown as KitEntity;
+
+const regexBridge: KitBridge = {
+  ...bridge,
+  async read(kind: string, id: string) {
+    return kind === "regex" && id === "catchers" ? REGEX_SET : null;
+  },
+};
+
+test("converting a regex set names the rule the destination cannot run", async () => {
+  const result = await transfer.execute(
+    { kind: "regex", id: "catchers", to: "sillytavern-regex" },
+    { bridge: regexBridge },
+  );
+  const observed = JSON.parse(result.output) as {
+    ruleNotes?: { id: string; label: string; reason: string }[];
+  };
+
+  expect(observed.ruleNotes?.length).toBe(1);
+  const note = observed.ruleNotes![0]!;
+  expect(note.id).toBe("keeps");
+  // The id alone is not something a person recognises, so the label rides along.
+  expect(note.label).toBe("keeps the tag");
+  // Names the consequence, not the rule violated.
+  expect(note.reason).toContain("consumed");
+  expect(note.reason).toContain("{{match}}");
+});

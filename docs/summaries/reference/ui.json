@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:2f2e35ab6d0e1743cacd3469d668e74c3528a7260816c67a29ff26ae0d59708f",
+  "sourceHash": "sha256:4007582bb1471d4e10e471386f6d890d6ee5e6c99d3e08df7e8ba3e02b4952a5",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -21,17 +21,17 @@
       "slug": "kit-terminal-shell",
       "title": "Kit terminal shell",
       "level": 2,
-      "sourceHash": "sha256:f40085a5dd25ed58d5baf26da00f97e8d6268c40c65cb581b99985fc1a9d8579",
-      "summary": "Kit is a source-checkout terminal preview with a multiline composer, paste cards, bounded follow-up queue, draft-preserving history and search, interruptible streaming, command palette, studio-piece mentions, and context-sensitive suggestions. Native scrolling, foldable long replies, copy feedback, responsive rainbow branding, and a session-local stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork, and export. Model settings, doctor checks, inventory, and privacy are command surfaces. Its tool loop performs bounded studio and documentation reads, discovers only a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. Applies and discards serialize, receipts retain lifecycle truth in Backstage, provider preambles stay out of the user transcript, and explicit stop reasons expose budget or progress limits.",
+      "sourceHash": "sha256:3754fc8a43423f01068f8ec07723fa9529d30d914dcab82ffc40cbf4122a3f2e",
+      "summary": "Kit is a terminal shell shipped as a release binary: multiline composer, paste cards, a bounded follow-up queue, draft-preserving history and search, interruptible streaming and a command palette. Native scrolling, foldable replies, copy feedback and a stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork and export. Model settings, doctor, inventory and privacy are command surfaces. /rail keeps a preset's block list beside the conversation and is edited directly; ctrl+B moves the keyboard between composer and rail, shown in its chrome. Edits accumulate locally and Enter stages them as one ordinary draft at the same Gate. Its tool loop performs bounded reads, discovers a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. A conversion gets a REVIEW CROSSING panel instead: two columns of what each thing becomes, banded worst first, with escrow reported as reassurance rather than damage. Its third answer neither runs nor denies the call, grants nothing, and reports as held so a paused apply keeps its draft. Applies serialize and Backstage retains lifecycle truth.",
       "topics": [
         "composer queue and search",
         "slash palette mentions",
         "terminal scrolling folding copy",
+        "preset rail edits",
         "session resume rewind export",
         "provider doctor privacy",
         "bounded docs capability tools",
-        "REVIEW CHANGE gate",
-        "Backstage lifecycle receipts"
+        "REVIEW CHANGE gate"
       ],
       "children": []
     },
@@ -241,8 +241,8 @@
       "slug": "settings-drop-in-sections",
       "title": "Settings (drop-in sections)",
       "level": 2,
-      "sourceHash": "sha256:f43bd559213946da90f20803e4a5877740fe8dbf4799cf8b66207991b7e48eda",
-      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
+      "sourceHash": "sha256:cf5347e2b69b33a2559470b5a64c5b2f1f444fc9172569231448874785484404",
+      "summary": "Settings tabs derive from section modules exporting id, label, order, and a component that receives AppContext. The section registry is the sole browser seam, so adding configuration does not require a central tab switch. Controls operate against current persisted settings and immediately repaint visual choices. Shipping sections are Appearance for theme and accent, Studio for home app, initial deck, and publish targets, Workbench for follow behavior, Remote access, now including the optional mesh-helper download, for tunnel and LAN setup, devices, and host controls, Updates for release checks and version switching, and About.",
       "topics": [
         "drop-in SettingsSection",
         "registry-derived tabs",

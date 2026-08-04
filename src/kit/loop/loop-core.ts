@@ -22,7 +22,7 @@ export type DispatchFn = (call: ModelToolCall) => Promise<DispatchResult>;
 export type LoopEvent =
   | { type: "say"; text: string }
   | { type: "tool-start"; name: string }
-  | { type: "tool"; name: string; summary: string }
+  | { type: "tool"; name: string; summary: string; show?: { kind: string; id: string } }
   | { type: "usage"; usage: TokenUsage }
   | { type: "state"; phase: LoopPhase }
   | {
@@ -277,7 +277,12 @@ export async function* runTurn(
         toolName: call.name,
       });
       recentObservationKeys.push(observationKey(call.name, call.args, result.output));
-      yield { type: "tool", name: call.name, summary: result.summary };
+      yield {
+        type: "tool",
+        name: call.name,
+        summary: result.summary,
+        ...(result.show ? { show: result.show } : {}),
+      };
       if (result.outcome === "draft") {
         const next = transitionLoop(lifecycle, { type: "preview-ready" });
         if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };

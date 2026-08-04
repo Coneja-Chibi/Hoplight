@@ -51,12 +51,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref_name }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          cache-dependency-path: sidecar/go.sum
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
+      # The optional remote-access helper, published as its own asset. The app does NOT carry it: users who
+      # want the private-mesh link fetch it from this release on request, checked against the hashes
+      # committed in src/ui/remote/sidecar-pins.ts. After a release that changes the helper, run
+      # `bun scripts/pin-sidecar.ts <tag>` and commit the result.
+      - name: Build the remote-access helper
+        run: bun sidecar/build.ts --target=windows-x64
       - name: Build Hoplight.exe + Windows CLI + Kit
         run: bun run scripts/build-desktop.ts --cli-targets=bun-windows-x64 --kit
+      - name: Stage the helper as a release asset
+        run: Copy-Item sidecar/sidecar-windows-x64.exe dist/
       - uses: actions/upload-artifact@v4
         with:
           name: windows
@@ -64,6 +76,7 @@ jobs:
             dist/Hoplight.exe
             dist/hoplight-cli-windows-x64.exe
             dist/hoplight-kit-windows-x64.exe
+            dist/sidecar-windows-x64.exe
           if-no-files-found: error
 
   build-linux:
@@ -73,14 +86,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref_name }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          cache-dependency-path: sidecar/go.sum
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
+      # Both Linux helpers here, arm64 by cross-compile: the helper is pure Go with CGO off, so unlike
+      # Kit it does not need a runner of the target architecture.
+      - name: Build the remote-access helpers (x64 + arm64)
+        run: |
+          bun sidecar/build.ts --target=linux-x64
+          bun sidecar/build.ts --target=linux-arm64
       - name: Build Linux CLIs (x64 + arm64) + Kit (x64)
         # Kit is x64 only here: this runner is x64 and Kit cannot cross-compile (native opentui).
         # The arm64 Kit is built by build-linux-arm64 below, on a runner of that architecture.
         run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-linux-x64,bun-linux-arm64 --kit
+      - name: Stage the helpers as release assets
+        run: cp sidecar/sidecar-linux-x64 sidecar/sidecar-linux-arm64 dist/
       - uses: actions/upload-artifact@v4
         with:
           name: linux
@@ -88,6 +113,8 @@ jobs:
             dist/hoplight-cli-linux-x64
             dist/hoplight-cli-linux-arm64
             dist/hoplight-kit-linux-x64
+            dist/sidecar-linux-x64
+            dist/sidecar-linux-arm64
           if-no-files-found: error
 
   build-linux-arm64:
@@ -120,13 +147,23 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ inputs.tag || github.ref_name }}
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: sidecar/go.mod
+          cache-dependency-path: sidecar/go.sum
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
+      - name: Build the remote-access helpers (arm64 + x64)
+        run: |
+          bun sidecar/build.ts --target=darwin-arm64
+          bun sidecar/build.ts --target=darwin-x64
       - name: Build macOS CLIs (arm64 + x64) + Kit (arm64)
         # Kit is arm64 only here: macos-14 is Apple Silicon and Kit cannot cross-compile.
         run: bun run scripts/build-desktop.ts --no-desktop --cli-targets=bun-darwin-arm64,bun-darwin-x64 --kit
+      - name: Stage the helpers as release assets
+        run: cp sidecar/sidecar-darwin-arm64 sidecar/sidecar-darwin-x64 dist/
       - uses: actions/upload-artifact@v4
         with:
           name: macos
@@ -134,6 +171,8 @@ jobs:
             dist/hoplight-cli-darwin-arm64
             dist/hoplight-cli-darwin-x64
             dist/hoplight-kit-darwin-arm64
+            dist/sidecar-darwin-arm64
+            dist/sidecar-darwin-x64
           if-no-files-found: error
 
   publish:
@@ -157,6 +196,8 @@ jobs:
             hoplight-cli-windows-x64.exe hoplight-cli-linux-x64 hoplight-cli-linux-arm64 \
             hoplight-cli-darwin-arm64 hoplight-cli-darwin-x64 \
             hoplight-kit-windows-x64.exe hoplight-kit-linux-x64 hoplight-kit-linux-arm64 hoplight-kit-darwin-arm64 \
+            sidecar-windows-x64.exe sidecar-linux-x64 sidecar-linux-arm64 \
+            sidecar-darwin-arm64 sidecar-darwin-x64 \
             > SHA256SUMS
           cat SHA256SUMS
       - name: Release notes (install guide, changelog link, machine-parseable commit block)
@@ -198,4 +239,9 @@ jobs:
             dist/hoplight-kit-linux-x64 \
             dist/hoplight-kit-linux-arm64 \
             dist/hoplight-kit-darwin-arm64 \
+            dist/sidecar-windows-x64.exe \
+            dist/sidecar-linux-x64 \
+            dist/sidecar-linux-arm64 \
+            dist/sidecar-darwin-arm64 \
+            dist/sidecar-darwin-x64 \
             dist/SHA256SUMS

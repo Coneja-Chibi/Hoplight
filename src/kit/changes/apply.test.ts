@@ -145,6 +145,7 @@ describe("applyChangeDraft", () => {
     const changes: ChangeSession = {
       create() { throw new Error("unexpected create"); },
       draft() { throw new Error("unexpected draft"); },
+      revise() { throw new Error("unexpected revise"); },
       get() { return malformed; },
       list() { return [malformed]; },
       forTarget() { return malformed; },

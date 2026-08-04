@@ -3,7 +3,8 @@
  * send it resolves the provider (fail-closed), builds the chat and dispatch, runs the ReAct loop, and
  * streams events to the caller. This is the ONE place live egress happens, and only when you send.
  */
-import type { KitBridge } from "./bridge";
+import type { EntitySummary, KitBridge } from "./bridge";
+import type { PresetBody } from "../entities/preset";
 import { resolveProviderConfig } from "./providers/vault";
 import { makeChat } from "./providers/chat";
 import { pingProvider, type Probe } from "./providers/probe";
@@ -19,11 +20,18 @@ import {
   createAccessResolver,
 } from "./tools/safety/access";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
-import type { ModelMessage } from "./providers/provider";
+import type { ModelMessage, ToolSpec } from "./providers/provider";
+import { KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
 import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
+import { applyChangeDraft } from "./changes/apply";
+import { applyRailEdits, railChangeRows } from "../core/preset/rail-apply";
+import type { OutlineRow } from "../core/preset/outline";
+import type { ChangeReceipt } from "./changes/types";
+import type { DraftReview } from "./tools/tool";
 import { reviewChangeDraft } from "./changes/review";
+import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
@@ -31,6 +39,7 @@ import { createChangeQueryTool } from "./tools/change-query";
 import type { ContentCapability } from "../entities/capabilities";
 import { createHoplightDocs } from "./docs/repository";
 import { createResultStore } from "./results/store";
+import { createGrantBook, type GrantBook } from "./tools/_shared/grant-book";
 import { StudioExports } from "../studio/exports";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
@@ -42,8 +51,25 @@ export type TurnEvent =
   | { type: "delta"; kind: "text" | "reasoning"; text: string }
   | { type: "error"; message: string };
 
+/** What staging a rail edit answers with: a draft to confirm, or why it cannot be one. */
+export type RailStaged =
+  | { ok: true; draftId: string; review: DraftReview }
+  | { ok: false; detail: string };
+
 export interface Session {
   capabilities?(): readonly ContentCapability[];
+  /**
+   * The folders shared with Kit for reading, owned here because the dispatch context reads them.
+   * Optional so a stub session stays a stub; /share reports the feature as unavailable rather than
+   * pretending a share was recorded.
+   */
+  folders?: GrantBook;
+  /**
+   * What a turn would carry beyond the conversation itself: the standing guidance and the tool belt
+   * as it stands right now. Read by /context so a person can see the parts of a request they did not
+   * write. Optional for the same reason capabilities() is: a stub session has no belt to report.
+   */
+  contextSnapshot?(): { system: string; tools: readonly ToolSpec[] };
   runTurn(
     input: string,
     history: ModelMessage[],
@@ -55,6 +81,24 @@ export interface Session {
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
   /** Doctor's provider row: the same real ping as /test, returned as structured read-only data. */
   providerProbe?(signal?: AbortSignal): Promise<(Probe & { name: string; model: string }) | null>;
+  /**
+   * The preset seam the rail reads through. On Session rather than as another App prop because the
+   * session already holds the bridge and the shell is at its line cap; one narrow capability beats
+   * threading storage access through the render tree.
+   */
+  presets?: {
+    list(): Promise<EntitySummary[]>;
+    read(id: string): Promise<PresetBody | undefined>;
+    /**
+     * Compose the rail's edits into a draft. Does NOT write: it returns the review the Gate shows,
+     * so the confirmation sits between staging and applying exactly as it does for a model draft.
+     */
+    stage(id: string, rows: readonly OutlineRow[]): Promise<RailStaged>;
+    /** Apply a staged draft once, revision-checked, and report a real receipt. */
+    commit(draftId: string): Promise<ChangeReceipt>;
+    /** Drop a staged draft nobody will apply, so the next attempt can stage a fresh one. */
+    discard(draftId: string): void;
+  };
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
   activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
 }
@@ -69,6 +113,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   ]);
   const changes = createChangeSession();
   const results = createResultStore();
+  const folders = createGrantBook();
   const runtime = createCapabilityRuntime({
     capabilities,
     directTools,
@@ -89,6 +134,11 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     // Bound to the same studio this session reads from, so an export always lands beside the
     // pieces it came from and never anywhere the caller chose.
     exports: new StudioExports(bridge.studioDir),
+    // A getter, not a snapshot: this context is built once and every later call reads it, so an array
+    // captured here would pin the grants to session start and /share could never take effect.
+    get grants() {
+      return folders.list();
+    },
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
@@ -99,6 +149,44 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
 
   return {
     capabilities: () => capabilities,
+    folders,
+    presets: {
+      list: () => bridge.list("preset"),
+      async stage(id, rows) {
+        const entity = await bridge.read("preset", id);
+        if (!entity) return { ok: false, detail: `${id} is no longer in the studio.` };
+        const body = entity.body as PresetBody;
+        const applied = applyRailEdits(body, rows);
+        // A row naming no prompt means the rail and storage disagree about what exists. Refusing is
+        // the only safe answer: writing would drop that block, and inventing one would fabricate it.
+        if (applied.unknown.length > 0) {
+          return {
+            ok: false,
+            detail: `The rail is out of step with storage: ${applied.unknown.length} block(s) it`
+              + ` shows are not there. Reopen it with /rail.`,
+          };
+        }
+        const changeRows = railChangeRows(body, applied);
+        if (changeRows.length === 0) return { ok: false, detail: "Nothing to apply." };
+        const draft = changes.revise(entity, { ...entity, body: applied.body }, {
+          capabilityId: "rail.blocks.rearrange",
+          input: { id, blocks: rows.length },
+          changes: changeRows.map((row) => ({ path: "/body/prompts", ...row })),
+          // Removal is the only rail edit that destroys something, so it is the only one that warns.
+          warnings: applied.removed.length > 0
+            ? [`${applied.removed.length} block(s) will be removed: ${applied.removed.join(", ")}`]
+            : [],
+          platformImpact: [],
+        });
+        return { ok: true, draftId: draft.id, review: reviewChangeDraft(draft) };
+      },
+      commit: (draftId) => applyChangeDraft(changes, bridge, draftId),
+      discard: (draftId) => void changes.discard(draftId),
+      async read(id) {
+        const entity = await bridge.read("preset", id);
+        return entity ? (entity.body as PresetBody) : undefined;
+      },
+    },
     async runTurn(input, history, onEvent, signal, gate) {
       try {
         runtime.beginTurn();
@@ -119,13 +207,23 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           gate ?? { state: initGate() },
           accessFor,
           (call) => {
-            if (call.name !== "change_apply") return undefined;
             const args = typeof call.args === "object" && call.args !== null
-              ? call.args as { draftId?: unknown }
+              ? call.args as Record<string, unknown>
               : null;
-            if (typeof args?.draftId !== "string") return undefined;
-            const draft = changes.get(args.draftId);
-            return draft ? reviewChangeDraft(draft) : undefined;
+            if (call.name === "change_apply") {
+              if (typeof args?.draftId !== "string") return undefined;
+              const draft = changes.get(args.draftId);
+              return draft ? { review: reviewChangeDraft(draft) } : undefined;
+            }
+            // An export is the moment a crossing becomes a file, so it is the moment worth showing
+            // what the crossing costs. Built here rather than in the tool because the gate decides
+            // BEFORE execute, and a person cannot judge a conversion they have not been shown.
+            if (call.name === "studio_export") {
+              return crossingForExport(bridge, args).then((crossing) =>
+                crossing ? { crossing } : undefined,
+              );
+            }
+            return undefined;
           },
         );
         const turn = runLoop(input, history, {
@@ -185,6 +283,13 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
         model: config.model,
       };
     },
+
+    // The same belt the loop resolves immediately before each model call, so the preview reports what
+    // would actually be offered rather than a stale catalog.
+    contextSnapshot: () => ({
+      system: KIT_TOOL_PROTOCOL,
+      tools: [...runtime.toolSnapshot(), ...lifecycleSpecs],
+    }),
 
     async activeProvider() {
       const config = await resolveProviderConfig();

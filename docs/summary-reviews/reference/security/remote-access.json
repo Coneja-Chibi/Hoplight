@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/security/remote-access",
   "sourcePath": "docs/reference/security/remote-access.md",
-  "sourceHash": "sha256:d611c620c806cf7845724c34f07e7f4c06d750de31bb56e05cbcefec5b60fa7d",
-  "semanticSummaryHash": "sha256:133c22579d39024955fac5ca506b466abcf5a4d730f0508079acd9db825fc035",
+  "sourceHash": "sha256:ca9f331d9d8fa8e736bfccf34678ccab1afb3b2f52d0629aaecd2de1eadb2500",
+  "semanticSummaryHash": "sha256:c24f3bf2d0ada24a92bef51db65fdf3cf0cea57693e18bb5ece103a6a9000a8a",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+H2+security H3s spot-checked vs source. Requirements fail-closed/must/never preserved; current vs future/BLOCKED honesty intact; no fabricated claims; child topics covered at H2 where nested.",
-  "reviewedAt": "2026-07-25T15:30:50.748Z"
+  "reviewer": "chi",
+  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
+  "reviewedAt": "2026-07-31T19:18:39.329Z"
 }

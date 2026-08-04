@@ -24,7 +24,11 @@ export async function loadSpokes(dir?: string): Promise<Map<string, ProviderSpok
   for (const file of files) {
     const mod = (await import(pathToFileURL(join(base, file)).href)) as { default?: ProviderSpoke };
     const spoke = mod.default;
-    if (spoke && typeof spoke.id === "string" && typeof spoke.model === "function") {
+    // A spoke earns its place with EITHER a model or its own chat. Requiring `model` would silently
+    // drop a provider that is not an HTTP model, and the symptom is an "unknown provider" error far
+    // from the file that caused it.
+    const usable = typeof spoke?.model === "function" || typeof spoke?.chat === "function";
+    if (spoke && typeof spoke.id === "string" && usable) {
       spokes.set(spoke.id, spoke);
     }
   }

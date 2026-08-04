@@ -227,3 +227,91 @@ describe("makeGatedDispatch", () => {
     expect(seen).toEqual(["allow-once:delete"]);
   });
 });
+
+describe("hold: the third answer", () => {
+  const guarded = (): GateState => initGate();
+
+  test("holding never runs the tool", async () => {
+    // The whole safety property. A question about a call must not be a way to perform it.
+    const inner = spyInner();
+    const gated = makeGatedDispatch(
+      inner.fn,
+      seamWith(guarded(), async () => ({ type: "hold" })),
+      () => "write",
+    );
+    await gated(call("studio_export", { kind: "preset", id: "x", to: "sillytavern-preset" }));
+    expect(inner.calls()).toBe(0);
+  });
+
+  test("a hold is reported as held, not denied", async () => {
+    // change_apply discards its draft on `denied`. If a hold read as a denial, asking a question
+    // about a change would throw the change away, which is the opposite of holding it.
+    const gated = makeGatedDispatch(
+      spyInner().fn,
+      seamWith(guarded(), async () => ({ type: "hold" })),
+      () => "write",
+    );
+    const result = await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    expect(result.gateDecision).toBe("held");
+    expect(result.gateDecision).not.toBe("denied");
+  });
+
+  test("the model is told to explain and wait, not to find another way", async () => {
+    const gated = makeGatedDispatch(
+      spyInner().fn,
+      seamWith(guarded(), async () => ({ type: "hold" })),
+      () => "write",
+    );
+    const result = await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    expect(result.output).toContain("Explain what this call would do");
+    expect(result.output).toContain("do not attempt another route");
+    expect(result.summary).toContain("held");
+  });
+
+  test("holding grants nothing, so the next identical call still asks", async () => {
+    const inner = spyInner();
+    let asked = 0;
+    const gated = makeGatedDispatch(
+      inner.fn,
+      seamWith(guarded(), async () => { asked += 1; return { type: "hold" }; }),
+      () => "write",
+    );
+    await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    expect(asked).toBe(2);
+    expect(inner.calls()).toBe(0);
+  });
+});
+
+describe("the crossing panel reaches the confirm", () => {
+  test("extras are awaited, so an async preview still reaches the gate", async () => {
+    let seen: unknown = null;
+    const gated = makeGatedDispatch(
+      spyInner().fn,
+      seamWith(initGate(), async (req) => { seen = req.crossing; return { type: "deny" }; }),
+      () => "write",
+      async () => ({
+        crossing: {
+          kind: "crossing", target: { kind: "preset", id: "x" }, to: "sillytavern",
+          rows: [], escrowDropped: false, warningCount: 0,
+        },
+      }),
+    );
+    await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    expect((seen as { to?: string } | null)?.to).toBe("sillytavern");
+  });
+
+  test("a preview that throws still lets the call be decided from the peek", async () => {
+    // Failing the write because the PICTURE failed is the wrong end to fail from.
+    const inner = spyInner();
+    const gated = makeGatedDispatch(
+      inner.fn,
+      seamWith(initGate(), async () => ({ type: "allow-once" })),
+      () => "write",
+      () => { throw new Error("conversion blew up"); },
+    );
+    const result = await gated(call("studio_export", { kind: "preset", id: "x", to: "st" }));
+    expect(inner.calls()).toBe(1);
+    expect(result.summary).toBe("ran");
+  });
+});

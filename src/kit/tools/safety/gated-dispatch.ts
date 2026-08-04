@@ -9,6 +9,7 @@
 import type { DispatchFn, DispatchResult } from "../../loop/loop-core";
 import type { ModelToolCall } from "../../providers/provider";
 import type { DraftReview } from "../tool";
+import type { CrossingReview } from "../../changes/crossing";
 import { resolveAccess, type AccessResolver } from "./access";
 import { classifyRisk, type RiskVerdict } from "./risk";
 import { decideGate, type GateDecision, type GateState } from "./gate-core";
@@ -22,6 +23,19 @@ export interface GateRequest {
   readonly verdict: RiskVerdict;
   /** Present for a draft apply so the Gate can render the semantic diff instead of tool jargon. */
   readonly review?: DraftReview;
+  /** Present for a crossing so the Gate can render per-thing fate instead of before/after rows. */
+  readonly crossing?: CrossingReview;
+}
+
+/**
+ * What a caller can attach to a confirm so the Gate shows meaning instead of tool jargon.
+ *
+ * Resolved lazily and possibly asynchronously, because a crossing has to be computed - it is a real
+ * conversion of a stored piece - and computing one for every call would convert on every dispatch.
+ */
+export interface GateExtras {
+  readonly review?: DraftReview;
+  readonly crossing?: CrossingReview;
 }
 
 /** The seam the shell reaches the outside through: the per-turn policy snapshot, the confirm pause, and
@@ -47,6 +61,15 @@ const blocked = (
   ...(gateDecision ? { gateDecision } : {}),
 });
 
+/** Run a supplier that may throw synchronously OR reject, and resolve both to undefined. */
+async function safely<T>(supplier: () => T | undefined | Promise<T | undefined>): Promise<T | undefined> {
+  try {
+    return await supplier();
+  } catch {
+    return undefined;
+  }
+}
+
 /** A structurally-valid GateState from the seam, or fall back to locked (fail-closed) if it is missing. */
 const validState = (s: unknown): s is GateState =>
   !!s
@@ -58,7 +81,7 @@ export function makeGatedDispatch(
   inner: DispatchFn,
   seam: GateSeam,
   accessFor: AccessResolver = resolveAccess,
-  reviewFor?: (call: ModelToolCall) => DraftReview | undefined,
+  reviewFor?: (call: ModelToolCall) => GateExtras | undefined | Promise<GateExtras | undefined>,
 ): DispatchFn {
   let turnLocked = false; // an abort this turn denies every later risky call without re-asking
 
@@ -89,12 +112,21 @@ export function makeGatedDispatch(
       let choice: GateChoice;
       try {
         const peek = summarizePeek(name, call?.args, verdict);
-        const review = reviewFor?.(call);
+        // A failure to BUILD the panel must not deny the call: the decision is still answerable from
+        // the peek, and refusing a legitimate write because a preview threw would be the wrong end to
+        // fail from. Only a failure of the confirm itself is fail-closed.
+        //
+        // Both throw shapes are caught deliberately. `Promise.resolve(reviewFor(call)).catch(...)`
+        // handles a rejected promise but NOT a synchronous throw, because that fires while evaluating
+        // the argument, before there is a promise to attach to - so it would escape to the outer
+        // catch and deny the call. A test pins this; it is how the bug was found.
+        const extras = await safely(() => reviewFor?.(call));
         choice = await seam.requestConfirm({
           name,
           peek,
           verdict,
-          ...(review ? { review } : {}),
+          ...(extras?.review ? { review: extras.review } : {}),
+          ...(extras?.crossing ? { crossing: extras.crossing } : {}),
         });
       } catch {
         return blocked(name, "the confirmation was declined");
@@ -107,6 +139,19 @@ export function makeGatedDispatch(
       if (type === "abort") {
         turnLocked = true;
         return blocked(name, "aborted by the user", "aborted");
+      }
+      if (type === "hold") {
+        // Not run, and NOT a denial. The distinction is the whole point: the model is told the user
+        // wants to talk about this call, so its next move is to explain rather than to apologise for
+        // a refusal or, worse, to try a different way around.
+        return {
+          summary: `${name || "tool"}: held`,
+          output:
+            "The user paused this call to ask about it before deciding. Nothing ran and nothing was"
+            + " written. Explain what this call would do and what it costs, using what you already"
+            + " know, then wait. Do not retry it and do not attempt another route to the same effect.",
+          gateDecision: "held",
+        };
       }
       // allow-session / set-mode: evolve the working policy and re-decide (bounded by MAX_ROUNDS).
       working = applyGateChoice(working, choice, name);

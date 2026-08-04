@@ -2,7 +2,7 @@
  * Prompt-preset creation workflow with optional initial typed prompt blocks.
  */
 import { z } from "zod";
-import { emptyPresetBody } from "../../entities/preset";
+import { starterBody } from "../../core/preset/blocks/starter";
 import type { HarnessTool } from "./tool";
 import { createEntityDraft } from "./_create-common";
 
@@ -41,7 +41,9 @@ const input = z.strictObject({
 const presetCreate: HarnessTool<z.infer<typeof input>> = {
   name: "studio_preset_create",
   description:
-    "Create a prompt preset draft with typed initial blocks, sampler settings, and media-inlining flags.",
+    "Create a prompt preset draft. Carries real sampler, template and behaviour defaults so the file "
+    + "never inherits whatever settings were open last; with no blocks given it starts from the "
+    + "skeleton set, so the first render works.",
   exposure: "deferred",
   effect: "draft",
   discovery: {
@@ -70,13 +72,18 @@ const presetCreate: HarnessTool<z.infer<typeof input>> = {
       ...(args.inlineImageQuality ? { inlineImageQuality: args.inlineImageQuality } : {}),
       ...(args.videoInlining !== undefined ? { videoInlining: args.videoInlining } : {}),
     };
+    // Built ON the starter, not on an empty body. A preset with no sampler, template or behaviour
+    // group loads and then runs on whatever settings the application had open last, which reads as
+    // success and is not. Anything the caller stated explicitly still wins over the shipped default.
+    const base = starterBody(args.name);
     const body = {
-      ...emptyPresetBody(args.name),
+      ...base,
       ...(args.description ? { description: args.description } : {}),
       enabled: args.enabled,
-      prompts: args.prompts ?? [],
-      ...(Object.keys(samplers).length > 0 ? { samplers } : {}),
-      ...(Object.keys(media).length > 0 ? { media } : {}),
+      // No blocks asked for means the skeletons, so the first render works instead of being empty.
+      prompts: args.prompts ?? base.prompts,
+      samplers: { ...base.samplers, ...samplers },
+      media: { ...base.media, ...media },
     };
     return createEntityDraft({
       kind: "preset",

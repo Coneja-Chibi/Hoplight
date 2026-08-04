@@ -10,7 +10,7 @@
 import type { ReactNode } from "react";
 import type { ContextMenus } from "./shell/store";
 import type { ParseReport, SerializeReport } from "../core/reports";
-import type { LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
+import type { AuxHelperStatus, LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
 export interface AppManifestEntry {
@@ -108,6 +108,10 @@ export interface AppContext {
     remoteDevices(): Promise<RemoteDevice[]>;
     /** kick a connected device by its node id (host-only) */
     remoteKick(nodeId: string): Promise<{ ok: boolean }>;
+    /** whether the mesh helper can be fetched for this platform, and what is already installed */
+    remoteHelperStatus(): Promise<AuxHelperStatus>;
+    /** fetch, verify against the baked fingerprint, and install the mesh helper (host-only) */
+    remoteHelperDownload(): Promise<AuxHelperStatus>;
     /** LAN mode status (connect code + pending/connected devices), host-only */
     remoteLanStatus(): Promise<LanStatus>;
     remoteLanEnable(): Promise<LanStatus>;

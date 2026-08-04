@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
-  "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129",
+  "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
+  "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe",
   "verdict": "APPROVE",
-  "reviewer": "Chi",
-  "notes": "Verified against source: direct tool count (8 folder + 4 lifecycle = 12), six create workflows, ten character and five lorebook capabilities, export path containment tests, and oracle coverage for rolecall/lumiverse/marinara with sillytavern unverified. Corrected two stale claims: transfer described as writing no file after studio_export shipped, and a verification-status section that omitted the lifecycle, transfer and oracle coverage.",
-  "reviewedAt": "2026-07-27T06:41:32.252Z"
+  "reviewer": "chi",
+  "notes": "Four corrections found in review. studio_delete is not the only direct apply tool (studio_export and change_apply are both direct+apply); the count was sixteen and is seventeen with rail_open, which had no bullet; delete's dangling-reference note is on the description always but on the receipt only for referenceable kinds (delete.ts REFERENCEABLE); folder_search also reaches the studio as a standing grant. Also corrects the falsified symlink claim: entries are skipped during traversal, and the resolved path is now reconciled against realpath, which is what actually closes it.",
+  "reviewedAt": "2026-08-04T10:16:23.112Z"
 }

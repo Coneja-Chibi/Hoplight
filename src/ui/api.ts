@@ -95,6 +95,8 @@ export const api: AppContext["api"] = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ nodeId }),
     }),
+  remoteHelperStatus: async () => apiFetchJson("/api/remote/helper/status", { requireToken: false }),
+  remoteHelperDownload: async () => apiFetchJson("/api/remote/helper/download", { method: "POST" }),
   remoteLanStatus: async () => apiFetchJson("/api/remote/lan/status", { requireToken: false }),
   remoteLanEnable: async () => apiFetchJson("/api/remote/lan/enable", { method: "POST" }),
   remoteLanDisable: async () => apiFetchJson("/api/remote/lan/disable", { method: "POST" }),

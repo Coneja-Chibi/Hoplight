@@ -3,6 +3,7 @@
  * Extracted from server.ts (behavior-preserving).
  */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { ADAPTER_INPUT_MAX_BYTES } from "../core/adapter-input";
 import {
   isStudioNotFoundError,
   isStudioReadError,
@@ -10,8 +11,9 @@ import {
 } from "../studio/errors";
 import { StudioConflictError, StudioWriteError } from "../studio/atomic-file";
 
-/** Inspect upload ceiling (bytes). JSON routes use a lower cap. */
-export const INSPECT_BODY_MAX = 64 * 1024 * 1024;
+/** Inspect upload ceiling (bytes): the same file ceiling every other door uses, so a file the studio
+ *  accepts is never one Kit's importer refuses. JSON routes use a lower cap. */
+export const INSPECT_BODY_MAX = ADAPTER_INPUT_MAX_BYTES;
 export const JSON_BODY_MAX = 32 * 1024 * 1024;
 
 export interface UiSecurityContext {

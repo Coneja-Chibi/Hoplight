@@ -16,6 +16,55 @@ const scheduleInterval: WatchScheduler = (poll, intervalMs) => {
   return () => clearInterval(timer);
 };
 
+/**
+ * The polling loop, kept separate from the differ it drives.
+ *
+ * Its whole value is three details that are easy to get subtly wrong. `running` skips a tick rather
+ * than stacking overlapping reads. `closed` is re-checked AFTER the await, so a stopped watcher
+ * cannot deliver one last change into a torn-down view. A throw is swallowed, so a half-written file
+ * costs one tick instead of the watcher. The snapshot advances even on an empty diff, which is what
+ * stops one change being reported on every tick forever.
+ */
+function watchPolling<Snapshot, Change>({
+  initial,
+  read,
+  diff,
+  onChange,
+  intervalMs,
+  schedule = scheduleInterval,
+}: {
+  initial: Snapshot;
+  read: () => Promise<Snapshot>;
+  diff: (before: Snapshot, after: Snapshot) => Change | null;
+  onChange: (after: Snapshot, change: Change) => void;
+  intervalMs: number;
+  schedule?: WatchScheduler;
+}): () => void {
+  let previous = initial;
+  let running = false;
+  let closed = false;
+  const poll = async (): Promise<void> => {
+    if (running || closed) return;
+    running = true;
+    try {
+      const after = await read();
+      if (closed) return;
+      const change = diff(previous, after);
+      previous = after;
+      if (change) onChange(after, change);
+    } catch {
+      // A half-written or temporarily unreadable studio is ignored until the next bounded poll.
+    } finally {
+      running = false;
+    }
+  };
+  const unschedule = schedule(poll, intervalMs);
+  return () => {
+    closed = true;
+    unschedule();
+  };
+}
+
 export function watchStudio({
   initial,
   list,
@@ -29,27 +78,13 @@ export function watchStudio({
   intervalMs?: number;
   schedule?: WatchScheduler;
 }): () => void {
-  let previous = [...initial];
-  let running = false;
-  let closed = false;
-  const poll = async (): Promise<void> => {
-    if (running || closed) return;
-    running = true;
-    try {
-      const after = await list();
-      if (closed) return;
-      const change = diffStudio(previous, after);
-      previous = [...after];
-      if (change) onChange(change);
-    } catch {
-      // A half-written or temporarily unreadable studio is ignored until the next bounded poll.
-    } finally {
-      running = false;
-    }
-  };
-  const unschedule = schedule(poll, intervalMs);
-  return () => {
-    closed = true;
-    unschedule();
-  };
+  return watchPolling<readonly EntitySummary[], StudioChange>({
+    initial: [...initial],
+    read: list,
+    diff: diffStudio,
+    onChange: (_after, change) => onChange(change),
+    intervalMs,
+    schedule,
+  });
 }
+

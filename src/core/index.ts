@@ -1,6 +1,7 @@
 /** The engine core. Pure TypeScript, zero UI, zero framework, zero DB. */
 export * from "./canonical";
 export * from "./adapter";
+export { ADAPTER_INPUT_MAX_BYTES, toAdapterInput } from "./adapter-input";
 export * from "./archive";
 export * from "./archive-stream";
 export * as registry from "./registry";

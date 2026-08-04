@@ -77,6 +77,8 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
 | HealthPane | src/ui/apps/workbench/regex/health-pane.tsx | ({ findings, rules, onClose, onGoTo, onFix }: HealthPaneProps) |  |  |
 | HelpDot | src/ui/apps/workbench/preset/help-dot.tsx | ({ help }: { help: FieldHelp }) |  |  |
+| HelperInstalledLine | src/ui/apps/settings/sections/helper-card.tsx | ({ h }: { h: HelperControls }) | Shown on the `off` card: which helper is installed, and a way to fetch it again. |  |
+| HelperMissingCard | src/ui/apps/settings/sections/helper-card.tsx | ({ detail, h }: { detail?: string; h: HelperControls }) | The `unavailable` card. NOT an error card and it never offers "Try again": the helper is absent from |  |
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | IdentityCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Identity: tagline + pronouns/height/age + the BRIEF with its never-injected honesty line. |  |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |

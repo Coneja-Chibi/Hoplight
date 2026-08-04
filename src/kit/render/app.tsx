@@ -12,7 +12,7 @@ import type { KeyEvent } from "@opentui/core";
 import type { DeckCount, EntitySummary } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session as ChatSession } from "../session";
-import { matchCommand, type KitCommand } from "../commands/command";
+import { matchCommand, nearestCommand, type KitCommand } from "../commands/command";
 import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
 import { Playbill } from "./primitives/playbill";
@@ -34,6 +34,7 @@ import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
 import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
+import { buildContextPreview } from "../context/shell";
 import { useNotify } from "./notify/use-notify";
 import { useFocus } from "./notify/focus";
 import type { NotifySettings } from "./notify/plan";
@@ -46,13 +47,15 @@ import { RewindRail } from "../sessions/render/rewind-rail";
 import { createSessionStore, newSessionId, type SessionStore } from "../sessions/store";
 import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
-import { copyText, type CopyResult } from "./clipboard";
+import { useCopyNotice } from "./use-copy-notice";
 import type { DoctorResult } from "../doctor/check";
 import { watchSummary } from "../watch/watch-core";
 import type { StudioWatchSource } from "../watch/watcher";
 import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
 import { ToolsScreen } from "./tools/tools-screen";
+import { useRailSession } from "./rail/use-rail-session";
+import { RailPane } from "./rail/rail-pane";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -94,26 +97,9 @@ export function App({
   const [studioDecks, setStudioDecks] = useState<DeckCount[]>(decks);
   const [studioTotal, setStudioTotal] = useState(totalPieces);
   const [watchNotices, setWatchNotices] = useState(0);
-  const [copyNotice, setCopyNotice] = useState<string | null>(null);
   const gate = useGateController();
-  const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  useEffect(
-    () => () => {
-      if (copyTimer.current) clearTimeout(copyTimer.current);
-    },
-    [],
-  );
-  const copy = (text: string): void => {
-    const messages: Record<CopyResult, string> = {
-      requested: "copy requested",
-      unsupported: "clipboard unavailable in this terminal",
-      "too-large": "message too large for safe terminal copy",
-      failed: "terminal refused the copy",
-    };
-    setCopyNotice(messages[copyText(renderer, text)]);
-    if (copyTimer.current) clearTimeout(copyTimer.current);
-    copyTimer.current = setTimeout(() => setCopyNotice(null), 2200);
-  };
+  const rail = useRailSession(session, gate, (text) => add({ role: "say", text }));
+  const { notice: copyNotice, copy } = useCopyNotice(renderer);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   useEffect(() => {
@@ -270,6 +256,7 @@ export function App({
           }),
         );
       }
+      rail.onTurnEvent(event);
       setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
     };
     void (async () => {
@@ -325,6 +312,9 @@ export function App({
         },
         say: (text) => add({ role: "say", text }),
         egressSummary: () => formatLedger(ledger),
+        contextPreview: () => buildContextPreview(session, history.current, provider),
+        folders: session.folders,
+        rail: rail.commands,
         sessions: sessionActions,
       };
       try {
@@ -343,7 +333,14 @@ export function App({
     }
     const escapedSlash = value.startsWith("//");
     if (!escapedSlash && value.startsWith("/")) {
-      add({ role: "error", text: `Unknown command: ${value.split(/\s/, 1)[0]}. Try /help.` });
+      const typed = value.split(/\s/, 1)[0]!;
+      const near = nearestCommand(commands, typed);
+      add({
+        role: "error",
+        text: near
+          ? `Unknown command: ${typed}. Did you mean ${near.name}? It ${near.summary}.`
+          : `Unknown command: ${typed}. Try /help.`,
+      });
       return true;
     }
     const prompt = escapedSlash ? value.slice(1) : value;
@@ -424,7 +421,9 @@ export function App({
   }
 
   return (
-    <box id="kit-root" flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
+    <box id="kit-root" flexDirection="row" backgroundColor={theme.well} width="100%" height="100%">
+      {rail.open ? <RailPane rail={rail} /> : null}
+      <box flexDirection="column" flexGrow={1} minWidth={0}>
       <Playbill studioName={studioName} />
       {rewinding ? (
         <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0} padding={1}>
@@ -494,6 +493,7 @@ export function App({
       </box>
         </>
       )}
+      </box>
     </box>
   );
 }
