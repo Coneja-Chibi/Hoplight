@@ -50,12 +50,19 @@ test("ReAct: calls a tool, observes the result, then answers", async () => {
     { kind: "say", text: "you have three" },
   ]);
   const { events, history } = await drain(runTurn("how many?", [], deps(chat)));
+  // "let me look" is said BEFORE the tool runs, and it must survive. This expectation used to omit
+  // it, which is how the drop went unnoticed: a model's stated reason for acting was thrown away and
+  // the transcript kept only the moves.
   expect(events).toEqual([
+    { type: "say", text: "let me look" },
     { type: "tool-start", name: "list" },
     { type: "state", phase: "reading" },
     { type: "tool", name: "list", summary: "list ok" },
     { type: "say", text: "you have three" },
   ]);
+  // The history always held it (the assistant message carries text + toolCalls together); it was
+  // the transcript that dropped it, so this asserts no DUPLICATE entry was introduced either.
+  expect(history[1]).toMatchObject({ role: "assistant", content: "let me look" });
   expect(history.map((message) => message.role)).toEqual(["user", "assistant", "tool", "assistant"]);
   expect(history[1]?.toolCalls).toEqual([call]);
   expect(history[2]).toMatchObject({ role: "tool", toolCallId: "c1", toolName: "list" });
@@ -161,8 +168,20 @@ test("a reviewable draft turns final model prose into application-owned review",
     type: "say",
     text: "Would you like me to apply this change?",
   });
-  expect(history.filter((message) => message.role === "assistant").at(-1)?.toolCalls)
-    .toMatchObject([{ name: "change_apply", args: { draftId: "draft-1" } }]);
+  // The apply call is recorded. Found by its CALL rather than by position, because the receipt now
+  // lands after it and "the last assistant message" was never what this was really asserting.
+  expect(
+    history.filter((m) => m.role === "assistant" && m.toolCalls?.length).at(-1)?.toolCalls,
+  ).toMatchObject([{ name: "change_apply", args: { draftId: "draft-1" } }]);
+
+  // And the RECEIPT is in history as words, not only as raw JSON.
+  //
+  // Without it a resumed session showed the tool fold and then silence: a replay is a pure
+  // projection of these messages, and the outcome the person saw lived only in a live UI event. The
+  // model was in the same position - handed the payload twice and never told what it meant.
+  const spoken = history.filter((m) => m.role === "assistant" && !m.toolCalls?.length);
+  expect(spoken.at(-1)?.content).toContain("applied");
+  expect(events.at(-1)).toEqual({ type: "say", text: "apply draft-1: applied" });
 });
 
 test("denying an automatic draft review discards it without a verbal follow-up", async () => {

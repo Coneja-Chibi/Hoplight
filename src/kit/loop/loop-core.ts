@@ -20,9 +20,16 @@ export type DispatchFn = (call: ModelToolCall) => Promise<DispatchResult>;
 /** What the render layer paints as a turn unfolds. tool-start fires the instant a tool begins (so a
  * slow tool can be named on stage while it grinds); tool fires when it settles, with its summary. */
 export type LoopEvent =
+  | {
+    type: "tool";
+    name: string;
+    summary: string;
+    show?: { kind: string; id: string };
+    /** Options for the person to pick from, carried as data so the shell decides how to draw them. */
+    choices?: { question: string; options: readonly { value: string; note?: string }[] };
+  }
   | { type: "say"; text: string }
   | { type: "tool-start"; name: string }
-  | { type: "tool"; name: string; summary: string; show?: { kind: string; id: string } }
   | { type: "usage"; usage: TokenUsage }
   | { type: "state"; phase: LoopPhase }
   | {
@@ -126,6 +133,27 @@ async function* runDraftReview(
         : "failed",
   });
   if (terminal.phase !== lifecycle.phase) yield { type: "state", phase: terminal.phase };
+
+  /**
+   * THE RECEIPT IS PART OF THE CONVERSATION, so it is said and it is recorded.
+   *
+   * A turn that ended in a review used to leave nothing behind in words. The apply CALL and its raw
+   * JSON result went into history, and the outcome a person actually saw - the review panel, the
+   * verdict - was a live UI event and nothing else. Two things broke because of it:
+   *
+   *   - resuming showed the tool fold and then silence, because a replay is a pure projection of
+   *     these messages and there was no sentence in them to project;
+   *   - the MODEL only had the raw payload, so it had to re-derive "did that save?" from JSON it had
+   *     already been handed once.
+   *
+   * `applied.summary` is the same phrasing the live receipt uses, so the resumed transcript reads as
+   * what happened rather than as a reconstruction of it.
+   */
+  const receipt = applied.summary.trim();
+  if (receipt) {
+    messages.push({ role: "assistant", content: receipt });
+    yield { type: "say", text: receipt };
+  }
 }
 
 /** Run one user turn to completion, yielding events and returning the turn's full message history. */
@@ -207,6 +235,20 @@ export async function* runTurn(
       return messages;
     }
 
+    /**
+     * SPEECH BEFORE MOVES IS STILL SPEECH.
+     *
+     * A model that says "yes, that was a mistake - let me rebuild it from v3" and then calls tools
+     * sends both in one message, and `ModelReply.use` has always carried that `text`. Nothing ever
+     * yielded it, so the sentence was dropped and the transcript showed only the moves: the record
+     * kept WHAT Kit did and lost WHY, which is the half a person actually needs to judge it.
+     *
+     * ONLY the event, never a second history entry: the assistant message pushed below already
+     * carries this exact text alongside its tool calls, so pushing here would make the model read its
+     * own sentence twice. The history was always right; it was the transcript that lost the words.
+     */
+    if (reply.text.trim()) yield { type: "say", text: reply.text };
+
     if (toolCalls + reply.calls.length > maxToolCalls) {
       lifecycle = transitionLoop(lifecycle, { type: "stopped" });
       yield { type: "state", phase: lifecycle.phase };
@@ -282,6 +324,7 @@ export async function* runTurn(
         name: call.name,
         summary: result.summary,
         ...(result.show ? { show: result.show } : {}),
+        ...(result.choices ? { choices: result.choices } : {}),
       };
       if (result.outcome === "draft") {
         const next = transitionLoop(lifecycle, { type: "preview-ready" });
