@@ -18,7 +18,7 @@ import { runRenderer } from "../render/runner";
 import { unresolvedCount } from "../render/contract";
 import { starterBlocks } from "./skeletons";
 
-const ST_ROOT = process.env.HOPLIGHT_ST_ROOT ?? "C:/Users/chiev/Downloads/SillyTavern";
+const ST_ROOT = process.env.HOPLIGHT_ST_ROOT ?? "";
 const HAVE_ST = existsSync(join(ST_ROOT, "public", "scripts", "macros", "macro-system.js"));
 
 describe.skipIf(!HAVE_ST)("starter blocks, live", () => {

@@ -95,3 +95,34 @@ describe("block_lookup", () => {
     expect(result.summary).not.toContain("no ordering problems");
   });
 });
+
+describe("check classifies what it was not told", () => {
+  test("an unlabelled preset is checkable, and the coverage is stated", async () => {
+    // The case this exists for: a preset somebody imported, where nobody hand-labelled anything.
+    const result = await tool.execute({
+      action: "check",
+      blocks: [
+        { identifier: "hp_init", enabled: true, content: "{{setvar::a::}}{{setvar::b::}}{{setvar::c::}}" },
+        { identifier: "pov", enabled: true, content: "{{setvar::pov::second}}{{trim}}" },
+        { identifier: "chatHistory", enabled: true, marker: true, content: "" },
+        { identifier: "prose", enabled: true, content: "Write vividly." },
+      ],
+    }, ctx);
+    expect(result.output).toContain("Checked 3 of 4 blocks");
+    expect(result.output).toContain("3 classified from structure");
+    expect(result.output).toContain("1 could not be identified");
+  });
+
+  test("a caller's own label wins over the classifier", async () => {
+    // They may know something structure cannot show; the classifier only fills gaps.
+    const result = await tool.execute({
+      action: "check",
+      blocks: [
+        { identifier: "writer", enabled: true, pattern: "option-exclusive", content: "{{setvar::x::1}}" },
+        { identifier: "init", enabled: true, content: "{{setvar::a::}}{{setvar::b::}}{{setvar::c::}}" },
+      ],
+    }, ctx);
+    // option-exclusive must follow variable-init; here it precedes it, so the label was honoured.
+    expect(result.summary).toContain("finding");
+  });
+});

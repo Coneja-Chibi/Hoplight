@@ -21,6 +21,7 @@ import { z } from "zod";
 import { ALL_PATTERNS, findPattern } from "../../core/preset/blocks/patterns";
 import { skeletonFor } from "../../core/preset/blocks/skeletons";
 import { checkCoherence, formatCoherence } from "../../core/preset/blocks/coherence";
+import { classifyBlocks } from "../../core/preset/blocks/classify";
 import type { HarnessTool } from "./tool";
 
 const input = z.strictObject({
@@ -32,6 +33,9 @@ const input = z.strictObject({
     name: z.string().max(200).optional(),
     enabled: z.boolean().default(true),
     pattern: z.string().max(60).optional().describe("the pattern id this block is, when known"),
+    marker: z.boolean().optional().describe("true for an engine slot such as chatHistory"),
+    content: z.string().max(40_000).optional()
+      .describe("the block's text; lets an unlabelled block be classified from its structure"),
   })).max(400).optional().describe("for check: the preset's blocks in their evaluation order"),
 });
 
@@ -130,15 +134,35 @@ const blockLookup: HarnessTool<z.infer<typeof input>> = {
     if (blocks.length === 0) {
       return {
         summary: "block_lookup check: no blocks",
-        output: "Pass the preset's blocks in evaluation order, each with its pattern id where known.",
+        output: "Pass the preset's blocks in evaluation order. Include content and a pattern id where"
+          + " you know one; unlabelled blocks are classified from their structure where that is provable.",
       };
     }
-    const findings = checkCoherence(blocks);
+    // A caller's own label always wins: they may know something structure cannot show. Only blocks
+    // that arrive unlabelled are classified, and the classifier abstains rather than guessing, which
+    // is why an imported preset can be checked at all without hand-labelling every block first.
+    const classified = classifyBlocks(blocks);
+    const resolved = blocks.map((block, index) => ({
+      ...block,
+      pattern: block.pattern ?? classified[index]!.pattern ?? undefined,
+    }));
+    const inferred = resolved.filter((b, i) => !blocks[i]!.pattern && b.pattern).length;
+    const unknown = resolved.filter((b) => !b.pattern).length;
+
+    const findings = checkCoherence(resolved);
     return {
       summary: findings.length === 0
         ? "block_lookup check: no ordering problems"
         : `block_lookup check: ${findings.length} finding(s)`,
-      output: formatCoherence(findings),
+      output: [
+        formatCoherence(findings),
+        "",
+        // Stated every time, because a clean result over a third of a preset is a different claim
+        // than a clean result over all of it, and the difference is invisible otherwise.
+        `Checked ${resolved.length - unknown} of ${resolved.length} blocks`
+        + `${inferred > 0 ? ` (${inferred} classified from structure)` : ""}.`
+        + `${unknown > 0 ? ` ${unknown} could not be identified and were not checked.` : ""}`,
+      ].join("\n"),
     };
   },
 };

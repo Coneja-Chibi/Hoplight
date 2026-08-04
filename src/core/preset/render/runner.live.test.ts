@@ -15,8 +15,8 @@ import { join } from "node:path";
 import { runRenderer, type RendererCommand } from "./runner";
 import { unresolvedCount, type RenderedPreset } from "./contract";
 
-const ST_ROOT = process.env.HOPLIGHT_ST_ROOT ?? "C:/Users/chiev/Downloads/SillyTavern";
-const PRESETS = "C:/Users/chiev/Downloads/Take Your Meds/My Presets/Paramnesia VI";
+const ST_ROOT = process.env.HOPLIGHT_ST_ROOT ?? "";
+const PRESETS = process.env.HOPLIGHT_PRESET_CORPUS ?? "";
 
 /**
  * Found by scanning rather than named outright. The published preset carries decorative characters in

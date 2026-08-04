@@ -16,8 +16,8 @@ import { join } from "node:path";
 import { runRenderer, type RendererCommand } from "./runner";
 import { unresolvedCount, type RenderedPreset } from "./contract";
 
-const ROOT = process.env.HOPLIGHT_ROLECALL_ROOT ?? "C:/Users/chiev/Documents/VAUDEVILLE/apps/rc";
-const PRESETS = "C:/Users/chiev/Downloads/Take Your Meds/My Presets/Paramnesia VI";
+const ROOT = process.env.HOPLIGHT_ROLECALL_ROOT ?? "";
+const PRESETS = process.env.HOPLIGHT_PRESET_CORPUS ?? "";
 const MASTER = join(PRESETS, "paramnesia-vi-rc.json");
 const BUILDER = join(ROOT, "src", "lib", "macros", "prompt-builder.ts");
 

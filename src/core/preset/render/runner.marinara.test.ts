@@ -15,7 +15,7 @@ import { join } from "node:path";
 import { runRenderer, type RendererCommand } from "./runner";
 import { type RenderedPreset } from "./contract";
 
-const ROOT = process.env.HOPLIGHT_MARINARA_ROOT ?? "C:/Users/chiev/Documents/Marinara-Engine";
+const ROOT = process.env.HOPLIGHT_MARINARA_ROOT ?? "";
 const PRESET = "samples/marinara/presets/marinara-universal-preset-v12.marinara.json";
 
 const ENGINE = join(ROOT, "packages", "shared", "src", "utils", "macro-engine.ts");
