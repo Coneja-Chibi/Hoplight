@@ -36,6 +36,18 @@ export interface CrossingRow {
   readonly count?: number;
   /** Which block it lives in, so a reader knows what to open. Removals carry it; groups cannot. */
   readonly where?: string;
+  /**
+   * What happened, short enough to live on one line.
+   *
+   * A SHAPE, NOT A SENTENCE. The translator writes real prose for its receipt - "Indexed access
+   * lowered to a plain variable whose name carries the index, since sillytavern has no arrays" - and
+   * that is right for a document somebody reads at leisure and wrong for a line under a cursor.
+   * `{{getvarkey::x::0}} -> {{getvar::x_0}}` says the same thing and is read at a glance.
+   *
+   * Shown one at a time in a fixed line at the foot, which is what lets a note appear without every
+   * row below it moving.
+   */
+  readonly note?: string;
 }
 
 export interface CrossingReview {
@@ -84,6 +96,31 @@ const familyOf = (token: string): string => {
  */
 const blockOf = (where: string): string => /\[([^\]]+)\]/.exec(where)?.[1] ?? where;
 
+/** Room for one macro on each side of an arrow, on a narrow terminal. */
+const SIDE = 30;
+
+/**
+ * Shorten from the MIDDLE, never the end.
+ *
+ * Both ends carry the meaning and the middle rarely does: `{{getvarkey::staging_propp_plan::0}}`
+ * says which macro at the front and which index at the back, and a trailing cut
+ * (`{{getvarkey::staging_propp_pl…`) throws away the half that shows what changed.
+ */
+const clip = (text: string): string => {
+  if (text.length <= SIDE) return text;
+  const head = Math.ceil((SIDE - 1) / 2);
+  return `${text.slice(0, head)}…${text.slice(text.length - (SIDE - 1 - head))}`;
+};
+
+/**
+ * The one-line note for a rewrite: the change itself, shown rather than described.
+ *
+ * Built from the SHORTEST real example in the family, not a synthesised one. A made-up
+ * `{{random::a::b}}` would read cleanly and would not be something in the file; the shortest real
+ * member is both honest and, being shortest, the most likely to fit.
+ */
+const shapeNote = (from: string, to: string): string => `${clip(from)}  ->  ${clip(to)}`;
+
 /**
  * Build the ledger.
  *
@@ -101,6 +138,9 @@ export function reviewCrossing(input: CrossingInput): CrossingReview {
       from: change.from,
       to: change.kind === "collision" ? "left as-is · needs review" : "removed · no such macro",
       ...(change.where ? { where: blockOf(change.where) } : {}),
+      note: change.kind === "collision"
+        ? `${familyOf(change.from)} means something else in ${input.to}`
+        : `no ${familyOf(change.from)} in ${input.to}`,
     });
   }
   if (removed.length > MAX_REMOVED) {
@@ -112,16 +152,28 @@ export function reviewCrossing(input: CrossingInput): CrossingReview {
   }
 
   // Rewrites, grouped by family and ordered by how many, so the biggest change reads first.
-  const families = new Map<string, { to: string; count: number }>();
+  // Each family keeps its SHORTEST member as the exemplar, because every member is the same rewrite
+  // and the shortest is the one that fits on the foot line while still being a real string from the
+  // file rather than an invented one.
+  const families = new Map<string, { to: string; count: number; example?: MacroChange }>();
   for (const change of input.changes) {
     if (change.kind !== "rewrite" && change.kind !== "flatten") continue;
     const key = familyOf(change.from);
     const seen = families.get(key);
-    if (seen) seen.count += 1;
-    else families.set(key, { to: change.kind === "flatten" ? "expanded inline" : "respelled", count: 1 });
+    if (!seen) {
+      families.set(key, {
+        to: change.kind === "flatten" ? "expanded inline" : "respelled",
+        count: 1,
+        example: change,
+      });
+      continue;
+    }
+    seen.count += 1;
+    if (change.from.length < (seen.example?.from.length ?? Infinity)) seen.example = change;
   }
-  for (const [family, { to, count }] of [...families].sort((a, b) => b[1].count - a[1].count)) {
-    rows.push({ severity: "rewritten", from: family, to, count });
+  for (const [family, { to, count, example }] of [...families].sort((a, b) => b[1].count - a[1].count)) {
+    const note = example?.to ? shapeNote(example.from, example.to) : undefined;
+    rows.push({ severity: "rewritten", from: family, to, count, ...(note ? { note } : {}) });
   }
 
   // Carried rows read as a quantity, not a name with a multiplier: "150 blocks", never "blocks x150".
@@ -139,6 +191,26 @@ export function reviewCrossing(input: CrossingInput): CrossingReview {
     escrowDropped: input.escrowDropped === true,
     warningCount: input.warningCount ?? 0,
   };
+}
+
+/**
+ * What the three words mean, for the panel's foot line.
+ *
+ * A legend rather than a tooltip, because a tooltip needs a pointer and plenty of people drive Kit by
+ * keyboard, over ssh, inside tmux. Hovering a row replaces this with that row's own note; with
+ * nothing hovered, and for anyone who cannot hover at all, the key is simply on screen.
+ *
+ * Only the severities actually present are described. Explaining "removed" on a crossing that removes
+ * nothing teaches a word the panel never uses.
+ */
+export function crossingLegend(review: CrossingReview): string {
+  const present = new Set(review.rows.map((row) => row.severity));
+  const parts = [
+    present.has("removed") ? "removed: gone" : null,
+    present.has("rewritten") ? "respelled: same meaning" : null,
+    present.has("carried") ? "carried: untouched" : null,
+  ].filter(Boolean);
+  return parts.length === 0 ? "" : parts.join("  ·  ");
 }
 
 /** Does this crossing cost anything a person must decide about? Drives the frame colour. */

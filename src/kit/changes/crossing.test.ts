@@ -6,7 +6,7 @@
  * would pass a made-up fixture and mislead on the real one, so the counts here are the measured ones.
  */
 import { describe, expect, test } from "bun:test";
-import { crossingIsLossy, reviewCrossing, summarizeCrossing } from "./crossing";
+import { crossingIsLossy, crossingLegend, reviewCrossing, summarizeCrossing } from "./crossing";
 import type { MacroChange } from "../../core/preset/macros/translate";
 
 const change = (over: Partial<MacroChange>): MacroChange => ({
@@ -128,5 +128,68 @@ describe("bounds", () => {
     });
     expect(review.rows[0]!.severity).toBe("rewritten");
     expect(review.rows[0]!.to).toBe("expanded inline");
+  });
+});
+
+describe("the legend and the notes", () => {
+  test("a note shows the change itself, not a sentence about it", () => {
+    // The translator writes real prose for its receipt. Under a cursor, the shape says it faster:
+    // {{roll::1d3}} -> {{roll:1d3}} needs no reading.
+    const review = reviewCrossing({
+      target, to: "sillytavern",
+      changes: [
+        change({ kind: "absent", from: "{{choice::x}}", to: null, why: "a long sentence nobody reads under a cursor" }),
+        change({ from: "{{roll::1d3}}", to: "{{roll:1d3}}", why: "another long sentence" }),
+      ],
+    });
+    expect(review.rows[0]!.note).toBe("no {{choice}} in sillytavern");
+    expect(review.rows[1]!.note).toBe("{{roll::1d3}}  ->  {{roll:1d3}}");
+  });
+
+  test("a long macro is shortened from the middle, so both ends survive", () => {
+    // A trailing cut hides the suffix, which is exactly where the change usually shows.
+    const review = reviewCrossing({
+      target, to: "sillytavern",
+      changes: [change({ from: "{{getvarkey::staging_propp_plan::0}}", to: "{{getvar::staging_propp_plan_0}}" })],
+    });
+    const note = review.rows[0]!.note!;
+    expect(note).toContain("…");
+    expect(note).toContain("{{getvarkey::");
+    expect(note).toContain("::0}}");
+    expect(note).toContain("_0}}");
+  });
+
+  test("a grouped family shows its SHORTEST real member, never an invented one", () => {
+    const review = reviewCrossing({
+      target, to: "sillytavern",
+      changes: [
+        change({ from: "{{random::a_very_long_option_list::and_more}}", to: "{{random:x}}" }),
+        change({ from: "{{random::a::b}}", to: "{{random:a,b}}" }),
+      ],
+    });
+    const rewritten = review.rows.filter((r) => r.severity === "rewritten");
+    expect(rewritten).toHaveLength(1);
+    expect(rewritten[0]!.count).toBe(2);
+    expect(rewritten[0]!.note).toBe("{{random::a::b}}  ->  {{random:a,b}}");
+  });
+
+  test("the legend describes only the severities actually on screen", () => {
+    // Explaining "removed" on a crossing that removes nothing teaches a word the panel never uses.
+    const clean = reviewCrossing({ target, to: "sillytavern", changes: many(3, {}) });
+    expect(crossingLegend(clean)).toContain("respelled: same meaning");
+    expect(crossingLegend(clean)).not.toContain("removed");
+
+    const lossy = reviewCrossing({
+      target, to: "sillytavern",
+      changes: [change({ kind: "absent", from: "{{x}}", to: null })],
+      carried: [{ label: "blocks", count: 4 }],
+    });
+    expect(crossingLegend(lossy)).toContain("removed");
+    expect(crossingLegend(lossy)).toContain("carried");
+    expect(crossingLegend(lossy)).not.toContain("respelled");
+  });
+
+  test("an empty crossing has no legend to show", () => {
+    expect(crossingLegend(reviewCrossing({ target, to: "sillytavern", changes: [] }))).toBe("");
   });
 });

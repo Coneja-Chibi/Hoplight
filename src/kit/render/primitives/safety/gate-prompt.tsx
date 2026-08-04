@@ -14,7 +14,7 @@
  * simply not drawn, because the key belongs to muscle memory and the row belongs to meaning. Each
  * choice is also a real bordered target, so the mouse works here as it always has on the review card.
  */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { theme } from "../../theme";
@@ -24,7 +24,7 @@ import type { PermissionMode } from "../../../tools/safety/gate-core";
 import type { GateChoice } from "../../../tools/safety/permission-mode";
 import type { GateRequest } from "../../../tools/safety/gated-dispatch";
 import { BAR, CHECK, CROSS, HELD, STOP } from "../../glyphs";
-import { crossingIsLossy, type CrossingReview, type CrossingRow, type CrossingSeverity } from "../../../changes/crossing";
+import { crossingIsLossy, crossingLegend, type CrossingReview, type CrossingRow, type CrossingSeverity } from "../../../changes/crossing";
 import { KeyHint } from "../key-hint";
 
 export function GatePrompt({
@@ -215,6 +215,7 @@ function CrossingPanel({
   onChoice: (choice: GateChoice) => void;
 }): ReactNode {
   const lossy = crossingIsLossy(review);
+  const [hovered, setHovered] = useState<number | null>(null);
 
   useKeyboard((e: KeyEvent) => {
     const k = e.name;
@@ -239,6 +240,11 @@ function CrossingPanel({
     rows.push(row);
     previous = row.severity;
   }
+
+  // The key when nothing is hovered; that row's own reason when something is. A hovered row with no
+  // note falls back to the key rather than blanking, so the line never empties under the pointer.
+  const legend = crossingLegend(review);
+  const footLine = (hovered === null ? null : rows[hovered]?.note) ?? legend;
 
   return (
     <box
@@ -270,7 +276,15 @@ function CrossingPanel({
         row === null ? (
           <box key={index} height={1} />
         ) : (
-          <box key={index} flexDirection="column">
+          <box
+            key={index}
+            flexDirection="column"
+            // Hover writes to the foot line and NEVER to this row. Revealing the note here would
+            // push every row below it down, moving the thing under the pointer as it is read.
+            onMouseOver={() => setHovered(index)}
+            onMouseOut={() => setHovered((current) => (current === index ? null : current))}
+            backgroundColor={hovered === index ? theme.row : undefined}
+          >
             <box flexDirection="row">
               <text fg={SEVERITY_TONE[row.severity]}>{BAR}</text>
               <text fg={theme.soft}>
@@ -299,6 +313,18 @@ function CrossingPanel({
         <text fg={theme.gold}>
           {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
         </text>
+      ) : null}
+
+      {/*
+        One fixed line, always present, whatever is hovered. It carries the key by default and one
+        row's reason while that row is under the pointer. Fixed because the alternative - growing the
+        panel when a note appears - moves every button below it, and a confirm whose buttons move
+        while you read is a confirm you can misclick.
+      */}
+      {footLine ? (
+        <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
+          <text fg={hovered === null ? theme.mut : theme.soft}>{footLine}</text>
+        </box>
       ) : null}
 
       <box height={1} />
