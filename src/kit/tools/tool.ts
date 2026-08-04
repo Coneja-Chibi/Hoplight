@@ -55,7 +55,7 @@ export interface ToolResult {
   /** A complete draft preview cues application-owned review instead of model-authored permission prose. */
   review?: DraftReview;
   /** Machine-readable user decision from the Gate; never inferred from a blocked message. */
-  gateDecision?: "denied" | "aborted";
+  gateDecision?: "denied" | "aborted" | "held";
 }
 
 export type ToolExposure = "direct" | "deferred" | "hidden";

@@ -54,6 +54,55 @@ export interface KitCommand {
   run(ctx: CommandContext): boolean | void | Promise<boolean | void>;
 }
 
+/**
+ * The closest real command to something that did not match, or null when nothing is close.
+ *
+ * "Unknown command. Try /help" makes a person read a list to find a word they nearly typed. This
+ * catches the three ways a guess actually misses: a prefix (`/us` for `/usage`), a word contained in
+ * the real one, and a single typo. Anything further away returns null rather than a confident wrong
+ * suggestion, because being pointed at the wrong command is worse than being pointed at the list.
+ */
+export function nearestCommand(
+  commands: readonly KitCommand[],
+  word: string,
+): KitCommand | null {
+  const needle = word.toLowerCase().replace(/^\/+/, "");
+  if (!needle) return null;
+  const names = (command: KitCommand): string[] =>
+    [command.name, ...(command.aliases ?? [])].map((n) => n.replace(/^\/+/, ""));
+
+  for (const test of [
+    (n: string) => n.startsWith(needle) || needle.startsWith(n),
+    (n: string) => n.includes(needle) || needle.includes(n),
+    (n: string) => oneEditApart(n, needle),
+  ]) {
+    const hit = commands.find((command) => names(command).some(test));
+    if (hit) return hit;
+  }
+  return null;
+}
+
+/** Within one insertion, deletion or substitution. Enough for a typo, tight enough to stay honest. */
+function oneEditApart(a: string, b: string): boolean {
+  if (Math.abs(a.length - b.length) > 1) return false;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  let i = 0;
+  let j = 0;
+  let slack = 1;
+  while (i < short.length && j < long.length) {
+    if (short[i] === long[j]) {
+      i += 1;
+      j += 1;
+      continue;
+    }
+    if (slack-- === 0) return false;
+    // A substitution advances both; an insertion advances only the longer side.
+    if (short.length === long.length) i += 1;
+    j += 1;
+  }
+  return true;
+}
+
 /** Resolve a raw input to a command + its argument. Null when it is not a slash command we know. */
 export const matchCommand = (
   commands: readonly KitCommand[],

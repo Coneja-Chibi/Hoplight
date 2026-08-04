@@ -13,11 +13,15 @@ export type GateChoice =
   | { type: "allow-session" }
   | { type: "deny" }
   | { type: "abort" }
+  /** Neither yes nor no: do not run it, keep the question open, and let the user ask about it. The
+   *  gate still closes - it cannot stay open across turns - but the shell can tell the difference
+   *  between "I decided against this" and "I want to know more first". */
+  | { type: "hold" }
   | { type: "set-mode"; mode: PermissionMode };
 
 const MAX_GRANTS = 64; // bounded: tool names are finite; a cap defends against a runaway grant set
 const MODES = new Set<PermissionMode>(["guarded", "autopilot", "full", "locked"]);
-const CHOICES = new Set(["allow-once", "allow-session", "deny", "abort", "set-mode"]);
+const CHOICES = new Set(["allow-once", "allow-session", "deny", "abort", "hold", "set-mode"]);
 
 /** The three user-selectable modes on the /gates screen, in order, with Chi's words (locked 2026-07-24).
  * `locked` is not offered here: it is the fail-closed fallback + where an abort lands, shown as "Read-only"
@@ -58,6 +62,9 @@ export function applyGateChoice(state: GateState, choice: GateChoice, name: stri
   switch (choice.type) {
     case "allow-once":
     case "deny":
+    // A hold is a one-shot too. It deliberately grants nothing and loosens nothing: asking a question
+    // about a call must never be a way to end up having permitted it.
+    case "hold":
       return state; // one-shot decisions carry no standing policy change
     case "allow-session":
       return grant(state, name);

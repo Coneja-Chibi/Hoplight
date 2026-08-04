@@ -23,7 +23,8 @@ import { isFloor } from "../../../tools/safety/gate-core";
 import type { PermissionMode } from "../../../tools/safety/gate-core";
 import type { GateChoice } from "../../../tools/safety/permission-mode";
 import type { GateRequest } from "../../../tools/safety/gated-dispatch";
-import { CHECK, CROSS, HELD, STOP } from "../../glyphs";
+import { BAR, CHECK, CROSS, HELD, STOP } from "../../glyphs";
+import { crossingIsLossy, type CrossingReview, type CrossingRow, type CrossingSeverity } from "../../../changes/crossing";
 import { KeyHint } from "../key-hint";
 
 export function GatePrompt({
@@ -36,6 +37,7 @@ export function GatePrompt({
   onChoice: (choice: GateChoice) => void;
 }): ReactNode {
   const review = req.review;
+  const crossing = req.crossing;
   const stripe = stripeFor(req.verdict.level);
   const grantable = !isFloor(req.verdict.access);
   const frameColor =
@@ -47,6 +49,9 @@ export function GatePrompt({
 
   useKeyboard((e: KeyEvent) => {
     const k = e.name;
+    // The crossing panel owns its own keys, including the third answer. Handled there so this
+    // listener cannot claim "t" for a surface that has no hold.
+    if (crossing) return;
     if (review && (k === "y" || k === "return")) {
       e.preventDefault();
       onChoice({ type: "allow-once" });
@@ -70,6 +75,10 @@ export function GatePrompt({
       onChoice({ type: "abort" });
     }
   });
+
+  if (crossing) {
+    return <CrossingPanel review={crossing} mode={mode} onChoice={onChoice} />;
+  }
 
   if (review) {
     const shown = review.changes.slice(0, 5);
@@ -168,6 +177,152 @@ export function GatePrompt({
         */}
         <text fg={theme.mut}>esc denies</text>
       </box>
+    </box>
+  );
+}
+
+/** The stripe colour for a row's severity. Teal reads as safe everywhere else in Kit, so a carried
+ *  row must not borrow the gold that means "this changed". */
+const SEVERITY_TONE: Record<CrossingSeverity, string> = {
+  removed: theme.red,
+  rewritten: theme.gold,
+  carried: theme.teal,
+};
+
+/**
+ * The crossing ledger: what each thing is, and what becomes of it on the other side.
+ *
+ * TWO COLUMNS, NOT BEFORE-AND-AFTER ROWS. A draft's honest shape is a field changing value. A
+ * crossing's is a thing meeting an engine that may not have it, so the right column is a fate rather
+ * than a new value, and reading across one row answers the whole question for that thing.
+ *
+ * BANDED BY SEVERITY, WORST FIRST. The stripe already means risk everywhere else in Kit, so severity
+ * needs no legend. Blank rows separate the bands because a removal and a respelling are different
+ * kinds of news and a flat list makes them look like one.
+ *
+ * THE THIRD ANSWER IS THE POINT. `y` and `n` force a decision from someone who may not know what a
+ * loss costs. `t` holds the crossing and asks Kit, which is the one participant that already measured
+ * it. The gate closes either way - it cannot stay open across turns - so holding returns a distinct
+ * choice the shell turns into a question rather than a silent discard.
+ */
+function CrossingPanel({
+  review,
+  mode,
+  onChoice,
+}: {
+  review: CrossingReview;
+  mode: PermissionMode;
+  onChoice: (choice: GateChoice) => void;
+}): ReactNode {
+  const lossy = crossingIsLossy(review);
+
+  useKeyboard((e: KeyEvent) => {
+    const k = e.name;
+    if (k === "y" || k === "return") {
+      e.preventDefault();
+      onChoice({ type: "allow-once" });
+    } else if (k === "t") {
+      e.preventDefault();
+      onChoice({ type: "hold" });
+    } else if (k === "n" || k === "d" || k === "escape") {
+      e.preventDefault();
+      onChoice({ type: "deny" });
+    }
+  });
+
+  // Blank separators between bands, computed from the rows rather than hand-placed, so a crossing
+  // with no removals does not open on an empty gap.
+  const rows: (CrossingRow | null)[] = [];
+  let previous: CrossingSeverity | null = null;
+  for (const row of review.rows) {
+    if (previous !== null && row.severity !== previous) rows.push(null);
+    rows.push(row);
+    previous = row.severity;
+  }
+
+  return (
+    <box
+      flexDirection="column"
+      border
+      borderColor={lossy ? theme.gold : theme.line}
+      backgroundColor={theme.panel}
+      paddingLeft={1}
+      paddingRight={1}
+    >
+      <box flexDirection="row">
+        <text fg={theme.rose}>REVIEW CROSSING</text>
+        <box flexGrow={1} />
+        <text fg={theme.soft}>{mode}</text>
+      </box>
+      <text fg={theme.bright}>
+        {review.target.kind} / {review.target.id}
+        <span fg={theme.quiet}> {"->"} {review.to}</span>
+      </text>
+      <box height={1} />
+
+      <box flexDirection="row">
+        <text fg={theme.quiet}>{"  "}from</text>
+        <box flexGrow={1} />
+        <text fg={theme.quiet}>becomes{"  "}</text>
+      </box>
+
+      {rows.map((row, index) =>
+        row === null ? (
+          <box key={index} height={1} />
+        ) : (
+          <box key={index} flexDirection="column">
+            <box flexDirection="row">
+              <text fg={SEVERITY_TONE[row.severity]}>{BAR}</text>
+              <text fg={theme.soft}>
+                {" "}{row.from}
+                {row.count === undefined ? "" : ` x${row.count}`}
+              </text>
+              <box flexGrow={1} />
+              <text fg={SEVERITY_TONE[row.severity]}>{row.to}</text>
+            </box>
+            {row.where ? <text fg={theme.quiet}>{"    in "}{row.where}</text> : null}
+          </box>
+        ),
+      )}
+
+      {review.escrowDropped ? (
+        <>
+          <box height={1} />
+          {/* Reassurance, deliberately out of the severity list: nothing here is lost to the user,
+              only to the file, and colouring it like damage would have said the opposite. */}
+          <text fg={theme.quiet}>
+            The original is not written to the file. Hoplight keeps it, so converting back restores it.
+          </text>
+        </>
+      ) : null}
+      {review.warningCount > 0 ? (
+        <text fg={theme.gold}>
+          {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
+        </text>
+      ) : null}
+
+      <box height={1} />
+      <box flexDirection="row">
+        <GateButton
+          glyph={CHECK}
+          label="Write it"
+          tone={theme.teal}
+          onPress={() => onChoice({ type: "allow-once" })}
+        />
+        <GateButton
+          glyph={HELD}
+          label="Talk it through"
+          tone={theme.violet}
+          onPress={() => onChoice({ type: "hold" })}
+        />
+        <GateButton
+          glyph={CROSS}
+          label="Discard"
+          tone={theme.red}
+          onPress={() => onChoice({ type: "deny" })}
+        />
+      </box>
+      <text fg={theme.mut}>enter writes · esc discards</text>
     </box>
   );
 }

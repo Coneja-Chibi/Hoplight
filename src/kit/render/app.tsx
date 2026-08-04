@@ -12,7 +12,7 @@ import type { KeyEvent } from "@opentui/core";
 import type { DeckCount, EntitySummary } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session as ChatSession } from "../session";
-import { matchCommand, type KitCommand } from "../commands/command";
+import { matchCommand, nearestCommand, type KitCommand } from "../commands/command";
 import { theme } from "./theme";
 import { OpeningBanner } from "./primitives/opening-banner";
 import { Playbill } from "./primitives/playbill";
@@ -328,7 +328,14 @@ export function App({
     }
     const escapedSlash = value.startsWith("//");
     if (!escapedSlash && value.startsWith("/")) {
-      add({ role: "error", text: `Unknown command: ${value.split(/\s/, 1)[0]}. Try /help.` });
+      const typed = value.split(/\s/, 1)[0]!;
+      const near = nearestCommand(commands, typed);
+      add({
+        role: "error",
+        text: near
+          ? `Unknown command: ${typed}. Did you mean ${near.name}? It ${near.summary}.`
+          : `Unknown command: ${typed}. Try /help.`,
+      });
       return true;
     }
     const prompt = escapedSlash ? value.slice(1) : value;

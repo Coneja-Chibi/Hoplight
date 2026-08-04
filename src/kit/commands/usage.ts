@@ -11,7 +11,8 @@ import type { KitCommand } from "./command";
 
 const command: KitCommand = {
   name: "/usage",
-  aliases: ["/plan"],
+  // /status and /quota are what people reach for first; the command is the same either way.
+  aliases: ["/plan", "/status", "/quota"],
   summary: "how much of your subscription plan is used",
   group: "session",
   run: async (ctx) => {

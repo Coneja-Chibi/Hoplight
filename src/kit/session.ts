@@ -25,6 +25,7 @@ import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
 import { reviewChangeDraft } from "./changes/review";
+import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
@@ -140,13 +141,23 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           gate ?? { state: initGate() },
           accessFor,
           (call) => {
-            if (call.name !== "change_apply") return undefined;
             const args = typeof call.args === "object" && call.args !== null
-              ? call.args as { draftId?: unknown }
+              ? call.args as Record<string, unknown>
               : null;
-            if (typeof args?.draftId !== "string") return undefined;
-            const draft = changes.get(args.draftId);
-            return draft ? reviewChangeDraft(draft) : undefined;
+            if (call.name === "change_apply") {
+              if (typeof args?.draftId !== "string") return undefined;
+              const draft = changes.get(args.draftId);
+              return draft ? { review: reviewChangeDraft(draft) } : undefined;
+            }
+            // An export is the moment a crossing becomes a file, so it is the moment worth showing
+            // what the crossing costs. Built here rather than in the tool because the gate decides
+            // BEFORE execute, and a person cannot judge a conversion they have not been shown.
+            if (call.name === "studio_export") {
+              return crossingForExport(bridge, args).then((crossing) =>
+                crossing ? { crossing } : undefined,
+              );
+            }
+            return undefined;
           },
         );
         const turn = runLoop(input, history, {
