@@ -50,12 +50,12 @@ describe("preset_verify", () => {
 
   test("state is optional and passes through as the engine's own naming", () => {
     const parsed = tool.input.parse({
-      engine: "rolecall",
+      engine: "marinara",
       preset: "a.json",
       state: { pov: "third" },
     });
     expect(parsed.state).toEqual({ pov: "third" });
-    expect(tool.input.parse({ engine: "rolecall", preset: "a.json" }).state).toBeUndefined();
+    expect(tool.input.parse({ engine: "marinara", preset: "a.json" }).state).toBeUndefined();
   });
 
   test("renders of the same engine are serialised, since each one starts a process", () => {
