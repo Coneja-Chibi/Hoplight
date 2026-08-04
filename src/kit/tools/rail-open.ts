@@ -1,5 +1,9 @@
 /**
- * Put a preset on the rail, from the conversation.
+ * `/rail`, from Kit's side.
+ *
+ * ONE SURFACE, TWO DOORS. There is exactly one rail. A person opens it by typing `/rail`; Kit opens
+ * it by calling this. Named to say so, after a shorter-lived name that described what it did to a
+ * preset instead - which read as a second feature, and had to be explained rather than recognised.
  *
  * WHY A TOOL AND NOT PROSE. Kit can already say "I have opened Paramnesia for you", and a shell that
  * had to read that out of a sentence would eventually open the wrong thing. Worse, a model able to
@@ -8,8 +12,10 @@
  * happen.
  *
  * READ-ONLY, AND THAT IS LOAD-BEARING. Opening a view changes nothing on disk, so it needs no
- * confirmation, and needing no confirmation is what makes it usable in the middle of a sentence. The
- * rail it opens is still a write surface, and every edit made there still goes through the gate.
+ * confirmation, and needing none is what makes it usable in the middle of a sentence. That is a
+ * property of this door, not of the rail: the rail is a write surface whichever way it was opened,
+ * and every edit made there meets the gate. Kit's own block edits go through `preset.blocks.manage`,
+ * which is a draft and a gate like everything else. This tool cannot move a block.
  *
  * IT REFUSES TO GUESS. Two presets matching one word is a question, not a coin toss: opening the
  * wrong one and rearranging it is the failure this whole surface exists to prevent.
@@ -22,20 +28,20 @@ const input = z.strictObject({
     .describe("a preset's studio id, or part of its name"),
 });
 
-const presetShow: HarnessTool<z.infer<typeof input>> = {
-  name: "preset_show",
+const railOpen: HarnessTool<z.infer<typeof input>> = {
+  name: "rail_open",
   description:
-    "Put a preset's block list on the rail beside the conversation, so the user can watch its order "
-    + "while you work on it. Use it when they ask to see a preset, and after creating one. Opening a "
-    + "view writes nothing.",
+    "Open a preset on the rail beside the conversation, the same view the user gets from /rail. They "
+    + "can watch its block order while you work and rearrange it themselves. Use it when they ask to "
+    + "see a preset and after creating one. Opening the rail writes nothing.",
   exposure: "direct",
   effect: "read",
   input,
-  concurrencyKey: () => "preset-show",
+  concurrencyKey: () => "rail-open",
   async execute(args, ctx) {
     const presets = await ctx.bridge.list("preset");
     if (presets.length === 0) {
-      return { summary: "preset_show: none", output: "There are no presets in the studio." };
+      return { summary: "rail_open: none", output: "There are no presets in the studio." };
     }
 
     const needle = args.preset.trim().toLowerCase();
@@ -45,20 +51,20 @@ const presetShow: HarnessTool<z.infer<typeof input>> = {
 
     if (found.length === 0) {
       return {
-        summary: `preset_show: no match for "${args.preset}"`,
+        summary: `rail_open: no match for "${args.preset}"`,
         output: `No preset matches "${args.preset}". There is: ${presets.map((p) => p.id).join(", ")}`,
       };
     }
     if (found.length > 1) {
       return {
-        summary: `preset_show: ${found.length} match "${args.preset}"`,
+        summary: `rail_open: ${found.length} match "${args.preset}"`,
         output: `Several match: ${found.map((p) => p.id).join(", ")}. Ask which one; do not pick.`,
       };
     }
 
     const piece = found[0]!;
     return {
-      summary: `preset_show ${piece.id}`,
+      summary: `rail_open ${piece.id}`,
       // The shell opens it from this, not from anything said about it.
       show: { kind: "preset", id: piece.id },
       output: `${piece.name || piece.id} is now on the rail beside the conversation. The user can see`
@@ -67,4 +73,4 @@ const presetShow: HarnessTool<z.infer<typeof input>> = {
   },
 };
 
-export default presetShow;
+export default railOpen;

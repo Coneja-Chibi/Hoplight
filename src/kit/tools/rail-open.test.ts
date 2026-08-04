@@ -8,7 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import type { EntitySummary, KitBridge } from "../bridge";
 import type { ToolContext } from "./tool";
-import presetShow from "./preset-show";
+import railOpen from "./rail-open";
 
 const bridgeWith = (presets: { id: string; name: string }[]): KitBridge => ({
   studioDir: "/fake",
@@ -17,16 +17,16 @@ const bridgeWith = (presets: { id: string; name: string }[]): KitBridge => ({
     return (kind === "preset" ? presets : []) as EntitySummary[];
   },
   async read() { return null; },
-  async save() { throw new Error("preset_show must not write"); },
+  async save() { throw new Error("rail_open must not write"); },
   async delete() { return false; },
 });
 
 const ctx = (presets: { id: string; name: string }[]): ToolContext =>
   ({ bridge: bridgeWith(presets) });
 
-describe("preset_show", () => {
+describe("rail_open", () => {
   test("a single match carries the structured show, not just prose", async () => {
-    const result = await presetShow.execute(
+    const result = await railOpen.execute(
       { preset: "paramnesia" },
       ctx([{ id: "paramnesia-vi-rc", name: "Paramnesia VI RC" }]),
     );
@@ -37,14 +37,14 @@ describe("preset_show", () => {
   test("it matches on id or on display name", async () => {
     const pieces = [{ id: "para-vi", name: "Deep Water" }];
     for (const query of ["para", "PARA-VI", "deep", "Water"]) {
-      const result = await presetShow.execute({ preset: query }, ctx(pieces));
+      const result = await railOpen.execute({ preset: query }, ctx(pieces));
       expect(result.show?.id).toBe("para-vi");
     }
   });
 
   test("several matches carry NO show, and tell the model not to pick", async () => {
     // Opening the wrong preset and rearranging it is the failure this surface exists to prevent.
-    const result = await presetShow.execute(
+    const result = await railOpen.execute(
       { preset: "para" },
       ctx([{ id: "para-v5", name: "Para V5" }, { id: "para-v6", name: "Para V6" }]),
     );
@@ -54,25 +54,25 @@ describe("preset_show", () => {
   });
 
   test("no match carries no show and names what exists", async () => {
-    const result = await presetShow.execute({ preset: "zzz" }, ctx([{ id: "only", name: "Only" }]));
+    const result = await railOpen.execute({ preset: "zzz" }, ctx([{ id: "only", name: "Only" }]));
     expect(result.show).toBeUndefined();
     expect(result.output).toContain("only");
   });
 
   test("an empty studio says so rather than that nothing matched", async () => {
-    const result = await presetShow.execute({ preset: "any" }, ctx([]));
+    const result = await railOpen.execute({ preset: "any" }, ctx([]));
     expect(result.show).toBeUndefined();
     expect(result.output).toContain("no presets");
   });
 
   test("it is read-only, so opening a view never needs a confirmation", async () => {
     // The rail it opens is still a write surface; every edit made there still meets the gate.
-    expect(presetShow.effect).toBe("read");
-    expect(presetShow.exposure).toBe("direct");
+    expect(railOpen.effect).toBe("read");
+    expect(railOpen.exposure).toBe("direct");
   });
 
   test("an empty preset name is refused fail-closed", () => {
-    expect(presetShow.input.safeParse({ preset: "" }).success).toBe(false);
-    expect(presetShow.input.safeParse({}).success).toBe(false);
+    expect(railOpen.input.safeParse({ preset: "" }).success).toBe(false);
+    expect(railOpen.input.safeParse({}).success).toBe(false);
   });
 });
