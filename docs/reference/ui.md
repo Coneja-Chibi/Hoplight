@@ -90,7 +90,27 @@ finishes a composed draft, the shell replaces any model-authored save question w
 change and warning counts, and clickable Apply & save or Discard controls. Enter or `y` applies;
 Escape, `n`, or `d` discards. Apply pauses in this interactive Gate, saves once
 only if the stored canonical revision still matches, then re-reads the piece before reporting an
-applied, stale, or failed receipt. Read-only tool batches may run concurrently, but their
+applied, stale, or failed receipt.
+
+Converting a piece to another platform gets its own panel, because a crossing is not a draft: a
+draft's honest shape is a field changing value, a crossing's is each thing meeting an engine that may
+not have it. `REVIEW CROSSING` is a two-column ledger of what each thing is and what becomes of it,
+banded by severity worst first, with the stripe carrying the weight. Removals are never grouped and
+each names the block it lives in; rewrites are grouped by macro family with a count, because a
+hundred respellings say what one row and a number say. A fixed line at the foot carries the key, and
+carries one row's own note while that row is hovered, so the explanation never depends on owning a
+mouse and never moves the buttons underneath it. The source's own escrow is reported under the rule
+as reassurance rather than as damage: it is absent from the exported file and still held by Hoplight.
+The panel is built by re-running the conversion at gate time; a preview that fails leaves the
+ordinary confirm rather than denying the write.
+
+That panel offers a third answer. `Talk it through` neither runs the call nor denies it: nothing is
+written, no permission is granted or widened, and the model is told the user wants to understand the
+call before deciding, so its next move is to explain rather than to apologise or to try another route
+to the same effect. It is reported as `held` rather than `denied` specifically so a paused
+`change_apply` keeps the draft somebody stopped to ask about.
+
+Read-only tool batches may run concurrently, but their
 observations retain provider order; drafts and applies always serialize. Loop stops name the
 model-round, tool-call, elapsed-time, no-progress, or cancellation budget and offer a recovery
 action. `/tools` opens the keyboard-and-mouse Panel Deck browser for piece, area, action, platform
