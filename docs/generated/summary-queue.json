@@ -2,7 +2,7 @@
   "generated": "2026-08-04",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1000947,
+  "totalSourceChars": 1005139,
   "batches": [
     {
       "id": "batch-001",
@@ -438,7 +438,7 @@
     },
     {
       "id": "batch-005",
-      "sourceChars": 88628,
+      "sourceChars": 86146,
       "pages": [
         {
           "docId": "reference/concepts/safe-rendering",
@@ -492,10 +492,16 @@
           "docId": "reference/entities/preset",
           "sourcePath": "docs/reference/entities/preset.md",
           "sidecarPath": "docs/summaries/reference/entities/preset.json",
-          "sectionCount": 16,
-          "sourceChars": 17750,
+          "sectionCount": 17,
+          "sourceChars": 19164,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-006",
+      "sourceChars": 81131,
+      "pages": [
         {
           "docId": "reference/entities/README",
           "sourcePath": "docs/reference/entities/README.md",
@@ -503,13 +509,7 @@
           "sectionCount": 3,
           "sourceChars": 3896,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-006",
-      "sourceChars": 77235,
-      "pages": [
+        },
         {
           "docId": "reference/entities/regex",
           "sourcePath": "docs/reference/entities/regex.md",
@@ -608,7 +608,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 86907,
+      "sourceChars": 88167,
       "pages": [
         {
           "docId": "reference/formats/rolecall",
@@ -647,7 +647,7 @@
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
           "sectionCount": 16,
-          "sourceChars": 29577,
+          "sourceChars": 30837,
           "status": "APPROVED"
         },
         {
@@ -928,7 +928,7 @@
     },
     {
       "id": "batch-012",
-      "sourceChars": 75791,
+      "sourceChars": 77309,
       "pages": [
         {
           "docId": "reference/security/secrets-and-keys",
@@ -951,7 +951,7 @@
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 36600,
+          "sourceChars": 38118,
           "status": "APPROVED"
         },
         {

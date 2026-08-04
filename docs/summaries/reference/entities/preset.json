@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "docId": "reference/entities/preset",
   "sourcePath": "docs/reference/entities/preset.md",
-  "sourceHash": "sha256:fdbf2e9f60fe534c8774792d79d9d54d905e582c61011feb5527907ac3f2618b",
-  "summary": "Preset entity is the field-meaning authority for CanonicalPreset as CanonicalEntity preset PresetBody modeling the SillyTavern chat-completion prompt-manager family of ordered prompt blocks samplers and settings that RoleCall Marinara and Lumiverse dialects center on. Other ST preset subtypes context instruct sysprompt text-completion reasoning are out of scope. No FormatAdapter or CLI preset command yet; Library and Workbench author PresetBody directly while Producers still name verified wire homes. LiveBuild preview orders enabled blocks and counts tokens chars/4 without resolving macros groups or choices and never evals. How to read the field tables and Composition introduce generated tables. Prompt blocks and groups cover PresetPrompt verbatim ids markers placement and Groups. Sampler and generation settings System prompts templates and behavior API and media options Choices walkthrough Full composition What rides escrow not a field and See also complete the map.",
+  "sourceHash": "sha256:da988fa8440330140e8a348c6823096b5610460d24c7d9b7588e6c545af423b3",
+  "summary": "Preset entity is the field-meaning authority for CanonicalPreset as CanonicalEntity preset PresetBody modeling the SillyTavern chat-completion prompt-manager family of ordered prompt blocks samplers and settings that RoleCall Marinara and Lumiverse dialects center on. Other ST preset subtypes context instruct sysprompt text-completion reasoning are out of scope. PresetAdapter is in the FormatAdapter union and four adapters read and write presets (SillyTavern RoleCall Marinara Lumiverse); no dedicated CLI preset subcommand, presets ride the generic inspect and convert commands, and Library and Workbench also author PresetBody directly. LiveBuild preview orders enabled blocks and counts tokens chars/4 without resolving macros groups or choices and never evals. How to read the field tables and Composition introduce generated tables. Prompt blocks and groups cover PresetPrompt verbatim ids markers placement and Groups. Sampler and generation settings System prompts templates and behavior API and media options Choices walkthrough Full composition Linked regex sets What rides escrow not a field and See also complete the map.",
   "topics": [
     "CanonicalPreset prompt manager",
     "PresetPrompt blocks",
-    "no adapter yet",
+    "four preset adapters",
     "LiveBuild preview only",
     "groups choices canonical",
     "samplers systemPrompts",
@@ -33,8 +33,8 @@
       "slug": "composition",
       "title": "Composition",
       "level": 2,
-      "sourceHash": "sha256:5d4ffb6dc871085b8e6f29c24ead26f9fa9f405ac373ce4244b0b8d06cdb068f",
-      "summary": "PresetBody requires name and prompts ordered manuscript plus eleven optional fields: groups and choices collections; samplers systemPrompts templates behavior apiOptions media generation settings sub-objects; description and enabled scalars. Grouping mirrors authoring not app storage. Full table lives under Full composition. Tables come from docs/generated/fields.preset.md.",
+      "sourceHash": "sha256:44b3ba2e761ac7ac09103fb23ce7373a5d53bdb1ce92d93af325097b33318f8e",
+      "summary": "PresetBody requires name and prompts ordered manuscript plus twelve optional fields: groups and choices collections; samplers systemPrompts templates behavior apiOptions media generation settings sub-objects; description and enabled scalars; behaviorRefs link array. Grouping mirrors authoring not app storage. Full table lives under Full composition. Tables come from docs/generated/fields.preset.md.",
       "topics": [
         "name prompts required",
         "groups choices optional",
@@ -206,13 +206,29 @@
       "slug": "full-composition",
       "title": "Full composition",
       "level": 2,
-      "sourceHash": "sha256:37c69fc2333df44c735a8d5e799bfdcbb5d5bc7e2a7855f47800167af654daba",
-      "summary": "PresetBody top shape: name description enabled shelf switch read as enabled not false so off presets skip export like off sets; prompts ordered real blocks never divider rows; groups categories; samplers systemPrompts templates behavior apiOptions media generation; choices walkthrough authored now run later. Dividers are never blocks; groups model structure.",
+      "sourceHash": "sha256:f806b42f9ac04b01fefe5711e62560c340ab6af99c47233e988553d6ace4d271",
+      "summary": "PresetBody top shape: name description enabled shelf switch read as enabled not false so off presets skip export like off sets; prompts ordered real blocks never divider rows; groups categories; samplers systemPrompts templates behavior apiOptions media generation; choices walkthrough authored now run later; behaviorRefs linked regex ids. Dividers are never blocks; groups model structure.",
       "topics": [
         "enabled shelf switch",
         "prompts not dividers",
         "full settings map",
-        "choices on body"
+        "choices on body",
+        "behaviorRefs links"
+      ],
+      "children": []
+    },
+    {
+      "slug": "linked-regex-sets",
+      "title": "Linked regex sets",
+      "level": 2,
+      "sourceHash": "sha256:252528701784dbfe2710c5259640da506555d59667b76cd49e2c904419aa59cf",
+      "summary": "behaviorRefs is the preset counterpart of CharacterBody.behaviorRefs: it names standalone regex/script pieces by canonical id instead of copying their rules, so the set stays one editable piece shared by every preset that links it. The link is canonical; embedding is decided per format at export. SillyTavern and RoleCall carry rows inside the preset file under extensions.regex_scripts, so their adapters embed a linked set. Lumiverse attaches by preset_id on the script instead, and Marinara has no preset-level attachment at all, so nothing rides inside those files. Each adapter's embedRegex owns its answer, and emitPresetBundle reports a set that could not ride rather than dropping it silently.",
+      "topics": [
+        "link not copy",
+        "extensions.regex_scripts",
+        "Lumiverse preset_id",
+        "Marinara no attachment",
+        "unattached reported"
       ],
       "children": []
     },

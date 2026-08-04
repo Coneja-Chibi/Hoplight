@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
-  "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe",
+  "sourceHash": "sha256:e16fd784e16ad44fd6dd2c1fade517732d378c4ea9e5acb078c3bd427b223b05",
+  "semanticSummaryHash": "sha256:07b507197eb023c6a714d282020c72587765e35e6fc8380d5121c2bed5d1d378",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Four corrections found in review. studio_delete is not the only direct apply tool (studio_export and change_apply are both direct+apply); the count was sixteen and is seventeen with rail_open, which had no bullet; delete's dangling-reference note is on the description always but on the receipt only for referenceable kinds (delete.ts REFERENCEABLE); folder_search also reaches the studio as a standing grant. Also corrects the falsified symlink claim: entries are skipped during traversal, and the resolved path is now reconciled against realpath, which is what actually closes it.",
-  "reviewedAt": "2026-08-04T10:16:23.112Z"
+  "notes": "Verified against docs/reference/kit/tools.md: the direct-tool list counts nineteen and names regex_lab, ask_choice, rail_open, folder_import; folder_import's setup-gated absence and rail_open's status action and ambient context appear in source. Stale sixteen/seventeen counts corrected in the page summary and topics.",
+  "reviewedAt": "2026-08-04T21:57:34.875Z"
 }

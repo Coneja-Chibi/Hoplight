@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:4007582bb1471d4e10e471386f6d890d6ee5e6c99d3e08df7e8ba3e02b4952a5",
-  "semanticSummaryHash": "sha256:1b63f004598378b2ab5fd57f3a6af0b057ea608e4bc0d532ad6fb94da85ef6ae",
+  "sourceHash": "sha256:60e7c83e9f2958d3b948fe73ab11a8d41148f4099d5467039d5cbfd692ebaadf",
+  "semanticSummaryHash": "sha256:0ed64e01ed0fd02716c876961ced18c35a110f98faaa7b513e7a489cc3e82eab",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Corrects a false current-tense claim found while cutting a release: the page said release binaries do not include a Kit executable, but release.yml builds hoplight-kit for Windows, Linux x64 and arm64, and macOS in the same bake as the CLI. Shipping a release whose own docs deny it ships is the exact drift the doctrine names.",
-  "reviewedAt": "2026-08-04T10:28:45.082Z"
+  "notes": "Verified against docs/reference/ui.md: argument completion, right-click paste, alt+V image paste, clickable file paths, rail resize/density/preset stepping, and rail ambient context all appear in source. Section summary trimmed to the word band without dropping new behaviour.",
+  "reviewedAt": "2026-08-04T21:57:22.945Z"
 }

@@ -20,12 +20,13 @@ formats produce it.
 ST's other preset subtypes, context, instruct, sysprompt, text-completion, and reasoning, are out of
 scope. They ride escrow or get their own kind later, never merged into this shape.
 
-No format adapter reads or writes a `CanonicalPreset` today: `preset` is not a member of the
-`FormatAdapter` union in `src/core/adapter.ts` (see [architecture.md](../architecture.md), "The
-canonical entity"), and the `hoplight` CLI has no preset command. The Library and Workbench author a
-`PresetBody` directly instead (`createAndOpenPreset`, `PresetEditorView`). The Producers column below
-still names the wire format each field was verified against, because that is what the shape models, not
-because an adapter exists yet.
+`PresetAdapter` is a member of the `FormatAdapter` union in `src/core/adapter.ts` (see
+[architecture.md](../architecture.md), "The canonical entity"), and four adapters read and write a
+`CanonicalPreset`: SillyTavern, RoleCall, Marinara, and Lumiverse, each registered in its own format
+folder's codec list. The `hoplight` CLI has no dedicated preset subcommand; presets travel through the
+generic `inspect` and `convert` commands like any other kind. The Library and Workbench also author a
+`PresetBody` directly (`createAndOpenPreset`, `PresetEditorView`). The Producers column below names the
+wire format each field was verified against, which is what the shape models.
 
 A block is DATA. The current build engine in `core/preset` (the Workbench's LiveBuild pane) is a preview
 only, and honest about the gap: it orders enabled blocks by placement rank and `injectionOrder`, labels
@@ -53,11 +54,11 @@ verbatim. Do not hand-edit a cell: improve the schema doc comment and regenerate
 ## Composition
 
 `PresetBody` has two required fields, `name` and `prompts` (the ordered manuscript of blocks), plus
-eleven optional fields: two further collections (`groups`, `choices`), seven settings sub-objects
-(`samplers`, `systemPrompts`, `templates`, `behavior`, `apiOptions`, `media`, `generation`), and two
-standalone scalars (`description`, `enabled`). Grouping keeps related fields together and mirrors how a
-preset is authored, not how any one app stores it. The full `PresetBody` table is in
-[Full composition](#full-composition) at the end.
+twelve optional fields: two further collections (`groups`, `choices`), seven settings sub-objects
+(`samplers`, `systemPrompts`, `templates`, `behavior`, `apiOptions`, `media`, `generation`), two
+standalone scalars (`description`, `enabled`), and one link array (`behaviorRefs`). Grouping keeps
+related fields together and mirrors how a preset is authored, not how any one app stores it. The full
+`PresetBody` table is in [Full composition](#full-composition) at the end.
 
 @fig composition
 
@@ -288,6 +289,23 @@ only one effect leaves the others empty.
 | `media?` | `PresetMedia` | - |  |
 | `generation?` | `PresetGeneration` | - |  |
 | `choices?` | `PresetChoice[]` | - | the CHOICES walkthrough (novel; authored now, run later). |
+| `behaviorRefs?` | `string[]` | - | linked canonical regex/script entity id(s) - a LINK, never a copy; export decides whether to embed, and reports a set that could not ride rather than dropping it. |
+
+## Linked regex sets
+
+`behaviorRefs` is the preset's counterpart of
+[`CharacterBody.behaviorRefs`](character.md#composition-and-variants): it names standalone regex/script
+pieces by canonical id rather than copying their rules into the preset. The set stays its own
+editable piece, so editing it once changes every preset that links it.
+
+The link is canonical; embedding is a per-format decision made at export, because the platforms do
+not agree on whether a preset can carry regex at all. SillyTavern and RoleCall carry the rows inside
+the preset file itself (`extensions.regex_scripts`), so their adapters embed a linked set on the way
+out. Lumiverse stores the association on the script instead, by `preset_id`, so nothing rides inside
+the preset. Marinara has no preset-level attachment, so a linked set cannot travel with a Marinara
+export. Each adapter's `embedRegex` owns its own answer, and `emitPresetBundle` in
+[src/convert.ts](../../../src/convert.ts) reports a set that could not ride rather than dropping it
+silently.
 
 ## What rides escrow, not a field
 
