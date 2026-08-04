@@ -32,7 +32,16 @@ const HANG_CAP_MS = 300_000;
 /** Bind a ChatFn to a provider config; the abort signal wires Esc-to-interrupt through to the call.
  * Streams: text and reasoning fragments flow to onDelta as they arrive, then the final reply is
  * assembled exactly as before, so the loop stays turn-based while the screen feels alive. */
-export function makeChat(config: ProviderConfig, abortSignal?: AbortSignal): ChatFn {
+/**
+ * `ambient` is read PER TURN, never captured once: the rail changes while a conversation is running,
+ * and a line describing where it was when the session started is the same wrong answer in a nicer
+ * format.
+ */
+export function makeChat(
+  config: ProviderConfig,
+  abortSignal?: AbortSignal,
+  ambient?: () => string,
+): ChatFn {
   return async (messages, tools, onDelta) => {
     // A spoke that is not an HTTP model supplies its own chat. Asked first, because building a model
     // for it would mean inventing a request shape it never makes.
@@ -42,7 +51,9 @@ export function makeChat(config: ProviderConfig, abortSignal?: AbortSignal): Cha
     const cap = AbortSignal.timeout(HANG_CAP_MS);
     const result = streamText({
       model,
-      system: KIT_TOOL_PROTOCOL,
+      system: ambient ? `${KIT_TOOL_PROTOCOL}
+
+${ambient()}` : KIT_TOOL_PROTOCOL,
       messages: messages.map(toAiMessage),
       tools: toAiTools(tools),
       toolChoice: "auto",

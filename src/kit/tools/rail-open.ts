@@ -23,9 +23,22 @@
 import { z } from "zod";
 import type { HarnessTool } from "./tool";
 
+/**
+ * `show` REQUIRES a preset, enforced here rather than in execute.
+ *
+ * Making `preset` optional for `status` quietly let `{}` parse, which moved a fail-closed refusal
+ * from the schema boundary into a branch - the same guarantee, one layer further from where it can
+ * be relied on. The refinement keeps the boundary where the doctrine puts it: parse untrusted input
+ * once, at the edge, into something that cannot be wrong later.
+ */
 const input = z.strictObject({
-  preset: z.string().trim().min(1).max(120)
-    .describe("a preset's studio id, or part of its name"),
+  action: z.enum(["show", "status"]).default("show")
+    .describe("show puts a preset on the rail; status reports what is on it right now"),
+  preset: z.string().trim().min(1).max(120).optional()
+    .describe("a preset's studio id, or part of its name; required for show"),
+}).refine((value) => value.action !== "show" || (value.preset ?? "") !== "", {
+  message: "show needs a preset to put on the rail",
+  path: ["preset"],
 });
 
 const railOpen: HarnessTool<z.infer<typeof input>> = {
@@ -39,6 +52,40 @@ const railOpen: HarnessTool<z.infer<typeof input>> = {
   input,
   concurrencyKey: () => "rail-open",
   async execute(args, ctx) {
+    /**
+     * READ THE RAIL, do not remember it.
+     *
+     * Asked "which preset do I have up?", Kit used to answer from what it had opened earlier in the
+     * conversation - and was wrong the moment the person opened a different one themselves. The rail
+     * said Paramnesia; Kit said Empty Base, with no hedging, because nothing had ever let it look.
+     */
+    if (args.action === "status") {
+      const open = ctx.rail?.() ?? null;
+      if (!open) {
+        return {
+          summary: "rail_open status: nothing on the rail",
+          output: "The rail is not showing a preset right now.",
+        };
+      }
+      const unsaved = open.pending > 0
+        // Naming the gap matters: reading the preset from storage would describe a file the person
+        // can SEE is out of date on their own screen.
+        ? ` There ${open.pending === 1 ? "is" : "are"} ${open.pending} unsaved change`
+          + `${open.pending === 1 ? "" : "s"} on the rail, so the stored preset is behind what they see.`
+        : "";
+      return {
+        summary: `rail_open status: ${open.presetId}`,
+        output: `${open.title} (${open.presetId}) is on the rail: ${open.blocks} blocks, `
+          + `${open.enabled} enabled.${unsaved}`,
+      };
+    }
+
+    if (!args.preset) {
+      return {
+        summary: "rail_open: no preset named",
+        output: "Name a preset to show, or use action \"status\" to see what is already on the rail.",
+      };
+    }
     const presets = await ctx.bridge.list("preset");
     if (presets.length === 0) {
       return { summary: "rail_open: none", output: "There are no presets in the studio." };

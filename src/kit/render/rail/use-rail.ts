@@ -21,6 +21,14 @@ import {
 } from "../../../core/preset/rail-edit";
 import type { RowFlag } from "../primitives/rail/outline-rail";
 
+/**
+ * Rail geometry bounds. Below the floor a block name is unreadable; above the ceiling the rail is
+ * wider than the transcript beside it. Two cells per press, so a resize is felt without being coarse.
+ */
+const MIN_RAIL_WIDTH = 24;
+const MAX_RAIL_WIDTH = 72;
+const DEFAULT_RAIL_WIDTH = 38;
+
 export interface RailSession {
   readonly open: boolean;
   readonly title: string;
@@ -36,6 +44,10 @@ export interface RailSession {
   readonly flags: ReadonlyMap<string, RowFlag>;
   readonly pending: number;
   readonly offset: number;
+  /** The rail's width in cells, resized with Ctrl+Shift+Left/Right. */
+  readonly width: number;
+  /** True = fit as many rows as possible; false = roomy rows. Toggled with Ctrl+Shift+D. */
+  readonly dense: boolean;
   /** Start following a preset. Replaces anything already open, discarding unapplied edits. */
   follow: (id: string, title: string, rows: readonly OutlineRow[]) => void;
   close: () => void;
@@ -48,6 +60,8 @@ export interface RailSession {
 export function useRail(
   rowsVisible: () => number,
   onCommit?: (rows: readonly OutlineRow[]) => Promise<boolean>,
+  /** Thumb to the next (+1) or previous (-1) preset. Owned by useRailSession, which knows storage. */
+  onStep?: (delta: number) => void,
 ): RailSession {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -59,6 +73,13 @@ export function useRail(
   const [dragging, setDragging] = useState(false);
   const [dropBefore, setDropBefore] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
+  /**
+   * The rail's own width and row density, held here because they belong to the person rather than to
+   * the layout. The floor and ceiling are real constraints, not taste: below the floor a block name
+   * is unreadable, and above the ceiling the rail is wider than the transcript it sits beside.
+   */
+  const [width, setWidth] = useState(DEFAULT_RAIL_WIDTH);
+  const [dense, setDense] = useState(false);
   /**
    * The rows as last read from storage. Everything "pending" is measured against this.
    *
@@ -142,6 +163,43 @@ export function useRail(
     // backspace, enter and the arrows while somebody was typing a prompt, AND silently toggled
     // blocks on a real preset as they typed. Returning before preventDefault is the whole fix.
     if (!focused) return;
+
+    /**
+     * The rail's SHAPE is the person's, not the layout's.
+     *
+     * Two complaints, one cause: the rail could not be resized, and it showed 45 of 155 rows with no
+     * way to see the rest. Both were the geometry being decided for them. Ctrl+Shift+Left/Right
+     * resizes; Ctrl+Shift+D switches between roomy rows and fitting every row it can.
+     *
+     * Named keys rather than letters, so shift survives the chord (a bare printable key drops it),
+     * and both stay clear of the readline set the composer owns.
+     */
+    if (shift && event.ctrl === true && (key === "left" || key === "right")) {
+      event.preventDefault();
+      setWidth((w) => Math.max(MIN_RAIL_WIDTH, Math.min(MAX_RAIL_WIDTH, w + (key === "left" ? -2 : 2))));
+      return;
+    }
+    if (shift && event.ctrl === true && key === "d") {
+      event.preventDefault();
+      setDense((on) => !on);
+      return;
+    }
+
+    /**
+     * `<` and `>` thumb through the shelf.
+     *
+     * Matched on the SEQUENCE rather than the key name, because these are shifted characters: the
+     * name arrives as "," and "." with shift held, and binding those would fire on an unshifted
+     * comma somebody typed. The character is what a person actually pressed.
+     *
+     * The step itself lives in useRailSession, which is the half that knows about storage; this hook
+     * stays free of it, which is what keeps its editing logic testable without a studio.
+     */
+    if (event.sequence === "<" || event.sequence === ">") {
+      event.preventDefault();
+      onStep?.(event.sequence === ">" ? 1 : -1);
+      return;
+    }
 
     if (key === "up" || key === "down") {
       event.preventDefault();
@@ -227,6 +285,7 @@ export function useRail(
 
   return {
     open, title, presetId, state, cursor, expanded, focused, dragging, dropBefore, flags, pending, offset,
+    width, dense,
     follow, close, onRowDown, onRowDrag, onRowDragEnd,
   };
 }

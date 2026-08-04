@@ -172,15 +172,25 @@ export function OutlineRail({
       </box>
 
       <box flexDirection="row" backgroundColor={theme.seam} paddingLeft={1} paddingRight={1}>
-        <text fg={focused ? theme.teal : theme.mut}>
+        {/* `quiet`, not `mut`: the palette marks mut as borders-only, and this is text. */}
+        <text fg={focused ? theme.teal : theme.quiet}>
           {dragging
             ? "drop to place"
             : focused
-              ? "space toggles · alt+up/down moves · ctrl+b back to typing"
+              ? "space toggles · alt+↑↓ moves · ctrl+shift+←→ resize · ctrl+shift+d density · ctrl+b back"
               : "ctrl+b to edit"}
         </text>
         <box flexGrow={1} />
-        <text fg={theme.mut}>{offset + visible.length}/{String(rows.length)}</text>
+        {/*
+          The count says whether you are seeing everything. "45/155" with no qualifier reads as a
+          limit somebody has to accept; saying "all" when it IS all is the difference between a
+          number you have to interpret and one you can trust.
+        */}
+        <text fg={theme.quiet}>
+          {offset + visible.length >= rows.length && offset === 0
+            ? `all ${String(rows.length)}`
+            : `${String(offset + visible.length)}/${String(rows.length)}`}
+        </text>
       </box>
     </box>
   );
