@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-01",
+  "generated": "2026-08-04",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 995724,
+  "totalSourceChars": 997020,
   "batches": [
     {
       "id": "batch-001",
@@ -608,7 +608,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 84981,
+      "sourceChars": 86277,
       "pages": [
         {
           "docId": "reference/formats/rolecall",
@@ -647,7 +647,7 @@
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
           "sectionCount": 16,
-          "sourceChars": 27651,
+          "sourceChars": 28947,
           "status": "APPROVED"
         },
         {

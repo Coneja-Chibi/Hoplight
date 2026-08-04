@@ -309,6 +309,7 @@ export function App({
         say: (text) => add({ role: "say", text }),
         egressSummary: () => formatLedger(ledger),
         contextPreview: () => buildContextPreview(session, history.current, provider),
+        folders: session.folders,
         sessions: sessionActions,
       };
       try {

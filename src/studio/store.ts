@@ -78,7 +78,9 @@ function sourceOf(entity: AnyEntity): { format?: string; variant?: string } {
   return {};
 }
 
-function entityName(entity: AnyEntity): string {
+/** The display name for a piece: identity.name, then body.name, then its id. One rule, so a piece is
+ *  called the same thing on the shelf and everywhere that names one before it is stored. */
+export function entityName(entity: AnyEntity): string {
   const body = isRecord(entity.body) ? entity.body : undefined;
   if (!body) return entity.id;
   const identity = body.identity as { name?: string } | undefined;

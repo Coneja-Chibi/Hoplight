@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
-  "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129",
+  "sourceHash": "sha256:46133724fceef724e88634592b78f2b9dbae0208885dd576f2eee087e60fab82",
+  "semanticSummaryHash": "sha256:7ff5898712d1cb3db5cab53126888a3e26890a16e40b90af7d381767702fc8ef",
   "verdict": "APPROVE",
-  "reviewer": "Chi",
-  "notes": "Verified against source: direct tool count (8 folder + 4 lifecycle = 12), six create workflows, ten character and five lorebook capabilities, export path containment tests, and oracle coverage for rolecall/lumiverse/marinara with sillytavern unverified. Corrected two stale claims: transfer described as writing no file after studio_export shipped, and a verification-status section that omitted the lifecycle, transfer and oracle coverage.",
-  "reviewedAt": "2026-07-27T06:41:32.252Z"
+  "reviewer": "chi",
+  "notes": "Direct-tool count corrected from ten to sixteen (it was already stale before this change). New belt documented: block_lookup, preset_verify, folder_search, folder_import. The folder_import claims were checked against src/kit/tools/folder-import.ts and its tests: effect is draft, readOnlyTools drops it, a bundled card produces two drafts, a collision on any piece imports nothing.",
+  "reviewedAt": "2026-08-04T00:10:31.758Z"
 }

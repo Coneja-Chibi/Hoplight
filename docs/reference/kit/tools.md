@@ -75,6 +75,19 @@ session:
   write that follows it. The conversion graph is imported lazily so it stays out of Kit's cold start.
 - `macro_lookup` answers "what does this macro do here, and what is it on that platform?" from the
   engines' own catalogs, so a model never has to guess an equivalent.
+- `block_lookup` does the same one level up, for kinds of prompt block: what a tracker or an
+  assembler is for, how it is built, what silently goes wrong with it, and an editable starting
+  block. `preset_verify` renders a preset through the real engine and reports what did not resolve.
+- `folder_search` lists and reads files in a folder the user has shared with Kit, and can do nothing
+  else. Every path is resolved and then checked against the grants, so the resolved path is the one
+  used; symlinks are not followed and the walk is bounded in depth and entries.
+- `folder_import` is the only door from a shared folder into the studio, and it goes one way. It
+  reads a file, parses it through the same three-way branch the studio's own inspect uses, and
+  proposes each canonical piece as a create draft. Its effect is `draft`, not `read`, which keeps it
+  out of the read-only MCP posture where nothing would ask before applying. A file that carries more
+  than one piece drafts all of them or none: a character card's body names its embedded book in
+  `knowledgeRefs`, so importing the character alone would leave a reference to a piece that is not
+  there. An id already on the shelf is refused rather than replaced.
 - A selected capability creates or composes a preview draft without saving. Its result also carries
   a structured semantic review projection; the loop never parses a draft ID or field diff from
   prose or JSON output.
@@ -154,9 +167,10 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with twelve direct tools: `studio_list`,
+resolve a selected operation. Each user turn starts with sixteen direct tools: `studio_list`,
 `studio_search`, `studio_read`, `docs_query`, `result_query`, `capability_find`, `change_query`,
-`change_apply`, `change_discard`, `macro_lookup`, `studio_delete`, and `studio_export`.
+`change_apply`, `change_discard`, `macro_lookup`, `block_lookup`, `preset_verify`, `folder_search`,
+`folder_import`, `studio_delete`, and `studio_export`.
 
 `studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
 convenience one. The

@@ -32,6 +32,7 @@ import { createChangeQueryTool } from "./tools/change-query";
 import type { ContentCapability } from "../entities/capabilities";
 import { createHoplightDocs } from "./docs/repository";
 import { createResultStore } from "./results/store";
+import { createGrantBook, type GrantBook } from "./tools/_shared/grant-book";
 import { StudioExports } from "../studio/exports";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
@@ -45,6 +46,12 @@ export type TurnEvent =
 
 export interface Session {
   capabilities?(): readonly ContentCapability[];
+  /**
+   * The folders shared with Kit for reading, owned here because the dispatch context reads them.
+   * Optional so a stub session stays a stub; /share reports the feature as unavailable rather than
+   * pretending a share was recorded.
+   */
+  folders?: GrantBook;
   /**
    * What a turn would carry beyond the conversation itself: the standing guidance and the tool belt
    * as it stands right now. Read by /context so a person can see the parts of a request they did not
@@ -76,6 +83,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   ]);
   const changes = createChangeSession();
   const results = createResultStore();
+  const folders = createGrantBook();
   const runtime = createCapabilityRuntime({
     capabilities,
     directTools,
@@ -96,6 +104,11 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     // Bound to the same studio this session reads from, so an export always lands beside the
     // pieces it came from and never anywhere the caller chose.
     exports: new StudioExports(bridge.studioDir),
+    // A getter, not a snapshot: this context is built once and every later call reads it, so an array
+    // captured here would pin the grants to session start and /share could never take effect.
+    get grants() {
+      return folders.list();
+    },
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
@@ -106,6 +119,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
 
   return {
     capabilities: () => capabilities,
+    folders,
     async runTurn(input, history, onEvent, signal, gate) {
       try {
         runtime.beginTurn();

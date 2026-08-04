@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-01",
+  "generated": "2026-08-04",
   "count": 112,
   "docs": [
     {
@@ -8729,7 +8729,7 @@
         "reference/architecture",
         "reference/ui"
       ],
-      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Ten direct tools begin each turn, studio_delete among them. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
+      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Sixteen direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify) and the shared-folder pair (folder_search, folder_import). Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
       "topics": [
         "runtime tools vs slash",
         "workflow discovery lifecycle",
@@ -8747,14 +8747,14 @@
           "text": "Built lifecycle",
           "slug": "built-lifecycle",
           "level": 2,
-          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns IDs, provider names, search, collapsed navigation, exposure, and the descriptor contract. kit capabilities adapts content and non-content descriptors into one unique-name registry. Six studio lifecycle tools create character, lorebook, persona, preset, regex, or media-pack drafts without existing targets or writes. studio.piece.duplicate copies a stored piece to a new id through the same create-only compare, carrying body, profiles and original escrow so a copy never silently loses platform-native fields. studio_delete removes one piece, is the only direct apply tool, carries no discovery descriptor because the runtime refuses deferred apply workflows, and reports a miss as stale without writing. studio_transfer serializes a piece through another platform adapter, reports dropped fields, escrowed fields and dead macros, writes no file, and imports the conversion graph lazily. kit changes retains baseline, escrow, warnings, platform impact, and create or update mode. Update apply compares revisions; create apply atomically refuses occupied IDs; both verify. studio_read returns one whole piece and result_query handles oversized observations. Reads overlap while mutations serialize.",
+          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns ids, search, exposure and the descriptor contract; kit capabilities adapts them into one unique-name registry. Six studio lifecycle tools draft creation without an existing target or a write; duplicate carries body, profiles and original escrow so a copy never loses platform-native fields. studio_delete is the only direct apply tool, carries no discovery descriptor because the runtime refuses deferred apply workflows, and reports a miss as stale without writing. studio_transfer serializes a piece through another platform adapter and writes no file. block_lookup explains a kind of prompt block and returns an editable starting block; preset_verify renders a preset through the real engine and reports what did not resolve. folder_search reads inside shared folders and nothing else, checking every resolved path against the grants. folder_import is the one-way door into the studio, drafting every canonical piece a file contains or none, because a card names its embedded book in knowledgeRefs; an occupied id is refused. kit changes retains baseline, escrow, warnings and mode. Reads overlap while mutations serialize.",
           "topics": [
             "six content bundles",
-            "pure entity previews",
             "duplicate carries escrow",
             "delete danger floor",
             "transfer writes no file",
-            "shared workflow descriptor catalog",
+            "read outside write inside",
+            "bundle drafts all or none",
             "change_apply Gate",
             "serial draft batches"
           ],
@@ -8793,9 +8793,9 @@
           "text": "Progressive exposure",
           "slug": "progressive-exposure",
           "level": 2,
-          "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and ten direct tools begin each turn including studio_delete. studio_delete is direct for a structural reason: the deferred path classifies a tool from discovery metadata, and the runtime refuses to let that path describe an apply effect, so a destructive workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would require ChangeDraftMode to grow a remove arm and proposed to become optional, a core authority change deferred to its own design pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains a declared but empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse exposes no schemas, describe reveals one. Hidden descriptors never appear. The deferred set clears each turn while drafts persist.",
+          "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and sixteen direct tools begin each turn including studio_delete and folder_import. studio_delete is direct for a structural reason: the deferred path classifies a tool from discovery metadata, and the runtime refuses to let that path describe an apply effect, so a destructive workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would require ChangeDraftMode to grow a remove arm and proposed to become optional, a core authority change deferred to its own design pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains a declared but empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse exposes no schemas, describe reveals one. Hidden descriptors never appear. The deferred set clears each turn while drafts persist.",
           "topics": [
-            "ten direct tools",
+            "sixteen direct tools",
             "delete granted by name",
             "no deferred apply",
             "transfer domain populated",

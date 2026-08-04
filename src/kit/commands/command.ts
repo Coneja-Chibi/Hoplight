@@ -7,6 +7,8 @@
  * the flat if-chain in app.tsx's submit().
  */
 
+import type { GrantBook } from "../tools/_shared/grant-book";
+
 export interface CommandContext {
   /** Text after the command word ("" for a bare command); for arg-taking commands later. */
   readonly arg: string;
@@ -34,6 +36,9 @@ export interface CommandContext {
   /** The /context readout: what the NEXT request would carry, before it is sent. Formatted by the
    * shell for the same reason as the ledger: it holds the history and the belt, a command does not. */
   contextPreview: () => string;
+  /** The folders shared with Kit for reading (/share, /unshare). Absent when no session is wired, so
+   * a command reports the feature missing rather than silently recording nothing. */
+  readonly folders?: GrantBook;
 }
 
 export interface KitCommand {

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-01",
+  "generated": "2026-08-04",
   "count": 112,
   "pages": [
     {
@@ -598,9 +598,9 @@
       "docId": "reference/kit/tools",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "Chi",
-      "sourceHash": "sha256:6adbd39c08a881f5e8d18acaa9963d27c659a34798038f56be941665f915263c",
-      "semanticSummaryHash": "sha256:5465a57a4e27f91e1edbf1506e7a97896bff04d8fac244fe380b95702b21b129"
+      "reviewer": "chi",
+      "sourceHash": "sha256:46133724fceef724e88634592b78f2b9dbae0208885dd576f2eee087e60fab82",
+      "semanticSummaryHash": "sha256:7ff5898712d1cb3db5cab53126888a3e26890a16e40b90af7d381767702fc8ef"
     },
     {
       "docId": "reference/platform-native-fields",

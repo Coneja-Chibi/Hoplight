@@ -214,6 +214,7 @@ describe("discovery", () => {
     expect(names).toEqual([
       "block_lookup",
       "docs_query",
+      "folder_import",
       "folder_search",
       "macro_lookup",
       "preset_verify",

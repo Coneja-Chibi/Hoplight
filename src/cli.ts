@@ -7,7 +7,7 @@
 
 import { basename, extname, join } from "node:path";
 import { homedir } from "node:os";
-import { CANONICAL_SCHEMA_VERSION, registry, primaryOriginalRaw } from "./core";
+import { CANONICAL_SCHEMA_VERSION, registry, primaryOriginalRaw, toAdapterInput } from "./core";
 import type { AdapterInput, FormatAdapter } from "./core";
 import { convertFile } from "./convert";
 import {
@@ -25,21 +25,11 @@ import { APP_VERSION as VERSION } from "./version";
 import { resolveDefaultStudioDir } from "./studio/resolve-dir";
 import { validateAdapterOutput } from "./cli-validation";
 
-/** Read a file into the shape adapters expect: bytes always, text when it is UTF-8-ish. */
+/** Read a file into the shape adapters expect. Which extensions get a decoded view is core's call, so
+ *  the CLI and the studio recognise exactly the same files. */
 async function readInput(path: string): Promise<AdapterInput> {
-  const file = Bun.file(path);
-  const bytes = new Uint8Array(await file.arrayBuffer());
-  const input: AdapterInput = { bytes, filename: basename(path) };
-  // Give text adapters a decoded view when the bytes look like text (json, not png/zip).
-  const ext = extname(path).toLowerCase();
-  if (ext === ".json" || ext === ".txt") {
-    try {
-      input.text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    } catch {
-      /* not text; leave bytes only */
-    }
-  }
-  return input;
+  const bytes = new Uint8Array(await Bun.file(path).arrayBuffer());
+  return toAdapterInput(bytes, basename(path));
 }
 
 /** Write adapter output atomically after container agreement is already checked. */
