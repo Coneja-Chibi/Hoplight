@@ -43,6 +43,33 @@ export {
   type LvbakStats,
 } from "./manifest";
 export {
+  LEGACY_MAX_NDJSON_LINE_BYTES,
+  MAX_NDJSON_LINE_BYTES,
+  ndjsonLineCeiling,
+  readNdjson,
+  type NdjsonLineFailure,
+  type NdjsonReadOptions,
+  type NdjsonRow,
+} from "./ndjson";
+export {
+  ENCRYPTED_SECRETS_WARNING,
+  VECTORS_WARNING,
+  addWarning,
+  applyManifestWarnings,
+  createLvbakReport,
+  recordFailure,
+  recordImported,
+  recordMissingBinary,
+  recordUnresolvedLink,
+  reportTotals,
+  setSkippedTables,
+  type ImportedEntity,
+  type LvbakImportReport,
+  type LvbakRowFailure,
+  type SkippedTable,
+  type UnresolvedLink,
+} from "./report";
+export {
   classifyEntryNames,
   isMacCruft,
   isUnsafeEntryName,
@@ -51,6 +78,28 @@ export {
   type LvbakEntrySource,
   type RejectedEntry,
 } from "./source";
+export {
+  JSON_STRING_COLUMNS,
+  KNOWN_SKIPPED_TABLES,
+  MAPPED_TABLES,
+  TABLE_KINDS,
+  isMappedTable,
+  parseInnerJsonColumns,
+  rowId,
+  rowName,
+  type InnerJsonFailure,
+  type InnerJsonResult,
+  type LvbakKind,
+  type MappedTable,
+} from "./tables";
+export {
+  innerJsonRowFailure,
+  planTableWalk,
+  readTable,
+  type ReadTableOptions,
+  type TableRow,
+  type TableWalkPlan,
+} from "./table-walk";
 export { zipEntrySource } from "./zip-source";
 
 /** No adapter: this format is read through importLumiverseArchive, not the detection table. */
