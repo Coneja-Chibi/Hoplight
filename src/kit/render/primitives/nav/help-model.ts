@@ -101,7 +101,13 @@ export function buildHelp(
   const commandsBy = new Map<string, HelpRow[]>();
   for (const command of commands) bucket(commandsBy, groupOf(command.group), commandRow(command));
   const bindingsBy = new Map<string, HelpRow[]>();
-  for (const binding of keymap) bucket(bindingsBy, groupOf(binding.group), bindingRow(binding));
+  for (const binding of keymap) {
+    // ALIAS ROWS ARE NOT HELP ROWS. A pair like Left / Right is one printed line covering two
+    // bindings, so the second carries an empty label and must not become a blank row on the stage.
+    // (It did, briefly: the help screen grew empty lines the moment aliases were introduced.)
+    if (binding.label === "") continue;
+    bucket(bindingsBy, groupOf(binding.group), bindingRow(binding));
+  }
   const present = new Set<string>([...commandsBy.keys(), ...bindingsBy.keys()]);
   const sections = orderedGroups(present).map((id) => ({
     title: titleOf(id),

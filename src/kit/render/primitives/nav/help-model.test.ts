@@ -11,8 +11,8 @@ const cmd = (name: string, summary: string, group?: string, aliases?: string[]):
 });
 
 const KEYMAP: readonly Keybinding[] = [
-  { keys: "ctrl+f", label: "search the transcript", group: "moving" },
-  { keys: "ctrl+o", label: "fold the latest trace", group: "session" },
+  { chord: "ctrl+f", intent: "search", keys: "ctrl+f", label: "search the transcript", group: "moving" },
+  { chord: "ctrl+o", intent: "fold-trace", keys: "ctrl+o", label: "fold the latest trace", group: "session" },
 ];
 
 const titles = (model: ReturnType<typeof buildHelp>): string[] => model.sections.map((s) => s.title);

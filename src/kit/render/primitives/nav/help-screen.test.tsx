@@ -24,7 +24,9 @@ test("draws the grouped sections, command rows, and keybinding rows", async () =
     expect(frame).toContain("SETUP");
     expect(frame).toContain("/model");
     expect(frame).toContain("/providers"); // aliases render in the keys column
-    expect(frame).toContain("ctrl+f"); // a keybinding row beside the commands
+    // Capitalisation is now consistent across the whole map (the old catalog mixed "Enter" and
+    // "ctrl+f"), so the assertion follows the rendered form.
+    expect(frame).toContain("Ctrl+F"); // a keybinding row beside the commands
     expect(frame).toContain("SESSION");
     expect(frame).toContain("/quit");
   } finally {
