@@ -85,7 +85,7 @@ session:
 - `folder_import` is the only door from a shared folder into the studio, and it goes one way. It
   reads a file, parses it through the same three-way branch the studio's own inspect uses, and
   proposes each canonical piece as a create draft. Its effect is `draft`, not `read`, which keeps it
-  out of the read-only MCP posture where nothing would ask before applying — so on the Claude
+  out of the read-only MCP posture where nothing would ask before applying - so on the Claude
   subscription provider it is absent unless "let Kit make changes this session" was answered at
   setup, because that answer is what starts the tool server with the full belt. A file that carries more
   than one piece drafts all of them or none: a character card's body names its embedded book in
@@ -96,11 +96,11 @@ session:
   needs no confirmation, which is what makes it usable mid-sentence. The rail it opens is still a
   write surface, and edits made there meet the ordinary Gate. It refuses to choose between several
   matching presets. What is on the rail also rides in the turn's ambient context, one line, so the
-  model knows without asking — it used to answer from what it had opened earlier and was wrong the
+  model knows without asking - it used to answer from what it had opened earlier and was wrong the
   moment somebody opened a different preset themselves.
 - `regex_lab` is the regex workbench: `try` a pattern against real text, `show` where exactly it
   matched, `race` several candidates side by side, `read` one in plain words, `lint` a whole set,
-  browse `recipes`, or build one `from_examples`. Read-only — it runs patterns and stores nothing;
+  browse `recipes`, or build one `from_examples`. Read-only - it runs patterns and stores nothing;
   saving belongs to the regex create capability. Regex is the only content in the studio that is
   write-only without a preview, which is why the workbench exists.
 - `ask_choice` offers the user a list to pick from instead of writing options into a sentence. The

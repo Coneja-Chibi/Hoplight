@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:60e7c83e9f2958d3b948fe73ab11a8d41148f4099d5467039d5cbfd692ebaadf",
-  "semanticSummaryHash": "sha256:0ed64e01ed0fd02716c876961ced18c35a110f98faaa7b513e7a489cc3e82eab",
+  "sourceHash": "sha256:4caacaca15c2ffacbff57d19c00ff6fa46f44e5aa4e43ed1010fac77c31f291b",
+  "semanticSummaryHash": "sha256:b8dc84cf82e29314f2f231dfd8bd3cacc5b21d7d7ca5dc1d02030b4040653065",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Verified against docs/reference/ui.md: argument completion, right-click paste, alt+V image paste, clickable file paths, rail resize/density/preset stepping, and rail ambient context all appear in source. Section summary trimmed to the word band without dropping new behaviour.",
-  "reviewedAt": "2026-08-04T21:57:22.945Z"
+  "notes": "Re-review after an em dash to hyphen sweep required by scan:emdash. Prose meaning is unchanged; summaries re-verified against the edited source.",
+  "reviewedAt": "2026-08-04T23:25:26.433Z"
 }

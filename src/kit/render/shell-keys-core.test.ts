@@ -1,3 +1,12 @@
+/**
+ * The shell's own key routing, tested where it can be tested without a terminal.
+ *
+ * The split that got app.tsx under its line cap moved this decision out of the render body, and the
+ * bug it shipped on the way was a stale read rather than a wrong mapping. So the mapping is proven
+ * here and the freshness is proven by the type: the hook takes a ref, not a value. The property that
+ * matters most is the `active` guard, because a binding that fires underneath an open card is the
+ * failure a per-case condition would eventually reintroduce.
+ */
 import { describe, expect, test } from "bun:test";
 import type { KeyEvent } from "@opentui/core";
 import { consumesKey, shellKeyAction, type ShellKeyAction } from "./shell-keys-core";

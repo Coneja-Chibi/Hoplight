@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:e16fd784e16ad44fd6dd2c1fade517732d378c4ea9e5acb078c3bd427b223b05",
+  "sourceHash": "sha256:a6c7d13fc431396ad4cf5e6adbb9ac0a3221a07fe239a03905aba2574eaec839",
   "summary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Nineteen direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify, regex_lab), the shared-folder pair (folder_search, folder_import), rail_open, and ask_choice. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
   "topics": [
     "runtime tools vs slash",
@@ -21,7 +21,7 @@
       "slug": "built-lifecycle",
       "title": "Built lifecycle",
       "level": 2,
-      "sourceHash": "sha256:edbad5dc9dd42ec93ae43f599172f604294d869ad2b8fb014005433a0ab34a73",
+      "sourceHash": "sha256:cab6182d7851387bbb2124c2ab1ff5d1cd35ed662972e3d86b534d64cf1e9efd",
       "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns ids, search and exposure; kit capabilities adapts them into one registry. Six lifecycle tools draft creation without a write; duplicate carries body, profiles and original escrow forward, so a copy never loses platform-native fields. studio_delete is the only tool that destroys canonical content, carries no discovery descriptor because the runtime refuses deferred applies, and reports a miss as stale without writing. studio_transfer serializes through another adapter without writing. block_lookup explains a kind of prompt block; preset_verify renders through the real engine and reports what did not resolve; regex_lab tries, races, explains and lints patterns while storing none. folder_search reads inside shared folders and the studio, reconciling each resolved path against its real path. folder_import is the one-way door into the studio, drafting every piece a file contains or none, absent unless changes were allowed at setup. rail_open opens a preset and reports what is on the rail; ask_choice hands the user a list the shell renders. kit changes retains baseline, escrow and warnings; reads overlap while mutations serialize.",
       "topics": [
         "six content bundles",

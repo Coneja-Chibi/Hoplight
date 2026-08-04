@@ -19,8 +19,8 @@ but is intentionally session-local and is not restored after relaunch. Typing `/
 registry-driven command palette containing
 every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
 runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. Past the
-command word the same palette offers that command's ARGUMENT — `/rail` lists the presets with their
-display names beside the ids — because a studio id is exact, hyphenated and nothing like the name
+command word the same palette offers that command's ARGUMENT - `/rail` lists the presets with their
+display names beside the ids - because a studio id is exact, hyphenated and nothing like the name
 somebody remembers, and typing it from memory is where the mistake happens. Right-clicking the input
 pastes from the system clipboard, and Alt+V pastes an image, which is drawn in the transcript and
 labelled as shown-not-sent because Kit's providers take text. A file path written or pasted into a
@@ -46,7 +46,7 @@ pressing End returns to the latest row and clears the count.
 `/rail off` closes it. Order is what it exists to show: a preset evaluates top to bottom, so a block
 can be enabled, expand perfectly and never be read because something later overwrote what it wrote,
 and position is the only place that shows. Naming a preset is optional when there is only one, and
-several matches are listed rather than guessed between — and typing `/rail` then a space offers the
+several matches are listed rather than guessed between - and typing `/rail` then a space offers the
 presets as a list, so a studio id never has to be remembered and retyped. Kit reaches the same view
 through `rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot
 pull the rail out from under somebody mid-rearrange. What is on the rail rides in each turn's ambient
