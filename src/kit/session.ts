@@ -3,7 +3,8 @@
  * send it resolves the provider (fail-closed), builds the chat and dispatch, runs the ReAct loop, and
  * streams events to the caller. This is the ONE place live egress happens, and only when you send.
  */
-import type { KitBridge } from "./bridge";
+import type { EntitySummary, KitBridge } from "./bridge";
+import type { PresetBody } from "../entities/preset";
 import { resolveProviderConfig } from "./providers/vault";
 import { makeChat } from "./providers/chat";
 import { pingProvider, type Probe } from "./providers/probe";
@@ -70,6 +71,15 @@ export interface Session {
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
   /** Doctor's provider row: the same real ping as /test, returned as structured read-only data. */
   providerProbe?(signal?: AbortSignal): Promise<(Probe & { name: string; model: string }) | null>;
+  /**
+   * The preset seam the rail reads through. On Session rather than as another App prop because the
+   * session already holds the bridge and the shell is at its line cap; one narrow capability beats
+   * threading storage access through the render tree.
+   */
+  presets?: {
+    list(): Promise<EntitySummary[]>;
+    read(id: string): Promise<PresetBody | undefined>;
+  };
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
   activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
 }
@@ -121,6 +131,13 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
   return {
     capabilities: () => capabilities,
     folders,
+    presets: {
+      list: () => bridge.list("preset"),
+      async read(id) {
+        const entity = await bridge.read("preset", id);
+        return entity ? (entity.body as PresetBody) : undefined;
+      },
+    },
     async runTurn(input, history, onEvent, signal, gate) {
       try {
         runtime.beginTurn();

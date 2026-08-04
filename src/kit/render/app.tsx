@@ -54,6 +54,9 @@ import type { StudioWatchSource } from "../watch/watcher";
 import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
 import { ToolsScreen } from "./tools/tools-screen";
+import { useRail } from "./rail/use-rail";
+import { RailPane } from "./rail/rail-pane";
+import { openRail } from "./rail/open-rail";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -96,6 +99,7 @@ export function App({
   const [studioTotal, setStudioTotal] = useState(totalPieces);
   const [watchNotices, setWatchNotices] = useState(0);
   const gate = useGateController();
+  const rail = useRail(() => 20);
   const { notice: copyNotice, copy } = useCopyNotice(renderer);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
@@ -310,6 +314,7 @@ export function App({
         egressSummary: () => formatLedger(ledger),
         contextPreview: () => buildContextPreview(session, history.current, provider),
         folders: session.folders,
+        rail: { open: (q) => openRail(session.presets, q, rail.follow), close: rail.close },
         sessions: sessionActions,
       };
       try {
@@ -416,7 +421,9 @@ export function App({
   }
 
   return (
-    <box id="kit-root" flexDirection="column" backgroundColor={theme.well} width="100%" height="100%">
+    <box id="kit-root" flexDirection="row" backgroundColor={theme.well} width="100%" height="100%">
+      {rail.open ? <RailPane rail={rail} /> : null}
+      <box flexDirection="column" flexGrow={1} minWidth={0}>
       <Playbill studioName={studioName} />
       {rewinding ? (
         <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0} padding={1}>
@@ -486,6 +493,7 @@ export function App({
       </box>
         </>
       )}
+      </box>
     </box>
   );
 }

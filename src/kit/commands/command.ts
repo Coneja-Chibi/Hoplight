@@ -39,6 +39,12 @@ export interface CommandContext {
   /** The folders shared with Kit for reading (/share, /unshare). Absent when no session is wired, so
    * a command reports the feature missing rather than silently recording nothing. */
   readonly folders?: GrantBook;
+  /** The preset rail (/rail). Opening resolves a name to a piece, so it can fail in ways a person
+   * needs told: nothing matched, or several did. */
+  readonly rail?: {
+    open: (query: string) => Promise<{ ok: true } | { ok: false; detail: string }>;
+    close: () => void;
+  };
 }
 
 export interface KitCommand {
