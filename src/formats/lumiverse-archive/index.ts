@@ -37,6 +37,13 @@ export {
 } from "./layout";
 export { createLinkMap, type LinkMap, type RecordedLink } from "./links";
 export {
+  importLorebooks,
+  joinWorldBooks,
+  worldBookToStWire,
+  type ImportLorebooksOptions,
+  type WorldBookJoin,
+} from "./lorebooks";
+export {
   LUMIVERSE_PRODUCER,
   parseManifest,
   parseStats,

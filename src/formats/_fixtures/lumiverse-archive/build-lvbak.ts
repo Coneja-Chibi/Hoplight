@@ -349,6 +349,36 @@ export function buildIndirectBinaryLvbak(): Uint8Array {
   });
 }
 
+/** The three books buildHugeLorebookLvbak interleaves entries across. */
+export const HUGE_LOREBOOK_BOOK_IDS = ["lv-book-huge-1", "lv-book-huge-2", "lv-book-huge-3"] as const;
+const HUGE_LOREBOOK_ENTRIES_PER_BOOK = 1000;
+
+/**
+ * Three books, a few thousand entries between them, written round-robin (book1 entry0, book2
+ * entry0, book3 entry0, book1 entry1, ...) rather than grouped. A real SQLite dump gives no ORDER BY
+ * guarantee, so this is what "no contiguity" actually looks like: proves the join groups by
+ * world_book_id in one pass over the entries table, not by watching for the id to change.
+ */
+export function buildHugeLorebookLvbak(): Uint8Array {
+  const books = HUGE_LOREBOOK_BOOK_IDS.map((id, i) => worldBookRow({ id, name: `Huge Book ${i + 1}` }));
+  const entries: LvbakRow[] = [];
+  for (let n = 0; n < HUGE_LOREBOOK_ENTRIES_PER_BOOK; n++) {
+    for (const bookId of HUGE_LOREBOOK_BOOK_IDS) {
+      entries.push(
+        worldBookEntryRow({
+          id: `lv-entry-${bookId}-${n}`,
+          world_book_id: bookId,
+          key: JSON.stringify([`${bookId}-key-${n}`]),
+          comment: `${bookId} entry ${n}`,
+          order_value: n,
+        }),
+      );
+    }
+  }
+  const tables: Record<string, LvbakRow[]> = { world_books: books, world_book_entries: entries };
+  return assembleLvbak({ manifest: lvbakManifest(), tables, stats: lvbakStats(tables) });
+}
+
 /** Valid layout, wrong producer. Detection must fall through to charx or bundle handling. */
 export function buildWrongProducerZip(): Uint8Array {
   const tables = standardTables();
