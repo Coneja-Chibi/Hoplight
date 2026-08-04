@@ -309,6 +309,46 @@ export function buildBadRowsLvbak(): Uint8Array {
   });
 }
 
+/** The second character's avatar_crop_image_id joins an images row whose file never lands in files/. */
+export const INDIRECT_MISSING_IMAGE_ID = "lv-image-000000000002";
+export const INDIRECT_MISSING_IMAGE_FILENAME = "test-image-beta.png";
+
+/**
+ * Two characters that resolve their avatar through the images table rather than avatar_path: the
+ * first's image_id joins a row whose file is present, the second's avatar_crop_image_id joins a row
+ * whose file is absent. Exercises the join half of files/ resolution (spec Behavior step 4), which a
+ * direct avatar_path reference never touches.
+ */
+export function buildIndirectBinaryLvbak(): Uint8Array {
+  const tables: Record<string, LvbakRow[]> = {
+    ...standardTables(),
+    characters: [
+      characterRow({ avatar_path: null, image_id: IMAGE_ID, avatar_crop_image_id: null }),
+      characterRow({
+        id: "lv-char-000000000002",
+        name: "Test Character Beta",
+        avatar_path: null,
+        image_id: null,
+        avatar_crop_image_id: INDIRECT_MISSING_IMAGE_ID,
+      }),
+    ],
+    images: [
+      imageRow(),
+      imageRow({
+        id: INDIRECT_MISSING_IMAGE_ID,
+        filename: INDIRECT_MISSING_IMAGE_FILENAME,
+        character_id: "lv-char-000000000002",
+      }),
+    ],
+  };
+  return assembleLvbak({
+    manifest: lvbakManifest(),
+    tables,
+    files: standardFiles(),
+    stats: lvbakStats(tables, [`files/images/${INDIRECT_MISSING_IMAGE_FILENAME}`]),
+  });
+}
+
 /** Valid layout, wrong producer. Detection must fall through to charx or bundle handling. */
 export function buildWrongProducerZip(): Uint8Array {
   const tables = standardTables();

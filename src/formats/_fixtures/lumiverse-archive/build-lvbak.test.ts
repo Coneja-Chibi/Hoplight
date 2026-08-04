@@ -8,11 +8,14 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import {
+  INDIRECT_MISSING_IMAGE_FILENAME,
+  INDIRECT_MISSING_IMAGE_ID,
   PNG_1X1,
   SKIPPED_TABLE_COUNTS,
   buildBadRowsLvbak,
   buildCrossLinksLvbak,
   buildFutureSchemaLvbak,
+  buildIndirectBinaryLvbak,
   buildLegacyNoFormatVersionLvbak,
   buildMinimalLvbak,
   buildMissingBinariesLvbak,
@@ -24,6 +27,7 @@ import {
   CHARACTER_AVATAR,
   CHARACTER_ID,
   DANGLING_ID,
+  IMAGE_ID,
   PERSONA_AVATAR,
   PRESET_ID,
   WORLD_BOOK_ID,
@@ -241,6 +245,22 @@ describe("lvbak fixture variants", () => {
       // the row itself is valid JSON: only the doubly encoded string is broken
       expect([table, typeof table_rows[1]!.id]).toEqual([table, "string"]);
     }
+  });
+
+  test("indirect binaries: avatars resolve through images, one file present and one absent", () => {
+    const bytes = buildIndirectBinaryLvbak();
+    const chars = rows(bytes, "characters");
+    expect(chars).toHaveLength(2);
+    expect(chars[0]!.avatar_path).toBeNull();
+    expect(chars[0]!.image_id).toBe(IMAGE_ID);
+    expect(chars[1]!.avatar_crop_image_id).toBe(INDIRECT_MISSING_IMAGE_ID);
+    const images = rows(bytes, "images");
+    expect(images.map((r) => r.id)).toEqual([IMAGE_ID, INDIRECT_MISSING_IMAGE_ID]);
+    // the first image's file rides along with the standard set, the second never does
+    const names = listing(bytes).map((e) => e.name);
+    expect(names).not.toContain(`files/images/${INDIRECT_MISSING_IMAGE_FILENAME}`);
+    const missing = json(bytes, "manifest-stats.json").missingFiles as string[];
+    expect(missing).toEqual([`files/images/${INDIRECT_MISSING_IMAGE_FILENAME}`]);
   });
 
   test("wrong producer keeps the layout but fails the producer check", () => {

@@ -11,6 +11,7 @@
  */
 import type { FormatAdapter } from "../../core/adapter";
 
+export { createBinaries, indexImages, type Binaries } from "./binaries";
 export { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 export {
   detectLumiverseArchive,
@@ -18,6 +19,7 @@ export {
   LVBAK_SCHEMA_VERSION,
   type LvbakDetection,
 } from "./detect";
+export { addArchiveEscrow } from "./escrow";
 export {
   AVATARS_PREFIX,
   DATABASE_PREFIX,
@@ -33,6 +35,7 @@ export {
   isDatabaseEntry,
   tableNameFromEntry,
 } from "./layout";
+export { createLinkMap, type LinkMap, type RecordedLink } from "./links";
 export {
   LUMIVERSE_PRODUCER,
   parseManifest,
@@ -73,6 +76,7 @@ export {
   classifyEntryNames,
   isMacCruft,
   isUnsafeEntryName,
+  readEntryBytes,
   readEntryText,
   type EntryRejection,
   type LvbakEntrySource,

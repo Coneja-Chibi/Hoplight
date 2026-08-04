@@ -80,15 +80,15 @@ export const missingEntryError = (name: string): Error =>
   new Error(`lumiverse-archive: no entry named ${name}`);
 
 /**
- * Drain an entry into text, refusing anything past `maxBytes`. Detection and the manifests read
- * whole entries, so they need a ceiling of their own: the container budget alone would happily
- * hand back gigabytes.
+ * Drain an entry into bytes, refusing anything past `maxBytes`. Detection, the manifests, and the
+ * files/ resolver all read whole entries, so they need a ceiling of their own: the container budget
+ * alone would happily hand back gigabytes.
  */
-export async function readEntryText(
+export async function readEntryBytes(
   source: LvbakEntrySource,
   name: string,
   maxBytes: number,
-): Promise<string> {
+): Promise<Uint8Array> {
   const reader = (await source.open(name)).getReader();
   const chunks: Uint8Array[] = [];
   let total = 0;
@@ -111,5 +111,15 @@ export async function readEntryText(
     joined.set(chunk, at);
     at += chunk.byteLength;
   }
-  return new TextDecoder().decode(joined);
+  return joined;
+}
+
+/** Text is bytes decoded as UTF-8. Detection and the manifests want text; the files/ resolver wants
+ * the bytes themselves, which is why the ceiling and the draining loop live in readEntryBytes. */
+export async function readEntryText(
+  source: LvbakEntrySource,
+  name: string,
+  maxBytes: number,
+): Promise<string> {
+  return new TextDecoder().decode(await readEntryBytes(source, name, maxBytes));
 }

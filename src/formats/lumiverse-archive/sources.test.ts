@@ -23,7 +23,7 @@ import { ZIP_STORED, writeZip64 } from "../_fixtures/lumiverse-archive/zip64-wri
 import { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 import { detectLumiverseArchive } from "./detect";
 import { directoryEntrySource } from "./dir-source";
-import { readEntryText, type LvbakEntrySource } from "./source";
+import { readEntryBytes, readEntryText, type LvbakEntrySource } from "./source";
 import { zipEntrySource, zipEntrySourceFromFile } from "./zip-source";
 
 const MAX = 8 * 1024 * 1024;
@@ -189,6 +189,30 @@ describe("bounds apply to both sources", () => {
     } finally {
       await removeMaterialized(root);
     }
+  });
+});
+
+describe("readEntryBytes", () => {
+  test("returns the exact bytes of a binary entry, and readEntryText decodes the same drain", async () => {
+    const bytes = buildMinimalLvbak();
+    const source = zipEntrySource(bytes);
+    const avatar = `files/avatars/${CHARACTER_AVATAR}`;
+
+    const drained = await readEntryBytes(source, avatar, MAX);
+    expect(drained).toEqual(standardFiles()[avatar]!);
+    expect(drained).toEqual(PNG_1X1);
+
+    // readEntryText is a thin decode over the same drain, so a text entry round-trips through both
+    const manifestBytes = await readEntryBytes(source, "manifest.json", MAX);
+    const manifestText = await readEntryText(source, "manifest.json", MAX);
+    expect(manifestText).toBe(new TextDecoder().decode(manifestBytes));
+  });
+
+  test("a ceiling breach reports as ArchiveLimitError, same as readEntryText", async () => {
+    const source = zipEntrySource(buildMinimalLvbak());
+    await expect(readEntryBytes(source, "manifest.json", 4)).rejects.toBeInstanceOf(
+      ArchiveLimitError,
+    );
   });
 });
 
