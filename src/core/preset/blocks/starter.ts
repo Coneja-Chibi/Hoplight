@@ -6,15 +6,16 @@
  * starter: the skeletons, in dependency order, as a canonical body any adapter can write out. Passed
  * through buildStPreset it yields a file that imports and renders clean.
  *
- * IT DOES NOT YET CARRY SETTINGS. A SillyTavern preset also holds sampler values, system-prompt
- * templates, behaviour flags and API options, and an empty canonical body has none of those groups,
- * so the writer emits exactly two top-level fields. A file like that loads and then runs on whatever
- * settings the application already had, which is worse than refusing because it looks like it worked.
+ * IT ALSO CARRIES SETTINGS, which it did not always. A preset holds sampler values, system-prompt
+ * templates, behaviour flags and API options as well as blocks; a body with none of those groups
+ * makes the writer emit two top-level fields, and a file like that loads and then runs on whatever
+ * settings the application already had. That is worse than refusing, because it looks like it worked.
+ * starter-settings.ts supplies them, transcribed from SillyTavern's own shipped default rather than
+ * guessed, and a live test holds them to it.
  *
- * Those defaults are deliberately not invented here. A wrong sampler value that renders fine is the
- * kind of thing nobody notices for weeks, so they need to come from a real install's own shipped
- * preset rather than from a plausible guess. Until then a starter is a block scaffold, and callers
- * should say so rather than describe it as a complete preset.
+ * The connection is the deliberate exception: no model, source, proxy or URL. Those describe the
+ * machine a preset was made on, and inheriting the current one is the right answer for exactly that
+ * group. The reasoning is in starter-settings.ts, beside the values.
  *
  * THE ADAPTER OWNS THE FIELD LIST, NOT THIS FILE. buildStPreset already knows every field the wire
  * format carries, because it is what writes real presets on the way out. Hand-listing them here would
@@ -24,12 +25,15 @@
  */
 import { emptyPresetBody, type PresetBody, type PresetPrompt } from "../../../entities/preset";
 import { starterBlocks, type BlockSkeleton } from "./skeletons";
+import { starterSettings } from "./starter-settings";
 
-/** The canonical preset a starter is built from: the skeleton blocks, in dependency order. */
+/** The canonical preset a starter is built from: the skeleton blocks, in dependency order, over the
+ *  settings a fresh install ships. */
 export function starterBody(name: string): PresetBody {
   const blocks = starterBlocks();
   return {
     ...emptyPresetBody(name),
+    ...starterSettings(),
     prompts: blocks.map(toPrompt),
   };
 }

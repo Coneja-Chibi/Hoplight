@@ -8,6 +8,7 @@
 import { describe, expect, test } from "bun:test";
 import { starterBody, starterNotes } from "./starter";
 import { starterBlocks } from "./skeletons";
+import { buildStPreset } from "../../../formats/_shared/st-preset-emit";
 
 describe("starterBody", () => {
   test("carries every skeleton, enabled, in dependency order", () => {
@@ -23,13 +24,35 @@ describe("starterBody", () => {
     expect(slot.content).toBe("");
   });
 
-  test("KNOWN GAP: it carries no sampler or behaviour settings yet", () => {
-    // Documented rather than hidden. When real defaults are sourced from an install's own shipped
-    // preset, this test flips to asserting they are present, and until then nobody can describe a
-    // starter as a complete preset without this failing.
+  test("it carries every settings group, so it never inherits the last preset's", () => {
+    // This was the KNOWN GAP assertion, flipped once real values were transcribed from a shipped
+    // install. A body missing these loads and then runs on whatever the app had open last.
     const body = starterBody("Blank") as unknown as Record<string, unknown>;
-    for (const group of ["samplers", "behavior", "apiOptions", "templates"]) {
-      expect(body[group], `${group} is populated; update this test and the module header`).toBeUndefined();
+    for (const group of ["samplers", "systemPrompts", "templates", "behavior", "apiOptions", "media", "generation"]) {
+      expect(body[group], `${group} is missing; a starter without it is not a complete preset`).toBeDefined();
+    }
+    expect(body.name).toBe("Blank");
+  });
+
+  test("it carries no connection settings, so opening one cannot retarget a provider", () => {
+    // The deliberate omission. Every field naming a model, source, proxy or URL belongs to the
+    // machine rather than the preset, and a starter that shipped one would move somebody's endpoint.
+    const flat = JSON.stringify(starterBody("Blank"));
+    for (const forbidden of ["proxy", "reverse_proxy", "custom_url", "chat_completion_source", "_model"]) {
+      expect(flat).not.toContain(forbidden);
+    }
+  });
+
+  test("the settings survive the writer, which is where the claim is actually tested", () => {
+    // A canonical body carrying groups nothing emits would still leave a two-field file on disk.
+    // 33 settings plus prompts and prompt_order; before the settings landed this was 2 in total.
+    const wire = buildStPreset(starterBody("Blank"), undefined, "none") as Record<string, unknown>;
+    expect(Object.keys(wire).length).toBeGreaterThan(30);
+    expect(wire.temperature).toBe(1);
+    expect(wire.scenario_format).toBe("{{scenario}}");
+    expect(Array.isArray(wire.prompts)).toBe(true);
+    for (const forbidden of ["chat_completion_source", "openai_model", "reverse_proxy", "proxy_password", "custom_url"]) {
+      expect(wire[forbidden], `${forbidden} reached the wire`).toBeUndefined();
     }
   });
 
