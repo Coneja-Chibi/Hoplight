@@ -9,6 +9,8 @@ import { describe, expect, test } from "bun:test";
 import { starterBody, starterNotes } from "./starter";
 import { starterBlocks } from "./skeletons";
 import { buildStPreset } from "../../../formats/_shared/st-preset-emit";
+import { parseCanonicalEntity } from "../../../entities/runtime-schema";
+import { CANONICAL_SCHEMA_VERSION } from "../../canonical";
 
 describe("starterBody", () => {
   test("carries every skeleton, enabled, in dependency order", () => {
@@ -41,6 +43,21 @@ describe("starterBody", () => {
     for (const forbidden of ["proxy", "reverse_proxy", "custom_url", "chat_completion_source", "_model"]) {
       expect(flat).not.toContain(forbidden);
     }
+  });
+
+  test("the body is canonically valid, which no other test here was checking", () => {
+    // This failed for real. toPrompt set six fields and cast the result to PresetPrompt; the cast
+    // compiled, every test above passed, and the first thing that actually parsed a starter threw on
+    // six missing fields per block. Parsing is the only assertion that cannot be satisfied by a cast.
+    const entity = parseCanonicalEntity({
+      schemaVersion: CANONICAL_SCHEMA_VERSION,
+      kind: "preset",
+      id: "blank",
+      body: starterBody("Blank"),
+    });
+    expect(entity.kind).toBe("preset");
+    const prompts = (entity.body as { prompts: { injectionDepth: number; placement: string }[] }).prompts;
+    expect(prompts.every((p) => p.injectionDepth === 4 && p.placement === "relative")).toBe(true);
   });
 
   test("the settings survive the writer, which is where the claim is actually tested", () => {

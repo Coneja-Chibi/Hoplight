@@ -43,6 +43,12 @@ export function starterBody(name: string): PresetBody {
  *
  * Everything is enabled. A starter whose blocks ship off would render as an empty prompt and read as
  * a broken export rather than a blank canvas, and the whole point is that the first render works.
+ *
+ * EVERY REQUIRED FIELD IS WRITTEN, and none of it is cast into place. An earlier version set six
+ * fields and asserted the result was a PresetPrompt; the cast compiled, the unit tests passed, and
+ * the body failed canonical validation the first time anything actually parsed it. A cast is a
+ * promise the type checker stops checking, so the defaults live here as values instead. They are the
+ * schema's own documented ones: depth 4, order 100.
  */
 function toPrompt(block: BlockSkeleton): PresetPrompt {
   return {
@@ -51,8 +57,14 @@ function toPrompt(block: BlockSkeleton): PresetPrompt {
     role: block.role,
     content: block.content,
     enabled: true,
-    ...(block.marker ? { marker: true } : {}),
-  } as PresetPrompt;
+    systemPrompt: false,
+    marker: block.marker === true,
+    ...(block.marker ? { markerSlot: block.identifier } : {}),
+    placement: "relative",
+    injectionDepth: 4,
+    injectionOrder: 100,
+    forbidOverrides: false,
+  };
 }
 
 /** Every skeleton's edit note, keyed by block id, for a tool or a README to show beside the file. */
