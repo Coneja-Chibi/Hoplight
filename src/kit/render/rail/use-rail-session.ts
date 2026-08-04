@@ -18,6 +18,7 @@ import type { OutlineRow } from "../../../core/preset/outline";
 import { commitRail } from "./commit-rail";
 import { openRail } from "./open-rail";
 import { useRail, type RailSession } from "./use-rail";
+import { railRowsVisible } from "./rail-pane";
 
 export interface RailWithCommands extends RailSession {
   /** Handed every turn event so the model can put a preset up without the shell parsing prose. */
@@ -33,7 +34,7 @@ export function useRailSession(
   session: Session,
   gate: GateController,
   say: (text: string) => void,
-  rowsVisible: () => number = () => 20,
+  rowsVisible: () => number = railRowsVisible,
 ): RailWithCommands {
   // `presetId` is read at commit time rather than captured, because the rail can be pointed at a
   // different preset between opening it and pressing enter.
@@ -63,7 +64,7 @@ export function useRailSession(
     return outcome.applied;
   }, [session, gate, say]);
 
-  const rail = useRail(rowsVisible, commit);
+  const rail = useRail(() => rowsVisible(), commit);
   railRef.current = rail;
 
   /**
@@ -74,10 +75,15 @@ export function useRailSession(
    * has no way to know they were busy.
    */
   const onTurnEvent = useCallback((event: { type: string; show?: { kind: string; id: string } }) => {
-    if (event.type !== "tool" || event.show?.kind !== "preset") return;
-    if (rail.pending > 0) return;
-    void openRail(session.presets, event.show.id, rail.follow);
-  }, [session, rail]);
+    const show = event.type === "tool" ? event.show : undefined;
+    if (show?.kind !== "preset") return;
+    // Read through the ref, NOT the captured rail. The shell builds one event handler per turn and
+    // hands it to runTurn, so a captured value is frozen at turn start: edits made while the model
+    // worked were invisible to this guard, and a show request wiped them with no transcript line.
+    const current = railRef.current;
+    if (!current || current.pending > 0) return;
+    void openRail(session.presets, show.id, current.follow);
+  }, [session]);
 
   return {
     ...rail,

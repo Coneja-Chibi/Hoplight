@@ -1,8 +1,8 @@
 /**
  * The rail's state and its keys, kept out of the shell.
  *
- * WHY A HOOK AND NOT MORE OF app.tsx. The shell is nine lines under its cap, and a feature that
- * cannot be added without pushing a file past its limit is a feature that wants its own home. Every
+ * WHY A HOOK AND NOT MORE OF app.tsx. The shell sits at its 500-line cap, so a feature that cannot be added
+ * without pushing a file past its limit is a feature that wants its own home. Every
  * decision the rail makes lives here; the shell learns four things about it.
  *
  * THE EDITS ARE LOCAL UNTIL THEY ARE APPLIED. Dragging, toggling and inserting change this state and
@@ -165,7 +165,9 @@ export function useRail(
     }
     if (key === "return" && dirty) {
       event.preventDefault();
-      void onCommit?.(state.rows).then((applied) => {
+      // .catch is not optional here: a throw out of stage or commit had nowhere to go, and opentui
+      // routes an unhandled rejection into a hidden debug overlay, so the failure was invisible.
+      void onCommit?.(state.rows).catch(() => false).then((applied) => {
         // Adopting the written rows is what clears the pending badge. Doing it only on a real
         // applied receipt means a denied or stale attempt leaves the edits exactly where they were.
         if (applied) setBaseline(state.rows);
@@ -187,7 +189,13 @@ export function useRail(
     }
     if (key === "delete" || key === "backspace") {
       event.preventDefault();
-      setState(removeSelection);
+      setState((current) => {
+        const next = removeSelection(current);
+        // Deleting the rows the view was sitting on leaves offset past the end, and the rail draws
+        // nothing at all while the footer still counts. Pull it back to the last full window.
+        setOffset((top) => Math.max(0, Math.min(top, next.rows.length - 1)));
+        return next;
+      });
       return;
     }
     if ((key === "right" || key === "left") && cursor) {

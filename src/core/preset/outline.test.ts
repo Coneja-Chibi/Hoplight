@@ -141,3 +141,33 @@ describe("outlineSummary", () => {
     expect(outlineSummary(diff)).toBe("2 added · 3 removed");
   });
 });
+
+describe("blocks that share an id", () => {
+  // Not hypothetical: the SillyTavern reader dedupes on import, the Marinara one does not, so a
+  // preset really can reach here with two blocks named the same thing.
+  const collide = body(
+    prompt({ id: "x", name: "First", content: "aa" }),
+    prompt({ id: "y", name: "Y" }),
+    prompt({ id: "x", name: "Second", content: "bbbb" }),
+  );
+
+  test("each row gets its own identity, so nothing downstream can conflate them", () => {
+    const rows = outlineOf(collide);
+    expect(rows.map((r) => r.id)).toEqual(["x", "y", "x#1"]);
+    // The names still describe the real blocks; only the row key was disambiguated.
+    expect(rows.map((r) => r.name)).toEqual(["First", "Y", "Second"]);
+  });
+
+  test("removing the second reports a removal, not a phantom move of the first", () => {
+    // Measured before the fix: the id-keyed Map kept only the last `x`, so the surviving first block
+    // was reported as having moved from index 2 to 0, and the real removal appeared nowhere.
+    const after = body(prompt({ id: "x", name: "First", content: "aa" }), prompt({ id: "y", name: "Y" }));
+    const diff = diffOutline(outlineOf(collide), outlineOf(after))!;
+    expect(diff.changes).toHaveLength(1);
+    expect(diff.changes[0]).toMatchObject({ kind: "removed", id: "x#1" });
+  });
+
+  test("an unchanged read of a colliding preset is still silent", () => {
+    expect(diffOutline(outlineOf(collide), outlineOf(collide))).toBeNull();
+  });
+});

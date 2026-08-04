@@ -56,12 +56,12 @@ session:
   preview-only draft and reaches storage through the same create-only compare. It carries `body`,
   `profiles` and `original` forward: a copy that dropped escrow would silently lose every
   platform-native field the canonical model does not express.
-- `studio_delete` removes one piece. It is the only Kit tool that destroys canonical content and the
-  only direct tool with an `apply` effect. It carries no discovery descriptor, because
+- `studio_delete` removes one piece. It is the only Kit tool that destroys canonical content. It carries no discovery descriptor, because
   `capabilities/runtime.ts` refuses any deferred workflow whose effect is `apply`; its sole
   classification is the explicit `delete` entry in the safety-owned trust map, which sits at the
   danger floor. It reads the target before removing it, reports a miss as `stale` without writing,
-  and states plainly that referencing pieces were not checked.
+  and its description states plainly that referencing pieces were not checked. The receipt repeats that
+  only for the kinds something can reference (lorebook, pack, regex).
 - `studio_transfer` previews a crossing: it serializes one stored piece through another platform's
   adapter and reports what the crossing costs, without writing anything.
 - `studio_export` performs the crossing and writes the file into `<studio>/exports`. The model
@@ -78,9 +78,10 @@ session:
 - `block_lookup` does the same one level up, for kinds of prompt block: what a tracker or an
   assembler is for, how it is built, what silently goes wrong with it, and an editable starting
   block. `preset_verify` renders a preset through the real engine and reports what did not resolve.
-- `folder_search` lists and reads files in a folder the user has shared with Kit, and can do nothing
-  else. Every path is resolved and then checked against the grants, so the resolved path is the one
-  used; symlinks are not followed and the walk is bounded in depth and entries.
+- `folder_search` lists and reads files in a folder the user has shared with Kit, plus the studio
+  itself, which is a standing grant rather than something shared. It can do nothing else. Every path is resolved and then checked against the grants, so the resolved path is the one
+  used, and that resolved path is reconciled against its real path so a link cannot carry it out of
+  the granted tree. Traversal skips symlinked entries, and the walk is bounded in depth and entries.
 - `folder_import` is the only door from a shared folder into the studio, and it goes one way. It
   reads a file, parses it through the same three-way branch the studio's own inspect uses, and
   proposes each canonical piece as a create draft. Its effect is `draft`, not `read`, which keeps it
@@ -88,6 +89,10 @@ session:
   than one piece drafts all of them or none: a character card's body names its embedded book in
   `knowledgeRefs`, so importing the character alone would leave a reference to a piece that is not
   there. An id already on the shelf is refused rather than replaced.
+- `rail_open` puts a preset on the rail beside the conversation, the same view `/rail` opens. It is
+  read-only: it changes nothing and so needs no confirmation, which is what makes it usable
+  mid-sentence. The rail it opens is still a write surface, and edits made there meet the ordinary
+  Gate. It refuses to choose between several matching presets.
 - A selected capability creates or composes a preview draft without saving. Its result also carries
   a structured semantic review projection; the loop never parses a draft ID or field diff from
   prose or JSON output.
@@ -167,10 +172,10 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with sixteen direct tools: `studio_list`,
+resolve a selected operation. Each user turn starts with seventeen direct tools: `studio_list`,
 `studio_search`, `studio_read`, `docs_query`, `result_query`, `capability_find`, `change_query`,
 `change_apply`, `change_discard`, `macro_lookup`, `block_lookup`, `preset_verify`, `folder_search`,
-`folder_import`, `studio_delete`, and `studio_export`.
+`folder_import`, `rail_open`, `studio_delete`, and `studio_export`.
 
 `studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
 convenience one. The

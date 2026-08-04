@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:55d42a47377f7d79c21900a56f991cad56a53ee1cda7caf310769cb963e79dbf",
+  "sourceHash": "sha256:2712280d5d083ef5304c3e0ae2eed7a08c16eb4ce439cc516479a33e335a46de",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -21,17 +21,17 @@
       "slug": "kit-terminal-shell",
       "title": "Kit terminal shell",
       "level": 2,
-      "sourceHash": "sha256:9cb158cf1ec6300f178d239297e78b7188a6c003cf6db71a26b48cc192caff17",
-      "summary": "Kit is a source-checkout terminal preview with a multiline composer, paste cards, bounded follow-up queue, draft-preserving history and search, interruptible streaming, command palette, studio-piece mentions, and context-sensitive suggestions. Native scrolling, foldable replies, copy feedback, responsive branding, and a stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork, and export. Model settings, doctor, inventory and privacy are command surfaces. Its tool loop performs bounded studio and documentation reads, discovers only a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. A conversion gets a REVIEW CROSSING panel instead: two columns of what each thing becomes, banded worst first, removals named with their block and rewrites grouped by family, a fixed foot line carrying the key or a hovered row's note, and escrow reported as reassurance rather than damage. Its third answer neither runs nor denies the call, grants nothing, and reports as held so a paused apply keeps its draft. Applies serialize, Backstage retains lifecycle truth, and explicit stop reasons expose budget limits.",
+      "sourceHash": "sha256:f755141a80802d6fc8e313a0fb13db77d17a3b86231c4c50670715c8090b4460",
+      "summary": "Kit is a source-checkout terminal preview: multiline composer, paste cards, a bounded follow-up queue, draft-preserving history and search, interruptible streaming, a command palette and studio-piece mentions. Native scrolling, foldable replies, copy feedback and a stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork and export. Model settings, doctor, inventory and privacy are command surfaces. /rail keeps a preset's block list beside the conversation and is edited directly; ctrl+B moves the keyboard between composer and rail, shown in its chrome. Edits accumulate locally and Enter stages them as one ordinary draft at the same Gate. Its tool loop performs bounded reads, discovers a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. A conversion gets a REVIEW CROSSING panel instead: two columns of what each thing becomes, banded worst first, with escrow reported as reassurance rather than damage. Its third answer neither runs nor denies the call, grants nothing, and reports as held so a paused apply keeps its draft. Applies serialize and Backstage retains lifecycle truth.",
       "topics": [
         "composer queue and search",
         "slash palette mentions",
         "terminal scrolling folding copy",
+        "preset rail edits",
         "session resume rewind export",
         "provider doctor privacy",
         "bounded docs capability tools",
-        "REVIEW CHANGE gate",
-        "REVIEW CROSSING ledger"
+        "REVIEW CHANGE gate"
       ],
       "children": []
     },

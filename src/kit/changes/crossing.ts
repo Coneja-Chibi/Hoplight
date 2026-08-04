@@ -148,6 +148,9 @@ export function reviewCrossing(input: CrossingInput): CrossingReview {
       severity: "removed",
       from: `${removed.length - MAX_REMOVED} more`,
       to: "removed · no such macro",
+      // Carries the count it stands for, so the one-line summary adds up to the real total. Without
+      // it a crossing losing ten macros reported "7 removed" - the rows, not the removals.
+      count: removed.length - MAX_REMOVED,
     });
   }
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:55d42a47377f7d79c21900a56f991cad56a53ee1cda7caf310769cb963e79dbf",
-  "semanticSummaryHash": "sha256:3e379db582320a74810c1ee3d61ffadeee9dd352f2dcac53278fa29427187ad1",
+  "sourceHash": "sha256:2712280d5d083ef5304c3e0ae2eed7a08c16eb4ce439cc516479a33e335a46de",
+  "semanticSummaryHash": "sha256:563a03e42766c66224c8c8aa3b8af10b4f4e09b071b97a9eefdea9f42b568db5",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Documents REVIEW CROSSING and the hold answer, both shipped in 116562e and 3c3108c with no doc change at the time. Claims checked against src/kit/changes/crossing.ts and gate-prompt.tsx: two columns, severity banding worst first, removals ungrouped and carrying their block, rewrites grouped by family with counts, fixed foot line for key-or-note, escrow out of the severity list, and hold reported as held rather than denied so change_apply keeps its draft.",
-  "reviewedAt": "2026-08-04T08:12:43.650Z"
+  "notes": "Documents /rail and rail_open, absent entirely though shipped. Corrects two overclaims found in review: removals ARE capped at six with an overflow row (crossing.ts MAX_REMOVED), and the hold answer is offered on the crossing panel only, not on change_apply (gate-prompt.tsx renders CrossingPanel only when req.crossing is set, and session.ts sets it for studio_export alone). Rail claims checked against use-rail.ts, use-rail-session.ts and commit-rail.ts.",
+  "reviewedAt": "2026-08-04T10:16:22.866Z"
 }

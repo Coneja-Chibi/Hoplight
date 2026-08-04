@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:46133724fceef724e88634592b78f2b9dbae0208885dd576f2eee087e60fab82",
-  "semanticSummaryHash": "sha256:7ff5898712d1cb3db5cab53126888a3e26890a16e40b90af7d381767702fc8ef",
+  "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
+  "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Direct-tool count corrected from ten to sixteen (it was already stale before this change). New belt documented: block_lookup, preset_verify, folder_search, folder_import. The folder_import claims were checked against src/kit/tools/folder-import.ts and its tests: effect is draft, readOnlyTools drops it, a bundled card produces two drafts, a collision on any piece imports nothing.",
-  "reviewedAt": "2026-08-04T00:10:31.758Z"
+  "notes": "Four corrections found in review. studio_delete is not the only direct apply tool (studio_export and change_apply are both direct+apply); the count was sixteen and is seventeen with rail_open, which had no bullet; delete's dangling-reference note is on the description always but on the receipt only for referenceable kinds (delete.ts REFERENCEABLE); folder_search also reaches the studio as a standing grant. Also corrects the falsified symlink claim: entries are skipped during traversal, and the resolved path is now reconciled against realpath, which is what actually closes it.",
+  "reviewedAt": "2026-08-04T10:16:23.112Z"
 }

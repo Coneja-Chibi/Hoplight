@@ -55,15 +55,31 @@ const nameOf = (prompt: PresetPrompt): string => {
 
 /** Read a preset body as an ordered list of rows. */
 export function outlineOf(body: PresetBody | undefined): OutlineRow[] {
-  return (body?.prompts ?? []).map((prompt, index) => ({
-    index,
-    id: prompt.id,
-    name: nameOf(prompt),
-    enabled: prompt.enabled !== false,
-    marker: prompt.marker === true,
-    size: (prompt.content ?? "").length,
-    role: prompt.role ?? "system",
-  }));
+  // DUPLICATE IDS ARE MADE UNIQUE HERE, at the only door into every id-keyed structure downstream.
+  // Not every importer dedupes - the SillyTavern reader does, the Marinara one does not - so two
+  // blocks really can share an identifier. Everything past this point keys on the id: a Map, which
+  // silently keeps the last of each, and a Set for selection, which cannot tell two rows apart.
+  // Two measured consequences: deleting one of a colliding pair deleted BOTH and reported one, and
+  // removing the second reported a move of the first that never happened.
+  //
+  // The suffix rides the ROW only and never reaches storage. applyRailEdits looks prompts up by row
+  // id, so a suffixed row finds nothing and lands in `unknown`, which refuses the whole write rather
+  // than applying half of it. That is the safe direction: a preset with colliding ids can be looked
+  // at and cannot be silently rewritten.
+  const seen = new Map<string, number>();
+  return (body?.prompts ?? []).map((prompt, index) => {
+    const count = seen.get(prompt.id) ?? 0;
+    seen.set(prompt.id, count + 1);
+    return {
+      index,
+      id: count === 0 ? prompt.id : `${prompt.id}#${count}`,
+      name: nameOf(prompt),
+      enabled: prompt.enabled !== false,
+      marker: prompt.marker === true,
+      size: (prompt.content ?? "").length,
+      role: prompt.role ?? "system",
+    };
+  });
 }
 
 /**

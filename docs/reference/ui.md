@@ -33,6 +33,27 @@ or newest transcript content, and Page Up/Page Down move by a viewport. When new
 the reader is scrolled up, a capped `new below` pill appears above the composer; clicking it or
 pressing End returns to the latest row and clears the count.
 
+`/rail` (also `/blocks`, `/outline`) keeps a preset's block list open beside the conversation, and
+`/rail off` closes it. Order is what it exists to show: a preset evaluates top to bottom, so a block
+can be enabled, expand perfectly and never be read because something later overwrote what it wrote,
+and position is the only place that shows. Naming a preset is optional when there is only one, and
+several matches are listed rather than guessed between. Kit reaches the same view through
+`rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot pull the
+rail out from under somebody mid-rearrange.
+
+The rail is edited directly. Click, shift-click for a range in either direction, and ctrl-click to
+add or remove one; drag a selection anywhere; space toggles, delete removes, and left/right expand a
+block's content. Arrows move the cursor and alt+arrows move the blocks, so every gesture has a key
+for anyone without a mouse. Ctrl+B hands the keyboard between the composer and the rail, and the
+header and footer show which side holds it - without that, an open rail swallowed the keys it claims
+and silently toggled blocks while somebody typed a prompt.
+
+Nothing there writes as you go. Edits accumulate against the rows as last read from storage, the
+header counts them, and Enter stages the lot as one ordinary draft that pauses at the same Gate a
+model draft does. Refused, denied, stale and failed are four different sentences, because they lead
+to four different next moves. A denial keeps the edits in the rail and discards only the staged
+draft.
+
 `/help` opens a full-screen, registry-driven reference stage instead of writing a long help message
 into the transcript. Commands and live keyboard bindings share grouped sections, the pane scrolls
 with navigation keys, and Escape or `q` returns to the untouched session view.
@@ -95,9 +116,9 @@ applied, stale, or failed receipt.
 Converting a piece to another platform gets its own panel, because a crossing is not a draft: a
 draft's honest shape is a field changing value, a crossing's is each thing meeting an engine that may
 not have it. `REVIEW CROSSING` is a two-column ledger of what each thing is and what becomes of it,
-banded by severity worst first, with the stripe carrying the weight. Removals are never grouped and
-each names the block it lives in; rewrites are grouped by macro family with a count, because a
-hundred respellings say what one row and a number say. A fixed line at the foot carries the key, and
+banded by severity worst first, with the stripe carrying the weight. Removals are listed individually, each naming the block it lives in,
+up to a cap of six with one overflow row carrying the rest of the count; rewrites are grouped by
+macro family, because a hundred respellings say what one row and a number say. A fixed line at the foot carries the key, and
 carries one row's own note while that row is hovered, so the explanation never depends on owning a
 mouse and never moves the buttons underneath it. The source's own escrow is reported under the rule
 as reassurance rather than as damage: it is absent from the exported file and still held by Hoplight.
@@ -107,8 +128,9 @@ ordinary confirm rather than denying the write.
 That panel offers a third answer. `Talk it through` neither runs the call nor denies it: nothing is
 written, no permission is granted or widened, and the model is told the user wants to understand the
 call before deciding, so its next move is to explain rather than to apologise or to try another route
-to the same effect. It is reported as `held` rather than `denied` specifically so a paused
-`change_apply` keeps the draft somebody stopped to ask about.
+to the same effect. It is reported as `held` rather than `denied`, so a paused apply would keep
+its draft rather than discarding it. That third answer is offered on the crossing panel only; the
+change panel still answers apply or discard.
 
 Read-only tool batches may run concurrently, but their
 observations retain provider order; drafts and applies always serialize. Loop stops name the

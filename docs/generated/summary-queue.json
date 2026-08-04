@@ -2,7 +2,7 @@
   "generated": "2026-08-04",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 998516,
+  "totalSourceChars": 1000886,
   "batches": [
     {
       "id": "batch-001",
@@ -608,7 +608,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 86277,
+      "sourceChars": 86907,
       "pages": [
         {
           "docId": "reference/formats/rolecall",
@@ -647,7 +647,7 @@
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
           "sectionCount": 16,
-          "sourceChars": 28947,
+          "sourceChars": 29577,
           "status": "APPROVED"
         },
         {
@@ -928,7 +928,7 @@
     },
     {
       "id": "batch-012",
-      "sourceChars": 73990,
+      "sourceChars": 75730,
       "pages": [
         {
           "docId": "reference/security/secrets-and-keys",
@@ -951,7 +951,7 @@
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 34799,
+          "sourceChars": 36539,
           "status": "APPROVED"
         },
         {

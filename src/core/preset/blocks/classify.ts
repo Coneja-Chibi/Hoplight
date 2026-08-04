@@ -49,7 +49,6 @@ export interface ClassifiableBlock {
 export type ClassifierEvidence =
   | "marker-flag"
   | "blank-assignments"
-  | "getvar-manifest"
   | "writes-state";
 
 export interface Classification {
@@ -62,8 +61,6 @@ export interface Classification {
 
 /** Blank assignments needed before a block counts as the initializer rather than one stray reset. */
 const BLANK_ASSIGNMENTS_MIN = 3;
-/** Reads needed before a block counts as the renderer. Surveyed assemblers carry 12 to 126. */
-const GETVAR_MANIFEST_MIN = 10;
 
 const BLANK_SETVAR = /\{\{setvar::[^:}]+::\s*\}\}/gi;
 const ANY_SETVAR = /\{\{setvar::[^:}]+::/gi;
@@ -118,7 +115,6 @@ export function classifyBlock(block: ClassifiableBlock): Classification {
   if (count(content, BLANK_SETVAR) >= BLANK_ASSIGNMENTS_MIN) {
     return { identifier, pattern: "variable-init", evidence: "blank-assignments" };
   }
-  // NOTE: reading many variables does NOT decide `assembler` here. See classifyBlocks.
   // A state writer. Reported as the weaker of the two indistinguishable patterns; see the header.
   if (count(content, ANY_SETVAR) > count(content, BLANK_SETVAR)) {
     return { identifier, pattern: "option-additive", evidence: "writes-state" };
