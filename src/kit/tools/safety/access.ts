@@ -38,6 +38,31 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_export", "write"],
   // Pure catalog lookup: no storage, no filesystem, no network.
   ["macro_lookup", "read"],
+  // Hands the shell a list to draw. Reads nothing, stores nothing, and cannot answer for anybody:
+  // picking fills the composer rather than sending.
+  ["ask_choice", "read"],
+  // Its sibling, and it sat outside this map long enough to reach a user: `block_lookup` declares
+  // `effect: "read"` at its own definition, but this map is the authority and had no entry, so every
+  // call raised a DANGER banner reading `unrecognized tool`. Four others were in the same state. The
+  // consequence of a missed entry is not a quiet hole - it is a false alarm on a safe tool, which
+  // teaches people to click through the prompts that matter. `trust-map.test.ts` now fails when a
+  // registered tool is missing here, so the next one is caught by CI instead of by somebody using it.
+  ["block_lookup", "read"],
+  // Reads inside an explicitly shared folder and can do nothing else; the grant is the boundary.
+  ["folder_search", "read"],
+  // The one-way door into the studio. Preview-only like every other create, hence draft, not write.
+  ["folder_import", "draft"],
+  // Renders a preset through an engine checkout to see whether its macros resolve. It SPAWNS a
+  // subprocess, which is worth stating plainly - but the payload is a first-party renderer in this
+  // repo, not an opaque one, and the studio is never mutated. `exec` is reserved for a payload we did
+  // not write; this is a read that happens to fork.
+  ["preset_verify", "read"],
+  // Opens the outline rail over the transcript. Display only.
+  ["rail_open", "read"],
+  // The regex workbench. It RUNS patterns, which sounds like exec and is not: the payload is a
+  // regular expression, the engine refuses anything the validator calls a backtracking bomb, and
+  // every run is time-bounded. Nothing is stored - saving belongs to regex_create.
+  ["regex_lab", "read"],
 ]);
 
 export type AccessResolver = (name: string) => ToolAccess;

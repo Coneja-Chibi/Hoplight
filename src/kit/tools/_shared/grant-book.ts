@@ -15,6 +15,7 @@
  * would mean a later session could read a folder the person shared once, for one question, and
  * forgot about. Re-sharing costs a line; a forgotten standing grant costs the boundary.
  */
+import { resolve } from "node:path";
 import { stat } from "node:fs/promises";
 import { grantFolder, sameRoot, type Grant } from "./grants";
 
@@ -30,6 +31,17 @@ export interface GrantBook {
   list(): readonly Grant[];
   /** Share one folder for reading. Verified to exist and be a directory before it is recorded. */
   share(path: string, label?: string): Promise<ShareOutcome>;
+  /**
+   * Share ONE FILE, because the person named it themselves.
+   *
+   * Separate from `share` rather than a flag on it, so the two authorities never blur: `share` is a
+   * folder the user pointed Kit at, and this is a single file they handed over by writing its path -
+   * the same consent picking it in a file dialog carries, and no wider. Nothing beside it becomes
+   * reachable, which is the whole reason it is not implemented as "grant the parent folder".
+   *
+   * Verified to exist and be a FILE before it is recorded, so a typo never becomes a live grant.
+   */
+  shareFile(path: string, label?: string): Promise<ShareOutcome>;
   /** Stop sharing one folder. True when something was actually removed. */
   revoke(path: string): boolean;
 }
@@ -69,6 +81,37 @@ export function createGrantBook(): GrantBook {
           detail: `${grant.root} is a file. Share the folder it sits in.`,
         };
       }
+      grants.push(grant);
+      return { ok: true, grant, already: false };
+    },
+
+    async shareFile(path, label) {
+      const root = resolve(path);
+      const existing = indexOf(root);
+      if (existing >= 0) return { ok: true, grant: grants[existing]!, already: true };
+      if (grants.length >= MAX_GRANTS) {
+        return {
+          ok: false,
+          reason: "full",
+          detail: `Kit is already reading ${MAX_GRANTS} things. Stop sharing one before adding another.`,
+        };
+      }
+      let info;
+      try {
+        info = await stat(root);
+      } catch {
+        // A path that is not there never becomes a grant. Somebody mistyping into the composer must
+        // not leave a live authority behind for a name that does not exist yet.
+        return { ok: false, reason: "missing", detail: `There is nothing at ${root}.` };
+      }
+      if (info.isDirectory()) {
+        return {
+          ok: false,
+          reason: "not-a-folder",
+          detail: `${root} is a folder. Use /share for a folder; this is for one file.`,
+        };
+      }
+      const grant: Grant = { root, file: true, ...(label ? { label } : {}) };
       grants.push(grant);
       return { ok: true, grant, already: false };
     },

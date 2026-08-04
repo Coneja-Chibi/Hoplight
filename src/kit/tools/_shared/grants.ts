@@ -22,6 +22,20 @@ export interface Grant {
   readonly root: string;
   /** What the user called it, for messages. */
   readonly label?: string;
+  /**
+   * This grant is ONE FILE, not a folder: `root` must match exactly, and nothing beside it is
+   * reachable.
+   *
+   * Why the distinction exists. Somebody pasting a path into the composer and saying "look at this"
+   * has consented to that file, exactly as picking it in a file dialog would - and being told to run
+   * a sharing command first is a step they correctly read as arbitrary. But granting the FOLDER it
+   * happens to sit in would turn one file into a directory, and a Downloads folder is not a thing
+   * anybody meant to hand over.
+   *
+   * So the trust comes from a human action at a boundary rather than from widening a check: the
+   * model reaching for a path on its own still gets nothing new.
+   */
+  readonly file?: boolean;
 }
 
 export type GrantDenial =
@@ -87,7 +101,12 @@ export function checkGrant(grants: readonly Grant[], candidate: string): GrantCh
     return refuse("not-absolute", `${candidate} is not an absolute path.`);
   }
   for (const grant of grants) {
-    if (contains(grant.root, resolved)) return { ok: true, path: resolved, root: grant.root };
+    // A file grant matches ITSELF and nothing else. `contains` returns true for an identical path,
+    // so this is the same comparison narrowed - never a second, subtly different one.
+    const ok = grant.file
+      ? comparable(resolve(grant.root)) === comparable(resolved)
+      : contains(grant.root, resolved);
+    if (ok) return { ok: true, path: resolved, root: grant.root };
   }
   const shared = grants.map((g) => g.label ?? g.root).join(", ");
   return refuse(
@@ -146,8 +165,14 @@ export async function checkGrantReal(
 
   for (const grant of grants) {
     const realRoot = await realpath(grant.root).catch(() => grant.root);
+    // The file narrowing has to be repeated HERE, not only in checkGrant. Leaving it out would let a
+    // one-file grant behave as a folder grant the moment the link-aware path ran, which is the
+    // fail-OPEN version of the same code and the direction that actually costs something.
+    const ok = grant.file
+      ? comparable(resolve(realRoot)) === comparable(real)
+      : contains(realRoot, real);
     // The REAL path is what comes back, so a caller can only ever open what was checked.
-    if (contains(realRoot, real)) return { ok: true, path: real, root: realRoot };
+    if (ok) return { ok: true, path: real, root: realRoot };
   }
   const shared = grants.map((g) => g.label ?? g.root).join(", ");
   return refuse(
