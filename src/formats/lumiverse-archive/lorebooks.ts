@@ -182,8 +182,8 @@ export async function importLorebooks(
     const entity: CanonicalLorebook = stWorldbook.toCanonical({ text: JSON.stringify(wire) });
     if (valid.length === 0) {
       // Strip the sniff placeholder from BOTH surfaces that would carry it forward: body.entries,
-      // and the codec twin's raw wire — fromCanonical re-exports from that raw, so leaving the
-      // placeholder there would fabricate an entry in a round-trip of a genuinely empty book.
+      // and the codec twin's raw wire, since fromCanonical re-exports from that raw, so leaving
+      // the placeholder there would fabricate an entry in a round-trip of a genuinely empty book.
       entity.body.entries = [];
       const twin = entity.original?.["sillytavern-lorebook"];
       if (twin) twin.raw = { ...wire, entries: {} };

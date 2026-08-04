@@ -61,6 +61,7 @@ export {
   type NdjsonReadOptions,
   type NdjsonRow,
 } from "./ndjson";
+export { importPersonas, personaRowToWire, type ImportPersonasOptions } from "./personas";
 export {
   ENCRYPTED_SECRETS_WARNING,
   VECTORS_WARNING,
