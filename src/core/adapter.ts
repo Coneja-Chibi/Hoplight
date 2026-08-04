@@ -112,6 +112,17 @@ export interface PresetAdapter extends AdapterBase {
    * preset, the same seam as CharacterAdapter.extractLorebook. Tolerant: null when none ride.
    */
   extractRegex?(entity: CanonicalPreset): CanonicalRegexSet | null;
+  /**
+   * Optional: the INVERSE of extractRegex - write regex sets back down into the preset's own bundle
+   * field on emit, so a standalone set can be attached to a preset the same way a lorebook is
+   * re-embedded into a character by EmitContext.
+   *
+   * ADDITIVE BY CONTRACT. An empty array (or no call at all) must leave the emitted bytes exactly as
+   * `fromCanonical` produced them, because preset bundling was measured as additive and a preset
+   * carrying no regexes must not start differing from its bare form. `emit-bundle.test.ts` holds that
+   * property; do not relax it into "usually the same".
+   */
+  embedRegex?(entity: CanonicalPreset, sets: readonly CanonicalRegexSet[]): AdapterOutput;
 }
 
 /**

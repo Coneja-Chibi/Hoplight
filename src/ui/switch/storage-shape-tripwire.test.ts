@@ -25,17 +25,26 @@ async function shapeFiles(): Promise<string[]> {
 
 // LF normalization keeps the pin stable across Windows and CI.
 //
-// Updated deliberately for a COMPATIBLE change: the canonical envelope gained an optional `notes`
-// array, declared once on the shared envelope so every entity kind carries it. Purely additive - a
-// stored file without notes parses exactly as it did before, and a file with them was not readable
-// by any earlier build to begin with - so this needs no schema-version bump and no SCHEMA_BUMPS
-// entry. Removing the last note deletes the key rather than leaving `[]`, so an annotated piece and
-// a never-annotated one still serialize identically.
+// Updated deliberately for a COMPATIBLE change: PresetBody gained an optional `behaviorRefs`
+// string array - linked regex/script set ids, the exact counterpart of CharacterBody.behaviorRefs.
 //
-// The prior entry, also compatible: PresetSamplers.promptPostProcessing gained the values
-// SillyTavern actually writes, and the per-group schemas were exported for the ST codec to read
-// expected types off them.
-const PINNED_SHAPE_HASH = "c5805529913cd14d74fc39f108777d688bb3cca4d24407e1c26ff8867b86ffdd";
+// Why it needs no version bump: it is optional and additive, so a preset saved before this field
+// existed parses byte-for-byte as it did, and a preset carrying it was not readable by an earlier
+// build anyway. Nothing writes the key unless a set is actually linked, so an unlinked preset and a
+// never-linked one still serialize identically - the same property the `notes` entry below relied on.
+//
+// What it fixes: the link existed on the wire and nowhere in canonical. Hoplight could LIFT a
+// preset's bundled `extensions.regex_scripts` into a standalone set and had no way to say that a set
+// belongs to a preset, so a person asking to attach one was told the Studio could not - true, and
+// easily read as a limit of the format rather than a hole in our model.
+//
+// The prior entry, also compatible: the canonical envelope gained an optional `notes` array,
+// declared once on the shared envelope so every entity kind carries it. Removing the last note
+// deletes the key rather than leaving `[]`.
+//
+// And before that: PresetSamplers.promptPostProcessing gained the values SillyTavern actually
+// writes, and the per-group schemas were exported for the ST codec to read expected types off them.
+const PINNED_SHAPE_HASH = "2fb5a39fd6a30891e5be97bff9eecbce42f66bba2f369f63c2da091f50ae790f";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");

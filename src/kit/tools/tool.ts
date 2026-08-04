@@ -32,6 +32,38 @@ export interface ToolContext {
   /** Folders the user has pointed Kit at this session. READ ONLY, always: a tool that writes must
    *  never accept a path from here, so anything Kit changes was copied into the studio first. */
   grants?: readonly Grant[];
+  /**
+   * What is on the rail RIGHT NOW, or null when nothing is.
+   *
+   * Kit could put a preset on the rail and had no way to look at it, so asked "which preset do I
+   * have up?" it answered from memory of what it had opened - and was wrong the moment the person
+   * opened a different one themselves, which is exactly what happened: the rail read Paramnesia and
+   * Kit said Empty Base, confidently.
+   *
+   * A function rather than a value because the rail changes DURING a turn: a snapshot taken when the
+   * context was built would be the same kind of stale answer, just harder to notice.
+   */
+  rail?: () => RailSnapshot | null;
+}
+
+/** The rail as a tool may read it: what is open, how big it is, and what is unsaved. */
+export interface RailSnapshot {
+  /** The studio id of the preset on the rail. */
+  readonly presetId: string;
+  /** Its display name. */
+  readonly title: string;
+  /** How many blocks it has, and how many are enabled. */
+  readonly blocks: number;
+  readonly enabled: number;
+  /**
+   * Edits made on the rail and NOT yet saved.
+   *
+   * Load-bearing rather than trivia: the studio copy and what the person is looking at differ by
+   * exactly this much, so a tool reading the preset from storage is reading something they can see
+   * is out of date. Saying the number is what stops Kit describing a file as though it were the
+   * screen.
+   */
+  readonly pending: number;
 }
 
 /** Structured preview handed from a draft tool to the application-owned review surface. */
@@ -62,6 +94,24 @@ export interface ToolResult {
    * and a model that could open a view by SAYING it had would be able to lie by accident.
    */
   show?: { kind: string; id: string };
+  /**
+   * Options for the person to pick from, as DATA.
+   *
+   * The same argument `show` makes, applied to a question. Kit could already write "which one:
+   * empty-base, paramnesia-vi-rc, paramnesia-vi-rc-converted" and leave somebody to read a
+   * comma-separated wall and retype an exact id from it. Parsing that sentence back into buttons was
+   * the obvious fix and the wrong one: a detector that fires on most prose turns SOME text into
+   * controls and leaves the rest as words, so nobody can tell by looking which is which.
+   *
+   * So the model proposes data and the shell decides presentation - the same rule as everywhere else.
+   * Picking one does not answer for the person: it fills the composer, so they can still edit it or
+   * ignore it. A list that submitted on click would be a model choosing when to send.
+   */
+  choices?: {
+    /** What is being asked, in the model's own words. */
+    readonly question: string;
+    readonly options: readonly { readonly value: string; readonly note?: string }[];
+  };
   /** Machine-readable user decision from the Gate; never inferred from a blocked message. */
   gateDecision?: "denied" | "aborted" | "held";
 }

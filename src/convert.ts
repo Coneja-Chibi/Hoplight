@@ -85,6 +85,44 @@ export function inspectPresetBundle(
 }
 
 /**
+ * Write a preset through a target adapter, attaching standalone regex sets where the platform can
+ * carry them. The mirror of inspectPresetBundle, and the half that was missing: Hoplight could read
+ * a preset's embedded rules and had no way to put a set back, so a person was told the Studio "does
+ * not expose a way to attach a standalone regex set" - true of the operations, and easily misread as
+ * a limit of the format.
+ *
+ * NOT EVERY PLATFORM CAN DO THIS, and refusing is the honest answer rather than writing a field the
+ * host will ignore. SillyTavern and RoleCall carry rows inside the preset file. Lumiverse attaches by
+ * `preset_id` ON THE SCRIPT, so its link belongs to the regex entity, not to a preset emit. Marinara
+ * has no preset attachment at all. An adapter without `embedRegex` reports that plainly instead of
+ * silently dropping the sets, because a save that quietly loses the thing you asked for is worse than
+ * one that refuses.
+ */
+export interface EmitPresetBundleResult {
+  readonly output: AdapterOutput;
+  /** Sets that could not ride along, with the reason. Empty when everything attached. */
+  readonly unattached: readonly { set: CanonicalRegexSet; reason: string }[];
+}
+
+export function emitPresetBundle(
+  target: PresetAdapter,
+  entity: CanonicalPreset,
+  regexSets: readonly CanonicalRegexSet[] = [],
+): EmitPresetBundleResult {
+  if (regexSets.length === 0) return { output: target.fromCanonical(entity), unattached: [] };
+  if (!target.embedRegex) {
+    return {
+      output: target.fromCanonical(entity),
+      unattached: regexSets.map((set) => ({
+        set,
+        reason: `${target.id} does not carry regex rules inside a preset file; export the set alongside it`,
+      })),
+    };
+  }
+  return { output: target.embedRegex(entity, regexSets), unattached: [] };
+}
+
+/**
  * Write a character through a target adapter, re-embedding resolved lorebooks via EmitContext.
  * Omitted lorebooks mean the relationship was not resolved and preserve the adapter's twin. An
  * explicit empty array is authoritative and removes a stale embedded book.

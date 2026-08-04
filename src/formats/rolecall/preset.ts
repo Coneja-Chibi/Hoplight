@@ -32,7 +32,7 @@ import {
   type DividerDialect,
   type Rec,
 } from "../_shared/st-preset-wire";
-import { regexSetFromBundledRows } from "../sillytavern/regex";
+import { bundledRowsFromRegexSet, regexSetFromBundledRows } from "../sillytavern/regex";
 
 const FORMAT_ID = "rolecall-preset";
 
@@ -175,6 +175,29 @@ const rolecallPreset: PresetAdapter = {
     const raw = entity.original?.rolecall?.raw;
     if (!isRec(raw) || !isRec(raw.extensions)) return null;
     return regexSetFromBundledRows(raw.extensions.regex_scripts, `${entity.body.name} regex`);
+  },
+
+  /**
+   * Attach standalone regex sets to the emitted preset under `extensions.regex_scripts` - the same
+   * field extractRegex reads, so what Kit can import it can now also export.
+   *
+   * Sets are concatenated in the order given: attaching two sets yields one row list, because the
+   * wire has one array and RoleCall applies it in order. Nothing is de-duplicated, since two rules
+   * with the same name can legitimately differ and silently dropping one would be a lossy write.
+   */
+  embedRegex(entity: CanonicalPreset, sets: readonly CanonicalRegexSet[]): AdapterOutput {
+    const base = rolecallPreset.fromCanonical(entity);
+    // Additive contract: no sets means the bytes fromCanonical produced, untouched.
+    if (sets.length === 0) return base;
+    const rows = sets.flatMap((set) => bundledRowsFromRegexSet(set));
+    // A preset emitted as BYTES has no JSON to inject into. Returning it untouched is the honest
+    // answer; emitPresetBundle is what reports that the sets did not ride.
+    if (rows.length === 0 || typeof base.text !== "string") return base;
+    const out = JSON.parse(base.text) as Rec;
+    const extensions = isRec(out.extensions) ? { ...out.extensions } : {};
+    extensions.regex_scripts = rows;
+    out.extensions = extensions;
+    return { text: JSON.stringify(out, null, 2), suggestedExtension: base.suggestedExtension };
   },
 };
 
