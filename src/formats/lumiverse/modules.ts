@@ -172,10 +172,16 @@ function hydrateExtensionsInPlace(
   extraAssets: MediaAsset[],
 ): void {
   if (isRec(ext.expressions) && isRec(ext.expressions.mappings)) {
-    const m = hydrateStringMap(ext.expressions.mappings as Record<string, string>, files);
+    const before = ext.expressions.mappings as Record<string, string>;
+    const m = hydrateStringMap(before, files);
     ext.expressions = { ...ext.expressions, mappings: m };
     for (const [label, ref] of Object.entries(m)) {
-      if (isDataUri(ref)) extraAssets.push({ role: "emotion", label, ref });
+      // Only a mapping that was NOT already a data URI going in is a resolution this call made.
+      // Same guard alternate_avatars already has below; without it, a mapping the modules branch
+      // just resolved gets counted here a second time on this unconditional re-scan.
+      if (isDataUri(ref) && !isDataUri(before[label] ?? "")) {
+        extraAssets.push({ role: "emotion", label, ref });
+      }
     }
   }
   if (Array.isArray(ext.alternate_avatars)) {
