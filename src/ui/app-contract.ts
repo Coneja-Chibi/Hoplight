@@ -73,6 +73,9 @@ export interface AppContext {
       overwrite?: boolean;
     }): Promise<SaveBundleResult>;
     inspectFile(file: File, signal?: AbortSignal): Promise<InspectResult>;
+    /** POST /api/inspect-archive: a `.lvbak` streamed straight from disk, never buffered whole in
+     * browser memory first (unlike inspectFile's arrayBuffer() - a real backup can be gigabytes). */
+    inspectArchive(file: File, signal?: AbortSignal): Promise<InspectArchiveResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */

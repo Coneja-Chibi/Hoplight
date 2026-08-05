@@ -2,7 +2,7 @@
  * The local API client - the one door to the engine.
  * Every fetch funnels through apiFetch (session token + non-2xx rejection).
  */
-import type { AppContext, InspectResult, SaveBundleResult } from "./app-contract";
+import type { AppContext, InspectArchiveResult, InspectResult, SaveBundleResult } from "./app-contract";
 import { apiFetchJson, INSPECT_BODY_MAX_BYTES } from "./_shared/api-fetch";
 
 export { ApiHttpError as ApiError } from "./_shared/api-fetch";
@@ -63,6 +63,21 @@ export const api: AppContext["api"] = {
       signal: signal ? AbortSignal.any([signal, deadline]) : deadline,
     });
   },
+  inspectArchive: async (file, signal): Promise<InspectArchiveResult> =>
+    // `body: file` - the browser streams a File straight off disk; unlike inspectFile's
+    // `await file.arrayBuffer()`, this never holds a multi-gigabyte backup in JS memory at once.
+    // No fixed deadline either: inspectFile's 90s timeout assumes a small file on a live
+    // connection, which a real Lumiverse backup's upload time cannot promise - the sheet's own
+    // Cancel (the caller's `signal`) is the only abort this needs.
+    apiFetchJson("/api/inspect-archive", {
+      method: "POST",
+      headers: {
+        "content-type": "application/octet-stream",
+        "x-filename": encodeURIComponent(file.name),
+      },
+      body: file,
+      signal,
+    }),
   exportEntity: async (entity, targetId) =>
     apiFetchJson("/api/export", {
       method: "POST",

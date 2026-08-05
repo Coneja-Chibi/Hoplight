@@ -61,6 +61,13 @@ export const LIBRARY_STYLE = `
 .impbar i{position:absolute;left:0;top:0;bottom:0;background:var(--accent);transition:width .15s ease}
 .impprog{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.04em;color:var(--text-soft);margin:0 0 .9rem}
 .improw.dupe{border-style:dotted;cursor:default;opacity:.85}
+/* archive report card: informational, never checkable, so it reads on --panel (damage-note's own
+   convention for "read this", not --face's "check this") rather than borrowing improw's own look. */
+.impreport{background:var(--panel);border:2px solid var(--edge);padding:.65rem .8rem}
+.impreport .impname{margin:0 0 .3rem}
+.impreport ul{margin:.35rem 0 0;padding-left:1.15rem}
+.impreport li{font-family:var(--font-body);font-size:.82rem;color:var(--text-soft);margin:.15rem 0;
+  overflow-wrap:anywhere}
 .impacts{display:flex;gap:.5rem;flex-wrap:wrap}
 .impbtn{font-family:var(--font-big);font-weight:900;font-size:.7rem;letter-spacing:.07em;
   text-transform:uppercase;background:var(--panel);color:var(--text);cursor:pointer;padding:.45rem .8rem}

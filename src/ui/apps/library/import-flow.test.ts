@@ -14,11 +14,16 @@ import {
   annotateRead,
   defaultCheckedIndexes,
   groupBadRows,
+  groupReportFailures,
   markDupes,
   shelfKey,
+  summarizeImportedTotals,
+  summarizeSkippedTables,
   triageFiles,
+  withArchiveLinkCaveat,
   type ReadFile,
 } from "./import-triage";
+import type { LvbakImportReport } from "../../../formats/lumiverse-archive/report";
 
 const FIXTURE = join(
   import.meta.dir,
@@ -150,5 +155,107 @@ describe("groupBadRows", () => {
     expect(groups.map((g) => g.error)).toEqual(["a chat log", "not a file type"]);
     expect(groups[0]!.filenames).toEqual(["1.jsonl", "2.jsonl"]);
     expect(groups[0]!.indexes).toEqual([1, 3]);
+  });
+});
+
+const emptyReport = (): LvbakImportReport => ({
+  imported: { character: [], lorebook: [], preset: [], persona: [], regex: [] },
+  failed: [],
+  skippedTables: [],
+  missingBinaries: [],
+  unresolvedLinks: [],
+  warnings: [],
+});
+
+describe("summarizeImportedTotals", () => {
+  test("only the kinds an archive actually carried, pluralized correctly", () => {
+    const imported = emptyReport().imported;
+    imported.character = [{ id: "a", name: "A" }, { id: "b", name: "B" }, { id: "c", name: "C" }];
+    imported.lorebook = [{ id: "d", name: "D" }];
+    expect(summarizeImportedTotals(imported)).toBe("3 character cards, 1 lorebook imported.");
+  });
+
+  test("nothing imported: an empty string, so the caller can supply its own fallback line", () => {
+    expect(summarizeImportedTotals(emptyReport().imported)).toBe("");
+  });
+});
+
+describe("summarizeSkippedTables", () => {
+  test("the exact honesty line: named counts, comma-joined, one sentence", () => {
+    const skipped = [
+      { table: "chats", rows: 3 },
+      { table: "messages", rows: 12 },
+    ];
+    expect(summarizeSkippedTables(skipped)).toBe("3 chats, 12 messages did not come along.");
+  });
+
+  test("a null count (no manifest-stats) reads as 'some', never a guessed zero", () => {
+    expect(summarizeSkippedTables([{ table: "packs", rows: null }])).toBe("some packs did not come along.");
+  });
+
+  test("a known-but-unusual table still pluralizes correctly (all nine KNOWN_SKIPPED_TABLES words)", () => {
+    expect(summarizeSkippedTables([{ table: "lumia_items", rows: 2 }])).toBe("2 Lumia items did not come along.");
+  });
+
+  test("a table outside TABLE_WORD (a future export) is humanized without a forced, possibly-wrong 's'", () => {
+    expect(summarizeSkippedTables([{ table: "future_widgets", rows: 5 }])).toBe(
+      "5 future widgets did not come along.",
+    );
+  });
+
+  test("nothing skipped: an empty string", () => {
+    expect(summarizeSkippedTables([])).toBe("");
+  });
+});
+
+describe("groupReportFailures", () => {
+  test("reuses groupBadRows' own bucketing: shared reasons collapse, insertion order holds", () => {
+    const groups = groupReportFailures([
+      { table: "characters", rowId: "c1", name: "Aria", reason: "bad extensions" },
+      { table: "personas", rowId: "p1", reason: "bad metadata" },
+      { table: "characters", rowId: "c2", name: "Beta", reason: "bad extensions" },
+    ]);
+    expect(groups.map((g) => g.error)).toEqual(["bad extensions", "bad metadata"]);
+    expect(groups[0]!.filenames).toEqual(["Aria", "Beta"]);
+  });
+
+  test("a row with no name falls back to its rowId, and no id falls back to its table", () => {
+    const groups = groupReportFailures([
+      { table: "regex_scripts", rowId: "", reason: "x" },
+      { table: "presets", rowId: "p9", reason: "y" },
+    ]);
+    const byReason = new Map(groups.map((g) => [g.error, g.filenames]));
+    expect(byReason.get("x")).toEqual(["regex_scripts"]);
+    expect(byReason.get("y")).toEqual(["p9"]);
+  });
+});
+
+describe("withArchiveLinkCaveat", () => {
+  const archiveRow = (kind: string, knowledgeRefs?: string[]): InspectResult =>
+    ({
+      ok: true,
+      kind,
+      entity: { kind, body: { name: "X", knowledgeRefs } },
+      receipt: { name: "X", kindLine: "", extras: [] },
+    }) as unknown as InspectResult;
+
+  test("a character or persona with knowledgeRefs gets the caveat appended, never replacing existing extras", () => {
+    const character = archiveRow("character", ["shared-book"]);
+    (character as { receipt: { extras: string[] } }).receipt.extras = ["It brought its own lorebook."];
+    const out = withArchiveLinkCaveat(character);
+    expect(out.receipt!.extras).toEqual([
+      "It brought its own lorebook.",
+      "Links to a lorebook from the same backup - check both and import together, or the link may not carry over.",
+    ]);
+
+    const persona = withArchiveLinkCaveat(archiveRow("persona", ["shared-book"]));
+    expect(persona.receipt!.extras.some((e) => e.includes("Links to a lorebook"))).toBe(true);
+  });
+
+  test("no knowledgeRefs, a non-character/persona kind, or a failed row: untouched", () => {
+    expect(withArchiveLinkCaveat(archiveRow("character", []))).toEqual(archiveRow("character", []));
+    expect(withArchiveLinkCaveat(archiveRow("lorebook", ["x"])).receipt!.extras).toEqual([]);
+    const failed: InspectResult = { ok: false, error: "nope" };
+    expect(withArchiveLinkCaveat(failed)).toBe(failed);
   });
 });

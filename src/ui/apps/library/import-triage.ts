@@ -4,6 +4,8 @@
  * network; the sheet and runners live in import-flow.tsx.
  */
 import type { InspectResult } from "../../app-contract";
+import type { ImportedEntity, LvbakImportReport, LvbakRowFailure, SkippedTable } from "../../../formats/lumiverse-archive/report";
+import type { LvbakKind } from "../../../formats/lumiverse-archive/tables";
 
 export interface ReadFile {
   filename: string;
@@ -131,6 +133,77 @@ export function groupBadRows(reads: ReadFile[]): BadGroup[] {
   return [...groups.values()];
 }
 
+/** One `.lvbak`'s own report, paired with the archive's filename so a multi-archive drop can tell
+ *  its cards apart. Rendered as a card above that archive's own rows in the sheet. */
+export interface ArchiveReportEntry {
+  filename: string;
+  report: LvbakImportReport;
+}
+
+const KIND_WORD: Record<LvbakKind, string> = {
+  character: "character card",
+  lorebook: "lorebook",
+  persona: "persona",
+  preset: "preset",
+  regex: "regex set",
+};
+
+const plural = (n: number, word: string): string => `${n} ${word}${n === 1 ? "" : "s"}`;
+
+/** "3 character cards, 2 lorebooks imported." - only the kinds this archive actually carried. */
+export function summarizeImportedTotals(imported: Record<LvbakKind, ImportedEntity[]>): string {
+  const parts = (Object.keys(imported) as LvbakKind[])
+    .filter((kind) => imported[kind].length > 0)
+    .map((kind) => plural(imported[kind].length, KIND_WORD[kind]));
+  return parts.length > 0 ? `${parts.join(", ")} imported.` : "";
+}
+
+/** Every table KNOWN_SKIPPED_TABLES names (tables.ts), singular so `plural()` can pluralize it
+ *  correctly - the fallback below humanizes an already-plural raw name (a future, unknown table)
+ *  instead, and is honest about not being able to singularize a name it has never seen. */
+const TABLE_WORD: Record<string, string> = {
+  chats: "chat",
+  messages: "message",
+  settings: "setting",
+  connections: "connection",
+  extensions: "extension",
+  packs: "pack",
+  lumia_items: "Lumia item",
+  loom_items: "loom item",
+  loom_tools: "loom tool",
+};
+
+/** "3 chats, 12 messages did not come along." - the honesty line: nobody should finish an import
+ *  believing content Hoplight never reads actually rode along. `rows: null` (no manifest-stats
+ *  count) reads as "some", never a guessed zero. A table outside TABLE_WORD (a future export adds
+ *  one KNOWN_SKIPPED_TABLES has not caught up to yet) shows its humanized raw name WITHOUT a forced
+ *  "s" - a SQL table name is conventionally already plural, and guessing wrong reads worse than not
+ *  guessing (a known word is deliberately singular so pluralizing it IS safe). */
+export function summarizeSkippedTables(skipped: SkippedTable[]): string {
+  if (skipped.length === 0) return "";
+  const parts = skipped.map(({ table, rows }) => {
+    const known = TABLE_WORD[table];
+    const count = rows === null ? "some" : rows;
+    if (known) return rows === null ? `some ${known}s` : plural(rows, known);
+    return `${count} ${table.replace(/_/g, " ")}`;
+  });
+  return `${parts.join(", ")} did not come along.`;
+}
+
+/**
+ * A report's own per-row failures, grouped by reason exactly like groupBadRows - reused, not
+ * reimplemented, by adapting each failure into the same shape groupBadRows already knows how to
+ * bucket. `indexes` comes back meaningless here (there is no reads[] these failures ever joined)
+ * and callers must ignore it; only `error`/`filenames` describe a report failure honestly.
+ */
+export function groupReportFailures(failures: LvbakRowFailure[]): BadGroup[] {
+  const asReads: ReadFile[] = failures.map((f) => ({
+    filename: f.name || f.rowId || f.table,
+    result: { ok: false, error: f.reason },
+  }));
+  return groupBadRows(asReads);
+}
+
 const isRec = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
@@ -159,4 +232,30 @@ export function annotateRead(filename: string, result: InspectResult): ReadFile 
     return { filename, result };
   }
   return { filename, result, entryCount: countOf(entity.body) };
+}
+
+/**
+ * An archive row's own caveat, appended to its receipt extras (never mutating the server's result).
+ * A character/persona row's `knowledgeRefs` names a lorebook the ARCHIVE IMPORTER already minted an
+ * id for - but that id is independent of whatever id the STUDIO assigns the lorebook row when it
+ * saves separately (the commit path saves each checked row as its own bundle; only a character's
+ * TRUE bundled related.lorebooks gets the studio's own keep-both id-rewrite, and an archive row
+ * never carries one - M11's own flat-rows design). Saving both together does not yet guarantee the
+ * link survives; this only makes that honest before the user commits (the actual fix is M13's).
+ */
+export function withArchiveLinkCaveat(result: InspectResult): InspectResult {
+  if (!result.ok || !result.receipt) return result;
+  if (result.kind !== "character" && result.kind !== "persona") return result;
+  const body = (result.entity as { body?: { knowledgeRefs?: unknown } } | undefined)?.body;
+  if (!Array.isArray(body?.knowledgeRefs) || body.knowledgeRefs.length === 0) return result;
+  return {
+    ...result,
+    receipt: {
+      ...result.receipt,
+      extras: [
+        ...result.receipt.extras,
+        "Links to a lorebook from the same backup - check both and import together, or the link may not carry over.",
+      ],
+    },
+  };
 }

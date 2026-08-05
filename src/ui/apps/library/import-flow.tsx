@@ -13,18 +13,23 @@ import {
   contentKey,
   defaultCheckedIndexes,
   groupBadRows,
+  groupReportFailures,
   markDupes,
   shelfKey,
+  summarizeImportedTotals,
+  summarizeSkippedTables,
   triageFiles,
+  withArchiveLinkCaveat,
+  type ArchiveReportEntry,
   type BadGroup,
   type ReadFile,
 } from "./import-triage";
 
-export type { ReadFile } from "./import-triage";
+export type { ArchiveReportEntry, ReadFile } from "./import-triage";
 
 export type ImportState =
-  | { phase: "reading"; reads: ReadFile[]; done: number; total: number }
-  | { phase: "done"; reads: ReadFile[] }
+  | { phase: "reading"; reads: ReadFile[]; done: number; total: number; archiveReports: ArchiveReportEntry[] }
+  | { phase: "done"; reads: ReadFile[]; archiveReports: ArchiveReportEntry[] }
   | { phase: "saving"; done: number; total: number };
 
 function ReceiptCard({
@@ -103,6 +108,51 @@ function BadGroupCard({ group }: { group: BadGroup }): JSX.Element {
           {group.filenames.length > 3 ? ` · +${group.filenames.length - 3} more` : ""}
         </p>
       </div>
+    </div>
+  );
+}
+
+/** One archive's own report: totals, honesty lines for what never came along, and its per-row
+ *  failures collapsed the same way BadGroupCard collapses a mass file refusal. Never a bare shell -
+ *  a zero-row archive still gets its totals line ("Nothing importable was found in this backup."). */
+function ArchiveReportCard({ entry }: { entry: ArchiveReportEntry }): JSX.Element {
+  const { filename, report } = entry;
+  const totals = summarizeImportedTotals(report.imported) || "Nothing importable was found in this backup.";
+  const skipped = summarizeSkippedTables(report.skippedTables);
+  const failGroups = groupReportFailures(report.failed);
+  return (
+    <div className="impreport">
+      <b className="impname">Backup report: {filename}</b>
+      <p className="impkind">{totals}</p>
+      {skipped && <p className="impmeta">{skipped}</p>}
+      {report.missingBinaries.length > 0 && (
+        <p className="impmeta">
+          {report.missingBinaries.length} referenced file{report.missingBinaries.length === 1 ? "" : "s"} (avatars,
+          images) could not be found.
+        </p>
+      )}
+      {report.unresolvedLinks.length > 0 && (
+        <p className="impmeta">
+          {report.unresolvedLinks.length} cross-reference{report.unresolvedLinks.length === 1 ? "" : "s"} pointed at
+          something that was never imported.
+        </p>
+      )}
+      {report.warnings.map((w, i) => (
+        <p key={i} className="impmeta">
+          {w}
+        </p>
+      ))}
+      {failGroups.length > 0 && (
+        <ul>
+          {failGroups.map((g, i) => (
+            <li key={i}>
+              {g.filenames.length >= 4
+                ? `${g.filenames.length} rows: ${g.error} (${g.filenames.slice(0, 3).join(" · ")} · +${g.filenames.length - 3} more)`
+                : `${g.filenames.join(", ")}: ${g.error}`}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -198,6 +248,9 @@ export function ImportOverlay({
         {summary}. Uncheck anything you do not want. Import only writes the checked ones.
       </p>
       <div className="improws">
+        {state.archiveReports.map((entry, i) => (
+          <ArchiveReportCard key={`report${i}`} entry={entry} />
+        ))}
         {okRows.map(({ r, i }) => (
           <ReceiptCard
             key={i}
@@ -252,6 +305,10 @@ export function ImportOverlay({
 let activeAbort: AbortController | null = null;
 
 const INSPECT_POOL = 3;
+// Archives are rare per drop (usually zero or one) and each upload already competes for the same
+// bandwidth/disk I/O a second concurrent one would, so this stays sequential rather than pooled -
+// a future bump to 2+ is a one-constant change, not a structural one.
+const ARCHIVE_POOL = 1;
 
 /**
  * The import runners, one trio per render: triage + inspect every dropped file into receipt rows
@@ -282,12 +339,15 @@ export function makeImportRunners(args: {
     const abort = new AbortController();
     activeAbort = abort;
     void (async () => {
-      const prior = append && importState?.phase === "done" ? importState.reads : [];
-      const { candidates, skipped } = triageFiles(files);
+      const priorReads = append && importState?.phase === "done" ? importState.reads : [];
+      const priorReports = append && importState?.phase === "done" ? importState.archiveReports : [];
+      const { candidates, archives, skipped } = triageFiles(files);
       // ONE reads array for the whole pass, shared by reference into every progress tick: copying
       // it per completed file made a 2,000-file drop quadratic for nothing the overlay renders.
-      const read: ReadFile[] = [...prior, ...skipped];
-      setImportState({ phase: "reading", reads: read, done: 0, total: candidates.length });
+      const read: ReadFile[] = [...priorReads, ...skipped];
+      const archiveReports: ArchiveReportEntry[] = [...priorReports];
+      const total = candidates.length + archives.length;
+      setImportState({ phase: "reading", reads: read, done: 0, total, archiveReports });
 
       // Shelf names for duplicate marking; an unreachable list never blocks an import.
       let shelf = new Map<string, string>();
@@ -298,16 +358,18 @@ export function makeImportRunners(args: {
         /* shelf unknown: imports proceed, nothing is marked */
       }
       const seen = new Map<string, string>();
-      for (const r of prior) {
+      for (const r of priorReads) {
         const key = r.result.ok ? contentKey(r.result) : null;
         if (key && !seen.has(key)) seen.set(key, r.filename);
       }
 
       let done = 0;
-      let next = 0;
-      const worker = async (): Promise<void> => {
+      const tick = (): void => setImportState({ phase: "reading", reads: read, done, total, archiveReports });
+
+      let nextFile = 0;
+      const fileWorker = async (): Promise<void> => {
         while (!abort.signal.aborted) {
-          const mine = next++;
+          const mine = nextFile++;
           const file = candidates[mine];
           if (!file) return;
           // Per-file guard: one oversized or corrupt file becomes a failed receipt row.
@@ -321,13 +383,47 @@ export function makeImportRunners(args: {
             read.push(annotateRead(file.name, { ok: false, error }));
           }
           done++;
-          setImportState({ phase: "reading", reads: read, done, total: candidates.length });
+          tick();
         }
       };
-      await Promise.all(Array.from({ length: INSPECT_POOL }, worker));
+
+      let nextArchive = 0;
+      const archiveWorker = async (): Promise<void> => {
+        while (!abort.signal.aborted) {
+          const mine = nextArchive++;
+          const file = archives[mine];
+          if (!file) return;
+          try {
+            const result = await ctx.api.inspectArchive(file, abort.signal);
+            if (result.ok) {
+              // Never a silent nothing: the report renders even when rows is empty (M12 edge).
+              // Guarded, not asserted - this crossed the network, and a missing report should
+              // still let the rows through rather than throw the whole worker.
+              if (result.report) archiveReports.push({ filename: file.name, report: result.report });
+              for (const row of result.rows ?? []) {
+                const label = row.receipt?.name ?? row.kind ?? "entity";
+                read.push(markDupes(annotateRead(`${file.name}: ${label}`, withArchiveLinkCaveat(row)), shelf, seen));
+              }
+            } else {
+              read.push(annotateRead(file.name, { ok: false, error: result.error ?? "We could not read this one." }));
+            }
+          } catch (e) {
+            if (abort.signal.aborted) return;
+            const error = e instanceof Error ? e.message : String(e);
+            read.push(annotateRead(file.name, { ok: false, error }));
+          }
+          done++;
+          tick();
+        }
+      };
+
+      await Promise.all([
+        ...Array.from({ length: INSPECT_POOL }, fileWorker),
+        ...Array.from({ length: ARCHIVE_POOL }, archiveWorker),
+      ]);
       if (abort.signal.aborted) return;
       activeAbort = null;
-      setImportState({ phase: "done", reads: read });
+      setImportState({ phase: "done", reads: read, archiveReports });
     })();
   };
 
@@ -368,6 +464,9 @@ export function makeImportRunners(args: {
               result: { ok: false as const, error: at > 0 ? msg.slice(at + 2) : "could not save" },
             };
           }),
+          // the archives' own reports describe THEIR import, not this save pass - still true
+          // regardless of which rows failed to shelve, so they stay on screen.
+          archiveReports: importState.archiveReports,
         });
         ctx.setStatus(`shelved ${shelved} · ${errors.length} of ${picked.length} failed to save`);
       } else {
