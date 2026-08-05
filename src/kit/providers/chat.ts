@@ -4,7 +4,7 @@
  * WITHOUT an execute function, so the model's tool calls come back to us and our loop-core drives the
  * ReAct cycle, the SDK never takes the wheel.
  */
-import { jsonSchema, streamText, tool, type ModelMessage as AiMessage, type TextPart, type ToolCallPart, type ToolSet } from "ai";
+import { jsonSchema, streamText, tool, type ModelMessage as AiMessage, type ImagePart, type TextPart, type ToolCallPart, type ToolSet } from "ai";
 import type { ChatFn, ModelMessage, ModelReply, ModelToolCall, ToolSpec } from "./provider";
 import type { ProviderConfig } from "./config";
 import { buildModel, spokeChat } from "./adapters";
@@ -73,6 +73,19 @@ ${ambient()}` : KIT_TOOL_PROTOCOL,
 /** Kit message -> AI SDK message, preserving assistant tool calls and tool results. */
 function toAiMessage(message: ModelMessage): AiMessage {
   if (message.role === "user") {
+    /**
+     * Images ride as PARTS beside the text, which is the shape every vision model takes.
+     *
+     * Reached only when something upstream decided this provider accepts them: attaching an image to
+     * a text-only model is not a graceful degradation, it is a request that errors. The decision
+     * belongs to the spoke that knows, not to the mapper that does not.
+     */
+    if (message.images && message.images.length > 0) {
+      const parts: Array<TextPart | ImagePart> = [];
+      if (message.content) parts.push({ type: "text", text: message.content });
+      for (const image of message.images) parts.push({ type: "image", image });
+      return { role: "user", content: parts };
+    }
     return { role: "user", content: message.content };
   }
   if (message.role === "tool") {

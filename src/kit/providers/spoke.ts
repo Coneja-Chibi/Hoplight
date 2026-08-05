@@ -33,6 +33,19 @@ export interface ProviderSpoke {
   defaultModel?: string;
   /** May run without a key (local / openai-compatible endpoints). */
   keyless?: boolean;
+  /**
+   * Does this provider accept images in a user message?
+   *
+   * DECLARED, not assumed. Kit used to caption every pasted picture "shown to you only - Kit's
+   * providers take text", which was a blanket claim about other people's software and wrong for most
+   * of them: the subscription providers and every current frontier model read images happily. A
+   * capability belongs to the spoke that knows it.
+   *
+   * Absent means NO, deliberately. Sending an image to a text-only model is not a soft failure that
+   * degrades to text, it is a request that errors, so the safe default is the one that never breaks a
+   * turn - and a spoke that gains vision says so in one line.
+   */
+  images?: boolean;
   /** Provider-specific setup choices (plan tiers, endpoint variants). Rendered by the form. */
   options?: ReadonlyArray<SpokeOption>;
   /** Build the AI SDK model, lazy-importing the vendor adapter and wiring the guarded fetch.

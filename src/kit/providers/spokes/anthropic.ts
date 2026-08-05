@@ -7,6 +7,8 @@ const anthropic: ProviderSpoke = {
   label: "Anthropic (Claude)",
   brand: "#DE7356",
   host: "api.anthropic.com",
+  // Claude models have read images since 3.0; the default here is a frontier one.
+  images: true,
   defaultModel: "claude-opus-4-8",
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createAnthropic } = await import("@ai-sdk/anthropic");

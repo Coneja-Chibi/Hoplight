@@ -7,6 +7,8 @@ const google: ProviderSpoke = {
   label: "Google AI (Gemini)",
   brand: "#4796E3",
   host: "generativelanguage.googleapis.com",
+  // Gemini has been multimodal from the start.
+  images: true,
   defaultModel: "gemini-2.5-pro",
   async model({ apiKey, baseURL, headers, model }, fetch) {
     const { createGoogleGenerativeAI } = await import("@ai-sdk/google");

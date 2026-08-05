@@ -35,6 +35,8 @@ const codex: ProviderSpoke = {
   host: CODEX_CHAT_HOST,
   defaultModel: DEFAULT_MODEL,
   keyless: true,
+  // The models this endpoint serves are multimodal, and the /responses shape carries image parts.
+  images: true,
   async model({ model, headers }, fetch) {
     const [auth, clientVersion] = await Promise.all([readCodexAuth(), codexClientVersion()]);
     /**

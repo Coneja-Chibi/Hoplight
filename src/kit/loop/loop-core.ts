@@ -43,6 +43,8 @@ export type LoopEvent =
 
 export interface LoopDeps {
   chat: ChatFn;
+  /** Images to attach to this turn opening message. Already cleared by the provider that takes them. */
+  images?: readonly Uint8Array[];
   dispatch: DispatchFn;
   /** Resolve immediately before each model call so discovery can change the visible tool belt. */
   toolSnapshot(): ToolSpec[];
@@ -162,7 +164,12 @@ export async function* runTurn(
   history: readonly ModelMessage[],
   deps: LoopDeps,
 ): AsyncGenerator<LoopEvent, ModelMessage[]> {
-  const messages: ModelMessage[] = [...history, { role: "user", content: input }];
+  // Images ride on the opening message when the caller attached any. The loop does not decide
+  // whether they CAN be sent; the session already asked the spoke before handing them over.
+  const opening: ModelMessage = deps.images && deps.images.length > 0
+    ? { role: "user", content: input, images: deps.images }
+    : { role: "user", content: input };
+  const messages: ModelMessage[] = [...history, opening];
   const recentObservationKeys: string[] = [];
   const now = deps.now ?? Date.now;
   const startedAt = now();

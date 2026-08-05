@@ -11,6 +11,15 @@ export interface ModelMessage {
   content: string;
   /** On an assistant turn that invoked tools: the calls it made (adapters render these as tool_use). */
   toolCalls?: ModelToolCall[];
+  /**
+   * Images riding with a user message.
+   *
+   * Raw bytes, not a data URI: the adapter that sends them knows the shape its own SDK wants, and a
+   * string here would mean encoding once for a provider that may not be asked and cannot use it.
+   * Only ever attached when the active provider DECLARED it takes images, so this being non-empty is
+   * already a statement that somebody can read them.
+   */
+  images?: readonly Uint8Array[];
   /** On a tool result: which call it answers, and the tool's name. */
   toolCallId?: string;
   toolName?: string;
