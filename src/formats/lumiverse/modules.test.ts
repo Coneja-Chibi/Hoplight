@@ -53,6 +53,43 @@ test("rehydrateCardData merges modules expressions into extensions with hydrated
   expect(extraAssets.some((a) => a.label === "neutral" && a.role === "emotion")).toBe(true);
 });
 
+test("rehydrateCardData: no modules sidecar, a card's own pre-embedded data URIs are both counted", () => {
+  // Regression guard: a prior fix (guarding modules.expressions against double-counting on the
+  // unconditional re-scan) needed the SAME guard scoped OUT of this no-modules path, since here
+  // hydrateExtensionsInPlace is the ONLY place expressions ever get resolved - nothing counted these
+  // already. A card whose own extensions already carry data URIs (no sidecar at all) must still
+  // yield both as emotion assets, not zero.
+  const dataUriA = resolveAssetRef("a.png", { "a.png": PNG });
+  const dataUriB = resolveAssetRef("b.png", { "b.png": PNG });
+  const { extraAssets } = rehydrateCardData(
+    {
+      name: "X",
+      extensions: { expressions: { enabled: true, mappings: { happy: dataUriA, sad: dataUriB } } },
+    },
+    null,
+    {},
+  );
+  const emotion = extraAssets.filter((a) => a.role === "emotion");
+  expect(emotion).toHaveLength(2);
+  expect(emotion.map((a) => a.label).sort()).toEqual(["happy", "sad"]);
+});
+
+test("rehydrateCardData: a modules sidecar's resolved expressions are counted once each, not twice", () => {
+  const pathA = "assets/other/image/expr_happy.png";
+  const pathB = "assets/other/image/expr_sad.png";
+  const { extraAssets } = rehydrateCardData(
+    { name: "X", extensions: {} },
+    {
+      version: 1,
+      expressions: { enabled: true, defaultExpression: "happy", mappings: { happy: pathA, sad: pathB } },
+    },
+    { [pathA]: PNG, [pathB]: PNG },
+  );
+  const emotion = extraAssets.filter((a) => a.role === "emotion");
+  expect(emotion).toHaveLength(2);
+  expect(emotion.map((a) => a.label).sort()).toEqual(["happy", "sad"]);
+});
+
 test("packModulesFromExtensions writes data URIs into archive paths", () => {
   const dataUri = resolveAssetRef("assets/x.png", { "assets/x.png": PNG });
   const { modules, files } = packModulesFromExtensions(
