@@ -72,6 +72,14 @@ export {
 export { importPersonas, personaRowToWire, type ImportPersonasOptions } from "./personas";
 export { importPresets, presetRowToWrapper, type ImportPresetsOptions } from "./presets";
 export {
+  groupRegexRows,
+  importRegexSets,
+  regexRowToScript,
+  type ImportRegexSetsOptions,
+  type RegexRowGroup,
+  type RegexScope,
+} from "./regex-sets";
+export {
   ENCRYPTED_SECRETS_WARNING,
   VECTORS_WARNING,
   addWarning,

@@ -12,16 +12,22 @@
  */
 import type { CanonicalEntity } from "../../core/canonical";
 
+/**
+ * `extraUnmapped` covers what `table` alone can't say: a regex set's resolved scope target, for
+ * instance, has no honest slot on the canonical body (a RegexSetBody carries no cross-reference
+ * field at all), so it lands here instead, never on the codec's own twin.
+ */
 export function addArchiveEscrow<Kind extends string, Body>(
   entity: CanonicalEntity<Kind, Body>,
   table: string,
   raw: Record<string, unknown>,
+  extraUnmapped?: Record<string, unknown>,
 ): CanonicalEntity<Kind, Body> {
   return {
     ...entity,
     original: {
       ...entity.original,
-      "lumiverse-archive": { raw, unmapped: { table } },
+      "lumiverse-archive": { raw, unmapped: { table, ...extraUnmapped } },
     },
   };
 }
