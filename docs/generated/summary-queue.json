@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-04",
+  "generated": "2026-08-05",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1005139,
+  "totalSourceChars": 1009922,
   "batches": [
     {
       "id": "batch-001",
@@ -608,7 +608,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 88167,
+      "sourceChars": 80126,
       "pages": [
         {
           "docId": "reference/formats/rolecall",
@@ -646,10 +646,16 @@
           "docId": "reference/kit/tools",
           "sourcePath": "docs/reference/kit/tools.md",
           "sidecarPath": "docs/summaries/reference/kit/tools.json",
-          "sectionCount": 16,
-          "sourceChars": 30837,
+          "sectionCount": 17,
+          "sourceChars": 33813,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-009",
+      "sourceChars": 88633,
+      "pages": [
         {
           "docId": "reference/platform-native-fields",
           "sourcePath": "docs/reference/platform-native-fields.md",
@@ -657,13 +663,7 @@
           "sectionCount": 11,
           "sourceChars": 11017,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-009",
-      "sourceChars": 86691,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/marinara/agents-and-tools",
           "sourcePath": "docs/reference/platforms/marinara/agents-and-tools.md",
@@ -767,7 +767,13 @@
           "sectionCount": 5,
           "sourceChars": 4924,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-010",
+      "sourceChars": 81264,
+      "pages": [
         {
           "docId": "reference/platforms/sillytavern/characters",
           "sourcePath": "docs/reference/platforms/sillytavern/characters.md",
@@ -775,13 +781,7 @@
           "sectionCount": 6,
           "sourceChars": 9075,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-010",
-      "sourceChars": 87145,
-      "pages": [
+        },
         {
           "docId": "reference/platforms/sillytavern/chats-and-groups",
           "sourcePath": "docs/reference/platforms/sillytavern/chats-and-groups.md",
@@ -869,7 +869,13 @@
           "sectionCount": 3,
           "sourceChars": 2613,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-011",
+      "sourceChars": 81110,
+      "pages": [
         {
           "docId": "reference/security/archives",
           "sourcePath": "docs/reference/security/archives.md",
@@ -877,13 +883,7 @@
           "sectionCount": 14,
           "sourceChars": 14956,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-011",
-      "sourceChars": 79242,
-      "pages": [
+        },
         {
           "docId": "reference/security/README",
           "sourcePath": "docs/reference/security/README.md",
@@ -915,7 +915,13 @@
           "sectionCount": 7,
           "sourceChars": 16396,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-012",
+      "sourceChars": 88682,
+      "pages": [
         {
           "docId": "reference/security/script-sandbox",
           "sourcePath": "docs/reference/security/script-sandbox.md",
@@ -923,13 +929,7 @@
           "sectionCount": 8,
           "sourceChars": 13088,
           "status": "APPROVED"
-        }
-      ]
-    },
-    {
-      "id": "batch-012",
-      "sourceChars": 77309,
-      "pages": [
+        },
         {
           "docId": "reference/security/secrets-and-keys",
           "sourcePath": "docs/reference/security/secrets-and-keys.md",
@@ -951,7 +951,7 @@
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 38118,
+          "sourceChars": 39925,
           "status": "APPROVED"
         },
         {
@@ -961,7 +961,13 @@
           "sectionCount": 3,
           "sourceChars": 4545,
           "status": "APPROVED"
-        },
+        }
+      ]
+    },
+    {
+      "id": "batch-013",
+      "sourceChars": 3522,
+      "pages": [
         {
           "docId": "ROADMAP",
           "sourcePath": "docs/ROADMAP.md",

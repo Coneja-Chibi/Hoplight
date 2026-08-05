@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:a6c7d13fc431396ad4cf5e6adbb9ac0a3221a07fe239a03905aba2574eaec839",
-  "semanticSummaryHash": "sha256:c27f049bb6836586f9e793c1f4379cc021df1bcda76936dafc65fb71f854d916",
+  "sourceHash": "sha256:1d56352d923a9cc47609ce346e026b0a4a688a1c02e5588458ee23f97cc866a8",
+  "semanticSummaryHash": "sha256:387c3f5cb0b29a6a35574041a9d945a943652889fe7d81a95a7d5becba73eb71",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Re-review after an em dash to hyphen sweep required by scan:emdash. Prose meaning is unchanged; summaries re-verified against the edited source.",
-  "reviewedAt": "2026-08-04T23:25:26.758Z"
+  "notes": "New section documenting hoplight mcp for readers: verified the subcommand, its studio-dir argument and --read-only flag against src/cli.ts:251 and src/mcp/run.ts, and the two-posture reasoning against the header there. Registration line is the client's own documented command.",
+  "reviewedAt": "2026-08-05T04:29:08.162Z"
 }

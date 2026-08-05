@@ -22,8 +22,15 @@ runs the selection, Tab completes it for arguments, Escape closes it, and rows a
 command word the same palette offers that command's ARGUMENT - `/rail` lists the presets with their
 display names beside the ids - because a studio id is exact, hyphenated and nothing like the name
 somebody remembers, and typing it from memory is where the mistake happens. Right-clicking the input
-pastes from the system clipboard, and Alt+V pastes an image, which is drawn in the transcript and
-labelled as shown-not-sent because Kit's providers take text. A file path written or pasted into a
+pastes from the system clipboard, and Alt+V pastes an image, as do Ctrl+G and `/image`; a Ctrl+V
+that arrives carrying no text is read as a pasted picture too, since that is what an empty paste
+means. Alt reaches Kit two ways and both are read: the Kitty protocol reports it as one modifier and
+the older ESC-prefix convention as another, and reading only the first is what once made every alt
+chord look undeliverable. WHETHER A PICTURE IS SENT IS THE PROVIDER'S ANSWER, declared per spoke
+rather than assumed: a provider that reads images gets the picture attached to the next message and
+the caption says so, and one that does not keeps the image on screen for you alone. Absent means no,
+because attaching an image to a text-only model errors the turn rather than degrading. A file path
+written or pasted into a
 message becomes reachable for that file alone, without a separate sharing step: naming a path is
 consent to it, exactly as picking one in a file dialog is, and the path is drawn as a link that
 shift+click reveals in its folder. A
@@ -65,6 +72,19 @@ studio's presets in order so two can be compared without typing either name. The
 `all 155` when everything really is on screen, rather than a fraction that has to be interpreted.
 Stepping away refuses while edits are unapplied, because a key that sometimes destroys work is worse
 than one that sometimes says no.
+
+`/gallery` (also `/cast`, `/faces`) lays your card art in a row along the bottom, sitting on the
+composer. It answers a different question from the preset rail and so it sits differently: a block
+list is long and read top to bottom, while a cast is something you glance down at and go back to
+typing. It is windowed rather than wrapped, so a shelf of forty faces scrolls sideways to keep the
+cursor in view and the transcript above it never moves. The keyboard contract is the rail's on
+purpose: Ctrl+B hands the keyboard over, left/right move, Home/End jump to the ends, Enter fills the
+composer with that name rather than sending it, and nothing is intercepted at all while the composer
+holds focus. Clicking a card selects it. The strip reports how many pieces it looked at that carry no
+art, and says when a deck was larger than it scanned, because a silently short shelf reads as missing
+art rather than as a bounded read. `/art <name>` shows one piece full size in the conversation
+instead, and `studio_art` is the same view opened by Kit when a face is worth showing mid-sentence.
+A portrait held as an asset-store or archive reference does not resolve yet and reports as no art.
 
 Nothing there writes as you go. Edits accumulate against the rows as last read from storage, the
 header counts them, and Enter stages the lot as one ordinary draft that pauses at the same Gate a

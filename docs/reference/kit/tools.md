@@ -103,6 +103,15 @@ session:
   browse `recipes`, or build one `from_examples`. Read-only - it runs patterns and stores nothing;
   saving belongs to the regex create capability. Regex is the only content in the studio that is
   write-only without a preview, which is why the workbench exists.
+- `studio_art` puts a piece's own card art on the user's screen. Read-only for the same reason
+  `rail_open` is: showing a picture changes nothing, so it needs no confirmation, and needing none is
+  what makes it usable mid-sentence. The BYTES never reach the model. The result carries a structured
+  `show` and the shell resolves the picture itself, because a card image is often hundreds of
+  kilobytes and paying tokens to move something the model cannot see would be the worst trade
+  available. It refuses to choose between several matches, and it checks the piece actually carries
+  art before reporting that it showed any, so the model cannot describe a picture nobody is looking
+  at. A portrait stored as an asset-store or archive reference still resolves to nothing: those need
+  the asset files loaded beside the entity, which no caller does yet.
 - `ask_choice` offers the user a list to pick from instead of writing options into a sentence. The
   options travel as data on the tool result and the shell renders them, so a model cannot offer a
   choice by claiming to have offered one. Picking fills the composer; it never sends.
@@ -185,10 +194,11 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with nineteen direct tools: `ask_choice`,
+resolve a selected operation. Each user turn starts with twenty direct tools: `ask_choice`,
 `block_lookup`, `capability_find`, `change_apply`, `change_discard`, `change_query`, `docs_query`,
 `folder_import`, `folder_search`, `macro_lookup`, `preset_verify`, `rail_open`, `regex_lab`,
-`result_query`, `studio_delete`, `studio_export`, `studio_list`, `studio_read`, and `studio_search`.
+`result_query`, `studio_art`, `studio_delete`, `studio_export`, `studio_list`, `studio_read`, and
+`studio_search`.
 
 `studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
 convenience one. The
@@ -430,6 +440,38 @@ context. The shared corpus boundary validates the generated index, resolves only
 Markdown beneath `docs/`, and caps each returned page. The index is built lazily on the first docs
 query and requires no embedding model, vector database, server, background process, dependency, or
 network call. The Studio docs reader and Kit use the same path-containment implementation.
+
+## Serving the belt to another client
+
+`hoplight mcp [studio-dir] [--read-only]` serves the same tools over MCP on stdio, so any client that
+speaks it (Claude Code, Cursor, Zed, Codex) can read and edit the studio. Register it once with the
+client's own command; for Claude Code that is:
+
+```
+claude mcp add hoplight -- hoplight mcp
+```
+
+An explicit studio directory is the first non-flag argument; without one the server resolves the same
+studio the CLI would. The subcommand exists so nothing has to know where Hoplight's source lives: a
+compiled binary has no `src/mcp/main.ts` to point at, and a path that worked from a checkout failed
+silently for anyone who installed rather than cloned, with the turn simply answering without tools.
+
+TWO POSTURES, DIFFERING ONLY IN WHO HOLDS THE GATE. Registered by a person with their own client,
+that client prompts before it runs a tool, so the prompt belongs to the person sitting there and
+nothing runs they did not agree to; the full belt is therefore safe to offer, and that is the
+default. Spawned by Kit for the Claude subscription provider, the CLI is started with
+`bypassPermissions`, because two gates asking about one call is worse than one. That turns the client
+prompt off, and Kit's own gate is per-turn state in Kit's process which cannot cross to another
+process. Nothing would ask, so that path passes `--read-only` and gets only the tools whose effect is
+`read`. The filter is applied by building the dispatcher from the reduced set, so a call naming a
+filtered tool comes back as an unknown tool rather than running: it fails closed rather than trusting
+the caller.
+
+The belt comes from `discoverTools()`, the same folders-as-schema loader Kit's own loop uses, and the
+schemas come from the tools' own Zod definitions. A file dropped into `src/kit/tools` appears in
+every connected client with no edit here. There is no MCP SDK dependency: over stdio the protocol is
+newline-delimited JSON-RPC with a handful of methods, and the official package carries seventeen
+transitive dependencies serving HTTP transport and OAuth that this never uses.
 
 ## Verification status
 
