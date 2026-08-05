@@ -109,3 +109,43 @@ describe("handleInspectArchive: request-shape guards", () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe("handleInspectArchive: single-flight cap", () => {
+  test("a request that overlaps an already in-flight inspect gets a warm 429; the first still succeeds", async () => {
+    // handleInspectArchive is async and its whole synchronous prefix (content-type, filename,
+    // the in-flight check-and-set) runs before its first `await` (mkdtemp) - so calling it twice
+    // back to back, without awaiting the first, genuinely overlaps them: by the time the second
+    // call's own synchronous prefix runs, the first has already set the flag.
+    const p1 = handleInspectArchive(req(buildMinimalLvbak()));
+    const p2 = handleInspectArchive(req(buildMinimalLvbak()));
+    const [res1, res2] = await Promise.all([p1, p2]);
+
+    expect(res2.status).toBe(429);
+    // 429 is a REQUEST-level rejection, same shape as every other guard in this handler (415, 400):
+    // { error }, never the { ok: false, error } InspectArchiveResult shape - that one's reserved
+    // for a 200 whose ARCHIVE PROCESSING itself failed (schema mismatch, corruption), a different
+    // class of failure than "refused before we even tried."
+    const body2 = (await res2.json()) as { error: string };
+    expect(body2.error).toContain("Another backup is still being read");
+
+    expect(res1.status).toBe(200);
+    const body1 = (await res1.json()) as InspectArchiveResult;
+    expect(body1.ok).toBe(true);
+  });
+
+  test("the flag releases once the in-flight request finishes: a later, non-overlapping request still succeeds", async () => {
+    const first = await handleInspectArchive(req(buildMinimalLvbak()));
+    expect(first.status).toBe(200);
+    const second = await handleInspectArchive(req(buildMinimalLvbak()));
+    expect(second.status).toBe(200);
+  });
+
+  test("the flag releases even after a whole-archive abort, not just a success", async () => {
+    const aborted = await handleInspectArchive(req(buildWrongProducerZip()));
+    expect(aborted.status).toBe(200); // whole-archive aborts still respond 200 with ok:false
+    const next = await handleInspectArchive(req(buildMinimalLvbak()));
+    expect(next.status).toBe(200);
+    const body = (await next.json()) as InspectArchiveResult;
+    expect(body.ok).toBe(true);
+  });
+});

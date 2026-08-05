@@ -229,6 +229,13 @@ describe("groupReportFailures", () => {
     expect(byReason.get("x")).toEqual(["regex_scripts"]);
     expect(byReason.get("y")).toEqual(["p9"]);
   });
+
+  test("no indexes field at all, at runtime AND at compile time - a future caller copying ImportOverlay's g.indexes.map(i => state.reads[i]) pattern must not compile", () => {
+    const groups = groupReportFailures([{ table: "characters", rowId: "c1", reason: "x" }]);
+    expect("indexes" in groups[0]!).toBe(false);
+    // @ts-expect-error indexes does not exist on ErrorGroup - this line must fail to compile.
+    expect(groups[0]!.indexes).toBeUndefined();
+  });
 });
 
 const archiveRow = (kind: string, knowledgeRefs?: string[], id = "x"): InspectResult =>
@@ -304,5 +311,22 @@ describe("unresolvedArchiveRefs", () => {
   test("a reference to something outside the drop entirely (no row anywhere) is unresolved", () => {
     const reads: ReadFile[] = [archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["ghost-book"]))];
     expect(unresolvedArchiveRefs(reads, new Set([0]), "a.lvbak")).toEqual(new Set(["ghost-book"]));
+  });
+
+  test("nothing checked at all: no false positives - an unchecked referencing row is not being committed, so its own link is not an unresolved fact about this commit (reviewer's exact repro)", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("a: Lore", "a.lvbak", archiveRow("lorebook", undefined, "lore")),
+      archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["lore"])),
+    ];
+    expect(unresolvedArchiveRefs(reads, new Set(), "a.lvbak")).toEqual(new Set());
+  });
+
+  test("the book is checked but the referencing row itself is NOT: still no caveat on a row that will never commit", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("a: Lore", "a.lvbak", archiveRow("lorebook", undefined, "lore")),
+      archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["lore"])),
+    ];
+    // book checked (index 0), persona left unchecked
+    expect(unresolvedArchiveRefs(reads, new Set([0]), "a.lvbak")).toEqual(new Set());
   });
 });

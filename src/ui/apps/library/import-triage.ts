@@ -117,24 +117,42 @@ export function defaultCheckedIndexes(reads: ReadFile[]): number[] {
     .filter((i) => i >= 0);
 }
 
-export interface BadGroup {
+export interface ErrorGroup {
   error: string;
   filenames: string[];
+}
+
+/** `indexes` only means something for a REAL reads[] a row actually lives in - groupBadRows'
+ *  own case. A caller with no such array (groupReportFailures) has nothing honest to put there,
+ *  so it returns the plain ErrorGroup instead: `g.indexes.map(i => state.reads[i])` on that result
+ *  is a type error, not a silent bug in production. */
+export interface BadGroup extends ErrorGroup {
   indexes: number[];
+}
+
+/** The shared bucketing core: group by `error`, insertion-ordered, keeping each group's own items
+ *  in the order they arrived. Neither groupBadRows nor groupReportFailures duplicates this. */
+function groupByError<T extends { error: string }>(items: readonly T[]): T[][] {
+  const groups = new Map<string, T[]>();
+  for (const item of items) {
+    const bucket = groups.get(item.error) ?? [];
+    bucket.push(item);
+    groups.set(item.error, bucket);
+  }
+  return [...groups.values()];
 }
 
 /** Failed reads grouped by reason, insertion-ordered, so bulk refusals collapse to one line. */
 export function groupBadRows(reads: ReadFile[]): BadGroup[] {
-  const groups = new Map<string, BadGroup>();
-  reads.forEach((r, i) => {
-    if (r.result.ok) return;
-    const error = r.result.error ?? "We could not read this one.";
-    const g = groups.get(error) ?? { error, filenames: [], indexes: [] };
-    g.filenames.push(r.filename);
-    g.indexes.push(i);
-    groups.set(error, g);
-  });
-  return [...groups.values()];
+  const items = reads
+    .map((r, index) => ({ r, index }))
+    .filter(({ r }) => !r.result.ok)
+    .map(({ r, index }) => ({ error: r.result.error ?? "We could not read this one.", filename: r.filename, index }));
+  return groupByError(items).map((group) => ({
+    error: group[0]!.error,
+    filenames: group.map((g) => g.filename),
+    indexes: group.map((g) => g.index),
+  }));
 }
 
 /** One `.lvbak`'s own report, paired with the archive's filename so a multi-archive drop can tell
@@ -195,17 +213,16 @@ export function summarizeSkippedTables(skipped: SkippedTable[]): string {
 }
 
 /**
- * A report's own per-row failures, grouped by reason exactly like groupBadRows - reused, not
- * reimplemented, by adapting each failure into the same shape groupBadRows already knows how to
- * bucket. `indexes` comes back meaningless here (there is no reads[] these failures ever joined)
- * and callers must ignore it; only `error`/`filenames` describe a report failure honestly.
+ * A report's own per-row failures, grouped by reason on the SAME shared core groupBadRows uses -
+ * reused, not reimplemented. Returns ErrorGroup, not BadGroup: there is no reads[] these failures
+ * ever joined, so an `indexes` field would be a lie a caller could compile against and crash on.
  */
-export function groupReportFailures(failures: LvbakRowFailure[]): BadGroup[] {
-  const asReads: ReadFile[] = failures.map((f) => ({
-    filename: f.name || f.rowId || f.table,
-    result: { ok: false, error: f.reason },
+export function groupReportFailures(failures: LvbakRowFailure[]): ErrorGroup[] {
+  const items = failures.map((f) => ({ error: f.reason, filename: f.name || f.rowId || f.table }));
+  return groupByError(items).map((group) => ({
+    error: group[0]!.error,
+    filenames: group.map((g) => g.filename),
   }));
-  return groupBadRows(asReads);
 }
 
 const isRec = (v: unknown): v is Record<string, unknown> =>
@@ -239,12 +256,18 @@ export function annotateRead(filename: string, result: InspectResult): ReadFile 
 }
 
 /**
- * The archive-minted ids one archive's dependents (character/persona rows) reference that will NOT
- * resolve if the sheet commits right now: the target lorebook row is missing from this drop, failed
- * to import, or is simply unchecked (ISC-35's commit path, deck-core.ts's orderForCommit +
- * rewriteKnowledgeRefsFor, only fixes up a target that is both PRESENT and CHECKED). Scoped to one
- * archive (`archiveKey`) - two different uploads can coincidentally mint the same id, and a
- * cross-archive match here would be a false "this is fine."
+ * The archive-minted ids one archive's CHECKED dependents (character/persona rows) reference that
+ * will NOT resolve if the sheet commits right now: the target lorebook row is missing from this
+ * drop, failed to import, or is simply unchecked (ISC-35's commit path, deck-core.ts's
+ * orderForCommit + rewriteKnowledgeRefsFor, only fixes up a target that is both PRESENT and
+ * CHECKED). Scoped to one archive (`archiveKey`) - two different uploads can coincidentally mint
+ * the same id, and a cross-archive match here would be a false "this is fine."
+ *
+ * A reference only counts at all when the REFERENCING row is itself checked: an unchecked
+ * character/persona is not being committed, so its own link "not carrying over" is not a fact
+ * about this commit - only a checked row's own unresolved links are real ones (M14's own fix: the
+ * earlier version harvested refs from every row regardless of selection, so "nothing checked" still
+ * decorated an unchecked row with a caveat about a commit that was never going to touch it).
  *
  * Recomputed from the sheet's own live `checked` state on every render, not baked in once at
  * inspect time: whether a reference resolves is a property of what is CURRENTLY checked, and that
@@ -263,7 +286,7 @@ export function unresolvedArchiveRefs(
     if (r.result.kind === "lorebook" && typeof entity?.id === "string" && checked.has(i)) {
       resolvable.add(entity.id);
     }
-    if (r.result.kind === "character" || r.result.kind === "persona") {
+    if ((r.result.kind === "character" || r.result.kind === "persona") && checked.has(i)) {
       for (const ref of Array.isArray(entity?.body?.knowledgeRefs) ? entity!.body!.knowledgeRefs : []) {
         if (typeof ref === "string") referenced.add(ref);
       }

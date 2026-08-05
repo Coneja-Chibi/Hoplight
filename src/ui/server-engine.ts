@@ -110,6 +110,15 @@ export async function handleInspect(req: Request): Promise<Response> {
   }
 }
 
+// One archive inspect at a time, server-side. Each request can stage up to
+// LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes (5 GiB) of temp file - the same disk-fill concern that
+// already makes this route loopback-only (server.ts's isLoopbackOnlyRoute) applies just as much to
+// the surface that DOES accept it. Safe as a bare module-level flag: Bun's single-threaded event
+// loop means the check-then-set below never races across two concurrent requests. The client's own
+// ARCHIVE_POOL=1 (import-flow.tsx) already serializes uploads from one sheet, so this changes
+// nothing for the normal path - it only refuses a genuinely overlapping second request.
+let archiveInspectInFlight = false;
+
 /**
  * Handle a `.lvbak` upload (spec: specs/formats/lumiverse-archive.md). Deliberately its OWN route,
  * never `/api/inspect`: that endpoint buffers the whole body into one Uint8Array and caps it at
@@ -138,6 +147,10 @@ export async function handleInspectArchive(req: Request): Promise<Response> {
   if (!filename.toLowerCase().endsWith(".lvbak")) {
     return err("expected a .lvbak file", 400);
   }
+  if (archiveInspectInFlight) {
+    return err("Another backup is still being read - try again when it finishes.", 429);
+  }
+  archiveInspectInFlight = true;
 
   const dir = await mkdtemp(join(tmpdir(), "hoplight-lvbak-upload-"));
   const tempPath = join(dir, "upload.lvbak");
@@ -168,6 +181,7 @@ export async function handleInspectArchive(req: Request): Promise<Response> {
   } finally {
     await source?.close();
     await rm(dir, { recursive: true, force: true });
+    archiveInspectInFlight = false;
   }
 }
 

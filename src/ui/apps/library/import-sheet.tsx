@@ -1,8 +1,13 @@
 /**
  * The import sheet's own presentation: receipt/skip/report cards and the ImportOverlay dialog that
- * arranges them. Split out of import-flow.tsx at the file's own size cap - pure code motion, no
- * behavior change. The runners (triage + inspect + commit) that feed this stay in import-flow.tsx;
- * this file owns no network calls of its own.
+ * arranges them. Split out of import-flow.tsx at the file's own size cap in the SAME pass that
+ * built ISC-35's live link caveat - not pure code motion: `unresolvedByArchive`/`decorated` inside
+ * ImportOverlay are new here, computed fresh from the sheet's own `checked` state on every render
+ * (see import-triage.ts's unresolvedArchiveRefs), not relocated unchanged. Only the archiveReports
+ * rendering and the rest of ImportOverlay/ReceiptCard/BadGroupCard/ArchiveReportCard predate this
+ * split. Read this file's own diff, not just its existence, if reviewing what changed. The runners
+ * (triage + inspect + commit) that feed this stay in import-flow.tsx; this file owns no network
+ * calls of its own.
  */
 import { useEffect, useState, type JSX } from "react";
 import { InkDialog } from "../../components/ink-dialog";
