@@ -30,6 +30,7 @@ import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core"
 import { MentionMenu } from "./mention-menu";
 import { draftSuggestion } from "./suggestion";
 import { readClipboardImage, readClipboardText } from "../../clipboard-read";
+import { isEmptyPaste, isImagePasteKey } from "./image-paste";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -199,18 +200,8 @@ export function Composer({
     const ta = ref.current;
     if (!ta) return;
 
-    /**
-     * ALT+V pastes an IMAGE, which is a different thing from pasting text and needs its own key.
-     *
-     * The terminal cannot deliver this: a clipboard image never arrives as a paste event, so without
-     * asking the OS there is nothing to receive. Alt is also the reason the Kitty keyboard protocol
-     * had to go on first - on the raw parser alt+v arrives as ESC then "v", indistinguishable from
-     * Escape followed by typing, so this binding could not have worked at all before that change.
-     *
-     * Silent when the clipboard holds no image: somebody who pressed it by accident, or who has text
-     * copied, should not be told off for it.
-     */
-    if (e.option === true && e.name === "v") {
+    // Which keys mean "paste a picture", and why, live in image-paste.ts.
+    if (isImagePasteKey(e)) {
       e.preventDefault();
       void readClipboardImage().then((image) => {
         if (image) onImage?.(image.bytes);
@@ -323,7 +314,18 @@ export function Composer({
 
   usePaste((e: PasteEvent) => {
     if (!enabled) return;
-    const classified = classifyPaste(decodePasteBytes(e.bytes));
+    const text = decodePasteBytes(e.bytes);
+
+    // An empty paste is a pasted picture; see image-paste.ts.
+    if (isEmptyPaste(text)) {
+      e.preventDefault();
+      void readClipboardImage().then((image) => {
+        if (image) onImage?.(image.bytes);
+      });
+      return;
+    }
+
+    const classified = classifyPaste(text);
     if (classified.kind === "card") {
       e.preventDefault();
       if (cardsRef.current.length >= MAX_CARDS) {

@@ -11,10 +11,21 @@
  * bytes are here for the tool that will put them on a card.
  */
 import type { ReactNode } from "react";
+import { useTerminalDimensions } from "@opentui/react";
 import { theme } from "../theme";
+import { imageProtocol } from "../image-protocol";
 
 /** Cells. Tall enough to recognise a face, short enough not to take the screen for a paste. */
-const MAX_ROWS = 14;
+/**
+ * How much of the screen a pasted picture may take, as a share of it.
+ *
+ * A FIXED 14 ROWS was the bug: on a sixty-row terminal a 333px-tall photo was resampled into 28
+ * vertical pixels, which is a twelve-fold downsample and looks like it sounds. Half-blocks are not
+ * the reason a picture looks chunky; being drawn at a twelfth of its size is.
+ */
+const ROW_SHARE = 0.45;
+const MIN_ROWS = 8;
+const MAX_ROWS = 36;
 
 export function PastedImage({
   bytes,
@@ -28,11 +39,17 @@ export function PastedImage({
   height: number;
   note: string;
 }): ReactNode {
-  // Derive the cell box from the source aspect, capped by height. A cell is about twice as tall as
-  // it is wide, so the column count is doubled relative to a naive ratio or every image comes out
-  // squat - the same arithmetic the half-block path gets wrong when nobody is looking.
-  const rows = Math.min(MAX_ROWS, Math.max(3, MAX_ROWS));
-  const cols = Math.max(4, Math.round((rows * 2 * width) / Math.max(1, height)));
+  // Derive the cell box from the source aspect. A cell is about twice as tall as it is wide, so the
+  // column count is doubled relative to a naive ratio or every image comes out squat - the same
+  // arithmetic the half-block path gets wrong when nobody is looking.
+  const term = useTerminalDimensions();
+  const rows = Math.max(MIN_ROWS, Math.min(MAX_ROWS, Math.floor(term.height * ROW_SHARE)));
+  // Then clamp by WIDTH too, so a landscape photo is not cropped by the terminal edge: whichever
+  // bound bites first decides, and the other is recomputed from it rather than left overhanging.
+  const wide = Math.max(4, Math.round((rows * 2 * width) / Math.max(1, height)));
+  const budget = Math.max(8, term.width - 6);
+  const cols = Math.min(wide, budget);
+  const fitted = cols < wide ? Math.max(3, Math.round((cols * height) / (2 * Math.max(1, width)))) : rows;
   return (
     <box flexDirection="column" paddingTop={1}>
       <box flexDirection="row" backgroundColor={theme.panel} paddingRight={1}>
@@ -45,7 +62,7 @@ export function PastedImage({
       <box flexDirection="row" backgroundColor={theme.recess}>
         <box width={1} backgroundColor={theme.violet} />
         <box paddingLeft={1}>
-          <image source={bytes} width={cols} height={rows} fit="fit" protocol="auto" />
+          <image source={bytes} width={cols} height={fitted} fit="fit" protocol={imageProtocol()} />
         </box>
       </box>
       <box flexDirection="row" backgroundColor={theme.recess} paddingRight={1}>

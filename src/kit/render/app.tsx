@@ -46,12 +46,16 @@ import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
 import { useRailSession } from "./rail/use-rail-session";
 import { RailPane } from "./rail/rail-pane";
+import { useGallery } from "./gallery/use-gallery";
+import { GalleryStrip } from "./gallery/gallery-strip";
 import { grantPastedPaths } from "./grant-pasted-paths";
 import { buildSessionActions } from "./use-session-actions";
 import { useShellKeys } from "./use-shell-keys";
 import { useStudioShelf } from "./use-studio-shelf";
 import { FullScreen } from "./full-screens";
-import { decodePngPixels } from "../../studio/signature-color";
+import { imageLine } from "./show-image";
+import { usePendingImages } from "./use-pending-images";
+import { runCommand } from "./run-command";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -108,6 +112,7 @@ export function App({
    */
   const [pickedOption, setPickedOption] = useState<string | null>(null);
   const gate = useGateController();
+  const gallery = useGallery(session);
   const rail = useRailSession(session, gate, (text) => add({ role: "say", text }));
   const { notice: copyNotice, copy } = useCopyNotice(renderer);
   /**
@@ -131,8 +136,9 @@ export function App({
       };
     });
   }, [onRail]);
-  const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
+  const [provider, setProvider] = useState<{ name: string; model: string; context?: number; images?: boolean } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
+  const images = usePendingImages(provider);
   useEffect(() => {
     session.activeProvider().then(setProvider);
   }, [session]);
@@ -229,6 +235,14 @@ export function App({
         );
       }
       rail.onTurnEvent(event);
+      // A tool asked for a piece to be SHOWN. The rail takes presets; art takes the rest. The bytes
+      // never travelled through the model - it named a piece, and the shell reads the picture itself.
+      const shown = event.type === "tool" ? event.show : undefined;
+      if (shown && shown.kind !== "preset" && session.art) {
+        void session.art.find(shown.id, shown.kind).then((found) => {
+          if (!("detail" in found)) add({ role: "portrait", bytes: found.bytes, caption: found.name });
+        });
+      }
       setTurn((prev) => applyTurnEvent(prev, event, Date.now()));
     };
     void (async () => {
@@ -251,7 +265,8 @@ export function App({
   function runPrompt(prompt: string): boolean {
     const accepted = startTurn(async (signal, onEvent) => {
       const before = history.current;
-      const nextHistory = await session.runTurn(prompt, before, onEvent, signal, gate.seam());
+      const attached = images.take();
+      const nextHistory = await session.runTurn(prompt, before, onEvent, signal, gate.seam(), attached);
       history.current = nextHistory;
       const delta = nextHistory.slice(before.length);
       if (delta.length > 0) {
@@ -298,27 +313,26 @@ export function App({
           add({ role: "doctor", checks: await runDoctor() });
         },
         say: (text) => add({ role: "say", text }),
+        showImage: (bytes, note, source) => add(imageLine(bytes, note, source)),
         egressSummary: () => formatLedger(ledger),
         contextPreview: () => buildContextPreview(session, history.current, provider),
         folders: session.folders,
         rail: rail.commands,
+        gallery: gallery.commands,
+        art: {
+          async show(query) {
+            if (!session.art) return { ok: false as const, detail: "This studio has no art seam." };
+            const found = await session.art.find(query);
+            if ("detail" in found) return { ok: false as const, detail: found.detail };
+            add({ role: "portrait", bytes: found.bytes, caption: found.name });
+            return { ok: true as const };
+          },
+        },
         sessions: sessionActions,
         pieces: async (kind: string) =>
           shelf.pieces.filter((p) => p.kind === kind).map((p) => ({ id: p.id, name: p.name })),
       };
-      try {
-        const result = matched.command.run(ctx);
-        if (result instanceof Promise) {
-          void result.catch((error) =>
-            add({ role: "error", text: error instanceof Error ? error.message : String(error) }),
-          );
-          return true;
-        }
-        return result !== false;
-      } catch (error) {
-        add({ role: "error", text: error instanceof Error ? error.message : String(error) });
-        return true;
-      }
+      return runCommand(matched.command, ctx, (text) => add({ role: "error", text }));
     }
     const escapedSlash = value.startsWith("//");
     if (!escapedSlash && value.startsWith("/")) {
@@ -438,6 +452,9 @@ export function App({
         onSnap={scroll.snapToBottom}
       />
       <StatusToast text={copyNotice} />
+      {gallery.state.open ? (
+        <GalleryStrip state={gallery.state} onSelect={gallery.select} />
+      ) : null}
       {gate.prompt ? (
         <GatePrompt
           req={gate.prompt}
@@ -454,31 +471,12 @@ export function App({
         decks={shelf.decks}
         pieces={shelf.pieces}
         completeArg={shelf.completeArg}
-        insert={pickedOption}
+        insert={pickedOption ?? gallery.picked}
         choiceOptions={latestChoices}
-        onInserted={() => setPickedOption(null)}
+        onInserted={() => { setPickedOption(null); gallery.clearPicked(); }}
         onImage={(bytes) => {
-          /**
-           * Decode to learn the SIZE, and to prove it is really an image before drawing it.
-           *
-           * `decodePngPixels` fails closed on anything it does not understand, so a clipboard
-           * carrying something PNG-shaped but broken becomes a refusal rather than a renderer being
-           * handed bytes it cannot use.
-           */
-          const pixels = decodePngPixels(bytes);
-          if (!pixels) {
-            add({ role: "watch", text: "that clipboard image could not be read" });
-            return;
-          }
-          add({
-            role: "image",
-            bytes,
-            width: pixels.width,
-            height: pixels.height,
-            // Says the limit out loud. An image that renders beautifully while the model has no idea
-            // it exists is the worst version of this, because it looks like it worked.
-            note: "shown to you only - Kit's providers take text, so this is not sent",
-          });
+          const { note } = images.accept(bytes);
+          add(imageLine(bytes, note, "that clipboard image"));
         }}
         onSubmit={submit}
       />
