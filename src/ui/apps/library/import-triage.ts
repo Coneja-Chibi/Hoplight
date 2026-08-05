@@ -17,6 +17,10 @@ export interface ReadFile {
   shelfDupe?: string;
   /** Filename of the identical file earlier in this drop. Informational, never checkable. */
   batchDupe?: string;
+  /** The source .lvbak's own filename, set only for rows an archive fanned out (never for a
+   *  single-file inspect). Scopes cross-row lookups: two archives can coincidentally mint the same
+   *  id, so a reference is only ever resolved against rows sharing this same key. */
+  archiveKey?: string;
 }
 
 /** Extensions any adapter could possibly eat; everything else is triaged out before the wire. */
@@ -235,26 +239,63 @@ export function annotateRead(filename: string, result: InspectResult): ReadFile 
 }
 
 /**
- * An archive row's own caveat, appended to its receipt extras (never mutating the server's result).
- * A character/persona row's `knowledgeRefs` names a lorebook the ARCHIVE IMPORTER already minted an
- * id for - but that id is independent of whatever id the STUDIO assigns the lorebook row when it
- * saves separately (the commit path saves each checked row as its own bundle; only a character's
- * TRUE bundled related.lorebooks gets the studio's own keep-both id-rewrite, and an archive row
- * never carries one - M11's own flat-rows design). Saving both together does not yet guarantee the
- * link survives; this only makes that honest before the user commits (the actual fix is M13's).
+ * The archive-minted ids one archive's dependents (character/persona rows) reference that will NOT
+ * resolve if the sheet commits right now: the target lorebook row is missing from this drop, failed
+ * to import, or is simply unchecked (ISC-35's commit path, deck-core.ts's orderForCommit +
+ * rewriteKnowledgeRefsFor, only fixes up a target that is both PRESENT and CHECKED). Scoped to one
+ * archive (`archiveKey`) - two different uploads can coincidentally mint the same id, and a
+ * cross-archive match here would be a false "this is fine."
+ *
+ * Recomputed from the sheet's own live `checked` state on every render, not baked in once at
+ * inspect time: whether a reference resolves is a property of what is CURRENTLY checked, and that
+ * changes every time the user toggles a row.
  */
-export function withArchiveLinkCaveat(result: InspectResult): InspectResult {
+export function unresolvedArchiveRefs(
+  reads: readonly ReadFile[],
+  checked: ReadonlySet<number>,
+  archiveKey: string,
+): Set<string> {
+  const resolvable = new Set<string>();
+  const referenced = new Set<string>();
+  reads.forEach((r, i) => {
+    if (r.archiveKey !== archiveKey || !r.result.ok) return;
+    const entity = r.result.entity as { id?: unknown; body?: { knowledgeRefs?: unknown } } | undefined;
+    if (r.result.kind === "lorebook" && typeof entity?.id === "string" && checked.has(i)) {
+      resolvable.add(entity.id);
+    }
+    if (r.result.kind === "character" || r.result.kind === "persona") {
+      for (const ref of Array.isArray(entity?.body?.knowledgeRefs) ? entity!.body!.knowledgeRefs : []) {
+        if (typeof ref === "string") referenced.add(ref);
+      }
+    }
+  });
+  const unresolved = new Set<string>();
+  for (const ref of referenced) if (!resolvable.has(ref)) unresolved.add(ref);
+  return unresolved;
+}
+
+/**
+ * An archive row's own caveat, added to a RENDERED copy of its receipt - never mutating the
+ * server's own result, and never baked in once at inspect time. Narrowed from an earlier pass that
+ * warned on every linked row unconditionally: now that the commit path actually resolves a
+ * checked, successfully-imported target correctly, warning about that case too would train users
+ * to ignore a caveat that is usually wrong. Fires only when `unresolvedRefs` (this row's own
+ * archive's currently-unresolvable ids) actually contains one of this row's own references.
+ */
+export function withArchiveLinkCaveat(result: InspectResult, unresolvedRefs: ReadonlySet<string>): InspectResult {
   if (!result.ok || !result.receipt) return result;
   if (result.kind !== "character" && result.kind !== "persona") return result;
   const body = (result.entity as { body?: { knowledgeRefs?: unknown } } | undefined)?.body;
-  if (!Array.isArray(body?.knowledgeRefs) || body.knowledgeRefs.length === 0) return result;
+  const refs = Array.isArray(body?.knowledgeRefs) ? body.knowledgeRefs : [];
+  const hasUnresolved = refs.some((r) => typeof r === "string" && unresolvedRefs.has(r));
+  if (!hasUnresolved) return result;
   return {
     ...result,
     receipt: {
       ...result.receipt,
       extras: [
         ...result.receipt.extras,
-        "Links to a lorebook from the same backup - check both and import together, or the link may not carry over.",
+        "Links to a lorebook from the same backup, but that book is not checked (or did not import) - check it too, or this link will not carry over.",
       ],
     },
   };

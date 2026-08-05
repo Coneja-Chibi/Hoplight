@@ -20,6 +20,7 @@ import {
   summarizeImportedTotals,
   summarizeSkippedTables,
   triageFiles,
+  unresolvedArchiveRefs,
   withArchiveLinkCaveat,
   type ReadFile,
 } from "./import-triage";
@@ -230,32 +231,78 @@ describe("groupReportFailures", () => {
   });
 });
 
-describe("withArchiveLinkCaveat", () => {
-  const archiveRow = (kind: string, knowledgeRefs?: string[]): InspectResult =>
-    ({
-      ok: true,
-      kind,
-      entity: { kind, body: { name: "X", knowledgeRefs } },
-      receipt: { name: "X", kindLine: "", extras: [] },
-    }) as unknown as InspectResult;
+const archiveRow = (kind: string, knowledgeRefs?: string[], id = "x"): InspectResult =>
+  ({
+    ok: true,
+    kind,
+    entity: { id, kind, body: { name: "X", knowledgeRefs } },
+    receipt: { name: "X", kindLine: "", extras: [] },
+  }) as unknown as InspectResult;
 
-  test("a character or persona with knowledgeRefs gets the caveat appended, never replacing existing extras", () => {
+const archiveReadRow = (filename: string, archiveKey: string, result: InspectResult): ReadFile => ({
+  filename,
+  result,
+  archiveKey,
+});
+
+describe("withArchiveLinkCaveat", () => {
+  test("a reference in the unresolved set gets the caveat appended, never replacing existing extras", () => {
     const character = archiveRow("character", ["shared-book"]);
     (character as { receipt: { extras: string[] } }).receipt.extras = ["It brought its own lorebook."];
-    const out = withArchiveLinkCaveat(character);
+    const out = withArchiveLinkCaveat(character, new Set(["shared-book"]));
     expect(out.receipt!.extras).toEqual([
       "It brought its own lorebook.",
-      "Links to a lorebook from the same backup - check both and import together, or the link may not carry over.",
+      "Links to a lorebook from the same backup, but that book is not checked (or did not import) - check it too, or this link will not carry over.",
     ]);
 
-    const persona = withArchiveLinkCaveat(archiveRow("persona", ["shared-book"]));
+    const persona = withArchiveLinkCaveat(archiveRow("persona", ["shared-book"]), new Set(["shared-book"]));
     expect(persona.receipt!.extras.some((e) => e.includes("Links to a lorebook"))).toBe(true);
   });
 
+  test("a reference NOT in the unresolved set (the system will handle it correctly): no caveat", () => {
+    const out = withArchiveLinkCaveat(archiveRow("character", ["shared-book"]), new Set());
+    expect(out.receipt!.extras).toEqual([]);
+  });
+
   test("no knowledgeRefs, a non-character/persona kind, or a failed row: untouched", () => {
-    expect(withArchiveLinkCaveat(archiveRow("character", []))).toEqual(archiveRow("character", []));
-    expect(withArchiveLinkCaveat(archiveRow("lorebook", ["x"])).receipt!.extras).toEqual([]);
+    const unresolved = new Set(["x"]);
+    expect(withArchiveLinkCaveat(archiveRow("character", []), unresolved)).toEqual(archiveRow("character", []));
+    expect(withArchiveLinkCaveat(archiveRow("lorebook", ["x"]), unresolved).receipt!.extras).toEqual([]);
     const failed: InspectResult = { ok: false, error: "nope" };
-    expect(withArchiveLinkCaveat(failed)).toBe(failed);
+    expect(withArchiveLinkCaveat(failed, unresolved)).toBe(failed);
+  });
+});
+
+describe("unresolvedArchiveRefs", () => {
+  test("a checked, ok lorebook row resolves its id; an unchecked one does not", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("a: Lore", "a.lvbak", archiveRow("lorebook", undefined, "lore")),
+      archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["lore"])),
+    ];
+    // book checked (index 0) and persona checked (index 1): nothing unresolved
+    expect(unresolvedArchiveRefs(reads, new Set([0, 1]), "a.lvbak")).toEqual(new Set());
+    // book UNCHECKED: its id is referenced but never resolvable
+    expect(unresolvedArchiveRefs(reads, new Set([1]), "a.lvbak")).toEqual(new Set(["lore"]));
+  });
+
+  test("a failed book row never resolves its id even if its index is 'checked'", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("a: Lore", "a.lvbak", { ok: false, error: "boom" }),
+      archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["lore"])),
+    ];
+    expect(unresolvedArchiveRefs(reads, new Set([0, 1]), "a.lvbak")).toEqual(new Set(["lore"]));
+  });
+
+  test("scoped per archive: a same-id row from a DIFFERENT archive never resolves this one's reference", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("b: Lore", "b.lvbak", archiveRow("lorebook", undefined, "lore")),
+      archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["lore"])),
+    ];
+    expect(unresolvedArchiveRefs(reads, new Set([0, 1]), "a.lvbak")).toEqual(new Set(["lore"]));
+  });
+
+  test("a reference to something outside the drop entirely (no row anywhere) is unresolved", () => {
+    const reads: ReadFile[] = [archiveReadRow("a: P", "a.lvbak", archiveRow("persona", ["ghost-book"]))];
+    expect(unresolvedArchiveRefs(reads, new Set([0]), "a.lvbak")).toEqual(new Set(["ghost-book"]));
   });
 });
