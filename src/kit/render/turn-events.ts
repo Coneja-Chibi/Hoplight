@@ -36,6 +36,16 @@ export type RenderLine =
    */
   | { role: "image"; bytes: Uint8Array; width: number; height: number; note: string }
   /**
+   * A piece's own card art, captioned with its name.
+   *
+   * Separate from `image` because it carries no width or height, and that absence is the point. A
+   * pasted image is decoded here first so the note can state its real pixel size, which means PNG
+   * only. Card art is whatever somebody imported: a JPEG card is at least as common as a PNG one,
+   * and opentui's `<image>` decodes all of them. Letting the renderer size it is what makes a JPEG
+   * portrait appear instead of reporting that it could not be read.
+   */
+  | { role: "portrait"; bytes: Uint8Array; caption: string; accent?: string }
+  /**
    * A question with options, rendered as a list you pick from.
    *
    * Carried as DATA rather than as the sentence the model would otherwise have written, so the shell

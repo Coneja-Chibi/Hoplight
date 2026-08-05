@@ -59,6 +59,8 @@ const TRUST = new Map<string, ToolAccess>([
   ["preset_verify", "read"],
   // Opens the outline rail over the transcript. Display only.
   ["rail_open", "read"],
+  // Showing a picture writes nothing and reads one piece the person named.
+  ["studio_art", "read"],
   // The regex workbench. It RUNS patterns, which sounds like exec and is not: the payload is a
   // regular expression, the engine refuses anything the validator calls a backtracking bomb, and
   // every run is time-bounded. Nothing is stored - saving belongs to regex_create.

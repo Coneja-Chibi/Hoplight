@@ -21,6 +21,7 @@
 import type { ReactNode } from "react";
 import type { ImageSource } from "@opentui/core";
 import { theme } from "../theme";
+import { imageProtocol } from "../image-protocol";
 
 export function PortraitBlock({
   source,
@@ -51,7 +52,7 @@ export function PortraitBlock({
          * fill a box nobody asked to be filled.
          */
         fit="fit"
-        protocol="auto"
+        protocol={imageProtocol()}
       />
       {caption ? (
         <box flexDirection="row" height={1} width={width}>

@@ -43,6 +43,10 @@ export function lineText(line: RenderLine): string {
     // difference between "pasted image" being findable in a long transcript and being invisible.
     case "image":
       return line.note;
+    // Card art is findable by whose it is. A transcript with six portraits in it is exactly where
+    // searching for a name should land on the face rather than skip past it.
+    case "portrait":
+      return line.caption;
     case "doctor":
       return line.checks.map((check) => `${check.label} ${check.detail}`).join(" ");
     default:

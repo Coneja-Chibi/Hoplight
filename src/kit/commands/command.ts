@@ -30,6 +30,30 @@ export interface CommandContext {
   doctor: () => Promise<void>;
   /** Print a line to the transcript (markdown-rendered), e.g. /help's listing. */
   say: (text: string) => void;
+  /**
+   * Draw a picture in the transcript (/image, /art).
+   *
+   * Bytes rather than a path, because the two callers have different sources: one asks the OS for the
+   * clipboard, the other resolves a character's media ref. Both arrive as bytes and neither should
+   * teach the command layer how to read a file. `note` is what the picture is captioned with, and it
+   * is the caller's job because only the caller knows whether this is your clipboard or Wren's face.
+   *
+   * Optional, so a shell with no renderer bound still runs every command that does not draw.
+   */
+  showImage?: (bytes: Uint8Array, note: string, source?: string) => void;
+  /**
+   * Card art (/art). Resolving a written name to one piece can fail in ways a person needs told -
+   * nothing matched, several did, or that piece carries no art - so it reports rather than throws,
+   * the same shape `rail.open` uses for the same reason.
+   */
+  readonly art?: {
+    show: (query: string) => Promise<{ ok: true } | { ok: false; detail: string }>;
+  };
+  /** The gallery strip (/gallery): the shelf of card art along the bottom. */
+  readonly gallery?: {
+    open: (kind?: string) => Promise<{ ok: true; count: number } | { ok: false; detail: string }>;
+    close: () => void;
+  };
   /** The /privacy readout: the formatted egress ledger (what has left this machine this session). The
    * shell owns the ledger state and formats it, so a command never reaches into render or session. */
   egressSummary: () => string;

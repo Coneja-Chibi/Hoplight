@@ -13,6 +13,8 @@ import { ToolRow } from "./tool-row";
 import { YouLine } from "./you-line";
 import { WatchNote } from "./watch-note";
 import { PastedImage } from "./pasted-image";
+import { PortraitBlock } from "./portrait-block";
+import { useTerminalDimensions } from "@opentui/react";
 import { ChoiceList } from "./choice-list";
 
 export function SettledLine({
@@ -31,6 +33,7 @@ export function SettledLine({
   onPick?: (value: string) => void;
   onToggle: () => void;
 }): ReactNode {
+  const term = useTerminalDimensions();
   if (line.role === "you") {
     return (
       <Fragment>
@@ -48,6 +51,22 @@ export function SettledLine({
   }
   if (line.role === "image") {
     return <PastedImage bytes={line.bytes} width={line.width} height={line.height} note={line.note} />;
+  }
+  if (line.role === "portrait") {
+    // Card art is 2:3, so height bounds it. Sized from the terminal rather than fixed: a 24x16 box
+    // resamples a 1024px card into 32 vertical pixels, which is what made the first one look like a
+    // mosaic. A third of the screen is big enough to recognise a face and small enough that three in
+    // a row do not bury the conversation.
+    const rows = Math.max(10, Math.min(28, Math.floor(term.height * 0.34)));
+    return (
+      <PortraitBlock
+        source={line.bytes}
+        width={Math.max(8, Math.round(rows * 2 * 2 / 3))}
+        height={rows}
+        caption={line.caption}
+        {...(line.accent ? { accent: line.accent } : {})}
+      />
+    );
   }
   if (line.role === "watch") return <WatchNote text={line.text} {...(line.path ? { path: line.path } : {})} onCopy={onCopy} />;
   if (line.role === "thought") {

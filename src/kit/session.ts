@@ -6,6 +6,7 @@
 import type { EntitySummary, KitBridge } from "./bridge";
 import type { PresetBody } from "../entities/preset";
 import { resolveProviderConfig } from "./providers/vault";
+import { spokes } from "./providers/registry";
 import { makeChat } from "./providers/chat";
 import { pingProvider, type Probe } from "./providers/probe";
 import { discoverTools } from "./tools/discover";
@@ -23,6 +24,7 @@ import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage, ToolSpec } from "./providers/provider";
 import { ambientContext, KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
 import { discoverCapabilities } from "./capabilities/discover";
+import { artFor, resolveArtTarget, type FoundArt } from "./render/art-lookup";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
 import { applyChangeDraft } from "./changes/apply";
@@ -76,6 +78,8 @@ export interface Session {
     onEvent: (event: TurnEvent) => void,
     signal?: AbortSignal,
     gate?: GateSeam,
+    /** Images pasted into this turn. Sent only if the resolved provider declared it takes them. */
+    images?: readonly Uint8Array[],
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
@@ -99,8 +103,25 @@ export interface Session {
     /** Drop a staged draft nobody will apply, so the next attempt can stage a fresh one. */
     discard(draftId: string): void;
   };
+  /**
+   * The card-art seam, read-only, on Session for the same reason `presets` is: the session holds the
+   * bridge, and threading storage access through the render tree to reach a picture is the wrong
+   * direction.
+   */
+  art?: {
+    /** One piece's art by written name, or the reason there is none to show. */
+    find(query: string, kind?: string): Promise<FoundArt | { detail: string }>;
+    /**
+     * Every piece of a deck that HAS art, for the gallery rail.
+     *
+     * Bounded, and it says when it truncated. A portrait is a base64 image on an entity, so reading a
+     * whole deck is the most memory this seam can spend; an unbounded gallery on a large studio is a
+     * pause that reads as Kit hanging rather than as a big shelf.
+     */
+    gallery(kind?: string, limit?: number): Promise<{ found: FoundArt[]; scanned: number; more: boolean }>;
+  };
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
-  activeProvider(): Promise<{ name: string; model: string; context?: number } | null>;
+  activeProvider(): Promise<{ name: string; model: string; context?: number; images?: boolean } | null>;
 }
 
 const MAX_STEPS = 12;
@@ -158,9 +179,37 @@ export async function createSession(
     contentCapabilityAccess(runtime.descriptors()),
   );
 
+  /** The narrow read art-lookup needs, adapted from the bridge once rather than at each call site. */
+  const artSource = {
+    list: async (kind: string) => (await bridge.list(kind)).map((p) => ({ id: p.id, name: p.name })),
+    read: (kind: string, id: string) => bridge.read(kind, id),
+  };
+
   return {
     capabilities: () => capabilities,
     folders,
+    art: {
+      async find(query, kind = "character") {
+        const target = await resolveArtTarget(artSource, kind, query);
+        if (!target.ok) return { detail: target.detail };
+        const art = await artFor(artSource, kind, target.id);
+        // "No art" is a real, common answer and not an error: plenty of cards are text only. Naming
+        // the piece matters, because the person asked about a specific one.
+        return art ?? { detail: `${target.id} carries no card art.` };
+      },
+      async gallery(kind = "character", limit = 60) {
+        const pieces = await artSource.list(kind);
+        const found: FoundArt[] = [];
+        let scanned = 0;
+        for (const piece of pieces) {
+          if (found.length >= limit) break;
+          scanned++;
+          const art = await artFor(artSource, kind, piece.id);
+          if (art) found.push(art);
+        }
+        return { found, scanned, more: scanned < pieces.length };
+      },
+    },
     presets: {
       list: () => bridge.list("preset"),
       async stage(id, rows) {
@@ -198,7 +247,7 @@ export async function createSession(
         return entity ? (entity.body as PresetBody) : undefined;
       },
     },
-    async runTurn(input, history, onEvent, signal, gate) {
+    async runTurn(input, history, onEvent, signal, gate, images) {
       try {
         runtime.beginTurn();
         const config = await resolveProviderConfig();
@@ -237,8 +286,13 @@ export async function createSession(
             return undefined;
           },
         );
+        const spoke = (await spokes()).get(config.kind);
+        // THE PROVIDER DECIDES. Attaching an image to a model that cannot read one is not a soft
+        // failure, it errors the turn, so an undeclared spoke drops them rather than gambling.
+        const attach = spoke?.images === true ? images : undefined;
         const turn = runLoop(input, history, {
           chat,
+          ...(attach && attach.length > 0 ? { images: attach } : {}),
           dispatch: gated,
           toolSnapshot: () => [...runtime.toolSnapshot(), ...lifecycleSpecs],
           effectFor: (call) => effects.get(call.name),
@@ -308,6 +362,8 @@ export async function createSession(
       return {
         name: config.name ?? config.kind,
         model: config.model,
+        // Whether a picture can be SENT is the spoke's answer, not a guess made where it is drawn.
+        images: (await spokes()).get(config.kind)?.images === true,
         ...(config.context ? { context: config.context } : {}),
       };
     },

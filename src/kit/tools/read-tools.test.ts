@@ -222,6 +222,7 @@ describe("discovery", () => {
       "rail_open",
       "regex_lab",
       "result_query",
+      "studio_art",
       "studio_character_create",
       "studio_delete",
       "studio_duplicate",
