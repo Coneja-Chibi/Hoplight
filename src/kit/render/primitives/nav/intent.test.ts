@@ -114,3 +114,30 @@ describe("an unbound key is null, never a guess", () => {
     expect(intentOf({ name: "z", ctrl: true })).toBeNull();
   });
 });
+
+describe("alt arrives under two names", () => {
+  /**
+   * The bug this pins cost a real feature and a wrong diagnosis. Alt+V was reported dead, and the
+   * first explanation was that the terminal could not deliver alt at all. It could: opentui's raw
+   * parser matches the ESC-prefix convention and reports it as `meta`, while `option` is set only
+   * from a Kitty modifier bit. Reading one flag missed every alt chord on every terminal without the
+   * Kitty protocol, which is most of them.
+   */
+  test("the raw ESC-prefix convention is alt, not meta", () => {
+    expect(chordOf({ name: "v", meta: true, source: "raw" })).toBe("alt+v");
+    // No source at all is the same case: a bare meta with no protocol behind it is an ESC prefix.
+    expect(chordOf({ name: "v", meta: true })).toBe("alt+v");
+  });
+
+  test("the kitty modifier bit is alt too", () => {
+    expect(chordOf({ name: "v", option: true, source: "kitty" })).toBe("alt+v");
+  });
+
+  test("a real meta modifier under kitty stays meta", () => {
+    expect(chordOf({ name: "v", meta: true, source: "kitty" })).toBe("meta+v");
+  });
+
+  test("super is always meta, whichever parser saw it", () => {
+    expect(chordOf({ name: "v", super: true, source: "raw" })).toBe("meta+v");
+  });
+});

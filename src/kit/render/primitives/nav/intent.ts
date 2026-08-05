@@ -30,7 +30,7 @@ export type Intent =
   | "up" | "down" | "page-up" | "page-down" | "top" | "bottom" | "open" | "back"
   | "rail-toggle" | "rail-wider" | "rail-narrower" | "rail-density"
   // the app
-  | "search" | "fold-trace" | "clear" | "quit" | "help"
+  | "search" | "fold-trace" | "clear" | "quit" | "help" | "paste-image"
   // safety
   | "allow" | "deny";
 
@@ -42,6 +42,8 @@ export interface KeyLike {
   shift?: boolean;
   meta?: boolean;
   option?: boolean;
+  /** Which parser produced this. Decides what a bare `meta` means; see chordOf. */
+  source?: "raw" | "kitty";
   super?: boolean;
 }
 
@@ -75,8 +77,19 @@ export function chordOf(event: KeyLike): string | null {
   const name = (event.name ?? "").toLowerCase();
   if (!name) return null;
   const ctrl = event.ctrl === true;
-  const meta = event.meta === true || event.super === true;
-  const alt = event.option === true;
+  /**
+   * ALT ARRIVES UNDER TWO NAMES, and reading only one of them is how a whole family of chords went
+   * missing. Under the Kitty protocol alt is `option`. Under the raw parser it is the older ESC-prefix
+   * convention - alt+v is ESC then "v" - which opentui matches and reports as `meta`. Every terminal
+   * has sent the second form for decades; the first is the newcomer.
+   *
+   * `meta` therefore means alt on the raw path and the real meta modifier on the kitty path, so the
+   * source decides. Without `source` the older convention wins, because a bare `meta` with no protocol
+   * behind it is an ESC prefix in practice, and treating it as Cmd made every alt row unreachable.
+   */
+  const kitty = event.source === "kitty";
+  const alt = event.option === true || (event.meta === true && !kitty);
+  const meta = event.super === true || (event.meta === true && kitty);
   const bare = !ctrl && !meta && !alt;
   const printable = name.length === 1;
   const parts: string[] = [];
@@ -132,6 +145,11 @@ export const KEYMAP: readonly Keybinding[] = [
   // the app
   { chord: "ctrl+f", keys: "Ctrl+F", label: "search the transcript", group: "moving", intent: "search" },
   { chord: "ctrl+o", keys: "Ctrl+O", label: "fold or reopen the latest trace", group: "moving", intent: "fold-trace" },
+  // Ctrl+G rather than Alt+V, and the difference is not taste. opentui only sets `option` from a
+  // Kitty keyboard modifier bit, and Windows Terminal does not speak that protocol, so an alt chord
+  // is advertised and then never arrives. Alt+V still works where Kitty is live; this is the row
+  // help can promise on every terminal.
+  { chord: "ctrl+g", keys: "Ctrl+G", label: "paste an image from the clipboard", group: "editing", intent: "paste-image" },
 ] as const;
 
 /**
@@ -157,7 +175,7 @@ export const HANDLED_INTENTS: ReadonlySet<Intent> = new Set<Intent>([
   "recall-prev", "recall-next",
   "page-up", "page-down",
   "rail-toggle", "rail-wider", "rail-narrower", "rail-density",
-  "search", "fold-trace",
+  "search", "fold-trace", "paste-image",
 ]);
 
 /** chord -> intent, built once. A Map (not object indexing) so "__proto__" can never resolve. */
