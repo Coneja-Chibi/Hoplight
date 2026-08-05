@@ -8,6 +8,16 @@
  * The entry listing is captured once, by the caller, rather than asked of the source per lookup: a
  * character whose avatar and cropped image both miss would otherwise cost two redundant list()
  * calls, and a lorebook import walking thousands of rows would make that cost real.
+ *
+ * `bytes()` memoizes by entry name, for the same reason: the character slice's own module-sprite
+ * collection can ask for the same expression file's bytes more than once across a run, and every
+ * read charges the archive's SHARED aggregate decompressed budget (newAggregateBudget), not a
+ * per-entry one. Charging that budget twice for one file a caller happened to ask for twice could
+ * trip the ceiling on an otherwise legitimate archive; one read, one charge, one cached result.
+ *
+ * Thumbnails (files/thumbnails/) are deliberately never resolved here: the spec names their path
+ * convention but no canonical field consumes a thumbnail today, so nothing in this module reads
+ * THUMBNAILS_PREFIX at all. Revisit if/when a canonical slot for a thumbnail is designed.
  */
 import { mimeFromPath } from "../lumiverse/modules";
 import { AVATARS_PREFIX, IMAGES_PREFIX } from "./layout";
@@ -45,12 +55,20 @@ export function createBinaries(
   const present = new Set(entryNames);
   const has = (name: string): boolean => present.has(name);
 
-  const bytes = async (name: string): Promise<Uint8Array | null> => {
-    if (!has(name)) {
-      recordMissingBinary(report, name);
-      return null;
+  const cache = new Map<string, Promise<Uint8Array | null>>();
+  const bytes = (name: string): Promise<Uint8Array | null> => {
+    let cached = cache.get(name);
+    if (!cached) {
+      cached = (async () => {
+        if (!has(name)) {
+          recordMissingBinary(report, name);
+          return null;
+        }
+        return readEntryBytes(source, name, MAX_BINARY_BYTES);
+      })();
+      cache.set(name, cached);
     }
-    return readEntryBytes(source, name, MAX_BINARY_BYTES);
+    return cached;
   };
 
   const dataUri = async (name: string): Promise<string | null> => {

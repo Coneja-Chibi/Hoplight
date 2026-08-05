@@ -23,7 +23,7 @@ import { ZIP_STORED, writeZip64 } from "../_fixtures/lumiverse-archive/zip64-wri
 import { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 import { detectLumiverseArchive } from "./detect";
 import { directoryEntrySource } from "./dir-source";
-import { readEntryBytes, readEntryText, type LvbakEntrySource } from "./source";
+import { missingEntryError, readEntryBytes, readEntryText, type LvbakEntrySource } from "./source";
 import { zipEntrySource, zipEntrySourceFromFile } from "./zip-source";
 
 const MAX = 8 * 1024 * 1024;
@@ -142,6 +142,16 @@ describe("path safety", () => {
     expect(byName.get("files/.DS_Store")).toBe("cruft");
     expect(byName.get("files/._resource")).toBe("cruft");
     expect(rejected).toHaveLength(8);
+  });
+
+  test("open() refuses exactly what list() refused: a rejected name is never servable through any door", async () => {
+    // Before the fix, byName was built from every raw central-directory entry, not just the ones
+    // classifyEntryNames kept, so open()/size() would happily hand back a traversal path list()
+    // itself refuses to name. missingEntryError is the exact error dir-source's own contract raises
+    // for the same case, so the two sources agree here too.
+    const source = zipEntrySource(hostile);
+    await expect(source.open("../escape.txt")).rejects.toEqual(missingEntryError("../escape.txt"));
+    await expect(source.size("../escape.txt")).rejects.toEqual(missingEntryError("../escape.txt"));
   });
 
   test("a directory source never serves a symlink", async () => {

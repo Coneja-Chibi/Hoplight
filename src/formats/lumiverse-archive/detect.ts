@@ -12,7 +12,7 @@
  */
 import { DATABASE_PREFIX, MANIFEST_ENTRY } from "./layout";
 import { LUMIVERSE_PRODUCER, readManifest, readStats } from "./manifest";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 
 /** The only schemaVersion accepted today, mirroring Lumiverse's own importer. */
 export const LVBAK_SCHEMA_VERSION = 1;
@@ -54,8 +54,13 @@ export async function detectLumiverseArchive(
     }
     if (stats) detection.counts = stats.counts;
     return detection;
-  } catch {
-    // Bounds breach, malformed ZIP, unreadable directory: all the same answer at this layer.
+  } catch (error) {
+    // A bounds breach or a malformed container is not "not a Lumiverse archive": it means the
+    // source cannot be trusted to answer at all, and must abort the whole call, not report a
+    // confident non-match that sends a real (if hostile) .lvbak down the charx path instead.
+    if (isContainerAbort(error)) throw error;
+    // Anything else unreadable here (a missing manifest, malformed JSON, an unreadable directory)
+    // really is just "not this format".
     return noMatch();
   }
 }

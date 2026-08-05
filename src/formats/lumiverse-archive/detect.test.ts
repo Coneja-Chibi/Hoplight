@@ -19,6 +19,7 @@ import {
   ZIP_DEFLATE,
   writeZip64,
 } from "../_fixtures/lumiverse-archive/zip64-writer";
+import { isArchiveFormatError } from "../../core/archive-stream";
 import { detectLumiverseArchive, isSupportedLvbakSchema } from "./detect";
 import { zipEntrySource } from "./zip-source";
 
@@ -116,13 +117,25 @@ describe("detectLumiverseArchive refuses", () => {
     expect((await detect(bytes)).isLumiverseArchive).toBe(true);
   });
 
-  test("a manifest that is not JSON, and bytes that are not a ZIP", async () => {
+  test("a manifest that is not JSON, inside an otherwise real ZIP", async () => {
     const broken = writeZip64([
       { name: "manifest.json", data: strToU8("{ this is not json"), method: ZIP_DEFLATE, level: 3 },
       { name: "database/characters.ndjson", data: strToU8("{}\n"), method: ZIP_DEFLATE, level: 3 },
     ]);
     expect((await detect(broken)).isLumiverseArchive).toBe(false);
-    expect((await detect(new Uint8Array(64).fill(0x41))).isLumiverseArchive).toBe(false);
+  });
+
+  test("bytes that are not a ZIP at all throw ArchiveFormatError rather than a silent refusal", async () => {
+    // Not a bounds breach and not "some other format": the container itself cannot be read, which
+    // is a whole-call abort (isContainerAbort), never a confident "not a Lumiverse archive" that
+    // would send hostile bytes down the charx path with detection having quietly given up first.
+    let caught: unknown;
+    try {
+      await detect(new Uint8Array(64).fill(0x41));
+    } catch (error) {
+      caught = error;
+    }
+    expect(isArchiveFormatError(caught)).toBe(true);
   });
 
   test("a manifest whose schemaVersion is not an integer", async () => {

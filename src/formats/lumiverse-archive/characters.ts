@@ -37,9 +37,9 @@ import { toAdapterInput } from "../../core";
 import { inspectBundle } from "../../convert";
 import type { Binaries } from "./binaries";
 import { addArchiveEscrow } from "./escrow";
-import type { LinkMap } from "./links";
+import type { IdMint, LinkMap } from "./links";
 import { addWarning, codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 import { readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId } from "./tables";
 
@@ -84,22 +84,27 @@ export function characterRowToCard(row: Record<string, unknown>, fields: Charact
 }
 
 /**
- * Resolve every `files/`-relative path named by `modules.expressions.mappings` against the archive,
- * for embedding at the SAME key in the synthetic dispatch zip. A ref with no matching entry is simply
- * left out (its binary is absent; `binaries.bytes` already recorded that), never an error: the codec's
- * own `resolveAssetRef` leaves an unresolved ref as the bare path rather than fabricating anything.
+ * Resolve every `files/`-relative path named by `modules.expressions.mappings` OR
+ * `modules.alternate_avatars[].path`/`.image_id` against the archive, for embedding at the SAME key
+ * in the synthetic dispatch zip (the same primitive either way: `binaries.bytes`, so a miss is
+ * recorded free). A ref with no matching entry is simply left out, never an error: the codec's own
+ * `resolveAssetRef` leaves an unresolved ref as the bare path rather than fabricating anything.
  *
- * Scoped to expressions on purpose: it is the sprite path the spec and the codec both name, and the
- * only piece of `lumiverse_modules` this fixture set proves resolves end to end. `alternate_avatars`
- * and the rest of LumiModules ride the sidecar untouched but unresolved here.
+ * `expression_groups` stays out on purpose: no fixture or spec text this repo has proves its real
+ * shape, so resolving it here would be guessing at a path convention rather than reading one.
  */
 async function collectModuleFiles(
   modules: LumiModules,
   binaries: Binaries,
 ): Promise<Record<string, Uint8Array>> {
-  const refs = Object.values(modules.expressions?.mappings ?? {}).filter(
-    (v): v is string => typeof v === "string" && v.length > 0,
-  );
+  const refs = new Set<string>();
+  for (const ref of Object.values(modules.expressions?.mappings ?? {})) {
+    if (typeof ref === "string" && ref.length > 0) refs.add(ref);
+  }
+  for (const avatar of modules.alternate_avatars ?? []) {
+    const ref = avatar?.path ?? avatar?.image_id;
+    if (typeof ref === "string" && ref.length > 0) refs.add(ref);
+  }
   const files: Record<string, Uint8Array> = {};
   for (const ref of refs) {
     const bytes = await binaries.bytes(ref);
@@ -127,13 +132,13 @@ async function resolvePortrait(
   if (avatarPath) dataUri = await binaries.avatarDataUri(avatarPath);
 
   if (!dataUri) {
-    const imageId = typeof row.image_id === "string" ? row.image_id : "";
+    const imageId = asId(row.image_id);
     const imageRow = imageId ? images.get(imageId) : undefined;
     if (imageRow) dataUri = await binaries.imageDataUri(imageRow.row);
   }
 
   if (!dataUri) {
-    const cropId = typeof row.avatar_crop_image_id === "string" ? row.avatar_crop_image_id : "";
+    const cropId = asId(row.avatar_crop_image_id);
     const cropRow = cropId ? images.get(cropId) : undefined;
     if (cropRow) dataUri = await binaries.imageDataUri(cropRow.row);
   }
@@ -223,6 +228,9 @@ export interface ImportCharactersOptions {
   /** Built once by the caller via indexCharacterGallery, the same "one source.list() / one table
    * read shared everywhere" doctrine binaries and images already follow. */
   gallery: ReadonlyMap<string, GalleryRow[]>;
+  /** Shared across every kind module in the run, so a character and a lorebook that both mint
+   * "aria" collide against the SAME used-ids set. */
+  idMint: IdMint;
 }
 
 /**
@@ -238,7 +246,7 @@ export async function importCharacters(
   source: LvbakEntrySource,
   options: ImportCharactersOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links, binaries, images, gallery } = options;
+  const { lineCeiling, report, links, binaries, images, gallery, idMint } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
@@ -284,6 +292,7 @@ export async function importCharacters(
         : toAdapterInput(strToU8(JSON.stringify(envelope)), "character.json");
 
       const { entity, lorebooks } = inspectBundle(characterAdapter, input);
+      entity.id = idMint.claim("character", entity.id);
       await resolvePortrait(entity, read.row, binaries, images);
       await appendGalleryAssets(entity, rowId(read.row), gallery, images, binaries);
 
@@ -293,10 +302,12 @@ export async function importCharacters(
       out.push(escrowed);
 
       for (const book of lorebooks) {
+        book.id = idMint.claim("lorebook", book.id);
         recordImported(report, "lorebook", { id: book.id, name: book.body.name });
         out.push(book);
       }
     } catch (error) {
+      if (isContainerAbort(error)) throw error;
       recordFailure(report, codecRowFailure("characters", read.row, error));
     }
   }

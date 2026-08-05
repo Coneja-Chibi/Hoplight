@@ -9,8 +9,8 @@
  * bundle-import Behavior step 1: reject traversal, absolute, backslash, and NUL paths; skip macOS
  * cruft. A rejected path is evidence for the report, so it is recorded rather than dropped.
  */
-import { ArchiveLimitError, type UnzipBounds } from "../../core/archive";
-import type { AggregateBudget } from "../../core/archive-stream";
+import { ArchiveLimitError, isArchiveLimitError, type UnzipBounds } from "../../core/archive";
+import { isArchiveFormatError, type AggregateBudget } from "../../core/archive-stream";
 
 /** Why an entry name never reached list(). */
 export type EntryRejection = "unsafe" | "cruft";
@@ -78,6 +78,16 @@ export const newAggregateBudget = (bounds: UnzipBounds): AggregateBudget => ({
 
 export const missingEntryError = (name: string): Error =>
   new Error(`lumiverse-archive: no entry named ${name}`);
+
+/**
+ * A bounds breach (ArchiveLimitError) or a malformed container (ArchiveFormatError): the SOURCE
+ * itself can no longer be trusted to answer questions correctly, so this is a whole-archive abort
+ * (spec Behavior step 1), never a per-row failure. Every kind module's per-row try/catch checks this
+ * first and rethrows rather than swallowing it into recordFailure - otherwise a decompression bomb
+ * partway through a table read would surface as a clean-looking partial import instead of a throw.
+ */
+export const isContainerAbort = (error: unknown): boolean =>
+  isArchiveLimitError(error) || isArchiveFormatError(error);
 
 /**
  * Drain an entry into bytes, refusing anything past `maxBytes`. Detection, the manifests, and the

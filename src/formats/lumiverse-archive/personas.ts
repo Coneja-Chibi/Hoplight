@@ -18,13 +18,15 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import personaCodec from "../lumiverse/persona";
 import type { Binaries } from "./binaries";
 import { addArchiveEscrow } from "./escrow";
-import type { LinkMap } from "./links";
+import type { IdMint, LinkMap } from "./links";
 import { codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 import { readTable, type ReadTableOptions, type TableRow } from "./table-walk";
-import { rowId } from "./tables";
+import { asBool, rowId } from "./tables";
 
 const asString = (v: unknown): string => (typeof v === "string" ? v : "");
+/** Same string-or-number tolerance as rowId, for a foreign key column rather than a row's own id. */
+const asId = (v: unknown): string => (typeof v === "string" ? v : typeof v === "number" ? String(v) : "");
 
 /**
  * Build the Lumiverse account-object wire `lumiverse-persona` already parses. `metadata` is
@@ -51,8 +53,8 @@ export function personaRowToWire(read: TableRow): Record<string, unknown> {
     subjective_pronoun: asString(row.subjective_pronoun),
     objective_pronoun: asString(row.objective_pronoun),
     possessive_pronoun: row.possessive_pronoun,
-    is_narrator: row.is_narrator === 1,
-    is_default: row.is_default === 1,
+    is_narrator: asBool(row.is_narrator),
+    is_default: asBool(row.is_default),
     avatar_path: row.avatar_path,
     attached_world_book_id: row.attached_world_book_id,
     folder: row.folder,
@@ -75,7 +77,7 @@ function resolveKnowledgeRef(
   links: LinkMap,
   report: LvbakImportReport,
 ): void {
-  const lumiverseBookId = typeof row.attached_world_book_id === "string" ? row.attached_world_book_id : "";
+  const lumiverseBookId = asId(row.attached_world_book_id);
   if (!lumiverseBookId) return; // nothing was attached; the codec never set knowledgeRefs either
   const from = `personas/${rowId(row)}(${entity.body.name})`;
   const resolved = links.resolve(from, "world_books", lumiverseBookId, report);
@@ -111,6 +113,8 @@ export interface ImportPersonasOptions {
   report: LvbakImportReport;
   links: LinkMap;
   binaries: Binaries;
+  /** Shared across every kind module in the run; see links.ts's IdMint doc comment. */
+  idMint: IdMint;
 }
 
 /**
@@ -128,7 +132,7 @@ export async function importPersonas(
   source: LvbakEntrySource,
   options: ImportPersonasOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links, binaries } = options;
+  const { lineCeiling, report, links, binaries, idMint } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
@@ -139,6 +143,7 @@ export async function importPersonas(
     try {
       const wire = personaRowToWire(read);
       const entity: CanonicalPersona = personaCodec.toCanonical({ text: JSON.stringify(wire) });
+      entity.id = idMint.claim("persona", entity.id);
 
       resolveKnowledgeRef(entity, read.row, links, report);
       await resolveAvatar(entity, read.row, binaries);
@@ -148,6 +153,7 @@ export async function importPersonas(
       recordImported(report, "persona", { id: escrowed.id, name: escrowed.body.name });
       out.push(escrowed);
     } catch (error) {
+      if (isContainerAbort(error)) throw error;
       recordFailure(report, codecRowFailure("personas", read.row, error));
     }
   }

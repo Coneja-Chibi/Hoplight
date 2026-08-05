@@ -8,7 +8,7 @@ import { buildBadRowsLvbak, buildCrossLinksLvbak, buildMinimalLvbak } from "../_
 import { CHARACTER_ID, DANGLING_ID, PRESET_ID, REGEX_ID } from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries, indexImages } from "./binaries";
 import { importCharacters, indexCharacterGallery } from "./characters";
-import { createLinkMap } from "./links";
+import { createIdMint, createLinkMap } from "./links";
 import { ndjsonLineCeiling } from "./ndjson";
 import { importPresets } from "./presets";
 import { groupRegexRows, importRegexSets, regexRowToScript } from "./regex-sets";
@@ -23,17 +23,18 @@ const noFailures = () => expect.unreachable();
 async function populateLinks(bytes: Uint8Array) {
   const report = createLvbakReport();
   const links = createLinkMap();
+  const idMint = createIdMint();
 
   const charSource = zipEntrySource(bytes);
   const binaries = createBinaries(charSource, await charSource.list(), report);
   const images = await indexImages(charSource, { lineCeiling: V1_CEILING, onFailure: noFailures });
   const gallery = await indexCharacterGallery(charSource, { lineCeiling: V1_CEILING, onFailure: noFailures });
-  await importCharacters(charSource, { lineCeiling: V1_CEILING, report, links, binaries, images, gallery });
+  await importCharacters(charSource, { lineCeiling: V1_CEILING, report, links, binaries, images, gallery, idMint });
 
   const presetSource = zipEntrySource(bytes);
-  await importPresets(presetSource, { lineCeiling: V1_CEILING, report, links });
+  await importPresets(presetSource, { lineCeiling: V1_CEILING, report, links, idMint });
 
-  return { report, links };
+  return { report, links, idMint };
 }
 
 async function readRegexRows(bytes: Uint8Array): Promise<TableRow[]> {
@@ -78,6 +79,17 @@ describe("groupRegexRows", () => {
       ["character", DANGLING_ID],
     ]);
   });
+
+  test("scope_id tolerates an integer row id, not just a string (an integer-PK archive)", () => {
+    const row: TableRow = {
+      line: 1,
+      row: { id: "r1", scope: "character", scope_id: 42 },
+      inner: { values: {}, failures: [] },
+    };
+    const groups = groupRegexRows([row]);
+    expect(groups).toHaveLength(1);
+    expect(groups[0]).toMatchObject({ scope: "character", scopeId: "42" });
+  });
 });
 
 describe("importRegexSets", () => {
@@ -85,7 +97,7 @@ describe("importRegexSets", () => {
     const source = zipEntrySource(buildMinimalLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links });
+    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     expect(sets).toHaveLength(1);
     const set = sets[0]!;
@@ -111,9 +123,9 @@ describe("importRegexSets", () => {
 
   test("buildCrossLinksLvbak: a character-scoped and a preset-scoped set each resolve to their target's name", async () => {
     const bytes = buildCrossLinksLvbak();
-    const { report, links } = await populateLinks(bytes);
+    const { report, links, idMint } = await populateLinks(bytes);
     const source = zipEntrySource(bytes);
-    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links });
+    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links, idMint });
 
     expect(sets).toHaveLength(3);
     const byName = new Map(sets.map((s) => [s.kind === "regex" ? s.body.name : "", s]));
@@ -133,9 +145,9 @@ describe("importRegexSets", () => {
 
   test("a dangling scope still imports, named from the raw id, with the miss recorded on both sides", async () => {
     const bytes = buildCrossLinksLvbak();
-    const { report, links } = await populateLinks(bytes);
+    const { report, links, idMint } = await populateLinks(bytes);
     const source = zipEntrySource(bytes);
-    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links });
+    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links, idMint });
 
     const dangling = sets.find((s) => s.kind === "regex" && s.body.name === `${DANGLING_ID} regex`);
     if (!dangling || dangling.kind !== "regex") throw new Error("no dangling-scope set in the result");
@@ -151,7 +163,7 @@ describe("importRegexSets", () => {
     const source = zipEntrySource(buildBadRowsLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links });
+    const sets = await importRegexSets(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     expect(sets).toHaveLength(1);
     const set = sets[0]!;

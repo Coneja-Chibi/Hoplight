@@ -29,7 +29,7 @@ import {
 } from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries, indexImages } from "./binaries";
 import { importCharacters, indexCharacterGallery, type ImportCharactersOptions } from "./characters";
-import { createLinkMap, type LinkMap } from "./links";
+import { createIdMint, createLinkMap, type LinkMap } from "./links";
 import { ndjsonLineCeiling } from "./ndjson";
 import { createLvbakReport, type LvbakImportReport } from "./report";
 import { zipEntrySource } from "./zip-source";
@@ -55,7 +55,7 @@ async function rig(bytes: Uint8Array): Promise<Rig> {
   return {
     report,
     links,
-    options: { lineCeiling: V1_CEILING, report, links, binaries, images, gallery },
+    options: { lineCeiling: V1_CEILING, report, links, binaries, images, gallery, idMint: createIdMint() },
   };
 }
 
@@ -98,6 +98,74 @@ describe("zip-wire sprites", () => {
     if (!character || character.kind !== "character") throw new Error("no character in the result");
     const lumi = character.original!.lumiverse!.raw as { fromZip: boolean };
     expect(lumi.fromZip).toBe(false);
+  });
+
+  test("alternate_avatars refs are collected too, same primitive as expressions: a resolvable one becomes a real media asset", async () => {
+    // The codec's own rehydrateCardData already reads modules.alternate_avatars and resolves its
+    // path/image_id through resolveAssetRef(path, files) - but "files" is whatever collectModuleFiles
+    // embedded in the synthesized dispatch zip. Before this fix, only expressions.mappings refs were
+    // ever fetched from the archive, so an alternate avatar's file was never IN that zip and
+    // resolveAssetRef could only hand back the bare, unresolved path; the codec never emits an asset
+    // for an unresolved ref.
+    const modules = {
+      version: 1,
+      expressions: {
+        enabled: true,
+        defaultExpression: "neutral",
+        mappings: { neutral: "files/expressions/neutral.png" },
+      },
+      alternate_avatars: [{ id: "alt-1", label: "Alt", path: "files/other/alt-avatar.png" }],
+    };
+    const tables = {
+      characters: [characterRow({ extensions: JSON.stringify({ lumiverse_modules: modules }) })],
+    };
+    const bytes = assembleLvbak({
+      manifest: lvbakManifest(),
+      tables,
+      files: {
+        "files/expressions/neutral.png": PNG_1X1,
+        "files/other/alt-avatar.png": PNG_1X1,
+      },
+      stats: lvbakStats(tables),
+    });
+    const { options } = await rig(bytes);
+    const source = zipEntrySource(bytes);
+
+    const entities = await importCharacters(source, options);
+    const character = entities.find((e) => e.kind === "character");
+    if (!character || character.kind !== "character") throw new Error("no character in the result");
+    const altAvatar = character.body.media.assets?.find((a) => a.label === "Alt");
+    expect(altAvatar).toBeDefined();
+    expect(altAvatar!.ref.startsWith("data:image/png;base64,")).toBe(true);
+  });
+
+  test("alternate_avatars refs are collected too: an absent one is recorded free, same primitive as expressions", async () => {
+    const modules = {
+      version: 1,
+      expressions: {
+        enabled: true,
+        defaultExpression: "neutral",
+        mappings: { neutral: "files/expressions/neutral.png" },
+      },
+      alternate_avatars: [{ id: "alt-1", path: "files/other/alt-avatar-missing.png" }],
+    };
+    const tables = {
+      characters: [characterRow({ extensions: JSON.stringify({ lumiverse_modules: modules }) })],
+    };
+    const bytes = assembleLvbak({
+      manifest: lvbakManifest(),
+      tables,
+      // the expression sprite is present; the alternate-avatar file deliberately is not
+      files: { "files/expressions/neutral.png": PNG_1X1 },
+      stats: lvbakStats(tables),
+    });
+    const { options, report } = await rig(bytes);
+    const source = zipEntrySource(bytes);
+
+    const entities = await importCharacters(source, options);
+    const character = entities.find((e) => e.kind === "character");
+    if (!character || character.kind !== "character") throw new Error("no character in the result");
+    expect(report.missingBinaries).toContain("files/other/alt-avatar-missing.png");
   });
 });
 

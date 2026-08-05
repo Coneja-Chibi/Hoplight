@@ -41,11 +41,17 @@ function zipSourceOver(random: RandomAccessSource, bounds: UnzipBounds): LvbakEn
   const load = (): Promise<Listing> => {
     listing ??= (async () => {
       const entries = await listZipEntriesBounded(random, bounds);
+      const { keep, rejected } = classifyEntryNames(entries.map((e) => e.name));
+      const keepSet = new Set(keep);
       const byName = new Map<string, ZipEntry>();
       // First occurrence wins. A duplicate name is a shadowing trick, and the entry a reader saw
-      // first is the one it should keep answering with.
-      for (const entry of entries) if (!byName.has(entry.name)) byName.set(entry.name, entry);
-      const { keep, rejected } = classifyEntryNames(entries.map((e) => e.name));
+      // first is the one it should keep answering with. Entries list() refused are excluded here
+      // too: open()/size() must refuse exactly what list() refused, matching directoryEntrySource's
+      // own contract (a rejected path never becomes a servable entry through any door).
+      for (const entry of entries) {
+        if (!keepSet.has(entry.name)) continue;
+        if (!byName.has(entry.name)) byName.set(entry.name, entry);
+      }
       return { order: keep, rejected, byName };
     })();
     return listing;

@@ -23,7 +23,7 @@ import {
   personaRow,
 } from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries } from "./binaries";
-import { createLinkMap } from "./links";
+import { createIdMint, createLinkMap } from "./links";
 import { importLorebooks } from "./lorebooks";
 import { ndjsonLineCeiling } from "./ndjson";
 import { importPersonas, personaRowToWire } from "./personas";
@@ -59,6 +59,13 @@ describe("personaRowToWire", () => {
     expect(typeof wire.metadata).not.toBe("string");
   });
 
+  test("is_narrator/is_default tolerate a genuine true/false, not just SQLite's 0/1", async () => {
+    const read = await firstPersonaRead(buildMinimalLvbak());
+    const wire = personaRowToWire({ ...read, row: { ...read.row, is_narrator: true, is_default: false } });
+    expect(wire.is_narrator).toBe(true);
+    expect(wire.is_default).toBe(false);
+  });
+
   test("a metadata parse failure leaves metadata off the wire rather than passing the broken string", async () => {
     const source = zipEntrySource(buildBadRowsLvbak());
     let broken: TableRow | undefined;
@@ -80,14 +87,15 @@ describe("importPersonas: attached lorebook", () => {
     const bytes = buildCrossLinksLvbak();
     const report = createLvbakReport();
     const links = createLinkMap();
+    const idMint = createIdMint(); // one shared mint, same as a real run threads across kind stages
     const source1 = zipEntrySource(bytes);
-    const books = await importLorebooks(source1, { lineCeiling: V1_CEILING, report, links });
+    const books = await importLorebooks(source1, { lineCeiling: V1_CEILING, report, links, idMint });
     expect(books).toHaveLength(1);
     const book = books[0]!;
 
     const source2 = zipEntrySource(bytes);
     const binaries = createBinaries(source2, await source2.list(), report);
-    const personas = await importPersonas(source2, { lineCeiling: V1_CEILING, report, links, binaries });
+    const personas = await importPersonas(source2, { lineCeiling: V1_CEILING, report, links, binaries, idMint });
 
     expect(personas).toHaveLength(1);
     const persona = personas[0]!;
@@ -111,7 +119,7 @@ describe("importPersonas: attached lorebook", () => {
     const source = zipEntrySource(bytes);
     const binaries = createBinaries(source, await source.list(), report);
 
-    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries });
+    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries, idMint: createIdMint() });
     expect(personas).toHaveLength(1);
     const persona = personas[0]!;
     if (persona.kind !== "persona") throw new Error("unreachable");
@@ -132,7 +140,7 @@ describe("importPersonas: avatar", () => {
     const links = createLinkMap();
     const binaries = createBinaries(source, await source.list(), report);
 
-    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries });
+    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries, idMint: createIdMint() });
     const persona = personas[0]!;
     if (persona.kind !== "persona") throw new Error("unreachable");
     expect(persona.body.presentation?.imageUrl).toBe(PNG_DATA_URI);
@@ -147,7 +155,7 @@ describe("importPersonas: avatar", () => {
     const links = createLinkMap();
     const binaries = createBinaries(source, await source.list(), report);
 
-    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries });
+    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries, idMint: createIdMint() });
     expect(personas).toHaveLength(1);
     const persona = personas[0]!;
     if (persona.kind !== "persona") throw new Error("unreachable");
@@ -163,7 +171,7 @@ describe("importPersonas: metadata never gates", () => {
     const links = createLinkMap();
     const binaries = createBinaries(source, await source.list(), report);
 
-    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries });
+    const personas = await importPersonas(source, { lineCeiling: V1_CEILING, report, links, binaries, idMint: createIdMint() });
     expect(personas).toHaveLength(2);
     const names = personas.map((p) => (p.kind === "persona" ? p.body.name : ""));
     expect(names.sort()).toEqual(["Test Persona Alpha", "Test Persona Broken"]);

@@ -23,7 +23,7 @@
 import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import { regexAdapter } from "../lumiverse/regex";
 import { addArchiveEscrow } from "./escrow";
-import type { LinkMap } from "./links";
+import type { IdMint, LinkMap } from "./links";
 import {
   codecRowFailure,
   recordFailure,
@@ -31,13 +31,15 @@ import {
   type LvbakImportReport,
   type LvbakRowFailure,
 } from "./report";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
-import type { InnerJsonResult } from "./tables";
+import { asBool, type InnerJsonResult } from "./tables";
 
 const asString = (v: unknown): string => (typeof v === "string" ? v : "");
 const asStringArray = (v: unknown): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
+/** Same string-or-number tolerance as rowId, for a foreign key column rather than a row's own id. */
+const asId = (v: unknown): string => (typeof v === "string" ? v : typeof v === "number" ? String(v) : "");
 
 /**
  * Build the wire shape `LumiverseRegexScriptWire` already parses. `run_on_edit`/`disabled` are
@@ -61,9 +63,9 @@ export function regexRowToScript(row: Record<string, unknown>, inner: InnerJsonR
     min_depth: row.min_depth,
     max_depth: row.max_depth,
     trim_strings: asStringArray(inner.values.trim_strings),
-    run_on_edit: row.run_on_edit === 1,
+    run_on_edit: asBool(row.run_on_edit),
     substitute_macros: row.substitute_macros,
-    disabled: row.disabled === 1,
+    disabled: asBool(row.disabled),
     sort_order: row.sort_order,
     description: asString(row.description),
     folder: row.folder,
@@ -97,7 +99,7 @@ export function groupRegexRows(rows: readonly TableRow[]): RegexRowGroup[] {
 
   for (const read of rows) {
     const row = read.row;
-    const scopeId = typeof row.scope_id === "string" && row.scope_id ? row.scope_id : null;
+    const scopeId = asId(row.scope_id) || null;
     const scope: RegexScope =
       row.scope === "character" && scopeId ? "character" : row.scope === "preset" && scopeId ? "preset" : "account";
     const key = scope === "account" ? "account" : `${scope}:${scopeId}`;
@@ -130,6 +132,8 @@ export interface ImportRegexSetsOptions {
   lineCeiling: number;
   report: LvbakImportReport;
   links: LinkMap;
+  /** Shared across every kind module in the run; see links.ts's IdMint doc comment. */
+  idMint: IdMint;
 }
 
 /**
@@ -145,7 +149,7 @@ export async function importRegexSets(
   source: LvbakEntrySource,
   options: ImportRegexSetsOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links } = options;
+  const { lineCeiling, report, links, idMint } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
@@ -180,6 +184,7 @@ export async function importRegexSets(
       }
 
       const entity = regexAdapter.toCanonical({ text: JSON.stringify(file), filename });
+      entity.id = idMint.claim("regex", entity.id);
       const escrowed = addArchiveEscrow(
         entity,
         "regex_scripts",
@@ -189,6 +194,7 @@ export async function importRegexSets(
       recordImported(report, "regex", { id: escrowed.id, name: escrowed.body.name });
       out.push(escrowed);
     } catch (error) {
+      if (isContainerAbort(error)) throw error;
       for (const read of group.rows) {
         recordFailure(report, codecRowFailure("regex_scripts", read.row, error));
       }

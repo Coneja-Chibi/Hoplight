@@ -6,7 +6,9 @@
  */
 import { describe, expect, test } from "bun:test";
 import { readdir } from "node:fs/promises";
+import { isArchiveLimitError } from "../../core/archive";
 import {
+  assembleLvbak,
   buildBadRowsLvbak,
   buildCharacterGalleryLvbak,
   buildCrossLinksLvbak,
@@ -21,17 +23,27 @@ import {
   GALLERY_MISSING_IMAGE_FILENAME,
   HUGE_LOREBOOK_BOOK_IDS,
   INDIRECT_MISSING_IMAGE_FILENAME,
+  lvbakManifest,
+  lvbakStats,
+  PNG_1X1,
   SKIPPED_TABLE_COUNTS,
 } from "../_fixtures/lumiverse-archive/build-lvbak";
 import { materializeLvbak, removeMaterialized } from "../_fixtures/lumiverse-archive/materialize";
 import {
   CHARACTER_AVATAR,
+  characterRow,
   DANGLING_ID,
+  imageRow,
+  personaRow,
   PERSONA_AVATAR,
+  regexScriptRow,
+  worldBookRow,
 } from "../_fixtures/lumiverse-archive/rows";
+import { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 import { directoryEntrySource } from "./dir-source";
-import { importLumiverseArchive, LvbakSchemaError } from "./import";
+import { importLumiverseArchive, IMPORT_STAGE_ORDER, LvbakSchemaError } from "./import";
 import { reportTotals } from "./report";
+import { MAPPED_TABLES, TABLE_KINDS, type LvbakKind } from "./tables";
 import { zipEntrySource } from "./zip-source";
 
 const run = (bytes: Uint8Array) => importLumiverseArchive(zipEntrySource(bytes));
@@ -243,6 +255,144 @@ describe("universal escrow assertions across the minimal run", () => {
         expect(typeof rows[0]!.placement).toBe("string");
       }
     }
+  });
+});
+
+describe("bounds abort: a container-level limit breach aborts the whole archive", () => {
+  test("reviewer's repro: a maxAggregateOriginal below what buildMinimalLvbak needs throws, never a partial import", async () => {
+    // Deliberately below the fixture's own decompressed total (~5.8 KiB across manifest, both
+    // manifests, and every table/binary), so SOME read past detection is guaranteed to breach it.
+    // Before M10, the per-row catches in every kind module swallowed this into a clean-looking
+    // recordFailure instead of aborting, which is exactly the bug this pins.
+    const source = zipEntrySource(buildMinimalLvbak(), { ...LVBAK_ARCHIVE_BOUNDS, maxAggregateOriginal: 1000 });
+    let caught: unknown;
+    try {
+      await importLumiverseArchive(source);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeDefined();
+    expect(isArchiveLimitError(caught)).toBe(true);
+  });
+});
+
+describe("unique ids: same-named entities never collide in the link map", () => {
+  test("two same-named characters, two same-named books, two personas each attached to a different book: no cross-wiring", async () => {
+    const tables = {
+      characters: [
+        characterRow({ id: "lv-char-a", name: "Aria", extensions: "{}", avatar_path: null, image_id: null, avatar_crop_image_id: null }),
+        characterRow({ id: "lv-char-b", name: "Aria", extensions: "{}", avatar_path: null, image_id: null, avatar_crop_image_id: null }),
+      ],
+      world_books: [
+        worldBookRow({ id: "lv-book-a", name: "Shared Book" }),
+        worldBookRow({ id: "lv-book-b", name: "Shared Book" }),
+      ],
+      personas: [
+        personaRow({ id: "lv-persona-a", name: "P1", attached_world_book_id: "lv-book-a", avatar_path: null }),
+        personaRow({ id: "lv-persona-b", name: "P2", attached_world_book_id: "lv-book-b", avatar_path: null }),
+      ],
+    };
+    const bytes = assembleLvbak({ manifest: lvbakManifest(), tables, stats: lvbakStats(tables) });
+    const { entities } = await run(bytes);
+
+    const characters = entities.filter((e) => e.kind === "character");
+    expect(characters).toHaveLength(2);
+    expect(new Set(characters.map((c) => c.id)).size).toBe(2);
+
+    const books = entities.filter((e) => e.kind === "lorebook");
+    expect(books).toHaveLength(2);
+    expect(new Set(books.map((b) => b.id)).size).toBe(2);
+
+    const rawId = (e: (typeof books)[number]): unknown =>
+      (e.original!["lumiverse-archive"]!.raw as { book: { id: unknown } }).book.id;
+    const bookA = books.find((b) => rawId(b) === "lv-book-a")!;
+    const bookB = books.find((b) => rawId(b) === "lv-book-b")!;
+    expect(bookA).toBeDefined();
+    expect(bookB).toBeDefined();
+    expect(bookA.id).not.toBe(bookB.id);
+
+    const personas = entities.filter((e) => e.kind === "persona");
+    const p1 = personas.find((p) => p.kind === "persona" && p.body.name === "P1")!;
+    const p2 = personas.find((p) => p.kind === "persona" && p.body.name === "P2")!;
+    if (p1.kind !== "persona" || p2.kind !== "persona") throw new Error("unreachable");
+    // each persona's knowledgeRefs names its OWN book's id, not whichever same-named book recorded last
+    expect(p1.body.knowledgeRefs).toEqual([bookA.id]);
+    expect(p2.body.knowledgeRefs).toEqual([bookB.id]);
+  });
+});
+
+describe("integer primary keys: an archive whose ids are numbers, not strings", () => {
+  test("portrait (image_id and avatar_crop_image_id), knowledgeRefs, and regex scope all still resolve", async () => {
+    const tables = {
+      characters: [
+        characterRow({
+          id: 100,
+          name: "Char A",
+          extensions: "{}",
+          avatar_path: null,
+          image_id: 10,
+          avatar_crop_image_id: null,
+        }),
+        characterRow({
+          id: 101,
+          name: "Char B",
+          extensions: "{}",
+          avatar_path: null,
+          image_id: 999, // no such images row: this character's join has to fall through to the crop id
+          avatar_crop_image_id: 20,
+        }),
+      ],
+      images: [
+        imageRow({ id: 10, filename: "image-a.png", character_id: 100 }),
+        imageRow({ id: 20, filename: "image-b.png", character_id: 101 }),
+      ],
+      world_books: [worldBookRow({ id: 5, name: "Integer PK Book" })],
+      personas: [personaRow({ id: 200, name: "P", attached_world_book_id: 5, avatar_path: null })],
+      regex_scripts: [regexScriptRow({ id: 300, scope: "character", scope_id: 100 })],
+    };
+    const bytes = assembleLvbak({
+      manifest: lvbakManifest(),
+      tables,
+      files: {
+        "files/images/image-a.png": PNG_1X1,
+        "files/images/image-b.png": PNG_1X1,
+      },
+      stats: lvbakStats(tables),
+    });
+    const { entities, report } = await run(bytes);
+    expect(report.failed).toEqual([]);
+
+    const charA = entities.find((e) => e.kind === "character" && e.body.identity.name === "Char A");
+    const charB = entities.find((e) => e.kind === "character" && e.body.identity.name === "Char B");
+    if (!charA || charA.kind !== "character") throw new Error("Char A missing from the result");
+    if (!charB || charB.kind !== "character") throw new Error("Char B missing from the result");
+    // image_id: 10 (a number, not a string) still joins to its images row
+    expect(charA.body.media.portrait?.ref.startsWith("data:image/png;base64,")).toBe(true);
+    // image_id: 999 misses, but avatar_crop_image_id: 20 (also a number) still joins
+    expect(charB.body.media.portrait?.ref.startsWith("data:image/png;base64,")).toBe(true);
+
+    const persona = entities.find((e) => e.kind === "persona");
+    if (!persona || persona.kind !== "persona") throw new Error("no persona in the result");
+    const book = entities.find((e) => e.kind === "lorebook");
+    if (!book) throw new Error("no lorebook in the result");
+    // attached_world_book_id: 5 (a number) still resolves through the link map
+    expect(persona.body.knowledgeRefs).toEqual([book.id]);
+
+    const regex = entities.find((e) => e.kind === "regex");
+    if (!regex || regex.kind !== "regex") throw new Error("no regex set in the result");
+    // scope_id: 100 (a number) still resolves the scope target's name
+    expect(regex.body.name).toBe("Char A regex");
+  });
+});
+
+describe("IMPORT_STAGE_ORDER", () => {
+  test("matches the kind order MAPPED_TABLES/TABLE_KINDS implies, so the two can never silently drift apart", () => {
+    const derived: LvbakKind[] = [];
+    for (const table of MAPPED_TABLES) {
+      const kind = TABLE_KINDS[table];
+      if (kind && !derived.includes(kind)) derived.push(kind);
+    }
+    expect(IMPORT_STAGE_ORDER).toEqual(derived);
   });
 });
 

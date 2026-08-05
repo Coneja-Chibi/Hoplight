@@ -28,7 +28,7 @@ export {
   type LvbakDetection,
 } from "./detect";
 export { addArchiveEscrow } from "./escrow";
-export { importLumiverseArchive, LvbakSchemaError, type LvbakImportResult } from "./import";
+export { IMPORT_STAGE_ORDER, importLumiverseArchive, LvbakSchemaError, type LvbakImportResult } from "./import";
 export {
   AVATARS_PREFIX,
   DATABASE_PREFIX,
@@ -44,7 +44,7 @@ export {
   isDatabaseEntry,
   tableNameFromEntry,
 } from "./layout";
-export { createLinkMap, type LinkMap, type RecordedLink } from "./links";
+export { createIdMint, createLinkMap, type IdMint, type LinkMap, type RecordedLink } from "./links";
 export {
   importLorebooks,
   joinWorldBooks,
@@ -101,6 +101,7 @@ export {
 } from "./report";
 export {
   classifyEntryNames,
+  isContainerAbort,
   isMacCruft,
   isUnsafeEntryName,
   readEntryBytes,
@@ -114,6 +115,7 @@ export {
   KNOWN_SKIPPED_TABLES,
   MAPPED_TABLES,
   TABLE_KINDS,
+  asBool,
   isMappedTable,
   parseInnerJsonColumns,
   rowId,

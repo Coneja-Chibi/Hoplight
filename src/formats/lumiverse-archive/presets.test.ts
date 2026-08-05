@@ -7,7 +7,7 @@
 import { describe, expect, test } from "bun:test";
 import { buildBadRowsLvbak, buildMinimalLvbak } from "../_fixtures/lumiverse-archive/build-lvbak";
 import { PRESET_ID } from "../_fixtures/lumiverse-archive/rows";
-import { createLinkMap } from "./links";
+import { createIdMint, createLinkMap } from "./links";
 import { ndjsonLineCeiling } from "./ndjson";
 import { importPresets, presetRowToWrapper } from "./presets";
 import { createLvbakReport } from "./report";
@@ -55,6 +55,22 @@ describe("presetRowToWrapper", () => {
     expect(blocks[2]).toMatchObject({ enabled: false }); // no order entry ever placed it
   });
 
+  test("a block's role falls back to its prompt's role when the order entry names none", () => {
+    const row = { id: "p", name: "P" };
+    const inner: InnerJsonResult = {
+      values: {
+        prompts: { a: { name: "A", content: "c", role: "assistant" } },
+        prompt_order: [{ identifier: "a", enabled: true }], // no role of its own
+      },
+      failures: [],
+    };
+    const blocks = (presetRowToWrapper(row, inner).preset as Record<string, unknown>).blocks as Record<
+      string,
+      unknown
+    >[];
+    expect(blocks[0]!.role).toBe("assistant");
+  });
+
   test("a block is enabled only when BOTH its order entry and its prompt are not explicitly false", () => {
     const row = { id: "p", name: "P" };
     const inner: InnerJsonResult = {
@@ -77,7 +93,7 @@ describe("importPresets", () => {
     const source = zipEntrySource(buildMinimalLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const entities = await importPresets(source, { lineCeiling: V1_CEILING, report, links });
+    const entities = await importPresets(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     expect(entities).toHaveLength(1);
     const entity = entities[0]!;
@@ -121,7 +137,7 @@ describe("importPresets", () => {
     const source = zipEntrySource(buildBadRowsLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const entities = await importPresets(source, { lineCeiling: V1_CEILING, report, links });
+    const entities = await importPresets(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     // only the valid preset survives; the broken one never dispatches at all
     expect(entities).toHaveLength(1);

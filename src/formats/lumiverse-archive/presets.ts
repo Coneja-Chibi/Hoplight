@@ -27,7 +27,7 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import presetCodec from "../lumiverse/preset";
 import { inspectPresetBundle } from "../../convert";
 import { addArchiveEscrow } from "./escrow";
-import type { LinkMap } from "./links";
+import type { IdMint, LinkMap } from "./links";
 import {
   codecRowFailure,
   recordFailure,
@@ -35,7 +35,7 @@ import {
   type LvbakImportReport,
   type LvbakRowFailure,
 } from "./report";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId, type InnerJsonResult } from "./tables";
 
@@ -78,7 +78,7 @@ export function presetRowToWrapper(
       id: identifier,
       name: asString(prompt.name),
       content: asString(prompt.content),
-      role: entry.role,
+      role: entry.role ?? prompt.role,
       enabled: entry.enabled !== false && prompt.enabled !== false,
       depth: entry.depth,
       position: entry.position,
@@ -136,6 +136,8 @@ export interface ImportPresetsOptions {
   lineCeiling: number;
   report: LvbakImportReport;
   links: LinkMap;
+  /** Shared across every kind module in the run; see links.ts's IdMint doc comment. */
+  idMint: IdMint;
 }
 
 /**
@@ -148,7 +150,7 @@ export async function importPresets(
   source: LvbakEntrySource,
   options: ImportPresetsOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links } = options;
+  const { lineCeiling, report, links, idMint } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
@@ -169,12 +171,14 @@ export async function importPresets(
         text: JSON.stringify(wrapper),
         filename: `${name}.json`,
       });
+      entity.id = idMint.claim("preset", entity.id);
 
       const escrowed = addArchiveEscrow(entity, "presets", read.row);
       links.record("presets", rowId(read.row), { id: escrowed.id, name: escrowed.body.name });
       recordImported(report, "preset", { id: escrowed.id, name: escrowed.body.name });
       out.push(escrowed);
     } catch (error) {
+      if (isContainerAbort(error)) throw error;
       recordFailure(report, codecRowFailure("presets", read.row, error));
     }
   }

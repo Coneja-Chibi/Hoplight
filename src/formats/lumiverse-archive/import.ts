@@ -18,7 +18,7 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import { createBinaries, indexImages } from "./binaries";
 import { indexCharacterGallery, importCharacters } from "./characters";
 import { detectLumiverseArchive, isSupportedLvbakSchema, LVBAK_SCHEMA_VERSION } from "./detect";
-import { createLinkMap } from "./links";
+import { createIdMint, createLinkMap } from "./links";
 import { importLorebooks } from "./lorebooks";
 import { readManifest, readStats } from "./manifest";
 import { ndjsonLineCeiling } from "./ndjson";
@@ -35,6 +35,16 @@ import {
 } from "./report";
 import type { LvbakEntrySource } from "./source";
 import { planTableWalk, type ReadTableOptions } from "./table-walk";
+import type { LvbakKind } from "./tables";
+
+/**
+ * The dispatch order every run actually walks: parents before the rows that link to them (lorebooks
+ * before the personas that attach them, characters before the regex sets scoped to them), mirroring
+ * MAPPED_TABLES's own table order in tables.ts (that file's doc comment points back here). A test
+ * (import.test.ts) derives the kind order MAPPED_TABLES/TABLE_KINDS implies and pins it against this
+ * constant, so the two can never silently drift apart.
+ */
+export const IMPORT_STAGE_ORDER: readonly LvbakKind[] = ["lorebook", "persona", "character", "preset", "regex"];
 
 /**
  * A `.lvbak` this build cannot read, because its `schemaVersion` is past `LVBAK_SCHEMA_VERSION`.
@@ -100,6 +110,10 @@ export async function importLumiverseArchive(source: LvbakEntrySource): Promise<
 
   const lineCeiling = ndjsonLineCeiling(manifest.ndjsonFormatVersion);
   const links = createLinkMap();
+  // One mint for the whole run, shared across every kind stage: a character and a lorebook (or two
+  // characters, or an embedded character_book and a standalone lorebook) that mint the SAME id from
+  // canonical Id(name) have to collide against each other, never just against their own kind's rows.
+  const idMint = createIdMint();
   const binaries = createBinaries(source, entryNames, report);
   // images and character_gallery are read once, here, as shared resources every kind stage below
   // draws from; no kind module reads either table itself, so this is the only onFailure wiring
@@ -108,14 +122,20 @@ export async function importLumiverseArchive(source: LvbakEntrySource): Promise<
   const images = await indexImages(source, tableOpts);
   const gallery = await indexCharacterGallery(source, tableOpts);
 
+  // One runner per kind, keyed so IMPORT_STAGE_ORDER is what actually drives dispatch below, not
+  // just a comment describing it.
+  const stages: Record<LvbakKind, () => Promise<ParsedCanonicalEntity[]>> = {
+    lorebook: () => importLorebooks(source, { lineCeiling, report, links, idMint }),
+    persona: () => importPersonas(source, { lineCeiling, report, links, binaries, idMint }),
+    character: () => importCharacters(source, { lineCeiling, report, links, binaries, images, gallery, idMint }),
+    preset: () => importPresets(source, { lineCeiling, report, links, idMint }),
+    regex: () => importRegexSets(source, { lineCeiling, report, links, idMint }),
+  };
+
   const entities: ParsedCanonicalEntity[] = [];
-  entities.push(...(await importLorebooks(source, { lineCeiling, report, links })));
-  entities.push(...(await importPersonas(source, { lineCeiling, report, links, binaries })));
-  entities.push(
-    ...(await importCharacters(source, { lineCeiling, report, links, binaries, images, gallery })),
-  );
-  entities.push(...(await importPresets(source, { lineCeiling, report, links })));
-  entities.push(...(await importRegexSets(source, { lineCeiling, report, links })));
+  for (const kind of IMPORT_STAGE_ORDER) {
+    entities.push(...(await stages[kind]()));
+  }
 
   return { entities, report };
 }

@@ -11,7 +11,7 @@ import {
   buildMinimalLvbak,
 } from "../_fixtures/lumiverse-archive/build-lvbak";
 import { WORLD_BOOK_ID } from "../_fixtures/lumiverse-archive/rows";
-import { createLinkMap } from "./links";
+import { createIdMint, createLinkMap } from "./links";
 import { importLorebooks, joinWorldBooks, worldBookToStWire } from "./lorebooks";
 import { ndjsonLineCeiling } from "./ndjson";
 import { createLvbakReport } from "./report";
@@ -46,6 +46,7 @@ describe("worldBookToStWire", () => {
       id: "lv-entry-x",
       comment: "Title",
       content: "Body",
+      selective: 1,
       selective_logic: 0,
       constant: 0,
       disable: 0,
@@ -104,6 +105,32 @@ describe("worldBookToStWire", () => {
     expect(below.probability).toBe(40);
   });
 
+  test("selective 0/false: keysecondary is never emitted, even when the column has values", () => {
+    const read = entryRead({ selective: 0 }, { keysecondary: ["gamma"] });
+    const wire = worldBookToStWire({ name: "Book" }, [read]);
+    const entry = (wire.entries as Record<string, Record<string, unknown>>)["0"]!;
+    expect("keysecondary" in entry).toBe(false);
+  });
+
+  test("selective truthy: keysecondary is emitted as usual", () => {
+    const read = entryRead({ selective: 1 }, { keysecondary: ["gamma"] });
+    const wire = worldBookToStWire({ name: "Book" }, [read]);
+    const entry = (wire.entries as Record<string, Record<string, unknown>>)["0"]!;
+    expect(entry.keysecondary).toEqual(["gamma"]);
+  });
+
+  test("boolean columns tolerate a genuine true/false, not just SQLite's 0/1", () => {
+    // Reviewer's repro: `disabled: true` (a real boolean, not the SQLite 0/1 this table normally
+    // carries) previously fell through `=== 1` to false, silently importing a disabled entry as
+    // enabled.
+    const read = entryRead({ constant: true, disable: true, use_regex: true }, { key: ["a"] });
+    const wire = worldBookToStWire({ name: "Book" }, [read]);
+    const entry = (wire.entries as Record<string, Record<string, unknown>>)["0"]!;
+    expect(entry.constant).toBe(true);
+    expect(entry.disable).toBe(true);
+    expect(entry.key).toEqual(["/a/"]);
+  });
+
   test("zero entries synthesize the sniff placeholder, not an empty entries object", () => {
     const wire = worldBookToStWire({ name: "Empty Book" }, []);
     const entries = wire.entries as Record<string, Record<string, unknown>>;
@@ -156,7 +183,7 @@ describe("importLorebooks", () => {
     const source = zipEntrySource(buildMinimalLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const entities = await importLorebooks(source, { lineCeiling: V1_CEILING, report, links });
+    const entities = await importLorebooks(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     expect(entities).toHaveLength(1);
     const entity = entities[0]!;
@@ -195,7 +222,7 @@ describe("importLorebooks", () => {
     const source = zipEntrySource(buildBadRowsLvbak());
     const report = createLvbakReport();
     const links = createLinkMap();
-    const entities = await importLorebooks(source, { lineCeiling: V1_CEILING, report, links });
+    const entities = await importLorebooks(source, { lineCeiling: V1_CEILING, report, links, idMint: createIdMint() });
 
     expect(entities).toHaveLength(2);
     const byName = new Map(

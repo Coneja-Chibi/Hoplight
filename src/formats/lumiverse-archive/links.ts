@@ -54,3 +54,48 @@ export function createLinkMap(): LinkMap {
     },
   };
 }
+
+export interface IdMint {
+  /**
+   * `canonicalId(name)` is deterministic and every kind module dispatches through it independently,
+   * so two same-kind entities that happen to share a name (two characters both named "Aria", an
+   * embedded character_book and a standalone lorebook both named the same thing) would otherwise
+   * mint the SAME id, and the link map would resolve every future reference to whichever one
+   * recorded last. Call this once per entity right after dispatch, before escrow/link.record/
+   * recordImported, so the id every downstream step sees is already unique.
+   *
+   * Uniqueness is scoped per kind (a character and a persona sharing an id is harmless: the studio's
+   * own storage path is keyed by kind, src/studio/store.ts's resolveStudioPath), never globally.
+   */
+  claim(kind: string, candidate: string): string;
+}
+
+/**
+ * Same suffixing convention as the studio's own keep-both path (src/studio/store.ts ~line 288):
+ * `-2`, `-3`, ... skipping any suffix already claimed, so a THIRD collision does not overwrite a
+ * second one that mutated the id first.
+ */
+export function createIdMint(): IdMint {
+  const usedByKind = new Map<string, Set<string>>();
+  return {
+    claim(kind, candidate) {
+      let used = usedByKind.get(kind);
+      if (!used) {
+        used = new Set();
+        usedByKind.set(kind, used);
+      }
+      if (!used.has(candidate)) {
+        used.add(candidate);
+        return candidate;
+      }
+      let n = 2;
+      let next = `${candidate}-${n}`;
+      while (used.has(next)) {
+        n += 1;
+        next = `${candidate}-${n}`;
+      }
+      used.add(next);
+      return next;
+    },
+  };
+}

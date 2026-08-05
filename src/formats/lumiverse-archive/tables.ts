@@ -18,8 +18,10 @@ export type LvbakKind = "character" | "lorebook" | "preset" | "persona" | "regex
  * Tables read by the importer, in import-safe order: parents before the rows that link to them
  * (lorebooks before the personas that attach them, characters before the regex sets scoped to
  * them), and feeder tables directly before their consumer (images and gallery rows feed
- * characters). planTableWalk yields this order verbatim, so the orchestrator never re-sorts.
- * Everything else in database/ is skipped and counted.
+ * characters). This is the canonical order the orchestrator's own stage sequence MIRRORS
+ * (import.ts's IMPORT_STAGE_ORDER; a test pins the two against each other so they cannot silently
+ * drift); planTableWalk reports it for the skipped-tables list, it does not drive dispatch order
+ * itself. Everything else in database/ is skipped and counted.
  */
 export const MAPPED_TABLES = [
   "world_books",
@@ -131,3 +133,7 @@ export const rowId = (row: Record<string, unknown>): string =>
 
 export const rowName = (row: Record<string, unknown>): string | undefined =>
   typeof row.name === "string" ? row.name : undefined;
+
+/** SQLite dumps booleans as 0/1; a hand-edited or already-decoded row can carry a real boolean
+ * instead. The same courtesy parseInnerJsonColumns already gives a pre-decoded JSON column. */
+export const asBool = (v: unknown): boolean => v === 1 || v === true;

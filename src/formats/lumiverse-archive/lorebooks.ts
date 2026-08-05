@@ -17,11 +17,11 @@ import type { CanonicalLorebook } from "../../entities/lorebook/schema";
 import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import stWorldbook from "../sillytavern/lorebook";
 import { addArchiveEscrow } from "./escrow";
-import type { LinkMap } from "./links";
+import type { IdMint, LinkMap } from "./links";
 import { codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
-import type { LvbakEntrySource } from "./source";
+import { isContainerAbort, type LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
-import { rowId } from "./tables";
+import { asBool, rowId } from "./tables";
 
 const asString = (v: unknown): string => (typeof v === "string" ? v : "");
 const asStringArray = (v: unknown): string[] =>
@@ -72,7 +72,13 @@ export async function* joinWorldBooks(
   }
 
   for (const book of books) {
-    yield { book, entries: entriesByBook.get(rowId(book.row)) ?? [] };
+    const id = rowId(book.row);
+    const entries = entriesByBook.get(id) ?? [];
+    // Free each bucket as its book yields: the entries map is the biggest buffer this join holds,
+    // and a book already yielded is never looked up again, so keeping its bucket alive past this
+    // point only holds memory a huge-lorebook archive (edge case 9) cannot spare.
+    entriesByBook.delete(id);
+    yield { book, entries };
   }
 }
 
@@ -122,18 +128,17 @@ export function worldBookToStWire(
 
 function entryRowToWireEntry(read: TableRow, index: number): Record<string, unknown> {
   const row = read.row;
-  const useRegex = row.use_regex === 1;
+  const useRegex = asBool(row.use_regex);
   const wrap = (k: string): string => (useRegex ? `/${k}/` : k);
   const probability = typeof row.probability === "number" ? row.probability : 100;
 
-  return {
+  const entry: Record<string, unknown> = {
     uid: rowId(row) || String(index),
     comment: row.comment,
     content: row.content,
     key: asStringArray(read.inner.values.key).map(wrap),
-    keysecondary: asStringArray(read.inner.values.keysecondary).map(wrap),
-    constant: row.constant === 1,
-    disable: row.disable === 1,
+    constant: asBool(row.constant),
+    disable: asBool(row.disable),
     selectiveLogic: row.selective_logic,
     position: row.position,
     depth: row.depth,
@@ -145,12 +150,23 @@ function entryRowToWireEntry(read: TableRow, index: number): Record<string, unkn
     cooldown: row.cooldown,
     delay: row.delay,
   };
+  // An entry whose secondary gating was off never had a live keysecondary set; emitting one anyway
+  // (even empty) would let the ST codec's own selective-derivation (wire.selective =
+  // secondaryTriggers.length > 0) round-trip a gate this row never turned on.
+  if (asBool(row.selective)) {
+    entry.keysecondary = asStringArray(read.inner.values.keysecondary).map(wrap);
+  }
+  return entry;
 }
 
 export interface ImportLorebooksOptions {
   lineCeiling: number;
   report: LvbakImportReport;
   links: LinkMap;
+  /** Shared across every kind module in the run, INCLUDING characters.ts's embedded books: a
+   * standalone book and an embedded character_book can both mint the same name, so they have to
+   * share this same "lorebook" namespace to collide against each other. */
+  idMint: IdMint;
 }
 
 /**
@@ -165,7 +181,7 @@ export async function importLorebooks(
   source: LvbakEntrySource,
   options: ImportLorebooksOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links } = options;
+  const { lineCeiling, report, links, idMint } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
@@ -183,6 +199,7 @@ export async function importLorebooks(
     try {
       const wire = worldBookToStWire(book.row, valid);
       const entity: CanonicalLorebook = stWorldbook.toCanonical({ text: JSON.stringify(wire) });
+      entity.id = idMint.claim("lorebook", entity.id);
       if (valid.length === 0) {
         // Strip the sniff placeholder from BOTH surfaces that would carry it forward: body.entries,
         // and the codec twin's raw wire, since fromCanonical re-exports from that raw, so leaving
@@ -200,6 +217,7 @@ export async function importLorebooks(
       recordImported(report, "lorebook", { id: escrowed.id, name: escrowed.body.name });
       out.push(escrowed);
     } catch (error) {
+      if (isContainerAbort(error)) throw error;
       recordFailure(report, codecRowFailure("world_books", book.row, error));
     }
   }
