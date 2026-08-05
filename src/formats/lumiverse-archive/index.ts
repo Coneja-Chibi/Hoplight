@@ -70,6 +70,7 @@ export {
   type NdjsonRow,
 } from "./ndjson";
 export { importPersonas, personaRowToWire, type ImportPersonasOptions } from "./personas";
+export { importPresets, presetRowToWrapper, type ImportPresetsOptions } from "./presets";
 export {
   ENCRYPTED_SECRETS_WARNING,
   VECTORS_WARNING,
