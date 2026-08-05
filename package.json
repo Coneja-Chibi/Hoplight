@@ -49,7 +49,7 @@
     "lint:ui": "bunx eslint \"src/ui/**/*.{ts,tsx}\" \"src/kit/**/*.{ts,tsx}\" --max-warnings 0",
     "catalog": "bun run scripts/hooks/component-catalog.ts",
     "catalog:check": "bun run scripts/hooks/component-catalog.ts --check",
-    "verify:ci": "bun run typecheck && bun run test:node-core && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:emoji && bun run scan:headers && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:summaries:check && bun run docs:figures:check && bun run capabilities:check",
+    "verify:ci": "bun run typecheck && bun run test:node-core && bun run license:audit && bun run test && bun run scan:lines && bun run scan:colors:check && bun run scan:emdash && bun run scan:emoji && bun run scan:headers && bun run scan:links && bun run lint:ui && bun run catalog:check && bun run matrix:check && bun run docs:fields:check && bun run docs:index:check && bun run docs:summaries:check && bun run docs:figures:check && bun run capabilities:check && bun run kit:manifest:check",
     "gate": "bun run scripts/hooks/gate.ts --worktree",
     "audit": "bun scripts/audit/run.ts all",
     "audit:rooms": "bun scripts/audit/run.ts rooms",
@@ -60,7 +60,9 @@
     "audit:clicks": "bun scripts/audit/run.ts clicks",
     "audit:legibility:dark": "bun scripts/audit/run.ts legibility dark",
     "audit:legibility:light": "bun scripts/audit/run.ts legibility light",
-    "audit:watch": "bun scripts/audit/run.ts watch"
+    "audit:watch": "bun scripts/audit/run.ts watch",
+    "kit:manifest": "bun run scripts/kit-manifest.ts",
+    "kit:manifest:check": "bun run scripts/kit-manifest.ts --check"
   },
   "engines": {
     "bun": ">=1.3.0"

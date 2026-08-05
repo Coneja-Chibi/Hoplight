@@ -8,6 +8,8 @@ import {
   createCapabilityCatalog,
   type ContentCapability,
 } from "../../entities/capabilities";
+import { allCapabilities } from "../../generated/capabilities";
+import { isPackagedBuild } from "../packaged-drop-ins";
 
 const INFRA = new Set([
   "catalog.ts",
@@ -55,12 +57,19 @@ const isCapability = (value: unknown): value is ContentCapability => {
 
 /** Load all drop-in capabilities from entity and format roots, sorted and duplicate-checked. */
 export async function discoverCapabilities(
-  roots: readonly string[] = [
+  roots?: readonly string[],
+): Promise<ContentCapability[]> {
+  // A compiled binary has no folder to walk; see packaged-drop-ins.ts. The baked list comes from the
+  // SAME generator the browser bundle reads, so there is one answer to "what capabilities exist".
+  if (roots === undefined && isPackagedBuild()) {
+    return [...createCapabilityCatalog([...allCapabilities]).all()]
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }
+  const walkRoots = roots ?? [
     fileURLToPath(new URL("../../entities", import.meta.url)),
     fileURLToPath(new URL("../../formats", import.meta.url)),
-  ],
-): Promise<ContentCapability[]> {
-  const files = (await Promise.all(roots.map(capabilityFiles)))
+  ];
+  const files = (await Promise.all(walkRoots.map(capabilityFiles)))
     .flat()
     .sort((a, b) => a.localeCompare(b));
   const capabilities: ContentCapability[] = [];

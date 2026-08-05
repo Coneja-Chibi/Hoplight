@@ -8,6 +8,7 @@ import { readdir } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { KitCommand } from "./command";
+import { packagedDropIns } from "../packaged-drop-ins";
 
 const INFRA = new Set(["command.ts", "discover.ts"]);
 
@@ -29,20 +30,37 @@ const commandFiles = async (root: string, suppliedRoot: boolean): Promise<string
   return found.sort((a, b) => a.localeCompare(b));
 };
 
-/** Load every drop-in command directory under Kit, sorted by path and rejecting duplicate names. */
-export async function discoverCommands(dir?: string): Promise<KitCommand[]> {
-  const base = dir ?? fileURLToPath(new URL("..", import.meta.url));
-  const files = await commandFiles(base, dir !== undefined);
+const isCommand = (value: unknown): value is KitCommand => {
+  const command = value as Partial<KitCommand> | undefined;
+  return typeof command?.name === "string" && typeof command.run === "function";
+};
+
+/** Collect, rejecting duplicate names whichever path produced the list. */
+function collect(candidates: readonly unknown[]): KitCommand[] {
   const commands: KitCommand[] = [];
-  for (const file of files) {
-    const mod = (await import(pathToFileURL(file).href)) as { default?: KitCommand };
-    const command = mod.default;
-    if (command && typeof command.name === "string" && typeof command.run === "function") {
-      if (commands.some((existing) => existing.name === command.name)) {
-        throw new Error(`commands: duplicate name ${command.name}`);
-      }
-      commands.push(command);
+  for (const candidate of candidates) {
+    if (!isCommand(candidate)) continue;
+    if (commands.some((existing) => existing.name === candidate.name)) {
+      throw new Error(`commands: duplicate name ${candidate.name}`);
     }
+    commands.push(candidate);
   }
   return commands;
+}
+
+/** Load every drop-in command directory under Kit, sorted by path and rejecting duplicate names. */
+export async function discoverCommands(dir?: string): Promise<KitCommand[]> {
+  // THIS IS KIT'S FIRST STARTUP CALL, and the reason a compiled binary died on launch: the walk below
+  // reads the directory `import.meta.url` sits in, which does not exist inside a single-file
+  // executable. See packaged-drop-ins.ts.
+  const baked = dir === undefined ? packagedDropIns("commands") : null;
+  if (baked) return collect(baked);
+  const base = dir ?? fileURLToPath(new URL("..", import.meta.url));
+  const files = await commandFiles(base, dir !== undefined);
+  const loaded: unknown[] = [];
+  for (const file of files) {
+    const mod = (await import(pathToFileURL(file).href)) as { default?: KitCommand };
+    loaded.push(mod.default);
+  }
+  return collect(loaded);
 }
