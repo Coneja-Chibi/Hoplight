@@ -150,13 +150,16 @@ export function assembleLvbak(parts: LvbakParts): Uint8Array {
   return writeZip64(entries);
 }
 
-/** The binaries the standard rows reference: both avatars, the image, and its two thumbnails. */
+/** The binaries the standard rows reference: both avatars, the image, its two thumbnails, and the
+ * two expression sprites characterExtensions().lumiverse_modules.expressions.mappings names. */
 export const standardFiles = (): Record<string, Uint8Array> => ({
   [`files/avatars/${CHARACTER_AVATAR}`]: PNG_1X1,
   [`files/avatars/${PERSONA_AVATAR}`]: PNG_1X1,
   [`files/images/${IMAGE_FILENAME}`]: PNG_1X1,
   [`files/thumbnails/${IMAGE_ID}_thumb_sm_v2.webp`]: WEBP_STUB,
   [`files/thumbnails/${IMAGE_ID}_thumb_lg_v2.webp`]: WEBP_STUB,
+  "files/expressions/neutral.png": PNG_1X1,
+  "files/expressions/happy.png": PNG_1X1,
 });
 
 const standardTables = (): Record<string, LvbakRow[]> => ({

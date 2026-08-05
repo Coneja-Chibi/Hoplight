@@ -39,23 +39,28 @@ const json = (v: unknown): string => JSON.stringify(v);
  * The extensions blob the character adapter's modules path already reads: expression sprites,
  * expression groups, alternate fields, embedded regex, an embedded character_book, and one foreign
  * platform key that exists only to prove escrow keeps what we do not map.
+ *
+ * `expressions.mappings` and `alternate_fields` are shaped to match LumiModules
+ * (src/formats/lumiverse/modules.ts) exactly, not guessed: rehydrateCardData's own type guards
+ * (`isRec`, which excludes arrays) reject anything else, so an array in either slot would silently
+ * no-op rather than resolve. `expression_groups` still carries its pre-M5 array shape and still
+ * no-ops the same way; fixing it is out of scope here (nothing in the lvbak importer's required
+ * behavior depends on it), left as a known gap rather than a guess at its real shape.
  */
 export const characterExtensions = (): Record<string, unknown> => ({
   lumiverse_modules: {
     expressions: {
       enabled: true,
-      sprites: [
-        { name: "neutral", path: "expressions/neutral.png" },
-        { name: "happy", path: "expressions/happy.png" },
-      ],
+      defaultExpression: "neutral",
+      mappings: {
+        neutral: "files/expressions/neutral.png",
+        happy: "files/expressions/happy.png",
+      },
     },
     expression_groups: [{ id: "grp-alpha", label: "Default", members: ["neutral", "happy"] }],
-    alternate_fields: [
-      {
-        label: "Formal",
-        fields: { first_mes: "Good day. I am Test Character Alpha." },
-      },
-    ],
+    alternate_fields: {
+      Formal: { first_mes: "Good day. I am Test Character Alpha." },
+    },
     regex_scripts: [
       {
         name: "Embedded Fixture Trim",

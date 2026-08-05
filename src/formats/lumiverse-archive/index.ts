@@ -14,6 +14,12 @@ import type { FormatAdapter } from "../../core/adapter";
 export { createBinaries, indexImages, type Binaries } from "./binaries";
 export { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 export {
+  characterRowToCard,
+  importCharacters,
+  type CharacterCardFields,
+  type ImportCharactersOptions,
+} from "./characters";
+export {
   detectLumiverseArchive,
   isSupportedLvbakSchema,
   LVBAK_SCHEMA_VERSION,
