@@ -30,12 +30,26 @@ const extOf = (name: string): string => {
  * Sort a drop into files worth inspecting and files we can refuse by name alone. The server's
  * detection race stays the real judge for candidates; triage only spares the wire the files
  * nothing could ever claim (an ST backup folder is mostly chat logs and settings).
+ *
+ * `.lvbak` is its own bucket, `archives`, never `candidates`: a Lumiverse backup fans out into many
+ * entities server-side (POST /api/inspect-archive, a streamed upload), never the single-file,
+ * bytes-in-memory /api/inspect this pool's 3-worker inspect race calls. It also skips
+ * TRIAGE_MAX_BYTES entirely - a real backup is multi-gigabyte by design, and the honest ceiling is
+ * server-side (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes, src/formats/lumiverse-archive/bounds.ts), not
+ * a client guess sized for a single card.
  */
-export function triageFiles(files: File[]): { candidates: File[]; skipped: ReadFile[] } {
+export function triageFiles(
+  files: File[],
+): { candidates: File[]; archives: File[]; skipped: ReadFile[] } {
   const candidates: File[] = [];
+  const archives: File[] = [];
   const skipped: ReadFile[] = [];
   for (const f of files) {
     const ext = extOf(f.name);
+    if (ext === "lvbak") {
+      archives.push(f);
+      continue;
+    }
     if (!CANDIDATE_EXTENSIONS.has(ext)) {
       const reason =
         ext === "jsonl"
@@ -50,7 +64,7 @@ export function triageFiles(files: File[]): { candidates: File[]; skipped: ReadF
     }
     candidates.push(f);
   }
-  return { candidates, skipped };
+  return { candidates, archives, skipped };
 }
 
 /** Stable content key for within-drop duplicate detection (entity + bundled related, verbatim). */

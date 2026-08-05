@@ -10,6 +10,7 @@
 import type { ReactNode } from "react";
 import type { ContextMenus } from "./shell/store";
 import type { ParseReport, SerializeReport } from "../core/reports";
+import type { LvbakImportReport } from "../formats/lumiverse-archive/report";
 import type { AuxHelperStatus, LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
@@ -243,6 +244,27 @@ export interface InspectResult {
   kind?: string;
   parseReport?: ParseReport;
   /** plain-words failure ("We could not read this one. ...") - warm, never technical */
+  error?: string;
+}
+
+/**
+ * Result of POST /api/inspect-archive: a `.lvbak` fans out into many entities in one upload, so
+ * this is `{rows, report}` rather than one InspectResult. Each row is shaped exactly like a normal
+ * InspectResult (formatId always "lumiverse-archive" - the CONTAINER a user actually dropped, not
+ * each entity's own internal codec pathway), with no `related` grouping: an archive's embedded
+ * books and bundled regex sets already arrive as their own top-level rows, never nested under a
+ * primary, so listing them again as `related` would double them in a sheet. `report` is the
+ * whole-archive accounting (imported/failed/skipped tables/warnings) a later report card (M13)
+ * reads; `rows` is what a sheet (M12) checks and commits, same as any other import.
+ *
+ * A WHOLE-ARCHIVE abort (unsupported schema, not a .lvbak, a corrupted or oversized container)
+ * never produces rows at all: `ok` is false and `error` carries the one warm-words line, same
+ * voice as InspectResult.error.
+ */
+export interface InspectArchiveResult {
+  ok: boolean;
+  rows?: InspectResult[];
+  report?: LvbakImportReport;
   error?: string;
 }
 

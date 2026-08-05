@@ -23,6 +23,7 @@ import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
 import { safeExternalUrl } from "./_shared/external-url";
 import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
+import { LVBAK_ARCHIVE_BOUNDS } from "../formats/lumiverse-archive";
 import type { PackagedAssets } from "./assets";
 import { handleDocsRequest } from "./server-docs";
 import { startSandboxHost } from "./sandbox-host";
@@ -70,7 +71,7 @@ import {
   createDevReloadResponse,
   handleAssetRoutes,
 } from "./server-static";
-import { formatMeta, handleInspect, handleExport } from "./server-engine";
+import { formatMeta, handleInspect, handleInspectArchive, handleExport } from "./server-engine";
 
 // Re-export security surface for tests and sandbox-host.
 export {
@@ -318,6 +319,7 @@ export function createHandler(
       return json([...adapters, ...extras]);
     }
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
+    if (p === "/api/inspect-archive" && req.method === "POST") return handleInspectArchive(req);
     if (p === "/api/export" && req.method === "POST") {
       if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
       const parsed = await readJsonCapped(req);
@@ -453,10 +455,17 @@ export function startUi(
     remoteAccess.lan,
     switchManager,
   );
-  // idleTimeout: Bun's default is 10s and it killed bulk imports mid-inspect (a multi-MB card
-  // racing 16 adapters can sit longer than that with no bytes on the wire). 120s covers the
-  // slowest real inspect observed (23MB charx) with an order of magnitude to spare.
-  const server = Bun.serve({ port, hostname: "127.0.0.1", idleTimeout: 120, fetch: handler });
+  // idleTimeout: Bun's default 10s killed bulk imports mid-inspect; 120s covers the slowest real
+  // inspect observed (23MB charx) with room to spare. maxRequestBodySize: Bun's 128MB default sits
+  // under a Lumiverse backup's real ceiling (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes) - below it, Bun
+  // itself would refuse the request before handleInspectArchive's own error messages ever run.
+  const server = Bun.serve({
+    port,
+    hostname: "127.0.0.1",
+    idleTimeout: 120,
+    maxRequestBodySize: LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes,
+    fetch: handler,
+  });
   const host = `127.0.0.1:${server.port}`;
   sec.expectedHost = host;
   sec.expectedOrigin = `http://${host}`;

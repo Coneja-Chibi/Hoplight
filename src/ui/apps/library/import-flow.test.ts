@@ -87,6 +87,23 @@ describe("triageFiles: an ST backups folder sorts itself before the wire", () =>
     expect(reasons.get("README")).toContain("not a file type");
     expect(reasons.get("huge.json")).toContain("64MB");
   });
+
+  test(".lvbak routes to its own archive bucket, never the single-file candidate pool", () => {
+    const backup = new File([""], "my-lumiverse-export.lvbak");
+    const { candidates, archives, skipped } = triageFiles([backup, new File(["{}"], "card.json")]);
+    expect(archives.map((f) => f.name)).toEqual(["my-lumiverse-export.lvbak"]);
+    expect(candidates.map((f) => f.name)).toEqual(["card.json"]);
+    expect(skipped).toEqual([]);
+  });
+
+  test(".lvbak is exempt from the 64MB triage ceiling - a real backup is multi-gigabyte by design", () => {
+    const backup = new File([""], "huge.lvbak");
+    Object.defineProperty(backup, "size", { value: 500 * 1024 * 1024 });
+    const { candidates, archives, skipped } = triageFiles([backup]);
+    expect(archives.map((f) => f.name)).toEqual(["huge.lvbak"]);
+    expect(candidates).toEqual([]);
+    expect(skipped).toEqual([]);
+  });
 });
 
 describe("duplicate marking", () => {
