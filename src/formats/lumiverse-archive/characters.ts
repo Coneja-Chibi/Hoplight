@@ -19,9 +19,16 @@
  * hit wins. This only ever writes `entity.body.media.portrait`, never any escrow twin: the codec's
  * own twin and the archive's raw-row twin both keep whatever avatar/image references the row
  * actually had, exactly as read.
+ *
+ * `character_gallery` is a feeder table, not its own kind (tables.ts: TABLE_KINDS.character_gallery
+ * is null): its rows join a character's own extra images onto `body.media.assets`, ordered by
+ * `sort_order`, through the same images-map + binaries resolution the portrait uses. Only the four
+ * join-essential columns (id, character_id, image_id, sort_order) are read; a real export's other
+ * gallery columns cost nothing here, since column presence is the compatibility contract (edge case
+ * 3), not a fixed row shape this module has to match exactly.
  */
 import { zipSync, strToU8 } from "fflate";
-import type { CanonicalCharacter } from "../../entities/character/schema";
+import type { CanonicalCharacter, MediaAsset } from "../../entities/character/schema";
 import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import { characterAdapter } from "../lumiverse";
 import type { LumiModules } from "../lumiverse/modules";
@@ -42,6 +49,9 @@ const asString = (v: unknown): string => (typeof v === "string" ? v : "");
 const asStringArray = (v: unknown): string[] | undefined =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : undefined;
 const rawExtensions = (v: unknown): Record<string, unknown> | undefined => (isRec(v) ? v : undefined);
+/** Same string-or-number tolerance as rowId, for a foreign key column rather than a row's own id. */
+const asId = (v: unknown): string =>
+  typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
 
 export interface CharacterCardFields {
   tags?: string[];
@@ -133,6 +143,77 @@ async function resolvePortrait(
   }
 }
 
+export interface GalleryRow {
+  id: string;
+  characterId: string;
+  imageId: string;
+  sortOrder: number;
+}
+
+/**
+ * Read character_gallery once and bucket rows by character_id, each bucket sorted by sort_order. A
+ * row naming no character_id can never be attached to anything, so it is dropped here rather than
+ * carried forward as an orphan; a row naming a character that never appears (or never imports) in
+ * the characters table is never looked up at all, since only characters actually read call in here.
+ */
+export async function indexCharacterGallery(
+  source: LvbakEntrySource,
+  opts: ReadTableOptions,
+): Promise<Map<string, GalleryRow[]>> {
+  const byCharacter = new Map<string, GalleryRow[]>();
+  for await (const read of readTable(source, "character_gallery", opts)) {
+    const row = read.row;
+    const characterId = asId(row.character_id);
+    if (!characterId) continue;
+    const galleryRow: GalleryRow = {
+      id: rowId(row),
+      characterId,
+      imageId: asId(row.image_id),
+      sortOrder: typeof row.sort_order === "number" ? row.sort_order : 0,
+    };
+    let bucket = byCharacter.get(characterId);
+    if (!bucket) {
+      bucket = [];
+      byCharacter.set(characterId, bucket);
+    }
+    bucket.push(galleryRow);
+  }
+  for (const bucket of byCharacter.values()) bucket.sort((a, b) => a.sortOrder - b.sortOrder);
+  return byCharacter;
+}
+
+/**
+ * Append this character's gallery images to `body.media.assets`, in sort_order. `role: "other"` is
+ * the closest fit in MediaAsset's role set (assetsToMedia's own precedent: nothing that is not a
+ * portrait/emotion/outfit/pose/background lands there too); `label` is the resolved image row's own
+ * filename, the only human-readable name a gallery row's own four columns leave available. A row
+ * whose image_id resolves to no images-table row, or whose file is absent (binaries.imageDataUri
+ * already recorded the miss), contributes nothing and never fails the character.
+ */
+async function appendGalleryAssets(
+  entity: CanonicalCharacter,
+  characterId: string,
+  gallery: ReadonlyMap<string, GalleryRow[]>,
+  images: ReadonlyMap<string, TableRow>,
+  binaries: Binaries,
+): Promise<void> {
+  const rows = gallery.get(characterId);
+  if (!rows) return;
+
+  const assets: MediaAsset[] = [];
+  for (const row of rows) {
+    const imageRow = row.imageId ? images.get(row.imageId) : undefined;
+    if (!imageRow) continue;
+    const dataUri = await binaries.imageDataUri(imageRow.row);
+    if (!dataUri) continue;
+    const label = typeof imageRow.row.filename === "string" ? imageRow.row.filename : undefined;
+    assets.push({ role: "other", label, ref: dataUri, mime: dataUriMime(dataUri) });
+  }
+  if (assets.length > 0) {
+    entity.body.media.assets = [...(entity.body.media.assets ?? []), ...assets];
+  }
+}
+
 export interface ImportCharactersOptions {
   lineCeiling: number;
   report: LvbakImportReport;
@@ -142,12 +223,12 @@ export interface ImportCharactersOptions {
 }
 
 /**
- * Import every character, plus any lorebook embedded in its card (spec Behavior step 5, character
- * gallery rows deliberately left unconsumed here, see M6). Failure isolation stops at the column:
- * per edge case 7, a character never fails the row over a bad inner-JSON column, it just loses
- * whichever column would not parse, with `extensions` specifically raising a named warning since
- * losing it means losing sprites, the embedded book, and every foreign-platform escrow key at once.
- * A codec-level throw is NOT caught here; the row-level outer catch is the M9 orchestrator's job.
+ * Import every character, plus any lorebook embedded in its card (spec Behavior step 5) and any
+ * gallery images its own character_gallery rows name. Failure isolation stops at the column: per
+ * edge case 7, a character never fails the row over a bad inner-JSON column, it just loses whichever
+ * column would not parse, with `extensions` specifically raising a named warning since losing it
+ * means losing sprites, the embedded book, and every foreign-platform escrow key at once. A
+ * codec-level throw is NOT caught here; the row-level outer catch is the M9 orchestrator's job.
  */
 export async function importCharacters(
   source: LvbakEntrySource,
@@ -158,6 +239,8 @@ export async function importCharacters(
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
   };
+
+  const gallery = await indexCharacterGallery(source, opts);
 
   const out: ParsedCanonicalEntity[] = [];
   for await (const read of readTable(source, "characters", opts)) {
@@ -199,6 +282,7 @@ export async function importCharacters(
 
     const { entity, lorebooks } = inspectBundle(characterAdapter, input);
     await resolvePortrait(entity, read.row, binaries, images);
+    await appendGalleryAssets(entity, rowId(read.row), gallery, images, binaries);
 
     const escrowed = addArchiveEscrow(entity, "characters", read.row);
     links.record("characters", rowId(read.row), { id: escrowed.id, name: escrowed.body.identity.name });

@@ -16,7 +16,9 @@ export { LVBAK_ARCHIVE_BOUNDS } from "./bounds";
 export {
   characterRowToCard,
   importCharacters,
+  indexCharacterGallery,
   type CharacterCardFields,
+  type GalleryRow,
   type ImportCharactersOptions,
 } from "./characters";
 export {

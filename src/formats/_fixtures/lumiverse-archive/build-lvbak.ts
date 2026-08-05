@@ -22,6 +22,7 @@ import {
   PRESET_ID,
   WORLD_BOOK_ID,
   characterRow,
+  galleryRow,
   imageRow,
   personaRow,
   presetRow,
@@ -61,6 +62,7 @@ const TABLE_ORDER = [
   "personas",
   "regex_scripts",
   "images",
+  "character_gallery",
 ];
 
 /**
@@ -380,6 +382,42 @@ export function buildHugeLorebookLvbak(): Uint8Array {
   }
   const tables: Record<string, LvbakRow[]> = { world_books: books, world_book_entries: entries };
   return assembleLvbak({ manifest: lvbakManifest(), tables, stats: lvbakStats(tables) });
+}
+
+export const GALLERY_RESOLVABLE_IMAGE_ID = "lv-gallery-image-000000001";
+export const GALLERY_MISSING_IMAGE_ID = "lv-gallery-image-000000002";
+export const GALLERY_RESOLVABLE_IMAGE_FILENAME = "test-gallery-alpha.png";
+export const GALLERY_MISSING_IMAGE_FILENAME = "test-gallery-missing.png";
+
+/**
+ * A standalone fixture rather than an extension of buildMinimalLvbak: that fixture's own contract is
+ * "every referenced binary present" (its own doc comment), which a deliberately-missing gallery file
+ * would break. One character, no lumiverse_modules (so dispatch takes the plain path and nothing
+ * about sprites confuses a gallery-only assertion), two gallery rows written with sort_order 1 before
+ * sort_order 0 to prove ordering comes from the column and not table position, one row resolving to
+ * a real file and the other to an images row whose file never lands in files/.
+ */
+export function buildCharacterGalleryLvbak(): Uint8Array {
+  const tables: Record<string, LvbakRow[]> = {
+    characters: [characterRow({ extensions: JSON.stringify({}) })],
+    images: [
+      imageRow({ id: GALLERY_RESOLVABLE_IMAGE_ID, filename: GALLERY_RESOLVABLE_IMAGE_FILENAME }),
+      imageRow({ id: GALLERY_MISSING_IMAGE_ID, filename: GALLERY_MISSING_IMAGE_FILENAME }),
+    ],
+    character_gallery: [
+      galleryRow({ id: "lv-gallery-000000000002", image_id: GALLERY_MISSING_IMAGE_ID, sort_order: 1 }),
+      galleryRow({ id: "lv-gallery-000000000001", image_id: GALLERY_RESOLVABLE_IMAGE_ID, sort_order: 0 }),
+    ],
+  };
+  return assembleLvbak({
+    manifest: lvbakManifest(),
+    tables,
+    files: {
+      [`files/avatars/${CHARACTER_AVATAR}`]: PNG_1X1,
+      [`files/images/${GALLERY_RESOLVABLE_IMAGE_FILENAME}`]: PNG_1X1,
+    },
+    stats: lvbakStats(tables, [`files/images/${GALLERY_MISSING_IMAGE_FILENAME}`]),
+  });
 }
 
 /** Valid layout, wrong producer. Detection must fall through to charx or bundle handling. */

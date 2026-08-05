@@ -2,21 +2,31 @@
  * The character slice: a row with lumiverse_modules dispatches through the codec's zip path and its
  * sprites come back as real data: URIs, the portrait resolves through the same avatar_path/image_id/
  * avatar_crop_image_id waterfall the persona slice uses, a broken extensions column loses only itself
- * (edge case 7), and an embedded character_book extracts into its own linked lorebook exactly as a
- * single-file import would.
+ * (edge case 7), an embedded character_book extracts into its own linked lorebook exactly as a
+ * single-file import would, and character_gallery rows join onto body.media.assets in sort_order.
  */
 import { describe, expect, test } from "bun:test";
 import {
+  GALLERY_MISSING_IMAGE_FILENAME,
+  GALLERY_RESOLVABLE_IMAGE_FILENAME,
   INDIRECT_MISSING_IMAGE_FILENAME,
+  PNG_1X1,
   assembleLvbak,
   buildBadRowsLvbak,
+  buildCharacterGalleryLvbak,
   buildIndirectBinaryLvbak,
   buildMinimalLvbak,
   buildMissingBinariesLvbak,
   lvbakManifest,
   lvbakStats,
 } from "../_fixtures/lumiverse-archive/build-lvbak";
-import { CHARACTER_AVATAR, IMAGE_FILENAME, characterRow } from "../_fixtures/lumiverse-archive/rows";
+import {
+  CHARACTER_AVATAR,
+  IMAGE_FILENAME,
+  characterRow,
+  galleryRow,
+  imageRow,
+} from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries, indexImages } from "./binaries";
 import { importCharacters, type ImportCharactersOptions } from "./characters";
 import { createLinkMap, type LinkMap } from "./links";
@@ -179,5 +189,60 @@ describe("embedded character_book", () => {
     expect(book.original!["lumiverse-archive"]).toBeUndefined();
     // the underlying data is still escrowed, through the character's own row
     expect(character.original!["lumiverse-archive"]).toBeDefined();
+  });
+});
+
+describe("character_gallery", () => {
+  test("gallery images join onto media.assets in sort_order, not table order; a missing file appends nothing", async () => {
+    const { options, report } = await rig(buildCharacterGalleryLvbak());
+    const source = zipEntrySource(buildCharacterGalleryLvbak());
+
+    const entities = await importCharacters(source, options);
+    const character = entities.find((e) => e.kind === "character");
+    if (!character || character.kind !== "character") throw new Error("no character in the result");
+
+    const otherAssets = character.body.media.assets?.filter((a) => a.role === "other") ?? [];
+    // the missing-file row contributes nothing; only the resolvable one lands
+    expect(otherAssets).toHaveLength(1);
+    expect(otherAssets[0]!.ref.startsWith("data:image/png;base64,")).toBe(true);
+    expect(otherAssets[0]!.label).toBe(GALLERY_RESOLVABLE_IMAGE_FILENAME);
+
+    expect(report.missingBinaries).toContain(`files/images/${GALLERY_MISSING_IMAGE_FILENAME}`);
+    // the character itself still imported cleanly despite the gallery miss
+    expect(report.imported.character).toHaveLength(1);
+  });
+
+  test("ordering: two resolvable rows land sorted by sort_order, not the order the table wrote them in", async () => {
+    const tables = {
+      characters: [characterRow({ extensions: JSON.stringify({}) })],
+      images: [
+        imageRow({ id: "lv-gallery-image-a", filename: "gallery-a.png" }),
+        imageRow({ id: "lv-gallery-image-b", filename: "gallery-b.png" }),
+      ],
+      character_gallery: [
+        // written second-then-first: image b (sort_order 0) is written AFTER image a (sort_order 1)
+        galleryRow({ id: "lv-gallery-000000000011", image_id: "lv-gallery-image-a", sort_order: 1 }),
+        galleryRow({ id: "lv-gallery-000000000010", image_id: "lv-gallery-image-b", sort_order: 0 }),
+      ],
+    };
+    const bytes = assembleLvbak({
+      manifest: lvbakManifest(),
+      tables,
+      files: {
+        [`files/avatars/${CHARACTER_AVATAR}`]: PNG_1X1,
+        "files/images/gallery-a.png": PNG_1X1,
+        "files/images/gallery-b.png": PNG_1X1,
+      },
+      stats: lvbakStats(tables),
+    });
+    const { options } = await rig(bytes);
+    const source = zipEntrySource(bytes);
+
+    const entities = await importCharacters(source, options);
+    const character = entities.find((e) => e.kind === "character");
+    if (!character || character.kind !== "character") throw new Error("no character in the result");
+
+    const otherAssets = character.body.media.assets?.filter((a) => a.role === "other") ?? [];
+    expect(otherAssets.map((a) => a.label)).toEqual(["gallery-b.png", "gallery-a.png"]);
   });
 });

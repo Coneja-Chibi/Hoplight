@@ -8,11 +8,16 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { strFromU8, unzipSync } from "fflate";
 import {
+  GALLERY_MISSING_IMAGE_FILENAME,
+  GALLERY_MISSING_IMAGE_ID,
+  GALLERY_RESOLVABLE_IMAGE_FILENAME,
+  GALLERY_RESOLVABLE_IMAGE_ID,
   INDIRECT_MISSING_IMAGE_FILENAME,
   INDIRECT_MISSING_IMAGE_ID,
   PNG_1X1,
   SKIPPED_TABLE_COUNTS,
   buildBadRowsLvbak,
+  buildCharacterGalleryLvbak,
   buildCrossLinksLvbak,
   buildFutureSchemaLvbak,
   buildIndirectBinaryLvbak,
@@ -261,6 +266,27 @@ describe("lvbak fixture variants", () => {
     expect(names).not.toContain(`files/images/${INDIRECT_MISSING_IMAGE_FILENAME}`);
     const missing = json(bytes, "manifest-stats.json").missingFiles as string[];
     expect(missing).toEqual([`files/images/${INDIRECT_MISSING_IMAGE_FILENAME}`]);
+  });
+
+  test("character gallery: two rows written out of sort_order, one resolvable and one not", () => {
+    const bytes = buildCharacterGalleryLvbak();
+    const gallery = rows(bytes, "character_gallery");
+    expect(gallery).toHaveLength(2);
+    // written with sort_order 1 first, proving the importer's own order has to sort, not trust this
+    expect(gallery[0]!.sort_order).toBe(1);
+    expect(gallery[0]!.image_id).toBe(GALLERY_MISSING_IMAGE_ID);
+    expect(gallery[1]!.sort_order).toBe(0);
+    expect(gallery[1]!.image_id).toBe(GALLERY_RESOLVABLE_IMAGE_ID);
+    // no columns beyond the four join-essential ones
+    for (const row of gallery) {
+      expect(Object.keys(row).sort()).toEqual(["character_id", "id", "image_id", "sort_order"]);
+    }
+
+    const names = listing(bytes).map((e) => e.name);
+    expect(names).toContain(`files/images/${GALLERY_RESOLVABLE_IMAGE_FILENAME}`);
+    expect(names).not.toContain(`files/images/${GALLERY_MISSING_IMAGE_FILENAME}`);
+    const missing = json(bytes, "manifest-stats.json").missingFiles as string[];
+    expect(missing).toEqual([`files/images/${GALLERY_MISSING_IMAGE_FILENAME}`]);
   });
 
   test("wrong producer keeps the layout but fails the producer check", () => {

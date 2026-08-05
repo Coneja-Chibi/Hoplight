@@ -271,3 +271,16 @@ export const imageRow = (over: LvbakRow = {}): LvbakRow => ({
   created_at: FIXED_TS,
   ...over,
 });
+
+/**
+ * Deliberately just the four columns the importer's join actually needs (id, character_id,
+ * image_id, sort_order): the real character_gallery schema was never ground-truthed against a live
+ * export the way the other mapped tables were, so this fixture claims no more than that.
+ */
+export const galleryRow = (over: LvbakRow = {}): LvbakRow => ({
+  id: "lv-gallery-000000000001",
+  character_id: CHARACTER_ID,
+  image_id: IMAGE_ID,
+  sort_order: 0,
+  ...over,
+});
