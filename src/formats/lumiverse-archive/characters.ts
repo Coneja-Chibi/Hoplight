@@ -38,7 +38,7 @@ import { inspectBundle } from "../../convert";
 import type { Binaries } from "./binaries";
 import { addArchiveEscrow } from "./escrow";
 import type { LinkMap } from "./links";
-import { addWarning, recordFailure, recordImported, type LvbakImportReport } from "./report";
+import { addWarning, codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
 import type { LvbakEntrySource } from "./source";
 import { readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId } from "./tables";
@@ -220,6 +220,9 @@ export interface ImportCharactersOptions {
   links: LinkMap;
   binaries: Binaries;
   images: ReadonlyMap<string, TableRow>;
+  /** Built once by the caller via indexCharacterGallery, the same "one source.list() / one table
+   * read shared everywhere" doctrine binaries and images already follow. */
+  gallery: ReadonlyMap<string, GalleryRow[]>;
 }
 
 /**
@@ -228,19 +231,18 @@ export interface ImportCharactersOptions {
  * edge case 7, a character never fails the row over a bad inner-JSON column, it just loses whichever
  * column would not parse, with `extensions` specifically raising a named warning since losing it
  * means losing sprites, the embedded book, and every foreign-platform escrow key at once. A
- * codec-level throw is NOT caught here; the row-level outer catch is the M9 orchestrator's job.
+ * codec-level (or any other unexpected) throw during synthesis/dispatch/resolution fails only that
+ * row: recorded via recordFailure, the stream continues.
  */
 export async function importCharacters(
   source: LvbakEntrySource,
   options: ImportCharactersOptions,
 ): Promise<ParsedCanonicalEntity[]> {
-  const { lineCeiling, report, links, binaries, images } = options;
+  const { lineCeiling, report, links, binaries, images, gallery } = options;
   const opts: ReadTableOptions = {
     lineCeiling,
     onFailure: (failure) => recordFailure(report, failure),
   };
-
-  const gallery = await indexCharacterGallery(source, opts);
 
   const out: ParsedCanonicalEntity[] = [];
   for await (const read of readTable(source, "characters", opts)) {
@@ -267,31 +269,35 @@ export async function importCharacters(
       delete extensions.lumiverse_modules;
     }
 
-    const envelope = wrapV2(characterRowToCard(read.row, { tags, alternateGreetings, extensions }));
+    try {
+      const envelope = wrapV2(characterRowToCard(read.row, { tags, alternateGreetings, extensions }));
 
-    const input = modules
-      ? toAdapterInput(
-          zipSync({
-            "card.json": strToU8(JSON.stringify(envelope)),
-            "lumiverse_modules.json": strToU8(JSON.stringify(modules)),
-            ...(await collectModuleFiles(modules, binaries)),
-          }),
-          "character.charx",
-        )
-      : toAdapterInput(strToU8(JSON.stringify(envelope)), "character.json");
+      const input = modules
+        ? toAdapterInput(
+            zipSync({
+              "card.json": strToU8(JSON.stringify(envelope)),
+              "lumiverse_modules.json": strToU8(JSON.stringify(modules)),
+              ...(await collectModuleFiles(modules, binaries)),
+            }),
+            "character.charx",
+          )
+        : toAdapterInput(strToU8(JSON.stringify(envelope)), "character.json");
 
-    const { entity, lorebooks } = inspectBundle(characterAdapter, input);
-    await resolvePortrait(entity, read.row, binaries, images);
-    await appendGalleryAssets(entity, rowId(read.row), gallery, images, binaries);
+      const { entity, lorebooks } = inspectBundle(characterAdapter, input);
+      await resolvePortrait(entity, read.row, binaries, images);
+      await appendGalleryAssets(entity, rowId(read.row), gallery, images, binaries);
 
-    const escrowed = addArchiveEscrow(entity, "characters", read.row);
-    links.record("characters", rowId(read.row), { id: escrowed.id, name: escrowed.body.identity.name });
-    recordImported(report, "character", { id: escrowed.id, name: escrowed.body.identity.name });
-    out.push(escrowed);
+      const escrowed = addArchiveEscrow(entity, "characters", read.row);
+      links.record("characters", rowId(read.row), { id: escrowed.id, name: escrowed.body.identity.name });
+      recordImported(report, "character", { id: escrowed.id, name: escrowed.body.identity.name });
+      out.push(escrowed);
 
-    for (const book of lorebooks) {
-      recordImported(report, "lorebook", { id: book.id, name: book.body.name });
-      out.push(book);
+      for (const book of lorebooks) {
+        recordImported(report, "lorebook", { id: book.id, name: book.body.name });
+        out.push(book);
+      }
+    } catch (error) {
+      recordFailure(report, codecRowFailure("characters", read.row, error));
     }
   }
   return out;

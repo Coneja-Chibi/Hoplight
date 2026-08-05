@@ -28,6 +28,7 @@ export {
   type LvbakDetection,
 } from "./detect";
 export { addArchiveEscrow } from "./escrow";
+export { importLumiverseArchive, LvbakSchemaError, type LvbakImportResult } from "./import";
 export {
   AVATARS_PREFIX,
   DATABASE_PREFIX,
@@ -84,6 +85,7 @@ export {
   VECTORS_WARNING,
   addWarning,
   applyManifestWarnings,
+  codecRowFailure,
   createLvbakReport,
   recordFailure,
   recordImported,

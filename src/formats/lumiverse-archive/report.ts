@@ -7,8 +7,8 @@
  * their chats came along, and a row count quoted from manifest-stats makes the omission concrete.
  * When stats are absent the count is null, which reads as unknown rather than zero.
  */
-import type { LvbakKind } from "./tables";
 import type { LvbakManifest } from "./manifest";
+import { rowId, rowName, type LvbakKind } from "./tables";
 
 export interface ImportedEntity {
   id: string;
@@ -70,6 +70,22 @@ export function recordImported(
 
 export function recordFailure(report: LvbakImportReport, failure: LvbakRowFailure): void {
   report.failed.push(failure);
+}
+
+/**
+ * Build a row failure from whatever a synthesize/dispatch try/catch just caught (spec Behavior step
+ * 7's outer catch, one per kind module). Shared so every kind module names the failing row the same
+ * way rather than five slightly different reasons-from-an-error idioms.
+ */
+export function codecRowFailure(table: string, row: Record<string, unknown>, error: unknown): LvbakRowFailure {
+  const failure: LvbakRowFailure = {
+    table,
+    rowId: rowId(row),
+    reason: error instanceof Error ? error.message : String(error),
+  };
+  const name = rowName(row);
+  if (name !== undefined) failure.name = name;
+  return failure;
 }
 
 /** Replaces the list wholesale: the table walk computes it once from the entry names and stats. */

@@ -19,7 +19,7 @@ import personaCodec from "../lumiverse/persona";
 import type { Binaries } from "./binaries";
 import { addArchiveEscrow } from "./escrow";
 import type { LinkMap } from "./links";
-import { recordFailure, recordImported, type LvbakImportReport } from "./report";
+import { codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
 import type { LvbakEntrySource } from "./source";
 import { readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId } from "./tables";
@@ -121,7 +121,8 @@ export interface ImportPersonasOptions {
  *
  * personas.metadata (JSON_STRING_COLUMNS) is never gated on: nothing in the codec's field mapping
  * reads it, so a row whose metadata will not parse still imports cleanly, same policy as
- * world_books.metadata in the lorebook slice.
+ * world_books.metadata in the lorebook slice. A codec-level (or any other unexpected) throw during
+ * synthesis/dispatch/resolution fails only that row: recorded via recordFailure, the stream continues.
  */
 export async function importPersonas(
   source: LvbakEntrySource,
@@ -135,16 +136,20 @@ export async function importPersonas(
 
   const out: ParsedCanonicalEntity[] = [];
   for await (const read of readTable(source, "personas", opts)) {
-    const wire = personaRowToWire(read);
-    const entity: CanonicalPersona = personaCodec.toCanonical({ text: JSON.stringify(wire) });
+    try {
+      const wire = personaRowToWire(read);
+      const entity: CanonicalPersona = personaCodec.toCanonical({ text: JSON.stringify(wire) });
 
-    resolveKnowledgeRef(entity, read.row, links, report);
-    await resolveAvatar(entity, read.row, binaries);
+      resolveKnowledgeRef(entity, read.row, links, report);
+      await resolveAvatar(entity, read.row, binaries);
 
-    const escrowed = addArchiveEscrow(entity, "personas", read.row);
-    links.record("personas", rowId(read.row), { id: escrowed.id, name: escrowed.body.name });
-    recordImported(report, "persona", { id: escrowed.id, name: escrowed.body.name });
-    out.push(escrowed);
+      const escrowed = addArchiveEscrow(entity, "personas", read.row);
+      links.record("personas", rowId(read.row), { id: escrowed.id, name: escrowed.body.name });
+      recordImported(report, "persona", { id: escrowed.id, name: escrowed.body.name });
+      out.push(escrowed);
+    } catch (error) {
+      recordFailure(report, codecRowFailure("personas", read.row, error));
+    }
   }
   return out;
 }

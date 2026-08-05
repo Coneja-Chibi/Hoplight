@@ -18,7 +18,7 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import stWorldbook from "../sillytavern/lorebook";
 import { addArchiveEscrow } from "./escrow";
 import type { LinkMap } from "./links";
-import { recordFailure, recordImported, type LvbakImportReport } from "./report";
+import { codecRowFailure, recordFailure, recordImported, type LvbakImportReport } from "./report";
 import type { LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId } from "./tables";
@@ -157,7 +157,9 @@ export interface ImportLorebooksOptions {
  * Import every lorebook: join the two tables, drop and report entries whose inner JSON would not
  * parse (spec Behavior step 7, per-row isolation), synthesize and dispatch the survivors, escrow the
  * raw twin, and record the book under its Lumiverse id so a later persona or regex row can resolve
- * `attached_world_book_id` / scoping through the link map (step 6).
+ * `attached_world_book_id` / scoping through the link map (step 6). A codec-level (or any other
+ * unexpected) throw during synthesis/dispatch fails only that book: recorded via recordFailure, the
+ * stream continues to the next one.
  */
 export async function importLorebooks(
   source: LvbakEntrySource,
@@ -178,24 +180,28 @@ export async function importLorebooks(
       else valid.push(entry);
     }
 
-    const wire = worldBookToStWire(book.row, valid);
-    const entity: CanonicalLorebook = stWorldbook.toCanonical({ text: JSON.stringify(wire) });
-    if (valid.length === 0) {
-      // Strip the sniff placeholder from BOTH surfaces that would carry it forward: body.entries,
-      // and the codec twin's raw wire, since fromCanonical re-exports from that raw, so leaving
-      // the placeholder there would fabricate an entry in a round-trip of a genuinely empty book.
-      entity.body.entries = [];
-      const twin = entity.original?.["sillytavern-lorebook"];
-      if (twin) twin.raw = { ...wire, entries: {} };
-    }
+    try {
+      const wire = worldBookToStWire(book.row, valid);
+      const entity: CanonicalLorebook = stWorldbook.toCanonical({ text: JSON.stringify(wire) });
+      if (valid.length === 0) {
+        // Strip the sniff placeholder from BOTH surfaces that would carry it forward: body.entries,
+        // and the codec twin's raw wire, since fromCanonical re-exports from that raw, so leaving
+        // the placeholder there would fabricate an entry in a round-trip of a genuinely empty book.
+        entity.body.entries = [];
+        const twin = entity.original?.["sillytavern-lorebook"];
+        if (twin) twin.raw = { ...wire, entries: {} };
+      }
 
-    const escrowed = addArchiveEscrow(entity, "world_books", {
-      book: book.row,
-      entries: entries.map((e) => e.row),
-    });
-    links.record("world_books", rowId(book.row), { id: escrowed.id, name: escrowed.body.name });
-    recordImported(report, "lorebook", { id: escrowed.id, name: escrowed.body.name });
-    out.push(escrowed);
+      const escrowed = addArchiveEscrow(entity, "world_books", {
+        book: book.row,
+        entries: entries.map((e) => e.row),
+      });
+      links.record("world_books", rowId(book.row), { id: escrowed.id, name: escrowed.body.name });
+      recordImported(report, "lorebook", { id: escrowed.id, name: escrowed.body.name });
+      out.push(escrowed);
+    } catch (error) {
+      recordFailure(report, codecRowFailure("world_books", book.row, error));
+    }
   }
   return out;
 }

@@ -28,7 +28,13 @@ import presetCodec from "../lumiverse/preset";
 import { inspectPresetBundle } from "../../convert";
 import { addArchiveEscrow } from "./escrow";
 import type { LinkMap } from "./links";
-import { recordFailure, recordImported, type LvbakImportReport, type LvbakRowFailure } from "./report";
+import {
+  codecRowFailure,
+  recordFailure,
+  recordImported,
+  type LvbakImportReport,
+  type LvbakRowFailure,
+} from "./report";
 import type { LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import { rowId, type InnerJsonResult } from "./tables";
@@ -135,7 +141,8 @@ export interface ImportPresetsOptions {
 /**
  * Import every preset: synthesize and dispatch, escrow the raw twin, and record the preset under
  * its Lumiverse id (spec step 6: a regex row can scope to a preset the same way it scopes to a
- * character).
+ * character). A codec-level (or any other unexpected) throw during synthesis/dispatch fails only
+ * that row: recorded via recordFailure, the stream continues.
  */
 export async function importPresets(
   source: LvbakEntrySource,
@@ -155,17 +162,21 @@ export async function importPresets(
       continue;
     }
 
-    const wrapper = presetRowToWrapper(read.row, read.inner);
-    const name = asString(read.row.name) || "preset";
-    const { entity } = inspectPresetBundle(presetCodec, {
-      text: JSON.stringify(wrapper),
-      filename: `${name}.json`,
-    });
+    try {
+      const wrapper = presetRowToWrapper(read.row, read.inner);
+      const name = asString(read.row.name) || "preset";
+      const { entity } = inspectPresetBundle(presetCodec, {
+        text: JSON.stringify(wrapper),
+        filename: `${name}.json`,
+      });
 
-    const escrowed = addArchiveEscrow(entity, "presets", read.row);
-    links.record("presets", rowId(read.row), { id: escrowed.id, name: escrowed.body.name });
-    recordImported(report, "preset", { id: escrowed.id, name: escrowed.body.name });
-    out.push(escrowed);
+      const escrowed = addArchiveEscrow(entity, "presets", read.row);
+      links.record("presets", rowId(read.row), { id: escrowed.id, name: escrowed.body.name });
+      recordImported(report, "preset", { id: escrowed.id, name: escrowed.body.name });
+      out.push(escrowed);
+    } catch (error) {
+      recordFailure(report, codecRowFailure("presets", read.row, error));
+    }
   }
   return out;
 }

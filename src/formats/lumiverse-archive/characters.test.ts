@@ -28,7 +28,7 @@ import {
   imageRow,
 } from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries, indexImages } from "./binaries";
-import { importCharacters, type ImportCharactersOptions } from "./characters";
+import { importCharacters, indexCharacterGallery, type ImportCharactersOptions } from "./characters";
 import { createLinkMap, type LinkMap } from "./links";
 import { ndjsonLineCeiling } from "./ndjson";
 import { createLvbakReport, type LvbakImportReport } from "./report";
@@ -51,7 +51,12 @@ async function rig(bytes: Uint8Array): Promise<Rig> {
   const links = createLinkMap();
   const binaries = createBinaries(source, await source.list(), report);
   const images = await indexImages(source, { lineCeiling: V1_CEILING, onFailure: noFailures });
-  return { report, links, options: { lineCeiling: V1_CEILING, report, links, binaries, images } };
+  const gallery = await indexCharacterGallery(source, { lineCeiling: V1_CEILING, onFailure: noFailures });
+  return {
+    report,
+    links,
+    options: { lineCeiling: V1_CEILING, report, links, binaries, images, gallery },
+  };
 }
 
 describe("zip-wire sprites", () => {

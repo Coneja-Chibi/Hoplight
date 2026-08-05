@@ -24,7 +24,13 @@ import type { ParsedCanonicalEntity } from "../../entities/runtime-schema";
 import { regexAdapter } from "../lumiverse/regex";
 import { addArchiveEscrow } from "./escrow";
 import type { LinkMap } from "./links";
-import { recordFailure, recordImported, type LvbakImportReport, type LvbakRowFailure } from "./report";
+import {
+  codecRowFailure,
+  recordFailure,
+  recordImported,
+  type LvbakImportReport,
+  type LvbakRowFailure,
+} from "./report";
 import type { LvbakEntrySource } from "./source";
 import { innerJsonRowFailure, readTable, type ReadTableOptions, type TableRow } from "./table-walk";
 import type { InnerJsonResult } from "./tables";
@@ -130,7 +136,10 @@ export interface ImportRegexSetsOptions {
  * Import every regex set: gate and group the rows, synthesize and dispatch one file per scope,
  * resolve a scoped set's target through the link map (a dangling scope still imports, named from
  * its raw id, with the miss recorded by resolve() itself), and escrow every row the set came from.
- * No links.record: nothing downstream ever links to a regex set.
+ * No links.record: nothing downstream ever links to a regex set. A codec-level (or any other
+ * unexpected) throw during synthesis/dispatch/resolution fails the whole GROUP (there is no smaller
+ * unit to dispatch than one file per scope): recorded as one failure per row in that group, the
+ * stream continues to the next scope.
  */
 export async function importRegexSets(
   source: LvbakEntrySource,
@@ -154,30 +163,36 @@ export async function importRegexSets(
 
   const out: ParsedCanonicalEntity[] = [];
   for (const group of groupRegexRows(valid)) {
-    const file = {
-      version: 1,
-      type: "lumiverse_regex_scripts",
-      scripts: group.rows.map((read) => regexRowToScript(read.row, read.inner)),
-    };
+    try {
+      const file = {
+        version: 1,
+        type: "lumiverse_regex_scripts",
+        scripts: group.rows.map((read) => regexRowToScript(read.row, read.inner)),
+      };
 
-    let filename = "Lumiverse regex scripts.json";
-    let linkInfo: Record<string, unknown> | undefined;
-    if (group.scope !== "account") {
-      const table = group.scope === "character" ? "characters" : "presets";
-      const resolved = links.resolve(`regex_scripts/${group.scopeId}`, table, group.scopeId!, report);
-      filename = resolved ? `${resolved.name} regex.json` : `${group.scopeId} regex.json`;
-      linkInfo = { scope: group.scope, scopeId: group.scopeId, resolvedId: resolved?.id ?? null };
+      let filename = "Lumiverse regex scripts.json";
+      let linkInfo: Record<string, unknown> | undefined;
+      if (group.scope !== "account") {
+        const table = group.scope === "character" ? "characters" : "presets";
+        const resolved = links.resolve(`regex_scripts/${group.scopeId}`, table, group.scopeId!, report);
+        filename = resolved ? `${resolved.name} regex.json` : `${group.scopeId} regex.json`;
+        linkInfo = { scope: group.scope, scopeId: group.scopeId, resolvedId: resolved?.id ?? null };
+      }
+
+      const entity = regexAdapter.toCanonical({ text: JSON.stringify(file), filename });
+      const escrowed = addArchiveEscrow(
+        entity,
+        "regex_scripts",
+        { rows: group.rows.map((read) => read.row) },
+        linkInfo ? { links: linkInfo } : undefined,
+      );
+      recordImported(report, "regex", { id: escrowed.id, name: escrowed.body.name });
+      out.push(escrowed);
+    } catch (error) {
+      for (const read of group.rows) {
+        recordFailure(report, codecRowFailure("regex_scripts", read.row, error));
+      }
     }
-
-    const entity = regexAdapter.toCanonical({ text: JSON.stringify(file), filename });
-    const escrowed = addArchiveEscrow(
-      entity,
-      "regex_scripts",
-      { rows: group.rows.map((read) => read.row) },
-      linkInfo ? { links: linkInfo } : undefined,
-    );
-    recordImported(report, "regex", { id: escrowed.id, name: escrowed.body.name });
-    out.push(escrowed);
   }
   return out;
 }

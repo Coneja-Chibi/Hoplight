@@ -7,7 +7,7 @@ import { describe, expect, test } from "bun:test";
 import { buildBadRowsLvbak, buildCrossLinksLvbak, buildMinimalLvbak } from "../_fixtures/lumiverse-archive/build-lvbak";
 import { CHARACTER_ID, DANGLING_ID, PRESET_ID, REGEX_ID } from "../_fixtures/lumiverse-archive/rows";
 import { createBinaries, indexImages } from "./binaries";
-import { importCharacters } from "./characters";
+import { importCharacters, indexCharacterGallery } from "./characters";
 import { createLinkMap } from "./links";
 import { ndjsonLineCeiling } from "./ndjson";
 import { importPresets } from "./presets";
@@ -27,7 +27,8 @@ async function populateLinks(bytes: Uint8Array) {
   const charSource = zipEntrySource(bytes);
   const binaries = createBinaries(charSource, await charSource.list(), report);
   const images = await indexImages(charSource, { lineCeiling: V1_CEILING, onFailure: noFailures });
-  await importCharacters(charSource, { lineCeiling: V1_CEILING, report, links, binaries, images });
+  const gallery = await indexCharacterGallery(charSource, { lineCeiling: V1_CEILING, onFailure: noFailures });
+  await importCharacters(charSource, { lineCeiling: V1_CEILING, report, links, binaries, images, gallery });
 
   const presetSource = zipEntrySource(bytes);
   await importPresets(presetSource, { lineCeiling: V1_CEILING, report, links });
