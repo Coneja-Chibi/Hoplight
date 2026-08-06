@@ -78,6 +78,13 @@ export const api: AppContext["api"] = {
       body: file,
       signal,
     }),
+  saveStaged: async (payload) =>
+    // Tiny by design: a token, a key, and an id map - the staged entity itself never crosses.
+    apiFetchJson("/api/studio/save-staged", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    }),
   exportEntity: async (entity, targetId) =>
     apiFetchJson("/api/export", {
       method: "POST",

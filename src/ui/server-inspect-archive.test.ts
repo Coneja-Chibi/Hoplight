@@ -11,7 +11,7 @@ import {
   buildWrongProducerZip,
 } from "../formats/_fixtures/lumiverse-archive/build-lvbak";
 import type { InspectArchiveResult } from "./app-contract";
-import { handleInspectArchive } from "./server-engine";
+import { archiveErrorMessage, handleInspectArchive } from "./server-engine";
 
 const req = (body: Uint8Array, filename = "backup.lvbak", contentType = "application/octet-stream"): Request =>
   new Request("http://127.0.0.1:8321/api/inspect-archive", {
@@ -36,7 +36,7 @@ describe("handleInspectArchive: a real archive", () => {
       expect(row.ok).toBe(true);
       expect(row.formatId).toBe("lumiverse-archive");
       expect(row.kind).toBeDefined();
-      expect(row.entity).toBeDefined();
+      expect(row.staged).toBeDefined(); // the entity itself stays server-side; see the staged describe
       expect(row.receipt?.name).toBeTruthy();
       // FRIENDLY["lumiverse-archive"] = "Lumiverse", never the raw internal id
       expect(row.receipt?.kindLine).toContain("made for Lumiverse.");
@@ -65,9 +65,62 @@ describe("handleInspectArchive: a real archive", () => {
     // SillyTavern worldbook codec that actually parsed it.
     const res = await handleInspectArchive(req(buildMinimalLvbak()));
     const body = (await res.json()) as InspectArchiveResult;
-    const book = body.rows!.find((r) => r.kind === "lorebook" && (r.entity as { original?: Record<string, unknown> }).original?.["sillytavern-lorebook"]);
-    expect(book).toBeDefined();
-    expect(book!.parseReport!.escrowed.every((p) => !p.startsWith("original.lumiverse-archive."))).toBe(true);
+    // Rows no longer carry entities, so assert over EVERY book row: none may report the archive's
+    // own bookkeeping escrow as if it were dropped canonical data (a superset of the old check,
+    // which singled out the row whose escrow held the SillyTavern worldbook codec).
+    const books = body.rows!.filter((r) => r.kind === "lorebook");
+    expect(books.length).toBeGreaterThan(0);
+    for (const book of books) {
+      expect(book.parseReport!.escrowed.every((p) => !p.startsWith("original.lumiverse-archive."))).toBe(true);
+    }
+  });
+});
+
+describe("handleInspectArchive: staged references, never entity payloads", () => {
+  test("every ok row carries a staged ref, entityId, and contentHash - and NO entity", async () => {
+    // The whole point of staging: a 5 GiB backup's entities must never ride the response.
+    // Committing happens by reference through /api/studio/save-staged.
+    const res = await handleInspectArchive(req(buildMinimalLvbak()));
+    const body = (await res.json()) as InspectArchiveResult;
+    expect(body.ok).toBe(true);
+    for (const row of body.rows!) {
+      expect(row.entity).toBeUndefined();
+      expect(row.staged?.token).toBeTruthy();
+      expect(row.staged?.key).toBeTruthy();
+      expect(typeof row.entityId).toBe("string");
+      expect(typeof row.contentHash).toBe("string");
+    }
+    const keys = new Set(body.rows!.map((r) => r.staged!.key));
+    expect(keys.size).toBe(body.rows!.length);
+    const tokens = new Set(body.rows!.map((r) => r.staged!.token));
+    expect(tokens.size).toBe(1); // one staging per upload
+  });
+
+  test("summary rows carry what the sheet used to read off the entity: knowledgeRefs and entryCount", async () => {
+    // Without these the link caveat and the "N entries" chip silently die on archive rows - the
+    // review that caught it proved both dead by running the fixture through the sheet helpers.
+    const res = await handleInspectArchive(req(buildMinimalLvbak()));
+    const body = (await res.json()) as InspectArchiveResult;
+    const character = body.rows!.find((r) => r.kind === "character")!;
+    expect(character.knowledgeRefs?.length).toBeGreaterThan(0);
+    for (const book of body.rows!.filter((r) => r.kind === "lorebook")) {
+      expect(book.entryCount).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("archiveErrorMessage: honest words for every failure class", () => {
+  test("an unexpected error (the 2 GiB stringify RangeError's class) never blames the backup", () => {
+    const msg = archiveErrorMessage(new RangeError("Out of memory"));
+    expect(msg).not.toContain("does not look like a Lumiverse backup");
+    expect(msg.toLowerCase()).toContain("hoplight");
+  });
+
+  test("the importer's own deliberate rejection keeps the plain not-a-backup line", () => {
+    const msg = archiveErrorMessage(
+      new Error('lumiverse-archive: not a recognizable .lvbak archive (no manifest.json naming producer "lumiverse" with a database/ tree beside it)'),
+    );
+    expect(msg).toContain("Lumiverse backup archive");
   });
 });
 

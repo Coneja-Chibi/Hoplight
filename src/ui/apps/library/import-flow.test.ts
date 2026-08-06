@@ -280,6 +280,43 @@ describe("withArchiveLinkCaveat", () => {
   });
 });
 
+describe("staged summary rows (no entity - the shape the server actually sends since staging)", () => {
+  const summaryRow = (
+    kind: string,
+    opts: { refs?: string[]; entityId?: string; entryCount?: number } = {},
+  ): InspectResult =>
+    ({
+      ok: true,
+      kind,
+      staged: { token: "tok", key: `k-${opts.entityId ?? kind}` },
+      entityId: opts.entityId ?? "x",
+      ...(opts.refs ? { knowledgeRefs: opts.refs } : {}),
+      ...(opts.entryCount !== undefined ? { entryCount: opts.entryCount } : {}),
+      receipt: { name: "X", kindLine: "", extras: [] },
+    }) as unknown as InspectResult;
+
+  test("withArchiveLinkCaveat fires from the row's own knowledgeRefs, no entity needed", () => {
+    const out = withArchiveLinkCaveat(summaryRow("character", { refs: ["shared-book"] }), new Set(["shared-book"]));
+    expect(out.receipt!.extras.some((e) => e.includes("Links to a lorebook"))).toBe(true);
+  });
+
+  test("unresolvedArchiveRefs resolves book ids via entityId and harvests refs from summary rows", () => {
+    const reads: ReadFile[] = [
+      archiveReadRow("a: Lore", "a.lvbak", summaryRow("lorebook", { entityId: "lore" })),
+      archiveReadRow("a: P", "a.lvbak", summaryRow("persona", { refs: ["lore"] })),
+    ];
+    // both checked: the book's entityId resolves the persona's ref
+    expect(unresolvedArchiveRefs(reads, new Set([0, 1]), "a.lvbak")).toEqual(new Set());
+    // book unchecked: the SAME ref is now unresolved - the caveat's trigger case
+    expect(unresolvedArchiveRefs(reads, new Set([1]), "a.lvbak")).toEqual(new Set(["lore"]));
+  });
+
+  test("annotateRead carries the summary row's precomputed entryCount", () => {
+    const out = annotateRead("a: Lore", summaryRow("lorebook", { entityId: "lore", entryCount: 7 }));
+    expect(out.entryCount).toBe(7);
+  });
+});
+
 describe("unresolvedArchiveRefs", () => {
   test("a checked, ok lorebook row resolves its id; an unchecked one does not", () => {
     const reads: ReadFile[] = [

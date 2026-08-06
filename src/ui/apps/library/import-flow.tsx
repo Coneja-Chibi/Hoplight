@@ -161,8 +161,10 @@ export function makeImportRunners(args: {
       const picked = orderForCommit(
         checkedIndexes.map((i) => importState.reads[i]).filter((r): r is ReadFile => !!r && r.result.ok),
       );
-      const { shelved, errors } = await commitOrderedRows(picked, ctx.api.saveBundle, (done, total) =>
-        setImportState({ phase: "saving", done, total }),
+      const { shelved, errors } = await commitOrderedRows(
+        picked,
+        { bundle: ctx.api.saveBundle, staged: ctx.api.saveStaged },
+        (done, total) => setImportState({ phase: "saving", done, total }),
       );
       reload();
       if (errors.length > 0) {

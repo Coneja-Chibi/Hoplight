@@ -82,7 +82,9 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
  * list, checked before isHostOnlyRoute's caller reaches the route at all.
  */
 export function isLoopbackOnlyRoute(p: string): boolean {
-  return p === "/api/inspect-archive";
+  // save-staged commits rows the desk's own upload staged; a remote device has no business
+  // committing them, same ownership rationale as the upload route itself.
+  return p === "/api/inspect-archive" || p === "/api/studio/save-staged";
 }
 
 export function auxHelperStatus(): AuxHelperStatus {

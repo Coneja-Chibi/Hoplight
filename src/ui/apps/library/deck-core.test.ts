@@ -45,7 +45,7 @@ describe("clampSize", () => {
 
 import { bundlePayloadFromInspect, commitOrderedRows, orderForCommit, rewriteKnowledgeRefsFor } from "./deck-core";
 import type { ImportBundlePayload } from "./deck-core";
-import type { InspectResult, SaveBundleResult } from "../../app-contract";
+import type { InspectResult, SaveBundleResult, SaveStagedPayload } from "../../app-contract";
 import type { ReadFile } from "./import-triage";
 
 describe("bundlePayloadFromInspect", () => {
@@ -171,6 +171,11 @@ function fakeStudio(preExisting: string[] = []): {
   return { save, calls };
 }
 
+/** For entity-path tests: proves a row that carries its entity NEVER commits through the staged door. */
+const rejectStaged = async (): Promise<SaveBundleResult> => {
+  throw new Error("staged saver called for an entity-carrying row");
+};
+
 const kindOf = (p: ImportBundlePayload): string => (p.entity as { kind: string }).kind;
 const idOf = (p: ImportBundlePayload): string => (p.entity as { id: string }).id;
 const refsOf = (p: ImportBundlePayload): string[] | undefined =>
@@ -183,7 +188,7 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
       bookRow("a: Lore", "a.lvbak", "lore", "Lore"),
     ]);
     const { save, calls } = fakeStudio(["lore"]); // the shelf already has "lore"
-    const { shelved, errors } = await commitOrderedRows(picked, save);
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: save, staged: rejectStaged });
     expect(errors).toEqual([]);
     expect(shelved).toBe(2);
     expect(calls.map(kindOf)).toEqual(["lorebook", "persona"]); // book saved first
@@ -199,7 +204,7 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
     ]);
     // the shelf ALSO already has "lore", forcing BOTH archive books to re-suffix in turn
     const { save, calls } = fakeStudio(["lore"]);
-    const { shelved, errors } = await commitOrderedRows(picked, save);
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: save, staged: rejectStaged });
     expect(errors).toEqual([]);
     expect(shelved).toBe(4);
     const p1 = calls.find((c) => idOf(c) === "p1")!;
@@ -216,7 +221,7 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
   test("case 3a: the book is simply unchecked (never in picked) - the persona's dangling ref is DROPPED, never left pointing at an id that will never exist", async () => {
     const picked = orderForCommit([personaRow("a: P", "a.lvbak", "p1", ["lore"])]);
     const { save, calls } = fakeStudio();
-    const { shelved, errors } = await commitOrderedRows(picked, save);
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: save, staged: rejectStaged });
     expect(errors).toEqual([]);
     expect(shelved).toBe(1);
     expect(refsOf(calls[0]!)).toBeUndefined();
@@ -233,7 +238,7 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
       if (kindOf(payload) === "lorebook") return { ok: false, related: [], error: "disk full" };
       return { ok: true, primary: { id: idOf(payload), kind: "persona", name: "P" }, related: [] };
     };
-    const { shelved, errors } = await commitOrderedRows(picked, save);
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: save, staged: rejectStaged });
     expect(errors).toEqual(["a: Lore: disk full"]);
     expect(shelved).toBe(1);
     expect(refsOf(calls[1]!)).toBeUndefined();
@@ -252,7 +257,7 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
     };
     const picked = orderForCommit([character]);
     const { save, calls } = fakeStudio();
-    const { shelved, errors } = await commitOrderedRows(picked, save);
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: save, staged: rejectStaged });
     expect(errors).toEqual([]);
     expect(shelved).toBe(1);
     // ONE saveBundle call, still carrying the original related.lorebooks bundle - never split into
@@ -261,5 +266,108 @@ describe("commitOrderedRows: the ISC-35 collision matrix", () => {
     expect(calls).toHaveLength(1);
     expect(calls[0]!.related?.lorebooks).toEqual([embeddedBook]);
     expect(refsOf(calls[0]!)).toEqual(["book-1"]);
+  });
+});
+
+/** A staged archive row: a staging ref + entityId + its own knowledgeRefs, deliberately NO entity
+ *  (it waits server-side). Tokens differ per archive in real traffic - tests that stage two
+ *  archives MUST pass distinct tokens, or they assert a world the server cannot produce. */
+const stagedRow = (
+  filename: string,
+  archiveKey: string,
+  kind: string,
+  entityId: string,
+  key: string,
+  opts: { refs?: string[]; token?: string } = {},
+): ReadFile => ({
+  filename,
+  archiveKey,
+  result: {
+    ok: true,
+    kind,
+    staged: { token: opts.token ?? "tok-1", key },
+    entityId,
+    contentHash: `hash-${key}`,
+    ...(opts.refs ? { knowledgeRefs: opts.refs } : {}),
+  },
+});
+
+describe("commitOrderedRows: staged archive rows commit by reference", () => {
+  /** Same keep-both id semantics as fakeStudio, but keyed off entityId - the server's side of the
+   *  staged door. Records every payload so tests can pin exactly what crossed the wire. */
+  function fakeStagedStudio(preExisting: string[] = []): {
+    staged: (payload: SaveStagedPayload) => Promise<SaveBundleResult>;
+    calls: SaveStagedPayload[];
+  } {
+    const taken = new Set(preExisting);
+    const byKey: Record<string, { kind: string; id: string }> = {
+      "k-lore": { kind: "lorebook", id: "lore" },
+      "k-p1": { kind: "persona", id: "p1" },
+      "k-char": { kind: "character", id: "char" },
+    };
+    const calls: SaveStagedPayload[] = [];
+    const staged = async (payload: SaveStagedPayload): Promise<SaveBundleResult> => {
+      calls.push(payload);
+      const row = byKey[payload.key]!;
+      let id = row.id;
+      if (taken.has(id)) {
+        let n = 2;
+        while (taken.has(`${row.id}-${n}`)) n++;
+        id = `${row.id}-${n}`;
+      }
+      taken.add(id);
+      return { ok: true, primary: { id, kind: row.kind, name: id }, related: [] };
+    };
+    return { staged, calls };
+  }
+
+  const rejectBundle = async (): Promise<SaveBundleResult> => {
+    throw new Error("bundle saver called for a staged row");
+  };
+
+  test("a staged book saves first with NO refIds; the staged persona then carries the book's REAL post-collision id in refIds", async () => {
+    const picked = orderForCommit([
+      stagedRow("a: P", "a.lvbak", "persona", "p1", "k-p1", { refs: ["lore"] }),
+      stagedRow("a: Lore", "a.lvbak", "lorebook", "lore", "k-lore"),
+    ]);
+    const { staged, calls } = fakeStagedStudio(["lore"]); // shelf collision forces "lore" -> "lore-2"
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: rejectBundle, staged });
+    expect(errors).toEqual([]);
+    expect(shelved).toBe(2);
+    expect(calls[0]!).toEqual({ token: "tok-1", key: "k-lore", refIds: {} }); // empty map, nothing shelved yet
+    expect(calls[1]!).toEqual({ token: "tok-1", key: "k-p1", refIds: { lore: "lore-2" } });
+  });
+
+  test("a staged book that fails to save leaves an EMPTY refIds: the server's rewrite then drops the dangling ref, same as entity-path case 3b", async () => {
+    const picked = orderForCommit([
+      stagedRow("a: P", "a.lvbak", "persona", "p1", "k-p1", { refs: ["lore"] }),
+      stagedRow("a: Lore", "a.lvbak", "lorebook", "lore", "k-lore"),
+    ]);
+    const calls: SaveStagedPayload[] = [];
+    const staged = async (payload: SaveStagedPayload): Promise<SaveBundleResult> => {
+      calls.push(payload);
+      if (payload.key === "k-lore") return { ok: false, related: [], error: "disk full" };
+      return { ok: true, primary: { id: "p1", kind: "persona", name: "P" }, related: [] };
+    };
+    const { shelved, errors } = await commitOrderedRows(picked, { bundle: rejectBundle, staged });
+    expect(errors).toEqual(["a: Lore: disk full"]);
+    expect(shelved).toBe(1);
+    expect(calls[1]!.refIds).toEqual({});
+  });
+
+  test("a staged character rides the same door and the idMap resets across archives (a second archive's rows never see the first's refIds)", async () => {
+    const a = [
+      stagedRow("a: Lore", "a.lvbak", "lorebook", "lore", "k-lore", { token: "tok-a" }),
+      stagedRow("a: C", "a.lvbak", "character", "char", "k-char", { refs: ["lore"], token: "tok-a" }),
+    ];
+    const b = [stagedRow("b: P", "b.lvbak", "persona", "p1", "k-p1", { refs: ["lore"], token: "tok-b" })];
+    const { staged, calls } = fakeStagedStudio(["lore"]);
+    const { shelved, errors } = await commitOrderedRows(orderForCommit([...a, ...b]), { bundle: rejectBundle, staged });
+    expect(errors).toEqual([]);
+    expect(shelved).toBe(3);
+    const char = calls.find((c) => c.key === "k-char")!;
+    expect(char.refIds).toEqual({ lore: "lore-2" });
+    const otherArchivePersona = calls.find((c) => c.key === "k-p1")!;
+    expect(otherArchivePersona.refIds).toEqual({}); // the first archive's map never leaks across
   });
 });

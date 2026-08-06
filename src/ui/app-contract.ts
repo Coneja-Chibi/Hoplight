@@ -76,6 +76,10 @@ export interface AppContext {
     /** POST /api/inspect-archive: a `.lvbak` streamed straight from disk, never buffered whole in
      * browser memory first (unlike inspectFile's arrayBuffer() - a real backup can be gigabytes). */
     inspectArchive(file: File, signal?: AbortSignal): Promise<InspectArchiveResult>;
+    /** POST /api/studio/save-staged: commit one archive row by its staging ref - the entity
+     * itself never round-trips through the browser. `refIds` carries the commit loop's
+     * minted-id-to-shelf-id map so the server can rewrite knowledgeRefs before saving. */
+    saveStaged(payload: SaveStagedPayload): Promise<SaveBundleResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */
@@ -240,6 +244,21 @@ export interface InspectResult {
   /** friendly, plain-words lines for the receipt (already humanized by the server) */
   receipt?: { name: string; kindLine: string; extras: string[] };
   entity?: unknown;
+  /** Archive rows only: the server-side staging ref this row commits by. A real backup's entities
+   * total gigabytes, so they never ride the response; commit goes through
+   * POST /api/studio/save-staged with this ref instead of an entity. */
+  staged?: { token: string; key: string };
+  /** Archive rows only: the imported entity's minted id, so the commit loop can map it to the
+   * REAL post-keep-both shelf id when later rows' knowledgeRefs need rewriting. */
+  entityId?: string;
+  /** Archive rows only: sha-256 of the staged entity JSON, standing in for the entity bytes in
+   * within-drop duplicate marking. */
+  contentHash?: string;
+  /** Archive rows only: the entity's lorebook references, so the sheet's link caveat can warn
+   * about refs that will not resolve without reading an entity the row no longer carries. */
+  knowledgeRefs?: string[];
+  /** Archive lorebook rows only: entry count for the sheet's "N entries" chip. */
+  entryCount?: number;
   /** Related entities extracted with the primary (a character's embedded lorebooks, a preset's
    * bundled regex sets - the same pass as CLI inspectBundle). */
   related?: { lorebooks?: unknown[]; regexSets?: unknown[] };
@@ -252,13 +271,17 @@ export interface InspectResult {
 
 /**
  * Result of POST /api/inspect-archive: a `.lvbak` fans out into many entities in one upload, so
- * this is `{rows, report}` rather than one InspectResult. Each row is shaped exactly like a normal
- * InspectResult (formatId always "lumiverse-archive" - the CONTAINER a user actually dropped, not
- * each entity's own internal codec pathway), with no `related` grouping: an archive's embedded
- * books and bundled regex sets already arrive as their own top-level rows, never nested under a
- * primary, so listing them again as `related` would double them in a sheet. `report` is the
- * whole-archive accounting (imported/failed/skipped tables/warnings) a later report card (M13)
- * reads; `rows` is what a sheet (M12) checks and commits, same as any other import.
+ * this is `{rows, report}` rather than one InspectResult. Each row is InspectResult-shaped but a
+ * SUMMARY: receipt, kind, parseReport, and a `staged` ref - never `entity`, because a real
+ * backup's entities total gigabytes and the one-response-body design is exactly what used to OOM
+ * (JSON.stringify caps near 2 GiB). The entities wait server-side; commit saves each row by
+ * reference through POST /api/studio/save-staged. `formatId` is always "lumiverse-archive" (the
+ * CONTAINER a user actually dropped, not each entity's own internal codec pathway), and there is
+ * no `related` grouping: an archive's embedded books and bundled regex sets already arrive as
+ * their own top-level rows, never nested under a primary, so listing them again as `related`
+ * would double them in a sheet. `report` is the whole-archive accounting (imported/failed/
+ * skipped tables/warnings) a later report card (M13) reads; `rows` is what a sheet (M12) checks
+ * and commits, same as any other import.
  *
  * A WHOLE-ARCHIVE abort (unsupported schema, not a .lvbak, a corrupted or oversized container)
  * never produces rows at all: `ok` is false and `error` carries the one warm-words line, same
@@ -269,6 +292,14 @@ export interface InspectArchiveResult {
   rows?: InspectResult[];
   report?: LvbakImportReport;
   error?: string;
+}
+
+/** Request body of POST /api/studio/save-staged: one staged archive row, committed by reference. */
+export interface SaveStagedPayload {
+  token: string;
+  key: string;
+  /** minted lorebook id -> REAL shelf id, from the commit loop's own keep-both bookkeeping */
+  refIds?: Record<string, string>;
 }
 
 /** Result of POST /api/studio/save-bundle. Partial failures retain already-written related entities. */

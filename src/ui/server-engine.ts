@@ -21,6 +21,7 @@ import {
   LvbakSchemaError,
 } from "../formats/lumiverse-archive";
 import { zipEntrySourceFromFile } from "../formats/lumiverse-archive/zip-source";
+import { stageArchiveEntities } from "./server-staging";
 import type { StudioStoreLike } from "../studio/contracts";
 import { isStudioReadError } from "../studio/errors";
 import type { InspectArchiveResult, InspectResult } from "./app-contract";
@@ -162,12 +163,29 @@ export async function handleInspectArchive(req: Request): Promise<Response> {
 
     source = zipEntrySourceFromFile(tempPath, LVBAK_ARCHIVE_BOUNDS);
     const { entities, report } = await importLumiverseArchive(source);
-    const rows: InspectResult[] = entities.map((entity) => {
+    // Rows are SUMMARIES: the entities go to disk-side staging, never into this response. A real
+    // backup's entities total gigabytes; embedding them is exactly what OOM'd the old design
+    // (JSON.stringify caps near 2 GiB). Commit fetches each row back via /api/studio/save-staged.
+    const stagedRefs = await stageArchiveEntities(entities);
+    const rows: InspectResult[] = entities.map((entity, i) => {
       const sourceId = primaryOriginalId(entity.original) ?? "lumiverse-archive";
+      const ref = stagedRefs[i]!;
+      // The sheet's link caveat and entry-count chip used to read these off the entity; summary
+      // rows must carry them explicitly or those features go silently dead on archive rows.
+      const body = entity.body as { knowledgeRefs?: unknown; entries?: unknown };
+      const knowledgeRefs = Array.isArray(body.knowledgeRefs)
+        ? body.knowledgeRefs.filter((r): r is string => typeof r === "string")
+        : undefined;
+      const entryCount =
+        entity.kind === "lorebook" && Array.isArray(body.entries) ? body.entries.length : undefined;
       return {
         ok: true,
         receipt: buildReceipt(entity, "lumiverse-archive"),
-        entity,
+        staged: { token: ref.token, key: ref.key },
+        entityId: ref.entityId,
+        contentHash: ref.contentHash,
+        ...(knowledgeRefs && knowledgeRefs.length > 0 ? { knowledgeRefs } : {}),
+        ...(entryCount !== undefined ? { entryCount } : {}),
         formatId: "lumiverse-archive",
         kind: entity.kind,
         parseReport: buildParseReport(entity, sourceId),
@@ -186,7 +204,7 @@ export async function handleInspectArchive(req: Request): Promise<Response> {
 }
 
 /** Warm, plain-words line for a whole-archive abort - never the technical exception text. */
-function archiveErrorMessage(error: unknown): string {
+export function archiveErrorMessage(error: unknown): string {
   if (error instanceof LvbakSchemaError) {
     return (
       `This backup was made by a newer version of Lumiverse (schema ${error.schemaVersion}) than ` +
@@ -199,7 +217,15 @@ function archiveErrorMessage(error: unknown): string {
   if (isArchiveFormatError(error)) {
     return "This archive's container looks damaged or is not a valid ZIP; we could not read it safely.";
   }
-  return "We could not read this one. It does not look like a Lumiverse backup archive (.lvbak).";
+  // The importer prefixes every deliberate rejection with "lumiverse-archive:" (no manifest, no
+  // database/ tree, an unreadable required entry) - for those, "not a backup" is the truth.
+  if (error instanceof Error && error.message.startsWith("lumiverse-archive:")) {
+    return "We could not read this one. It does not look like a Lumiverse backup archive (.lvbak).";
+  }
+  // Anything else is OUR failure, not the backup's. Blaming the file here sent a real user
+  // chasing a corrupt-backup theory when the actual fault was a response-size crash server-side.
+  console.error("[inspect-archive] unexpected failure:", error);
+  return "Something went wrong on Hoplight's side while reading this backup. The details were logged; the backup itself is probably fine.";
 }
 
 /**

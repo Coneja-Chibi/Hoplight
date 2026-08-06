@@ -73,10 +73,15 @@ export function triageFiles(
   return { candidates, archives, skipped };
 }
 
-/** Stable content key for within-drop duplicate detection (entity + bundled related, verbatim). */
+/**
+ * Stable content key for within-drop duplicate detection: entity + bundled related, verbatim,
+ * when the row carries its entity; the server's contentHash when it is a staged archive row
+ * (whose entity deliberately never reaches the client).
+ */
 export function contentKey(result: InspectResult): string | null {
-  if (!result.ok || !result.entity) return null;
-  return JSON.stringify({ e: result.entity, r: result.related ?? null });
+  if (!result.ok) return null;
+  if (result.entity) return JSON.stringify({ e: result.entity, r: result.related ?? null });
+  return result.contentHash ?? null;
 }
 
 /** Kind + display name, case-folded; the separator cannot appear in a studio kind string. */
@@ -91,7 +96,7 @@ export function markDupes(
   shelf: Map<string, string>,
   seen: Map<string, string>,
 ): ReadFile {
-  if (!read.result.ok || !read.result.entity) return read;
+  if (!read.result.ok) return read;
   const key = contentKey(read.result);
   if (key) {
     const first = seen.get(key);
@@ -101,7 +106,7 @@ export function markDupes(
     }
     seen.set(key, read.filename);
   }
-  const kind = read.result.kind ?? (read.result.entity as { kind?: string }).kind ?? "";
+  const kind = read.result.kind ?? (read.result.entity as { kind?: string } | undefined)?.kind ?? "";
   const name = read.result.receipt?.name ?? "";
   if (kind && name) {
     const onShelf = shelf.get(shelfKey(kind, name));
@@ -236,6 +241,8 @@ const isRec = (v: unknown): v is Record<string, unknown> =>
  * positions, selective logic, filters). Heal belongs to paths that ingest naked JSON, not this one.
  */
 export function annotateRead(filename: string, result: InspectResult): ReadFile {
+  // A staged archive row carries no entity; its count arrives precomputed on the summary row.
+  if (result.ok && !result.entity) return { filename, result, entryCount: result.entryCount };
   if (!result.ok || !result.entity) return { filename, result };
   const entity = result.entity as { kind?: string; body?: unknown };
   const countOf = (v: unknown): number | undefined =>
@@ -253,6 +260,16 @@ export function annotateRead(filename: string, result: InspectResult): ReadFile 
     return { filename, result };
   }
   return { filename, result, entryCount: countOf(entity.body) };
+}
+
+/** A row's lorebook references: the summary row's own list when staged, dug out of the entity
+ *  otherwise. One reader for both shapes so the caveat helpers can never disagree. */
+function rowKnowledgeRefs(result: InspectResult): string[] {
+  if (!result.ok) return [];
+  if (result.knowledgeRefs) return result.knowledgeRefs;
+  const body = (result.entity as { body?: { knowledgeRefs?: unknown } } | undefined)?.body;
+  const refs = Array.isArray(body?.knowledgeRefs) ? body.knowledgeRefs : [];
+  return refs.filter((r): r is string => typeof r === "string");
 }
 
 /**
@@ -282,14 +299,15 @@ export function unresolvedArchiveRefs(
   const referenced = new Set<string>();
   reads.forEach((r, i) => {
     if (r.archiveKey !== archiveKey || !r.result.ok) return;
+    // Staged summary rows carry entityId + knowledgeRefs at the top level; only pre-staging rows
+    // (and tests') carry an entity to dig them out of. Read whichever is present.
     const entity = r.result.entity as { id?: unknown; body?: { knowledgeRefs?: unknown } } | undefined;
-    if (r.result.kind === "lorebook" && typeof entity?.id === "string" && checked.has(i)) {
-      resolvable.add(entity.id);
+    const rowId = r.result.entityId ?? (typeof entity?.id === "string" ? entity.id : undefined);
+    if (r.result.kind === "lorebook" && typeof rowId === "string" && checked.has(i)) {
+      resolvable.add(rowId);
     }
     if ((r.result.kind === "character" || r.result.kind === "persona") && checked.has(i)) {
-      for (const ref of Array.isArray(entity?.body?.knowledgeRefs) ? entity!.body!.knowledgeRefs : []) {
-        if (typeof ref === "string") referenced.add(ref);
-      }
+      for (const ref of rowKnowledgeRefs(r.result)) referenced.add(ref);
     }
   });
   const unresolved = new Set<string>();
@@ -308,9 +326,7 @@ export function unresolvedArchiveRefs(
 export function withArchiveLinkCaveat(result: InspectResult, unresolvedRefs: ReadonlySet<string>): InspectResult {
   if (!result.ok || !result.receipt) return result;
   if (result.kind !== "character" && result.kind !== "persona") return result;
-  const body = (result.entity as { body?: { knowledgeRefs?: unknown } } | undefined)?.body;
-  const refs = Array.isArray(body?.knowledgeRefs) ? body.knowledgeRefs : [];
-  const hasUnresolved = refs.some((r) => typeof r === "string" && unresolvedRefs.has(r));
+  const hasUnresolved = rowKnowledgeRefs(result).some((r) => unresolvedRefs.has(r));
   if (!hasUnresolved) return result;
   return {
     ...result,

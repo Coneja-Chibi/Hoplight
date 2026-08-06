@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:4007582bb1471d4e10e471386f6d890d6ee5e6c99d3e08df7e8ba3e02b4952a5",
-  "semanticSummaryHash": "sha256:1b63f004598378b2ab5fd57f3a6af0b057ea608e4bc0d532ad6fb94da85ef6ae",
+  "sourceHash": "sha256:532e6852647118e05e3a7734b8c2ce896e681702d36a9d635bf675fb9fd9ed60",
+  "semanticSummaryHash": "sha256:ebd832be070594b292c610ed44d5c536939c3a72c29fc028a00a059b23a796c5",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "Corrects a false current-tense claim found while cutting a release: the page said release binaries do not include a Kit executable, but release.yml builds hoplight-kit for Windows, Linux x64 and arm64, and macOS in the same bake as the CLI. Shipping a release whose own docs deny it ships is the exact drift the doctrine names.",
-  "reviewedAt": "2026-08-04T10:28:45.082Z"
+  "reviewer": "staging-reviewer",
+  "notes": "route table matches server.ts + server-staging.ts",
+  "reviewedAt": "2026-08-05T22:33:23.251Z"
 }

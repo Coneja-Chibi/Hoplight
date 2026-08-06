@@ -65,6 +65,7 @@ import {
 } from "./server-security";
 import { startDevWatch, createDevReloadResponse, handleAssetRoutes } from "./server-static";
 import { formatMeta, handleInspect, handleInspectArchive, handleExport } from "./server-engine";
+import { clearAllStagings, handleSaveStaged } from "./server-staging";
 
 // Re-export security surface for tests and sandbox-host.
 export {
@@ -362,6 +363,13 @@ export function createHandler(
         return studioErr(e);
       }
     }
+    if (p === "/api/studio/save-staged" && req.method === "POST") {
+      try {
+        return await handleSaveStaged(req, store);
+      } catch (e) {
+        return studioErr(e);
+      }
+    }
     if (p === "/api/studio/save" && req.method === "POST") return handleStudioSave(req, store);
     if (p === "/api/studio/delete" && req.method === "POST") return handleStudioDelete(req, store);
     if (lifecycle && p === "/api/shutdown" && req.method === "POST") return handleShutdown(lifecycle);
@@ -445,6 +453,9 @@ export function startUi(
     server.stop(true);
     stopSandbox?.();
     remoteAccess.stop();
+    // Best-effort: staged archive entities are temp files the size of a backup's payload; leaving
+    // them across sessions is the disk-fill this route's loopback-only rationale worries about.
+    void clearAllStagings();
   };
   lifecycle.stop = stop;
 
