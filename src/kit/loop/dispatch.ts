@@ -20,13 +20,67 @@ export function assertUniqueToolNames(tools: readonly HarnessTool[]): void {
   }
 }
 
+/** A provider tool schema must be a flat object at the root: OpenAI-compatible endpoints reject
+ * bare `oneOf`/`anyOf`, which is exactly what Zod emits for unions and discriminated unions
+ * (docs_query). Flatten object variants into one properties map so the model sees every field it
+ * can send. Per-action strictness stays in the tool's own Zod parse: dispatch parses args
+ * fail-closed against `tool.input`, so a looser provider shape can never admit an invalid call. */
+export function providerSchema(input: z.ZodType): Record<string, unknown> {
+  const schema = z.toJSONSchema(input) as Record<string, unknown>;
+  if (typeof schema.type === "string") return schema;
+  const variants = [
+    ...(Array.isArray(schema.oneOf) ? (schema.oneOf as unknown[]) : []),
+    ...(Array.isArray(schema.anyOf) ? (schema.anyOf as unknown[]) : []),
+  ] as Record<string, unknown>[];
+  if (variants.length === 0) return { ...schema, type: "object" };
+  const properties: Record<string, unknown> = {};
+  const requiredSets: string[][] = [];
+  for (const variant of variants) {
+    if (variant.type !== "object" || typeof variant.properties !== "object" || variant.properties === null) {
+      return { ...schema, type: "object" };
+    }
+    const vProps = variant.properties as Record<string, unknown>;
+    const vRequired = Array.isArray(variant.required) ? (variant.required as string[]) : [];
+    if (vRequired.length > 0) requiredSets.push(vRequired);
+    for (const [key, prop] of Object.entries(vProps)) {
+      const p = prop as Record<string, unknown>;
+      const existing = properties[key];
+      if (!existing) {
+        // Carry a discriminator `const` forward as an enum so the model sees every choice.
+        if (typeof p.const === "string") {
+          const { const: _discriminator, ...rest } = p;
+          properties[key] = { ...rest, enum: [p.const] };
+        } else {
+          properties[key] = p;
+        }
+      } else if (typeof p.const === "string") {
+        const merged = existing as Record<string, unknown>;
+        const list = Array.isArray(merged.enum) ? [...(merged.enum as unknown[])] : [];
+        if (!list.includes(p.const)) list.push(p.const);
+        merged.enum = list;
+      }
+    }
+  }
+  // Only fields every variant requires stay required; per-action requirements are enforced by the
+  // tool's own Zod parse at dispatch.
+  const required = requiredSets.length > 0
+    ? [...requiredSets[0]!].filter((key) => requiredSets.every((list) => list.includes(key)))
+    : [];
+  return {
+    type: "object",
+    properties,
+    ...(required.length > 0 ? { required } : {}),
+    additionalProperties: false,
+  };
+}
+
 /** Advertise the tools to the model: name, description, and a JSON schema for the args. */
 export function toolSpecs(tools: HarnessTool[]): ToolSpec[] {
   assertUniqueToolNames(tools);
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    schema: z.toJSONSchema(tool.input) as Record<string, unknown>,
+    schema: providerSchema(tool.input),
   }));
 }
 
