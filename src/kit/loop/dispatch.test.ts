@@ -66,6 +66,17 @@ test("toolSpecs flattens discriminated-union inputs into a provider object schem
   expect((spec?.schema as { required?: string[] }).required).toContain("action");
 });
 
+test("merged properties are least-restrictive across union variants", () => {
+  const specs = toolSpecs([docsQuery]);
+  const spec = specs.find((entry) => entry.name === "docs_query");
+  const properties = (spec?.schema as { properties?: Record<string, unknown> }).properties;
+  // browse.limit is valid up to 25 while search.limit caps at 8; the flattened provider schema
+  // must not advertise the narrower bound for the shared limit property, or a schema-guided
+  // provider would reject or avoid valid browse calls before the Zod parse.
+  expect((properties?.limit as { maximum?: number }).maximum).toBe(25);
+  expect((properties?.limit as { minimum?: number }).minimum).toBe(1);
+});
+
 test("every drop-in tool advertises a provider schema with a root object type", async () => {
   // Structural guard: a tool whose Zod input serializes without a root type (unions and
   // discriminated unions) is rejected by OpenAI-compatible providers at the first turn. This is
