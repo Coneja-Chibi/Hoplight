@@ -20,6 +20,7 @@ import {
 } from "../../kit/render/primitives/composer/mention-menu-core";
 import type { EntitySummary } from "../../kit/bridge";
 import { COLLECTION_KIND } from "../../studio/collections-shape";
+import { useStudioChanges } from "./use-studio-changes";
 import type { AppContext, StudioEntitySummary } from "../app-contract";
 
 /** A row in the picker. `note` is always the piece name, so it matches the slash menu shape. */
@@ -59,6 +60,14 @@ export function useMentions(
    * the matcher and the marker builder both work in terms of a kind and an id. Teaching the core a
    * second kind of mention would have been a second grammar to keep in step with the terminal's.
    */
+  /**
+   * RE-READ WHEN THE FOLDER CHANGES. Loaded once on mount, this list went stale the moment somebody
+   * dropped a file into their studio: the piece was on disk, the Library could see it, and `@` could
+   * not - so the one way to point the agent at the thing you had just added was the one way that
+   * did not work. The watcher already streams these changes; this listens to the same one.
+   */
+  const { version } = useStudioChanges();
+
   useEffect(() => {
     let alive = true;
     void Promise.all([
@@ -77,7 +86,7 @@ export function useMentions(
       })
       .catch(() => { /* no list means no picker, which is a quiet degradation rather than an error */ });
     return () => { alive = false; };
-  }, [ctx]);
+  }, [ctx, version]);
 
   const query = mentionDraft(draft);
   const open = query !== "" && query !== dismissed;

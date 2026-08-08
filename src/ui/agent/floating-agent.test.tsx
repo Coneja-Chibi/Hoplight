@@ -12,7 +12,15 @@ import type { AppContext } from "../app-contract";
 import { FloatingAgent } from "./floating-agent";
 
 /** Only the members AgentRoom touches; the rest of AppContext is irrelevant here. */
-const ctx = ({ apps: () => [] }) as unknown as AppContext;
+/**
+ * Enough of a context to render. `prefs` is real rather than absent because the panel reads one to
+ * decide whether it is minimised, and a double that omits what the component uses tests a component
+ * nobody ships.
+ */
+const ctx = ({
+  apps: () => [],
+  prefs: { get: () => undefined, set: () => undefined },
+}) as unknown as AppContext;
 
 const render = (open: boolean): string =>
   renderToStaticMarkup(<FloatingAgent ctx={ctx} open={open} onClose={() => undefined} />);

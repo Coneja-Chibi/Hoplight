@@ -24,8 +24,13 @@
  * which is Kit's input bar exactly - "a real stamp, not a floating marker".
  */
 
+/** Namespaced by app id, the rule every other preference in this repo follows. */
+export const PREF_BAND_FOLDED = "agent.bandFolded";
+/** The floating panel, shrunk to a tab you click to bring it back. */
+export const PREF_PANEL_MINIMISED = "agent.panelMinimised";
+
 export const AGENT_STYLE = `
-.agent-room{display:flex;flex-direction:column;height:100%;min-height:0;background:var(--kit-well);
+.agent-room{position:relative;display:flex;flex-direction:column;height:100%;min-height:0;background:var(--kit-well);
   color:var(--kit-text);font-family:var(--font-mono)}
 
 /* The header: panel ground, a seam beneath, nothing shouting. */
@@ -113,6 +118,22 @@ export const AGENT_TALK_STYLE = `
 
 /** The offered actions, drawn as Kit's key hints rather than as buttons. */
 export const AGENT_CHIP_STYLE = `
+/* the band fold: a hairline key in the corner, never competing with the conversation */
+.agent-room__fold{position:absolute;top:.15rem;right:.35rem;z-index:2;background:transparent;
+  border:none;cursor:pointer;color:var(--kit-quiet);font-size:.7rem;line-height:1;padding:.15rem .3rem}
+.agent-room__fold:hover{color:var(--kit-text)}
+/* queued messages: waiting, and visibly so. A send that sat silent would read as one that failed. */
+.agent-room__queue{list-style:none;margin:0;padding:.25rem .7rem;display:flex;flex-direction:column;gap:.25rem;flex:none}
+.agent-room__queue li{display:flex;align-items:center;gap:.4rem;min-width:0;
+  border-left:2px solid var(--kit-verb-ask);padding-left:.45rem}
+.agent-room__queuekick{font-family:var(--kit-mono);font-size:.5rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--kit-quiet);flex:none}
+.agent-room__queuetext{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:.75rem;color:var(--kit-soft)}
+.agent-room__queue button{flex:none;background:transparent;border:1px solid var(--kit-line);
+  color:var(--kit-quiet);cursor:pointer;font-family:var(--kit-mono);font-size:.5rem;
+  letter-spacing:.1em;text-transform:uppercase;padding:.15rem .35rem}
+.agent-room__queue button:hover{color:var(--kit-text);border-color:var(--kit-mut)}
 .agent-room__chips{display:flex;flex-wrap:wrap;gap:.3rem;padding:.3rem .7rem;flex:none}
 .agent-room__chips button{background:var(--kit-stamp);border:1px solid var(--kit-line);
   color:var(--kit-soft);font-family:var(--font-mono);font-size:.62rem;letter-spacing:.1em;

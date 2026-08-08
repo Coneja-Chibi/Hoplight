@@ -14,12 +14,13 @@
  * app's problem again wearing an overlay's clothes: you could not click the thing you were asking
  * about while asking about it.
  */
-import { useEffect, useRef, type JSX } from "react";
+import { useEffect, useRef, useState, type JSX } from "react";
 import type { AppContext } from "../app-contract";
 import { AgentRoom } from "../apps/agent/room";
 import { useFloatingPanel } from "./use-floating";
 import type { Edge } from "./dock-position";
 import { kitVars } from "./kit-vars";
+import { PREF_PANEL_MINIMISED } from "../apps/agent/styles";
 import styles from "./floating-agent.module.css";
 
 /** Every edge and corner, in one place, so the handles and the geometry cannot disagree. */
@@ -35,6 +36,8 @@ export function FloatingAgent({
   onClose: () => void;
 }): JSX.Element | null {
   const panel = useFloatingPanel();
+  /** Parked as a tab rather than thrown away. Remembered, so a reload does not reopen it over you. */
+  const [minimised, setMinimised] = useState(() => ctx.prefs.get(PREF_PANEL_MINIMISED) === true);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
@@ -57,6 +60,28 @@ export function FloatingAgent({
   }, [open]);
 
   if (!open) return null;
+
+  /**
+   * MINIMISED IS NOT CLOSED. Closing throws the panel away; this parks it as a tab in the corner
+   * that opens again on a click, so the conversation, the queue and the draft are all still there
+   * when you come back. It stays minimised across a reload, because the alternative is a window
+   * that keeps reopening itself over whatever you were looking at.
+   */
+  if (minimised) {
+    return (
+      <button
+        type="button"
+        data-agent-panel="min"
+        className={styles.tab}
+        style={kitVars()}
+        title="Open the agent"
+        onClick={() => { setMinimised(false); ctx.prefs.set(PREF_PANEL_MINIMISED, false); }}
+      >
+        <span className={styles.grip} aria-hidden="true" />
+        {"THE AGENT"}
+      </button>
+    );
+  }
 
   return (
     <section
@@ -81,6 +106,16 @@ export function FloatingAgent({
       <header className={styles.bar} onPointerDown={panel.onGrab}>
         <span className={styles.grip} aria-hidden="true" />
         <span className={styles.title}>{"THE AGENT"}</span>
+        <button
+          type="button"
+          className={styles.close}
+          aria-label="Minimise the agent"
+          title="Shrink to a tab; nothing is lost"
+          onPointerDown={(e) => { e.stopPropagation(); }}
+          onClick={() => { setMinimised(true); ctx.prefs.set(PREF_PANEL_MINIMISED, true); }}
+        >
+          {"–"}
+        </button>
         <button
           type="button"
           className={styles.close}

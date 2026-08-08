@@ -25,8 +25,15 @@ const LIBRARY: AppManifestEntry = {
 };
 
 /** Only the two members the room touches; the rest of AppContext is irrelevant here. */
+/**
+ * `prefs` is real rather than absent because the room reads one to decide whether its top band is
+ * folded. A double that omits what the component uses tests a component nobody ships.
+ */
 const ctx = (manifests: AppManifestEntry[]): AppContext =>
-  ({ apps: () => manifests }) as unknown as AppContext;
+  ({
+    apps: () => manifests,
+    prefs: { get: () => undefined, set: () => undefined },
+  }) as unknown as AppContext;
 
 describe("AgentRoom", () => {
   test("IT SHIPS ITS OWN STYLES, rather than mounting as unstyled text", () => {

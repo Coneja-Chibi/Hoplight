@@ -149,3 +149,28 @@
 .panel:hover .hse::after {
   border-color: var(--kit-rose-deep);
 }
+
+/*
+ * Minimised: a tab in the corner, not a closed window. Same grammar as the drag bar it came from,
+ * so clicking it reads as bringing that panel back rather than opening something new.
+ */
+.tab {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  font-family: var(--kit-mono, monospace);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--kit-quiet);
+  background: var(--kit-panel);
+  border: 1px solid var(--kit-line);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 45%); /* hardcode-ok: a shadow is depth, not a themed colour */
+}
+.tab:hover { color: var(--kit-text); border-color: var(--kit-mut); }

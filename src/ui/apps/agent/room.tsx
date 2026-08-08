@@ -33,7 +33,7 @@ import { useSlash } from "../../agent/use-slash";
 import { useMentions } from "../../agent/use-mentions";
 import { SlashMenu } from "../../agent/slash-menu";
 import {
-  AGENT_CHIP_STYLE, AGENT_GATE_STYLE, AGENT_KIT_STYLE, AGENT_STYLE, AGENT_TALK_STYLE,
+  AGENT_CHIP_STYLE, AGENT_GATE_STYLE, AGENT_KIT_STYLE, AGENT_STYLE, AGENT_TALK_STYLE, PREF_BAND_FOLDED,
 } from "./styles";
 
 /**
@@ -48,6 +48,8 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
   useEffect(() => liveSurface.onChange(() => { bump((n) => n + 1); }), []);
 
   const [draft, setDraft] = useState("");
+  /** The top band folds away and stays folded; it is chrome, and the conversation is not. */
+  const [bandFolded, setBandFolded] = useState(() => ctx.prefs.get(PREF_BAND_FOLDED) === true);
   const [traceOpen, setTraceOpen] = useState(false);
   const [model, setModel] = useState<{
     provider?: string;
@@ -181,6 +183,23 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
           + KIT_TRANSCRIPT_STYLE + KIT_COMMAND_STYLE}
       </style>
 
+      {/*
+        THE BAND FOLDS. Provider, title, screen and meter are worth a glance when you arrive and a
+        third of a small window forever after - and in the floating panel that third is the part
+        you were reading the conversation through. Folded, the one live fact stays: the meter, which
+        is the thing you would reopen it to check.
+      */}
+      <button
+        type="button"
+        className="agent-room__fold"
+        aria-expanded={!bandFolded}
+        title={bandFolded ? "Show the model and screen" : "Fold this band away"}
+        onClick={() => { setBandFolded(!bandFolded); ctx.prefs.set(PREF_BAND_FOLDED, !bandFolded); }}
+      >
+        {bandFolded ? "▸" : "▾"}
+      </button>
+
+      {!bandFolded && (
       <header className="agent-room__head">
         <p className="agent-room__kick">
           <span className={`agent-room__dot${model.connected ? " agent-room__dot--live" : ""}`} />
@@ -196,6 +215,7 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
             : "No screen has described itself yet. Open another app and come back."}
         </p>
       </header>
+      )}
 
       {/*
         Kit's meter row: how full the context is, and what the tokens cost. It replaces the bare
@@ -281,6 +301,28 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
         inside the form would silently wear the composer's key styling. One positioned wrapper is
         cheaper than a specificity war.
       */}
+      {/*
+        WAITING, AND VISIBLY SO. A queued message that sat silently would read as a send that did
+        nothing - which is what the old dead composer looked like. Each row says what it is holding
+        and offers the two things worth offering: go now, or forget it.
+      */}
+      {chat.queued.length > 0 && (
+        <ul className="agent-room__queue">
+          {chat.queued.map((text, at) => (
+            <li key={`${String(at)}:${text.slice(0, 24)}`}>
+              <span className="agent-room__queuekick">waiting</span>
+              <span className="agent-room__queuetext">{text}</span>
+              <button type="button" title="Stop the turn and send this now" onClick={() => { chat.sendQueuedNow(at); }}>
+                send now
+              </button>
+              <button type="button" title="Forget this one" onClick={() => { chat.dropQueued(at); }}>
+                drop
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
       <div className="agent-room__compose">
         <SlashMenu title={slash.title} choices={slash.choices} active={slash.active} onPick={slash.pick} />
         <SlashMenu
@@ -299,8 +341,11 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
              * NOT DISABLED WITHOUT A MODEL ANY MORE. Every slash command works without a provider -
              * /doctor and /model are precisely what somebody with no model needs - and a composer
              * that refuses to accept a character is a composer they cannot use to fix it.
+             *
+             * NOR DURING A TURN. It went dead for the length of an answer, so a thought that arrived
+             * while the agent was working had nowhere to go but your memory. Sending now queues it,
+             * and the queue drains itself when the turn settles.
              */
-            disabled={chat.busy}
             onChange={(e) => { setDraft(e.target.value); }}
             onKeyDown={onComposerKey}
           />
@@ -309,7 +354,13 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
             so it stops the work and the billing, not just the reading of it.
           */}
           {chat.busy ? (
-            <button type="button" className="agent-room__stop" onClick={chat.stop}>{"Stop"}</button>
+            <>
+              {/* Queue is the primary action while a turn runs; Stop is still one key away. */}
+              <button type="submit" disabled={!draft.trim()} title="Send this when the turn finishes">
+                {"Queue"}
+              </button>
+              <button type="button" className="agent-room__stop" onClick={chat.stop}>{"Stop"}</button>
+            </>
           ) : (
             <button type="submit" disabled={!draft.trim() || (!model.connected && !draft.trim().startsWith("/"))}>
               {draft.trim().startsWith("/") ? "Run" : "Ask"}

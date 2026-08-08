@@ -34,6 +34,14 @@ export const PANEL_KEY = "hoplight.agent.panel";
  * The file itself is untouched and stays resumable - reset means start fresh here, not delete.
  */
 export const AGENT_SESSION_KEY = "hoplight.agent.session";
+/**
+ * Messages typed during a turn and not sent yet.
+ *
+ * Kept because they are words somebody wrote and has not seen answered - and because this page
+ * reloads itself whenever the source changes underneath it. Cleared with the transcript: a new
+ * conversation must not inherit the last one's unsent thoughts.
+ */
+export const QUEUE_KEY = "hoplight.agent.queue";
 
 /** The session id this tab is writing to, or "" when the next turn should open a new one. */
 export function readAgentSessionId(): string {
@@ -50,6 +58,7 @@ export const RESET_KEYS: readonly { readonly key: string; readonly where: "sessi
   { key: ACTIVE_APP_KEY, where: "session" },
   { key: TRANSCRIPT_KEY, where: "session" },
   { key: AGENT_SESSION_KEY, where: "session" },
+  { key: QUEUE_KEY, where: "session" },
   { key: PANEL_KEY, where: "local" },
 ];
 

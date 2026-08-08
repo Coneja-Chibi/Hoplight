@@ -20,6 +20,7 @@ import { NO_TOKENS, foldUsage, type Tokens } from "./kit-meters-core";
 import { loadTranscript, saveTranscript } from "./transcript-store";
 import { keepTurns, kitLineFor, type CommandEffect } from "./command-core";
 import { unknownNote } from "./slash-core";
+import { useQueue, useQueueDrain } from "./use-queue";
 import { AGENT_SESSION_KEY, readAgentSessionId } from "../_shared/window-memory";
 import type { CommandInfo } from "./command-core";
 
@@ -87,6 +88,12 @@ export interface AgentChat {
   /** Scrub this conversation back to its first `keep` turns. The rewind picker's rows call it. */
   rewind: (keep: number) => void;
   clear: () => void;
+  /** Messages typed during a turn, oldest first. They drain themselves when the turn settles. */
+  readonly queued: readonly string[];
+  /** Forget one without sending it. */
+  dropQueued: (at: number) => void;
+  /** Stop what is running and send this one now. */
+  sendQueuedNow: (at: number) => void;
 }
 
 /** Posts a turn and returns the raw streaming Response. Injected so tests never touch the network. */
@@ -124,6 +131,8 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
   /** The saved session this tab writes to, restored on mount so a reload keeps writing to it. */
   const sessionIdRef = useRef<string>(readAgentSessionId());
   const abortRef = useRef<AbortController | null>(null);
+  /** Typed during a turn and waiting. See use-queue.ts. */
+  const queue = useQueue();
 
   // Persisted on every change, so an unmount mid-conversation loses nothing.
   useEffect(() => { saveTranscript(lines); }, [lines]);
@@ -363,6 +372,17 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
   }, [slash]);
 
   /**
+   * Drain one queued message when the turn that blocked it settles.
+   *
+   * WATCHING `busy` RATHER THAN CALLING FROM THE `finally`, because the sender is defined below
+   * this point and reaching it from there would need a ref threaded through two closures. The lock
+   * is claimed in the sender's synchronous prologue, so the effect cannot double-send: by the time
+   * it could run again, busy is true.
+   */
+  const sendRef = useRef<(text: string, brief?: string) => Promise<void>>(async () => {});
+  const briefRef = useRef<string | undefined>(undefined);
+
+  /**
    * The one door in. Anything a person typed comes through here, and a command never leaves it.
    *
    * THE DECISION IS SYNCHRONOUS, on purpose. Every branch below reaches its dispatcher without an
@@ -372,7 +392,17 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
   const send = useCallback(async (text: string, brief?: string): Promise<void> => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    if (busyRef.current) return;
+    /**
+     * A SEND DURING A TURN IS QUEUED, NOT DROPPED. This used to return here and the words were
+     * simply gone - the composer was disabled anyway, so a thought that arrived mid-answer had
+     * nowhere to go. It now waits its turn and drains when this one settles.
+     */
+    if (busyRef.current) {
+      if (!queue.add(trimmed)) {
+        setProblem("The queue is full. Send this once a turn has finished.");
+      }
+      return;
+    }
     /**
      * `//` IS KIT'S ESCAPE, and it has to exist here for the same reason it exists there: once a
      * leading slash is a command, a message that genuinely begins with one has no other way out.
@@ -393,7 +423,7 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
       return runCommandLine(trimmed);
     }
     return sendTurn(trimmed, brief);
-  }, [slash, runCommandLine, sendTurn]);
+  }, [slash, runCommandLine, sendTurn, queue]);
 
   const answerGate = useCallback((choice: GateAnswerChoice) => {
     const open = gate;
@@ -458,8 +488,12 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
     setTokens(NO_TOKENS);
   }, []);
 
+  // The sender, reachable from the drain without threading it through two closures.
+  sendRef.current = send;
+  const waiting = useQueueDrain({ queue, busy, blocked: gate !== null, send: sendRef, brief: briefRef, stop });
+
   return {
     lines, streaming, busy, gate, problem, tokens, rehearsal, trace, startedAt,
-    send, answerGate, setFold, answerChoice, stop, rewind, clear,
+    send, answerGate, setFold, answerChoice, stop, rewind, clear, ...waiting,
   };
 }

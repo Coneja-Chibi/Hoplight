@@ -11,6 +11,7 @@ import {
   AGENT_SESSION_KEY,
   clearWindowMemory,
   PANEL_KEY,
+  QUEUE_KEY,
   RESET_KEYS,
   TRANSCRIPT_KEY,
 } from "./window-memory";
@@ -18,7 +19,7 @@ import {
 describe("what a reset forgets", () => {
   test("exactly these, all of them this window's own memory", () => {
     expect(RESET_KEYS.map((k) => k.key).sort())
-      .toEqual([ACTIVE_APP_KEY, AGENT_SESSION_KEY, PANEL_KEY, TRANSCRIPT_KEY].sort());
+      .toEqual([ACTIVE_APP_KEY, AGENT_SESSION_KEY, PANEL_KEY, QUEUE_KEY, TRANSCRIPT_KEY].sort());
   });
 
   test("THE SESSION ID GOES WITH THE TRANSCRIPT, never on its own", () => {
