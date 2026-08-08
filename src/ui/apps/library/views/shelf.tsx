@@ -16,7 +16,8 @@ const CSS = `
 .dv-book:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 0 var(--a)}
 .dv-book .spine{position:absolute;left:0;top:0;bottom:0;width:.45rem;background:var(--spine);border-right:2px solid var(--stage-black)}
 .dv-book .body{padding:.7rem .7rem .55rem 1.05rem;display:flex;flex-direction:column;gap:.3rem;min-height:6.2rem}
-.dv-book .nm{font-family:var(--font-big);font-weight:800;font-size:.95rem;color:var(--stage-card);line-height:1.1}
+.dv-book .nm{font-family:var(--font-big);font-weight:800;font-size:.95rem;color:var(--stage-card);line-height:1.1;
+  overflow-wrap:anywhere}
 .dv-book .meta{font-family:var(--font-mono);font-size:.68rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--stage-soft)}
 .dv-book .facts{display:flex;flex-wrap:wrap;gap:.28rem;margin-top:.1rem}
 .dv-book .fact{font-family:var(--font-mono);font-size:.62rem;font-weight:600;letter-spacing:.04em;

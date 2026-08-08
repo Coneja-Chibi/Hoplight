@@ -58,6 +58,23 @@ describe("libraryAgentState", () => {
     expect(note).toContain("character/lu &vic.json (unusable-filename)");
   });
 
+  test("A FILTERED SHELF SAYS SO, or the hidden pieces read as missing ones", () => {
+    /**
+     * Same family as the unreachable-studio note above. A search of three matches off a deck of
+     * 142 publishes three items, and an agent handed that with no explanation has every reason to
+     * answer "you have three presets" - which is the exact lie the no-match notice keeps off the
+     * screen. Filtering hides pieces; it never removes them, and the listing has to say which of
+     * the two happened.
+     */
+    const state = libraryAgentState({ ...base, filter: "kind:preset war" });
+
+    const note = state.notes?.find((n) => n.includes("filtering")) ?? "";
+    expect(note).toContain('"kind:preset war"');
+    expect(note).toContain("hidden, not missing");
+    // Unfiltered shelves stay silent: a note on every screen is a note nobody reads.
+    expect(libraryAgentState(base).notes?.some((n) => n.includes("filtering"))).toBe(false);
+  });
+
   test("a staged piece is marked as focused", () => {
     const state = libraryAgentState({ ...base, staged: new Set(["preset:hawthorne"]) });
 

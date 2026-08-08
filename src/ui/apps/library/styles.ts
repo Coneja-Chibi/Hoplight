@@ -18,9 +18,14 @@ export const LIBRARY_STYLE = `
   font-family:var(--font-big);font-weight:900;font-size:clamp(1rem,1.6vw,1.3rem);line-height:1.15}
 .doorcard.primary{background:var(--rose);color:var(--stage-white)}
 .voice{font-style:italic;font-weight:600;color:var(--muted);text-align:center;font-size:1.05rem}
-.damage-note{border:3px solid var(--rose);box-shadow:4px 4px 0 0 var(--edge);
+.damage-note{position:relative;border:3px solid var(--rose);box-shadow:4px 4px 0 0 var(--edge);
   background:var(--panel);color:var(--text);padding:.65rem .8rem}
-.damage-note strong{display:block;font-family:var(--font-big);font-weight:900}
+.damage-note strong{display:block;font-family:var(--font-big);font-weight:900;padding-right:5rem}
+/* sits in the notice's own corner, clear of the heading it belongs to */
+.dnx{position:absolute;top:.55rem;right:.6rem;font-family:var(--font-mono);font-weight:700;
+  font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;background:transparent;
+  color:var(--text-dim);border:2px solid var(--text-faint);cursor:pointer;padding:.2rem .45rem}
+.dnx:hover{color:var(--text);border-color:var(--rose)}
 .damage-note p{margin:.35rem 0 0;color:var(--text-dim);font-size:.85rem}
 .damage-note details{margin-top:.45rem}
 .damage-note summary{cursor:pointer;font-family:var(--font-mono);font-weight:700;font-size:.7rem;
@@ -137,6 +142,85 @@ export const LIBRARY_STYLE = `
 .sizedial input::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:12px;height:12px;
   background:var(--text);border:2px solid var(--edge)}
 .sizedial input::-moz-range-thumb{width:12px;height:12px;background:var(--text);border:2px solid var(--edge);border-radius:0}
+/* the search box wears the size dial's chrome (bordered, stamped, mono kicker) so the deck bar
+   still reads as one object rather than a toolbar with a web form bolted on */
+/* NEVER GROWS. The deck chips are this room's navigation and they own the leftover width; a
+   search box with flex-grow took it and pushed three of the six decks behind a scroll nobody
+   could see. It still shrinks, so a narrow window squeezes the box rather than hiding a deck. */
+.findwrap{position:relative;display:flex;flex-direction:column;flex:0 1 18rem;min-width:0}
+.findbox{display:flex;align-items:center;gap:.45rem;border:3px solid var(--edge);
+  box-shadow:3px 3px 0 0 var(--edge);background:var(--face);padding:.3rem .5rem}
+/* a live search stamps in the house accent: the one glance that says the shelf is filtered */
+.findwrap.on .findbox{box-shadow:3px 3px 0 0 var(--accent)}
+.findbox:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.findbox .sk{flex:none;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-dim)}
+.findbox input{flex:1;min-width:0;border:none;outline:none;background:transparent;color:var(--text);
+  font-family:var(--font-mono);font-size:.7rem;padding:.15rem 0}
+.findbox input::placeholder{color:var(--text-faint)}
+.findx{flex:none;font-family:var(--font-mono);font-weight:700;font-size:.5625rem;letter-spacing:.1em;
+  text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px solid var(--text-faint);
+  cursor:pointer;padding:.15rem .35rem}
+.findx:hover{color:var(--text);border-color:var(--edge)}
+/* HANGS OFF THE FIELD rather than sitting in the toolbar's flow. In flow it grew the bar by three
+   lines the moment a typo appeared, shoving every deck chip down mid-keystroke. */
+.findnote{position:absolute;top:calc(100% + .25rem);left:0;right:0;z-index:2;background:var(--panel);
+  border:2px solid var(--edge);box-shadow:3px 3px 0 0 var(--edge);padding:.35rem .45rem;margin:0;
+  font-family:var(--font-mono);font-size:.6rem;line-height:1.5;color:var(--text-soft);
+  overflow-wrap:anywhere}
+/* a deck holding no matches RECEDES rather than vanishing: the chip still says what it holds */
+.dchip.nil{opacity:.45}
+/* the filtered-to-nothing shelf, deliberately NOT the ghost card. The ghost invites a first
+   import, which is the wrong answer (and a small lie) when the pieces are already here and merely
+   hidden by what somebody typed. */
+.nomatch{margin:auto;max-width:32rem;display:flex;flex-direction:column;align-items:flex-start;
+  gap:.55rem;border:2px dashed var(--stage-line);padding:1rem 1.1rem}
+.nomatch .nmhead{font-family:var(--font-big);font-weight:900;font-size:.9rem;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--stage-card)}
+.nomatch .nmbody{font-family:var(--font-body);font-size:.95rem;line-height:1.5;color:var(--stage-soft);margin:0}
+.nomatch .nmq{font-family:var(--font-mono);font-size:.8rem;color:var(--stage-paper);
+  background:var(--stage-sunken);border:2px solid var(--stage-seam);padding:.05rem .3rem;overflow-wrap:anywhere}
+.nomatch .nmjumps{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.nomatch .nmk{font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--stage-kicker)}
+.nomatch .nmjump{font-family:var(--font-big);font-weight:800;font-size:.625rem;letter-spacing:.08em;
+  text-transform:uppercase;background:var(--stage-panel);color:var(--stage-soft);
+  border:2px solid var(--stage-seam);cursor:pointer;padding:.3rem .5rem}
+.nomatch .nmjump:hover{color:var(--stage-card);border-color:var(--stage-line)}
+.nomatch .nmclear{font-family:var(--font-mono);font-weight:700;font-size:.625rem;letter-spacing:.1em;
+  text-transform:uppercase;background:transparent;color:var(--stage-mute);border:2px solid var(--stage-faint);
+  cursor:pointer;padding:.3rem .55rem}
+.nomatch .nmclear:hover{color:var(--stage-paper);border-color:var(--stage-line)}
+/* THE PERSON'S OWN GROUPINGS. Quieter than the deck chips on purpose: decks are the studio's own
+   shape and are always true, while a group is a private note about some of it. Same chip grammar so
+   the row still reads as one toolbar, one weight down. */
+.colbar{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;flex:none;min-width:0}
+.colbar>.sk{flex:none;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--text-dim)}
+.colchip{display:flex;align-items:stretch;flex:none;border:2px solid var(--edge);background:var(--face)}
+.colchip.on{box-shadow:2px 2px 0 0 var(--accent)}
+.colchip button{border:none;background:transparent;cursor:pointer;font-family:var(--font-big);
+  font-weight:800;font-size:.5625rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);
+  padding:.3rem .45rem}
+.colname{display:flex;align-items:center;gap:.35rem}
+.colchip.on .colname{background:var(--stamp-bg);color:var(--stamp-fg)}
+.colcount{font-family:var(--font-mono);font-weight:600;font-size:.5rem;opacity:.75}
+/* the two verbs only ever act on the chip they sit in, so they stay inside its border */
+.coladd,.coldel{border-left:2px solid var(--edge)!important;color:var(--text-faint)}
+.coladd:hover{color:var(--accent)}
+.coldel:hover{color:var(--text)}
+.colmake{flex:none;font-family:var(--font-big);font-weight:800;font-size:.5625rem;letter-spacing:.08em;
+  text-transform:uppercase;background:transparent;color:var(--text-dim);border:2px dashed var(--text-faint);
+  cursor:pointer;padding:.3rem .5rem}
+.colmake:hover{color:var(--text);border-color:var(--edge);border-style:solid}
+.colnew{flex:none;width:9rem;border:2px solid var(--accent);background:var(--face);color:var(--text);
+  font-family:var(--font-mono);font-size:.7rem;padding:.25rem .4rem;outline:none}
+/* the bar says what happened, because the mono status bar cannot: see collections-ops.ts on say */
+.colnote{display:flex;align-items:center;gap:.4rem;flex:none;font-family:var(--font-mono);
+  font-size:.625rem;color:var(--text-soft);border:2px solid var(--text-faint);padding:.25rem .45rem}
+.colnote button{border:none;background:transparent;cursor:pointer;font-family:var(--font-mono);
+  font-weight:700;font-size:.5625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim)}
+.colnote button:hover{color:var(--text)}
 .prosc{position:relative;flex:1;min-height:0;background:var(--shell-panel-2);border:3px solid var(--edge);
   box-shadow:6px 6px 0 0 var(--edge);padding:.55rem;display:flex}
 .libstage{position:relative;flex:1;min-height:0;background:var(--stage-well);border:3px solid var(--stage-black);overflow:hidden;
@@ -168,6 +252,7 @@ export const LIBRARY_STYLE = `
 @media(max-width:40rem){
   .lib{padding:.5rem;gap:.5rem}
   .wbbar{gap:.4rem}
+  .findwrap{order:0;flex:1 1 100%}
   .deckchips{flex:1 1 100%;order:1;flex-wrap:wrap;overflow:visible;padding-bottom:0}
   .viewseg{order:2}
   .sizedial{order:3;flex:1 1 100%;min-width:0}

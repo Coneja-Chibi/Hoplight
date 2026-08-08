@@ -16,7 +16,9 @@ const CSS = `
 .dv-row .thumb{width:calc(var(--card-w) * .28);aspect-ratio:2/3;flex:none;background:var(--a);border:2px solid var(--stage-black);
   background-size:cover;background-position:center top;display:flex;align-items:center;justify-content:center;
   font-family:var(--font-big);font-weight:900;color:var(--stage-ink)}
-.dv-row .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:var(--stage-card)}
+/* an imported preset may be named as one 32-character word; it wraps rather than pushing the row */
+.dv-row .nm{font-family:var(--font-big);font-weight:800;font-size:.8rem;color:var(--stage-card);
+  overflow-wrap:anywhere;min-width:0}
 .dv-row .kd{font-family:var(--font-mono);font-size:.625rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--stage-text-dim)}
 .dv-row .bench{margin-left:auto;font-family:var(--font-mono);font-size:.5625rem;letter-spacing:.08em;
   text-transform:uppercase;color:var(--a);border:2px solid var(--a);padding:2px 6px}

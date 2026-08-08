@@ -29,7 +29,7 @@ const CSS = `
 .dv-show .plate{flex:1;min-width:0;min-height:0;max-height:100%;overflow-y:auto;background:var(--stage-row);border:3px solid var(--stage-black);
   box-shadow:5px 6px 0 0 var(--shadow-ink);padding:clamp(.8rem,1.8vw,1.3rem);display:flex;flex-direction:column;gap:.6rem}
 .dv-show .plate .nm{font-family:var(--font-big);font-weight:900;font-size:clamp(1.2rem,2.4vw,1.9rem);
-  letter-spacing:-.01em;color:var(--stage-card);line-height:1}
+  letter-spacing:-.01em;color:var(--stage-card);line-height:1;overflow-wrap:anywhere}
 .dv-show .plate .tag{font-style:italic;font-weight:600;font-size:1rem;color:var(--stage-soft)}
 .dv-show .plate .desc{font-size:.95rem;line-height:1.5;color:var(--stage-mute);white-space:pre-line}
 .dv-show .plate .meta{font-family:var(--font-mono);font-size:.72rem;font-weight:600;letter-spacing:.08em;

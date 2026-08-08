@@ -44,7 +44,14 @@ import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
 import { DamageNotice } from "./damage-notice";
+import { FirstLanding, StudioUnreachable } from "./first-landing";
 import { LIBRARY_AGENT_SURFACE, usePublishLibrarySurface, useReloadOnStudioChange } from "./agent-surface";
+import { isFilteredEmpty, matchesByKind, parseQuery, resultLine, searchPieces, unknownHint } from "./search-core";
+import { NoMatchNotice, SearchBox } from "./search-bar";
+import { SendBar } from "./send-bar";
+import { attachCollections, useCollections } from "./collections-ops";
+import { usePicking } from "./use-picking";
+import { CollectionsBar } from "./collections-bar";
 
 // -- the browse room --------------------------------------------------------------------------------
 
@@ -72,8 +79,10 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [loadFailed, setLoadFailed] = useState(false);
   const [activeKind, setActiveKind] = useState(typeof firstDeck === "string" && firstDeck ? firstDeck : "character");
   const [formatLabels, setFormatLabels] = useState<Map<string, string>>(new Map());
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const picking = usePicking();
+  const selected = picking.selected;
   const [importState, setImportState] = useState<ImportState | null>(null);
+  const [query, setQuery] = useState("");
   const [workshop, setWorkshop] = useState<LoreWorkshopState | null>(null);
   const [regexWorkshop, setRegexWorkshop] = useState<RegexWorkshopState | null>(null);
   const [loreMeta, setLoreMeta] = useState<Record<string, LoreMeta>>({});
@@ -82,6 +91,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   const [, setWorkbenchTick] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
   const [sizeRem, setSizeRem] = useState(() => clampSize(ctx.prefs.get(PREF_SIZE)));
+  const collections = useCollections(ctx);
 
   const reload = useCallback(() => {
     // apiFetchJson throws on any non-2xx by design, so an un-caught reload turned a dev-server
@@ -124,7 +134,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   }, [ctx, reload]);
 
   const del = useEntityDelete(ctx, () => {
-    setSelected(new Set());
+    picking.replace([]);
     reload();
   });
 
@@ -138,18 +148,56 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const decks = deckCounts(entities, knownDecks().map((d) => d.kind));
   const deck = deckMeta(activeKind);
-  const inDeck = attachSearchKeys(
-    entities.filter((e) => e.kind === activeKind),
-    loreMeta,
-  );
 
-  /** Stage every piece on the active shelf that is not open on the Workbench. */
+  /**
+   * SEARCH IS A PASS OVER STATE, NEVER A RE-FETCH. The whole studio is already in memory here, so
+   * a keystroke costs one walk of 164 objects and zero round trips; asking the server per keystroke
+   * would also re-read every lorebook, book by book (see useReloadOnStudioChange's note on what
+   * that costs).
+   *
+   * It runs over the WHOLE studio rather than the active deck, because "no presets match, but
+   * three lorebooks do" is the answer somebody actually needs when they cannot remember which shelf
+   * they put a thing on. The stage still shows one deck; the chips and the no-match notice carry
+   * the rest.
+   */
+  const parsed = useMemo(() => parseQuery(query), [query]);
+  const records = useMemo(
+    () =>
+      // Collection membership rides in the same way a lorebook's keywords do: attached by the room,
+      // because a piece cannot know which groups somebody put it in. See collections-ops.ts.
+      attachCollections(
+        attachSearchKeys(entities, loreMeta).map((e) => ({ ...e, sourceLabel: sourceLabelFor(formatLabels, e) })),
+        collections.index,
+      ),
+    [entities, loreMeta, formatLabels, collections.index],
+  );
+  const hits = useMemo(() => searchPieces(records, parsed), [records, parsed]);
+  const perDeck = matchesByKind(hits);
+  const matched = new Map(perDeck.map((m) => [m.kind, m.count]));
+  const inDeck = hits.filter((h) => h.piece.kind === activeKind).map((h) => h.piece);
+  const deckTotal = decks.find((d) => d.kind === activeKind)?.count ?? 0;
+  const elsewhere = hits.length - inDeck.length;
+  const searchLine = resultLine({
+    active: parsed.active, deckPlural: deck.plural, shown: inDeck.length, deckTotal, elsewhere,
+  });
+
+  /** Stage every piece on the active shelf that is not open on the Workbench. While a search is
+   *  running that means every MATCH, which is the only reading of "all" that agrees with the eye. */
   const selectAll = (): void =>
-    setSelected(new Set(inDeck.filter((e) => !openKeys.has(pieceKey(e))).map(pieceKey)));
+    picking.replace(inDeck.filter((e) => !openKeys.has(pieceKey(e))).map(pieceKey));
+
+  const stagedRefs = entities.filter((e) => selectedValid.has(pieceKey(e)));
 
   useReloadOnStudioChange(reload);
+  /**
+   * The FILTERED shelf is what gets published, and the search text rides along. Republishing while
+   * somebody types is real state change, not the render echo agent-surface.ts guards against: the
+   * shelf genuinely changed. The filter has to be named there, or an agent reads "3 characters"
+   * off a studio holding forty and reports the other thirty-seven as missing.
+   */
   usePublishLibrarySurface(ctx, {
     deck: deck.plural, inDeck, total: entities.length, damaged, staged: selectedValid, loadFailed,
+    filter: parsed.active ? query : undefined,
   });
 
   useEffect(() => {
@@ -160,9 +208,9 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
           ? damaged.length > 0
             ? `no readable pieces · ${damaged.length} unreadable ${damaged.length === 1 ? "file" : "files"}`
             : "empty studio"
-          : `${deck.plural.toLowerCase()} · ${inDeck.length} of ${entities.length} pieces`,
+          : searchLine || `${deck.plural.toLowerCase()} · ${inDeck.length} of ${entities.length} pieces`,
     );
-  }, [ctx, damaged.length, entities.length, deck, inDeck.length, loadFailed]);
+  }, [ctx, damaged.length, entities.length, deck, inDeck.length, loadFailed, searchLine]);
 
   const { runImport, commitImport, cancelImport } = makeImportRunners({ ctx, importState, setImportState, reload });
 
@@ -185,59 +233,42 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     if (files.length) runImport(files);
   };
 
-  if (loadFailed) {
-    // NOT the first landing: this user may have a full studio we simply could not read. Offering
-    // "start fresh" here would read as "your work is gone" (and invite them to act on it).
-    return (
-      <div className="lib">
-        <style>{allCss}</style>
-        <DamageNotice entries={damaged} studioDir={studioDir} />
-        <div className="stagezone seam">
-          <p className="voice">Could not reach the studio. Your pieces are still on disk.</p>
-          <button className="doorcard stamp" onClick={reload}>
-            Try again
-          </button>
-        </div>
-      </div>
+  /** Shelve a freshly created piece without waiting for a whole studio re-read. */
+  const addEntity = (summary: StudioEntitySummary): void =>
+    setEntities((prev) =>
+      prev.some((e) => e.kind === summary.kind && e.id === summary.id) ? prev : [...prev, summary],
     );
-  }
+
+  const overlay = importState ? (
+    <ImportOverlay
+      state={importState}
+      onCommit={commitImport}
+      onCancel={cancelImport}
+      onAddMore={() => pickFiles((f) => runImport(f, true))}
+    />
+  ) : null;
+
+  const doors = { css: allCss, damaged, studioDir };
+  if (loadFailed) return <StudioUnreachable {...doors} onRetry={reload} />;
 
   if (entities.length === 0) {
-    // FIRST LANDING (locked): two massive door-cards, verbatim copy, nothing else competing.
     return (
-      <div className="lib" onDragOver={(e) => e.preventDefault()} onDrop={onDrop}>
-        <style>{allCss}</style>
-        <DamageNotice entries={damaged} studioDir={studioDir} />
-        <div className="stagezone seam">
-          <button className="doorcard primary stamp" onClick={() => pickFiles(runImport)}>
-            Drag and drop to import asset
-          </button>
-          <button
-            className="doorcard stamp"
-            onClick={() => {
-              void createAndOpenCharacter(ctx).then(
-                (summary) => {
-                  setEntities((prev) => [...prev, summary]);
-                  ctx.workbench.open(summary);
-                  ctx.setStatus(`opened character · ${summary.name}`);
-                },
-                (err) => ctx.setStatus(err instanceof Error ? err.message : "could not create a character"),
-              );
-            }}
-          >
-            Click here to start fresh
-          </button>
-        </div>
-        <p className="voice">Every pack starts with a first card.</p>
-        {importState && (
-          <ImportOverlay
-            state={importState}
-            onCommit={commitImport}
-            onCancel={cancelImport}
-            onAddMore={() => pickFiles((f) => runImport(f, true))}
-          />
-        )}
-      </div>
+      <FirstLanding
+        {...doors}
+        onDrop={onDrop}
+        onPickImport={() => pickFiles(runImport)}
+        onStartFresh={() => {
+          void createAndOpenCharacter(ctx).then(
+            (summary) => {
+              addEntity(summary);
+              ctx.workbench.open(summary);
+              ctx.setStatus(`opened character · ${summary.name}`);
+            },
+            (err) => ctx.setStatus(err instanceof Error ? err.message : "could not create a character"),
+          );
+        }}
+        overlay={overlay}
+      />
     );
   }
 
@@ -252,19 +283,16 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
     portraitUrl,
     sourceLabel: (e) => sourceLabelFor(formatLabels, e),
     peek: (e) => peekPiece(ctx, e),
-    onPiece: (e) => {
+    onPiece: (e, mods) => {
       const key = pieceKey(e);
-      if (openKeys.has(key)) {
+      if (openKeys.has(key) && !mods?.shift) {
         ctx.setStatus(`${e.name} is already on the Workbench`); // open = annotation, not a toggle
         return;
       }
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(key)) next.delete(key);
-        else next.add(key);
-        return next;
-      });
+      // Ranges run over what is DRAWN, so the order is this deck's, after search and ranking.
+      picking.press(key, mods ?? { shift: false, meta: false }, inDeck.map(pieceKey), openKeys);
     },
+    onSweep: (cards, box, additive) => { picking.sweep(cards, box, additive, openKeys); },
     loreShelf:
       activeKind === "lorebook"
         ? makeLoreShelf({
@@ -300,25 +328,30 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
       onDrop={onDrop}
     >
       <style>{allCss}</style>
-      <DamageNotice entries={damaged} studioDir={studioDir} />
+      <DamageNotice entries={damaged} studioDir={studioDir} prefs={ctx.prefs} />
       <div className="wbbar">
         <div className="deckchips" data-tour="decks">
           {decks.map(({ kind, count }) => {
             const meta = deckMeta(kind);
+            // While a search runs the chip counts MATCHES, so the row doubles as the cross-deck
+            // result summary; the title keeps the real total so no count ever reads as a loss.
+            const shown = matched.get(kind) ?? 0;
             return (
               <button
                 key={kind}
-                className={`dchip${kind === activeKind ? " on" : ""}`}
+                className={`dchip${kind === activeKind ? " on" : ""}${parsed.active && shown === 0 ? " nil" : ""}`}
                 style={{ "--a": meta.accent } as CSSProperties}
+                title={parsed.active ? `${String(shown)} of ${String(count)} match` : `${String(count)} in the studio`}
                 onClick={() => setActiveKind(kind)}
               >
                 <span className="pip" />
                 {meta.plural}
-                <span className="dc">{count}</span>
+                <span className="dc">{parsed.active ? shown : count}</span>
               </button>
             );
           })}
         </div>
+        <SearchBox value={query} onChange={setQuery} hint={unknownHint(parsed.unknown)} />
         <div className="viewseg" data-tour="views">
           {deckViews(activeKind).map((v) => (
             <button
@@ -354,66 +387,38 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
         </label>
       </div>
 
-      {/* the staging action bar: only real when pieces are picked; ONE Send commits the whole set */}
-      {selectedValid.size > 0 && (
-        <div className="sendbar">
-          <span className="cnt">{`${selectedValid.size} ${selectedValid.size === 1 ? "piece" : "pieces"} staged`}</span>
-          <button
-            className="send"
-            onClick={() => {
-              const byKey = new Map(entities.map((e) => [pieceKey(e), e]));
-              const batch = [...selectedValid].map((k) => byKey.get(k)).filter((e): e is StudioEntitySummary => !!e);
-              setSelected(new Set());
-              // sendMany opens the pieces (firing workbench.onChange -> this room repaints with the
-              // staged marks gone) and, in "always" mode, navigates to the Workbench; forcing our
-              // own render here would clobber that navigation, so we deliberately don't.
-              ctx.workbench.sendMany(batch);
-            }}
-          >
-            {`Send ${selectedValid.size === 1 ? "it" : `all ${selectedValid.size}`} to the Workbench`}
-          </button>
-          <button
-            className="del"
-            onClick={() => {
-              const byKey = new Map(entities.map((e) => [pieceKey(e), e]));
-              del.requestDelete(
-                [...selectedValid]
-                  .map((k) => byKey.get(k))
-                  .filter((e): e is StudioEntitySummary => !!e),
-              );
-            }}
-          >
-            {`Delete ${selectedValid.size === 1 ? "it" : `all ${selectedValid.size}`}`}
-          </button>
-          <button className="clear" onClick={selectAll}>
-            Select all
-          </button>
-          <button className="clear" onClick={() => setSelected(new Set())}>
-            Clear
-          </button>
-        </div>
-      )}
+      <CollectionsBar room={collections} query={query} setQuery={setQuery} staged={stagedRefs} />
+
+      <SendBar
+        staged={selectedValid}
+        entities={entities}
+        onSend={(batch) => {
+          picking.replace([]);
+          // sendMany opens the pieces (firing workbench.onChange -> this room repaints with the
+          // staged marks gone) and, in "always" mode, navigates to the Workbench; forcing our
+          // own render here would clobber that navigation, so we deliberately don't.
+          ctx.workbench.sendMany(batch);
+        }}
+        onDelete={(batch) => del.requestDelete(batch)}
+        onSelectAll={selectAll}
+        onClear={() => picking.replace([])}
+      />
 
       <div className="prosc">
         <div className="libstage" style={{ "--a": deck.accent } as CSSProperties}>
           <div className="stage-crumb">
             <span className="pip" />
             <span className="cn">{deck.plural}</span>
-            <span className="cc">{inDeck.length ? `${view.label.toLowerCase()} · ${inDeck.length}` : "deck empty"}</span>
+            <span className="cc">
+              {inDeck.length
+                ? `${view.label.toLowerCase()} · ${inDeck.length}${parsed.active ? ` of ${deckTotal}` : ""}`
+                : isFilteredEmpty(parsed, deckTotal)
+                  ? "no match"
+                  : "deck empty"}
+            </span>
             {inDeck.length > 0 && (
               <span style={{ marginLeft: "auto", display: "flex", gap: "0.35rem" }}>
-                <NewInDeckButton
-                  compact
-                  kind={activeKind}
-                  ctx={ctx}
-                  onCreated={(summary) =>
-                    setEntities((prev) =>
-                      prev.some((e) => e.kind === summary.kind && e.id === summary.id)
-                        ? prev
-                        : [...prev, summary],
-                    )
-                  }
-                />
+                <NewInDeckButton compact kind={activeKind} ctx={ctx} onCreated={addEntity} />
                 {selectedValid.size === 0 && (
                   <button className="crumbsel" onClick={selectAll}>
                     Select all
@@ -423,34 +428,30 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
             )}
           </div>
           {inDeck.length === 0 ? (
-            <div className="ghost-shelf">
-              {`your first ${activeKind} lands here · import or start fresh`}
-              <NewInDeckButton
-                kind={activeKind}
-                ctx={ctx}
-                onCreated={(summary) =>
-                  setEntities((prev) =>
-                    prev.some((e) => e.kind === summary.kind && e.id === summary.id)
-                      ? prev
-                      : [...prev, summary],
-                  )
-                }
+            // A SHELF FILTERED TO NOTHING IS NOT AN EMPTY SHELF, and the reverse holds too: a deck
+            // holding nothing was not filtered. isFilteredEmpty owns both halves of that judgement.
+            isFilteredEmpty(parsed, deckTotal) ? (
+              <NoMatchNotice
+                query={query}
+                deckPlural={deck.plural}
+                deckTotal={deckTotal}
+                elsewhere={perDeck.filter((m) => m.kind !== activeKind)}
+                onJump={setActiveKind}
+                onClear={() => setQuery("")}
               />
-            </div>
+            ) : (
+              <div className="ghost-shelf">
+                {`your first ${activeKind} lands here · import or start fresh`}
+                <NewInDeckButton kind={activeKind} ctx={ctx} onCreated={addEntity} />
+              </div>
+            )
           ) : (
             <view.Component ctx={vctx} />
           )}
         </div>
       </div>
 
-      {importState && (
-        <ImportOverlay
-          state={importState}
-          onCommit={commitImport}
-          onCancel={cancelImport}
-          onAddMore={() => pickFiles((f) => runImport(f, true))}
-        />
-      )}
+      {overlay}
       {workshop && (
         <LoreWorkshopDialog
           ctx={ctx}

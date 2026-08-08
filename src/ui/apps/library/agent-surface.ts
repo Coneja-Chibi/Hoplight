@@ -47,6 +47,8 @@ export function libraryAgentState(input: {
   readonly staged: ReadonlySet<string>;
   /** The studio could not be reached, which is NOT the same as an empty studio. */
   readonly loadFailed: boolean;
+  /** The search text filtering this shelf, when one is running. */
+  readonly filter?: string;
 }): AgentState {
   const notes: string[] = [];
 
@@ -60,6 +62,19 @@ export function libraryAgentState(input: {
   }
 
   notes.push(`The studio holds ${String(input.total)} pieces in total.`);
+
+  /**
+   * SAID BEFORE THE LISTING IT EXPLAINS. A search hides pieces; it does not remove them. Without
+   * this line an agent reading a filtered shelf of three off a deck of forty has every reason to
+   * answer "you have three characters", which is the same lie the no-match notice exists to stop
+   * the screen from telling.
+   */
+  if (input.filter) {
+    notes.push(
+      `A search for "${input.filter}" is filtering this shelf. Pieces that do not match are ` +
+        "hidden, not missing, so this listing is not the whole deck.",
+    );
+  }
 
   /**
    * Named, not counted. These are the single most likely thing to be asked about in this room, and
@@ -107,7 +122,7 @@ export function usePublishLibrarySurface(
   ctx: AppContext,
   input: Parameters<typeof libraryAgentState>[0],
 ): void {
-  const { deck, inDeck, total, damaged, staged, loadFailed } = input;
+  const { deck, inDeck, total, damaged, staged, loadFailed, filter } = input;
   /** Cheap and stable: what is on the shelf, not the array that happens to hold it this render. */
   const shelfKey = inDeck.map((e) => `${e.kind}:${e.id}`).join(",");
   const damagedKey = damaged.map((d) => `${d.kind}:${d.id}:${d.reason}`).join(",");
@@ -125,12 +140,14 @@ export function usePublishLibrarySurface(
 
   useEffect(() => {
     ctxRef.current.agent.publish(
-      libraryAgentState({ deck, inDeck, total, damaged, staged, loadFailed }),
+      libraryAgentState({ deck, inDeck, total, damaged, staged, loadFailed, filter }),
     );
     // The keys stand in for inDeck, damaged and staged, which are new objects on every render.
-    // Comparing those by identity fired this on every keystroke anywhere in the app.
+    // Comparing those by identity fired this on every keystroke anywhere in the app. `filter` is a
+    // string and belongs here on its own: typing in the search box IS a change of what is on
+    // screen, unlike the render echo the keys exist to absorb.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [deck, shelfKey, damagedKey, stagedKey, total, loadFailed]);
+  }, [deck, shelfKey, damagedKey, stagedKey, total, loadFailed, filter]);
 }
 
 /**

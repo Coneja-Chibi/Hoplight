@@ -39,8 +39,25 @@ export interface DeckViewContext {
   open: Set<string>;
   /** "kind:id" keys of pieces STAGED for a batch send (render them picked) */
   selected: Set<string>;
-  /** tap a piece: toggle it in the staging selection (already-open pieces just note, no toggle) */
-  onPiece(e: StudioEntitySummary): void;
+  /**
+   * Tap a piece: toggle it in the staging selection (already-open pieces just note, no toggle).
+   *
+   * `mods` carries what was held down, so shift extends a range from the last click and ctrl/cmd
+   * adds one without disturbing the rest. A view that does not read modifiers passes nothing and
+   * keeps the plain toggle it always had.
+   */
+  onPiece(e: StudioEntitySummary, mods?: { shift: boolean; meta: boolean }): void;
+  /**
+   * A box was dragged over the shelf. Optional: a view without a draggable surface never calls it.
+   *
+   * The cards arrive MEASURED, because only the view knows where it drew them. What that means for
+   * the selection is decided in select-core.ts.
+   */
+  onSweep?(
+    cards: readonly { key: string; box: { left: number; top: number; right: number; bottom: number } }[],
+    box: { left: number; top: number; right: number; bottom: number },
+    additive: boolean,
+  ): void;
   /** the shell's menu door threaded through, so views never import shell modules (one-store law:
    * a per-bundle copy of the store would be a second, invisible menu universe) */
   menus: AppContext["menus"];

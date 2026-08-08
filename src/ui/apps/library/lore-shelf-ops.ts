@@ -47,16 +47,26 @@ export async function loadLoreMeta(
   return next;
 }
 
+/**
+ * Hang each lorebook's trigger keywords on its summary.
+ *
+ * THE RETURN TYPE USED TO ERASE THE FIELD IT EXISTS TO ADD: it widened back to
+ * StudioEntitySummary[], so `searchKeys` was invisible to every caller and the shelf had to cast it
+ * back in. Declaring it means the search core can read what a book is ABOUT (rarely what it is
+ * named) without a cast, and a caller that forgets the field gets a compile error instead of
+ * silently searching nothing.
+ *
+ * The kind guard stays: ids are unique per deck, not across the studio, so a character sharing an
+ * id with a lorebook would otherwise inherit that book's keywords.
+ */
 export function attachSearchKeys(
   entities: readonly StudioEntitySummary[],
   loreMeta: Record<string, LoreMeta>,
-): StudioEntitySummary[] {
+): (StudioEntitySummary & { searchKeys?: string[] })[] {
   return entities.map((e) => {
     if (e.kind !== "lorebook") return e;
     const keys = loreMeta[e.id]?.searchKeys;
-    return keys
-      ? ({ ...e, searchKeys: keys } as StudioEntitySummary & { searchKeys: string[] })
-      : e;
+    return keys ? { ...e, searchKeys: keys } : e;
   });
 }
 
