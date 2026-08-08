@@ -7,9 +7,11 @@
  * exact drift this repo keeps paying for, and it is what hid four commands the last time somebody
  * wrote one out.
  *
- * `/rail` IS FILTERED, BY REQUEST. It is a preset outline pinned beside a terminal conversation, and
- * the window has no such column. Filtered by name AND aliases, so `/blocks` and `/outline` cannot
- * reach it by the side door.
+ * `/rail` IS OFFERED, AND LANDS ON THE WORKBENCH. It used to be withheld: the rail is a preset
+ * outline pinned beside a terminal conversation and this app has no such column, so the command was
+ * filtered by name and aliases. That was the wrong read of what it is FOR. The window already owns a
+ * surface that shows a preset's blocks in order and lets you drag them - the Workbench - so the
+ * command opens it there. See the `rail` seam in command-context.ts.
  *
  * HOST-ONLY, enforced upstream in server.ts. Running a command reads the vault, the studio and the
  * gate policy, and can write a shared-folder grant or the gate file. A guest permitted to read a
@@ -23,15 +25,20 @@ import { parseTurn } from "./server-agent";
 import { studioBridge, studioSession } from "./turn-stream";
 import { runKitCommand } from "./command-context";
 
-/** The one command the window does not offer. Its aliases go with it. */
-const WITHHELD = "/rail";
+/**
+ * Nothing is withheld any more.
+ *
+ * `/rail` was the only entry, and it is gone rather than emptied out: a filter list with nothing in
+ * it is a thing the next person has to read and decide about. Every command Kit ships, the window
+ * offers.
+ */
 
 /** Discovery walks the disk; the answer does not change while the process runs. */
 let catalogOnce: Promise<KitCommand[]> | null = null;
 
-/** Every command this build has, minus the withheld one. */
+/** Every command this build has. */
 export function windowCommands(): Promise<KitCommand[]> {
-  catalogOnce ??= discoverCommands().then((all) => all.filter((command) => command.name !== WITHHELD));
+  catalogOnce ??= discoverCommands();
   return catalogOnce;
 }
 

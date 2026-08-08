@@ -184,3 +184,20 @@ describe("argument candidates", () => {
     expect(out).toEqual([{ value: "guarded", note: "Always ask" }, { value: "full" }]);
   });
 });
+
+describe("opening a piece on the Workbench", () => {
+  test("the effect survives the wire with both halves", () => {
+    expect(parseEffects({ effects: [{ kind: "open", piece: { kind: "preset", id: "astrolabe" } }] }))
+      .toEqual([{ kind: "open", piece: { kind: "preset", id: "astrolabe" } }]);
+  });
+
+  test("A PIECE WITHOUT ITS KIND IS NOT OPENED", () => {
+    /**
+     * The shelf is searched by kind AND id, because two decks may hold the same id. An effect with
+     * half a name would either find nothing or, worse, find the wrong file and open it.
+     */
+    expect(parseEffects({ effects: [{ kind: "open", piece: { id: "astrolabe" } }] })).toEqual([]);
+    expect(parseEffects({ effects: [{ kind: "open", piece: { kind: "preset" } }] })).toEqual([]);
+    expect(parseEffects({ effects: [{ kind: "open" }] })).toEqual([]);
+  });
+});

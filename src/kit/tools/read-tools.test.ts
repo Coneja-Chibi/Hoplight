@@ -224,6 +224,7 @@ describe("discovery", () => {
       "result_query",
       "studio_art",
       "studio_character_create",
+      "studio_collections",
       "studio_delete",
       "studio_duplicate",
       "studio_export",

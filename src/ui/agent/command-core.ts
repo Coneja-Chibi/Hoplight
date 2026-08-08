@@ -78,6 +78,19 @@ export type CommandEffect =
   | { readonly kind: "images"; readonly title: string; readonly images: readonly WidgetImage[] }
   /** Replace the window's conversation. /resume, and the rewind picker's rows. */
   | { readonly kind: "transcript"; readonly lines: readonly { readonly role: "user" | "assistant"; readonly text: string }[] }
+  /**
+   * Put a piece on the Workbench. THE WINDOW'S ANSWER TO THE RAIL.
+   *
+   * Kit pins a preset's blocks in a column beside the chat; this app already has a surface that
+   * shows a preset's blocks and lets you drag them, and it is the Workbench. So `/rail astrolabe`
+   * opens it there rather than being withheld for want of a column.
+   */
+  | { readonly kind: "open"; readonly piece: { readonly kind: string; readonly id: string } }
+  /**
+   * From here on, this window writes to THIS session. `/resume` adopting the chat it just put on
+   * screen, so continuing it lands in the same file rather than beside it.
+   */
+  | { readonly kind: "session"; readonly id: string }
   /** Open provider setup. Kit's `ctx.openSettings`. */
   | { readonly kind: "settings" }
   /** Leave. Kit's `ctx.quit`, which in a browser can only mean closing the panel. */
@@ -290,6 +303,20 @@ export function parseEffects(value: unknown): CommandEffect[] {
       case "transcript":
         out.push({ kind: "transcript", lines: parseTranscriptLines(item["lines"]) });
         break;
+      case "open": {
+        // Both halves required: a piece named without its kind cannot be found in the shelf, and
+        // opening "whatever has that id" is how a click lands on the wrong file.
+        const piece = isRecord(item["piece"]) ? item["piece"] : {};
+        const kind = str(piece["kind"]);
+        const id = str(piece["id"]);
+        if (kind && id) out.push({ kind: "open", piece: { kind, id } });
+        break;
+      }
+      case "session": {
+        const id = str(item["id"]);
+        if (id) out.push({ kind: "session", id });
+        break;
+      }
       case "settings":
         out.push({ kind: "settings" });
         break;

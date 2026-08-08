@@ -21,7 +21,16 @@
  * wrong one and rearranging it is the failure this whole surface exists to prevent.
  */
 import { z } from "zod";
-import type { HarnessTool } from "./tool";
+import type { HarnessTool, ToolContext } from "./tool";
+import { findPreset } from "./_shared/find-preset";
+
+/**
+ * What this app calls the place a preset opens: Kit's rail, or the window's Workbench.
+ *
+ * Defaulted rather than required, so a context that never says keeps the terminal's word - the
+ * surface Kit has had all along and every existing transcript refers to.
+ */
+const surfaceOf = (ctx: ToolContext): string => ctx.surface ?? "the rail";
 
 /**
  * `show` REQUIRES a preset, enforced here rather than in execute.
@@ -43,10 +52,16 @@ const input = z.strictObject({
 
 const railOpen: HarnessTool<z.infer<typeof input>> = {
   name: "rail_open",
+  /**
+   * NAMES BOTH SURFACES, because a description is static and this tool runs in two apps. Saying
+   * only "the rail" made the sentence false in the window; saying neither would leave the model
+   * guessing what it had just done to the person's screen.
+   */
   description:
-    "Open a preset on the rail beside the conversation, the same view the user gets from /rail. They "
-    + "can watch its block order while you work and rearrange it themselves. Use it when they ask to "
-    + "see a preset and after creating one. Opening the rail writes nothing.",
+    "Open a preset where this app shows presets - the rail in the terminal, the Workbench in the "
+    + "desktop window - the same view the user gets from /rail. They can watch its block order while "
+    + "you work and rearrange it themselves. Use it when they ask to see a preset and after creating "
+    + "one. Opening it writes nothing.",
   exposure: "direct",
   effect: "read",
   input,
@@ -86,42 +101,24 @@ const railOpen: HarnessTool<z.infer<typeof input>> = {
         output: "Name a preset to show, or use action \"status\" to see what is already on the rail.",
       };
     }
-    const presets = await ctx.bridge.list("preset");
-    if (presets.length === 0) {
-      return { summary: "rail_open: none", output: "There are no presets in the studio." };
+    const picked = findPreset(await ctx.bridge.list("preset"), args.preset);
+    if (!picked.ok) {
+      return { summary: `rail_open: ${args.preset} did not resolve`, output: picked.detail };
     }
 
-    const needle = args.preset.trim().toLowerCase();
-    // An exact name wins outright. Without it the shorter of two similar presets is unreachable:
-    // "paramnesia" is contained in "paramnesia-vi", so the exact short name matched both and was
-    // refused, with no longer string available to disambiguate because it was already complete.
-    const exact = presets.filter(
-      (piece) => piece.id.toLowerCase() === needle || piece.name.toLowerCase() === needle,
-    );
-    const found = exact.length === 1 ? exact : presets.filter(
-      (piece) => piece.id.toLowerCase().includes(needle) || piece.name.toLowerCase().includes(needle),
-    );
-
-    if (found.length === 0) {
-      return {
-        summary: `rail_open: no match for "${args.preset}"`,
-        output: `No preset matches "${args.preset}". There is: ${presets.map((p) => p.id).join(", ")}`,
-      };
-    }
-    if (found.length > 1) {
-      return {
-        summary: `rail_open: ${found.length} match "${args.preset}"`,
-        output: `Several match: ${found.map((p) => p.id).join(", ")}. Ask which one; do not pick.`,
-      };
-    }
-
-    const piece = found[0]!;
+    const piece = picked.piece;
     return {
       summary: `rail_open ${piece.id}`,
       // The shell opens it from this, not from anything said about it.
       show: { kind: "preset", id: piece.id },
-      output: `${piece.name || piece.id} is now on the rail beside the conversation. The user can see`
-        + " its blocks in evaluation order and rearrange them there.",
+      /**
+       * THE SURFACE NAMES ITSELF. This used to say "on the rail" wherever it ran, including in the
+       * desktop window, which has no rail - so the model told somebody their preset was open on a
+       * column that does not exist there, while nothing had opened at all. A sentence about a
+       * surface is only true where that surface is, so the surface supplies the words.
+       */
+      output: `${piece.name || piece.id} is now open on ${surfaceOf(ctx)}. The user can see its`
+        + " blocks in evaluation order and rearrange them there.",
     };
   },
 };

@@ -81,7 +81,8 @@ describe("handleAgentRoutes", () => {
       const names = body.commands.map((c) => c.name);
       // The command that started this, from the nested sessions/commands folder.
       expect(names).toContain("/resume");
-      expect(names).not.toContain("/rail");
+      // Nothing is filtered any more: `/rail` opens the preset on the Workbench here.
+      expect(names).toContain("/rail");
     });
 
     test("THE LONGER PATH IS NOT SWALLOWED BY THE SHORTER ONE", async () => {
@@ -112,7 +113,9 @@ describe("handleAgentRoutes", () => {
     test("a command this build does not have is a 404, not a near miss", async () => {
       const res = await handleAgentRoutes(
         "/api/agent/command",
-        jsonReq("/api/agent/command", { line: "/rail some-preset" }),
+        // Was "/rail", which this build now has. A name no build has ever shipped keeps the test
+        // about the 404 rather than about which commands happen to exist today.
+        jsonReq("/api/agent/command", { line: "/not-a-command-in-any-build x" }),
         STUDIO,
       );
       expect(res?.status).toBe(404);

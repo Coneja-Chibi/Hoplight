@@ -27,7 +27,8 @@ import { MeterBar } from "../../agent/kit-meters";
 import { Transcript } from "../../agent/kit-transcript";
 import { KIT_TRANSCRIPT_STYLE } from "../../agent/kit-transcript-style";
 import { KIT_COMMAND_STYLE } from "../../agent/kit-command-style";
-import { useKitCommands } from "../../agent/use-kit-commands";
+import { useKitCommands, type ShellActs } from "../../agent/use-kit-commands";
+import { openMentioned } from "../../agent/open-piece";
 import { useSlash } from "../../agent/use-slash";
 import { useMentions } from "../../agent/use-mentions";
 import { SlashMenu } from "../../agent/slash-menu";
@@ -87,10 +88,23 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
    * one honest limitation: Settings already open on another tab stays where it is, because a mounted
    * component does not re-read the hash.
    */
-  const shellActs = useMemo(() => ({
+  const shellActs = useMemo<ShellActs>(() => ({
     openSettings: (): void => {
       window.location.hash = "settings/models";
       ctx.openApp("settings");
+    },
+    /**
+     * The shelf is READ WHEN ASKED, not held. Opening happens once in a while, from a command or a
+     * tool, and a list captured when the panel mounted would send somebody to a piece that has been
+     * renamed or deleted since - the failure the marker resolver exists to make impossible.
+     */
+    openPiece: (piece): void => {
+      void ctx.api.listEntities()
+        .then((all) => {
+          if (openMentioned(ctx, piece, all)) return;
+          ctx.setStatus(`${piece.kind} ${piece.id} is not in the studio any more`);
+        })
+        .catch(() => { ctx.setStatus("could not reach the studio to open that piece"); });
     },
     close: (): void => {
       // The panel if there is one; otherwise back to the screen this conversation was about, which

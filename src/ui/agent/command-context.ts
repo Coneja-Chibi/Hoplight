@@ -27,7 +27,8 @@ import { readVault } from "../../kit/providers/vault";
 import { activeBackendId } from "../../kit/keystore/keystore";
 import { APP_VERSION } from "../../version";
 import type { ModelMessage } from "../../kit/providers/provider";
-import { studioBridge, studioSession } from "./turn-stream";
+import { studioBridge, studioSession, WINDOW_SURFACE } from "./turn-stream";
+import { findPreset } from "../../kit/tools/_shared/find-preset";
 import { readEgress } from "./agent-ledger";
 import { windowSessions } from "./command-sessions";
 import { MAX_SHELF_BYTES, imageDataUrl } from "./image-data";
@@ -246,6 +247,33 @@ async function buildContext(
       },
       // Nothing to close: these are transcript bands, not a strip pinned to an edge. No command
       // calls this, and a message about closing something that was never open would be noise.
+      close: () => {},
+    },
+    /**
+     * `/rail` HERE MEANS THE WORKBENCH.
+     *
+     * This app has no column pinned beside the chat, and for a while that meant the command was
+     * withheld - which left the one thing it does with no way to ask for it. But the window already
+     * owns a surface that shows a preset's blocks in order and lets you drag them, and it is the
+     * Workbench. So the command is offered and lands there, and `close` is honest about there being
+     * nothing to close: a bench tab is yours to keep until you close it yourself.
+     *
+     * The SAME matcher the tool uses, so "/rail paramnesia" and the model's rail_open can never
+     * disagree about which preset that word meant.
+     */
+    rail: {
+      open: async (query: string) => {
+        const picked = findPreset(await bridge.list("preset"), query);
+        if (!picked.ok) return { ok: false as const, detail: picked.detail };
+        record({ kind: "open", piece: { kind: "preset", id: picked.piece.id } });
+        record({
+          kind: "say",
+          text: `${picked.piece.name || picked.piece.id} is now open on ${WINDOW_SURFACE}.`,
+        });
+        return { ok: true as const };
+      },
+      // A Workbench tab is not a strip pinned to an edge: it closes when the person closes it, and
+      // a command that shut their editor from the chat would be taking something away.
       close: () => {},
     },
     gates: {

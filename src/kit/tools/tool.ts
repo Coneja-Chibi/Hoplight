@@ -44,6 +44,16 @@ export interface ToolContext {
    * context was built would be the same kind of stale answer, just harder to notice.
    */
   rail?: () => RailSnapshot | null;
+  /**
+   * What THIS app calls the place a preset opens: "the rail" in the terminal, "the Workbench" in the
+   * desktop window.
+   *
+   * Here because a tool's words end up in front of a person, and one app's furniture is not the
+   * other's. rail_open said "on the rail" wherever it ran, so in the window the model reported a
+   * preset open on a column that does not exist there - and nothing had opened at all. Absent means
+   * the terminal's word, which is what every existing transcript already says.
+   */
+  surface?: string;
 }
 
 /** The rail as a tool may read it: what is open, how big it is, and what is unsaved. */

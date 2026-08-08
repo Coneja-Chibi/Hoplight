@@ -28,6 +28,13 @@ export interface ShellActs {
   openSettings: () => void;
   /** /quit: a browser cannot exit, so the nearest true thing is to close the panel. */
   close: () => void;
+  /**
+   * `/rail`, and the model's rail_open: put a piece on the Workbench.
+   *
+   * THE WINDOW'S RAIL. Kit pins a preset's blocks beside the chat; this app already has a surface
+   * that shows them and lets you drag them, so the command lands there instead of being withheld.
+   */
+  openPiece: (piece: { kind: string; id: string }) => void;
 }
 
 export interface KitCommands {
@@ -81,6 +88,7 @@ export function useKitCommands(acts: ShellActs): KitCommands {
 
   const shell = useCallback((effect: CommandEffect): void => {
     if (effect.kind === "settings") { acts.openSettings(); return; }
+    if (effect.kind === "open") { acts.openPiece(effect.piece); return; }
     if (effect.kind === "close") acts.close();
   }, [acts]);
 

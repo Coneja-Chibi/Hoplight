@@ -178,6 +178,11 @@ async function freeId(bridge: KitBridge, base: string): Promise<string> {
 export async function createSession(
   bridge: KitBridge,
   railOf?: () => RailSnapshot | null,
+  /**
+   * What this app calls the place a preset opens. Absent keeps the terminal's word, "the rail" -
+   * see ToolContext.surface for why a tool must not name the wrong furniture.
+   */
+  surface?: string,
 ): Promise<Session> {
   const [discovered, capabilities] = await Promise.all([
     discoverTools(),
@@ -227,6 +232,7 @@ export async function createSession(
     // Same reason as grants: read when asked, never captured. The rail changes mid-turn, and a
     // snapshot taken at session start is exactly the stale answer this exists to stop.
     rail: () => railOf?.() ?? null,
+    ...(surface === undefined ? {} : { surface }),
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));

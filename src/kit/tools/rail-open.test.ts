@@ -76,3 +76,30 @@ describe("rail_open", () => {
     expect(railOpen.input.safeParse({}).success).toBe(false);
   });
 });
+
+describe("which surface the words name", () => {
+  const open = (surface?: string) => railOpen.execute(
+    { action: "show" as const, preset: "paramnesia" },
+    { ...ctx([{ id: "paramnesia", name: "Paramnesia" }]), ...(surface ? { surface } : {}) },
+  );
+
+  test("the terminal keeps the word every existing transcript uses", async () => {
+    expect((await open()).output).toContain("the rail");
+  });
+
+  test("THE WINDOW NEVER CLAIMS A RAIL IT DOES NOT HAVE", async () => {
+    /**
+     * Seen on somebody's screen: the desktop window answered "H.T. Case Files - Milquetoast is open
+     * on the rail" in an app with no rail column, and nothing had opened anywhere. A sentence about
+     * a surface is only true where that surface is.
+     */
+    const said = (await open("the Workbench")).output;
+    expect(said).toContain("open on the Workbench");
+    expect(said).not.toContain("rail");
+  });
+
+  test("the structured show is the same either way: only the words are local", async () => {
+    expect((await open()).show).toEqual({ kind: "preset", id: "paramnesia" });
+    expect((await open("the Workbench")).show).toEqual({ kind: "preset", id: "paramnesia" });
+  });
+});

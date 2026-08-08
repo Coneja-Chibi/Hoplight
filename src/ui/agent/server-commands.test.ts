@@ -34,16 +34,18 @@ describe("the catalog", () => {
     }
   });
 
-  test("/rail IS WITHHELD, AND SO ARE ITS ALIASES", async () => {
+  test("/rail IS OFFERED HERE, ALIASES AND ALL", async () => {
     /**
-     * Filtering by name alone would leave `/blocks` and `/outline` matching, which is the same
-     * command through a side door.
+     * IT USED TO BE WITHHELD, and this test asserted that. The reasoning was that the rail is a
+     * column pinned beside a terminal conversation and the window has none - true about the
+     * furniture, wrong about the command. What `/rail` DOES is put a preset's blocks where you can
+     * see them in order and drag them, and this app has had a surface for exactly that from the
+     * start: the Workbench. So it is offered, by name and by both side doors.
      */
-    const commands = await windowCommands();
-    const words = commands.flatMap((c) => [c.name, ...(c.aliases ?? [])]);
-    expect(words).not.toContain("/rail");
-    expect(words).not.toContain("/blocks");
-    expect(words).not.toContain("/outline");
+    const words = (await windowCommands()).flatMap((c) => [c.name, ...(c.aliases ?? [])]);
+    expect(words).toContain("/rail");
+    expect(words).toContain("/blocks");
+    expect(words).toContain("/outline");
   });
 
   test("the listing carries what the page needs to match and to offer", async () => {
@@ -160,7 +162,12 @@ describe("running one, against Kit's own code", () => {
      * The page matched before posting, so a mismatch means the two disagree - a tab left open across
      * an update. Running the nearest thing would be the server choosing a command nobody typed.
      */
-    const out = await runKitCommand({ line: "/rail", messages: [], studioDir: process.cwd() }, await windowCommands());
+    const out = await runKitCommand(
+      // A line no build has ever had. This used to be "/rail", which stopped being unknown the day
+      // the window learned to open a preset on the Workbench.
+      { line: "/not-a-command-in-any-build", messages: [], studioDir: process.cwd() },
+      await windowCommands(),
+    );
     expect(out.ok).toBe(false);
   });
 });
