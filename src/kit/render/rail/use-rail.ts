@@ -1,9 +1,10 @@
 /**
  * The rail's state and its keys, kept out of the shell.
  *
- * WHY A HOOK AND NOT MORE OF app.tsx. The shell sits at its 500-line cap, so a feature that cannot be added
- * without pushing a file past its limit is a feature that wants its own home. Every
- * decision the rail makes lives here; the shell learns four things about it.
+ * WHY A HOOK AND NOT MORE OF app.tsx. The shell sits at its 500-line cap, so a feature that cannot
+ * be added without pushing a file past its limit is a feature that wants its own home. The rail's
+ * state and keys live here; the decisions worth testing without a terminal live beside it, in
+ * step-key, next-preset, rail-escape, rail-pending and rail-typing.
  *
  * THE EDITS ARE LOCAL UNTIL THEY ARE APPLIED. Dragging, toggling and inserting change this state and
  * nothing else. `pending` counts what is waiting, `commit` hands the edited rows to whoever writes
@@ -11,23 +12,23 @@
  * write still be gated: one confirmation for a session of rearranging, rather than one per gesture
  * or none at all.
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useRailEditor, type RailEditor } from "./use-rail-editor";
+import { useRailActions } from "./use-rail-actions";
+import { applyTypedEdit, typeIntoEditor } from "./rail-typing";
+import { useRailApply } from "./use-rail-apply";
+import { stepDelta } from "./step-key";
+import { railAction } from "./rail-key-map";
+import { railDirty, railPending } from "./rail-pending";
+import { RAIL_RESIZE_STEP, useRailGeometry } from "./use-rail-geometry";
 import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { diffOutline, type OutlineRow } from "../../../core/preset/outline";
 import {
-  clickRow, moveSelection, nudgeSelection, railIsDirty, railState,
+  clickRow, moveSelection, nudgeSelection, railState,
   removeSelection, selectAll, selectNone, setEnabled, type RailState,
 } from "../../../core/preset/rail-edit";
 import type { RowFlag } from "../primitives/rail/outline-rail";
-
-/**
- * Rail geometry bounds. Below the floor a block name is unreadable; above the ceiling the rail is
- * wider than the transcript beside it. Two cells per press, so a resize is felt without being coarse.
- */
-const MIN_RAIL_WIDTH = 24;
-const MAX_RAIL_WIDTH = 72;
-const DEFAULT_RAIL_WIDTH = 38;
 
 export interface RailSession {
   readonly open: boolean;
@@ -46,24 +47,78 @@ export interface RailSession {
   readonly offset: number;
   /** The rail's width in cells, resized with Ctrl+Shift+Left/Right. */
   readonly width: number;
+  /** Set the width outright, for the draggable edge. Bounded the same way the keys are. */
+  readonly resizeTo: (columns: number) => void;
   /** True = fit as many rows as possible; false = roomy rows. Toggled with Ctrl+Shift+D. */
   readonly dense: boolean;
+  /** What is being typed into, and the text so far. Null when the rail is in its ordinary mode. */
+  readonly editor: RailEditor;
+  /** A rename of the preset itself, staged but not applied. */
+  readonly pendingName: string | null;
+  /** A note typed but not applied. */
+  readonly pendingNote: string | null;
   /** Start following a preset. Replaces anything already open, discarding unapplied edits. */
-  follow: (id: string, title: string, rows: readonly OutlineRow[]) => void;
+  follow: (
+    id: string,
+    title: string,
+    rows: readonly OutlineRow[],
+    content?: ReadonlyMap<string, string>,
+  ) => void;
   close: () => void;
   onRowDown: (id: string, modifiers: { shift: boolean; ctrl: boolean }) => void;
   onRowDrag: (id: string) => void;
   onRowDragEnd: (id: string) => void;
+  /**
+   * The same things the keys do, for a pointer.
+   *
+   * ONE IMPLEMENTATION, TWO DOORS. A click that reimplemented toggling would drift from the key
+   * that toggles, and the first thing to diverge would be whether it moves the cursor.
+   */
+  toggleRow: (id: string) => void;
+  expandRow: (id: string) => void;
+  renameRow: (id: string) => void;
+  rewriteRow: (id: string) => void;
+  renamePreset: () => void;
+  /** Ask to leave a note. */
+  noteOn: () => void;
+  /** The full key list, opened with ? and closed the same way. */
+  readonly keysOpen: boolean;
+  toggleKeys: () => void;
+  /** Apply everything staged. Called by Enter and by the pending badge. */
+  applyNow: () => void;
+  /** Hand the rail the keyboard, for a pointer that has just reached into it. */
+  takeFocus: () => void;
+  /** Stage a new body for one block, from the full editor. Staged, never written. */
+  setBlockText: (blockId: string, text: string) => void;
+  /** Give the keyboard back, for a click that landed anywhere else. The other half of focus. */
+  releaseFocus: () => void;
 }
 
 /** How many rows the rail can draw before it needs to scroll. Passed in by the shell. */
 export function useRail(
   rowsVisible: () => number,
-  onCommit?: (rows: readonly OutlineRow[]) => Promise<boolean>,
+  /** Writes the rows and reports the id it wrote to, which a foreign edit changes. Null on failure. */
+  onCommit?: (
+    rows: readonly OutlineRow[],
+    meta?: { name?: string; note?: string },
+  ) => Promise<string | null>,
+
   /** Thumb to the next (+1) or previous (-1) preset. Owned by useRailSession, which knows storage. */
   onStep?: (delta: number) => void,
+
+  /** Say something in the transcript. Optional so the rail still mounts in a test harness. */
+  say?: (text: string) => void,
+
+  /** Open the full editor on a block body. Absent falls back to the rail own one-line box. */
+  onEditBlock?: (blockId: string, title: string, text: string) => void,
+
+  /** Is the full editor card up? While it is, the rail touches nothing. */
+  editorOpen?: boolean,
 ): RailSession {
   const [open, setOpen] = useState(false);
+  // Read inside `follow` to tell an OPEN from a RE-POINT; state there would be the stale value.
+  const openRef = useRef(open);
+  openRef.current = open;
   const [title, setTitle] = useState("");
   const [presetId, setPresetId] = useState<string | null>(null);
   const [state, setState] = useState<RailState>(() => railState([]));
@@ -71,31 +126,52 @@ export function useRail(
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
   const [focused, setFocused] = useState(false);
   const [dragging, setDragging] = useState(false);
+  /** Escape has been pressed once against a dirty rail, so the next one drops the edits. */
+  const [armedDrop, setArmedDrop] = useState(false);
   const [dropBefore, setDropBefore] = useState<string | null>(null);
   const [offset, setOffset] = useState(0);
-  /**
-   * The rail's own width and row density, held here because they belong to the person rather than to
-   * the layout. The floor and ceiling are real constraints, not taste: below the floor a block name
-   * is unreadable, and above the ceiling the rail is wider than the transcript it sits beside.
-   */
-  const [width, setWidth] = useState(DEFAULT_RAIL_WIDTH);
-  const [dense, setDense] = useState(false);
-  /**
-   * The rows as last read from storage. Everything "pending" is measured against this.
-   *
-   * STATE, NOT A REF, and that distinction was a real bug. As a ref, adopting the written rows after
-   * a commit mutated it without re-rendering, so  - memoised on [state.rows], which the
-   * commit does not change - kept its old count forever. The badge read "3 pending" over a preset
-   * with nothing pending, and because rail_open refuses to steal the rail while edits are pending,
-   * Kit silently lost the ability to open a preset for the rest of the session.
-   */
+  // Width and density belong to the person, not the layout; see use-rail-geometry.ts.
+  const { width, widen, resizeTo, dense, toggleDense } = useRailGeometry();
+  // The rows as last read from storage; everything "pending" is measured against this. STATE, not a
+  // ref: as a ref it mutated without re-rendering, so the badge read "3 pending" forever and
+  // rail_open then refused to open anything for the rest of the run.
   const [baseline, setBaseline] = useState<readonly OutlineRow[]>([]);
+  const editor = useRailEditor();
+  // Destructured because the EDITOR OBJECT is rebuilt every render while its callbacks are stable:
+  // depending on the object would rebuild follow on every keystroke, and depending on nothing is the
+  // stale-capture that made the commit callback write to whichever preset was last open.
+  const cancelEdit = editor.cancel;
+  const [pendingName, setPendingName] = useState<string | null>(null);
+  const [pendingNote, setPendingNote] = useState<string | null>(null);
+  const [keysOpen, setKeysOpen] = useState(false);
+  /**
+   * The block text as last read, for seeding the rewrite editor.
+   *
+   * Seeded with what is there rather than blank, because rewriting is usually fixing one line of
+   * something long, and an empty box would ask somebody to retype a whole system prompt.
+   */
+  const [content, setContent] = useState<ReadonlyMap<string, string>>(new Map());
 
-  const dirty = railIsDirty(baseline, state.rows);
-  const pending = useMemo(() => {
-    const diff = diffOutline(baseline, state.rows);
-    return diff ? diff.changes.length : 0;
-  }, [baseline, state.rows]);
+  // Read at CLICK time, not captured: the pointer handlers are memoised so the rows do not rebuild
+  // on every keystroke, and a captured value would be whatever was true when they were last built.
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  const contentRef = useRef(content);
+  contentRef.current = content;
+  const titleRef = useRef(title);
+  titleRef.current = title;
+  const nameRef = useRef(pendingName);
+  nameRef.current = pendingName;
+  const noteRef = useRef(pendingNote);
+  noteRef.current = pendingNote;
+
+  // One answer for the badge, the Enter key and the step keys; see rail-pending.ts.
+  const meta = useMemo(() => ({ name: pendingName, note: pendingNote }), [pendingName, pendingNote]);
+  const dirty = railDirty(baseline, state.rows, meta);
+  const pending = useMemo(
+    () => railPending(baseline, state.rows, meta),
+    [baseline, state.rows, meta],
+  );
 
   const flags = useMemo(() => {
     const map = new Map<string, RowFlag>();
@@ -112,8 +188,19 @@ export function useRail(
     return map;
   }, [baseline, state.rows]);
 
-  const follow = useCallback((id: string, next: string, rows: readonly OutlineRow[]) => {
+  const follow = useCallback((
+    id: string,
+    next: string,
+    rows: readonly OutlineRow[],
+    blockText?: ReadonlyMap<string, string>,
+  ) => {
     setBaseline(rows);
+    setContent(blockText ?? new Map());
+    // Following a different preset drops every typed edit with it: they belonged to the one being
+    // left, and carrying them across would apply somebody's rename to the wrong piece.
+    setPendingName(null);
+    setPendingNote(null);
+    cancelEdit();
     setPresetId(id);
     setTitle(next);
     setState(railState(rows));
@@ -121,11 +208,32 @@ export function useRail(
     setExpanded(new Set());
     setOffset(0);
     setOpen(true);
-    // Opening does not steal the keyboard. Somebody who typed /rail is still mid-sentence.
-    setFocused(false);
-  }, []);
+    // KEEPS THE KEYBOARD IF IT ALREADY HAD IT. Opening a CLOSED rail does not steal focus, because
+    // that call can come from the model mid-turn and a pane appearing should not take somebody's
+    // keys. But every step through the shelf re-follows, and blurring unconditionally meant the
+    // arrows worked exactly once and then went dead until you clicked the rail again.
+    setFocused((had) => (openRef.current ? had : false));
+  }, [cancelEdit]);
+
+  const takeFocus = useCallback(() => setFocused(true), []);
+  // The OTHER HALF of click-to-focus: clicking the box you type in used to do nothing at all.
+  const releaseFocus = useCallback(() => setFocused(false), []);
+
+  const applyNow = useRailApply({
+    dirty, rows: state.rows, pendingName, pendingNote,
+    setBaseline, setState, setTitle, setPendingName, setPendingNote, setPresetId,
+    ...(onCommit ? { onCommit } : {}),
+  });
 
   const close = useCallback(() => { setOpen(false); setFocused(false); }, []);
+
+  const {
+    toggleRow, expandRow, renameRow, rewriteRow, renamePreset, noteOn, toggleKeys, setBlockText, onRowDown,
+  } = useRailActions({
+    editor, setCursor, setState, setExpanded, setKeysOpen, setFocused,
+    ...(onEditBlock ? { onEditBlock } : {}),
+    stateRef, contentRef, titleRef, nameRef, noteRef,
+  });
 
   const move = useCallback((delta: number) => {
     setCursor((current) => {
@@ -150,127 +258,124 @@ export function useRail(
     const key = event.name;
     const shift = event.shift === true;
 
-    // Ctrl+B hands the keyboard back and forth. It is the only key this handler claims while the
-    // composer has focus, and the composer does not use it.
-    if (key === "b" && event.ctrl === true) {
+    /**
+     * WHILE THE EDITOR IS OPEN IT OWNS EVERY KEY.
+     *
+     * First, and returning unconditionally, because anything else would let a letter typed into a
+     * name also toggle a block. That is the rail-ate-the-composer failure in miniature and it is
+     * avoided the same way: one owner at a time, decided before anything else looks.
+     */
+    // While the editor is open it owns every key; see rail-typing.ts.
+    if (editor.target) {
       event.preventDefault();
-      setFocused((on) => !on);
+      const typed = typeIntoEditor(editor, event);
+      if (typed) {
+        applyTypedEdit(typed, { setPendingName, setPendingNote, setState }, {
+          presetName: title,
+          blockName: (rowId) => state.rows.find((row) => row.id === rowId)?.name,
+          blockContent: (rowId) => content.get(rowId),
+        });
+      }
       return;
     }
 
-    // WITHOUT THIS THE RAIL EATS THE COMPOSER. Every branch below calls preventDefault, and opentui
-    // stops dispatching a prevented key to the focused renderable - so an open rail swallowed space,
-    // backspace, enter and the arrows while somebody was typing a prompt, AND silently toggled
-    // blocks on a real preset as they typed. Returning before preventDefault is the whole fix.
+    /**
+     * WITHOUT THIS THE RAIL EATS THE COMPOSER. Every branch below prevents its key, and opentui
+     * stops dispatching a prevented key to the focused renderable - so an open rail swallowed
+     * space, backspace, enter and the arrows while somebody typed a prompt, AND toggled blocks on
+     * a real preset as they did it. Returning before preventDefault is the whole fix.
+     */
     if (!focused) return;
+    // The editor card takes every key while it is up; a keystroke meant for a paragraph reaching
+    // here would toggle a block behind it.
+    if (editorOpen) return;
 
     /**
-     * The rail's SHAPE is the person's, not the layout's.
+     * ONE TABLE, ONE MEANING PER KEY; see rail-key-map.ts.
      *
-     * Two complaints, one cause: the rail could not be resized, and it showed 45 of 155 rows with no
-     * way to see the rest. Both were the geometry being decided for them. Ctrl+Shift+Left/Right
-     * resizes; Ctrl+Shift+D switches between roomy rows and fitting every row it can.
-     *
-     * Named keys rather than letters, so shift survives the chord (a bare printable key drops it),
-     * and both stay clear of the readline set the composer owns.
+     * This was an eighteen-branch if-chain grown one key at a time, and the contradictions only
+     * showed up in use: Enter opened a row or wrote to disk depending on hidden state, Escape meant
+     * three things, Tab duplicated Enter, and two renames sat one shift key apart. As a table those
+     * are questions a test can answer by reading it, which is what now stops them coming back.
      */
-    if (shift && event.ctrl === true && (key === "left" || key === "right")) {
-      event.preventDefault();
-      setWidth((w) => Math.max(MIN_RAIL_WIDTH, Math.min(MAX_RAIL_WIDTH, w + (key === "left" ? -2 : 2))));
-      return;
-    }
-    if (shift && event.ctrl === true && key === "d") {
-      event.preventDefault();
-      setDense((on) => !on);
-      return;
-    }
+    const action = railAction(event);
+    if (action === null) return;
+    event.preventDefault();
 
-    /**
-     * `<` and `>` thumb through the shelf.
-     *
-     * Matched on the SEQUENCE rather than the key name, because these are shifted characters: the
-     * name arrives as "," and "." with shift held, and binding those would fire on an unshifted
-     * comma somebody typed. The character is what a person actually pressed.
-     *
-     * The step itself lives in useRailSession, which is the half that knows about storage; this hook
-     * stays free of it, which is what keeps its editing logic testable without a studio.
-     */
-    if (event.sequence === "<" || event.sequence === ">") {
-      event.preventDefault();
-      onStep?.(event.sequence === ">" ? 1 : -1);
-      return;
-    }
-
-    if (key === "up" || key === "down") {
-      event.preventDefault();
-      const delta = key === "up" ? -1 : 1;
-      // Alt moves the blocks; plain moves the cursor. Shift extends the selection as it goes.
-      if (event.option === true || event.meta === true) {
-        setState((current) => nudgeSelection(current, delta));
+    switch (action) {
+      case "focus-next":
+        // Tab, because that is what Tab means. It replaced ctrl+b, which nothing could teach you.
+        setFocused(false);
+        return;
+      case "cursor-up": move(-1); return;
+      case "cursor-down": move(1); return;
+      case "extend-up":
+      case "extend-down": {
+        const delta = action === "extend-up" ? -1 : 1;
+        move(delta);
+        if (cursor) setState((current) => clickRow(current, cursor, { shift: true }));
         return;
       }
-      move(delta);
-      if (shift && cursor) setState((current) => clickRow(current, cursor, { shift: true }));
-      return;
-    }
-    if (key === "space" && cursor) {
-      event.preventDefault();
-      setState((current) => setEnabled(
-        current.selected.size > 0 ? current : clickRow(current, cursor),
-        "toggle",
-      ));
-      return;
-    }
-    if (key === "return" && dirty) {
-      event.preventDefault();
-      // .catch is not optional here: a throw out of stage or commit had nowhere to go, and opentui
-      // routes an unhandled rejection into a hidden debug overlay, so the failure was invisible.
-      void onCommit?.(state.rows).catch(() => false).then((applied) => {
-        // Adopting the written rows is what clears the pending badge. Doing it only on a real
-        // applied receipt means a denied or stale attempt leaves the edits exactly where they were.
-        if (applied) setBaseline(state.rows);
-      });
-      return;
-    }
-    if (key === "a" && event.ctrl === true) {
-      event.preventDefault();
-      setState(selectAll);
-      return;
-    }
-    if (key === "escape") {
-      event.preventDefault();
-      // Escape clears a selection first and only closes an idle rail, so it cannot throw away a
-      // session of rearranging with one keystroke.
-      if (state.selected.size > 0) setState(selectNone);
-      else if (!dirty) close();
-      return;
-    }
-    if (key === "delete" || key === "backspace") {
-      event.preventDefault();
-      setState((current) => {
-        const next = removeSelection(current);
-        // Deleting the rows the view was sitting on leaves offset past the end, and the rail draws
-        // nothing at all while the footer still counts. Pull it back to the last full window.
-        setOffset((top) => Math.max(0, Math.min(top, next.rows.length - 1)));
-        return next;
-      });
-      return;
-    }
-    if ((key === "right" || key === "left") && cursor) {
-      event.preventDefault();
-      setExpanded((current) => {
-        const next = new Set(current);
-        if (key === "right") next.add(cursor);
-        else next.delete(cursor);
-        return next;
-      });
+      case "move-up": setState((current) => nudgeSelection(current, -1)); return;
+      case "move-down": setState((current) => nudgeSelection(current, 1)); return;
+      case "step-prev": onStep?.(-1); return;
+      case "step-next": onStep?.(1); return;
+      case "open-row": if (cursor) expandRow(cursor); return;
+      case "edit-body":
+        // One implementation, three doors: this key, a double-click, and the menu all land here.
+        if (cursor) rewriteRow(cursor);
+        return;
+      case "rename-block": if (cursor) renameRow(cursor); return;
+      case "rename-preset": renamePreset(); return;
+      case "note": noteOn(); return;
+      case "toggle":
+        if (!cursor) return;
+        setState((current) => setEnabled(
+          current.selected.size > 0 ? current : clickRow(current, cursor),
+          "toggle",
+        ));
+        return;
+      case "remove":
+        setState((current) => {
+          const next = removeSelection(current);
+          // A view scrolled past the new end draws nothing while the footer keeps counting.
+          setOffset((top) => Math.max(0, Math.min(top, next.rows.length - 1)));
+          return next;
+        });
+        return;
+      case "select-all": setState(selectAll); return;
+      case "save":
+        // Its own key now, whatever is pending. It used to be Enter, which also opened a row.
+        if (dirty) applyNow();
+        else say?.("Nothing staged to save.");
+        return;
+      case "drop-edits": {
+        if (!dirty) return;
+        setState(railState(baseline));
+        setPendingName(null);
+        setPendingNote(null);
+        // Dropping inserted rows shortens the list, so a view or a cursor past the new end would
+        // draw a blank rail while the footer still counted.
+        setOffset((top) => Math.max(0, Math.min(top, baseline.length - 1)));
+        setCursor((at) => (at !== null && baseline.some((row) => row.id === at) ? at : baseline[0]?.id ?? null));
+        say?.("Dropped the rail's unsaved changes.");
+        return;
+      }
+      case "wider": widen(RAIL_RESIZE_STEP); return;
+      case "narrower": widen(-RAIL_RESIZE_STEP); return;
+      case "density": toggleDense(); return;
+      case "menu": toggleKeys(); return;
+      case "close":
+        // ONE MEANING. It cleared a selection, or armed a drop, or dropped - and the third threw
+        // work away. Dropping is ctrl+z now, named, where it can be read before it is chosen.
+        if (state.selected.size > 0) setState(selectNone);
+        else if (keysOpen) toggleKeys();
+        else if (!dirty) close();
+        else say?.(`${String(pending)} staged change${pending === 1 ? "" : "s"}. s saves, ctrl+z throws away.`);
+        return;
     }
   });
 
-  const onRowDown = useCallback((id: string, modifiers: { shift: boolean; ctrl: boolean }) => {
-    setCursor(id);
-    setState((current) => clickRow(current, id, modifiers));
-  }, []);
 
   const onRowDrag = useCallback((id: string) => {
     setDragging(true);
@@ -285,7 +390,9 @@ export function useRail(
 
   return {
     open, title, presetId, state, cursor, expanded, focused, dragging, dropBefore, flags, pending, offset,
-    width, dense,
+    width, dense, resizeTo, editor, pendingName, pendingNote,
+    toggleRow, expandRow, renameRow, rewriteRow, renamePreset, noteOn, keysOpen, toggleKeys, applyNow,
+    takeFocus, releaseFocus, setBlockText,
     follow, close, onRowDown, onRowDrag, onRowDragEnd,
   };
 }

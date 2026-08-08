@@ -1,0 +1,57 @@
+/**
+ * The keycap on a dock tile - the tile's own shortcut, printed where you look for the app.
+ *
+ * OUT OF FLOW, DELIBERATELY. The first version was a flex child with `margin-left:auto`, which is
+ * the obvious way to right-align a badge and was wrong here: the dock is a fixed width, `.apptile
+ * .tx` is `min-width:0`, and every tile immediately ellipsized its own name. "THE WORKBENCH" became
+ * "THE WO..." across the whole dock to make room for a hint about the app whose name it just ate.
+ * The tile is already `position:relative`, so the keycap hangs in its corner and costs the label
+ * nothing.
+ *
+ * ONE GLYPH, NOT THE WHOLE CHORD, for the same reason measured a second time: a full "ctrl+1" is
+ * 49px, and "app - convert" reaches to within 4px of where that badge starts - it overlapped
+ * outright in the running dock. The bare key clears every subtitle by a comfortable margin and the
+ * tooltip spells the rest out.
+ *
+ * COLOURED LIKE THE SUBTITLE IT SITS BESIDE, in all three of that line's states. `color:inherit`
+ * was tried first and was invisible on the dark stage: nothing between the keycap and `#dock` sets a
+ * colour, so it inherited the browser's default black onto a near-black tile. The `.kd` line is the
+ * thing already solving this exact problem one element over, so these mirror its rules - resting,
+ * stamped, and stamped-on-paper, where the inverted plate is deliberately not used.
+ *
+ * The tile itself keeps its rules in src/ui/index.html (#dock/.apptile, transcribed markup); this
+ * is the one piece the shortcut work adds, so it lives beside the code that renders it.
+ */
+.chord {
+  position: absolute;
+  right: 0.45rem;
+  bottom: 0.4rem;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.05rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 0.16rem 0.2rem;
+  border: 2px solid currentColor;
+  background: transparent;
+  color: var(--text-soft);
+  opacity: 0.7;
+}
+:global(.apptile.on) .chord {
+  color: var(--stamp-fg);
+}
+:global(:root[data-theme="paper"]) :global(.apptile.on) .chord {
+  color: var(--text-soft);
+}
+
+/* The tile's own text hides here (index.html's narrow-dock rule) and the keycap goes with it: a
+   number floating beside a bare mark reads as a count of something, not as a key you can press. */
+@media (max-width: 46rem) {
+  .chord {
+    display: none;
+  }
+}

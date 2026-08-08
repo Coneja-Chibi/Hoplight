@@ -7,6 +7,7 @@
  */
 import { useState } from "react";
 import type { JSX } from "react";
+import { ExpandTextarea } from "../expand";
 import { ToggleSwitch } from "../toggle-switch";
 import styles from "./styles.module.css";
 
@@ -20,12 +21,13 @@ export interface RawExtensionsProps {
 }
 
 /** A structured value edited as tolerant JSON: local text survives invalid states; commit on valid. */
-function JsonField({ value, onCommit }: { value: unknown; onCommit(v: unknown): void }): JSX.Element {
+function JsonField({ label, value, onCommit }: { label: string; value: unknown; onCommit(v: unknown): void }): JSX.Element {
   const [text, setText] = useState(() => JSON.stringify(value, null, 2));
   const [bad, setBad] = useState(false);
   return (
     <div>
-      <textarea
+      <ExpandTextarea
+        label={label}
         className={styles.json}
         value={text}
         spellCheck={false}
@@ -45,7 +47,7 @@ function JsonField({ value, onCommit }: { value: unknown; onCommit(v: unknown): 
   );
 }
 
-function valueControl(value: unknown, onChange: (v: unknown) => void): JSX.Element {
+function valueControl(key: string, value: unknown, onChange: (v: unknown) => void): JSX.Element {
   if (typeof value === "boolean") return <ToggleSwitch on={value} onChange={onChange} label={value ? "On" : "Off"} />;
   if (typeof value === "number") {
     return (
@@ -60,7 +62,7 @@ function valueControl(value: unknown, onChange: (v: unknown) => void): JSX.Eleme
   if (typeof value === "string") {
     return <input className={styles.text} value={value} onChange={(e) => onChange(e.target.value)} />;
   }
-  return <JsonField value={value} onCommit={onChange} />;
+  return <JsonField label={key} value={value} onCommit={onChange} />;
 }
 
 export function RawExtensions({ data, handled, onChange }: RawExtensionsProps): JSX.Element | null {
@@ -72,7 +74,7 @@ export function RawExtensions({ data, handled, onChange }: RawExtensionsProps): 
       {keys.map((k) => (
         <div className={styles.row} key={k}>
           <div className={styles.key}>{k}</div>
-          {valueControl(data[k], (v) => onChange(k, v))}
+          {valueControl(k, data[k], (v) => onChange(k, v))}
         </div>
       ))}
     </div>

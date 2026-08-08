@@ -6,6 +6,7 @@ import { useRef, useState, type JSX } from "react";
 import { rec, str, strArr } from "../editor-derive";
 import { readPath } from "../editor-core";
 import { OptionCards } from "./option-cards";
+import { ExpandTextarea } from "../../../components/expand";
 import { VoiceSetup } from "../../../components/voice-setup";
 import { StructuredPersona } from "../../../components/structured-persona";
 import { ImagePromptEditor } from "../../../components/image-prompt";
@@ -114,7 +115,15 @@ export function renderSub(
 ): JSX.Element {
   switch (sf.kind) {
     case "prose":
-      return <textarea className={`${styles.in} ${styles.ta}`} spellCheck={false} value={str(value)} onChange={(e) => onChange(e.target.value)} />;
+      return (
+        <ExpandTextarea
+          label={sf.label}
+          className={`${styles.in} ${styles.ta}`}
+          spellCheck={false}
+          value={str(value)}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      );
     case "number":
       return (
         <input

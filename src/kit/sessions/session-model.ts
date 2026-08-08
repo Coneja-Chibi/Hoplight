@@ -31,6 +31,17 @@ export interface Session {
   readonly updatedAt: number;
   readonly parent: ForkParent | null;
   readonly turns: readonly SessionTurn[];
+  /**
+   * The preset the rail was following, so resuming puts it back.
+   *
+   * Resume restored the conversation and left the rail shut, which is not a restore failure -
+   * this was never written down. A session is what you were working ON as well as what was said,
+   * and coming back to a preset you had open is the difference between resuming and re-finding.
+   *
+   * OPTIONAL AND ADDITIVE. Sessions written before this exist on disk and must keep loading, so
+   * an absent field reads as null rather than denying the file.
+   */
+  readonly rail: string | null;
 }
 
 const TITLE_CAP = 48;
@@ -47,6 +58,7 @@ export const emptySession = (id: string, now: number): Session => ({
   updatedAt: now,
   parent: null,
   turns: [],
+  rail: null,
 });
 
 /** Package a completed turn: its opening input, the wire delta it produced, and when it landed. */
@@ -62,6 +74,13 @@ export const appendTurn = (session: Session, turn: SessionTurn): Session => ({
   turns: [...session.turns, turn],
   updatedAt: turn.at,
 });
+
+/**
+ * Remember which preset the rail is on. Null closes it, which is a real state worth storing:
+ * somebody who shut the rail should not have it reopen on them next time.
+ */
+export const withRail = (session: Session, presetId: string | null): Session =>
+  session.rail === presetId ? session : { ...session, rail: presetId };
 
 /** Truncate to the first `keep` turns, dropping the tail. Clamped to [0, length]; keeping all (or
  * more) is a no-op that leaves the session untouched so an out-of-range scrub never mutates. */
@@ -88,6 +107,9 @@ export const forkFrom = (
     updatedAt: now,
     parent: { id: session.id, turn: bound },
     turns: session.turns.slice(0, bound),
+    // A fork inherits what was on screen: branching from a conversation about a preset lands you on
+    // that preset, which is the point of branching there rather than starting fresh.
+    rail: session.rail,
   };
 };
 

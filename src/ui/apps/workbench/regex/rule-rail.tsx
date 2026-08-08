@@ -13,6 +13,7 @@ import type { RegexRule } from "../../../../entities/regex/schema";
 import { validateRule } from "../../../../core/regex";
 import type { RegexFinding, RuleTrace, TraceMatch } from "../../../../core/regex";
 import { runRegexSandboxed } from "./run-in-worker";
+import { ExpandTextarea } from "../../../components/expand";
 
 export interface RuleRailProps {
   rule: RegexRule;
@@ -106,7 +107,8 @@ export function RuleRail({ rule, styles, onOpenBench, findings, onOpenHealth }: 
           <b className={styles.rheadB}>Try a line</b>
         </div>
         <div className={styles.rbody}>
-          <textarea
+          <ExpandTextarea
+            label="Sample line to try"
             className={styles.tryTa}
             value={sample}
             aria-label="Sample line to try"

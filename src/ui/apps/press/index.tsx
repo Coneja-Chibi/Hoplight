@@ -27,6 +27,7 @@ import {
 } from "./press-core";
 import { lorebookKeyGap, readiness, readinessLine } from "./readiness-core";
 import { groupBundles, knowledgeRefsOf, pieceKeyOf, runSet } from "./press-bundles";
+import { PRESS_AGENT_SURFACE, usePublishPressSurface } from "./agent-surface";
 import styles from "./styles.module.css";
 
 /** the locked press mark (vs-shell-apps) */
@@ -133,6 +134,11 @@ function Press({ ctx }: { ctx: AppContext }): JSX.Element {
   const set = useMemo(() => runSet(grouping, dropped), [grouping, dropped]);
   const staged = new Set(queue.map(pieceKeyOf));
   const offers = allSummaries.filter((s) => !staged.has(pieceKeyOf(s)));
+
+  // the agent window's live half: what is staged, what it prints for, and how the last run went
+  usePublishPressSurface(ctx, {
+    queue, target, rows, running, zipReady: zip !== null, loadFailed: loadNote !== null,
+  });
 
   const covFor = (kind: string): CoverageInfo | undefined =>
     kind === "character" && platform
@@ -430,6 +436,7 @@ const app: HoplightApp = {
     accent: "#8b5cf6", // hardcode-ok: per-app identity accent, not theming
     order: 30,
     subtitle: "app · convert",
+    agentSurface: PRESS_AGENT_SURFACE,
   },
   Component: Press,
 };

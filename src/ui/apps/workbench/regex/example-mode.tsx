@@ -11,6 +11,7 @@ import { useMemo, useState, type JSX, type ReactNode } from "react";
 import { buildFromExamples, readoutFor, type PatternSpan, type SpanKind } from "../../../../core/regex";
 import { mulberry32 } from "../../../../core/lore/rng";
 import { seedFrom } from "./mode-words";
+import { ExpandTextarea } from "../../../components/expand";
 
 export interface ExampleModeProps {
   exampleText: string;
@@ -92,7 +93,8 @@ export function ExampleMode({ exampleText, styles, onChangeExamples }: ExampleMo
       <p className={styles.hint}>
         Give 2-5 examples of what should match; the pattern is detected from their shared structure.
       </p>
-      <textarea
+      <ExpandTextarea
+        label="Example phrases to match"
         className={styles.exBig}
         value={exampleText}
         placeholder="is it raining, did it rain, has it rained"
@@ -139,7 +141,8 @@ export function ExampleMode({ exampleText, styles, onChangeExamples }: ExampleMo
         <label className={styles.testLabel} htmlFor="regex-example-test">
           Test it out
         </label>
-        <textarea
+        <ExpandTextarea
+          label="Test it out"
           id="regex-example-test"
           className={styles.exBig}
           value={testText}

@@ -8,6 +8,7 @@
  * modules: {<id>: { enabled, ... }}, initialState: {<id>: <seed> } }.
  */
 import type { JSX } from "react";
+import { ExpandTextarea } from "../expand";
 import { FieldForm } from "../field-form";
 import { ListEditor } from "../list-editor";
 import { ToggleSwitch } from "../toggle-switch";
@@ -97,7 +98,12 @@ export function TrackerSetup({ value, onChange }: TrackerSetupProps): JSX.Elemen
 
       <label className={styles.notes}>
         <span className={styles.k}>Notes to the player</span>
-        <textarea className={styles.ta} value={str(preset.notes)} onChange={(e) => patch({ notes: e.target.value })} />
+        <ExpandTextarea
+          label="Notes to the player"
+          className={styles.ta}
+          value={str(preset.notes)}
+          onChange={(e) => patch({ notes: e.target.value })}
+        />
       </label>
     </div>
   );

@@ -18,6 +18,7 @@ import type {
 } from "../../entities/character/schema";
 import type { CanonicalLorebook } from "../../entities/lorebook/schema";
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
+import { readJsonAny } from "../_shared/card-io";
 import lorebookCodec, {
   coerceMemoryBook,
   memoryBookToCanonical,
@@ -316,7 +317,9 @@ const adapter: CharacterAdapter = {
   detect(input: AdapterInput): number {
     if (!input.text) return 0;
     try {
-      const o = JSON.parse(input.text) as Record<string, unknown>;
+      // The SHARED reader, so this file is parsed once for all twenty-eight sniffers rather than
+      // once more here; see card-io.ts. Measured at 159ms of Kit's startup on a real studio.
+      const o = (readJsonAny(input) ?? {}) as Record<string, unknown>;
       // Agnai's own shape: a character with a structured persona + greeting, and none of our native
       // wrapper (schemaVersion/body) so it never fights vaud-json.
       const isAgnai =

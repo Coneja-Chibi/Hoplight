@@ -38,6 +38,13 @@ export interface SessionActionsDeps {
   setRewinding: (rewinding: boolean) => void;
   setSearching: (searching: boolean) => void;
   setView: (view: "session" | "settings" | "sessions" | "help" | "tools") => void;
+  /**
+   * Put the rail back on the preset this session was working on, or shut it when there was none.
+   *
+   * Resume restored the conversation and left the rail closed, because the rail was never part of
+   * the record. A session is what you were working ON as well as what was said.
+   */
+  restoreRail?: (presetId: string | null) => void;
 }
 
 export interface ShellSessions {
@@ -71,6 +78,8 @@ export function buildSessionActions(deps: SessionActionsDeps): ShellSessions {
     deps.setRewinding(false);
     deps.setSearching(false);
     deps.setView("session");
+    // Last, so it lands on a transcript that has already been redrawn rather than one mid-swap.
+    deps.restoreRail?.(next.rail);
   };
 
   const actions: SessionActions = {

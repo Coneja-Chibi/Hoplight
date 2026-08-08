@@ -6,6 +6,7 @@
  * shape is DATA (a schema), never new component code. Composes the house Slider and ToggleSwitch.
  */
 import type { JSX } from "react";
+import { ExpandTextarea } from "../expand";
 import { Slider } from "../slider";
 import { ToggleSwitch } from "../toggle-switch";
 import styles from "./styles.module.css";
@@ -41,7 +42,15 @@ const numOr = (v: unknown, fallback: number): number => (typeof v === "number" &
 function control(field: FormField, value: unknown, set: (v: unknown) => void): JSX.Element {
   switch (field.kind) {
     case "textarea":
-      return <textarea className={styles.ta} value={str(value)} placeholder={field.placeholder} onChange={(e) => set(e.target.value)} />;
+      return (
+        <ExpandTextarea
+          label={field.label}
+          className={styles.ta}
+          value={str(value)}
+          placeholder={field.placeholder}
+          onChange={(e) => set(e.target.value)}
+        />
+      );
     case "number":
       return (
         <input

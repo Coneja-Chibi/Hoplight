@@ -1,0 +1,62 @@
+/*
+ * The draggable divider. Tokens only.
+ *
+ * The grip is deliberately WIDER than it looks: the visible line is 2px, the hit area is 10px. A
+ * two-pixel drag target is a target most people miss, and missing it clicks whatever is behind.
+ */
+
+.host {
+  display: grid;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
+}
+
+.pane {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+.grip {
+  /* Hit area, not the visual. */
+  width: 10px;
+  cursor: col-resize;
+  position: relative;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  flex: none;
+  /* A drag must not select the text it passes over; that is what makes a slow drag look broken. */
+  user-select: none;
+  touch-action: none;
+}
+
+/* The line somebody actually sees, centred inside the hit area. */
+.grip::before {
+  content: "";
+  position: absolute;
+  inset: 0 4px;
+  background: var(--edge);
+}
+
+.grip:hover::before,
+.grip:focus-visible::before {
+  background: var(--rose);
+}
+
+.grip:focus-visible {
+  outline: 2px solid var(--rose);
+  outline-offset: -2px;
+}
+
+/* Held: the line stays lit for the whole drag, including while the pointer is far away from it. */
+.gripOn::before {
+  background: var(--rose);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grip::before {
+    transition: background 120ms ease;
+  }
+}

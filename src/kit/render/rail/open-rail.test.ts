@@ -119,3 +119,40 @@ describe("openRail", () => {
     expect(seen[0]!.title).toBe("no-name");
   });
 });
+
+describe("an exact name beats a longer one that merely contains it", () => {
+  /**
+   * Reported from a real studio: two presets whose names share a prefix, and the SHORTER one could
+   * not be opened at all. It matched itself and its longer sibling, so the refusal fired, and there
+   * was no more specific string to type because the name was already complete. The refusal exists to
+   * stop a guess between candidates; typing one of them exactly is not a guess.
+   */
+  const two = [
+    { id: "paramnesia", name: "Paramnesia" },
+    { id: "paramnesia-vi", name: "Paramnesia VI" },
+  ];
+  const source = {
+    list: async () => two,
+    read: async (id: string) => ({ name: id, prompts: [] }),
+  };
+
+  test("the shorter exact id opens instead of refusing", async () => {
+    let openedId = "";
+    const outcome = await openRail(source as never, "paramnesia", (id) => { openedId = id; });
+    expect(outcome.ok).toBe(true);
+    expect(openedId).toBe("paramnesia");
+  });
+
+  test("the longer one still opens by its own exact id", async () => {
+    let openedId = "";
+    const outcome = await openRail(source as never, "paramnesia-vi", (id) => { openedId = id; });
+    expect(outcome.ok).toBe(true);
+    expect(openedId).toBe("paramnesia-vi");
+  });
+
+  test("a genuinely ambiguous partial still refuses rather than guessing", async () => {
+    const outcome = await openRail(source as never, "param", () => {});
+    expect(outcome.ok).toBe(false);
+    if (!outcome.ok) expect(outcome.detail).toContain("Several match");
+  });
+});

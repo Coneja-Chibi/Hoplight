@@ -15,6 +15,7 @@ import {
   type LoreHealthNote,
   type SkipReason,
 } from "../../../../core/lore";
+import { ExpandTextarea } from "../../../components/expand";
 
 export interface EntryRailProps {
   body: LorebookBody;
@@ -119,7 +120,8 @@ export function LoreEntryRail({
           <i>real activation</i>
         </div>
         <div className={styles.rbody}>
-          <textarea
+          <ExpandTextarea
+            label="Sample chat line"
             className={styles.textarea}
             style={{ minHeight: "3.2rem" }}
             placeholder="Sample chat line…"

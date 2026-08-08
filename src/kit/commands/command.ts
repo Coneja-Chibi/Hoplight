@@ -16,6 +16,13 @@ export interface CommandContext {
   readonly commands: readonly KitCommand[];
   /** Current canonical deck counts, exposed on demand by /decks rather than persistent chrome. */
   readonly decks: readonly { label: string; count: number }[];
+  /**
+   * Files in the studio folder that no deck counts, grouped by why.
+   *
+   * Reported rather than hidden: a count that quietly excludes most of a folder reads as the folder
+   * being smaller, which is the more misleading of the two answers.
+   */
+  readonly unlisted?: () => Promise<{ reason: string; count: number; examples: string[] }[]>;
   /** Open the provider setup screen (/model, /providers). */
   openSettings: () => void;
   /** Open the full-screen command and keyboard reference (/help, /?). */
@@ -48,6 +55,16 @@ export interface CommandContext {
    */
   readonly art?: {
     show: (query: string) => Promise<{ ok: true } | { ok: false; detail: string }>;
+  };
+  /**
+   * How often Kit asks before it writes (/gates).
+   *
+   * Reading and setting, because the answer to "stop asking twice" is a standing decision rather
+   * than a per-call one, and somebody has to be able to see what it currently is.
+   */
+  readonly gates?: {
+    mode: () => "guarded" | "autopilot" | "full" | "locked";
+    set: (mode: "guarded" | "autopilot" | "full") => void;
   };
   /** The gallery strip (/gallery): the shelf of card art along the bottom. */
   readonly gallery?: {

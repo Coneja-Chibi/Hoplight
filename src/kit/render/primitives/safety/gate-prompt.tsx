@@ -18,6 +18,11 @@ import { useState, type ReactNode } from "react";
 import { useKeyboard } from "@opentui/react";
 import type { KeyEvent } from "@opentui/core";
 import { theme } from "../../theme";
+import { BlockDiffPane } from "./block-diff-pane";
+import { rewrittenBlock } from "../../diff/rewritten-block";
+import { CrossingPanel } from "./crossing-panel";
+import { GateButton } from "./gate-button";
+import { editAction } from "../../diff/gate-edit-keys";
 import { stripeFor } from "../../../tools/safety/stripe-core";
 import { isFloor } from "../../../tools/safety/gate-core";
 import type { PermissionMode } from "../../../tools/safety/gate-core";
@@ -65,9 +70,55 @@ export function GatePrompt({
   // Starts on Allow, which is where a person's hand already is - but nothing is chosen until Enter,
   // so a stray keystroke cannot approve anything.
   const [cursor, setCursor] = useState(0);
+  /**
+   * The text in the after pane, and whether it has the keys.
+   *
+   * Starts as the model's version and becomes yours the moment you type. `null` means no rewrite
+   * is on screen, which is every gate that is not a single block being rewritten.
+   */
+  const [draft, setDraft] = useState<string | null>(null);
+  const [typing, setTyping] = useState(false);
+
+  /**
+   * ONE BLOCK REWRITTEN GETS A DIFF, because that is the case the rows serve worst: every value is
+   * cut at 48 characters, so a rewrite reads as "block content rewritten -> 1" and you are asked to
+   * approve words you cannot see. Anything else keeps the rows, which are good at scale.
+   *
+   * Computed up here rather than at the point it is drawn, because the KEY HANDLER needs it: e only
+   * opens the box when there is a box, and allow only carries an edit when there is one to carry.
+   */
+  const rewritten = review ? rewrittenBlock(review.changes) : null;
+
+  /**
+   * Allow, carrying the correction when there is one.
+   *
+   * NOTHING IS SENT WHEN THE TEXT IS UNTOUCHED, so an ordinary approval stays an ordinary
+   * approval and the amend path is never entered for a draft nobody edited.
+   */
+  const allowWithEdit = (): GateChoice => {
+    if (!rewritten || draft === null || draft === rewritten.after) return { type: "allow-once" };
+    return { type: "allow-once", edit: { blockId: rewritten.id, content: draft } };
+  };
 
   useKeyboard((e: KeyEvent) => {
     const k = e.name;
+
+    /**
+     * WHILE TYPING, THE BOX OWNS EVERY KEY.
+     *
+     * First in the handler on purpose: below, `y` allows and `n` denies, so a letter reaching
+     * those branches would answer the gate mid-word. Escape leaves the box; enter accepts what is
+     * in it, which is the whole point of being able to type here at all.
+     */
+    if (typing && draft !== null) {
+      // EVERY key is swallowed, recognised or not; see gate-edit-keys.ts for why.
+      e.preventDefault();
+      const act = editAction(e, draft);
+      if (act?.kind === "leave") setTyping(false);
+      else if (act?.kind === "accept") onChoice(allowWithEdit());
+      else if (act?.kind === "text") setDraft(act.text);
+      return;
+    }
     // The crossing panel owns its own keys, including the third answer. Handled there so this
     // listener cannot claim "t" for a surface that has no hold.
     if (crossing) return;
@@ -85,15 +136,21 @@ export function GatePrompt({
       onChoice(choices[cursor]?.choice ?? { type: "deny" });
       return;
     }
+    if (rewritten && k === "e") {
+      // Into the box. Only offered when there is a box to get into.
+      e.preventDefault();
+      setTyping(true);
+      return;
+    }
     if (review && (k === "y" || k === "return")) {
       e.preventDefault();
-      onChoice({ type: "allow-once" });
+      onChoice(allowWithEdit());
     } else if (review && (k === "n" || k === "d" || k === "escape")) {
       e.preventDefault();
       onChoice({ type: "deny" });
     } else if (k === "y") {
       e.preventDefault();
-      onChoice({ type: "allow-once" });
+      onChoice(allowWithEdit());
     } else if (k === "a" && grantable) {
       e.preventDefault();
       onChoice({ type: "allow-session" });
@@ -134,18 +191,29 @@ export function GatePrompt({
           {review.target.kind} / {review.target.id}
         </text>
         <box height={1} />
-        {shown.map((change, index) => (
+        {rewritten ? <BlockDiffPane block={rewritten} draft={draft ?? rewritten.after} editing={typing} /> : null}
+        {rewritten ? null : shown.map((change, index) => (
           <text key={index} fg={theme.soft}>
             <span fg={theme.teal}>{change.label}</span>
             {"  "}{displayValue(change.before)}{"  ->  "}
             <span fg={theme.bright}>{displayValue(change.after)}</span>
           </text>
         ))}
-        {hidden > 0 ? <text fg={theme.quiet}>+ {String(hidden)} more changes</text> : null}
+        {!rewritten && hidden > 0 ? <text fg={theme.quiet}>+ {String(hidden)} more changes</text> : null}
+        {/*
+          PRINTED, not tallied. A count is the one thing about a warning that does not help: a draft
+          can warn that applying an edit to a file read through an adapter saves a Hoplight copy
+          beside it, and "1 warning" tells nobody that.
+        */}
         {review.warningCount > 0 ? (
-          <text fg={theme.gold}>
-            {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
-          </text>
+          <>
+            <text fg={theme.gold}>
+              {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
+            </text>
+            {(review.warnings ?? []).map((warning, i) => (
+              <text key={i} fg={theme.soft}>{`  ${warning}`}</text>
+            ))}
+          </>
         ) : null}
         <box height={1} />
         <box flexDirection="row">
@@ -230,217 +298,6 @@ export function GatePrompt({
 
 /** The stripe colour for a row's severity. Teal reads as safe everywhere else in Kit, so a carried
  *  row must not borrow the gold that means "this changed". */
-const SEVERITY_TONE: Record<CrossingSeverity, string> = {
-  removed: theme.red,
-  rewritten: theme.gold,
-  carried: theme.teal,
-};
-
-/**
- * The crossing ledger: what each thing is, and what becomes of it on the other side.
- *
- * TWO COLUMNS, NOT BEFORE-AND-AFTER ROWS. A draft's honest shape is a field changing value. A
- * crossing's is a thing meeting an engine that may not have it, so the right column is a fate rather
- * than a new value, and reading across one row answers the whole question for that thing.
- *
- * BANDED BY SEVERITY, WORST FIRST. The stripe already means risk everywhere else in Kit, so severity
- * needs no legend. Blank rows separate the bands because a removal and a respelling are different
- * kinds of news and a flat list makes them look like one.
- *
- * THE THIRD ANSWER IS THE POINT. `y` and `n` force a decision from someone who may not know what a
- * loss costs. `t` holds the crossing and asks Kit, which is the one participant that already measured
- * it. The gate closes either way - it cannot stay open across turns - so holding returns a distinct
- * choice the shell turns into a question rather than a silent discard.
- */
-function CrossingPanel({
-  review,
-  mode,
-  onChoice,
-}: {
-  review: CrossingReview;
-  mode: PermissionMode;
-  onChoice: (choice: GateChoice) => void;
-}): ReactNode {
-  const lossy = crossingIsLossy(review);
-  const [hovered, setHovered] = useState<number | null>(null);
-
-  useKeyboard((e: KeyEvent) => {
-    const k = e.name;
-    if (k === "y" || k === "return") {
-      e.preventDefault();
-      onChoice({ type: "allow-once" });
-    } else if (k === "t") {
-      e.preventDefault();
-      onChoice({ type: "hold" });
-    } else if (k === "n" || k === "d" || k === "escape") {
-      e.preventDefault();
-      onChoice({ type: "deny" });
-    }
-  });
-
-  // Blank separators between bands, computed from the rows rather than hand-placed, so a crossing
-  // with no removals does not open on an empty gap.
-  const rows: (CrossingRow | null)[] = [];
-  let previous: CrossingSeverity | null = null;
-  for (const row of review.rows) {
-    if (previous !== null && row.severity !== previous) rows.push(null);
-    rows.push(row);
-    previous = row.severity;
-  }
-
-  // The key when nothing is hovered; that row's own reason when something is. A hovered row with no
-  // note falls back to the key rather than blanking, so the line never empties under the pointer.
-  const legend = crossingLegend(review);
-  const footLine = (hovered === null ? null : rows[hovered]?.note) ?? legend;
-
-  return (
-    <box
-      flexDirection="column"
-      border
-      borderColor={lossy ? theme.gold : theme.line}
-      backgroundColor={theme.panel}
-      paddingLeft={1}
-      paddingRight={1}
-    >
-      <box flexDirection="row">
-        <text fg={theme.rose}>REVIEW CROSSING</text>
-        <box flexGrow={1} />
-        <text fg={theme.soft}>{mode}</text>
-      </box>
-      <text fg={theme.bright}>
-        {review.target.kind} / {review.target.id}
-        <span fg={theme.quiet}> {"->"} {review.to}</span>
-      </text>
-      <box height={1} />
-
-      <box flexDirection="row">
-        <text fg={theme.quiet}>{"  "}from</text>
-        <box flexGrow={1} />
-        <text fg={theme.quiet}>becomes{"  "}</text>
-      </box>
-
-      {rows.map((row, index) =>
-        row === null ? (
-          <box key={index} height={1} />
-        ) : (
-          <box
-            key={index}
-            flexDirection="column"
-            // Hover writes to the foot line and NEVER to this row. Revealing the note here would
-            // push every row below it down, moving the thing under the pointer as it is read.
-            onMouseOver={() => setHovered(index)}
-            onMouseOut={() => setHovered((current) => (current === index ? null : current))}
-            backgroundColor={hovered === index ? theme.row : undefined}
-          >
-            <box flexDirection="row">
-              <text fg={SEVERITY_TONE[row.severity]}>{BAR}</text>
-              <text fg={theme.soft}>
-                {" "}{row.from}
-                {row.count === undefined ? "" : ` x${row.count}`}
-              </text>
-              <box flexGrow={1} />
-              <text fg={SEVERITY_TONE[row.severity]}>{row.to}</text>
-            </box>
-            {row.where ? <text fg={theme.quiet}>{"    in "}{row.where}</text> : null}
-          </box>
-        ),
-      )}
-
-      {review.escrowDropped ? (
-        <>
-          <box height={1} />
-          {/* Reassurance, deliberately out of the severity list: nothing here is lost to the user,
-              only to the file, and colouring it like damage would have said the opposite. */}
-          <text fg={theme.quiet}>
-            The original is not written to the file. Hoplight keeps it, so converting back restores it.
-          </text>
-        </>
-      ) : null}
-      {review.warningCount > 0 ? (
-        <text fg={theme.gold}>
-          {String(review.warningCount)} warning{review.warningCount === 1 ? "" : "s"}
-        </text>
-      ) : null}
-
-      {/*
-        One fixed line, always present, whatever is hovered. It carries the key by default and one
-        row's reason while that row is under the pointer. Fixed because the alternative - growing the
-        panel when a note appears - moves every button below it, and a confirm whose buttons move
-        while you read is a confirm you can misclick.
-      */}
-      {footLine ? (
-        <box flexDirection="row" backgroundColor={theme.floor} paddingLeft={1} paddingRight={1}>
-          <text fg={hovered === null ? theme.mut : theme.soft}>{footLine}</text>
-        </box>
-      ) : null}
-
-      <box height={1} />
-      <box flexDirection="row">
-        <GateButton
-          glyph={CHECK}
-          label="Write it"
-          tone={theme.teal}
-          onPress={() => onChoice({ type: "allow-once" })}
-        />
-        <GateButton
-          glyph={HELD}
-          label="Talk it through"
-          tone={theme.violet}
-          onPress={() => onChoice({ type: "hold" })}
-        />
-        <GateButton
-          glyph={CROSS}
-          label="Discard"
-          tone={theme.red}
-          onPress={() => onChoice({ type: "deny" })}
-        />
-      </box>
-      <text fg={theme.mut}>enter writes · esc discards</text>
-    </box>
-  );
-}
-
-/** One glyph-led choice. A real bordered target, so the mouse works where it never used to. */
-function GateButton({
-  glyph,
-  label,
-  tone,
-  onPress,
-  focused,
-}: {
-  glyph: string;
-  label: string;
-  tone: string;
-  onPress: () => void;
-  /**
-   * Whether the keyboard cursor is on this button.
-   *
-   * The gate always had y / a / n bound, and Levi still read it as mouse-only - correctly, because
-   * nothing on screen said otherwise. Three bordered buttons with no cursor look like three things
-   * you click. A visible selection is what makes the keyboard discoverable; the letter shortcuts and
-   * the mouse both still work, and neither was taken away to add this.
-   */
-  focused?: boolean;
-}): ReactNode {
-  return (
-    <box flexDirection="row">
-      <box
-        border
-        borderStyle={focused ? "heavy" : "single"}
-        borderColor={focused ? tone : theme.line}
-        backgroundColor={focused ? theme.lift : undefined}
-        paddingLeft={1}
-        paddingRight={1}
-        onMouseDown={onPress}
-      >
-        <text fg={focused ? theme.text : theme.soft}>
-          <span fg={tone}>{glyph}</span> {label}
-        </text>
-      </box>
-      <box width={1} />
-    </box>
-  );
-}
 
 const displayValue = (value: unknown): string => {
   const raw = typeof value === "string" ? value : JSON.stringify(value);

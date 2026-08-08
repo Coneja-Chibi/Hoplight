@@ -10,6 +10,7 @@ import type { CanonicalCharacter, CharacterBody } from "../../entities/character
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import coverage from "./coverage";
 import { byafAdapter } from "./byaf";
+import { readJsonAny } from "../_shared/card-io";
 
 type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
@@ -99,12 +100,9 @@ const adapter: CharacterAdapter = {
   // an Agnai card (kind: "character"). Both stay below the Tavern/RC/Agnai adapters on a shared input.
   detect(input: AdapterInput): number {
     if (input.text == null) return 0;
-    let o: unknown;
-    try {
-      o = JSON.parse(input.text);
-    } catch {
-      return 0;
-    }
+    // The SHARED reader: a private parse here is another full pass over every file in the studio,
+    // because detection asks all twenty-eight adapters about the same document. See card-io.ts.
+    const o = readJsonAny(input);
     if (!isRecord(o)) return 0;
     if (["aiName", "aiPersona", "aiDisplayName", "customDialogue"].some((k) => typeof o[k] === "string")) return 0.9;
     // The bare-persona fallback needs a story companion: a real legacy card always carries one, and

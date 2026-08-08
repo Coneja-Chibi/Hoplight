@@ -21,7 +21,12 @@ import type { GateChoice } from "../../tools/safety/permission-mode";
 import type { GateRequest } from "../../tools/safety/gated-dispatch";
 
 export interface CommitDeps {
-  stage: (id: string, rows: readonly OutlineRow[]) => Promise<RailStaged>;
+  stage: (
+    id: string,
+    rows: readonly OutlineRow[],
+    /** The rename and the note. Typed edits the rows cannot carry, because they are not rows. */
+    meta?: { name?: string; note?: string },
+  ) => Promise<RailStaged>;
   commit: (draftId: string) => Promise<ChangeReceipt>;
   /**
    * Drop a staged draft that will not be applied.
@@ -45,8 +50,12 @@ export async function commitRail(
   presetId: string,
   rows: readonly OutlineRow[],
   deps: CommitDeps,
+  /** Preset-level edits staged alongside the rows: a rename, a note. */
+  meta?: { name?: string; note?: string },
 ): Promise<CommitOutcome> {
-  const staged = await deps.stage(presetId, rows);
+  // meta carries the rename and the note. Dropping it here is what made a staged rename report
+  // "Nothing to apply": the rail knew about the edit, and nothing downstream was ever told.
+  const staged = await deps.stage(presetId, rows, meta);
   if (!staged.ok) {
     deps.say(staged.detail);
     return { applied: false, reason: "refused" };

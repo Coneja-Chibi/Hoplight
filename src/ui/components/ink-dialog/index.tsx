@@ -3,7 +3,7 @@
  * .vdialog-overlay / .vdialog rules: dark scrim, centered sheet, 3px ink border, 6px hard offset
  * shadow). The shell's follow dialog (boot.ts's askFollow) is the reference instance this replaces.
  */
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { JSX, MouseEvent, ReactNode } from "react";
 import styles from "./styles.module.css";
@@ -20,11 +20,19 @@ export interface InkDialogProps {
 
 /** A centered modal sheet over a dark scrim; clicking the scrim or pressing Escape calls onDismiss. */
 export function InkDialog({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps): JSX.Element {
+  const sheetRef = useRef<HTMLDivElement>(null);
   // Escape closes every dialog built on this seed (Menu already had its own handler; the primitive
   // under every other dialog never did, leaving scrim-click as the only way out).
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (e.key === "Escape") onDismiss();
+      if (e.key !== "Escape") return;
+      // The innermost MODAL dialog owns the press. An editor inside this sheet expanded to fullscreen
+      // is its own role="dialog" over the top, and collapsing it must not also dismiss what is
+      // beneath. Non-modal dialog roles (the tour rail) are deliberately not counted: they sit beside
+      // this sheet rather than over it, and never owned this key.
+      const inner = e.target instanceof Element ? e.target.closest('[role="dialog"][aria-modal="true"]') : null;
+      if (inner && inner !== sheetRef.current) return;
+      onDismiss();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -37,6 +45,7 @@ export function InkDialog({ children, onDismiss, ariaLabel, sheetClassName }: In
   return createPortal(
     <div className={styles.overlay} onClick={onOverlayClick}>
       <div
+        ref={sheetRef}
         className={sheetClassName ? `${styles.sheet} ${sheetClassName}` : styles.sheet}
         role="dialog"
         aria-modal="true"

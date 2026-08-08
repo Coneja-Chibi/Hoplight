@@ -9,6 +9,7 @@ import type { PersonaBody } from "../../../../entities/persona/schema";
 import type { PersonaWriteForProfile } from "../../../../core/persona";
 import { platformOwnsField } from "../../../../core/persona";
 import { BentoCard } from "../../../components/bento-card";
+import { ExpandTextarea } from "../../../components/expand";
 import { HOUSE_PALETTE, SwatchRow } from "../../../components/swatch-row";
 import { PaletteControl } from "../controls/color-controls";
 import { resolveCssColor } from "../../../_shared/css-color";
@@ -46,7 +47,8 @@ export function IdentityCard({ body, onBody }: { body: PersonaBody; onBody: OnBo
       </div>
       <div className={es.bfield}>
         <span className={es.blabel}>Brief</span>
-        <textarea
+        <ExpandTextarea
+          label="Brief"
           className={`${es.in} ${es.ta}`}
           style={{ minHeight: "2.4rem" }}
           value={body.brief ?? ""}
@@ -90,7 +92,8 @@ export function SectionCard({
 
   return (
     <BentoCard title={title} filled={value.trim() !== ""}>
-      <textarea
+      <ExpandTextarea
+        label={title}
         className={`${es.in} ${es.ta}`}
         value={value}
         placeholder={placeholder}
@@ -138,7 +141,8 @@ export function ContentCard({
       <span className={s.honest}>
         {sectioned ? "flat text · used when the sections are empty" : "the whole persona on this platform"}
       </span>
-      <textarea
+      <ExpandTextarea
+        label="Identity text"
         className={`${es.in} ${es.ta}`}
         style={{ minHeight: "5rem" }}
         value={body.content}

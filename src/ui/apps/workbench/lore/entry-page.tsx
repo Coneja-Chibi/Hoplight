@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState, type JSX, type SyntheticEvent } from "react";
 import type { LorebookEntry, SelectiveLogic } from "../../../../entities/lorebook/schema";
 import { fieldVisible, type LoreWriteForProfile } from "../../../../core/lore";
+import { ExpandTextarea } from "../../../components/expand";
 import { TriggerEditor } from "./trigger-editor";
 import { cardsForLens } from "./platforms/registry";
 import { entryFireMode } from "./entry-fire-mode";
@@ -314,7 +315,8 @@ export function LoreEntryPage({
             </span>
           </summary>
           <div className={styles.bcbody}>
-            <textarea
+            <ExpandTextarea
+              label="Entry content"
               className={styles.passageTa}
               value={entry.content}
               aria-label="Entry content"
@@ -338,7 +340,8 @@ export function LoreEntryPage({
             <i>never sent to the model</i>
           </summary>
           <div className={styles.bcbody}>
-            <textarea
+            <ExpandTextarea
+              label="Creator note"
               className={styles.textarea}
               value={entry.comment ?? ""}
               aria-label="Creator note"

@@ -6,7 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useRenderer } from "@opentui/react";
+import { useRenderer, useTerminalDimensions } from "@opentui/react";
 import type { DeckCount, EntitySummary } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session as ChatSession } from "../session";
@@ -34,7 +34,7 @@ import { buildContextPreview } from "../context/shell";
 import { useNotify } from "./notify/use-notify";
 import { useFocus } from "./notify/focus";
 import type { NotifySettings } from "./notify/plan";
-import { appendTurn, buildTurn, emptySession, type Session as MemorySession } from "../sessions/session-model";
+import { appendTurn, buildTurn, emptySession, withRail, type Session as MemorySession } from "../sessions/session-model";
 import { RewindRail } from "../sessions/render/rewind-rail";
 import { createSessionStore, newSessionId, type SessionStore } from "../sessions/store";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
@@ -46,6 +46,7 @@ import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
 import { useRailSession } from "./rail/use-rail-session";
 import { RailPane } from "./rail/rail-pane";
+import { BlockEditor } from "./editor/block-editor";
 import { useGallery } from "./gallery/use-gallery";
 import { GalleryStrip } from "./gallery/gallery-strip";
 import { grantPastedPaths } from "./grant-pasted-paths";
@@ -56,6 +57,13 @@ import { FullScreen } from "./full-screens";
 import { imageLine } from "./show-image";
 import { usePendingImages } from "./use-pending-images";
 import { runCommand } from "./run-command";
+import { useRailSnapshot } from "./use-rail-snapshot";
+import { useResumeAtLaunch, type ResumeRequest } from "./use-resume-at-launch";
+import { useOpenAsk } from "./ask/use-open-ask";
+
+/** A conversation with nothing in it yet. */
+const emptyTurn = (): TurnView =>
+  ({ lines: [], live: { phase: "idle" }, label: "", tools: null, toolsSeen: false });
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -79,6 +87,11 @@ export interface AppProps {
    * without importing render. Called once on mount; the closure reads current state each time.
    */
   onRail?: (read: () => RailSnapshot | null) => void;
+  /**
+   * Pick up a saved session at launch: true for the most recent, a string for one by id. Absent
+   * opens blank, which stays the default - see launch-args.ts.
+   */
+  resume?: ResumeRequest;
 }
 
 /** The window shell: session state plus composed widgets. */
@@ -96,74 +109,40 @@ export function App({
   runDoctor = async () => [],
   watchStudio,
   onRail,
+  resume,
 }: AppProps): ReactNode {
   const renderer = useRenderer();
+  // The editor card insets itself from the real terminal, so it needs the real size.
+  const { width: termWidth, height: termHeight } = useTerminalDimensions();
   const [busy, setBusy] = useState(false);
   /**
    * Has this conversation already been greeted? True for a resumed session, whose turns are proof
    * that somebody was welcomed the first time round.
    */
   const [greeted, setGreeted] = useState(false);
-  /**
-   * The option somebody just picked, handed to the composer to insert.
-   *
-   * A one-shot value rather than a command: the composer consumes it and clears it, so picking the
-   * same option twice still works and a re-render never re-inserts it.
-   */
-  const [pickedOption, setPickedOption] = useState<string | null>(null);
-  const gate = useGateController();
+  // Lets a rewrite corrected at the gate be the thing that actually gets written; see use-gate.ts.
+  const gate = useGateController((draftId, blockId, content) =>
+    session.presets?.amendBlock(draftId, blockId, content) ?? false);
   const gallery = useGallery(session);
-  const rail = useRailSession(session, gate, (text) => add({ role: "say", text }));
+  // Above the rail because the editor card copies through it, and it only needs the renderer.
   const { notice: copyNotice, copy } = useCopyNotice(renderer);
-  /**
-   * Publish a live reader for the rail so the session can answer "what is on screen".
-   *
-   * A REF, read at call time. Handing over a value would freeze the answer at mount, which is the
-   * same staleness that made Kit name the wrong preset with total confidence.
-   */
-  const railRef = useRef(rail);
-  railRef.current = rail;
-  useEffect(() => {
-    onRail?.(() => {
-      const open = railRef.current;
-      if (!open.open || !open.presetId) return null;
-      return {
-        presetId: open.presetId,
-        title: open.title || open.presetId,
-        blocks: open.state.rows.length,
-        enabled: open.state.rows.filter((row) => row.enabled !== false).length,
-        pending: open.pending,
-      };
-    });
-  }, [onRail]);
+  const rail = useRailSession(session, gate, (t) => add({ role: "say", text: t }), undefined, copy);
+  // Read at call time: the hook is built before turn and submit exist, and a captured value would be
+  // the one from the render it was built in.
+  const turnLines = useRef<readonly RenderLine[]>([]);
+  const submitRef = useRef<(message: string) => void>(() => {});
+  // Lets the session answer "what is on screen" without importing render; see use-rail-snapshot.ts.
+  const railRef = useRailSnapshot(rail, onRail);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number; images?: boolean } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   const images = usePendingImages(provider);
-  useEffect(() => {
-    session.activeProvider().then(setProvider);
-  }, [session]);
-  const [turn, setTurn] = useState<TurnView>({
-    lines: [],
-    live: { phase: "idle" },
-    label: "",
-    tools: null,
-    toolsSeen: false,
+  useEffect(() => { void session.activeProvider().then(setProvider); }, [session]);
+  const [turn, setTurn] = useState<TurnView>(emptyTurn);
+  turnLines.current = turn.lines;
+  // Which question is open, and what answering it does; see use-open-ask.ts.
+  const { open: openAsk, ask } = useOpenAsk(turnLines.current, setTurn, (message) => {
+    submitRef.current(message);
   });
-  /**
-   * The options from the most recent choice list, so a number key can pick one.
-   *
-   * Only the LAST list is live, and only until the person speaks again. An older question further up
-   * the transcript has been answered or abandoned, and letting "2" reach back into it would make the
-   * same keystroke mean different things depending on how far somebody had scrolled.
-   */
-  const latestChoices = ((): readonly string[] | undefined => {
-    for (let i = turn.lines.length - 1; i >= 0; i--) {
-      const line = turn.lines[i];
-      if (line?.role === "choices") return line.options.map((o) => o.value);
-      if (line?.role === "you") return undefined;
-    }
-    return undefined;
-  })();
   const [startedAt, setStartedAt] = useState(0);
   const [view, setView] = useState<"session" | "settings" | "sessions" | "help" | "tools">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
@@ -208,7 +187,16 @@ export function App({
   const { actions: sessionActions } = buildSessionActions({
     store, memory, history, activeTurn, makeSessionId, now, add,
     setTurn, setGreeted, setRewinding, setSearching, setView,
+    // Reopening by id rather than by stored rows: the preset may have been edited between sessions,
+    // and showing the version on disk is the only honest answer to "what is this preset".
+    restoreRail: (presetId) => {
+      if (presetId === null) railRef.current.close();
+      else void railRef.current.commands.open(presetId);
+    },
   });
+
+  // `kit -r`, handled once at launch; see use-resume-at-launch.ts.
+  useResumeAtLaunch(resume, sessionActions, (text) => add({ role: "say", text }));
 
   const startTurn = (
     produce: (
@@ -270,7 +258,12 @@ export function App({
       history.current = nextHistory;
       const delta = nextHistory.slice(before.length);
       if (delta.length > 0) {
-        const nextSession = appendTurn(memory.current!, buildTurn(prompt, delta, now()));
+        // STAMPED PER TURN, so what the rail was on is written down as ordinary work happens and
+        // there is nothing to remember to save. Null when the rail is shut, which is also a fact.
+        const nextSession = withRail(
+          appendTurn(memory.current!, buildTurn(prompt, delta, now())),
+          railRef.current.open ? railRef.current.presetId : null,
+        );
         memory.current = nextSession;
         await store.current!.write(nextSession);
       }
@@ -303,6 +296,7 @@ export function App({
         arg: matched.arg,
         commands,
         decks: shelf.decks,
+        unlisted: () => session.unlisted?.() ?? Promise.resolve([]),
         openSettings: () => setView("settings"),
         openHelp: () => setView("help"),
         openTools: () => setView("tools"),
@@ -319,6 +313,7 @@ export function App({
         folders: session.folders,
         rail: rail.commands,
         gallery: gallery.commands,
+        gates: { mode: () => gate.mode, set: (mode) => gate.setMode(mode) },
         art: {
           async show(query) {
             if (!session.art) return { ok: false as const, detail: "This studio has no art seam." };
@@ -357,6 +352,9 @@ export function App({
     return runPrompt(prompt);
   };
 
+  // The panel sends through this, bound here because submit is declared below the hook that calls it.
+  submitRef.current = (message: string) => { submit(message); };
+
   useShellKeys({
     active: view === "session" && !searching && !rewinding && !gate.prompt,
     running: activeTurn,
@@ -391,7 +389,11 @@ export function App({
   return (
     <box id="kit-root" flexDirection="row" backgroundColor={theme.well} width="100%" height="100%">
       {rail.open ? <RailPane rail={rail} /> : null}
-      <box flexDirection="column" flexGrow={1} minWidth={0}>
+      {/* CLICK TO FOCUS, BOTH WAYS: this side is everything that is NOT the rail, so a click here
+          means the person is done with it. Only ctrl+B used to give the keyboard back, so typing
+          went into the rail, where a letter means rename or note. The composer repeats it for
+          itself, since a click on the input must not depend on reaching an ancestor. */}
+      <box flexDirection="column" flexGrow={1} minWidth={0} onMouseDown={() => rail.releaseFocus()}>
       <Playbill studioName={studioName} />
       {rewinding ? (
         <box flexGrow={1} flexShrink={1} flexBasis={0} minHeight={0} padding={1}>
@@ -422,6 +424,7 @@ export function App({
             key={index}
             line={line}
             index={index}
+            lines={turn.lines}
             pieces={shelf.pieces}
             onCopy={copy}
             /**
@@ -432,7 +435,9 @@ export function App({
              * change their mind. A list that submitted on click would let a mis-click say something
              * they never wrote.
              */
-            onPick={(value) => setPickedOption(value)}
+            {...(openAsk?.index === index
+              ? { ask: { state: ask.state, writing: ask.writing, select: ask.select, editNote: ask.editNote } }
+              : {})}
             onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
           />
         ))}
@@ -455,6 +460,8 @@ export function App({
       {gallery.state.open ? (
         <GalleryStrip state={gallery.state} onSelect={gallery.select} />
       ) : null}
+      {/* Modal, but below the Gate: a confirmation outranks it, because that guards the write. */}
+      <BlockEditor session={rail.blockEditor} width={termWidth} height={termHeight} onPlace={rail.blockEditor.placeCursor} />
       {gate.prompt ? (
         <GatePrompt
           req={gate.prompt}
@@ -471,14 +478,16 @@ export function App({
         decks={shelf.decks}
         pieces={shelf.pieces}
         completeArg={shelf.completeArg}
-        insert={pickedOption ?? gallery.picked}
-        choiceOptions={latestChoices}
-        onInserted={() => { setPickedOption(null); gallery.clearPicked(); }}
+        insert={gallery.picked}
+        {...(openAsk ? { onAskKey: ask.handleKey } : {})}
+        onInserted={() => { gallery.clearPicked(); }}
         onImage={(bytes) => {
           const { note } = images.accept(bytes);
           add(imageLine(bytes, note, "that clipboard image"));
         }}
         onSubmit={submit}
+        onFocus={rail.releaseFocus}
+        {...(rail.open ? { onStepRail: rail.step, onFocusRail: rail.takeFocus } : {})}
       />
       </box>
         </>

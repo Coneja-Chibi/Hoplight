@@ -51,8 +51,22 @@ const patch = nonEmptyPatch({
   wrapInXml: z.boolean().nullable().optional(),
   xmlTagName: z.string().nullable().optional(),
 });
+/**
+ * Where an added block goes. Optional, and "last" when it is left out, so nothing that already
+ * worked changes - but a block with a place to be can now say so in the same call.
+ *
+ * Without this, writing an opening README meant adding it (at the end) and then moving it, and the
+ * time the second half was forgotten the preset came back with its introduction at the bottom.
+ */
+const place = z.union([
+  z.literal("first"),
+  z.literal("last"),
+  z.strictObject({ before: z.string().min(1) }),
+  z.strictObject({ after: z.string().min(1) }),
+]).describe('where to put it: "first", "last" (the default), {before: blockId}, or {after: blockId}');
+
 const operation = z.union([
-  z.strictObject({ type: z.literal("add"), block }),
+  z.strictObject({ type: z.literal("add"), block, place: place.optional() }),
   z.strictObject({ type: z.literal("update"), id: z.string().min(1), patch }),
   z.strictObject({ type: z.literal("remove"), ids: z.array(z.string().min(1)).min(1) }),
   z.strictObject({ type: z.literal("enable"), ids: z.array(z.string().min(1)).min(1), enabled: z.boolean() }),
@@ -63,7 +77,7 @@ const input = z.strictObject({ target: targetSchema, operation });
 type Operation = z.infer<typeof operation>;
 
 function apply(entity: CanonicalPreset, action: Operation): CanonicalPreset["body"] {
-  if (action.type === "add") return addPresetBlock(entity.body, action.block);
+  if (action.type === "add") return addPresetBlock(entity.body, action.block, action.place);
   if (action.type === "update") {
     const normalized = Object.fromEntries(
       Object.entries(action.patch).map(([key, value]) => [key, value === null ? undefined : value]),

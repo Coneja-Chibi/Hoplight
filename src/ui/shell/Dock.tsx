@@ -5,13 +5,32 @@
  * the Apps-catalog control; `catalogOnly` apps stay out. The foot holds `dockFoot` tiles (Settings).
  * Slim collapse persists as `shell.dockSlim`. Home routes to the user's chosen home app.
  */
+import { useMemo } from "react";
 import type { CSSProperties, JSX } from "react";
 import type { AppManifestEntry } from "../app-contract";
 import { AppMark } from "../components/app-mark";
+import { appBinding, appRoster, chordFor, isMacLike } from "./app-keys";
 import { dockManifestGroups } from "./dock-core";
+import styles from "./dock.module.css";
 import { useContextMenu, useShellStore } from "./store";
 
-function DockTile({ m }: { m: AppManifestEntry }): JSX.Element {
+/**
+ * `chord` is the whole shortcut ("ctrl+1") and `chordKey` its bare key ("1"), both resolved by the
+ * key map itself (app-keys.ts) rather than by anything here. A shortcut nobody can find is a
+ * shortcut nobody has, and the one place every app is already listed by name is the dock.
+ *
+ * TWO LENGTHS BECAUSE THE TILE HAS ROOM FOR ONE GLYPH. A full "ctrl+1" printed on the tile is 49px
+ * wide next to a subtitle that already reaches within 4px of the right edge ("app - convert"
+ * overlapped it outright, measured in the running dock). The keycap carries the number, which is the
+ * part that differs per app and the part every sidebar-with-shortcuts has taught people to read; the
+ * tooltip carries the whole chord for anyone who has not met the convention.
+ */
+function DockTile({ m, chord, chordKey, showChord }: {
+  m: AppManifestEntry;
+  chord: string | null;
+  chordKey: string | null;
+  showChord: boolean;
+}): JSX.Element {
   const activeAppId = useShellStore((s) => s.activeAppId);
   const mountApp = useShellStore((s) => s.mountApp);
   const on = activeAppId === m.id;
@@ -22,7 +41,10 @@ function DockTile({ m }: { m: AppManifestEntry }): JSX.Element {
       ref={menuRef}
       className={`apptile${m.comingSoon ? " future" : ""}${on ? " on" : ""}`}
       style={{ "--a": m.accent } as CSSProperties}
-      title={m.title}
+      // The tooltip carries the chord at EVERY dock width. The keycap goes with the tile's words
+      // when the dock collapses (a piece open, or a narrow window), and that collapsed dock is what
+      // an editing session actually looks like - so the tooltip is the half that has to always work.
+      title={chord ? `${m.title} (${chord})` : m.title}
       aria-current={on ? "page" : undefined}
       aria-disabled={m.comingSoon ? "true" : undefined}
       tabIndex={m.comingSoon ? -1 : undefined}
@@ -33,6 +55,13 @@ function DockTile({ m }: { m: AppManifestEntry }): JSX.Element {
         <span className="nm">{m.title}</span>
         <span className="kd">{m.comingSoon ? "installs later" : (m.subtitle ?? "app")}</span>
       </span>
+      {chordKey && showChord && (
+        // aria-hidden: the tooltip above already says this, spelled out. Announcing "1" after the
+        // app's name would be a screen reader repeating a hint it just gave properly.
+        <span className={styles.chord} aria-hidden="true">
+          {chordKey}
+        </span>
+      )}
     </button>
   );
 }
@@ -50,6 +79,17 @@ export function Dock(): JSX.Element {
   const slim = dockSlim || editing;
 
   const { present, future, foot, catalog } = dockManifestGroups(manifests);
+  // The same roster the key map counts, so tile 3 and ctrl+3 are the same app by construction.
+  const roster = useMemo(() => appRoster(manifests), [manifests]);
+  const mac = useMemo(
+    () => (typeof navigator === "undefined" ? false : isMacLike(navigator.userAgent)),
+    [],
+  );
+  /** Everything a tile needs to advertise its own shortcut, from the table that owns it. */
+  const hintOf = (m: AppManifestEntry): { chord: string | null; chordKey: string | null } => ({
+    chord: chordFor(m.id, roster, mac),
+    chordKey: appBinding(m.id, roster)?.label ?? null,
+  });
 
   return (
     <nav id="dock" className={slim ? "slim" : undefined} aria-label="Apps">
@@ -73,11 +113,11 @@ export function Dock(): JSX.Element {
       <div id="dockapps">
         <div className="docklabel">Apps</div>
         {present.map((m) => (
-          <DockTile key={m.id} m={m} />
+          <DockTile key={m.id} m={m} {...hintOf(m)} showChord={!slim} />
         ))}
         {future.length > 0 && <div className="dockdiv" />}
         {future.map((m) => (
-          <DockTile key={m.id} m={m} />
+          <DockTile key={m.id} m={m} {...hintOf(m)} showChord={!slim} />
         ))}
         <button
           type="button"
@@ -96,7 +136,7 @@ export function Dock(): JSX.Element {
       <div id="dockfoot">
         <div id="dockfootapps">
           {foot.map((m) => (
-            <DockTile key={m.id} m={m} />
+            <DockTile key={m.id} m={m} {...hintOf(m)} showChord={!slim} />
           ))}
         </div>
       </div>

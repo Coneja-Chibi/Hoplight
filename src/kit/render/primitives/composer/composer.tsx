@@ -12,9 +12,9 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { useKeyboard, usePaste } from "@opentui/react";
-import { decodePasteBytes, defaultTextareaKeyBindings, MouseButton } from "@opentui/core";
-import type { KeyBinding, KeyEvent, MouseEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
+import { useKeyboard } from "@opentui/react";
+import { defaultTextareaKeyBindings, MouseButton } from "@opentui/core";
+import type { KeyBinding, KeyEvent, MouseEvent, TextareaRenderable } from "@opentui/core";
 import type { DeckCount, EntitySummary } from "../../../bridge";
 import type { ArgSuggestion, KitCommand } from "../../../commands/command";
 import { theme } from "../../theme";
@@ -23,14 +23,16 @@ import { SweepLine } from "../sweep-line";
 import { StatusBar, type ProviderStatus } from "../status-bar";
 import { PasteCard } from "./paste-card";
 import { commit, initRecall, recallNext, recallPrev, type RecallState } from "./recall";
-import { buildSubmission, classifyPaste, type PasteCard as Card } from "./paste-classify";
+import { buildSubmission, type PasteCard as Card } from "./paste-classify";
+import { useComposerPaste } from "./use-paste";
 import { applyArg, argContext, matchingArgs, matchingCommands } from "./command-menu-core";
 import { CommandMenu } from "./command-menu";
 import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core";
 import { MentionMenu } from "./mention-menu";
 import { draftSuggestion } from "./suggestion";
 import { readClipboardImage, readClipboardText } from "../../clipboard-read";
-import { isEmptyPaste, isImagePasteKey } from "./image-paste";
+import { isImagePasteKey } from "./image-paste";
+import { emptyDraftAction } from "./empty-draft-keys";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -66,8 +68,11 @@ export function Composer({
   onImage,
   insert,
   onInserted,
-  choiceOptions,
   onSubmit,
+  onFocus,
+  onStepRail,
+  onFocusRail,
+  onAskKey,
 }: {
   active: boolean;
   enabled?: boolean;
@@ -93,14 +98,18 @@ export function Composer({
    */
   insert?: string | null;
   onInserted?: () => void;
-  /**
-   * The options currently on offer, so a number key can pick one.
-   *
-   * The composer owns this rather than the shell because only the composer knows whether the draft
-   * is EMPTY - and typing "1" into a half-written sentence must stay a "1".
-   */
-  choiceOptions?: readonly string[];
   onSubmit: (value: string) => boolean;
+  /** A left-click landed in the composer, so whatever else holds the keyboard should let go. */
+  onFocus?: () => void;
+  /** Thumb the rail to the next (+1) or previous (-1) preset, from an EMPTY draft only. */
+  onStepRail?: (delta: number) => void;
+  /**
+   * Hand the rail the keyboard. Tab, because that is what Tab means, replacing ctrl+b. Without a key
+   * here the rail would be mouse-only, which a terminal app must never be.
+   */
+  onFocusRail?: () => void;
+  /** Offer a key to the open question panel; true when it used it. It goes ahead of the rail. */
+  onAskKey?: (key: string, sequence?: string) => boolean;
 }): ReactNode {
   const ref = useRef<TextareaRenderable | null>(null);
   const recall = useRef<RecallState>(initRecall());
@@ -116,19 +125,17 @@ export function Composer({
   const [mentionIndex, setMentionIndex] = useState(0);
   const [mentionDismissed, setMentionDismissed] = useState(false);
   const commandMatches = matchingCommands(commands, slashDraft);
-  const menuOpen = !menuDismissed && commandMatches.length > 0;
+  const argCtx = argContext(commands, slashDraft);
+  // The ARGUMENT popup wins once there is one. Both were gated on each other before, so a draft that
+  // had an argument context and a command match showed the command and hid the argument.
+  const menuOpen = !menuDismissed && !argCtx && commandMatches.length > 0;
 
-  /**
-   * Argument suggestions, once the draft is past the command word.
-   *
-   * Loaded on demand rather than up front: a completer reads the studio, and doing that on every
-   * keystroke of every command would put a disk read behind the letter "s". The prefix is filtered
-   * locally against the loaded list, so only CHANGING COMMAND re-reads.
-   */
+  // Argument suggestions, loaded on demand: a completer reads the studio, and doing that per
+  // keystroke would put a disk read behind the letter "s". Only CHANGING COMMAND re-reads; the
+  // prefix filters the loaded list locally.
   const [argRows, setArgRows] = useState<readonly ArgSuggestion[]>([]);
   const [argFor, setArgFor] = useState<string | null>(null);
   const [argIndex, setArgIndex] = useState(0);
-  const argCtx = argContext(commands, slashDraft);
   useEffect(() => {
     const name = argCtx?.command.name ?? null;
     if (name === argFor) return;
@@ -144,7 +151,7 @@ export function Composer({
   }, [argCtx, argFor, completeArg]);
 
   const argMatches = argCtx ? matchingArgs(argRows, argCtx.prefix) : [];
-  const argOpen = !menuOpen && !menuDismissed && argMatches.length > 0;
+  const argOpen = !menuDismissed && argMatches.length > 0;
   const pieceMatches = matchingPieces(pieces, mentionText);
   const mentionOpen = !menuOpen && !mentionDismissed && pieceMatches.length > 0;
 
@@ -153,12 +160,8 @@ export function Composer({
     setCards(next);
   };
 
-  /**
-   * Insert a picked option into the draft.
-   *
-   * APPENDED, not substituted: somebody may have been mid-sentence when they clicked, and replacing
-   * what they had written would make a convenience destructive.
-   */
+  // Insert a picked option. APPENDED, not substituted: somebody may have been mid-sentence when they
+  // clicked, and replacing what they wrote would make a convenience destructive.
   useEffect(() => {
     if (!insert) return;
     const ta = ref.current;
@@ -210,23 +213,29 @@ export function Composer({
     }
 
     /**
-     * A NUMBER PICKS AN OFFERED OPTION, but only from an empty draft.
-     *
-     * The guard is the whole design. Without it, typing "1" into a half-written sentence would fire
-     * a choice instead of being a digit, and there is no way to tell those apart from the keystroke
-     * alone - only from what is already in the buffer. Empty means the number cannot be part of
-     * anything, which is exactly when it can safely mean something else.
-     *
-     * It fills the draft rather than sending, same as clicking: the person still owns the message.
+     * KEYS THAT REACH PAST THE COMPOSER, in the order they get a say: a popup, then TAB, then the
+     * open question, then the rail. Tab works with text in the box because moving focus is not
+     * something a half-written sentence should block; the rest need an empty draft, because an arrow
+     * in a sentence is a cursor move and nothing may take it. See empty-draft-keys.ts.
      */
-    if (choiceOptions?.length && !menuOpen && !argOpen && !mentionOpen && ta.plainText === "") {
-      const digit = Number.parseInt(e.name ?? "", 10);
-      if (Number.isInteger(digit) && digit >= 1 && digit <= choiceOptions.length) {
+    const popup = menuOpen || argOpen || mentionOpen;
+    if (!popup) {
+      if (onFocusRail && e.name === "tab") { e.preventDefault(); onFocusRail(); return; }
+      if (onAskKey && ta.plainText === "" && onAskKey(e.name ?? "", e.sequence)) {
         e.preventDefault();
-        ta.setText(choiceOptions[digit - 1]!);
-        setRows(ta.lineCount ?? 1);
         return;
       }
+    }
+
+    const empty = emptyDraftAction(e, {
+      draft: ta.plainText,
+      menuOpen: popup,
+      railOpen: onStepRail !== undefined,
+    });
+    if (empty) {
+      e.preventDefault();
+      onStepRail?.(empty.delta);
+      return;
     }
     if (mentionOpen && (e.name === "up" || e.name === "down")) {
       e.preventDefault();
@@ -248,15 +257,34 @@ export function Composer({
       e.preventDefault();
       const delta = e.name === "up" ? -1 : 1;
       setArgIndex((index) => (index + delta + argMatches.length) % argMatches.length);
-    } else if (argOpen && e.name === "tab") {
-      // Tab COMPLETES and leaves the popup up, so a wrong guess is one more Tab rather than a
-      // retype. Enter is deliberately not bound here: it still submits, because somebody who has
-      // typed the id in full should not have to dismiss a list to send the line.
+    } else if (argOpen && e.name === "return") {
+      /**
+       * Enter RUNS the highlighted one, because arrowing to a preset and pressing enter is the whole
+       * gesture. Requiring Tab first and then Enter would make the list something to get past rather
+       * than something to pick from.
+       *
+       * The highlighted row is what runs, which is why arrowing has to move a real selection rather
+       * than only scroll: `argIndex` is the answer, not the cursor position in the text.
+       */
       e.preventDefault();
       const pick = argMatches[argIndex] ?? argMatches[0];
       if (!pick) return;
-      ta.setText(applyArg(ta.plainText, pick.value));
-      setSlashDraft(applyArg(ta.plainText, pick.value));
+      const line = applyArg(ta.plainText, pick.value);
+      if (!onSubmit(line)) return;
+      recall.current = commit(recall.current, line);
+      ta.setText("");
+      setSlashDraft("");
+      setRows(1);
+    } else if (argOpen && e.name === "tab") {
+      // Tab COMPLETES without running, so a wrong guess is one more Tab rather than a retype.
+      e.preventDefault();
+      const pick = argMatches[argIndex] ?? argMatches[0];
+      if (!pick) return;
+      // Computed ONCE. Reading plainText again after setText applies the completion to text that has
+      // already been completed, so a second Tab could double the argument.
+      const completed = applyArg(ta.plainText, pick.value);
+      ta.setText(completed);
+      setSlashDraft(completed);
     } else if (argOpen && e.name === "escape") {
       e.preventDefault();
       setMenuDismissed(true);
@@ -270,9 +298,22 @@ export function Composer({
       e.preventDefault();
       const command = commandMatches[commandIndex] ?? commandMatches[0];
       if (!command) return;
-      ta.setText(`${command.name} `);
-      setSlashDraft("");
-      setMenuDismissed(true);
+      /**
+       * COMPLETING THE NAME MUST HAND OVER TO THE ARGUMENT, not close the popup.
+       *
+       * This wrote the completed text and then cleared the draft to "" and dismissed the menu, so
+       * `argContext` saw nothing and the argument list could never open. Tab was the one gesture
+       * most likely to be used before typing an argument, and it was the one that made the argument
+       * list impossible. Reported twice as "why is it not auto completing".
+       *
+       * The draft becomes the completed text instead, and the menu is NOT dismissed: `matchingCommands`
+       * already refuses a draft containing whitespace, so the command popup closes on its own while
+       * the argument popup opens in its place.
+       */
+      const completed = `${command.name} `;
+      ta.setText(completed);
+      setSlashDraft(completed);
+      setArgIndex(0);
     } else if (menuOpen && e.name === "return") {
       e.preventDefault();
       const command = commandMatches[commandIndex] ?? commandMatches[0];
@@ -312,29 +353,13 @@ export function Composer({
     }
   });
 
-  usePaste((e: PasteEvent) => {
-    if (!enabled) return;
-    const text = decodePasteBytes(e.bytes);
-
-    // An empty paste is a pasted picture; see image-paste.ts.
-    if (isEmptyPaste(text)) {
-      e.preventDefault();
-      void readClipboardImage().then((image) => {
-        if (image) onImage?.(image.bytes);
-      });
-      return;
-    }
-
-    const classified = classifyPaste(text);
-    if (classified.kind === "card") {
-      e.preventDefault();
-      if (cardsRef.current.length >= MAX_CARDS) {
-        setNotice("Paste not added: remove a card first.");
-        return;
-      }
-      replaceCards([...cardsRef.current, classified]);
-      setNotice("");
-    }
+  useComposerPaste({
+    enabled,
+    cardCount: () => cardsRef.current.length,
+    maxCards: MAX_CARDS,
+    addCard: (card) => replaceCards([...cardsRef.current, card]),
+    notify: setNotice,
+    ...(onImage ? { onImage } : {}),
   });
 
   const boxRows = Math.min(MAX_ROWS, Math.max(1, rows));
@@ -406,19 +431,17 @@ export function Composer({
           backgroundColor={theme.panel}
           paddingRight={1}
           /**
-           * RIGHT-CLICK PASTES, the way every other text field on the machine does.
-           *
-           * The terminal will not hand this over: OSC52 read-back is disabled almost everywhere,
-           * because a program that can silently read your clipboard can read the password you copied
-           * a minute ago. So it asks the OPERATING SYSTEM, and only on a button somebody pressed -
-           * which is the same consent a right-click carries anywhere else.
-           *
-           * Inserted at the cursor rather than replacing the draft: pasting a path into a
-           * half-written sentence is the common case, and clobbering what somebody already typed
-           * would be the expensive way to be wrong.
+           * RIGHT-CLICK PASTES, the way every other text field on the machine does. It asks the
+           * OPERATING SYSTEM rather than the terminal, because OSC52 read-back is disabled almost
+           * everywhere - a program that can silently read your clipboard can read the password you
+           * copied a minute ago - and only on a button somebody pressed, which is the same consent
+           * a right-click carries anywhere else. Inserted at the cursor rather than replacing the
+           * draft, because clobbering a half-written sentence is the expensive way to be wrong.
            */
           onMouseDown={(event: MouseEvent) => {
-            if (event.button !== MouseButton.RIGHT) return;
+            // A LEFT-CLICK IN HERE MEANS "I AM TYPING HERE". Clicking the rail took the keyboard and
+            // clicking the box you type in did nothing, so only a chord could undo it.
+            if (event.button !== MouseButton.RIGHT) { onFocus?.(); return; }
             event.preventDefault();
             const ta = ref.current;
             if (!ta || !enabled) return;

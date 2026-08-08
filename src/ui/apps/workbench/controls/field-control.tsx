@@ -10,16 +10,19 @@
 import type { JSX } from "react";
 import { greetingsOf, rec, str, strArr, type Greeting } from "../editor-derive";
 import { readPath } from "../editor-core";
+import { ExpandTextarea } from "../../../components/expand";
 import { RenderBox } from "../../../components/render-box";
 import { categorizeTag } from "../../../../core/tag-taxonomy";
 import { TAG_CATEGORY_STYLE } from "../tag-category-style";
-import type { FieldModule } from "../fields";
+import { FIELD_MODULES, type FieldModule } from "../fields";
 import { compositeControlFor } from "./field-control-composites";
 import type { FieldCtx, FieldControlApi } from "./field-control-ctx";
 
 export type { FieldCtx, FieldControlApi } from "./field-control-ctx";
 
 const PROSE_MONO = new Set(["firstMes", "mesExample"]);
+/** the sheet's caption for a field id, so a fullscreen prose editor is titled the way the sheet titles it */
+const proseLabel = (id: string): string => FIELD_MODULES.find((m) => m.id === id)?.sheetLabel ?? id;
 const SPOTLIGHT_FIELDS: ReadonlyArray<readonly [key: string, label: string]> = [
   ["description", "Description"],
   ["personality", "Personality"],
@@ -108,7 +111,8 @@ export function makeControlFor(ctx: FieldCtx): FieldControlApi {
     return (
       <>
         <RenderBox value={value} format="markdown">
-          <textarea
+          <ExpandTextarea
+            label={proseLabel(id)}
             className={`${styles.in} ${styles.ta}${PROSE_MONO.has(id) ? ` ${styles.mono}` : ""}`}
             spellCheck={false}
             value={value}
@@ -141,7 +145,8 @@ export function makeControlFor(ctx: FieldCtx): FieldControlApi {
               </button>
             </div>
             <RenderBox value={g.text} format="markdown">
-              <textarea
+              <ExpandTextarea
+                label={g.title?.trim() || `Greeting ${i + 1}`}
                 className={`${styles.in} ${styles.ta} ${styles.mono}`}
                 spellCheck={false}
                 value={g.text}

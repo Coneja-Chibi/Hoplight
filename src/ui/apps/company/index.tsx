@@ -4,13 +4,17 @@
  * the moddability promise made visible.
  */
 import type { AppContext, HoplightApp } from "../../app-contract";
+import { COMPANY_AGENT_SURFACE, usePublishCompanySurface } from "./agent-surface";
 
 /** the locked player-silhouette mark (vs-shell-apps) */
 const MARK_SVG =
   '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-4 3.4-6 7-6s7 2 7 6"/></svg>';
 
-/** never rendered while comingSoon; the shell disables the tile and never loads this module's bundle */
-function Company(_props: { ctx: AppContext }): null {
+/** never rendered while comingSoon; the shell disables the tile and never loads this module's bundle.
+ * The publish is wired anyway so the agent window is live the day the door opens - dormant, not
+ * missing (see agent-surface.ts). */
+function Company({ ctx }: { ctx: AppContext }): null {
+  usePublishCompanySurface(ctx);
   return null;
 }
 
@@ -23,6 +27,7 @@ const app: HoplightApp = {
     order: 90,
     comingSoon: true,
     catalogOnly: true,
+    agentSurface: COMPANY_AGENT_SURFACE,
   },
   Component: Company,
 };

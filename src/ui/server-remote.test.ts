@@ -354,6 +354,42 @@ describe("untrusted remote handler gates every path (not just /api)", () => {
     });
   });
 
+  test("A GUEST DEVICE CANNOT SPEND THE HOST'S API CREDITS THROUGH THE AGENT WINDOW", async () => {
+    /**
+     * A turn bills the host's own key and ships a description of the host's studio to a model
+     * provider. Letting a studio be read over the LAN is not the same as handing somebody the
+     * owner's billing account, and the two were one route apart.
+     *
+     * The events stream is here for a second reason: it opens a filesystem watch on the host's
+     * machine for as long as the guest keeps the connection.
+     */
+    await withDir(async (dir) => {
+      const sec = filledSec();
+      const asGuest = createHandler(
+        new StudioStore(dir), new SettingsStore(dir), undefined, sec,
+        undefined, undefined, undefined, undefined,
+        true, // lanApproved: an approved LAN device
+      );
+      const turn = apiReq("/api/agent/turn", {
+        method: "POST", token: sec.token, contentType: "application/json",
+        body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+      });
+
+      expect((await asGuest(turn)).status).toBe(403);
+      expect((await asGuest(apiReq("/api/agent/provider"))).status).toBe(403);
+      expect((await asGuest(apiReq("/api/agent/events"))).status).toBe(403);
+
+      // And over the sidecar-proxied (tailed-in) door, which is the one strangers arrive through.
+      const asTailedIn = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+      const proxied = apiReq("/api/agent/turn", {
+        method: "POST", token: sec.token, contentType: "application/json",
+        body: JSON.stringify({ messages: [{ role: "user", content: "hi" }] }),
+      });
+      proxied.headers.set("x-hoplight-sidecar-secret", SECRET);
+      expect((await asTailedIn(proxied)).status).toBe(403);
+    });
+  });
+
   test("a guest device cannot make the host download and install the helper executable", async () => {
     // The single most consequential rule in the aux-package feature. It holds because isHostOnlyRoute
     // covers the whole /api/remote/ prefix - but that is worth an assertion rather than an inference:

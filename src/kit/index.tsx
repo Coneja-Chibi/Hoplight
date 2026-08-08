@@ -23,8 +23,22 @@ import { activeBackendId } from "./keystore/keystore";
 import { readVault } from "./providers/vault";
 import { APP_VERSION } from "../version";
 import { watchStudio, type StudioWatchSource } from "./watch/watcher";
+import { LAUNCH_USAGE, parseLaunchArgs } from "./launch-args";
 
 async function main(): Promise<void> {
+  // BEFORE ANY OF THE STUDIO IS READ. --help must answer instantly rather than after a walk of
+  // somebody's whole folder, and a bad argument should be said now, not behind a splash screen.
+  const args = parseLaunchArgs(Bun.argv.slice(2));
+  if (args.help) {
+    console.log(LAUNCH_USAGE);
+    return;
+  }
+  if (args.unknown.length > 0) {
+    console.error(`kit: unrecognised ${args.unknown.join(" ")}`);
+    console.error(LAUNCH_USAGE);
+    process.exitCode = 2;
+    return;
+  }
   const bridge = createBridge();
   const decks = await bridge.deckCounts();
   const pieces = await bridge.list();
@@ -108,6 +122,7 @@ async function main(): Promise<void> {
         runDoctor={diagnose}
         watchStudio={studioWatcher}
         onRail={(read) => { railCell.read = read; }}
+        {...(args.resume === null ? {} : { resume: args.resume })}
         onQuit={quit}
       />,
     );

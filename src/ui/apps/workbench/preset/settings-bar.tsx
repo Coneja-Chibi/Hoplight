@@ -11,6 +11,7 @@
 import { useState, type JSX } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { PresetBody, PresetSamplers } from "../../../../entities/preset";
+import { ExpandTextarea } from "../../../components/expand";
 import s from "./settings.module.css";
 import f from "./preset.module.css";
 
@@ -68,7 +69,8 @@ export function SettingsBar({ body, showSamplers, onDescription, onSampler }: Se
         <div className={s.body}>
           <label className={f.sfield}>
             <span className={f.flabel}>Description</span>
-            <textarea
+            <ExpandTextarea
+              label="Preset description"
               className={`${f.field} ${f.ta}`}
               value={body.description ?? ""}
               placeholder="What this preset is for"

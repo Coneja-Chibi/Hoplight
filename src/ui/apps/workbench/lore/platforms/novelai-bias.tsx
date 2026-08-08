@@ -10,6 +10,7 @@ import {
   removeBiasGroup,
   replaceBiasGroup,
 } from "../entry-extras";
+import { ExpandTextarea } from "../../../../components/expand";
 
 export function NovelAiBiasBlock({
   entry,
@@ -86,7 +87,8 @@ export function NovelAiBiasBlock({
             </div>
             <label className={styles.pcBiasPhrases}>
               <span className={styles.pcK}>Phrases (one per line)</span>
-              <textarea
+              <ExpandTextarea
+                label={`Phrases for bias group ${i + 1}`}
                 className={styles.pcBiasTa}
                 value={lines}
                 rows={Math.min(4, Math.max(2, g.phrases.length || 2))}

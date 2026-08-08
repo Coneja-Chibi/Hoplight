@@ -48,6 +48,7 @@ export function useStudioShelf(deps: StudioShelfDeps): StudioShelf {
   const notice = useRef(deps.onChangeNotice);
   notice.current = deps.onChangeNotice;
 
+
   const { watchStudio } = deps;
   useEffect(() => {
     if (!watchStudio) return;
@@ -62,6 +63,7 @@ export function useStudioShelf(deps: StudioShelfDeps): StudioShelf {
       );
       notice.current(watchSummary(change));
       setNotices((count) => count + 1);
+
     });
   }, [watchStudio]);
 

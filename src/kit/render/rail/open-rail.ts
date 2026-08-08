@@ -25,7 +25,19 @@ const matches = (piece: { id: string; name: string }, needle: string): boolean =
 export async function openRail(
   source: PresetSource | undefined,
   query: string,
-  follow: (id: string, title: string, rows: readonly OutlineRow[]) => void,
+  /**
+   * `content` is the block text, keyed by block id.
+   *
+   * Handed over here because this is where the body is already open. The rail needs it to seed the
+   * rewrite editor with what is there, and reading the preset a second time to get it would be a
+   * second answer to what the rail is showing.
+   */
+  follow: (
+    id: string,
+    title: string,
+    rows: readonly OutlineRow[],
+    content: ReadonlyMap<string, string>,
+  ) => void,
 ): Promise<OpenOutcome> {
   if (!source) return { ok: false, detail: "The preset rail is unavailable in this build." };
   const presets = await source.list();
@@ -34,10 +46,20 @@ export async function openRail(
   }
 
   const needle = query.trim().toLowerCase();
+  /**
+   * AN EXACT NAME WINS OUTRIGHT, and without this the shorter of two similar presets was
+   * unreachable. `paramnesia` and `paramnesia-vi` both CONTAIN "paramnesia", so asking for the
+   * short one by its exact name returned two matches and refused - and there was no longer string
+   * to type, because the name was already complete. The refusal is meant to stop a guess between
+   * two candidates; it is not a guess when somebody typed one of them exactly.
+   */
+  const exact = presets.filter(
+    (piece) => piece.id.toLowerCase() === needle || piece.name.toLowerCase() === needle,
+  );
   // No argument with exactly one preset is not ambiguous, so it does not ask.
   const found = needle === ""
     ? (presets.length === 1 ? presets : [])
-    : presets.filter((piece) => matches(piece, needle));
+    : exact.length === 1 ? exact : presets.filter((piece) => matches(piece, needle));
 
   /**
    * A list of ids in a sentence is the WORST way to offer a choice, and it used to be the only way:
@@ -69,6 +91,9 @@ export async function openRail(
   const piece = found[0]!;
   const body = await source.read(piece.id);
   if (!body) return { ok: false, detail: `${piece.id} could not be read.` };
-  follow(piece.id, piece.name || piece.id, outlineOf(body));
+  const content = new Map<string, string>(
+    (body.prompts ?? []).map((prompt) => [prompt.id, prompt.content ?? ""]),
+  );
+  follow(piece.id, piece.name || piece.id, outlineOf(body), content);
   return { ok: true };
 }

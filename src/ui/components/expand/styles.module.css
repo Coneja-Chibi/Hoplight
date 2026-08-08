@@ -1,0 +1,132 @@
+/**
+ * ExpandBox styles - the inline frame that carries the expand control, and the fullscreen sheet the
+ * editor moves into. Tokens only.
+ *
+ * Nothing here animates. A full-viewport swap that slides or fades is precisely the motion
+ * prefers-reduced-motion exists to suppress, and having none is the honest way to respect it.
+ */
+
+.frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* the wrapped editor keeps the width its own stylesheet gave it; the frame must not squeeze it */
+.frame > textarea {
+  width: 100%;
+}
+
+.toggle {
+  font-family: var(--font-mono);
+  font-size: 0.575rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: var(--stage-panel);
+  border: 1px solid var(--stage-seam);
+  color: var(--stage-mute);
+  padding: 0.1rem 0.32rem;
+  cursor: pointer;
+}
+
+.toggle:hover,
+.toggle:focus-visible {
+  color: var(--stage-card);
+  border-color: var(--stage-line);
+}
+
+/* parked in the corner: anywhere else it costs every editor in the app a row of vertical space */
+.inlineToggle {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  z-index: 2;
+  opacity: 0.75;
+}
+
+.inlineToggle:hover,
+.inlineToggle:focus-visible {
+  opacity: 1;
+}
+
+/* holds the editor's place in the layout behind the sheet, so closing does not scroll the page */
+.away {
+  min-height: 2.6rem;
+  border: 1px dashed var(--stage-line);
+  color: var(--stage-mute);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  /* above InkDialog's 150: an editor inside a dialog still expands over it */
+  z-index: 200;
+  background: var(--scrim);
+  display: flex;
+  padding: var(--gap-s);
+}
+
+.sheet {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-s);
+  background: var(--stage-deck);
+  border: 2px solid var(--stage-seam);
+  padding: var(--gap-s);
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-s);
+}
+
+.title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-card);
+  overflow-wrap: anywhere;
+}
+
+.hint {
+  font-family: var(--font-mono);
+  font-size: 0.575rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stage-mute);
+}
+
+.body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* the editor fills the sheet whatever its own stylesheet sized it to inline */
+.body > * {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.body textarea {
+  width: 100%;
+  height: 100%;
+  /* a resize grip is meaningless at full viewport */
+  resize: none;
+}

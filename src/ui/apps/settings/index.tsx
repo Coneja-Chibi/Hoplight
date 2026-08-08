@@ -9,6 +9,7 @@ import type { JSX } from "react";
 import type { AppContext, HoplightApp } from "../../app-contract";
 import { parseLaunchTarget } from "../../_shared/launch-target";
 import { settingsSections } from "./sections/registry";
+import { SETTINGS_AGENT_SURFACE, usePublishSettingsSurface } from "./agent-surface";
 import styles from "./styles.module.css";
 
 /** the locked gear mark (vs-shell-apps) */
@@ -32,6 +33,12 @@ function SettingsRoom({ ctx }: { ctx: AppContext }): JSX.Element | null {
     const section = sections.find((s) => s.id === activeId) ?? sections[0];
     if (section) ctx.setStatus(section.label.toLowerCase());
   }, [ctx, activeId, sections]);
+
+  // the agent window's live half: which tab is open and what is configured - never any secret on it
+  usePublishSettingsSurface(ctx, {
+    tabs: sections.map((s) => ({ id: s.id, label: s.label })),
+    activeId: active?.id ?? "",
+  });
 
   if (!active) return null;
   const ActiveSection = active.Component;
@@ -68,6 +75,7 @@ const app: HoplightApp = {
     order: 100,
     subtitle: "app",
     dockFoot: true,
+    agentSurface: SETTINGS_AGENT_SURFACE,
   },
   Component: SettingsRoom,
 };

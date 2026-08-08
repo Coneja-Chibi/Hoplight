@@ -12,6 +12,7 @@ import {
   type SpritePackValue,
 } from "../../../core/media";
 import type { PackBody } from "../../../entities/pack/schema";
+import { ExpandTextarea } from "../../components/expand";
 import { SpritePack } from "../../components/sprite-pack";
 import { packEditorDocument } from "./pack-editor-core";
 import { useEditorGuards } from "./use-editor-guards";
@@ -118,7 +119,8 @@ export function PackEditor({ entity, revision, ctx, piece, topRight }: PackEdito
           </div>
           <label className={styles.field}>
             Brief
-            <textarea
+            <ExpandTextarea
+              label="Brief"
               value={brief}
               onChange={(e) => setBrief(e.target.value)}
               rows={3}

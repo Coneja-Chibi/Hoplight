@@ -17,7 +17,8 @@ import type { CanonicalEntity } from "../core/canonical";
 import type { CanonicalLorebook } from "../entities/lorebook/schema";
 import type { CanonicalRegexSet } from "../entities/regex/schema";
 import { entityRevision } from "../entities/canonical-revision";
-import { StudioStore } from "../studio/store";
+import { openStudio } from "../foreign-reader";
+import { handleAgentRoutes } from "./agent/routes";
 import type { StudioStoreLike, SettingsStoreLike } from "../studio/contracts";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
@@ -317,6 +318,11 @@ export function createHandler(
       }));
       return json([...adapters, ...extras]);
     }
+    // The agent window: provider status, one turn, the studio-change stream. See agent/routes.ts,
+    // where they sit together because they are the only routes here that reach a model.
+    const agentRoute = await handleAgentRoutes(p, req, () => store.studioPath());
+    if (agentRoute) return agentRoute;
+
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
     if (p === "/api/export" && req.method === "POST") {
       if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
@@ -422,7 +428,9 @@ export function startUi(
   studioDir: string,
   packaged?: PackagedAssets,
 ): { url: string; sandboxUrl: string | null; stop: () => void } {
-  const store = new StudioStore(studioDir);
+  // openStudio, not `new StudioStore`: the bare constructor cannot read a file it did not write, and
+  // this window spent its life reporting a folder of SillyTavern presets as 145 damaged files.
+  const store = openStudio(studioDir);
   const settings = new SettingsStore(studioDir);
   const sec = createSecurityContext();
   if (!packaged) startDevWatch(); // dev: edits to src/ui reload every open page

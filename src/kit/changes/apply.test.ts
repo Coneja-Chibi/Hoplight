@@ -146,6 +146,7 @@ describe("applyChangeDraft", () => {
       create() { throw new Error("unexpected create"); },
       draft() { throw new Error("unexpected draft"); },
       revise() { throw new Error("unexpected revise"); },
+      amend() { throw new Error("unexpected amend"); },
       get() { return malformed; },
       list() { return [malformed]; },
       forTarget() { return malformed; },

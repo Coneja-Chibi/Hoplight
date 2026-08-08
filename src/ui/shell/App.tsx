@@ -363,6 +363,7 @@ export function App(): JSX.Element | null {
         closeSplit: () => useShellStore.getState().closeSplit(),
         remove: (id, kind) => useShellStore.getState().requestPieceClose(id, kind),
         isOpen: (id, kind) => useShellStore.getState().isOpen(id, kind),
+        dirty: () => ({ ...useShellStore.getState().dirtyPieces }),
         setDirty: (id, kind, dirty) => useShellStore.getState().setPieceDirty(id, kind, dirty),
         recents: () => workbenchRecents(),
         focus: (id, kind) => useShellStore.getState().focusPiece(id, kind),

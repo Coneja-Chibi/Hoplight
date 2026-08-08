@@ -23,6 +23,21 @@ export interface ModelMessage {
   /** On a tool result: which call it answers, and the tool's name. */
   toolCallId?: string;
   toolName?: string;
+  /**
+   * A tool result that is a PANEL rather than prose, kept so a resumed session can draw it again.
+   *
+   * The observation text a model reads is a summary - "Asked: ...\nOptions offered: a, b, c" -
+   * which drops every option's reason and cannot be turned back into something answerable. So a
+   * resumed transcript folded a question into one truncated grey line with nothing to click, and
+   * a half-finished round set was unfinishable.
+   *
+   * SHELL-ONLY. Every adapter maps a message field by field onto its provider's shape, so this
+   * rides in storage and never onto a wire.
+   */
+  choices?: {
+    question: string;
+    options: readonly { value: string; note?: string }[];
+  };
 }
 
 /** A tool the model chose to call, with raw (untrusted) args parsed at dispatch, never here. */

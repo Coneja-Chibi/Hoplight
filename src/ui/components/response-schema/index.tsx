@@ -8,6 +8,7 @@ import {
   type ResponseSchemaValue,
   type SchemaField,
 } from "./core";
+import { ExpandTextarea } from "../expand";
 import styles from "./styles.module.css";
 
 export interface ResponseSchemaProps {
@@ -74,7 +75,8 @@ export function ResponseSchema({ value, onChange }: ResponseSchemaProps): JSX.El
       <div className={styles.grid}>
         <div>
           <span className={styles.lbl}>System prompt</span>
-          <textarea
+          <ExpandTextarea
+            label="System prompt"
             className={styles.ta}
             value={s.systemPrompt}
             onChange={(e) => commit({ ...s, systemPrompt: e.target.value })}
@@ -82,7 +84,8 @@ export function ResponseSchema({ value, onChange }: ResponseSchemaProps): JSX.El
         </div>
         <div>
           <span className={styles.lbl}>Jailbreak</span>
-          <textarea
+          <ExpandTextarea
+            label="Jailbreak"
             className={styles.ta}
             value={s.jailbreak}
             onChange={(e) => commit({ ...s, jailbreak: e.target.value })}
@@ -90,7 +93,8 @@ export function ResponseSchema({ value, onChange }: ResponseSchemaProps): JSX.El
         </div>
         <div>
           <span className={styles.lbl}>History slot</span>
-          <textarea
+          <ExpandTextarea
+            label="History slot"
             className={styles.ta}
             value={s.history}
             onChange={(e) => commit({ ...s, history: e.target.value })}
@@ -98,7 +102,8 @@ export function ResponseSchema({ value, onChange }: ResponseSchemaProps): JSX.El
         </div>
         <div>
           <span className={styles.lbl}>Image caption</span>
-          <textarea
+          <ExpandTextarea
+            label="Image caption"
             className={styles.ta}
             value={s.imageCaption}
             onChange={(e) => commit({ ...s, imageCaption: e.target.value })}
@@ -107,7 +112,8 @@ export function ResponseSchema({ value, onChange }: ResponseSchemaProps): JSX.El
       </div>
       <div>
         <span className={styles.lbl}>Response slot</span>
-        <textarea
+        <ExpandTextarea
+          label="Response slot"
           className={styles.ta}
           value={s.response}
           onChange={(e) => commit({ ...s, response: e.target.value })}

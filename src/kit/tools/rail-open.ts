@@ -92,7 +92,13 @@ const railOpen: HarnessTool<z.infer<typeof input>> = {
     }
 
     const needle = args.preset.trim().toLowerCase();
-    const found = presets.filter(
+    // An exact name wins outright. Without it the shorter of two similar presets is unreachable:
+    // "paramnesia" is contained in "paramnesia-vi", so the exact short name matched both and was
+    // refused, with no longer string available to disambiguate because it was already complete.
+    const exact = presets.filter(
+      (piece) => piece.id.toLowerCase() === needle || piece.name.toLowerCase() === needle,
+    );
+    const found = exact.length === 1 ? exact : presets.filter(
       (piece) => piece.id.toLowerCase().includes(needle) || piece.name.toLowerCase().includes(needle),
     );
 

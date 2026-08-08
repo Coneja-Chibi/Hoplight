@@ -28,6 +28,15 @@ export type LoopEvent =
     /** Options for the person to pick from, carried as data so the shell decides how to draw them. */
     choices?: { question: string; options: readonly { value: string; note?: string }[] };
   }
+  /**
+   * A piece was actually written, named so a view of it can re-read it.
+   *
+   * The studio watcher cannot carry this: it diffs entity SUMMARIES, and a summary holds a name
+   * and an accent - nothing about the body. Adding, moving or rewriting blocks changes no field
+   * it looks at, so a preset edit is invisible to it and the rail went on showing what it read
+   * when it opened. The apply path knows exactly what it touched, so it says so.
+   */
+  | { type: "wrote"; kind: string; id: string }
   | { type: "say"; text: string }
   | { type: "tool-start"; name: string }
   | { type: "usage"; usage: TokenUsage }
@@ -123,6 +132,9 @@ async function* runDraftReview(
     yield* discardReviewedDraft(review.draftId, messages, deps, lifecycle);
     return;
   }
+
+  // Allowed AND applied: name the piece so anything showing it can re-read it.
+  if (review.target) yield { type: "wrote", kind: review.target.kind, id: review.target.id };
 
   const verifying = transitionLoop(lifecycle, { type: "verifying" });
   if (verifying.phase !== lifecycle.phase) yield { type: "state", phase: verifying.phase };
@@ -324,6 +336,8 @@ export async function* runTurn(
         content: result.output,
         toolCallId: call.id,
         toolName: call.name,
+        // Kept so a resumed session can draw the question again; see ModelMessage.choices.
+        ...(result.choices ? { choices: result.choices } : {}),
       });
       recentObservationKeys.push(observationKey(call.name, call.args, result.output));
       yield {

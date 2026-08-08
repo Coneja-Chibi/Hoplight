@@ -29,6 +29,7 @@ import { BulkBar } from "./bulk-bar";
 import { SettingsBar } from "./settings-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
 import { LiveBuild } from "./live-build";
+import { SplitPane } from "../../../components/split-pane";
 import {
   addBlock,
   addGroup,
@@ -55,6 +56,8 @@ export interface PresetEditorViewProps {
 }
 
 const WRITE_FOR_PREF = "preset.writeFor";
+/** Where the divider between the prompt list and the rail sits, remembered per studio. */
+const PREF_SPLIT = "preset.split";
 
 /** The rail is the ONE place whole-preset truth lives (the locked wire's ruling), hence the tabs. */
 type RailTab = "edit" | "build";
@@ -194,8 +197,11 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
         onSampler={(key, value) => setBody((b) => setSampler(b, key, value))}
       />
 
-      <div className={s.body}>
-        <div className={s.listCol}>
+      <SplitPane
+        stored={ctx.prefs.get(PREF_SPLIT)}
+        onSplit={(next) => { ctx.prefs.set(PREF_SPLIT, next); }}
+        label="Resize the prompt list and the rail"
+        left={<div className={s.listCol}>
           <ListToolbar
             counts={counts}
             query={query}
@@ -244,9 +250,9 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
             onPatch={(id, patch) => setBody((b) => patchBlock(b, id, patch))}
             onAdd={() => setBody((b) => addBlock(b))}
           />
-        </div>
-        {/* the rail: per-BLOCK truth (RC's panel) or whole-PRESET truth (the engine's build) */}
-        <aside className={s.sidebar} aria-label="Preset rail">
+        </div>}
+        /* the rail: per-BLOCK truth (RC's panel) or whole-PRESET truth (the engine's build) */
+        right={<aside className={s.sidebar} aria-label="Preset rail">
           <div className={s.railTabs} role="tablist" aria-label="Rail view">
             {RAIL_TABS.map((t) => (
               <button
@@ -285,8 +291,8 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
               }}
             />
           )}
-        </aside>
-      </div>
+        </aside>}
+      />
     </div>
   );
 }

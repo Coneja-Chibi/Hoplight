@@ -9,6 +9,7 @@ import {
   type ExpressionProfile,
   type SpritePackValue,
 } from "../../../core/media";
+import { ExpandTextarea } from "../expand";
 import styles from "./styles.module.css";
 
 export interface ExpressionStageProps {
@@ -61,7 +62,8 @@ export function ExpressionStage({ pack, profile }: ExpressionStageProps): JSX.El
               </button>
             ))}
           </div>
-          <textarea
+          <ExpandTextarea
+            label="Sample line"
             className={styles.ta}
             placeholder="Sample character line…"
             value={text}

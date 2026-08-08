@@ -7,9 +7,10 @@
  * the other and owns the two things neither of them should decide alone - how wide the rail is on a
  * given terminal, and how many rows fit.
  */
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useTerminalDimensions } from "@opentui/react";
 import { OutlineRail } from "../primitives/rail/outline-rail";
+import { editorLabel } from "./use-rail-editor";
 import type { RailSession } from "./use-rail";
 
 /**
@@ -40,6 +41,13 @@ export function RailPane({
   rail: RailSession;
   contentOf?: (id: string) => string | undefined;
 }): ReactNode {
+  /**
+   * What the pointer is over, in words.
+   *
+   * Held here rather than in the rail's own state because it is a property of the POINTER, not of
+   * the preset: it must not survive a preset change, count as an edit, or reach the commit path.
+   */
+  const [hint, setHint] = useState<string>("");
   const { width, height } = useTerminalDimensions();
   // Two chrome rows (header, footer), plus one for the pending badge when it is showing.
   return (
@@ -75,6 +83,22 @@ export function RailPane({
       onRowDown={rail.onRowDown}
       onRowDrag={rail.onRowDrag}
       onRowDragEnd={rail.onRowDragEnd}
+      onResize={rail.resizeTo}
+      onToggle={rail.toggleRow}
+      onExpand={rail.expandRow}
+      onRename={rail.renameRow}
+      onRewrite={rail.rewriteRow}
+      onRenamePreset={rail.renamePreset}
+      hint={hint}
+      onHint={setHint}
+      keysOpen={rail.keysOpen}
+      onApply={rail.applyNow}
+      onFocus={rail.takeFocus}
+      editing={rail.editor.target
+        ? { label: editorLabel(rail.editor.target), draft: rail.editor.draft }
+        : null}
+      renamedTo={rail.pendingName}
+      noted={rail.pendingNote}
     />
   );
 }

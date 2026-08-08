@@ -15,6 +15,7 @@ import type { AppContext } from "../../../app-contract";
 import type { RegexRule } from "../../../../entities/regex/schema";
 import type { RegexRunResult } from "../../../../core/regex";
 import { escapeRegexChars } from "../../../../core/regex/replace-ops";
+import { ExpandTextarea } from "../../../components/expand";
 import { InkDialog } from "../../../components/ink-dialog";
 import { BenchImport } from "./bench-import";
 import { CHAIN_PHASES, captureLane, diffTokens, phaseLabel, skipReasonText } from "./bench-core";
@@ -162,7 +163,8 @@ export function BenchPane({
                 </button>
               </div>
               <div className={styles.scbody}>
-                <textarea
+                <ExpandTextarea
+                  label="Sample text to run the rules on"
                   className={styles.ta}
                   value={sample}
                   aria-label="Sample text to run the rules on"
@@ -301,7 +303,8 @@ export function BenchPane({
             <p className={styles.escHint}>
               Paste plain text and get a pattern that matches it exactly, special characters and all.
             </p>
-            <textarea
+            <ExpandTextarea
+              label="Literal text to escape"
               className={styles.ta}
               value={escInput}
               aria-label="Literal text to escape"

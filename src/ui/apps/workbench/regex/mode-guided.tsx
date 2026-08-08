@@ -18,6 +18,7 @@ import {
   type RegexWriteForProfile,
 } from "../../../../core/regex";
 import { mulberry32 } from "../../../../core/lore/rng";
+import { ExpandTextarea } from "../../../components/expand";
 import { PhasePicker } from "./phase-picker";
 import { seedFrom } from "./mode-words";
 
@@ -87,7 +88,8 @@ export function ModeGuided({ rule, writeFor, styles, onPatch, onEscape }: ModeGu
 
         {step === 0 && (
           <>
-            <textarea
+            <ExpandTextarea
+              label="Examples of text to catch"
               className={styles.qta}
               value={exampleText}
               placeholder={"is it raining\ndid it rain\nhas it rained"}

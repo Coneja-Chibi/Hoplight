@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:f4fc5ae64df7499382773555c7cc733caf9499cd0c7b1a487d309c80ab87c738",
-  "semanticSummaryHash": "sha256:3aea8b307f7ca68164c3a2c5de935a4687d31cf1a03439334161c644362a0c1d",
+  "sourceHash": "sha256:2e3be51ea7a5a839e3531c587fd5b50ea304e2ed74d56143682a899b7d63287a",
+  "semanticSummaryHash": "sha256:61d19cfc80ce04e108442fe312468fdf469151ff2de72960bf9ce53c924a34d7",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
-  "reviewedAt": "2026-07-31T19:18:39.112Z"
+  "notes": "Generated catalog refresh: the agent window's widgets, expand boxes and split pane.",
+  "reviewedAt": "2026-08-08T01:14:01.045Z"
 }

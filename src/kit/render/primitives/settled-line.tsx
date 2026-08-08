@@ -8,6 +8,7 @@ import { BackstageRow } from "./backstage-row";
 import { DoctorCard } from "./doctor-card";
 import { ErrorRow } from "./error-row";
 import { SayLine } from "./say-line";
+import { saysOpen } from "../say-fold";
 import { ThoughtRow } from "./thought-row";
 import { ToolRow } from "./tool-row";
 import { YouLine } from "./you-line";
@@ -16,21 +17,36 @@ import { PastedImage } from "./pasted-image";
 import { PortraitBlock } from "./portrait-block";
 import { useTerminalDimensions } from "@opentui/react";
 import { ChoiceList } from "./choice-list";
+import type { AskState } from "../ask/ask-core";
 
 export function SettledLine({
   line,
   index,
+  lines,
   pieces,
   onCopy,
-  onPick,
+  ask,
   onToggle,
 }: {
   line: RenderLine;
   index: number;
+  /** Every settled line, so the newest reply can be shown open. See say-fold.ts. */
+  lines: readonly RenderLine[];
   pieces: readonly EntitySummary[];
   onCopy: (text: string) => void;
   /** Fill the composer with a picked option. Never sends - the person still owns the message. */
-  onPick?: (value: string) => void;
+  /**
+   * The live question's cursor and fields, when THIS line is the live one.
+   *
+   * Absent on every other choices line, which is what stops a number key reaching back into a
+   * question further up the transcript that has already been answered or abandoned.
+   */
+  ask?: {
+    state: AskState;
+    writing: boolean;
+    select: (index: number, kind: "option" | "own" | "chat") => void;
+    editNote: () => void;
+  };
   onToggle: () => void;
 }): ReactNode {
   const term = useTerminalDimensions();
@@ -47,7 +63,14 @@ export function SettledLine({
     return <ErrorRow text={line.text} onCopy={() => onCopy(line.text)} />;
   }
   if (line.role === "choices") {
-    return <ChoiceList question={line.question} options={line.options} onPick={onPick} />;
+    return (
+      <ChoiceList
+        question={line.question}
+        options={line.options}
+        answered={line.answered ?? null}
+        {...(ask ? { state: ask.state, writing: ask.writing, onSelect: ask.select, onEditNote: ask.editNote } : {})}
+      />
+    );
   }
   if (line.role === "image") {
     return <PastedImage bytes={line.bytes} width={line.width} height={line.height} note={line.note} />;
@@ -94,7 +117,9 @@ export function SettledLine({
   return (
     <SayLine
       text={line.text}
-      open={line.open}
+      // NOT line.open: undefined means nobody has toggled it, and the NEWEST reply is the one being
+      // read rather than scrollback. A long answer used to fold itself the instant it settled.
+      open={saysOpen(lines, index, line)}
       onToggle={onToggle}
       onCopy={() => onCopy(line.text)}
       pieces={pieces}

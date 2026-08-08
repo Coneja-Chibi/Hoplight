@@ -10,14 +10,19 @@ import { describe, expect, test } from "bun:test";
 import tool from "./preset-verify";
 import type { ToolContext } from "./tool";
 import { resolve } from "node:path";
-import { grantFolder } from "./_shared/grants";
 
-// Every real dispatch carries a bridge; the boundary check reads studioDir from it.
-// Every real dispatch carries a bridge; the boundary check reads studioDir from it. Rooted at the
-// repo so the engine-absent case can use a file that genuinely exists.
-const ctx = { bridge: { studioDir: resolve(".") } } as unknown as ToolContext;
-const run = (args: Record<string, unknown>) =>
-  tool.execute(tool.input.parse(args), ctx);
+/**
+ * The tool takes a studio ID now, so the bridge has to answer reads. `reads` records what it was
+ * asked for, which is how the tests below prove no filesystem path ever leaves this tool.
+ */
+const reads: { kind: string; id: string }[] = [];
+const bridgeWith = (found: unknown) => ({
+  studioDir: resolve("."),
+  read: async (kind: string, id: string) => { reads.push({ kind, id }); return found; },
+});
+const ctx = { bridge: bridgeWith({ kind: "preset", body: { prompts: [] } }) } as unknown as ToolContext;
+const run = (args: Record<string, unknown>, context: ToolContext = ctx) =>
+  tool.execute(tool.input.parse(args), context);
 
 describe("preset_verify", () => {
   test("is read-only and directly visible, since it gates nothing and answers a common question", () => {
@@ -28,7 +33,7 @@ describe("preset_verify", () => {
   test("an absent engine says nothing was checked, in those words", async () => {
     const result = await run({
       engine: "marinara",
-      preset: resolve("samples/sillytavern/fixtures/minimal.preset.json"),
+      preset: "minimal-preset",
     });
     expect(result.output).toContain("HOPLIGHT_MARINARA_ROOT");
     // The sentence a model must not be able to misread as success.
@@ -36,11 +41,10 @@ describe("preset_verify", () => {
     expect(result.summary).toContain("not available");
   });
 
-  test("a missing preset is reported as missing, not as resolving cleanly", async () => {
-    const result = await run({
-      engine: "sillytavern",
-      preset: resolve("definitely-not-here-9f3a.json"),
-    });
+  test("a preset that is not in the studio is reported as missing, not as resolving cleanly", async () => {
+    const absent = { bridge: bridgeWith(null) } as unknown as ToolContext;
+    const result = await run({ engine: "sillytavern", preset: "not-a-real-id" }, absent);
+    expect(result.summary).toContain("no such preset");
     expect(result.summary).not.toContain("clean");
   });
 
@@ -65,44 +69,41 @@ describe("preset_verify", () => {
   });
 });
 
-describe("the folder boundary", () => {
-  const ctx = { bridge: { studioDir: resolve("/studio") } } as unknown as ToolContext;
+/**
+ * NO PATH REACHES THE FILESYSTEM ANY MORE.
+ *
+ * This tool used to take a path from the model, so it carried a containment check against the
+ * folders you had shared - and those checks were the tests that lived here. The argument is a
+ * studio id now, resolved through the bridge, so containment is not enforced by a check that could
+ * be forgotten: there is no longer a string from the model that names a file at all.
+ *
+ * These tests hold that line. A path-shaped argument must be treated as a (nonexistent) id and
+ * must never be opened.
+ */
+describe("a path is not a way in", () => {
+  const seen = () => reads.map((r) => r.id);
 
-  test("a path outside every shared folder is refused, not read", () => {
-    // "Only reads" is not the same promise as "only reads what you pointed me at".
-    const out = tool.execute(tool.input.parse({
-      engine: "sillytavern",
-      preset: resolve("/somewhere/else/secrets.json"),
-    }), ctx);
-    return out.then((r) => {
-      expect(r.summary).toContain("outside-grants");
-      expect(r.summary).not.toContain("clean");
-    });
+  test("a path-shaped argument is looked up as an id and finds nothing", async () => {
+    reads.length = 0;
+    const absent = { bridge: bridgeWith(null) } as unknown as ToolContext;
+    const result = await run({ engine: "sillytavern", preset: "/etc/passwd" }, absent);
+    expect(result.summary).toContain("no such preset");
+    // Asked the studio for an id, never asked the disk for a file.
+    expect(seen()).toEqual(["/etc/passwd"]);
   });
 
-  test("the studio itself is always readable", async () => {
-    // Kit's own working directory; every other tool reaches it freely, so a grant would be theatre.
-    const r = await tool.execute(tool.input.parse({
-      engine: "sillytavern",
-      preset: resolve("/studio/a.json"),
-    }), ctx);
-    // Refused for a missing engine or a missing file, but NOT for the boundary.
-    expect(r.summary).not.toContain("outside-grants");
+  test("a traversal-shaped argument is treated the same way", async () => {
+    reads.length = 0;
+    const absent = { bridge: bridgeWith(null) } as unknown as ToolContext;
+    const result = await run({ engine: "sillytavern", preset: "../../secrets" }, absent);
+    expect(result.summary).toContain("no such preset");
+    expect(reads[0]?.kind).toBe("preset");
   });
 
-  test("a granted folder is readable, and only that folder", async () => {
-    const granted = {
-      bridge: { studioDir: resolve("/studio") },
-      grants: [grantFolder("/shared", "shared")],
-    } as unknown as ToolContext;
-    const inside = await tool.execute(tool.input.parse({
-      engine: "sillytavern", preset: resolve("/shared/p.json"),
-    }), granted);
-    expect(inside.summary).not.toContain("outside-grants");
-    // The prefix-sibling case, which is how this check is usually written wrong.
-    const sibling = await tool.execute(tool.input.parse({
-      engine: "sillytavern", preset: resolve("/shared-backup/p.json"),
-    }), granted);
-    expect(sibling.summary).toContain("outside-grants");
+  test("it only ever reads the preset kind", async () => {
+    reads.length = 0;
+    const absent = { bridge: bridgeWith(null) } as unknown as ToolContext;
+    await run({ engine: "sillytavern", preset: "anything" }, absent);
+    expect(reads.every((r) => r.kind === "preset")).toBe(true);
   });
 });

@@ -12,9 +12,16 @@
  * none. So the model emits DATA, the shell renders it, and the rule stays the one it is everywhere
  * else in Kit: prose from a model is never the interaction surface.
  *
- * IT DOES NOT ANSWER FOR ANYBODY. Picking fills the composer; it does not send. The person can edit
- * the value, add to it, or ignore the list entirely - which is the difference between offering a
- * choice and taking one.
+ * IT DOES NOT ANSWER FOR ANYBODY, and that is now two visible steps rather than a hidden one.
+ * Clicking or pressing a number SELECTS; enter sends. Picking used to fill the composer and stop,
+ * which bought the same protection invisibly and charged for it in confusion: people clicked, saw
+ * their answer appear in the text box, and reported it as broken. The two steps are the protection,
+ * so the answer can go straight out once it is armed - and the panel states what enter will send
+ * before it goes.
+ *
+ * A NOTE RIDES ALONG. "Trackers, but only for the ones with art" is one thought, and it goes as one
+ * message: sending the pick and the caveat separately would let the model answer the first before
+ * reading the second.
  *
  * Read-only, and genuinely so: it stores nothing, reads nothing, and touches no boundary. All it does
  * is hand the shell a shape it knows how to draw.
@@ -40,8 +47,9 @@ const askChoice: HarnessTool<Input> = {
   name: "ask_choice",
   description:
     "Offer the user a list to pick from instead of writing the options into a sentence. Use it "
-    + "whenever you would otherwise say \"which one:\" and list ids or names. Picking fills their "
-    + "composer; it does not send, so they stay in control of the message. Writes nothing.",
+    + "whenever you would otherwise say \"which one:\" and list ids or names. They select, then "
+    + "press enter to send, and may attach a note or write their own answer instead. Their reply "
+    + "arrives as an ordinary next message, so ask one question at a time and wait. Writes nothing.",
   exposure: "direct",
   effect: "read",
   input,

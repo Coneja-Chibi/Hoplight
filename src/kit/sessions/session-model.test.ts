@@ -30,6 +30,7 @@ describe("session-model", () => {
       version: 1,
       id: "abc",
       title: null,
+      rail: null,
       createdAt: 5,
       updatedAt: 5,
       parent: null,

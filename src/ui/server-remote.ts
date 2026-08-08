@@ -67,6 +67,17 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
     p.startsWith("/api/remote/") ||
     p.startsWith("/api/updates/") || // version timeline + switch: never a guest's to drive
     p === "/api/update-check" || // even the outbound GitHub ping is the host's alone
+    /**
+     * THE AGENT WINDOW, on the same principle and harder.
+     *
+     * A turn spends the host's API credits against the host's own key, and the request carries a
+     * description of what is in the host's studio to somebody else's servers. A guest who may read
+     * a shared studio has not thereby been handed the owner's billing account. The events stream
+     * belongs here too: it opens a filesystem watch on the host's machine per connection.
+     *
+     * The GitHub ping above is host-only and costs nothing. This costs money.
+     */
+    p.startsWith("/api/agent/") ||
     p === "/api/open" ||
     p === "/api/shutdown" ||
     p === "/api/restart" ||

@@ -10,6 +10,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 
 | Name | File | Signature | Doc | Styles |
 | --- | --- | --- | --- | --- |
+| AgentRoom | src/ui/apps/agent/room.tsx | ({ ctx, onClose }: { ctx: AppContext; onClose?: () => void }) | Shows the screen the agent can see, and talks to whichever model the vault has. |  |
 | AltFields | src/ui/components/alt-fields/index.tsx | ({ value, onChange }: AltFieldsProps) |  | .wrap .section .gtitle |
 | AnimatedThemeToggler | src/ui/components/animated-theme-toggler/index.tsx | ({ theme, onToggle, duration = 400, fromCenter = false, id, }: AnimatedThemeTogglerProps) | Switch between paper and stage with a reveal that grows from the control. | .iconStack .hidden .shown |
 | App | src/ui/shell/App.tsx | () |  |  |
@@ -34,12 +35,14 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ChangesPane | src/ui/apps/workbench/lore/changes-pane.tsx | ({ baseline, body, onRevertField, onRestoreEntry, onUndoSwap, onJumpEntry, onClose, }: ChangesPaneProps) |  |  |
 | CharacterEditor | src/ui/apps/workbench/Editor.tsx | ({ entity, revision, ctx, piece, topRight }: CharacterEditorProps) | Build the writable pane for one canonical character (the vs-editor-2 surface, 1:1). | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
 | CharacterFilterBlock | src/ui/apps/workbench/lore/platforms/filter-block.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
+| ChoiceList | src/ui/agent/kit-choice.tsx | ({ choices, answered, busy, onSend, }: { choices: AskChoices; answered?: string \| undefined; busy?: boolean; onSend: ... |  |  |
 | ClosePieceDialog | src/ui/shell/ClosePieceDialog.tsx | () |  |  |
 | ClosePiecePrompt | src/ui/shell/ClosePieceDialog.tsx | ({ name, onDiscard, onKeep, }: ClosePiecePromptProps) |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | ConfirmSwitch | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ installed, target, kind, onConfirm, onCancel, }: { installed: string; target: string; kind: "update" \| "rollback";... | Confirm a switch. Rollbacks read as danger; a rollback to a pre-feature version says so plainly. |  |
 | ContentCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaWriteForProfile; }) | The flat identity text (the whole persona on section-less platforms). |  |
+| CopyableBand | src/ui/agent/kit-bands.tsx | ({ className, text, onNotice, onClick, children, }: { className: string; text?: string; onNotice?: (message: string) ... | A band with a copy corner. |  |
 | CssAdvancedPane | src/ui/components/css-workshop/advanced-pane.tsx | ({ value, onChange, doc, selected, onSelectRule, onRuleChange, onChip, }: CssAdvancedPaneProps) | Code + breakdown split for advanced authors. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssAssistPane | src/ui/components/css-workshop/assist-pane.tsx | ({ pack, doc, selected, onSelectRule, onAddRule, onRuleChange, onDeleteRule, }: CssAssistPaneProps) | Structured assist over one rule at a time. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssSourcePane | src/ui/components/css-workshop/source-pane.tsx | ({ value, onChange, onChip }: CssSourcePaneProps) | Source tab: chips assist, editor is the sheet. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
@@ -61,18 +64,24 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | EditorTabstrip | src/ui/apps/workbench/presenters/editor-chrome.tsx | ({ coverage, targets, platformLabel, toggleTarget, clearTargets, offTarget, pickOffTarget, lensActive, lensVisibleCou... |  |  |
 | EntryTocItem | src/ui/apps/workbench/lore/entry-toc-item.tsx | ({ entry, writeFor, styles, categories, onPatch, onOpen, onDuplicate, onDelete, onOpenBeside, }: EntryTocItemProps) |  |  |
 | EntryWhenWhere | src/ui/apps/workbench/lore/entry-when-where.tsx | ({ entry, writeFor, styles, onPatch, folds, onFoldToggle, }: EntryWhenWhereProps) |  |  |
+| ErrorRow | src/ui/agent/kit-bands.tsx | ({ text, onNotice, }: { text: string; onNotice?: (message: string) => void; }) | A failure, as a band rather than as a loose paragraph. |  |
 | ExampleMode | src/ui/apps/workbench/regex/example-mode.tsx | ({ exampleText, styles, onChangeExamples }: ExampleModeProps) |  |  |
+| ExpandBox | src/ui/components/expand/index.tsx | ({ label, children, onExpandedChange }: ExpandBoxProps) | Wraps one editor with an expand control and the fullscreen sheet it expands into. | .frame .toggle .inlineToggle .away .scrim .sheet .head .title ... |
+| ExpandTextarea | src/ui/components/expand/index.tsx | ({ label, ...rest }: ExpandTextareaProps) | A textarea that can go fullscreen: drop-in for a raw one, same props, same value ownership. | .frame .toggle .inlineToggle .away .scrim .sheet .head .title ... |
 | ExportDialog | src/ui/components/export-dialog/index.tsx | ({ ctx, entity, name, hasPackage = false, onClose, }: ExportDialogProps) |  | .sheet .title .sub .chips .chip .list .opt .optOn ... |
 | ExpressionGroups | src/ui/components/expression-map/groups.tsx | ({ value, onChange }: ExpressionGroupsProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionMap | src/ui/components/expression-map/index.tsx | ({ value, onChange, hideEnabled }: ExpressionMapProps) |  | .wrap .note .row .k .lbl .sel .gtitle |
 | ExpressionStage | src/ui/components/expression-stage/index.tsx | ({ pack, profile }: ExpressionStageProps) |  | .wrap .seal .row .face .moods .mood .moodOn .ta ... |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FinePrint | src/ui/apps/workbench/regex/fine-print.tsx | ({ rule, rules, writeFor, styles, onPatch }: FinePrintProps) |  |  |
+| FloatingAgent | src/ui/agent/floating-agent.tsx | ({ ctx, open, onClose, }: { ctx: AppContext; open: boolean; onClose: () => void; }) |  |  |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
+| FoldedSay | src/ui/agent/kit-bands.tsx | ({ text, onToggle }: { text: string; onToggle: () => void }) | A long reply, folded to one line. |  |
 | FolderInspector | src/ui/apps/workbench/lore/folder-inspector.tsx | ({ category, categories, edges, collapsed, styles, onRename, onMove, onToggleEnabled, onClone, onToggleCollapse, onDe... |  |  |
 | FollowDialog | src/ui/shell/FollowDialog.tsx | () |  |  |
 | GalleryPane | src/ui/apps/workbench/regex/gallery-pane.tsx | ({ onPick, onStartBlank, onClose }: GalleryPaneProps) |  |  |
+| GateCard | src/ui/agent/gate-card.tsx | ({ request, busy, onAnswer, }: { request: GateView \| null; busy?: boolean; onAnswer: (choice: GateAnswerChoice) => vo... |  |  |
 | GradientControl | src/ui/apps/workbench/controls/color-controls.tsx | ({ value, onChange, styles }: GradientControlProps) |  |  |
 | HealthPane | src/ui/apps/workbench/lore/health-pane.tsx | ({ body, onTransform, onJumpEntry, onClose, extraFindings = [], }: HealthPaneProps) |  |  |
 | HealthPane | src/ui/apps/workbench/regex/health-pane.tsx | ({ findings, rules, onClose, onGoTo, onFix }: HealthPaneProps) |  |  |
@@ -85,7 +94,10 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
 | InjectionCard | src/ui/apps/workbench/persona/injection-card.tsx | ({ body, onBody, stops, labels, showWrapper }: InjectionCardProps) |  |  |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim or pressing Escape calls onDismiss. | .overlay .sheet |
+| KeyHints | src/ui/agent/kit-widgets.tsx | ({ hints }: { hints: readonly { key: string; label?: string }[] }) | A row of keyboard hints: a bright key, then a muted label. Kit's CLI signature. |  |
 | KeywordChips | src/ui/apps/workbench/lore/keyword-chips.tsx | ({ triggers, onChange, styles, placeholder, ariaLabel, advanced = false, pickedIndex, onPick, entryProbability = 100,... |  |  |
+| KitCommandBand | src/ui/agent/kit-command-bands.tsx | ({ title, widget, onSend, onRewind, }: { title: string; widget: KitWidget; onSend: (line: string) => void; onRewind: ... | Draw whatever this line carried. |  |
+| KitMarkdown | src/ui/agent/kit-markdown.tsx | ({ text }: { text: string }) | A whole reply. |  |
 | KnowledgeRail | src/ui/apps/workbench/lore/KnowledgeRail.tsx | ({ ctx, refs, onChange }: KnowledgeRailProps) |  |  |
 | LanCard | src/ui/apps/settings/sections/lan-card.tsx | ({ ctx, hidden, redacted, }: { ctx: AppContext; hidden: boolean; redacted: boolean; }) |  |  |
 | LeavingGate | src/ui/components/leaving-gate/index.tsx | () |  | .scrim .card .kicker .lede .badge .tile .globe .pname ... |
@@ -107,6 +119,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | MacroReference | src/ui/apps/workbench/preset/macro-reference.tsx | ({ groups }: MacroReferenceProps) |  |  |
 | MarinaraFolderToc | src/ui/apps/workbench/lore/folder-toc.tsx | ({ entries, categories, edges, focusedId, selectedFolderId, collapsed, writeFor, styles, bookName, onSelectEntry, onS... |  |  |
 | Menu | src/ui/shell/Menu.tsx | () |  |  |
+| MeterBar | src/ui/agent/kit-meters.tsx | ({ tokens, maxContext, }: { tokens: Tokens; maxContext: number \| undefined; }) | The composed row, which is the single widget the window drops in. |  |
 | MiniSelect | src/ui/apps/workbench/workshop/mini-select.tsx | ({ opts, value, onChange }: MiniSelectProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | MobileEditorHead | src/ui/components/mobile-editor-head/index.tsx | ({ name, sub, dirty, saving, onBack, onSave, menu }: MobileEditorHeadProps) | Back / name / save / kebab at 2.2rem touch targets; the kebab holds the long tail. | .head .back .name .save .kebabWrap .kebab .menu |
 | ModeGuided | src/ui/apps/workbench/regex/mode-guided.tsx | ({ rule, writeFor, styles, onPatch, onEscape }: ModeGuidedProps) |  |  |
@@ -140,7 +153,9 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | Recommendations | src/ui/components/recommendations/index.tsx | ({ value, onChange }: RecommendationsProps) |  | .wrap .group .ghead |
 | RegexSetEditor | src/ui/apps/workbench/regex/set-editor.tsx | ({ entity, revision, ctx, piece, topRight }: RegexSetEditorProps) |  |  |
 | RegexWorkshopDialog | src/ui/apps/library/regex-workshop-dialog.tsx | ({ ctx, state, onDone, onDismiss, }: RegexWorkshopDialogProps) |  |  |
+| Rehearsal | src/ui/agent/kit-widgets.tsx | ({ text, startedAt }: { text: string; startedAt: number }) | The open rehearsal: the model's reasoning while it is still happening. |  |
 | RehearsalPane | src/ui/apps/workbench/lore/rehearsal-pane.tsx | ({ body, onClose, onJumpEntry, onAddKeyword, }: RehearsalPaneProps) |  |  |
+| RehearsalTrace | src/ui/agent/kit-widgets.tsx | ({ text, seconds, open, onToggle, }: { text: string; seconds: number; open: boolean; onToggle: () => void; }) | A landed rehearsal, folded to one line. |  |
 | RenderBox | src/ui/components/render-box/index.tsx | ({ value, format, children, defaultRendered = true, displayOnly = false, onLinkClick, }: RenderBoxProps) | A content box that toggles between a sanitized rendered view and its raw source. | .box .bar .toggle .out .src .plain |
 | ResponseSchema | src/ui/components/response-schema/index.tsx | ({ value, onChange }: ResponseSchemaProps) |  | .wrap .lbl .row .input .sel .ta .name .grid ... |
 | RpgStats | src/ui/components/rpg-stats/index.tsx | ({ value, onChange }: RpgStatsProps) |  | .wrap .row .k .group .gtitle |
@@ -151,6 +166,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
 | SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
+| Searchlight | src/ui/agent/kit-widgets.tsx | ({ on }: { on: boolean }) | The searchlight: a rose beam gliding along the composer's top edge while a turn runs. |  |
 | SectionCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, sectionKey, title, placeholder, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaW... | One canonical text section as a bento tile; Personality also carries the trait chips. |  |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .roomHost .room .tabs .tab .on .body .row .tx ... |
 | SettingsBar | src/ui/apps/workbench/preset/settings-bar.tsx | ({ body, showSamplers, onDescription, onSampler }: SettingsBarProps) |  |  |
@@ -158,13 +174,17 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SetupWizard | src/ui/setup/wizard.tsx | ({ ctx, existing, onComplete }: SetupWizardProps) | Renders the wizard; calls onComplete with the draft (all keys filled) when OPEN VAUDE is pressed. |  |
 | SheetSlicePanel | src/ui/components/sprite-pack/dialog-panels.tsx | ({ sheetCols, sheetRows, sheetRef, onCols, onRows, onPick, onFile, }: { sheetCols: number; sheetRows: number; sheetRe... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | ShelfKicker | src/ui/components/ticket-window/index.tsx | ({ children }: { children: string }) | The mono microlabel naming a strip shelf; siblings (variants, expressions) borrow it so every | .sheet .booth .marquee .marqueeTitle .glass .glassDrag .monogram .emptyLine ... |
+| SlashMenu | src/ui/agent/slash-menu.tsx | ({ title, choices, active, onPick, }: { title: string; choices: readonly SlashChoice[]; active: number; onPick: (inde... |  |  |
 | Slider | src/ui/components/slider/index.tsx | ({ value, min, max, step = 1, onChange, format, "aria-label": ariaLabel, }: SliderProps) |  | .wrap .range .readout |
+| SplitPane | src/ui/components/split-pane/index.tsx | ({ left, right, defaultSplit = 0.28, stored, onSplit, label = "Resize panels", }: { left: ReactNode; right: ReactNode... |  |  |
 | SpritePack | src/ui/components/sprite-pack/index.tsx | ({ value, onChange, showEnabled = false, showDefault = true, allowMultiFile = true, profile, showSlots = false, focus... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | SpritePackDialog | src/ui/components/sprite-pack/dialog.tsx | ({ characterName, pack, groups: initialGroups = {}, targets = [], showEnabled = false, showDefault = true, showGroups... |  | .sheet .head .title .closeX .bar .lbl .sel .meta ... |
 | SpriteParts | src/ui/components/sprite-parts/index.tsx | ({ value, visualType = "sprite", onChange, onVisualTypeChange, }: SpritePartsProps) |  | .wrap .row .lbl .sel .input .parts .part .color ... |
+| Stagehand | src/ui/agent/kit-widgets.tsx | ({ startedAt }: { startedAt: number }) | The stagehand: the hushed in-transcript line while Kit is out working. |  |
 | Stamp | src/ui/components/stamp/index.tsx | ({ children, onClick, disabled, accent, title, type = "button", id, "aria-label": ariaLabel, }: StampProps) | The stamp button: rest sits flush, hover lifts and grows its shadow, active presses flat. | .topbtn |
 | StateGraphPane | src/ui/apps/workbench/workshop/state-graph/pane.tsx | ({ triggers, defaultVarsText, onApply, }: StateGraphPaneProps) |  |  |
 | StatusBar | src/ui/shell/StatusBar.tsx | () |  |  |
+| StatusToast | src/ui/agent/kit-bands.tsx | ({ text }: { text: string \| null }) | A brief statement about something the window itself just did. |  |
 | StructuredPersona | src/ui/components/structured-persona/index.tsx | ({ value, onChange }: StructuredPersonaProps) |  | .wrap .kinds .kind .kindOn .attr .top .key .chips ... |
 | StubEditor | src/ui/components/stub-editor/index.tsx | ({ title, note, onClose, children }: StubEditorProps) |  | .head .note .body .close |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
@@ -176,10 +196,12 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | TourGuide | src/ui/components/tour-guide/index.tsx | ({ tour, ctx, onClose }: TourGuideProps) |  | .rail .kick .skip .dots .done .now .count .title ... |
 | TrackerCardColors | src/ui/components/tracker-card-colors/index.tsx | ({ value, onChange }: TrackerCardColorsProps) |  | .wrap .help .colorBlock .k .cssIn |
 | TrackerSetup | src/ui/components/tracker-setup/index.tsx | ({ value, onChange }: TrackerSetupProps) |  | .wrap .wt .notes .k .sel .ta .mod .on ... |
+| Transcript | src/ui/agent/kit-transcript.tsx | ({ lines, streaming, busy, problem, acts, onFold, onNotice, onAnswer, }: { lines: readonly ChatLine[]; streaming: str... | The whole transcript. |  |
 | TransferBench | src/ui/components/transfer-bench/index.tsx | ({ leftTitle, rightTitle, left, right, name, namePlaceholder = "Name for the new book", applyLabel = "Apply", require... |  | .wrap .nameRow .note .bench .col .colHead .small .list ... |
 | TriggerEditor | src/ui/apps/workbench/lore/trigger-editor.tsx | ({ triggers, onChange, styles, advanced, placeholder, ariaLabel, showSpecials = false, entryProbability = 100, }: Tri... |  |  |
 | VariantStrip | src/ui/components/variant-strip/index.tsx | ({ variants, activeId, artUrl, variantArt = {}, onSelect, onAdd, onRemove, onRename, onMode, }: VariantStripProps) |  | .wrap .row .thumb .on .add .editRow .name .mode ... |
 | VoiceSetup | src/ui/components/voice-setup/index.tsx | ({ value, onChange }: VoiceSetupProps) |  | .wrap .grid .lbl .sel .input .extras .exrow .rm ... |
+| WatchNote | src/ui/agent/kit-widgets.tsx | ({ kinds }: { kinds: readonly string[] }) | The watcher: something changed in the studio that Kit did not do. |  |
 | WebView | src/ui/apps/workbench/lore/web-view.tsx | ({ body, onSelect, onFallbackCards }: WebViewProps) |  |  |
 | WorkshopCodePane | src/ui/apps/workbench/workshop/code-pane.tsx | (props: WorkshopCodePaneProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |
 | WorkshopConsole | src/ui/apps/workbench/workshop/console.tsx | (props: WorkshopConsoleProps) |  | .shell .rail .railhead .part .partOn .ct .sealed .ico ... |

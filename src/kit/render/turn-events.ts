@@ -55,6 +55,13 @@ export type RenderLine =
     role: "choices";
     question: string;
     options: readonly { value: string; note?: string }[];
+    /**
+     * What was sent in reply, once it has been.
+     *
+     * An answered panel collapses to this rather than keeping live options in the scrollback, where
+     * they would invite answering the same question twice after the model had moved on.
+     */
+    answered?: string;
   }
   | { role: "doctor"; checks: DoctorResult[] }
   | { role: "thought"; text: string; seconds: number; open: boolean }

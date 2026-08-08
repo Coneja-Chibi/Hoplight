@@ -149,3 +149,48 @@ describe("the staged draft is never left behind", () => {
     expect(harness.discarded).toEqual([]);
   });
 });
+
+describe("the rename and the note reach the stage call", () => {
+  /**
+   * This is the link that was broken, and it was invisible from either end: the rail knew about the
+   * rename, `session.presets.stage` handled one correctly when called directly, and commitRail sat in
+   * between accepting `meta` and passing `stage(id, rows)` without it. A staged rename therefore came
+   * back "Nothing to apply", which was literally true and completely misleading.
+   *
+   * Testing the seam underneath is what let it hide, so this tests the door somebody actually uses.
+   */
+  test("meta is handed to stage, not dropped", async () => {
+    let sawMeta: unknown = "never called";
+    const deps = {
+      stage: async (_id: string, _rows: readonly OutlineRow[], meta?: unknown) => {
+        sawMeta = meta;
+        return { ok: false as const, detail: "stop here" };
+      },
+      commit: async () => ({ status: "applied" }) as never,
+      discard: () => {},
+      confirm: async () => "allow" as never,
+      say: () => {},
+    };
+
+    await commitRail("p1", [], deps as never, { name: "New Title", note: "a note" });
+    expect(sawMeta).toEqual({ name: "New Title", note: "a note" });
+  });
+
+  test("no meta stays undefined rather than becoming an empty object", async () => {
+    // An empty object would read downstream as "a rename to nothing" rather than "no rename".
+    let sawMeta: unknown = "never called";
+    const deps = {
+      stage: async (_id: string, _rows: readonly OutlineRow[], meta?: unknown) => {
+        sawMeta = meta;
+        return { ok: false as const, detail: "stop here" };
+      },
+      commit: async () => ({ status: "applied" }) as never,
+      discard: () => {},
+      confirm: async () => "allow" as never,
+      say: () => {},
+    };
+
+    await commitRail("p1", [], deps as never);
+    expect(sawMeta).toBeUndefined();
+  });
+});

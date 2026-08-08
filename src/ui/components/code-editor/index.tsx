@@ -4,7 +4,8 @@
  * (React text nodes, never innerHTML - the source is untrusted), with a line-number gutter and a
  * caret-anchored CBS macro autocomplete. Nothing here executes the code; running it is the sandbox's job.
  */
-import { useRef, useState, type JSX } from "react";
+import { useCallback, useRef, useState, type JSX } from "react";
+import { ExpandBox } from "../expand";
 import { tokenize, type CodeLang } from "./highlight";
 import styles from "./index.module.css";
 
@@ -36,10 +37,13 @@ export interface CodeEditorProps {
   placeholder?: string;
   minRows?: number;
   macros?: readonly MacroHint[];
+  /** names this editor in the fullscreen view; defaults to the language it highlights */
+  label?: string;
 }
 
 export function CodeEditor(props: CodeEditorProps): JSX.Element {
   const { value, onChange, language = "text", placeholder, minRows = 8, macros = DEFAULT_MACROS } = props;
+  const label = props.label ?? (language === "text" ? "Source" : `${language.toUpperCase()} source`);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
   const gutterRef = useRef<HTMLDivElement>(null);
@@ -139,52 +143,58 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
     }
   };
 
+  // The popover is anchored to caret pixels; those coordinates mean nothing after the editor moves
+  // between the inline frame and the fullscreen sheet, so drop it on either toggle.
+  const dropAc = useCallback((): void => setAc(null), []);
+
   return (
-    <div className={styles.wrap}>
-      <div className={styles.gutter} ref={gutterRef}>{gutter}</div>
-      <div className={styles.stack}>
-        <pre className={styles.pre} ref={preRef} aria-hidden="true">
-          {tokens.map((t, i) => (
-            <span key={i} className={styles[t.type]}>{t.text}</span>
-          ))}
-          {"\n"}
-        </pre>
-        <textarea
-          ref={taRef}
-          className={styles.ta}
-          value={value}
-          placeholder={placeholder}
-          spellCheck={false}
-          style={{ minHeight: `${minRows * 1.6}em` }}
-          onChange={(e) => {
-            onChange(e.target.value);
-            refreshAc(e.target);
-          }}
-          onScroll={syncScroll}
-          onKeyDown={onKeyDown}
-          onBlur={() => setTimeout(() => setAc(null), 120)}
-        />
-        {ac && (
-          <div className={styles.ac} style={{ left: ac.x, top: ac.y }}>
-            <div className={styles.acHead}>macros &middot; tab to insert</div>
-            {ac.items.map((m, i) => (
-              <div
-                key={m.sig}
-                className={`${styles.acItem}${i === ac.index ? ` ${styles.acItemOn}` : ""}`}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setAc({ ...ac, index: i });
-                  insertMacro();
-                }}
-              >
-                <span className={styles.acSig}>{`{{${m.sig}}}`}</span>
-                <span className={styles.acDesc}>{m.desc}</span>
-              </div>
+    <ExpandBox label={label} onExpandedChange={dropAc}>
+      <div className={styles.wrap}>
+        <div className={styles.gutter} ref={gutterRef}>{gutter}</div>
+        <div className={styles.stack}>
+          <pre className={styles.pre} ref={preRef} aria-hidden="true">
+            {tokens.map((t, i) => (
+              <span key={i} className={styles[t.type]}>{t.text}</span>
             ))}
-          </div>
-        )}
-        <div className={styles.mirror} ref={mirrorRef} aria-hidden="true" />
+            {"\n"}
+          </pre>
+          <textarea
+            ref={taRef}
+            className={styles.ta}
+            value={value}
+            placeholder={placeholder}
+            spellCheck={false}
+            style={{ minHeight: `${minRows * 1.6}em` }}
+            onChange={(e) => {
+              onChange(e.target.value);
+              refreshAc(e.target);
+            }}
+            onScroll={syncScroll}
+            onKeyDown={onKeyDown}
+            onBlur={() => setTimeout(() => setAc(null), 120)}
+          />
+          {ac && (
+            <div className={styles.ac} style={{ left: ac.x, top: ac.y }}>
+              <div className={styles.acHead}>macros &middot; tab to insert</div>
+              {ac.items.map((m, i) => (
+                <div
+                  key={m.sig}
+                  className={`${styles.acItem}${i === ac.index ? ` ${styles.acItemOn}` : ""}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setAc({ ...ac, index: i });
+                    insertMacro();
+                  }}
+                >
+                  <span className={styles.acSig}>{`{{${m.sig}}}`}</span>
+                  <span className={styles.acDesc}>{m.desc}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className={styles.mirror} ref={mirrorRef} aria-hidden="true" />
+        </div>
       </div>
-    </div>
+    </ExpandBox>
   );
 }

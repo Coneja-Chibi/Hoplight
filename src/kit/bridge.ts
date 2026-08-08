@@ -6,11 +6,11 @@
  */
 import { homedir } from "node:os";
 import {
-  StudioStore,
   type CompareCreateResult,
   type CompareSaveResult,
   type EntitySummary,
 } from "../studio/store";
+import { openStudio } from "../foreign-reader";
 import { resolveDefaultStudioDir } from "../studio/resolve-dir";
 import { STUDIO_ENTITY_KINDS, type StudioEntityKind } from "../studio/path-policy";
 import type { ParsedCanonicalEntity } from "../entities/runtime-schema";
@@ -33,6 +33,14 @@ export interface KitBridge {
   deckCounts(): Promise<DeckCount[]>;
   /** Every entity summary, or just one deck kind's. Bad kinds resolve to []. */
   list(kind?: string): Promise<EntitySummary[]>;
+  /**
+   * Files in the studio folder that are NOT listed, grouped by why.
+   *
+   * Exists because the alternative is what Kit did before: a folder of 147 preset files listed three
+   * and mentioned nothing. A count that quietly excludes most of a folder is worse than a smaller
+   * count, because it reads as the folder being smaller.
+   */
+  unlisted?(kind?: string): Promise<{ reason: string; count: number; examples: string[] }[]>;
   /** One canonical entity, or null if the kind/id is unknown or unreadable. */
   read(kind: string, id: string): Promise<KitEntity | null>;
   /** Save (create, or overwrite when opts.overwrite) a canonical entity; returns its summary. A real
@@ -60,7 +68,8 @@ const DECK_LABELS: Record<StudioEntityKind, string> = {
 export function createBridge(
   studioDir: string = resolveDefaultStudioDir(homedir()),
 ): KitBridge {
-  const store = new StudioStore(studioDir);
+  // The reader used to live in this file, which is exactly why the desktop window did not have one.
+  const store = openStudio(studioDir);
   return {
     studioDir,
     async deckCounts(): Promise<DeckCount[]> {
@@ -77,6 +86,26 @@ export function createBridge(
     async list(kind?: string): Promise<EntitySummary[]> {
       try {
         return await store.list(kind);
+      } catch {
+        return [];
+      }
+    },
+    async unlisted(kind?: string) {
+      try {
+        const { damaged } = await store.inventory(kind);
+        const byReason = new Map<string, string[]>();
+        for (const entry of damaged) {
+          const names = byReason.get(entry.reason) ?? [];
+          names.push(entry.id);
+          byReason.set(entry.reason, names);
+        }
+        // Examples, not the whole list: naming three is enough to recognise which files are meant,
+        // and a hundred filenames in a transcript line is its own kind of unreadable.
+        return [...byReason].map(([reason, names]) => ({
+          reason,
+          count: names.length,
+          examples: names.slice(0, 3),
+        }));
       } catch {
         return [];
       }

@@ -50,6 +50,29 @@ const parseToolCall = (raw: unknown): ModelToolCall | null => {
 };
 
 /** A wire message, or null if its role/content is malformed. Optional tool fields are lenient. */
+/**
+ * A stored question panel, or null for anything that is not one.
+ *
+ * TOLERANT ON PURPOSE, unlike the rest of this file: a malformed panel costs the ABILITY TO REDRAW
+ * one question, while denying the message would cost the conversation it sits in. The turn is
+ * still perfectly readable without it.
+ */
+const parseChoices = (raw: unknown): ModelMessage["choices"] | null => {
+  if (!isRecord(raw)) return null;
+  if (typeof raw["question"] !== "string" || raw["question"].length === 0) return null;
+  if (!Array.isArray(raw["options"])) return null;
+  const options: { value: string; note?: string }[] = [];
+  for (const entry of raw["options"]) {
+    if (!isRecord(entry) || typeof entry["value"] !== "string" || entry["value"].length === 0) continue;
+    options.push({
+      value: entry["value"],
+      ...(typeof entry["note"] === "string" ? { note: entry["note"] } : {}),
+    });
+  }
+  // A question with nothing to pick is not a question; better no panel than an empty one.
+  return options.length > 0 ? { question: raw["question"], options } : null;
+};
+
 const parseMessage = (raw: unknown): ModelMessage | null => {
   if (!isRecord(raw)) return null;
   const role = raw["role"];
@@ -64,6 +87,7 @@ const parseMessage = (raw: unknown): ModelMessage | null => {
     ...(calls.length > 0 ? { toolCalls: calls } : {}),
     ...(typeof raw["toolCallId"] === "string" ? { toolCallId: raw["toolCallId"] } : {}),
     ...(typeof raw["toolName"] === "string" ? { toolName: raw["toolName"] } : {}),
+    ...(parseChoices(raw["choices"]) ? { choices: parseChoices(raw["choices"])! } : {}),
   };
 };
 
@@ -105,6 +129,9 @@ export const parseSession = (raw: unknown): Session | null => {
     turns.push(turn);
   }
   const title = raw["title"];
+  // ABSENT IS NULL, not a denial: every session written before the rail was remembered has no
+  // such field, and a strict parser that rejected them would eat somebody's whole history.
+  const rail = raw["rail"];
   return {
     version: 1,
     id: raw["id"],
@@ -113,6 +140,7 @@ export const parseSession = (raw: unknown): Session | null => {
     updatedAt: raw["updatedAt"],
     parent,
     turns,
+    rail: typeof rail === "string" && rail.length > 0 ? rail : null,
   };
 };
 

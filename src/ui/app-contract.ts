@@ -177,6 +177,19 @@ export interface AppContext {
     /** report an editor's unsaved state; the shell tab wears the dirty dot (the one saved/unsaved
      * indicator - no "saved locally" pill competes with it) */
     setDirty(id: string, kind: string, dirty: boolean): void;
+    /**
+     * Which open pieces carry unsaved work, keyed "kind:id".
+     *
+     * THE READER FOR setDirty, added because its absence pushed an app into importing the shell
+     * store directly - which the structural guardrail refuses, and rightly: an app bundle with its
+     * own copy of the store forks the store and React both. The one door needed widening rather
+     * than working around.
+     *
+     * Keyed WITHOUT the pane focus suffix, which is the trap: a pane is "kind:id@entry" and dirty
+     * is tracked per piece, so looking one up by pane key type-checks and reports every
+     * entry-focused lorebook as saved.
+     */
+    dirty(): Readonly<Record<string, boolean>>;
     /** per-piece last-opened timestamps ("kind:id" -> epoch ms); merged with importedAt to rank
      * the Workbench recents rail. A copy - callers never mutate the store. */
     recents(): Record<string, number>;

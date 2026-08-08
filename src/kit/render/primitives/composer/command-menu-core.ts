@@ -8,7 +8,19 @@ export const matchingCommands = (
   commands: readonly KitCommand[],
   draft: string,
 ): KitCommand[] => {
-  const query = draft.trim().toLowerCase();
+  /**
+   * TRIM THE START ONLY. A TRAILING SPACE IS THE WHOLE SIGNAL.
+   *
+   * This trimmed both ends, which deleted the one character that says the command word is finished:
+   * `/rail ` became `/rail`, sailed past the whitespace guard below, and kept the COMMAND popup open.
+   * Since the argument popup only opens when the command popup is closed, the argument list could
+   * never appear until a letter was typed after the space - and the person had already been shown a
+   * menu that looked like it was doing something. Reported three times as "why is it not
+   * autocompleting", and my earlier fixes were both further down the same path.
+   *
+   * A leading space is still meaningless and still trimmed, because nobody means anything by it.
+   */
+  const query = draft.replace(/^\s+/, "").toLowerCase();
   if (!query.startsWith("/") || /\s/.test(query)) return [];
   return commands
     .filter((command) => {
@@ -39,7 +51,26 @@ export function argContext(
 ): { command: KitCommand; prefix: string } | null {
   if (!draft.startsWith("/")) return null;
   const at = draft.indexOf(" ");
-  if (at === -1) return null;
+  /**
+   * A FINISHED COMMAND NAME OFFERS ITS ARGUMENTS, without waiting for a space.
+   *
+   * Typing `/rail` used to leave a one-row popup naming the command that had just been typed in
+   * full, which tells the reader nothing they did not write themselves, and the presets only
+   * appeared after a space nobody had a reason to press. The useful answer at that moment is what
+   * comes NEXT.
+   *
+   * Only when the word is unambiguously one command. If a name is also the prefix of another
+   * (`/rail` beside a hypothetical `/railway`), the choice between commands is still live and the
+   * command popup keeps it.
+   */
+  if (at === -1) {
+    const typed = draft.toLowerCase();
+    const named = commands.find(
+      (c) => c.name === typed || c.aliases?.some((alias) => alias === typed),
+    );
+    if (!named?.complete) return null;
+    return matchingCommands(commands, draft).length > 1 ? null : { command: named, prefix: "" };
+  }
   const word = draft.slice(0, at).toLowerCase();
   const command = commands.find(
     (c) => c.name === word || c.aliases?.some((alias) => alias === word),

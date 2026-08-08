@@ -5,6 +5,7 @@
  * source_url is display-only; never fetch.
  */
 import type { JSX } from "react";
+import { ExpandTextarea } from "../expand";
 import { Slider } from "../slider";
 import styles from "./styles.module.css";
 
@@ -84,7 +85,8 @@ export function PortableLora({ value, onChange }: PortableLoraProps): JSX.Elemen
       </div>
       <label className={styles.lbl}>
         Base tags
-        <textarea
+        <ExpandTextarea
+          label="Base tags"
           className={styles.ta}
           value={v.base_tags ?? ""}
           placeholder="optional positive prompt anchors"

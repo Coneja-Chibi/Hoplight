@@ -4,6 +4,7 @@
 import { useMemo, useState, type JSX } from "react";
 import type { LorebookEntry } from "../../../../entities/lorebook/schema";
 import { sampleMatchEntries, type SampleMatchHit } from "../../../../core/lore";
+import { ExpandTextarea } from "../../../components/expand";
 
 export interface SampleMatchStageProps {
   entries: readonly LorebookEntry[];
@@ -25,7 +26,8 @@ export function SampleMatchStage({ entries, styles }: SampleMatchStageProps): JS
   return (
     <section className={styles.field} aria-label="Sample key match">
       <span className={styles.label}>Sample match (authoring aid)</span>
-      <textarea
+      <ExpandTextarea
+        label="Sample match text"
         className={styles.textarea}
         style={{ minHeight: "3.5rem" }}
         placeholder="Type sample chat text to see which entries would key-match…"

@@ -17,6 +17,7 @@ import { ExpressionGroups } from "../expression-map/groups";
 import { AltFields } from "../alt-fields";
 import { PortableLora } from "../portable-lora";
 import { CssWorkshop } from "../css-workshop";
+import { ExpandTextarea } from "../expand";
 import { SwatchRow, HOUSE_PALETTE } from "../swatch-row";
 import styles from "./styles.module.css";
 import type { NativeField, NativeFieldContext, Stub } from "./types";
@@ -56,7 +57,8 @@ function JsonField({
   }, [value]);
   return (
     <>
-      <textarea
+      <ExpandTextarea
+        label={label}
         className={styles.ta}
         value={draft}
         placeholder={label}
@@ -148,7 +150,8 @@ export function fieldControl(
       const p = field.path;
       return (
         <div className={styles.note}>
-          <textarea
+          <ExpandTextarea
+            label={field.label}
             className={styles.ta}
             value={str(read(`${p}.prompt`))}
             placeholder="Character's note..."
@@ -266,7 +269,15 @@ export function fieldControl(
       );
     }
     case "textarea":
-      return <textarea className={styles.ta} value={str(read(field.path))} placeholder={field.label} onChange={(e) => write(field.path, e.target.value)} />;
+      return (
+        <ExpandTextarea
+          label={field.label}
+          className={styles.ta}
+          value={str(read(field.path))}
+          placeholder={field.label}
+          onChange={(e) => write(field.path, e.target.value)}
+        />
+      );
     case "rpg-stats":
       return <RpgStats value={asRec(read(field.path)) ?? {}} onChange={(next) => write(field.path, next)} />;
     case "avatar-crop":

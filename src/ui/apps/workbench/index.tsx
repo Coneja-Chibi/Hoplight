@@ -23,6 +23,7 @@ import { emptyPackBody } from "../../../entities/pack/schema";
 import { emptyLorebookBody } from "../../../core/lore";
 import { CANONICAL_SCHEMA_VERSION } from "../../../core/canonical";
 import { keyOf, paneKeyOf } from "../../_shared/piece-key";
+import { WORKBENCH_AGENT_SURFACE, usePublishWorkbenchSurface } from "./agent-surface";
 import styles from "./styles.module.css";
 
 const RECENTS_SHOWN = 14; // how many "bring one up" cards the rail offers at most
@@ -211,6 +212,9 @@ function WorkbenchRoom({ ctx }: { ctx: AppContext }): JSX.Element {
   const splitOn =
     besideKey !== "" && editablePieces.some((p) => paneKeyOf(p) === besideKey);
 
+  // the agent window's live half: which pieces are open, which one is being edited, which are unsaved
+  usePublishWorkbenchSurface(ctx, { pieces, activeKey, besideKey: splitOn ? besideKey : "" });
+
   useEffect(() => {
     if (active) return; // ONE writer per status line: the editor owns it while a piece is open
     ctx.setStatus(pieces.length === 0 ? "the workbench is clear" : `${pieces.length} open`);
@@ -326,6 +330,7 @@ const app: HoplightApp = {
     order: 10,
     subtitle: "app · home",
     editsPieces: true, // the shell's tab strip focuses into this room
+    agentSurface: WORKBENCH_AGENT_SURFACE,
   },
   Component: ({ ctx }) => <WorkbenchRoom ctx={ctx} />,
 };

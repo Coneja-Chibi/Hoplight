@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import type { CommandContext } from "./command";
 import decks from "./decks";
 
-test("/decks prints the total and every canonical deck count", () => {
+test("/decks prints the total and every canonical deck count", async () => {
   let output = "";
   const ctx: CommandContext = {
     arg: "",
@@ -25,7 +25,7 @@ test("/decks prints the total and every canonical deck count", () => {
     contextPreview: () => "",
   };
 
-  decks.run(ctx);
+  await decks.run(ctx);
 
   expect(output).toContain("Studio decks · 16 pieces");
   expect(output).toContain("Characters: 13");

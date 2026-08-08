@@ -29,6 +29,7 @@ import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
 import { applyChangeDraft } from "./changes/apply";
 import { applyRailEdits, railChangeRows } from "../core/preset/rail-apply";
+import { addNote } from "../core/notes";
 import type { OutlineRow } from "../core/preset/outline";
 import type { ChangeReceipt } from "./changes/types";
 import type { DraftReview, RailSnapshot } from "./tools/tool";
@@ -97,11 +98,33 @@ export interface Session {
      * Compose the rail's edits into a draft. Does NOT write: it returns the review the Gate shows,
      * so the confirmation sits between staging and applying exactly as it does for a model draft.
      */
-    stage(id: string, rows: readonly OutlineRow[]): Promise<RailStaged>;
+    /**
+     * `meta` carries the edits that are not about a row: the preset's own name, and a note.
+     *
+     * A NOTE IS NOT PART OF THE BODY. It lives on the envelope beside `original`, so it survives
+     * every conversion untouched and no adapter has to know it exists - which is also why it is
+     * applied here rather than inside applyRailEdits, which only ever sees a body.
+     */
+    stage(
+      id: string,
+      rows: readonly OutlineRow[],
+      meta?: { name?: string; note?: string },
+    ): Promise<RailStaged>;
     /** Apply a staged draft once, revision-checked, and report a real receipt. */
     commit(draftId: string): Promise<ChangeReceipt>;
     /** Drop a staged draft nobody will apply, so the next attempt can stage a fresh one. */
     discard(draftId: string): void;
+    /**
+     * Correct one block inside a staged draft, before it is applied.
+     *
+     * For the gate: the review shows a nearly-right rewrite, you fix the word, and the thing that
+     * gets written is yours. Without this the only routes were accept-then-edit-again, which is two
+     * writes and two receipts, or deny and start the whole request over.
+     *
+     * False when the draft is gone, already applying, or the block is not in it. The caller says so
+     * rather than writing something nobody reviewed.
+     */
+    amendBlock(draftId: string, blockId: string, content: string): boolean;
   };
   /**
    * The card-art seam, read-only, on Session for the same reason `presets` is: the session holds the
@@ -120,11 +143,30 @@ export interface Session {
      */
     gallery(kind?: string, limit?: number): Promise<{ found: FoundArt[]; scanned: number; more: boolean }>;
   };
+  /** Files in the studio folder that no deck counts, grouped by why. See KitBridge.unlisted. */
+  unlisted?(kind?: string): Promise<{ reason: string; count: number; examples: string[] }[]>;
   /** The connected provider's name + model for the status bar, or null if none is set yet. */
   activeProvider(): Promise<{ name: string; model: string; context?: number; images?: boolean } | null>;
 }
 
 const MAX_STEPS = 12;
+
+/**
+ * An id nothing answers to yet, derived from the one asked for.
+ *
+ * A foreign piece is addressed by a slug, and that slug can equal the source filename when the
+ * name was already id-shaped. Writing there would overwrite the file the whole foreign path exists
+ * to leave alone, so the copy moves aside until the name is genuinely free.
+ */
+async function freeId(bridge: KitBridge, base: string): Promise<string> {
+  const taken = new Set((await bridge.list("preset")).map((piece) => piece.id));
+  if (!taken.has(base)) return base;
+  for (let n = 2; n < 100; n++) {
+    const candidate = `${base}-${n}`;
+    if (!taken.has(candidate)) return candidate;
+  }
+  return `${base}-copy`;
+}
 
 /** Build a session bound to a studio bridge. Tools are discovered once; the provider is read per turn. */
 /**
@@ -136,10 +178,21 @@ export async function createSession(
   bridge: KitBridge,
   railOf?: () => RailSnapshot | null,
 ): Promise<Session> {
-  const [directTools, capabilities] = await Promise.all([
+  const [discovered, capabilities] = await Promise.all([
     discoverTools(),
     discoverCapabilities(),
   ]);
+  /**
+   * OFFER ONLY WHAT THIS MACHINE CAN RUN.
+   *
+   * A tool in the belt reads as a thing that works. preset_verify needs a SillyTavern or
+   * Marinara checkout; on a machine with neither it was still offered, and the model spent a
+   * step finding out - after several more spent guessing a file path. One turn, nothing written.
+   */
+  const directTools = (await Promise.all(discovered.map(async (tool) => ({
+    tool,
+    ok: tool.available === undefined || await tool.available(),
+  })))).filter((entry) => entry.ok).map((entry) => entry.tool);
   const changes = createChangeSession();
   const results = createResultStore();
   const folders = createGrantBook();
@@ -188,6 +241,7 @@ export async function createSession(
   return {
     capabilities: () => capabilities,
     folders,
+    unlisted: (kind) => bridge.unlisted?.(kind) ?? Promise.resolve([]),
     art: {
       async find(query, kind = "character") {
         const target = await resolveArtTarget(artSource, kind, query);
@@ -212,11 +266,11 @@ export async function createSession(
     },
     presets: {
       list: () => bridge.list("preset"),
-      async stage(id, rows) {
+      async stage(id, rows, meta) {
         const entity = await bridge.read("preset", id);
         if (!entity) return { ok: false, detail: `${id} is no longer in the studio.` };
         const body = entity.body as PresetBody;
-        const applied = applyRailEdits(body, rows);
+        const applied = applyRailEdits(body, rows, meta?.name !== undefined ? { name: meta.name } : undefined);
         // A row naming no prompt means the rail and storage disagree about what exists. Refusing is
         // the only safe answer: writing would drop that block, and inventing one would fabricate it.
         if (applied.unknown.length > 0) {
@@ -227,21 +281,85 @@ export async function createSession(
           };
         }
         const changeRows = railChangeRows(body, applied);
+        /**
+         * EDITING A FOREIGN PIECE MAKES A HOPLIGHT COPY, and that has to be said before it happens.
+         *
+         * A raw SillyTavern export is read through its adapter and never written to: the id is a
+         * slug, so applying writes the slug file while the original name stays exactly as it
+         * was. That is the safe behaviour and it is also surprising, because the shelf then holds
+         * both. Somebody confirming a rename deserves to know which file they are about to get.
+         */
+        const summary = (await bridge.list("preset")).find((piece) => piece.id === id);
+        const isForeign = summary?.foreign === true;
+        /**
+         * A FOREIGN EDIT IS A CREATE, NOT AN UPDATE.
+         *
+         * Two things forced this, and the second is the dangerous one. An update re-reads the stored
+         * file to compare revisions, and that file is still a raw export with no canonical envelope,
+         * so the read threw and the apply died with "corrupt entity file". Worse: when the source
+         * filename already happens to be a valid id, the slug EQUALS it, so the save would have
+         * written canonical JSON straight over somebody's SillyTavern export - the exact thing the
+         * warning promises never happens.
+         *
+         * So the copy takes a free id of its own, and the warning names it.
+         */
+        const copyId = isForeign ? await freeId(bridge, id) : id;
+        const foreignWarning = isForeign
+          ? [
+            "This file is read through the " + (summary?.sourceFormat ?? "source") + " adapter. "
+            + "Applying saves a Hoplight copy as \"" + copyId + "\"; the original file is left as it is.",
+          ]
+          : [];
+        // A note is a change even when no block moved, so it is counted before the empty check.
+        const noteText = meta?.note?.trim() ?? "";
+        const withNote = noteText
+          ? addNote({ ...entity, body: applied.body }, noteText, { id: crypto.randomUUID(), at: new Date().toISOString() })
+          : { ...entity, body: applied.body };
+        if (noteText) changeRows.push({ label: "note added", before: "", after: noteText });
         if (changeRows.length === 0) return { ok: false, detail: "Nothing to apply." };
-        const draft = changes.revise(entity, { ...entity, body: applied.body }, {
+        const draft = isForeign
+          ? changes.create({ ...(withNote as object), id: copyId } as never, {
+            capabilityId: "rail.blocks.rearrange",
+            input: { id: copyId, blocks: rows.length },
+            changes: changeRows.map((row) => ({ path: "/body/prompts", ...row })),
+            warnings: foreignWarning,
+            platformImpact: [],
+          })
+          : changes.revise(entity, withNote, {
           capabilityId: "rail.blocks.rearrange",
           input: { id, blocks: rows.length },
           changes: changeRows.map((row) => ({ path: "/body/prompts", ...row })),
-          // Removal is the only rail edit that destroys something, so it is the only one that warns.
-          warnings: applied.removed.length > 0
-            ? [`${applied.removed.length} block(s) will be removed: ${applied.removed.join(", ")}`]
-            : [],
+          warnings: [
+            ...foreignWarning,
+            // Removal is the only rail edit that destroys something, so it is the only one that warns.
+            ...(applied.removed.length > 0
+              ? [`${applied.removed.length} block(s) will be removed: ${applied.removed.join(", ")}`]
+              : []),
+          ],
           platformImpact: [],
         });
         return { ok: true, draftId: draft.id, review: reviewChangeDraft(draft) };
       },
       commit: (draftId) => applyChangeDraft(changes, bridge, draftId),
       discard: (draftId) => void changes.discard(draftId),
+      amendBlock(draftId, blockId, content) {
+        const draft = changes.get(draftId);
+        if (!draft) return false;
+        const body = draft.proposed.body as PresetBody | undefined;
+        const prompts = body?.prompts;
+        if (!Array.isArray(prompts)) return false;
+        // Named and absent is a refusal. Appending or guessing would write a block nobody reviewed.
+        if (!prompts.some((prompt) => prompt.id === blockId)) return false;
+        const next = {
+          ...draft.proposed,
+          body: {
+            ...body,
+            prompts: prompts.map((prompt) =>
+              (prompt.id === blockId ? { ...prompt, content } : prompt)),
+          },
+        } as typeof draft.proposed;
+        return changes.amend(draftId, next) !== null;
+      },
       async read(id) {
         const entity = await bridge.read("preset", id);
         return entity ? (entity.body as PresetBody) : undefined;

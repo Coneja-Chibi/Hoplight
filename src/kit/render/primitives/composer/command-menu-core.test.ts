@@ -49,9 +49,11 @@ const RAIL: KitCommand = {
 const PLAIN: KitCommand = { name: "/quit", summary: "leave", run: () => {} };
 
 describe("argContext", () => {
-  test("a command word with no space yet is still command completion, not argument", () => {
+  test("a PARTIAL command word is still command completion, not argument", () => {
     expect(argContext([RAIL, PLAIN], "/rai")).toBeNull();
-    expect(argContext([RAIL, PLAIN], "/rail")).toBeNull();
+    // A FINISHED name offers its arguments without waiting for a space: a one-row popup naming the
+    // command somebody just typed in full tells them nothing they did not write themselves.
+    expect(argContext([RAIL, PLAIN], "/rail")?.prefix).toBe("");
   });
 
   test("the first space switches to completing the argument", () => {
@@ -110,5 +112,74 @@ describe("applyArg", () => {
 
   test("appends when there is no argument yet", () => {
     expect(applyArg("/rail", "empty-base")).toBe("/rail empty-base");
+  });
+});
+
+describe("the space hands the popup from the command to its argument", () => {
+  /**
+   * The bug behind three separate "why is it not autocompleting" reports. `matchingCommands` trimmed
+   * BOTH ends, so a trailing space - the one character that says the command word is finished - was
+   * deleted before the whitespace guard could see it. The command popup stayed open, and because the
+   * argument popup only opens when the command popup is closed, the argument list was unreachable
+   * until a letter was typed after the space.
+   */
+  const rail = { name: "/rail", summary: "keep a preset's blocks open", complete: async () => [] };
+  const cmds = [rail] as never;
+
+  test("a finished name hands over even without the space", () => {
+    expect(argContext(cmds, "/rail")?.prefix).toBe("");
+  });
+
+  test("a trailing space closes the command popup and opens the argument", () => {
+    expect(matchingCommands(cmds, "/rail ").length).toBe(0);
+    expect(argContext(cmds, "/rail ")?.prefix).toBe("");
+  });
+
+  test("typing an argument keeps the argument popup", () => {
+    expect(matchingCommands(cmds, "/rail par").length).toBe(0);
+    expect(argContext(cmds, "/rail par")?.prefix).toBe("par");
+  });
+
+  test("a leading space still means nothing", () => {
+    expect(matchingCommands(cmds, " /rail").length).toBe(1);
+  });
+});
+
+describe("a finished command name offers its arguments straight away", () => {
+  /**
+   * Typing `/rail` used to leave a one-row popup naming the command just typed in full, which tells
+   * the reader nothing they did not write themselves. The presets only appeared after a space nobody
+   * had a reason to press.
+   */
+  const rail = { name: "/rail", summary: "rail", complete: async () => [] };
+  const model = { name: "/model", summary: "model" };
+  const railway = { name: "/railway", summary: "railway", complete: async () => [] };
+
+  test("the exact name opens its arguments with an empty prefix", () => {
+    const cmds = [rail, model] as never;
+    expect(argContext(cmds, "/rail")?.prefix).toBe("");
+  });
+
+  test("a partial name is still choosing between commands", () => {
+    const cmds = [rail, model] as never;
+    expect(argContext(cmds, "/ra")).toBeNull();
+    expect(matchingCommands(cmds, "/ra").length).toBe(1);
+  });
+
+  test("a name that prefixes another keeps the command popup", () => {
+    // The choice between /rail and /railway is still live, so arguments must not pre-empt it.
+    const cmds = [rail, railway] as never;
+    expect(argContext(cmds, "/rail")).toBeNull();
+    expect(matchingCommands(cmds, "/rail").length).toBe(2);
+  });
+
+  test("a command with no completer offers nothing", () => {
+    const cmds = [rail, model] as never;
+    expect(argContext(cmds, "/model")).toBeNull();
+  });
+
+  test("an alias opens the same arguments", () => {
+    const aliased = { name: "/rail", aliases: ["/blocks"], summary: "r", complete: async () => [] };
+    expect(argContext([aliased] as never, "/blocks")?.command.name).toBe("/rail");
   });
 });

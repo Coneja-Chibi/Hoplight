@@ -7,6 +7,7 @@
 import type { CharacterAdapter, AdapterInput, AdapterOutput } from "../../core/adapter";
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { parseCanonicalEntity } from "../../entities/runtime-schema";
+import { readJsonAny } from "../_shared/card-io";
 
 function decodeCanonical(text: string): CanonicalCharacter {
   let parsed: unknown;
@@ -34,7 +35,9 @@ const adapter: CharacterAdapter = {
   detect(input: AdapterInput): number {
     if (!input.text) return 0;
     try {
-      return parseCanonicalEntity(JSON.parse(input.text)).kind === "character" ? 1 : 0;
+      // The SHARED reader; see card-io.ts. This one is the native format, so it is asked about
+      // every file in the studio and its private parse cost 139ms of startup by itself.
+      return parseCanonicalEntity(readJsonAny(input)).kind === "character" ? 1 : 0;
     } catch {
       return 0;
     }

@@ -8,12 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, JSX } from "react";
-import type {
-  AppContext,
-  StudioDamagedEntry,
-  StudioEntitySummary,
-  HoplightApp,
-} from "../../app-contract";
+import type { AppContext, StudioDamagedEntry, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { deckMeta, knownDecks } from "../../_shared/decks";
 import { deckCounts } from "./deck-core";
 import {
@@ -49,6 +44,7 @@ import { LIBRARY_STYLE, MARK_SVG, PREF_FIRST_DECK, PREF_SIZE, PREF_VIEW } from "
 import { clampSize, pieceKey, SIZE_RANGE, type DeckViewContext, type PiecePeek } from "./view-contract";
 import { deckView, deckViews } from "./views/registry";
 import { DamageNotice } from "./damage-notice";
+import { LIBRARY_AGENT_SURFACE, usePublishLibrarySurface, useReloadOnStudioChange } from "./agent-surface";
 
 // -- the browse room --------------------------------------------------------------------------------
 
@@ -89,8 +85,7 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
 
   const reload = useCallback(() => {
     // apiFetchJson throws on any non-2xx by design, so an un-caught reload turned a dev-server
-    // restart or a storage hiccup into an unhandled rejection. Worse, entities stayed [] and an
-    // A failed read is not an empty studio.
+    // restart or a storage hiccup into an unhandled rejection. A failed read is not an empty studio.
     void (async () => {
       try {
         const [inventory, version] = await Promise.all([
@@ -151,6 +146,11 @@ function Library({ ctx }: { ctx: AppContext }): JSX.Element {
   /** Stage every piece on the active shelf that is not open on the Workbench. */
   const selectAll = (): void =>
     setSelected(new Set(inDeck.filter((e) => !openKeys.has(pieceKey(e))).map(pieceKey)));
+
+  useReloadOnStudioChange(reload);
+  usePublishLibrarySurface(ctx, {
+    deck: deck.plural, inDeck, total: entities.length, damaged, staged: selectedValid, loadFailed,
+  });
 
   useEffect(() => {
     ctx.setStatus(
@@ -487,6 +487,7 @@ const app: HoplightApp = {
     order: 20,
     subtitle: "app",
     firstRunLanding: true, // JOURNEY 1.1: a fresh studio lands on the two doors
+    agentSurface: LIBRARY_AGENT_SURFACE,
   },
   Component: Library,
 };

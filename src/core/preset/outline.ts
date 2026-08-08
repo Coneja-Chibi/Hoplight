@@ -28,6 +28,15 @@ export interface OutlineRow {
   readonly marker: boolean;
   /** Characters of authored content. Zero is meaningful: the block emits only its own name. */
   readonly size: number;
+  /**
+   * A new name for this block, when somebody has typed one and not yet applied it.
+   *
+   * Held on the ROW rather than written into the preset, because the rail never writes: edits
+   * accumulate and Enter stages the lot as one ordinary draft at the same Gate a model draft meets.
+   */
+  readonly editedName?: string;
+  /** New content for this block, same rule as editedName: staged, never written in place. */
+  readonly editedContent?: string;
   readonly role: string;
 }
 

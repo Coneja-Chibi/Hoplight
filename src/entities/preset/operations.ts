@@ -28,7 +28,41 @@ export function setPresetSampler(
   return { ...body, samplers };
 }
 
-export function addPresetBlock(body: PresetBody, block: PresetPrompt): PresetBody {
+/**
+ * Where a new block goes.
+ *
+ * ORDER IS THE PAYLOAD in a preset: a block evaluates in position, and one that lands at the bottom
+ * says something different from the same text at the top. This used to have no answer - every add
+ * appended - so writing an opening README meant adding it last and then remembering to move it, and
+ * the time that was forgotten the model handed back a preset with its introduction at the end and a
+ * note asking somebody to drag it.
+ */
+export type BlockPlacement =
+  | "first"
+  | "last"
+  | { readonly before: string }
+  | { readonly after: string };
+
+/** The index a placement names, or null when it names a block that is not there. */
+export function placementIndex(
+  prompts: readonly PresetPrompt[],
+  place: BlockPlacement | undefined,
+): number | null {
+  if (place === undefined || place === "last") return prompts.length;
+  if (place === "first") return 0;
+  const anchor = "before" in place ? place.before : place.after;
+  const at = prompts.findIndex((item) => item.id === anchor);
+  // NAMED AND ABSENT IS AN ERROR, not an append. Silently putting it last is how a block ends up
+  // somewhere nobody asked for, which is the whole failure this argument exists to prevent.
+  if (at < 0) return null;
+  return "before" in place ? at : at + 1;
+}
+
+export function addPresetBlock(
+  body: PresetBody,
+  block: PresetPrompt,
+  place?: BlockPlacement,
+): PresetBody {
   if (body.prompts.some((item) => item.id === block.id)) {
     throw new Error(`preset block "${block.id}" already exists`);
   }
@@ -39,7 +73,14 @@ export function addPresetBlock(body: PresetBody, block: PresetPrompt): PresetBod
   ) {
     throw new Error(`preset marker slot "${block.markerSlot}" is already placed`);
   }
-  return { ...body, prompts: [...body.prompts, structuredClone(block)] };
+  const at = placementIndex(body.prompts, place);
+  if (at === null) {
+    const anchor = place && typeof place === "object" && "before" in place ? place.before : (place as { after: string }).after;
+    throw new Error(`preset block "${anchor}" does not exist, so there is nowhere to put this one`);
+  }
+  const prompts = [...body.prompts];
+  prompts.splice(at, 0, structuredClone(block));
+  return { ...body, prompts };
 }
 
 export const placedPresetMarkerSlots = (body: PresetBody): ReadonlySet<string> =>

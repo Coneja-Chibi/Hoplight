@@ -1,0 +1,169 @@
+/*
+ * Settings > Models: the saved-provider list and the add/edit form.
+ *
+ * Tokens only, and the shared card vocabulary from section-card.module.css where it fits. The list
+ * is a table of facts about each provider rather than a set of cards, because the thing somebody
+ * comes here to do is compare two entries and pick one.
+ */
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.empty {
+  color: var(--muted);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.4fr) minmax(7rem, 1fr) auto 1fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  padding: 0.5rem 0.65rem;
+}
+
+/* The active provider is the one every turn uses; it should be obvious without reading. */
+.rowActive {
+  border-color: var(--rose);
+  background: var(--panel);
+}
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-big);
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+
+.model {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+/* Says a key EXISTS. Never any part of one. */
+.key {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tested {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+.acts {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.acts button,
+.add,
+.formActs button {
+  border: 2px solid var(--edge);
+  background: var(--face);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  padding: 0.28rem 0.6rem;
+  cursor: pointer;
+}
+
+.acts button:hover:not(:disabled),
+.add:hover:not(:disabled),
+.formActs button:hover:not(:disabled) {
+  background: var(--panel);
+}
+
+.acts button:disabled,
+.add:disabled,
+.formActs button:disabled {
+  color: var(--text-dim);
+  cursor: not-allowed;
+}
+
+.add {
+  align-self: flex-start;
+  margin-top: 0.6rem;
+  box-shadow: 3px 3px 0 0 var(--edge);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  border: 3px solid var(--edge);
+  box-shadow: 4px 4px 0 0 var(--edge);
+  background: var(--panel);
+  padding: 0.75rem 0.85rem;
+  margin-top: 0.6rem;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.form input,
+.form select {
+  border: 2px solid var(--edge);
+  background: var(--face);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 0.4rem 0.5rem;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.formActs {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.notice,
+.problem {
+  margin: 0.5rem 0 0;
+  border: 2px solid var(--edge);
+  background: var(--face);
+  color: var(--text);
+  padding: 0.5rem 0.65rem;
+  font-size: 0.82rem;
+}
+
+.problem {
+  border-color: var(--rose);
+}

@@ -20,5 +20,6 @@ export function reviewChangeDraft(draft: ChangeDraft): DraftReview {
       }))
     ),
     warningCount: draft.warnings.length,
+    warnings: draft.warnings,
   };
 }

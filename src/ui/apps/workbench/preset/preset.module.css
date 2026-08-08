@@ -93,8 +93,9 @@
 
 /* ---------- the rail (owns the aside; tabs between per-block and whole-preset truth) ---------- */
 
+/* No border-left: the SplitPane grip between the columns IS the divider now, and a painted one
+   beside a draggable one reads as two edges and hides which of them can be grabbed. */
 .sidebar {
-  border-left: 3px solid var(--stage-black);
   background: var(--stage-panel);
   min-height: 0;
   overflow-y: auto;

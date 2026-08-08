@@ -4,6 +4,7 @@
  */
 import type { JSX } from "react";
 import type { LorebookBody } from "../../../../entities/lorebook/schema";
+import { ExpandTextarea } from "../../../components/expand";
 import { LoreCategories } from "../../../components/lore-categories";
 
 export interface BookSettingsProps {
@@ -25,7 +26,8 @@ export function LoreBookSettings({ body, styles, onBook }: BookSettingsProps): J
       </label>
       <label className={styles.field}>
         <span className={styles.label}>Description</span>
-        <textarea
+        <ExpandTextarea
+          label="Book description"
           className={styles.textarea}
           style={{ minHeight: "3.5rem" }}
           value={body.description ?? ""}

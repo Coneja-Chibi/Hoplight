@@ -32,6 +32,18 @@ export interface ChangeSession {
     proposed: unknown,
     operation: ChangeOperation,
   ): ChangeDraft;
+  /**
+   * Replace what a PENDING draft proposes.
+   *
+   * For a person correcting a model wording at the gate: the review shows a nearly-right rewrite,
+   * they fix the one word, and the thing that gets applied is theirs. Without this the only options
+   * were accept-then-edit-again, or deny and start over.
+   *
+   * ONLY WHILE PENDING. Once a draft is applying or applied, amending it would change what the gate
+   * agreed to after it agreed - a write behind the back of the confirmation that authorised it.
+   * Returns null rather than throwing, because a stale gate answer is an ordinary race, not a bug.
+   */
+  amend(id: string, proposed: ParsedCanonicalEntity): ChangeDraft | null;
   get(id: string): ChangeDraft | null;
   list(): readonly ChangeDraft[];
   forTarget(kind: ContentKind, id: string): ChangeDraft | null;
@@ -201,6 +213,19 @@ export function createChangeSession(): ChangeSession {
       const draftId = activeByTarget.get(targetKey(kind, id));
       const draft = draftId ? drafts.get(draftId) : undefined;
       return draft ? cloneDraft(draft) : null;
+    },
+
+    amend(id, proposed) {
+      const draft = drafts.get(id);
+      if (!draft || draft.status !== "draft") return null;
+      // Parsed again rather than trusted: this text came from a person typing into a box, and the
+      // draft is the thing the revision check and the receipt are both built from.
+      const next = parseCanonicalEntity(proposed);
+      // The target cannot move. Amending is correcting a wording, not redirecting the write.
+      if (next.id !== draft.target.id || next.kind !== draft.target.kind) return null;
+      const amended: ChangeDraft = { ...draft, proposed: next };
+      drafts.set(id, amended);
+      return cloneDraft(amended);
     },
 
     discard(id) {

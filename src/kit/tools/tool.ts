@@ -76,6 +76,14 @@ export interface DraftReview {
     after: unknown;
   }[];
   warningCount: number;
+  /**
+   * What the warnings actually SAY.
+   *
+   * The projection carried only a count, so a draft could warn that applying an edit to a file
+   * read through an adapter saves a Hoplight copy beside it, and the person confirming would see
+   * "1 warning" and no words. A warning nobody can read is decoration on a decision.
+   */
+  warnings?: readonly string[];
 }
 
 /** A tool's outcome: a one-line row for the terminal, and the full observation for the model. */
@@ -138,6 +146,15 @@ export interface HarnessTool<Input = unknown> {
   description: string;
   /** Whether the model sees this tool immediately, after discovery, or never. */
   exposure: ToolExposure;
+  /**
+   * Can this machine run it at all? Absent means yes.
+   *
+   * OFFERED IS A PROMISE. A tool in the belt reads as a thing that works, so one needing an
+   * install nobody has costs a step to discover and a turn to recover from - which is exactly
+   * how preset_verify ate a twelve-step turn and wrote nothing. Checked once when the session
+   * is built, because an install does not appear halfway through a conversation.
+   */
+  available?: () => boolean | Promise<boolean>;
   /** Explicit scheduler behavior. Never infer this from the tool name. */
   effect: ToolEffect;
   /** Optional lifecycle specialization when effect alone cannot name the visible work. */

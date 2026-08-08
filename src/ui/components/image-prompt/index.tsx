@@ -8,6 +8,7 @@ import {
   normalizeImagePrompt,
   type ImagePromptValue,
 } from "./core";
+import { ExpandTextarea } from "../expand";
 import styles from "./styles.module.css";
 
 export interface ImagePromptEditorProps {
@@ -45,7 +46,8 @@ export function ImagePromptEditor({ value, onChange }: ImagePromptEditorProps): 
         placeholder="things to avoid"
       />
       <span className={styles.lbl}>Template</span>
-      <textarea
+      <ExpandTextarea
+        label="Template"
         className={styles.ta}
         value={a.template}
         onChange={(e) => patch({ template: e.target.value })}
@@ -54,20 +56,23 @@ export function ImagePromptEditor({ value, onChange }: ImagePromptEditorProps): 
 
       <span className={styles.section}>Full prompt text</span>
       <span className={styles.lbl}>Base prompt</span>
-      <textarea
+      <ExpandTextarea
+        label="Base prompt"
         className={styles.ta}
         value={a.prompt}
         onChange={(e) => patch({ prompt: e.target.value })}
         placeholder="optional full base prompt"
       />
       <span className={styles.lbl}>Instructions</span>
-      <textarea
+      <ExpandTextarea
+        label="Instructions"
         className={styles.ta}
         value={a.instructions}
         onChange={(e) => patch({ instructions: e.target.value })}
       />
       <span className={styles.lbl}>Emotion instructions</span>
-      <textarea
+      <ExpandTextarea
+        label="Emotion instructions"
         className={styles.ta}
         value={a.emotionInstructions}
         onChange={(e) => patch({ emotionInstructions: e.target.value })}

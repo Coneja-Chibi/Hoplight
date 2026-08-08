@@ -9,7 +9,17 @@ import { assertNever } from "./assert-never";
 import type { GateState, PermissionMode } from "./gate-core";
 
 export type GateChoice =
-  | { type: "allow-once" }
+  | {
+    type: "allow-once";
+    /**
+     * Yes, but with this text instead.
+     *
+     * Set when somebody corrected a block at the gate before accepting it. The draft is amended
+     * BEFORE the answer resolves, so by the time anything applies, what was authorised and what is
+     * written are the same thing. Nothing downstream has to know this happened.
+     */
+    edit?: { blockId: string; content: string };
+  }
   | { type: "allow-session" }
   | { type: "deny" }
   | { type: "abort" }
