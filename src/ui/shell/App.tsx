@@ -34,6 +34,7 @@ import { hasSeenTour, isRunnable, seenTourKeys, tourIdCandidates, tourSeenKey } 
 import { menus, useShellStore, workbenchRecents } from "./store";
 import { paneKeyOf } from "./store-core";
 import { useAppKeys } from "./use-app-keys";
+import { restoreWorkspace, useRememberWorkspace } from "./use-workspace";
 import { FloatingAgent } from "../agent/floating-agent";
 import {
   genericBootProblem,
@@ -70,6 +71,9 @@ export function App(): JSX.Element | null {
   // ctrl+1..9 / ctrl+comma / ctrl+alt+arrows -> mountApp. One listener, mounted here for the shell's
   // whole life; the chords themselves live in app-keys.ts and the dock prints them off the same table.
   useAppKeys();
+  // Writes the bench down whenever it changes, so killing the server loses nothing. No-op
+  // while the setting is off, in both directions.
+  useRememberWorkspace();
   /**
    * The agent, floating over whatever app is mounted. It lives here rather than inside an app
    * because the shell owns the one canvas slot: an agent mounted INTO that slot would unmount the
@@ -111,7 +115,24 @@ export function App(): JSX.Element | null {
     const requested = launch
       ? manifestList.find((manifest) => manifest.id === launch.appId && !manifest.comingSoon)
       : undefined;
-    const first = requested ?? landing ?? remembered ?? state.homeApp();
+
+    /**
+     * PUT THE BENCH BACK, if that was asked for.
+     *
+     * Here rather than in an effect because the piece list has just been fetched: restoring
+     * against it is what lets a piece deleted since be dropped instead of coming back as a tab
+     * that cannot open. A URL asking for a specific app still wins - somebody following a link
+     * meant that link, not wherever they were last time.
+     */
+    const restored = restoreWorkspace(
+      useShellStore.getState().settings as unknown as Record<string, unknown>,
+      entities,
+    );
+    if (restored && !requested) state.restoreBench(restored);
+
+    const first = requested
+      ?? (restored?.appId ? manifestList.find((m) => m.id === restored.appId && !m.comingSoon) : undefined)
+      ?? landing ?? remembered ?? state.homeApp();
     if (first) state.mountApp(first.id);
     setPhase("ready");
   }

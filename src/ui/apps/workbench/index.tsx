@@ -7,10 +7,11 @@
  * Draft persistence: one CharacterPane stays mounted (hidden via CSS) per open character, so React
  * state IS the unsaved draft across tab switches - closing the tab unmounts it, which is the discard.
  */
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties, JSX, ReactNode } from "react";
 import type { AppContext, StudioEntitySummary, HoplightApp } from "../../app-contract";
 import { accentVars, deckMeta } from "../../_shared/decks";
+import { useReopenOnStudioChange } from "../../agent/use-studio-changes";
 import { useFocusMode, FocusToggle } from "../../components/focus-toggle";
 import { rankRecents } from "./recents-core";
 import { CharacterEditor } from "./Editor";
@@ -56,7 +57,8 @@ function EditablePane({
   const [source, setSource] = useState<{ entity: unknown; revision: string } | null>(null);
   const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
+  /** Named so a studio change can run it again; the mount effect just calls it once. */
+  const load = useCallback((): (() => void) => {
     let cancelled = false;
     void ctx.api
       .getEditableEntity(`kind=${encodeURIComponent(piece.kind)}&id=${encodeURIComponent(piece.id)}`)
@@ -68,11 +70,25 @@ function EditablePane({
         setFailed(true);
         ctx.setStatus(`could not load ${piece.name}`);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [piece.id, piece.kind]);
+
+  useEffect(() => load(), [load]);
+
+  /**
+   * THE FILE CHANGED UNDERNEATH: re-read it, unless this piece has unsaved work.
+   *
+   * The agent applying a change writes the same file this editor is showing, and without this the
+   * bench went on displaying what it read when it opened - which is exactly the "it said it
+   * applied it and nothing moved" the rail had. Declining while dirty is the rule Kit's rail
+   * settled: a stale view is an annoyance, losing a rearrange is not.
+   */
+  useReopenOnStudioChange(
+    piece,
+    () => ctx.workbench.dirty()[keyOf(piece.id, piece.kind)] === true,
+    () => { load(); },
+  );
 
   const editor =
     source == null ? null

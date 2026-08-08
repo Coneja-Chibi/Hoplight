@@ -122,3 +122,41 @@ export function useStudioChanges(
 
   return { version, kinds, watching };
 }
+
+/**
+ * Re-read one open piece when its file changes underneath, and NEVER over unsaved work.
+ *
+ * WHY IT IS NOT JUST "RELOAD ON CHANGE". The Library can re-read freely: it shows a list, and the
+ * worst a reload costs is a scroll position. An editor holds a draft. Re-reading a piece somebody
+ * has half-rewritten would discard their edits to show them a fresher copy, which is a trade nobody
+ * would take. Kit's preset rail settled this rule first, in its own words: a stale view is an
+ * annoyance, losing a rearrange is not.
+ *
+ * So it declines while the piece is dirty. That leaves a stale editor open in exactly one case -
+ * you have unsaved edits AND something else changed the same file - and that case wants a conflict
+ * at save time, which the revision check already gives, rather than a silent overwrite either way.
+ *
+ * FILTERED BY KIND, so editing a preset does not re-read every open lorebook. The stream says which
+ * decks moved; anything finer would mean the watcher describing entity contents, which is a second
+ * description of the studio drifting away from the first.
+ */
+export function useReopenOnStudioChange(
+  piece: { readonly id: string; readonly kind: string },
+  isDirty: () => boolean,
+  reopen: () => void,
+): void {
+  const { version, kinds } = useStudioChanges();
+  /** Held rather than depended on: both are rebuilt by the room on every render. */
+  const dirtyRef = useRef(isDirty);
+  dirtyRef.current = isDirty;
+  const reopenRef = useRef(reopen);
+  reopenRef.current = reopen;
+
+  useEffect(() => {
+    // Version 0 is the initial subscription; the editor has already loaded by then.
+    if (version === 0) return;
+    if (kinds.length > 0 && !kinds.includes(piece.kind)) return;
+    if (dirtyRef.current()) return;
+    reopenRef.current();
+  }, [version, kinds, piece.id, piece.kind]);
+}

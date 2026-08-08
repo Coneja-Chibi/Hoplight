@@ -90,6 +90,8 @@ interface ShellState {
   applySettings(next: StudioSettings): void;
   saveSettings(next: StudioSettings): Promise<void>;
   patchSettings(patch: Record<string, unknown>): void;
+  /** Put a remembered bench back in ONE write (use-workspace.ts). */
+  restoreBench(b: { pieces: StudioEntitySummary[]; activeKey: string; splitKey: string }): void;
   toggleTheme(): void;
   toggleDockSlim(): void;
 
@@ -195,6 +197,10 @@ export const useShellStore = create<ShellState>((set, get) => ({
     }
   },
 
+  // One write, not a loop of send() calls; use-workspace.ts records why.
+  restoreBench(bench) {
+    set({ openPieces: bench.pieces, activeKey: bench.activeKey, splitKey: bench.splitKey });
+  },
   patchSettings(patch) {
     const version = ++settingsMutationVersion;
     get().applySettings(parseSettings({ ...get().settings, ...patch }));
