@@ -12,6 +12,7 @@
  * remember - see `openStudio` at the bottom of this file.
  */
 import { detect } from "./core/registry";
+import { readingsOf } from "./formats/_shared/repair-json";
 import { toAdapterInput } from "./core/adapter-input";
 import { ensureFormats } from "./ensure-formats";
 import { StudioStore } from "./studio/store";
@@ -38,13 +39,37 @@ export async function readForeignFile(
      */
     await ensureFormats();
     const input = toAdapterInput(bytes, filename);
-    const adapter = detect(input);
+    let adapter = detect(input);
+    let reading = input;
+
+    /**
+     * NOTHING RECOGNISED IT: try the readings that repair a shape rather than a format.
+     *
+     * A real studio had seven files behind "not in a format Hoplight recognises" and five held a
+     * preset - four encoded as JSON twice over, one inside an export envelope. The bytes were fine;
+     * the container was not. See repair-json.ts.
+     *
+     * Only reached when the plain reading failed, so a healthy file never meets any of this.
+     */
+    if (!adapter) {
+      const text = new TextDecoder().decode(bytes);
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(text) as unknown; } catch { parsed = null; }
+      for (const candidate of parsed === null ? [] : readingsOf(parsed).slice(1)) {
+        const repaired = toAdapterInput(
+          new TextEncoder().encode(JSON.stringify(candidate)),
+          filename,
+        );
+        const found = detect(repaired);
+        if (found && found.kind === kind) { adapter = found; reading = repaired; break; }
+      }
+    }
     /**
      * The adapter has to agree about the KIND. A character card sitting in the preset folder is not
      * a preset, and listing it as one would put a piece in a deck that cannot open it.
      */
     if (!adapter || adapter.kind !== kind) return null;
-    const entity = adapter.toCanonical(input) as { kind: string; body: unknown; id?: string };
+    const entity = adapter.toCanonical(reading) as { kind: string; body: unknown; id?: string };
     return entity?.kind ? { entity, format: adapter.id } : null;
   } catch {
     return null;
