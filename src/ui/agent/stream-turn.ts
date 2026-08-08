@@ -25,6 +25,26 @@ export interface TurnHandlers {
    * list itself was thrown away here. Passed on raw: the shell parses it once, at the boundary.
    */
   onTool?: (name: string, summary: string, choices?: unknown) => void;
+  /**
+   * A tool opened a view. The shell acts on THIS, never on what the sentence claimed.
+   *
+   * Structured for the reason rail-open.ts gives in its own header: a model that can open a view by
+   * saying it opened one can be wrong with nothing to catch it.
+   */
+  onShow?: (piece: { kind: string; id: string }) => void;
+  /**
+   * Which saved session this turn is being written to.
+   *
+   * Named on the FIRST frame, before any work, so a turn that then fails still leaves the page
+   * owning the session - otherwise the turns most worth keeping are the ones that lose their file.
+   */
+  onSession?: (id: string) => void;
+  /**
+   * The turn happened and its record did not. Reported rather than swallowed: a conversation that
+   * was never saved used to look exactly like one that was, and the only way to find out was to go
+   * hunting for a file that had never existed.
+   */
+  onUnsaved?: (why: string) => void;
   /** A piece was written; whatever is showing it should re-read. */
   onWrote?: (kind: string, id: string) => void;
   /** The agent is asking permission and the loop is PARKED until it is answered. */
@@ -109,7 +129,30 @@ function dispatch(frame: string, on: TurnHandlers): void {
       return;
     case "say": on.onSay?.(str("text")); return;
     case "tool-start": on.onToolStart?.(str("name")); return;
-    case "tool": on.onTool?.(str("name"), str("summary"), data["choices"]); return;
+    case "begin":
+    case "session": {
+      const id = str("sessionId") || str("id");
+      if (id) on.onSession?.(id);
+      // A record that failed says so, so "not saved" reaches the person instead of the void.
+      if (data["saved"] === false) on.onUnsaved?.(str("why"));
+      return;
+    }
+    case "tool": {
+      on.onTool?.(str("name"), str("summary"), data["choices"]);
+      /**
+       * THE SAME BUG AS `choices`, one field along. The server has always sent `show` - it is how a
+       * tool opens a view without the shell having to read a sentence - and this parser dropped it,
+       * so rail_open in the window announced a preset was open and nothing had opened anywhere.
+       */
+      const show = data["show"];
+      if (show !== null && typeof show === "object") {
+        const piece = show as { kind?: unknown; id?: unknown };
+        if (typeof piece.kind === "string" && typeof piece.id === "string") {
+          on.onShow?.({ kind: piece.kind, id: piece.id });
+        }
+      }
+      return;
+    }
     case "wrote": on.onWrote?.(str("kind"), str("id")); return;
     case "gate": on.onGate?.(data); return;
     case "usage": on.onUsage?.(data["usage"]); return;

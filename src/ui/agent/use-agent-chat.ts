@@ -20,6 +20,7 @@ import { NO_TOKENS, foldUsage, type Tokens } from "./kit-meters-core";
 import { loadTranscript, saveTranscript } from "./transcript-store";
 import { keepTurns, kitLineFor, type CommandEffect } from "./command-core";
 import { unknownNote } from "./slash-core";
+import { AGENT_SESSION_KEY, readAgentSessionId } from "../_shared/window-memory";
 import type { CommandInfo } from "./command-core";
 
 export type { ChatLine } from "./turn";
@@ -110,6 +111,18 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
   const linesRef = useRef(lines);
   linesRef.current = lines;
   const busyRef = useRef(false);
+  /**
+   * The slash seam, RIDING A REF so the turn runner stays stable.
+   *
+   * The seam is rebuilt whenever the shell's AppContext is - which is every store action, by that
+   * layer's deliberate design - so depending on it directly would rebuild the send callback
+   * constantly, in the middle of streaming turns. A ref keeps one callback that always reads the
+   * current seam, the same trick the studio shelf uses for its notice.
+   */
+  const slashRef = useRef(slash);
+  slashRef.current = slash;
+  /** The saved session this tab writes to, restored on mount so a reload keeps writing to it. */
+  const sessionIdRef = useRef<string>(readAgentSessionId());
   const abortRef = useRef<AbortController | null>(null);
 
   // Persisted on every change, so an unmount mid-conversation loses nothing.
@@ -175,6 +188,8 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
             .filter((l): l is ChatLine & { role: "user" | "assistant" } => l.role === "user" || l.role === "assistant")
             .map((l) => ({ role: l.role, content: l.text })),
           ...(brief ? { brief } : {}),
+          // Absent on the very first turn of a tab; the server names one and the next turn carries it.
+          ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {}),
         },
         controller.signal,
       );
@@ -210,6 +225,23 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
         onToolStart: (name) => {
           setLines((prior) => [...prior, { role: "tool", text: `${name}...`, tool: name }]);
         },
+        /**
+         * A tool asked for a piece to be opened. THE SAME DOOR `/rail` USES: routed through the
+         * shell effect rather than a second opener, so the model's rail_open and the person's typed
+         * command land the piece in exactly the same place by exactly the same code.
+         */
+        onShow: (piece) => { slashRef.current?.shell({ kind: "open", piece }); },
+        /**
+         * The session this conversation is being saved into. Kept per TAB, so a reload continues the
+         * same file rather than starting a second one beside it and splitting the record in half.
+         */
+        onSession: (id) => {
+          sessionIdRef.current = id;
+          try { sessionStorage.setItem(AGENT_SESSION_KEY, id); } catch { /* storage unavailable */ }
+        },
+        // Said on screen, because a conversation quietly not being saved is the one failure you
+        // cannot notice until you go looking for it.
+        onUnsaved: (why) => { setProblem(`This turn was not saved: ${why}`); },
         onTool: (name, summary, choices) => {
           /**
            * A QUESTION IS PART OF THE CALL THAT ASKED IT. `ask_choice` puts its list on this frame,
@@ -306,6 +338,16 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
       for (const effect of effects) {
         if (effect.kind === "transcript") {
           setLines(effect.lines.map((l) => ({ role: l.role, text: l.text })));
+          continue;
+        }
+        /**
+         * A RESUME MOVES WHERE THIS WINDOW WRITES. Without it the resumed conversation was on
+         * screen while the next turn was saved into a different file - so restarting and resuming
+         * the same chat showed everything except what you had just said to it.
+         */
+        if (effect.kind === "session") {
+          sessionIdRef.current = effect.id;
+          try { sessionStorage.setItem(AGENT_SESSION_KEY, effect.id); } catch { /* unavailable */ }
           continue;
         }
         const drawn = kitLineFor(effect);

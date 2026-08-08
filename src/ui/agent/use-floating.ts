@@ -14,8 +14,10 @@ import {
   clampSize, clampSpot, defaultSpot, dragTo, resizeFrame, restoreSpot,
   type Edge, type Frame, type Size, type Spot,
 } from "./dock-position";
+import { PANEL_KEY } from "../_shared/window-memory";
 
-const KEY = "hoplight.agent.panel";
+// One spelling, owned by window-memory.ts, so the reset button clears the key this file reads.
+const KEY = PANEL_KEY;
 
 /** What a panel opens at before anybody has moved or sized it. */
 const DEFAULT_SIZE: Size = { width: 440, height: 560 };

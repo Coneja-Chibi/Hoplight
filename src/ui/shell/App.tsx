@@ -42,6 +42,7 @@ import {
   type BootProblem,
 } from "./boot-error";
 import { parseLaunchTarget } from "../_shared/launch-target";
+import { ACTIVE_APP_KEY } from "../_shared/window-memory";
 import { BootErrorScreen } from "./BootErrorScreen";
 
 type Phase = "loading" | "setup" | "ready" | "boot-error";
@@ -106,7 +107,7 @@ export function App(): JSX.Element | null {
     // every source save while the studio is open dumped the user back on the workbench.
     let remembered: AppManifestEntry | undefined;
     try {
-      const id = sessionStorage.getItem("vaude.session.activeApp");
+      const id = sessionStorage.getItem(ACTIVE_APP_KEY);
       remembered = id ? manifestList.find((m) => m.id === id && !m.comingSoon) : undefined;
     } catch {
       remembered = undefined;

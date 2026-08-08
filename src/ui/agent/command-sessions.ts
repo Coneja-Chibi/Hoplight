@@ -8,12 +8,22 @@
  * window's transcript projects back onto a Session with `buildTurn`. Neither projection invents
  * anything.
  *
- * WHAT IS DELIBERATELY NOT HERE. The window never WRITES a session file. Kit's terminal owns the
- * session it is holding and stamps it per turn; a second writer with a different idea of what the
- * current session is would be two authorities over one folder, and the failure mode is somebody's
- * terminal conversation being overwritten by a browser tab. So `/resume` reads and replaces what is
- * on screen, `/rewind` scrubs what is on screen, and `/export` writes a transcript FILE (which is a
- * new file, never a session) through Kit's own formatter.
+ * THESE COMMANDS STILL WRITE NOTHING, and that is now a narrower statement than it used to be. This
+ * file said "the window never WRITES a session file" - true when it was written, and the reason was
+ * sound: the terminal stamps the session it is holding every turn, and a second writer with its own
+ * idea of the current session would be two authorities over one folder, the failure being somebody's
+ * terminal conversation overwritten by a browser tab.
+ *
+ * The conclusion was too broad. A conversation held here was never saved at all, so `/resume` could
+ * only ever offer the terminal's work and yours died with the tab. The window now stamps its OWN
+ * session per turn, under an id that carries a prefix nothing else uses - see window-session.ts,
+ * where the refusal lives. Two authorities over one session was the hazard; two surfaces each owning
+ * their own is not.
+ *
+ * What is still deliberately absent HERE: `/resume` reads and replaces what is on screen, `/rewind`
+ * scrubs what is on screen, and `/export` writes a transcript FILE (a new file, never a session)
+ * through Kit's own formatter. None of them writes a session, because the per-turn stamp already
+ * does that and a command that also did would be the second authority all over again.
  *
  * `fresh`, `rename`, `remove` and `fork` exist on SessionActions and no command reaches them, so
  * they refuse rather than pretending. A shell that cannot do a thing says so; it does not no-op.
@@ -23,6 +33,7 @@ import { join } from "node:path";
 import { appendTurn, buildTurn, emptySession, type Session } from "../../kit/sessions/session-model";
 import { summarize, toHistory, turnBounds } from "../../kit/sessions/projection";
 import { createSessionStore, newSessionId } from "../../kit/sessions/store";
+import { newWindowSessionId } from "./window-session";
 import { formatTranscript } from "../../kit/sessions/transcript";
 import type { SessionActions } from "../../kit/sessions/session-actions";
 import type { CommandEffect, WidgetRow } from "./command-core";
@@ -124,10 +135,45 @@ export function windowSessions(
       }
       const lines = linesOf(found);
       record({ kind: "transcript", lines });
+
+      /**
+       * RESUMING ADOPTS THE CONVERSATION, it does not just display it.
+       *
+       * Putting the turns on screen was the whole of resume, and it left the window still writing
+       * to some other session - so you resumed a chat, said something to it, restarted, resumed the
+       * same chat, and the thing you had just said was not there. It had been saved, into a
+       * different file, which is worse than not saving at all because the record looks fine from
+       * every angle except the one you check from.
+       *
+       * A COPY, NEVER THE ORIGINAL. Writing back into `found` is the one thing this file has always
+       * refused: the terminal may be holding that very session and stamping it per turn, and two
+       * writers is how a conversation loses turns. `parent` records where it came from.
+       */
+      const at = now();
+      const mine: Session = {
+        ...found,
+        id: newWindowSessionId(),
+        // Forked from the whole of it, so a reader can see where this continuation came from.
+        parent: { id: found.id, turn: found.turns.length },
+        createdAt: at,
+        updatedAt: at,
+      };
+      let adopted = false;
+      try {
+        await store.write(mine);
+        adopted = true;
+        record({ kind: "session", id: mine.id });
+      } catch {
+        // Say so rather than pretending: continuing will still answer, it just will not be kept here.
+      }
+
       record({
         kind: "say",
         text: `Resumed **${summarize(found).displayTitle}** - ${String(found.turns.length)} turn(s), `
-          + `${String(lines.length)} line(s). This replaced what was on screen; the saved file is untouched.`,
+          + `${String(lines.length)} line(s). This replaced what was on screen; the file you resumed `
+          + (adopted
+            ? "is untouched, and anything you say from here is saved as a continuation of it."
+            : "is untouched. This copy could not be saved, so what you say from here will not be kept."),
       });
     },
 

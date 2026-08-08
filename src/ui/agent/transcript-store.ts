@@ -14,11 +14,13 @@
  * TOTAL. Storage throws in private modes and when a quota is full, and a window that could not save
  * a transcript must still be a working window.
  */
+import { TRANSCRIPT_KEY } from "../_shared/window-memory";
 import { readChoices } from "./kit-choice-core";
 import { parseWidget } from "./command-core";
 import type { ChatLine } from "./turn";
 
-const KEY = "hoplight.agent.transcript";
+// One spelling, owned by window-memory.ts, so the reset button clears the key this file reads.
+const KEY = TRANSCRIPT_KEY;
 /** Bounded so one long session cannot fill the quota and break unrelated storage. */
 const MAX_LINES = 200;
 const MAX_CHARS = 200_000;

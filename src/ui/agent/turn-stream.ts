@@ -23,8 +23,15 @@ import { readGateMode } from "../../kit/tools/safety/gate-store";
 import { redactSecrets, systemPrompt } from "./server-agent";
 import { pendingGates } from "./pending-gates";
 import { noteEgress } from "./agent-ledger";
+import { newWindowSessionId, recordWindowTurn } from "./window-session";
 
 /** Built once and reused: discovering tools and capabilities reads the disk. */
+/**
+ * What this app calls the place a preset opens. The Workbench IS the window's rail: the same preset,
+ * the same block order, a surface that was already there rather than a column bolted beside a chat.
+ */
+export const WINDOW_SURFACE = "the Workbench";
+
 let sessionOnce: Promise<Session> | null = null;
 let bridgeOnce: KitBridge | null = null;
 
@@ -49,7 +56,12 @@ export function studioBridge(studioDir: string): KitBridge {
  * list and the unlisted-files report have the same property, one degree less dangerous.
  */
 export function studioSession(studioDir: string): Promise<Session> {
-  sessionOnce ??= createSession(studioBridge(studioDir));
+  /**
+   * NO RAIL HERE, AND THE WINDOW SAYS SO. There is no second argument because this app has no rail
+   * column; the third names what it has instead. Without it rail_open told people their preset was
+   * "on the rail" in an app with no rail, while nothing had opened anywhere.
+   */
+  sessionOnce ??= createSession(studioBridge(studioDir), undefined, WINDOW_SURFACE);
   return sessionOnce;
 }
 
@@ -91,10 +103,18 @@ export async function runAgentTurn(input: {
   readonly question: string;
   readonly history: readonly { role: "user" | "assistant"; content: string }[];
   readonly brief?: string;
+  /** The window's own saved session, or absent to open a new one. See window-session.ts. */
+  readonly sessionId?: string;
   readonly signal?: AbortSignal;
   readonly emit: (frame: StreamFrame) => void;
 }): Promise<void> {
   const { emit, turnId } = input;
+  /**
+   * NAMED BEFORE ANY WORK, and reported before the first token, so the page owns the id even if the
+   * turn then fails. A session minted at the END would be lost by exactly the turns most worth
+   * keeping: the ones that broke.
+   */
+  const sessionId = input.sessionId ?? newWindowSessionId();
 
   try {
     const session = await studioSession(input.studioDir);
@@ -105,7 +125,7 @@ export async function runAgentTurn(input: {
      * a description of its own screen, never the sentence the model trusts.
      */
     const guidance = systemPrompt(input.brief);
-    emit({ event: "begin", data: { turnId } });
+    emit({ event: "begin", data: { turnId, sessionId } });
 
     const gateState = await gateStateForTurn();
     /**
@@ -115,9 +135,10 @@ export async function runAgentTurn(input: {
      */
     const provider = (await session.activeProvider())?.name ?? "provider";
 
-    await session.runTurn(
+    const history = input.history.map((m) => ({ role: m.role, content: m.content }));
+    const all = await session.runTurn(
       `${guidance}\n\n${input.question}`,
-      input.history.map((m) => ({ role: m.role, content: m.content })),
+      history,
       (event: TurnEvent) => {
         // One usage report is one call that left this machine. This is what `/privacy` reads back;
         // dropping it, as this did, made that command a receipt for nothing.
@@ -152,6 +173,28 @@ export async function runAgentTurn(input: {
         },
       },
     );
+
+    /**
+     * STAMPED PER TURN, the way the terminal has always done it, so there is nothing to remember to
+     * save. Before this the window read sessions and wrote none, so every conversation held here
+     * died with the tab and `/resume` could only offer the terminal's.
+     */
+    const record = await recordWindowTurn({
+      sessionId,
+      question: input.question,
+      messages: all,
+      historyLength: history.length,
+    });
+    /**
+     * SAID OUT LOUD, both ways. A turn whose record failed used to be indistinguishable from one
+     * that saved, so "my conversations are not being saved" had no evidence behind it on either
+     * side. The frame carries the outcome to the page; the console carries it to whoever is running
+     * the server, because that is where a filesystem error is worth reading in full.
+     */
+    if (!record.saved) {
+      console.error(`agent: this turn was not saved (${sessionId}): ${record.why}`);
+    }
+    emit({ event: "session", data: { id: sessionId, ...record } });
 
     emit({ event: "done", data: {} });
   } catch (error) {

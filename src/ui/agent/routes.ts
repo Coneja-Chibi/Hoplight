@@ -142,7 +142,7 @@ export async function handleAgentRoutes(
 
 /** Server-sent events for one turn. */
 function streamTurn(
-  turn: { messages: readonly { role: string; content: string }[]; brief?: string },
+  turn: { messages: readonly { role: string; content: string }[]; brief?: string; sessionId?: string },
   studioDir: string,
   signal?: AbortSignal,
 ): Response {
@@ -183,6 +183,7 @@ function streamTurn(
           question: last?.content ?? "",
           history,
           ...(turn.brief ? { brief: turn.brief } : {}),
+          ...(turn.sessionId ? { sessionId: turn.sessionId } : {}),
           ...(signal ? { signal } : {}),
           emit,
         });

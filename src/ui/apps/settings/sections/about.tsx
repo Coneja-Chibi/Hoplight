@@ -8,6 +8,7 @@ import type { JSX } from "react";
 import type { AppContext } from "../../../app-contract";
 import { requestExternal } from "../../../_shared/link-gate";
 import { updateStatusOf, type UpdateStatus } from "../../../_shared/update-check";
+import { clearWindowMemory } from "../../../_shared/window-memory";
 import { SettingsRow, type SettingsSection } from "../section-contract";
 import styles from "../styles.module.css";
 
@@ -192,7 +193,7 @@ function LifecycleRow({ ctx }: { ctx: AppContext }): JSX.Element {
   return (
     <SettingsRow
       label="The app"
-      hint="Restart relaunches the studio in place; Quit stops it fully (browser tabs stop working until you start it again). Unsaved edits on the Workbench are lost either way."
+      hint="Restart relaunches the studio in place; Quit stops it fully (browser tabs stop working until you start it again). Unsaved edits on the Workbench are lost either way. Reset this window forgets only what this page remembers - the app you were on, the agent conversation, the overlay's position - and never touches your studio, your tabs or your settings."
     >
       <div className={styles.plates}>
         <button
@@ -208,6 +209,21 @@ function LifecycleRow({ ctx }: { ctx: AppContext }): JSX.Element {
           onClick={() => (armed === "quit" ? void doQuit() : arm("quit"))}
         >
           {armed === "quit" ? "Really quit?" : "Quit Hoplight"}
+        </button>
+        {/*
+          * Not armed like the other two: nothing here can be lost that is not named on the button,
+          * so a "really?" would be ceremony. See reset-window.ts for what it does and does not touch.
+          */}
+        <button
+          type="button"
+          className={styles.plate}
+          title="Forget the app you were on, the agent conversation, and where you put the overlay. Your tabs, settings and studio are untouched."
+          onClick={() => {
+            clearWindowMemory();
+            location.reload();
+          }}
+        >
+          Reset this window
         </button>
       </div>
     </SettingsRow>

@@ -19,6 +19,7 @@ import { decideFollow } from "../follow-core";
 import type { AppManifestEntry, StudioEntitySummary } from "../app-contract";
 import { apiFetchJson } from "../_shared/api-fetch";
 import { deepAccent } from "../_shared/color-math";
+import { ACTIVE_APP_KEY } from "../_shared/window-memory";
 import {
   besideKeys,
   focusKeys,
@@ -264,7 +265,7 @@ export const useShellStore = create<ShellState>((set, get) => ({
     // Session-scoped memory of where you are: a dev reload (or any full reload) lands you back on
     // THIS app instead of dumping you on home - the "spits me out on the workbench" complaint.
     try {
-      sessionStorage.setItem("vaude.session.activeApp", m.id);
+      sessionStorage.setItem(ACTIVE_APP_KEY, m.id);
     } catch {
       // storage unavailable (privacy mode) - reloads fall back to home, which is survivable
     }
