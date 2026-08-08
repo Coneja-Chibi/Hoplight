@@ -47,11 +47,44 @@ export function GatePrompt({
         ? theme.gold
         : theme.line;
 
+  /**
+   * The choices as DATA, so the cursor, the row of buttons and the keys all read one list.
+   *
+   * Built here rather than inline in the JSX because a cursor into a list that is written out by
+   * hand three rows below is exactly how "left/right" ends up landing on the wrong button when
+   * `grantable` is false and Session is absent.
+   */
+  const choices: Array<{ glyph: string; label: string; tone: string; choice: GateChoice }> = [
+    { glyph: CHECK, label: "Allow", tone: theme.teal, choice: { type: "allow-once" } },
+    ...(grantable
+      ? [{ glyph: HELD, label: "Session", tone: theme.teal, choice: { type: "allow-session" } as GateChoice }]
+      : []),
+    { glyph: CROSS, label: "Deny", tone: theme.red, choice: { type: "deny" } },
+    { glyph: STOP, label: "Lock down", tone: theme.red, choice: { type: "abort" } },
+  ];
+  // Starts on Allow, which is where a person's hand already is - but nothing is chosen until Enter,
+  // so a stray keystroke cannot approve anything.
+  const [cursor, setCursor] = useState(0);
+
   useKeyboard((e: KeyEvent) => {
     const k = e.name;
     // The crossing panel owns its own keys, including the third answer. Handled there so this
     // listener cannot claim "t" for a surface that has no hold.
     if (crossing) return;
+    // Arrow the cursor across the buttons and commit with Enter. The letter shortcuts below still
+    // fire directly, so nobody who already knows y/n has to start arrowing instead.
+    if (k === "left" || k === "right") {
+      e.preventDefault();
+      setCursor((c) => (k === "left"
+        ? (c - 1 + choices.length) % choices.length
+        : (c + 1) % choices.length));
+      return;
+    }
+    if (k === "return" && !review) {
+      e.preventDefault();
+      onChoice(choices[cursor]?.choice ?? { type: "deny" });
+      return;
+    }
     if (review && (k === "y" || k === "return")) {
       e.preventDefault();
       onChoice({ type: "allow-once" });
@@ -163,19 +196,33 @@ export function GatePrompt({
           what they do. Each button is also a mouse target, which the old text row never was.
         */}
         <box flexDirection="row">
-          <GateButton glyph={CHECK} label="Allow" tone={theme.teal} onPress={() => onChoice({ type: "allow-once" })} />
-          {grantable ? (
-            <GateButton glyph={HELD} label="Session" tone={theme.teal} onPress={() => onChoice({ type: "allow-session" })} />
-          ) : null}
-          <GateButton glyph={CROSS} label="Deny" tone={theme.red} onPress={() => onChoice({ type: "deny" })} />
-          <GateButton glyph={STOP} label="Lock down" tone={theme.red} onPress={() => onChoice({ type: "abort" })} />
+          {choices.map((c, i) => (
+            <GateButton
+              key={c.label}
+              glyph={c.glyph}
+              label={c.label}
+              tone={c.tone}
+              focused={i === cursor}
+              onPress={() => onChoice(c.choice)}
+            />
+          ))}
         </box>
         {/*
           No glyph here. CROSS already means Deny one row up, and reusing it for the escape footnote
           made one shape stand for two different things. This is a note about a physical key, not a
           fifth choice, so it stays quiet text.
         */}
-        <text fg={theme.mut}>esc denies</text>
+        {/*
+          The keys are named now. They always worked; nothing said so, so the panel read as
+          mouse-only to the people most likely to be driving it from the keyboard.
+          `quiet`, not `mut` - the palette marks mut as borders-only and this is text.
+        */}
+        <text fg={theme.quiet}>
+          <span fg={theme.soft}>←/→</span> choose{"   "}
+          <span fg={theme.soft}>enter</span> confirm{"   "}
+          <span fg={theme.soft}>y</span>/<span fg={theme.soft}>n</span> straight through{"   "}
+          <span fg={theme.soft}>esc</span> denies
+        </text>
       </box>
     </box>
   );
@@ -359,16 +406,34 @@ function GateButton({
   label,
   tone,
   onPress,
+  focused,
 }: {
   glyph: string;
   label: string;
   tone: string;
   onPress: () => void;
+  /**
+   * Whether the keyboard cursor is on this button.
+   *
+   * The gate always had y / a / n bound, and Levi still read it as mouse-only - correctly, because
+   * nothing on screen said otherwise. Three bordered buttons with no cursor look like three things
+   * you click. A visible selection is what makes the keyboard discoverable; the letter shortcuts and
+   * the mouse both still work, and neither was taken away to add this.
+   */
+  focused?: boolean;
 }): ReactNode {
   return (
     <box flexDirection="row">
-      <box border borderColor={tone} paddingLeft={1} paddingRight={1} onMouseDown={onPress}>
-        <text fg={theme.bright}>
+      <box
+        border
+        borderStyle={focused ? "heavy" : "single"}
+        borderColor={focused ? tone : theme.line}
+        backgroundColor={focused ? theme.lift : undefined}
+        paddingLeft={1}
+        paddingRight={1}
+        onMouseDown={onPress}
+      >
+        <text fg={focused ? theme.text : theme.soft}>
           <span fg={tone}>{glyph}</span> {label}
         </text>
       </box>

@@ -1,8 +1,9 @@
 /**
  * The Codex subscription provider against the real service, driven through Kit's own ChatFn.
  *
- * Skipped without a login, because this spends somebody's subscription and needs a credential CI
- * cannot have. The pure decisions are covered in codex-auth.test.ts; these are the four facts that
+ * Opt-in only, via HOPLIGHT_LIVE_CODEX=1: run `HOPLIGHT_LIVE_CODEX=1 bun test src/kit/providers/codex.live.test.ts`.
+ * A live run spends somebody's subscription, so it must never fire just because `bun test` found a
+ * login on disk. The pure decisions are covered in codex-auth.test.ts; these are the four facts that
  * can only be established by asking the service, and all four were wrong in the first draft:
  *
  *   1. the endpoint speaks the Responses API and 404s on chat completions;
@@ -20,6 +21,7 @@ import { spokes } from "./registry";
 import { guardedFetch } from "./egress";
 
 const HAVE = existsSync(codexAuthPath());
+const RUN_LIVE = process.env.HOPLIGHT_LIVE_CODEX === "1";
 
 /** Read from the live catalogue rather than pinned, so a retired model id fails as a skip, not a lie. */
 async function liveModel(): Promise<string> {
@@ -28,7 +30,7 @@ async function liveModel(): Promise<string> {
   return models[0]?.id ?? "";
 }
 
-describe.skipIf(!HAVE)("Codex subscription provider, live", () => {
+describe.skipIf(!HAVE || !RUN_LIVE)("Codex subscription provider, live", () => {
   test("the login on this machine is readable and carries an unexpired token", async () => {
     const auth = await readCodexAuth();
     expect(auth.accessToken.length).toBeGreaterThan(20);

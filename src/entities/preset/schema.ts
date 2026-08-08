@@ -279,6 +279,16 @@ export interface PresetBody {
   generation?: PresetGeneration;
   /** the CHOICES walkthrough (novel; authored now, run later). */
   choices?: PresetChoice[];
+  // The doc comment below is deliberately terse: it is published verbatim into
+  // docs/generated/fields.preset.md, and a version naming every platform got them all listed as
+  // PRODUCERS, including the ones that carry nothing. Which platforms can embed a set, and how, is
+  // stated where that decision is made: each preset adapter's `embedRegex`, and `emitPresetBundle` in
+  // convert.ts. docs/reference/entities/preset.md carries the full explanation in prose.
+  /**
+   * linked canonical regex/script entity id(s) - a LINK, never a copy; export decides whether to
+   * embed, and reports a set that could not ride rather than dropping it.
+   */
+  behaviorRefs?: string[];
 }
 
 export type CanonicalPreset = CanonicalEntity<"preset", PresetBody>;

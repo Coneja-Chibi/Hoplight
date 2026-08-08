@@ -76,7 +76,11 @@ describe("openRail", () => {
     );
     expect(result.ok).toBe(false);
     if (result.ok) return;
-    expect(result.detail).toContain("Name one");
+    // It points at the real chooser rather than being one. The slash popup now completes the
+    // ARGUMENT too, so a comma-separated wall to read and retype from is no longer the interaction -
+    // it is the fallback for somebody who submitted a bare /rail and got here anyway.
+    expect(result.detail).toContain("/rail then a space");
+    // The ids still come with it: whoever landed here deserves the answer, not just a redirect.
     expect(result.detail).toContain("a, b");
   });
 

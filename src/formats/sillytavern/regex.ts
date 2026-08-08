@@ -311,6 +311,28 @@ export default sillytavernRegex;
  * shared seam the preset codec's bundle extraction uses (shared once; the row mapping lives here
  * with the rest of the ST regex dialect). Tolerant: null when no valid rows.
  */
+/**
+ * The inverse of `regexSetFromBundledRows`: canonical sets down to `extensions.regex_scripts` rows.
+ *
+ * WHY IT WAS MISSING, and it is worth stating so nobody re-derives the wrong lesson. Reading bundled
+ * rows landed with the bundle layer; writing them never did, so Kit could import a preset's embedded
+ * regexes and then had no way to put a set back. What a person hit was Kit saying the Studio "does
+ * not expose a way to attach a standalone regex set to a preset", which reads as a format limit. It
+ * was not: the format carries the field, and the reader beside this one has always known its shape.
+ *
+ * Escrow first, and that is the whole subtlety. A set that CAME from a bundle keeps its original
+ * `sillytavern-regex.raw` rows, so re-emitting an untouched import is byte-identical rather than a
+ * lossy rebuild through the canonical rule shape. Only a set with no such escrow is built from rules.
+ */
+export function bundledRowsFromRegexSet(entity: CanonicalRegexSet): StRegexRow[] {
+  const escrowed = entity.original?.["sillytavern-regex"]?.raw;
+  if (Array.isArray(escrowed)) {
+    const rows = escrowed.filter(looksLikeStRegexRow);
+    if (rows.length === entity.body.rules.length) return rows;
+  }
+  return entity.body.rules.map(ruleToRow);
+}
+
 export function regexSetFromBundledRows(rowsRaw: unknown, name: string): CanonicalRegexSet | null {
   if (!Array.isArray(rowsRaw)) return null;
   const rows = rowsRaw.filter(looksLikeStRegexRow);

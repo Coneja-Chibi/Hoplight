@@ -21,7 +21,7 @@ import {
 } from "./tools/safety/access";
 import { runTurn as runLoop, type LoopEvent } from "./loop/loop-core";
 import type { ModelMessage, ToolSpec } from "./providers/provider";
-import { KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
+import { ambientContext, KIT_TOOL_PROTOCOL } from "./providers/tool-protocol";
 import { discoverCapabilities } from "./capabilities/discover";
 import { createCapabilityRuntime } from "./capabilities/runtime";
 import { createChangeSession } from "./changes/session";
@@ -29,7 +29,7 @@ import { applyChangeDraft } from "./changes/apply";
 import { applyRailEdits, railChangeRows } from "../core/preset/rail-apply";
 import type { OutlineRow } from "../core/preset/outline";
 import type { ChangeReceipt } from "./changes/types";
-import type { DraftReview } from "./tools/tool";
+import type { DraftReview, RailSnapshot } from "./tools/tool";
 import { reviewChangeDraft } from "./changes/review";
 import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
@@ -106,7 +106,15 @@ export interface Session {
 const MAX_STEPS = 12;
 
 /** Build a session bound to a studio bridge. Tools are discovered once; the provider is read per turn. */
-export async function createSession(bridge: KitBridge): Promise<Session> {
+/**
+ * `railOf` lets the session read what is on screen. Injected rather than imported: the rail is React
+ * state in the shell, and a session that reached into render would invert the dependency the whole
+ * file is arranged to avoid.
+ */
+export async function createSession(
+  bridge: KitBridge,
+  railOf?: () => RailSnapshot | null,
+): Promise<Session> {
   const [directTools, capabilities] = await Promise.all([
     discoverTools(),
     discoverCapabilities(),
@@ -139,6 +147,9 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
     get grants() {
       return folders.list();
     },
+    // Same reason as grants: read when asked, never captured. The rail changes mid-turn, and a
+    // snapshot taken at session start is exactly the stale answer this exists to stop.
+    rail: () => railOf?.() ?? null,
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);
   const effects = new Map(tools.map((tool) => [tool.name, tool.effect]));
@@ -199,7 +210,7 @@ export async function createSession(bridge: KitBridge): Promise<Session> {
           return history;
         }
         onEvent({ type: "begin", label: `${config.name ?? config.kind} · ${config.model}` });
-        const chat = makeChat(config, signal);
+        const chat = makeChat(config, signal, () => ambientContext(railOf?.() ?? null));
         // Every tool call rides through a per-turn gate. The validated capability catalog contributes
         // exact preview-only names to the security-owned resolver; arbitrary lookalikes remain unknown.
         const gated = makeGatedDispatch(

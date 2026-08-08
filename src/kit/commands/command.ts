@@ -45,6 +45,16 @@ export interface CommandContext {
     open: (query: string) => Promise<{ ok: true } | { ok: false; detail: string }>;
     close: () => void;
   };
+  /**
+   * The pieces on a shelf, for a command that needs to OFFER them rather than be told one.
+   *
+   * Deliberately narrow: id and display name, nothing else. A completer needs the word to insert and
+   * the word a person recognises, and giving commands a general read of entity bodies would make the
+   * command layer a second way into the studio alongside the tools that already own that.
+   *
+   * Optional, so a shell without a studio bound still runs every command that does not need one.
+   */
+  readonly pieces?: (kind: string) => Promise<readonly { id: string; name?: string }[]>;
 }
 
 export interface KitCommand {
@@ -57,7 +67,43 @@ export interface KitCommand {
   /** Which help section it files under (setup / session / moving / ...); absent falls to Other.
    * Matches HelpCommand.group so /help and the (future) help stage group identically. */
   readonly group?: string;
+  /**
+   * Candidates for the ARGUMENT after the command word, when it takes one.
+   *
+   * The slash popup completed the command name and then stopped dead, so `/rail empty-base` had to be
+   * typed out in full - a piece id, exactly, from memory, with no list to look at. That is the point
+   * in the sentence where a person is least likely to know the answer and most likely to typo it.
+   *
+   * Declared per command rather than centrally, because only the command knows what its argument IS:
+   * `/rail` wants preset ids, `/share` wants folders. `prefix` is what has been typed after the
+   * command word so far (possibly empty). Returning [] means "nothing to suggest", which is not the
+   * same as "no argument" - the popup simply shows nothing rather than guessing.
+   */
+  complete?(prefix: string, ctx: CompletionContext): Promise<readonly ArgSuggestion[]>;
   run(ctx: CommandContext): boolean | void | Promise<boolean | void>;
+}
+
+/**
+ * What a completer may see. Deliberately much narrower than CommandContext.
+ *
+ * Completion runs on a KEYSTROKE, not on a command, so it must not be able to open a screen, quit,
+ * start a turn or write anything - and a context that could would eventually be used to. It also
+ * means the composer can offer suggestions without the shell assembling a whole command context for
+ * every letter typed.
+ */
+export interface CompletionContext {
+  /** The pieces on a shelf: id, plus the display name a person actually recognises. */
+  readonly pieces?: (kind: string) => Promise<readonly { id: string; name?: string }[]>;
+  /** The shared folders, for a command whose argument is one. */
+  readonly folders?: GrantBook;
+}
+
+/** One argument candidate: the value to insert, plus what it is, so a list of ids is readable. */
+export interface ArgSuggestion {
+  /** The text that replaces the argument when chosen. */
+  readonly value: string;
+  /** A short right-hand note - a display name, a count, a kind. Never required. */
+  readonly note?: string;
 }
 
 /**

@@ -19,7 +19,15 @@ import { join } from "node:path";
 import type { HarnessTool } from "./tool";
 import { checkGrantReal, grantFolder } from "./_shared/grants";
 
-/** Engines with an adapter in tools/renderers, and the env var naming each install. */
+/**
+ * Engines with an adapter in tools/renderers, and the env var naming each install.
+ *
+ * ONLY ENGINES A USER CAN ACTUALLY HAVE. A RoleCall entry shipped here for a while and was wrong in
+ * two ways: it could never resolve for anyone without that closed checkout, so the tool advertised a
+ * capability it could not deliver, and its marker named an internal path of a closed codebase in a
+ * public repository. An engine belongs here when somebody who downloaded Hoplight can point at a
+ * real install of it.
+ */
 const ENGINES = {
   sillytavern: {
     root: "HOPLIGHT_ST_ROOT",
@@ -38,18 +46,10 @@ const ENGINES = {
     marker: join("packages", "shared", "src", "utils", "macro-engine.ts"),
     install: "a Marinara-Engine checkout",
   },
-  rolecall: {
-    root: "HOPLIGHT_ROLECALL_ROOT",
-    command: "bun",
-    args: ["tools/renderers/rolecall/render.ts"],
-    flag: "--rolecall-root",
-    marker: join("src", "lib", "macros", "prompt-builder.ts"),
-    install: "a RoleCall app checkout",
-  },
 } as const;
 
 const input = z.strictObject({
-  engine: z.enum(["sillytavern", "marinara", "rolecall"])
+  engine: z.enum(["sillytavern", "marinara"])
     .describe("whose macro engine should assemble the preset"),
   preset: z.string().trim().min(1).max(400)
     .describe("path to the preset file, in that platform's own wire format"),

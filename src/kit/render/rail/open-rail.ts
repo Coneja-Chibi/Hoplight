@@ -39,18 +39,31 @@ export async function openRail(
     ? (presets.length === 1 ? presets : [])
     : presets.filter((piece) => matches(piece, needle));
 
+  /**
+   * A list of ids in a sentence is the WORST way to offer a choice, and it used to be the only way:
+   * the slash popup completed the command word and stopped, so somebody who submitted a bare `/rail`
+   * got a comma-separated wall to read and retype from.
+   *
+   * The popup now completes the argument too, so these messages stop being the interaction and go
+   * back to being what they should have been - a fallback that says where the real chooser is. The
+   * ids are still listed, because somebody who got here deserves the answer rather than a redirect.
+   */
+  const pickHint = "Type /rail then a space to pick one from a list.";
   if (found.length === 0) {
     const names = presets.map((piece) => piece.id).join(", ");
     return {
       ok: false,
       detail: needle === ""
-        ? `Name one: ${names}`
-        : `No preset matches "${query.trim()}". There is ${names}.`,
+        ? `${pickHint}\n\nThere is ${names}.`
+        : `No preset matches "${query.trim()}". ${pickHint}\n\nThere is ${names}.`,
     };
   }
   if (found.length > 1) {
     // Never picks. Opening the wrong preset and editing it is worse than one more keystroke.
-    return { ok: false, detail: `Several match: ${found.map((piece) => piece.id).join(", ")}` };
+    return {
+      ok: false,
+      detail: `Several match: ${found.map((piece) => piece.id).join(", ")}. ${pickHint}`,
+    };
   }
 
   const piece = found[0]!;

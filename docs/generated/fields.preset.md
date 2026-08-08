@@ -162,4 +162,5 @@
 | `media?` | `PresetMedia` | - |  |
 | `generation?` | `PresetGeneration` | - |  |
 | `choices?` | `PresetChoice[]` | - | the CHOICES walkthrough (novel; authored now, run later). |
+| `behaviorRefs?` | `string[]` | - | linked canonical regex/script entity id(s) - a LINK, never a copy; export decides whether to embed, and reports a set that could not ride rather than dropping it. |
 

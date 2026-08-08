@@ -139,8 +139,17 @@ export function Form({
   const fields = formFields(form.choice);
   return (
     <box flexDirection="column" paddingLeft={2} paddingRight={2}>
-      <text fg={theme.mut}>
-        <span fg={theme.text}>{form.choice.label}</span> · paste your key, enter to save
+      {/*
+        The field list already respects `keyless` (model.ts: `if (!choice.keyless) fields.push("key")`),
+        so a keyless provider correctly showed no key box - and this sentence still told the person to
+        paste one. The form was right and the words were wrong, which is the more confusing of the two:
+        it reads as a missing field rather than as a provider that needs no key.
+      */}
+      <text fg={theme.quiet}>
+        <span fg={theme.text}>{form.choice.label}</span>
+        {form.choice.keyless
+          ? " · already signed in on this machine, enter to save"
+          : " · paste your key, enter to save"}
       </text>
       <box flexDirection="column" paddingTop={1}>
         {fields.map((field) => {

@@ -32,3 +32,41 @@ describe("serverCommand", () => {
     expect(await Bun.file(args[0]!).exists()).toBe(true);
   });
 });
+
+/**
+ * Gate mode 1 - pre-authorised at connect.
+ *
+ * Every test here is about which way the DEFAULT falls, because that is the property that matters. A
+ * flag that opens writes when asked is unremarkable; a flag that opens them when nobody asked is the
+ * whole failure.
+ */
+describe("the spawn decides what the model may do", () => {
+  test("read-only when writes are explicitly off", () => {
+    expect(serverCommand(false).args).toContain("--read-only");
+  });
+
+  test("the full belt only when writes are explicitly allowed", () => {
+    const args = serverCommand(true).args;
+    expect(args).not.toContain("--read-only");
+    expect(args).toContain("mcp");
+  });
+
+  test("the setup choice exists and defaults to read only", async () => {
+    const spoke = (await import("./claude-sub")).default;
+    const option = spoke.options?.find((o) => o.key === "writes");
+    expect(option).toBeTruthy();
+    expect(option?.defaultValue).toBe("off");
+    // Both answers are spelled out, so the screen never presents "allow changes" as the only move.
+    expect(option?.choices.map((c) => c.value).sort()).toEqual(["off", "on"]);
+  });
+
+  test("only the exact string \"on\" opens writes", () => {
+    // Absent, empty, "true", "yes", a stray space - every one of them must fall to read-only. A
+    // posture decided by loose truthiness is one a typo can widen.
+    for (const value of [undefined, "", "off", "true", "yes", "ON ", "On"]) {
+      expect(serverCommand(value === "on").args).toContain("--read-only");
+    }
+    const opened: string = "on";
+    expect(serverCommand(opened === "on").args).not.toContain("--read-only");
+  });
+});

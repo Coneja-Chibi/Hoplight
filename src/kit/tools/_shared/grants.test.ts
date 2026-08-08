@@ -167,3 +167,38 @@ describe("checkGrantReal: a link cannot carry a path out", () => {
     expect(check.ok).toBe(false);
   });
 });
+
+// -----------------------------------------------------------------------------------------------
+// A file grant is ONE file. This is the narrow authority a pasted path mints: somebody handing Kit a
+// path has consented to that file exactly as picking it in a dialog would - and to nothing beside it.
+// Every test here is a NEGATIVE, because the failure mode is a widened grant, which looks like
+// success from the outside.
+// -----------------------------------------------------------------------------------------------
+describe("a file grant", () => {
+  // String.raw, because a lone backslash in a normal string literal silently becomes nothing:
+  // "C:\cards" is the string "C:cards", and every assertion below would test a path that cannot exist.
+  const FOLDER = process.platform === "win32" ? String.raw`C:\cards` : "/cards";
+  const FILE = process.platform === "win32" ? String.raw`C:\cards\dite.png` : "/cards/dite.png";
+  const SIBLING = process.platform === "win32" ? String.raw`C:\cards\other.png` : "/cards/other.png";
+  const grants = [{ root: FILE, file: true }];
+
+  test("opens the file it names", () => {
+    const check = checkGrant(grants, FILE);
+    expect(check.ok).toBe(true);
+  });
+
+  test("does NOT open a sibling in the same folder", () => {
+    // The whole point. Granting the parent folder would have been the easy implementation and would
+    // have turned "look at this card" into handing over a directory.
+    const check = checkGrant(grants, SIBLING);
+    expect(check.ok).toBe(false);
+  });
+
+  test("does NOT open the folder that contains it", () => {
+    expect(checkGrant(grants, FOLDER).ok).toBe(false);
+  });
+
+  test("a FOLDER grant still reaches its descendants, so the narrowing is opt-in", () => {
+    expect(checkGrant([{ root: FOLDER }], SIBLING).ok).toBe(true);
+  });
+});

@@ -14,7 +14,7 @@ import { readJsonObject } from "../_shared/card-io";
 import { setNameFromFilename } from "../_shared/regex-set-name";
 import { detectStPreset, isRec, parsedToBody, parseStPreset, type DividerDialect, type Rec } from "../_shared/st-preset-wire";
 import { buildStPreset } from "../_shared/st-preset-emit";
-import { regexSetFromBundledRows } from "./regex";
+import { bundledRowsFromRegexSet, regexSetFromBundledRows } from "./regex";
 
 const FORMAT_ID = "sillytavern-preset";
 
@@ -73,6 +73,31 @@ const presetAdapter: PresetAdapter = {
     const raw = entity.original?.sillytavern?.raw;
     if (!isRec(raw) || !isRec(raw.extensions)) return null;
     return regexSetFromBundledRows(raw.extensions.regex_scripts, `${entity.body.name} regex`);
+  },
+
+  /**
+   * Attach standalone regex sets under `extensions.regex_scripts`, the same field extractRegex reads.
+   *
+   * ST is one of only TWO platforms where this seam is even correct, and the difference is the
+   * attachment MODEL rather than a field name (survey: Vaud-Notes/design/REGEX-FORMATS.md):
+   * ST and RoleCall carry rows INSIDE the preset file, so writing them is an emit concern. Lumiverse
+   * attaches by `preset_id` ON THE SCRIPT, so its attachment belongs to the regex entity and putting
+   * an embedRegex here would invent a shape Lumiverse never reads. Marinara has no preset attachment
+   * at all - account-level scripts with per-character targeting. Both correctly have no embedRegex,
+   * and that absence is a decision, not an omission.
+   */
+  embedRegex(entity: CanonicalPreset, sets: readonly CanonicalRegexSet[]): AdapterOutput {
+    const base = presetAdapter.fromCanonical(entity);
+    if (sets.length === 0) return base;
+    const rows = sets.flatMap((set) => bundledRowsFromRegexSet(set));
+    // A preset emitted as BYTES has no JSON to inject into. Returning it untouched is the honest
+    // answer; emitPresetBundle is what reports that the sets did not ride.
+    if (rows.length === 0 || typeof base.text !== "string") return base;
+    const out = JSON.parse(base.text) as Rec;
+    const extensions = isRec(out.extensions) ? { ...out.extensions } : {};
+    extensions.regex_scripts = rows;
+    out.extensions = extensions;
+    return { text: JSON.stringify(out, null, 2), suggestedExtension: base.suggestedExtension };
   },
 };
 

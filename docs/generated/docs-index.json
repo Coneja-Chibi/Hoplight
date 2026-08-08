@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-05",
+  "generated": "2026-08-08",
   "count": 112,
   "docs": [
     {
@@ -6337,11 +6337,11 @@
       "related": [
         "reference/architecture"
       ],
-      "semanticSummary": "Preset entity is the field-meaning authority for CanonicalPreset as CanonicalEntity preset PresetBody modeling the SillyTavern chat-completion prompt-manager family of ordered prompt blocks samplers and settings that RoleCall Marinara and Lumiverse dialects center on. Other ST preset subtypes context instruct sysprompt text-completion reasoning are out of scope. No FormatAdapter or CLI preset command yet; Library and Workbench author PresetBody directly while Producers still name verified wire homes. LiveBuild preview orders enabled blocks and counts tokens chars/4 without resolving macros groups or choices and never evals. How to read the field tables and Composition introduce generated tables. Prompt blocks and groups cover PresetPrompt verbatim ids markers placement and Groups. Sampler and generation settings System prompts templates and behavior API and media options Choices walkthrough Full composition What rides escrow not a field and See also complete the map.",
+      "semanticSummary": "Preset entity is the field-meaning authority for CanonicalPreset as CanonicalEntity preset PresetBody modeling the SillyTavern chat-completion prompt-manager family of ordered prompt blocks samplers and settings that RoleCall Marinara and Lumiverse dialects center on. Other ST preset subtypes context instruct sysprompt text-completion reasoning are out of scope. PresetAdapter is in the FormatAdapter union and four adapters read and write presets (SillyTavern RoleCall Marinara Lumiverse); no dedicated CLI preset subcommand, presets ride the generic inspect and convert commands, and Library and Workbench also author PresetBody directly. LiveBuild preview orders enabled blocks and counts tokens chars/4 without resolving macros groups or choices and never evals. How to read the field tables and Composition introduce generated tables. Prompt blocks and groups cover PresetPrompt verbatim ids markers placement and Groups. Sampler and generation settings System prompts templates and behavior API and media options Choices walkthrough Full composition Linked regex sets What rides escrow not a field and See also complete the map.",
       "topics": [
         "CanonicalPreset prompt manager",
         "PresetPrompt blocks",
-        "no adapter yet",
+        "four preset adapters",
         "LiveBuild preview only",
         "groups choices canonical",
         "samplers systemPrompts",
@@ -6365,7 +6365,7 @@
           "text": "Composition",
           "slug": "composition",
           "level": 2,
-          "summary": "PresetBody requires name and prompts ordered manuscript plus eleven optional fields: groups and choices collections; samplers systemPrompts templates behavior apiOptions media generation settings sub-objects; description and enabled scalars. Grouping mirrors authoring not app storage. Full table lives under Full composition. Tables come from docs/generated/fields.preset.md.",
+          "summary": "PresetBody requires name and prompts ordered manuscript plus twelve optional fields: groups and choices collections; samplers systemPrompts templates behavior apiOptions media generation settings sub-objects; description and enabled scalars; behaviorRefs link array. Grouping mirrors authoring not app storage. Full table lives under Full composition. Tables come from docs/generated/fields.preset.md.",
           "topics": [
             "name prompts required",
             "groups choices optional",
@@ -6521,12 +6521,27 @@
           "text": "Full composition",
           "slug": "full-composition",
           "level": 2,
-          "summary": "PresetBody top shape: name description enabled shelf switch read as enabled not false so off presets skip export like off sets; prompts ordered real blocks never divider rows; groups categories; samplers systemPrompts templates behavior apiOptions media generation; choices walkthrough authored now run later. Dividers are never blocks; groups model structure.",
+          "summary": "PresetBody top shape: name description enabled shelf switch read as enabled not false so off presets skip export like off sets; prompts ordered real blocks never divider rows; groups categories; samplers systemPrompts templates behavior apiOptions media generation; choices walkthrough authored now run later; behaviorRefs linked regex ids. Dividers are never blocks; groups model structure.",
           "topics": [
             "enabled shelf switch",
             "prompts not dividers",
             "full settings map",
-            "choices on body"
+            "choices on body",
+            "behaviorRefs links"
+          ],
+          "children": []
+        },
+        {
+          "text": "Linked regex sets",
+          "slug": "linked-regex-sets",
+          "level": 2,
+          "summary": "behaviorRefs is the preset counterpart of CharacterBody.behaviorRefs: it names standalone regex/script pieces by canonical id instead of copying their rules, so the set stays one editable piece shared by every preset that links it. The link is canonical; embedding is decided per format at export. SillyTavern and RoleCall carry rows inside the preset file under extensions.regex_scripts, so their adapters embed a linked set. Lumiverse attaches by preset_id on the script instead, and Marinara has no preset-level attachment at all, so nothing rides inside those files. Each adapter's embedRegex owns its answer, and emitPresetBundle reports a set that could not ride rather than dropping it silently.",
+          "topics": [
+            "link not copy",
+            "extensions.regex_scripts",
+            "Lumiverse preset_id",
+            "Marinara no attachment",
+            "unattached reported"
           ],
           "children": []
         },
@@ -8729,13 +8744,13 @@
         "reference/architecture",
         "reference/ui"
       ],
-      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Sixteen direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify) and the shared-folder pair (folder_search, folder_import). Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
+      "semanticSummary": "Kit content tools separates runtime tools from terminal slash commands. Its lifecycle connects six canonical capability bundles through pure previews, one four-domain discovery catalog, complete draft evidence, guarded-mode semantic review, documentation query, whole-piece reads, and bounded result handles. Nineteen direct tools begin each turn, studio_delete among them, plus the preset-authoring belt (block_lookup, preset_verify, regex_lab), the shared-folder pair (folder_search, folder_import), rail_open, and ask_choice. Search may reveal up to five deferred schemas, collapsed browse reveals none, and exact describe reveals one. Studio lifecycle contains typed creation for character, lorebook, persona, preset, regex, and media pack without an existing target, plus duplicate and delete. studio_transfer serializes a piece through another platform adapter and reports dropped fields, escrowed fields, and dead macros without writing any file. Macro compatibility is computed by the engine from per-engine catalogs, never inferred by the model, and is name-level only: a surviving token is not a semantic guarantee and an unmodeled engine reports unchecked rather than clean. Normal pieces up to 64,000 characters return in one read. Guarded mode hands apply to the application review card. Atomic create-only apply refuses occupied IDs and verifies storage. Unit and integration proof exists; live terminal verification remains required.",
       "topics": [
         "runtime tools vs slash",
         "workflow discovery lifecycle",
         "capability contract pure",
         "apply Gate authorization",
-        "ten direct five deferred",
+        "nineteen direct five deferred",
         "duplicate carries escrow",
         "delete danger floor",
         "transfer writes no file",
@@ -8747,7 +8762,7 @@
           "text": "Built lifecycle",
           "slug": "built-lifecycle",
           "level": 2,
-          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns ids, search and exposure; kit capabilities adapts them into one unique-name registry. Six lifecycle tools draft creation without a write; duplicate carries body, profiles and original escrow so a copy never loses platform-native fields. studio_delete is the only tool that destroys canonical content, carries no discovery descriptor because the runtime refuses deferred apply workflows, and reports a miss as stale without writing. studio_transfer serializes through another adapter and writes no file. block_lookup explains a kind of prompt block and returns an editable one; preset_verify renders through the real engine and reports what did not resolve. folder_search reads inside shared folders and the studio, reconciling every resolved path against its real path so a link cannot carry it out. rail_open puts a preset on the rail and is read-only. folder_import is the one-way door into the studio, drafting every piece a file contains or none; an occupied id is refused. kit changes retains baseline, escrow and warnings; reads overlap while mutations serialize.",
+          "summary": "Built lifecycle connects six canonical capability bundles to Kit. entities capabilities owns ids, search and exposure; kit capabilities adapts them into one registry. Six lifecycle tools draft creation without a write; duplicate carries body, profiles and original escrow forward, so a copy never loses platform-native fields. studio_delete is the only tool that destroys canonical content, carries no discovery descriptor because the runtime refuses deferred applies, and reports a miss as stale without writing. studio_transfer serializes through another adapter without writing. block_lookup explains a kind of prompt block; preset_verify renders through the real engine and reports what did not resolve; regex_lab tries, races, explains and lints patterns while storing none. folder_search reads inside shared folders and the studio, reconciling each resolved path against its real path. folder_import is the one-way door into the studio, drafting every piece a file contains or none, absent unless changes were allowed at setup. rail_open opens a preset and reports what is on the rail; ask_choice hands the user a list the shell renders. kit changes retains baseline, escrow and warnings; reads overlap while mutations serialize.",
           "topics": [
             "six content bundles",
             "duplicate carries escrow",
@@ -8793,9 +8808,9 @@
           "text": "Progressive exposure",
           "slug": "progressive-exposure",
           "level": 2,
-          "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and seventeen direct tools begin each turn including rail_open, folder_import and studio_delete. studio_delete is direct for a structural reason: the deferred path classifies a tool from discovery metadata, and the runtime refuses to let that path describe an apply effect, so a destructive workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would require ChangeDraftMode to grow a remove arm and proposed to become optional, a core authority change deferred to its own design pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains a declared but empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse exposes no schemas, describe reveals one. Hidden descriptors never appear. The deferred set clears each turn while drafts persist.",
+          "summary": "Progressive exposure keeps a large catalog out of every prompt. The runtime registry holds every adapted capability and deferred workflow so dispatch can resolve a selection, and nineteen direct tools begin each turn, among them ask_choice, block_lookup, folder_import, preset_verify, rail_open, regex_lab, studio_delete and studio_export. Those last two are direct for a structural reason: the deferred path classifies a tool from discovery metadata, and the runtime refuses to let that path describe an apply effect, so a destructive or file-writing workflow cannot be discovered into existence and must be granted by exact name in the trust map. Routing removal through draft and apply would require ChangeDraftMode to grow a remove arm, a core authority change deferred to its own design pass. One catalog accepts content, studio, transfer, and diagnostics domains; transfer is populated by studio_transfer while diagnostics remains a declared but empty slot. Only pure-content capabilities derive safe access from catalog metadata. Search reveals at most five ranked matches, browse exposes no schemas, describe reveals one. Hidden descriptors never appear. The deferred set clears each turn while drafts persist.",
           "topics": [
-            "seventeen direct tools",
+            "nineteen direct tools",
             "delete granted by name",
             "no deferred apply",
             "transfer domain populated",
@@ -13744,7 +13759,7 @@
           "text": "Kit terminal shell",
           "slug": "kit-terminal-shell",
           "level": 2,
-          "summary": "Kit is a terminal shell shipped as a release binary: multiline composer, paste cards, a bounded follow-up queue, draft-preserving history and search, interruptible streaming and a command palette. Native scrolling, foldable replies, copy feedback and a stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork and export. Model settings, doctor, inventory and privacy are command surfaces. /rail keeps a preset's block list beside the conversation and is edited directly; ctrl+B moves the keyboard between composer and rail, shown in its chrome. Edits accumulate locally and Enter stages them as one ordinary draft at the same Gate. Its tool loop performs bounded reads, discovers a small deferred capability set, composes previews, and replaces model save prose with a revision-checked REVIEW CHANGE gate. A conversion gets a REVIEW CROSSING panel instead: two columns of what each thing becomes, banded worst first, with escrow reported as reassurance rather than damage. Its third answer neither runs nor denies the call, grants nothing, and reports as held so a paused apply keeps its draft. Applies serialize and Backstage retains lifecycle truth.",
+          "summary": "Kit is a terminal shell: multiline composer, paste cards, a bounded follow-up queue, draft-preserving history and search, interruptible streaming, and a palette that completes command arguments. Right-click pastes text, alt+V pastes an image drawn as shown-not-sent, and a path written into a message becomes reachable for that file alone, drawn as a link. Native scrolling, foldable replies, copy feedback and a stage watcher keep terminal behavior coherent. Atomic sessions support resume, rewind, fork and export; model settings, doctor, inventory and privacy are command surfaces. /rail keeps a preset's block list beside the conversation: ctrl+B moves the keyboard there, ctrl+shift+arrows resize it, ctrl+shift+D switches density, and < and > thumb through the studio's presets. What is on the rail rides in each turn's ambient context, and Enter stages accumulated edits as one ordinary draft at the same Gate. The tool loop performs bounded reads and replaces model save prose with a revision-checked REVIEW CHANGE gate; a conversion gets REVIEW CROSSING. Its third answer holds a call instead of running or denying it. Applies serialize and Backstage retains lifecycle truth.",
           "topics": [
             "composer queue and search",
             "slash palette mentions",

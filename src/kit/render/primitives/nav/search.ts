@@ -36,6 +36,13 @@ export function lineText(line: RenderLine): string {
       return line.text;
     case "backstage":
       return line.moves.join(" ");
+    // A choice list is findable by what it asked, which is the part somebody remembers.
+    case "choices":
+      return `${line.question} ${line.options.map((o) => o.value).join(" ")}`;
+    // An image has no text of its own, so its caption is what search can find it by - which is the
+    // difference between "pasted image" being findable in a long transcript and being invisible.
+    case "image":
+      return line.note;
     case "doctor":
       return line.checks.map((check) => `${check.label} ${check.detail}`).join(" ");
     default:

@@ -12,18 +12,23 @@ import { ThoughtRow } from "./thought-row";
 import { ToolRow } from "./tool-row";
 import { YouLine } from "./you-line";
 import { WatchNote } from "./watch-note";
+import { PastedImage } from "./pasted-image";
+import { ChoiceList } from "./choice-list";
 
 export function SettledLine({
   line,
   index,
   pieces,
   onCopy,
+  onPick,
   onToggle,
 }: {
   line: RenderLine;
   index: number;
   pieces: readonly EntitySummary[];
   onCopy: (text: string) => void;
+  /** Fill the composer with a picked option. Never sends - the person still owns the message. */
+  onPick?: (value: string) => void;
   onToggle: () => void;
 }): ReactNode {
   if (line.role === "you") {
@@ -38,7 +43,13 @@ export function SettledLine({
   if (line.role === "error") {
     return <ErrorRow text={line.text} onCopy={() => onCopy(line.text)} />;
   }
-  if (line.role === "watch") return <WatchNote text={line.text} />;
+  if (line.role === "choices") {
+    return <ChoiceList question={line.question} options={line.options} onPick={onPick} />;
+  }
+  if (line.role === "image") {
+    return <PastedImage bytes={line.bytes} width={line.width} height={line.height} note={line.note} />;
+  }
+  if (line.role === "watch") return <WatchNote text={line.text} {...(line.path ? { path: line.path } : {})} onCopy={onCopy} />;
   if (line.role === "thought") {
     return (
       <ThoughtRow

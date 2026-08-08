@@ -21,6 +21,7 @@ import type { ProducerFix, UnfixedCleanup } from "../../core/preset/macros/fix-p
 type ConversionKit = {
   registry: typeof import("../../core").registry;
   emitBundle: typeof import("../../convert").emitBundle;
+  emitPresetBundle: typeof import("../../convert").emitPresetBundle;
   buildSerializeReport: typeof import("../../core").buildSerializeReport;
   checkMacroTransfer: typeof import("../../core/preset/macros/transfer-check").checkMacroTransfer;
   profileForAdapter: typeof import("../../core/preset/macros/transfer-check").profileForAdapter;
@@ -54,6 +55,7 @@ export async function loadConversionKit(): Promise<ConversionKit> {
   return {
     registry: core.registry,
     emitBundle: convert.emitBundle,
+    emitPresetBundle: convert.emitPresetBundle,
     buildSerializeReport: core.buildSerializeReport,
     checkMacroTransfer: macros.checkMacroTransfer,
     profileForAdapter: macros.profileForAdapter,
@@ -124,6 +126,15 @@ export interface ConversionSuccess {
   producerFixes?: { fixed: ProducerFix[]; unfixed: UnfixedCleanup[] };
   /** The dialects this crossing went between, when both were known. */
   dialect?: { from: string; to: string };
+  /**
+   * Linked regex sets the TARGET cannot carry inside a preset file, with the reason. Lumiverse links
+   * by `preset_id` on the script and Marinara has no preset attachment at all, so this is a real and
+   * expected outcome rather than a failure - but it must be said, because the emitted file looks the
+   * same either way.
+   */
+  unattachedRegex?: string[];
+  /** behaviorRefs pointing at sets that are no longer in the studio. The export still happened. */
+  missingRegexRefs?: string[];
 }
 
 /** One rule carrying something the destination will not run, named for a reader. */
@@ -252,13 +263,30 @@ export async function convertStoredPiece(
   }
 
   try {
+    // A preset's linked regex sets ride the same way a character's lorebooks do. Before this the
+    // preset branch fell through to bare fromCanonical, so a linked set was silently dropped on
+    // every export - the reason Kit could read bundled rules and never write them back.
+    let unattachedRegex: string[] = [];
+    let missingRegexRefs: string[] = [];
     const out = kind === "character"
       ? kit.emitBundle(
           target as Parameters<ConversionKit["emitBundle"]>[0],
           subject as unknown as Parameters<ConversionKit["emitBundle"]>[1],
           (await resolveKnowledge(bridge, entity)) as unknown as Parameters<ConversionKit["emitBundle"]>[2],
         )
-      : (target.fromCanonical as (e: unknown) => ReturnType<ConversionKit["emitBundle"]>)(subject);
+      : kind === "preset"
+        ? await (async () => {
+          const { sets, missing } = await resolveBehavior(bridge, entity);
+          missingRegexRefs = missing;
+          const bundled = kit.emitPresetBundle(
+            target as Parameters<ConversionKit["emitPresetBundle"]>[0],
+            subject as unknown as Parameters<ConversionKit["emitPresetBundle"]>[1],
+            sets as unknown as Parameters<ConversionKit["emitPresetBundle"]>[2],
+          );
+          unattachedRegex = bundled.unattached.map((u) => u.reason);
+          return bundled.output as ReturnType<ConversionKit["emitBundle"]>;
+        })()
+        : (target.fromCanonical as (e: unknown) => ReturnType<ConversionKit["emitBundle"]>)(subject);
 
     const loss = out.report ?? kit.buildSerializeReport(subject, target);
     const text = out.text ?? null;
@@ -313,6 +341,10 @@ export async function convertStoredPiece(
       ...(promotions ? { promotions } : {}),
       ...(producerFixes ? { producerFixes } : {}),
       ...(dialect ? { dialect } : {}),
+      // Both of these are ABSENCES, and an absence is the one thing a conversion must never keep to
+      // itself: a linked set that did not ride looks identical to a preset that never had one.
+      ...(unattachedRegex.length > 0 ? { unattachedRegex } : {}),
+      ...(missingRegexRefs.length > 0 ? { missingRegexRefs } : {}),
     };
   } catch (error) {
     return {
@@ -329,6 +361,28 @@ async function resolveKnowledge(bridge: KitBridge, entity: KitEntity): Promise<K
   const ids = Array.isArray(refs) ? refs.filter((ref): ref is string => typeof ref === "string") : [];
   const books = await Promise.all(ids.map((ref) => bridge.read("lorebook", ref)));
   return books.filter((book): book is KitEntity => book !== null);
+}
+
+/**
+ * The regex sets a preset links, for embedding on export. The exact sibling of resolveKnowledge, and
+ * missing for as long as presets had no `behaviorRefs`: the wire could carry the relationship, the
+ * canonical model could not name it, so nothing could ever put a set back into a preset file.
+ *
+ * A ref that no longer resolves is DROPPED here and reported by the caller rather than failing the
+ * export. Losing the whole conversion because one linked set was deleted would be the worse trade;
+ * silently pretending it rode would be worse still, which is why the count is surfaced.
+ */
+async function resolveBehavior(bridge: KitBridge, entity: KitEntity): Promise<{
+  sets: KitEntity[];
+  missing: string[];
+}> {
+  const refs = (entity as unknown as { body?: { behaviorRefs?: unknown } }).body?.behaviorRefs;
+  const ids = Array.isArray(refs) ? refs.filter((ref): ref is string => typeof ref === "string") : [];
+  const found = await Promise.all(ids.map(async (ref) => ({ ref, set: await bridge.read("regex", ref) })));
+  return {
+    sets: found.filter((f) => f.set !== null).map((f) => f.set as KitEntity),
+    missing: found.filter((f) => f.set === null).map((f) => f.ref),
+  };
 }
 
 /**

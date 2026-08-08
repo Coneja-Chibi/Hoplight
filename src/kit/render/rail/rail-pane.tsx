@@ -55,9 +55,23 @@ export function RailPane({
       contentOf={contentOf}
       flags={rail.flags}
       pending={rail.pending}
-      width={railWidth(width)}
+      /**
+       * The person's width wins, bounded by the terminal.
+       *
+       * `railWidth` is now the DEFAULT rather than the rule: it derives a sensible third-of-the-screen
+       * on open, and Ctrl+Shift+Left/Right moves off it. The min() is the only thing the layout still
+       * insists on - a rail wider than the window would push the transcript off the screen entirely.
+       */
+      width={Math.min(rail.width, Math.max(20, width - 24))}
       offset={rail.offset}
-      height={Math.max(3, height - (rail.pending > 0 ? 3 : 2) - 4)}
+      /**
+       * Dense fits every row it can; roomy keeps the chrome. The complaint was reading "45/155" with
+       * no way to see the rest, and the honest fix is a choice rather than a bigger constant -
+       * somebody scanning 155 blocks and somebody reading three want different screens.
+       */
+      height={rail.dense
+        ? Math.max(3, height - 2)
+        : Math.max(3, height - (rail.pending > 0 ? 3 : 2) - 4)}
       onRowDown={rail.onRowDown}
       onRowDrag={rail.onRowDrag}
       onRowDragEnd={rail.onRowDragEnd}

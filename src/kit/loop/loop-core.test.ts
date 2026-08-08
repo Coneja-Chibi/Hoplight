@@ -1,36 +1,8 @@
 /** Coverage for the ReAct loop: plain answers, the tool cycle, and both stop conditions. */
 import { expect, test } from "bun:test";
-import type { ChatFn, ModelReply, ModelToolCall } from "../providers/provider";
-import { runTurn, type DispatchFn, type LoopDeps, type LoopEvent } from "./loop-core";
-
-const drain = async <R>(gen: AsyncGenerator<LoopEvent, R>) => {
-  const events: LoopEvent[] = [];
-  let next = await gen.next();
-  while (!next.done) {
-    events.push(next.value);
-    next = await gen.next();
-  }
-  return { events, history: next.value };
-};
-
-const okDispatch: DispatchFn = async (call) => ({
-  summary: `${call.name} ok`,
-  output: `result of ${call.name}`,
-});
-
-const deps = (chat: ChatFn, over?: Partial<LoopDeps>): LoopDeps => ({
-  chat,
-  dispatch: okDispatch,
-  toolSnapshot: () => [],
-  effectFor: () => "read",
-  maxSteps: 8,
-  ...over,
-});
-
-const scripted = (replies: ModelReply[]): ChatFn => {
-  let index = 0;
-  return async () => replies[Math.min(index++, replies.length - 1)] as ModelReply;
-};
+import type { ChatFn, ModelToolCall } from "../providers/provider";
+import { runTurn } from "./loop-core";
+import { deps, drain, scripted } from "./_shared/test-harness";
 
 test("a plain answer yields one say and records the exchange", async () => {
   const { events, history } = await drain(
@@ -50,12 +22,19 @@ test("ReAct: calls a tool, observes the result, then answers", async () => {
     { kind: "say", text: "you have three" },
   ]);
   const { events, history } = await drain(runTurn("how many?", [], deps(chat)));
+  // "let me look" is said BEFORE the tool runs, and it must survive. This expectation used to omit
+  // it, which is how the drop went unnoticed: a model's stated reason for acting was thrown away and
+  // the transcript kept only the moves.
   expect(events).toEqual([
+    { type: "say", text: "let me look" },
     { type: "tool-start", name: "list" },
     { type: "state", phase: "reading" },
     { type: "tool", name: "list", summary: "list ok" },
     { type: "say", text: "you have three" },
   ]);
+  // The history always held it (the assistant message carries text + toolCalls together); it was
+  // the transcript that dropped it, so this asserts no DUPLICATE entry was introduced either.
+  expect(history[1]).toMatchObject({ role: "assistant", content: "let me look" });
   expect(history.map((message) => message.role)).toEqual(["user", "assistant", "tool", "assistant"]);
   expect(history[1]?.toolCalls).toEqual([call]);
   expect(history[2]).toMatchObject({ role: "tool", toolCallId: "c1", toolName: "list" });
@@ -92,247 +71,6 @@ test("explicit discovery activity emits discovering instead of a generic read ph
   })));
   expect(events).toContainEqual({ type: "state", phase: "discovering" });
   expect(events).not.toContainEqual({ type: "state", phase: "reading" });
-});
-
-test("a discarded draft emits a discarded terminal receipt", async () => {
-  const chat = scripted([
-    { kind: "use", text: "", calls: [{ id: "discard", name: "change_discard", args: {} }] },
-    { kind: "say", text: "discarded" },
-  ]);
-  const { events } = await drain(runTurn("discard it", [], deps(chat, {
-    effectFor: () => "draft",
-    dispatch: async () => ({
-      summary: "discard draft-1: discarded",
-      output: "{}",
-      outcome: "discarded",
-    }),
-  })));
-  expect(events).toContainEqual({ type: "state", phase: "discarded" });
-  expect(events.at(-1)).toEqual({ type: "say", text: "discarded" });
-});
-
-test("a reviewable draft turns final model prose into application-owned review", async () => {
-  let chatCalls = 0;
-  const calls: ModelToolCall[] = [];
-  const chat: ChatFn = async () => {
-    chatCalls += 1;
-    return chatCalls === 1
-      ? {
-          kind: "use",
-          text: "",
-          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
-        }
-      : { kind: "say", text: "Would you like me to apply this change?" };
-  };
-  const { events, history } = await drain(runTurn("rename her", [], deps(chat, {
-    effectFor: (call) => call.name === "change_apply" ? "apply" : "draft",
-    dispatch: async (call) => {
-      calls.push(call);
-      if (call.name === "change_apply") {
-        return {
-          summary: "apply draft-1: applied",
-          output: '{"status":"applied"}',
-          outcome: "applied",
-        };
-      }
-      return {
-        summary: "draft character.identity.update: 1 change",
-        output: '{"draftId":"draft-1"}',
-        outcome: "draft",
-        review: {
-          draftId: "draft-1",
-          target: { kind: "character", id: "aphrodite" },
-          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
-          warningCount: 0,
-        },
-      };
-    },
-  })));
-
-  expect(chatCalls).toBe(2);
-  expect(calls.map((call) => call.name)).toEqual([
-    "character_identity_update",
-    "change_apply",
-  ]);
-  expect(calls[1]?.args).toEqual({ draftId: "draft-1" });
-  expect(events).toContainEqual({ type: "tool-start", name: "change_apply" });
-  expect(events).toContainEqual({ type: "state", phase: "completed" });
-  expect(events).not.toContainEqual({
-    type: "say",
-    text: "Would you like me to apply this change?",
-  });
-  expect(history.filter((message) => message.role === "assistant").at(-1)?.toolCalls)
-    .toMatchObject([{ name: "change_apply", args: { draftId: "draft-1" } }]);
-});
-
-test("denying an automatic draft review discards it without a verbal follow-up", async () => {
-  let chatCalls = 0;
-  const calls: string[] = [];
-  const { events } = await drain(runTurn("rename her", [], deps(async () => {
-    chatCalls += 1;
-    return chatCalls === 1
-      ? {
-          kind: "use",
-          text: "",
-          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
-        }
-      : { kind: "say", text: "Would you like me to save or discard it?" };
-  }, {
-    effectFor: (call) => call.name === "change_apply"
-      ? "apply"
-      : call.name === "change_discard"
-        ? "draft"
-        : "draft",
-    dispatch: async (call) => {
-      calls.push(call.name);
-      if (call.name === "change_apply") {
-        return {
-          summary: "change_apply: blocked",
-          output: "Denied by the user.",
-          gateDecision: "denied",
-        };
-      }
-      if (call.name === "change_discard") {
-        return {
-          summary: "discard draft-1: discarded",
-          output: '{"status":"discarded"}',
-          outcome: "discarded",
-        };
-      }
-      return {
-        summary: "draft character.identity.update: 1 change",
-        output: '{"draftId":"draft-1"}',
-        outcome: "draft",
-        review: {
-          draftId: "draft-1",
-          target: { kind: "character", id: "aphrodite" },
-          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
-          warningCount: 0,
-        },
-      };
-    },
-  })));
-
-  expect(chatCalls).toBe(2);
-  expect(calls).toEqual([
-    "character_identity_update",
-    "change_apply",
-    "change_discard",
-  ]);
-  expect(events).toContainEqual({ type: "state", phase: "discarded" });
-});
-
-test("multiple draft operations compose before the single review handoff", async () => {
-  const chat = scripted([
-    {
-      kind: "use",
-      text: "",
-      calls: [{ id: "identity", name: "character_identity_update", args: {} }],
-    },
-    {
-      kind: "use",
-      text: "",
-      calls: [{ id: "prompt", name: "character_prompts_update", args: {} }],
-    },
-    { kind: "say", text: "Ready to save both changes." },
-  ]);
-  const calls: string[] = [];
-  await drain(runTurn("rename her and change the prompt", [], deps(chat, {
-    effectFor: (call) => call.name === "change_apply" ? "apply" : "draft",
-    dispatch: async (call) => {
-      calls.push(call.name);
-      if (call.name === "change_apply") {
-        return {
-          summary: "apply draft-1: applied",
-          output: '{"status":"applied"}',
-          outcome: "applied",
-        };
-      }
-      const composed = call.name === "character_prompts_update";
-      return {
-        summary: `draft ${call.name}`,
-        output: '{"draftId":"draft-1"}',
-        outcome: "draft",
-        review: {
-          draftId: "draft-1",
-          target: { kind: "character", id: "aphrodite" },
-          changes: composed
-            ? [
-                { label: "name", before: "Aphrodite", after: "Dite" },
-                { label: "system prompt", before: "Old", after: "New" },
-              ]
-            : [{ label: "name", before: "Aphrodite", after: "Dite" }],
-          warningCount: 0,
-        },
-      };
-    },
-  })));
-
-  expect(calls).toEqual([
-    "character_identity_update",
-    "character_prompts_update",
-    "change_apply",
-  ]);
-});
-
-test("denying a model-requested apply discards once instead of prompting again", async () => {
-  const chat = scripted([
-    {
-      kind: "use",
-      text: "",
-      calls: [{ id: "rename", name: "character_identity_update", args: {} }],
-    },
-    {
-      kind: "use",
-      text: "",
-      calls: [{ id: "apply", name: "change_apply", args: { draftId: "draft-1" } }],
-    },
-    { kind: "say", text: "Should I try that again?" },
-  ]);
-  const calls: string[] = [];
-  const { events } = await drain(runTurn("rename her", [], deps(chat, {
-    effectFor: (call) => call.name === "change_apply"
-      ? "apply"
-      : call.name === "change_discard"
-        ? "draft"
-        : "draft",
-    dispatch: async (call) => {
-      calls.push(call.name);
-      if (call.name === "change_apply") {
-        return {
-          summary: "change_apply: blocked",
-          output: "Denied by the user.",
-          gateDecision: "denied",
-        };
-      }
-      if (call.name === "change_discard") {
-        return {
-          summary: "discard draft-1: discarded",
-          output: '{"status":"discarded"}',
-          outcome: "discarded",
-        };
-      }
-      return {
-        summary: "draft character.identity.update: 1 change",
-        output: '{"draftId":"draft-1"}',
-        outcome: "draft",
-        review: {
-          draftId: "draft-1",
-          target: { kind: "character", id: "aphrodite" },
-          changes: [{ label: "name", before: "Aphrodite", after: "Dite" }],
-          warningCount: 0,
-        },
-      };
-    },
-  })));
-
-  expect(calls).toEqual([
-    "character_identity_update",
-    "change_apply",
-    "change_discard",
-  ]);
-  expect(events).toContainEqual({ type: "state", phase: "discarded" });
-  expect(events).not.toContainEqual({ type: "say", text: "Should I try that again?" });
 });
 
 test("stops when the model calls the same tool three times", async () => {
@@ -448,18 +186,4 @@ test("cancellation pairs every declared tool call without running later mutation
   expect(result.history.filter((message) => message.role === "tool").map((message) => message.toolCallId))
     .toEqual(["first", "second"]);
   expect(result.history.at(-1)?.content).toContain("cancelled");
-});
-
-test("a stale apply state cannot later become completed", async () => {
-  let round = 0;
-  const chat: ChatFn = async () => round++ === 0
-    ? { kind: "use", text: "", calls: [{ id: "apply", name: "change_apply", args: {} }] }
-    : { kind: "say", text: "I am done" };
-  const { events } = await drain(runTurn("apply", [], deps(chat, {
-    effectFor: () => "apply",
-    dispatch: async () => ({ summary: "stale", output: "stale", outcome: "stale" }),
-  })));
-  const phases = events.filter((event) => event.type === "state").map((event) => event.phase);
-  expect(phases).toContain("stale");
-  expect(phases).not.toContain("completed");
 });

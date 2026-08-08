@@ -6,9 +6,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { join } from "node:path";
-import { useKeyboard, useRenderer } from "@opentui/react";
-import type { KeyEvent } from "@opentui/core";
+import { useRenderer } from "@opentui/react";
 import type { DeckCount, EntitySummary } from "../bridge";
 import type { ModelMessage } from "../providers/provider";
 import type { Session as ChatSession } from "../session";
@@ -28,34 +26,32 @@ import { BackstageBox } from "./primitives/backstage-box";
 import { SettledLine } from "./primitives/settled-line";
 import { SearchCard } from "./primitives/nav/search-card";
 import { SnapPill } from "./primitives/nav/snap-pill";
-import { HelpScreen } from "./primitives/nav/help-screen";
 import { useScrollSeam } from "./primitives/nav/use-scroll-seam";
 import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
-import { SettingsScreen } from "./settings/settings-screen";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
 import { buildContextPreview } from "../context/shell";
 import { useNotify } from "./notify/use-notify";
 import { useFocus } from "./notify/focus";
 import type { NotifySettings } from "./notify/plan";
-import { configDir } from "../providers/config";
-import { appendTurn, buildTurn, emptySession, forkFrom, renameSession, rewindTo, type Session as MemorySession } from "../sessions/session-model";
-import { toHistory } from "../sessions/projection";
-import { messagesToLines } from "../sessions/render/replay";
-import { ResumePlaybill } from "../sessions/render/resume-playbill";
+import { appendTurn, buildTurn, emptySession, type Session as MemorySession } from "../sessions/session-model";
 import { RewindRail } from "../sessions/render/rewind-rail";
 import { createSessionStore, newSessionId, type SessionStore } from "../sessions/store";
-import { formatTranscript } from "../sessions/transcript";
 import type { SessionActions, SessionCommandContext } from "../sessions/session-actions";
 import { useCopyNotice } from "./use-copy-notice";
 import type { DoctorResult } from "../doctor/check";
-import { watchSummary } from "../watch/watch-core";
+import type { RailSnapshot } from "../tools/tool";
 import type { StudioWatchSource } from "../watch/watcher";
 import { GatePrompt } from "./primitives/safety/gate-prompt";
 import { useGateController } from "./safety/use-gate";
-import { ToolsScreen } from "./tools/tools-screen";
 import { useRailSession } from "./rail/use-rail-session";
 import { RailPane } from "./rail/rail-pane";
+import { grantPastedPaths } from "./grant-pasted-paths";
+import { buildSessionActions } from "./use-session-actions";
+import { useShellKeys } from "./use-shell-keys";
+import { useStudioShelf } from "./use-studio-shelf";
+import { FullScreen } from "./full-screens";
+import { decodePngPixels } from "../../studio/signature-color";
 
 /** Notify defaults: all channels on. Bell/desktop are focus-gated in plan.ts, so they only fire when you
  * looked away; a future /gates command will persist per-channel toggles. */
@@ -74,6 +70,11 @@ export interface AppProps {
   now?: () => number;
   runDoctor?: () => Promise<DoctorResult[]>;
   watchStudio?: StudioWatchSource;
+  /**
+   * Hand the entry point a live reader for the rail, so the SESSION can answer "what is on screen"
+   * without importing render. Called once on mount; the closure reads current state each time.
+   */
+  onRail?: (read: () => RailSnapshot | null) => void;
 }
 
 /** The window shell: session state plus composed widgets. */
@@ -90,16 +91,46 @@ export function App({
   now = Date.now,
   runDoctor = async () => [],
   watchStudio,
+  onRail,
 }: AppProps): ReactNode {
   const renderer = useRenderer();
   const [busy, setBusy] = useState(false);
-  const [studioPieces, setStudioPieces] = useState<readonly EntitySummary[]>(pieces);
-  const [studioDecks, setStudioDecks] = useState<DeckCount[]>(decks);
-  const [studioTotal, setStudioTotal] = useState(totalPieces);
-  const [watchNotices, setWatchNotices] = useState(0);
+  /**
+   * Has this conversation already been greeted? True for a resumed session, whose turns are proof
+   * that somebody was welcomed the first time round.
+   */
+  const [greeted, setGreeted] = useState(false);
+  /**
+   * The option somebody just picked, handed to the composer to insert.
+   *
+   * A one-shot value rather than a command: the composer consumes it and clears it, so picking the
+   * same option twice still works and a re-render never re-inserts it.
+   */
+  const [pickedOption, setPickedOption] = useState<string | null>(null);
   const gate = useGateController();
   const rail = useRailSession(session, gate, (text) => add({ role: "say", text }));
   const { notice: copyNotice, copy } = useCopyNotice(renderer);
+  /**
+   * Publish a live reader for the rail so the session can answer "what is on screen".
+   *
+   * A REF, read at call time. Handing over a value would freeze the answer at mount, which is the
+   * same staleness that made Kit name the wrong preset with total confidence.
+   */
+  const railRef = useRef(rail);
+  railRef.current = rail;
+  useEffect(() => {
+    onRail?.(() => {
+      const open = railRef.current;
+      if (!open.open || !open.presetId) return null;
+      return {
+        presetId: open.presetId,
+        title: open.title || open.presetId,
+        blocks: open.state.rows.length,
+        enabled: open.state.rows.filter((row) => row.enabled !== false).length,
+        pending: open.pending,
+      };
+    });
+  }, [onRail]);
   const [provider, setProvider] = useState<{ name: string; model: string; context?: number } | null>(null);
   const [ledger, setLedger] = useState<EgressLedger>(EMPTY_LEDGER);
   useEffect(() => {
@@ -112,6 +143,21 @@ export function App({
     tools: null,
     toolsSeen: false,
   });
+  /**
+   * The options from the most recent choice list, so a number key can pick one.
+   *
+   * Only the LAST list is live, and only until the person speaks again. An older question further up
+   * the transcript has been answered or abandoned, and letting "2" reach back into it would make the
+   * same keystroke mean different things depending on how far somebody had scrolled.
+   */
+  const latestChoices = ((): readonly string[] | undefined => {
+    for (let i = turn.lines.length - 1; i >= 0; i--) {
+      const line = turn.lines[i];
+      if (line?.role === "choices") return line.options.map((o) => o.value);
+      if (line?.role === "you") return undefined;
+    }
+    return undefined;
+  })();
   const [startedAt, setStartedAt] = useState(0);
   const [view, setView] = useState<"session" | "settings" | "sessions" | "help" | "tools">(
     process.env.KIT_SMOKE_VIEW === "settings" ? "settings" : "session",
@@ -141,96 +187,22 @@ export function App({
   if (!memory.current) memory.current = emptySession(makeSessionId(), now());
   // Notify: title/bell/desktop fire on the turn's busy falling edge, focus-gated (see notify/plan.ts).
   const focused = useFocus();
-  useNotify({ busy, focused, studio: studioName, settings: NOTIFY_SETTINGS, notice: watchNotices });
   const add = (line: RenderLine): void =>
     setTurn((prev) => ({ ...prev, lines: [...prev.lines, line] }));
-  useEffect(() => {
-    if (!watchStudio) return;
-    return watchStudio((change) => {
-      setStudioPieces(change.after);
-      setStudioTotal(change.after.length);
-      setStudioDecks((current) =>
-        current.map((deck) => ({
-          ...deck,
-          count: change.after.filter((piece) => piece.kind === deck.kind).length,
-        })),
-      );
-      add({ role: "watch", text: watchSummary(change) });
-      setWatchNotices((count) => count + 1);
-    });
-  }, [watchStudio]);
+  const shelf = useStudioShelf({
+    pieces,
+    decks,
+    totalPieces,
+    watchStudio,
+    folders: session.folders,
+    onChangeNotice: (text) => add({ role: "watch", text }),
+  });
+  useNotify({ busy, focused, studio: studioName, settings: NOTIFY_SETTINGS, notice: shelf.notices });
 
-  const selectMemory = (next: MemorySession): void => {
-    memory.current = next;
-    history.current = toHistory(next);
-    setTurn((prev) => ({
-      ...prev,
-      lines: messagesToLines(history.current),
-      live: { phase: "idle" },
-      tools: null,
-      toolsSeen: false,
-    }));
-    setRewinding(false);
-    setSearching(false);
-    setView("session");
-  };
-
-  const sessionActions: SessionActions = {
-    list: () => store.current!.list(),
-    async open(id) {
-      if (activeTurn.current) return;
-      const next = await store.current!.read(id);
-      if (!next) {
-        add({ role: "error", text: "That session is missing or unreadable." });
-        return;
-      }
-      selectMemory(next);
-    },
-    async rename(id, title) {
-      if (activeTurn.current) return;
-      const found = await store.current!.read(id);
-      if (!found) return add({ role: "error", text: "That session is missing or unreadable." });
-      const next = renameSession(found, title, now());
-      await store.current!.write(next);
-      if (memory.current?.id === id) memory.current = next;
-    },
-    async remove(id) {
-      if (activeTurn.current) return;
-      await store.current!.remove(id);
-      if (memory.current?.id === id) selectMemory(emptySession(makeSessionId(), now()));
-    },
-    fresh() {
-      if (!activeTurn.current) selectMemory(emptySession(makeSessionId(), now()));
-    },
-    current: () => memory.current!,
-    async rewind(turnNumber) {
-      if (activeTurn.current) return;
-      const next = rewindTo(memory.current!, turnNumber, now());
-      await store.current!.write(next);
-      selectMemory(next);
-    },
-    async fork(turnNumber) {
-      if (activeTurn.current) return;
-      const next = forkFrom(memory.current!, turnNumber, makeSessionId(), now());
-      await store.current!.write(next);
-      selectMemory(next);
-    },
-    async exportTranscript(format) {
-      if (activeTurn.current) {
-        add({ role: "error", text: "Wait for the current turn before exporting." });
-        return;
-      }
-      const transcript = formatTranscript(memory.current!, format);
-      const path = await store.current!.writeExport(
-        join(configDir(), "exports"),
-        transcript.filename,
-        transcript.body,
-      );
-      add({ role: "say", text: `Exported session to ${path}` });
-    },
-    openPlaybill: () => setView("sessions"),
-    openRail: () => setRewinding(true),
-  };
+  const { actions: sessionActions } = buildSessionActions({
+    store, memory, history, activeTurn, makeSessionId, now, add,
+    setTurn, setGreeted, setRewinding, setSearching, setView,
+  });
 
   const startTurn = (
     produce: (
@@ -295,12 +267,27 @@ export function App({
   const submit = (raw: string): boolean => {
     const value = raw.trim();
     if (!value) return false;
+
+    // A path somebody wrote is permission for that file; see grant-pasted-paths.ts. The path rides as
+    // its own field, not inside the sentence: it is the part somebody acts on, so it gets its own row
+    // and becomes clickable rather than something to select out of prose by hand.
+    if (session.folders) {
+      grantPastedPaths(value, session.folders, ({ path, directory }) =>
+        add({
+          role: "watch",
+          text: directory
+            ? "you named this folder, so Kit can look inside it"
+            : "you named this file, so Kit can open it",
+          path,
+        }),
+      );
+    }
     const matched = matchCommand(commands, value);
     if (matched) {
       const ctx: SessionCommandContext = {
         arg: matched.arg,
         commands,
-        decks: studioDecks,
+        decks: shelf.decks,
         openSettings: () => setView("settings"),
         openHelp: () => setView("help"),
         openTools: () => setView("tools"),
@@ -316,6 +303,8 @@ export function App({
         folders: session.folders,
         rail: rail.commands,
         sessions: sessionActions,
+        pieces: async (kind: string) =>
+          shelf.pieces.filter((p) => p.kind === kind).map((p) => ({ id: p.id, name: p.name })),
       };
       try {
         const result = matched.command.run(ctx);
@@ -354,70 +343,35 @@ export function App({
     return runPrompt(prompt);
   };
 
-  useKeyboard((event: KeyEvent) => {
-    // While the search card is open it owns the keyboard (esc/enter/up/down); the shell stays out of the way.
-    if (view !== "session" || searching || rewinding || gate.prompt) return;
-    if (event.name === "escape" && activeTurn.current) {
-      event.preventDefault();
-      activeTurn.current.controller.abort();
-      return;
-    }
-    // ctrl+o toggles the latest folded thought, backstage cluster, or settled long reply.
-    if (event.ctrl && event.name === "o") {
-      setTurn((prev) => toggleTrace(prev));
-      return;
-    }
-    // ctrl+f drops the script-view transcript search over the conversation
-    if (event.ctrl && event.name === "f") {
-      event.preventDefault();
-      setSearching(true);
-      return;
-    }
-    if (event.name === "end") {
-      event.preventDefault();
-      scroll.snapToBottom();
-    } else if (event.name === "home") {
-      event.preventDefault();
-      scroll.snapToTop();
-    } else if (event.name === "pageup") {
-      event.preventDefault();
-      scroll.pageBy(-1);
-    } else if (event.name === "pagedown") {
-      event.preventDefault();
-      scroll.pageBy(1);
-    }
+  useShellKeys({
+    active: view === "session" && !searching && !rewinding && !gate.prompt,
+    running: activeTurn,
+    setTurn,
+    openSearch: () => setSearching(true),
+    scroll,
   });
 
-  if (view === "settings") {
+  // The screens that REPLACE the conversation get their own component; FullScreen returns null only
+  // for "session", which this guard has already excluded.
+  if (view !== "session") {
     return (
-      <SettingsScreen
+      <FullScreen
+        view={view}
         studioName={studioName}
-        onClose={() => setView("session")}
-        onChanged={() => {
+        commands={commands}
+        pieces={shelf.pieces}
+        capabilities={session.capabilities?.() ?? []}
+        sessionActions={sessionActions}
+        busy={busy}
+        close={() => setView("session")}
+        onProviderChanged={() => { void session.activeProvider().then(setProvider); }}
+        onProviderSaved={(name) => {
+          setView("session");
+          add({ role: "say", text: `Connected ${name}. Talk to your studio.` });
           void session.activeProvider().then(setProvider);
         }}
-        onSaved={(config) => {
-          setView("session");
-          add({ role: "say", text: `Connected ${config.name ?? config.kind}. Talk to your studio.` });
-          session.activeProvider().then(setProvider);
-        }}
       />
     );
-  }
-  if (view === "sessions") {
-    return (
-      <ResumePlaybill
-        actions={sessionActions}
-        busy={busy}
-        onClose={() => setView("session")}
-      />
-    );
-  }
-  if (view === "help") {
-    return <HelpScreen commands={commands} studioName={studioName} onClose={() => setView("session")} />;
-  }
-  if (view === "tools") {
-    return <ToolsScreen pieces={studioPieces} capabilities={session.capabilities?.() ?? []} studioName={studioName} onClose={() => setView("session")} />;
   }
 
   return (
@@ -446,14 +400,25 @@ export function App({
         minHeight={0}
       >
       <Scrollback scrollRef={scroll.ref}>
-        <OpeningBanner studioName={studioName} totalPieces={studioTotal} animate={turn.lines.length === 0} />
+        {greeted ? null : (
+          <OpeningBanner studioName={studioName} totalPieces={shelf.total} animate={turn.lines.length === 0} />
+        )}
         {turn.lines.map((line, index) => (
           <SettledLine
             key={index}
             line={line}
             index={index}
-            pieces={studioPieces}
+            pieces={shelf.pieces}
             onCopy={copy}
+            /**
+             * A picked option FILLS the composer; it never sends.
+             *
+             * Handing the text to the composer rather than submitting it is the whole difference
+             * between offering a choice and taking one: the person can still edit it, add to it, or
+             * change their mind. A list that submitted on click would let a mis-click say something
+             * they never wrote.
+             */
+            onPick={(value) => setPickedOption(value)}
             onToggle={() => setTurn((prev) => toggleTrace(prev, index))}
           />
         ))}
@@ -486,8 +451,35 @@ export function App({
         provider={provider}
         busy={busy}
         commands={commands}
-        decks={studioDecks}
-        pieces={studioPieces}
+        decks={shelf.decks}
+        pieces={shelf.pieces}
+        completeArg={shelf.completeArg}
+        insert={pickedOption}
+        choiceOptions={latestChoices}
+        onInserted={() => setPickedOption(null)}
+        onImage={(bytes) => {
+          /**
+           * Decode to learn the SIZE, and to prove it is really an image before drawing it.
+           *
+           * `decodePngPixels` fails closed on anything it does not understand, so a clipboard
+           * carrying something PNG-shaped but broken becomes a refusal rather than a renderer being
+           * handed bytes it cannot use.
+           */
+          const pixels = decodePngPixels(bytes);
+          if (!pixels) {
+            add({ role: "watch", text: "that clipboard image could not be read" });
+            return;
+          }
+          add({
+            role: "image",
+            bytes,
+            width: pixels.width,
+            height: pixels.height,
+            // Says the limit out loud. An image that renders beautifully while the model has no idea
+            // it exists is the worst version of this, because it looks like it worked.
+            note: "shown to you only - Kit's providers take text, so this is not sent",
+          });
+        }}
         onSubmit={submit}
       />
       </box>

@@ -21,7 +21,31 @@ export type RenderLine =
   | { role: "say"; text: string; open?: boolean }
   | { role: "tool"; text: string }
   | { role: "error"; text: string }
-  | { role: "watch"; text: string }
+  /**
+   * A watcher notice. `path` is a real path on this machine, drawn as something clickable on its own
+   * row rather than buried in the sentence - which is where a path is least useful, because it is the
+   * one part of the line somebody needs to act on rather than read.
+   */
+  | { role: "watch"; text: string; path?: string }
+  /**
+   * An image pasted into the conversation, drawn where it was pasted.
+   *
+   * The BYTES ride on the line rather than a path, because the source is a clipboard and there is no
+   * file to point at. Kit's providers take text only, so this is shown to the PERSON and not sent -
+   * and the line says so, because an image that looks attached and is not would be the worst of both.
+   */
+  | { role: "image"; bytes: Uint8Array; width: number; height: number; note: string }
+  /**
+   * A question with options, rendered as a list you pick from.
+   *
+   * Carried as DATA rather than as the sentence the model would otherwise have written, so the shell
+   * decides how it looks and a model cannot offer a choice by merely claiming to.
+   */
+  | {
+    role: "choices";
+    question: string;
+    options: readonly { value: string; note?: string }[];
+  }
   | { role: "doctor"; checks: DoctorResult[] }
   | { role: "thought"; text: string; seconds: number; open: boolean }
   | { role: "backstage"; moves: string[]; seconds: number; open: boolean; phase?: LoopPhase };
@@ -137,6 +161,24 @@ export function applyTurnEvent(view: TurnView, event: TurnEvent, now: number): T
       };
     }
     case "tool": {
+      /**
+       * A choice list is not a MOVE, so it does not fold into the backstage box.
+       *
+       * Everything else a tool does is work you can read afterwards; this is a question waiting for
+       * an answer, and folding it into a collapsed "3 moves" row would hide the one thing on screen
+       * that needs somebody to act. It lands as its own line, above the cluster.
+       */
+      if (event.choices) {
+        const landed = landThought(view, now);
+        return {
+          ...landed,
+          lines: [...landed.lines, {
+            role: "choices",
+            question: event.choices.question,
+            options: event.choices.options,
+          }],
+        };
+      }
       if (view.tools) {
         // Settle the running move (first without a summary), or append if none is running.
         const moves = [...view.tools.moves];

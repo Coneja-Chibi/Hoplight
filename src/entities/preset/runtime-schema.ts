@@ -167,6 +167,9 @@ const bodyShape = defineExhaustiveShape<PresetBody>()({
   media: mediaSchema.optional(),
   generation: generationSchema.optional(),
   choices: z.array(choiceSchema).optional(),
+  // Linked regex/script sets. Optional and additive: a preset saved before this field existed still
+  // parses, which is what keeps the schema change from being a migration.
+  behaviorRefs: z.array(z.string().min(1)).optional(),
 });
 
 export const presetBodySchema = z.strictObject(bodyShape);

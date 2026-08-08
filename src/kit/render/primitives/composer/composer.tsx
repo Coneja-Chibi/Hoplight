@@ -13,10 +13,10 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { useKeyboard, usePaste } from "@opentui/react";
-import { decodePasteBytes, defaultTextareaKeyBindings } from "@opentui/core";
-import type { KeyBinding, KeyEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
+import { decodePasteBytes, defaultTextareaKeyBindings, MouseButton } from "@opentui/core";
+import type { KeyBinding, KeyEvent, MouseEvent, PasteEvent, TextareaRenderable } from "@opentui/core";
 import type { DeckCount, EntitySummary } from "../../../bridge";
-import type { KitCommand } from "../../../commands/command";
+import type { ArgSuggestion, KitCommand } from "../../../commands/command";
 import { theme } from "../../theme";
 import { rampAt } from "../../colors";
 import { SweepLine } from "../sweep-line";
@@ -24,11 +24,12 @@ import { StatusBar, type ProviderStatus } from "../status-bar";
 import { PasteCard } from "./paste-card";
 import { commit, initRecall, recallNext, recallPrev, type RecallState } from "./recall";
 import { buildSubmission, classifyPaste, type PasteCard as Card } from "./paste-classify";
-import { matchingCommands } from "./command-menu-core";
+import { applyArg, argContext, matchingArgs, matchingCommands } from "./command-menu-core";
 import { CommandMenu } from "./command-menu";
 import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core";
 import { MentionMenu } from "./mention-menu";
 import { draftSuggestion } from "./suggestion";
+import { readClipboardImage, readClipboardText } from "../../clipboard-read";
 
 const CURSOR_RAMP = [
   "#3b82f6", "#06b6d4", "#22c55e", "#eab308", "#f97316", "#ef4444", "#ec4899", "#a855f7", "#3b82f6",
@@ -60,6 +61,11 @@ export function Composer({
   commands,
   decks = [],
   pieces = [],
+  completeArg,
+  onImage,
+  insert,
+  onInserted,
+  choiceOptions,
   onSubmit,
 }: {
   active: boolean;
@@ -69,6 +75,30 @@ export function Composer({
   commands: readonly KitCommand[];
   decks?: readonly DeckCount[];
   pieces?: readonly EntitySummary[];
+  /**
+   * Load the candidates for a command's argument.
+   *
+   * Passed in rather than reached for: the completer needs a CommandContext, the shell already owns
+   * one, and giving the composer its own would make the input a second route into the studio.
+   */
+  completeArg?: (command: KitCommand, prefix: string) => Promise<readonly ArgSuggestion[]>;
+  /** An image was pasted with alt+V. The shell decides what to do with the bytes. */
+  onImage?: (bytes: Uint8Array) => void;
+  /**
+   * Text to drop into the draft, from something the person picked rather than typed.
+   *
+   * A one-shot VALUE, cleared through `onInserted`, so picking the same option twice still inserts
+   * and a re-render never repeats it.
+   */
+  insert?: string | null;
+  onInserted?: () => void;
+  /**
+   * The options currently on offer, so a number key can pick one.
+   *
+   * The composer owns this rather than the shell because only the composer knows whether the draft
+   * is EMPTY - and typing "1" into a half-written sentence must stay a "1".
+   */
+  choiceOptions?: readonly string[];
   onSubmit: (value: string) => boolean;
 }): ReactNode {
   const ref = useRef<TextareaRenderable | null>(null);
@@ -86,6 +116,34 @@ export function Composer({
   const [mentionDismissed, setMentionDismissed] = useState(false);
   const commandMatches = matchingCommands(commands, slashDraft);
   const menuOpen = !menuDismissed && commandMatches.length > 0;
+
+  /**
+   * Argument suggestions, once the draft is past the command word.
+   *
+   * Loaded on demand rather than up front: a completer reads the studio, and doing that on every
+   * keystroke of every command would put a disk read behind the letter "s". The prefix is filtered
+   * locally against the loaded list, so only CHANGING COMMAND re-reads.
+   */
+  const [argRows, setArgRows] = useState<readonly ArgSuggestion[]>([]);
+  const [argFor, setArgFor] = useState<string | null>(null);
+  const [argIndex, setArgIndex] = useState(0);
+  const argCtx = argContext(commands, slashDraft);
+  useEffect(() => {
+    const name = argCtx?.command.name ?? null;
+    if (name === argFor) return;
+    setArgFor(name);
+    setArgIndex(0);
+    if (!argCtx || !completeArg) { setArgRows([]); return; }
+    let alive = true;
+    void completeArg(argCtx.command, argCtx.prefix)
+      .then((rows: readonly ArgSuggestion[]) => { if (alive) setArgRows(rows); })
+      // A completer that fails costs suggestions, never the command: you can still type the id.
+      .catch(() => { if (alive) setArgRows([]); });
+    return () => { alive = false; };
+  }, [argCtx, argFor, completeArg]);
+
+  const argMatches = argCtx ? matchingArgs(argRows, argCtx.prefix) : [];
+  const argOpen = !menuOpen && !menuDismissed && argMatches.length > 0;
   const pieceMatches = matchingPieces(pieces, mentionText);
   const mentionOpen = !menuOpen && !mentionDismissed && pieceMatches.length > 0;
 
@@ -93,6 +151,22 @@ export function Composer({
     cardsRef.current = next;
     setCards(next);
   };
+
+  /**
+   * Insert a picked option into the draft.
+   *
+   * APPENDED, not substituted: somebody may have been mid-sentence when they clicked, and replacing
+   * what they had written would make a convenience destructive.
+   */
+  useEffect(() => {
+    if (!insert) return;
+    const ta = ref.current;
+    if (!ta) return;
+    const at = ta.plainText;
+    ta.setText(at && !at.endsWith(" ") ? `${at} ${insert}` : `${at}${insert}`);
+    setRows(ta.lineCount ?? 1);
+    onInserted?.();
+  }, [insert, onInserted]);
 
   useEffect(() => {
     const ta = ref.current;
@@ -124,6 +198,45 @@ export function Composer({
     if (!enabled) return;
     const ta = ref.current;
     if (!ta) return;
+
+    /**
+     * ALT+V pastes an IMAGE, which is a different thing from pasting text and needs its own key.
+     *
+     * The terminal cannot deliver this: a clipboard image never arrives as a paste event, so without
+     * asking the OS there is nothing to receive. Alt is also the reason the Kitty keyboard protocol
+     * had to go on first - on the raw parser alt+v arrives as ESC then "v", indistinguishable from
+     * Escape followed by typing, so this binding could not have worked at all before that change.
+     *
+     * Silent when the clipboard holds no image: somebody who pressed it by accident, or who has text
+     * copied, should not be told off for it.
+     */
+    if (e.option === true && e.name === "v") {
+      e.preventDefault();
+      void readClipboardImage().then((image) => {
+        if (image) onImage?.(image.bytes);
+      });
+      return;
+    }
+
+    /**
+     * A NUMBER PICKS AN OFFERED OPTION, but only from an empty draft.
+     *
+     * The guard is the whole design. Without it, typing "1" into a half-written sentence would fire
+     * a choice instead of being a digit, and there is no way to tell those apart from the keystroke
+     * alone - only from what is already in the buffer. Empty means the number cannot be part of
+     * anything, which is exactly when it can safely mean something else.
+     *
+     * It fills the draft rather than sending, same as clicking: the person still owns the message.
+     */
+    if (choiceOptions?.length && !menuOpen && !argOpen && !mentionOpen && ta.plainText === "") {
+      const digit = Number.parseInt(e.name ?? "", 10);
+      if (Number.isInteger(digit) && digit >= 1 && digit <= choiceOptions.length) {
+        e.preventDefault();
+        ta.setText(choiceOptions[digit - 1]!);
+        setRows(ta.lineCount ?? 1);
+        return;
+      }
+    }
     if (mentionOpen && (e.name === "up" || e.name === "down")) {
       e.preventDefault();
       const delta = e.name === "up" ? -1 : 1;
@@ -140,6 +253,22 @@ export function Composer({
     } else if (mentionOpen && e.name === "escape") {
       e.preventDefault();
       setMentionDismissed(true);
+    } else if (argOpen && (e.name === "up" || e.name === "down")) {
+      e.preventDefault();
+      const delta = e.name === "up" ? -1 : 1;
+      setArgIndex((index) => (index + delta + argMatches.length) % argMatches.length);
+    } else if (argOpen && e.name === "tab") {
+      // Tab COMPLETES and leaves the popup up, so a wrong guess is one more Tab rather than a
+      // retype. Enter is deliberately not bound here: it still submits, because somebody who has
+      // typed the id in full should not have to dismiss a list to send the line.
+      e.preventDefault();
+      const pick = argMatches[argIndex] ?? argMatches[0];
+      if (!pick) return;
+      ta.setText(applyArg(ta.plainText, pick.value));
+      setSlashDraft(applyArg(ta.plainText, pick.value));
+    } else if (argOpen && e.name === "escape") {
+      e.preventDefault();
+      setMenuDismissed(true);
     } else if (menuOpen && (e.name === "up" || e.name === "down")) {
       e.preventDefault();
       const delta = e.name === "up" ? -1 : 1;
@@ -235,6 +364,19 @@ export function Composer({
           }}
         />
       ) : null}
+      {argOpen ? (
+        <CommandMenu
+          rows={argMatches.map((a) => ({ label: a.value, ...(a.note ? { note: a.note } : {}) }))}
+          heading={argFor ? `${argFor.toUpperCase()} ...` : "OPTIONS"}
+          activeIndex={Math.min(argIndex, argMatches.length - 1)}
+          onChooseRow={(row) => {
+            const ta = ref.current;
+            if (!ta) return;
+            ta.setText(applyArg(ta.plainText, row.label));
+            setSlashDraft(applyArg(ta.plainText, row.label));
+          }}
+        />
+      ) : null}
       {mentionOpen ? (
         <MentionMenu
           pieces={pieceMatches}
@@ -256,7 +398,36 @@ export function Composer({
         borderColor={theme.line}
         backgroundColor={theme.panel}
       >
-        <box flexDirection="row" height={boxRows} backgroundColor={theme.panel} paddingRight={1}>
+        <box
+          flexDirection="row"
+          height={boxRows}
+          backgroundColor={theme.panel}
+          paddingRight={1}
+          /**
+           * RIGHT-CLICK PASTES, the way every other text field on the machine does.
+           *
+           * The terminal will not hand this over: OSC52 read-back is disabled almost everywhere,
+           * because a program that can silently read your clipboard can read the password you copied
+           * a minute ago. So it asks the OPERATING SYSTEM, and only on a button somebody pressed -
+           * which is the same consent a right-click carries anywhere else.
+           *
+           * Inserted at the cursor rather than replacing the draft: pasting a path into a
+           * half-written sentence is the common case, and clobbering what somebody already typed
+           * would be the expensive way to be wrong.
+           */
+          onMouseDown={(event: MouseEvent) => {
+            if (event.button !== MouseButton.RIGHT) return;
+            event.preventDefault();
+            const ta = ref.current;
+            if (!ta || !enabled) return;
+            void readClipboardText().then((text) => {
+              if (!text) return;
+              const at = ta.plainText;
+              ta.setText(at + text);
+              setNotice("");
+            });
+          }}
+        >
           <box backgroundColor={theme.roseDeep} width={4} alignItems="center" justifyContent="center">
             <text fg={theme.white}>{">"}</text>
           </box>
@@ -276,9 +447,19 @@ export function Composer({
               setMenuDismissed(false);
               setMentionIndex(0);
               setMentionDismissed(false);
-              setSlashDraft(
-                text.startsWith("/") && !text.includes("\n") && !/\s/.test(text) ? text : "",
-              );
+              /**
+               * KEEP THE DRAFT PAST THE FIRST SPACE.
+               *
+               * This used to clear the moment the text contained ANY whitespace, which was correct
+               * while the popup only completed command NAMES - and silently made argument
+               * completion impossible, because `/rail ` cleared the draft to "" before anything
+               * could look at what came after the space. Chi typed `/rail ` and got nothing.
+               *
+               * Safe to widen: `matchingCommands` refuses a draft containing whitespace itself, so
+               * the command popup still closes exactly when it did before. Only `argContext` sees
+               * more, which is the whole point.
+               */
+              setSlashDraft(text.startsWith("/") && !text.includes("\n") ? text : "");
               setMentionText(mentionDraft(text));
             }}
           />

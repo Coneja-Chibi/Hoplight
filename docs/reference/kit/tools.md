@@ -85,14 +85,27 @@ session:
 - `folder_import` is the only door from a shared folder into the studio, and it goes one way. It
   reads a file, parses it through the same three-way branch the studio's own inspect uses, and
   proposes each canonical piece as a create draft. Its effect is `draft`, not `read`, which keeps it
-  out of the read-only MCP posture where nothing would ask before applying. A file that carries more
+  out of the read-only MCP posture where nothing would ask before applying - so on the Claude
+  subscription provider it is absent unless "let Kit make changes this session" was answered at
+  setup, because that answer is what starts the tool server with the full belt. A file that carries more
   than one piece drafts all of them or none: a character card's body names its embedded book in
   `knowledgeRefs`, so importing the character alone would leave a reference to a piece that is not
   there. An id already on the shelf is refused rather than replaced.
-- `rail_open` puts a preset on the rail beside the conversation, the same view `/rail` opens. It is
-  read-only: it changes nothing and so needs no confirmation, which is what makes it usable
-  mid-sentence. The rail it opens is still a write surface, and edits made there meet the ordinary
-  Gate. It refuses to choose between several matching presets.
+- `rail_open` puts a preset on the rail beside the conversation, the same view `/rail` opens, and its
+  `status` action reports what is on the rail right now. It is read-only: it changes nothing and so
+  needs no confirmation, which is what makes it usable mid-sentence. The rail it opens is still a
+  write surface, and edits made there meet the ordinary Gate. It refuses to choose between several
+  matching presets. What is on the rail also rides in the turn's ambient context, one line, so the
+  model knows without asking - it used to answer from what it had opened earlier and was wrong the
+  moment somebody opened a different preset themselves.
+- `regex_lab` is the regex workbench: `try` a pattern against real text, `show` where exactly it
+  matched, `race` several candidates side by side, `read` one in plain words, `lint` a whole set,
+  browse `recipes`, or build one `from_examples`. Read-only - it runs patterns and stores nothing;
+  saving belongs to the regex create capability. Regex is the only content in the studio that is
+  write-only without a preview, which is why the workbench exists.
+- `ask_choice` offers the user a list to pick from instead of writing options into a sentence. The
+  options travel as data on the tool result and the shell renders them, so a model cannot offer a
+  choice by claiming to have offered one. Picking fills the composer; it never sends.
 - A selected capability creates or composes a preview draft without saving. Its result also carries
   a structured semantic review projection; the loop never parses a draft ID or field diff from
   prose or JSON output.
@@ -172,10 +185,10 @@ modes retain their documented write behavior.
 ## Progressive exposure
 
 The runtime registry contains every adapted capability and deferred workflow tool so dispatch can
-resolve a selected operation. Each user turn starts with seventeen direct tools: `studio_list`,
-`studio_search`, `studio_read`, `docs_query`, `result_query`, `capability_find`, `change_query`,
-`change_apply`, `change_discard`, `macro_lookup`, `block_lookup`, `preset_verify`, `folder_search`,
-`folder_import`, `rail_open`, `studio_delete`, and `studio_export`.
+resolve a selected operation. Each user turn starts with nineteen direct tools: `ask_choice`,
+`block_lookup`, `capability_find`, `change_apply`, `change_discard`, `change_query`, `docs_query`,
+`folder_import`, `folder_search`, `macro_lookup`, `preset_verify`, `rail_open`, `regex_lab`,
+`result_query`, `studio_delete`, `studio_export`, `studio_list`, `studio_read`, and `studio_search`.
 
 `studio_delete` and `studio_export` are direct rather than deferred for a structural reason, not a
 convenience one. The

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-05",
+  "generated": "2026-08-08",
   "count": 112,
   "pages": [
     {
@@ -462,9 +462,9 @@
       "docId": "reference/entities/preset",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:fdbf2e9f60fe534c8774792d79d9d54d905e582c61011feb5527907ac3f2618b",
-      "semanticSummaryHash": "sha256:bfe0a13631a3cac751dca341a34e528089a8f71cfe7df1f0d9f3e3ae4e5d4ebb"
+      "reviewer": "chi",
+      "sourceHash": "sha256:da988fa8440330140e8a348c6823096b5610460d24c7d9b7588e6c545af423b3",
+      "semanticSummaryHash": "sha256:9ca53db6064d8c557d5c1deaf28bc3619ca120196f9d2ea3ea25236652331701"
     },
     {
       "docId": "reference/entities/README",
@@ -599,8 +599,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "chi",
-      "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
-      "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe"
+      "sourceHash": "sha256:a6c7d13fc431396ad4cf5e6adbb9ac0a3221a07fe239a03905aba2574eaec839",
+      "semanticSummaryHash": "sha256:c27f049bb6836586f9e793c1f4379cc021df1bcda76936dafc65fb71f854d916"
     },
     {
       "docId": "reference/platform-native-fields",
@@ -878,9 +878,9 @@
       "docId": "reference/ui",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "staging-reviewer",
-      "sourceHash": "sha256:532e6852647118e05e3a7734b8c2ce896e681702d36a9d635bf675fb9fd9ed60",
-      "semanticSummaryHash": "sha256:ebd832be070594b292c610ed44d5c536939c3a72c29fc028a00a059b23a796c5"
+      "reviewer": "chi",
+      "sourceHash": "sha256:bb475e54cf11dd0a6c569fbbbb5a651baeec354c591f55043db5654b26cc62c4",
+      "semanticSummaryHash": "sha256:2e6cf330e4e7559e356f96c3cce6ab6eff11b0ec7fbce7ef3917784a5949ea0c"
     },
     {
       "docId": "reference/updates",

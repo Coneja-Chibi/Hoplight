@@ -27,7 +27,7 @@ const ctx = (presets: { id: string; name: string }[]): ToolContext =>
 describe("rail_open", () => {
   test("a single match carries the structured show, not just prose", async () => {
     const result = await railOpen.execute(
-      { preset: "paramnesia" },
+      { action: "show" as const, preset: "paramnesia" },
       ctx([{ id: "paramnesia-vi-rc", name: "Paramnesia VI RC" }]),
     );
     expect(result.show).toEqual({ kind: "preset", id: "paramnesia-vi-rc" });
@@ -37,7 +37,7 @@ describe("rail_open", () => {
   test("it matches on id or on display name", async () => {
     const pieces = [{ id: "para-vi", name: "Deep Water" }];
     for (const query of ["para", "PARA-VI", "deep", "Water"]) {
-      const result = await railOpen.execute({ preset: query }, ctx(pieces));
+      const result = await railOpen.execute({ action: "show" as const, preset: query }, ctx(pieces));
       expect(result.show?.id).toBe("para-vi");
     }
   });
@@ -45,7 +45,7 @@ describe("rail_open", () => {
   test("several matches carry NO show, and tell the model not to pick", async () => {
     // Opening the wrong preset and rearranging it is the failure this surface exists to prevent.
     const result = await railOpen.execute(
-      { preset: "para" },
+      { action: "show" as const, preset: "para" },
       ctx([{ id: "para-v5", name: "Para V5" }, { id: "para-v6", name: "Para V6" }]),
     );
     expect(result.show).toBeUndefined();
@@ -54,13 +54,13 @@ describe("rail_open", () => {
   });
 
   test("no match carries no show and names what exists", async () => {
-    const result = await railOpen.execute({ preset: "zzz" }, ctx([{ id: "only", name: "Only" }]));
+    const result = await railOpen.execute({ action: "show" as const, preset: "zzz" }, ctx([{ id: "only", name: "Only" }]));
     expect(result.show).toBeUndefined();
     expect(result.output).toContain("only");
   });
 
   test("an empty studio says so rather than that nothing matched", async () => {
-    const result = await railOpen.execute({ preset: "any" }, ctx([]));
+    const result = await railOpen.execute({ action: "show" as const, preset: "any" }, ctx([]));
     expect(result.show).toBeUndefined();
     expect(result.output).toContain("no presets");
   });
@@ -72,7 +72,7 @@ describe("rail_open", () => {
   });
 
   test("an empty preset name is refused fail-closed", () => {
-    expect(railOpen.input.safeParse({ preset: "" }).success).toBe(false);
+    expect(railOpen.input.safeParse({ action: "show" as const, preset: "" }).success).toBe(false);
     expect(railOpen.input.safeParse({}).success).toBe(false);
   });
 });

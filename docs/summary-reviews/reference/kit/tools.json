@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/kit/tools",
   "sourcePath": "docs/reference/kit/tools.md",
-  "sourceHash": "sha256:ef88b55b461a9b2180251100afb2f0cc70cdd3c2f0b9994a6a14a1140966d238",
-  "semanticSummaryHash": "sha256:7108762775549c399b6e86f6c2faa9b0bc096bf1acaf29c2769b05fe1007fefe",
+  "sourceHash": "sha256:a6c7d13fc431396ad4cf5e6adbb9ac0a3221a07fe239a03905aba2574eaec839",
+  "semanticSummaryHash": "sha256:c27f049bb6836586f9e793c1f4379cc021df1bcda76936dafc65fb71f854d916",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Four corrections found in review. studio_delete is not the only direct apply tool (studio_export and change_apply are both direct+apply); the count was sixteen and is seventeen with rail_open, which had no bullet; delete's dangling-reference note is on the description always but on the receipt only for referenceable kinds (delete.ts REFERENCEABLE); folder_search also reaches the studio as a standing grant. Also corrects the falsified symlink claim: entries are skipped during traversal, and the resolved path is now reconciled against realpath, which is what actually closes it.",
-  "reviewedAt": "2026-08-04T10:16:23.112Z"
+  "notes": "Re-review after an em dash to hyphen sweep required by scan:emdash. Prose meaning is unchanged; summaries re-verified against the edited source.",
+  "reviewedAt": "2026-08-04T23:25:26.758Z"
 }

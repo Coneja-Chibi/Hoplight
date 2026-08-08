@@ -18,7 +18,15 @@ runs each message in order as the previous turn settles. The queue survives stop
 but is intentionally session-local and is not restored after relaunch. Typing `/` opens a
 registry-driven command palette containing
 every installed slash command and its summary; typing filters it, Up and Down move selection, Enter
-runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. A
+runs the selection, Tab completes it for arguments, Escape closes it, and rows are clickable. Past the
+command word the same palette offers that command's ARGUMENT - `/rail` lists the presets with their
+display names beside the ids - because a studio id is exact, hyphenated and nothing like the name
+somebody remembers, and typing it from memory is where the mistake happens. Right-clicking the input
+pastes from the system clipboard, and Alt+V pastes an image, which is drawn in the transcript and
+labelled as shown-not-sent because Kit's providers take text. A file path written or pasted into a
+message becomes reachable for that file alone, without a separate sharing step: naming a path is
+consent to it, exactly as picking one in a file dialog is, and the path is drawn as a link that
+shift+click reveals in its folder. A
 trailing `@` query opens matching studio pieces; choosing one inserts a stable `@kind:id` marker,
 and resolved markers in replies render as compact name-and-kind cards. When the composer is empty,
 its placeholder suggests a deterministic next move from the live studio shape, such as auditing
@@ -38,9 +46,11 @@ pressing End returns to the latest row and clears the count.
 `/rail off` closes it. Order is what it exists to show: a preset evaluates top to bottom, so a block
 can be enabled, expand perfectly and never be read because something later overwrote what it wrote,
 and position is the only place that shows. Naming a preset is optional when there is only one, and
-several matches are listed rather than guessed between. Kit reaches the same view through
-`rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot pull the
-rail out from under somebody mid-rearrange.
+several matches are listed rather than guessed between - and typing `/rail` then a space offers the
+presets as a list, so a studio id never has to be remembered and retyped. Kit reaches the same view
+through `rail_open`; a request to show a preset is ignored while edits are unapplied, so it cannot
+pull the rail out from under somebody mid-rearrange. What is on the rail rides in each turn's ambient
+context, so Kit knows without asking rather than answering from what it opened earlier.
 
 The rail is edited directly. Click, shift-click for a range in either direction, and ctrl-click to
 add or remove one; drag a selection anywhere; space toggles, delete removes, and left/right expand a
@@ -48,6 +58,13 @@ block's content. Arrows move the cursor and alt+arrows move the blocks, so every
 for anyone without a mouse. Ctrl+B hands the keyboard between the composer and the rail, and the
 header and footer show which side holds it - without that, an open rail swallowed the keys it claims
 and silently toggled blocks while somebody typed a prompt.
+
+Its shape belongs to the reader, not the layout: Ctrl+Shift+Left/Right resizes it, Ctrl+Shift+D
+switches between roomy rows and fitting as many as the window allows, and `<` / `>` thumb through the
+studio's presets in order so two can be compared without typing either name. The footer count says
+`all 155` when everything really is on screen, rather than a fraction that has to be interpreted.
+Stepping away refuses while edits are unapplied, because a key that sometimes destroys work is worse
+than one that sometimes says no.
 
 Nothing there writes as you go. Edits accumulate against the rows as last read from storage, the
 header counts them, and Enter stages the lot as one ordinary draft that pauses at the same Gate a

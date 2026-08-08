@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:532e6852647118e05e3a7734b8c2ce896e681702d36a9d635bf675fb9fd9ed60",
-  "semanticSummaryHash": "sha256:ebd832be070594b292c610ed44d5c536939c3a72c29fc028a00a059b23a796c5",
+  "sourceHash": "sha256:bb475e54cf11dd0a6c569fbbbb5a651baeec354c591f55043db5654b26cc62c4",
+  "semanticSummaryHash": "sha256:2e6cf330e4e7559e356f96c3cce6ab6eff11b0ec7fbce7ef3917784a5949ea0c",
   "verdict": "APPROVE",
-  "reviewer": "staging-reviewer",
-  "notes": "route table matches server.ts + server-staging.ts",
-  "reviewedAt": "2026-08-05T22:33:23.251Z"
+  "reviewer": "chi",
+  "notes": "Merge resolution: the ui page's endpoint list regained the archive-import routes alongside Mainstage's. Generated content, reviewed as a merge artifact.",
+  "reviewedAt": "2026-08-08T00:50:40.197Z"
 }

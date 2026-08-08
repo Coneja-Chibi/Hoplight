@@ -12,6 +12,7 @@ import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createBridge } from "./bridge";
 import { createSession } from "./session";
+import type { RailSnapshot } from "./tools/tool";
 import { discoverCommands } from "./commands/discover";
 import { App } from "./render/app";
 import { theme } from "./render/theme";
@@ -29,7 +30,16 @@ async function main(): Promise<void> {
   const pieces = await bridge.list();
   const total = decks.reduce((sum, deck) => sum + deck.count, 0);
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
-  const session = await createSession(bridge);
+  /**
+   * A live handle to the rail, filled in by the shell once it mounts.
+   *
+   * The session is built before any React state exists, so it cannot be handed the rail directly -
+   * and it must not be handed a VALUE either, because the rail changes throughout a conversation.
+   * One mutable cell, written by the shell and read per turn, keeps the direction of dependency
+   * right: the session never imports render.
+   */
+  const railCell: { read: () => RailSnapshot | null } = { read: () => null };
+  const session = await createSession(bridge, () => railCell.read());
   const commands = await discoverCommands();
   const doctorChecks = await discoverDoctorChecks();
   const diagnose = (): ReturnType<typeof runDoctor> =>
@@ -62,6 +72,22 @@ async function main(): Promise<void> {
       exitOnCtrlC: true,
       useMouse: true,
       backgroundColor: theme.well,
+      /**
+       * Opt into the Kitty keyboard protocol where the terminal supports it, falling back to the raw
+       * parser where it does not. This was absent, and the raw parser is why whole families of keys
+       * behaved as if nothing was bound to them:
+       *
+       * - `disambiguate` fixes ESC timing and ALT+KEY AMBIGUITY. Without it a terminal reports alt+v
+       *   as an ESC followed by "v", indistinguishable from someone pressing Escape and then typing,
+       *   so no alt chord can be recognised reliably. That is alt+V for image paste, and every other
+       *   alt binding.
+       * - `alternateKeys` reports the shifted and base-layout key alongside the resolved one, which is
+       *   what makes a chord survive a non-US layout instead of silently not matching.
+       *
+       * Opting in is a request, not a requirement: a terminal that does not answer leaves us exactly
+       * where we already were, so this cannot make a working setup worse.
+       */
+      useKittyKeyboard: { disambiguate: true, alternateKeys: true },
     });
     const root = createRoot(renderer);
     const quit = (): void => {
@@ -81,6 +107,7 @@ async function main(): Promise<void> {
         commands={commands}
         runDoctor={diagnose}
         watchStudio={studioWatcher}
+        onRail={(read) => { railCell.read = read; }}
         onQuit={quit}
       />,
     );
