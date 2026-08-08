@@ -17,6 +17,7 @@ import {
 } from "./window-session";
 import { parseTurn } from "./server-agent";
 import { createSessionStore } from "../../kit/sessions/store";
+import { gateGrantsForTest, rememberGateChoice } from "./turn-stream";
 
 describe("owning an id", () => {
   test("a minted id is one the window may write", () => {
@@ -188,5 +189,31 @@ describe("recordWindowTurn", () => {
       historyLength: 0,
     });
     expect(empty.saved === false && empty.why).toContain("no new messages");
+  });
+});
+
+describe("allow for this session", () => {
+  test("AN ALLOWANCE OUTLIVES THE TURN IT WAS CHOSEN IN", () => {
+    /**
+     * It did not, and that is the whole complaint: the window seeded each turn with a fresh empty
+     * grant set, so "allow for session" held for the rest of THAT turn and was gone by the next
+     * question. The same permission got asked five times and answering it changed nothing, which is
+     * how people learn to click through the prompt that actually matters.
+     *
+     * Recorded from the CHOICE rather than read back off the state, because applyGateChoice is pure
+     * and folds each choice into a new state the dispatch keeps to itself.
+     */
+    rememberGateChoice({ type: "allow-session" }, "studio_export");
+    expect([...gateGrantsForTest()]).toContain("studio_export");
+  });
+
+  test("only allow-session grants; a one-shot yes does not", () => {
+    // allow-once and hold are deliberately one-shot: answering a question about a call must never
+    // be a way to end up having permitted every later one.
+    const before = [...gateGrantsForTest()].length;
+    rememberGateChoice({ type: "allow-once" }, "studio_delete");
+    rememberGateChoice({ type: "hold" }, "studio_delete");
+    rememberGateChoice(null, "studio_delete");
+    expect([...gateGrantsForTest()].length).toBe(before);
   });
 });

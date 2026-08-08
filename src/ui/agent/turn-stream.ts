@@ -23,6 +23,7 @@ import { readGateMode } from "../../kit/tools/safety/gate-store";
 import { redactSecrets, systemPrompt } from "./server-agent";
 import { pendingGates } from "./pending-gates";
 import { noteEgress } from "./agent-ledger";
+import { grantPastedPaths } from "../../kit/render/grant-pasted-paths";
 import { newWindowSessionId, recordWindowTurn } from "./window-session";
 
 /** Built once and reused: discovering tools and capabilities reads the disk. */
@@ -80,9 +81,39 @@ export function resetAgentSession(): void {
  *
  * `locked` is never persisted by the store, and anything unreadable falls back to guarded.
  */
+/**
+ * The allowances "allow for this session" builds up. HELD ACROSS TURNS, which is the whole meaning
+ * of the words on the button.
+ *
+ * This used to be `initGate()` per turn - a fresh empty grant set every time - so choosing "allow
+ * for session" granted the tool for the rest of THAT turn and was gone by the next question. The
+ * same permission got asked for over and over, and answering it changed nothing, which teaches
+ * people to click through the prompt that actually matters.
+ *
+ * Process-scoped, like the session and the bridge beside it: a session ends when the studio server
+ * does. The MODE is still read from the file each turn, so a policy set in the terminal holds here.
+ */
+const sessionGrants = new Set<string>();
+
+/**
+ * Remember an allowance as it is chosen.
+ *
+ * IT CANNOT BE READ BACK OFF THE STATE. `applyGateChoice` is pure - it folds each choice into a NEW
+ * state that the dispatch keeps in a turn-local variable - so sharing a Set would still have been
+ * thrown away with the turn. The choice itself is the only thing that crosses the boundary, so the
+ * choice is what gets recorded.
+ */
+export function rememberGateChoice(choice: { type?: string } | null, name: string): void {
+  if (choice?.type === "allow-session" && name) sessionGrants.add(name);
+}
+
+/** What has been allowed for this session so far. For tests; the gate reads it through the state. */
+export const gateGrantsForTest = (): ReadonlySet<string> => sessionGrants;
+
 async function gateStateForTurn(): Promise<GateState> {
   const mode: PermissionMode = await readGateMode();
-  return { ...initGate(), mode };
+  // A copy, so a turn folding new grants into its own state cannot reach back into this one.
+  return { ...initGate(), mode, grants: new Set(sessionGrants) };
 }
 
 /** One frame on the wire. Named events so the browser can switch on them without parsing a kind. */
@@ -127,6 +158,20 @@ export async function runAgentTurn(input: {
     const guidance = systemPrompt(input.brief);
     emit({ event: "begin", data: { turnId, sessionId } });
 
+    /**
+     * A PATH YOU WROTE IS PERMISSION FOR IT, in this window as it already was in the terminal.
+     *
+     * grant-pasted-paths.ts has said so since it was written - "somebody who pastes a path and says
+     * look at this has already said which file they mean, and being sent to a sharing command first
+     * reads as an arbitrary step" - and it was wired into Kit's shell and nowhere else. So naming a
+     * file here, with its full path, still got you asked to share it, five times over.
+     *
+     * ONLY FROM WHAT THE PERSON SUBMITTED, never from anything the model produced. That is the line
+     * that keeps this consent rather than a hole: the grants exist so the MODEL cannot wander the
+     * disk, and nothing here lets it name its own path.
+     */
+    if (session.folders) grantPastedPaths(input.question, session.folders, () => {});
+
     const gateState = await gateStateForTurn();
     /**
      * NAMED BEFORE THE TURN, so every send this turn makes is filed under the provider that made
@@ -150,6 +195,9 @@ export async function runAgentTurn(input: {
       input.signal,
       {
         state: gateState,
+        // "Allow for this session" has to outlive the turn it was chosen in, or the same question
+        // comes back every time and answering it teaches people to click through.
+        onChoice: (choice, name) => { rememberGateChoice(choice, name); },
         /**
          * THE PAUSE, ACROSS A NETWORK. The loop stops here and does not continue until the browser
          * POSTs an answer for this id - or until the question times out, which denies.

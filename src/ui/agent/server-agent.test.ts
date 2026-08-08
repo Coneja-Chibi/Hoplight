@@ -31,16 +31,35 @@ describe("parseTurn", () => {
     expect(got.ok).toBe(false);
   });
 
-  test("BOUNDED, so one tab cannot mint an enormous bill", () => {
-    // A runaway loop in the page is the likely cause, not an attacker, and the cost lands on the
-    // person running it either way.
-    const many = Array.from({ length: 200 }, () => ({ role: "user", content: "hi" }));
-    expect(parseTurn({ messages: many }).ok).toBe(false);
+  test("BOUNDED BY TRIMMING, NEVER BY REFUSING THE TURN", () => {
+    /**
+     * These caps used to reject, which turned a conversation that had simply gone on for a while
+     * into a dead window: every send answered "at most 60 messages" and the only way forward was to
+     * throw the whole thing away. Dropping the OLDEST bounds the spend exactly as well and leaves
+     * the thing somebody is in the middle of usable.
+     */
+    const many = Array.from({ length: 200 }, (_, i) => ({ role: "user", content: `m${String(i)}` }));
+    const got = parseTurn({ messages: many });
+    expect(got.ok).toBe(true);
+    if (got.ok) {
+      expect(got.value.messages.length).toBeLessThanOrEqual(60);
+      // The NEWEST end survives, because that is where the conversation is.
+      expect(got.value.messages.at(-1)?.content).toBe("m199");
+    }
+  });
 
-    const huge = [{ role: "user", content: "x".repeat(300_000) }];
-    const got = parseTurn({ messages: huge });
-    expect(got.ok).toBe(false);
-    if (!got.ok) expect(got.why).toContain("too long");
+  test("THE QUESTION BEING ASKED IS NEVER TRIMMED AWAY", () => {
+    // Whatever else goes, the last message is the thing somebody just said.
+    const fat = Array.from({ length: 40 }, () => ({ role: "user", content: "x".repeat(20_000) }));
+    const got = parseTurn({ messages: [...fat, { role: "user", content: "the actual question" }] });
+    expect(got.ok).toBe(true);
+    if (got.ok) expect(got.value.messages.at(-1)?.content).toBe("the actual question");
+  });
+
+  test("an absurd array is still refused before it is walked", () => {
+    // A ceiling on what is READ, so a hostile body cannot make the parse loop a million times.
+    const absurd = Array.from({ length: 5000 }, () => ({ role: "user", content: "hi" }));
+    expect(parseTurn({ messages: absurd }).ok).toBe(false);
   });
 
   test("rubbish is refused rather than coerced", () => {
@@ -90,12 +109,18 @@ describe("the brief is not a loophole", () => {
      * quarter-megabyte brief passed every stated limit - and the brief is the field that lands in
      * the system prompt, so it was the wrong one to wave through.
      */
+    const fat = Array.from({ length: 30 }, (_, i) => ({ role: "user", content: `${String(i)}`.repeat(9_000) }));
     const got = parseTurn({
-      messages: [{ role: "user", content: "hi" }],
-      brief: "x".repeat(250_000),
+      messages: [...fat, { role: "user", content: "the question" }],
+      brief: "x".repeat(190_000),
     });
-    expect(got.ok).toBe(false);
-    if (!got.ok) expect(got.why).toContain("too long");
+    // Accepted, but the brief's weight came out of the conversation's oldest end rather than being
+    // waved through on top of it.
+    expect(got.ok).toBe(true);
+    if (got.ok) {
+      expect(got.value.messages.length).toBeLessThan(31);
+      expect(got.value.messages.at(-1)?.content).toBe("the question");
+    }
   });
 });
 

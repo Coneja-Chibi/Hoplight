@@ -51,19 +51,37 @@ export function parseTurn(body: unknown): { ok: true; value: TurnRequest } | { o
   if (!isRecord(body)) return { ok: false, why: "expected an object" };
   const raw = body["messages"];
   if (!Array.isArray(raw) || raw.length === 0) return { ok: false, why: "messages must be a non-empty array" };
-  if (raw.length > MAX_MESSAGES) return { ok: false, why: `at most ${String(MAX_MESSAGES)} messages` };
+  /**
+   * A ceiling on what is READ, not on what is accepted. The array is bounded so a hostile body
+   * cannot make this loop a million times; the conversation itself is trimmed below, never refused.
+   */
+  if (raw.length > MAX_MESSAGES * 20) return { ok: false, why: "far too many messages" };
 
-  const messages: { role: string; content: string }[] = [];
-  let chars = 0;
+  const all: { role: string; content: string }[] = [];
   for (const item of raw) {
     if (!isRecord(item)) return { ok: false, why: "each message must be an object" };
     const role = item["role"];
     const content = item["content"];
     if (role !== "user" && role !== "assistant") return { ok: false, why: "role must be user or assistant" };
     if (typeof content !== "string") return { ok: false, why: "content must be a string" };
-    chars += content.length;
-    if (chars > MAX_CHARS) return { ok: false, why: "conversation too long" };
-    messages.push({ role, content });
+    all.push({ role, content });
+  }
+  /**
+   * A LONG CONVERSATION IS TRIMMED, NEVER REFUSED.
+   *
+   * These caps used to reject the turn, which turned a conversation that had simply gone on for a
+   * while into a dead window: every send answered "at most 60 messages" and there was no way
+   * forward except to throw the whole thing away. The caps exist to bound what one tab can spend,
+   * and dropping the OLDEST messages bounds it exactly as well while leaving the thing somebody is
+   * in the middle of usable.
+   *
+   * The newest end is what is kept, because that is where the conversation is. The last message is
+   * the question being asked and survives whatever else goes.
+   */
+  const messages = all.slice(-MAX_MESSAGES);
+  let chars = messages.reduce((sum, m) => sum + m.content.length, 0);
+  while (messages.length > 1 && chars > MAX_CHARS) {
+    chars -= messages.shift()?.content.length ?? 0;
   }
 
   const brief = body["brief"];
@@ -76,8 +94,12 @@ export function parseTurn(body: unknown): { ok: true; value: TurnRequest } | { o
    * through.
    */
   if (typeof brief === "string") {
+    // Trimmed the same way and for the same reason: a big screen behind the window must cost the
+    // conversation its oldest messages, not cost somebody the ability to ask anything at all.
     chars += brief.length;
-    if (chars > MAX_CHARS) return { ok: false, why: "conversation too long" };
+    while (messages.length > 1 && chars > MAX_CHARS) {
+      chars -= messages.shift()?.content.length ?? 0;
+    }
   }
 
   const sessionId = body["sessionId"];
