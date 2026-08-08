@@ -39,6 +39,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ClosePieceDialog | src/ui/shell/ClosePieceDialog.tsx | () |  |  |
 | ClosePiecePrompt | src/ui/shell/ClosePieceDialog.tsx | ({ name, onDiscard, onKeep, }: ClosePiecePromptProps) |  |  |
 | CodeEditor | src/ui/components/code-editor/index.tsx | (props: CodeEditorProps) |  |  |
+| CollectionsBar | src/ui/apps/library/collections-bar.tsx | (input: CollectionsBarInput) |  |  |
 | ColorPicker | src/ui/components/color-picker/index.tsx | ({ value, onChange }: ColorPickerProps) |  | .cp .sv .hue .thumb .foot .chip .hex |
 | ConfirmSwitch | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ installed, target, kind, onConfirm, onCancel, }: { installed: string; target: string; kind: "update" \| "rollback";... | Confirm a switch. Rollbacks read as danger; a rollback to a pre-feature version says so plainly. |  |
 | ContentCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaWriteForProfile; }) | The flat identity text (the whole persona on section-less platforms). |  |
@@ -49,7 +50,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | CssStarters | src/ui/components/css-workshop/starters.tsx | ({ packId, packBlurb, onApply }: CssStartersProps) | Recipe list filtered by active target pack. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshop | src/ui/components/css-workshop/index.tsx | ({ value, onChange, defaultPackId = "universal", onPackChange, note = DEFAULT_NOTE, mode: modeProp, onModeChange, ini... | Main assisted CSS editor shell. | .root .banner .modeToggle .modeBtn .modeOn .tabs .tab .tabOn ... |
 | CssWorkshopRoom | src/ui/apps/css-workshop/room.tsx | ({ ctx }: CssWorkshopRoomProps) | Full app canvas for the CSS Workshop dock tile. | .room .head .titles .eyebrow .title .lede .actions .modeToggle ... |
-| DamageNotice | src/ui/apps/library/damage-notice.tsx | (props: { entries: readonly StudioDamagedEntry[]; studioDir?: string; }) |  |  |
+| DamageNotice | src/ui/apps/library/damage-notice.tsx | (props: { entries: readonly StudioDamagedEntry[]; studioDir?: string; prefs?: { get(key: string): unknown; set(key: s... |  |  |
 | DocContent | src/ui/apps/docs/doc-content.tsx | ({ doc, docs, figures, body, anchor, loading, onPick }: DocContentProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
 | Dock | src/ui/shell/Dock.tsx | () |  |  |
 | DocNav | src/ui/apps/docs/doc-nav.tsx | ({ docs, activeId, query, onQuery, onPick }: DocNavProps) |  | .room .nav .search .shelves .shelf .on .group .section ... |
@@ -74,6 +75,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | ExpressionStage | src/ui/components/expression-stage/index.tsx | ({ pack, profile }: ExpressionStageProps) |  | .wrap .seal .row .face .moods .mood .moodOn .ta ... |
 | FieldForm | src/ui/components/field-form/index.tsx | ({ fields, value, onChange }: FieldFormProps) |  | .grid .field .half .label .text .num .sel .rmax ... |
 | FinePrint | src/ui/apps/workbench/regex/fine-print.tsx | ({ rule, rules, writeFor, styles, onPatch }: FinePrintProps) |  |  |
+| FirstLanding | src/ui/apps/library/first-landing.tsx | ({ css, damaged, studioDir, onDrop, onPickImport, onStartFresh, overlay, }: DoorsBase & { onDrop: (evt: DragEvent<HTM... | FIRST LANDING (locked): two massive door-cards, verbatim copy, nothing else competing. |  |
 | FloatingAgent | src/ui/agent/floating-agent.tsx | ({ ctx, open, onClose, }: { ctx: AppContext; open: boolean; onClose: () => void; }) |  |  |
 | FlowView | src/ui/apps/workbench/presenters/flow-view.tsx | (props: FlowViewProps) |  |  |
 | FocusToggle | src/ui/components/focus-toggle/index.tsx | ({ focused, onToggle }: FocusToggleProps) | The expand/shrink icon button. Static first-party markup parsed via DOMParser + importNode | .btn |
@@ -129,6 +131,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | NamedAssets | src/ui/components/named-assets/index.tsx | ({ value, onChange, assetFiles, macroHint = true, }: NamedAssetsProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | NamedAssetsDialog | src/ui/components/named-assets/dialog.tsx | ({ characterName, value, assetFiles, onApply, onClose, }: NamedAssetsDialogProps) |  | .sheet .head .title .closeX .table .kind .name .ops ... |
 | NewInDeckButton | src/ui/apps/library/new-in-deck-button.tsx | ({ kind, ctx, onCreated, compact = false }: NewInDeckButtonProps) |  |  |
+| NoMatchNotice | src/ui/apps/library/search-bar.tsx | ({ query, deckPlural, deckTotal, elsewhere, onJump, onClear, }: NoMatchNoticeProps) |  |  |
 | NovelAiBiasBlock | src/ui/apps/workbench/lore/platforms/novelai-bias.tsx | ({ entry, styles, onPatch, }: { entry: LorebookEntry; styles: Readonly<Record<string, string>>; onPatch: (patch: Part... |  |  |
 | OptionCards | src/ui/apps/workbench/controls/option-cards.tsx | ({ options, value, onSelect, styles }: OptionCardsProps) |  |  |
 | PackEditor | src/ui/apps/workbench/PackEditor.tsx | ({ entity, revision, ctx, piece, topRight }: PackEditorProps) |  | .room .newPackBtn .stage .crumb .pip .cn .cc .pane ... |
@@ -166,9 +169,11 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | SampleMatchStage | src/ui/apps/workbench/lore/sample-match-stage.tsx | ({ entries, styles }: SampleMatchStageProps) |  |  |
 | SealedHtmlPreview | src/ui/components/sealed-html-preview/index.tsx | ({ html, css = "", title = "Backdrop preview", }: SealedHtmlPreviewProps) | Sandboxed iframe preview of card backdrop HTML. | .frame |
 | SealedMedia | src/ui/components/sealed-media/index.tsx | ({ kind, src, name }: SealedMediaProps) |  | .box .img .audio .video .none |
+| SearchBox | src/ui/apps/library/search-bar.tsx | ({ value, onChange, hint }: SearchBoxProps) |  |  |
 | Searchlight | src/ui/agent/kit-widgets.tsx | ({ on }: { on: boolean }) | The searchlight: a rose beam gliding along the composer's top edge while a turn runs. |  |
 | SectionCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody, writeFor, sectionKey, title, placeholder, }: { body: PersonaBody; onBody: OnBody; writeFor: PersonaW... | One canonical text section as a bento tile; Personality also carries the trait chips. |  |
 | SegControl | src/ui/apps/settings/section-contract.tsx | ({ options, current, onPick, }: { options: { value: T; label: string }[]; current: T; onPick: (value: T) => void; }) | A house segmented control bound call-and-response to a settings value. | .roomHost .room .tabs .tab .on .body .row .tx ... |
+| SendBar | src/ui/apps/library/send-bar.tsx | ({ staged, entities, onSend, onDelete, onSelectAll, onClear, }: SendBarProps) |  |  |
 | SettingsBar | src/ui/apps/workbench/preset/settings-bar.tsx | ({ body, showSamplers, onDescription, onSampler }: SettingsBarProps) |  |  |
 | SettingsRow | src/ui/apps/settings/section-contract.tsx | ({ label, hint, children }: { label: string; hint: string; children: ReactNode }) | A titled control row: label + hint on the left, the control on the right. | .roomHost .room .tabs .tab .on .body .row .tx ... |
 | SetupWizard | src/ui/setup/wizard.tsx | ({ ctx, existing, onComplete }: SetupWizardProps) | Renders the wizard; calls onComplete with the draft (all keys filled) when OPEN VAUDE is pressed. |  |
@@ -187,6 +192,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | StatusToast | src/ui/agent/kit-bands.tsx | ({ text }: { text: string \| null }) | A brief statement about something the window itself just did. |  |
 | StructuredPersona | src/ui/components/structured-persona/index.tsx | ({ value, onChange }: StructuredPersonaProps) |  | .wrap .kinds .kind .kindOn .attr .top .key .chips ... |
 | StubEditor | src/ui/components/stub-editor/index.tsx | ({ title, note, onClose, children }: StubEditorProps) |  | .head .note .body .close |
+| StudioUnreachable | src/ui/apps/library/first-landing.tsx | ({ css, damaged, studioDir, onRetry, }: DoorsBase & { onRetry: () => void }) | The studio did not answer. NO create button: the pieces are probably all still there. |  |
 | SwatchRow | src/ui/components/swatch-row/index.tsx | ({ palette, value, onChange, allowCustom }: SwatchRowProps) |  | .wrap .row .sw .on .lbl .custom .empty .panel |
 | SwitchProgress | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ message }: { message: string }) | Progress while a switch runs (the manager's status message). |  |
 | SwitchResult | src/ui/apps/settings/sections/updates-dialogs.tsx | ({ outcome, onDone, onUndo, }: { outcome: SwitchOutcome; onDone: () => void; onUndo: (from: string) => void; }) | The post-restart popup, from the pending-switch marker. Undo (back to where you came from) on success. |  |
