@@ -29,6 +29,7 @@ import { KIT_TRANSCRIPT_STYLE } from "../../agent/kit-transcript-style";
 import { KIT_COMMAND_STYLE } from "../../agent/kit-command-style";
 import { useKitCommands } from "../../agent/use-kit-commands";
 import { useSlash } from "../../agent/use-slash";
+import { useMentions } from "../../agent/use-mentions";
 import { SlashMenu } from "../../agent/slash-menu";
 import {
   AGENT_CHIP_STYLE, AGENT_GATE_STYLE, AGENT_KIT_STYLE, AGENT_STYLE, AGENT_TALK_STYLE,
@@ -133,6 +134,8 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
   };
 
   const slash = useSlash(draft, setDraft, kitCommands.seam.catalog, kitCommands.suggest);
+  /** Typing @ offers the studio pieces; picking one writes the stable @kind:id marker. */
+  const mentions = useMentions(draft, setDraft, ctx);
   /**
    * A row in a command's listing types what a person would have typed.
    *
@@ -146,8 +149,13 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
   }), [chat, brief]);
 
   const onComposerKey = (event: KeyboardEvent<HTMLTextAreaElement>): void => {
-    // The popup gets first refusal on every key: while it is open, Enter completes rather than sends.
+    /**
+     * Both popups get first refusal, in the order they can be open. While either is up, Enter
+     * completes rather than sends - the alternative is a half-typed "@bas" going out as a question.
+     * They cannot both be open: one is triggered by a leading slash and the other by a trailing at.
+     */
     if (slash.onKey(event)) return;
+    if (mentions.onKey(event)) return;
     // Enter sends, shift+Enter is a newline: the convention every chat box already uses.
     if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); submit(); }
   };
@@ -261,6 +269,12 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
       */}
       <div className="agent-room__compose">
         <SlashMenu title={slash.title} choices={slash.choices} active={slash.active} onPick={slash.pick} />
+        <SlashMenu
+          title={mentions.title}
+          choices={mentions.choices}
+          active={mentions.active}
+          onPick={mentions.pick}
+        />
         <form className="agent-room__composer" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <Searchlight on={chat.busy} />
           <textarea

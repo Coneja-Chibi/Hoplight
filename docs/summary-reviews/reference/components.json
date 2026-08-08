@@ -6,6 +6,6 @@
   "semanticSummaryHash": "sha256:3a96d21a22d8a5615c055bee64e37565bb5a51cfa57df7c2f8a5cef4dddc0dad",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Merge resolution: regenerated after the archive-import and agent-window branches landed together.",
-  "reviewedAt": "2026-08-08T01:25:31.941Z"
+  "notes": "Generated catalog refresh.",
+  "reviewedAt": "2026-08-08T02:31:37.112Z"
 }

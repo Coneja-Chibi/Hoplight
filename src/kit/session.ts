@@ -38,6 +38,7 @@ import { crossingForExport } from "./changes/crossing-preview";
 import { createCapabilityFindTool } from "./tools/capability-find";
 import { createChangeApplyTool } from "./tools/change-apply";
 import { createChangeDiscardTool } from "./tools/change-discard";
+import { createPresetCopyBlocksTool } from "./tools/preset-copy-blocks";
 import { createChangeQueryTool } from "./tools/change-query";
 import type { ContentCapability } from "../entities/capabilities";
 import { createHoplightDocs } from "./docs/repository";
@@ -206,6 +207,8 @@ export async function createSession(
     createChangeQueryTool(changes),
     createChangeApplyTool(changes),
     createChangeDiscardTool(changes),
+    // Cross-piece, so it cannot be a capability: those preview ONE entity. See the tool header.
+    createPresetCopyBlocksTool(changes),
   ];
   const tools = [...runtime.registeredTools(), ...lifecycleTools];
   const dispatch = makeDispatch(tools, {
