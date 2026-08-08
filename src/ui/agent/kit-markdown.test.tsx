@@ -96,3 +96,26 @@ describe("the blocks Kit draws", () => {
     expect(out).toContain("const x = 1");
   });
 });
+
+test("A TABLE RENDERS AS A TABLE, not as a wall of pipes", () => {
+  /**
+   * What this was for. A model comparing two presets emits a pipe table, and the transcript drew it
+   * as `| a | b |` lines to be read like a puzzle.
+   */
+  const html = renderToStaticMarkup(
+    <KitMarkdown text={["| directive | ChiPT |", "|---|---|", "| agency | reversed |"].join("\n")} />,
+  );
+  expect(html).toContain("<table");
+  expect(html).toContain("<th");
+  expect(html).toContain("directive");
+  expect(html).toContain("reversed");
+  // And it can be opened, because a five-column comparison does not fit a narrow panel.
+  expect(html).toContain("kit-md__tableout");
+});
+
+test("a wide table scrolls inside itself, never sideways with the conversation", () => {
+  const html = renderToStaticMarkup(
+    <KitMarkdown text={["| a | b |", "|---|---|", "| 1 | 2 |"].join("\n")} />,
+  );
+  expect(html).toContain("kit-md__tablescroll");
+});

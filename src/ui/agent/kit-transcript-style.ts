@@ -40,6 +40,28 @@ export const KIT_MD_STYLE = `
 .kit-md__quote{border-left:2px solid var(--kit-mut);padding-left:.5rem;font-style:italic;
   font-size:.83rem;line-height:1.5;color:var(--kit-soft)}
 .kit-md__rule{border:0;border-top:1px solid var(--kit-div);margin:.2rem 0}
+/* A TABLE, DRAWN AS ONE. Models reach for a pipe table whenever they compare two things, and it
+   used to arrive as a wall of pipes and dashes to be read like a puzzle. */
+.kit-md__tablewrap{position:relative;margin:.35rem 0}
+.kit-md__tablescroll{overflow-x:auto;max-width:100%}
+.kit-md__table{border-collapse:collapse;font-size:.75rem;min-width:100%}
+.kit-md__table th,.kit-md__table td{border:1px solid var(--kit-line);padding:.2rem .45rem;
+  text-align:left;vertical-align:top}
+.kit-md__table th{color:var(--kit-text);font-weight:700;background:var(--kit-sunken);white-space:nowrap}
+.kit-md__table td{color:var(--kit-soft)}
+/* the pop-out key: in the corner of the table, not in the flow of the sentence around it */
+.kit-md__tableout{position:absolute;top:0;right:0;background:var(--kit-panel);border:1px solid var(--kit-line);
+  color:var(--kit-quiet);cursor:pointer;font-family:var(--kit-mono);font-size:.5rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.1rem .3rem}
+.kit-md__tableout:hover{color:var(--kit-text);border-color:var(--kit-mut)}
+/* opened: the same table, at a size that fits a five-column comparison */
+.kit-md__sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;
+  padding:2rem;background:rgb(0 0 0 / 62%)} /* hardcode-ok: a scrim is depth, not a themed colour */
+.kit-md__sheetbody{position:relative;max-width:min(96vw,72rem);max-height:88vh;overflow:auto;
+  background:var(--kit-panel);border:1px solid var(--kit-line);padding:1.4rem 1rem 1rem}
+.kit-md__sheetclose{position:absolute;top:.3rem;right:.4rem;background:transparent;border:1px solid var(--kit-line);
+  color:var(--kit-quiet);cursor:pointer;font-family:var(--kit-mono);font-size:.5rem;letter-spacing:.1em;
+  text-transform:uppercase;padding:.15rem .35rem}
 
 /* A code slab: the recessed field fill IS the slab, exactly as in the terminal. */
 .kit-md__slab{display:flex;flex-direction:column;margin:0;background:var(--kit-sunken);

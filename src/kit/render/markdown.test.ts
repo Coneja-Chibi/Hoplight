@@ -80,3 +80,44 @@ describe("parseMarkdown", () => {
     expect(parseMarkdown("---")).toEqual([{ t: "hr" }]);
   });
 });
+
+test("a pipe table becomes a table, cells and all", () => {
+  const blocks = parseMarkdown([
+    "| directive | ChiPT | Farce |",
+    "|---|---|---|",
+    "| **continuity** | tracks events | keeps callbacks |",
+    "| agency | `<agency>` | reversed |",
+  ].join("\n"));
+
+  expect(blocks).toHaveLength(1);
+  const table = blocks[0]!;
+  expect(table.t).toBe("table");
+  if (table.t !== "table") return;
+  expect(table.head.map((c) => c.map((s) => s.s).join(""))).toEqual(["directive", "ChiPT", "Farce"]);
+  expect(table.rows).toHaveLength(2);
+  // Cells are spans, so the bold and the code inside them survive the trip.
+  expect(table.rows[0]?.[0]?.[0]?.t).toBe("bold");
+  expect(table.rows[1]?.[1]?.[0]?.t).toBe("code");
+});
+
+test("A LINE OF PIPES IS NOT A TABLE WITHOUT ITS RULE", () => {
+  /**
+   * The delimiter row is the only honest signal. Models write `use | to separate them` in ordinary
+   * prose far more often than they write tables, and swallowing that into a one-column grid would
+   * be worse than leaving a real table as text.
+   */
+  const blocks = parseMarkdown("use | to separate the fields");
+  expect(blocks[0]?.t).toBe("para");
+});
+
+test("a ragged row is padded rather than throwing the columns out", () => {
+  const blocks = parseMarkdown(["| a | b | c |", "|---|---|---|", "| 1 |"].join("\n"));
+  const table = blocks[0]!;
+  if (table.t !== "table") throw new Error("expected a table");
+  expect(table.rows[0]).toHaveLength(3);
+});
+
+test("the table ends where the pipes stop", () => {
+  const blocks = parseMarkdown(["| a |", "|---|", "| 1 |", "", "after the table"].join("\n"));
+  expect(blocks.map((b) => b.t)).toEqual(["table", "para"]);
+});

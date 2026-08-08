@@ -114,6 +114,28 @@ export function MarkdownText({
         </span>,
         <i key={`${key}-q`}>{inlineNodes(b.spans, key, pieces)}</i>,
       );
+    } else if (b.t === "table") {
+      /**
+       * A TERMINAL IS MONOSPACE, so a table is columns padded to their widest cell. No rules and no
+       * corners: box-drawing around every cell costs three lines of chrome per two of content in a
+       * pane this narrow, and the alignment alone already reads as a table.
+       *
+       * Cells are flattened to their text here. Bold inside a cell is real in the window; in a
+       * grid measured by character count, a span that renders wider than it measures tears the
+       * columns apart, which is worse than losing the emphasis.
+       */
+      const flat = (cells: readonly Inline[][]): string[] => cells.map((c) => c.map((s) => s.s).join(""));
+      const head = flat(b.head);
+      const rows = b.rows.map(flat);
+      const width = head.map((h, c) =>
+        Math.max(h.length, ...rows.map((r) => (r[c] ?? "").length)));
+      const line = (cells: readonly string[]): string =>
+        cells.map((cell, c) => cell.padEnd(width[c] ?? 0)).join("  ").trimEnd();
+      out.push(<b key={`${key}-th`}>{line(head)}</b>, br(`${key}-th-nl`));
+      rows.forEach((row, ri) => {
+        out.push(<span key={`${key}-tr${ri}`}>{line(row)}</span>);
+        if (ri < rows.length - 1) out.push(br(`${key}-tr${ri}-nl`));
+      });
     } else if (b.t === "code") {
       const diff = classifyDiff(b.lines, b.lang);
       // Terminal-honest code slab: a dim language label (when the fence carried one) over the code lines

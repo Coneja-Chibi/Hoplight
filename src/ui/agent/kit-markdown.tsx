@@ -22,7 +22,7 @@
  * those three become real borders in `mut` and every remaining piece of TEXT floors at `quiet`,
  * which is what the palette's rule actually asks for.
  */
-import type { JSX, ReactNode } from "react";
+import { useState, type JSX, type ReactNode } from "react";
 import { classifyDiff } from "../../kit/render/diff-classify";
 import { parseMarkdown, type Block, type Inline } from "../../kit/render/markdown";
 import { DIFF_LINE_CAP, diffInk, safeLinkHref } from "./kit-markdown-core";
@@ -120,8 +120,64 @@ function BlockView({ block }: { block: Block }): JSX.Element | null {
   // The quote bar is a BORDER here rather than a drawn "| ", which is what `mut` is for.
   if (block.t === "quote") return <p className="kit-md__quote"><Spans spans={block.spans} /></p>;
   if (block.t === "code") return <CodeBlock block={block} />;
+  if (block.t === "table") return <TableBlock block={block} />;
   if (block.t === "hr") return <hr className="kit-md__rule" />;
   return null;
+}
+
+/**
+ * A pipe table, drawn as one - and openable, because this window is narrow.
+ *
+ * A COMPARISON IS THE THING TABLES ARE FOR, and a five-column comparison in a panel four hundred
+ * pixels wide is unreadable however carefully it is styled. So the table renders inline at whatever
+ * size it has, and the whole thing opens over the window when you want to actually read it. The
+ * pop-out is the same markup at a size that fits it, not a second rendering with its own rules.
+ */
+function TableBlock({ block }: { block: Extract<Block, { t: "table" }> }): JSX.Element {
+  const [open, setOpen] = useState(false);
+  const grid = (
+    <table className="kit-md__table">
+      <thead>
+        <tr>{block.head.map((cell, c) => <th key={c}><Spans spans={cell} /></th>)}</tr>
+      </thead>
+      <tbody>
+        {block.rows.map((row, r) => (
+          <tr key={r}>{row.map((cell, c) => <td key={c}><Spans spans={cell} /></td>)}</tr>
+        ))}
+      </tbody>
+    </table>
+  );
+
+  return (
+    <div className="kit-md__tablewrap">
+      {/* The scroller is the wrapper, so a wide table never pushes the conversation sideways. */}
+      <div className="kit-md__tablescroll">{grid}</div>
+      <button
+        type="button"
+        className="kit-md__tableout"
+        title="Open this table over the window"
+        onClick={() => { setOpen(true); }}
+      >
+        {"open"}
+      </button>
+      {open && (
+        <div
+          className="kit-md__sheet"
+          role="dialog"
+          aria-label="Table"
+          // Clicking the ground closes it: the same gesture every overlay in this app answers to.
+          onClick={() => { setOpen(false); }}
+        >
+          <div className="kit-md__sheetbody" onClick={(e) => { e.stopPropagation(); }}>
+            <button type="button" className="kit-md__sheetclose" onClick={() => { setOpen(false); }}>
+              {"close"}
+            </button>
+            <div className="kit-md__tablescroll">{grid}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 /**

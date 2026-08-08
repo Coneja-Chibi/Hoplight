@@ -20,6 +20,14 @@ export type Block =
   | { t: "ordered"; depth: number; num: number; spans: Inline[] }
   | { t: "quote"; spans: Inline[] }
   | { t: "code"; lines: string[]; lang?: string }
+  /**
+   * A pipe table.
+   *
+   * Models reach for one whenever they compare two things, and until this existed the reply arrived
+   * as a wall of `|` and `---` that had to be read like a puzzle. Cells are spans, not strings, so
+   * the bold and the code inside them survive the trip.
+   */
+  | { t: "table"; head: Inline[][]; rows: Inline[][][] }
   | { t: "hr" };
 
 // Inline markers, in priority order: code (protects its content), bold (**/__), italic (*), link.
@@ -54,8 +62,24 @@ const HEADING = /^(#{1,6})\s+(.+)$/;
 const QUOTE = /^\s*>\s?(.*)$/;
 const BULLET = /^(\s*)[-*+]\s+(.+)$/;
 const ORDERED = /^(\s*)(\d+)[.)]\s+(.+)$/;
+/**
+ * A table's second line: the one made of dashes that says "the row above was headings".
+ *
+ * THIS IS WHAT MAKES A TABLE A TABLE. A single line of pipes is far more often prose - a model
+ * writing `use | to separate them` - so the delimiter row is the only honest signal, and requiring
+ * it is what stops ordinary sentences being swallowed into a grid.
+ */
+const TABLE_RULE = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
+const hasPipe = (l: string): boolean => l.includes("|");
+
+/** Split one table row into its cells, tolerating the optional leading and trailing pipes. */
+const cellsOf = (line: string): string[] =>
+  line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+
 const isSpecial = (l: string): boolean =>
-  !l.trim() || FENCE.test(l) || HEADING.test(l) || QUOTE.test(l) || BULLET.test(l) || ORDERED.test(l) || HR.test(l);
+  !l.trim() || FENCE.test(l) || HEADING.test(l) || QUOTE.test(l) || BULLET.test(l) || ORDERED.test(l) || HR.test(l)
+  // A table's own rule line must break a paragraph, or the header row is eaten by the text above it.
+  || TABLE_RULE.test(l);
 
 /** Parse markdown into blocks. Consecutive plain lines fold into one paragraph. */
 export const parseMarkdown = (src: string): Block[] => {
@@ -97,6 +121,29 @@ export const parseMarkdown = (src: string): Block[] => {
       blocks.push({ t: "quote", spans: parseInline(parts.join(" ")) });
       continue;
     }
+    /**
+     * A table: a header row, a rule under it, and every row after that carries a pipe.
+     *
+     * Checked before the list and paragraph rules because a header row is otherwise ordinary text,
+     * and it is the NEXT line that reveals what it was. Rows are padded or trimmed to the header's
+     * width so a ragged table still draws as a grid rather than throwing the columns out.
+     */
+    const ruleAhead = i + 1 < lines.length && TABLE_RULE.test(lines[i + 1]!);
+    if (hasPipe(line) && ruleAhead) {
+      const head = cellsOf(line);
+      i += 2;
+      const rows: Inline[][][] = [];
+      while (i < lines.length && hasPipe(lines[i]!) && lines[i]!.trim()) {
+        const cells = cellsOf(lines[i]!);
+        rows.push(
+          Array.from({ length: head.length }, (_, c) => parseInline(cells[c] ?? "")),
+        );
+        i += 1;
+      }
+      blocks.push({ t: "table", head: head.map((c) => parseInline(c)), rows });
+      continue;
+    }
+
     const b = BULLET.exec(line);
     if (b) {
       blocks.push({ t: "bullet", depth: Math.floor(b[1]!.length / 2), spans: parseInline(b[2]!) });
