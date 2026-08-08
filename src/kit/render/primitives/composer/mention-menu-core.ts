@@ -26,18 +26,38 @@ export const mentionRows = (
   groups: readonly EntitySummary[],
 ): readonly EntitySummary[] => (groups.length === 0 ? pieces : [...groups, ...pieces]);
 
+/**
+ * A name with the punctuation taken out, for matching only.
+ *
+ * PEOPLE DO NOT TYPE THE PUNCTUATION IN THEIR OWN FILENAMES. A preset called
+ * "The H.T. Files - Paramnesia V.4" is `v.4`, and `"v.4".includes("v4")` is false - so typing `@v4`
+ * offered every OTHER v4 preset in the studio and silently hid that one. The piece was indexed, on
+ * screen in the Library, and unreachable from the composer, which reads as the file not being there.
+ *
+ * Decoration counts too: these names carry sparkles and mirrors around the words, and nobody is
+ * going to type those to reach their own preset.
+ */
+const bare = (text: string): string => text.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
 export const matchingPieces = (
   pieces: readonly EntitySummary[],
   draft: string,
 ): EntitySummary[] => {
   if (!draft.startsWith("@") || draft.includes(":")) return [];
   const query = draft.slice(1).toLowerCase();
+  const plain = bare(query);
   return pieces
     .filter((piece) =>
       !query
       || piece.name.toLowerCase().includes(query)
       || piece.kind.toLowerCase().startsWith(query)
       || piece.id.toLowerCase().startsWith(query)
+      /**
+       * The forgiving pass, ADDED rather than substituted: every match that worked before still
+       * works, and a query that only differs by punctuation now lands too. Guarded on a non-empty
+       * `plain` so `@.` does not suddenly match the entire studio.
+       */
+      || (plain !== "" && (bare(piece.name).includes(plain) || bare(piece.id).includes(plain)))
     )
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
