@@ -19,6 +19,7 @@ import {
   mentionDraft,
 } from "../../kit/render/primitives/composer/mention-menu-core";
 import type { EntitySummary } from "../../kit/bridge";
+import { COLLECTION_KIND } from "../../studio/collections-shape";
 import type { AppContext, StudioEntitySummary } from "../app-contract";
 
 /** A row in the picker. `note` is always the piece name, so it matches the slash menu shape. */
@@ -49,14 +50,31 @@ export function useMentions(
   const [dismissed, setDismissed] = useState("");
 
   /**
-   * Loaded once when the panel mounts rather than per keystroke. A studio is 164 pieces here and the
+   * Loaded once when the panel mounts rather than per keystroke. A studio is 169 pieces here and the
    * list is only names and ids; re-fetching it on every character typed would put a request behind
    * each letter of a name somebody is halfway through.
+   *
+   * COLLECTIONS RIDE THE SAME LIST, as rows whose kind is "collection". That is the whole of the
+   * feature on this side: `@collection:the-cast` falls out of the grammar Kit already has, because
+   * the matcher and the marker builder both work in terms of a kind and an id. Teaching the core a
+   * second kind of mention would have been a second grammar to keep in step with the terminal's.
    */
   useEffect(() => {
     let alive = true;
-    void ctx.api.listEntities()
-      .then((all) => { if (alive) setPieces(all); })
+    void Promise.all([
+      ctx.api.listEntities(),
+      // A studio with no groupings is the common case and must not cost the picker its pieces.
+      ctx.api.collections().then((file) => file.collections).catch(() => []),
+    ])
+      .then(([all, groupings]) => {
+        if (!alive) return;
+        setPieces([
+          // Groupings first: there are a handful against a hundred and sixty-nine pieces, and a
+          // collection is the more specific thing to have meant when its name matches.
+          ...groupings.map((c) => ({ kind: COLLECTION_KIND, id: c.id, name: c.name })),
+          ...all,
+        ]);
+      })
       .catch(() => { /* no list means no picker, which is a quiet degradation rather than an error */ });
     return () => { alive = false; };
   }, [ctx]);

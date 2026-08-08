@@ -27,7 +27,7 @@ import { buildSubmission, type PasteCard as Card } from "./paste-classify";
 import { useComposerPaste } from "./use-paste";
 import { applyArg, argContext, matchingArgs, matchingCommands } from "./command-menu-core";
 import { CommandMenu } from "./command-menu";
-import { applyMention, matchingPieces, mentionDraft } from "./mention-menu-core";
+import { applyMention, matchingPieces, mentionDraft, mentionRows } from "./mention-menu-core";
 import { MentionMenu } from "./mention-menu";
 import { draftSuggestion } from "./suggestion";
 import { readClipboardImage, readClipboardText } from "../../clipboard-read";
@@ -64,6 +64,7 @@ export function Composer({
   commands,
   decks = [],
   pieces = [],
+  groups = [],
   completeArg,
   onImage,
   insert,
@@ -81,6 +82,8 @@ export function Composer({
   commands: readonly KitCommand[];
   decks?: readonly DeckCount[];
   pieces?: readonly EntitySummary[];
+  /** The person's collections, joined to the pieces for `@` only - see mentionRows. */
+  groups?: readonly EntitySummary[];
   /**
    * Load the candidates for a command's argument.
    *
@@ -152,7 +155,7 @@ export function Composer({
 
   const argMatches = argCtx ? matchingArgs(argRows, argCtx.prefix) : [];
   const argOpen = !menuDismissed && argMatches.length > 0;
-  const pieceMatches = matchingPieces(pieces, mentionText);
+  const pieceMatches = matchingPieces(mentionRows(pieces, groups), mentionText);
   const mentionOpen = !menuOpen && !mentionDismissed && pieceMatches.length > 0;
 
   const replaceCards = (next: Card[]): void => {

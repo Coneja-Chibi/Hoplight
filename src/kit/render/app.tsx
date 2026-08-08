@@ -29,6 +29,7 @@ import { SnapPill } from "./primitives/nav/snap-pill";
 import { useScrollSeam } from "./primitives/nav/use-scroll-seam";
 import { initNewBelow, trackNewBelow } from "./primitives/nav/scroll-seam";
 import { applyTurnEvent, settleTurn, toggleTrace, type RenderLine, type TurnView } from "./turn-events";
+import { artCommands } from "./art-commands";
 import { EMPTY_LEDGER, recordEgress, formatLedger, type EgressLedger } from "../providers/egress-ledger";
 import { buildContextPreview } from "../context/shell";
 import { useNotify } from "./notify/use-notify";
@@ -74,6 +75,11 @@ export interface AppProps {
   totalPieces: number;
   decks: DeckCount[];
   pieces?: readonly EntitySummary[];
+  /**
+   * The person's own groupings, as `@` rows. Separate from `pieces` on purpose - see the note where
+   * they are loaded in index.tsx. Absent is the ordinary state of a studio with none.
+   */
+  groups?: readonly EntitySummary[];
   session: ChatSession;
   commands: KitCommand[];
   onQuit: () => void;
@@ -100,6 +106,7 @@ export function App({
   totalPieces,
   decks,
   pieces = [],
+  groups = [],
   session,
   commands,
   onQuit,
@@ -314,15 +321,7 @@ export function App({
         rail: rail.commands,
         gallery: gallery.commands,
         gates: { mode: () => gate.mode, set: (mode) => gate.setMode(mode) },
-        art: {
-          async show(query) {
-            if (!session.art) return { ok: false as const, detail: "This studio has no art seam." };
-            const found = await session.art.find(query);
-            if ("detail" in found) return { ok: false as const, detail: found.detail };
-            add({ role: "portrait", bytes: found.bytes, caption: found.name });
-            return { ok: true as const };
-          },
-        },
+        art: artCommands(session, add),
         sessions: sessionActions,
         pieces: async (kind: string) =>
           shelf.pieces.filter((p) => p.kind === kind).map((p) => ({ id: p.id, name: p.name })),
@@ -477,6 +476,7 @@ export function App({
         commands={commands}
         decks={shelf.decks}
         pieces={shelf.pieces}
+        groups={groups}
         completeArg={shelf.completeArg}
         insert={gallery.picked}
         {...(openAsk ? { onAskKey: ask.handleKey } : {})}

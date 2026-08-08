@@ -12,6 +12,8 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_list", "read"],
   ["studio_read", "read"],
   ["studio_search", "read"],
+  // Reads collections.json and nothing else; the seam it goes through has no write side at all.
+  ["studio_collections", "read"],
   ["docs_query", "read"],
   ["result_query", "read"],
   ["capability_find", "read"],

@@ -19,6 +19,7 @@ import type { CanonicalRegexSet } from "../entities/regex/schema";
 import { entityRevision } from "../entities/canonical-revision";
 import { openStudio } from "../foreign-reader";
 import { handleAgentRoutes } from "./agent/routes";
+import { handleCollectionsRoutes } from "./server-collections";
 import type { StudioStoreLike, SettingsStoreLike } from "../studio/contracts";
 import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
@@ -278,6 +279,10 @@ export function createHandler(
     // where they sit together because they are the only routes here that reach a model.
     const agentRoute = await handleAgentRoutes(p, req, () => store.studioPath());
     if (agentRoute) return agentRoute;
+
+    // The person's own groupings of pieces. See server-collections.ts.
+    const collectionsRoute = await handleCollectionsRoutes(p, req, () => store.studioPath());
+    if (collectionsRoute) return collectionsRoute;
 
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
     if (p === "/api/inspect-archive" && req.method === "POST") return handleInspectArchive(req);

@@ -17,6 +17,7 @@
  */
 import { json } from "../server-security";
 import { resolveProviderConfig } from "../../kit/providers/vault";
+import { isWindowSessionId } from "./window-session";
 
 /** How much of a conversation the window may send back. Bounded so one tab cannot mint a huge bill. */
 const MAX_MESSAGES = 60;
@@ -27,6 +28,13 @@ interface TurnRequest {
   readonly messages: readonly { readonly role: string; readonly content: string }[];
   /** The screen brief from src/ui/agent/surface.ts, or absent when no app has published. */
   readonly brief?: string;
+  /**
+   * Which saved session this turn belongs to, or absent on the first turn of a new conversation.
+   *
+   * ONLY EVER ONE THE WINDOW OWNS. It becomes a filename in the folder the terminal also writes to,
+   * so a page naming a terminal session must be refused here rather than trusted to be well-meaning.
+   */
+  readonly sessionId?: string;
 }
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
@@ -72,9 +80,20 @@ export function parseTurn(body: unknown): { ok: true; value: TurnRequest } | { o
     if (chars > MAX_CHARS) return { ok: false, why: "conversation too long" };
   }
 
+  const sessionId = body["sessionId"];
+  // Absent is ordinary (a new conversation). Present and not ours is a refusal, not a silent mint:
+  // a page asking to append to a session it does not own should hear no.
+  if (sessionId !== undefined && !isWindowSessionId(sessionId)) {
+    return { ok: false, why: "sessionId is not a window session" };
+  }
+
   return {
     ok: true,
-    value: { messages, ...(typeof brief === "string" && brief ? { brief } : {}) },
+    value: {
+      messages,
+      ...(typeof brief === "string" && brief ? { brief } : {}),
+      ...(typeof sessionId === "string" ? { sessionId } : {}),
+    },
   };
 }
 
@@ -126,6 +145,16 @@ export function systemPrompt(brief?: string): string {
     "proposing one is not the same as doing it - go ahead and stage the change rather than",
     "describing what you would do and waiting to be asked twice.",
     "Say plainly when something is staged and waiting for their yes.",
+    /**
+     * The marker means nothing to a model that has never been told what it points at. `@character:x`
+     * is guessable from the kind; `@collection:the-cast` is not, and a model that guesses reaches
+     * for studio_read with a kind that has no folder and gets nothing back.
+     */
+    "",
+    "`@kind:id` in their message points at one piece - read it rather than guessing which they meant.",
+    "`@collection:<id>` points at a COLLECTION: a group the person made themselves, out of pieces",
+    "that belong together for a reason the files do not record. Use studio_collections to see what",
+    "is in one. Their grouping is theirs; you can read and follow it, but you cannot change it.",
   ];
   if (brief) {
     /**

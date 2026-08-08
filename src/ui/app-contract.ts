@@ -13,6 +13,9 @@ import type { ParseReport, SerializeReport } from "../core/reports";
 import type { LvbakImportReport } from "../formats/lumiverse-archive/report";
 import type { AuxHelperStatus, LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
 import type { StudioDamageReason } from "../studio/errors";
+// The same shapes the store and the Kit tool use; a second declaration here would be a second
+// authority over what a collection is, which is how the damage-reason union broke.
+import type { CollectionEdit, CollectionsFile } from "../studio/collections-shape";
 import type { AgentState, AgentSurfaceSpec } from "./agent/surface";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
@@ -93,6 +96,16 @@ export interface AppContext {
     saveStaged(payload: SaveStagedPayload): Promise<SaveBundleResult>;
     exportEntity(entity: unknown, targetId: string): Promise<ExportResult>;
     formats(): Promise<FormatInfo[]>;
+    /**
+     * The person's own groupings of pieces, and the five edits that change them.
+     *
+     * Every edit returns the WHOLE file as the server stored it, rather than an acknowledgement.
+     * The server serialises edits and normalises what it writes, so its copy is the only one worth
+     * believing - a client that patched its own state locally would drift the moment two edits
+     * overlapped, which is exactly the case a grouping feature invites.
+     */
+    collections(): Promise<CollectionsFile>;
+    collectionEdit(edit: CollectionEdit): Promise<CollectionsFile>;
     /** per-platform canonical-path coverage claims - the editor lens's ground truth (vs-editor-2) */
     coverage(): Promise<CoverageInfo[]>;
     /** the running build's version + studio folder (About shows both; the update check compares) */

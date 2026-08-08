@@ -129,3 +129,58 @@ test("an empty composer suggests a move grounded in the studio", async () => {
     await t.renderer.destroy();
   }
 });
+
+test("a collection can be mentioned in the terminal, and picking one writes its marker", async () => {
+  const t = await testRender(
+    <Composer
+      active={false}
+      provider={null}
+      busy={false}
+      commands={[]}
+      pieces={[{ id: "basil-1", kind: "character", name: "Basil" }]}
+      groups={[{ id: "the-cast", kind: "collection", name: "The Cast" }]}
+      onSubmit={() => true}
+    />,
+    { width: 72, height: 16 },
+  );
+  try {
+    await tick();
+    await t.mockInput.typeText("look at @cas");
+    await tick();
+    expect(t.captureCharFrame()).toContain("The Cast");
+    t.mockInput.pressEnter();
+    await tick();
+    // The same marker the desktop window writes and studio_collections reads.
+    expect(t.captureCharFrame()).toContain("@collection:the-cast");
+  } finally {
+    await t.renderer.destroy();
+  }
+});
+
+test("A GROUP NEVER BECOMES THE EMPTY-COMPOSER SUGGESTION", async () => {
+  /**
+   * The reason groups travel beside `pieces` instead of inside them. draftSuggestion falls back to
+   * the first piece's name, so a merged list would open the terminal with "try: inspect The Cast
+   * for gaps" - advice about a thing that cannot be inspected, on a studio holding one real piece.
+   */
+  const t = await testRender(
+    <Composer
+      active={false}
+      provider={null}
+      busy={false}
+      commands={[]}
+      pieces={[{ id: "basil-1", kind: "character", name: "Basil" }]}
+      groups={[{ id: "the-cast", kind: "collection", name: "The Cast" }]}
+      onSubmit={() => true}
+    />,
+    { width: 72, height: 8 },
+  );
+  try {
+    await tick();
+    const frame = t.captureCharFrame();
+    expect(frame).toContain("try: what should I improve about Basil?");
+    expect(frame).not.toContain("The Cast");
+  } finally {
+    await t.renderer.destroy();
+  }
+});

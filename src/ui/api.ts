@@ -91,6 +91,14 @@ export const api: AppContext["api"] = {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ entity, targetId }),
     }),
+  collections: async () => apiFetchJson("/api/collections", { requireToken: false }),
+  /** Returns the whole file as the server stored it; see the contract for why, not an ack. */
+  collectionEdit: async (edit) =>
+    apiFetchJson("/api/collections", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(edit),
+    }),
   formats: async () => apiFetchJson("/api/formats", { requireToken: false }),
   version: async () => apiFetchJson("/api/version", { requireToken: false }),
   updateCheck: async () => apiFetchJson("/api/update-check", { requireToken: false }),

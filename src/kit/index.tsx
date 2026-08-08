@@ -11,6 +11,7 @@ import { basename } from "node:path";
 import { createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { createBridge } from "./bridge";
+import { COLLECTION_KIND } from "../studio/collections-shape";
 import { createSession } from "./session";
 import type { RailSnapshot } from "./tools/tool";
 import { discoverCommands } from "./commands/discover";
@@ -43,6 +44,16 @@ async function main(): Promise<void> {
   const decks = await bridge.deckCounts();
   const pieces = await bridge.list();
   const total = decks.reduce((sum, deck) => sum + deck.count, 0);
+  /**
+   * The person's own groupings, offered to `@` as rows of their own.
+   *
+   * KEPT OUT OF `pieces` DELIBERATELY. A collection is not a piece: counted there it would inflate
+   * the deck totals, and the empty-composer suggestion reads the first piece by name, so a group
+   * called The Cast would have the terminal opening with "try: inspect The Cast for gaps" about a
+   * thing that is not inspectable. It travels as its own list and is merged only where mentions are
+   * matched. See the same split in the desktop window's use-mentions.ts.
+   */
+  const groups = (await bridge.collections?.())?.collections ?? [];
   const studioName = basename(bridge.studioDir) || "Hoplight Studio";
   /**
    * A live handle to the rail, filled in by the shell once it mounts.
@@ -117,6 +128,7 @@ async function main(): Promise<void> {
         totalPieces={total}
         decks={decks}
         pieces={pieces}
+        groups={groups.map((c) => ({ kind: COLLECTION_KIND, id: c.id, name: c.name }))}
         session={session}
         commands={commands}
         runDoctor={diagnose}

@@ -12,6 +12,20 @@ export const mentionDraft = (text: string): string => {
   return draft.includes(":") ? "" : draft;
 };
 
+/**
+ * The rows `@` may offer: the person's collections, then their pieces.
+ *
+ * GROUPS ARE NOT PIECES and are only ever joined here. Counted among pieces they would inflate the
+ * deck totals, and the empty-composer suggestion reads the first piece by name - so a group called
+ * The Cast would have the terminal opening with "try: inspect The Cast for gaps" about something
+ * that cannot be inspected. Groups come first because there are a handful against a studio's worth
+ * of pieces, so a name that matches one is the more specific thing to have meant.
+ */
+export const mentionRows = (
+  pieces: readonly EntitySummary[],
+  groups: readonly EntitySummary[],
+): readonly EntitySummary[] => (groups.length === 0 ? pieces : [...groups, ...pieces]);
+
 export const matchingPieces = (
   pieces: readonly EntitySummary[],
   draft: string,

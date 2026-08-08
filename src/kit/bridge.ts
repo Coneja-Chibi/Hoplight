@@ -11,6 +11,8 @@ import {
   type EntitySummary,
 } from "../studio/store";
 import { openStudio } from "../foreign-reader";
+import { CollectionsStore } from "../studio/collections";
+import { EMPTY_COLLECTIONS, type CollectionsFile } from "../studio/collections-shape";
 import { resolveDefaultStudioDir } from "../studio/resolve-dir";
 import { STUDIO_ENTITY_KINDS, type StudioEntityKind } from "../studio/path-policy";
 import type { ParsedCanonicalEntity } from "../entities/runtime-schema";
@@ -41,6 +43,15 @@ export interface KitBridge {
    * count, because it reads as the folder being smaller.
    */
   unlisted?(kind?: string): Promise<{ reason: string; count: number; examples: string[] }[]>;
+  /**
+   * The person's own groupings of pieces, or none when they have made none.
+   *
+   * READ-ONLY ON PURPOSE. Collections are somebody's filing of their own studio, and an agent
+   * quietly reorganising that is a worse surprise than one editing a piece - a piece edit is staged
+   * and reviewed, while a regrouping would look like the app rearranged itself. The agent gets to
+   * SEE the groupings and follow them; making and breaking them stays a human action.
+   */
+  collections?(): Promise<CollectionsFile>;
   /** One canonical entity, or null if the kind/id is unknown or unreadable. */
   read(kind: string, id: string): Promise<KitEntity | null>;
   /** Save (create, or overwrite when opts.overwrite) a canonical entity; returns its summary. A real
@@ -70,6 +81,7 @@ export function createBridge(
 ): KitBridge {
   // The reader used to live in this file, which is exactly why the desktop window did not have one.
   const store = openStudio(studioDir);
+  const groupings = new CollectionsStore(studioDir);
   return {
     studioDir,
     async deckCounts(): Promise<DeckCount[]> {
@@ -108,6 +120,14 @@ export function createBridge(
         }));
       } catch {
         return [];
+      }
+    },
+    async collections(): Promise<CollectionsFile> {
+      try {
+        return await groupings.read();
+      } catch {
+        // A grouping file nobody can read is no groupings, never a broken session.
+        return EMPTY_COLLECTIONS;
       }
     },
     async read(kind: string, id: string): Promise<KitEntity | null> {

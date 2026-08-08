@@ -82,6 +82,12 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
     p === "/api/shutdown" ||
     p === "/api/restart" ||
     (p === "/api/settings" && method !== "GET" && method !== "HEAD")
+    /**
+     * Collections are the owner's filing of their own studio, and the same rule as settings applies:
+     * a guest reading a shared studio may SEE how it is grouped - the library is unusable otherwise -
+     * but rearranging somebody else's shelves from another device is not a guest's call.
+     */
+    || (p === "/api/collections" && method !== "GET" && method !== "HEAD")
   );
 }
 
