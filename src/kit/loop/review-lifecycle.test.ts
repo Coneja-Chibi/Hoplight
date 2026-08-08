@@ -8,7 +8,8 @@ test("a turn that settles two apply calls records BOTH tool results", async () =
   // A model can emit several change_apply calls in one reply. The loop used to return on the
   // first apply result, dropping the second call's result from history; the next request then
   // carried an assistant tool call with no matching tool result, which providers reject with
-  // "Tool result is missing for tool call ...".
+  // "Tool result is missing for tool call ...". The early return is gone now - a write closes a
+  // cycle rather than the turn - so the reply that ENDS this turn is scripted explicitly.
   const chat = scripted([
     {
       kind: "use",
@@ -18,6 +19,7 @@ test("a turn that settles two apply calls records BOTH tool results", async () =
         { id: "apply-b", name: "change_apply", args: { draftId: "draft-b" } },
       ],
     },
+    { kind: "say", text: "both applied" },
   ]);
   const { history } = await drain(runTurn("apply both", [], deps(chat, {
     effectFor: (call) => call.name === "change_apply" ? "apply" : "read",
@@ -303,4 +305,71 @@ test("a stale apply state cannot later become completed", async () => {
   const phases = events.filter((event) => event.type === "state").map((event) => event.phase);
   expect(phases).toContain("stale");
   expect(phases).not.toContain("completed");
+});
+
+test("A TURN KEEPS GOING AFTER A WRITE LANDS, so 'make me three' makes three", async () => {
+  /**
+   * The behaviour this whole change exists for. Asked for three versions, the model drafted three,
+   * the first apply landed, and the turn went home with two drafts stranded - because the loop
+   * returned at the first settled apply. Three separate draft-apply cycles must now fit in one turn.
+   */
+  const chat = scripted([
+    { kind: "use", text: "", calls: [{ id: "a1", name: "change_apply", args: { draftId: "v1" } }] },
+    { kind: "use", text: "", calls: [{ id: "a2", name: "change_apply", args: { draftId: "v2" } }] },
+    { kind: "use", text: "", calls: [{ id: "a3", name: "change_apply", args: { draftId: "v3" } }] },
+    { kind: "say", text: "three versions are in the studio" },
+  ]);
+  const { events, history } = await drain(runTurn("make me three versions", [], deps(chat, {
+    effectFor: () => "apply",
+    dispatch: async (call) => ({
+      summary: `${call.name} ok`,
+      output: `applied ${(call.args as { draftId?: string }).draftId}`,
+      outcome: "applied",
+    }),
+  })));
+
+  const applied = history.filter((m) => m.role === "tool").map((m) => m.content);
+  expect(applied).toEqual(["applied v1", "applied v2", "applied v3"]);
+  // It ended because the model stopped asking for tools, not because a write cut it short.
+  expect(events.at(-1)).toEqual({ type: "say", text: "three versions are in the studio" });
+});
+
+test("EACH WRITE IS STILL GATED ON ITS OWN", async () => {
+  /**
+   * The load-bearing half. Continuing after a write only stays safe because approval was never the
+   * turn boundary's job: the Gate holds the loop on every apply, so three writes ask three times.
+   * If a future change ever batches consent, this fails.
+   */
+  const asked: string[] = [];
+  const chat = scripted([
+    { kind: "use", text: "", calls: [{ id: "a1", name: "change_apply", args: { draftId: "v1" } }] },
+    { kind: "use", text: "", calls: [{ id: "a2", name: "change_apply", args: { draftId: "v2" } }] },
+    { kind: "say", text: "done" },
+  ]);
+  await drain(runTurn("two writes", [], deps(chat, {
+    effectFor: () => "apply",
+    // Stands in for the gate: a real one holds on requestConfirm, and this records that it was asked.
+    dispatch: async (call) => {
+      asked.push((call.args as { draftId?: string }).draftId ?? "?");
+      return { summary: "ok", output: "applied", outcome: "applied" as const };
+    },
+  })));
+  expect(asked).toEqual(["v1", "v2"]);
+});
+
+test("a stale write does not end the turn either", async () => {
+  /**
+   * Stale means the piece moved underneath and NOTHING was written. Ending there would leave the
+   * model unable to re-read and try again in the same breath, which is the one moment it obviously
+   * should.
+   */
+  const chat = scripted([
+    { kind: "use", text: "", calls: [{ id: "a1", name: "change_apply", args: { draftId: "v1" } }] },
+    { kind: "say", text: "that one was stale; re-reading" },
+  ]);
+  const { events } = await drain(runTurn("apply", [], deps(chat, {
+    effectFor: () => "apply",
+    dispatch: async () => ({ summary: "stale", output: "nothing written", outcome: "stale" as const }),
+  })));
+  expect(events.at(-1)).toEqual({ type: "say", text: "that one was stale; re-reading" });
 });

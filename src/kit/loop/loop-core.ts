@@ -370,26 +370,19 @@ export async function* runTurn(
         }
       }
       if (effectFor(call) === "apply" && result.outcome) {
-        // The turn ends at the first settled apply, but every call in this batch already executed,
-        // and provider history must pair each assistant tool call with a tool result: a later call
-        // left unrecorded makes the next request fail with "Tool result is missing for tool call ..."
-        // (seen in the wild: one reply carried two change_apply calls, only the first was recorded).
-        for (const later of settled.slice(index + 1)) {
-          messages.push({
-            role: "tool",
-            content: later.result.output,
-            toolCallId: later.call.id,
-            toolName: later.call.name,
-          });
-          recentObservationKeys.push(observationKey(later.call.name, later.call.args, later.result.output));
-          yield {
-            type: "tool",
-            name: later.call.name,
-            summary: later.result.summary,
-            ...(later.result.show ? { show: later.result.show } : {}),
-            ...(later.result.choices ? { choices: later.result.choices } : {}),
-          };
-        }
+        /**
+         * A WRITE CLOSES A CYCLE, IT DOES NOT END THE TURN.
+         *
+         * This used to `return` here, so "make me three versions" made one: the model drafted three,
+         * the first apply landed, and the turn went home with two drafts stranded. The rule read as a
+         * safety boundary and was not one. Approval is the Gate's job and the Gate already does it
+         * PER CALL, holding the loop on `requestConfirm` until a person answers - so continuing asks
+         * exactly as many times as stopping did. Nor was it protecting the studio: an apply whose
+         * piece moved underneath comes back `stale` and writes nothing (see changes/apply.ts).
+         *
+         * What did the work instead: the budgets. A turn is still bounded by rounds, tool calls and
+         * elapsed time, which is where "how much may happen before you get a say" belongs.
+         */
         const verifying = transitionLoop(lifecycle, { type: "verifying" });
         if (verifying.phase !== lifecycle.phase) {
           yield { type: "state", phase: verifying.phase };
@@ -404,8 +397,28 @@ export async function* runTurn(
               : "failed";
         const next = transitionLoop(lifecycle, { type: terminal });
         if (next.phase !== lifecycle.phase) yield { type: "state", phase: next.phase };
-        lifecycle = next;
-        return messages;
+        /**
+         * A FRESH LIFECYCLE FOR THE NEXT CYCLE, and this is why the reset is here rather than a
+         * looser state machine. Terminal phases are ABSORBING on purpose - once a cycle ends stale
+         * or failed, nothing may repaint it as completed. Carrying that state into the next draft
+         * would freeze the phase forever and leave the window showing "completed" while real work
+         * carried on. So the lifecycle describes ONE draft-to-apply cycle, and a turn may hold
+         * several; the absorbing rule keeps its full force inside each one.
+         */
+        lifecycle = initialLoopState();
+        /**
+         * The applied draft's review is spent - but ONLY that one. A turn may now hold several
+         * cycles, so a review still waiting on a different draft has to survive; dropping it would
+         * silently skip the confirmation for a change nobody has seen yet. When the call names no
+         * draft, the pending one is assumed to be the one that just landed, which is the safe way to
+         * be wrong: an extra confirmation costs a click, a skipped one costs a write.
+         */
+        const applied = typeof call.args === "object" && call.args !== null
+          ? (call.args as { draftId?: unknown }).draftId
+          : undefined;
+        if (pendingReview && (typeof applied !== "string" || pendingReview.draftId === applied)) {
+          pendingReview = null;
+        }
       }
     }
   }

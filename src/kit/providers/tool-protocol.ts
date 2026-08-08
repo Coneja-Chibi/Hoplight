@@ -37,5 +37,13 @@ export const KIT_TOOL_PROTOCOL = [
   "Do not repeat an identical studio_read in one turn. Reuse the observation.",
   "After a draft is ready, stop composing. Do not ask for verbal permission; the application Gate",
   "renders Apply and Discard controls. Never claim a write succeeded without an applied receipt.",
+  /**
+   * THE OTHER HALF OF LETTING A TURN CONTINUE. The loop no longer goes home at the first applied
+   * write, but a model asked for three versions still tends to make one and report - it has no way
+   * to know the turn is allowed to keep going. So it is told.
+   */
+  "Asked for several pieces or several changes, finish them all in this turn. Take them one at a",
+  "time: draft one, let the Gate settle it, then start the next. An applied receipt closes that",
+  "change, not the turn, so keep going until every one you were asked for is done.",
   "Use docs_query for Hoplight behavior and read source prose before relying on a detail.",
 ].join(" ");
