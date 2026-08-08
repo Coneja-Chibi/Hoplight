@@ -26,7 +26,7 @@ describe("parseTurn", () => {
     if (!got.ok) expect(got.why).toContain("user or assistant");
   });
 
-  test("a tool role is refused too, since this window has no tools", () => {
+  test("a tool role is refused: tool results come from the loop, never from a page", () => {
     const got = parseTurn({ messages: [{ role: "tool", content: "{}" }] });
     expect(got.ok).toBe(false);
   });
@@ -57,14 +57,17 @@ describe("parseTurn", () => {
 });
 
 describe("systemPrompt", () => {
-  test("it forbids claiming an edit it cannot make", () => {
+  test("IT TELLS THE MODEL IT CAN ACTUALLY WORK", () => {
     /**
-     * This window has no tools. A model that says "I have updated your preset" would be describing
-     * something that did not happen, to somebody who would believe it.
+     * THIS TEST USED TO ASSERT THE OPPOSITE, and that is how the stale prompt survived the tool
+     * belt landing: the sentence and the test agreed with each other and both were wrong. The
+     * window has twenty tools; a prompt telling the model otherwise makes it refuse work it can
+     * do, which is what it did - "I can not edit the preset from this window", to somebody looking
+     * at a preset it could edit.
      */
     const text = systemPrompt();
-    expect(text).toContain("NO tools at all");
-    expect(text).toContain("do not claim to have made an edit");
+    expect(text).toContain("full tool belt");
+    expect(text).not.toContain("NO tools at all");
   });
 
   test("the screen brief is folded in when there is one", () => {
@@ -97,16 +100,16 @@ describe("the brief is not a loophole", () => {
 });
 
 describe("systemPrompt against the tool protocol", () => {
-  test("IT OVERRIDES THE PROTOCOL KIT PREPENDS, rather than merely disagreeing with it", () => {
+  test("IT SAYS WHAT KIT PROTOCOL CANNOT: a write is staged and waits for a person", () => {
     /**
      * makeChat puts KIT_TOOL_PROTOCOL ahead of this text on every call, and that block tells the
-     * model to use tools for studio facts and changes. Stating "you have no tools" without naming
-     * the earlier instruction leaves a model reconciling two confident sets of orders, and the one
-     * that arrived first describes a tool belt.
+     * model to use tools for studio facts and changes - and that is now TRUE here, so this prompt
+     * agrees with it rather than fighting it. What it adds is the part Kit protocol cannot know:
+     * that a write is staged and waits for a person, so proposing one is not doing it.
      */
     const text = systemPrompt();
-    expect(text).toContain("overrides the tool protocol above");
-    expect(text).toContain("NO tools at all");
+    expect(text).toContain("STAGED");
+    expect(text).toContain("shown to the person before it lands");
   });
 
   test("THE SCREEN IS FENCED AND LABELLED AS DATA", () => {

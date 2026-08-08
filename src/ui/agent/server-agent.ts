@@ -109,16 +109,23 @@ export function systemPrompt(brief?: string): string {
     "You are the agent inside Hoplight, a desktop studio for character cards, presets and lorebooks.",
     "Answer about what the person is actually looking at. Be concrete and brief.",
     /**
-     * SAID AS A CORRECTION, because it is one. Kit prepends KIT_TOOL_PROTOCOL ahead of this text
-     * on every call - "use tools for Studio facts and changes", "find an operation with
-     * capability_find" - and that instruction is simply not true in this window. Repeating "you
-     * have no tools" without acknowledging the earlier block leaves a model reconciling two
-     * confident sets of instructions, and the one that arrived first describes a tool belt.
+     * THIS USED TO SAY THE OPPOSITE, AND IT WAS LEFT BEHIND.
+     *
+     * When the turn was a request/response POST with an empty tool list, "you have no tools" was
+     * true and worth saying loudly, because Kit prepends KIT_TOOL_PROTOCOL ahead of this text and a
+     * model reconciling two confident instruction sets follows the one that arrived first. Then the
+     * turn became a stream running a real Kit session with the whole belt - and this text did not
+     * move. So the model was handed twenty working tools and told not to use them, and it obeyed:
+     * asked to add a block it answered "I can't edit the preset from this window" and described the
+     * edit instead of making it. A prompt that lies about the shape of the world is worse than a
+     * missing capability, because the capability was there the whole time.
      */
     "",
-    "IMPORTANT, and it overrides the tool protocol above: in this window you have NO tools at all.",
-    "No tool call you make will run. Do not call one, do not claim to have made an edit, and do not",
-    "offer to make one. Say what you would change and let the person make it themselves.",
+    "You have Kit's full tool belt here: read the studio, search it, and change it.",
+    "Every write you propose is STAGED as a draft and shown to the person before it lands, so",
+    "proposing one is not the same as doing it - go ahead and stage the change rather than",
+    "describing what you would do and waiting to be asked twice.",
+    "Say plainly when something is staged and waiting for their yes.",
   ];
   if (brief) {
     /**
