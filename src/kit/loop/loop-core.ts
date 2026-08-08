@@ -246,8 +246,22 @@ export async function* runTurn(
 
     if (reply.kind === "say") {
       if (pendingReview) {
+        /**
+         * THE REVIEW CLOSES A CYCLE, NOT THE TURN - the same rule as a settled apply, and the other
+         * half of the same bug. A model that stages a draft and then speaks lands here, so "make me
+         * three versions" ran exactly one: the first draft was reviewed, applied, and the turn went
+         * home while the model still had two to make.
+         *
+         * The Gate is untouched by this. runDraftReview dispatches the apply, which means it meets
+         * the same confirmation it always did; continuing afterwards asks for the next one exactly
+         * as it asked for this one.
+         */
         yield* runDraftReview(pendingReview, messages, deps, lifecycle);
-        return messages;
+        pendingReview = null;
+        // A fresh lifecycle for the next cycle: terminal phases are absorbing, so carrying one
+        // forward would freeze the window on "completed" while the work carried on.
+        lifecycle = initialLoopState();
+        continue;
       }
       messages.push({ role: "assistant", content: reply.text });
       yield { type: "say", text: reply.text };

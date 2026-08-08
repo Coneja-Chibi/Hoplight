@@ -62,13 +62,13 @@ test("a reviewable draft turns final model prose into application-owned review",
   const calls: ModelToolCall[] = [];
   const chat: ChatFn = async () => {
     chatCalls += 1;
-    return chatCalls === 1
-      ? {
-          kind: "use",
-          text: "",
-          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
-        }
-      : { kind: "say", text: "Would you like me to apply this change?" };
+    if (chatCalls === 1) {
+      return { kind: "use", text: "", calls: [{ id: "rename", name: "character_identity_update", args: {} }] };
+    }
+    // The prose that triggers the review, then - because a review no longer ends the turn - whatever
+    // the model says once it has seen the receipt.
+    if (chatCalls === 2) return { kind: "say", text: "Would you like me to apply this change?" };
+    return { kind: "say", text: "Renamed her." };
   };
   const { events, history } = await drain(runTurn("rename her", [], deps(chat, {
     effectFor: (call) => call.name === "change_apply" ? "apply" : "draft",
@@ -95,7 +95,12 @@ test("a reviewable draft turns final model prose into application-owned review",
     },
   })));
 
-  expect(chatCalls).toBe(2);
+  /**
+   * THREE, BECAUSE THE REVIEW NO LONGER ENDS THE TURN. Draft, the prose that becomes the review,
+   * and then the model carrying on once it has the receipt - which is what makes "give me three
+   * versions" possible at all.
+   */
+  expect(chatCalls).toBe(3);
   expect(calls.map((call) => call.name)).toEqual([
     "character_identity_update",
     "change_apply",
@@ -119,8 +124,10 @@ test("a reviewable draft turns final model prose into application-owned review",
   // projection of these messages, and the outcome the person saw lived only in a live UI event. The
   // model was in the same position - handed the payload twice and never told what it meant.
   const spoken = history.filter((m) => m.role === "assistant" && !m.toolCalls?.length);
-  expect(spoken.at(-1)?.content).toContain("applied");
-  expect(events.at(-1)).toEqual({ type: "say", text: "apply draft-1: applied" });
+  expect(spoken.some((m) => m.content.includes("applied"))).toBe(true);
+  // The receipt is spoken, and then the model goes on. The last word is its own, not the shell's.
+  expect(events).toContainEqual({ type: "say", text: "apply draft-1: applied" });
+  expect(events.at(-1)).toEqual({ type: "say", text: "Renamed her." });
 });
 
 test("denying an automatic draft review discards it without a verbal follow-up", async () => {
@@ -128,13 +135,12 @@ test("denying an automatic draft review discards it without a verbal follow-up",
   const calls: string[] = [];
   const { events } = await drain(runTurn("rename her", [], deps(async () => {
     chatCalls += 1;
-    return chatCalls === 1
-      ? {
-          kind: "use",
-          text: "",
-          calls: [{ id: "rename", name: "character_identity_update", args: {} }],
-        }
-      : { kind: "say", text: "Would you like me to save or discard it?" };
+    if (chatCalls === 1) {
+      return { kind: "use", text: "", calls: [{ id: "rename", name: "character_identity_update", args: {} }] };
+    }
+    if (chatCalls === 2) return { kind: "say", text: "Would you like me to save or discard it?" };
+    // A denial ends the cycle, not the turn: the model is told and answers for itself.
+    return { kind: "say", text: "Left it as it was." };
   }, {
     effectFor: (call) => call.name === "change_apply"
       ? "apply"
@@ -171,7 +177,8 @@ test("denying an automatic draft review discards it without a verbal follow-up",
     },
   })));
 
-  expect(chatCalls).toBe(2);
+  // Three again: the denial closes the cycle and the model answers for itself afterwards.
+  expect(chatCalls).toBe(3);
   expect(calls).toEqual([
     "character_identity_update",
     "change_apply",
@@ -372,4 +379,39 @@ test("a stale write does not end the turn either", async () => {
     dispatch: async () => ({ summary: "stale", output: "nothing written", outcome: "stale" as const }),
   })));
   expect(events.at(-1)).toEqual({ type: "say", text: "that one was stale; re-reading" });
+});
+
+test("A REVIEWED DRAFT DOES NOT END THE TURN EITHER, so three changes fit in one", async () => {
+  /**
+   * The other half of the same complaint. The apply path stopped returning early first; this one -
+   * a model that stages a draft and then SPEAKS, which is the ordinary shape - kept returning, so
+   * "make me three versions" still made exactly one.
+   */
+  let call = 0;
+  const applied: string[] = [];
+  const { events } = await drain(runTurn("three versions", [], deps(async () => {
+    call += 1;
+    // Two draft-and-speak cycles, then the model stops asking for anything.
+    if (call === 1 || call === 3) {
+      return { kind: "use", text: "", calls: [{ id: `d${String(call)}`, name: "preset_create", args: {} }] };
+    }
+    if (call === 5) return { kind: "say", text: "all three are in the studio" };
+    return { kind: "say", text: "shall I save it?" };
+  }, {
+    effectFor: (c) => (c.name === "change_apply" ? "apply" : "draft"),
+    dispatch: async (c) => {
+      if (c.name === "change_apply") {
+        applied.push(String((c.args as { draftId?: string }).draftId));
+        return { summary: "applied", output: '{"status":"applied"}', outcome: "applied" as const };
+      }
+      return {
+        summary: "draft", output: '{"draftId":"draft-x"}', outcome: "draft" as const,
+        review: { draftId: "draft-x", target: { kind: "preset", id: "p" }, changes: [], warningCount: 0 },
+      };
+    },
+  })));
+
+  // Two separate writes landed in ONE turn, each through its own gated apply.
+  expect(applied).toHaveLength(2);
+  expect(events.at(-1)).toEqual({ type: "say", text: "all three are in the studio" });
 });

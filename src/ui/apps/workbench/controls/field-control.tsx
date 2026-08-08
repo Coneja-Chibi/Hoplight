@@ -114,7 +114,13 @@ export function makeControlFor(ctx: FieldCtx): FieldControlApi {
           <ExpandTextarea
             label={proseLabel(id)}
             className={`${styles.in} ${styles.ta}${PROSE_MONO.has(id) ? ` ${styles.mono}` : ""}`}
-            spellCheck={false}
+            /**
+             * SPELLCHECKED, because this is PROSE - somebody's character description, written by
+             * hand and read by a stranger. It was off, which is right for an id or a regex and
+             * wrong here. The honest way to add a spellchecker is to stop switching off the one
+             * every browser already ships, dictionary and right-click corrections included.
+             */
+            spellCheck
             value={value}
             onChange={(e) => setField(path, e.target.value)}
           />
@@ -148,7 +154,8 @@ export function makeControlFor(ctx: FieldCtx): FieldControlApi {
               <ExpandTextarea
                 label={g.title?.trim() || `Greeting ${i + 1}`}
                 className={`${styles.in} ${styles.ta} ${styles.mono}`}
-                spellCheck={false}
+                // A greeting is prose somebody wrote and somebody else will read.
+                spellCheck
                 value={g.text}
                 onChange={(e) => setRows(rows.map((x, j) => (j === i ? { ...x, text: e.target.value } : x)))}
               />

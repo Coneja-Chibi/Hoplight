@@ -60,6 +60,13 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
   }>({ connected: false });
   const changes = useStudioChanges();
   const endRef = useRef<HTMLDivElement>(null);
+  /**
+   * READY TO TYPE THE MOMENT IT OPENS. Ctrl+/ brings this window up because somebody has something
+   * to say; landing them in a window they then have to click into is one gesture too many, and it
+   * is the gesture nobody thinks to make because the composer looks focused already.
+   */
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => { composerRef.current?.focus(); }, []);
   /** Local outcomes - "copied" - said once, above the composer, never as a line in the log. */
   const { notice, say } = useNotice();
 
@@ -334,8 +341,15 @@ export function AgentRoom({ ctx, onClose }: { ctx: AppContext; onClose?: () => v
         <form className="agent-room__composer" onSubmit={(e) => { e.preventDefault(); submit(); }}>
           <Searchlight on={chat.busy} />
           <textarea
+            ref={composerRef}
             value={draft}
             rows={2}
+            /**
+             * SPELLCHECKED. This is a sentence somebody is writing to another party; the browser
+             * already has the dictionary, and switching it off here would be switching off the only
+             * spellchecker in the app.
+             */
+            spellCheck
             placeholder={model.connected ? "Ask about this screen, or type / for a command" : "Type / for a command, or connect a model in Settings"}
             /**
              * NOT DISABLED WITHOUT A MODEL ANY MORE. Every slash command works without a provider -
