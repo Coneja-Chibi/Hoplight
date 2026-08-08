@@ -30,6 +30,7 @@ import { SettingsBar } from "./settings-bar";
 import { PromptEditPanel } from "./prompt-edit-panel";
 import { LiveBuild } from "./live-build";
 import { SplitPane } from "../../../components/split-pane";
+import { useReseedOnReread } from "../use-reseed";
 import {
   addBlock,
   addGroup,
@@ -94,6 +95,18 @@ export function PresetEditorView({ entity, revision, ctx, piece, topRight }: Pre
   const [rail, setRail] = useState<RailTab>("edit");
 
   const dirty = presetDirty(body, baseline);
+  /**
+   * A re-read reached this editor: take it, unless there are unsaved edits to lose.
+   *
+   * Without this the reload was invisible - the state initializers above run once, so a fresh
+   * entity arrived and the bench went on showing what it mounted with.
+   */
+  useReseedOnReread(revision, dirty, () => {
+    const fresh = bodyFromEntity(entity);
+    setBaseline(structuredClone(fresh));
+    setBody(structuredClone(fresh));
+    revisionRef.current = revision;
+  });
   const weight = useMemo(() => presetWeight(body), [body]);
   const stops = useMemo(() => placementsForProfile(writeFor), [writeFor]);
   const selectedBlock = body.prompts.find((p) => p.id === selectedId) ?? null;

@@ -217,18 +217,36 @@ export function useAgentChat(post: PostTurn, postGate: PostGate, slash?: SlashSe
            * ordinary tool row rather than a broken panel.
            */
           const asked = readChoices(choices);
-          // Replaces the "running" line rather than stacking a second one beside it.
+          /**
+           * REPLACE THE ROW THAT WAS WAITING, WHEREVER IT IS.
+           *
+           * This used to check only the LAST line, which is right for one call at a time and wrong
+           * for every reply that declares several. The loop starts them together, so the transcript
+           * held three "studio_read..." rows and each completion appended BESIDE them - a column of
+           * calls that never resolved, next to results with nothing to attach them to.
+           *
+           * Searched backwards for the newest unfinished row with this name: two calls to the same
+           * tool in one reply finish in an order nobody controls, and the newest is the one a person
+           * is watching.
+           */
           setLines((prior) => {
-            const last = prior[prior.length - 1];
             const line: ChatLine = {
               role: "tool",
               text: `${name}: ${summary}`,
               tool: name,
               ...(asked ? { choices: asked } : {}),
             };
-            return last?.role === "tool" && last.text === `${name}...`
-              ? [...prior.slice(0, -1), line]
-              : [...prior, line];
+            const waiting = `${name}...`;
+            for (let at = prior.length - 1; at >= 0; at--) {
+              const row = prior[at];
+              if (row?.role === "tool" && row.text === waiting) {
+                const next = [...prior];
+                next[at] = line;
+                return next;
+              }
+            }
+            // No row was waiting - a result with no start frame. Shown rather than dropped.
+            return [...prior, line];
           });
         },
         onGate: (request) => { setGate(request as GateView); },
