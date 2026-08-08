@@ -11,6 +11,7 @@ import type {
   ContentKind,
 } from "../../entities/capabilities";
 import type { KitBridge } from "../bridge";
+import type { GraveyardFile } from "../../studio/graveyard-shape";
 import type { ChangeSession } from "../changes/session";
 import type { HoplightDocs } from "../docs/repository";
 import type { ResultStore } from "../results/store";
@@ -54,6 +55,19 @@ export interface ToolContext {
    * the terminal's word, which is what every existing transcript already says.
    */
   surface?: string;
+  /**
+   * The block graveyard: blocks taken out of a preset and kept rather than deleted.
+   *
+   * Its own seam rather than a bridge call, because it is not the studio's decks - a grave is a
+   * drawer, not a shelf, and nothing should be able to reach it by listing pieces. Absent in a
+   * session that has none, and the tools say so rather than pretending they buried something.
+   */
+  graveyard?: {
+    read(): Promise<GraveyardFile>;
+    edit(change: (current: GraveyardFile) => GraveyardFile): Promise<GraveyardFile>;
+  };
+  /** Injectable clock, so a burial's timestamp is not a thing tests have to work around. */
+  now?: () => number;
 }
 
 /** The rail as a tool may read it: what is open, how big it is, and what is unsaved. */

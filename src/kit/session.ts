@@ -46,6 +46,7 @@ import { createHoplightDocs } from "./docs/repository";
 import { createResultStore } from "./results/store";
 import { createGrantBook, type GrantBook } from "./tools/_shared/grant-book";
 import { StudioExports } from "../studio/exports";
+import { GraveyardStore } from "../studio/graveyard";
 
 /** What the render sees as a turn unfolds, plus a clean error path (no provider, egress blocked, API
  * failure). begin fires once when the provider resolves (who is about to answer); delta streams live
@@ -235,6 +236,8 @@ export async function createSession(
     // Same reason as grants: read when asked, never captured. The rail changes mid-turn, and a
     // snapshot taken at session start is exactly the stale answer this exists to stop.
     rail: () => railOf?.() ?? null,
+    // The block graveyard, bound to this studio. Its own seam: a grave is a drawer, not a shelf.
+    graveyard: new GraveyardStore(bridge.studioDir),
     ...(surface === undefined ? {} : { surface }),
   });
   const lifecycleSpecs = toolSpecs(lifecycleTools);

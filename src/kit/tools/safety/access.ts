@@ -14,6 +14,9 @@ const TRUST = new Map<string, ToolAccess>([
   ["studio_search", "read"],
   // Reads collections.json and nothing else; the seam it goes through has no write side at all.
   ["studio_collections", "read"],
+  // Reads graveyard.json. Burying is a separate tool so a harmless look never asks permission.
+  ["studio_graveyard", "read"],
+  ["studio_graveyard_bury", "draft"],
   ["docs_query", "read"],
   ["result_query", "read"],
   ["capability_find", "read"],
