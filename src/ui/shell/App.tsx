@@ -15,6 +15,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { JSX } from "react";
 import { api } from "../api";
+import { liveSurface } from "../agent/live-state";
 import type { AppContext, AppManifestEntry, StudioEntitySummary, HoplightApp } from "../app-contract";
 import { parseSettings, type StudioSettings } from "../../studio/settings-shape";
 import { SetupWizard } from "../setup/wizard";
@@ -32,6 +33,8 @@ import type { Tour } from "../tours/tour-contract";
 import { hasSeenTour, isRunnable, seenTourKeys, tourIdCandidates, tourSeenKey } from "../tours/tour-core";
 import { menus, useShellStore, workbenchRecents } from "./store";
 import { paneKeyOf } from "./store-core";
+import { useAppKeys } from "./use-app-keys";
+import { FloatingAgent } from "../agent/floating-agent";
 import {
   genericBootProblem,
   settingsBootProblem,
@@ -46,6 +49,14 @@ export function App(): JSX.Element | null {
   const [phase, setPhase] = useState<Phase>("loading");
   const [bootError, setBootError] = useState<BootProblem | null>(null);
   const modulesRef = useRef(new Map<string, HoplightApp>());
+  /**
+   * Which app's Component is actually on the canvas right now.
+   *
+   * Not the same as `activeAppId`, which the dock sets immediately while the old app is still
+   * mounted. `ctx.agent.publish` stamps with this so a publish arriving during the swap is
+   * attributed to whoever actually made it.
+   */
+  const mountedAppId = useRef("");
   const [ActiveComponent, setActiveComponent] = useState<HoplightApp["Component"] | null>(null);
   const activeAppId = useShellStore((s) => s.activeAppId);
   // the active app's tour (folders-as-schema, loaded like an app module); null = this app has none
@@ -56,6 +67,23 @@ export function App(): JSX.Element | null {
   const tourIdRef = useRef<string | null>(null);
   const [tour, setTour] = useState<Tour | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+  // ctrl+1..9 / ctrl+comma / ctrl+alt+arrows -> mountApp. One listener, mounted here for the shell's
+  // whole life; the chords themselves live in app-keys.ts and the dock prints them off the same table.
+  useAppKeys();
+  /**
+   * The agent, floating over whatever app is mounted. It lives here rather than inside an app
+   * because the shell owns the one canvas slot: an agent mounted INTO that slot would unmount the
+   * screen it exists to describe, which is the whole reason this panel is not a page.
+   */
+  const [agentOpen, setAgentOpen] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent): void => {
+      // ctrl/cmd + slash: near the other shell chords and not claimed by a text box.
+      if ((e.ctrlKey || e.metaKey) && e.key === "/") { e.preventDefault(); setAgentOpen((v) => !v); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); };
+  }, []);
 
   // -- boot: settings first (gates the wizard), then the app roster + landing app -------------------
   async function bootStudio(freshFromSetup: boolean): Promise<void> {
@@ -133,11 +161,13 @@ export function App(): JSX.Element | null {
   // -- load the active app's module fresh, cache it (module identity is not store state) ------------
   useEffect(() => {
     if (!activeAppId) {
+      mountedAppId.current = "";
       setActiveComponent(null);
       return;
     }
     const cached = modulesRef.current.get(activeAppId);
     if (cached) {
+      mountedAppId.current = activeAppId;
       setActiveComponent(() => cached.Component);
       return;
     }
@@ -152,7 +182,10 @@ export function App(): JSX.Element | null {
       try {
         const mod = (await import(`/apps/${activeAppId}.js`)) as { default: HoplightApp };
         modulesRef.current.set(activeAppId, mod.default);
-        if (!cancelled) setActiveComponent(() => mod.default.Component);
+        if (!cancelled) {
+          mountedAppId.current = activeAppId;
+          setActiveComponent(() => mod.default.Component);
+        }
       } catch {
         if (!cancelled) {
           useShellStore.getState().setStatus(`could not load ${activeAppId} · reload and try again`);
@@ -353,6 +386,26 @@ export function App(): JSX.Element | null {
             if (state.pressQueue !== prev.pressQueue) cb();
           }),
       },
+      /**
+       * The live half of agentSurface. Deliberately NOT in the shell store: this snapshot changes as
+       * fast as a selection does, and every store write rebuilds ctx and repaints the whole app (see
+       * the note on storeState above). An app publishing its state on each render would drive an
+       * infinite repaint. It lives in a module of its own that only the agent window reads.
+       */
+      agent: {
+        /**
+         * The id is read from the store rather than taken from the caller - apps never learn which
+         * app is active, and one that could name itself could name a different screen.
+         *
+         * IT NAMES THE APP THAT IS MOUNTED, NOT THE ONE THE DOCK HAS SELECTED. `activeAppId` flips
+         * the instant the dock is clicked, but the outgoing app stays mounted for a commit or two
+         * and can publish once more on the way out. Reading `activeAppId` stamped that last publish
+         * with the INCOMING app's id: opening the agent window made the Library publish itself as
+         * "agent", and the window then described ITSELF using the Library's contents. Precisely the
+         * confusion the stamp exists to prevent.
+         */
+        publish: (state) => liveSurface.publish(mountedAppId.current, state),
+      },
     }),
     // storeState is an identity TRIGGER, not a consumed value: its whole job is invalidating ctx on
     // any store change (the anti-staleness rule above); eslint correctly notes it is unused inside
@@ -407,6 +460,7 @@ export function App(): JSX.Element | null {
         </button>
       )}
       {tour && tourOpen && <TourGuide tour={tour} ctx={ctx} onClose={() => setTourOpen(false)} />}
+      <FloatingAgent ctx={ctx} open={agentOpen} onClose={() => { setAgentOpen(false); }} />
     </div>
   );
 }

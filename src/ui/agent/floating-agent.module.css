@@ -1,0 +1,151 @@
+/*
+ * The floating agent panel. Tokens only.
+ *
+ * Orison's structure in Hoplight's ink: a heavy border, a hard offset shadow, a header band that is
+ * also the grab handle. The z-index sits above the canvas and below the shell's own dialogs, which
+ * matters because a Gate answer inside this panel must never be covered by something it opened.
+ */
+
+.panel {
+  position: fixed;
+  z-index: 140;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 1px solid var(--kit-line);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55); /* hardcode-ok: a lift shadow, not a palette colour */
+  background: var(--kit-well);
+  overflow: hidden;
+}
+
+/* Held: the shadow tightens so the panel reads as lifted and moving rather than stuck. */
+.panelDrag {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6); /* hardcode-ok: the same lift, tightened while held */
+  /* A drag must not select the text it crosses; that is what makes a slow drag look broken. */
+  user-select: none;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: var(--kit-panel);
+  border-bottom: 1px solid var(--kit-seam);
+  cursor: grab;
+  /* The pointer must not be stolen by the browser's own scroll gesture mid-drag. */
+  touch-action: none;
+  flex: none;
+}
+
+.panelDrag .bar {
+  cursor: grabbing;
+}
+
+/* The visual affordance that this bar is draggable, rather than making people discover it. */
+.grip {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex: none;
+  background:
+    linear-gradient(var(--kit-quiet) 2px, transparent 2px) 0 0 / 100% 4px repeat;
+  opacity: 0.7;
+}
+
+.title {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  color: var(--kit-quiet);
+  flex: 1;
+}
+
+.close {
+  border: 1px solid var(--kit-line);
+  background: var(--kit-floor);
+  color: var(--kit-text);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 0.15rem 0.4rem;
+  cursor: pointer;
+  flex: none;
+}
+
+.close:hover {
+  background: var(--kit-rose);
+  color: var(--kit-white);
+}
+
+/*
+ * ONE SCROLLER, AND IT IS THE TRANSCRIPT. This used to scroll too, so the panel had two nested
+ * scroll containers: the composer scrolled away with the conversation instead of staying put, and
+ * a fast wheel handed its momentum to whichever one happened to be under the pointer.
+ */
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    transition: box-shadow 120ms ease;
+  }
+}
+
+/*
+ * The resize handles.
+ *
+ * WIDER THAN THEY LOOK, and they look like nothing at all. A visible grip on all eight edges would
+ * be a cage of furniture around a panel that is mostly conversation; an invisible band with a real
+ * cursor is the convention every window manager already taught people. Six pixels is the smallest
+ * band most people hit reliably, and the corners get more because a corner is aimed at, not swept.
+ *
+ * The cursor is the affordance. Nothing else needs to be.
+ */
+.handle {
+  position: absolute;
+  /* Above the body so a handle over a scrolling transcript still takes the pointer. */
+  z-index: 1;
+  /* Never steal a gesture the browser would rather scroll with. */
+  touch-action: none;
+}
+
+.hn, .hs { left: 8px; right: 8px; height: 6px; cursor: ns-resize; }
+.hn { top: 0; }
+.hs { bottom: 0; }
+
+.he, .hw { top: 8px; bottom: 8px; width: 6px; cursor: ew-resize; }
+.he { right: 0; }
+.hw { left: 0; }
+
+/* Corners sit on top of the edges and are bigger, because a corner is a target rather than a band. */
+.hne, .hnw, .hse, .hsw { width: 12px; height: 12px; z-index: 2; }
+.hne { top: 0; right: 0; cursor: nesw-resize; }
+.hnw { top: 0; left: 0; cursor: nwse-resize; }
+.hse { bottom: 0; right: 0; cursor: nwse-resize; }
+.hsw { bottom: 0; left: 0; cursor: nesw-resize; }
+
+/*
+ * The one visible mark: a small corner rule at the south-east, where people look for a grip. It is
+ * a border rather than a glyph so it cannot be selected, copied, or read aloud as content.
+ */
+.hse::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 6px;
+  height: 6px;
+  border-right: 1px solid var(--kit-line);
+  border-bottom: 1px solid var(--kit-line);
+}
+
+.panel:hover .hse::after {
+  border-color: var(--kit-rose-deep);
+}
