@@ -22,7 +22,16 @@ export type StudioDamageReason =
   | "unreadable-json"
   | "schema-mismatch"
   | "kind-mismatch"
-  | "id-mismatch";
+  | "id-mismatch"
+  /**
+   * The filename cannot be a studio id, so the file cannot be addressed at all.
+   *
+   * Its own reason because it is not damage in the same sense: the JSON may be perfect. A file
+   * called `Aegir Main.json` is simply not reachable through an API whose ids forbid spaces. It
+   * still has to be REPORTED, which is the whole point of the entry - the inventory used to skip
+   * these silently, so a folder of 147 files listed 3 and said nothing about the other 144.
+   */
+  | "unusable-filename";
 
 export class StudioReadError extends Error {
   readonly code = "studio_read" as const;

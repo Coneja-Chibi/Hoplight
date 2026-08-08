@@ -269,3 +269,45 @@ describe("StudioStore containment", () => {
     expect(await store.read("character", "single-2")).toBeNull();
   });
 });
+
+describe("files the studio cannot list are reported, not skipped", () => {
+  /**
+   * A real studio held 147 preset files and Kit listed three. 122 had names an id cannot carry - a
+   * space, an apostrophe, an emoji - and every one was `continue`d with no record at all, so the
+   * count read as "this folder has three presets" rather than "three of one hundred and forty-seven".
+   * The id guard is right and stays; being unable to ADDRESS a file is simply not the same fact as
+   * the file not being there.
+   */
+  test("a filename that cannot be an id is reported as unusable-filename", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "kit-unlisted-"));
+    await mkdir(join(dir, "preset"), { recursive: true });
+    const good = { schemaVersion: "1", kind: "preset", id: "clean-one", body: { name: "Clean", prompts: [] } };
+    await writeFile(join(dir, "preset", "clean-one.json"), JSON.stringify(good));
+    await writeFile(join(dir, "preset", "Aegir Main.json"), JSON.stringify(good));
+    await writeFile(join(dir, "preset", "Chi's Universe!.json"), JSON.stringify(good));
+
+    const store = new StudioStore(dir);
+    const inventory = await store.inventory("preset");
+
+    expect(inventory.entities.map((e) => e.id)).toEqual(["clean-one"]);
+    expect(inventory.damaged.length).toBe(2);
+    for (const entry of inventory.damaged) expect(entry.reason).toBe("unusable-filename");
+    // The name rides for display, so a person can tell WHICH of their files is meant.
+    expect(inventory.damaged.map((d) => d.id).sort()).toEqual(["Aegir Main", "Chi's Universe!"]);
+  });
+
+  test("a raw platform export is reported as schema-mismatch rather than vanishing", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "kit-unlisted-raw-"));
+    await mkdir(join(dir, "preset"), { recursive: true });
+    // What a SillyTavern preset export actually looks like: no canonical envelope at all.
+    await writeFile(
+      join(dir, "preset", "raw-export.json"),
+      JSON.stringify({ chat_completion_source: "custom", temperature: 1, openai_model: "gpt-4" }),
+    );
+
+    const inventory = await new StudioStore(dir).inventory("preset");
+    expect(inventory.entities.length).toBe(0);
+    expect(inventory.damaged.length).toBe(1);
+    expect(inventory.damaged[0]?.id).toBe("raw-export");
+  });
+});

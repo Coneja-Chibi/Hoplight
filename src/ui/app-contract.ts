@@ -11,6 +11,8 @@ import type { ReactNode } from "react";
 import type { ContextMenus } from "./shell/store";
 import type { ParseReport, SerializeReport } from "../core/reports";
 import type { AuxHelperStatus, LanStatus, RemoteDevice, RemoteState } from "./remote/sidecar-status";
+import type { StudioDamageReason } from "../studio/errors";
+import type { AgentState, AgentSurfaceSpec } from "./agent/surface";
 
 /** What the dock needs to draw a tile before the app's code is even loaded. */
 export interface AppManifestEntry {
@@ -38,9 +40,18 @@ export interface AppManifestEntry {
   firstRunLanding?: boolean;
   /** this app is where open pieces are edited: the shell's tab strip focuses into it */
   editsPieces?: boolean;
-  /** placeholder for the agent-surface plan (state selector + offered actions land later);
-   * typed now so manifests can start carrying a plain-words description of the surface. */
-  agentSurface?: { describe: string };
+  /**
+   * What the agent standing on this screen is told about it.
+   *
+   * THE STATIC HALF ONLY. A manifest is discovered by reading folders and handed to the client as
+   * data, so it can carry what this app IS and what is WORTH DOING here - never what is on screen
+   * right now. The running app publishes that through `ctx.agent.publish`; see src/ui/agent/surface.ts,
+   * which puts the two together.
+   *
+   * Naming actions here does not grant the agent anything: it reaches the whole studio through Kit's
+   * tools and every write meets the Gate regardless of which screen asked. This is a menu, not a lock.
+   */
+  agentSurface?: AgentSurfaceSpec;
 }
 
 /** Everything an app may touch. Apps NEVER import the engine or reach the filesystem directly:
@@ -183,6 +194,25 @@ export interface AppContext {
     clear(): void;
     onChange(cb: () => void): () => void;
   };
+  /**
+   * Tell the agent window what is on this screen right now.
+   *
+   * THE LIVE HALF of agentSurface. The manifest says what this app is for; only the mounted app
+   * knows which pieces are listed, which one is focused, and which of them has unsaved work.
+   *
+   * OPTIONAL BY DESIGN. An app that never calls this still gets a surface built from its manifest,
+   * because a seam that produced nothing for the apps that skipped it would be skipped by all of
+   * them. Publishing makes the agent better on that screen; not publishing costs the app nothing.
+   *
+   * THERE IS NO UN-PUBLISHING, and that is deliberate rather than an omission. The shell swaps apps
+   * through one slot, so opening the agent window unmounts the screen it exists to describe. A
+   * publish withdrawn on unmount left the window reading nothing on the one navigation the whole
+   * design serves. A snapshot stands until another screen replaces it.
+   */
+  agent: {
+    /** Describe this screen. Replaces whatever the last screen said. */
+    publish(state: AgentState): void;
+  };
 }
 
 /** The module an app folder default-exports. Component renders the app's whole surface; the shell
@@ -218,7 +248,15 @@ export interface StudioEntitySummary {
 export interface StudioDamagedEntry {
   kind: string;
   id: string;
-  reason: "unreadable-json" | "schema-mismatch" | "kind-mismatch" | "id-mismatch";
+  /**
+   * THE STUDIO'S OWN UNION, imported rather than copied.
+   *
+   * This was a hand-written list of four while the studio had five. Nothing failed to compile,
+   * because a type that lies about what can arrive cannot be checked against what does: the server
+   * sent `unusable-filename`, the notice's switch fell out of the bottom, and 145 files were listed
+   * on screen as `undefined`. Importing it makes the next reason a compile error instead.
+   */
+  reason: StudioDamageReason;
 }
 
 export interface EditableEntity {

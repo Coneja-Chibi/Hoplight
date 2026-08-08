@@ -5,12 +5,16 @@ import { parseCanonicalEntity, type ParsedCanonicalEntity } from "../entities/ru
 import { entityRevision } from "../entities/canonical-revision";
 import { StudioConflictError, StudioWriteError } from "./atomic-file";
 import { nodeStudioFs, type StudioFs } from "./fs-backend";
+import { looksCanonical, parseStoredEntity } from "./stored-entity";
+import { authoredSignature, entityName, HEX6, sourceOf } from "./summary";
 import {
   StudioNotFoundError,
   StudioReadError,
   StudioValidationError,
   type StudioDamageReason,
 } from "./errors";
+import type { ForeignReader } from "./foreign";
+import { createForeignIndex, type ForeignIndex } from "./foreign-index";
 import {
   assertSafeStudioId,
   assertStudioEntityKind,
@@ -18,7 +22,9 @@ import {
   STUDIO_ENTITY_KINDS,
   type StudioEntityKind,
 } from "./path-policy";
+import { join } from "node:path";
 import { hasPortrait, portraitBytes } from "./portrait";
+export { entityName } from "./summary";
 import { signatureFromPng } from "./signature-color";
 
 type AnyEntity = ParsedCanonicalEntity;
@@ -35,6 +41,11 @@ export interface EntitySummary {
   accent?: string;
   sourceFormat?: string;
   sourceVariant?: string;
+  /**
+   * True when this piece is a file in another platform format, read through its adapter rather than
+   * stored canonically. Read-only: its source file is never written to.
+   */
+  foreign?: boolean;
 }
 
 export interface DamagedEntry {
@@ -56,109 +67,77 @@ export type CompareCreateResult =
   | { status: "saved"; summary: EntitySummary }
   | { status: "exists" };
 
-const HEX6 = /^#[0-9a-f]{6}$/i;
 
-function authoredSignature(entity: AnyEntity): string | undefined {
-  const pres = (entity as {
-    body?: { presentation?: { signatureColor?: unknown; gradientColors?: unknown } };
-  }).body?.presentation;
-  const solid = typeof pres?.signatureColor === "string" ? pres.signatureColor : undefined;
-  const stops = pres?.gradientColors;
-  const first = Array.isArray(stops) && typeof stops[0] === "string" ? stops[0] : undefined;
-  const hex = solid || first;
-  return hex && HEX6.test(hex) ? hex : undefined;
-}
 
-function sourceOf(entity: AnyEntity): { format?: string; variant?: string } {
-  for (const [formatId, entry] of Object.entries(entity.original ?? {})) {
-    if (formatId === "vaud-studio") continue;
-    const variant = entry?.unmapped?.["variant"];
-    return { format: formatId, variant: typeof variant === "string" ? variant : undefined };
-  }
-  return {};
-}
 
-/** The display name for a piece: identity.name, then body.name, then its id. One rule, so a piece is
- *  called the same thing on the shelf and everywhere that names one before it is stored. */
-export function entityName(entity: AnyEntity): string {
-  const body = isRecord(entity.body) ? entity.body : undefined;
-  if (!body) return entity.id;
-  const identity = body.identity as { name?: string } | undefined;
-  if (typeof identity?.name === "string" && identity.name) return identity.name;
-  if (typeof body.name === "string" && body.name) return body.name;
-  return entity.id;
-}
 
 /**
- * Bring a stored entity up to the current shape before it is decoded.
+ * The files in a kind folder worth looking at.
  *
- * TOLERATE ON READ, STAY STRICT ON WRITE. This runs only here, at the read-from-disk boundary, and
- * deliberately NOT inside parseCanonicalEntity: that function is also called on the WRITE path by
- * the converters and the capability preview, where a codec emitting the wrong shape is a bug in
- * Hoplight and must still fail. Loosening it there would hide our own defects to be kind to a file.
- *
- * Every rule here answers real data found on disk. A file that only ever loaded on an older build
- * is still the user's work, and refusing it outright is what turned four perfectly readable regex
- * sets into "corrupt entity file" with nothing else to go on.
+ * A DOTFILE IS AN ARTIFACT, not somebody's file: atomic replacement leaves .tmp orphans behind, and
+ * reporting one as a badly named piece is noise standing exactly where the useful report goes.
+ * Sorted, because the id a foreign file gets depends on the order they are walked in.
  */
-function migrateStoredEntity(raw: Record<string, unknown>): Record<string, unknown> {
-  const { escrow: legacy, ...rest } = raw;
-  const out: Record<string, unknown> =
-    legacy !== undefined && raw["original"] === undefined ? { ...rest, original: legacy } : rest;
-
-  // schemaVersion has been the STRING "1" since the first commit, but files exist carrying the
-  // number 1. Nothing about the entity differs; only the JSON type of one field does.
-  if (typeof out["schemaVersion"] === "number") out["schemaVersion"] = String(out["schemaVersion"]);
-  return out;
-}
-
-/** Name the field that actually failed. "corrupt entity file" alone leaves a user nothing to act on. */
-function describeSchemaMismatch(error: unknown): string {
-  const issues = (error as { issues?: { path?: unknown[]; message?: string }[] }).issues;
-  const first = issues?.[0];
-  if (!first) return "corrupt entity file";
-  const where = Array.isArray(first.path) && first.path.length > 0 ? first.path.join(".") : "the entity";
-  const more = issues.length > 1 ? ` (and ${issues.length - 1} more)` : "";
-  return `corrupt entity file: ${where} ${first.message ?? "did not match the expected shape"}${more}`;
-}
-
-function parseStoredEntity(
-  text: string,
-  kind: string,
-  id: string,
-): AnyEntity {
-  let raw: unknown;
-  try {
-    raw = JSON.parse(text) as unknown;
-  } catch {
-    throw new StudioReadError("corrupt entity file", "unreadable-json");
-  }
-  if (!isRecord(raw)) throw new StudioReadError("corrupt entity file", "schema-mismatch");
-  let parsed: AnyEntity;
-  try {
-    parsed = parseCanonicalEntity(migrateStoredEntity(raw));
-  } catch (error) {
-    throw new StudioReadError(describeSchemaMismatch(error), "schema-mismatch");
-  }
-  if (parsed.kind !== kind) throw new StudioReadError("corrupt entity file", "kind-mismatch");
-  if (parsed.id !== id) throw new StudioReadError("corrupt entity file", "id-mismatch");
-  return parsed;
-}
-
+const usableFiles = (files: readonly string[]): string[] =>
+  files.filter((n) => n.endsWith(".json") && !n.startsWith(".")).sort();
 
 export class StudioStore {
   // the fs backend is the ONE injection point: node fs on desktop/CLI, OPFS in the pocket build
   constructor(
     private readonly dir: string,
     private readonly io: StudioFs = nodeStudioFs,
+    /**
+     * Reads a file that is not canonical through a format adapter, so a SillyTavern export sitting in
+     * the preset folder is a preset rather than a silence. Injected because detection lives in the
+     * format registry at the app layer, and a studio that imported it would invert the dependency.
+     */
+    private readonly foreign?: ForeignReader,
   ) {}
+
+  /** Built lazily by the getter below, which is where the reasoning lives. */
+  private index: ForeignIndex | null = null;
+
+  /**
+   * Files in this studio that are not canonical, read through their own format's adapter.
+   *
+   * Built on first use rather than as a field, because a field initializer runs before the
+   * constructor's parameter properties exist and would capture an undefined io.
+   *
+   * `canonicalId` is how it knows which ids are already spoken for: the store owns parsing, so the
+   * index asks rather than reimplementing it and drifting away from it.
+   */
+  private get foreignIndex(): ForeignIndex {
+    this.index ??= createForeignIndex({
+      io: this.io,
+      ...(this.foreign ? { read: this.foreign } : {}),
+      canonicalId: (text, kind, id) => {
+        try {
+          assertSafeStudioId(id);
+          return parseStoredEntity(text, kind, id).id;
+        } catch {
+          return null;
+        }
+      },
+    });
+    return this.index;
+  }
+
+
 
   /** Where this studio lives on disk (About shows it; never used for writes outside resolve). */
   studioPath(): string {
     return this.dir;
   }
 
-  /** One filesystem pass for healthy summaries and fail-closed damage records. */
+  /**
+   * One filesystem pass for healthy summaries, foreign pieces, and fail-closed damage records.
+   *
+   * THREE OUTCOMES PER FILE, and the third is the one that was missing. A canonical file lists as
+   * itself. A file in another platform format lists through its adapter, because a SillyTavern
+   * export in the preset folder is a preset and reading one is what this repository already does
+   * everywhere else. Only a file that is neither is damage, and it is REPORTED rather than skipped:
+   * a real studio of 147 presets listed three and said nothing about the rest.
+   */
   async inventory(kind?: string): Promise<StudioInventory> {
     const kinds: StudioEntityKind[] = kind
       ? [assertStudioEntityKind(kind)]
@@ -169,11 +148,41 @@ export class StudioStore {
       const kindDir = resolveStudioPath(this.dir, k);
       const files = await this.io.listDir(kindDir);
       if (files === null) continue;
-      for (const f of files.filter((n) => n.endsWith(".json")).sort()) {
+      const usable = usableFiles(files);
+      // The SAME index read() uses, so an id means one piece through either door.
+      const foreign = await this.foreignIndex.forKind(k, kindDir, usable);
+      const byFile = new Map([...foreign].map(([id, entry]) => [entry.file, id]));
+
+      for (const f of usable) {
         const id = f.slice(0, -5);
+        const foreignAs = byFile.get(f);
+        if (foreignAs !== undefined) {
+          const piece = foreign.get(foreignAs)!.piece;
+          const body = piece.entity.body as { name?: unknown } | undefined;
+          entities.push({
+            id: foreignAs,
+            kind: k,
+            name: typeof body?.name === "string" && body.name ? body.name : id,
+            sourceFormat: piece.format,
+            foreign: true,
+          });
+          continue;
+        }
         try {
           assertSafeStudioId(id);
         } catch {
+          /**
+           * The name cannot be an id. Whether that is the ONLY thing wrong decides what to tell
+           * somebody, so it is checked rather than assumed.
+           *
+           * A canonical file called `ludovic-&-levi.json` is 2.4MB of somebody's work that loads
+           * perfectly the moment it is renamed. A SillyTavern fragment called `Loggo's Preset.json`
+           * does not, and telling its owner to rename it sends them to do a pointless thing and
+           * come back to the same list. Both used to report identically.
+           */
+          const text = await this.io.readText(join(kindDir, f));
+          const ours = text !== null && looksCanonical(text, k);
+          damaged.push({ kind: k, id, reason: ours ? "unusable-filename" : "schema-mismatch" });
           continue;
         }
         try {
@@ -197,9 +206,7 @@ export class StudioStore {
           damaged.push({
             kind: k,
             id,
-            reason: error instanceof StudioReadError && error.reason
-              ? error.reason
-              : "unreadable-json",
+            reason: error instanceof StudioReadError && error.reason ? error.reason : "unreadable-json",
           });
         }
       }
@@ -212,10 +219,53 @@ export class StudioStore {
   }
 
   async read(kind: string, id: string): Promise<AnyEntity | null> {
+    /**
+     * THE ID IS VALIDATED FIRST, AND AN INVALID ONE STILL THROWS.
+     *
+     * The first version of the foreign fallback wrapped this resolve in a try/catch and returned
+     * null, which quietly turned a rejected traversal into a miss. The containment test caught it.
+     * Nothing escaped, because the fallback only ever opens files it got from listDir, but a caller
+     * relying on an invalid id being refused would have been relying on nothing.
+     *
+     * A foreign piece is addressed by a SLUG, which is a valid id by construction, so validating
+     * first costs it nothing.
+     */
     const path = resolveStudioPath(this.dir, kind, id);
     const text = await this.io.readText(path);
-    if (text === null) return null;
-    return parseStoredEntity(text, kind, id);
+    if (text !== null) {
+      try {
+        return parseStoredEntity(text, kind, id);
+      } catch (error) {
+        /**
+         * A FILE CAN SIT AT THE CANONICAL PATH AND STILL NOT BE OURS.
+         *
+         * `3035a5467e03eaa245de3ac318018404.json` is a perfectly legal id, so this resolves, reads,
+         * and then fails to parse because the contents are a SillyTavern export. The first version
+         * threw here, which listed the piece through the adapter and then refused to open it: six of
+         * a hundred and forty, and only findable by reading every one of them back.
+         *
+         * If the adapters cannot make sense of it either, the ORIGINAL error is what gets raised,
+         * because that is the one that says what is actually wrong with the file.
+         */
+        const adapted = await this.readForeignById(kind, id);
+        if (adapted) return adapted;
+        throw error;
+      }
+    }
+    // No file answers to this id. It may still be a foreign piece listed under a slug.
+    return this.readForeignById(kind, id);
+  }
+
+  /** Find the foreign file whose id this is, through the shared index. Null when there is none. */
+  private async readForeignById(kind: string, id: string): Promise<AnyEntity | null> {
+    const k = assertStudioEntityKind(kind);
+    const kindDir = resolveStudioPath(this.dir, k);
+    const files = await this.io.listDir(kindDir);
+    if (files === null) return null;
+    const found = (await this.foreignIndex.forKind(k, kindDir, usableFiles(files))).get(id);
+    if (!found) return null;
+    // The id it reports is the one it was ASKED for, so every later reference resolves back here.
+    return { ...(found.piece.entity as object), id, schemaVersion: "1" } as AnyEntity;
   }
 
   /** Remove one entity file (same containment as read). True when a file was actually removed. */
