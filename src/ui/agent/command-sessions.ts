@@ -33,7 +33,7 @@ import { join } from "node:path";
 import { appendTurn, buildTurn, emptySession, type Session } from "../../kit/sessions/session-model";
 import { summarize, toHistory, turnBounds } from "../../kit/sessions/projection";
 import { createSessionStore, newSessionId } from "../../kit/sessions/store";
-import { newWindowSessionId } from "./window-session";
+import { isWindowSessionId, newWindowSessionId } from "./window-session";
 import { formatTranscript } from "../../kit/sessions/transcript";
 import type { SessionActions } from "../../kit/sessions/session-actions";
 import type { CommandEffect, WidgetRow } from "./command-core";
@@ -149,6 +149,25 @@ export function windowSessions(
        * refused: the terminal may be holding that very session and stamping it per turn, and two
        * writers is how a conversation loses turns. `parent` records where it came from.
        */
+      /**
+       * A SESSION THIS WINDOW ALREADY OWNS IS CONTINUED, NEVER COPIED.
+       *
+       * Forking on every resume was the first build of this, and it littered: resuming your own
+       * conversation four times left four near-identical files, each titled by the same opening
+       * line, the work spread across them and no way to tell them apart in the picker. The fork
+       * exists to avoid writing into a session the TERMINAL may be holding - which is a fact about
+       * who owns the id, not about the act of resuming.
+       */
+      if (isWindowSessionId(found.id)) {
+        record({ kind: "session", id: found.id });
+        record({
+          kind: "say",
+          text: `Resumed **${summarize(found).displayTitle}** - ${String(found.turns.length)} turn(s), `
+            + `${String(lines.length)} line(s). This one is already yours, so anything you say carries on in it.`,
+        });
+        return;
+      }
+
       const at = now();
       const mine: Session = {
         ...found,
