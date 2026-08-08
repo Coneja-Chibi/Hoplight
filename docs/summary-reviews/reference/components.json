@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/components",
   "sourcePath": "docs/reference/components.md",
-  "sourceHash": "sha256:f4fc5ae64df7499382773555c7cc733caf9499cd0c7b1a487d309c80ab87c738",
-  "semanticSummaryHash": "sha256:3aea8b307f7ca68164c3a2c5de935a4687d31cf1a03439334161c644362a0c1d",
+  "sourceHash": "sha256:d7ba2bbefedfcbed12e0640134fd590639d3242fe38828c195875dd4c5e46e35",
+  "semanticSummaryHash": "sha256:ee32f31e757ccaee1885c91c1bedb7d04ae7f0f2745373cf98a2c76b5678ddda",
   "verdict": "APPROVE",
-  "reviewer": "chi",
-  "notes": "Approved by Chi. Remote-access documentation reviewed end to end after the sidecar resolution fix and the aux-package helper download.",
-  "reviewedAt": "2026-07-31T19:18:39.112Z"
+  "reviewer": "staging-reviewer",
+  "notes": "catalog path fix verified against import-sheet.tsx",
+  "reviewedAt": "2026-08-05T22:33:20.792Z"
 }

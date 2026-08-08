@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-04",
+  "generated": "2026-08-08",
   "count": 112,
   "pages": [
     {
@@ -342,17 +342,17 @@
       "docId": "reference/components",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "chi",
-      "sourceHash": "sha256:f4fc5ae64df7499382773555c7cc733caf9499cd0c7b1a487d309c80ab87c738",
-      "semanticSummaryHash": "sha256:3aea8b307f7ca68164c3a2c5de935a4687d31cf1a03439334161c644362a0c1d"
+      "reviewer": "staging-reviewer",
+      "sourceHash": "sha256:d7ba2bbefedfcbed12e0640134fd590639d3242fe38828c195875dd4c5e46e35",
+      "semanticSummaryHash": "sha256:ee32f31e757ccaee1885c91c1bedb7d04ae7f0f2745373cf98a2c76b5678ddda"
     },
     {
       "docId": "reference/concepts/bundles",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
-      "semanticSummaryHash": "sha256:f7bd60397ca7457d52dbcfa8ac724c4c21d1f58dd62d7381b8cc34dfcc937fc0"
+      "reviewer": "staging-reviewer",
+      "sourceHash": "sha256:02f3401b77ce7652931c9732e2eef4aa43a01c3b8e6d8f006a336c2d677a3a16",
+      "semanticSummaryHash": "sha256:b8d235b122fb7693654fedd4d196ed8f1065d04b75d44dee69922efccfda02b1"
     },
     {
       "docId": "reference/concepts/canonical-model",
@@ -879,8 +879,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "chi",
-      "sourceHash": "sha256:4caacaca15c2ffacbff57d19c00ff6fa46f44e5aa4e43ed1010fac77c31f291b",
-      "semanticSummaryHash": "sha256:b8dc84cf82e29314f2f231dfd8bd3cacc5b21d7d7ca5dc1d02030b4040653065"
+      "sourceHash": "sha256:bb475e54cf11dd0a6c569fbbbb5a651baeec354c591f55043db5654b26cc62c4",
+      "semanticSummaryHash": "sha256:2e6cf330e4e7559e356f96c3cce6ab6eff11b0ec7fbce7ef3917784a5949ea0c"
     },
     {
       "docId": "reference/updates",

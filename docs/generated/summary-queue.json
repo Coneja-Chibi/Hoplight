@@ -1,8 +1,8 @@
 {
-  "generated": "2026-08-04",
+  "generated": "2026-08-08",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1005139,
+  "totalSourceChars": 1005571,
   "batches": [
     {
       "id": "batch-001",
@@ -360,14 +360,14 @@
     },
     {
       "id": "batch-004",
-      "sourceChars": 86847,
+      "sourceChars": 86842,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 32826,
+          "sourceChars": 32827,
           "status": "APPROVED"
         },
         {
@@ -375,7 +375,7 @@
           "sourcePath": "docs/reference/concepts/bundles.md",
           "sidecarPath": "docs/summaries/reference/concepts/bundles.json",
           "sectionCount": 5,
-          "sourceChars": 8499,
+          "sourceChars": 8493,
           "status": "APPROVED"
         },
         {
@@ -928,7 +928,7 @@
     },
     {
       "id": "batch-012",
-      "sourceChars": 77309,
+      "sourceChars": 77746,
       "pages": [
         {
           "docId": "reference/security/secrets-and-keys",
@@ -951,7 +951,7 @@
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 38118,
+          "sourceChars": 38555,
           "status": "APPROVED"
         },
         {

@@ -27,6 +27,7 @@ const FRIENDLY: Record<string, string> = {
   "novelai-lorebook": "NovelAI",
   "vaud-json": "Hoplight",
   lumiverse: "Lumiverse",
+  "lumiverse-archive": "Lumiverse",
   pygmalion: "Pygmalion",
   "sillytavern-regex": "SillyTavern",
   "risu-regex": "RisuAI",

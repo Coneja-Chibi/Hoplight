@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:4caacaca15c2ffacbff57d19c00ff6fa46f44e5aa4e43ed1010fac77c31f291b",
-  "semanticSummaryHash": "sha256:b8dc84cf82e29314f2f231dfd8bd3cacc5b21d7d7ca5dc1d02030b4040653065",
+  "sourceHash": "sha256:bb475e54cf11dd0a6c569fbbbb5a651baeec354c591f55043db5654b26cc62c4",
+  "semanticSummaryHash": "sha256:2e6cf330e4e7559e356f96c3cce6ab6eff11b0ec7fbce7ef3917784a5949ea0c",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Re-review after an em dash to hyphen sweep required by scan:emdash. Prose meaning is unchanged; summaries re-verified against the edited source.",
-  "reviewedAt": "2026-08-04T23:25:26.433Z"
+  "notes": "Merge resolution: the ui page's endpoint list regained the archive-import routes alongside Mainstage's. Generated content, reviewed as a merge artifact.",
+  "reviewedAt": "2026-08-08T00:50:40.197Z"
 }

@@ -3,13 +3,14 @@ import { registry } from "../core";
 import f0 from "../formats/agnai/index";
 import f1 from "../formats/backyard/index";
 import f2 from "../formats/lumiverse/index";
-import f3 from "../formats/marinara/index";
-import f4 from "../formats/novelai/index";
-import f5 from "../formats/pygmalion/index";
-import f6 from "../formats/risu/index";
-import f7 from "../formats/rolecall/index";
-import f8 from "../formats/sillytavern/index";
-import f9 from "../formats/vaud-json/index";
+import f3 from "../formats/lumiverse-archive/index";
+import f4 from "../formats/marinara/index";
+import f5 from "../formats/novelai/index";
+import f6 from "../formats/pygmalion/index";
+import f7 from "../formats/risu/index";
+import f8 from "../formats/rolecall/index";
+import f9 from "../formats/sillytavern/index";
+import f10 from "../formats/vaud-json/index";
 
 export function registerPackagedFormats(): void {
   for (const a of Array.isArray(f0) ? f0 : [f0]) registry.register(a);
@@ -22,4 +23,5 @@ export function registerPackagedFormats(): void {
   for (const a of Array.isArray(f7) ? f7 : [f7]) registry.register(a);
   for (const a of Array.isArray(f8) ? f8 : [f8]) registry.register(a);
   for (const a of Array.isArray(f9) ? f9 : [f9]) registry.register(a);
+  for (const a of Array.isArray(f10) ? f10 : [f10]) registry.register(a);
 }

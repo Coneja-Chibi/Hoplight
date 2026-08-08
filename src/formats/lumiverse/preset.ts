@@ -149,10 +149,14 @@ export function lumiverseToStRaw(wrapper: Rec): Rec {
       );
       continue;
     }
+    // block.position: "depth" is the one verified-real value (a real archive's prompt_order carries
+    // it) that maps to a real ST injection mode: in-chat at the block's own depth. Any other value,
+    // including the spec's still-open "pre_history"/"post_history" question, keeps the prior
+    // relative/legacy default rather than guessing an unverified mapping for it.
     push(
       {
         identifier: id, name: String(b.name ?? ""), content: String(b.content ?? ""), role,
-        system_prompt: false, marker: false, injection_position: 0,
+        system_prompt: false, marker: false, injection_position: b.position === "depth" ? 1 : 0,
         injection_depth: num(b.depth) ?? 4, injection_order: 100,
         forbid_overrides: b.isLocked === true,
         injection_trigger: Array.isArray(b.injectionTrigger) ? b.injectionTrigger : [],

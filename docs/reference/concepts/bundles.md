@@ -30,22 +30,22 @@ NAME; `knowledgeRefs` links an embedded book by canonical id (`entities/characte
 lorebook: the Workbench's KnowledgeRail lets a creator attach, detach, and reorder library books on the
 ref list directly (`ui/apps/workbench/lore/knowledge-refs.ts:5-20`, `attachKnowledgeRef` appends a new id
 if not already present). Extraction is narrower than that: importing a card only ever pulls one embedded
-book, so `ConvertResult.lorebooks` holds 0 or 1 entries per import pass (`convert.ts:26`). A multi-book
+book, so `ConvertResult.lorebooks` holds 0 or 1 entries per import pass (`convert.ts:36`). A multi-book
 `knowledgeRefs` list is therefore always Studio-authored, never something a single import produces on its
 own, and it is exactly what forces the export-side merge described below.
 
 ## Import: extract at the boundary
 
-`inspectBundle` (`convert.ts:40-53`) runs once per import:
+`inspectBundle` (`convert.ts:49-63`) runs once per import:
 
-1. `source.toCanonical(input)` reads the character (`convert.ts:44`). Its embedded book, if any, still lives
+1. `source.toCanonical(input)` reads the character (`convert.ts:53`). Its embedded book, if any, still lives
    inside `entity.original` at this point, in whatever raw shape the source format used.
-2. Extraction picks one of two paths (`convert.ts:47-49`). If the adapter implements `extractLorebook`, an
+2. Extraction picks one of two paths (`convert.ts:58-60`). If the adapter implements `extractLorebook`, an
    optional method on `CharacterAdapter` for a dialect the shared mapper does not understand
    (`adapter.ts:69-76`), that runs. Otherwise the shared
    `extractCharacterBook(primaryOriginalRaw(entity.original))` runs, which understands only the CCv2/v3
    `character_book` shape (`character-book.ts:308-319`).
-3. `entity.body.knowledgeRefs = [lorebook.id]` links the two (`convert.ts:51`).
+3. `entity.body.knowledgeRefs = [lorebook.id]` links the two (`convert.ts:62`).
 
 Agnai is the concrete case for step 2's override: its embedded book is a native `characterBook` MemoryBook,
 not a CCv3 `character_book`, so its `CharacterAdapter` implements `extractLorebook` itself and reuses its
@@ -61,7 +61,7 @@ standalone (`character-book.ts:308-319`). The full wire mapping (field names, ST
 ## Export: re-embed at the boundary
 
 Extraction is shared and format-agnostic; re-embedding is the target adapter's own job. `emitBundle`
-(`convert.ts:59-73`) builds an `EmitContext` carrying the resolved `lorebooks` and hands it to
+(`convert.ts:92-119`) builds an `EmitContext` carrying the resolved `lorebooks` and hands it to
 `target.fromCanonical(entity, ctx)`. `EmitContext` is optional and cross-entity, resolved by whichever layer
 owns the registry (the CLI, the Studio), never by core (`adapter.ts:22-35`). A character adapter for a
 format that embeds knowledge reads `context.lorebooks` and writes it into its own slot; an adapter for a
@@ -82,7 +82,7 @@ recoverable later rather than silently dropped.
 
 `knowledgeRefs` is the same field either way, but what resolves it differs by caller.
 
-**The CLI (`hoplight convert`) is one ephemeral pass.** `convertFile` (`convert.ts:96-115`) calls
+**The CLI (`hoplight convert`) is one ephemeral pass.** `convertFile` (`convert.ts:150-173`) calls
 `inspectBundle` then `emitBundle` back to back, in memory, for one file in and one file out
 (`cli.ts:341`). No lorebook file is ever written to disk; if the target format embeds knowledge the book
 rides inside the single output file, and the CLI only reports how many entries carried across
@@ -90,13 +90,13 @@ rides inside the single output file, and the CLI only reports how many entries c
 directly.
 
 **The Studio persists the character and the lorebook as two separate Library entities.** Import
-(`handleInspect`, `server-engine.ts:48-86`) runs the same `inspectBundle` the CLI uses and returns both the
+(`handleInspect`, `server-engine.ts:50`) runs the same `inspectBundle` the CLI uses and returns both the
 character and the extracted lorebook to the client. `POST /api/studio/save-bundle` then writes the lorebook
 first, rewrites `knowledgeRefs` for any keep-both rename, and writes the character last
-(`studio/bundle.ts:68-118`, `rewriteKnowledgeRefs` at `convert.ts:79-87`). From then on the two live as
+(`studio/bundle.ts:68-118`, `rewriteKnowledgeRefs` at `convert.ts:135-143`). From then on the two live as
 independent Library entries: the lorebook can be opened, edited, or attached to another character on its
-own. Export (`handleExport`, `server-engine.ts:126-159`) therefore has to resolve `knowledgeRefs` back into
-lorebook bodies before it can call `emitBundle`: `resolveLorebooksFromStore` (`server-engine.ts:92-124`)
+own. Export (`handleExport`, `server-engine.ts:269`) therefore has to resolve `knowledgeRefs` back into
+lorebook bodies before it can call `emitBundle`: `resolveLorebooksFromStore` (`server-engine.ts:235`)
 reads each ref from the store and fails closed, a 422 response naming every missing id, rather than silently
 exporting a book-less card. A book the creator switched off (`body.enabled === false`) is omitted rather
 than treated as an error; the serialize report names `knowledgeRefs` as not carried so the result is not a

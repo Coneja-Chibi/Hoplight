@@ -59,6 +59,15 @@ export const primaryOriginalRaw = (original: Partial<Original> | undefined): unk
   original ? Object.values(original)[0]?.raw : undefined;
 
 /**
+ * The format id of the primary original entry - the same "first entry is the source" rule as
+ * primaryOriginalRaw, but the KEY rather than the `raw` value. A caller building a per-format
+ * report (buildParseReport, a receipt) needs the id, not the payload; this is one owner for that
+ * lookup too, so it can never drift from primaryOriginalRaw's own notion of "primary."
+ */
+export const primaryOriginalId = (original: Partial<Original> | undefined): FormatId | undefined =>
+  original ? Object.keys(original)[0] : undefined;
+
+/**
  * Sparse per-app overrides. Empty by default.
  * You author the entity ONCE; set only the fields you want to DIFFER for a given app.
  * A "per-app version" = canonical body + that app's overrides, projected by its adapter.

@@ -25,26 +25,29 @@ async function shapeFiles(): Promise<string[]> {
 
 // LF normalization keeps the pin stable across Windows and CI.
 //
-// Updated deliberately for a COMPATIBLE change: PresetBody gained an optional `behaviorRefs`
-// string array - linked regex/script set ids, the exact counterpart of CharacterBody.behaviorRefs.
+// Updated deliberately for TWO COMPATIBLE changes that landed either side of this merge.
 //
-// Why it needs no version bump: it is optional and additive, so a preset saved before this field
-// existed parses byte-for-byte as it did, and a preset carrying it was not readable by an earlier
-// build anyway. Nothing writes the key unless a set is actually linked, so an unlinked preset and a
-// never-linked one still serialize identically - the same property the `notes` entry below relied on.
+// From the archive-import branch: core/canonical.ts gained `primaryOriginalId`, a standalone
+// function reading the same `Original` record `primaryOriginalRaw` already reads (the KEY of its
+// first entry rather than the `raw` value). No interface changed and nothing about a PERSISTED
+// entity's on-disk shape moved - new code reading the existing shape, not a shape change.
 //
-// What it fixes: the link existed on the wire and nowhere in canonical. Hoplight could LIFT a
-// preset's bundled `extensions.regex_scripts` into a standalone set and had no way to say that a set
-// belongs to a preset, so a person asking to attach one was told the Studio could not - true, and
-// easily read as a limit of the format rather than a hole in our model.
+// From Mainstage: PresetBody gained an optional `behaviorRefs` string array, the exact counterpart
+// of CharacterBody.behaviorRefs. Optional and additive, so a preset saved before it existed parses
+// byte-for-byte as it did, and nothing writes the key unless a set is actually linked.
+//
+// Neither needs a schema-version bump and neither takes a SCHEMA_BUMPS entry. The hash below is
+// recomputed for the merged tree: the two pinned values from either side each describe only half
+// of it, so keeping either one would have been a green tripwire guarding the wrong shape.
 //
 // The prior entry, also compatible: the canonical envelope gained an optional `notes` array,
 // declared once on the shared envelope so every entity kind carries it. Removing the last note
-// deletes the key rather than leaving `[]`.
+// deletes the key rather than leaving `[]`, so an annotated piece and a never-annotated one still
+// serialize identically.
 //
 // And before that: PresetSamplers.promptPostProcessing gained the values SillyTavern actually
 // writes, and the per-group schemas were exported for the ST codec to read expected types off them.
-const PINNED_SHAPE_HASH = "2fb5a39fd6a30891e5be97bff9eecbce42f66bba2f369f63c2da091f50ae790f";
+const PINNED_SHAPE_HASH = "b70bf172d077b69552c678c656181a5c069f604655f8373b29f34ef0e0fc4b94";
 
 test("storage-shape tripwire: an on-disk shape change must be a deliberate, version-aware act", async () => {
   const h = createHash("sha256");

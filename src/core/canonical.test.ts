@@ -4,7 +4,26 @@
  * src/studio/path-policy.test.ts so a core test never imports an outer layer.
  */
 import { describe, expect, test } from "bun:test";
-import { canonicalId } from "./canonical";
+import { canonicalId, primaryOriginalId, primaryOriginalRaw } from "./canonical";
+
+describe("primaryOriginalId", () => {
+  test("names the first entry's key, the same entry primaryOriginalRaw reads the value of", () => {
+    const original = {
+      lumiverse: { raw: { a: 1 } },
+      "lumiverse-archive": { raw: { b: 2 } },
+    };
+    expect(primaryOriginalId(original)).toBe("lumiverse");
+    expect(primaryOriginalRaw(original)).toEqual({ a: 1 });
+  });
+
+  test("undefined for a from-scratch entity with no original at all", () => {
+    expect(primaryOriginalId(undefined)).toBeUndefined();
+  });
+
+  test("undefined for an entity whose original is present but empty", () => {
+    expect(primaryOriginalId({})).toBeUndefined();
+  });
+});
 
 describe("canonicalId", () => {
   test("empty falls back to character", () => {

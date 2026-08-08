@@ -281,7 +281,12 @@ revision) · `GET /api/studio/portrait?kind&id` (the entity's art: the
 escrowed PNG carrier, else a data-URI `body.media.portrait`; 404 when none) ·
 `POST /api/studio/save` (editor saves compare the loaded revision and return 409 when stale) ·
 `POST /api/studio/save-bundle` (the complete canonical batch is validated
-before writing; keep-both lorebook renames rewrite `knowledgeRefs`) · host-only `/api/remote/*` routes for tunnel/LAN status, setup,
+before writing; keep-both lorebook renames rewrite `knowledgeRefs`) ·
+loopback-only `POST /api/inspect-archive` (a `.lvbak` streamed to disk; entities stage server-side
+and the response carries SUMMARY rows only - a real backup's entities total gigabytes) ·
+loopback-only `POST /api/studio/save-staged` ({token, key, refIds?}: commits one staged archive row
+by reference through the same saveBundle core; refIds rewrites `knowledgeRefs`, and an empty map
+drops refs to books that never reached the shelf) · host-only `/api/remote/*` routes for tunnel/LAN status, setup,
 join secrets, devices, approvals, and host controls · host-only `/api/updates/*` routes for release
 information and version switching. Remote clients do not receive either control family.
 
