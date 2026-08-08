@@ -24,6 +24,31 @@ const input = z.strictObject({
 
 const MAX_WHOLE_ENTITY_CHARS = 64_000;
 
+/**
+ * The piece as a READER should see it: everything except its original.
+ *
+ * A canonical entity carries the raw file it was imported from, so a re-export can be byte-faithful.
+ * That is ballast for the writer and it is NOT content. Handing it to a model does three bad things
+ * at once, and the middle one was reported from the field:
+ *
+ * 1. It is often enormous. One real card in a studio here is 2.4MB of raw, which is most of a
+ *    context window spent on a second copy of what sits beside it in canonical form.
+ * 2. IT CAN BE STALE, silently. A card imported with an embedded lorebook keeps that book in its
+ *    raw while the live copy is lifted out to a standalone piece behind knowledgeRefs. Edit the
+ *    standalone and the raw still holds the text from import day, so the model was handed current
+ *    fields, a pointer to the real book, and a full stale copy of the lore, with nothing saying
+ *    which was which. It answered from the copy that actually had entries in it.
+ * 3. It is a second description of the same piece, in a wire dialect the model has to guess at.
+ *
+ * A pointer into the original does not resolve either, which is the honest consequence rather than
+ * an oversight: this tool reads canonical pieces, and the raw is not one.
+ */
+function readable(entity: unknown): unknown {
+  if (!entity || typeof entity !== "object") return entity;
+  const { original: _raw, ...rest } = entity as Record<string, unknown>;
+  return rest;
+}
+
 const read: HarnessTool<z.infer<typeof input>> = {
   name: "studio_read",
   description:
@@ -40,7 +65,7 @@ const read: HarnessTool<z.infer<typeof input>> = {
       return { summary: `read ${kind}/${id}: not found`, output: `No ${kind} with id "${id}" in the studio.` };
     }
     const path = args.path ?? "";
-    const selected = resolveJsonPointer(entity, path);
+    const selected = resolveJsonPointer(readable(entity), path);
     if (!selected.found) {
       return {
         summary: `read ${kind}/${id}: path not found`,

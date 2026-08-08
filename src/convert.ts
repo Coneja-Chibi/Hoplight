@@ -59,6 +59,18 @@ export function inspectBundle(
     ? source.extractLorebook(entity)
     : extractCharacterBook(primaryOriginalRaw(entity.original));
   const lorebooks = lorebook ? [lorebook] : [];
+  /**
+   * THE EMBEDDED COPY STAYS, and it is not redundant.
+   *
+   * It looks like a duplicate of the standalone lorebook and it was removed here once. It is the
+   * FALLBACK TWIN: emitBundle called without resolved lorebooks has nothing else to re-embed from,
+   * so stripping it turned "the caller did not resolve the refs" into a card that silently goes out
+   * with no lore at all. See convert.test.ts, "preserves the twin when lorebook resolution was not
+   * supplied".
+   *
+   * What must never happen is somebody READING this copy as though it were current. It is a
+   * snapshot from import; the standalone book behind knowledgeRefs is the live one.
+   */
   if (lorebook) entity.body.knowledgeRefs = [lorebook.id];
   return { entity, lorebooks };
 }
