@@ -9,6 +9,7 @@ import { resolveProviderConfig } from "./providers/vault";
 import { spokes } from "./providers/registry";
 import { makeChat } from "./providers/chat";
 import { pingProvider, type Probe } from "./providers/probe";
+import { probeProvider, summariseMessages } from "./session-summarise";
 import { discoverTools } from "./tools/discover";
 import { makeDispatch, toolSpecs } from "./loop/dispatch";
 import {
@@ -85,6 +86,8 @@ export interface Session {
   ): Promise<ModelMessage[]>;
   /** /test: ping the active provider once and report its greeting and latency (fail-closed). */
   probe(onEvent: (event: TurnEvent) => void, signal?: AbortSignal): Promise<void>;
+  /** One toolless call that summarises a conversation; null when it cannot. See session-summarise.ts. */
+  summarise(msgs: readonly ModelMessage[], instruction: string, signal?: AbortSignal): Promise<string | null>;
   /** Doctor's provider row: the same real ping as /test, returned as structured read-only data. */
   providerProbe?(signal?: AbortSignal): Promise<(Probe & { name: string; model: string }) | null>;
   /**
@@ -444,26 +447,13 @@ export async function createSession(
       }
     },
 
-    async probe(onEvent, signal) {
-      try {
-        const config = await resolveProviderConfig();
-        if (!config) {
-          onEvent({ type: "error", message: "No provider connected. Open setup with /model to add one." });
-          return;
-        }
-        const label = `${config.name ?? config.kind} · ${config.model}`;
-        onEvent({ type: "begin", label });
-        const { text, ms } = await pingProvider(makeChat(config, signal));
-        onEvent({ type: "tool", name: "test", summary: `test ${label} · ${ms}ms` });
-        onEvent({ type: "say", text: `"${text}"` });
-      } catch (error) {
-        if (signal?.aborted) {
-          onEvent({ type: "stopped", reason: "Provider test cancelled." });
-          return;
-        }
-        onEvent({ type: "error", message: error instanceof Error ? error.message : String(error) });
-      }
-    },
+    // Lifted out whole; it is one concept with no session state behind it. See session-summarise.ts
+    // for why it is deliberately toolless.
+    summarise: summariseMessages,
+
+    // Both lifted whole into session-summarise.ts: one bounded provider call each, no tools, no
+    // studio access, and no session state behind either.
+    probe: probeProvider,
 
     async providerProbe(signal) {
       const config = await resolveProviderConfig();

@@ -25,6 +25,7 @@ import { pendingGates } from "./pending-gates";
 import { noteEgress } from "./agent-ledger";
 import { grantPastedPaths } from "../../kit/render/grant-pasted-paths";
 import { newWindowSessionId, recordWindowTurn } from "./window-session";
+import { compactHistory } from "./compact-history";
 
 /** Built once and reused: discovering tools and capabilities reads the disk. */
 /**
@@ -180,7 +181,20 @@ export async function runAgentTurn(input: {
      */
     const provider = (await session.activeProvider())?.name ?? "provider";
 
-    const history = input.history.map((m) => ({ role: m.role, content: m.content }));
+    /**
+     * COMPACT BEFORE ASKING, when the conversation has filled its share of THIS model's window.
+     *
+     * Measured in tokens against what the provider says it has room for, because a message count
+     * is not a unit of anything - the rule this replaces refused a sixty-message conversation on a
+     * 272k model that was ten percent full. Old turns become one summary; the recent end is kept
+     * word for word. See compaction-core.ts for the shape and who else lands on it.
+     */
+    const history = await compactHistory(
+      input.history.map((m) => ({ role: m.role, content: m.content })),
+      session,
+      (await session.activeProvider())?.context ?? 0,
+      (note) => { emit({ event: "compacted", data: note }); },
+    );
     const all = await session.runTurn(
       `${guidance}\n\n${input.question}`,
       history,

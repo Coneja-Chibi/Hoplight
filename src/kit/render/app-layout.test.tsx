@@ -11,6 +11,8 @@ test("the shell follows the renderer canvas after a live resize", async () => {
       return history;
     },
     async probe() {},
+
+    async summarise() { return null; },
     async activeProvider() {
       return null;
     },

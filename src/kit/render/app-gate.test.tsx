@@ -36,6 +36,8 @@ test("a confirmed write pauses in GatePrompt before the session continues", asyn
       return history;
     },
     async probe() {},
+
+    async summarise() { return null; },
     async activeProvider() {
       return null;
     },

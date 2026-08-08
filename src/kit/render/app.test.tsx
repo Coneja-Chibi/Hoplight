@@ -154,7 +154,7 @@ describe("App turn lifecycle", () => {
         await gate;
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -195,7 +195,7 @@ describe("App turn lifecycle", () => {
         });
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -221,7 +221,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -243,7 +243,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -268,7 +268,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -292,7 +292,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -322,7 +322,7 @@ describe("App turn lifecycle", () => {
         calls.push(input);
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -369,7 +369,7 @@ describe("App turn lifecycle", () => {
         onEvent({ type: "say", text: `reply ${input}` });
         return next;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -412,7 +412,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -436,7 +436,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
@@ -468,7 +468,7 @@ describe("App turn lifecycle", () => {
       async runTurn(_input, history) {
         return history;
       },
-      async probe() {},
+      async probe() {}, async summarise() { return null; },
       async activeProvider() {
         return null;
       },
