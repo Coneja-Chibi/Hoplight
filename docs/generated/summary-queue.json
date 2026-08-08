@@ -2,7 +2,7 @@
   "generated": "2026-08-08",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1013951,
+  "totalSourceChars": 1014383,
   "batches": [
     {
       "id": "batch-001",
@@ -360,14 +360,14 @@
     },
     {
       "id": "batch-004",
-      "sourceChars": 86607,
+      "sourceChars": 86602,
       "pages": [
         {
           "docId": "reference/components",
           "sourcePath": "docs/reference/components.md",
           "sidecarPath": "docs/summaries/reference/components.json",
           "sectionCount": 2,
-          "sourceChars": 36855,
+          "sourceChars": 36856,
           "status": "APPROVED"
         },
         {
@@ -375,7 +375,7 @@
           "sourcePath": "docs/reference/concepts/bundles.md",
           "sidecarPath": "docs/summaries/reference/concepts/bundles.json",
           "sectionCount": 5,
-          "sourceChars": 8499,
+          "sourceChars": 8493,
           "status": "APPROVED"
         },
         {
@@ -950,14 +950,14 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 47992,
+      "sourceChars": 48429,
       "pages": [
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 39925,
+          "sourceChars": 40362,
           "status": "APPROVED"
         },
         {

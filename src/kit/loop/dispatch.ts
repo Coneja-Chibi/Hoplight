@@ -20,13 +20,103 @@ export function assertUniqueToolNames(tools: readonly HarnessTool[]): void {
   }
 }
 
+/** Merge two schemas for the same property across union variants into the least restrictive
+ * combination. The provider schema is guidance for the model; the tool's own Zod parse enforces
+ * the real per-action constraints fail-closed at dispatch. A narrower bound here would advertise
+ * valid calls as invalid (search.limit max 8 vs browse.limit max 25), and a schema-guided
+ * provider could reject or avoid them before the Zod parse ever runs. */
+function mergePropertySchema(a: Record<string, unknown>, b: Record<string, unknown>): Record<string, unknown> {
+  if (a.type !== b.type) {
+    // A genuinely polymorphic property: keep it visible, but unconstrained by type keywords.
+    return { description: a.description ?? b.description };
+  }
+  const merged: Record<string, unknown> = { ...a };
+  if (!merged.description && typeof b.description === "string") merged.description = b.description;
+  for (const key of ["minimum", "maximum", "minLength", "maxLength", "minItems", "maxItems"] as const) {
+    const hasA = typeof a[key] === "number";
+    const hasB = typeof b[key] === "number";
+    if (hasA && hasB) {
+      const take = key.startsWith("max") ? Math.max : Math.min;
+      merged[key] = take(a[key] as number, b[key] as number);
+    } else if (hasA || hasB) {
+      // Unbounded in one variant: the least restrictive merged schema has no bound at all.
+      delete merged[key];
+    }
+  }
+  if (Array.isArray(a.enum) && Array.isArray(b.enum)) {
+    merged.enum = [...new Set([...a.enum, ...b.enum])];
+  } else if (Array.isArray(a.enum) || Array.isArray(b.enum)) {
+    delete merged.enum;
+  }
+  if (a.pattern !== b.pattern) delete merged.pattern;
+  if (a.format !== b.format) delete merged.format;
+  return merged;
+}
+
+/** A provider tool schema must be a flat object at the root: OpenAI-compatible endpoints reject
+ * bare `oneOf`/`anyOf`, which is exactly what Zod emits for unions and discriminated unions
+ * (docs_query). Flatten object variants into one properties map so the model sees every field it
+ * can send; shared properties merge least-restrictively so no valid per-action call looks invalid
+ * to the provider. Per-action strictness stays in the tool's own Zod parse: dispatch parses args
+ * fail-closed against `tool.input`, so a looser provider shape can never admit an invalid call. */
+export function providerSchema(input: z.ZodType): Record<string, unknown> {
+  const schema = z.toJSONSchema(input) as Record<string, unknown>;
+  if (typeof schema.type === "string") return schema;
+  const variants = [
+    ...(Array.isArray(schema.oneOf) ? (schema.oneOf as unknown[]) : []),
+    ...(Array.isArray(schema.anyOf) ? (schema.anyOf as unknown[]) : []),
+  ] as Record<string, unknown>[];
+  if (variants.length === 0) return { ...schema, type: "object" };
+  const properties: Record<string, unknown> = {};
+  const requiredSets: string[][] = [];
+  for (const variant of variants) {
+    if (variant.type !== "object" || typeof variant.properties !== "object" || variant.properties === null) {
+      return { ...schema, type: "object" };
+    }
+    const vProps = variant.properties as Record<string, unknown>;
+    const vRequired = Array.isArray(variant.required) ? (variant.required as string[]) : [];
+    if (vRequired.length > 0) requiredSets.push(vRequired);
+    for (const [key, prop] of Object.entries(vProps)) {
+      const p = prop as Record<string, unknown>;
+      const existing = properties[key];
+      if (!existing) {
+        // Carry a discriminator `const` forward as an enum so the model sees every choice.
+        if (typeof p.const === "string") {
+          const { const: _discriminator, ...rest } = p;
+          properties[key] = { ...rest, enum: [p.const] };
+        } else {
+          properties[key] = p;
+        }
+      } else if (typeof p.const === "string") {
+        const merged = existing as Record<string, unknown>;
+        const list = Array.isArray(merged.enum) ? [...(merged.enum as unknown[])] : [];
+        if (!list.includes(p.const)) list.push(p.const);
+        merged.enum = list;
+      } else {
+        properties[key] = mergePropertySchema(existing as Record<string, unknown>, p);
+      }
+    }
+  }
+  // Only fields every variant requires stay required; per-action requirements are enforced by the
+  // tool's own Zod parse at dispatch.
+  const required = requiredSets.length > 0
+    ? [...requiredSets[0]!].filter((key) => requiredSets.every((list) => list.includes(key)))
+    : [];
+  return {
+    type: "object",
+    properties,
+    ...(required.length > 0 ? { required } : {}),
+    additionalProperties: false,
+  };
+}
+
 /** Advertise the tools to the model: name, description, and a JSON schema for the args. */
 export function toolSpecs(tools: HarnessTool[]): ToolSpec[] {
   assertUniqueToolNames(tools);
   return tools.map((tool) => ({
     name: tool.name,
     description: tool.description,
-    schema: z.toJSONSchema(tool.input) as Record<string, unknown>,
+    schema: providerSchema(tool.input),
   }));
 }
 

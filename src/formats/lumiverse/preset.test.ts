@@ -99,3 +99,31 @@ test("round-trip: emit is a valid ST flat preset whose reparse is body-deep-equa
   expect(second.body.groups).toEqual(first.body.groups);
   expect(second.body.samplers).toEqual(first.body.samplers);
 });
+
+test("block.position: 'depth' becomes ST's in-chat injection; any other value keeps the relative default", () => {
+  const wrapper = {
+    type: "lumiverse_preset",
+    preset: {
+      name: "Position test",
+      blocks: [
+        { id: "b-depth", name: "Depth", content: "at depth", role: "system", enabled: true, depth: 6, position: "depth" },
+        { id: "b-static", name: "Static", content: "no depth", role: "system", enabled: true, position: "pre_history" },
+        { id: "b-unset", name: "Unset", content: "no position field at all", role: "system", enabled: true },
+      ],
+    },
+  };
+  const raw = lumiverseToStRaw(wrapper as never);
+  const rows = raw.prompts as Record<string, unknown>[];
+  const byId = new Map(rows.map((r) => [r.identifier, r]));
+  expect(byId.get("b-depth")).toMatchObject({ injection_position: 1, injection_depth: 6 });
+  // the spec's own open question (what pre_history/post_history should map to) stays unresolved
+  // here: this is the prior, unchanged default, not a guessed answer to that question
+  expect(byId.get("b-static")).toMatchObject({ injection_position: 0 });
+  expect(byId.get("b-unset")).toMatchObject({ injection_position: 0 });
+
+  const e = lumiversePreset.toCanonical({ text: JSON.stringify(wrapper) });
+  const byCanonId = new Map(e.body.prompts.map((p) => [p.id, p]));
+  expect(byCanonId.get("b-depth")!.placement).toBe("in_chat");
+  expect(byCanonId.get("b-depth")!.injectionDepth).toBe(6);
+  expect(byCanonId.get("b-static")!.placement).toBe("relative");
+});

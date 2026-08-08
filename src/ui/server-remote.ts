@@ -85,6 +85,19 @@ export function isHostOnlyRoute(p: string, method: string): boolean {
   );
 }
 
+/**
+ * LOOPBACK-ONLY routes: a different rationale from isHostOnlyRoute's ownership boundary (those are
+ * the local owner's CONTROLS; these are uploads sized for a desk, not a network). An archive import
+ * streams straight to disk with almost no ceiling (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes, 5 GiB) -
+ * accepted from a tailed-in or LAN-served device, that is a disk-fill vector, not a feature. Its own
+ * list, checked before isHostOnlyRoute's caller reaches the route at all.
+ */
+export function isLoopbackOnlyRoute(p: string): boolean {
+  // save-staged commits rows the desk's own upload staged; a remote device has no business
+  // committing them, same ownership rationale as the upload route itself.
+  return p === "/api/inspect-archive" || p === "/api/studio/save-staged";
+}
+
 export function auxHelperStatus(): AuxHelperStatus {
   // An empty pin table is the honest default (nothing published for this platform yet), so "offered" is
   // simply whether this platform is in it. Same answer from source, from the CLI and from the packaged app,

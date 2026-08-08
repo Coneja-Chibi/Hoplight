@@ -3,6 +3,7 @@ export * from "./canonical";
 export * from "./adapter";
 export { ADAPTER_INPUT_MAX_BYTES, toAdapterInput } from "./adapter-input";
 export * from "./archive";
+export * from "./archive-stream";
 export * as registry from "./registry";
 /** The one impure edge: filesystem-driven format discovery (kept out of the pure registry). */
 export { loadFormats } from "./loader";

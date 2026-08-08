@@ -3,6 +3,7 @@
  * Extracted from server.ts (behavior-preserving).
  */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+import { open } from "node:fs/promises";
 import { ADAPTER_INPUT_MAX_BYTES } from "../core/adapter-input";
 import {
   isStudioNotFoundError,
@@ -181,6 +182,56 @@ export async function readBodyCapped(
     off += c.byteLength;
   }
   return { ok: true, bytes: out };
+}
+
+/**
+ * Stream a request body straight to a file, one chunk at a time, with a hard byte cap - never
+ * holding more than one chunk in memory. readBodyCapped's `chunks: Uint8Array[]` accumulator is
+ * the right tool for anything that fits comfortably in RAM (every route but one); a `.lvbak` can
+ * be multi-gigabyte by design, so buffering the whole thing first would defeat the point of
+ * streaming it at all. Same cap contract as readBodyCapped (413 on overflow, content-length
+ * pre-check when present); the caller owns `destPath`'s lifecycle (creating its directory, and
+ * removing the file whether this succeeds or fails) - this only ever writes to a path already
+ * chosen for it.
+ */
+export async function streamBodyToFile(
+  req: Request,
+  destPath: string,
+  limit: number,
+): Promise<{ ok: true; bytes: number } | { ok: false; response: Response }> {
+  const cl = req.headers.get("content-length");
+  if (cl !== null) {
+    const n = Number(cl);
+    if (!Number.isFinite(n) || n < 0) return { ok: false, response: err("invalid content-length", 400) };
+    if (n > limit) return { ok: false, response: err("payload too large", 413) };
+  }
+  // Owner-only: an in-flight archive holds whatever private cards/personas it carries.
+  const handle = await open(destPath, "w", 0o600);
+  try {
+    if (!req.body) return { ok: true, bytes: 0 };
+    const reader = req.body.getReader();
+    let total = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (!value || value.byteLength === 0) continue;
+      total += value.byteLength;
+      if (total > limit) {
+        try {
+          await reader.cancel();
+        } catch {
+          /* ignore */
+        }
+        return { ok: false, response: err("payload too large", 413) };
+      }
+      await handle.write(value);
+    }
+    return { ok: true, bytes: total };
+  } catch {
+    return { ok: false, response: err("failed to read body", 400) };
+  } finally {
+    await handle.close();
+  }
 }
 
 export async function readJsonCapped(

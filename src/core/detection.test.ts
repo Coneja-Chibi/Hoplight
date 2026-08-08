@@ -5,6 +5,8 @@ import { zipSync, strToU8 } from "fflate";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseCanonicalEntity } from "../entities/runtime-schema";
+import { buildMinimalLvbak } from "../formats/_fixtures/lumiverse-archive/build-lvbak";
+import { writeZip64 } from "../formats/_fixtures/lumiverse-archive/zip64-writer";
 
 beforeAll(async () => {
   await loadFormats();
@@ -235,6 +237,30 @@ const FOREIGN: Case[] = [
       version: "1.0",
       data: { temperature: 1, prompts: [], prompt_order: [] },
     }),
+  },
+  {
+    // A .lvbak is a SQLite dump, not a card container: no card.json, no lumiverse_modules.json,
+    // nothing any registered adapter reads. It is imported through importLumiverseArchive, so a
+    // claim here would route a whole library into a single-card codec.
+    label: "a Lumiverse .lvbak archive is NOT a card container",
+    expected: "nobody",
+    input: { bytes: buildMinimalLvbak() },
+  },
+  {
+    // Real .lvbak archives run to gigabytes, far past CARD_ARCHIVE_BOUNDS, so every sibling that
+    // probes a ZIP hits ArchiveLimitError inside unzipBounded. This breaches the same bounds by
+    // entry count instead of byte count, which exercises that path for a few hundred KB rather
+    // than the 96 MiB a size breach would cost. Detection must come back empty, never throw.
+    label: "a ZIP past the card-archive entry cap is NOT anything (siblings swallow the limit)",
+    expected: "nobody",
+    input: {
+      bytes: writeZip64(
+        Array.from({ length: 600 }, (_, i) => ({
+          name: `database/table-${i}.ndjson`,
+          data: strToU8("{}\n"),
+        })),
+      ),
+    },
   },
 ];
 

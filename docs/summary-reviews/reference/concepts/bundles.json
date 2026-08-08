@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/concepts/bundles",
   "sourcePath": "docs/reference/concepts/bundles.md",
-  "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
-  "semanticSummaryHash": "sha256:f7bd60397ca7457d52dbcfa8ac724c4c21d1f58dd62d7381b8cc34dfcc937fc0",
+  "sourceHash": "sha256:02f3401b77ce7652931c9732e2eef4aa43a01c3b8e6d8f006a336c2d677a3a16",
+  "semanticSummaryHash": "sha256:b8d235b122fb7693654fedd4d196ed8f1065d04b75d44dee69922efccfda02b1",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 vs source; concept/entity/format H3s full or hash-sampled 0-3. Requirements never/must/fail-closed preserved; no major omission; no invented claims; shortSource warnings are length band not semantic defects.",
-  "reviewedAt": "2026-07-25T15:35:27.947Z"
+  "reviewer": "staging-reviewer",
+  "notes": "all refs verified against source",
+  "reviewedAt": "2026-08-05T22:54:42.666Z"
 }

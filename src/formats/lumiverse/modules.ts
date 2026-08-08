@@ -83,12 +83,18 @@ export function rehydrateCardData(
   const extraAssets: MediaAsset[] = [];
 
   if (!modules) {
-    // Still hydrate any data-URI-less paths already on extensions if files exist
-    hydrateExtensionsInPlace(ext, files, extraAssets);
+    // Still hydrate any data-URI-less paths already on extensions if files exist. No modules branch
+    // ran, so nothing has resolved or counted any expression mapping yet - pass no already-resolved
+    // set, so hydrateExtensionsInPlace counts every one of its own resolutions, data-URI-already or not.
+    hydrateExtensionsInPlace(ext, files, extraAssets, null);
     data.extensions = ext;
     return { data, extraAssets };
   }
 
+  // Labels this call's own modules.expressions branch resolves and counts, so the unconditional
+  // re-scan in hydrateExtensionsInPlace below (which also reads ext.expressions.mappings, now this
+  // branch's OWN output) does not count the same resolved mapping a second time.
+  const resolvedExpressionLabels = new Set<string>();
   if (modules.expressions && typeof modules.expressions === "object") {
     const mappings = hydrateStringMap(
       isRec(modules.expressions.mappings)
@@ -103,6 +109,7 @@ export function rehydrateCardData(
     };
     for (const [label, ref] of Object.entries(mappings)) {
       if (isDataUri(ref)) {
+        resolvedExpressionLabels.add(label);
         extraAssets.push({ role: "emotion", label, ref, mime: ref.slice(5, ref.indexOf(";")) || undefined });
       }
     }
@@ -160,22 +167,35 @@ export function rehydrateCardData(
     ext._lumiverse_modules_regex_scripts = decodeLumiverseModuleRegexScripts(modules.regex_scripts);
   }
 
-  hydrateExtensionsInPlace(ext, files, extraAssets);
+  hydrateExtensionsInPlace(ext, files, extraAssets, resolvedExpressionLabels);
   data.extensions = ext;
   return { data, extraAssets };
 }
 
-/** Hydrate image_id / path fields already on extensions when archive files exist. */
+/**
+ * Hydrate image_id / path fields already on extensions when archive files exist.
+ *
+ * `alreadyResolved`: labels the modules.expressions branch above already resolved and counted this
+ * call, so this unconditional re-scan (which reads the SAME ext.expressions.mappings that branch
+ * just wrote) does not count them again. Pass `null` when there was no modules sidecar at all: this
+ * call is then the ONLY place expressions get resolved, so every data-URI mapping it finds is its
+ * own resolution to count, even one that was already a data URI going in (a card whose own
+ * extensions carried pre-embedded data URIs, with no sidecar involved) - nothing else will ever see
+ * or count it otherwise.
+ */
 function hydrateExtensionsInPlace(
   ext: Rec,
   files: Record<string, Uint8Array>,
   extraAssets: MediaAsset[],
+  alreadyResolved: ReadonlySet<string> | null,
 ): void {
   if (isRec(ext.expressions) && isRec(ext.expressions.mappings)) {
     const m = hydrateStringMap(ext.expressions.mappings as Record<string, string>, files);
     ext.expressions = { ...ext.expressions, mappings: m };
     for (const [label, ref] of Object.entries(m)) {
-      if (isDataUri(ref)) extraAssets.push({ role: "emotion", label, ref });
+      if (isDataUri(ref) && !alreadyResolved?.has(label)) {
+        extraAssets.push({ role: "emotion", label, ref });
+      }
     }
   }
   if (Array.isArray(ext.alternate_avatars)) {

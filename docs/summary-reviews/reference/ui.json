@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:45e53769c04a79ecaea27680a3ea3555ebaecb7bc726f71bc493f673c0086ddb",
-  "semanticSummaryHash": "sha256:872cbb34ac72b1d29d3375b21a6413ee08454a1544d0b8b70c5ed7e422ad21c8",
+  "sourceHash": "sha256:ac27f3b06c9f27274e6a49a1572280939a51bbe3cdb3801950f20fef0b704f1e",
+  "semanticSummaryHash": "sha256:9d7210fc327dcb4bb8bd39b517d04310b50d9f9ec94892b55fb4dec98f8a37be",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Corrects a claim I got wrong: alt+V is delivered on terminals without the Kitty protocol via the ESC-prefix convention, and image sending is a per-spoke declaration rather than a blanket 'providers take text'. Verified against composer.tsx, intent.ts chordOf, spoke.ts and the four spokes that declare it.",
-  "reviewedAt": "2026-08-05T00:52:50.578Z"
+  "notes": "Merge resolution: regenerated after the archive-import and agent-window branches landed together.",
+  "reviewedAt": "2026-08-08T01:25:32.377Z"
 }

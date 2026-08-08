@@ -330,7 +330,7 @@ export async function* runTurn(
     }
 
     toolCalls += settled.length;
-    for (const { call, result } of settled) {
+    for (const [index, { call, result }] of settled.entries()) {
       messages.push({
         role: "tool",
         content: result.output,
@@ -370,6 +370,26 @@ export async function* runTurn(
         }
       }
       if (effectFor(call) === "apply" && result.outcome) {
+        // The turn ends at the first settled apply, but every call in this batch already executed,
+        // and provider history must pair each assistant tool call with a tool result: a later call
+        // left unrecorded makes the next request fail with "Tool result is missing for tool call ..."
+        // (seen in the wild: one reply carried two change_apply calls, only the first was recorded).
+        for (const later of settled.slice(index + 1)) {
+          messages.push({
+            role: "tool",
+            content: later.result.output,
+            toolCallId: later.call.id,
+            toolName: later.call.name,
+          });
+          recentObservationKeys.push(observationKey(later.call.name, later.call.args, later.result.output));
+          yield {
+            type: "tool",
+            name: later.call.name,
+            summary: later.result.summary,
+            ...(later.result.show ? { show: later.result.show } : {}),
+            ...(later.result.choices ? { choices: later.result.choices } : {}),
+          };
+        }
         const verifying = transitionLoop(lifecycle, { type: "verifying" });
         if (verifying.phase !== lifecycle.phase) {
           yield { type: "state", phase: verifying.phase };

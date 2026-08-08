@@ -24,14 +24,17 @@ import { SettingsStore } from "../studio/settings";
 import { portraitBytes } from "../studio/portrait";
 import { safeExternalUrl } from "./_shared/external-url";
 import { EXTENSION_PLATFORMS } from "../formats/_shared/extension-platforms";
+import { LVBAK_ARCHIVE_BOUNDS } from "../formats/lumiverse-archive";
 import type { PackagedAssets } from "./assets";
 import { handleDocsRequest } from "./server-docs";
+import { handleDropInRoutes } from "./server-dropins";
 import { startSandboxHost } from "./sandbox-host";
 import type { SidecarManager } from "./remote/sidecar-manager";
 import type { LanManager } from "./remote/lan-manager";
 import {
   handleRemoteRoutes,
   isHostOnlyRoute,
+  isLoopbackOnlyRoute,
   setupRemoteAccess,
   type MakeHandler,
 } from "./server-remote";
@@ -61,17 +64,9 @@ import {
   studioErr,
   openInBrowser,
 } from "./server-security";
-import {
-  discoverApps,
-  discoverSetupSteps,
-  discoverTours,
-  bundleModule,
-  startDevWatch,
-  appManifests,
-  createDevReloadResponse,
-  handleAssetRoutes,
-} from "./server-static";
-import { formatMeta, handleInspect, handleExport } from "./server-engine";
+import { startDevWatch, createDevReloadResponse, handleAssetRoutes } from "./server-static";
+import { formatMeta, handleInspect, handleInspectArchive, handleExport } from "./server-engine";
+import { clearAllStagings, handleSaveStaged } from "./server-staging";
 
 // Re-export security surface for tests and sandbox-host.
 export {
@@ -118,12 +113,6 @@ export function createHandler(
 ): (req: Request) => Promise<Response> {
   const security = sec ?? createSecurityContext();
 
-  // no-store on every served asset: the bytes are local and free, and heuristic browser caching
-  // (no cache-control at all) let a restarted server keep serving WEEK-OLD bundles from HTTP
-  // cache - "restart" then looked broken because the tab never re-fetched the fresh code
-  const text = (body: string, type: string, extra?: Record<string, string>): Response =>
-    new Response(body, { headers: { "content-type": type, "cache-control": "no-store", ...extra } });
-
   const resolveSandboxOrigin = (): string => {
     if (!sandboxOrigin) return "";
     if (typeof sandboxOrigin === "string") return sandboxOrigin;
@@ -169,6 +158,10 @@ export function createHandler(
     if (isRemote && isHostOnlyRoute(p, req.method)) {
       return err("forbidden: managed on the host device", 403);
     }
+    // Disk-fill vector on an untrusted surface, refused before a body byte is read (isLoopbackOnlyRoute's own doc).
+    if (isRemote && isLoopbackOnlyRoute(p)) {
+      return err("Archive import is available on the local desktop app only.", 403);
+    }
 
     if (p === "/" || p === "/index.html") {
       if (packaged) return htmlResponse(packaged.indexHtml);
@@ -196,47 +189,10 @@ export function createHandler(
     const docsResponse = await handleDocsRequest(req, url, packaged);
     if (docsResponse) return docsResponse;
 
-    if (p === "/api/apps") {
-      return json(packaged ? packaged.manifests : await appManifests(await discoverApps()));
-    }
-    if (p.startsWith("/apps/") && p.endsWith(".js")) {
-      const id = p.slice("/apps/".length, -".js".length);
-      if (packaged) {
-        const code = packaged.apps[id];
-        return code !== undefined ? text(code, "text/javascript") : err("no such app", 404);
-      }
-      const app = (await discoverApps()).find((a) => a.id === id);
-      if (!app) return err("no such app", 404);
-      return new Response(await bundleModule(app), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
-    }
-
-    // setup steps: same drop-in mechanism as apps (DECISIONS #10 build law)
-    if (p === "/api/setup/steps") {
-      return json(packaged ? Object.keys(packaged.setupSteps).sort() : (await discoverSetupSteps()).map((s) => s.id));
-    }
-    if (p.startsWith("/setup/steps/") && p.endsWith(".js")) {
-      const id = p.slice("/setup/steps/".length, -".js".length);
-      if (packaged) {
-        const code = packaged.setupSteps[id];
-        return code !== undefined ? text(code, "text/javascript") : err("no such step", 404);
-      }
-      const step = (await discoverSetupSteps()).find((s) => s.id === id);
-      if (!step) return err("no such step", 404);
-      return new Response(await bundleModule(step), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
-    }
-
-    // tours: one per app, same drop-in mechanism. A 404 is normal (an app with no tour), so the
-    // shell treats it as "no tour" rather than an error.
-    if (p.startsWith("/tours/") && p.endsWith(".js")) {
-      const id = p.slice("/tours/".length, -".js".length);
-      if (packaged) {
-        const code = packaged.tours[id];
-        return code !== undefined ? text(code, "text/javascript") : err("no such tour", 404);
-      }
-      const tour = (await discoverTours()).find((t) => t.id === id);
-      if (!tour) return err("no such tour", 404);
-      return new Response(await bundleModule(tour), { headers: { "content-type": "text/javascript", "cache-control": "no-store" } });
-    }
+    // apps, setup steps, tours: one shared drop-in mechanism (DECISIONS #10 build law), split out
+    // at this file's own size cap - server-dropins.ts, pure code motion.
+    const dropInResp = await handleDropInRoutes(p, packaged);
+    if (dropInResp) return dropInResp;
 
     // dev live-reload stream (404 in the packaged exe; the client goes quiet on error)
     if (p === "/dev/reload") {
@@ -324,6 +280,7 @@ export function createHandler(
     if (agentRoute) return agentRoute;
 
     if (p === "/api/inspect" && req.method === "POST") return handleInspect(req);
+    if (p === "/api/inspect-archive" && req.method === "POST") return handleInspectArchive(req);
     if (p === "/api/export" && req.method === "POST") {
       if (!contentTypeIs(req, "application/json")) return err("unsupported media type", 415);
       const parsed = await readJsonCapped(req);
@@ -412,6 +369,13 @@ export function createHandler(
         return studioErr(e);
       }
     }
+    if (p === "/api/studio/save-staged" && req.method === "POST") {
+      try {
+        return await handleSaveStaged(req, store);
+      } catch (e) {
+        return studioErr(e);
+      }
+    }
     if (p === "/api/studio/save" && req.method === "POST") return handleStudioSave(req, store);
     if (p === "/api/studio/delete" && req.method === "POST") return handleStudioDelete(req, store);
     if (lifecycle && p === "/api/shutdown" && req.method === "POST") return handleShutdown(lifecycle);
@@ -461,10 +425,17 @@ export function startUi(
     remoteAccess.lan,
     switchManager,
   );
-  // idleTimeout: Bun's default is 10s and it killed bulk imports mid-inspect (a multi-MB card
-  // racing 16 adapters can sit longer than that with no bytes on the wire). 120s covers the
-  // slowest real inspect observed (23MB charx) with an order of magnitude to spare.
-  const server = Bun.serve({ port, hostname: "127.0.0.1", idleTimeout: 120, fetch: handler });
+  // idleTimeout: Bun's default 10s killed bulk imports mid-inspect; 120s covers the slowest real
+  // inspect observed (23MB charx) with room to spare. maxRequestBodySize: Bun's 128MB default sits
+  // under a Lumiverse backup's real ceiling (LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes) - below it, Bun
+  // itself would refuse the request before handleInspectArchive's own error messages ever run.
+  const server = Bun.serve({
+    port,
+    hostname: "127.0.0.1",
+    idleTimeout: 120,
+    maxRequestBodySize: LVBAK_ARCHIVE_BOUNDS.maxArchiveBytes,
+    fetch: handler,
+  });
   const host = `127.0.0.1:${server.port}`;
   sec.expectedHost = host;
   sec.expectedOrigin = `http://${host}`;
@@ -490,6 +461,9 @@ export function startUi(
     server.stop(true);
     stopSandbox?.();
     remoteAccess.stop();
+    // Best-effort: staged archive entities are temp files the size of a backup's payload; leaving
+    // them across sessions is the disk-fill this route's loopback-only rationale worries about.
+    void clearAllStagings();
   };
   lifecycle.stop = stop;
 

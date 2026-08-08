@@ -91,7 +91,7 @@ pre-commit gate (`--check`) fails the commit when this file drifts from the real
 | IconBox | src/ui/components/icon-box/index.tsx | ({ svg, size = 2 }: IconBoxProps) | A bordered square that parses and mounts a static SVG mark. | .box |
 | IdentityCard | src/ui/apps/workbench/persona/persona-cards.tsx | ({ body, onBody }: { body: PersonaBody; onBody: OnBody }) | Identity: tagline + pronouns/height/age + the BRIEF with its never-injected honesty line. |  |
 | ImagePromptEditor | src/ui/components/image-prompt/index.tsx | ({ value, onChange }: ImagePromptEditorProps) |  | .wrap .section .lbl .input .ta .rows .row .rm ... |
-| ImportOverlay | src/ui/apps/library/import-flow.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
+| ImportOverlay | src/ui/apps/library/import-sheet.tsx | ({ state, onCommit, onCancel, onAddMore, }: { state: ImportState; onCommit: (checkedIndexes: number[]) => void; onCan... |  |  |
 | InjectionCard | src/ui/apps/workbench/persona/injection-card.tsx | ({ body, onBody, stops, labels, showWrapper }: InjectionCardProps) |  |  |
 | InkDialog | src/ui/components/ink-dialog/index.tsx | ({ children, onDismiss, ariaLabel, sheetClassName }: InkDialogProps) | A centered modal sheet over a dark scrim; clicking the scrim or pressing Escape calls onDismiss. | .overlay .sheet |
 | KeyHints | src/ui/agent/kit-widgets.tsx | ({ hints }: { hints: readonly { key: string; label?: string }[] }) | A row of keyboard hints: a bright key, then a muted label. Kit's CLI signature. |  |

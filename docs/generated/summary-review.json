@@ -343,16 +343,16 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "chi",
-      "sourceHash": "sha256:2e3be51ea7a5a839e3531c587fd5b50ea304e2ed74d56143682a899b7d63287a",
-      "semanticSummaryHash": "sha256:61d19cfc80ce04e108442fe312468fdf469151ff2de72960bf9ce53c924a34d7"
+      "sourceHash": "sha256:3a48d4ddcbb02655f0ae804d0001645ecdf967d7036d26186cbf23fd73eb9e24",
+      "semanticSummaryHash": "sha256:3a96d21a22d8a5615c055bee64e37565bb5a51cfa57df7c2f8a5cef4dddc0dad"
     },
     {
       "docId": "reference/concepts/bundles",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:ae0b9d02d3ad4008d931ab0c3efcd65c7a5a75be41b30df8612b6cfda79fc806",
-      "semanticSummaryHash": "sha256:f7bd60397ca7457d52dbcfa8ac724c4c21d1f58dd62d7381b8cc34dfcc937fc0"
+      "reviewer": "staging-reviewer",
+      "sourceHash": "sha256:02f3401b77ce7652931c9732e2eef4aa43a01c3b8e6d8f006a336c2d677a3a16",
+      "semanticSummaryHash": "sha256:b8d235b122fb7693654fedd4d196ed8f1065d04b75d44dee69922efccfda02b1"
     },
     {
       "docId": "reference/concepts/canonical-model",
@@ -879,8 +879,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "chi",
-      "sourceHash": "sha256:45e53769c04a79ecaea27680a3ea3555ebaecb7bc726f71bc493f673c0086ddb",
-      "semanticSummaryHash": "sha256:872cbb34ac72b1d29d3375b21a6413ee08454a1544d0b8b70c5ed7e422ad21c8"
+      "sourceHash": "sha256:ac27f3b06c9f27274e6a49a1572280939a51bbe3cdb3801950f20fef0b704f1e",
+      "semanticSummaryHash": "sha256:9d7210fc327dcb4bb8bd39b517d04310b50d9f9ec94892b55fb4dec98f8a37be"
     },
     {
       "docId": "reference/updates",
