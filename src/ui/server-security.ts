@@ -3,6 +3,14 @@
  * Extracted from server.ts (behavior-preserving).
  */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
+
+/**
+ * What the server says when a page presents a token from an earlier launch.
+ *
+ * Shared with the browser (src/ui/_shared/api-fetch.ts) so the two cannot drift into disagreeing
+ * about the one string that decides whether a page reloads itself or spins forever.
+ */
+export const STALE_SESSION = "stale session";
 import { open } from "node:fs/promises";
 import { ADAPTER_INPUT_MAX_BYTES } from "../core/adapter-input";
 import {
@@ -276,7 +284,22 @@ export function checkApiRequest(
     // Same-origin mutations from the app should send Origin. Missing Origin fails closed.
     if (!originAllowed(origin, sec.expectedOrigin)) return err("forbidden", 403);
     const token = req.headers.get("x-hoplight-token") ?? "";
-    if (!tokensEqual(token, sec.token)) return err("forbidden", 403);
+    /**
+     * A PRESENTED-BUT-WRONG TOKEN IS ALMOST ALWAYS A RESTARTED SERVER, and saying so is the whole
+     * fix for a trap that cost a full evening. The token is minted per launch and baked into the
+     * page; restarting replaces the process WITHOUT reloading the page, so the tab goes on
+     * presenting a token from a process that no longer exists. Every send then failed with a bare
+     * "forbidden", which reads as a network fault - so the obvious response was to press Restart
+     * again, which minted another token and stranded the tab further. Nine times, in the field.
+     *
+     * NAMED, NOT WIDENED. This still refuses, with the same status; it only distinguishes "your page
+     * is older than this server" from "you may not do this at all", so the client can reload itself
+     * instead of retrying forever. Somebody presenting NO token learns nothing new - an empty token
+     * was never going to be right - and the remote and LAN paths below are deliberately left alone.
+     */
+    if (!tokensEqual(token, sec.token)) {
+      return err(token ? STALE_SESSION : "forbidden", 403);
+    }
     return null;
   }
   return err("method not allowed", 405);

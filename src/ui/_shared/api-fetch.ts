@@ -12,6 +12,22 @@ export class ApiHttpError extends Error {
   }
 }
 
+/**
+ * Did this failure come back with that HTTP status?
+ *
+ * NOT `instanceof`, AND THE REASON IS THE BUILD. Each app under /apps is bundled separately, so the
+ * shell's copy of this module and the Workbench's copy define two different classes with the same
+ * name. `ctx.api` belongs to the shell, so an error it throws is never `instanceof` the Workbench's
+ * class - the check silently reads false, forever, for every app that tries it.
+ *
+ * It cost a real bug: the editor's conflict bar was wired to a 409 it could not recognise, so a
+ * save refused because the file had changed went back to being an unexplained failure. Nothing in a
+ * typecheck, a lint, or a unit test sees this; the two classes only become two at bundle time.
+ */
+export const apiStatusIs = (error: unknown, status: number): boolean =>
+  typeof error === "object" && error !== null
+  && (error as { status?: unknown }).status === status;
+
 /** Cap used client-side before reading File into memory (matches server inspect ceiling). */
 export const INSPECT_BODY_MAX_BYTES = 64 * 1024 * 1024;
 
@@ -62,7 +78,31 @@ export async function apiFetchJson<T = unknown>(path: string, init: ApiFetchInit
       body && typeof body === "object" && typeof (body as { error?: unknown }).error === "string"
         ? (body as { error: string }).error
         : `request failed (${res.status})`;
+    if (res.status === 403 && msg === STALE_SESSION) reloadForNewSession();
     throw new ApiHttpError(res.status, msg);
   }
   return body as T;
+}
+
+/** Must match the server's marker exactly; see STALE_SESSION in server-security.ts. */
+const STALE_SESSION = "stale session";
+
+/** Set once, because a reload that races another reload is a page that never finishes loading. */
+let reloading = false;
+
+/**
+ * The server was replaced under this page: reload, so the token in the document catches up.
+ *
+ * THE PAGE CANNOT RECOVER ANY OTHER WAY. The session token is read from a meta tag written when the
+ * document was served, so a tab whose server has restarted will present the old one on every request
+ * for as long as it stays open - and the only visible symptom is that nothing sends. Restarting
+ * again cannot help, because each restart mints another token; that loop is what this exists to
+ * break. A reload re-fetches the document and with it the current token.
+ *
+ * Nothing is lost that was not already lost: these are requests the server has just refused.
+ */
+function reloadForNewSession(): void {
+  if (reloading) return;
+  reloading = true;
+  location.reload();
 }

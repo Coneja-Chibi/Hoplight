@@ -40,6 +40,32 @@ describe("bundle inspect/export/save", () => {
     },
   };
 
+  test("A PAGE FROM AN EARLIER LAUNCH IS TOLD SO, not just refused", async () => {
+    /**
+     * THE NINE-RESTARTS BUG. The session token is minted per launch and baked into the document, so
+     * restarting the server strands every open tab: it keeps presenting a token from a process that
+     * no longer exists, every send comes back "forbidden", and that reads as a network fault. The
+     * obvious response - press Restart again - mints another token and makes it worse.
+     *
+     * Naming this one case is what lets the browser reload itself instead of retrying forever.
+     */
+    const dir = await mkdtemp(join(tmpdir(), "vaude-stale-"));
+    const sec = filledSec();
+    const handler = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+
+    const stale = await handler(apiReq("/api/studio/save", {
+      method: "POST", token: "a-token-from-the-previous-launch", body: "{}",
+    }));
+    expect(stale.status).toBe(403);
+    expect(((await stale.json()) as { error: string }).error).toBe("stale session");
+
+    // No token at all is a different thing and learns nothing new: an empty token was never right.
+    const none = await handler(apiReq("/api/studio/save", { method: "POST", token: null, body: "{}" }));
+    expect(none.status).toBe(403);
+    expect(((await none.json()) as { error: string }).error).toBe("forbidden");
+    await rm(dir, { recursive: true, force: true });
+  });
+
   test("inspect decodes a URI-encoded x-filename (emoji filenames broke fetch client-side)", async () => {
     const dir = await mkdtemp(join(tmpdir(), "vaude-emoji-"));
     const sec = filledSec();
