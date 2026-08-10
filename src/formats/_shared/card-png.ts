@@ -20,6 +20,7 @@
 import type { CanonicalCharacter } from "../../entities/character/schema";
 import { characterAdapter as tavern } from "../sillytavern";
 import { embedCardPng, portraitPngBytes } from "./png";
+import { CARD_SPEC_V3 } from "./tavern-fields";
 
 /** Why a character cannot become a PNG card, or null when it can. */
 export function pngCardRefusal(entity: CanonicalCharacter): string | null {
@@ -39,6 +40,22 @@ export function characterPngCard(entity: CanonicalCharacter): Uint8Array {
   const out = tavern.fromCanonical(entity);
   const json = out.text;
   if (typeof json !== "string") throw new Error("png card: the card codec returned no json");
-  // v3 only when the emitted card really is v3; the codec decides that, not this file.
-  return embedCardPng(portrait, json, json.includes("chara_card_v3"));
+
+  /**
+   * READ THE SPEC FIELD, NOT THE TEXT.
+   *
+   * This asked `json.includes("chara_card_v3")` for one commit, which is a different question: a v2
+   * card whose description or creator notes happen to contain that string would have been wrapped in
+   * a `ccv3` chunk announcing v3 while carrying v2 JSON - the exact mislabel that was just fixed on
+   * the adapter's own branch, reintroduced here by a substring.
+   *
+   * A card that will not parse is not a card, so it fails rather than guessing at a version.
+   */
+  let spec: unknown;
+  try {
+    spec = (JSON.parse(json) as { spec?: unknown }).spec;
+  } catch {
+    throw new Error("png card: the card codec returned json that does not parse");
+  }
+  return embedCardPng(portrait, json, spec === CARD_SPEC_V3);
 }

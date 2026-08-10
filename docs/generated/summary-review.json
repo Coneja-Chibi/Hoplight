@@ -574,9 +574,9 @@
       "docId": "reference/formats/sillytavern",
       "status": "APPROVED",
       "verdict": "APPROVE",
-      "reviewer": "independent-reviewer-1",
-      "sourceHash": "sha256:8ee4b8068941e3b7eda988a0a5f3f356315e149e34f32643cb220104e417b61c",
-      "semanticSummaryHash": "sha256:8e84a85b79cdd55e39dccf4bae88bf853054b52a12c3c3b448bdc0aafec7509d"
+      "reviewer": "chi",
+      "sourceHash": "sha256:1834c0bddebd7b93d76b4e387f67f33e20dd8b6871fcdcbd1281abec7de10b44",
+      "semanticSummaryHash": "sha256:dada7512f8a89ad274be43d02558fc5d8b8cfe3f1d19de91d1683d06a4d854b2"
     },
     {
       "docId": "reference/formats/vaud-json",
@@ -879,8 +879,8 @@
       "status": "APPROVED",
       "verdict": "APPROVE",
       "reviewer": "chi",
-      "sourceHash": "sha256:ac27f3b06c9f27274e6a49a1572280939a51bbe3cdb3801950f20fef0b704f1e",
-      "semanticSummaryHash": "sha256:9d7210fc327dcb4bb8bd39b517d04310b50d9f9ec94892b55fb4dec98f8a37be"
+      "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
+      "semanticSummaryHash": "sha256:6e4964df2a9b92df940e210a3691b40891f3c08f410704a4342e7e4667b9b140"
     },
     {
       "docId": "reference/updates",

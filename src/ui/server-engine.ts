@@ -2,6 +2,7 @@
  * UI server engine plumbing: inspect/export over the same adapters as the CLI.
  * Extracted from server.ts (behavior-preserving).
  */
+import { characterPngCard, pngCardRefusal } from "../formats/_shared/card-png";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -296,12 +297,34 @@ export async function handleExport(store: StudioStoreLike, body: unknown): Promi
        * every export took the json branch.
        */
       const wanted = typeof b.extension === "string" ? b.extension.toLowerCase() : undefined;
-      out = emitBundle(
-        target as CharacterAdapter,
-        entity as CanonicalCharacter,
-        resolved.lorebooks,
-        wanted,
-      );
+      const character = entity as CanonicalCharacter;
+      const writesPng = target.outputExtensions.some((e) => e.replace(/^\./, "") === "png");
+
+      /**
+       * A PNG CARD IS A PROPERTY OF THE CHARACTER, so every format can offer one.
+       *
+       * This is the wiring that makes that true rather than merely designed. `characterPngCard` was
+       * added as "the single path" and then reached by nothing but its own test: the route still
+       * asked the chosen adapter, so PNG existed only for the two formats that happened to write it,
+       * and whether a character could become a picture still depended on picking the right platform
+       * first - the exact complaint the change was written to answer.
+       *
+       * AN ADAPTER THAT WRITES ITS OWN PNG STILL WINS. Pygmalion's carrier is its own card shape, and
+       * overriding it here would quietly change what that format exports. The shared path is for the
+       * seven that have no PNG of their own, where the honest answer is the one dialect every reader
+       * understands - not that format's JSON smuggled under a keyword that says it is something else.
+       */
+      if (wanted === "png" && !writesPng) {
+        const refusal = pngCardRefusal(character);
+        if (refusal) return err(`${target.id}: ${refusal}`, 422);
+        out = {
+          bytes: characterPngCard(character),
+          suggestedExtension: "png",
+          report: buildSerializeReport(entity, target),
+        };
+      } else {
+        out = emitBundle(target as CharacterAdapter, character, resolved.lorebooks, wanted);
+      }
     } else {
       out = (target.fromCanonical as (e: AnyEntity) => {
         bytes?: Uint8Array;

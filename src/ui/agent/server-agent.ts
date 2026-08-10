@@ -53,6 +53,25 @@ const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 /** The image types every vision model takes. Anything else is refused by name rather than sent. */
 const IMAGE_MIMES = new Set(["image/png", "image/jpeg", "image/webp", "image/gif"]);
 
+const CANONICAL_BASE64 = /^[A-Za-z0-9+/]+={0,2}$/;
+
+/**
+ * Do the first bytes agree with the claim the data URL made?
+ *
+ * The magic numbers for the four types above. Not a parser and not trying to be: it is the cheap
+ * check that separates "a picture" from "base64 of anything at all", which the mime alone cannot do
+ * because the mime is written by whoever sent it.
+ */
+function looksLikeImage(bytes: Buffer): boolean {
+  const at = (i: number): number => bytes[i] ?? -1;
+  if (at(0) === 0x89 && at(1) === 0x50 && at(2) === 0x4e && at(3) === 0x47) return true; // PNG
+  if (at(0) === 0xff && at(1) === 0xd8 && at(2) === 0xff) return true; // JPEG
+  if (at(0) === 0x47 && at(1) === 0x49 && at(2) === 0x46 && at(3) === 0x38) return true; // GIF8
+  // WEBP is RIFF....WEBP
+  return at(0) === 0x52 && at(1) === 0x49 && at(2) === 0x46 && at(3) === 0x46
+    && at(8) === 0x57 && at(9) === 0x45 && at(10) === 0x42 && at(11) === 0x50;
+}
+
 /**
  * Read the attached pictures, or say why not.
  *
@@ -72,13 +91,27 @@ function parseImages(raw: unknown): { ok: true; images: Uint8Array[] } | { ok: f
     if (!IMAGE_MIMES.has(match[1]!.toLowerCase())) {
       return { ok: false, why: `${match[1]} is not an image type models read` };
     }
-    let bytes: Buffer;
-    try {
-      bytes = Buffer.from(match[2]!, "base64");
-    } catch {
+    /**
+     * DECODED, THEN CHECKED AGAINST ITSELF. `Buffer.from(x, "base64")` never throws - it discards
+     * anything it does not recognise and hands back whatever it managed to read - so the try/catch
+     * that used to sit here was unreachable, and a mangled data URL became a few bytes of garbage
+     * labelled `image/png` and sent to a provider. Re-encoding and comparing is the only check that
+     * a decode was lossless, which is the same test `portraitPngBytes` already applies to a card's
+     * own portrait.
+     */
+    const encoded = match[2]!;
+    if (encoded.length % 4 !== 0 || !CANONICAL_BASE64.test(encoded)) {
       return { ok: false, why: "an image was not valid base64" };
     }
+    const bytes = Buffer.from(encoded, "base64");
+    if (bytes.toString("base64") !== encoded) return { ok: false, why: "an image was not valid base64" };
     if (bytes.length === 0) return { ok: false, why: "an image was empty" };
+    /**
+     * AND IT HAS TO LOOK LIKE THE THING IT CLAIMS TO BE. A declared mime is a claim by the sender;
+     * the first bytes are the file. Without this, valid base64 of anything at all - a text file, a
+     * zip - travels to the provider as an image because the data URL said so.
+     */
+    if (!looksLikeImage(bytes)) return { ok: false, why: "an image's contents are not an image" };
     if (bytes.length > MAX_IMAGE_BYTES) {
       return { ok: false, why: `each image must be under ${Math.round(MAX_IMAGE_BYTES / 1024 / 1024)}MB` };
     }

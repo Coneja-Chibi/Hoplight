@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/formats/sillytavern",
   "sourcePath": "docs/reference/formats/sillytavern.md",
-  "sourceHash": "sha256:8ee4b8068941e3b7eda988a0a5f3f356315e149e34f32643cb220104e417b61c",
-  "semanticSummaryHash": "sha256:8e84a85b79cdd55e39dccf4bae88bf853054b52a12c3c3b448bdc0aafec7509d",
+  "sourceHash": "sha256:1834c0bddebd7b93d76b4e387f67f33e20dd8b6871fcdcbd1281abec7de10b44",
+  "semanticSummaryHash": "sha256:dada7512f8a89ad274be43d02558fc5d8b8cfe3f1d19de91d1683d06a4d854b2",
   "verdict": "APPROVE",
-  "reviewer": "independent-reviewer-1",
-  "notes": "Independent review: page+all H2 checked vs source; decision/format/arch H3s reviewed. Requirements and status honesty preserved; no major omission, no invented claims, no current/future blend errors. Automated page-h2 warnings are keyword noise where H2 themes are covered.",
-  "reviewedAt": "2026-07-25T15:32:57.705Z"
+  "reviewer": "chi",
+  "notes": "png export: the character codec writes png as well as json, and the export route takes an extension.",
+  "reviewedAt": "2026-08-10T22:12:19.802Z"
 }

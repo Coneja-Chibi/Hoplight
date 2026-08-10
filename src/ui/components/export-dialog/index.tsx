@@ -168,7 +168,14 @@ export function ExportDialog({
         <div className={styles.list} role="radiogroup" aria-label="File type">
           {target?.outputExtensions.map((raw) => {
             const ext = raw.replace(/^\./, "");
-            const picked = extension === ext || (!extension && ext === target.outputExtensions[0]?.replace(/^\./, ""));
+            /**
+             * NOTHING IS PRESELECTED, because this dialog does not know what the adapter will do.
+             * Marking the first entry as chosen asserted a default the server never agreed to:
+             * pygmalion lists json first and then prefers PNG whenever a portrait exists, so the
+             * radio said ".json" while the download was a .png. An unset control is honest about
+             * "whatever this format thinks best"; a wrong one is a lie you only catch after saving.
+             */
+            const picked = extension === ext;
             return (
               <button
                 key={ext}

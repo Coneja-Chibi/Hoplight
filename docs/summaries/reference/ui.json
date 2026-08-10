@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:ac27f3b06c9f27274e6a49a1572280939a51bbe3cdb3801950f20fef0b704f1e",
+  "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
   "summary": "Complete contributor map of the primary loopback Studio, its separately gated remote listeners, and its source-preview terminal companion. Kit terminal shell covers composition, discovery, sessions, providers, documentation and capability tools, staged review, and responsive presentation. Folder-derived apps, setup, context menus, and in-app docs define extension points. Infrastructure includes development reload, provenance chips, storage, receipts, and HTTP routes, including revision-checked editor writes and host-only remote-access and update families. Library owns importing and staging and visibly reports damaged files without changing them; Workbench owns persistent editors and split panes; Press owns staged export runs with explicit unknown-loss reporting when a target has no coverage declaration. Settings derives Appearance, Studio, Workbench, Remote access, Updates, and About from modules. Shared components centralize color and paint controls. Security distinguishes the primary loopback listener from opt-in remote boundaries while retaining fail-closed parsing, scripts-as-data, and sanitized app marks.",
   "topics": [
     "Kit conversational terminal",
@@ -169,7 +169,7 @@
       "slug": "endpoints",
       "title": "Endpoints",
       "level": 2,
-      "sourceHash": "sha256:6a3669940e384d71a28d670f4b3ad6a1259d34e936fe5666e2bd851f61a3f9d5",
+      "sourceHash": "sha256:c79a0dabbb9624551b1b1dd02892537bb6f4cff6f89333185d3e28191fc6559e",
       "summary": "The HTTP surface serves the shell, token sheet, boot code, discovered app manifests and bundles, and setup-step modules. Settings supports read, replacement, and validated partial merge. Documentation routes expose the generated index, figures, catalog-declared Markdown, and committed assets. Formats, inspect, export, coverage, and Studio routes remain thin engine and storage boundaries. `/api/studio/inventory` returns healthy entities and bounded damaged-file records from one filesystem scan; `/api/studio/list` remains the healthy-only compatibility read. Editor reads can return the complete entity with its revision, and editor saves atomically compare that revision, returning 409 without overwriting newer data. Bundle saves validate the complete canonical batch before any write, then report genuine storage partials honestly. Host-only `/api/remote/*` routes control tunnel and LAN setup, devices, and approvals; `/api/updates/*` routes read release information and perform version switching.",
       "topics": [
         "shell app setup routes",

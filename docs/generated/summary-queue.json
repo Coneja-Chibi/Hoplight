@@ -2,7 +2,7 @@
   "generated": "2026-08-10",
   "targetChars": 90000,
   "totalPages": 112,
-  "totalSourceChars": 1015605,
+  "totalSourceChars": 1016000,
   "batches": [
     {
       "id": "batch-001",
@@ -592,7 +592,7 @@
     },
     {
       "id": "batch-008",
-      "sourceChars": 82123,
+      "sourceChars": 82333,
       "pages": [
         {
           "docId": "reference/formats/risu",
@@ -623,7 +623,7 @@
           "sourcePath": "docs/reference/formats/sillytavern.md",
           "sidecarPath": "docs/summaries/reference/formats/sillytavern.json",
           "sectionCount": 9,
-          "sourceChars": 17488,
+          "sourceChars": 17698,
           "status": "APPROVED"
         },
         {
@@ -950,14 +950,14 @@
     },
     {
       "id": "batch-013",
-      "sourceChars": 48429,
+      "sourceChars": 48614,
       "pages": [
         {
           "docId": "reference/ui",
           "sourcePath": "docs/reference/ui.md",
           "sidecarPath": "docs/summaries/reference/ui.json",
           "sectionCount": 16,
-          "sourceChars": 40362,
+          "sourceChars": 40547,
           "status": "APPROVED"
         },
         {

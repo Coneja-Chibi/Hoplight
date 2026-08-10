@@ -3,6 +3,8 @@
  * Token is injected into index HTML as <meta name="vaude-session">; never logged.
  */
 
+import { STALE_SESSION } from "./session-marker";
+
 export class ApiHttpError extends Error {
   readonly status: number;
   constructor(status: number, message: string) {
@@ -83,9 +85,6 @@ export async function apiFetchJson<T = unknown>(path: string, init: ApiFetchInit
   }
   return body as T;
 }
-
-/** Must match the server's marker exactly; see STALE_SESSION in server-security.ts. */
-const STALE_SESSION = "stale session";
 
 /** Set once, because a reload that races another reload is a page that never finishes loading. */
 let reloading = false;

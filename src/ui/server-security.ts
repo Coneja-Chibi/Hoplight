@@ -4,14 +4,11 @@
  */
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 
-/**
- * What the server says when a page presents a token from an earlier launch.
- *
- * Shared with the browser (src/ui/_shared/api-fetch.ts) so the two cannot drift into disagreeing
- * about the one string that decides whether a page reloads itself or spins forever.
- */
-export const STALE_SESSION = "stale session";
 import { open } from "node:fs/promises";
+import { STALE_SESSION } from "./_shared/session-marker";
+
+/** Re-exported so callers that already import from this module keep one import. */
+export { STALE_SESSION } from "./_shared/session-marker";
 import { ADAPTER_INPUT_MAX_BYTES } from "../core/adapter-input";
 import {
   isStudioNotFoundError,

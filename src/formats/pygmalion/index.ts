@@ -10,7 +10,7 @@ import type { CanonicalCharacter, CharacterBody, MediaAsset } from "../../entiti
 import { CANONICAL_SCHEMA_VERSION, canonicalId } from "../../core/canonical";
 import { buildSerializeReport } from "../../core/reports";
 import { readCardJson } from "../_shared/card-io";
-import { getVersion, pngSourceMedia, embedCharacterJson } from "../_shared/png";
+import { getVersion, pngSourceMedia, embedCardPng } from "../_shared/png";
 import coverage, { jsonCoverage } from "./coverage";
 
 type Rec = Record<string, unknown>;
@@ -194,7 +194,9 @@ const adapter: CharacterAdapter = {
     const portrait = requestedExtension === "json" ? null : portraitPngBytes(entity.body);
     if (portrait) {
       try {
-        const bytes = embedCharacterJson(portrait, text, "chara");
+        // Through the shared writer, so the keyword decision lives in ONE place. Pygmalion cards are
+      // v2-shaped, hence never ccv3 - but that is now stated here rather than implied by a literal.
+      const bytes = embedCardPng(portrait, text, false);
         return reportedOutput(entity, { bytes, suggestedExtension: "png" }, true);
       } catch {
         // fall through to JSON

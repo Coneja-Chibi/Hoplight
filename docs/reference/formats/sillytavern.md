@@ -11,7 +11,9 @@ related: [reference/architecture, reference/entities/character, guide/platforms/
 
 SillyTavern is the de-facto standard ecosystem for local AI roleplay. hoplight reads and writes its Character
 Card V1, V2, and V3 cards and its standalone world info (worldbook) files. The card is carried either as a
-`.json` file or embedded in a `.png` via a base64 text chunk; every adapter here writes `.json`.
+`.json` file or embedded in a `.png` via a base64 text chunk. The character codec writes both: `.json`
+by default, and `.png` when an export asks for one, carrying the same card bytes in a `chara` chunk
+(plus `ccv3` for a v3 card). The other codecs here - worldbook, regex, persona, preset - write `.json`.
 
 The format is one folder, `src/formats/sillytavern/`, whose `index.ts` default-exports four codecs
 (`index.ts:158`):

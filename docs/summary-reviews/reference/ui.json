@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "docId": "reference/ui",
   "sourcePath": "docs/reference/ui.md",
-  "sourceHash": "sha256:ac27f3b06c9f27274e6a49a1572280939a51bbe3cdb3801950f20fef0b704f1e",
-  "semanticSummaryHash": "sha256:9d7210fc327dcb4bb8bd39b517d04310b50d9f9ec94892b55fb4dec98f8a37be",
+  "sourceHash": "sha256:0be28880127c44d97a099cbcff2ae7dab1772e7b7dfb078f85bbc020fa3d9cee",
+  "semanticSummaryHash": "sha256:6e4964df2a9b92df940e210a3691b40891f3c08f410704a4342e7e4667b9b140",
   "verdict": "APPROVE",
   "reviewer": "chi",
-  "notes": "Merge resolution: regenerated after the archive-import and agent-window branches landed together.",
-  "reviewedAt": "2026-08-08T01:25:32.377Z"
+  "notes": "png export: the character codec writes png as well as json, and the export route takes an extension.",
+  "reviewedAt": "2026-08-10T22:12:20.224Z"
 }

@@ -294,7 +294,9 @@ bundled step · `GET|POST|PATCH /api/settings` (POST replaces the document; PATC
 `GET /api/docs/index|figures` generated docs metadata · `GET /api/docs/get?id=` catalog-declared
 Markdown only · `GET /api/docs/asset?path=` committed docs media and generated figure assets only ·
 `GET /api/formats` (includes `native`) · `POST /api/inspect` (bytes + x-filename) -> receipt +
-canonical entity · `POST /api/export` {entity, targetId} (cross-kind fails closed) ·
+canonical entity · `POST /api/export` {entity, targetId, extension?} (cross-kind fails closed; `extension` picks the
+container when a format writes more than one, and a character asked for `png` gets the standard card
+even from a format that writes no PNG of its own) ·
 `GET /api/coverage` (per-platform canonical-path claims - the editor lens's and the Press's ground
 truth) · `GET /api/studio/list|get|inventory` (`get&revision=1` returns an editor baseline and its
 revision) · `GET /api/studio/portrait?kind&id` (the entity's art: the

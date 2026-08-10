@@ -12,6 +12,10 @@ import { loadFormats } from "../core";
 import { SettingsStore } from "../studio/settings";
 import { createHandler } from "./server";
 import { apiReq, filledSec } from "./server-test-rig";
+import { STALE_SESSION } from "./_shared/session-marker";
+import { STALE_SESSION as SERVER_STALE } from "./server-security";
+import { readFileSync } from "node:fs";
+import { dataToBody } from "../formats/_shared/tavern-fields";
 
 describe("bundle inspect/export/save", () => {
   beforeAll(async () => {
@@ -291,4 +295,95 @@ describe("bundle inspect/export/save", () => {
     );
     expect(bad.status).toBe(400);
   });
+});
+
+describe("exporting through the route", () => {
+  /**
+   * THE ARGUMENT THAT WAS NEVER PASSED. `emitBundle` has always accepted a requestedExtension and
+   * only the CLI supplied one, so from the app the PNG branch was unreachable code - a feature that
+   * was real, listed in the dialog, and impossible to select. That is exactly the class of bug a
+   * route-level test pins and an adapter-level one cannot: every adapter test passed the whole time.
+   */
+  const carrier = readFileSync("samples/sillytavern/characters/Seraphina.png");
+
+  const card = (): unknown => {
+    const body = dataToBody({ name: "Vera", description: "A keeper." } as never);
+    (body as { media?: unknown }).media = {
+      portrait: {
+        role: "portrait",
+        ref: `data:image/png;base64,${carrier.toString("base64")}`,
+        mime: "image/png",
+      },
+    };
+    return { schemaVersion: "1", kind: "character", id: "vera", body, original: {} };
+  };
+
+  const exportAs = async (targetId: string, extension?: string) => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-export-"));
+    const sec = filledSec();
+    const handler = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+    const res = await handler(apiReq("/api/export", {
+      method: "POST",
+      token: sec.token,
+      contentType: "application/json",
+      body: JSON.stringify({ entity: card(), targetId, ...(extension ? { extension } : {}) }),
+    }));
+    const out = await res.json() as { suggestedExtension?: string; text?: string; bytesB64?: string; error?: string };
+    await rm(dir, { recursive: true, force: true });
+    return { status: res.status, out };
+  };
+
+  test("ASKING FOR PNG GETS PNG, and asking for nothing still gets json", async () => {
+    const asJson = await exportAs("sillytavern");
+    expect(asJson.out.suggestedExtension).toBe("json");
+    expect(asJson.out.bytesB64).toBeUndefined();
+
+    const asPng = await exportAs("sillytavern", "png");
+    expect(asPng.out.suggestedExtension).toBe("png");
+    expect((asPng.out.bytesB64 ?? "").length).toBeGreaterThan(1000);
+  });
+
+  test("A FORMAT THAT WRITES NO PNG OF ITS OWN STILL EXPORTS ONE", async () => {
+    /**
+     * The claim that was made and then not wired: a PNG card belongs to the character, so every
+     * format offers one. `characterPngCard` existed and nothing but its own test reached it, which
+     * left the original complaint - "it depends on picking the right platform first" - still true.
+     */
+    for (const target of ["agnai", "rolecall", "risu", "vaud-json"]) {
+      const got = await exportAs(target, "png");
+      expect(got.out.error).toBeUndefined();
+      expect(got.out.suggestedExtension).toBe("png");
+      expect((got.out.bytesB64 ?? "").length).toBeGreaterThan(1000);
+    }
+  });
+
+  test("and a card with no portrait is refused by name, not silently downgraded", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "vaude-export-"));
+    const sec = filledSec();
+    const handler = createHandler(new StudioStore(dir), new SettingsStore(dir), undefined, sec);
+    const body = dataToBody({ name: "Bare" } as never);
+    const res = await handler(apiReq("/api/export", {
+      method: "POST",
+      token: sec.token,
+      contentType: "application/json",
+      body: JSON.stringify({
+        entity: { schemaVersion: "1", kind: "character", id: "bare", body, original: {} },
+        targetId: "agnai",
+        extension: "png",
+      }),
+    }));
+    expect(res.status).toBe(422);
+    expect(JSON.stringify(await res.json())).toMatch(/portrait/i);
+    await rm(dir, { recursive: true, force: true });
+  });
+});
+
+test("THE STALE MARKER IS ONE STRING, not two that agree today", () => {
+  /**
+   * The server sends it and the browser reloads on it, so a drift between them turns the recovery
+   * off silently: the page goes back to retrying a request that can never succeed. It shipped as
+   * two `const`s with a comment claiming they were shared, and only the server's copy was pinned.
+   */
+  expect(STALE_SESSION).toBe("stale session");
+  expect(SERVER_STALE).toBe(STALE_SESSION);
 });
